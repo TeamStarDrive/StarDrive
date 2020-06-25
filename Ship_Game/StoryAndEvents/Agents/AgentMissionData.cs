@@ -1,4 +1,6 @@
-﻿namespace Ship_Game
+﻿using System.Security.Permissions;
+
+namespace Ship_Game
 {
     //Added by McShooterz: store modifiable data for agent missions
     public sealed class AgentMissionData
@@ -83,5 +85,73 @@
 
         //Recovering
         public short RecoveringTurns = 20;
+
+        public SpyMissionStatus SpyRollResult(AgentMission mission, float roll, out short xpToAdd)
+        {
+            xpToAdd = 0;
+            switch (mission)
+            {
+                case AgentMission.Training:
+                    if (roll >= TrainingRollPerfect) { xpToAdd = TrainingExpPerfect; return SpyMissionStatus.GreatSuccess; }
+                    if (roll >= TrainingRollGood)    { xpToAdd = TrainingExpGood;    return SpyMissionStatus.Success; }
+                    if (roll > TrainingRollBad)                                      return SpyMissionStatus.Failed; 
+                    if (roll > TrainingRollWorst)                                    return SpyMissionStatus.FailedBadly;
+
+                    break;
+                case AgentMission.Infiltrate:
+                    if (roll >= InfiltrateRollGood)  { xpToAdd = InfiltrateExpGood; return SpyMissionStatus.Success; }
+                    if (roll > InfiltrateRollBad)    { xpToAdd = InfiltrateExp;     return SpyMissionStatus.Success; }
+                    if (roll > InfiltrateRollWorst)                                 return SpyMissionStatus.FailedBadly;
+
+                    break;
+                case AgentMission.Assassinate:
+                    if (roll >= AssassinateRollPerfect) { xpToAdd = AssassinateExpPerfect; return SpyMissionStatus.GreatSuccess; }
+                    if (roll >= AssassinateRollGood)    { xpToAdd = AssassinateExpGood;    return SpyMissionStatus.Success; }
+                    if (roll >  AssassinateRollBad)     { xpToAdd = AssassinateExp;        return SpyMissionStatus.Failed; }
+                    if (roll >  AssassinateRollWorst)                                      return SpyMissionStatus.FailedBadly;
+
+                    break;
+
+                case AgentMission.Sabotage:
+                    if (roll >= SabotageRollPerfect) { xpToAdd = SabotageExpPerfect; return SpyMissionStatus.GreatSuccess; }
+                    if (roll >= SabotageRollGood)    { xpToAdd = SabotageExpGood;    return SpyMissionStatus.Success; }
+                    if (roll >  SabotageRollBad)     { xpToAdd = SabotageExp;        return SpyMissionStatus.Failed; }
+                    if (roll >  SabotageRollWorst)                                   return SpyMissionStatus.FailedBadly;
+
+                    break;
+                case AgentMission.StealTech:
+                    if (roll >= StealTechRollPerfect) { xpToAdd = StealTechExpPerfect; return SpyMissionStatus.GreatSuccess; }
+                    if (roll >= StealTechRollGood)    { xpToAdd = StealTechExpGood;    return SpyMissionStatus.Success; }
+                    if (roll >  StealTechRollBad)     { xpToAdd = StealTechExp;        return SpyMissionStatus.Failed; }
+                    if (roll >  StealTechRollWorst)                                    return SpyMissionStatus.FailedBadly;
+
+                    break;
+                case AgentMission.Robbery:
+                    if (roll >= RobberyRollPerfect) { xpToAdd = RobberyExpPerfect; return SpyMissionStatus.GreatSuccess; }
+                    if (roll >= RobberyRollGood)    { xpToAdd = RobberyExpGood;    return SpyMissionStatus.Success; }
+                    if (roll >  RobberyRollBad)     { xpToAdd = RobberyExp;        return SpyMissionStatus.Failed; }
+                    if (roll >  RobberyRollWorst)                                  return SpyMissionStatus.FailedBadly;
+
+                    break;
+                case AgentMission.InciteRebellion:
+                    if (roll >= RebellionRollPerfect) { xpToAdd = RebellionExpPerfect; return SpyMissionStatus.GreatSuccess; }
+                    if (roll >= RebellionRollGood)    { xpToAdd = RebellionExpGood;    return SpyMissionStatus.Success; }
+                    if (roll >  RebellionRollBad)     { xpToAdd = RebellionExp;        return SpyMissionStatus.Failed; }
+                    if (roll >  RebellionRollWorst)                                    return SpyMissionStatus.FailedBadly;
+
+                    break;
+            }
+
+            return SpyMissionStatus.FailedCritically;
+        }
+    }
+
+    public enum SpyMissionStatus
+    {
+        FailedCritically,
+        FailedBadly,
+        Failed,
+        Success,
+        GreatSuccess
     }
 }

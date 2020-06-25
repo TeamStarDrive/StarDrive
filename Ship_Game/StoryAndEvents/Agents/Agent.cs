@@ -2,7 +2,7 @@ using System;
 
 namespace Ship_Game
 {
-    public sealed class Agent
+    public sealed class Agent // Refactored by Fat Bastard June 2020
     {
         [Serialize(0)] public string Name;
         [Serialize(1)] public int Level = 1;
@@ -48,85 +48,96 @@ namespace Ship_Game
             TargetEmpire = targetEmpire;
         }
 
-
-        //added by gremlin Domission from devek mod.
-        public void DoMission(Empire us)
+        bool ReassignedDueToVictimDefeated(Empire us, Empire victim)
         {
+            if (victim != null && victim.data.Defeated)
+            {
+                AssignMission(AgentMission.Defending, us, "");
+                return true;
+            }
+
+            return false;
+        }
+
+        float SpyRoll(Empire us,Empire victim)
+        {
+            float diceRoll = RandomMath.RollDie(100) + Level;
+
+            diceRoll += us.data.SpyModifier; // +5 with Xeno Intelligence 
+            diceRoll += us.data.OffensiveSpyBonus; // +10 with Duplicitous
+            diceRoll -= victim?.GetSpyDefense() ?? 0;
+
+            return diceRoll;
+        }
+
+
+        // Added by gremlin Domission from devek mod. - Refactored by Fat Bastard June 2020
+        public void Update(Empire us)
+        {
+            //Age agents
+            Age          += 0.1f;
+            ServiceYears += 0.1f;
+
+            if (Mission != AgentMission.Defending)
+                TurnsRemaining -= 1;
+
+            if (TurnsRemaining > 0)
+                return;
+
+            ExecuteMission(us);
+        }
+
+        void ResolveTraining(SpyMissionStatus missionStatus, Empire us, out bool good, out int notificationId)
+        {
+            notificationId = 0;
+            good           = false;
+
+            AssignMission(AgentMission.Defending, us, "");
+            switch (missionStatus)
+            {
+                case SpyMissionStatus.GreatSuccess: 
+                    Training += 1;
+                    good = true;
+                    notificationId = 6025;
+                    break;
+                case SpyMissionStatus.Success:
+                    Training += 1;
+                    good = true;
+                    notificationId = 6026;
+                    break;
+                case SpyMissionStatus.Failed: 
+                    notificationId = 6029;
+                    break;
+                case SpyMissionStatus.FailedBadly: // Injured
+                    AssignMission(AgentMission.Recovering, us, "");
+                    notificationId = 6027;
+                    break;
+                case SpyMissionStatus.FailedCritically: // Died
+                    us.data.AgentList.QueuePendingRemoval(this);
+                    notificationId = 6029;
+                    break;
+            }
+        }
+
+        public void ExecuteMission(Empire us)
+        {
+
             AgentMissionData data        = ResourceManager.AgentMissionData;
             spyMute                      = us.data.SpyMute;
             Empire victim                = EmpireManager.GetEmpireByName(TargetEmpire);
             AgentMission startingMission = Mission;
             Planet targetPlanet;
 
-            #region EmpireDefeated
-            if (victim != null && victim.data.Defeated)
-            {
-                AssignMission(AgentMission.Defending, us, "");
+            if (ReassignedDueToVictimDefeated(us, victim))
                 return;
-            }
 
+            float diceRoll                 = SpyRoll(us, victim);
+            SpyMissionStatus missionStatus = data.SpyRollResult(Mission, diceRoll, out short xpToAdd);
 
-            #endregion
-
-
-
-
-
-
-
-
-            #region New DiceRoll
-            float diceRoll = RandomMath.RollDie(100) + Level; 
-
-            diceRoll += us.data.SpyModifier; // +5 with Xeno Intelligence 
-            diceRoll += us.data.OffensiveSpyBonus; // +10 with Duplicitous
-            diceRoll -= victim?.GetSpyDefense() ?? 0;
-
-
-            #endregion
+            AddExperience(xpToAdd, us);
             switch (Mission)
             {
-                #region Training
-                case AgentMission.Training:
-                {
-                    Mission = AgentMission.Defending;
-                    MissionNameIndex = 2183;
-                    if (diceRoll >= data.TrainingRollPerfect)
-                    {
-                        //Added by McShooterz
-                        AddExperience(data.TrainingExpPerfect, us);
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6025)), us);
-                        Training++;
-                        break;
-                    }
-
-                    if (diceRoll > data.TrainingRollGood)
-                    {
-                        //Added by McShooterz
-                        AddExperience(data.TrainingExpGood, us);
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6026)), us);
-                        Training++;
-                        break;
-                    }
-
-                    if (diceRoll < data.TrainingRollBad)
-                    {
-                        if (diceRoll >= data.TrainingRollWorst)
-                        {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6027)), us);
-                            AssignMission(AgentMission.Recovering, us, "");
-                            PrevisousMission = AgentMission.Training;
-                            break;
-                        }
-                        if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6028)), us);
-                        us.data.AgentList.QueuePendingRemoval(this);
-                        break;
-                    }
-
-                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6029)), us);
-                    break;
-                }
-                #endregion
+                case AgentMission.Training: ResolveTraining(missionStatus, us, out bool good, out int notificationId); break;
                 #region Infiltrate easy
                 case AgentMission.Infiltrate:
                     {
@@ -766,7 +777,7 @@ namespace Ship_Game
         }
 
         //Added by McShooterz: add experience to the agent and determine if level up.
-        private void AddExperience(int exp, Empire Owner)
+        private void AddExperience(int exp, Empire owner)
         {
             Experience += exp;
             while (Experience >= ResourceManager.AgentMissionData.ExpPerLevel * Level)
@@ -775,7 +786,7 @@ namespace Ship_Game
                 if (Level < 10)
                 {
                     Level++;
-                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6087)), Owner);
+                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6087)), owner);
                 }
             }
         }
