@@ -12,7 +12,7 @@ namespace Ship_Game
         //Training
         public short TrainingCost        = 50;
         public short TrainingTurns       = 25;
-        public short TrainingRollPerfect = 95;
+        public short TrainingRollPerfect = 85;
         public short TrainingRollGood    = 25;
         public short TrainingRollBad     = 10;
         public short TrainingRollWorst   = 5;
