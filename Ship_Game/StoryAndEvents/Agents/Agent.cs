@@ -72,8 +72,12 @@ namespace Ship_Game
             float diceRoll = RandomMath.RollDie(100) + Level*RandomMath.RollDie(3);
 
             diceRoll += us.data.SpyModifier; // +5 with Xeno Intelligence 
-            diceRoll += us.data.OffensiveSpyBonus; // +10 with Duplicitous
-            diceRoll -= victim?.GetSpyDefense() ?? 0;
+
+            if (Mission != AgentMission.Training)
+                diceRoll += us.data.OffensiveSpyBonus; // +10 with Duplicitous
+
+            if (victim != us)
+                diceRoll -= victim?.GetSpyDefense() ?? 0;
 
             return diceRoll;
         }
@@ -86,9 +90,10 @@ namespace Ship_Game
             Age          += 0.1f;
             ServiceYears += 0.1f;
 
-            if (Mission != AgentMission.Defending)
-                TurnsRemaining -= 1;
+            if (Mission == AgentMission.Defending)
+                return;
 
+            TurnsRemaining -= 1;
             if (TurnsRemaining > 0)
                 return;
 
@@ -452,7 +457,6 @@ namespace Ship_Game
             AgentMissionData data        = ResourceManager.AgentMissionData;
             spyMute                      = us.data.SpyMute;
             Empire victim                = EmpireManager.GetEmpireByName(TargetEmpire);
-            AgentMission startingMission = Mission;
 
             if (ReassignedDueToVictimDefeated(us, victim))
                 return;
@@ -481,7 +485,7 @@ namespace Ship_Game
         {
             if (us.isPlayer && us.data.SpyMissionRepeat)
             {
-                if (Mission != AgentMission.Training || Mission == AgentMission.Training && Level < 3)
+                if (Mission != AgentMission.Training || Mission == AgentMission.Training && IsNovice)
                 {
                     AssignMission(Mission, us, TargetEmpire);
                     return;
