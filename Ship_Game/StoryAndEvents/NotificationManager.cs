@@ -64,7 +64,7 @@ namespace Ship_Game
 
         public void AddAgentResultNotification(bool good, string result, Empire owner)
         {
-            if (owner != EmpireManager.Player)
+            if (owner != EmpireManager.Player || owner.data.SpyMute)
                 return;
 
             AddNotification(new Notification
