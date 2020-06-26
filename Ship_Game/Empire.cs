@@ -2469,6 +2469,24 @@ namespace Ship_Game
             }
         }
 
+        public void InitRebellion(Empire origin)
+        {
+            data.IsRebelFaction  = true;
+            data.Traits.Name     = origin.data.RebelName;
+            data.Traits.Singular = origin.data.RebelSing;
+            data.Traits.Plural   = origin.data.RebelPlur;
+            isFaction            = true;
+
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                e.AddRelation(this);
+                AddRelation(e);
+            }
+
+            EmpireManager.Add(this);
+            origin.data.RebellionLaunched = true;
+        }
+
         bool IsEmpireDead()
         {
             if (isFaction) return false;
