@@ -33,10 +33,10 @@ namespace UnitTests.NotificationTests
         /// <param name="empire"></param>
         public void AddNotifications(Empire empire)
         {
-            NotificationManager.AddAgentResultNotification(true, "AgentTest", empire);
-            NotificationManager.AddAgentResultNotification(true, "AgentTest", empire);
-            NotificationManager.AddAgentResultNotification(true, "AgentTest", empire);
-            NotificationManager.AddAgentResultNotification(true, "AgentTest", empire);
+            NotificationManager.AddAgentResult(true, "AgentTest", empire);
+            NotificationManager.AddAgentResult(true, "AgentTest", empire);
+            NotificationManager.AddAgentResult(true, "AgentTest", empire);
+            NotificationManager.AddAgentResult(true, "AgentTest", empire);
 
             var planet = empire.GetPlanets().First();
             NotificationManager.AddPlanetDiedNotification(planet, empire);
@@ -44,10 +44,10 @@ namespace UnitTests.NotificationTests
             NotificationManager.AddPlanetDiedNotification(planet, empire);
             NotificationManager.AddPlanetDiedNotification(planet, empire);
 
-            NotificationManager.AddAgentResultNotification(true, "AgentTest", empire);
-            NotificationManager.AddAgentResultNotification(true, "AgentTest", empire);
-            NotificationManager.AddAgentResultNotification(true, "AgentTest", empire);
-            NotificationManager.AddAgentResultNotification(true, "AgentTest", empire);
+            NotificationManager.AddAgentResult(true, "AgentTest", empire);
+            NotificationManager.AddAgentResult(true, "AgentTest", empire);
+            NotificationManager.AddAgentResult(true, "AgentTest", empire);
+            NotificationManager.AddAgentResult(true, "AgentTest", empire);
         }
 
         [TestMethod]
