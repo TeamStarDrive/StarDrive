@@ -87,36 +87,103 @@ namespace Ship_Game
             ExecuteMission(us);
         }
 
-        void ResolveTraining(SpyMissionStatus missionStatus, Empire us, out bool good, out int notificationId)
+        MissionResolve ResolveTraining(SpyMissionStatus missionStatus, Empire us)
         {
-            notificationId = 0;
-            good           = false;
+            MissionResolve aftermath = new MissionResolve(us);
+            switch (missionStatus)
+            {
+                case SpyMissionStatus.GreatSuccess:     aftermath.MessageId = 6025; Training += 1; aftermath.GoodResult = true; break;
+                case SpyMissionStatus.Success:          aftermath.MessageId = 6026; Training += 1; aftermath.GoodResult = true; break;
+                case SpyMissionStatus.Failed:           aftermath.MessageId = 6029;                                             break;
+                case SpyMissionStatus.FailedBadly:      aftermath.MessageId = 6027; aftermath.AgentInjured = true;              break;
+                case SpyMissionStatus.FailedCritically: aftermath.MessageId = 6029; aftermath.AgentKilled  = true;              break;
+            }
 
-            AssignMission(AgentMission.Defending, us, "");
+            return aftermath;
+        }
+
+        struct MissionResolve
+        {
+            public bool GoodResult;
+            public bool ShouldAddXp;
+            public int MessageId;
+            public int MessageIdAssassinated;
+            public bool AgentInjured;
+            public bool AssignDefense;
+            public bool AgentKilled;
+            private readonly Empire Us;
+            private readonly Empire Victim;
+
+            public MissionResolve(Empire us, Empire victim = null)
+            {
+                Us             = us;
+                Victim         = victim;
+                GoodResult     = false;
+                ShouldAddXp    = true;
+                MessageId      = 0;
+                AgentInjured   = false;
+                AgentKilled    = false;
+                AssignDefense  = true;
+                MessageIdAssassinated = 0;
+            }
+
+            public void PerformPostMissionActions(Agent agent, int xpToAdd)
+            {
+                if (AssignDefense)
+                    agent.AssignMission(AgentMission.Defending, Us, "");
+                else if (AgentInjured)
+                    agent.AssignMission(AgentMission.Recovering, Us, "");
+                else if (AgentKilled)
+                    Us.data.AgentList.QueuePendingRemoval(agent);
+
+                if (ShouldAddXp && !AgentKilled)
+                    agent.AddExperience(xpToAdd, Us);
+
+                if (!Us.data.SpyMute)
+                    return;
+
+                if (MessageIdAssassinated > 0 )
+                    Empire.Universe.NotificationManager.AddAgentResultNotification(!GoodResult, $"{Localizer.Token(MessageId)} {agent.Name}", Us);
+                if (MessageId > 0)
+                    Empire.Universe.NotificationManager.AddAgentResultNotification(GoodResult, $"{agent.Name} {Localizer.Token(MessageId)}", Us);
+            }
+        }
+
+        MissionResolve ResolveAssassination(SpyMissionStatus missionStatus, Empire us, Empire victim)
+        {
+            MissionResolve aftermath = new MissionResolve(us);
+            if (victim?.data.AgentList.Count == 0) // no agent left to assassinate
+            {
+                aftermath.MessageId   = 6038;
+                aftermath.ShouldAddXp = false;
+                return aftermath;
+            }
+
             switch (missionStatus)
             {
                 case SpyMissionStatus.GreatSuccess: 
-                    Training += 1;
-                    good = true;
-                    notificationId = 6025;
+                    aftermath.MessageId = 6039;  
+                    Assassinations++; 
+                    AssassinateEnemyAgent(us, victim, false); 
+                    aftermath.GoodResult = true; 
                     break;
                 case SpyMissionStatus.Success:
-                    Training += 1;
-                    good = true;
-                    notificationId = 6026;
+                    aftermath.MessageId = 6039;
+                    Assassinations++;
+                    AssassinateEnemyAgent(us, victim, true); // TODo we know who sent - damage relations
+                    aftermath.GoodResult = true;
                     break;
-                case SpyMissionStatus.Failed: 
-                    notificationId = 6029;
+                case SpyMissionStatus.Failed:
+
                     break;
                 case SpyMissionStatus.FailedBadly: // Injured
-                    AssignMission(AgentMission.Recovering, us, "");
-                    notificationId = 6027;
+
                     break;
                 case SpyMissionStatus.FailedCritically: // Died
-                    us.data.AgentList.QueuePendingRemoval(this);
-                    notificationId = 6029;
                     break;
             }
+
+            return aftermath;
         }
 
         public void ExecuteMission(Empire us)
@@ -134,10 +201,11 @@ namespace Ship_Game
             float diceRoll                 = SpyRoll(us, victim);
             SpyMissionStatus missionStatus = data.SpyRollResult(Mission, diceRoll, out short xpToAdd);
 
-            AddExperience(xpToAdd, us);
+
+            MissionResolve aftermath = new MissionResolve(us);
             switch (Mission)
             {
-                case AgentMission.Training: ResolveTraining(missionStatus, us, out bool good, out int notificationId); break;
+                case AgentMission.Training: aftermath = ResolveTraining(missionStatus, us); break;
                 #region Infiltrate easy
                 case AgentMission.Infiltrate:
                     {
@@ -206,69 +274,6 @@ namespace Ship_Game
                 #region Assassinate hard
                 case AgentMission.Assassinate:
                     {
-                        Mission = AgentMission.Defending;
-                        MissionNameIndex = 2183;
-                        if (victim == null || victim.data.AgentList.Count == 0)
-                        {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6038)), us);
-                            return;
-                        }
-                        if (diceRoll >= data.AssassinateRollPerfect)
-                        {
-                            //Added by McShooterz
-                            AddExperience(data.AssassinateExpPerfect, us);
-                            Agent m = victim.data.AgentList[RandomMath.InRange(victim.data.AgentList.Count)];
-                            victim.data.AgentList.Remove(m);
-                            if (m.Mission == AgentMission.Undercover)
-                            {
-                                foreach (Mole mole in us.data.MoleList)
-                                {
-                                    if (mole.PlanetGuid != m.TargetGUID)
-                                    {
-                                        continue;
-                                    }
-                                    us.data.MoleList.QueuePendingRemoval(mole);
-                                    break;
-                                }
-                            }
-                            us.data.MoleList.ApplyPendingRemovals();
-                            if (victim == EmpireManager.Player)
-                            {
-                                //if (!GremlinAgentComponent.AutoTrain) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat("One of our Agents was mysteriously assassinated: ", m.Name), Target);
-                            }
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6039), " ", m.Name, Localizer.Token(6040)), us);
-                            Assassinations++;
-                            break;
-                        }
-
-                        if (diceRoll >= data.AssassinateRollGood)
-                        {
-                            Agent m = victim.data.AgentList[RandomMath.InRange(victim.data.AgentList.Count)];
-                            victim.data.AgentList.Remove(m);
-                            if (m.Mission == AgentMission.Undercover)
-                            {
-                                foreach (Mole mole in us.data.MoleList)
-                                {
-                                    if (mole.PlanetGuid != m.TargetGUID)
-                                    {
-                                        continue;
-                                    }
-                                    us.data.MoleList.QueuePendingRemoval(mole);
-                                    break;
-                                }
-                            }
-                            //Added by McShooterz
-                            AddExperience(data.AssassinateExpGood, us);
-                            us.data.MoleList.ApplyPendingRemovals();
-                            if (victim == EmpireManager.Player)
-                            {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6037), " ", m.Name, Localizer.Token(6041), " ", us.data.Traits.Name), victim);
-                            }
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6039), " ", m.Name, Localizer.Token(6042)), us);
-                            Assassinations++;
-                            break;
-                        }
-
                         if (diceRoll < data.AssassinateRollBad)
                         {
                             if (diceRoll >= data.AssassinateRollWorst)
@@ -712,6 +717,8 @@ namespace Ship_Game
                         }
                 #endregion
             }
+
+            aftermath.PerformPostMissionActions(this, xpToAdd);
             #region Mission Repeat
             if (us == EmpireManager.Player
                 && Mission == AgentMission.Defending //&& Owner.data.SpyBudget > 500
@@ -725,11 +732,11 @@ namespace Ship_Game
             #endregion
         }
 
-        void Initialize(AgentMission theMission, Empire owner)
+        void Initialize(AgentMission mission, Empire owner) // TODO move to AgentMissionData
         {
             float missionCost     = 0;
             AgentMissionData data = ResourceManager.AgentMissionData;
-            switch (theMission)
+            switch (mission)
             {
                 case AgentMission.Training:
                     TurnsRemaining   = data.TrainingTurns;
@@ -774,6 +781,29 @@ namespace Ship_Game
 
             owner.AddMoney(-missionCost);
             owner.GetEmpireAI().DeductSpyBudget(missionCost);
+        }
+
+        void AssassinateEnemyAgent(Empire us, Empire victim, bool weKnowWhoItWas)
+        {
+            Agent m = victim.data.AgentList.RandItem(); // TODO - a target specific agent base on threat
+            victim.data.AgentList.Remove(m);
+            if (m.Mission != AgentMission.Undercover)
+                return;
+
+            foreach (Mole mole in us.data.MoleList)
+            {
+                if (mole.PlanetGuid == m.TargetGUID)
+                {
+                    us.data.MoleList.QueuePendingRemoval(mole);
+                    break;
+                }
+            }
+
+            us.data.MoleList.ApplyPendingRemovals();
+            string messageToVictim = weKnowWhoItWas ? $"{Localizer.Token(6037)} {m.Name}, {Localizer.Token(6041)} {us.data.Traits.Name}"
+                                                    : $"{Localizer.Token(6037)} {m.Name}";
+
+            Empire.Universe.NotificationManager.AddAgentResultNotification(false,messageToVictim, victim);
         }
 
         //Added by McShooterz: add experience to the agent and determine if level up.
