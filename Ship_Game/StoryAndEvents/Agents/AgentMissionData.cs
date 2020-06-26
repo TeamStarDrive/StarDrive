@@ -144,6 +144,26 @@ namespace Ship_Game
 
             return SpyMissionStatus.FailedCritically;
         }
+
+        public void Initialize(AgentMission mission, out int index, out int turns, out int cost)
+        {
+            cost  = 0;
+            index = 0;
+            turns = 0;
+
+            switch (mission)
+            {
+                case AgentMission.Training:        index = 2196; turns = TrainingTurns;    cost  = TrainingCost;    break;
+                case AgentMission.Infiltrate:      index = 2188; turns = InfiltrateTurns;  cost  = InfiltrateCost;  break;
+                case AgentMission.Assassinate:     index = 2184; turns = AssassinateTurns; cost  = AssassinateCost; break;
+                case AgentMission.Sabotage:        index = 2190; turns = SabotageTurns;    cost  = SabotageCost;    break;
+                case AgentMission.StealTech:       index = 2194; turns = StealTechTurns;   cost  = StealTechCost;   break;
+                case AgentMission.Robbery:         index = 2192; turns = RobberyTurns;     cost  = RobberyCost;     break;
+                case AgentMission.InciteRebellion: index = 2186; turns = RebellionTurns;   cost  = RebellionCost;   break;
+                case AgentMission.Recovering:      index = 6024; turns = RecoveringTurns;                           break;
+                case AgentMission.Undercover:      index = 2201;                                                    break;
+            }
+        }
     }
 
     public enum SpyMissionStatus
