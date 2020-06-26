@@ -29,7 +29,7 @@ namespace Ship_Game.AI
         void TrainAgents()
         {
             short trainingCost = ResourceManager.AgentMissionData.TrainingCost;
-            for (int i = 1; i < OwnerEmpire.data.AgentList.Count; i++)
+            for (int i = 0; i < OwnerEmpire.data.AgentList.Count; i++)
             {
                 Agent agent = OwnerEmpire.data.AgentList[i];
                 if (trainingCost <= SpyBudget && agent.Mission == AgentMission.Defending && agent.IsNovice)
@@ -415,8 +415,8 @@ namespace Ship_Game.AI
             string[] spyNames = SpyNames();
             Agent agent       = new Agent { Name = AgentComponent.GetName(spyNames) };
             OwnerEmpire.data.AgentList.Add(agent);
-            OwnerEmpire.AddMoney(-SpyCost);
-            DeductSpyBudget(SpyCost);
+            OwnerEmpire.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
+            DeductSpyBudget(ResourceManager.AgentMissionData.AgentCost);
             agent.AssignMission(AgentMission.Training, OwnerEmpire, OwnerEmpire.Name);
         }
 
