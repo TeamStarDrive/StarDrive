@@ -131,19 +131,19 @@ namespace Ship_Game
                     break;
                 case SpyMissionStatus.Failed: // TODo we know who sent - damage relations
                     aftermath.MessageId       = 6047; // Foiled but escaped
-                    aftermath.MessageToVictim = $"{Localizer.Token(6043)}, {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(6043)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
                     victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying", 10f, null);
                     break;
                 case SpyMissionStatus.FailedBadly:
                     aftermath.MessageId       = 6044; // Injured
                     aftermath.AgentInjured    = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6043)}, {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(6043)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
                     victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying", 15f, null);
                     break;
                 case SpyMissionStatus.FailedCritically:
                     aftermath.MessageId       = 6046; // Died
                     aftermath.AgentKilled     = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6045)}, {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(6045)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
                     victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying Failed", 20f, null);
                     break;
             }
@@ -174,25 +174,110 @@ namespace Ship_Game
                     break;
                 case SpyMissionStatus.Failed:
                     aftermath.MessageId       = 6036;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6033)}, {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(6033)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
                     victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying Failed", 10f, null);
                     break;
                 case SpyMissionStatus.FailedBadly:
                     aftermath.MessageId       = 6032;
                     aftermath.AgentInjured    = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6033)}, {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(6033)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
                     victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying Failed", 20f, null);
                     break;
                 case SpyMissionStatus.FailedCritically:
                     aftermath.MessageId       = 6034;
                     aftermath.AgentKilled     = true;
-                    aftermath.MessageToVictim = $"{Localizer.Token(6035)}, {us.data.Traits.Name}";
+                    aftermath.MessageToVictim = $"{Localizer.Token(6035)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
                     victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying Failed", 20f, null);
                     break;
             }
 
             if (successMessage.NotEmpty())
                 Empire.Universe.NotificationManager.AddAgentResultNotification(true, successMessage, us);
+
+            return aftermath;
+        }
+
+        MissionResolve ResolveSabotage(SpyMissionStatus missionStatus, Empire us, Empire victim)
+        {
+            MissionResolve aftermath = new MissionResolve(us);
+            if (victim == null || victim.GetPlanets().Count == 0)
+            {
+                aftermath.ShouldAddXp = false;
+                return aftermath;
+            }
+
+            switch (missionStatus)
+            {
+                case SpyMissionStatus.GreatSuccess:
+                case SpyMissionStatus.Success:
+                case SpyMissionStatus.Failed:
+                case SpyMissionStatus.FailedBadly:
+                case SpyMissionStatus.FailedCritically:
+            }
+
+
+
+
+            return aftermath;
+        }
+
+        MissionResolve ResolveRobbery(SpyMissionStatus missionStatus, Empire us, Empire victim)
+        {
+            MissionResolve aftermath = new MissionResolve(us);
+            if (victim == null || victim.Money <= 0)
+            {
+                //string.Concat(Name, " ", Localizer.Token(6066), " ", TargetEmpire, Localizer.Token(6067)) // nomoney
+                aftermath.ShouldAddXp = false;
+                return aftermath;
+            }
+
+            float amount       = RandomMath.RandomBetween(1f, victim.GetPlanets().Count * 10f) * Level;
+            amount             = amount.UpperBound(victim.Money * 0.5f);
+            string messageToUs = "";
+            switch (missionStatus)
+            {
+                case SpyMissionStatus.GreatSuccess:
+                    victim.AddMoney(-amount);
+                    us.AddMoney(amount);
+                    aftermath.GoodResult = true;
+                    aftermath.MessageToVictim = $"{amount} {Localizer.Token(6065)}";
+                    Robberies++;
+                    messageToUs = $"{Name} {Localizer.Token(6068)} {amount} {Localizer.Token(6069)} {TargetEmpire}. " +
+                                  $"{Localizer.Token(6031)}";
+
+                    break;
+                case SpyMissionStatus.Success:
+                    aftermath.GoodResult = true;
+                    victim.AddMoney(-amount/2);
+                    us.AddMoney(amount/2);
+                    Robberies++;
+                    aftermath.MessageToVictim = $"{amount} {Localizer.Token(6070)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    messageToUs = $"{Name} {Localizer.Token(6068)} {amount} {Localizer.Token(6070)} {TargetEmpire}. " +
+                                  $"{Localizer.Token(6034)} {us.data.Traits.Name}";
+
+                    victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying", 20f, null);
+                    break;
+                case SpyMissionStatus.Failed:
+                    aftermath.MessageId       = 6075;
+                    aftermath.MessageToVictim = $"{Localizer.Token(6071)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying", 10f, null);
+                    break;
+                case SpyMissionStatus.FailedBadly:
+                    aftermath.MessageId       = 6071;
+                    aftermath.MessageToVictim = $"{Localizer.Token(6073)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.AgentInjured    = true;
+                    victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying", 15f, null);
+                    break;
+                case SpyMissionStatus.FailedCritically:
+                    aftermath.MessageId       = 6074;
+                    aftermath.MessageToVictim = $"{Localizer.Token(6073)}, {Localizer.Token(6049)} {us.data.Traits.Name}";
+                    aftermath.AgentKilled     = true;
+                    victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying Failed", 20f, null);
+                    break;
+            }
+
+            if (messageToUs.NotEmpty())
+                Empire.Universe.NotificationManager.AddAgentResultNotification(true, messageToUs, us);
 
             return aftermath;
         }
@@ -234,12 +319,9 @@ namespace Ship_Game
                 #region Sabotage easy
                 case AgentMission.Sabotage:
                     {
-                        Mission = AgentMission.Defending;
-                        MissionNameIndex = 2183;
-                        if (victim == null || victim.NumPlanets == 0)
-                        {
-                            return;
-                        }
+
+
+
                         Empire targetEmpire = EmpireManager.GetEmpireByName(TargetEmpire);
                         targetPlanet = targetEmpire.GetPlanets()[RandomMath.InRange(targetEmpire.NumPlanets)];
                         TargetGUID = targetPlanet.guid;
@@ -427,98 +509,7 @@ namespace Ship_Game
                         break;
                     }
                 #endregion
-                #region Robbery
-                case AgentMission.Robbery:
-                    {
-                        Mission = AgentMission.Defending;
-                        MissionNameIndex = 2183;
-                        if (victim == null)
-                            return;
-                        int amount = (int)(RandomMath.RandomBetween(1f, victim.GetPlanets().Count * 10f) * Level);
-                        if (amount > victim.Money && victim.Money > 0f)
-                        {
-                            amount = (int)victim.Money;
-                        }
-                        else if (victim.Money <= 0f)
-                        {
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6066), " ", TargetEmpire, Localizer.Token(6067)), us);
-                            return;
-                        }
-                        if (diceRoll >= data.RobberyRollPerfect)
-                        {
-                            //Added by McShooterz
-                            AddExperience(data.RobberyExpPerfect, us);
-                            Empire money = victim;
-                            money.AddMoney(-amount);
-                            Empire empire = us;
-                            empire.AddMoney(amount);
-                            NotificationManager notificationManager2 = Empire.Universe.NotificationManager;
-                            object[] objArray = { Name, " ", Localizer.Token(6068), " ", amount, " ", Localizer.Token(6069), " ", TargetEmpire, Localizer.Token(6031) };
-                            if (!spyMute) notificationManager2.AddAgentResultNotification(true, string.Concat(objArray), us);
-                            if (victim != EmpireManager.Player)
-                            {
-                                break;
-                            }
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(amount, " ", Localizer.Token(6065)), victim);
-                            Robberies++;
-                            break;
-                        }
-
-                        if (diceRoll > data.RobberyRollGood)
-                        {
-                            //Added by McShooterz
-                            AddExperience(data.RobberyExpGood, us);
-                            Empire money1 = victim;
-                            money1.AddMoney(-amount);
-                            Empire owner1 = us;
-                            owner1.AddMoney(amount);
-                            if (victim == EmpireManager.Player)
-                            {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(amount, " ", Localizer.Token(6070), Localizer.Token(6049), " ", us.data.Traits.Name), victim);
-                            }
-                            victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying", 20f, null);
-                            NotificationManager notificationManager3 = Empire.Universe.NotificationManager;
-                            object[] name1 = { Name, " ", Localizer.Token(6068), " ", amount, " ", Localizer.Token(6069), " ", TargetEmpire, Localizer.Token(6042) };
-                            if (!spyMute) notificationManager3.AddAgentResultNotification(true, string.Concat(name1), us);
-                            Robberies++;
-                            break;
-                        }
-
-                        if (diceRoll < data.RobberyRollBad)
-                        {
-                            if (diceRoll >= data.RobberyRollWorst)
-                            {
-                                if (victim == EmpireManager.Player)
-                                {
-                                    if (!us.data.SpyMissionRepeat && !spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6071), Localizer.Token(6049), " ", us.data.Traits.Name), victim);
-                                }
-                                victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying", 20f, null);
-                                if (!spyMute) if (!us.data.SpyMissionRepeat) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6072)), us);
-                                AssignMission(AgentMission.Recovering, us, "");
-                                PrevisousMission = AgentMission.Robbery;
-                                PreviousTarget = TargetEmpire;
-                                break;
-                            }
-                            if (victim == EmpireManager.Player)
-                            {
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6073), Localizer.Token(6049), " ", us.data.Traits.Name), victim);
-                            }
-                            victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying Failed", 20f, null);
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6074), " ", TargetEmpire), us);
-                            us.data.AgentList.QueuePendingRemoval(this);
-                            break;
-                        }
-
-                        AddExperience(data.RobberyExp, us);
-                        if (victim == EmpireManager.Player)
-                        {
-                            if (!us.data.SpyMissionRepeat && !spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Localizer.Token(6071), Localizer.Token(6049), " ", us.data.Traits.Name), victim);
-                        }
-                        victim.GetRelations(us).DamageRelationship(victim, us, "Caught Spying", 20f, null);
-                        if (!spyMute) if (!us.data.SpyMissionRepeat) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Name, " ", Localizer.Token(6075)), us);
-                        break;
-                    }
-                #endregion
+                case AgentMission.Robbery:     aftermath = ResolveRobbery(missionStatus, us, victim);       break;
                 #region Rebellion
                 case AgentMission.InciteRebellion:
                     {
