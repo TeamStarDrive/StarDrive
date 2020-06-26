@@ -75,10 +75,10 @@ namespace Ship_Game
         //InciteRebellion
         public short RebellionCost        = 200;
         public short RebellionTurns       = 100;
-        public short RebellionRollPerfect = 95;
-        public short RebellionRollGood    = 80;
-        public short RebellionRollBad     = 50;
-        public short RebellionRollWorst   = 30;
+        public short RebellionRollPerfect = 85;
+        public short RebellionRollGood    = 60;
+        public short RebellionRollBad     = 40;
+        public short RebellionRollWorst   = 20;
         public short RebellionExpPerfect  = 7;
         public short RebellionExpGood     = 5;
         public short RebellionExp         = 3;
