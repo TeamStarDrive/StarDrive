@@ -308,8 +308,7 @@ namespace Ship_Game
                     aftermath.RelationDamage  = 10;
                     aftermath.DamageReason    = "Caught Spying";
                     aftermath.MessageToVictim = $"{amount} {Localizer.Token(6070)} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6068)} {amount} {Localizer.Token(6070)} {TargetEmpire}. " +
-                                                $"{Localizer.Token(6034)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6068)} {amount} {Localizer.Token(6069)} {TargetEmpire}";
 
                     break;
                 case SpyMissionStatus.Failed:
