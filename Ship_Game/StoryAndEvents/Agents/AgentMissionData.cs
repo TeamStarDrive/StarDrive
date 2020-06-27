@@ -162,6 +162,7 @@ namespace Ship_Game
                 case AgentMission.InciteRebellion: index = 2186; turns = RebellionTurns;   cost  = RebellionCost;   break;
                 case AgentMission.Recovering:      index = 6024; turns = RecoveringTurns;                           break;
                 case AgentMission.Undercover:      index = 2201;                                                    break;
+                case AgentMission.Defending:       index = 2183;                                                    break;
             }
         }
     }
