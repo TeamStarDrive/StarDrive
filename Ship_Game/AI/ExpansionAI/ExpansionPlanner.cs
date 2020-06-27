@@ -30,6 +30,10 @@ namespace Ship_Game.AI.ExpansionAI
             return list.ToArray();
         }
 
+        SolarSystem[] OwnedPotentialSystems(float ownerStrength) => Owner.GetOwnedSystems().Filter(s => s.IsOnlyOwnedBy(Owner)
+                                                                                            && s.PlanetList.Any(p => p.Habitable)
+                                                                                            && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength));
+
         int DesiredColonyGoals
         {
             get
@@ -47,7 +51,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
         bool  IsExpansionists    => Owner.data.EconomicPersonality.Name == "Expansionists";
-        float ExpansionThreshold => (IsExpansionists ? 0.4f : 0.5f) + Owner.DifficultyModifiers.ExpansionModifier;
+        float ExpansionThreshold => (IsExpansionists ? 0.3f : 0.4f) + Owner.DifficultyModifiers.ExpansionModifier;
 
         public ExpansionPlanner(Empire empire)
         {
@@ -68,12 +72,19 @@ namespace Ship_Game.AI.ExpansionAI
             if (currentColonizationGoals.Length >= DesiredColonyGoals)
                 return;
 
-            if (PopulationRatio < ExpansionThreshold)
-                return; // We have not reached our pop capacity threshold yet
+            float ownerStrength       = Owner.CurrentMilitaryStrength;
+            var potentialOwnedSystems = OwnedPotentialSystems(ownerStrength);
+            int ourPlanets            = Owner.GetPlanets().Count;
+
+            if (PopulationRatio < ExpansionThreshold
+                && potentialOwnedSystems.Length == 0
+                && ourPlanets >= Owner.DifficultyModifiers.MinStartingColonies)
+            {
+                return; // We have not reached our pop capacity threshold yet and not have systems only owned by us to check
+            }
 
             Log.Info(ConsoleColor.Magenta,$"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
             var ownedSystems     = Owner.GetOwnedSystems();
-            float ownerStrength  = Owner.CurrentMilitaryStrength;
             var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
                                                                          && !s.IsOwnedBy(Owner)
                                                                          && s.PlanetList.Any(p => p.Habitable)

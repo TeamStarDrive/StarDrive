@@ -20,6 +20,7 @@
         public readonly float EnemyTroopStrength;
         public readonly int MineralDecayDivider;
         public readonly float PiratePayModifier;
+        public readonly int MinStartingColonies; // Starting colonies what we want
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -62,6 +63,7 @@
                     MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
                     ExpansionModifier    = 0.2f;
+                    MinStartingColonies  = 3;
 
                     if (!empire.isPlayer)
                     {
@@ -87,6 +89,7 @@
                     MineralDecayDivider  = 75;
                     PiratePayModifier    = 0.75f;
                     ExpansionModifier    = 0.1f;
+                    MinStartingColonies  = 4;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -102,6 +105,7 @@
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 1f;
                     ExpansionModifier    = 0.05f;
+                    MinStartingColonies  = 5;
 
                     if (!empire.isPlayer)
                     {
@@ -128,6 +132,7 @@
                     MineralDecayDivider  = 35;
                     PiratePayModifier    = 1.5f;
                     ExpansionModifier    = 0f;
+                    MinStartingColonies  = 6;
 
                     if (!empire.isPlayer)
                     {
