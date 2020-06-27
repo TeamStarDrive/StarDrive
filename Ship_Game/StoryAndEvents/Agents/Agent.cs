@@ -71,13 +71,12 @@ namespace Ship_Game
         {
             float diceRoll = RandomMath.RollDie(100) + Level*RandomMath.RollDie(3);
 
-            diceRoll += us.data.SpyModifier; // +5 with Xeno Intelligence 
-
+            diceRoll += us.data.OffensiveSpyBonus;  // +10 with Duplicitous 
             if (Mission != AgentMission.Training)
-                diceRoll += us.data.OffensiveSpyBonus; // +10 with Duplicitous
+                diceRoll += us.data.SpyModifier; // +5 with Xeno Intelligence 
 
-            if (victim != us)
-                diceRoll -= victim?.GetSpyDefense() ?? 0;
+            if (victim != null && victim != us)
+                diceRoll -= victim.GetSpyDefense();
 
             return diceRoll;
         }
