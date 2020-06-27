@@ -484,7 +484,7 @@ namespace Ship_Game
                 case AgentMission.Recovering:      aftermath = ResolveRecovery(us);                             break;
             }
 
-            aftermath.PerformPostMissionActions(this, xpToAdd);
+            aftermath.PerformPostMissionActions(this, xpToAdd, missionStatus);
             RepeatMission(us);
         }
 
@@ -630,13 +630,13 @@ namespace Ship_Game
                 DamageReason    = "";
             }
 
-            public void PerformPostMissionActions(Agent agent, int xpToAdd)
+            public void PerformPostMissionActions(Agent agent, int xpToAdd, SpyMissionStatus missionStatus)
             {
-                AgentRelatedActions(agent, xpToAdd);
+                AgentRelatedActions(agent, xpToAdd, missionStatus);
                 SendNotifications(agent);
             }
 
-            void AgentRelatedActions(Agent agent, int xpToAdd)
+            void AgentRelatedActions(Agent agent, int xpToAdd, SpyMissionStatus missionStatus)
             {
                 if (AgentKilled)
                 {
@@ -651,6 +651,17 @@ namespace Ship_Game
 
                 if (ShouldAddXp && !AgentKilled)
                     agent.AddExperience(xpToAdd, Us);
+
+                // One of the victim's defending agent will be get XP for a very successful defense
+                if (missionStatus <= SpyMissionStatus.FailedBadly 
+                    && Victim != null 
+                    && Victim != Us
+                    && Victim.data.AgentList.Count > 0)
+                {
+                    var defendingAgents = Victim.data.AgentList.Filter(a => a.Mission == AgentMission.Defending);
+                    if (defendingAgents.Length > 0)
+                        defendingAgents.RandItem().AddExperience(1, Victim);
+                }
             }
 
             void SendNotifications(Agent agent)
