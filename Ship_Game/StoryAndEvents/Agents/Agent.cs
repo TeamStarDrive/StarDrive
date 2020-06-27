@@ -102,7 +102,7 @@ namespace Ship_Game
 
         MissionResolve ResolveTraining(SpyMissionStatus missionStatus, Empire us)
         {
-            MissionResolve aftermath = new MissionResolve(us);
+            MissionResolve aftermath = new MissionResolve(us, null);
             switch (missionStatus)
             {
                 case SpyMissionStatus.GreatSuccess:     aftermath.MessageId = 6025; Training += 1; aftermath.GoodResult = true; break;
@@ -117,7 +117,7 @@ namespace Ship_Game
 
         MissionResolve ResolveAssassination(SpyMissionStatus missionStatus, Empire us, Empire victim)
         {
-            MissionResolve aftermath = new MissionResolve(us);
+            MissionResolve aftermath = new MissionResolve(us, victim);
             if (victim.data.AgentList.Count == 0) // no agent left to assassinate
             {
                 aftermath.MessageId   = 6038;
@@ -170,7 +170,7 @@ namespace Ship_Game
 
         MissionResolve ResolveInfiltration(SpyMissionStatus missionStatus, Empire us, Empire victim)
         {
-            MissionResolve aftermath = new MissionResolve(us);
+            MissionResolve aftermath = new MissionResolve(us, victim);
             if (victim == null || victim.GetPlanets().Count == 0)
             {
                 aftermath.ShouldAddXp = false;
@@ -215,7 +215,7 @@ namespace Ship_Game
 
         MissionResolve ResolveSabotage(SpyMissionStatus missionStatus, Empire us, Empire victim)
         {
-            MissionResolve aftermath = new MissionResolve(us);
+            MissionResolve aftermath = new MissionResolve(us, victim);
             if (victim == null || victim.GetPlanets().Count == 0)
             {
                 aftermath.ShouldAddXp = false;
@@ -271,7 +271,7 @@ namespace Ship_Game
 
         MissionResolve ResolveRobbery(SpyMissionStatus missionStatus, Empire us, Empire victim)
         {
-            MissionResolve aftermath = new MissionResolve(us);
+            MissionResolve aftermath = new MissionResolve(us, victim);
             if (victim == null || victim.Money <= 0)
             {
                 aftermath.CustomMessage = $"Name  {Localizer.Token(6066)} {TargetEmpire} {Localizer.Token(6067)}";
@@ -279,7 +279,7 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            float amount       = RandomMath.RandomBetween(1f, victim.GetPlanets().Count * 10f) * Level;
+            float amount       = RandomMath.RandomBetween(1f, victim.GetPlanets().Count * 50f) * Level;
             amount             = amount.UpperBound(victim.Money * 0.5f);
             switch (missionStatus)
             {
@@ -332,7 +332,7 @@ namespace Ship_Game
 
         MissionResolve ResolveRebellion(SpyMissionStatus missionStatus, Empire us, Empire victim)
         {
-            MissionResolve aftermath = new MissionResolve(us);
+            MissionResolve aftermath = new MissionResolve(us, victim);
             if (victim == null || victim.GetPlanets().Count == 0)
             {
                 aftermath.ShouldAddXp = false;
@@ -383,7 +383,7 @@ namespace Ship_Game
 
         MissionResolve ResolveStealTech(SpyMissionStatus missionStatus, Empire us, Empire victim)
         {
-            MissionResolve aftermath = new MissionResolve(us);
+            MissionResolve aftermath = new MissionResolve(us, victim);
 
             if (victim == null)
             {
@@ -445,7 +445,7 @@ namespace Ship_Game
 
             MissionResolve ResolveRecovery(Empire us)
         {
-            MissionResolve aftermath = new MissionResolve(us) {MessageId = 6086};
+            MissionResolve aftermath = new MissionResolve(us, null) {MessageId = 6086};
 
             Mission         = PrevisousMission;
             TargetEmpire    = PreviousTarget;
@@ -464,7 +464,7 @@ namespace Ship_Game
             float diceRoll                 = SpyRoll(us, victim);
             SpyMissionStatus missionStatus = data.SpyRollResult(Mission, diceRoll, out short xpToAdd);
 
-            MissionResolve aftermath = new MissionResolve(us);
+            MissionResolve aftermath = new MissionResolve(us, victim);
             switch (Mission)
             {
                 case AgentMission.Training:        aftermath = ResolveTraining(missionStatus, us);              break;
@@ -608,7 +608,7 @@ namespace Ship_Game
             private readonly Empire Us;
             private readonly Empire Victim;
 
-            public MissionResolve(Empire us, Empire victim = null)
+            public MissionResolve(Empire us, Empire victim)
             {
                 Us              = us;
                 Victim          = victim;

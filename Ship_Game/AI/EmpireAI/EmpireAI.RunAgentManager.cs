@@ -70,7 +70,7 @@ namespace Ship_Game.AI
         private void DoAggRuthAgentManager()
         {
             int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.15f;
             int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Aggressive);
         }
@@ -78,7 +78,7 @@ namespace Ship_Game.AI
         private void DoCunningAgentManager()
         {
             int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.17f;
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.2f;
             int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Cunning);
         }
@@ -86,7 +86,7 @@ namespace Ship_Game.AI
         private void DoHonPacAgentManager()
         {
             int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.08f;
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
             int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Honorable);
         }
@@ -368,25 +368,14 @@ namespace Ship_Game.AI
 
         private int CalculateSpyUsage(out int defenders)
         {
-            defenders = 0;
+            defenders   = 0;
             int offense = 0;
             foreach (Agent a in OwnerEmpire.data.AgentList)
             {
                 if (a.Mission == AgentMission.Defending)
-                {
                     defenders++;
-                }
                 else if (a.Mission != AgentMission.Undercover)
-                {
                     offense++;
-                }
-
-                if (a.Mission != AgentMission.Defending || a.Level >= 2 || SpyBudget <= 300f)
-                {
-                    continue;
-                }
-
-                a.AssignMission(AgentMission.Training, OwnerEmpire, "");
             }
 
             return offense;
