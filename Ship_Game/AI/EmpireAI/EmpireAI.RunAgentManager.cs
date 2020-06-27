@@ -374,7 +374,7 @@ namespace Ship_Game.AI
             {
                 if (a.Mission == AgentMission.Defending)
                     defenders++;
-                else if (a.Mission != AgentMission.Undercover)
+                else if (a.Mission != AgentMission.Undercover && a.Mission != AgentMission.Training)
                     offense++;
             }
 
