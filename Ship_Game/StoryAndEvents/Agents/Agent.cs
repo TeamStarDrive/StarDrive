@@ -286,8 +286,8 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            float amount       = RandomMath.RandomBetween(1f, victim.GetPlanets().Count * 50f) * Level;
-            amount             = amount.UpperBound(victim.Money * 0.5f);
+            int amount = RandomMath.IntBetween(1, victim.GetPlanets().Count * 50) * Level;
+            amount     = amount.UpperBound((int)(victim.Money * 0.5));
             switch (missionStatus)
             {
                 case SpyMissionStatus.GreatSuccess:
