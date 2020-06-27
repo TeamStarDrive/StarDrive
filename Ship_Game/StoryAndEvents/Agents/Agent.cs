@@ -223,7 +223,15 @@ namespace Ship_Game
             }
 
             int crippledTurns;
-            Planet targetPlanet = victim.FindPlanetToBuildAt(victim.SafeSpacePorts, 0);
+            Planet targetPlanet = victim.FindPlanetToBuildAt(victim.SpacePorts, 0) 
+                                  ?? victim.FindPlanetToBuildAt(victim.GetPlanets(), 0);
+
+            if (targetPlanet == null) // no planet was found, abort mission
+            {
+                aftermath.ShouldAddXp = false;
+                return aftermath;
+            }
+
             switch (missionStatus)
             {
                 case SpyMissionStatus.GreatSuccess:
