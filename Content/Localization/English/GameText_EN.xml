@@ -5938,11 +5938,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2197</Index>
-      <Text>Send this Agent on a training mission. If successful, the Agent will gain one level. The Agent will be unavailable for missions for the indicated number of turns.</Text>
+      <Text>Send this Agent on a training mission. If successful, the Agent will gain one level. The Agent will be unavailable for missions for the indicated number of turns.\nTraining is not possible for Agents Level 3 or above.</Text>
     </Token>
     <Token>
       <Index>2198</Index>
-      <Text>Execute this mission for the indicated cost. Your chance of success (or failure) depends on the level of your agent and the difficulty of the task being undertaken. Defending Agents will also have a chance to foil your mission.</Text>
+      <Text>Execute this mission for the indicated cost. Your chance of success (or failure) depends on the level of your agent and the difficulty of the task being undertaken. Defending Agents will also have a chance to foil your mission.\nTraining is not possible for Agents Level 3 or above/</Text>
     </Token>
     <Token>
       <Index>2199</Index>
