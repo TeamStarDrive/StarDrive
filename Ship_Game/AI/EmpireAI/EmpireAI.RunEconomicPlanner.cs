@@ -96,7 +96,8 @@ namespace Ship_Game.AI
             float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
             risk            = risk.LowerBound(overSpend); // * threat multiplier
             int numPlanets  = OwnerEmpire.GetPlanets().Count;
-            return (money / 4 / numPlanets) * risk; 
+            int numAgents   = OwnerEmpire.data.AgentList.Count();
+            return (money / numAgents / numPlanets) * risk; 
         }
 
         private void PlanetBudgetDebugInfo()
