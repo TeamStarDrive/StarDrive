@@ -1880,6 +1880,7 @@ namespace Ship_Game
                     defense += data.AgentList[i].Level;
             }
 
+            defense *= ResourceManager.AgentMissionData.DefenseLevelBonus;
             defense /= (OwnedPlanets.Count / 3).LowerBound(1);
             defense += data.SpyModifier;
             defense += data.DefensiveSpyBonus;
