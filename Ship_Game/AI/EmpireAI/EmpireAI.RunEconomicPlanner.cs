@@ -96,11 +96,10 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
-            risk            = risk.LowerBound(overSpend); // * threat multiplier
-            int numPlanets  = OwnerEmpire.GetPlanets().Count;
+            risk            = risk.LowerBound(overSpend); // * agent threat from empires
             int numAgents   = OwnerEmpire.data.AgentList.Count().LowerBound(1);
-            float maxBudget = OwnerEmpire.Money / 5 * (EmpireSpyLimit - numAgents).LowerBound(1);
-            return (money / numAgents / numPlanets).UpperBound(maxBudget) * risk;  
+            float budget    = OwnerEmpire.Money * 0.1f * (EmpireSpyLimit - numAgents).LowerBound(1);
+            return (budget * risk).Clamped(0, SpyCost);  
         }
 
         private void PlanetBudgetDebugInfo()
