@@ -64,7 +64,7 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float risk                     = strat.IndustryRatio + strat.ExpansionRatio;
-            return SetBudgetForeArea(0.0025f, risk, money);
+            return SetBudgetForeArea(0.003f, risk, money);
         }
 
         float DetermineBuildCapacity(float risk, float money)
