@@ -58,7 +58,6 @@ namespace Ship_Game.Commands.Goals
         GoalStep CreateTask()
         {
             var task      = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip);
-            task.Priority = 5;
             empire.GetEmpireAI().AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
