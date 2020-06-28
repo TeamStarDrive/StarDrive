@@ -51,7 +51,7 @@ namespace Ship_Game
             GovNoScrap  = Add(new UICheckBox(() => Planet.DontScrapBuildings, Fonts.Arial12Bold, title:1941, tooltip:1942));
             Quarantine =  Add(new UICheckBox(() => Planet.Quarantine, Fonts.Arial12Bold, title: 1888, tooltip: 1887));
 
-            Garrison = Slider(200, 200, 200, 40, "Garrison Size", 0, 10,Planet.GarrisonSize);
+            Garrison = Slider(200, 200, 200, 40, "Garrison Size", 0, 25,Planet.GarrisonSize);
             Garrison.Tip = 1903;
             // Dropdown will go on top of everything else
             ColonyTypeList = Add(new DropOptions<Planet.ColonyType>(100, 18));

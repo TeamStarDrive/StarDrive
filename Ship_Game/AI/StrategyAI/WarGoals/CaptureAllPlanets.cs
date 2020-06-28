@@ -44,7 +44,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (HaveConqueredTargets()) return GoalStep.GoalComplete;
             if (TargetSystems.IsEmpty) return GoalStep.TryAgain;
             var fleets        = Owner.AllFleetsReady();
-            var nearestSystem = Owner.FindNearestOwnedSystemTo(TargetSystems);
             int priorityMod   = 0;
             float strength    = fleets.AccumulatedStrength;
             

@@ -27,6 +27,7 @@ namespace Ship_Game
         public ToggleButton GridButton;
         readonly Rectangle Housing;
         readonly SlidingElement SlidingElement;
+        private readonly Rectangle FlagRect;
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
         readonly Rectangle DefenseRect;
         readonly Rectangle TroopRect;
@@ -48,6 +49,7 @@ namespace Ship_Game
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
             var sliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
             LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
+            FlagRect = new Rectangle(r.X + 365, r.Y + 71, 18, 18);
             SlidingElement = new SlidingElement(sliderRect);
             RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
             float spacing = LeftRect.Height - 26 - 96;
@@ -200,11 +202,11 @@ namespace Ship_Game
                 float mechanicalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
                 spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.String(), defPos, Color.White);
                 text = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 155f);
-                Vector2 ShipStatus = new Vector2(Selector.Rect.X + Selector.Rect.Width - 170, Housing.Y + 68);
-                text = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 155f);
-                HelperFunctions.ClampVectorToInt(ref ShipStatus);
-                batch.DrawString(Fonts.Arial10, text, ShipStatus, tColor);
-                ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
+                Vector2 shipStatus = new Vector2(Selector.Rect.X + Selector.Rect.Width - 168, Housing.Y + 64);
+                text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 120f);
+                HelperFunctions.ClampVectorToInt(ref shipStatus);
+                batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
+                shipStatus.Y = shipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
                 batch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
                 Vector2 troopPos = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 batch.DrawString(Fonts.Arial12Bold, HoveredShip.TroopCount+"/"+HoveredShip.TroopCapacity, troopPos, Color.White);
@@ -214,6 +216,9 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
                 batch.DrawString(Fonts.Arial12Bold, HoveredShip.Level.ToString(), levelPos, Color.White);
             }
+            if (ShipList.Count > 0)
+                batch.Draw(ResourceManager.Flag(ShipList.First().loyalty), FlagRect, ShipList.First().loyalty.EmpireColor);
+
             foreach (ToggleButton button in CombatStatusButtons)
             {
                 button.Draw(ScreenManager);

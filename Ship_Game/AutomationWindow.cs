@@ -120,7 +120,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.RightMouseClick)
+            if (input.RightMouseClick || input.Escaped)
             {
                 IsOpen = false;
                 return false;

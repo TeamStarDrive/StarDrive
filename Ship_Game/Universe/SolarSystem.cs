@@ -6,6 +6,7 @@ using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Universe;
@@ -156,6 +157,11 @@ namespace Ship_Game
             PiratePresence = value;
         }
 
+        public bool IsOwnedBy(Empire empire)
+        {
+            return OwnerList.Contains(empire);
+        }
+
         float RadiationTimer;
         const float RadiationInterval = 0.5f;
 
@@ -204,6 +210,16 @@ namespace Ship_Game
         {
             distance = ship.Center.Distance(Position);
             return distance < Sun.RadiationRadius;
+        }
+        
+        public bool InSafeDistanceFromRadiation(Vector2 center)
+        {
+            return Sun.RadiationDamage.AlmostZero() || center.Distance(Position) > Sun.RadiationRadius + 10000;
+        }
+
+        public bool InSafeDistanceFromRadiation(float distance)
+        {
+            return Sun.RadiationDamage.AlmostZero() || distance > Sun.RadiationRadius + 10000;
         }
 
         // overload for ship info UI or AI maybe
@@ -344,8 +360,7 @@ namespace Ship_Game
                     string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(i);
                     var newOrbital    = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
 
-                    if (owner == null)
-                        newOrbital.GenerateRemnantPresence();
+                    newOrbital.GenerateRemnantPresence();
 
                     PlanetList.Add(newOrbital);
                     ringRadius += newOrbital.ObjectRadius;
@@ -382,13 +397,15 @@ namespace Ship_Game
         {
             int numberOfRings = data.RingList.Count;
             int fixedSpacing  = IntBetween(50, 500);
+            int nextDistance  = 10000 + GetRingWidth(0);
 
             int GetRingWidth(int orbitalWidth)
             {
                 return orbitalWidth > 0 ? orbitalWidth : fixedSpacing + IntBetween(10500, 12000);
             }
 
-            int nextDistance = 10000 + GetRingWidth(0);
+            if (owner != null)
+                isStartingSystem = true;
 
             for (int i = 0; i < numberOfRings; i++)
             {
@@ -442,8 +459,7 @@ namespace Ship_Game
                 }
 
                 // Add Remnant Presence
-                if (owner == null)
-                    newOrbital.GenerateRemnantPresence();
+                newOrbital.GenerateRemnantPresence();
 
                 // Add buildings to planet
                 foreach (string building in ringData.BuildingList)
@@ -497,6 +513,51 @@ namespace Ship_Game
                 int enclosingRadius = ((int)RingList.Last.OrbitalDistance + 10000).RoundUpToMultipleOf(10000);
                 Radius = Math.Max(MinRadius, enclosingRadius);
             }
+        }
+
+        public void AddSystemExploreSuccessMessage(Empire empire)
+        {
+            if (!empire.isPlayer)
+                return; // Message only the player
+
+            //added by gremlin  add shamatts notification here
+            var message = new StringBuilder(Name); //@todo create global string builder
+            message.Append(" system explored.");
+
+            if (Sun.RadiationDamage > 0)
+                message.Append("\nThis Star emits radiation which will damage your ship's\nexternal modules or shields if they get close to it.");
+
+            var planetsTypesNumber = new Map<string, int>();
+            if (PlanetList.Count > 0)
+            {
+                foreach (Planet planet in PlanetList)
+                    planetsTypesNumber.AddToValue(planet.CategoryName, 1);
+
+                foreach (var pair in planetsTypesNumber)
+                    message.Append('\n').Append(pair.Value).Append(' ').Append(pair.Key);
+            }
+
+            foreach (Planet planet in PlanetList)
+            {
+                Building tile = planet.BuildingList.Find(t => t.IsCommodity);
+                if (tile != null)
+                    message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
+            }
+
+            if (DangerousForcesPresent(empire))
+                message.Append("\nCombat in system!!!");
+
+            if (OwnerList.Count > 0 && !OwnerList.Contains(empire))
+                message.Append("\nContested system!!!");
+
+            Empire.Universe.NotificationManager.AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = message.ToString(),
+                ReferencedItem1 = this,
+                Icon            = Sun.Icon,
+                Action          = "SnapToExpandSystem"
+            }, "sd_ui_notification_warning");
         }
 
         public float GetActualStrengthPresent(Empire e)

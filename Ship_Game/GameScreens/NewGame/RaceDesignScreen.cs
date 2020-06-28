@@ -562,6 +562,6 @@ namespace Ship_Game
 
     public enum ExtraRemnantPresence
     {
-        Rare, Normal, More, MuchMore, Everywhere
+        VeryRare,Rare, Normal, More, MuchMore, Everywhere
     }
 }

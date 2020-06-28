@@ -1,69 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI.ExpansionAI
 {
-    public class ExpansionPlanner
+    public class ExpansionPlanner // Refactored by Crunchy Gremlin and Fat Bastard - Jun 22, 2020
     {
-        readonly Empire OwnerEmpire;
+        readonly Empire Owner;
         private readonly Array<SolarSystem> MarkedForExploration = new Array<SolarSystem>();
-        public Planet[] DesiredPlanets => RankedPlanets.FilterSelect(r=> r.Planet?.Owner != OwnerEmpire,
-                                                                     r => r.Planet) ?? Empty<Planet>.Array;
-
-        public Planet[] GetColonizationTargets(Planet[] markedPlanets)
-        {
-            return RankedPlanets.FilterSelect(ranker => !ranker.CantColonize &&
-                                                        ranker.EnemyStrength < 1 &&
-                                                        !markedPlanets.Contains(ranker.Planet),
-                p => p.Planet);
-        }
-
-        private Array<Goal> Goals => OwnerEmpire.GetEmpireAI().Goals;
+        private Array<Goal> Goals => Owner.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
+
+        public Planet[] DesiredPlanets => RankedPlanets?.FilterSelect(r=> r.Planet?.Owner != Owner,
+                                                                      r => r.Planet) ?? Empty<Planet>.Array;
+
         public Planet[] GetColonizationGoalPlanets()
         {
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
+            {
                 if (g.type == GoalType.Colonize)
                     list.Add(g.ColonizationTarget);
-            return list.ToArray();
-        }
-
-        public bool AnyPlanetsMarkedForColonization()
-        {
-            var list = new Array<Planet>();
-            for (int i = 0; i < Goals.Count; i++)
-            {
-                Goal g = Goals[i];
-                if (g.type == GoalType.Colonize)
-                    return true;
             }
 
-            return false;
+            return list.ToArray();
         }
 
         int DesiredColonyGoals
         {
             get
             {
-                float baseColonyGoals = OwnerEmpire.DifficultyModifiers.BaseColonyGoals;
-                if (OwnerEmpire.isPlayer) 
+                float baseColonyGoals = Owner.DifficultyModifiers.BaseColonyGoals;
+                if (Owner.isPlayer) 
                     return (int)baseColonyGoals; // BaseColonyGoals for player
 
                 float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
-                int plusGoals   = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
+                int plusGoals   = Owner.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
                 float goals     = (float)Math.Round(baseValue + baseColonyGoals + plusGoals, 0);
                 return (int)goals.Clamped(1f, 5f);
             }
         }
+
+        float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
+        bool  IsExpansionists    => Owner.data.EconomicPersonality.Name == "Expansionists";
+        float ExpansionThreshold => (IsExpansionists ? 0.4f : 0.5f) + Owner.DifficultyModifiers.ExpansionModifier;
+
         public ExpansionPlanner(Empire empire)
         {
-            OwnerEmpire = empire;
+            Owner = empire;
         }
 
         /// <summary>
@@ -73,166 +61,132 @@ namespace Ship_Game.AI.ExpansionAI
         /// </summary>
         public void RunExpansionPlanner()
         {
-            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoColonize)
+            if (Owner.isPlayer && !Owner.AutoColonize)
                 return;
 
-            //we are going to keep a list of wanted planets. 
-            int maxDesiredPlanets = (int)(Empire.Universe.PlanetsDict.Count / 10).LowerBound(10);
-
-            if (maxDesiredPlanets < 1)
+            Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
+            if (currentColonizationGoals.Length >= DesiredColonyGoals)
                 return;
 
-            //rank all known planets
-            Array<PlanetRanker> allPlanetsRanker = GatherAllPlanetRanks();
-            if (allPlanetsRanker.IsEmpty)
-                return;
+            if (PopulationRatio < ExpansionThreshold)
+                return; // We have not reached our pop capacity threshold yet
 
-            //Create a list of the top priority planets
-            var planetsRanked         = new Array<PlanetRanker>();
-            PlanetRanker backupPlanet = new PlanetRanker();
-            bool addBackupPlanet      = OwnerEmpire.data.ColonyBudget * 0.75f > OwnerEmpire.TotalBuildingMaintenance 
-                                        && !AnyPlanetsMarkedForColonization();
+            Log.Info(ConsoleColor.Magenta,$"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
+            var ownedSystems     = Owner.GetOwnedSystems();
+            float ownerStrength  = Owner.CurrentMilitaryStrength;
+            var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
+                                                                         && !s.IsOwnedBy(Owner)
+                                                                         && s.PlanetList.Any(p => p.Habitable)
+                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength));
 
-            for (int i = 0; i < allPlanetsRanker.Count && maxDesiredPlanets > 0; i++)
+            // We are going to keep a list of wanted planets. 
+            // We are limiting the number of foreign systems to check based on galaxy size and race traits
+            int maxCheckedDiv     = IsExpansionists ? 4 : 6;
+            int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / maxCheckedDiv).LowerBound(3);
+            Vector2 empireCenter  = Owner.GetWeightedCenter();
+
+            Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(ownedSystems);
+            if (potentialSystems.Length > 0)
             {
-                var ranker = allPlanetsRanker[i];
-                if (ranker.PoorPlanet)
-                {
-                    if (ranker.Value > backupPlanet.Value && ranker.EnemyStrength <1 
-                                                          && ranker.Planet.Owner == null)
-                    {
-                        backupPlanet = ranker;
-                    }
-                    continue;
-                }
-                planetsRanked.Add(ranker);
-
-                if (ranker.CantColonize) continue;
-
-                maxDesiredPlanets--;
-                addBackupPlanet = addBackupPlanet && ranker.EnemyStrength > 0 ;
+                potentialSystems.Sort(s => empireCenter.Distance(s.Position));
+                potentialSystems = potentialSystems.Take(maxCheckedSystems).ToArray();
+                potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
             }
 
-            if (addBackupPlanet && backupPlanet.Planet != null) 
-                planetsRanked.Add(backupPlanet);
+            // Rank all known planets near the empire
+            if (!GatherAllPlanetRanks(potentialPlanets, currentColonizationGoals, empireCenter, out Array <PlanetRanker> allPlanetsRanker))
+                return;
 
-            RankedPlanets = planetsRanked.ToArray();
+            RankedPlanets = allPlanetsRanker.SortedDescending(pr => pr.Value);
 
-            //take action on the found planets
-            CreateColonyGoals();
-            CreateClaimFleets();
+            // Take action on the found planets
+            CreateColonyGoals(currentColonizationGoals);
         }
 
         /// <summary>
         /// Send colony ships to best targets;
         /// </summary>
-        void CreateColonyGoals()
+        void CreateColonyGoals(Planet[] markedPlanets)
         {
-            Planet[] markedPlanets = GetColonizationGoalPlanets();
-            int desired            = DesiredColonyGoals;
-            desired               -= markedPlanets.Length;
+            int desired            = DesiredColonyGoals - markedPlanets.Length;
+            desired                = desired.UpperBound(RankedPlanets.Length);
 
-            if (desired < 1) return;
+            if (desired < 1) 
+                return;
 
-            desired = Math.Min(desired, RankedPlanets.Length);
-            var colonizationTargets = GetColonizationTargets(markedPlanets);
-
-            for (int i = 0; i < colonizationTargets.Length && desired > 0; i++)
+            for (int i = 0; i < RankedPlanets.Length && desired > 0; i++)
             {
-                var planet = colonizationTargets[i];
-
+                Planet planet = RankedPlanets[i].Planet;
                 Log.Info(ConsoleColor.Magenta,
-                    $"Colonize {markedPlanets.Length + 1}/{desired} | {planet} | {OwnerEmpire}");
-                Goals.Add(new MarkForColonization(planet, OwnerEmpire));
+                    $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals} | {planet} | {Owner}");
+
+                Goals.Add(new MarkForColonization(planet, Owner));
                 desired--;
             }
         }
-
-        /// <summary>
-        /// Send a claim fleet on either of these conditions.
-        /// * we are sending a colony ship
-        /// * the colony target has a faction force;
-        /// limit the number of claim forces to the number of colony goals.
-        /// i want to change this but im not sure how yet. 
-        /// </summary>
-        void CreateClaimFleets()
+        
+        Array<Planet> GetPotentialPlanetsNonLocal(SolarSystem[] systems)
         {
-            var claimTasks    = OwnerEmpire.GetEmpireAI().GetClaimTasks();
-            int desiredClaims = DesiredColonyGoals - claimTasks.Length;
-            var colonizing    = GetColonizationGoalPlanets();
-            var taskTargets   = claimTasks.Select(t => t.TargetPlanet);
-            desiredClaims -= taskTargets.Length;
-            for (int i = 0; i < RankedPlanets.Length && desiredClaims > 0; i++)
+            Array<Planet> potentialPlanets = new Array<Planet>();
+            for (int i = 0; i < systems.Length; i++)
             {
-                var rank = RankedPlanets[i];
-
-                if (rank.CantColonize || rank.EnemyStrength < 1 || rank.Planet.ParentSystem.OwnerList.Contains(OwnerEmpire))
+                SolarSystem system = systems[i];
+                for (int j = 0; j < system.PlanetList.Count; j++)
                 {
-                    continue;
+                    Planet p = system.PlanetList[j];
+                    if (p.Habitable && (p.Owner == null || p.Owner.isFaction))
+                        potentialPlanets.Add(p);
                 }
-                if (taskTargets.Contains(rank.Planet))
-                    continue;
-                var task = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength * 2);
-                task.Priority = 10;
-                OwnerEmpire.GetEmpireAI().AddPendingTask(task);
-                desiredClaims--;
             }
+
+            return potentialPlanets;
         }
 
-        /// Go through all known planets. filter planets by colonization rules. Rank remaining ones.
-        Array<PlanetRanker> GatherAllPlanetRanks()
+        Array<Planet> GetPotentialPlanetsLocal(IReadOnlyList<SolarSystem> systems)
         {
-            bool canColonizeBarren = OwnerEmpire.IsBuildingUnlocked(Building.BiospheresId);
-            var allPlanetsRanker   = new Array<PlanetRanker>();
-            float totalValue       = 0;
-            int bestPlanetCount    = 0;
-
-            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
+            Array<Planet> potentialPlanets = new Array<Planet>();
+            for (int i = 0; i < systems.Count; i++)
             {
-                SolarSystem sys = UniverseScreen.SolarSystemList[i];
-
-                if (!sys.IsExploredBy(OwnerEmpire))
-                    continue;
-
-                AO ao = OwnerEmpire.GetEmpireAI().FindClosestAOTo(sys.Position);
-
-                float systemEnemyStrength = OwnerEmpire.KnownEnemyStrengthIn(sys);
-                
-                for (int y = 0; y < sys.PlanetList.Count; y++)
+                SolarSystem system = systems[i];
+                for (int j = 0; j < system.PlanetList.Count; j++)
                 {
-                    Planet p = sys.PlanetList[y];
-                    if (p.Habitable)
-                    {
-                        //The planet ranker does the ranking
-                        var r2 = new PlanetRanker(OwnerEmpire, p, canColonizeBarren, ao, systemEnemyStrength);
-                        allPlanetsRanker.Add(r2);
-                        totalValue += r2.Value;
-                        bestPlanetCount++;
-                    }
+                    Planet p = system.PlanetList[j];
+                    if (p.Habitable && (p.Owner == null || p.Owner.isFaction))
+                        potentialPlanets.Add(p);
                 }
             }
 
-            // sort and purge the list. 
-            // we are taking an average of all planets ranked and saying we only want
-            // above average planets only. 
-            var finalPlanetsRanker = new Array<PlanetRanker>();
-            if (allPlanetsRanker.Count > 0)
-            {
-                allPlanetsRanker.Sort(p => -p.Value);
-                float avgValue = totalValue / bestPlanetCount;
+            return potentialPlanets;
+        }
 
-                foreach (PlanetRanker rankedP in allPlanetsRanker)
+        /// Go through the filtered planet list and rank them.
+        bool GatherAllPlanetRanks(Array<Planet> planetList, Planet[] markedPlanets, Vector2 empireCenter, out Array<PlanetRanker> planetRanker)
+        {
+            planetRanker = new Array<PlanetRanker>();
+            if (planetList.Count == 0)
+                return false;
+
+            bool canColonizeBarren = Owner.IsBuildingUnlocked(Building.BiospheresId);
+            float longestDistance  = planetList.Last().Center.Distance(empireCenter);
+        
+            for (int i = 0; i < planetList.Count; i++)
+            {
+                Planet p = planetList[i];
+                // The planet ranker does the ranking
+                if (!markedPlanets.Contains(p)) // Don't include planets we are already trying to colonize
                 {
-                    rankedP.EvaluatePoorness(avgValue);
-                    finalPlanetsRanker.Add(rankedP);
+                    var pr = new PlanetRanker(Owner, p, canColonizeBarren, longestDistance, empireCenter);
+                    if (pr.CanColonize)
+                        planetRanker.Add(pr);
                 }
             }
-            return finalPlanetsRanker;
+
+            return planetRanker.Count > 0;
         }
 
         public void CheckClaim(Empire thievingEmpire, Relationship thiefRelationship, Planet claimedPlanet)
         {
-            if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction)
+            if (Owner.isPlayer || Owner.isFaction)
                 return;
 
             if (!thiefRelationship.Known)
@@ -241,57 +195,39 @@ namespace Ship_Game.AI.ExpansionAI
             if (claimedPlanet.Owner != thievingEmpire || thiefRelationship.AtWar)
                 return;
 
-            thiefRelationship.StoleOurColonyClaim(OwnerEmpire, claimedPlanet);
+            thiefRelationship.StoleOurColonyClaim(Owner, claimedPlanet);
 
             if (!thievingEmpire.isPlayer)
                 return;
 
-            thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, OwnerEmpire);
+            thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);
         }
 
-        public SolarSystem AssignExplorationTarget(Ship queryingShip)
+        public bool AssignExplorationTargetSystem(Ship ship, out SolarSystem targetSystem)
         {
+            targetSystem   = null;
             var potentials = new Array<SolarSystem>();
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem s = UniverseScreen.SolarSystemList[i];
-                if (!s.IsExploredBy(OwnerEmpire))
+                if (!s.IsExploredBy(Owner) && !MarkedForExploration.Contains(s))
                     potentials.Add(s);
-                else
-                    MarkedForExploration.Remove(s);
             }
 
-            for (int i = 0; i < MarkedForExploration.Count; i++)
-            {
-                SolarSystem s = MarkedForExploration[i];
-                potentials.Remove(s);
-            }
+            if (potentials.Count == 0)
+                return false; // All systems were explored or are marked by someone else
 
-            var empireCenter = OwnerEmpire.GetWeightedCenter();
-            var sortedList = potentials.Sorted(s => empireCenter.SqDist(s.Position));
+            // Sort by distance from explorer center
+            var sortedList    = potentials.Sorted(s => ship.Center.SqDist(s.Position));
+            targetSystem      = sortedList.First();
 
-            if (sortedList.Length == 0)
-            {
-                queryingShip.AI.ClearOrders();
-                return null;
-            }
-            SolarSystem nearestToHome = sortedList.Find(s=> !s.DangerousForcesPresent(OwnerEmpire));
-            foreach (SolarSystem nearest in sortedList)
-            {
-                if (nearest.DangerousForcesPresent(OwnerEmpire))
-                    continue;
-                float distanceToScout = Vector2.Distance(queryingShip.Center, nearest.Position);
-                float distanceToEarth = Vector2.Distance(empireCenter, nearest.Position);
+            MarkedForExploration.Add(targetSystem);
+            return true;
+        }
 
-                if (distanceToScout > distanceToEarth + 50000f)
-                    continue;
-
-                nearestToHome = nearest;
-                break;
-
-            }
-            MarkedForExploration.Add(nearestToHome);
-            return nearestToHome;
+        public void RemoveExplorationTargetFromList(SolarSystem system)
+        {
+            MarkedForExploration.Remove(system);
         }
     }
 }

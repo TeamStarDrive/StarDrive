@@ -46,9 +46,9 @@ namespace Ship_Game.AI
             buildRatio = Math.Max(buildRatio, overSpend);
 
             float budget                   = SetBudgetForeArea(0.01f, buildRatio, money);
+            float buildMod = BuildModifier() / 5;
 
-
-            return budget / (BuildModifier() / (1 + risk));
+            return budget / (buildMod / (1 + risk));
         }
 
         float BuildModifier()
@@ -86,7 +86,7 @@ namespace Ship_Game.AI
             float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
             float overSpend = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
-            var budget                     = SetBudgetForeArea(0.011f,buildRatio, money);
+            var budget                     = SetBudgetForeArea(0.012f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 

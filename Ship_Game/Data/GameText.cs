@@ -4234,6 +4234,8 @@ namespace Ship_Game
         /// <summary>Big Clusters Game Mode</summary>
         BigClustersGame = 1892,
         /// <summary>Small Clusters Game Mode</summary>
-        SmallClustersGame = 1890
+        SmallClustersGame = 1890,
+        /// <summary>Clear items Filter</summary>
+        ClearBuildableItemsFilter = 1870
     }
 }

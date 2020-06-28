@@ -32,8 +32,12 @@ namespace Ship_Game
         UIButton BuildStation;
         UIButton BuildShipyard;
         UIButton CallTroops;  //fbedard
+        UITextEntry FilterBuildableItems;
         Rectangle GridPos;
         Submenu subColonyGrid;
+        Submenu FilterFrame;
+        UIButton ClearFilter;
+
 
         ScrollList2<BuildableListItem> BuildableList;
         ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
@@ -149,8 +153,21 @@ namespace Ship_Game
             UpdateGovOrbitalStats();
             UpdateButtons();
 
-            BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 20, 
-                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height - 60));
+            FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 80, RightMenu.Y + 17), ""));
+            FilterBuildableItems.Font = Font12;
+            FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
+            Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
+            var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
+            ClearFilter = Add(new UIButton(customStyle, new Vector2(17, 17), "")
+            {
+                Font    = Font12,
+                Tooltip = GameText.ClearBuildableItemsFilter,
+                OnClick = OnClearFilterClick,
+                Pos     = new Vector2(FilterFrame.Pos.X + FilterFrame.Width + 10, FilterFrame.Pos.Y + 25)
+            });
+
+            BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 
+                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height-40));
             BuildableTabs.OnTabChange = OnBuildableTabChanged;
 
             BuildableList = Add(new ScrollList2<BuildableListItem>(BuildableTabs));
@@ -167,7 +184,7 @@ namespace Ship_Game
 
             ResetBuildableTabs();
 
-            var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 20 + 20 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 63);
+            var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 60 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 75);
             queue.AddTab(Localizer.Token(337));
 
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
@@ -197,23 +214,20 @@ namespace Ship_Game
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
         }
 
-        public float PositiveTerraformTargetFertility()
+        public float TerraformTargetFertility()
         {
-            var buildingList = P.BuildingList.Filter(b => b.MaxFertilityOnBuild > 0);
-            float positiveFertilityOnBuild = buildingList.Sum(b => b.MaxFertilityOnBuild);
-
-            return 1 + positiveFertilityOnBuild * Player.RacialEnvModifer(Player.data.PreferredEnv);
+            float fertilityOnBuild = P.BuildingList.Sum(b => b.MaxFertilityOnBuild);
+            return (1 + fertilityOnBuild*Player.RacialEnvModifer(Player.data.PreferredEnv)).LowerBound(0);
         }
 
         string TerraformPotential(out Color color)
         {
             color                       = Color.LightGreen;
-            float targetFertility       = PositiveTerraformTargetFertility();
+            float targetFertility       = TerraformTargetFertility();
             int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
             int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
-            int numNegativeEnvBuildings = P.BuildingList.Count(b => b.MaxFertilityOnBuild < 0);
             float minEstimatedMaxPop    = P.TileArea * P.BasePopPerTile * Player.RacialEnvModifer(Player.data.PreferredEnv) 
-                                          + P.BuildingList.Sum(b => b.MaxPopIncrease);
+                                          + P.BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease);
 
             string text = "Terraformer Process Stages:\n";
             string initialText = text;
@@ -227,11 +241,22 @@ namespace Ship_Game
             if (numBiospheres > 0)
                 text += $"  * Remove {numBiospheres} Biospheres.\n";
 
-            if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
+            if (targetFertility.AlmostZero())
+            {
+                text += "  * Max Fertility will be 0 due to negative effecting environment buildings.\n";
+                color = Color.Red;
+            }
+            else if (targetFertility.Less(1))
+            {
+                text += $"  * Max Fertility will only be changed to {targetFertility} due to negative effecting environment buildings.\n";
+            }
+            else if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
+            {
                 text += $"  * Max Fertility will be changed to {targetFertility}.\n";
+            }
 
             if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
-                text += $"  * Expected Max Population will be at least {(minEstimatedMaxPop / 1000).String(2)} Billion colonists.\n";
+                text += $"  * Expected Max Population will be {(minEstimatedMaxPop / 1000).String(2)} Billion colonists.\n";
 
             if (text == initialText)
             {
