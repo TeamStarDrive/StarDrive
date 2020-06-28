@@ -28,11 +28,11 @@ namespace Ship_Game.AI
             // gamestate attempts to increase the budget if there are wars or lack of some resources. 
             // its primarily geared at ship building. 
             float gameState = GetRisk(2.25f);
-            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(0, treasuryGoal);
-            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
-            BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
-            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(0,treasuryGoal);
-            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal);
+            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(0, money);
+            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(money);
+            BuildCapacity                  = DetermineBuildCapacity(gameState, money);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(0, money);
+            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(money);
 
             PlanetBudgetDebugInfo();
         }
@@ -45,7 +45,7 @@ namespace Ship_Game.AI
             float overSpend = OverSpendRatio(money, 0.25f, 0.25f);
             buildRatio = Math.Max(buildRatio, overSpend);
 
-            float budget                   = SetBudgetForeArea(0.01f, buildRatio, money);
+            float budget                   = SetBudgetForeArea(0.015f, buildRatio, money);
             float buildMod = BuildModifier() / 5;
 
             return budget / (buildMod / (1 + risk));
@@ -64,7 +64,7 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float risk                     = strat.IndustryRatio + strat.ExpansionRatio;
-            return SetBudgetForeArea(0.0025f, risk, money);
+            return SetBudgetForeArea(0.003f, risk, money);
         }
 
         float DetermineBuildCapacity(float risk, float money)
@@ -86,7 +86,7 @@ namespace Ship_Game.AI
             float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
             float overSpend = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
-            var budget                     = SetBudgetForeArea(0.012f,buildRatio, money);
+            var budget                     = SetBudgetForeArea(0.015f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 
@@ -118,7 +118,7 @@ namespace Ship_Game.AI
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
                                  + OwnerEmpire.data.FlatMoneyBonus;
 
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 150;
             float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;
             treasuryGoal  = Math.Max(minGoal, treasuryGoal);
             return treasuryGoal;

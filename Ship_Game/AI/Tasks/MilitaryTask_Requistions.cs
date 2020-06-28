@@ -99,19 +99,19 @@ namespace Ship_Game.AI.Tasks
             newFleet.AutoArrange();
         }
 
-        private bool AreThereEnoughTroopsToInvade(FleetShips fleetShips, out Array<Troop> troopsOnPlanetNeeded,
+        private bool AreThereEnoughTroopsToInvade(float invasionTroopStrength, out Array<Troop> troopsOnPlanetNeeded,
                                                   Vector2 rallyPoint, bool troopPriorityHigh = false)
         {
             troopsOnPlanetNeeded = new Array<Troop>();
             if (NeededTroopStrength <= 0)
                 return true;
 
-            if (fleetShips.InvasionTroopStrength < NeededTroopStrength)
+            if (invasionTroopStrength < NeededTroopStrength)
             {
                 troopsOnPlanetNeeded = GetTroopsOnPlanets(rallyPoint, NeededTroopStrength, 
                                               out float planetsTroopStrength, troopPriorityHigh);
 
-                if (fleetShips.InvasionTroopStrength + planetsTroopStrength >= NeededTroopStrength)
+                if (invasionTroopStrength + planetsTroopStrength >= NeededTroopStrength)
                     return true;
             }
             return true;
@@ -250,7 +250,7 @@ namespace Ship_Game.AI.Tasks
             InitFleetRequirements(minFleetStrength: 100, minTroopStrength: requiredTroopStrength.LowerBound(40), minBombMinutes: 0);
             float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
 
-            if (CreateTaskFleet("Scout Fleet", battleFleetSize) == RequisitionStatus.Complete)
+            if (CreateTaskFleet("Scout Fleet", battleFleetSize, true) == RequisitionStatus.Complete)
                 Step = 1;
         }
 
@@ -395,7 +395,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             // See if we need to gather troops from planets. Bail if not enough
-            if (!AreThereEnoughTroopsToInvade(fleetShips, out Array<Troop> troopsOnPlanets, rallyPoint.Center))
+            if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out Array<Troop> troopsOnPlanets, rallyPoint.Center, highTroopPriority))
                 return RequisitionStatus.NotEnoughTroopStrength;
 
             int wantedNumberOfFleets = 1;
