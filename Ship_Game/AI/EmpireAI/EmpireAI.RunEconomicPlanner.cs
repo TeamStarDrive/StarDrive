@@ -2,6 +2,7 @@
 
 using Ship_Game.AI.Budget;
 using System;
+using System.Linq;
 
 namespace Ship_Game.AI
 {
@@ -21,7 +22,8 @@ namespace Ship_Game.AI
 
         public void RunEconomicPlanner()
         {
-            float money                    = OwnerEmpire.Money.LowerBound(1.0f);
+            // FB Get normalized money to smooth fluctuations - until we get a better treasury goal calc
+            float money                    = OwnerEmpire.NormalizeBudget(OwnerEmpire.Money).LowerBound(1);
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
