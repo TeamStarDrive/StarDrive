@@ -55,6 +55,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
+            planet.Construction.PrioritizeShip(scout);
             return GoalStep.GoToNextStep;
         }
        

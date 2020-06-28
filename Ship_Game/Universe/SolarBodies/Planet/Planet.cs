@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -564,6 +563,11 @@ namespace Ship_Game
                 BuildingList.Remove(biospheresList.First());
         }
 
+        public bool InSafeDistanceFromRadiation()
+        {
+            return ParentSystem.InSafeDistanceFromRadiation(Center);
+        }
+
         public void UpdateOwnedPlanet()
         {
             ++TurnsSinceTurnover;
@@ -774,7 +778,7 @@ namespace Ship_Game
 
         public void AddMaxBaseFertility(float amount)
         {
-            BaseMaxFertility    = (BaseMaxFertility + amount).LowerBound(0);
+            BaseMaxFertility = (BaseMaxFertility + amount).LowerBound(0);
         }
 
         public void AddBuildingsFertility(float amount)
@@ -946,7 +950,8 @@ namespace Ship_Game
             decayChance /= Scale.LowerBound(0.1f);
 
             // Decreasing chance of decay if Richness below 1
-            decayChance *= MineralRichness.UpperBound(1);
+            // Increasing Chance of decay if richness is above one (limit to max of *2)
+            decayChance *= MineralRichness.UpperBound(2f);
 
             // Longer pace decreases decay chance
             decayChance *= 1 / CurrentGame.Pace;
@@ -1021,7 +1026,7 @@ namespace Ship_Game
 
             if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
             {
-                float popToRemove = ((1 - PopulationRatio) * 10).Clamped(20,1000);
+                float popToRemove = ((PopulationRatio - 1) * 1000).Clamped(100, 10000);
                 Population        = Math.Max(Population - popToRemove, MaxPopulation);
             }
             else if (IsStarving)

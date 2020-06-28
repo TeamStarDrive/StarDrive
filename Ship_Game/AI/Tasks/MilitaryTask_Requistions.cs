@@ -238,20 +238,42 @@ namespace Ship_Game.AI.Tasks
 
             AO closestAO = FindClosestAO();
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
-            {
                 return;
+
+            int requiredTroopStrength = 0;
+            if (TargetPlanet != null)
+            {
+                AO = TargetPlanet.Center;
+                requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
             }
-
-            AO = TargetPlanet?.Center ?? AO;
-
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 0, minBombMinutes: 0);
-
+            
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: requiredTroopStrength.LowerBound(40), minBombMinutes: 0);
             float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
 
             if (CreateTaskFleet("Scout Fleet", battleFleetSize) == RequisitionStatus.Complete)
-            {
                 Step = 1;
+        }
+
+        void RequisitionAssaultPirateBase()
+        {
+            if (AO.AlmostZero())
+                Log.Error($"no area of operation set for task: {type}");
+
+            if (TargetShip == null || !TargetShip.Active)
+            {
+                EndTask();
+                return;
             }
+
+            AO closestAO  = FindClosestAO(EnemyStrength);
+            if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
+                return;
+
+
+            InitFleetRequirements(minFleetStrength: (int)EnemyStrength, minTroopStrength: 0, minBombMinutes: 0);
+            EnemyStrength = GetEnemyShipStrengthInAO().LowerBound(TargetShip.BaseStrength);
+            if (CreateTaskFleet("Assault Fleet", 1) == RequisitionStatus.Complete)
+                Step = 1;
         }
 
         void RequisitionExplorationForce()
@@ -395,6 +417,7 @@ namespace Ship_Game.AI.Tasks
             // All's Good... Make a fleet
             TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, TaskBombTimeNeeded
                 , NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets);
+
             if (TaskForce.IsEmpty)
                 return RequisitionStatus.FailedToCreateAFleet;
 

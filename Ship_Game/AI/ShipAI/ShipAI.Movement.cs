@@ -142,8 +142,12 @@ namespace Ship_Game.AI
         {
             // we cannot give a speed limit here, because thrust will
             // engage warp drive and we would be limiting warp speed (baaaad)
-            Vector2 movePos = goal.MovePosition; // dynamic move position
-            ThrustOrWarpToPos(movePos, elapsedTime);
+            // FB - but, for a carrier which is waiting for fighters to board before
+            // warp, we must give a speed limit. The limit is reset when all relevant
+            // ships are recalled, so no issue with Warp
+            float speedLimit = Owner.Carrier.RecallingShipsBeforeWarp ? Owner.SpeedLimit : 0;
+            Vector2 movePos  = goal.MovePosition; // dynamic move position
+            ThrustOrWarpToPos(movePos, elapsedTime, speedLimit);
 
             float distance = Owner.Center.Distance(movePos);
 
@@ -359,11 +363,7 @@ namespace Ship_Game.AI
          * @param warpExitDistance [0] If set to nonzero, ships will exit warp at this distance
          *                   but only if this is the last WayPoint
          */
-        internal void ThrustOrWarpToPos(
-            Vector2 pos,
-            float deltaTime,
-            float speedLimit = 0f,
-            float warpExitDistance = 0f)
+        internal void ThrustOrWarpToPos(Vector2 pos, float deltaTime, float speedLimit = 0f, float warpExitDistance = 0f)
         {
             if (Owner.EnginesKnockedOut)
                 return;

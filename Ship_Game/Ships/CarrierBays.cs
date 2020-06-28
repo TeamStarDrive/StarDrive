@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
+using Ship_Game.Audio;
 
 namespace Ship_Game.Ships
 {
@@ -20,8 +21,11 @@ namespace Ship_Game.Ships
         public readonly bool HasActiveTroopBays;
         public readonly bool HasOrdnanceTransporters;
         public readonly bool HasAssaultTransporters;
-        public bool SendTroopsToShip;
-        private bool RecallingShipsBeforeWarp;
+        public bool FightersLaunched { get; private set; }
+        public bool TroopsLaunched { get; private set; }
+        public bool SendTroopsToShip { get; private set; }
+        public bool RecallFightersBeforeFTL { get; private set; }
+        public bool RecallingShipsBeforeWarp { get; private set; }
         public SupplyShuttles SupplyShuttle;
         public float HangarRange => HasActiveHangars ? 7500f : 0;
         public bool IsPrimaryCarrierRole => HasActiveHangars &&
@@ -46,6 +50,7 @@ namespace Ship_Game.Ships
             HasAssaultTransporters  = AllTransporters.Any(transporter => transporter.TransporterTroopAssault > 0);
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
             SendTroopsToShip        = true;
+            RecallFightersBeforeFTL = true;
             Owner                   = owner;
             SupplyShuttle           = new SupplyShuttles(Owner);
         }
@@ -58,7 +63,10 @@ namespace Ship_Game.Ships
             if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
                             || m.ModuleType == ShipModuleType.Transporter)
                             || role == ShipData.RoleName.troop)
+            {
                 return new CarrierBays(owner, slots);
+            }
+
             return None;
         }
 
@@ -79,6 +87,17 @@ namespace Ship_Game.Ships
         /// </summary>
         public bool HasSupplyShuttlesInSpace => AllSupplyBays.Any(hangar => hangar.GetHangarShip()?.Active == true);
         public ShipModule[] SupplyHangarsAlive => AllSupplyBays.Filter(hangar => hangar.Active);
+
+        public void InitFromSave(SavedGame.ShipSaveData save)
+        {
+            if (Owner == null)
+                return;
+
+            FightersLaunched = save.FightersLaunched;
+            TroopsLaunched   = save.TroopsLaunched;
+            SendTroopsToShip = save.SendTroopsToShip;
+            SetRecallFightersBeforeFTL(save.RecallFightersBeforeFTL);
+        }
         
         public int NumTroopsInShipAndInSpace
         {
@@ -343,7 +362,7 @@ namespace Ship_Game.Ships
 
         public bool RecallingFighters()
         {
-            if (Owner == null || !Owner.RecallFightersBeforeFTL || !HasActiveHangars)
+            if (Owner == null || !RecallFightersBeforeFTL || !HasActiveHangars)
                 return false;
 
             Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero; ;
@@ -398,7 +417,8 @@ namespace Ship_Game.Ships
                 return false;
             }
             if (Owner.SpeedLimit * 2 > slowestFighterSpeed)
-                Owner.SpeedLimit = slowestFighterSpeed * 0.25f;
+                Owner.SetSpeedLimit(slowestFighterSpeed * 0.25f);
+
             return true;
         }
 
@@ -583,6 +603,72 @@ namespace Ship_Game.Ships
                     return true;
             }
             return false;
+        }
+
+        public bool FightersOut
+        {
+            get => FightersLaunched;
+            set
+            {
+                if (Owner == null)
+                    return;
+
+                if (Owner.IsSpoolingOrInWarp)
+                {
+                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
+                    return;
+                }
+
+                FightersLaunched = value;
+                if (FightersLaunched)
+                    ScrambleFighters();
+                else
+                    RecoverFighters();
+            }
+        }
+
+        public bool TroopsOut
+        {
+            get => TroopsLaunched;
+            set
+            {
+                if (Owner == null)
+                    return;
+
+                if (Owner.IsSpoolingOrInWarp)
+                {
+                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
+                    return;
+                }
+
+                TroopsLaunched = value;
+                if (TroopsLaunched)
+                    ScrambleAllAssaultShips();
+                else
+                    RecoverAssaultShips();
+            }
+        }
+
+        public void HandleHangarShipsScramble()
+        {
+            if (Owner == null)
+                return;
+
+            if (FightersLaunched) // for ships with hangars and with fighters out button on.
+                ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
+
+            if (TroopsLaunched)
+                ScrambleAllAssaultShips(); // FB: if the troops out button is on, launch every available assault shuttle
+        }
+
+        public void SetSendTroopsToShip(bool value)
+        {
+            SendTroopsToShip = value;
+        }
+
+        public void SetRecallFightersBeforeFTL(bool value)
+        {
+            RecallFightersBeforeFTL = value;
         }
     }
 }

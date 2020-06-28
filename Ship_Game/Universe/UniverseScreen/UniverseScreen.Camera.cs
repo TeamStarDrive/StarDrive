@@ -70,6 +70,13 @@ namespace Ship_Game
             ShowShipNames = false;
             if (SelectedPlanet == null)
                 return;
+
+            if (combatView && Debug)
+            {
+                OpenCombatMenu();
+                return;
+            }
+
             if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
             {
                 GameAudio.NegativeClick();
