@@ -170,6 +170,7 @@ namespace Ship_Game.Ships
 
         void InitializeFromSaveData(SavedGame.ShipSaveData save)
         {
+
             guid             = save.guid;
             Position         = save.Position;
             experience       = save.experience;
@@ -184,14 +185,12 @@ namespace Ship_Game.Ships
             TetherGuid       = save.TetheredTo;
             TetherOffset     = save.TetherOffset;
             InCombat         = InCombatTimer > 0f;
-            TroopsLaunched   = save.TroopsLaunched;
-            FightersLaunched = save.FightersLaunched;
 
-            TransportingFood       = save.TransportingFood;
-            TransportingProduction = save.TransportingProduction;
-            TransportingColonists  = save.TransportingColonists;
-            AllowInterEmpireTrade  = save.AllowInterEmpireTrade;
-            TradeRoutes            = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
+            TransportingFood         = save.TransportingFood;
+            TransportingProduction   = save.TransportingProduction;
+            TransportingColonists    = save.TransportingColonists;
+            AllowInterEmpireTrade    = save.AllowInterEmpireTrade;
+            TradeRoutes              = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;
@@ -221,6 +220,9 @@ namespace Ship_Game.Ships
                 foreach (Rectangle aoRect in save.AreaOfOperation)
                     AreaOfOperation.Add(aoRect);
             }
+
+            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
+            Carrier.InitFromSave(save);
 
             InitializeAIFromAISave(save.AISave);
             LoadFood(save.FoodCount);
@@ -423,8 +425,8 @@ namespace Ship_Game.Ships
             BaseCost                 = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank                  = GetMaxBank();
 
-            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
-            Supply  = new ShipResupply(this);
+            Carrier     = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
+            Supply      = new ShipResupply(this);
             ShipEngines = new ShipEngines(this, ModuleSlotList);
 
             InitializeStatusFromModules(fromSave);

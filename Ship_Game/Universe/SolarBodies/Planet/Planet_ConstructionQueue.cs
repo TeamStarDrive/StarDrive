@@ -90,6 +90,7 @@ namespace Ship_Game
                 {
                     turns += ConstructionQueue[i].TurnsUntilComplete;
                 }
+
                 return turns;
             }
         }
@@ -101,9 +102,10 @@ namespace Ship_Game
             if (!HasSpacePort)
                 return 9999; // impossible
 
-            int shipTurns = (int)Math.Ceiling((shipCost*ShipBuildingModifier) / Prod.NetMaxPotential);
-            int total = shipTurns + TurnsUntilQueueCompleted;
-            return Math.Min(999, total);
+            float effectiveCost = ((shipCost * ShipBuildingModifier) - ProdHere).LowerBound(0);
+            int shipTurns       = (int)Math.Ceiling(effectiveCost / Prod.NetMaxPotential);
+            int total           = shipTurns + TurnsUntilQueueCompleted;
+            return total.UpperBound(999);
         }
 
         public float TotalCostOfTroopsInQueue()

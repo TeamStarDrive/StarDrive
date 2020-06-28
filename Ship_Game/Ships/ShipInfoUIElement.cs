@@ -41,7 +41,7 @@ namespace Ship_Game.Ships
             Screen               = screen;
             ScreenManager        = sm;
             ElementRect          = r;
-            FlagRect             = new Rectangle(r.X + 150, r.Y + 50, 40, 40);
+            FlagRect             = new Rectangle(r.X + 365, r.Y + 71, 18, 18);
             Sel                  = new Selector(r, Color.Black);
             TransitionOnTime     = TimeSpan.FromSeconds(0.25);
             TransitionOffTime    = TimeSpan.FromSeconds(0.25);
@@ -212,10 +212,10 @@ namespace Ship_Game.Ships
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
             string text;
-            Vector2 shipStatus              = new Vector2(Sel.Rect.X + Sel.Rect.Width - 170, Housing.Y + 68);
-            text                            = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(Ship), 155f);
+            Vector2 shipStatus              = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64);
+            text                            = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(Ship), 120);
             HelperFunctions.ClampVectorToInt(ref shipStatus);
-            batch.DrawString(Fonts.Arial10, text, shipStatus, tColor);
+            batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
             shipStatus.Y += Fonts.Arial12Bold.MeasureString(text).Y;
 
             Ship.RenderOverlay(batch, ShipInfoRect, ShowModules);
@@ -247,11 +247,9 @@ namespace Ship_Game.Ships
                     if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, button.CombatState);
                 }
             }
-            else  //fbedard: Display race icon of enemy ship in Ship UI
-            {
-                var flagShip = new Rectangle(FlagRect.X + 190, FlagRect.Y + 130, 40, 40);
-                batch.Draw(ResourceManager.Flag(Ship.loyalty), flagShip, Ship.loyalty.EmpireColor);
-            }
+
+            //fbedard: Display race icon
+            batch.Draw(ResourceManager.Flag(Ship.loyalty), FlagRect, Ship.loyalty.EmpireColor);
 
             Vector2 mousePos = Mouse.GetState().Pos();
 
@@ -626,6 +624,9 @@ namespace Ship_Game.Ships
                 Orders.Add(resupply);
             }
 
+            if (!Ship.CanBeScrapped)
+                return;
+
             if (Ship.IsFreighter)
             {
                 var ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, 15)
@@ -672,8 +673,8 @@ namespace Ship_Game.Ships
 
                 var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.TroopsOut, x => {
-                        Ship.TroopsOut = !Ship.TroopsOut;
+                    ValueToModify = new Ref<bool>(() => Ship.Carrier.TroopsOut, x => {
+                        Ship.Carrier.TroopsOut = !Ship.Carrier.TroopsOut;
                     })
                 };
                 Orders.Add(ob2);
@@ -683,9 +684,9 @@ namespace Ship_Game.Ships
             {
                 var ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.FightersOut, x =>
+                    ValueToModify = new Ref<bool>(() => Ship.Carrier.FightersOut, x =>
                     {
-                        Ship.FightersOut = !Ship.FightersOut;
+                        Ship.Carrier.FightersOut = !Ship.Carrier.FightersOut;
                     })
                 };
                 Orders.Add(ob);
@@ -695,9 +696,9 @@ namespace Ship_Game.Ships
             {
                 var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.RecallFightersBeforeFTL, x =>
+                    ValueToModify = new Ref<bool>(() => Ship.Carrier.RecallFightersBeforeFTL, x =>
                         {
-                            Ship.RecallFightersBeforeFTL = x;
+                            Ship.Carrier.SetRecallFightersBeforeFTL(x);
                             Ship.ManualHangarOverride = !x;
                         }
                     )
@@ -721,7 +722,7 @@ namespace Ship_Game.Ships
                 Orders.Add(systemDefense);
                 */
             }
-            if (Ship.Mothership == null)
+            if (Ship.CanBeScrapped)
             {
                 var rf = new OrdersButton(Ship, Vector2.Zero, OrderType.Refit, 158)
                 {

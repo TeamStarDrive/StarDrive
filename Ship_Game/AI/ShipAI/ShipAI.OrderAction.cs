@@ -457,6 +457,9 @@ namespace Ship_Game.AI
 
         public void OrderScrapShip()
         {
+            if (!Owner.CanBeScrapped)
+                return;
+
             Owner.loyalty.Pool.RemoveShipFromFleetAndPools(Owner);
 
             if (Owner.SecondsAlive < 10)
@@ -474,7 +477,7 @@ namespace Ship_Game.AI
 
             IgnoreCombat = true;
             OrbitTarget = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
-            if (OrbitTarget == null)
+            if (OrbitTarget == null) // nowhere to scrap
             {
                 Owner.ScuttleTimer = 1;
                 ClearOrders(AIState.Scuttle, priority:true);
@@ -483,6 +486,7 @@ namespace Ship_Game.AI
             }
 
             OrderMoveAndScrap(OrbitTarget);
+            return;
         }
 
         public void AddSupplyShipGoal(Ship supplyTarget)

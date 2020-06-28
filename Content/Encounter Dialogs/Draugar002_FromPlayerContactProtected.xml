@@ -6,7 +6,7 @@
   <DescriptionText>You hail the Draugar captain. After a few short moments a crackling voice comes over the subspace communicator:</DescriptionText>
   <MessageList>
     <Message>
-      <Text>Hello SING , are you hungry today?</Text>
+      <Text>Hello SING, are you hungry today?</Text>
       <ResponseOptions>
         <Response>
           <Text>Tell them you want the Protection Contract off and you are going to kill them.</Text>

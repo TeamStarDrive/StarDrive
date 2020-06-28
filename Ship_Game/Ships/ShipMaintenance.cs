@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
             return (float)Math.Round(maint, 2);
         }
 
-        public static float GetMaintenanceCost(Ship ship, Empire empire, int numShipYards = 0)
+        public static float GetMaintenanceCost(Ship ship, Empire empire)
         {
             ShipData.RoleName role = ship.shipData.HullRole;
             if (IsFreeUpkeepShip(role, empire, ship))
@@ -34,9 +34,9 @@ namespace Ship_Game.Ships
             if (ship.IsSubspaceProjector)
                 return maint;
 
-            //added by gremlin shipyard exploit fix
-            if (ship.IsTethered && ship.shipData.IsShipyard && numShipYards > 3)
-                maint *= numShipYards - 3;
+            // Reduced maintenance for shipyards (sitting ducks, no offense) Shipyards are limited to 3.
+            if (ship.shipData.IsShipyard)
+                maint *= 0.4f;
 
             return maint;
         }

@@ -86,18 +86,29 @@ namespace Ship_Game
             Res.AutoBalanceWorkers(); // rest goes to research
         }
 
+        public void ResetFoodAfterInvasionSuccess()
+        {
+            if (Owner == null)
+                return;
+
+            Res.Percent = 0;
+            if (Owner.IsCybernetic)
+                AssignOtherWorldsWorkers(0, 1);
+            else
+                AssignOtherWorldsWorkers(0.5f, 0.5f);
+        }
+
         float MinIncomePerTurn(float storage, ColonyResource res)
         {
             float ratio = storage / Storage.Max;
             if (ratio.AlmostEqual(1))
                 return 0; // when idling, keep production low to leave room for others
 
-            float minPerTurn = res.NetMaxPotential * 0.1f;
-            float maxPerTurn = res.NetMaxPotential * 0.9f; // MAX % for this product
-
-            float shortage = (Storage.Max*0.8f) - storage;
+            float minPerTurn     = res.NetMaxPotential * 0.1f;
+            float maxPerTurn     = res.NetMaxPotential * 0.9f; // MAX % for this product
+            float shortage       = (Storage.Max*0.8f) - storage;
             float resolveInTurns = 20.0f;
-            float perTurn = (shortage / resolveInTurns).Clamped(minPerTurn, maxPerTurn);
+            float perTurn        = (shortage / resolveInTurns).Clamped(minPerTurn, maxPerTurn);
             return perTurn;
         }
 

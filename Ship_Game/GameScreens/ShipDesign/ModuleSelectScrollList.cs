@@ -236,16 +236,6 @@ namespace Ship_Game
                 case ShipData.RoleName.station   when mod.StationModule   == false: return true;
             }
 
-            if (mod.FightersOnly)
-            {
-                switch (role)
-                {
-                    case ShipData.RoleName.fighter:
-                    case ShipData.RoleName.scout:
-                    case ShipData.RoleName.corvette:
-                    case ShipData.RoleName.gunboat: return true;
-                }
-            }
             return false;
         }
     }

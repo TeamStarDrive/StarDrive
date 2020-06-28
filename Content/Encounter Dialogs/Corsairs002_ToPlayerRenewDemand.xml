@@ -1,13 +1,13 @@
 ﻿<Encounter>
   <Faction>Corsairs</Faction>
-  <Step>1</Step>
+  <Step>2</Step>
   <Name>Renewing our "Contract"</Name>
   <FactionInitiated>true</FactionInitiated>
-  <BaseMoneyDemanded>250</BaseMoneyDemanded> <!-- this money request will be modified and overwrite any MoneyToThem below -->
+  <PercentMoneyDemanded>10</PercentMoneyDemanded> <!-- this percentage of total treasury request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>Your sub-space transmitter hums with a new Corsairs message:</DescriptionText>
   <MessageList>
     <Message>
-    <Text>Dear SING,
+    <Text>Dear SING, 
 
 It is time to renew our contract. Would you be so kind to transfer MONEY credits into our galactic account? We promise to restrain our people when it comes to your SING assets,
 maybe even help you protect against space monsters.

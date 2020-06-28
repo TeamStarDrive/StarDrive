@@ -23,8 +23,6 @@ namespace Ship_Game.Ships
 
         public string VanityName                = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
-        public bool RecallFightersBeforeFTL     = true;
-
 
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
@@ -110,8 +108,6 @@ namespace Ship_Game.Ships
         public bool ShouldRecalculatePower;
         public bool Deleted;
         public bool inborders;
-        public bool FightersLaunched { get; private set; }
-        public bool TroopsLaunched { get; private set; }
         private float BonusEMP_Protection;
         public bool inSensorRange;
         public bool EMPdisabled;
@@ -301,12 +297,12 @@ namespace Ship_Game.Ships
             ApplyForce(repulsion);
         }
 
-        public void CauseMassDamage(float massDamage)
+        public void CauseMassDamage(float massDamage, bool hittingShields)
         {
             if (IsTethered || EnginesKnockedOut)
                 return;
 
-            Mass += massDamage;
+            Mass += hittingShields ? massDamage/2 : massDamage;
             UpdateMaxVelocity();
             shipStatusChanged = true;
         }
@@ -396,6 +392,7 @@ namespace Ship_Game.Ships
             return jitter;
         }
 
+        public bool CanBeScrapped  => Mothership == null && HomePlanet == null;
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > Status.Critical
@@ -456,24 +453,6 @@ namespace Ship_Game.Ships
             return ToShipStatus(bombSeconds, 60);
         }
 
-        public bool FightersOut
-        {
-            get => FightersLaunched;
-            set
-            {
-                if (IsSpoolingOrInWarp)
-                {
-                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
-                    return;
-                }
-                FightersLaunched = value;
-                if (FightersLaunched)
-                    Carrier.ScrambleFighters();
-                else
-                    Carrier.RecoverFighters();
-            }
-        }
-
         public bool DoingExplore
         {
             get => AI.State == AIState.Explore;
@@ -500,24 +479,6 @@ namespace Ship_Game.Ships
                 }
                 EmpireManager.Player.GetEmpireAI().DefensiveCoordinator.AddShip(this);
                 AI.State = AIState.SystemDefender;
-            }
-        }
-
-        public bool TroopsOut
-        {
-            get => TroopsLaunched;
-            set
-            {
-                if (IsSpoolingOrInWarp)
-                {
-                    GameAudio.NegativeClick(); // dont allow changing button state if the ship is spooling or at warp
-                    return;
-                }
-                TroopsLaunched = value;
-                if (TroopsLaunched)
-                    Carrier.ScrambleAllAssaultShips();
-                else
-                    Carrier.RecoverAssaultShips();
             }
         }
 
@@ -732,8 +693,7 @@ namespace Ship_Game.Ships
 
         public float GetMaintCost(Empire empire)
         {
-            int numShipYards = IsTethered ? GetTether().OrbitalStations.Count(shipyard => shipyard.Value.shipData.IsShipyard) : 0;
-            return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
+            return GetMaintenanceCost(this, empire);
         }
 
         public void DoEscort(Ship escortTarget)
@@ -1073,14 +1033,11 @@ namespace Ship_Game.Ships
                 SecondsAlive += 1;
             }
 
-            if (FightersLaunched) // for ships with hangars and with fighters out button on.
-                Carrier.ScrambleFighters(); // FB: If new fighters are ready in hangars, scramble them
-            if (TroopsLaunched)
-                Carrier.ScrambleAllAssaultShips(); // FB: if the troops out button is on, launch every availble assualt shuttle
+            Carrier.HandleHangarShipsScramble();
 
-            Ordinance = Math.Min(Ordinance, OrdinanceMax);
-
+            Ordinance                  = Math.Min(Ordinance, OrdinanceMax);
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
+
             if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
                 Die(LastDamagedBy, false);
 
@@ -1363,15 +1320,15 @@ namespace Ship_Game.Ships
                     if (module.FixedTracking > 0 && module.FixedTracking > FixedTrackingPower)
                         FixedTrackingPower = module.FixedTracking;
 
-                    TrackingPower       += Math.Max(0, module.TargetTracking);
                     OrdinanceMax        += module.OrdinanceCapacity;
                     CargoSpaceMax       += module.Cargo_Capacity;
-                    InhibitionRadius    += module.InhibitionRadius;
                     BonusEMP_Protection += module.EMP_Protection;
-                    SensorRange          = Math.Max(SensorRange, module.SensorRange);
-                    sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
+                    InhibitionRadius     = module.InhibitionRadius.LowerBound(InhibitionRadius);
+                    SensorRange          = module.SensorRange.LowerBound(SensorRange);
+                    sensorBonus          = module.SensorBonus.LowerBound(sensorBonus);
+                    TrackingPower        = module.TargetTracking.LowerBound(TrackingPower);
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }

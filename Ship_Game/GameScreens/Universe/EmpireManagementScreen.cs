@@ -338,10 +338,10 @@ namespace Ship_Game
             }
 
             HandleSortButton(input, SbPop, 2278, p => p.PopulationBillion);
-            HandleSortButton(input, SbFood, 139, p => p.Food.NetIncome);
-            HandleSortButton(input, SbProd, 140, p => p.Prod.NetIncome);
-            HandleSortButton(input, SbRes, 141, p => p.Res.NetIncome);
-            HandleSortButton(input, SbMoney, 142, p => p.Money.NetRevenue);
+            HandleSortButton(input, SbFood, 2174, p => p.Food.NetIncome);
+            HandleSortButton(input, SbProd, 2175, p => p.Prod.NetIncome);
+            HandleSortButton(input, SbRes, 2176, p => p.Res.NetIncome);
+            HandleSortButton(input, SbMoney, 2177, p => p.Money.NetRevenue);
 
             return base.HandleInput(input);
         }

@@ -21,9 +21,30 @@
         public readonly int MineralDecayDivider;
         public readonly float PiratePayModifier;
 
+        // AI Buffs/Nerfs
+        public readonly float FlatMoneyBonus;
+        public readonly float ProductionMod;
+        public readonly float ResearchMod;
+        public readonly float TaxMod;
+        public readonly float ShipCostMod;
+        public readonly float ResearchTaxMultiplier;
+        public readonly float ModHpModifier;
+
+        /// <summary>
+        /// Higher number will decrease colonization pace
+        /// </summary>
+        public readonly float ExpansionModifier; 
+
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
             DataVisibleToPlayer = false;
+            FlatMoneyBonus        = 0;
+            ProductionMod         = 0;
+            ResearchMod           = 0;
+            TaxMod                = 0;
+            ShipCostMod           = 0;
+            ResearchTaxMultiplier = 0;
+            ModHpModifier         = 0;
             switch (difficulty)
             {
                 case UniverseData.GameDifficulty.Easy:
@@ -40,6 +61,16 @@
                     EnemyTroopStrength   = 1f;
                     MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
+                    ExpansionModifier    = 0.2f;
+
+                    if (!empire.isPlayer)
+                    {
+                        ProductionMod = -0.25f;
+                        ResearchMod   = -0.25f; ;
+                        TaxMod        = -0.25f;
+                        ModHpModifier = -0.25f;
+                    }
+
                     break;
                 default:
                 case UniverseData.GameDifficulty.Normal:
@@ -55,6 +86,7 @@
                     EnemyTroopStrength   = 1.1f;
                     MineralDecayDivider  = 75;
                     PiratePayModifier    = 0.75f;
+                    ExpansionModifier    = 0.1f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -69,6 +101,18 @@
                     EnemyTroopStrength   = 1.25f;
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 1f;
+                    ExpansionModifier    = 0.05f;
+
+                    if (!empire.isPlayer)
+                    {
+                        FlatMoneyBonus        = 10;
+                        ProductionMod         = 0.5f;
+                        ResearchMod           = 0.75f;
+                        TaxMod                = 0.5f;
+                        ShipCostMod           = -0.2f;
+                        ResearchTaxMultiplier = 0.7f;
+                    }
+
                     break;
                 case UniverseData.GameDifficulty.Brutal:
                     ShipBuildStrMin      = 0.9f;
@@ -83,12 +127,24 @@
                     EnemyTroopStrength   = 1.5f;
                     MineralDecayDivider  = 35;
                     PiratePayModifier    = 1.5f;
+                    ExpansionModifier    = 0f;
+
+                    if (!empire.isPlayer)
+                    {
+                        FlatMoneyBonus        = 20;
+                        ProductionMod         = 1f;
+                        ResearchMod           = 1.33f;
+                        TaxMod                = 1f;
+                        ShipCostMod           = -0.5f;
+                        ResearchTaxMultiplier = 0.3f;
+                    }
+
                     break;
             }
 
             if (empire.isPlayer)
             {
-                BaseColonyGoals = 10;
+                BaseColonyGoals = 3;
             }
             else
             {
@@ -96,7 +152,7 @@
                 BaseColonyGoals                   = (float)difficulty * 2.5f * strategy.ExpansionRatio;
             }
 
-            SysComModifier      = (int)(((int)difficulty + 1) * 0.75f + 0.5f);
+            SysComModifier      = (int)(((int)difficulty + 1) * 0.75f).LowerBound(1);
             DiploWeightVsPlayer = (int)difficulty + 1;
             Anger               = 1 + ((int)difficulty + 1) * 0.2f;
             RemnantStory        = (int)difficulty * 3;

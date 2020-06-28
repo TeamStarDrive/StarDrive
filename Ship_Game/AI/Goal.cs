@@ -31,10 +31,11 @@ namespace Ship_Game.AI
         PirateBase,
         PirateRaidTransport,
         PirateRaidOrbital,
-        PirateRaidColonyShip,
+        PirateRaidColonyShip, // FB - if adding a new goal, replace this with the new one to keep enum order
         PirateRaidCombatShip,
         PirateDefendBase,
-        PirateProtection
+        PirateProtection,
+        AssaultPirateBase
     }
 
     public enum GoalStep
@@ -142,11 +143,12 @@ namespace Ship_Game.AI
                 case PirateDirectorRaid.ID:     return new PirateDirectorRaid();
                 case PirateRaidTransport.ID:    return new PirateRaidTransport();
                 case PirateRaidOrbital.ID:      return new PirateRaidOrbital();
-                case PirateRaidColonyShip.ID:   return new PirateRaidColonyShip();
+                case PirateRaidColonyShip.ID:   return new PirateRaidColonyShip(); // Save compatibility remove in 2021 :)
                 case PirateRaidCombatShip.ID:   return new PirateRaidCombatShip();
                 case PirateBase.ID:             return new PirateBase();
                 case PirateDefendBase.ID:       return new PirateDefendBase();
                 case PirateProtection.ID:       return new PirateProtection();
+                case AssaultPirateBase.ID:      return new AssaultPirateBase();
                 case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }

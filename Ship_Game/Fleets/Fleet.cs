@@ -401,15 +401,16 @@ namespace Ship_Game.Fleets
 
             switch (FleetTask.type)
             {
-                case MilitaryTask.TaskType.ClearAreaOfEnemies: DoClearAreaOfEnemies(FleetTask); break;
-                case MilitaryTask.TaskType.AssaultPlanet: DoAssaultPlanet(FleetTask); break;
-                case MilitaryTask.TaskType.CorsairRaid: DoCorsairRaid(elapsedTime); break;
+                case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask);         break;
+                case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);              break;
+                case MilitaryTask.TaskType.CorsairRaid:                DoCorsairRaid(elapsedTime);              break;
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
-                case MilitaryTask.TaskType.Exploration: DoExplorePlanet(FleetTask); break;
-                case MilitaryTask.TaskType.DefendSystem: DoDefendSystem(FleetTask); break;
-                case MilitaryTask.TaskType.DefendClaim: DoClaimDefense(FleetTask); break;
-                case MilitaryTask.TaskType.DefendPostInvasion: DoPostInvasionDefense(FleetTask); break;
-                case MilitaryTask.TaskType.GlassPlanet: DoGlassPlanet(FleetTask); break;
+                case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask);              break;
+                case MilitaryTask.TaskType.DefendSystem:               DoDefendSystem(FleetTask);               break;
+                case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(FleetTask);               break;
+                case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask);        break;
+                case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask);                break;
+                case MilitaryTask.TaskType.AssaultPirateBase:          DoAssaultPirateBase(FleetTask);          break;
             }
         }
 
@@ -722,7 +723,56 @@ namespace Ship_Game.Fleets
                     if (!DoOrbitTaskArea(task))
                     {
                         AttackEnemyStrengthClumpsInAO(task);
+                        OrderShipsToInvade(Ships, task, false);
                     }
+
+                    TaskStep = 4;
+                    break;
+                case 4:
+                    if (task.TargetPlanet.Owner != null)
+                        FleetTask.EndTask();
+                    break;
+            }
+        }
+
+        void DoAssaultPirateBase(MilitaryTask task)
+        {
+            if (task.TargetShip == null || !task.TargetShip.Active)
+            {
+                ClearOrders();
+                FleetTask?.EndTask();
+                return;
+            }
+
+            task.AO = task.TargetShip.Center;
+            switch (TaskStep)
+            {
+                case 0:
+                    FleetTaskGatherAtRally(task);
+                    TaskStep = 1;
+                    break;
+                case 1:
+                    if (!HasArrivedAtRallySafely())
+                        break;
+
+                    GatherAtAO(task, 3000);
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(task.AO, GetRelativeSize().Length() / 2))
+                        break;
+                    TaskStep = 3;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    break;
+                case 3:
+                    if (!AttackEnemyStrengthClumpsInAO(task))
+                        TaskStep = 4;
+                    else if (!CanTakeThisFight(task.EnemyStrength))
+                        FleetTask?.EndTask();
+                    break;
+                case 4:
+                    ClearOrders();
+                    FleetTask?.EndTask();
                     break;
             }
         }
@@ -877,6 +927,16 @@ namespace Ship_Game.Fleets
             }
         }
 
+        void ClearOrders()
+        {
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                ship.AI.CombatState = ship.shipData.CombatState;
+                ship.AI.ClearOrders();
+            }
+        }
+
         void SetPriorityOrderToShipsIf(Array<Ship> ships, Func<Ship, bool> condition, bool clearOtherOrders = false)
         {
             for (int i = 0; i < ships.Count; ++i)
@@ -1003,7 +1063,7 @@ namespace Ship_Game.Fleets
                         break;
 
                     Ship ship = availableShips[i];
-                    if (ship.AI.HasPriorityOrder || ship.InCombat)
+                    if (ship.AI.HasPriorityOrder || ship.InCombat || ship.AI.State == AIState.AssaultPlanet)
                     {
                         availableShips.RemoveAtSwapLast(i);
                         continue;
@@ -1446,7 +1506,10 @@ namespace Ship_Game.Fleets
 
             ship.fleet = null;
             RemoveFromAllSquads(ship);
-            if (Ships.RemoveRef(ship) || !ship.Active)
+
+            // Todo - this if block is strange. It removes the ship before and then checks if its active.
+            // If it is active , it adds the ship again. It does not seem right.
+            if (Ships.RemoveRef(ship) && ship.Active)
             {
                 ship.loyalty.AddShipNextFrame(ship);
                 return true;
