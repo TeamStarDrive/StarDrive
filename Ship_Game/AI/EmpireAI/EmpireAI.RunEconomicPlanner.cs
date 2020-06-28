@@ -45,7 +45,7 @@ namespace Ship_Game.AI
             float overSpend = OverSpendRatio(money, 0.25f, 0.25f);
             buildRatio = Math.Max(buildRatio, overSpend);
 
-            float budget                   = SetBudgetForeArea(0.02f, buildRatio, money);
+            float budget                   = SetBudgetForeArea(0.015f, buildRatio, money);
             float buildMod = BuildModifier() / 5;
 
             return budget / (buildMod / (1 + risk));
@@ -86,7 +86,7 @@ namespace Ship_Game.AI
             float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
             float overSpend = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
-            var budget                     = SetBudgetForeArea(0.02f,buildRatio, money);
+            var budget                     = SetBudgetForeArea(0.015f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 
@@ -97,7 +97,7 @@ namespace Ship_Game.AI
             risk            = risk.LowerBound(overSpend); // * threat multiplier
             int numPlanets  = OwnerEmpire.GetPlanets().Count;
             int numAgents   = OwnerEmpire.data.AgentList.Count().LowerBound(1);
-            float maxBudget = OwnerEmpire.Money / 15 * (EmpireSpyLimit - numAgents).LowerBound(1);
+            float maxBudget = OwnerEmpire.Money / 5 * (EmpireSpyLimit - numAgents).LowerBound(1);
             return (money / numAgents / numPlanets).UpperBound(maxBudget) * risk;  
         }
 
