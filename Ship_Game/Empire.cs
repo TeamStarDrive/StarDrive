@@ -43,6 +43,7 @@ namespace Ship_Game
         private readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
+        public Array<float> NormalizedMoney = new Array<float>();
 
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship> Inhibitors = new Array<Ship>();
@@ -310,6 +311,16 @@ namespace Ship_Game
             }
 
             return builtAt;
+        }
+
+        public float NormalizeBudget(float money)
+        {
+            int maxItems = 10;
+            if (NormalizedMoney.Count == maxItems)
+                NormalizedMoney.RemoveAt(0);
+
+            NormalizedMoney.Add(money);
+            return NormalizedMoney.Sum() / NormalizedMoney.Count;
         }
 
         public float KnownEnemyStrengthIn(SolarSystem system)
