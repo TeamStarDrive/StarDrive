@@ -10,7 +10,7 @@ namespace Ship_Game.AI
         public float SpyBudget { get; private set; }
 
         public float SpyCost      => ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost;
-        public int EmpireSpyLimit => (int)(OwnerEmpire.GetTotalPop(out _) / 10).LowerBound(3);
+        public int EmpireSpyLimit => (OwnerEmpire.GetPlanets().Count / 3).LowerBound(3);
 
         void RunAgentManager()
         {
