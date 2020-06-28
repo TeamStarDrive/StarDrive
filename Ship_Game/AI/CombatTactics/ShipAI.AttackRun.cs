@@ -93,7 +93,7 @@ namespace Ship_Game.AI.CombatTactics
             {
                 // fly simply towards the offset attack position
                 DrawDebugTarget(attackPos, Owner.Radius);
-                AI.SubLightMoveTowardsPosition(attackPos, elapsedTime, speed, predictPos: true, autoSlowDown: false);
+                AI.SubLightMoveTowardsPosition(attackPos + ZigZag, elapsedTime, speed, predictPos: true, autoSlowDown: false);
                 DrawDebugText($"{debugStatus} {(int)speed}");
             }
         }
@@ -169,7 +169,7 @@ namespace Ship_Game.AI.CombatTactics
         {
             State = RunState.Disengage1;
 
-            float dot = RadiansToTargetByOurVelocity;
+            float dot = DeltaOurFacingTheirMovement;
             //float rotation = dot > -0.25f // we are chasing them, so only disengage left or right
             float rotation = dot > -0.25f
                 ? (RandomMath.RollDice(50) ? RadMath.RadiansLeft : RadMath.RadiansRight)
@@ -221,7 +221,7 @@ namespace Ship_Game.AI.CombatTactics
             else if (State == RunState.Disengage2)
             {
                 //Owner.MaxSTLSpeed* cooldownTime +SpacerDistanc
-                if (DistanceToTarget > Owner.DesiredCombatRange || RadiansDifferenceToTargetFacingAndDirection > 0.7f) // Disengage2 success
+                if (DistanceToTarget > Owner.DesiredCombatRange || DeltaDirectionToTargetAndOurFacing > 0.7f) // Disengage2 success
                 {
                     State = RunState.Strafing;
                 }

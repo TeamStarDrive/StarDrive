@@ -45,23 +45,28 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         // direction offset from target ship, so our attack runs go over the side of the enemy ship
         int DebugTextIndex;
         protected float DistanceToTarget;
+        protected Vector2 DirectionToTarget;
         protected Vector2 TargetQuadrant = Vectors.Right;
         protected Vector2 ZigZag;
         protected float SpacerDistance;
-        protected float RadiansToTargetByOurVelocity;
-        protected float RadiansToUsByTargetVelocity;
-        protected float RadiansDifferenceToTargetFacingAndDirection;
-        protected float RadiansDifferenceToUsFacingAndDirection;
-        protected float RadiansDifferenceToOurFacingAndVelocity;
+        protected float DeltaOurFacingTheirMovement;
+        protected float DeltaOurMovmentTheirFacing;
+        protected float DeltaDirectionToTargetAndOurFacing;
+        protected float DeltaTargetDirectionToUsAndOurFacing;
+        protected float DeltaOurFacingAndOurMovement;
+        protected float DeltaOurMovementToTheirMovement;
+        protected float DeltaOurMovementToOurDirectionToTarget;
         protected float DesiredCombatRange;
+        protected bool OutSideDesiredWeaponsRang;
         Vector2 DisengageDirection;
-        //AttackPosition OwnerTarget;
+        protected float ErraticTimer =0;
+        private float ThinkTimer =0;
         
-        protected bool WeAreFacingThem => RadiansDifferenceToTargetFacingAndDirection > 0.7f;
+        protected bool WeAreFacingThem => DeltaDirectionToTargetAndOurFacing > 0.7f;
         protected Ship OwnerTarget           => AI.Target;
 
         protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.ChasingCantCatch) && !WeAreRetrograding;
-        protected bool WeAreRetrograding => RadiansDifferenceToOurFacingAndVelocity < 0;
+        protected bool WeAreRetrograding => DeltaOurFacingAndOurMovement < 0;
 
         protected  ChaseState ChaseStates;
         protected CombatMovement(ShipAI ai) : base(ai)
@@ -91,8 +96,12 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 || Owner.engineState == Ship.MoveState.Warp) 
                 return;
 
-            Initialize(DesiredCombatRange);
-            OverrideCombatValues(elapsedTime);
+            if (ThinkTimer.LessOrEqual(0))
+            {
+                ThinkTimer = 1f / Owner.Level.LowerBound(1);
+                Initialize(DesiredCombatRange);
+                OverrideCombatValues(elapsedTime);
+            }
 
             if (MoveState == CombatMoveState.Approach && OwnerTarget.AI.Target == Owner && CantGetInRange()) 
             {
@@ -104,6 +113,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             }
             else
             {
+                ErraticMovement(DistanceToTarget, elapsedTime);
                 MoveState = ExecuteAttack(elapsedTime);
             }
 
@@ -111,8 +121,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             {
                 DrawDebugText($"Chase: {ChaseStates}");
                 DrawDebugText($"MoveState: { MoveState }");
-                DrawDebugText($"Velocity Radians To Target: R {(int)(RadiansToTargetByOurVelocity * 100)}");
-                DrawDebugText($"Facing Radians To Target: R {(int)(RadiansDifferenceToTargetFacingAndDirection * 100)}");
+                DrawDebugText($"Movement angle To Target: {(int)DeltaOurFacingTheirMovement}");
+                DrawDebugText($"Facing angle To Target  : {(int)DeltaDirectionToTargetAndOurFacing}");
+                DrawDebugText($"Movement angle To Target Movement  : {(int)DeltaOurMovementToTheirMovement}");
+                DrawDebugText($"Movement angle to their facing  : {(int)DeltaOurMovmentTheirFacing}");
             }
         }
 
@@ -122,7 +134,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         protected virtual bool CantGetInRange()
         {
-            if (WeAreChasingAndCantCatchThem && MoveState != CombatMoveState.Disengage && !Owner.AI.HasPriorityTarget)
+            if (WeAreChasingAndCantCatchThem && MoveState != CombatMoveState.Disengage) // && !Owner.AI.HasPriorityTarget)
             {
                 MoveState = CombatMoveState.Disengage;
                 return true;
@@ -144,9 +156,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         void Initialize(float desiredWeaponsRange)
         {
+            DistanceToTarget = Owner.Center.Distance(OwnerTarget.Center);
             if (DistanceToTarget > desiredWeaponsRange)
             {
-                if (DistanceToTarget < OwnerTarget.DesiredCombatRange)
+                if (DistanceToTarget < OwnerTarget.WeaponsMaxRange * 2)
                 {
                     if (DisengageDirection == Vector2.Zero || OwnerTarget.AI.Target != Owner || OwnerTarget.CombatDisabled)
                     {
@@ -170,36 +183,56 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 DisengageDirection = Vector2.Zero;
             }
 
-            DistanceToTarget = Owner.Center.Distance(OwnerTarget.Center);
+            
             SpacerDistance = Owner.Radius + AI.Target.Radius;
 
             DebugTextIndex                              = 0;
+            DirectionToTarget = Owner.Center.DirectionToTarget(OwnerTarget.Center);
 
-            RadiansToTargetByOurVelocity                = 
-                CompareVelocityToDirection(OwnerTarget.VelocityDirection, Owner.Direction);
+            DeltaOurFacingTheirMovement                = 
+                DegreeDifferenceBetweenVectorDirection(OwnerTarget.VelocityDirection, Owner.Direction);
 
-            RadiansToUsByTargetVelocity                 = 
-                CompareVelocityToDirection(Owner.VelocityDirection, OwnerTarget.Direction);
+            DeltaOurMovmentTheirFacing                 = 
+                DegreeDifferenceBetweenVectorDirection(Owner.VelocityDirection, OwnerTarget.Direction);
 
-            RadiansDifferenceToTargetFacingAndDirection =
-                CompareVelocityToDirection(Owner.Center.DirectionToTarget(OwnerTarget.Center), Owner.Direction);
+            DeltaOurMovementToTheirMovement =
+                DegreeDifferenceBetweenVectorDirection(Owner.VelocityDirection, OwnerTarget.VelocityDirection);
 
-            RadiansDifferenceToUsFacingAndDirection     =
-                CompareVelocityToDirection(OwnerTarget.Center.DirectionToTarget(Owner.Center), OwnerTarget.Direction);
+            DeltaDirectionToTargetAndOurFacing =
+                DegreeDifferenceBetweenVectorDirection(DirectionToTarget, Owner.Direction);
 
-            RadiansDifferenceToOurFacingAndVelocity     =
-                CompareVelocityToDirection(Owner.VelocityDirection, Owner.Direction);
+            DeltaTargetDirectionToUsAndOurFacing     =
+                DegreeDifferenceBetweenVectorDirection(OwnerTarget.Center.DirectionToTarget(Owner.Center), OwnerTarget.Direction);
+
+            DeltaOurFacingAndOurMovement     =
+                DegreeDifferenceBetweenVectorDirection(Owner.VelocityDirection, Owner.Direction);
+
+            DeltaOurMovementToOurDirectionToTarget =
+                DegreeDifferenceBetweenVectorDirection(Owner.VelocityDirection, DirectionToTarget);
 
             DistanceToTarget = Owner.Center.Distance(OwnerTarget.Center);
-            ChaseStates      = ChaseStatus(DistanceToTarget);
+
+            ChaseStates = ChaseStatus(DistanceToTarget);
+            OutSideDesiredWeaponsRang = DistanceToTarget > Owner.DesiredCombatRange;
         }
 
-        protected float CompareVelocityToDirection(Vector2 velocityDirection, Vector2 direction)
+        protected float DegreeDifferenceBetweenVectorDirection(Vector2 velocityDirection, Vector2 direction)
         {
             if (OwnerTarget == null) return 0;
-            return direction.Dot(velocityDirection);
+            float dot = direction.Dot(velocityDirection);
+            return Math.Abs(dot * 90 - 90);
         }
         protected Vector2 RandomFlankTo(Vector2 direction) => RandomMath.RollDice(50) ? direction.LeftVector() : direction.RightVector();
+
+        protected ChaseState CanCatchState(ChaseState chaseState, float distance)
+        {
+            if (chaseState.HasFlag(ChaseState.WeAreChasing))
+                return WeCantCatchThem(distance) ? ChaseState.CantCatch : ChaseState.None;
+            
+            if (ChaseStates.HasFlag(ChaseState.TheyAreChasing))
+                return WeCantCatchThem(distance) ? ChaseState.CantCatch : ChaseState.None;
+            return ChaseState.None;
+        }
 
         protected bool WeCantCatchThem(float distanceToTarget)
         {
@@ -214,38 +247,39 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         {
             ChaseState chase = ChaseState.None;
 
-            if (RadiansToTargetByOurVelocity > -0.1f && RadiansDifferenceToTargetFacingAndDirection > 0.7f && !WeAreRetrograding) 
-            {
-                chase |= ChaseState.WeAreChasing;;
-                if (WeCantCatchThem(distance)) chase |= ChaseState.CantCatch;
-            }
-            else if (RadiansToUsByTargetVelocity > -0.1f && RadiansDifferenceToUsFacingAndDirection > 0.7f)
-            {
-                chase |= ChaseState.TheyAreChasing;
-                if (TheyCantCatchUs(distance)) chase |= ChaseState.CantCatch;
-            }
+            if (DeltaOurMovementToTheirMovement > 45f)        return ChaseState.None;
+
+            if (DeltaOurMovementToOurDirectionToTarget < 20)  chase |= ChaseState.WeAreChasing;
+            else
+            if (DeltaOurMovementToOurDirectionToTarget > 160) chase |= ChaseState.TheyAreChasing;
+
+            chase |= CanCatchState(chase, distance);
+
             return chase;
         }
 
         /// <summary>
         /// TO BE EXPANDED. be a harder target on approach. 
         /// </summary>
-        public void ErraticMovement(float distanceToTarget)
+        public void ErraticMovement(float distanceToTarget, float deltaTime)
         {
+            ErraticTimer -= deltaTime;
             if (AI.IsFiringAtMainTarget)
             {
                 ZigZag = Vector2.Zero;
             }
 
-            if (Owner.IsTurning)
+            if (ErraticTimer > 0)
             {
                 return;
             }
-
+             
             int rng = RandomMath.RollAvgPercentVarianceFrom50();
             int racialMod = Owner.loyalty.data.Traits.PhysicalTraitPonderous ? -1 : 0;
             racialMod += Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
             float mod = 5 * (Owner.RotationRadiansPerSecond * (Owner.Level + racialMod)).Clamped(0, 10);
+
+            ErraticTimer = rng * 0.05f;
 
             if (rng < 25 - mod)
             {
@@ -253,9 +287,6 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             }
             else
             {
-                if (ZigZag != Vector2.Zero)
-                    return;
-
                 Vector2 dir = Owner.Center.DirectionToTarget(AI.Target.Center);
                 if (RandomMath.IntBetween(0, 1) == 1)
                 {
