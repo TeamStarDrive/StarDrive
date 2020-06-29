@@ -138,13 +138,12 @@ namespace Ship_Game
         public float DiplomaticValueTo(Empire them, float valuePerTechCost = 0.01f)
         {
             float value = ActualCost * valuePerTechCost;
-
             // Technologists appreciate tech scores +25% higher:
             if (them.data.EconomicPersonality.Name == "Technologists")
                 value *= 1.25f;
+
             return value;
         }
-
 
         Technology[] ResolveLeadsToTechs(string what, Array<LeadsToTech> leads)
         {

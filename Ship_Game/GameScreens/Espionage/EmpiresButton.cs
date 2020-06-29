@@ -73,7 +73,7 @@ namespace Ship_Game.GameScreens.Espionage
                 var defenseIcon = new Rectangle(Rect.Center.X - shield.Width, Rect.Y + Fonts.Arial12.LineSpacing + 164, shield.Width, shield.Height);
                 batch.Draw(shield, defenseIcon, Color.White);
 
-                float espionageDefense = EspionageScreen.GetEspionageDefense(Empire);
+                float espionageDefense = Empire.GetSpyDefense();
                 var defPos = new Vector2(defenseIcon.Right + 2, defenseIcon.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 batch.DrawString(Fonts.Arial12Bold, espionageDefense.String(1), defPos, Color.White);
 
