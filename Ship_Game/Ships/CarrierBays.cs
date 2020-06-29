@@ -198,17 +198,18 @@ namespace Ship_Game.Ships
 
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
 
-        void ScrambleAssaultShips(float strengthNeeded)
+        bool ScrambleAssaultShips(float strengthNeeded)
 
         {
             if (Owner == null || !Owner.HasOurTroops)
-                return;
+                return false;
 
             if (Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp)
-                return;
+                return false;
 
             bool limitAssaultSize = strengthNeeded > 0; // if Strength needed is 0,  this will be false and the ship will launch all troops
 
+            bool sentAssault = false;
             foreach (ShipModule hangar in AllActiveTroopBays)
             {
                 if (hangar.hangarTimer <= 0 && Owner.HasOurTroops)
@@ -219,10 +220,12 @@ namespace Ship_Game.Ships
                     if (Owner.GetOurFirstTroop(out Troop troop) &&
                         hangar.LaunchBoardingParty(troop))
                     {
+                        sentAssault = true;
                         strengthNeeded -= troop.Strength;
                     }
                 }
             }
+            return sentAssault;
         }
 
         public void RecoverAssaultShips()
@@ -543,34 +546,37 @@ namespace Ship_Game.Ships
         /// <summary>
         /// Assaults the target ship.
         /// </summary>
-        /// <param name="targetShip">The target ship.</param>
-        /// <returns></returns>
         public bool AssaultTargetShip(Ship targetShip)
         {
             if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
                 return false;
 
-            if (Owner.Carrier.AnyAssaultOpsAvailable)
+            if (!Owner.Carrier.AnyAssaultOpsAvailable) 
+                return false;
+
+            bool sendingTroops = false;
+
+            float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
+            float enemyStrength = targetShip.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
+
+            if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
             {
-                float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
-                float enemyStrength = targetShip.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
+                if (MaxTroopStrengthInSpaceToCommit < enemyStrength && targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange))
+                    // This will launch salvos of assault shuttles if possible
+                    sendingTroops = ScrambleAssaultShips(enemyStrength); 
 
-                if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
+                for (int i = 0; i < AllTroopBays.Length; i++)
                 {
-                    if (MaxTroopStrengthInSpaceToCommit < enemyStrength && targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange))
-                        ScrambleAssaultShips(enemyStrength); // This will launch salvos of assault shuttles if possible
-
-                    for (int i = 0; i < AllTroopBays.Length; i++)
+                    ShipModule hangar = AllTroopBays[i];
+                    Ship hangarShip = hangar.GetHangarShip();
+                    if (hangarShip != null && hangarShip.AI.State != AIState.Boarding)
                     {
-                        ShipModule hangar = AllTroopBays[i];
-                        Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip != null && hangarShip.AI.State != AIState.Boarding)
-                            hangar.GetHangarShip().AI.OrderTroopToBoardShip(targetShip);
+                        hangarShip.AI.OrderTroopToBoardShip(targetShip);
+                        sendingTroops = true;
                     }
-                    return true;
                 }
             }
-            return false;
+            return sendingTroops;
         }
 
         public bool IsInHangarLaunchRange(GameplayObject target) 

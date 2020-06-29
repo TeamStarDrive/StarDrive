@@ -1,29 +1,34 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.AI.ShipMovement;
+using Ship_Game.AI.ShipMovement.CombatManeuvers;
 
 
 namespace Ship_Game.AI.CombatTactics
 {
     internal sealed class BroadSides : OrbitPlan
     {
-        public BroadSides(ShipAI ai, OrbitDirection direction) : base(ai, direction)
+        public BroadSides(ShipAI ai, OrbitPlan.OrbitDirection direction) : base(ai, direction)
         {
         }
 
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
+        protected override void OverrideCombatValues(float elapsedTime)
         {
-            float distance = Owner.Center.Distance(AI.Target.Center);
-            if (distance > Owner.DesiredCombatRange)
+        }
+
+        protected override CombatMoveState ExecuteAttack(float elapsedTime)
+        {
+            
+            if (DistanceToTarget > DesiredCombatRange)
             {
                 AI.SubLightMoveTowardsPosition(AI.Target.Center, elapsedTime);
-                return; // we're still way far away from target
+                return CombatMoveState.Approach; // we're still way far away from target
             }
 
-            if (distance < (Owner.DesiredCombatRange * 0.70f)) // within suitable range
+            if (DistanceToTarget < (DesiredCombatRange * 0.70f)) // within suitable range
             {
-                UpdateOrbitPos(AI.Target.Center, Owner.DesiredCombatRange * 0.95f, elapsedTime);
+                UpdateOrbitPos(AI.Target.Center, DesiredCombatRange * 0.95f, elapsedTime);
                 AI.SubLightMoveTowardsPosition(OrbitPos, elapsedTime);
-                return;
+                return CombatMoveState.OrbitInjection;
             }
 
             Vector2 dir = Owner.Center.DirectionToTarget(AI.Target.Center);
@@ -31,7 +36,8 @@ namespace Ship_Game.AI.CombatTactics
             // when doing broadside to Left, wanted forward dir is 90 degrees right
             dir = (Direction == OrbitDirection.Right) ? dir.LeftVector() : dir.RightVector();
             AI.ReverseThrustUntilStopped(elapsedTime);
-            AI.RotateTowardsPosition(AI.Owner.Center + dir, elapsedTime, 0.02f);
+            AI.RotateTowardsPosition(Owner.Center + dir, elapsedTime, 0.02f);
+            return CombatMoveState.Maintain;
         }
     }
 }

@@ -314,7 +314,7 @@ namespace Ship_Game
 
         public static bool DataVisibleToPlayer(Empire empire)
         {
-            if (empire.isPlayer || empire.GetRelations(EmpireManager.Player).Treaty_Alliance)
+            if (empire.isPlayer || empire.GetRelations(EmpireManager.Player).Treaty_Alliance || Empire.Universe.Debug)
                 return true;
 
             return empire.DifficultyModifiers.DataVisibleToPlayer;
