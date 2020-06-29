@@ -47,7 +47,7 @@ namespace Ship_Game.AI
 
         Ship UpdateCombatTarget()
         {
-            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight
+            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight || Owner.loyalty == Target.loyalty
                                        || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
             {
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
@@ -84,50 +84,41 @@ namespace Ship_Game.AI
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
             }
-            else
+            else if (FleetNode != null && Owner.fleet != null && HasPriorityOrder)
             {
                 // TODO: need to move this into fleet.
-                if (FleetNode != null && Owner.fleet != null)
+                if (Owner.fleet.FleetTask == null)
                 {
-                    if (Owner.fleet.FleetTask == null)
+                    Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                    if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                     {
-                        Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                        if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
-                        {
 
-                            if (Owner.Center.OutsideRadius(nodePos, 1000f))
-                            {
-                                ThrustOrWarpToPos(nodePos, elapsedTime);
-                            }
-                            else
-                            {
-                                DoHoldPositionCombat(elapsedTime);
-                            }
-
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var task = Owner.fleet.FleetTask;
-                        if (target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
+                        if (Owner.Center.OutsideRadius(nodePos, 1000f))
                         {
-                            DequeueCurrentOrder();
+                            ThrustOrWarpToPos(nodePos, elapsedTime);
                         }
+                        else
+                        {
+                            DoHoldPositionCombat(elapsedTime);
+                        }
+
+                        return;
                     }
                 }
-                if (CombatRangeType == StanceType.RangedCombatMovement)
+                else
                 {
-                    Vector2 prediction = target.Center;
-                    Weapon fastestWeapon = Owner.FastestWeapon;
-                    if (fastestWeapon != null) // if we have a weapon
+                    var task = Owner.fleet.FleetTask;
+                    if (target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
                     {
-                        prediction = fastestWeapon.ProjectedImpactPointNoError(target);
+                        DequeueCurrentOrder();
                     }
-                    ThrustOrWarpToPos(prediction, elapsedTime);
-                    return;
                 }
             }
+            else
+            {
+                MoveToEngageTarget(target, elapsedTime);
+            }
+
 
             if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget)) 
                 Owner.Carrier.ScrambleFighters();
@@ -145,9 +136,24 @@ namespace Ship_Game.AI
             }
 
             CombatAI.ExecuteCombatTactic(elapsedTime);
-
+            
             // Target was modified by one of the CombatStates (?)
             Owner.InCombat = Target != null;
+        }
+
+        void MoveToEngageTarget(Ship target, float elapsedTime)
+        {
+            if (CombatRangeType == StanceType.RangedCombatMovement)
+            {
+                Vector2 prediction = target.Center;
+                Weapon fastestWeapon = Owner.FastestWeapon;
+                if (fastestWeapon != null) // if we have a weapon
+                {
+                    prediction = fastestWeapon.ProjectedImpactPointNoError(target);
+                }
+                ThrustOrWarpToPos(prediction, elapsedTime);
+                return;
+            }
         }
 
         void DoDeploy(ShipGoal g)
