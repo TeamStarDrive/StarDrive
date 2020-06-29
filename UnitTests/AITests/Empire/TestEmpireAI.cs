@@ -141,7 +141,6 @@ namespace UnitTests.AITests.Empire
 
             Assert.IsTrue(count < 49, $"Test failure! Loop completed! Investigate");
 
-
             Assert.AreEqual(build.RoleCount(combatRole), (int)(roleBudget / roleUnitMaint));
         }
 
