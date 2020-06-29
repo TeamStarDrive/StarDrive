@@ -50,8 +50,7 @@ namespace Ship_Game.AI
 
         public void SetFleetRatios()
         {
-
-            //fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
+            // fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
             if (OwnerEmpire.canBuildCapitals)
                 SetCounts(ResourceManager.BuildRatios[BuildRatio.CanBuildCapitals]);
 
