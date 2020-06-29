@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Windows.Forms.VisualStyles;
 
 namespace Ship_Game.GameScreens.Espionage
 {
@@ -131,9 +132,10 @@ namespace Ship_Game.GameScreens.Espionage
                     break;
             }
 
-            if (EmpireManager.Player.Money < cost || 
-                Component.EspionageScreen.SelectedEmpire.data.Defeated || 
-                Component.SelectedAgent?.Mission != AgentMission.Defending)
+            if (EmpireManager.Player.Money < cost 
+                || Component.EspionageScreen.SelectedEmpire.data.Defeated 
+                || Component.SelectedAgent?.Mission != AgentMission.Defending
+                || TheMission == AgentMission.Training && Component.SelectedAgent?.Level >= 3)
             {
                 MissionAvailable = false;
             }

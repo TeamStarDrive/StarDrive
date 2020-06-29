@@ -271,7 +271,7 @@ namespace Ship_Game
             if (!GetRelations(EmpireManager.Player).Known)
                 return;
 
-            float espionageStr = EspionageScreen.GetEspionageDefense(EmpireManager.Player);
+            float espionageStr = EmpireManager.Player.GetSpyDefense();
             if (espionageStr <= Level)
                 return; // not enough espionage strength to learn about pirate activities
 

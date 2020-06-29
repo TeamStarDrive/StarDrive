@@ -2,33 +2,44 @@ using Ship_Game.Gameplay;
 using System.IO;
 using Ship_Game.GameScreens.Espionage;
 
+
 namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        public float SpyBudget;
-        public int EmpireSpyLimit => OwnerEmpire.GetPlanets().Count / 3 + 3;
-        public const float SpyCost = 250;
+        public float SpyBudget { get; private set; }
 
+        public float SpyCost      => ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost;
+        public int EmpireSpyLimit => (OwnerEmpire.GetPlanets().Count / 3).LowerBound(3);
 
-        private void RunAgentManager()
+        void RunAgentManager()
         {
             if (OwnerEmpire.isPlayer)
                 return;
+
             SpyBudget = OwnerEmpire.data.SpyBudget;
 
-            if (SpyBudget > 50 && OwnerEmpire.data.DiplomaticPersonality.Name != null)
-            {
-                if (CanEmpireAffordSpy())
-                {
-                    CreateSpy();
-                    SpyBudget -= SpyCost;
-                }
+            if (OwnerEmpire.data.DiplomaticPersonality.Name != null && CanEmpireAffordSpy())
+                    CreateAgent();
 
-                CreateMissionsByTrait();
+            TrainAgents();
+            CreateMissionsByTrait();
+        }
+
+        void TrainAgents()
+        {
+            short trainingCost = ResourceManager.AgentMissionData.TrainingCost;
+            for (int i = 0; i < OwnerEmpire.data.AgentList.Count; i++)
+            {
+                Agent agent = OwnerEmpire.data.AgentList[i];
+                if (trainingCost <= SpyBudget && agent.Mission == AgentMission.Defending && agent.IsNovice)
+                    agent.AssignMission(AgentMission.Training, OwnerEmpire, "");
             }
-            OwnerEmpire.AddMoney(-(OwnerEmpire.data.SpyBudget - SpyBudget));
-            SpyBudget = 0;
+        }
+
+        public void DeductSpyBudget(float value)
+        {
+            SpyBudget -= value;
         }
 
         public void CreateMissionsByTrait()
@@ -59,7 +70,7 @@ namespace Ship_Game.AI
         private void DoAggRuthAgentManager()
         {
             int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.15f;
             int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Aggressive);
         }
@@ -67,7 +78,7 @@ namespace Ship_Game.AI
         private void DoCunningAgentManager()
         {
             int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.17f;
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.2f;
             int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Cunning);
         }
@@ -75,7 +86,7 @@ namespace Ship_Game.AI
         private void DoHonPacAgentManager()
         {
             int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.08f;
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
             int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Honorable);
         }
@@ -357,25 +368,14 @@ namespace Ship_Game.AI
 
         private int CalculateSpyUsage(out int defenders)
         {
-            defenders = 0;
+            defenders   = 0;
             int offense = 0;
             foreach (Agent a in OwnerEmpire.data.AgentList)
             {
                 if (a.Mission == AgentMission.Defending)
-                {
                     defenders++;
-                }
-                else if (a.Mission != AgentMission.Undercover)
-                {
+                else if (a.Mission != AgentMission.Undercover && a.Mission != AgentMission.Training)
                     offense++;
-                }
-
-                if (a.Mission != AgentMission.Defending || a.Level >= 2 || SpyBudget <= 300f)
-                {
-                    continue;
-                }
-
-                a.AssignMission(AgentMission.Training, OwnerEmpire, "");
             }
 
             return offense;
@@ -394,18 +394,19 @@ namespace Ship_Game.AI
             return potentialTargets;
         }
 
-        public bool CanEmpireAffordSpy()
+        public bool CanEmpireAffordSpy() // TODO - do we need agents?
         {
-            int income = (int)SpyBudget;
             return SpyBudget >= SpyCost && OwnerEmpire.data.AgentList.Count < EmpireSpyLimit;
         }
 
-        private Agent CreateSpy()
+        void CreateAgent()
         {
             string[] spyNames = SpyNames();
-            Agent agent = new Agent { Name = AgentComponent.GetName(spyNames) };
+            Agent agent       = new Agent { Name = AgentComponent.GetName(spyNames) };
             OwnerEmpire.data.AgentList.Add(agent);
-            return agent;
+            OwnerEmpire.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
+            DeductSpyBudget(ResourceManager.AgentMissionData.AgentCost);
+            agent.AssignMission(AgentMission.Training, OwnerEmpire, OwnerEmpire.Name);
         }
 
         private string[] SpyNames()
