@@ -103,6 +103,10 @@ namespace Ship_Game.AI
             float buildMod = BuildModifier() / 7;
 
             return SetBudgetForeArea(0.1f, Math.Max(risk, overSpend), money) * buildMod;
+            risk            = risk.LowerBound(overSpend); // * agent threat from empires
+            int numAgents   = OwnerEmpire.data.AgentList.Count().LowerBound(1);
+            float budget    = OwnerEmpire.Money * 0.1f * (EmpireSpyLimit - numAgents).LowerBound(1);
+            return (budget * risk).Clamped(0, SpyCost);  
         }
 
         private void PlanetBudgetDebugInfo()
