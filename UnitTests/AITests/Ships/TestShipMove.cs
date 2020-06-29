@@ -38,6 +38,8 @@ namespace UnitTests.AITests.Ships
             var enemySpawnLocation = new Vector2(30000, 0);
             Ship enemy             = CreateEnemyTestShip(enemySpawnLocation);
             var movePosition       = new Vector2(60000, 0);
+            enemy.AI.OrderHoldPosition(enemySpawnLocation, new Vector2(0,1));
+            
 
             Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             ship.AI.OrderMoveDirectlyTo(movePosition, new Vector2(1,0),true

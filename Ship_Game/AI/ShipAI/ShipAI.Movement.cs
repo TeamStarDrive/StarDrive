@@ -5,6 +5,7 @@ using Ship_Game.Ships.AI;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.AI
 {
@@ -154,17 +155,64 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueCurrentOrderAndPriority();
+                    DequeueOrder(goal.HasCombatMove(distance));
             }
             else if (distance <= 1000f)
             {
+                DequeueOrder(goal.HasCombatMove(distance));
+            }
+            else if (goal.HasCombatMove(distance))
+            {
+                    if (Owner.fleet != null && FleetNode != null && Target != null)
+                    {
+                        float targetDistance = (Owner.fleet.AveragePosition() + FleetNode.FleetOffset).Distance(Target.Center);
+
+                        switch(Owner.fleet.Fcs)
+                        {
+                            case Fleet.FleetCombatStatus.Maintain:
+                                if (targetDistance <= FleetNode.OrdersRadius)
+                                    SetPriorityOrder(false);
+                                break;
+                            case Fleet.FleetCombatStatus.Loose:
+                                if (targetDistance <= Owner.SensorRange)
+                                    SetPriorityOrder(false);
+                                break;
+                            case Fleet.FleetCombatStatus.Free:
+                                SetPriorityOrder(false);
+                            break;
+                        }
+                    }
+                    else 
+                    {
+                        SetPriorityOrder(false);
+                    }
+            }
+        }
+
+        void DequeueOrder(bool combat)
+        {
+            if (combat)
+            {
                 DequeueCurrentOrderAndPriority();
+            }
+            else
+            {
+                DequeueCurrentOrder();
             }
         }
 
         void MakeFinalApproach(float elapsedTime, ShipGoal goal)
         {
             Owner.HyperspaceReturn();
+
+            if (goal.HasCombatMove(0))
+            {
+
+                if (HasPriorityOrder)
+                    HadPO = true;
+                ClearPriorityOrder();
+            }
+
             Vector2 targetPos = goal.MovePosition;
             if (goal.Fleet != null && targetPos.AlmostZero()) 
                 targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
@@ -183,10 +231,7 @@ namespace Ship_Game.AI
                 if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
-                    if (Owner.loyalty == EmpireManager.Player)
-                        HadPO = true;
-
-                    DequeueCurrentOrderAndPriority();
+                    DequeueCurrentOrder();
                 }
                 return;
             }
@@ -329,12 +374,15 @@ namespace Ship_Game.AI
             float actualDiff = Owner.AngleDifferenceToPosition(pos);
             float distance = pos.Distance(Owner.Center);
             if (UpdateWarpThrust(deltaTime, actualDiff, distance))
+            {
+                //SubLightMoveTowardsPosition(pos, deltaTime, 0);
                 return; // WayPoint short-cut
+}
 
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 // if chasing something, and within weapons range
-                if (HasPriorityTarget && distance < Owner.DesiredCombatRange * 0.85f)
+                if (HasPriorityTarget && distance < Owner.DesiredCombatRange * 0.25f)
                 {
                     Owner.HyperspaceReturn();
                 }
@@ -368,7 +416,7 @@ namespace Ship_Game.AI
                 if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
-                    if      (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
+                    if (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
                         Owner.EngageStarDrive();
                     else if (distance > 15000f && Owner.InCombat)
                         Owner.EngageStarDrive();
