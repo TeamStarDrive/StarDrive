@@ -65,8 +65,22 @@ namespace Ship_Game.AI
                 var weapon = weapons[i];
                 if (weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets) &&
                     weapon.FireTarget.ParentIsThis(Target))
-                    FireOnMainTargetTime = 
-                        (weapon.isBeam ? weapon.BeamDuration : weapon.SalvoDuration).LowerBound(FireOnMainTargetTime);
+                {
+                    float weaponFireTime;
+                    if (weapon.isBeam)
+                    {
+                        weaponFireTime = weapon.BeamDuration.LowerBound(FireOnMainTargetTime);
+                    }
+                    else if (weapon.SalvoDuration > 0)
+                    {
+                        weaponFireTime = weapon.SalvoDuration.LowerBound(FireOnMainTargetTime);
+                    }
+                    else
+                    {
+                        weaponFireTime = (1f - weapon.CooldownTimer).LowerBound(FireOnMainTargetTime);
+                    }
+                    FireOnMainTargetTime = weaponFireTime.LowerBound(FireOnMainTargetTime);
+                }
             }
         }
 
@@ -301,7 +315,7 @@ namespace Ship_Game.AI
             if (State == AIState.Resupply || DoNotEnterCombat)
                 return;
 
-            if (Owner.fleet != null && State == AIState.FormationWarp)
+            if (Owner.fleet != null && State == AIState.FormationWarp && HasPriorityOrder && !HasPriorityTarget)
             {
                 bool doreturn = !(Owner.fleet != null && State == AIState.FormationWarp &&
                                   Owner.Center.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 15000f));
