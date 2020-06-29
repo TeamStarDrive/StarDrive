@@ -252,7 +252,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected Vector2 RandomFlankTo(Vector2 direction) => RandomMath.RollDice(50) ? direction.LeftVector() : direction.RightVector();
         DisengageTypes RandomDisengageType(Vector2 disenageFrom)
         {
-            return RandomMath.RollDice(50) ? DisengageTypes.Left : DisengageTypes.Right;
+            float rng = RandomMath.RollDie(100);
+            rng = OwnerTarget.AI.Target == Owner ? rng -30 : rng + 30;
+
+            return rng > 50 ? DisengageTypes.Left : DisengageTypes.Right;
         }
 
         protected ChaseState CanCatchState(ChaseState chaseState, float distance)
