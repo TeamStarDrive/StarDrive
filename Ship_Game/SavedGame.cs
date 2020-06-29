@@ -146,8 +146,10 @@ namespace Ship_Game
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
+                empireToSave.NormalizedMoney      = e.NormalizedMoney;
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
+
 
                 if (e.WeArePirates)
                 {
@@ -563,6 +565,7 @@ namespace Ship_Game
             [Serialize(22)] public Map<int, int> PiratePaymentTimers;
             [Serialize(23)] public Array<Guid> SpawnedShips;
             [Serialize(24)] public Array<string> ShipsWeCanSpawn;
+            [Serialize(25)] public Array<float> NormalizedMoney;
         }
 
         public class FleetSave

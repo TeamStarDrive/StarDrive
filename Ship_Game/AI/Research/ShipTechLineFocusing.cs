@@ -350,8 +350,12 @@ namespace Ship_Game.AI.Research
 
             if (researchableShips.Count <= 0) return nonShipTechs;
             // If not using a script dont get a best ship.
-            if (command != "RANDOM")
+            // Or if the modder decided they want to use short term researchable tech only
+            if (command != "RANDOM"
+                || GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseResearchableShipTechs)
+            {
                 return UseResearchableShipTechs(researchableShips, shipTechs, nonShipTechs);
+            }
 
             // Now find a new ship to research that uses most of the tech we already have.
             GetLineFocusedShip(researchableShips, shipTechs);

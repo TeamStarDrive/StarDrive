@@ -2,6 +2,7 @@
 
 using Ship_Game.AI.Budget;
 using System;
+using System.Linq;
 
 namespace Ship_Game.AI
 {
@@ -21,18 +22,19 @@ namespace Ship_Game.AI
 
         public void RunEconomicPlanner()
         {
-            float money                    = OwnerEmpire.Money.LowerBound(1.0f);
+            // FB Get normalized money to smooth fluctuations - until we get a better treasury goal calc
+            float money                    = OwnerEmpire.NormalizeBudget(OwnerEmpire.Money).LowerBound(1);
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources. 
             // its primarily geared at ship building. 
             float gameState = GetRisk(2.25f);
-            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(0, treasuryGoal);
-            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
-            BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
-            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(0,treasuryGoal);
-            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal);
+            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(0, money);
+            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(money);
+            BuildCapacity                  = DetermineBuildCapacity(gameState, money);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(gameState, money);
+            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(money);
 
             PlanetBudgetDebugInfo();
         }
@@ -45,7 +47,7 @@ namespace Ship_Game.AI
             float overSpend = OverSpendRatio(money, 0.25f, 0.25f);
             buildRatio = Math.Max(buildRatio, overSpend);
 
-            float budget                   = SetBudgetForeArea(0.01f, buildRatio, money);
+            float budget                   = SetBudgetForeArea(0.012f, buildRatio, money);
             float buildMod = BuildModifier() / 5;
 
             return budget / (buildMod / (1 + risk));
@@ -64,7 +66,7 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float risk                     = strat.IndustryRatio + strat.ExpansionRatio;
-            return SetBudgetForeArea(0.0025f, risk, money);
+            return SetBudgetForeArea(0.003f, risk, money);
         }
 
         float DetermineBuildCapacity(float risk, float money)
@@ -86,7 +88,7 @@ namespace Ship_Game.AI
             float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
             float overSpend = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
-            var budget                     = SetBudgetForeArea(0.012f,buildRatio, money);
+            var budget                     = SetBudgetForeArea(0.015f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 
@@ -94,8 +96,10 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
-
-            return SetBudgetForeArea(0.2f, Math.Max(risk, overSpend), money) / BuildModifier();
+            risk            = risk.LowerBound(overSpend); // * agent threat from empires
+            int numAgents   = OwnerEmpire.data.AgentList.Count().LowerBound(1);
+            float budget    = OwnerEmpire.Money * 0.1f * (EmpireSpyLimit - numAgents).LowerBound(1);
+            return (budget * risk).Clamped(0, SpyCost);  
         }
 
         private void PlanetBudgetDebugInfo()
@@ -118,7 +122,7 @@ namespace Ship_Game.AI
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
                                  + OwnerEmpire.data.FlatMoneyBonus;
 
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 150;
             float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;
             treasuryGoal  = Math.Max(minGoal, treasuryGoal);
             return treasuryGoal;
