@@ -178,6 +178,7 @@
     <Compile Include="Ship_Game\AI\EmpireAI\Budget.cs" />
     <Compile Include="Ship_Game\AI\ExpansionAI\ExpansionPlanner.cs" />
     <Compile Include="Ship_Game\AI\ExpansionAI\PlanetRanker.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\FleetBuildRatios.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\FleetShips.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\ShipBuilder.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
@@ -1551,6 +1552,9 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\FleetBuildRatios.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Fonts\Arial11Bold.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
