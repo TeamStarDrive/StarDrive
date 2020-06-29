@@ -28,8 +28,8 @@ namespace Ship_Game
 
         public static int[] GetRatiosFor(Array<FleetBuildRatios> counts, BuildRatio canBuild)
         {
-            var hullTypeCount = counts.Find(c => c.CanBuild == BuildRatio.CanBuildFighters);
-            int[] CountsForWhatWeCanBuild = new int[]
+            var hullTypeCount = counts.Find(c => c.CanBuild == canBuild);
+            int[] countsForWhatWeCanBuild = new int[]
             {
                 hullTypeCount.Fighters,
                 hullTypeCount.Corvettes,
@@ -42,7 +42,7 @@ namespace Ship_Game
                 hullTypeCount.Support
             };
 
-            return CountsForWhatWeCanBuild;
+            return countsForWhatWeCanBuild;
         }
     }
 }
