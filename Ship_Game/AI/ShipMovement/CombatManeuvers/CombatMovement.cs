@@ -73,11 +73,15 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected float ErraticTimer =0;
         private float ThinkTimer =0;
         
-        protected bool WeAreFacingThem => DeltaDirectionToTargetAndOurFacing > 0.7f;
+        protected bool WeAreFacingThem => DeltaDirectionToTargetAndOurFacing < 10f;
         protected Ship OwnerTarget           => AI.Target;
 
         protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.ChasingCantCatch) && !WeAreRetrograding;
-        protected bool WeAreRetrograding => DeltaOurFacingAndOurMovement < 0;
+
+        /// <summary>
+        /// If movement direction is greater than 90 degrees different from facing we must be moving backwards
+        /// </summary>
+        protected bool WeAreRetrograding => DeltaOurFacingAndOurMovement > 90;
 
         protected  ChaseState ChaseStates;
         protected CombatMovement(ShipAI ai) : base(ai)
@@ -106,11 +110,12 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             if (Owner.IsPlatformOrStation || OwnerTarget == null || (Owner.AI.HasPriorityOrder && !Owner.AI.HasPriorityTarget) 
                 || Owner.engineState == Ship.MoveState.Warp) 
                 return;
+            // ThinkTimer delays the recalculation of angle differences. 
             ThinkTimer -= elapsedTime;
             Initialize(DesiredCombatRange);
             OverrideCombatValues(elapsedTime);
 
-            if (MoveState == CombatMoveState.Approach && ShouldDisengage())  //OwnerTarget.AI.Target == Owner &&
+            if (MoveState == CombatMoveState.Approach && ShouldDisengage())
             {
                 DisengageType = RandomDisengageType(DirectionToTarget);
                 ExecuteAntiChaseDisengage(elapsedTime);
@@ -139,7 +144,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         }
 
         /// <summary>
-        /// Returns true if too slow to get into combat range.
+        /// Returns true if already disengaging or chasing a faster ship. if a player gives the command dont disengage. 
         /// can be overriden. 
         /// </summary>
         protected virtual bool ShouldDisengage()
@@ -148,7 +153,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         }
 
         /// <summary>
-        /// Executes the anti chase disengage. Standard behavior is to move to disengage position.
+        /// Executes the anti chase disengage. ship will try to maintain a left or right facing to target.
         /// </summary>
         protected virtual void ExecuteAntiChaseDisengage(float elapsedTime)
         {
@@ -237,6 +242,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             ChaseStates = ChaseStatus(DistanceToTarget);
         }
 
+        /// <summary>
+        /// Approach target if it cant fight back. Its not withing 5 degrees of the targets facing.The ship should not be disengaging
+        /// </summary>
+        /// <returns></returns>
         bool ShouldApproach()
         {
             if (OwnerTarget.CombatDisabled || DeltaTargetDirectionToUsAndTheirFacing > 5f) return true;
