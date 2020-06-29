@@ -162,6 +162,11 @@ namespace Ship_Game
             return OwnerList.Contains(empire);
         }
 
+        public bool IsOnlyOwnedBy(Empire empire)
+        {
+            return IsOwnedBy(empire) && OwnerList.Count == 1;
+        }
+
         float RadiationTimer;
         const float RadiationInterval = 0.5f;
 
