@@ -228,7 +228,6 @@ namespace Ship_Game.AI.Research
 
             availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
 
-            bool hullWasChecked = false;
             int previousCost = command1 == "CHEAPEST" ? int.MaxValue : int.MinValue;
             switch (command2)
             {
