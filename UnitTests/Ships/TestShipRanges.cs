@@ -67,7 +67,7 @@ namespace UnitTests.Ships
             Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
 
             UpdateStatus(ship, CombatState.AssaultShip);
-            Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
+            Assert.That.Equal(ship.WeaponsMaxRange*0.9f, ship.DesiredCombatRange);
             UpdateStatus(ship, CombatState.OrbitalDefense);
             Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
         }

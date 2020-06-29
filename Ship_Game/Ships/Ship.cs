@@ -958,6 +958,7 @@ namespace Ship_Game.Ships
                 case CombatState.HoldPosition: return WeaponsMaxRange;
                 case CombatState.ShortRange:   return WeaponsMinRange * rangeBalance;
                 case CombatState.Artillery:    return WeaponsMaxRange * rangeBalance;
+                case CombatState.AssaultShip:  return WeaponsMaxRange * rangeBalance;
                 default:
                     return WeaponsAvgRange * 0.9f;
             }

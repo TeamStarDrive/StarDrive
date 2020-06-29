@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.AI.ShipMovement.CombatManeuvers;
 
 namespace Ship_Game.AI.ShipMovement
 {
-    internal class OrbitPlan : ShipAIPlan
+    internal class OrbitPlan : CombatMovement
     {
         public enum OrbitDirection { Left, Right }
         protected readonly OrbitDirection Direction;
@@ -23,6 +24,15 @@ namespace Ship_Game.AI.ShipMovement
         public OrbitPlan(ShipAI ai, OrbitDirection direction = OrbitDirection.Right) : base(ai)
         {
             Direction = direction;
+        }
+
+        protected override CombatMoveState ExecuteAttack(float elapsedTime)
+        {
+            return CombatMoveState.Error;
+        }
+
+        protected override void OverrideCombatValues(float elapsedTime)
+        {
         }
 
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)

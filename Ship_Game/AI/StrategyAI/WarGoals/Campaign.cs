@@ -92,16 +92,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     return campaign;
                 case CampaignType.Capture:
                     return new Capture(campaign, war);
-                    break;
                 case CampaignType.CaptureBorder:
                     return new CaptureBorderPlanets(campaign, war);
-                    break;
                 case CampaignType.CaptureAll:
                     return new CaptureAllPlanets(campaign, war);
-                    break;
                 case CampaignType.Defense:
                     return new Defense(campaign, war);
-                    break;
                 case CampaignType.Destroy:
                     break;
                 case CampaignType.Blockade:
