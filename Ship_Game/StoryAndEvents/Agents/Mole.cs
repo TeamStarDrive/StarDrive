@@ -6,8 +6,9 @@ namespace Ship_Game
     {
         [Serialize(0)] public Guid PlanetGuid;
 
-        public static Mole PlantMole(Empire owner, Empire target)
+        public static Mole PlantMole(Empire owner, Empire target, out string targetPlanetName)
         {
+            targetPlanetName = "";
             Array<Planet> potentials = new Array<Planet>();
             foreach (Planet p in target.GetPlanets())
             {
@@ -47,6 +48,8 @@ namespace Ship_Game
                 {
                     PlanetGuid = potentials[Random].guid
                 };
+
+                targetPlanetName = potentials[Random].Name;
                 owner.data.MoleList.Add(mole);
             }
             return mole;

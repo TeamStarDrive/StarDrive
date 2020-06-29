@@ -1882,6 +1882,23 @@ namespace Ship_Game
             }
         }
 
+        public int GetSpyDefense()
+        {
+            float defense = 0;
+            for (int i = 0; i < data.AgentList.Count; i++)
+            {
+                if (data.AgentList[i].Mission == AgentMission.Defending)
+                    defense += data.AgentList[i].Level;
+            }
+
+            defense *= ResourceManager.AgentMissionData.DefenseLevelBonus;
+            defense /= (OwnedPlanets.Count / 3).LowerBound(1);
+            defense += data.SpyModifier;
+            defense += data.DefensiveSpyBonus;
+
+            return (int)defense;
+        }
+
         /// <summary>
         /// Gets the total population in billions
         /// </summary>
@@ -2250,18 +2267,10 @@ namespace Ship_Game
             }
             foreach (Planet planet in list1)
                 OwnedPlanets.Remove(planet);
+
             for (int index = 0; index < data.AgentList.Count; ++index)
-            {
-                if (data.AgentList[index].Mission != AgentMission.Defending && data.AgentList[index].TurnsRemaining > 0)
-                {
-                    --data.AgentList[index].TurnsRemaining;
-                    if (data.AgentList[index].TurnsRemaining == 0)
-                        data.AgentList[index].DoMission(this);
-                }
-                //Age agents
-                data.AgentList[index].Age += 0.1f;
-                data.AgentList[index].ServiceYears += 0.1f;
-            }
+                data.AgentList[index].Update(this);
+
             data.AgentList.ApplyPendingRemovals();
 
             if (Money < 0.0 && !isFaction)
@@ -2470,6 +2479,24 @@ namespace Ship_Game
 
                 data.TurnsBelowZero = 0;
             }
+        }
+
+        public void InitRebellion(Empire origin)
+        {
+            data.IsRebelFaction  = true;
+            data.Traits.Name     = origin.data.RebelName;
+            data.Traits.Singular = origin.data.RebelSing;
+            data.Traits.Plural   = origin.data.RebelPlur;
+            isFaction            = true;
+
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                e.AddRelation(this);
+                AddRelation(e);
+            }
+
+            EmpireManager.Add(this);
+            origin.data.RebellionLaunched = true;
         }
 
         bool IsEmpireDead()
