@@ -39,8 +39,8 @@ namespace Ship_Game.GameScreens.Espionage
 
         private MissionListItem InciteRebellion;
 
-        private int spyLimitCount;
-        private int empirePlanetSpys;
+        private int AvailableSpies;
+        private int SpyLimit;
 
         public AgentComponent(EspionageScreen espionageScreen, Rectangle r, Rectangle operationsRect) : base(r)
         {
@@ -115,10 +115,10 @@ namespace Ship_Game.GameScreens.Espionage
             batch.Draw(iconLock, spyLimit, Color.White);
             var spyLimitPos = new Vector2((spyLimit.X + 25), (spyLimit.Y + 10 - Fonts.Arial12.LineSpacing / 2));
 
-            empirePlanetSpys = EmpireManager.Player.NumPlanets / 3 + 3;
-            spyLimitCount = (empirePlanetSpys - EmpireManager.Player.data.AgentList.Count);
-            if (empirePlanetSpys < 0) empirePlanetSpys = 0;
-            batch.DrawString(Fonts.Arial12, $"For Hire : {spyLimitCount} / {empirePlanetSpys}", spyLimitPos, Color.White);
+            SpyLimit = EmpireManager.Player.GetEmpireAI().EmpireSpyLimit;
+            AvailableSpies = SpyLimit - EmpireManager.Player.data.AgentList.Count;
+            if (SpyLimit < 0) SpyLimit = 0;
+            batch.DrawString(Fonts.Arial12, $"For Hire : {AvailableSpies} / {SpyLimit}", spyLimitPos, Color.White);
 
             if (SelectedAgent != null)
             {
@@ -182,7 +182,8 @@ namespace Ship_Game.GameScreens.Espionage
 
             if (RecruitButton.HandleInput(input))
             {
-                if (EmpireManager.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) || spyLimitCount <= 0)//EmpireManager.Player.data.AgentList.Count >= EmpireManager.Player.GetPlanets().Count)
+                if (EmpireManager.Player.Money < (ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost) 
+                    || AvailableSpies <= 0)
                 {
                     GameAudio.NegativeClick();
                 }
