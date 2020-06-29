@@ -65,7 +65,7 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoalFailed;
 
                 var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
-                task.Priority = 10;
+                task.Priority = -2;
                 empire.GetEmpireAI().AddPendingTask(task);
             }
 

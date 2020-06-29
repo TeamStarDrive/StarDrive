@@ -43,9 +43,6 @@ namespace Ship_Game
         public bool reconDropDown;
         public bool ColoniserMenu;
 
-        //added by Fat Bastard
-        public bool UseManualScriptedResearch; // Dont filter anyting, just use commands for manual research scripts.
-
         public float ShipyardBonus;
         public float UpkeepBaseline;
         public float UpkeepFighter;
@@ -62,6 +59,8 @@ namespace Ship_Game
         
         public int RemnantTechCount;
 
+        //added by Fat Bastard
+        public bool UseResearchableShipTechs; // Use short term researchable techs with no best ship
 
         // Doctor: Planet generation: % chance of each tile on this planet type being habitable. Default values as vanilla.
         public int BarrenHab = 0;
