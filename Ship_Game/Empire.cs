@@ -43,6 +43,7 @@ namespace Ship_Game
         private readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
+        public Array<float> NormalizedMoney = new Array<float>();
 
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship> Inhibitors = new Array<Ship>();
@@ -310,6 +311,16 @@ namespace Ship_Game
             }
 
             return builtAt;
+        }
+
+        public float NormalizeBudget(float money)
+        {
+            int maxItems = 10;
+            if (NormalizedMoney.Count == maxItems)
+                NormalizedMoney.RemoveAt(0);
+
+            NormalizedMoney.Add(money);
+            return NormalizedMoney.Sum() / NormalizedMoney.Count;
         }
 
         public float KnownEnemyStrengthIn(SolarSystem system)
@@ -1871,6 +1882,23 @@ namespace Ship_Game
             }
         }
 
+        public int GetSpyDefense()
+        {
+            float defense = 0;
+            for (int i = 0; i < data.AgentList.Count; i++)
+            {
+                if (data.AgentList[i].Mission == AgentMission.Defending)
+                    defense += data.AgentList[i].Level;
+            }
+
+            defense *= ResourceManager.AgentMissionData.DefenseLevelBonus;
+            defense /= (OwnedPlanets.Count / 3).LowerBound(1);
+            defense += data.SpyModifier;
+            defense += data.DefensiveSpyBonus;
+
+            return (int)defense;
+        }
+
         /// <summary>
         /// Gets the total population in billions
         /// </summary>
@@ -2239,18 +2267,10 @@ namespace Ship_Game
             }
             foreach (Planet planet in list1)
                 OwnedPlanets.Remove(planet);
+
             for (int index = 0; index < data.AgentList.Count; ++index)
-            {
-                if (data.AgentList[index].Mission != AgentMission.Defending && data.AgentList[index].TurnsRemaining > 0)
-                {
-                    --data.AgentList[index].TurnsRemaining;
-                    if (data.AgentList[index].TurnsRemaining == 0)
-                        data.AgentList[index].DoMission(this);
-                }
-                //Age agents
-                data.AgentList[index].Age += 0.1f;
-                data.AgentList[index].ServiceYears += 0.1f;
-            }
+                data.AgentList[index].Update(this);
+
             data.AgentList.ApplyPendingRemovals();
 
             if (Money < 0.0 && !isFaction)
@@ -2459,6 +2479,24 @@ namespace Ship_Game
 
                 data.TurnsBelowZero = 0;
             }
+        }
+
+        public void InitRebellion(Empire origin)
+        {
+            data.IsRebelFaction  = true;
+            data.Traits.Name     = origin.data.RebelName;
+            data.Traits.Singular = origin.data.RebelSing;
+            data.Traits.Plural   = origin.data.RebelPlur;
+            isFaction            = true;
+
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                e.AddRelation(this);
+                AddRelation(e);
+            }
+
+            EmpireManager.Add(this);
+            origin.data.RebellionLaunched = true;
         }
 
         bool IsEmpireDead()
