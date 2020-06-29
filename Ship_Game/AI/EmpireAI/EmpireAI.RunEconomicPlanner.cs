@@ -29,36 +29,38 @@ namespace Ship_Game.AI
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources. 
             // its primarily geared at ship building. 
-            float gameState = GetRisk(2.25f);
-            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(0, money);
-            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(money);
-            BuildCapacity                  = DetermineBuildCapacity(gameState, money);
-            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(0, money);
-            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(money);
+            float risklimit = (money * 6 / treasuryGoal).Clamped(0.01f,2);
+            float gameState = GetRisk(risklimit);
+            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(1, treasuryGoal);
+            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
+            BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(1, treasuryGoal);
+            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal);
 
             PlanetBudgetDebugInfo();
         }
 
         float DetermineDefenseBudget(float risk, float money)
         {
+            risk = risk.LowerBound(0.01f);
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float territorialism           = OwnerEmpire.data.DiplomaticPersonality?.Territorialism ?? 100;
-            float buildRatio                 = risk + territorialism / 100 + strat.MilitaryRatio;
+            float buildRatio               = territorialism / 100 + strat.MilitaryRatio;
             float overSpend = OverSpendRatio(money, 0.25f, 0.25f);
             buildRatio = Math.Max(buildRatio, overSpend);
 
             float budget                   = SetBudgetForeArea(0.015f, buildRatio, money);
-            float buildMod = BuildModifier() / 5;
+            float buildMod = BuildModifier() / 7;
 
-            return budget / (buildMod / (1 + risk));
+            return budget * buildMod * risk;
         }
 
         float BuildModifier()
         {
             float buildModifier = 1;
-            buildModifier += OwnerEmpire.canBuildCorvettes ? 0 : 5;
-            buildModifier += OwnerEmpire.canBuildFrigates ? 0 : 5;
-            buildModifier += OwnerEmpire.canBuildCruisers ? 0 : 5;
+            buildModifier += OwnerEmpire.canBuildCorvettes ? 1 : 0;
+            buildModifier += OwnerEmpire.canBuildFrigates ? 2 : 0;
+            buildModifier += OwnerEmpire.canBuildCruisers ? 3 : 0;
             return buildModifier;
         }
 
@@ -71,13 +73,14 @@ namespace Ship_Game.AI
 
         float DetermineBuildCapacity(float risk, float money)
         {
+            risk = risk.LowerBound(0.01f);
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio               = MathExt.Max3(strat.MilitaryRatio + risk, strat.IndustryRatio , strat.ExpansionRatio);
+            float buildRatio               = MathExt.Max3(strat.MilitaryRatio, strat.IndustryRatio , strat.ExpansionRatio);
             float overSpend                = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
             float buildBudget              = SetBudgetForeArea(0.02f, buildRatio, money);
-            float buildMod = BuildModifier();
-            return buildBudget / (buildMod / (1 + risk));
+            float buildMod = BuildModifier() /7 ;
+            return (buildBudget * buildMod * risk).LowerBound(1);
 
         }
 
@@ -97,7 +100,9 @@ namespace Ship_Game.AI
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
 
-            return SetBudgetForeArea(0.2f, Math.Max(risk, overSpend), money) / BuildModifier();
+            float buildMod = BuildModifier() / 7;
+
+            return SetBudgetForeArea(0.1f, Math.Max(risk, overSpend), money) * buildMod;
         }
 
         private void PlanetBudgetDebugInfo()
