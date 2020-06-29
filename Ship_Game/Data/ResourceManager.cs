@@ -15,6 +15,7 @@ using Ship_Game.Data.Yaml;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
+using Ship_Game.AI;
 
 namespace Ship_Game
 {
@@ -174,6 +175,7 @@ namespace Ship_Game
             LoadPlanetEdicts();
             LoadPlanetTypes();
             LoadSunZoneData();
+            LoadBuildRatios();
             LoadEconomicResearchStrategies();
             LoadBlackboxSpecific();
 
@@ -1367,6 +1369,7 @@ namespace Ship_Game
             LoadBasicContentForTesting();
             LoadPlanetTypes();
             LoadSunZoneData();
+            LoadBuildRatios();
             //SunType.LoadAll(); currently wont load from test.
         }
 
@@ -1551,6 +1554,7 @@ namespace Ship_Game
 
 
         static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new Map<SunZone, Array<PlanetCategory>>();
+        public static readonly Map<BuildRatio, int[]> BuildRatios = new Map<BuildRatio, int[]>();
         static Array<PlanetType> PlanetTypes;
         static Map<int, PlanetType> PlanetTypeMap;
 
@@ -1590,6 +1594,19 @@ namespace Ship_Game
                 ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
                 ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
                 ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
+            }
+        }
+
+        static void LoadBuildRatios()
+        {
+            using (var parser = new YamlParser("FleetBuildRatios.yaml"))
+            {
+                var ratios = parser.DeserializeArray<FleetBuildRatios>();
+                BuildRatios[BuildRatio.CanBuildFighters]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFighters);
+                BuildRatios[BuildRatio.CanBuildCorvettes] = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCorvettes);
+                BuildRatios[BuildRatio.CanBuildFrigates]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFrigates);
+                BuildRatios[BuildRatio.CanBuildCruisers]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCruisers);
+                BuildRatios[BuildRatio.CanBuildCapitals]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCapitals);
             }
         }
 
