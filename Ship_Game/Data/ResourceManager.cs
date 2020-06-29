@@ -1370,6 +1370,7 @@ namespace Ship_Game
             LoadPlanetTypes();
             LoadSunZoneData();
             LoadBuildRatios();
+
             //SunType.LoadAll(); currently wont load from test.
         }
 
