@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.AI.ShipMovement;
+using Ship_Game.AI.ShipMovement.CombatManeuvers;
 
 namespace Ship_Game.AI.CombatTactics
 {
@@ -8,14 +9,19 @@ namespace Ship_Game.AI.CombatTactics
         public OrbitTarget(ShipAI ai, OrbitDirection direction) : base(ai, direction)
         {
         }
-        
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
-        {
-            float radius = AI.Owner.DesiredCombatRange * 0.8f - AI.Owner.Radius - AI.Target.Radius;
 
+        protected override void OverrideCombatValues(float elapsedTime)
+        {
+            DesiredCombatRange = AI.Owner.DesiredCombatRange * 0.8f - AI.Owner.Radius - AI.Target.Radius;
+        }
+
+        protected override CombatMoveState ExecuteAttack(float elapsedTime)
+        {
             Vector2 predictedTarget = AI.Owner.PredictImpact(AI.Target);
-            UpdateOrbitPos(predictedTarget, radius, elapsedTime);
+            
+            UpdateOrbitPos(predictedTarget, DesiredCombatRange, elapsedTime);
             AI.ThrustOrWarpToPos(OrbitPos, elapsedTime);
+            return CombatMoveState.OrbitInjection;
         }
     }
 }

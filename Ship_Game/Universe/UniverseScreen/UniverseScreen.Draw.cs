@@ -935,7 +935,7 @@ namespace Ship_Game
                     {
                         foreach (Projectile p in planets[i].Projectiles)
                         {
-                            if (p.Active) p.Draw(batch, this);
+                            if (p?.Active ?? false) p.Draw(batch, this);
                         }
                     }
                 }
