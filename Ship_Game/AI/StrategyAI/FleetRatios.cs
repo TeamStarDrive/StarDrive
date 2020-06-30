@@ -3,6 +3,15 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game.AI
 {
+    public enum BuildRatio
+    {
+        CanBuildFighters,
+        CanBuildCorvettes,
+        CanBuildFrigates,
+        CanBuildCruisers,
+        CanBuildCapitals
+    }
+
     public struct FleetRatios
     {
         public float TotalCount { get; set; }
@@ -41,21 +50,17 @@ namespace Ship_Game.AI
 
         public void SetFleetRatios()
         {
-            //fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
-            if (OwnerEmpire.canBuildCapitals)
-                SetCounts(new[] { 1, 12, 8, 8, 4, 1, 1, 2, 1 });
+            // fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
 
-            else if (OwnerEmpire.canBuildCruisers)
-                SetCounts(new[] { 3, 9, 6, 3, 0, 1, 1, 3, 1 });
+            int[] counts;
 
-            else if (OwnerEmpire.canBuildFrigates)
-                SetCounts(new[] { 6, 6, 4, 0, 0, 1, 1, 1, 1 });
+            if      (OwnerEmpire.canBuildCapitals)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals);
+            else if (OwnerEmpire.canBuildCruisers)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers);
+            else if (OwnerEmpire.canBuildFrigates)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates);
+            else if (OwnerEmpire.canBuildCorvettes) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes);
+            else                                    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters);
 
-            else if (OwnerEmpire.canBuildCorvettes)
-                SetCounts(new[] { 12, 6, 0, 0, 0, 1, 1, 1, 1 });
-
-            else
-                SetCounts(new[] { 24, 0, 0, 0, 0, 1, 2, 1, 1 });
+            SetCounts(counts);
         }
 
         private void SetCounts(int[] counts)
