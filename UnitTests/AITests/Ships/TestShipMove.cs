@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -29,7 +30,6 @@ namespace UnitTests.AITests.Ships
             ship.FTLSpoolTime = 3f;
             return ship;
         }
-
 
         [TestMethod]
         public void MoveShip()
