@@ -51,19 +51,16 @@ namespace Ship_Game.AI
         public void SetFleetRatios()
         {
             // fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
-            if (OwnerEmpire.canBuildCapitals)
-                SetCounts(ResourceManager.BuildRatios[BuildRatio.CanBuildCapitals]);
 
-            else if (OwnerEmpire.canBuildCruisers)
-                SetCounts(ResourceManager.BuildRatios[BuildRatio.CanBuildCruisers]);
+            int[] counts;
 
-            else if (OwnerEmpire.canBuildFrigates)
-                SetCounts(ResourceManager.BuildRatios[BuildRatio.CanBuildFrigates]);
+            if      (OwnerEmpire.canBuildCapitals)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals);
+            else if (OwnerEmpire.canBuildCruisers)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers);
+            else if (OwnerEmpire.canBuildFrigates)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates);
+            else if (OwnerEmpire.canBuildCorvettes) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes);
+            else                                    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters);
 
-            else if (OwnerEmpire.canBuildCorvettes)
-                SetCounts(ResourceManager.BuildRatios[BuildRatio.CanBuildCorvettes]);
-            else
-                SetCounts(ResourceManager.BuildRatios[BuildRatio.CanBuildFighters]);
+            SetCounts(counts);
         }
 
         private void SetCounts(int[] counts)
