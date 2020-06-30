@@ -1555,7 +1555,7 @@ namespace Ship_Game
 
 
         static readonly Map<SunZone, Array<PlanetCategory>> ZoneDistribution = new Map<SunZone, Array<PlanetCategory>>();
-        public static readonly Map<BuildRatio, int[]> BuildRatios = new Map<BuildRatio, int[]>();
+        static readonly Map<BuildRatio, int[]> BuildRatios = new Map<BuildRatio, int[]>();
         static Array<PlanetType> PlanetTypes;
         static Map<int, PlanetType> PlanetTypeMap;
 
@@ -1595,6 +1595,19 @@ namespace Ship_Game
                 ZoneDistribution[SunZone.Habital] = SunZoneData.CreateDistribution(zones, SunZone.Habital);
                 ZoneDistribution[SunZone.Far]     = SunZoneData.CreateDistribution(zones, SunZone.Far);
                 ZoneDistribution[SunZone.VeryFar] = SunZoneData.CreateDistribution(zones, SunZone.VeryFar);
+            }
+        }
+
+        public static int[] GetFleetRatios(BuildRatio canBuild)
+        {
+            switch (canBuild)
+            {
+                default:
+                case BuildRatio.CanBuildFighters:  return BuildRatios[BuildRatio.CanBuildFighters];
+                case BuildRatio.CanBuildCorvettes: return BuildRatios[BuildRatio.CanBuildCorvettes];
+                case BuildRatio.CanBuildFrigates:  return BuildRatios[BuildRatio.CanBuildFrigates];
+                case BuildRatio.CanBuildCruisers:  return BuildRatios[BuildRatio.CanBuildCruisers];
+                case BuildRatio.CanBuildCapitals:  return BuildRatios[BuildRatio.CanBuildCapitals];
             }
         }
 
