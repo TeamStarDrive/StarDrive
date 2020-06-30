@@ -34,7 +34,7 @@ namespace Ship_Game.AI
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(1, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
             BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
-            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(1, treasuryGoal);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(gameState, treasuryGoal);
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal);
 
             PlanetBudgetDebugInfo();
@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float territorialism           = OwnerEmpire.data.DiplomaticPersonality?.Territorialism ?? 100;
             float buildRatio               = territorialism / 100 + strat.MilitaryRatio;
-            float overSpend = OverSpendRatio(money, 0.25f, 0.25f);
+            float overSpend = OverSpendRatio(money, 0.75f, 1.25f);
             buildRatio = Math.Max(buildRatio, overSpend);
 
             float budget                   = SetBudgetForeArea(0.015f, buildRatio, money);
@@ -76,11 +76,11 @@ namespace Ship_Game.AI
             risk = risk.LowerBound(0.01f);
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float buildRatio               = MathExt.Max3(strat.MilitaryRatio, strat.IndustryRatio , strat.ExpansionRatio);
-            float overSpend                = OverSpendRatio(money, 0.15f, 0.75f);
+            float overSpend                = OverSpendRatio(money, 0.85f, 1.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
             float buildBudget              = SetBudgetForeArea(0.02f, buildRatio, money);
             float buildMod = BuildModifier() /7 ;
-            return (buildBudget * buildMod * risk).LowerBound(1);
+            return (buildBudget * buildMod).LowerBound(1);
 
         }
 
@@ -89,7 +89,7 @@ namespace Ship_Game.AI
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
 
             float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
-            float overSpend = OverSpendRatio(money, 0.15f, 0.75f);
+            float overSpend                = OverSpendRatio(money, 0.85f, 1.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
             var budget                     = SetBudgetForeArea(0.015f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
@@ -97,16 +97,26 @@ namespace Ship_Game.AI
 
         float DetermineSpyBudget(float risk, float money)
         {
-            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
+            float trustworthiness = OwnerEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 0;
+            trustworthiness      /= 100f;
+            float militaryRatio   = OwnerEmpire.Research.Strategy.MilitaryRatio;
+            // here we want to make sure that even if they arent trust worthy that the value they put on war machines will 
+            // get more money.
+            float treasuryToSave  = (trustworthiness + militaryRatio) / 2;
+            float covertness      = 1 - trustworthiness;
+            float spyCost         = 250;
+            float numAgents       = OwnerEmpire.data.AgentList.Count;
+            float spyNeeds        = 1 + EmpireSpyLimit - numAgents;
+            spyNeeds              = spyNeeds.LowerBound(0);
+            float overSpend       = OverSpendRatio(money, treasuryToSave, risk + spyNeeds);
+            risk                  = risk.LowerBound(covertness); // * agent threat from empires
 
-            float buildMod = BuildModifier() / 7;
+            // we are tuning to a spy cost of 250. if that changes the budget should adjust to it. 
+            float spyBudgetPercent = spyCost / (spyCost * 6); 
 
-            return SetBudgetForeArea(0.1f, Math.Max(risk, overSpend), money) * buildMod;
-            risk            = risk.LowerBound(overSpend); // * agent threat from empires
-            int numAgents   = OwnerEmpire.data.AgentList.Count().LowerBound(1);
-            float budget    = OwnerEmpire.Money * 0.1f * (EmpireSpyLimit - numAgents).LowerBound(1);
-            return (budget * risk).Clamped(0, SpyCost);  
+            float budget = money * spyBudgetPercent * risk * overSpend;
+
+            return budget;
         }
 
         private void PlanetBudgetDebugInfo()
@@ -136,22 +146,20 @@ namespace Ship_Game.AI
         }
 
         /// <summary>
-        /// creates a ratio starting from x percent of money.
-        ///  if treasury goal is 100 and percentage of treasury is 0.8 
-        ///  the result should be a ratio between  treasury and money starting at a money value of 80.
-        /// 80 is .1 and 100 is 1. <para></para>
-        /// maximum ratio creates an upper bound for the return value. 
+        /// Creates a ratio between cash on hand above what we want on hand and treasury goal
+        /// eg. treasury goal is 100, cash on hand is 100, and percent to save is .5
+        /// then the result would (100 + 50) / 100 = 1.5
+        /// m+m-t*p / t. will always return at least 0.
+        /// 
         /// </summary>
-        public float OverSpendRatio(float treasuryGoal, float percentageOfTreasury, float upperRatioRange)
+        public float OverSpendRatio(float treasuryGoal, float percentageOfTreasuryToSave, float maxRatio)
         {
             float money    = OwnerEmpire.Money;
             float treasury = treasuryGoal.LowerBound(1);
-
-            //if (money < 1000 || treasury < 1000) return 0;
-
-            float reducer = (treasury * percentageOfTreasury);
-            float ratio   = (money - reducer) / (treasury - reducer).LowerBound(1);
-            return ratio.LowerBound(0) * upperRatioRange;
+            
+            float minMoney = money - treasury * percentageOfTreasuryToSave;
+            float ratio   = (money + minMoney) / treasury.LowerBound(1);
+            return ratio.Clamped(0f, maxRatio);
         }
 
         private void AutoSetTaxes(float treasuryGoal)
