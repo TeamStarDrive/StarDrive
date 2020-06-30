@@ -45,8 +45,8 @@ namespace UnitTests.AITests.Ships
 
             Assert.AreEqual("FleetBuildRatios.yaml", relativePath, $"2: Relative path is {relativePath}");
             info = new FileInfo("Content/" + relativePath);
-            Assert.AreEqual("FleetBuildRatios.yaml", relativePath, $"2: Relative path is {"Content/" + relativePath}");
-            Assert.IsTrue(info.Exists, "File Info does not exist!");
+            Assert.AreEqual("FleetBuildRatios.yaml", relativePath, $"3: Relative path is {"Content/" + relativePath}");
+            Assert.IsTrue(info.Exists, $"File Info does not exist! {"Content/" + relativePath}");
 
         }
 
