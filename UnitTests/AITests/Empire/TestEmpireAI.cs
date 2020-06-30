@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -90,6 +91,25 @@ namespace UnitTests.AITests.Empire
             markedPlanet = expansionAI.GetColonizationGoalPlanets();
             Assert.AreEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
             expansionAI.RunExpansionPlanner();
+
+        }
+
+        [TestMethod]
+        public void GetModOrVanillaFile()
+        {
+            string relativePath = "FleetBuildRatios.yaml";
+            Assert.AreEqual("FleetBuildRatios.yaml", relativePath, $"1: Relative path is {relativePath}");
+            FileInfo info;
+            if (GlobalStats.HasMod)
+            {
+                info = new FileInfo(GlobalStats.ModPath + relativePath);
+                Assert.IsFalse(info.Exists, "File Info should not exist!");
+            }
+
+            Assert.AreEqual("FleetBuildRatios.yaml", relativePath, $"2: Relative path is {relativePath}");
+            info = new FileInfo("Content/" + relativePath);
+            Assert.AreEqual("FleetBuildRatios.yaml", relativePath, $"2: Relative path is {"Content/" + relativePath}");
+            Assert.IsTrue(info.Exists, "File Info does not exist!");
 
         }
 
