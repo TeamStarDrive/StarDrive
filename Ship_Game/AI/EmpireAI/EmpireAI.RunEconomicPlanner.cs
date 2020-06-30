@@ -22,15 +22,15 @@ namespace Ship_Game.AI
 
         public void RunEconomicPlanner()
         {
-            // FB Get normalized money to smooth fluctuations - until we get a better treasury goal calc
-            float money                    = OwnerEmpire.NormalizeBudget(OwnerEmpire.Money).LowerBound(1);
+            float money                    = OwnerEmpire.Money;
+            float normalizedBudget         = OwnerEmpire.NormalizeBudget(money);
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources. 
             // its primarily geared at ship building. 
-            float risklimit = (money * 6 / treasuryGoal).Clamped(0.01f,2);
-            float gameState = GetRisk(risklimit);
+            float riskLimit = (normalizedBudget * 6 / treasuryGoal).Clamped(0.01f,2);
+            float gameState = GetRisk(riskLimit);
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(1, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
             BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
@@ -104,7 +104,6 @@ namespace Ship_Game.AI
             // get more money.
             float treasuryToSave  = (trustworthiness + militaryRatio) / 2;
             float covertness      = 1 - trustworthiness;
-            float spyCost         = 250;
             float numAgents       = OwnerEmpire.data.AgentList.Count;
             float spyNeeds        = 1 + EmpireSpyLimit - numAgents;
             spyNeeds              = spyNeeds.LowerBound(0);
@@ -112,7 +111,7 @@ namespace Ship_Game.AI
             risk                  = risk.LowerBound(covertness); // * agent threat from empires
 
             // we are tuning to a spy cost of 250. if that changes the budget should adjust to it. 
-            float spyBudgetPercent = spyCost / (spyCost * 6); 
+            float spyBudgetPercent = SpyCost / (SpyCost * 6); 
 
             float budget = money * spyBudgetPercent * risk * overSpend;
 
@@ -154,7 +153,7 @@ namespace Ship_Game.AI
         /// </summary>
         public float OverSpendRatio(float treasuryGoal, float percentageOfTreasuryToSave, float maxRatio)
         {
-            float money    = OwnerEmpire.Money;
+            float money = OwnerEmpire.NormalizedMoney.Average();
             float treasury = treasuryGoal.LowerBound(1);
             
             float minMoney = money - treasury * percentageOfTreasuryToSave;
