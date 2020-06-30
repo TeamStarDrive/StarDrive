@@ -24,9 +24,11 @@ namespace Ship_Game.AI
 
             RunGroundPlanner();
             NumberOfShipGoals = 3;
-            int goalsInConstruction = SearchForGoals(GoalType.BuildOffensiveShips).Count;
-            if (goalsInConstruction <= NumberOfShipGoals)
-                BuildWarShips(goalsInConstruction);
+            var offensiveGoals = SearchForGoals(GoalType.BuildOffensiveShips);
+            var planetsBuilding = new Array<Planet>();
+            foreach (var goal in offensiveGoals) planetsBuilding.AddUnique(goal.PlanetBuildingAt);
+            var effectiveGoals = offensiveGoals.Count / planetsBuilding.Count.LowerBound(1);
+            BuildWarShips(effectiveGoals);
 
             Goals.ApplyPendingRemovals();
 
@@ -244,7 +246,7 @@ namespace Ship_Game.AI
         {
             var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
             //
-            while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget)
+            while (!buildRatios.OverBudget && goalsInConstruction < NumberOfShipGoals)
             {
                 string s = GetAShip(buildRatios);
                 if (string.IsNullOrEmpty(s))
