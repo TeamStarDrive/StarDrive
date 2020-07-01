@@ -53,12 +53,12 @@ namespace Ship_Game.Gameplay
         [Serialize(15)] public int TimesSpiedOnAlly;
         [Serialize(16)] public int SpiesKilled;
         [Serialize(17)] public float TotalAnger;
-        [Serialize(18)] public bool Treaty_OpenBorders;
-        [Serialize(19)] public bool Treaty_NAPact;
-        [Serialize(20)] public bool Treaty_Trade;
+        [Serialize(18)] public bool Treaty_OpenBorders; // FB - check Empire_Relationship to see how to set it. Do not access directly!
+        [Serialize(19)] public bool Treaty_NAPact; // FB - check Empire_Relationship to see how to set it. Do not access directly!
+        [Serialize(20)] public bool Treaty_Trade; // FB - check Empire_Relationship to see how to set it. Do not access directly!
         [Serialize(21)] public int Treaty_Trade_TurnsExisted;
-        [Serialize(22)] public bool Treaty_Alliance;
-        [Serialize(23)] public bool Treaty_Peace;
+        [Serialize(22)] public bool Treaty_Alliance; // FB - check Empire_Relationship to see how to set it. Do not access directly!
+        [Serialize(23)] public bool Treaty_Peace; // FB - check Empire_Relationship to see how to set it. Do not access directly!
 
         [Serialize(24)] public int PeaceTurnsRemaining;
         [Serialize(25)] public float Threat;
@@ -152,6 +152,19 @@ namespace Ship_Game.Gameplay
 
         public Relationship()
         {
+        }
+
+
+        public void SetTreaty(TreatyType treatyType, bool value)
+        {
+            switch (treatyType)
+            {
+                case TreatyType.Alliance:      Treaty_Alliance    = value;                                        break;
+                case TreatyType.NonAggression: Treaty_NAPact      = value;                                        break;
+                case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                        break;
+                case TreatyType.Peace:         Treaty_Peace       = value; PeaceTurnsRemaining = value ? 100 : 0; break;
+                case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0;         break;
+            }
         }
 
         public float TradeIncome() => (0.25f * Treaty_Trade_TurnsExisted - 3f).Clamped(-3f, 3f);
@@ -740,7 +753,7 @@ namespace Ship_Game.Gameplay
                 war.RestoreFromSave(false);
         }
 
-        public void ResetRelation()
+        public void ResetRelation() // todo move the empire_relationship
         {
             Treaty_Alliance    = false;
             Treaty_NAPact      = false;
@@ -767,5 +780,14 @@ namespace Ship_Game.Gameplay
             ActiveWar?.WarDebugData(ref debug);
             return debug;
         }
+    }
+
+    public enum TreatyType
+    {
+        Alliance,
+        NonAggression,
+        OpenBorders,
+        Peace,
+        Trade
     }
 }
