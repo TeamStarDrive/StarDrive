@@ -237,7 +237,7 @@ namespace Ship_Game.Gameplay
                     Anger_DiplomaticConflict += amount;
                     TotalAnger               += amount;
                     Trust                    -= amount;
-                    if (us.data.DiplomaticPersonality.Name == "Honorable" || us.data.DiplomaticPersonality.Name == "Xenophobic")
+                    if (us.IsHonorable || us.IsXenophobic)
                     {
                         Anger_DiplomaticConflict += amount;
                         TotalAnger               += amount;

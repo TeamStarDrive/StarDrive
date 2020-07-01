@@ -246,7 +246,7 @@ namespace Ship_Game.AI
 
             if (Empire.Universe.PlayerEmpire != OwnerEmpire)
             {
-                if (OwnerEmpire.data.DiplomaticPersonality.Name == "Pacifist")
+                if (OwnerEmpire.IsPacifist)
                 {
                     relations.ActiveWar.WarType = relations.ActiveWar.StartingNumContestedSystems <= 0
                         ? WarType.DefensiveWar

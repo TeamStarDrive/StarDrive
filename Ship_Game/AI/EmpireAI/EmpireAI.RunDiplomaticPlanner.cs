@@ -272,8 +272,7 @@ namespace Ship_Game.AI {
                 }
                 if (Relationship.Key.data.DiplomaticPersonality != null && !Relationship.Value.HaveRejected_TRADE &&
                     !Relationship.Value.Treaty_Trade && !Relationship.Value.AtWar &&
-                    (Relationship.Key.data.DiplomaticPersonality.Name != "Aggressive" ||
-                     Relationship.Key.data.DiplomaticPersonality.Name != "Ruthless"))
+                    (!Relationship.Key.IsAggressive || !Relationship.Key.IsRuthless))
                 {
                     Offer NAPactOffer = new Offer
                     {
@@ -509,8 +508,7 @@ namespace Ship_Game.AI {
 
                 if (Relationship.Key.data.DiplomaticPersonality != null && !Relationship.Value.HaveRejected_TRADE &&
                     !Relationship.Value.Treaty_Trade && !Relationship.Value.AtWar &&
-                    (Relationship.Key.data.DiplomaticPersonality.Name != "Aggressive" ||
-                     Relationship.Key.data.DiplomaticPersonality.Name != "Ruthless"))
+                    (!Relationship.Key.IsAggressive || !Relationship.Key.IsRuthless))
                 {
                     Offer NAPactOffer = new Offer
                     {

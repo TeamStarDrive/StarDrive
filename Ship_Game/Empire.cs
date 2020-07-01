@@ -2308,9 +2308,7 @@ namespace Ship_Game
                             aiTotalScore += empire.TotalScore;
                             if (empire.TotalScore > score)
                                 score = empire.TotalScore;
-                            if (empire.data.DiplomaticPersonality.Name == "Aggressive"
-                                || empire.data.DiplomaticPersonality.Name == "Ruthless"
-                                || empire.data.DiplomaticPersonality.Name == "Xenophobic")
+                            if (empire.IsAggressive || empire.IsRuthless || empire.IsXenophobic)
                                 aggressiveEmpires.Add(empire);
                         }
                     }
