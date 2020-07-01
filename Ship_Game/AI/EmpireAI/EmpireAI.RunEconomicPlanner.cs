@@ -138,7 +138,7 @@ namespace Ship_Game.AI
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
                                  + OwnerEmpire.data.FlatMoneyBonus;
 
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 150;
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
             float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;
             treasuryGoal  = Math.Max(minGoal, treasuryGoal);
             return treasuryGoal;
