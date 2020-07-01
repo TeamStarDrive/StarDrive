@@ -43,7 +43,7 @@ namespace Ship_Game
                 e.PortraitName = e.data.PortraitName;
                 e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
                 e.EmpireColor  = e.data.Traits.Color;
-                e.NormalizedMoney           = sdata.NormalizedMoney      ?? new Array<float>(); 
+                e.RestoreMoneyHistoryFromSave(sdata);
                 e.data.CurrentAutoScout     = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
                 e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
