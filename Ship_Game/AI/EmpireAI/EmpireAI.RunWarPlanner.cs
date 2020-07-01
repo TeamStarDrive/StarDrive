@@ -36,15 +36,11 @@ namespace Ship_Game.AI
                     Relationship ourRelationToAlly = OwnerEmpire.GetRelations(ally);
 
                     float anger = 30f;
-                    if (OwnerEmpire.data.DiplomaticPersonality != null &&
-                        OwnerEmpire.data.DiplomaticPersonality.Name == "Honorable")
+                    if (OwnerEmpire.IsHonorable)
                     {
                         anger = 60f;
                         offer.RejectDL  = "HelpUS_War_No_BreakAlliance";
-                        ally.GetRelations(OwnerEmpire).Treaty_Alliance = false;
-                        ourRelationToAlly.Treaty_Alliance    = false;
-                        ourRelationToAlly.Treaty_OpenBorders = false;
-                        ourRelationToAlly.Treaty_NAPact      = false;
+                        OwnerEmpire.BreakAllianceWith(ally);
                     }
 
                     ourRelationToAlly.Trust -= anger;
@@ -64,16 +60,9 @@ namespace Ship_Game.AI
             ourRelationToThem.AtWar     = true;
             ourRelationToThem.Posture   = Posture.Hostile;
             ourRelationToThem.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
+            ourRelationToThem.Trust = 0f;
 
-            if (ourRelationToThem.Trust > 0f)
-            {
-                ourRelationToThem.Trust = 0f;
-            }
-            ourRelationToThem.Treaty_OpenBorders = false;
-            ourRelationToThem.Treaty_NAPact      = false;
-            ourRelationToThem.Treaty_Trade       = false;
-            ourRelationToThem.Treaty_Alliance    = false;
-            ourRelationToThem.Treaty_Peace       = false;
+            OwnerEmpire.BreakAllTreatiesWith(them, includingPeace: true);
             them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
 
             // FB - we are Resetting Pirate timers here since status change can be done via communication by the player
@@ -95,7 +84,6 @@ namespace Ship_Game.AI
             ourRelations.FedQuest = null;
             if (OwnerEmpire == Empire.Universe.PlayerEmpire && ourRelations.Treaty_NAPact)
             {
-                ourRelations.Treaty_NAPact = false;
                 foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
                 {
                     if (kv.Key != them)
@@ -126,16 +114,11 @@ namespace Ship_Game.AI
                 Empire.Universe.NotificationManager.AddWarDeclaredNotification(OwnerEmpire, them);
             }
 
-            ourRelations.AtWar   = true;
-            ourRelations.Posture = Posture.Hostile;
+            ourRelations.AtWar     = true;
+            ourRelations.Posture   = Posture.Hostile;
             ourRelations.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
-            if (ourRelations.Trust > 0f)
-                ourRelations.Trust = 0.0f;
-            ourRelations.Treaty_OpenBorders = false;
-            ourRelations.Treaty_NAPact      = false;
-            ourRelations.Treaty_Trade       = false;
-            ourRelations.Treaty_Alliance    = false;
-            ourRelations.Treaty_Peace       = false;
+            ourRelations.Trust     = 0f;
+            OwnerEmpire.BreakAllTreatiesWith(them, includingPeace: true);
             them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
@@ -175,7 +158,7 @@ namespace Ship_Game.AI
                     if (aiRelationToPlayer.Treaty_NAPact)
                     {
                         DiplomacyScreen.Show(OwnerEmpire, player, "Declare War Defense BrokenNA");
-                        aiRelationToPlayer.Treaty_NAPact = false;
+                        OwnerEmpire.BreakTreatyWith(player, TreatyType.NonAggression);
                         aiRelationToPlayer.Trust -= 50f;
                         aiRelationToPlayer.Anger_DiplomaticConflict += 50f;
                         foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
@@ -211,7 +194,6 @@ namespace Ship_Game.AI
             ourRelationToThem.FedQuest = null;
             if (OwnerEmpire == Empire.Universe.PlayerEmpire && ourRelationToThem.Treaty_NAPact)
             {
-                ourRelationToThem.Treaty_NAPact     = false;
                 Relationship item                                = them.GetRelations(OwnerEmpire);
                 item.Trust                                       = item.Trust - 50f;
                 Relationship angerDiplomaticConflict             = them.GetRelations(OwnerEmpire);
@@ -233,18 +215,12 @@ namespace Ship_Game.AI
             {
                 Empire.Universe.NotificationManager.AddWarDeclaredNotification(OwnerEmpire, them);
             }
+
             ourRelationToThem.AtWar     = true;
             ourRelationToThem.Posture   = Posture.Hostile;
             ourRelationToThem.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
-            if (ourRelationToThem.Trust > 0f)
-            {
-                ourRelationToThem.Trust = 0f;
-            }
-            ourRelationToThem.Treaty_OpenBorders = false;
-            ourRelationToThem.Treaty_NAPact      = false;
-            ourRelationToThem.Treaty_Trade       = false;
-            ourRelationToThem.Treaty_Alliance    = false;
-            ourRelationToThem.Treaty_Peace       = false;
+            ourRelationToThem.Trust     = 0f;
+            OwnerEmpire.BreakAllTreatiesWith(them, includingPeace: true);
             them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
         }
 
@@ -258,35 +234,6 @@ namespace Ship_Game.AI
                 OwnerEmpire.Pirates.ResetPaymentTimerFor(them);
             else if (them.WeArePirates)
                 them.Pirates.ResetPaymentTimerFor(OwnerEmpire);
-
-            foreach (MilitaryTask task in TaskList.ToArray())
-            {
-                if (OwnerEmpire.GetFleetsDict().Get(task.WhichFleet, out Fleet fleet) &&
-                    OwnerEmpire.data.Traits.Name == "Corsairs")
-                {
-                    bool foundhome = false;
-                    foreach (Ship ship in OwnerEmpire.GetShips())
-                    {
-                        if (ship.IsPlatformOrStation)
-                        {
-                            foundhome = true;
-                            foreach (Ship fship in fleet.Ships)
-                            {
-                                fship.AI.ClearOrders();
-                                fship.DoEscort(ship);
-                            }
-                            break;
-                        }
-                    }
-
-                    if (!foundhome)
-                    {
-                        foreach (Ship ship in fleet.Ships)
-                            ship.AI.ClearOrders();
-                    }
-                    task.EndTaskWithMove();
-                }
-            }
         }
 
         public void GetWarDeclaredOnUs(Empire warDeclarant, WarType wt)
@@ -306,13 +253,8 @@ namespace Ship_Game.AI
                         : WarType.BorderConflict;
                 }
             }
-            if (relations.Trust > 0f)
-                relations.Trust          = 0f;
-            relations.Treaty_Alliance    = false;
-            relations.Treaty_NAPact      = false;
-            relations.Treaty_OpenBorders = false;
-            relations.Treaty_Trade       = false;
-            relations.Treaty_Peace       = false;
+
+            relations.Trust          = 0f;
         }
 
         public void OfferPeace(KeyValuePair<Empire, Relationship> relationship, string whichPeace)
