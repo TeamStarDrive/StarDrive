@@ -23,7 +23,7 @@ namespace Ship_Game.AI
         public void RunEconomicPlanner()
         {
             float money                    = OwnerEmpire.Money;
-            float normalizedBudget         = OwnerEmpire.NormalizeBudget(money);
+            float normalizedBudget         = OwnerEmpire.NormalizedMoney = money;
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
@@ -67,7 +67,8 @@ namespace Ship_Game.AI
         float DetermineSSPBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float risk                     = strat.IndustryRatio + strat.ExpansionRatio;
+            float risk                     = 1 + strat.IndustryRatio + strat.ExpansionRatio;
+            risk /= 2;
             return SetBudgetForeArea(0.003f, risk, money);
         }
 
@@ -153,7 +154,7 @@ namespace Ship_Game.AI
         /// </summary>
         public float OverSpendRatio(float treasuryGoal, float percentageOfTreasuryToSave, float maxRatio)
         {
-            float money = OwnerEmpire.NormalizedMoney.Average();
+            float money = OwnerEmpire.NormalizedMoney;
             float treasury = treasuryGoal.LowerBound(1);
             
             float minMoney = money - treasury * percentageOfTreasuryToSave;
