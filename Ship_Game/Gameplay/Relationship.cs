@@ -228,7 +228,9 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.RestrictAIPlayerInteraction &&  them == Empire.Universe.PlayerEmpire)
                 return;
 
-            amount *= us.DifficultyModifiers.Anger;
+            if (them == EmpireManager.Player)
+                amount *= us.DifficultyModifiers.Anger;
+
             if (why != null)
             {
                 if (why == "Caught Spying")
@@ -256,10 +258,7 @@ namespace Ship_Game.Gameplay
                             if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
-                            Treaty_Alliance    = false;
-                            Treaty_NAPact      = false;
-                            Treaty_OpenBorders = false;
-                            Treaty_Trade       = false;
+                            us.BreakAllTreatiesWith(them);
                             Posture = Posture.Hostile;
                         }
                     }
@@ -280,10 +279,7 @@ namespace Ship_Game.Gameplay
                             if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_3");
 
-                            Treaty_Alliance    = false;
-                            Treaty_NAPact      = false;
-                            Treaty_OpenBorders = false;
-                            Treaty_Trade       = false;
+                            us.BreakAllTreatiesWith(them);
                             Posture = Posture.Hostile;
                         }
                     }
@@ -294,7 +290,7 @@ namespace Ship_Game.Gameplay
                     TotalAnger               += amount;
                     Trust                    -= amount;
 
-                    if (us.data.DiplomaticPersonality.Name == "Honorable" || us.data.DiplomaticPersonality.Name == "Xenophobic")
+                    if (us.IsHonorable || us.IsXenophobic)
                     {
                         Anger_DiplomaticConflict += amount;
                         TotalAnger               += amount;
@@ -316,10 +312,7 @@ namespace Ship_Game.Gameplay
                             if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
                                 DiplomacyScreen.ShowEndOnly(us, them, "Caught_Spying_Ally_2");
 
-                            Treaty_Alliance    = false;
-                            Treaty_NAPact      = false;
-                            Treaty_OpenBorders = false;
-                            Treaty_Trade       = false;
+                            us.BreakAllTreatiesWith(them);
                             Posture = Posture.Hostile;
                         }
                     }
@@ -333,7 +326,7 @@ namespace Ship_Game.Gameplay
                     Anger_DiplomaticConflict += amount;
                     TotalAnger               += amount;
                     Trust                    -= amount;
-                    if (us.data.DiplomaticPersonality.Name == "Honorable" || us.data.DiplomaticPersonality.Name == "Xenophobic")
+                    if (us.IsHonorable || us.IsXenophobic)
                     {
                         Anger_DiplomaticConflict += amount;
                         TotalAnger               += amount;
