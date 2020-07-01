@@ -83,24 +83,18 @@ namespace Ship_Game.AI
             }
             if (theirOffer.NAPact)
             {
-                us.GetRelations(them).Treaty_NAPact = true;
+                us.SignTreatyWith(them, TreatyType.NonAggression);
                 TrustEntry te = new TrustEntry();
                 if (Empire.Universe.PlayerEmpire != us)
                 {
-                    string name = us.data.DiplomaticPersonality.Name;
-                    string str = name;
-
-                    if (name != null) // Todo: This screams Enum!
+                    switch (us.Personality)
                     {
-                        switch (str)
-                        {
-                            case "Pacifist":
-                            case "Cunning":    te.TrustCost = 0f;  break;
-                            case "Xenophobic": te.TrustCost = 15f; break;
-                            case "Aggressive": te.TrustCost = 35f; break;
-                            case "Honorable":  te.TrustCost = 5f;  break;
-                            case "Ruthless":   te.TrustCost = 50f; break;
-                        }
+                        case PersonalityType.Pacifist: 
+                        case PersonalityType.Cunning:    te.TrustCost = 0f;  break;
+                        case PersonalityType.Xenophobic: te.TrustCost = 15f; break;
+                        case PersonalityType.Aggressive: te.TrustCost = 35f; break;
+                        case PersonalityType.Honorable:  te.TrustCost = 5f;  break;
+                        case PersonalityType.Ruthless:   te.TrustCost = 50f; break;
                     }
                 }
                 te.Type = TrustEntryType.Treaty;
@@ -108,23 +102,18 @@ namespace Ship_Game.AI
             }
             if (ourOffer.NAPact)
             {
-                them.GetRelations(us).Treaty_NAPact = true;
+                them.SignTreatyWith(us, TreatyType.NonAggression);
                 if (Empire.Universe.PlayerEmpire != them)
                 {
                     TrustEntry te = new TrustEntry();
-                    string name1 = them.data.DiplomaticPersonality.Name;
-                    string str1 = name1;
-                    if (name1 != null)
+                    switch (them.Personality)
                     {
-                        switch (str1)
-                        {
-                            case "Pacifist":
-                            case "Cunning":    te.TrustCost = 0f;  break;
-                            case "Xenophobic": te.TrustCost = 15f; break;
-                            case "Aggressive": te.TrustCost = 35f; break;
-                            case "Honorable":  te.TrustCost = 5f;  break;
-                            case "Ruthless":   te.TrustCost = 50f; break;
-                        }
+                        case PersonalityType.Pacifist:
+                        case PersonalityType.Cunning:    te.TrustCost = 0f;  break;
+                        case PersonalityType.Xenophobic: te.TrustCost = 15f; break;
+                        case PersonalityType.Aggressive: te.TrustCost = 35f; break;
+                        case PersonalityType.Honorable:  te.TrustCost = 5f;  break;
+                        case PersonalityType.Ruthless:   te.TrustCost = 50f; break;
                     }
 
                     te.Type = TrustEntryType.Treaty;
@@ -133,8 +122,7 @@ namespace Ship_Game.AI
             }
             if (theirOffer.TradeTreaty)
             {
-                us.GetRelations(them).Treaty_Trade = true;
-                us.GetRelations(them).Treaty_Trade_TurnsExisted = 0;
+                us.SignTreatyWith(them, TreatyType.Trade);
                 TrustEntry te = new TrustEntry
                 {
                     TrustCost = 0.1f,
@@ -144,8 +132,7 @@ namespace Ship_Game.AI
             }
             if (ourOffer.TradeTreaty)
             {
-                them.GetRelations(us).Treaty_Trade = true;
-                them.GetRelations(us).Treaty_Trade_TurnsExisted = 0;
+                them.SignTreatyWith(us, TreatyType.Trade);
                 TrustEntry te = new TrustEntry
                 {
                     TrustCost = 0.1f,
@@ -155,7 +142,7 @@ namespace Ship_Game.AI
             }
             if (theirOffer.OpenBorders)
             {
-                us.GetRelations(them).Treaty_OpenBorders = true;
+                us.SignTreatyWith(them, TreatyType.OpenBorders);
                 TrustEntry te = new TrustEntry
                 {
                     TrustCost = 5f,
@@ -165,7 +152,7 @@ namespace Ship_Game.AI
             }
             if (ourOffer.OpenBorders)
             {
-                them.GetRelations(us).Treaty_OpenBorders = true;
+                them.SignTreatyWith(us, TreatyType.OpenBorders);
                 TrustEntry te = new TrustEntry
                 {
                     TrustCost = 5f,
@@ -417,54 +404,44 @@ namespace Ship_Game.AI
             }
             if (theirOffer.NAPact)
             {
-                us.GetRelations(them).Treaty_NAPact = true;
+                us.SignTreatyWith(them, TreatyType.NonAggression);
                 FearEntry te = new FearEntry();
                 if (Empire.Universe.PlayerEmpire != us)
                 {
-                    string name = us.data.DiplomaticPersonality.Name;
-                    string str = name;
-                    if (name != null)
+                    switch (us.Personality)
                     {
-                        switch (str)
-                        {
-                            case "Pacifist":
-                            case "Cunning":    te.FearCost = 0f;  break;
-                            case "Xenophobic": te.FearCost = 15f; break;
-                            case "Aggressive": te.FearCost = 35f; break;
-                            case "Honorable":  te.FearCost = 5f;  break;
-                            case "Ruthless":   te.FearCost = 50f; break;
-                        }
+                        case PersonalityType.Pacifist:
+                        case PersonalityType.Cunning:    te.FearCost = 0f;  break;
+                        case PersonalityType.Xenophobic: te.FearCost = 15f; break;
+                        case PersonalityType.Aggressive: te.FearCost = 35f; break;
+                        case PersonalityType.Honorable:  te.FearCost = 5f;  break;
+                        case PersonalityType.Ruthless:   te.FearCost = 50f; break;
                     }
                 }
                 us.GetRelations(them).FearEntries.Add(te);
             }
             if (ourOffer.NAPact)
             {
-                them.GetRelations(us).Treaty_NAPact = true;
+                them.SignTreatyWith(us, TreatyType.NonAggression);
                 if (Empire.Universe.PlayerEmpire != them)
                 {
                     FearEntry te = new FearEntry();
-                    string name1 = them.data.DiplomaticPersonality.Name;
-                    string str1 = name1;
-                    if (name1 != null)
+                    switch (them.Personality)
                     {
-                        switch (str1)
-                        {
-                            case "Pacifist":
-                            case "Cunning":    te.FearCost = 0f;  break;
-                            case "Xenophobic": te.FearCost = 15f; break;
-                            case "Aggressive": te.FearCost = 35f; break;
-                            case "Honorable":  te.FearCost = 5f;  break;
-                            case "Ruthless":   te.FearCost = 50f; break;
-                        }
+                        case PersonalityType.Pacifist:
+                        case PersonalityType.Cunning:    te.FearCost = 0f;  break;
+                        case PersonalityType.Xenophobic: te.FearCost = 15f; break;
+                        case PersonalityType.Aggressive: te.FearCost = 35f; break;
+                        case PersonalityType.Honorable:  te.FearCost = 5f;  break;
+                        case PersonalityType.Ruthless:   te.FearCost = 50f; break;
                     }
+
                     them.GetRelations(us).FearEntries.Add(te);
                 }
             }
             if (theirOffer.TradeTreaty)
             {
-                us.GetRelations(them).Treaty_Trade = true;
-                us.GetRelations(them).Treaty_Trade_TurnsExisted = 0;
+                us.SignTreatyWith(them, TreatyType.Trade);
                 FearEntry te = new FearEntry
                 {
                     FearCost = 5f
@@ -473,8 +450,7 @@ namespace Ship_Game.AI
             }
             if (ourOffer.TradeTreaty)
             {
-                them.GetRelations(us).Treaty_Trade = true;
-                them.GetRelations(us).Treaty_Trade_TurnsExisted = 0;
+                them.SignTreatyWith(us, TreatyType.Trade);
                 FearEntry te = new FearEntry
                 {
                     FearCost = 0.1f
@@ -483,7 +459,7 @@ namespace Ship_Game.AI
             }
             if (theirOffer.OpenBorders)
             {
-                us.GetRelations(them).Treaty_OpenBorders = true;
+                us.SignTreatyWith(them, TreatyType.OpenBorders);
                 FearEntry te = new FearEntry
                 {
                     FearCost = 5f
@@ -492,7 +468,7 @@ namespace Ship_Game.AI
             }
             if (ourOffer.OpenBorders)
             {
-                them.GetRelations(us).Treaty_OpenBorders = true;
+                them.SignTreatyWith(us, TreatyType.OpenBorders);
                 FearEntry te = new FearEntry
                 {
                     FearCost = 5f
@@ -680,11 +656,9 @@ namespace Ship_Game.AI
                 {
                     return answer.Answer;
                 }
+
                 AcceptOffer(theirOffer, ourOffer, OwnerEmpire, them);
-                OwnerEmpire.GetRelations(them).Treaty_Peace = true;
-                OwnerEmpire.GetRelations(them).PeaceTurnsRemaining = 100;
-                them.GetRelations(OwnerEmpire).Treaty_Peace = true;
-                them.GetRelations(OwnerEmpire).PeaceTurnsRemaining = 100;
+                OwnerEmpire.SignTreatyWith(them, TreatyType.Peace);
                 return answer.Answer;
             }
             Empire us = OwnerEmpire;
@@ -1084,34 +1058,12 @@ namespace Ship_Game.AI
         public void SetAlliance(bool ally, Empire them)
         {
             if (ally)
-            {
-                OwnerEmpire.GetRelations(them).Treaty_Alliance = true;
-                OwnerEmpire.GetRelations(them).Treaty_OpenBorders = true;
-                them.GetRelations(OwnerEmpire).Treaty_Alliance = true;
-                them.GetRelations(OwnerEmpire).Treaty_OpenBorders = true;
-                return;
-            }
-            OwnerEmpire.GetRelations(them).Treaty_Alliance = false;
-            OwnerEmpire.GetRelations(them).Treaty_OpenBorders = false;
-            them.GetRelations(OwnerEmpire).Treaty_Alliance = false;
-            them.GetRelations(OwnerEmpire).Treaty_OpenBorders = false;
+                OwnerEmpire.SignAllianceWith(them);
+            else
+                OwnerEmpire.BreakAllianceWith(them);
         }
 
-        public void SetAlliance(bool ally)
-        {
-            if (ally)
-            {
-                OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = true;
-                OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = true;
-                Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_Alliance = true;
-                Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_OpenBorders = true;
-                return;
-            }
-            OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_Alliance = false;
-            OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = false;
-            Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_Alliance = false;
-            Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_OpenBorders = false;
-        }
+        public void SetAlliance(bool ally) => SetAlliance(ally, Empire.Universe.PlayerEmpire);
 
         OfferQuality ProcessQuality(float valueToUs, float valueToThem)
         {
