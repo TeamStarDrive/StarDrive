@@ -837,8 +837,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                         TheirText += GetDialogueByName("Problem_Territorial");
                         TheirText += GetDialogueByName("Problem_AlsoMilitary");
                     }
-                    else if (ThemAndUs.Threat < -20f && (Them.data.DiplomaticPersonality.Name == "Ruthless" ||
-                                                         Them.data.DiplomaticPersonality.Name == "Aggressive"))
+                    else if (ThemAndUs.Threat < -20f && (Them.IsRuthless || Them.IsAggressive))
                     {
                         TheirText += GetDialogueByName("Problem_Territorial");
                         TheirText += GetDialogueByName("Problem_AlsoMilitaryWeak");
@@ -854,8 +853,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     TheirText += GetDialogueByName("Opinion_Problems");
                     TheirText += GetDialogueByName("Problem_PrimaryMilitary");
                 }
-                else if (ThemAndUs.Threat < -20f && (Them.data.DiplomaticPersonality.Name == "Ruthless" ||
-                                                     Them.data.DiplomaticPersonality.Name == "Aggressive"))
+                else if (ThemAndUs.Threat < -20f && (Them.IsRuthless || Them.IsAggressive))
                 {
                     TheirText += GetDialogueByName("Opinion_Problems");
                     TheirText += GetDialogueByName("Problem_MilitaryWeak");
@@ -976,7 +974,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             {
                 TheirText += GetDialogueByName("JoinWar_Reject_PoorRelations");
             }
-            else if (Them.data.DiplomaticPersonality.Name == "Pacifist" || Them.data.DiplomaticPersonality.Name == "Honorable")
+            else if (Them.IsPacifist || Them.IsHonorable)
             {
                 TheirText += GetDialogueByName("JoinWar_Reject_Pacifist");
             }
