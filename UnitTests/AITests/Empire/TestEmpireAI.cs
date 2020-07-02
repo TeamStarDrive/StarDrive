@@ -15,6 +15,8 @@ namespace UnitTests.AITests.Empire
     {
         public TestEmpireAI()
         {
+            Assert.IsTrue(Directory.GetCurrentDirectory().EndsWith("stardrive"), $"current dir = {Directory.GetCurrentDirectory()}");
+            Assert.IsTrue(StarDriveAbsolutePath.EndsWith("stardrive"), $"sdpath = {StarDriveAbsolutePath}");
             LoadPlanetContent();
             CreateGameInstance();
             CreateTestEnv();
