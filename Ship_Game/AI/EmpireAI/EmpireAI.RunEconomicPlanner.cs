@@ -208,6 +208,9 @@ namespace Ship_Game.AI
             {
                 float expansionRatio                         = OwnerEmpire.Research.Strategy.ExpansionRatio.LowerBound(0.1f);
                 float riskFromExpansion                      = expansionTasks / OwnerEmpire.CurrentMilitaryStrength.LowerBound(1);
+
+                // TOO RISKY check. Prevent trying to budget a venture right now when waiting for better tech 
+                // or a more powerful economy might be better. 
                 if (riskFromExpansion > 1) riskFromExpansion = 0.5f;
                 riskFromExpansion                           *= expansionRatio;
                 risk                                         = Math.Max(risk, riskFromExpansion);
