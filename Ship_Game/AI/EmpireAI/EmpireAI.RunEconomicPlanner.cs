@@ -42,17 +42,15 @@ namespace Ship_Game.AI
 
         float DetermineDefenseBudget(float risk, float money)
         {
-            risk = risk.LowerBound(0.01f);
+            risk = risk.Clamped(0.1f,1);
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float territorialism           = OwnerEmpire.data.DiplomaticPersonality?.Territorialism ?? 100;
-            float buildRatio               = territorialism / 100 + strat.MilitaryRatio;
-            float overSpend = OverSpendRatio(money, 0.75f, 1.25f);
-            buildRatio = Math.Max(buildRatio, overSpend);
+            float buildRatio               = (1 + territorialism / 100f + strat.MilitaryRatio) /3;
 
             float budget                   = SetBudgetForeArea(0.015f, buildRatio, money);
-            float buildMod = BuildModifier() / 7;
 
-            return budget * buildMod * risk;
+            float overSpend = OverSpendRatio(money, 0.75f, 1f);
+            return budget * risk * overSpend;
         }
 
         float BuildModifier()
@@ -74,14 +72,15 @@ namespace Ship_Game.AI
 
         float DetermineBuildCapacity(float risk, float money)
         {
-            risk = risk.LowerBound(0.01f);
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio               = MathExt.Max3(strat.MilitaryRatio, strat.IndustryRatio , strat.ExpansionRatio);
-            float overSpend                = OverSpendRatio(money, 0.85f, 1.75f);
-            buildRatio                     = Math.Max(buildRatio, overSpend);
+            DTrait personality = OwnerEmpire.data?.DiplomaticPersonality;
+            
+            risk = risk.LowerBound(Math.Max(strat.MilitaryRatio, 0.1f));
+            float personalityRatio = strat.MilitaryRatio + strat.ExpansionRatio;
+            float buildRatio               = personalityRatio;
             float buildBudget              = SetBudgetForeArea(0.02f, buildRatio, money);
-            float buildMod = BuildModifier() /7 ;
-            return (buildBudget * buildMod).LowerBound(1);
+            float overSpend = OverSpendRatio(money, 0.85f, 1.75f);
+            return (buildBudget * risk * overSpend).LowerBound(1);
 
         }
 
@@ -93,7 +92,7 @@ namespace Ship_Game.AI
             float overSpend                = OverSpendRatio(money, 0.85f, 1.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
             var budget                     = SetBudgetForeArea(0.015f,buildRatio, money);
-            return budget - OwnerEmpire.TotalCivShipMaintenance;
+            return budget;
         }
 
         float DetermineSpyBudget(float risk, float money)
@@ -137,10 +136,10 @@ namespace Ship_Game.AI
         {
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
-                                 + OwnerEmpire.data.FlatMoneyBonus;
+                                 + OwnerEmpire.data.FlatMoneyBonus - OwnerEmpire.TotalCivShipMaintenance;
 
             treasuryGoal *= OwnerEmpire.data.treasuryGoal * 150;
-            float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;
+            float minGoal = OwnerEmpire.isPlayer ? 100 : 100;
             treasuryGoal  = Math.Max(minGoal, treasuryGoal);
             return treasuryGoal;
         }
@@ -207,6 +206,17 @@ namespace Ship_Game.AI
                     risk = Math.Max(maxRisk, risk);
                 }
             }
+
+            float expansionTasks = GetAvgStrengthNeededByExpansionTasks();
+            if (expansionTasks > 0)
+            {
+                float expansionRatio = OwnerEmpire.Research.Strategy.ExpansionRatio.LowerBound(0.1f);
+                float riskFromExpansion = expansionTasks / OwnerEmpire.CurrentMilitaryStrength.LowerBound(1);
+                if (riskFromExpansion > 1) riskFromExpansion = 0.5f;
+                riskFromExpansion *= expansionRatio;
+                risk = Math.Max(risk, riskFromExpansion);
+            }
+
             return Math.Min(risk, riskLimit) ;
         }
 
