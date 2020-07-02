@@ -955,22 +955,22 @@ namespace Ship_Game.AI
                     case WarType.DefensiveWar:   warState = us.GetRelations(them).ActiveWar.GetWarScoreState();                  break;
                 }
 
-                switch (personality.Name)
+                switch (us.Personality)
                 {
-                    case "Pacifist":
-                    case "Honorable" when warType == WarType.DefensiveWar:
+                    case PersonalityType.Pacifist:
+                    case PersonalityType.Honorable when warType == WarType.DefensiveWar:
                         AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
-                    case "Honorable":
+                    case PersonalityType.Honorable:
                         AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
-                    case "Xenophobic" when warType == WarType.DefensiveWar:
+                    case PersonalityType.Xenophobic when warType == WarType.DefensiveWar:
                         AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
-                    case "Xenophobic":
+                    case PersonalityType.Xenophobic:
                         AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
-                    case "Aggressive":
+                    case PersonalityType.Aggressive:
                         AddToValue(warState, 10, 5, 75, 200, ref valueToUs, ref valueToThem); break;
-                    case "Ruthless":
+                    case PersonalityType.Ruthless:
                         AddToValue(warState, 5, 1, 120, 300, ref valueToUs, ref valueToThem); break;
-                    case "Cunning":
+                    case PersonalityType.Cunning:
                         AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
                 }
             }
