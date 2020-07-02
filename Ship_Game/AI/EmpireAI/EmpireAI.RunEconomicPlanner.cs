@@ -117,7 +117,8 @@ namespace Ship_Game.AI
 
         private void PlanetBudgetDebugInfo()
         {
-            if (!Empire.Universe.Debug) return;
+            if (!Empire.Universe.Debug) 
+                return;
 
             var pBudgets = new Array<PlanetBudget>();
             foreach (var planet in OwnerEmpire.GetPlanets())
