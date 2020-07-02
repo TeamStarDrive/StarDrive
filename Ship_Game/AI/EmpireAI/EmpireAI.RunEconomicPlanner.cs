@@ -23,7 +23,7 @@ namespace Ship_Game.AI
         public void RunEconomicPlanner()
         {
             float money                    = OwnerEmpire.Money;
-            float normalizedBudget         = OwnerEmpire.NormalizeBudget(money);
+            float normalizedBudget         = OwnerEmpire.NormalizedMoney = money;
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
@@ -42,45 +42,43 @@ namespace Ship_Game.AI
 
         float DetermineDefenseBudget(float risk, float money)
         {
-            risk = risk.LowerBound(0.01f);
+            risk                           = risk.Clamped(0.1f,1);
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float territorialism           = OwnerEmpire.data.DiplomaticPersonality?.Territorialism ?? 100;
-            float buildRatio               = territorialism / 100 + strat.MilitaryRatio;
-            float overSpend = OverSpendRatio(money, 0.75f, 1.25f);
-            buildRatio = Math.Max(buildRatio, overSpend);
-
+            float buildRatio               = (1 + territorialism / 100f + strat.MilitaryRatio) /3;
             float budget                   = SetBudgetForeArea(0.015f, buildRatio, money);
-            float buildMod = BuildModifier() / 7;
-
-            return budget * buildMod * risk;
+            float overSpend                = OverSpendRatio(money, 0.75f, 1f);
+            return budget * risk * overSpend;
         }
 
         float BuildModifier()
         {
             float buildModifier = 1;
-            buildModifier += OwnerEmpire.canBuildCorvettes ? 1 : 0;
-            buildModifier += OwnerEmpire.canBuildFrigates ? 2 : 0;
-            buildModifier += OwnerEmpire.canBuildCruisers ? 3 : 0;
+            buildModifier      += OwnerEmpire.canBuildCorvettes ? 1 : 0;
+            buildModifier      += OwnerEmpire.canBuildFrigates ? 2 : 0;
+            buildModifier      += OwnerEmpire.canBuildCruisers ? 3 : 0;
             return buildModifier;
         }
 
         float DetermineSSPBudget(float money)
         {
-            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float risk                     = strat.IndustryRatio + strat.ExpansionRatio;
+            var strat  = OwnerEmpire.Research.Strategy;
+            float risk = 1 + strat.IndustryRatio + strat.ExpansionRatio;
+            risk      /= 2;
             return SetBudgetForeArea(0.003f, risk, money);
         }
 
         float DetermineBuildCapacity(float risk, float money)
         {
-            risk = risk.LowerBound(0.01f);
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio               = MathExt.Max3(strat.MilitaryRatio, strat.IndustryRatio , strat.ExpansionRatio);
-            float overSpend                = OverSpendRatio(money, 0.85f, 1.75f);
-            buildRatio                     = Math.Max(buildRatio, overSpend);
+            DTrait personality = OwnerEmpire.data?.DiplomaticPersonality;
+            
+            risk                           = risk.LowerBound(Math.Max(strat.MilitaryRatio, 0.1f));
+            float personalityRatio         = strat.MilitaryRatio + strat.ExpansionRatio;
+            float buildRatio               = personalityRatio;
             float buildBudget              = SetBudgetForeArea(0.02f, buildRatio, money);
-            float buildMod = BuildModifier() /7 ;
-            return (buildBudget * buildMod).LowerBound(1);
+            float overSpend                = OverSpendRatio(money, 0.85f, 1.75f);
+            return (buildBudget * risk * overSpend).LowerBound(1);
 
         }
 
@@ -92,7 +90,7 @@ namespace Ship_Game.AI
             float overSpend                = OverSpendRatio(money, 0.85f, 1.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
             var budget                     = SetBudgetForeArea(0.015f,buildRatio, money);
-            return budget - OwnerEmpire.TotalCivShipMaintenance;
+            return budget;
         }
 
         float DetermineSpyBudget(float risk, float money)
@@ -111,16 +109,16 @@ namespace Ship_Game.AI
             risk                  = risk.LowerBound(covertness); // * agent threat from empires
 
             // we are tuning to a spy cost of 250. if that changes the budget should adjust to it. 
-            float spyBudgetPercent = SpyCost / (SpyCost * 6); 
-
-            float budget = money * spyBudgetPercent * risk * overSpend;
+            float spyBudgetPercent = SpyCost / (SpyCost * 6);
+            float budget           = money * spyBudgetPercent * risk * overSpend;
 
             return budget;
         }
 
         private void PlanetBudgetDebugInfo()
         {
-            if (!Empire.Universe.Debug) return;
+            if (!Empire.Universe.Debug) 
+                return;
 
             var pBudgets = new Array<PlanetBudget>();
             foreach (var planet in OwnerEmpire.GetPlanets())
@@ -134,14 +132,12 @@ namespace Ship_Game.AI
 
         public float TreasuryGoal()
         {
-            //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
+            //gremlin: Use self adjusting tax rate based on wanted treasury of 15(1.5 full years) of total income.
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
-                                 + OwnerEmpire.data.FlatMoneyBonus;
+                                 + OwnerEmpire.data.FlatMoneyBonus - OwnerEmpire.TotalCivShipMaintenance;
 
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
-            float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;
-            treasuryGoal  = Math.Max(minGoal, treasuryGoal);
-            return treasuryGoal;
+            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 150;
+            return treasuryGoal.LowerBound(100);
         }
 
         /// <summary>
@@ -153,11 +149,10 @@ namespace Ship_Game.AI
         /// </summary>
         public float OverSpendRatio(float treasuryGoal, float percentageOfTreasuryToSave, float maxRatio)
         {
-            float money = OwnerEmpire.NormalizedMoney.Average();
+            float money    = OwnerEmpire.NormalizedMoney;
             float treasury = treasuryGoal.LowerBound(1);
-            
             float minMoney = money - treasury * percentageOfTreasuryToSave;
-            float ratio   = (money + minMoney) / treasury.LowerBound(1);
+            float ratio    = (money + minMoney) / treasury.LowerBound(1);
             return ratio.Clamped(0f, maxRatio);
         }
 
@@ -192,7 +187,8 @@ namespace Ship_Game.AI
             foreach (var kv in OwnerEmpire.AllRelations)
             {
                 var totalRisk = kv.Value.Risk.Risk;
-                var maxRisk = kv.Value.Risk.Risk;
+                var maxRisk   = kv.Value.Risk.Risk;
+
                 if (kv.Value.AtWar)
                 {
                     risk += totalRisk;
@@ -206,6 +202,20 @@ namespace Ship_Game.AI
                     risk = Math.Max(maxRisk, risk);
                 }
             }
+
+            float expansionTasks = GetAvgStrengthNeededByExpansionTasks();
+            if (expansionTasks > 0)
+            {
+                float expansionRatio                         = OwnerEmpire.Research.Strategy.ExpansionRatio.LowerBound(0.1f);
+                float riskFromExpansion                      = expansionTasks / OwnerEmpire.CurrentMilitaryStrength.LowerBound(1);
+
+                // TOO RISKY check. Prevent trying to budget a venture right now when waiting for better tech 
+                // or a more powerful economy might be better. 
+                if (riskFromExpansion > 1) riskFromExpansion = 0.5f;
+                riskFromExpansion                           *= expansionRatio;
+                risk                                         = Math.Max(risk, riskFromExpansion);
+            }
+
             return Math.Min(risk, riskLimit) ;
         }
 
