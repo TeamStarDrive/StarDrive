@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -94,6 +95,7 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        [Ignore]
         public void FirstTestShipBuilt()
         {
             ClearEmpireShips();
@@ -103,6 +105,7 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        [Ignore]
         public void TestBuildCounts()
         {
             ClearEmpireShips();
@@ -145,6 +148,7 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
+        [Ignore]
         public void TestBuildScrap()
         {
             ClearEmpireShips();
@@ -206,5 +210,31 @@ namespace UnitTests.AITests.Empire
                 }
             }
         }
+
+        [TestMethod]
+        public void TestOverBudgetSpending()
+        {
+            ClearEmpireShips();
+            Player.Money = 1000;
+
+            for (int x = -1; x < 11; x++)
+            {
+                float percent = x * 0.1f;
+                float overSpend = Player.GetEmpireAI().OverSpendRatio(1000, percent, 10f);
+                percent = 2 - percent;
+                Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
+            }
+            Player.Money = 100;
+            for (int x = -1; x < 1; x++)
+            {
+                float percent = x * 0.1f;
+                float overSpend = Player.GetEmpireAI().OverSpendRatio(1000, percent, 10f);
+                percent = 0.2f - percent;
+                Assert.IsTrue(overSpend.AlmostEqual(percent), $"Expected {percent} got {overSpend}");
+            }
+        }
+
+
     }
 }
+
