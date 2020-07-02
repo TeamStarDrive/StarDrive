@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -14,6 +15,7 @@ namespace UnitTests.AITests.Empire
     {
         public TestEmpireAI()
         {
+            Assert.IsTrue(StarDriveAbsolutePath.EndsWith("StarDrive"), $"current dir = {Directory.GetCurrentDirectory()} sdpath = {StarDriveAbsolutePath}");
             LoadPlanetContent();
             CreateGameInstance();
             CreateTestEnv();
