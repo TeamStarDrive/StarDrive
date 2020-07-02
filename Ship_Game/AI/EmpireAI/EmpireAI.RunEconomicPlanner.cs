@@ -139,9 +139,7 @@ namespace Ship_Game.AI
                                  + OwnerEmpire.data.FlatMoneyBonus - OwnerEmpire.TotalCivShipMaintenance;
 
             treasuryGoal *= OwnerEmpire.data.treasuryGoal * 150;
-            float minGoal = OwnerEmpire.isPlayer ? 100 : 100;
-            treasuryGoal  = Math.Max(minGoal, treasuryGoal);
-            return treasuryGoal;
+            return treasuryGoal.LowerBound(100);
         }
 
         /// <summary>
