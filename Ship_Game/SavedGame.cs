@@ -146,7 +146,7 @@ namespace Ship_Game
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
-                empireToSave.NormalizedMoney      = e.NormalizedMoney;
+                e.SaveMoneyHistory(empireToSave);
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
 
