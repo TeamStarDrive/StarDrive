@@ -231,6 +231,9 @@ namespace Ship_Game.Gameplay
             if (them == EmpireManager.Player)
                 amount *= us.DifficultyModifiers.Anger;
 
+            if (us.IsHonorable || us.IsXenophobic)
+                amount *= 2;
+
             if (why != null)
             {
                 if (why == "Caught Spying")
@@ -239,12 +242,7 @@ namespace Ship_Game.Gameplay
                     Anger_DiplomaticConflict += amount;
                     TotalAnger               += amount;
                     Trust                    -= amount;
-                    if (us.IsHonorable || us.IsXenophobic)
-                    {
-                        Anger_DiplomaticConflict += amount;
-                        TotalAnger               += amount;
-                        Trust                    -= amount;
-                    }
+
                     if (Treaty_Alliance)
                     {
                         TimesSpiedOnAlly += 1;
@@ -290,13 +288,6 @@ namespace Ship_Game.Gameplay
                     TotalAnger               += amount;
                     Trust                    -= amount;
 
-                    if (us.IsHonorable || us.IsXenophobic)
-                    {
-                        Anger_DiplomaticConflict += amount;
-                        TotalAnger               += amount;
-                        Trust                    -= amount;
-                    }
-
                     SpiesKilled += 1;
 
                     if (Treaty_Alliance)
@@ -326,12 +317,6 @@ namespace Ship_Game.Gameplay
                     Anger_DiplomaticConflict += amount;
                     TotalAnger               += amount;
                     Trust                    -= amount;
-                    if (us.IsHonorable || us.IsXenophobic)
-                    {
-                        Anger_DiplomaticConflict += amount;
-                        TotalAnger               += amount;
-                        Trust                    -= amount;
-                    }
                 }
                 else if (why == "Colonized Owned System")
                 {
