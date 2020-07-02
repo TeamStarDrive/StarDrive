@@ -43,7 +43,51 @@ namespace Ship_Game
         private readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
-        public Array<float> NormalizedMoney = new Array<float>();
+
+        readonly int[] MoneyHistory = new int[10];
+        int MoneyHistoryIndex = 0;
+
+        public void SaveMoneyHistory(SavedGame.EmpireSaveData empire)
+        {
+            if (empire.NormalizedMoney == null) empire.NormalizedMoney = new Array<float>();
+            for (int x = 0; x < MoneyHistory.Length; x++) empire.NormalizedMoney.Add(MoneyHistory[x]);
+        }
+
+        public void RestoreMoneyHistoryFromSave(SavedGame.EmpireSaveData empire)
+        {
+            if (empire.NormalizedMoney == null)
+            {
+                NormalizedMoney = empire.Money;
+            }
+            else
+            {
+                for (int x = 0; x < empire.NormalizedMoney.Count(); x++)
+                    NormalizedMoney = (int)empire.NormalizedMoney[x];
+            }
+        }
+
+        public float NormalizedMoney
+        {
+            get
+            {
+                float total = 0;
+                int count = 0;
+                for (int index = 0; index < MoneyHistory.Length; index++)
+                {
+                    int money = MoneyHistory[index];
+                    if (money <= 0) continue;
+                    count++;
+                    total += money;
+                }
+                return count > 0 ? total / count : Money;
+            }
+            set
+            {
+                MoneyHistory[MoneyHistoryIndex] = (int)value;
+                MoneyHistoryIndex = ++MoneyHistoryIndex > 9 ? 0 : MoneyHistoryIndex;
+            }
+        }
+
 
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship> Inhibitors = new Array<Ship>();
@@ -311,16 +355,6 @@ namespace Ship_Game
             }
 
             return builtAt;
-        }
-
-        public float NormalizeBudget(float money)
-        {
-            int maxItems = 10;
-            if (NormalizedMoney.Count == maxItems)
-                NormalizedMoney.RemoveAt(0);
-
-            NormalizedMoney.Add(money);
-            return NormalizedMoney.Sum() / NormalizedMoney.Count;
         }
 
         public float KnownEnemyStrengthIn(SolarSystem system)

@@ -137,12 +137,26 @@ namespace Ship_Game.AI
             return TaskList.Sum(task => filter(task) ? task.MinimumTaskForceStrength : 0);
         }
 
+        public float GetAvgStrengthNeededByExpansionTasks()
+        {
+            var tasks = GetExpansionTasks();
+            if (tasks.Length == 0) return 0;
+
+            return tasks.Average(task =>  task.WhichFleet >0 ? task.MinimumTaskForceStrength : 0);
+        }
+
         public IReadOnlyList<MilitaryTask> GetTasks() => TaskList;
 
         public MilitaryTask[] GetClaimTasks()
         {
             return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
                                         && task.TargetPlanet != null);
+        }
+
+        public MilitaryTask[] GetExpansionTasks()
+        {
+            return TaskList.Filter(task => task.TargetPlanet != null &&
+                (task.type == MilitaryTask.TaskType.DefendClaim || task.type == MilitaryTask.TaskType.Exploration));
         }
 
         public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)

@@ -197,7 +197,8 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 else
                 {
                     DisengageDirection = Vector2.Zero;
-                    MoveState = CombatMoveState.Approach;
+                    DisengageType      = DisengageTypes.None;
+                    MoveState          = CombatMoveState.Approach;
                 }
             }
             else
