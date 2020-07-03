@@ -34,7 +34,7 @@ namespace Ship_Game.Gameplay
     public sealed class Relationship : IDisposable
     {
         [Serialize(0)] public FederationQuest FedQuest;
-        [Serialize(1)] public Posture Posture = Posture.Neutral;
+        [Serialize(1)] public Posture Posture = Posture.Neutral; // FB - use SetPosture privately or ChangeTo methods publicly
         [Serialize(2)] public string Name;
         [Serialize(3)] public bool Known;
         [Serialize(4)] public float IntelligenceBudget;
@@ -92,7 +92,7 @@ namespace Ship_Game.Gameplay
         [Serialize(49)] public float AggressionAgainstUsPenalty;
         [Serialize(50)] public float InitialStrength;
         [Serialize(51)] public int TurnsKnown;
-        [Serialize(52)] public int TurnsAbove95;
+        [Serialize(52)] public int TurnsAbove95; // Trust
         [Serialize(53)] public int TurnsAllied;
 
         [Serialize(54)] public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
@@ -469,16 +469,12 @@ namespace Ship_Game.Gameplay
         public void UpdatePlayerRelations(Empire us, Empire them)
         {
             UpdateIntelligence(us, them);
-
             if (Treaty_Trade)
-            {
                 Treaty_Trade_TurnsExisted++;
-            }
-
+            
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
-                Treaty_Peace = false;
-                us.GetRelations(them).Treaty_Peace = false;
+                us.EndPeachWith(them);
                 Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
             }
         }
@@ -756,6 +752,26 @@ namespace Ship_Game.Gameplay
 
             ActiveWar?.WarDebugData(ref debug);
             return debug;
+        }
+
+        void SetPosture(Posture posture)
+        {
+            Posture = posture;
+        }
+
+        public void ChangeToFriendly()
+        {
+            SetPosture(Posture.Friendly);
+        }
+
+        public void ChangeToNeutral()
+        {
+            SetPosture(Posture.Neutral);
+        }
+
+        public void ChangeToHostile()
+        {
+            SetPosture(Posture.Hostile);
         }
     }
 
