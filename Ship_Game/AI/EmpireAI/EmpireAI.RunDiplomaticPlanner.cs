@@ -123,49 +123,49 @@ namespace Ship_Game.AI
             usToThem.turnsSinceLastContact = 0;
         }
 
-        void OfferPeace(Relationship relations, Empire them) // ToDo  what about surrender and federation?
+        void OfferPeace(Relationship usToThem, Empire them) // ToDo  what about surrender and federation?
         {
-            if ((relations.ActiveWar.TurnsAtWar % 100).NotZero( )) 
+            if ((usToThem.ActiveWar.TurnsAtWar % 100).NotZero( )) 
                 return;
 
-            switch (relations.ActiveWar.WarType)
+            switch (usToThem.ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
-                    if (relations.Anger_FromShipsInOurBorders +
-                        relations.Anger_TerritorialConflict >
+                    if (usToThem.Anger_FromShipsInOurBorders +
+                        usToThem.Anger_TerritorialConflict >
                         OwnerEmpire.data.DiplomaticPersonality.Territorialism)
                     {
                         return;
                     }
 
-                    switch (relations.ActiveWar.GetBorderConflictState())
+                    switch (usToThem.ActiveWar.GetBorderConflictState())
                     {
                         case WarState.LosingSlightly:
-                        case WarState.LosingBadly:     OfferPeace(relations, them, "OFFERPEACE_LOSINGBC");  break;
-                        case WarState.WinningSlightly: OfferPeace(relations, them, "OFFERPEACE_FAIR");      break;
-                        case WarState.Dominating:      OfferPeace(relations, them, "OFFERPEACE_WINNINGBC"); break;
+                        case WarState.LosingBadly:     OfferPeace(usToThem, them, "OFFERPEACE_LOSINGBC");  break;
+                        case WarState.WinningSlightly: OfferPeace(usToThem, them, "OFFERPEACE_FAIR");      break;
+                        case WarState.Dominating:      OfferPeace(usToThem, them, "OFFERPEACE_WINNINGBC"); break;
                     }
 
                     break;
                 case WarType.ImperialistWar:
-                    switch (relations.ActiveWar.GetWarScoreState())
+                    switch (usToThem.ActiveWar.GetWarScoreState())
                     {
                         case WarState.LosingSlightly:
-                        case WarState.LosingBadly:     OfferPeace(relations, them, "OFFERPEACE_PLEADING");       break;
-                        case WarState.WinningSlightly: OfferPeace(relations, them, "OFFERPEACE_FAIR");           break;
-                        case WarState.Dominating:      OfferPeace(relations, them, "OFFERPEACE_FAIR_WINNING");   break;
-                        case WarState.EvenlyMatched:   OfferPeace(relations, them, "OFFERPEACE_EVENLY_MATCHED"); break;
+                        case WarState.LosingBadly:     OfferPeace(usToThem, them, "OFFERPEACE_PLEADING");       break;
+                        case WarState.WinningSlightly: OfferPeace(usToThem, them, "OFFERPEACE_FAIR");           break;
+                        case WarState.Dominating:      OfferPeace(usToThem, them, "OFFERPEACE_FAIR_WINNING");   break;
+                        case WarState.EvenlyMatched:   OfferPeace(usToThem, them, "OFFERPEACE_EVENLY_MATCHED"); break;
                     }
 
                     break;
                 case WarType.DefensiveWar:
-                    switch (relations.ActiveWar.GetBorderConflictState())
+                    switch (usToThem.ActiveWar.GetBorderConflictState())
                     {
                         case WarState.LosingSlightly:
-                        case WarState.LosingBadly:     OfferPeace(relations, them, "OFFERPEACE_PLEADING");       break;
-                        case WarState.WinningSlightly: OfferPeace(relations, them, "OFFERPEACE_FAIR");           break;
-                        case WarState.Dominating:      OfferPeace(relations, them, "OFFERPEACE_FAIR_WINNING");   break;
-                        case WarState.EvenlyMatched:   OfferPeace(relations, them, "OFFERPEACE_EVENLY_MATCHED"); break;
+                        case WarState.LosingBadly:     OfferPeace(usToThem, them, "OFFERPEACE_PLEADING");       break;
+                        case WarState.WinningSlightly: OfferPeace(usToThem, them, "OFFERPEACE_FAIR");           break;
+                        case WarState.Dominating:      OfferPeace(usToThem, them, "OFFERPEACE_FAIR_WINNING");   break;
+                        case WarState.EvenlyMatched:   OfferPeace(usToThem, them, "OFFERPEACE_EVENLY_MATCHED"); break;
                     }
 
                     break;
@@ -210,16 +210,16 @@ namespace Ship_Game.AI
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        OfferTrade(relations, them, relations.Trust - usedTrust);
                         AssessAngerPacifist(kv, relations.Posture, usedTrust); // TODO refactor anger
+                        OfferTrade(relations, them, relations.Trust - usedTrust);
                         OfferAlliance(relations, them);
                         break;
                     case Posture.Neutral:
+                        AssessAngerPacifist(kv, relations.Posture, usedTrust);
                         OfferNonAggression(relations, them, relations.Trust - usedTrust);
                         if (relations.TurnsKnown > FirstDemand && relations.Treaty_NAPact)
                             relations.ChangeToFriendly();
 
-                        AssessAngerPacifist(kv, relations.Posture, usedTrust);
                         if (relations.Trust > 50f && relations.TotalAnger < 10)
                             relations.ChangeToFriendly();
 
