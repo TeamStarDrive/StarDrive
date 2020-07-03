@@ -57,10 +57,16 @@ namespace Ship_Game
                 return traitType;
             }
         }
+
+        public DTrait() // For Player Empire Only
+        {
+            Name = "None";
+        }
     }
 
     public enum PersonalityType
     {
+        None, // For player nad avoid null checks
         Cunning,
         Ruthless,
         Aggressive,
