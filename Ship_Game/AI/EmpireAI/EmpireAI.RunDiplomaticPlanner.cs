@@ -8,6 +8,8 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
+        Empire Player => Empire.Universe.PlayerEmpire;
+
         private void RunDiplomaticPlanner()
         {
             if (OwnerEmpire.isPlayer)
@@ -30,9 +32,172 @@ namespace Ship_Game.AI
             }
         }
 
+        void OfferTrade(Relationship usToThem, Empire them, float availableTrust)
+        {
+            if (usToThem.TurnsKnown < SecondDemand
+                || usToThem.Treaty_Trade
+                || usToThem.HaveRejected_TRADE
+                || availableTrust <= OwnerEmpire.data.DiplomaticPersonality.Trade
+                || usToThem.turnsSinceLastContact < SecondDemand)
+            {
+                return;
+            }
+
+            Offer offer1 = new Offer
+            {
+                TradeTreaty   = true,
+                AcceptDL      = "Trade Accepted",
+                RejectDL      = "Trade Rejected",
+                ValueToModify = new Ref<bool>(() => usToThem.HaveRejected_TRADE,
+                                               x => usToThem.HaveRejected_TRADE = x)
+            };
+
+            Offer offer2 = new Offer { TradeTreaty = true };
+            if (them == Player)
+                DiplomacyScreen.Show(OwnerEmpire, "Offer Trade", offer2, offer1);
+            else
+                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+
+            usToThem.turnsSinceLastContact = 0;
+        }
+
+        void OfferAlliance(Relationship usToThem, Empire them)
+        {
+            if (usToThem.TurnsAbove95 < 100
+                || usToThem.turnsSinceLastContact < FirstDemand
+                || usToThem.Treaty_Alliance
+                || !usToThem.Treaty_Trade
+                || !usToThem.Treaty_NAPact
+                || usToThem.HaveRejected_Alliance
+                || usToThem.TotalAnger >= 20)
+            {
+                return;
+            }
+
+            Offer offer1 = new Offer
+            {
+                Alliance      = true,
+                AcceptDL      = "ALLIANCE_ACCEPTED",
+                RejectDL      = "ALLIANCE_REJECTED",
+                ValueToModify = new Ref<bool>(() => usToThem.HaveRejected_Alliance,
+                    x =>
+                    {
+                        usToThem.HaveRejected_Alliance = x;
+                        SetAlliance(!usToThem.HaveRejected_Alliance);
+                    })
+            };
+
+            Offer offer2 = new Offer();
+            if (them == Empire.Universe.PlayerEmpire)
+                DiplomacyScreen.Show(OwnerEmpire, "OFFER_ALLIANCE", offer2, offer1);
+            else
+                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+
+            usToThem.turnsSinceLastContact = 0;
+        }
+
+        void OfferNonAggression(Relationship usToThem, Empire them, float availableTrust)
+        {
+            if (usToThem.TurnsKnown < FirstDemand
+                || usToThem.Treaty_NAPact
+                || availableTrust <= OwnerEmpire.data.DiplomaticPersonality.NAPact)
+            {
+                return;
+            }
+
+            Offer offer1 = new Offer
+            {
+                NAPact        = true,
+                AcceptDL      = "NAPact Accepted",
+                RejectDL      = "NAPact Rejected",
+                ValueToModify = new Ref<bool>(() => usToThem.HaveRejectedNapact,
+                                               x => usToThem.HaveRejectedNapact = x)
+            };
+
+            Offer offer2 = new Offer { NAPact = true };
+            if (them == Empire.Universe.PlayerEmpire)
+                DiplomacyScreen.Show(OwnerEmpire, "Offer NAPact", offer2, offer1);
+            else
+                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+
+            usToThem.turnsSinceLastContact = 0;
+        }
+
+        void OfferPeace(Relationship relations, Empire them) // ToDo  what about surrender and federation?
+        {
+            if ((relations.ActiveWar.TurnsAtWar % 100).NotZero( )) 
+                return;
+
+            switch (relations.ActiveWar.WarType)
+            {
+                case WarType.BorderConflict:
+                    if (relations.Anger_FromShipsInOurBorders +
+                        relations.Anger_TerritorialConflict >
+                        OwnerEmpire.data.DiplomaticPersonality.Territorialism)
+                    {
+                        return;
+                    }
+
+                    switch (relations.ActiveWar.GetBorderConflictState())
+                    {
+                        case WarState.LosingSlightly:
+                        case WarState.LosingBadly:     OfferPeace(relations, them, "OFFERPEACE_LOSINGBC");  break;
+                        case WarState.WinningSlightly: OfferPeace(relations, them, "OFFERPEACE_FAIR");      break;
+                        case WarState.Dominating:      OfferPeace(relations, them, "OFFERPEACE_WINNINGBC"); break;
+                    }
+
+                    break;
+                case WarType.ImperialistWar:
+                    switch (relations.ActiveWar.GetWarScoreState())
+                    {
+                        case WarState.LosingSlightly:
+                        case WarState.LosingBadly:     OfferPeace(relations, them, "OFFERPEACE_PLEADING");       break;
+                        case WarState.WinningSlightly: OfferPeace(relations, them, "OFFERPEACE_FAIR");           break;
+                        case WarState.Dominating:      OfferPeace(relations, them, "OFFERPEACE_FAIR_WINNING");   break;
+                        case WarState.EvenlyMatched:   OfferPeace(relations, them, "OFFERPEACE_EVENLY_MATCHED"); break;
+                    }
+
+                    break;
+                case WarType.DefensiveWar:
+                    switch (relations.ActiveWar.GetBorderConflictState())
+                    {
+                        case WarState.LosingSlightly:
+                        case WarState.LosingBadly:     OfferPeace(relations, them, "OFFERPEACE_PLEADING");       break;
+                        case WarState.WinningSlightly: OfferPeace(relations, them, "OFFERPEACE_FAIR");           break;
+                        case WarState.Dominating:      OfferPeace(relations, them, "OFFERPEACE_FAIR_WINNING");   break;
+                        case WarState.EvenlyMatched:   OfferPeace(relations, them, "OFFERPEACE_EVENLY_MATCHED"); break;
+                    }
+
+                    break;
+            }
+        }
+
+        void RequestHelpFromAllies(Relationship usToEnemy, Empire enemy)
+        {
+            var allies = new Array<Empire>();
+            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            {
+                if (kv.Value.Treaty_Alliance 
+                    && kv.Key.GetRelations(enemy).Known
+                    && !kv.Key.GetRelations(enemy).AtWar)
+                {
+                    allies.Add(kv.Key);
+                }
+            }
+            foreach (Empire ally in allies)
+            {
+                if (!usToEnemy.ActiveWar.AlliesCalled.Contains(ally.data.Traits.Name)
+                    && OwnerEmpire.GetRelations(ally).turnsSinceLastContact > FirstDemand)
+                {
+                    CallAllyToWar(ally, enemy);
+                    usToEnemy.ActiveWar.AlliesCalled.Add(ally.data.Traits.Name);
+                }
+            }
+        }
+
         private void DoPacifistRelations()
         {
-            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 50f);
+            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 50f);
             foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
             {
                 Relationship relations = kv.Value;
@@ -45,202 +210,31 @@ namespace Ship_Game.AI
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        if (relations.TurnsKnown > SecondDemand && !relations.Treaty_Trade &&
-                            (!relations.HaveRejected_TRADE &&
-                             relations.Trust - usedTrust >
-                             OwnerEmpire.data.DiplomaticPersonality.Trade) &&
-                            (!relations.Treaty_Trade &&
-                             relations.turnsSinceLastContact > SecondDemand &&
-                             !relations.HaveRejected_TRADE))
-                        {
-                            Offer offer1 = new Offer();
-                            offer1.TradeTreaty = true;
-                            offer1.AcceptDL = "Trade Accepted";
-                            offer1.RejectDL = "Trade Rejected";
-                            Relationship r = relations;
-                            offer1.ValueToModify = new Ref<bool>(() => r.HaveRejected_TRADE,
-                                x => r.HaveRejected_TRADE = x);
-                            Offer offer2 = new Offer();
-                            offer2.TradeTreaty = true;
-                            if (them == Empire.Universe.PlayerEmpire)
-                            {
-                                DiplomacyScreen.Show(OwnerEmpire, "Offer Trade", offer2, offer1);
-                            }
-                            else
-                            {
-                                them.GetEmpireAI()
-                                    .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
-                            }
-                        }
-                        AssessAngerPacifist(kv, Posture.Friendly, usedTrust);
-                        if (relations.TurnsAbove95 > 100 &&
-                            relations.turnsSinceLastContact > 10 &&
-                            (!relations.Treaty_Alliance && relations.Treaty_Trade) &&
-                            (relations.Treaty_NAPact && !relations.HaveRejected_Alliance &&
-                             relations.TotalAnger < 20.0))
-                        {
-                            Offer offer1 = new Offer();
-                            offer1.Alliance = true;
-                            offer1.AcceptDL = "ALLIANCE_ACCEPTED";
-                            offer1.RejectDL = "ALLIANCE_REJECTED";
-                            Relationship r = relations;
-                            offer1.ValueToModify = new Ref<bool>(() => r.HaveRejected_Alliance,
-                                x =>
-                                {
-                                    r.HaveRejected_Alliance = x;
-                                    SetAlliance(!r.HaveRejected_Alliance);
-                                });
-                            Offer offer2 = new Offer();
-                            if (them == Empire.Universe.PlayerEmpire)
-                            {
-                                DiplomacyScreen.Show(OwnerEmpire, "OFFER_ALLIANCE", offer2, offer1);
-                            }
-                            else
-                            {
-                                them.GetEmpireAI()
-                                    .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
-                            }
-
-                            continue;
-                        }
-                        else
-                            continue;
+                        OfferTrade(relations, them, relations.Trust - usedTrust);
+                        AssessAngerPacifist(kv, relations.Posture, usedTrust); // TODO refactor anger
+                        OfferAlliance(relations, them);
+                        break;
                     case Posture.Neutral:
-                        if (relations.TurnsKnown == FirstDemand && !relations.Treaty_NAPact)
-                        {
-                            Offer offer1 = new Offer();
-                            offer1.NAPact = true;
-                            offer1.AcceptDL = "NAPact Accepted";
-                            offer1.RejectDL = "NAPact Rejected";
-                            Relationship r = relations;
-                            offer1.ValueToModify =
-                                new Ref<bool>(() => r.HaveRejectedNapact, x => r.HaveRejectedNapact = x);
-                            relations.turnsSinceLastContact = 0;
-                            Offer offer2 = new Offer();
-                            offer2.NAPact = true;
-                            if (them == Empire.Universe.PlayerEmpire)
-                            {
-                                DiplomacyScreen.Show(OwnerEmpire, "Offer NAPact", offer2, offer1);
-                            }
-                            else
-                            {
-                                them.GetEmpireAI()
-                                    .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
-                            }
-                        }
+                        OfferNonAggression(relations, them, relations.Trust - usedTrust);
                         if (relations.TurnsKnown > FirstDemand && relations.Treaty_NAPact)
-                            relations.Posture = Posture.Friendly;
-                        else if (relations.TurnsKnown > FirstDemand &&
-                                 relations.HaveRejectedNapact)
-                            relations.Posture = Posture.Neutral;
-                        AssessAngerPacifist(kv, Posture.Neutral, usedTrust);
-                        if (relations.Trust > 50f && relations.TotalAnger < 10)
-                        {
-                            relations.Posture = Posture.Friendly;
-                            continue;
-                        }
-                        else
-                            continue;
-                    case Posture.Hostile:
-                        if (relations.ActiveWar != null)
-                        {
-                            Array<Empire> list = new Array<Empire>();
-                            foreach (KeyValuePair<Empire, Relationship> keyValuePair in OwnerEmpire.AllRelations)
-                            {
-                                if (keyValuePair.Value.Treaty_Alliance &&
-                                    keyValuePair.Key.GetRelations(them).Known &&
-                                    !keyValuePair.Key.GetRelations(them).AtWar)
-                                    list.Add(keyValuePair.Key);
-                            }
-                            foreach (Empire Ally in list)
-                            {
-                                if (!relations.ActiveWar.AlliesCalled.Contains(Ally.data.Traits.Name) &&
-                                    OwnerEmpire.GetRelations(Ally).turnsSinceLastContact > 10)
-                                {
-                                    CallAllyToWar(Ally, them);
-                                    relations.ActiveWar.AlliesCalled.Add(Ally.data.Traits.Name);
-                                }
-                            }
-                            if (relations.ActiveWar.TurnsAtWar % 100.0 == 0f)
-                            {
-                                switch (relations.ActiveWar.WarType)
-                                {
-                                    case WarType.BorderConflict:
-                                        if ((relations.Anger_FromShipsInOurBorders +
-                                             relations.Anger_TerritorialConflict) >
-                                            OwnerEmpire.data.DiplomaticPersonality.Territorialism)
-                                            return;
-                                        switch (relations.ActiveWar.GetBorderConflictState())
-                                        {
-                                            case WarState.WinningSlightly:
-                                                OfferPeace(relations, them, "OFFERPEACE_FAIR");
-                                                continue;
-                                            case WarState.Dominating:
-                                                OfferPeace(relations, them, "OFFERPEACE_WINNINGBC");
-                                                continue;
-                                            case WarState.LosingSlightly:
-                                            case WarState.LosingBadly:
-                                                OfferPeace(relations, them, "OFFERPEACE_LOSINGBC");
-                                                continue;
-                                            default:
-                                                continue;
-                                        }
-                                    case WarType.ImperialistWar:
-                                        switch (relations.ActiveWar.GetWarScoreState())
-                                        {
-                                            case WarState.WinningSlightly:
-                                                OfferPeace(relations, them, "OFFERPEACE_FAIR");
-                                                continue;
-                                            case WarState.Dominating:
-                                                OfferPeace(relations, them, "OFFERPEACE_FAIR_WINNING");
-                                                continue;
-                                            case WarState.EvenlyMatched:
-                                                OfferPeace(relations, them, "OFFERPEACE_EVENLY_MATCHED");
-                                                continue;
-                                            case WarState.LosingSlightly:
-                                            case WarState.LosingBadly:
-                                                OfferPeace(relations, them, "OFFERPEACE_PLEADING");
-                                                continue;
-                                            default:
-                                                continue;
-                                        }
-                                    case WarType.DefensiveWar:
-                                        switch (relations.ActiveWar.GetBorderConflictState())
-                                        {
-                                            case WarState.WinningSlightly:
-                                                OfferPeace(relations, them, "OFFERPEACE_FAIR");
-                                                continue;
-                                            case WarState.Dominating:
-                                                OfferPeace(relations, them, "OFFERPEACE_FAIR_WINNING");
-                                                continue;
-                                            case WarState.EvenlyMatched:
-                                                OfferPeace(relations, them, "OFFERPEACE_EVENLY_MATCHED");
-                                                continue;
-                                            case WarState.LosingSlightly:
-                                            case WarState.LosingBadly:
-                                                OfferPeace(relations, them, "OFFERPEACE_PLEADING");
-                                                continue;
-                                            default:
-                                                continue;
-                                        }
-                                    default:
-                                        continue;
-                                }
-                            }
+                            relations.ChangeToFriendly();
 
-                            continue;
-                        }
-                        else
-                            continue;
-                    default:
-                        continue;
+                        AssessAngerPacifist(kv, relations.Posture, usedTrust);
+                        if (relations.Trust > 50f && relations.TotalAnger < 10)
+                            relations.ChangeToFriendly();
+
+                        break;
+                    case Posture.Hostile when relations.ActiveWar != null:
+                        OfferPeace(relations, them);
+                        RequestHelpFromAllies(relations, them);
+                        break; ;
                 }
             }
         }
 
         private void DoRuthlessRelations()
         {
-            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 5f);
+            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 5f);
             int numberofWars = 0;
             Array<Empire> potentialTargets = new Array<Empire>();
             foreach (KeyValuePair<Empire, Relationship> relationship in OwnerEmpire.AllRelations)
@@ -352,7 +346,7 @@ namespace Ship_Game.AI
 
         private void DoXenophobicRelations()
         {
-            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
+            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
             foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
             {
                 Relationship relations = kv.Value;
@@ -478,7 +472,7 @@ namespace Ship_Game.AI
                 //numberofWars++;
                 numberOfWars += (int) relationship.Key.CurrentMilitaryStrength;
             }
-            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
+            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
             foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
             {
                 Relationship relations = kv.Value;
@@ -666,7 +660,7 @@ namespace Ship_Game.AI
 
         private void DoHonorableRelations()
         {
-            AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
+            AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
             foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
             {
                 Relationship relations = kv.Value;
@@ -873,56 +867,51 @@ namespace Ship_Game.AI
             }
         }
 
-        private void AssessTeritorialConflicts(float weight)
+        void AssessTerritorialConflicts(float weight)
         {
-
-            weight *= .1f;
-            foreach (SystemCommander CheckBorders in DefensiveCoordinator.DefenseDict.Values)
+            weight *= 0.1f;
+            foreach (SystemCommander borders in DefensiveCoordinator.DefenseDict.Values.Filter(sysCom => sysCom.RankImportance > 5))
             {
-                if (CheckBorders.RankImportance > 5)
+                foreach (SolarSystem closeSystem in borders.System.FiveClosestSystems)
                 {
-                    foreach (SolarSystem closeenemies in CheckBorders.System.FiveClosestSystems)
+                    foreach (Empire others in closeSystem.OwnerList)
                     {
-                        foreach (Empire enemy in closeenemies.OwnerList)
+                        if (others == OwnerEmpire
+                            || others.isFaction
+                            || !OwnerEmpire.TryGetRelations(others, out Relationship usToThem)
+                            || !usToThem.Known
+                            || usToThem.Treaty_Alliance)
                         {
-
-                            if (enemy.isPlayer)
-                                continue;
-
-                            if (enemy.isFaction)
-                                continue;
-                            Relationship check = null;
-
-                            if (OwnerEmpire.TryGetRelations(enemy, out check))
-                            {
-                                if (!check.Known || check.Treaty_Alliance)
-                                    continue;
-
-                                weight *= (OwnerEmpire.CurrentMilitaryStrength + closeenemies.GetActualStrengthPresent(enemy)) / (OwnerEmpire.CurrentMilitaryStrength + 1);
-
-                                if (check.Treaty_OpenBorders)
-                                {
-                                    weight *= .5f;
-                                }
-                                if (check.Treaty_NAPact)
-                                    weight *= .5f;
-                                if (enemy.isPlayer) // FB - wtf, its not even used because of exit condition above
-                                    weight *= OwnerEmpire.DifficultyModifiers.DiploWeightVsPlayer;
-
-                                if (check.Anger_TerritorialConflict > 0)
-                                    check.Anger_TerritorialConflict += (check.Anger_TerritorialConflict + CheckBorders.RankImportance * weight) / (check.Anger_TerritorialConflict);
-                                else
-                                    check.Anger_TerritorialConflict += CheckBorders.RankImportance * weight;
-
-                            }
+                            continue;
                         }
 
-                    }
+                        float modifiedWeight = GetModifiedTerritorialWeight(weight, usToThem, others, closeSystem);
 
+                        if (usToThem.Anger_TerritorialConflict > 0)
+                            usToThem.Anger_TerritorialConflict += (usToThem.Anger_TerritorialConflict + borders.RankImportance * modifiedWeight) / usToThem.Anger_TerritorialConflict;
+                        else
+                            usToThem.Anger_TerritorialConflict += borders.RankImportance * modifiedWeight;
+                    }
                 }
             }
         }
 
+        float GetModifiedTerritorialWeight(float weight, Relationship usToThem, Empire others, SolarSystem system)
+        {
+            float modifiedWeight = weight;
+            float ourStr         = OwnerEmpire.CurrentMilitaryStrength.LowerBound(1);
+            modifiedWeight      *= (ourStr + system.GetActualStrengthPresent(others)) / ourStr;
 
+            if (usToThem.Treaty_OpenBorders)
+                modifiedWeight *= 0.5f;
+
+            if (usToThem.Treaty_NAPact)
+                modifiedWeight *= 0.5f;
+
+            if (others.isPlayer)
+                modifiedWeight *= OwnerEmpire.DifficultyModifiers.DiploWeightVsPlayer;
+
+            return modifiedWeight;
+        }
     }
 }
