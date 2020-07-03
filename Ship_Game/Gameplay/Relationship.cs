@@ -228,8 +228,7 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.RestrictAIPlayerInteraction &&  them == Empire.Universe.PlayerEmpire)
                 return;
 
-            if (them == EmpireManager.Player)
-                amount *= us.DifficultyModifiers.Anger;
+            amount *= us.DifficultyModifiers.Anger;
 
             if (us.IsHonorable || us.IsXenophobic)
                 amount *= 2;
