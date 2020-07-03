@@ -49,23 +49,24 @@ namespace Ship_Game
         public bool Careless   => Trustworthiness <= 60;
         [XmlIgnore]
         [JsonIgnore]
-        public TraitType TraitName
+        public PersonalityType TraitName
         {
             get
             {
-                Enum.TryParse(Name, out TraitType traitType);
+                Enum.TryParse(Name, out PersonalityType traitType);
                 return traitType;
             }
         }
-        public enum TraitType
-        {
-            Cunning,
-            Ruthless,
-            Aggressive,
-            Honorable,
-            Xenophobic,
-            Pacifist
-        }
+    }
+
+    public enum PersonalityType
+    {
+        Cunning,
+        Ruthless,
+        Aggressive,
+        Honorable,
+        Xenophobic,
+        Pacifist
     }
 
     /// <summary>
