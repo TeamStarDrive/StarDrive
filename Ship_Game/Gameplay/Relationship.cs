@@ -726,15 +726,6 @@ namespace Ship_Game.Gameplay
                 war.RestoreFromSave(false);
         }
 
-        public void ResetRelation() // todo move the empire_relationship
-        {
-            Treaty_Alliance    = false;
-            Treaty_NAPact      = false;
-            Treaty_OpenBorders = false;
-            Treaty_Peace       = false;
-            Treaty_Trade       = false;
-        }
-
         public DebugTextBlock DebugWar()
         {
             var debug = new DebugTextBlock
