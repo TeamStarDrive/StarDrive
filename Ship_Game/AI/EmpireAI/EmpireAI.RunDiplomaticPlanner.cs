@@ -357,7 +357,7 @@ namespace Ship_Game.AI
             {
                 Relationship relations = kv.Value;
                 Empire them            = kv.Key;
-                if (!relations.Known || them.isFaction || them.data.Defeated)
+                if (DoNotInteract(relations, them))
                     continue;
 
                 float usedTrust = relations.TrustEntries.Sum(te => te.TrustCost);
@@ -365,89 +365,14 @@ namespace Ship_Game.AI
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                    {
-                        if (relations.TurnsKnown <= SecondDemand ||
-                            relations.Trust - usedTrust <= OwnerEmpire.data.DiplomaticPersonality.Trade ||
-                            relations.Treaty_Trade || relations.HaveRejected_TRADE ||
-                            relations.turnsSinceLastContact <= SecondDemand ||
-                            relations.HaveRejected_TRADE)
-                        {
-                            continue;
-                        }
-                        Offer NAPactOffer = new Offer
-                        {
-                            TradeTreaty = true,
-                            AcceptDL = "Trade Accepted",
-                            RejectDL = "Trade Rejected"
-                        };
-                        Relationship value = relations;
-                        NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_TRADE,
-                            x => value.HaveRejected_TRADE = x);
-                        Offer OurOffer = new Offer
-                        {
-                            TradeTreaty = true
-                        };
-                        if (them == Empire.Universe.PlayerEmpire)
-                        {
-                            DiplomacyScreen.Show(OwnerEmpire, "Offer Trade", OurOffer, NAPactOffer);
-                        }
-                        else
-                        {
-                            them.GetEmpireAI()
-                                .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
-                        }
-                        continue;
-                    }
+                        OfferTrade(relations, them, relations.Trust - usedTrust);
+                        break;
                     case Posture.Neutral:
-                    {
-                        if (relations.TurnsKnown >= FirstDemand && !relations.Treaty_NAPact &&
-                            !relations.HaveRejectedDemandTech && !relations.XenoDemandedTech)
-                        {
-                                var empire = them;
-                            Array<TechEntry> potentialDemands = empire.GetEmpireAI().TradableTechs(OwnerEmpire);
-                            if (potentialDemands.Count > 0)
-                            {
-                                int Random = (int) RandomMath.RandomBetween(0f, potentialDemands.Count + 0.75f);
-                                if (Random > potentialDemands.Count - 1)
-                                {
-                                    Random = potentialDemands.Count - 1;
-                                }
-                                TechEntry TechToDemand = potentialDemands[Random];
-                                Offer DemandTech = new Offer();
-                                DemandTech.TechnologiesOffered.AddUnique(TechToDemand.UID);
-                                relations.XenoDemandedTech = true;
-                                Offer TheirDemand = new Offer
-                                {
-                                    AcceptDL = "Xeno Demand Tech Accepted",
-                                    RejectDL = "Xeno Demand Tech Rejected"
-                                };
-                                Relationship relationship = relations;
-                                TheirDemand.ValueToModify = new Ref<bool>(() => relationship.HaveRejectedDemandTech,
-                                    x => relationship.HaveRejectedDemandTech = x);
-                                relations.turnsSinceLastContact = 0;
+                        DemandTech(relations, them);
+                        if (relations.HaveRejectedDemandTech)
+                            relations.ChangeToHostile();
 
-                                if (them == Empire.Universe.PlayerEmpire)
-                                {
-                                    DiplomacyScreen.Show(OwnerEmpire, "Xeno Demand Tech", DemandTech, TheirDemand);
-                                }
-                                else
-                                {
-                                    them.GetEmpireAI()
-                                        .AnalyzeOffer(DemandTech, TheirDemand, OwnerEmpire, Offer.Attitude.Threaten);
-                                }
-                            }
-                        }
-                        if (!relations.HaveRejectedDemandTech)
-                        {
-                            continue;
-                        }
-                        relations.Posture = Posture.Hostile;
-                        continue;
-                    }
-                    default:
-                    {
-                        continue;
-                    }
+                        break; ;
                 }
             }
         }
@@ -539,6 +464,41 @@ namespace Ship_Game.AI
                 Empire weakest = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
                 OwnerEmpire.GetRelations(weakest).PreparingForWar = true;
             }
+        }
+
+        void DemandTech(Relationship relations, Empire them)
+        {
+            if (relations.TurnsKnown < FirstDemand
+                || relations.Treaty_NAPact
+                || relations.HaveRejectedDemandTech
+                || relations.XenoDemandedTech)
+            {
+                return;
+            }
+
+            Array<TechEntry> potentialDemands = them.GetEmpireAI().TradableTechs(OwnerEmpire);
+            if (potentialDemands.Count == 0) 
+                return;
+
+            TechEntry techToDemand = potentialDemands.RandItem();
+            Offer demandTech       = new Offer();
+
+            demandTech.TechnologiesOffered.AddUnique(techToDemand.UID);
+            relations.XenoDemandedTech = true;
+            Offer theirDemand = new Offer
+            {
+                AcceptDL      = "Xeno Demand Tech Accepted",
+                RejectDL      = "Xeno Demand Tech Rejected",
+                ValueToModify = new Ref<bool>(() => relations.HaveRejectedDemandTech,
+                                               x => relations.HaveRejectedDemandTech = x)
+            };
+
+            if (them == Player)
+                DiplomacyScreen.Show(OwnerEmpire, "Xeno Demand Tech", demandTech, theirDemand);
+            else
+                them.GetEmpireAI().AnalyzeOffer(demandTech, theirDemand, OwnerEmpire, Offer.Attitude.Threaten);
+
+            relations.turnsSinceLastContact = 0;
         }
 
         private void DoAggressiveRelations()
