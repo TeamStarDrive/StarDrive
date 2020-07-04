@@ -70,7 +70,7 @@ namespace Ship_Game.AI
         private void DoAggRuthAgentManager()
         {
             int offense          = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = 1 + (int)CurrentGame.Difficulty * 0.115f;
+            float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.115f;
             int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Aggressive);
         }
@@ -78,7 +78,7 @@ namespace Ship_Game.AI
         private void DoCunningAgentManager()
         {
             int offense          = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = 1 + (int)CurrentGame.Difficulty * 0.13f;
+            float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.13f;
             int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Cunning);
         }
@@ -86,7 +86,7 @@ namespace Ship_Game.AI
         private void DoHonPacAgentManager()
         {
             int offense          = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = 1 + (int)CurrentGame.Difficulty * 0.1f;
+            float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.1f;
             int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Honorable);
         }
