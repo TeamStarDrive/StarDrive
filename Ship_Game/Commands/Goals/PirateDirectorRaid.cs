@@ -46,7 +46,6 @@ namespace Ship_Game.Commands.Goals
                 {
                     case GoalType.PirateRaidTransport:  Pirates.AddGoalRaidTransport(TargetEmpire);      break;
                     case GoalType.PirateRaidOrbital:    Pirates.AddGoalRaidOrbital(TargetEmpire);        break;
-                    case GoalType.PirateRaidColonyShip: Pirates.AddGoalRaidColonyShip(TargetEmpire);     break;
                     case GoalType.PirateRaidCombatShip: Pirates.AddGoalRaidCombatShip(TargetEmpire);     break;
                 }
             }
@@ -59,14 +58,15 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.CanDoAnotherRaid(out int numCurrentRaids))
                 return 0; // Limit maximum of concurrent raids
 
-            int startChance = Pirates.ThreatLevelFor(TargetEmpire).LowerBound((int)CurrentGame.Difficulty * 2);
-            startChance    /= numCurrentRaids.LowerBound(1);
+            int startChance = (Pirates.ThreatLevelFor(TargetEmpire)/2).LowerBound((int)CurrentGame.Difficulty + 1);
+            startChance    /= (numCurrentRaids+1);
+            startChance    /= EmpireManager.PirateFactions.Length.LowerBound(1);
             float taxRate   = TargetEmpire.data.TaxRate;
 
             if (taxRate > 0.25f) // High Tax rate encourages more pirate tippers
                 startChance *= (int)(1 + taxRate);
 
-            //startChance = 100; // TODO for testing
+            //startChance = 100; // For testing
             return startChance;
         }
 
@@ -74,7 +74,6 @@ namespace Ship_Game.Commands.Goals
         {
             int raid = RandomMath.RollDie(Pirates.Level.UpperBound(Pirates.ThreatLevelFor(TargetEmpire)));
 
-            //return GoalType.PirateRaidColonyShip; // TODO for testing
             switch (raid)
             {
                 default:
@@ -83,12 +82,12 @@ namespace Ship_Game.Commands.Goals
                 case 3:  return GoalType.PirateRaidOrbital;
                 case 4:  return GoalType.PirateRaidTransport;
                 case 5:  return GoalType.PirateRaidCombatShip;
-                case 6:  return GoalType.PirateRaidColonyShip;
+                case 6:  return GoalType.PirateRaidOrbital;
                 case 7:  return GoalType.PirateRaidTransport;
                 case 8:  return GoalType.PirateRaidCombatShip;
                 case 9:  return GoalType.PirateRaidOrbital;
                 case 10: return GoalType.PirateRaidColonyShip;
-                case 11: return GoalType.PirateRaidTransport;
+                case 11: return GoalType.PirateRaidCombatShip;
                 case 12: return GoalType.PirateRaidOrbital;
                 case 13: return GoalType.PirateRaidCombatShip;
                 case 14: return GoalType.PirateRaidTransport;

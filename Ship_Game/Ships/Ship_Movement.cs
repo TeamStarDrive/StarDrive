@@ -29,7 +29,7 @@ namespace Ship_Game.Ships
         public float MaxSTLSpeed;
         
         // reset at the end of each update
-        public float SpeedLimit;
+        public float SpeedLimit { get; private set; }
         public float VelocityMaximum; // maximum velocity magnitude
         public float Thrust;
         public float TurnThrust;
@@ -81,8 +81,13 @@ namespace Ship_Game.Ships
         void UpdateMaxVelocity()
         {
             VelocityMaximum = ShipStats.GetVelocityMax(Thrust, Mass);
-            SpeedLimit = VelocityMaximum; // This is overwritten at the end of Update
+            SetSpeedLimit(VelocityMaximum); // This is overwritten at the end of Update
             RotationRadiansPerSecond = ShipStats.GetTurnRadsPerSec(TurnThrust, Mass, Level);
+        }
+
+        public void SetSpeedLimit(float value)
+        {
+            SpeedLimit = value;
         }
 
         void SetMaxFTLSpeed()
@@ -176,7 +181,7 @@ namespace Ship_Game.Ships
 
         void ApplyThrust(float speedLimit, Thrust direction)
         {
-            SpeedLimit = speedLimit;
+            SetSpeedLimit(speedLimit);
             ThrustThisFrame = direction;
         }
 
@@ -407,14 +412,22 @@ namespace Ship_Game.Ships
         void ResetFrameThrustState()
         {
             ThrustThisFrame = Ships.Thrust.Coast;
-            SpeedLimit = VelocityMaximum;
+            if (!Carrier.RecallingShipsBeforeWarp)
+                SetSpeedLimit(VelocityMaximum);
+
             if (AI.State == AIState.FormationWarp)
-                SpeedLimit = AI.FormationWarpSpeed(VelocityMaximum);
+                SetSpeedLimit(AI.FormationWarpSpeed(VelocityMaximum));
         }
 
         // called from Ship.Update
         void UpdateEnginesAndVelocity(float elapsedTime)
         {
+            if (engineState == MoveState.Sublight && CurrentVelocity > MaxSTLSpeed)
+            {
+                // feature: exit from hyperspace at ridiculous speeds
+                Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
+            }
+
             UpdateHyperspaceInhibited(elapsedTime);
             SetMaxFTLSpeed();
 

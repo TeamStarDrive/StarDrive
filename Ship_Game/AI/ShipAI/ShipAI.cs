@@ -91,7 +91,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (targetPlanet.Owner != null || !targetPlanet.Habitable)
+            if (targetPlanet.Owner != null || !targetPlanet.Habitable || targetPlanet.RecentCombat)
             {
                 shipGoal.Goal?.NotifyMainGoalCompleted();
                 ClearOrders();
@@ -103,18 +103,15 @@ namespace Ship_Game.AI
             Owner.QueueTotalRemoval();
         }
 
-        bool ExploreEmptySystem(float elapsedTime, SolarSystem system)
+        bool TrySetupPatrolRoutes()
         {
-            if (system.IsExploredBy(Owner.loyalty))
+            if (PatrolRoute.Count > 0)
                 return true;
-            MovePosition = system.Position;
-            if (Owner.Center.InRadius(MovePosition, 75000f))
-            {
-                system.SetExploredBy(Owner.loyalty);
-                return true;
-            }
-            ThrustOrWarpToPos(MovePosition, elapsedTime);
-            return false;
+
+            foreach (Planet p in ExplorationTarget.PlanetList)
+                PatrolRoute.Add(p);
+
+            return PatrolRoute.Count > 0;
         }
 
         void ScrapShip(float elapsedTime, ShipGoal goal)
@@ -140,7 +137,7 @@ namespace Ship_Game.AI
 
         public void Update(float elapsedTime)
         {
-            if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate)
+            if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate )
                 State = AIState.Exterminate;
 
             CheckTargetQueue();
@@ -192,6 +189,7 @@ namespace Ship_Game.AI
                         SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
                         return;
                     }
+
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 case ResupplyReason.NoCommand:
@@ -210,14 +208,17 @@ namespace Ship_Game.AI
                             if (Owner.loyalty.GetTroopShipForRebase(out Ship troopShip, Owner))
                                 troopShip.AI.OrderRebaseToShip(Owner);
                         }
+
                         return;
                     }
+
                     nearestRallyPoint = Owner.loyalty.RallyPoints.FindMax(p => p.TroopsHere.Count);
                     break;
                 case ResupplyReason.NotNeeded:
                     TerminateResupplyIfDone();
                     return;
             }
+
             SetPriorityOrder(true);
             DecideWhereToResupply(nearestRallyPoint);
         }
@@ -272,7 +273,7 @@ namespace Ship_Game.AI
         {
             TriggerDelay -= elapsedTime;
             FireOnMainTargetTime -= elapsedTime;
-            if (BadGuysNear && !IgnoreCombat)
+            if (BadGuysNear && !IgnoreCombat && !HasPriorityOrder)
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
                 {
@@ -325,7 +326,7 @@ namespace Ship_Game.AI
                         if (hangarShip != null && hangarShip.AI.State != AIState.ReturnToHangar &&
                             !hangarShip.AI.HasPriorityTarget && !hangarShip.AI.HasPriorityOrder)
                         {
-                            if (Owner.FightersLaunched)
+                            if (Owner.Carrier.FightersLaunched)
                                 hangarShip.DoEscort(Owner);
                             else
                                 hangarShip.AI.OrderReturnToHangar();
@@ -457,7 +458,7 @@ namespace Ship_Game.AI
         {
             // separated for clarity as this section can be very confusing.
             // we might need a toggle for the player action here.
-            if (State == AIState.FormationWarp)
+            if (State == AIState.FormationWarp && HasPriorityOrder || HadPO)
                 return true;
             if (HasPriorityOrder || HadPO)
                 return false;

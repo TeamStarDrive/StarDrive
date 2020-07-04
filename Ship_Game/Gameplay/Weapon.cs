@@ -485,7 +485,7 @@ namespace Ship_Game.Gameplay
 
             // reduce error by level cubed. if error is less than a module radius stop.
             float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
-            float adjust = Math.Max(0, baseError - level * level * level);
+            float adjust    = (baseError - level * level * level).LowerBound(0);
             if (adjust < 8)
                 return Vector2.Zero;
 

@@ -880,7 +880,7 @@
     </Token>
     <Token>
       <Index>217</Index>
-      <Text>Send Troops to this ship if it's troop number is less than 75% of the maximum. If you toggle this off, the ship will go to resupply when troop number is less than 10% of the maximum</Text>
+      <Text>Send Troops to this ship if it's troop number is less than 50% of the maximum. If you toggle this off, the ship will go to resupply when it has no troops. A ship set to Kamikaze will not retreat to resupply, but will request troops if the button is on.</Text>
     </Token>
     <Token>
       <Index>218</Index>
@@ -1066,7 +1066,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>264</Index>
-      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets.</Text>
+      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. Production output reduction for Cybernetics is half of the tax rate. Food is not Taxed.</Text>
     </Token>
     <Token>
       <Index>265</Index>
@@ -1827,7 +1827,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>519</Index>
-      <Text>Gain all of the positive genetic traits of any race conquered via ground invasion. </Text>
+      <Text>Gain all of the positive genetic traits of any race conquered via ground invasion The planet has to have at least 2 Billion colonists for the assimilation to succeed.</Text>
     </Token>
     <Token>
       <Index>520</Index>
@@ -4723,6 +4723,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Disables all pirate factions for this game.</Text>
     </Token>
     <Token>
+      <Index>1870</Index>
+      <Text>Clears the buildable items filter.</Text>
+    </Token>
+    <Token>
       <Index>1887</Index>
       <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
     </Token>
@@ -5934,11 +5938,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2197</Index>
-      <Text>Send this Agent on a training mission. If successful, the Agent will gain one level. The Agent will be unavailable for missions for the indicated number of turns.</Text>
+      <Text>Send this Agent on a training mission. If successful, the Agent will gain one level. The Agent will be unavailable for missions for the indicated number of turns.\nTraining is not possible for Agents Level 3 or above.</Text>
     </Token>
     <Token>
       <Index>2198</Index>
-      <Text>Execute this mission for the indicated cost. Your chance of success (or failure) depends on the level of your agent and the difficulty of the task being undertaken. Defending Agents will also have a chance to foil your mission.</Text>
+      <Text>Execute this mission for the indicated cost. Your chance of success (or failure) depends on the level of your agent and the difficulty of the task being undertaken. Defending Agents will also have a chance to foil your mission.\nTraining is not possible for Agents Level 3 or above/</Text>
     </Token>
     <Token>
       <Index>2199</Index>
@@ -6985,7 +6989,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1085</Index>
-      <Text>The DialCorp Inhibitor 2.0 prevents enemy ships from engaging their FTL drives in a moderate radius. It requires incredible amounts of power to operate. Multiple inhibitors stack. </Text>
+      <Text>The DialCorp Inhibitor 2.0 prevents enemy ships from engaging their FTL drives in a moderate radius. It requires incredible amounts of power to operate. Multiple inhibitors do not stack. </Text>
     </Token>
     <Token>
       <Index>1009</Index>
@@ -8082,7 +8086,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>6025</Index>
-      <Text>has successfully complete training\nThe Agent's performance exceeded expectation.</Text>
+      <Text>has successfully complete training\nThe Agent's performance exceeded expectations.</Text>
     </Token>
   <Token>
       <Index>6026</Index>

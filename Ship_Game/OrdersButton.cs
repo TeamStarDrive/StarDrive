@@ -137,14 +137,14 @@ namespace Ship_Game
                         case OrderType.TradeProduction:    ship.TransportingProduction   = !input.RightMouseClick; break;
                         case OrderType.TransportColonists: ship.TransportingColonists    = !input.RightMouseClick; break;
                         case OrderType.AllowInterTrade:    ship.AllowInterEmpireTrade    = !input.RightMouseClick; break;
-                        case OrderType.FighterToggle:      ship.FightersOut              = !input.RightMouseClick; break;
-                        case OrderType.FighterRecall:      ship.RecallFightersBeforeFTL  = !input.RightMouseClick; break;
-                        case OrderType.TroopToggle:        ship.TroopsOut                = !input.RightMouseClick; break;
-                        case OrderType.SendTroops:         ship.Carrier.SendTroopsToShip = !input.RightMouseClick; break;
+                        case OrderType.FighterToggle:      ship.Carrier.FightersOut      = !input.RightMouseClick; break;
+                        case OrderType.TroopToggle:        ship.Carrier.TroopsOut        = !input.RightMouseClick; break;
                         case OrderType.Explore:            ship.AI.OrderExplore();                                 break;
                         case OrderType.OrderResupply:      ship.Supply.ResupplyFromButton();                       break;
                         case OrderType.Scrap:              ship.AI.OrderScrapShip();                               break;
                         case OrderType.EmpireDefense:      AddOrRemoveFromForcePool(ship);                         break;
+                        case OrderType.FighterRecall:      ship.Carrier.SetRecallFightersBeforeFTL(!input.RightMouseClick); break;
+                        case OrderType.SendTroops:         ship.Carrier.SetSendTroopsToShip(!input.RightMouseClick);        break;
                     }
                 }
                 return true;

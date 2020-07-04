@@ -39,17 +39,32 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return GoalStep.GoToNextStep;
         }
 
+        void UpdateTargetSystemList()
+        {
+            for (int x = 0; x < TargetSystems.Count; x++)
+            {
+                var s = TargetSystems[x];
+                if (s.OwnerList.Contains(Them))
+                    continue;
+                TargetSystems.RemoveAt(x);
+            }
+        }
+
         GoalStep AttackSystems()
         {
+            if (Owner.GetOwnedSystems().Count == 0) return GoalStep.GoalFailed;
+            UpdateTargetSystemList();
             if (HaveConqueredTargets()) return GoalStep.GoalComplete;
-
+            if (TargetSystems.IsEmpty) return GoalStep.TryAgain;
             var fleets        = Owner.AllFleetsReady();
-            var nearestSystem = Owner.FindNearestOwnedSystemTo(TargetSystems);
             int priorityMod   = 0;
             float strength    = fleets.AccumulatedStrength;
-            
+
+            if (Owner.FindNearestOwnedSystemTo(TargetSystems, out SolarSystem nearestSystem))
+                TargetSystems.Sort(s => s.Position.SqDist(nearestSystem.Position));
+
             var tasks = new WarTasks(Owner, Them);
-            foreach(var system in TargetSystems.Sorted(s=> s.Position.SqDist(nearestSystem.Position)))
+            foreach(var system in TargetSystems)
             {
                 if (!HaveConqueredTarget(system))
                 {
@@ -70,7 +85,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             foreach(var system in TargetSystems)
             {
-                if (!HaveConqueredTarget(system)) return false;
+                if (!HaveConqueredTarget(system)) 
+                    return false;
             }
             return true;
         }

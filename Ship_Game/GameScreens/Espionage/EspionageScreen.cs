@@ -66,19 +66,6 @@ namespace Ship_Game.GameScreens.Espionage
             batch.End();
         }
 
-        public static float GetEspionageDefense(Empire e)
-        {
-            float espionageDefense = 0f;
-            foreach (Agent agent in e.data.AgentList)
-            {
-                if (agent.Mission == AgentMission.Defending)
-                    espionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
-            }
-            espionageDefense /= e.NumPlanets / 3 + 1;
-            espionageDefense += e.data.SpyModifier + e.data.DefensiveSpyBonus;
-            return espionageDefense;
-        }
-
         public override bool HandleInput(InputState input)
         {
             if (input.KeyPressed(Keys.E) && !GlobalStats.TakingInput)

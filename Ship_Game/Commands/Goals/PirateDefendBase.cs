@@ -53,10 +53,13 @@ namespace Ship_Game.Commands.Goals
         void SendMoreForces()
         {
             var potentialShips = Pirates.Owner.GetShips().Filter(s => !s.IsFreighter
+                                                                      && !Pirates.SpawnedShips.Contains(s.guid)
                                                                       && s.BaseStrength > 0
                                                                       && !s.InCombat
+                                                                      && !s.IsPlatformOrStation
+                                                                      && s.AI.State != AIState.Resupply
                                                                       && s.AI.EscortTarget != BaseToDefend);
-
+                
             if (potentialShips.Length > 0)
             {
                 Ship ship = potentialShips.RandItem();

@@ -86,6 +86,12 @@ namespace Ship_Game
             // only capture input from window UI if we haven't made a selection
             if (itemToBuild == null)
             {
+                if (input.Escaped) // exit this screen
+                {
+                    Screen.InputOpenDeepSpaceBuildWindow();
+                    return true;
+                }
+
                 return base.HandleInput(input);
             }
 
@@ -102,8 +108,8 @@ namespace Ship_Game
             }
             ShipInfoOverlay.Hide();
 
-            // right mouse click, we cancel the placement mode
-            if (input.RightMouseClick)
+            // right mouse click or Esc, we cancel the placement mode
+            if (input.RightMouseClick || input.Escaped)
             {
                 itemToBuild = null;
                 return true;
