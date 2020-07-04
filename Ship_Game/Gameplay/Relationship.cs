@@ -34,7 +34,7 @@ namespace Ship_Game.Gameplay
     public sealed class Relationship : IDisposable
     {
         [Serialize(0)] public FederationQuest FedQuest;
-        [Serialize(1)] public Posture Posture = Posture.Neutral; // FB - use SetPosture privately or ChangeTo methods publicly
+        [Serialize(1)] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
         [Serialize(2)] public string Name;
         [Serialize(3)] public bool Known;
         [Serialize(4)] public float IntelligenceBudget;
@@ -421,13 +421,6 @@ namespace Ship_Game.Gameplay
             Anger_DiplomaticConflict -= diploAngerMinus;
             TotalAnger               -= diploAngerMinus;
             Trust                    += trustEarned;
-            if (Trust > 100f && !Treaty_Alliance)
-            {
-                Trust = 100f;
-                return;
-            }
-            if (Trust > 150f && Treaty_Alliance)
-                Trust = 150f;
         }
 
         public void SetImperialistWar()

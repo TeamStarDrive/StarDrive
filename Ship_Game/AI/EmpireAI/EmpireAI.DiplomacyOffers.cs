@@ -18,7 +18,7 @@ namespace Ship_Game.AI
                 DTrait ourPersonality = OwnerEmpire.data.DiplomaticPersonality;
                 if (ourPersonality != null)
                 {
-                    relation.Posture = Posture.Neutral;
+                    relation.ChangeToNeutral();
                     if (relation.Anger_FromShipsInOurBorders > ourPersonality.Territorialism / 3f)
                         relation.Anger_FromShipsInOurBorders = ourPersonality.Territorialism / 3f;
                     if (relation.Anger_TerritorialConflict > ourPersonality.Territorialism / 3f)
@@ -42,7 +42,7 @@ namespace Ship_Game.AI
                 relationThem.PreparingForWar = false;
                 relationThem.ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 relationThem.WarHistory.Add(relationThem.ActiveWar);
-                relationThem.Posture = Posture.Neutral;
+                relationThem.ChangeToNeutral();
                 if (EmpireManager.Player != them)
                 {
                     if (relationThem.Anger_FromShipsInOurBorders >
@@ -341,7 +341,7 @@ namespace Ship_Game.AI
                 OwnerEmpire.GetRelations(them).PreparingForWar = false;
                 OwnerEmpire.GetRelations(them).ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 OwnerEmpire.GetRelations(them).WarHistory.Add(OwnerEmpire.GetRelations(them).ActiveWar);
-                OwnerEmpire.GetRelations(them).Posture = Posture.Neutral;
+                OwnerEmpire.GetRelations(them).ChangeToNeutral();
                 if (OwnerEmpire.GetRelations(them).Anger_FromShipsInOurBorders >
                     OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3f)
                 {
@@ -373,7 +373,7 @@ namespace Ship_Game.AI
                 them.GetRelations(OwnerEmpire).PreparingForWar = false;
                 them.GetRelations(OwnerEmpire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 them.GetRelations(OwnerEmpire).WarHistory.Add(them.GetRelations(OwnerEmpire).ActiveWar);
-                them.GetRelations(OwnerEmpire).Posture = Posture.Neutral;
+                them.GetRelations(OwnerEmpire).ChangeToNeutral();
                 if (EmpireManager.Player != them)
                 {
                     if (them.GetRelations(OwnerEmpire).Anger_FromShipsInOurBorders >
