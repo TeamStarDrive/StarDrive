@@ -25,7 +25,7 @@ namespace Ship_Game.AI
                 ClearOrders(State);
                 if (Owner.Mothership != null)
                 {
-                    if (Owner.Mothership.TroopsOut)
+                    if (Owner.Mothership.Carrier.TroopsOut)
                         Owner.DoEscort(Owner.Mothership);
                     else
                         OrderReturnToHangar();
@@ -47,7 +47,7 @@ namespace Ship_Game.AI
 
         Ship UpdateCombatTarget()
         {
-            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight
+            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight || Owner.loyalty == Target.loyalty
                                        || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
             {
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
@@ -84,50 +84,41 @@ namespace Ship_Game.AI
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
             }
-            else
+            else if (FleetNode != null && Owner.fleet != null && HasPriorityOrder)
             {
                 // TODO: need to move this into fleet.
-                if (FleetNode != null && Owner.fleet != null)
+                if (Owner.fleet.FleetTask == null)
                 {
-                    if (Owner.fleet.FleetTask == null)
+                    Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                    if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                     {
-                        Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                        if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
-                        {
 
-                            if (Owner.Center.OutsideRadius(nodePos, 1000f))
-                            {
-                                ThrustOrWarpToPos(nodePos, elapsedTime);
-                            }
-                            else
-                            {
-                                DoHoldPositionCombat(elapsedTime);
-                            }
-
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var task = Owner.fleet.FleetTask;
-                        if (target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
+                        if (Owner.Center.OutsideRadius(nodePos, 1000f))
                         {
-                            DequeueCurrentOrder();
+                            ThrustOrWarpToPos(nodePos, elapsedTime);
                         }
+                        else
+                        {
+                            DoHoldPositionCombat(elapsedTime);
+                        }
+
+                        return;
                     }
                 }
-                if (CombatRangeType == StanceType.RangedCombatMovement)
+                else
                 {
-                    Vector2 prediction = target.Center;
-                    Weapon fastestWeapon = Owner.FastestWeapon;
-                    if (fastestWeapon != null) // if we have a weapon
+                    var task = Owner.fleet.FleetTask;
+                    if (target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
                     {
-                        prediction = fastestWeapon.ProjectedImpactPointNoError(target);
+                        DequeueCurrentOrder();
                     }
-                    ThrustOrWarpToPos(prediction, elapsedTime);
-                    return;
                 }
             }
+            else
+            {
+                MoveToEngageTarget(target, elapsedTime);
+            }
+
 
             if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget)) 
                 Owner.Carrier.ScrambleFighters();
@@ -145,9 +136,24 @@ namespace Ship_Game.AI
             }
 
             CombatAI.ExecuteCombatTactic(elapsedTime);
-
+            
             // Target was modified by one of the CombatStates (?)
             Owner.InCombat = Target != null;
+        }
+
+        void MoveToEngageTarget(Ship target, float elapsedTime)
+        {
+            if (CombatRangeType == StanceType.RangedCombatMovement)
+            {
+                Vector2 prediction = target.Center;
+                Weapon fastestWeapon = Owner.FastestWeapon;
+                if (fastestWeapon != null) // if we have a weapon
+                {
+                    prediction = fastestWeapon.ProjectedImpactPointNoError(target);
+                }
+                ThrustOrWarpToPos(prediction, elapsedTime);
+                return;
+            }
         }
 
         void DoDeploy(ShipGoal g)
@@ -234,114 +240,76 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
-                ExplorationTarget = Owner.loyalty.GetEmpireAI().ExpansionAI.AssignExplorationTarget(Owner);
-                if (ExplorationTarget == null)
-                {
-                    ClearOrders();
-                }
+                if (!Owner.loyalty.GetEmpireAI().ExpansionAI.AssignExplorationTargetSystem(Owner, out ExplorationTarget))
+                    ClearOrders(); // FB - could not find a new system to explore
             }
-            else if (DoExploreSystem(elapsedTime)) //@Notification
+            else if (DoExploreSystem(elapsedTime))
             {
-                if (Owner.loyalty.isPlayer)
-                {
-                    //added by gremlin  add shamatts notification here
-                    SolarSystem system = ExplorationTarget;
-                    var message = new StringBuilder(system.Name); //@todo create global string builder
-                    message.Append(" system explored.");
-
-                    if (system.Sun.RadiationDamage > 0)
-                        message.Append("\nThis Star emits radiation which will damage your ship's\nexternal modules or shields if they get close to it.");
-
-                    var planetsTypesNumber = new Map<string, int>();
-                    if (system.PlanetList.Count > 0)
-                    {
-                        foreach (Planet planet in system.PlanetList)
-                        {
-                            planetsTypesNumber.AddToValue(planet.CategoryName, 1);
-                        }
-
-                        foreach (var pair in planetsTypesNumber)
-                            message.Append('\n').Append(pair.Value).Append(' ').Append(pair.Key);
-                    }
-
-                    foreach (Planet planet in system.PlanetList)
-                    {
-                        Building tile = planet.BuildingList.Find(t => t.IsCommodity);
-                        if (tile != null)
-                            message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
-                    }
-
-                    if (system.DangerousForcesPresent(Owner.loyalty))
-                        message.Append("\nCombat in system!!!");
-
-                    if (system.OwnerList.Count > 0 && !system.OwnerList.Contains(Owner.loyalty))
-                        message.Append("\nContested system!!!");
-
-                    Empire.Universe.NotificationManager.AddNotification(new Notification
-                    {
-                        Pause = false,
-                        Message = message.ToString(),
-                        ReferencedItem1 = system,
-                        Icon = system.Sun.Icon,
-                        Action = "SnapToExpandSystem"
-                    }, "sd_ui_notification_warning");
-                }
+                Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                ExplorationTarget.AddSystemExploreSuccessMessage(Owner.loyalty);
                 ExplorationTarget = null;
             }
         }
 
         bool DoExploreSystem(float elapsedTime)
         {
-            SystemToPatrol = ExplorationTarget;
-            if (PatrolRoute.Count == 0)
-            {
-                foreach (Planet p in SystemToPatrol.PlanetList)
-                    PatrolRoute.Add(p);
+            if (!TrySetupPatrolRoutes()) // Set route to each planet in the system
+                return DoExploreEmptySystem(elapsedTime, ExplorationTarget);
 
-                if (SystemToPatrol.PlanetList.Count == 0)
-                    return ExploreEmptySystem(elapsedTime, SystemToPatrol);
+            PatrolTarget = PatrolRoute[StopNumber];
+            if (PatrolTarget.IsExploredBy(Owner.loyalty))
+            {
+                StopNumber += 1;
+                if (StopNumber == PatrolRoute.Count)
+                {
+                    StopNumber = 0;
+                    PatrolRoute.Clear();
+                    return true;
+                }
             }
             else
             {
-                PatrolTarget = PatrolRoute[StopNumber];
-                if (PatrolTarget.IsExploredBy(Owner.loyalty))
+                MovePosition           = PatrolTarget.Center;
+                float distanceToTarget = Owner.Center.Distance(MovePosition);
+                if (distanceToTarget < 75000f)
+                    PatrolTarget.ParentSystem.SetExploredBy(Owner.loyalty);
+
+                if (distanceToTarget >= 5500f)
                 {
-                    StopNumber += 1;
-                    if (StopNumber == PatrolRoute.Count)
-                    {
-                        StopNumber = 0;
-                        PatrolRoute.Clear();
-                        return true;
-                    }
+                    ThrustOrWarpToPos(MovePosition, elapsedTime, distanceToTarget);
                 }
                 else
                 {
-                    MovePosition = PatrolTarget.Center;
-                    float distanceToTarget = Owner.Center.Distance(MovePosition);
-                    if (distanceToTarget < 75000f)
-                        PatrolTarget.ParentSystem.SetExploredBy(Owner.loyalty);
-
-                    if (distanceToTarget >= 5500f)
+                    ThrustOrWarpToPos(MovePosition, elapsedTime);
+                    if (distanceToTarget < 500f)
                     {
-                        ThrustOrWarpToPos(MovePosition, elapsedTime, distanceToTarget);
-                    }
-                    else
-                    {
-                        ThrustOrWarpToPos(MovePosition, elapsedTime);
-                        if (distanceToTarget < 500f)
+                        PatrolTarget.SetExploredBy(Owner.loyalty);
+                        StopNumber += 1;
+                        if (StopNumber == PatrolRoute.Count)
                         {
-                            PatrolTarget.SetExploredBy(Owner.loyalty);
-                            StopNumber += 1;
-                            if (StopNumber == PatrolRoute.Count)
-                            {
-                                StopNumber = 0;
-                                PatrolRoute.Clear();
-                                return true;
-                            }
+                            StopNumber = 0;
+                            PatrolRoute.Clear();
+                            return true;
                         }
                     }
                 }
             }
+
+            return false;
+        }
+
+        bool DoExploreEmptySystem(float elapsedTime, SolarSystem system)
+        {
+            if (system.IsExploredBy(Owner.loyalty))
+                return true;
+
+            MovePosition = system.Position;
+            if (Owner.Center.InRadius(MovePosition, 75000f))
+            {
+                system.SetExploredBy(Owner.loyalty);
+                return true;
+            }
+            ThrustOrWarpToPos(MovePosition, elapsedTime);
             return false;
         }
 

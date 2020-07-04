@@ -269,31 +269,15 @@ namespace Ship_Game
             {
                 Empire e = Data.CreateEmpire(readOnlyData);
                 RacialTrait t = e.data.Traits;
-                switch (Difficulty)
-                {
-                    case UniverseData.GameDifficulty.Easy:
-                        t.ProductionMod -= 0.25f;
-                        t.ResearchMod -= 0.25f;
-                        t.TaxMod -= 0.25f;
-                        t.ModHpModifier -= 0.25f;
-                        break;
-                    case UniverseData.GameDifficulty.Hard:
-                        e.data.FlatMoneyBonus += 10;
-                        t.ProductionMod += 0.5f;
-                        t.ResearchMod += 0.75f;
-                        t.TaxMod += 0.5f;
-                        t.ShipCostMod -= 0.2f;
-                        t.ResearchTaxMultiplier = 0.7f;
-                        break;
-                    case UniverseData.GameDifficulty.Brutal:
-                        e.data.FlatMoneyBonus += 20; // cheaty cheat
-                        t.ProductionMod += 1.0f;
-                        t.ResearchMod = 1.33f;
-                        t.TaxMod += 1.0f;
-                        t.ShipCostMod -= 0.5f;
-                        t.ResearchTaxMultiplier = 0.3f;
-                        break;
-                }
+
+                e.data.FlatMoneyBonus  += e.DifficultyModifiers.FlatMoneyBonus;
+                t.ProductionMod        += e.DifficultyModifiers.ProductionMod;
+                t.ResearchMod          += e.DifficultyModifiers.ResearchMod;
+                t.TaxMod               += e.DifficultyModifiers.TaxMod;
+                t.ModHpModifier        += e.DifficultyModifiers.ModHpModifier;
+                t.ShipCostMod          += e.DifficultyModifiers.ShipCostMod;
+                t.ResearchTaxMultiplier = e.DifficultyModifiers.ResearchTaxMultiplier; // the "=" here is intended
+
                 step.Advance();
             }
             

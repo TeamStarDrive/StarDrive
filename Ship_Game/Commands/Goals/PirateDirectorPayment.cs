@@ -55,7 +55,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
                 Pirates.TryLevelUp();
-                Pirates.DecreaseThreatLevelFor(TargetEmpire);
+                Pirates.ResetThreatLevelFor(TargetEmpire);
                 Pirates.GetRelations(TargetEmpire).Treaty_NAPact       = true;
                 TargetEmpire.GetRelations(Pirates.Owner).Treaty_NAPact = true;
             }
@@ -63,7 +63,8 @@ namespace Ship_Game.Commands.Goals
             {
                 // They did not pay! We will raid them
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                Pirates.AddGoalDirectorRaid(TargetEmpire);
+                if (!Pirates.Goals.Any(g => g.type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
+                     Pirates.AddGoalDirectorRaid(TargetEmpire);
             }
 
             return GoalStep.RestartGoal;
@@ -71,6 +72,9 @@ namespace Ship_Game.Commands.Goals
 
         bool RequestPayment()
         {
+            if (GlobalStats.RestrictAIPlayerInteraction && TargetEmpire.isPlayer)
+                return false;
+
             // If the timer is done, the pirates will demand new payment or immediately if the threat level is -1 (initial)
             if (Pirates.PaymentTimerFor(TargetEmpire) > 0 && Pirates.ThreatLevelFor(TargetEmpire) > -1)
             {
@@ -93,7 +97,7 @@ namespace Ship_Game.Commands.Goals
                 Pirates.SetAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
-                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetMoneyRequestedModifier());
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe);
             else
                 DemandMoneyFromAI();
 
@@ -104,45 +108,36 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        float GetMoneyRequestedModifier()
-        {
-            float modifier = (Pirates.ThreatLevelFor(TargetEmpire) + 1).Clamped(1, Pirates.Level)
-                             * TargetEmpire.DifficultyModifiers.PiratePayModifier
-                             * TargetEmpire.GetPlanets().Count / Pirates.Owner.data.MinimumColoniesForStartPayment;
-
-            return modifier;
-        }
-
         void DemandMoneyFromAI()
         {
             bool error = true; ;
             if (Encounter.GetEncounterForAI(Pirates.Owner, 0, out Encounter e))
             {
-                if (e.BaseMoneyDemanded > 0)
+                if (e.PercentMoneyDemanded > 0)
                 {
                     error             = false;
-                    int moneyDemand   = (e.BaseMoneyDemanded * GetMoneyRequestedModifier()).RoundTo10();
+                    int moneyDemand   = Pirates.GetMoneyModifier(TargetEmpire, e.PercentMoneyDemanded);
                     float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
                     chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)CurrentGame.Difficulty+1);
                         
-                    if (RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
+                    if (TargetEmpire.data.TaxRate < 0.5f && RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
                     {
-                        TargetEmpire.AddMoney(-e.BaseMoneyDemanded);
+                        TargetEmpire.AddMoney(-moneyDemand);
                         TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
                         Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
-                                                     $"- got payment from {TargetEmpire.Name}");
+                                                     $"Got - {moneyDemand} credits from {TargetEmpire.Name}");
                     }
                     else
                     {
                         TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
                         Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
-                                                     $"- {TargetEmpire.Name} refused to pay!");
+                                                     $"- {TargetEmpire.Name} refused to pay {moneyDemand} credits!");
                     }
                 }
             }
 
             if (error)
-                Log.Warning($"Could not find BaseMoneyRequest in {Pirates.Owner.Name} encounters for {TargetEmpire.Name}. " +
+                Log.Warning($"Could not find PercentMoneyDemanded in {Pirates.Owner.Name} encounters for {TargetEmpire.Name}. " +
                             $"Make sure there is a step 0 encounter for {Pirates.Owner.Name} in encounter dialogs and " +
                             $"with <BaseMoneyRequested> xml tag");
         }

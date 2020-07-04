@@ -146,8 +146,10 @@ namespace Ship_Game
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
+                e.SaveMoneyHistory(empireToSave);
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
+
 
                 if (e.WeArePirates)
                 {
@@ -280,9 +282,12 @@ namespace Ship_Game
                     sdata.ProdCount        = ship.GetProduction();
                     sdata.PopCount         = ship.GetColonists();
                     sdata.TroopList        = ship.GetFriendlyAndHostileTroops();
-                    sdata.FightersLaunched = ship.FightersLaunched;
-                    sdata.TroopsLaunched   = ship.TroopsLaunched;
+                    sdata.FightersLaunched = ship.Carrier.FightersLaunched;
+                    sdata.TroopsLaunched   = ship.Carrier.TroopsLaunched;
+                    sdata.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
                     sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
+
+                    sdata.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
 
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
@@ -325,7 +330,8 @@ namespace Ship_Game
                             fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
                             goalGuid         = sg.Goal?.guid ?? Guid.Empty,
                             TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
-                            TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty
+                            TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty,
+                            MoveType         = sg.MoveType
                         };
 
                         if (sg.Trade != null)
@@ -560,6 +566,7 @@ namespace Ship_Game
             [Serialize(22)] public Map<int, int> PiratePaymentTimers;
             [Serialize(23)] public Array<Guid> SpawnedShips;
             [Serialize(24)] public Array<string> ShipsWeCanSpawn;
+            [Serialize(25)] public Array<float> NormalizedMoney;
         }
 
         public class FleetSave
@@ -744,6 +751,7 @@ namespace Ship_Game
             [Serialize(8)] public TradePlanSave Trade;
             [Serialize(9)] public AIState WantedState;
             [Serialize(10)] public Guid TargetShipGuid;
+            [Serialize(11)] public ShipAI.MoveTypes MoveType;
         }
 
         public class TradePlanSave
@@ -788,6 +796,8 @@ namespace Ship_Game
             [Serialize(29)] public bool TransportingColonists;
             [Serialize(30)] public bool AllowInterEmpireTrade;
             [Serialize(31)] public Array<Guid> TradeRoutes;
+            [Serialize(32)] public bool SendTroopsToShip;
+            [Serialize(33)] public bool RecallFightersBeforeFTL;
         }
 
         public class SolarSystemSaveData

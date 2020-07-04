@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.Tasks;
+using Microsoft.Xna.Framework;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -23,9 +24,11 @@ namespace Ship_Game.AI
 
             RunGroundPlanner();
             NumberOfShipGoals = 3;
-            int goalsInConstruction = SearchForGoals(GoalType.BuildOffensiveShips).Count;
-            if (goalsInConstruction <= NumberOfShipGoals)
-                BuildWarShips(goalsInConstruction);
+            var offensiveGoals = SearchForGoals(GoalType.BuildOffensiveShips);
+            var planetsBuilding = new Array<Planet>();
+            foreach (var goal in offensiveGoals) planetsBuilding.AddUnique(goal.PlanetBuildingAt);
+            var effectiveGoals = offensiveGoals.Count / planetsBuilding.Count.LowerBound(1);
+            BuildWarShips(effectiveGoals);
 
             Goals.ApplyPendingRemovals();
 
@@ -134,12 +137,60 @@ namespace Ship_Game.AI
             return TaskList.Sum(task => filter(task) ? task.MinimumTaskForceStrength : 0);
         }
 
+        public float GetAvgStrengthNeededByExpansionTasks()
+        {
+            var tasks = GetExpansionTasks();
+            if (tasks.Length == 0) return 0;
+
+            return tasks.Average(task =>  task.WhichFleet >0 ? task.MinimumTaskForceStrength : 0);
+        }
+
         public IReadOnlyList<MilitaryTask> GetTasks() => TaskList;
 
         public MilitaryTask[] GetClaimTasks()
         {
             return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
                                         && task.TargetPlanet != null);
+        }
+
+        public MilitaryTask[] GetExpansionTasks()
+        {
+            return TaskList.Filter(task => task.TargetPlanet != null &&
+                (task.type == MilitaryTask.TaskType.DefendClaim || task.type == MilitaryTask.TaskType.Exploration));
+        }
+
+        public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)
+        {
+            militaryTask = null;
+            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase
+                                                     && task.TargetShip == targetBase);
+
+            if (filteredTasks.Length > 0f)
+            {
+                militaryTask = filteredTasks.First();
+                if (filteredTasks.Length > 1)
+                {
+                    Log.Warning($"{OwnerEmpire.Name} Assault Pirate Base Tasks: Found more than one task for {militaryTask.TargetShip}. Using the first one.");
+                }
+            }
+
+            return militaryTask != null;
+        }
+
+        public bool GetDefendClaimTaskFor(Planet planet, out MilitaryTask militaryTask)
+        {
+            militaryTask = null;
+            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+                                                     && task.TargetPlanet == planet);
+
+            if (filteredTasks.Length > 0f)
+            {
+                militaryTask = filteredTasks.First();
+                if (filteredTasks.Length > 1)
+                    Log.Warning($"{OwnerEmpire.Name} Defend Claim Tasks: Found more than one task for {planet.Name}. Using the first one.");
+            }
+
+            return militaryTask != null;
         }
 
         public bool HasTaskOfType(MilitaryTask.TaskType type)
@@ -209,7 +260,7 @@ namespace Ship_Game.AI
         {
             var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
             //
-            while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget)
+            while (!buildRatios.OverBudget && goalsInConstruction < NumberOfShipGoals)
             {
                 string s = GetAShip(buildRatios);
                 if (string.IsNullOrEmpty(s))

@@ -18,8 +18,7 @@ namespace Ship_Game
         public string DescriptionText;
         public Array<Message> MessageList;
         public int CurrentMessageId;
-        public int BaseMoneyDemanded; // Overrides any MoneyToThem in message response and adds a possible modifier
-
+        public float PercentMoneyDemanded; // Custom Percent of victim income
 
         Empire playerEmpire;
         SolarSystem sysToDiscuss;
@@ -36,7 +35,7 @@ namespace Ship_Game
             }
             else
             {
-                int money = r.MoneyToThem.LowerBound(BaseMoneyDemanded);
+                int money = NetMoneyDemand(r.MoneyToThem);
                 bool ok = !(money > 0 && playerEmpire.Money < money);
                 if (r.RequiredTech != null && !playerEmpire.HasUnlocked(r.RequiredTech))
                     ok = false;
@@ -57,14 +56,10 @@ namespace Ship_Game
             }
 
             if (MessageList[CurrentMessageId].SetWar)
-            {
                 empToDiscuss.GetEmpireAI().DeclareWarFromEvent(playerEmpire, WarType.SkirmishWar);
-            }
 
             if (MessageList[CurrentMessageId].EndWar)
-            {
                 empToDiscuss.GetEmpireAI().EndWarFromEvent(playerEmpire);
-            }
 
             Relationship rel = playerEmpire.GetRelations(empToDiscuss);
             Message message = MessageList[CurrentMessageId];
@@ -73,7 +68,18 @@ namespace Ship_Game
 
             if (message.SetFactionContactStep > 0)
                 rel.FactionContactStep = message.SetFactionContactStep;
+
         }
+
+        int NetMoneyDemand(int demandFromMessage)
+        {
+            if (PercentMoneyDemanded > 0 && empToDiscuss.WeArePirates)
+                return empToDiscuss.Pirates.GetMoneyModifier(playerEmpire, PercentMoneyDemanded);
+
+            return demandFromMessage;
+        }
+
+        int CustomMoneyDemand => NetMoneyDemand(0); // For the parser only
 
         public string ParseCurrentEncounterText(float maxLineWidth, SpriteFont font)
         {
@@ -85,6 +91,9 @@ namespace Ship_Game
             return font.ParseText(wordArray, maxLineWidth);
         }
 
+        // FB - this is so lame, it separate the works by spaces, so if you have a comma, for instance
+        // Like "Dear SING," it won't catch it since there is not space after the comma. wtf?
+        // TODO - Refactor this, Jesus.
         string ParseEncounterKeyword(string keyword)
         {
             switch (keyword)
@@ -120,7 +129,7 @@ namespace Ship_Game
                 case "ADJ2,": return playerEmpire.data.Traits.Adj2+",";
                 case "ADJ2?": return playerEmpire.data.Traits.Adj2+"?";
                 case "ADJ2!": return playerEmpire.data.Traits.Adj2+"!";
-                case "MONEY": return BaseMoneyDemanded.String();
+                case "MONEY": return CustomMoneyDemand.String();
             }
         }
 
@@ -139,13 +148,13 @@ namespace Ship_Game
             empToDiscuss = e;
         }
 
-        public static void ShowEncounterPopUpPlayerInitiated(Empire faction, UniverseScreen screen, float moneyMod = 1) =>
-            ShowEncounterPopUp(faction, screen, playerInitiated: true, moneyMod);
+        public static void ShowEncounterPopUpPlayerInitiated(Empire faction, UniverseScreen screen) =>
+            ShowEncounterPopUp(faction, screen, playerInitiated: true);
 
-        public static void ShowEncounterPopUpFactionInitiated(Empire faction, UniverseScreen screen, float moneyMod = 1) =>
-            ShowEncounterPopUp(faction, screen, playerInitiated: false, moneyMod);
+        public static void ShowEncounterPopUpFactionInitiated(Empire faction, UniverseScreen screen) =>
+            ShowEncounterPopUp(faction, screen, playerInitiated: false);
 
-        static void ShowEncounterPopUp(Empire faction, UniverseScreen screen, bool playerInitiated, float moneyModifier)
+        static void ShowEncounterPopUp(Empire faction, UniverseScreen screen, bool playerInitiated)
         {
             if (faction == null)
                 return;
@@ -159,7 +168,6 @@ namespace Ship_Game
             
             if (GetEncounter(encounters, faction, requiredStep, out Encounter encounter))
             {
-                encounter.BaseMoneyDemanded = (encounter.BaseMoneyDemanded * moneyModifier).RoundTo10();
                 EncounterPopup.Show(screen, player, faction, encounter);
             }
             else

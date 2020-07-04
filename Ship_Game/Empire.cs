@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
@@ -9,7 +8,6 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Empires;
 using Ship_Game.Empires.ShipPools;
@@ -45,6 +43,51 @@ namespace Ship_Game
         private readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
+
+        readonly int[] MoneyHistory = new int[10];
+        int MoneyHistoryIndex = 0;
+
+        public void SaveMoneyHistory(SavedGame.EmpireSaveData empire)
+        {
+            if (empire.NormalizedMoney == null) empire.NormalizedMoney = new Array<float>();
+            for (int x = 0; x < MoneyHistory.Length; x++) empire.NormalizedMoney.Add(MoneyHistory[x]);
+        }
+
+        public void RestoreMoneyHistoryFromSave(SavedGame.EmpireSaveData empire)
+        {
+            if (empire.NormalizedMoney == null)
+            {
+                NormalizedMoney = empire.Money;
+            }
+            else
+            {
+                for (int x = 0; x < empire.NormalizedMoney.Count(); x++)
+                    NormalizedMoney = (int)empire.NormalizedMoney[x];
+            }
+        }
+
+        public float NormalizedMoney
+        {
+            get
+            {
+                float total = 0;
+                int count = 0;
+                for (int index = 0; index < MoneyHistory.Length; index++)
+                {
+                    int money = MoneyHistory[index];
+                    if (money <= 0) continue;
+                    count++;
+                    total += money;
+                }
+                return count > 0 ? total / count : Money;
+            }
+            set
+            {
+                MoneyHistory[MoneyHistoryIndex] = (int)value;
+                MoneyHistoryIndex = ++MoneyHistoryIndex > 9 ? 0 : MoneyHistoryIndex;
+            }
+        }
+
 
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship> Inhibitors = new Array<Ship>();
@@ -208,7 +251,6 @@ namespace Ship_Game
             Pirates = new Pirates(this, fromSave, goals);
         }
 
-
         public void AddMoney(float moneyDiff)
         {
             Money += moneyDiff;
@@ -238,6 +280,16 @@ namespace Ship_Game
                                                p => position.SqDist(p.Center))
                 ?? SpacePorts.FindMin(p => position.SqDist(p.Center))
                 ?? FindNearestRallyPoint(position);
+        }
+
+        public bool GetCurrentCapital(out Planet capital)
+        {
+            capital      = null;
+            var capitals = OwnedPlanets.Filter(p => p.BuildingList.Any(b => b.IsCapital));
+            if (capitals.Length > 0)
+                capital = capitals.First();
+
+            return capitals.Length > 0;
         }
 
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
@@ -275,12 +327,36 @@ namespace Ship_Game
 
         public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost)
         {
-            if (ports.Count != 0)
-            {
-                return ports.FindMin(p => p.TurnsUntilQueueComplete(cost));
-            }
+            // focus on the best producing planets (number depends on the empire size)
+            if (GetBestPorts(ports, out Planet[] bestPorts))
+                return bestPorts.Sorted(p => p.TurnsUntilQueueComplete(cost)).First();
+
             return null;
         }
+
+        bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts)
+        {
+            bestPorts = null;
+            if (ports.Count > 0)
+            {
+                int numPlanetsToFocus = (OwnedPlanets.Count / 5).Clamped(1, ports.Count + 1);
+                bestPorts = ports.SortedDescending(p => p.Prod.NetMaxPotential);
+                bestPorts = bestPorts.Take(numPlanetsToFocus).ToArray();
+            }
+
+            return bestPorts != null;
+        }
+
+        public Planet GetOrbitPlanetAfterBuild(Planet builtAt)
+        {
+            if (GetBestPorts(SafeSpacePorts, out Planet[] bestPorts) && !bestPorts.Contains(builtAt))
+            {
+                return bestPorts.Sorted(p => p.Center.Distance(builtAt.Center)).First();
+            }
+
+            return builtAt;
+        }
+
         public float KnownEnemyStrengthIn(SolarSystem system)
                      => EmpireAI.ThreatMatrix.PingHostileStr(system.Position, system.Radius, this);
         public float KnownEnemyStrengthIn(AO ao)
@@ -651,7 +727,10 @@ namespace Ship_Game
 
             foreach (TechEntry tech in TechEntries)
             {
-                if (!tech.Unlocked && tech.Discovered && tech.shipDesignsCanuseThis && HavePreReq(tech.UID))
+                if (!tech.Unlocked 
+                    && tech.Discovered 
+                    && (tech.shipDesignsCanuseThis || tech.Tech.BonusUnlocked.NotEmpty)
+                    && HavePreReq(tech.UID))
                 {
                     availableTechs.Add(tech);
                     tech.SetLookAhead(this);
@@ -1837,12 +1916,56 @@ namespace Ship_Game
             }
         }
 
-        public float GetTotalPop()
+        public int GetSpyDefense()
+        {
+            float defense = 0;
+            for (int i = 0; i < data.AgentList.Count; i++)
+            {
+                if (data.AgentList[i].Mission == AgentMission.Defending)
+                    defense += data.AgentList[i].Level;
+            }
+
+            defense *= ResourceManager.AgentMissionData.DefenseLevelBonus;
+            defense /= (OwnedPlanets.Count / 3).LowerBound(1);
+            defense += data.SpyModifier;
+            defense += data.DefensiveSpyBonus;
+
+            return (int)defense;
+        }
+
+        /// <summary>
+        /// Gets the total population in billions
+        /// </summary>
+        public float GetTotalPop(out float maxPop)
+        {
+            float num = 0f;
+            maxPop    = 0f;
+            using (OwnedPlanets.AcquireReadLock())
+                for (int i = 0; i < OwnedPlanets.Count; i++)
+                {
+                    num    += OwnedPlanets[i].PopulationBillion;
+                    maxPop += OwnedPlanets[i].MaxPopulationBillion;
+                }
+
+            using (OwnedShips.AcquireReadLock())
+                for (int i = 0; i < OwnedShips.Count; i++)
+                {
+                    num += OwnedShips[i].GetCargo(Goods.Colonists) / 1000;
+                }
+
+            return num;
+        }
+
+        /// <summary>
+        /// Gets the total potential population in billions (with biospheres/Terraformers if researched)
+        /// </summary>
+        public float GetTotalPopPotential()
         {
             float num = 0.0f;
             using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet p in OwnedPlanets)
-                    num += p.PopulationBillion;
+                for (int i = 0; i < OwnedPlanets.Count; i++)
+                    num += OwnedPlanets[i].PotentialMaxPopBillionsFor(this);
+
             return num;
         }
 
@@ -2027,6 +2150,7 @@ namespace Ship_Game
                 BorderNodes.Add(influenceNodeB);
             }
 
+            SetPirateBorders();
             BorderNodes.ClearPendingRemovals();
             SensorNodes.ClearPendingRemovals();
             using (BorderNodes.AcquireReadLock())
@@ -2041,6 +2165,23 @@ namespace Ship_Game
                 }
 
             BorderNodes.ApplyPendingRemovals();
+        }
+
+        private void SetPirateBorders()
+        {
+            if (!WeArePirates || !Pirates.GetBases(out Array<Ship> bases))
+                return;
+
+            for (int i = 0; i < bases.Count; i++)
+            {
+                Ship pirateBase             = bases[i];
+                InfluenceNode influenceNode = BorderNodes.RecycleObject() ?? new InfluenceNode();
+                influenceNode.Position      = pirateBase.Center;
+                influenceNode.Radius        = 60000;
+                influenceNode.SourceObject  = pirateBase;
+                influenceNode.Known         = EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(pirateBase.guid);
+                BorderNodes.Add(influenceNode);
+            }
         }
 
         private void SetBordersByPlanet(bool empireKnown)
@@ -2160,18 +2301,10 @@ namespace Ship_Game
             }
             foreach (Planet planet in list1)
                 OwnedPlanets.Remove(planet);
+
             for (int index = 0; index < data.AgentList.Count; ++index)
-            {
-                if (data.AgentList[index].Mission != AgentMission.Defending && data.AgentList[index].TurnsRemaining > 0)
-                {
-                    --data.AgentList[index].TurnsRemaining;
-                    if (data.AgentList[index].TurnsRemaining == 0)
-                        data.AgentList[index].DoMission(this);
-                }
-                //Age agents
-                data.AgentList[index].Age += 0.1f;
-                data.AgentList[index].ServiceYears += 0.1f;
-            }
+                data.AgentList[index].Update(this);
+
             data.AgentList.ApplyPendingRemovals();
 
             if (Money < 0.0 && !isFaction)
@@ -2380,6 +2513,24 @@ namespace Ship_Game
 
                 data.TurnsBelowZero = 0;
             }
+        }
+
+        public void InitRebellion(Empire origin)
+        {
+            data.IsRebelFaction  = true;
+            data.Traits.Name     = origin.data.RebelName;
+            data.Traits.Singular = origin.data.RebelSing;
+            data.Traits.Plural   = origin.data.RebelPlur;
+            isFaction            = true;
+
+            foreach (Empire e in EmpireManager.Empires)
+            {
+                e.AddRelation(this);
+                AddRelation(e);
+            }
+
+            EmpireManager.Add(this);
+            origin.data.RebellionLaunched = true;
         }
 
         bool IsEmpireDead()
@@ -2733,8 +2884,11 @@ namespace Ship_Game
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem solarSystem = UniverseScreen.SolarSystemList[i];
-                if (solarSystem.IsExploredBy(this)) continue;
-                if (++unexplored > 20) break;
+                if (solarSystem.IsExploredBy(this)) 
+                    continue;
+
+                if (++unexplored > 20) 
+                    break;
             }
 
             haveUnexploredSystems = unexplored != 0;
@@ -2754,7 +2908,7 @@ namespace Ship_Game
             if (EmpireAI.HasGoal(GoalType.BuildScout))
                 return;
 
-            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * .5f;
+            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * 0.75f;
             foreach (Ship ship in OwnedShips)
             {
                 if (ship.DesignRole != ShipData.RoleName.scout || ship.fleet != null)
@@ -2878,22 +3032,26 @@ namespace Ship_Game
             return OwnedSolarSystems.FindClosestTo(position);
         }
 
-        public SolarSystem FindNearestOwnedSystemTo(Array<SolarSystem> systems)
+        public bool FindNearestOwnedSystemTo(Array<SolarSystem> systems, out SolarSystem nearestSystem)
         {
-            SolarSystem nearestSystem = null;
+            nearestSystem  = null;
+            if (OwnedSolarSystems.Count == 0)
+                return false; // We do not have any system owned, maybe we are defeated
+
             float distance = float.MaxValue;
             Vector2 center = GetWeightedCenter();
-            foreach(var system in systems)
+            foreach(SolarSystem system in systems)
             {
                 var nearest = OwnedSolarSystems.FindClosestTo(system);
+                if (nearest == null) continue;
                 float approxDistance = center.SqDist(nearest.Position);
                 if (center.SqDist(nearest.Position) < distance)
                 {
-                    distance = approxDistance;
+                    distance      = approxDistance;
                     nearestSystem = nearest;
                 }
             }
-            return nearestSystem;
+            return nearestSystem != null;
         }
 
         public bool UpdateContactsAndBorders(float elapsedTime)

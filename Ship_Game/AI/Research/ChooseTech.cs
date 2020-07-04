@@ -228,7 +228,6 @@ namespace Ship_Game.AI.Research
 
             availableTechs = LineFocus.LineFocusShipTechs(modifier, availableTechs, command2);
 
-            bool hullWasChecked = false;
             int previousCost = command1 == "CHEAPEST" ? int.MaxValue : int.MinValue;
             switch (command2)
             {
@@ -339,9 +338,15 @@ namespace Ship_Game.AI.Research
 
             TechEntry[] techsTypeFiltered = availableTechs.Filter(tech =>
             {
-                if (!wantsShipTech && tech.IsShipTech()) return false;
-                if (wantsShipTech && !tech.IsShipTech()) return false;
-                if (CostToResearchTechType(tech, techType) >0) return true;
+                if (!wantsShipTech && tech.IsOnlyShipTech()) 
+                    return false;
+
+                if (wantsShipTech && tech.IsOnlyNonShipTech()) 
+                    return false;
+
+                if (CostToResearchTechType(tech, techType) >0) 
+                    return true;
+
                 return false;
             });
 

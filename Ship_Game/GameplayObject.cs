@@ -166,10 +166,9 @@ namespace Ship_Game
                 ship.ReCalculateTroopsAfterBoard();
                 changeTo.AddBoardSuccessNotification(ship);
                 ship.ScuttleTimer = -1f; // Cancel any active self destruct 
+                changeTo.AddShip(ship);
                 oldLoyalty.AddBoardedNotification(ship);
-                if (ship.loyalty.WeArePirates)
-                    ship.AI.OrderPirateFleeHome();
-
+                ship.PiratePostChangeLoyalty();
             }
 
             // this resets the spatial management

@@ -43,6 +43,7 @@ namespace Ship_Game
                 e.PortraitName = e.data.PortraitName;
                 e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
                 e.EmpireColor  = e.data.Traits.Color;
+                e.RestoreMoneyHistoryFromSave(sdata);
                 e.data.CurrentAutoScout     = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
                 e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
@@ -422,6 +423,9 @@ namespace Ship_Game
                 task.SetEmpire(e);
                 if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
                     task.SetTargetPlanet(p);
+
+                if (data.FindShip(task.TargetShipGuid, out Ship ship))
+                    task.SetTargetShip(ship);
 
                 foreach (Guid guid in task.HeldGoals)
                 {

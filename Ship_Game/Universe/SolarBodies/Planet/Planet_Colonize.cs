@@ -61,14 +61,16 @@ namespace Ship_Game
             bool troopsRemoved       = false;
             bool playerTroopsRemoved = false;
 
-            foreach (Troop t in TroopsHere)
+            for (int i = TroopsHere.Count - 1; i >= 0; i--)
             {
+                Troop t      = TroopsHere[i];
                 Empire owner = t?.Loyalty;
+
                 if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != Owner &&
                     Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
                 {
                     Ship troopship = t.Launch(ignoreMovement: true);
-                    troopsRemoved        = true;
+                    troopsRemoved  = true;
                     playerTroopsRemoved |= t.Loyalty.isPlayer;
                     troopship?.AI.OrderRebaseToNearest();
                 }

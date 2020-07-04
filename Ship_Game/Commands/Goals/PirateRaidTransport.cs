@@ -16,7 +16,8 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                DetectAndSpawnRaidForce,
-               CheckIfHijacked
+               CheckIfHijacked,
+               WaitForReturnHome
             };
         }
 
@@ -41,24 +42,7 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
                 return GoalStep.GoalFailed; // They paid or dead
 
-            int nearPlanetRaidChance = Pirates.ThreatLevelFor(TargetEmpire);
-            if (RandomMath.RollDice(nearPlanetRaidChance))
-            {
-                if (ScanFreightersNearPlanets(out Ship freighter))
-                {
-                    Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1500);
-                    if (Pirates.SpawnBoardingShip(freighter, where, out Ship boardingShip));
-                    {
-                        TargetShip = freighter;
-                        if (Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force))
-                            Pirates.OrderEscortShip(boardingShip, force);
-
-                        Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
-                        return GoalStep.GoToNextStep;
-                    }
-                }
-            }
-            else if (Pirates.GetTarget(TargetEmpire, Pirates.TargetType.FreighterAtWarp, out Ship freighter))
+            if (Pirates.GetTarget(TargetEmpire, Pirates.TargetType.FreighterAtWarp, out Ship freighter))
             {
                 Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
                 freighter.HyperspaceReturn();
@@ -66,6 +50,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     TargetShip = freighter;
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
+                    Pirates.ExecuteVictimRetaliation(TargetEmpire);
                     return GoalStep.GoToNextStep;
                 }
             }
@@ -78,7 +63,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
+                || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
             {
                 return GoalStep.GoalFailed; // Target destroyed or escaped
             }
@@ -86,39 +71,18 @@ namespace Ship_Game.Commands.Goals
             if (TargetShip.loyalty == Pirates.Owner)
             {
                 TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
-                return GoalStep.GoalComplete;
+                return GoalStep.GoToNextStep;
             }
 
             return GoalStep.TryAgain;
         }
 
-        bool ScanFreightersNearPlanets(out Ship freighter)
+        GoalStep WaitForReturnHome()
         {
-            freighter       = null;
-            var freighters  = new Array<Ship>();
-            var systems     = TargetEmpire.GetOwnedSystems();
+            if (TargetShip == null || !TargetShip.Active)
+                return GoalStep.GoalComplete;
 
-            for (int i = 0; i < systems.Count; i++)
-            {
-                SolarSystem system = systems[i];
-                for (int j = 0; j < system.ShipList.Count; j++)
-                {
-                    Ship ship = system.ShipList[j];
-                    if (ship.IsFreighter
-                        && !ship.IsInWarp
-                        && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)
-                        && !Pirates.RaidingThisShip(ship))
-                    {
-                        freighters.Add(ship);
-                    }
-                }
-            }
-
-            if (freighters.Count == 0)
-                return false;
-
-            freighter = freighters.RandItem();
-            return freighter != null;
+            return GoalStep.TryAgain;
         }
     }
 }
