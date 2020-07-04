@@ -510,7 +510,7 @@ namespace Ship_Game.AI
             {
                 Relationship relations = kv.Value;
                 Empire them            = kv.Key;
-                if (relations.AtWar || DoNotInteract(relations, them))
+                if (relations.AtWar || DoNotInteract(relations, them)) // TODO - might want to add peace if losing badly
                     continue;
 
                 float usedTrust = relations.TrustEntries.Sum(te => te.TrustCost);
