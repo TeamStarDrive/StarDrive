@@ -58,7 +58,7 @@ namespace Ship_Game.AI
         {
             Relationship ourRelationToThem = OwnerEmpire.GetRelations(them);
             ourRelationToThem.AtWar     = true;
-            ourRelationToThem.Posture   = Posture.Hostile;
+            ourRelationToThem.ChangeToHostile();
             ourRelationToThem.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
             ourRelationToThem.Trust = 0f;
 
@@ -115,7 +115,7 @@ namespace Ship_Game.AI
             }
 
             ourRelations.AtWar     = true;
-            ourRelations.Posture   = Posture.Hostile;
+            ourRelations.ChangeToHostile();
             ourRelations.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
             ourRelations.Trust     = 0f;
             OwnerEmpire.BreakAllTreatiesWith(them, includingPeace: true);
@@ -217,7 +217,7 @@ namespace Ship_Game.AI
             }
 
             ourRelationToThem.AtWar     = true;
-            ourRelationToThem.Posture   = Posture.Hostile;
+            ourRelationToThem.ChangeToHostile();
             ourRelationToThem.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
             ourRelationToThem.Trust     = 0f;
             OwnerEmpire.BreakAllTreatiesWith(them, includingPeace: true);
@@ -241,7 +241,7 @@ namespace Ship_Game.AI
             Relationship relations = OwnerEmpire.GetRelations(warDeclarant);
             relations.AtWar     = true;
             relations.FedQuest  = null;
-            relations.Posture   = Posture.Hostile;
+            relations.ChangeToHostile();
             relations.ActiveWar = War.CreateInstance(OwnerEmpire, warDeclarant, wt);
 
             if (Empire.Universe.PlayerEmpire != OwnerEmpire)
@@ -254,7 +254,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            relations.Trust          = 0f;
+            relations.Trust = 0f;
         }
 
         public void OfferPeace(Relationship usToThem, Empire them, string whichPeace)
