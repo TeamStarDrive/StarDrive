@@ -3,6 +3,7 @@ using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game.AI
 {
@@ -44,6 +45,12 @@ namespace Ship_Game.AI
 
             ChangeAIState(newState);
             EscortTarget = null;
+            if (ExplorationTarget != null)
+            {
+                Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                ExplorationTarget = null;
+            }
+
             OrderQueue.Clear();
             SetPriorityOrder(priority);
         }
@@ -172,6 +179,11 @@ namespace Ship_Game.AI
             return true;
         }
 
+        void AddMoveOrder(Plan plan, WayPoint wayPoint, AIState state, float speedLimit, MoveTypes move, Goal goal = null)
+        {
+            EnqueueOrPush(new ShipGoal(plan, wayPoint.Position, wayPoint.Direction, state, move, speedLimit, goal));
+        }
+
         void EnqueueOrPush(ShipGoal goal, bool pushToFront = false)
         {
             if (pushToFront)
@@ -245,6 +257,24 @@ namespace Ship_Game.AI
             return MathExt.RandomOffsetAndDistance(p.Center, p.ObjectRadius);
         }
 
+        [Flags]
+        public enum MoveTypes
+        {
+            None             = 0,
+            Combat           = 1,
+            WayPoint         = 2,
+            Positioning      = 4,
+            Begin            = 8,
+            End              = 16,
+            FirstWayPoint    = Begin | WayPoint,
+            PrepareForWarp   = Begin | Positioning,
+            LastWayPoint     = End | WayPoint,
+            SubLightApproach = End | Positioning,
+            CombatWayPoint   = Combat | WayPoint,
+            CombatApproach   = Combat | SubLightApproach
+
+        }
+
         public class ShipGoal : IDisposable
         {
             bool IsDisposed;
@@ -271,6 +301,7 @@ namespace Ship_Game.AI
             public readonly float VariableNumber;
             public readonly AIState WantedState; 
             public TradePlan Trade;
+            public readonly MoveTypes MoveType;
 
             public float GetSpeedLimitFor(Ship ship) => ship.fleet?.GetSpeedLimitFor(ship) ?? SpeedLimit;
 
@@ -299,10 +330,24 @@ namespace Ship_Game.AI
 
             public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, Ship freighter, float blockadeTimer, AIState wantedState)
             {
-                Plan = plan;
-                Trade = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
+                Plan        = plan;
+                Trade       = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
                 WantedState = wantedState;
             }
+
+            public ShipGoal(Plan plan, Vector2 waypoint, Vector2 direction, AIState state, MoveTypes moveType, float speedLimit, Goal goal)
+            {
+                Plan         = plan;
+                MovePosition = waypoint;
+                Direction    = direction;
+                WantedState  = state;
+                MoveType     = moveType;
+                Goal         = goal;
+            }
+
+            //public ShipGoal(Plan plan, Vector2 waypoint, AIState state, MoveTypes moveType, float speedLimit)
+            //    : this(plan, waypoint, new Vector2(1, 0), state, moveType, speedLimit) { }
+        
 
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
             {
@@ -345,6 +390,18 @@ namespace Ship_Game.AI
 
                 if (Plan == Plan.SupplyShip)
                     ship.AI.EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, ship.Ordinance);
+                MoveType = sg.MoveType;
+            }
+
+            public bool HasCombatMove(float distance)
+            {
+                bool combat = MoveType.HasFlag(MoveTypes.Combat);
+
+                if (!MoveType.HasFlag(MoveTypes.LastWayPoint)) return combat;
+
+                if (distance > 10000) return combat;
+                
+                return Goal?.IsPriorityMovement() != true;
             }
 
             ~ShipGoal() { Destroy(); } // finalizer

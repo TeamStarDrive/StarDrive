@@ -320,7 +320,8 @@ namespace Ship_Game
             if (SelectedShip == null)
                 return;
 
-            if (SelectedShip.loyalty.isFaction)
+            Empire leaderLoyalty = SelectedShip.loyalty;
+            if (leaderLoyalty.isFaction)
                 Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.loyalty, this);
             else
                 DiplomacyScreen.Show(SelectedShip.loyalty, player, "Greeting");
@@ -607,7 +608,7 @@ namespace Ship_Game
             pInfoUI            = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
             shipListInfoUI     = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
             vuiElement         = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
-            EmpireUI           = new EmpireUIOverlay(player, device);
+            EmpireUI           = new EmpireUIOverlay(player, device, this);
 
             if (GlobalStats.RenderBloom)
             {

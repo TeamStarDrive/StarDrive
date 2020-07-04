@@ -3,12 +3,12 @@
   <Step>3</Step>
   <PlayerInitiated>true</PlayerInitiated>
   <Name>Contact Corsairs</Name>
-  <BaseMoneyDemanded>500</BaseMoneyDemanded>
+  <PercentMoneyDemanded>20</PercentMoneyDemanded> <!-- this percentage of total treasury request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>You hail the corsair captain. After a few short moments a crackling voice comes over the subspace communicator:</DescriptionText>
   <MessageList>
     <Message>
       <Text>
-Hello SING
+Hello SING, 
 So you are here to pay your protection money like a good boy? It will Cost you MONEY credits this time,
 Captain Martok
       </Text>

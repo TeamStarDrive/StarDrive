@@ -238,7 +238,7 @@ namespace Ship_Game
             {
                 foreach (FleetDataNode node in F.DataNodes)
                 {
-                    if (node.ShipName != ship.Name || node.Ship != null)
+                    if (node.ShipName != ship.Name || node.Ship != null | ship.HomePlanet != null)
                         continue;
 
                     NumThatFit++;

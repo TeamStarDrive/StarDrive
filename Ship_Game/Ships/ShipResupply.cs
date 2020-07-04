@@ -12,15 +12,15 @@ namespace Ship_Game.Ships
         private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
         private const int OrdnanceProductionThresholdCombat    = 75;
-        private bool InCombat;
-
-        public const Status ResupplyShuttleOrdnanceThreshold = Status.Average;
+        public const Status ResupplyShuttleOrdnanceThreshold   = Status.Average;
 
         public const float ShipDestroyThreshold = 0.5f;
         public const float RepairDroneThreshold = 0.9f;
         public const float RepairDoneThreshold  = 0.9f;
         public const float RepairDroneRange     = 20000f;
         public Map<SupplyType, float> IncomingSupply;
+        private bool InCombat;
+
         public ShipResupply(Ship ship)
         {
             Ship           = ship;
@@ -38,11 +38,11 @@ namespace Ship_Game.Ships
                 default:
                 case ShipData.Category.Civilian:     threshold = 0.85f; break;
                 case ShipData.Category.Recon:        threshold = 0.65f; break;
-                case ShipData.Category.Neutral:      threshold = 0.5f; break;
-                case ShipData.Category.Unclassified: threshold = 0.4f; break;
+                case ShipData.Category.Neutral:      threshold = 0.5f;  break;
+                case ShipData.Category.Unclassified: threshold = 0.4f;  break;
                 case ShipData.Category.Conservative: threshold = 0.35f; break;
-                case ShipData.Category.Reckless:     threshold = 0.2f; break;
-                case ShipData.Category.Kamikaze:     threshold = 0.0f; break;
+                case ShipData.Category.Reckless:     threshold = 0.2f;  break;
+                case ShipData.Category.Kamikaze:     threshold = 0.0f;  break;
             }
 
             threshold = threshold * (1 - ShipDestroyThreshold) + ShipDestroyThreshold;
@@ -124,25 +124,24 @@ namespace Ship_Game.Ships
 
         private bool ResupplyNeededLowTroops()
         {
-            //shortcut if no troops
-            if (Ship.TroopCapacity < 1)
+            // Logic shortcuts
+            if (Ship.TroopCapacity < 1
+                || !Ship.Carrier.SendTroopsToShip && (Ship.AI.HasPriorityTarget || PlayerKamikaze))
+            {
                 return false;
+            }
 
-            float resupplyTroopThreshold = Ship.Carrier.SendTroopsToShip ? 0.75f : 0.1f;
-            if (Ship.AI.HasPriorityTarget)
-                return false;
-
-            if (Ship.Carrier.AllTroopBays.Length > 0)
-                return Ship.Carrier.TroopsMissingVsTroopCapacity < resupplyTroopThreshold;
+            float resupplyTroopThreshold = Ship.Carrier.SendTroopsToShip ? 0.5f : 0f;
+            if (Ship.Carrier.HasTroopBays)
+                return (Ship.Carrier.TroopsMissingVsTroopCapacity).LessOrEqual(resupplyTroopThreshold);
 
             return (float)Ship.TroopCount / Ship.TroopCapacity < resupplyTroopThreshold;
         }
 
         private bool OrdnanceLow()
         {
-            if (Ship.shipData.ShipCategory == ShipData.Category.Kamikaze
-                && Ship.loyalty.isPlayer)
-                return false; // only player manual command will convince Kamikaze ship to resupply
+            if (PlayerKamikaze)
+                return false; // Only player manual command will convince Kamikaze ship to resupply
 
             float threshold = InCombat ? OrdnanceThresholdCombat : OrdnanceThresholdNonCombat;
             
@@ -157,7 +156,7 @@ namespace Ship_Game.Ships
             if (!InCombat)
                 return true; // ships not in combat will want to resupply if they have Ordnance storage from this method point of view
 
-            int numWeapons = Ship.Weapons.Count(weapon => weapon.Module.Active && !weapon.TruePD);
+            int numWeapons        = Ship.Weapons.Count(weapon => weapon.Module.Active && !weapon.TruePD);
             int numKineticWeapons = Ship.Weapons.Count(weapon => weapon.Module.Active
                                                                  && weapon.OrdinanceRequiredToFire > 0
                                                                  && !weapon.TruePD);
@@ -218,6 +217,8 @@ namespace Ship_Game.Ships
 
             return Ship.Carrier.TroopsMissingVsTroopCapacity >= 1f;
         }
+
+        private bool PlayerKamikaze => Ship.shipData.ShipCategory == ShipData.Category.Kamikaze && Ship.loyalty.isPlayer;
 
         public void ChangeIncomingSupply(SupplyType supplyType, float amount)
         {

@@ -59,7 +59,7 @@ namespace Ship_Game
         public TechnologyType TechnologyType => Tech.TechnologyTypes.First();
 
         public bool IsTechnologyType(TechnologyType type) => Tech.TechnologyTypes.Contains(type);
-        
+
         [XmlIgnore][JsonIgnore]
         public int MaxLevel => Tech.MaxLevel;
 
@@ -141,27 +141,33 @@ namespace Ship_Game
             return false;
         }
 
-        public bool IsShipTech()
+        public bool IsOnlyShipTech()
         {
-            return IsTechnologyType(TechnologyType.ShipDefense)
-                || IsTechnologyType(TechnologyType.ShipHull)
-                || IsTechnologyType(TechnologyType.ShipWeapons)
-                || IsTechnologyType(TechnologyType.ShipGeneral);
+            return !ContainsNonShipTechOrBonus();
         }
 
-        public bool HasNonShipTech()
+        public bool IsOnlyNonShipTech()
         {
-            foreach (TechnologyType techType in Tech.TechnologyTypes)
-            {
-                if (techType == TechnologyType.ShipDefense ||
-                    techType == TechnologyType.ShipHull ||
-                    techType == TechnologyType.ShipWeapons ||
-                    techType == TechnologyType.ShipGeneral)
-                    continue;
-                
-                return true;
-            }
-            return false;
+            return !ContainsShipTech();
+        }
+
+        public bool ContainsShipTech()
+        {
+            return IsTechnologyType(TechnologyType.ShipDefense)
+                || IsTechnologyType(TechnologyType.ShipGeneral)
+                || IsTechnologyType(TechnologyType.ShipHull)
+                || IsTechnologyType(TechnologyType.ShipWeapons);
+        }
+
+        public bool ContainsNonShipTechOrBonus()
+        {
+            return IsTechnologyType(TechnologyType.General)
+                || IsTechnologyType(TechnologyType.Colonization)
+                || IsTechnologyType(TechnologyType.Economic)
+                || IsTechnologyType(TechnologyType.Research)
+                || IsTechnologyType(TechnologyType.GroundCombat)
+                || IsTechnologyType(TechnologyType.Industry)
+                || Tech.BonusUnlocked.NotEmpty;
         }
 
         public float CostOfNextTechWithType(TechnologyType techType) => TechTypeCostLookAhead[techType];

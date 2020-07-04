@@ -494,13 +494,14 @@ namespace Ship_Game
             bool selectedSomethingThisFrame = false;
 
             assetsUI.HandleInput(input);
-            if (Empire.Universe?.Debug == true && input.SpawnRemnant)
+            if (Empire.Universe?.Debug == true && (input.SpawnRemnant || input.SpawnPlayerTroop))
             {
+                Empire spawnFor = input.SpawnRemnant ? EmpireManager.Remnants : EmpireManager.Player;
                 if (EmpireManager.Remnants == null)
                     Log.Warning("Remnant faction missing!");
                 else
                 {
-                    Troop troop = ResourceManager.CreateTroop("Wyvern", EmpireManager.Remnants);
+                    Troop troop = ResourceManager.CreateTroop("Wyvern", spawnFor);
                     if (!troop.TryLandTroop(p))
                         return false; // eek-eek
                 }

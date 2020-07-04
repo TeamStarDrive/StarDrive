@@ -17,7 +17,7 @@ namespace Ship_Game.Commands.Goals
             {
                DetectAndSpawnRaidForce,
                CheckIfHijacked,
-               ScuttleOrbital,
+               FleeFromOrbital,
                WaitForDestruction
             };
         }
@@ -58,6 +58,7 @@ namespace Ship_Game.Commands.Goals
                     }
 
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
+                    Pirates.ExecuteVictimRetaliation(TargetEmpire);
                     return GoalStep.GoToNextStep;
                 }
             }
@@ -70,7 +71,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
+                || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
             {
                 return GoalStep.GoalFailed; // Target or our forces were destroyed 
             }
@@ -78,14 +79,13 @@ namespace Ship_Game.Commands.Goals
             return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.TryAgain;
         }
 
-        GoalStep ScuttleOrbital()
+        GoalStep FleeFromOrbital()
         {
             if (TargetShip == null || !TargetShip.Active || TargetShip.loyalty != Pirates.Owner)
                 return GoalStep.GoalFailed; // Target destroyed or they took it from us
 
             TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
             TargetShip.DisengageExcessTroops(TargetShip.TroopCount); // She's gonna blow!
-            TargetShip.ScuttleTimer = 10f;
             return GoalStep.GoToNextStep;
         }
 

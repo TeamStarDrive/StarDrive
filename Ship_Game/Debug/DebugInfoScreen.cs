@@ -186,7 +186,7 @@ namespace Ship_Game.Debug
             if (Screen.SelectedShip != null)
             {
                 Ship ship = Screen.SelectedShip;
-                ship.SpeedLimit = speedLimiter * ship.VelocityMaximum;
+                ship.SetSpeedLimit(speedLimiter * ship.VelocityMaximum);
             }
 
             foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
@@ -510,7 +510,8 @@ namespace Ship_Game.Debug
                 foreach (Ship ship in ships)
                     VisualizeShipGoal(ship, false);
 
-                DrawString($"SelectedShips ({ships.Count}) ");
+                DrawString($"SelectedShips: {ships.Count} ");
+                DrawString($"Total Str: {ships.Sum(s => s.BaseStrength).String(1)} ");
             }
             VisualizePredictionDebugger();
         }
@@ -626,6 +627,7 @@ namespace Ship_Game.Debug
                     DrawString(e.data.EconomicPersonality.Name);
                 }
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
+                DrawString($"Treasury Goal: {e.GetEmpireAI().TreasuryGoal().String()}");
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
                 DrawString($"Ship Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) T:{(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
@@ -655,7 +657,10 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine(3);
-                DrawString("Total Pop: "+ e.GetTotalPop().String());
+                DrawString("Total Pop: "+ e.GetTotalPop(out float maxPop).String(1) 
+                                        + "/" + maxPop.String(1) 
+                                        + "/" + e.GetTotalPopPotential().String(1));
+
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
                 DrawString("Military Str: "+ e.MilitaryScore);
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
