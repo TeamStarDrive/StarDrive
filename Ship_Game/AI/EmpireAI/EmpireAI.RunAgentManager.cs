@@ -71,7 +71,7 @@ namespace Ship_Game.AI
         {
             int offense = CalculateSpyUsage(out int defenders);
             float offSpyModifier = (int)CurrentGame.Difficulty * 0.15f;
-            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Aggressive);
         }
 
@@ -79,7 +79,7 @@ namespace Ship_Game.AI
         {
             int offense = CalculateSpyUsage(out int defenders);
             float offSpyModifier = (int)CurrentGame.Difficulty * 0.2f;
-            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Cunning);
         }
 
@@ -87,7 +87,7 @@ namespace Ship_Game.AI
         {
             int offense = CalculateSpyUsage(out int defenders);
             float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
-            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Honorable);
         }
 
@@ -374,7 +374,7 @@ namespace Ship_Game.AI
             {
                 if (a.Mission == AgentMission.Defending)
                     defenders++;
-                else if (a.Mission != AgentMission.Undercover && a.Mission != AgentMission.Training)
+                else if (a.Mission != AgentMission.Undercover) 
                     offense++;
             }
 
