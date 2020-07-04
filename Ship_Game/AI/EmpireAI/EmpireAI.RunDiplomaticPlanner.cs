@@ -170,6 +170,8 @@ namespace Ship_Game.AI
 
                     break;
             }
+
+            usToThem.turnsSinceLastContact = 0;
         }
 
         void RequestHelpFromAllies(Relationship usToEnemy, Empire enemy)
@@ -208,18 +210,16 @@ namespace Ship_Game.AI
                 if (DoNotInteract(relations, them))
                     continue;
 
-                float usedTrust = relations.TrustEntries.Sum(te => te.TrustCost);
-
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        AssessAngerPacifist(kv, relations.Posture, usedTrust); // TODO refactor anger
-                        OfferTrade(relations, them, relations.Trust - usedTrust);
+                        AssessAngerPacifist(kv, relations.Posture, relations.TrustUsed); // TODO refactor anger
+                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
                         OfferAlliance(relations, them);
                         break;
                     case Posture.Neutral:
-                        AssessAngerPacifist(kv, relations.Posture, usedTrust);
-                        OfferNonAggression(relations, them, relations.Trust - usedTrust);
+                        AssessAngerPacifist(kv, relations.Posture, relations.TrustUsed);
+                        OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
                         if (relations.TurnsKnown > FirstDemand && relations.Treaty_NAPact)
                             relations.ChangeToFriendly();
 
@@ -241,113 +241,30 @@ namespace Ship_Game.AI
         private void DoRuthlessRelations()
         {
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 5f);
-            int numberofWars = 0;
             Array<Empire> potentialTargets = new Array<Empire>();
-            foreach (KeyValuePair<Empire, Relationship> relationship in OwnerEmpire.AllRelations)
-            {
-                if (!relationship.Value.AtWar || relationship.Key.data.Defeated)
-                    continue;
 
-                numberofWars += (int) relationship.Key.CurrentMilitaryStrength * 2; //++;
-            }
-            //Label0:
             foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
             {
                 Relationship relations = kv.Value;
                 Empire them            = kv.Key;
-                if (!relations.Known || them.isFaction || them.data.Defeated)
+                if (DoNotInteract(relations, them))
                     continue;
 
-                if (them.data.DiplomaticPersonality != null && !relations.HaveRejected_TRADE &&
-                    !relations.Treaty_Trade && !relations.AtWar &&
-                    (!them.IsAggressive || !them.IsRuthless))
-                {
-                    Offer NAPactOffer = new Offer
-                    {
-                        TradeTreaty = true,
-                        AcceptDL = "Trade Accepted",
-                        RejectDL = "Trade Rejected"
-                    };
-                    Relationship value = relations;
-                    NAPactOffer.ValueToModify = new Ref<bool>(() => value.HaveRejected_TRADE,
-                        x => value.HaveRejected_TRADE = x);
-                    Offer OurOffer = new Offer
-                    {
-                        TradeTreaty = true
-                    };
-                    them.GetEmpireAI()
-                        .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
-                }
-                float usedTrust = relations.TrustEntries.Sum(te => te.TrustCost);
-                AssessAngerAggressive(kv, relations.Posture, usedTrust);
-                relations.Posture = Posture.Hostile;
-                if (!relations.Known || relations.AtWar)
-                {
+                if (!them.IsRuthless)
+                    OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
+
+                AssessAngerAggressive(kv, relations.Posture, relations.TrustUsed);
+                relations.ChangeToHostile();
+                if (relations.AtWar)
                     continue;
-                }
-                relations.Posture = Posture.Hostile;
-                if (them == Empire.Universe.PlayerEmpire && relations.Threat <= -15f &&
-                    !relations.HaveInsulted_Military && relations.TurnsKnown > FirstDemand)
-                {
-                    relations.HaveInsulted_Military = true;
-                    DiplomacyScreen.Show(OwnerEmpire, "Insult Military");
-                }
-                if (relations.Threat > 0f || relations.TurnsKnown <= SecondDemand ||
-                    relations.Treaty_Alliance)
-                {
-                    if (relations.Threat > -45f || numberofWars > OwnerEmpire.CurrentMilitaryStrength) //!= 0)
-                    {
-                        continue;
-                    }
+
+                ReferToMilitary(relations, them, threatForInsult: -15, compliment: false);
+
+                if (TheyArePotentialTargetRuthless(relations, them))
                     potentialTargets.Add(them);
-                }
-                else
-                {
-                    int i = 0;
-                    while (i < 5)
-                    {
-                        if (i >= ExpansionAI.DesiredPlanets.Length)
-                        {
-                            //goto Label0;    //this tried to restart the loop it's in => bad mojo
-                            break;
-                        }
-                        if (ExpansionAI.DesiredPlanets[i].Owner != them)
-                        {
-                            i++;
-                        }
-                        else
-                        {
-                            potentialTargets.Add(them);
-                            //goto Label0;
-                            break;
-                        }
-                    }                    
+            }
 
-                }
-            }
-            if (potentialTargets.Count > 0 && numberofWars <= OwnerEmpire.CurrentMilitaryStrength) //1)
-            {
-                IOrderedEnumerable<Empire> sortedList =
-                    from target in potentialTargets
-                    orderby Vector2.Distance(OwnerEmpire.GetWeightedCenter(), target.GetWeightedCenter())
-                    select target;
-                bool foundwar = false;
-                foreach (Empire e in potentialTargets)
-                {
-                    Empire ToAttack = e;
-                    if (OwnerEmpire.GetRelations(e).Treaty_NAPact)
-                    {
-                        continue;
-                    }
-                    OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
-                    foundwar = true;
-                }
-                if (!foundwar)
-                {
-                    Empire ToAttack = sortedList.First();
-                    OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
-                }
-            }
+            PrepareToAttackWeakest(potentialTargets);
         }
 
         private void DoXenophobicRelations()
@@ -360,12 +277,11 @@ namespace Ship_Game.AI
                 if (DoNotInteract(relations, them))
                     continue;
 
-                float usedTrust = relations.TrustEntries.Sum(te => te.TrustCost);
                 AssessDiplomaticAnger(kv);
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        OfferTrade(relations, them, relations.Trust - usedTrust);
+                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
                         break;
                     case Posture.Neutral:
                         DemandTech(relations, them);
@@ -413,9 +329,9 @@ namespace Ship_Game.AI
             return enemyStr;
         }
 
-        void ReferToMilitary(Relationship usToThem, Empire them)
+        void ReferToMilitary(Relationship usToThem, Empire them, float threatForInsult, bool compliment = true)
         {
-            if (usToThem.Threat <= 0f)
+            if (usToThem.Threat <= threatForInsult)
             {
                 if (!usToThem.HaveInsulted_Military && usToThem.TurnsKnown > FirstDemand)
                 {
@@ -423,7 +339,9 @@ namespace Ship_Game.AI
                     if (them == Empire.Universe.PlayerEmpire)
                         DiplomacyScreen.Show(OwnerEmpire, "Insult Military");
                 }
-                usToThem.Posture = Posture.Hostile;
+
+                if (OwnerEmpire.IsAggressive)
+                    usToThem.ChangeToHostile();
             }
             else if (usToThem.Threat > 25f && usToThem.TurnsKnown > FirstDemand)
             {
@@ -438,12 +356,34 @@ namespace Ship_Game.AI
                         DiplomacyScreen.Show(OwnerEmpire, "Compliment Military Better");
                 }
 
-                usToThem.Posture = Posture.Friendly;
+                if (OwnerEmpire.IsAggressive)
+                    usToThem.ChangeToFriendly();
             }
         }
 
-        bool TheyArePotentialTarget(Relationship relations, Empire them)
+        bool TheyArePotentialTargetRuthless(Relationship relations, Empire them)
         {
+            if (relations.Threat < 0f
+                && relations.TurnsKnown > SecondDemand
+                && !relations.Treaty_Alliance)
+            {
+                return false;
+            }
+
+            if (relations.Threat < -40f)
+                return true;
+
+            if (ExpansionAI.DesiredPlanets.Any(p => p.Owner == them))
+                return true;
+
+            return false;
+        }
+
+        bool TheyArePotentialTargetAggressive(Relationship relations, Empire them)
+        {
+            if (relations.ActiveWar != null)
+                return false;
+
             if (relations.Threat < -15f && relations.TurnsKnown > SecondDemand && !relations.Treaty_Alliance)
             {
                 if (relations.TotalAnger > 75f || ExpansionAI.DesiredPlanets.Any(p => p.Owner == them))
@@ -457,7 +397,16 @@ namespace Ship_Game.AI
             return false;
         }
 
-        void PrepareToAttack(Array<Empire> potentialTargets)
+        void PrepareToAttackClosest(Array<Empire> potentialTargets)
+        {
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
+            {
+                Empire closest = potentialTargets.Sorted(e => e.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter())).First();
+                OwnerEmpire.GetRelations(closest).PreparingForWar = true;
+            }
+        }
+
+        void PrepareToAttackWeakest(Array<Empire> potentialTargets)
         {
             if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 2 < OwnerEmpire.CurrentMilitaryStrength)
             {
@@ -513,32 +462,31 @@ namespace Ship_Game.AI
                 if (relations.AtWar || DoNotInteract(relations, them)) // TODO - might want to add peace if losing badly
                     continue;
 
-                float usedTrust = relations.TrustEntries.Sum(te => te.TrustCost);
                 if (!them.IsAggressive)
-                    OfferTrade(relations, them, relations.Trust - usedTrust); // trade in friendly might not be reached
+                    OfferTrade(relations, them, relations.Trust - relations.TrustUsed); // trade in friendly might not be reached
 
                 relations.ChangeToNeutral();
-                ReferToMilitary(relations, them);
+                ReferToMilitary(relations, them, threatForInsult: 0);
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        AssessAngerAggressive(kv, relations.Posture, usedTrust); // ToDo - review this
-                        OfferTrade(relations, them, relations.Trust - usedTrust);
+                        AssessAngerAggressive(kv, relations.Posture, relations.TrustUsed); // ToDo - review this
+                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
                         OfferAlliance(relations, them);
                         break;
                     case Posture.Neutral:
-                        AssessAngerAggressive(kv, relations.Posture, usedTrust);
+                        AssessAngerAggressive(kv, relations.Posture, relations.TrustUsed);
                         break;
                     case Posture.Hostile:
-                        AssessAngerAggressive(kv, relations.Posture, usedTrust);
-                        if (TheyArePotentialTarget(relations, them))
+                        AssessAngerAggressive(kv, relations.Posture, relations.TrustUsed);
+                        if (TheyArePotentialTargetAggressive(relations, them))
                             potentialTargets.Add(them);
 
                         break;
                 }
             }
 
-            PrepareToAttack(potentialTargets);
+            PrepareToAttackWeakest(potentialTargets);
         }
 
         private void DoHonorableRelations()
@@ -552,17 +500,16 @@ namespace Ship_Game.AI
                 if (DoNotInteract(relations, them))
                     continue;
 
-                float usedTrust = relations.TrustEntries.Sum(te => te.TrustCost);
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        AssessAngerPacifist(kv, Posture.Friendly, usedTrust);
-                        OfferTrade(relations, them, relations.Trust - usedTrust);
+                        AssessAngerPacifist(kv, Posture.Friendly, relations.TrustUsed);
+                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
                         OfferAlliance(relations, them);
                         break;
                     case Posture.Neutral:
-                        AssessAngerPacifist(kv, Posture.Neutral, usedTrust);
-                        OfferNonAggression(relations, them, relations.Trust - usedTrust);
+                        AssessAngerPacifist(kv, Posture.Neutral, relations.TrustUsed);
+                        OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
                         if (relations.TurnsKnown > FirstDemand && relations.Treaty_NAPact)
                             relations.ChangeToFriendly();
 

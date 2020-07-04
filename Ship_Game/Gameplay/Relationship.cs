@@ -482,20 +482,15 @@ namespace Ship_Game.Gameplay
         public void UpdateRelationship(Empire us, Empire them)
         {
             if (us.data.Defeated)
-            {
                 return;
-            }
 
-            if (them.data.Defeated)
+            if (them.data.Defeated && AtWar)
             {
-                if (AtWar)
-                {
-                    AtWar                 = false;
-                    PreparingForWar       = false;
-                    ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                    WarHistory.Add(ActiveWar);
-                    ActiveWar             = null;
-                }
+                AtWar                 = false;
+                PreparingForWar       = false;
+                ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                WarHistory.Add(ActiveWar);
+                ActiveWar             = null;
             }
 
             if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == them)
@@ -541,22 +536,25 @@ namespace Ship_Game.Gameplay
             }
 
             if (Posture == Posture.Hostile && Trust > 50f && TotalAnger < 10f)
-                Posture = Posture.Neutral;
+                ChangeToNeutral();
+
             if (them.isFaction)
-                AtWar = false;
+                AtWar = false;  // TODO - why this is needed
 
             UpdateIntelligence(us, them);
             if (AtWar && ActiveWar != null) 
-            {
                 ActiveWar.TurnsAtWar += 1f;
-            }
 
+            TrustUsed = 0f;
             foreach (TrustEntry te in TrustEntries)
             {
                 te.TurnsInExistence += 1;
                 if (te.TurnTimer != 0 && te.TurnsInExistence > 250)
                     TrustEntries.QueuePendingRemoval(te);
+                else
+                    TrustUsed += te.TrustCost;
             }
+
             TrustEntries.ApplyPendingRemovals();
 
             foreach (FearEntry te in FearEntries)
@@ -564,7 +562,10 @@ namespace Ship_Game.Gameplay
                 te.TurnsInExistence += 1f;
                 if (te.TurnTimer != 0 && !(te.TurnsInExistence <= 250f))
                     FearEntries.QueuePendingRemoval(te);
+                else
+                    FearUsed += te.FearCost;
             }
+
             FearEntries.ApplyPendingRemovals();
 
             TurnsAllied = Treaty_Alliance ? TurnsAllied + 1 : 0;
@@ -572,15 +573,13 @@ namespace Ship_Game.Gameplay
             DTrait dt = us.data.DiplomaticPersonality;
             if (Posture == Posture.Friendly)
             {
-                Trust += dt.TrustGainedAtPeace;
+                Trust      += dt.TrustGainedAtPeace;
                 bool allied = us.GetRelations(them).Treaty_Alliance;
-                if      (Trust > 100f && !allied) Trust = 100f;
-                else if (Trust > 150f &&  allied) Trust = 150f;
+                Trust       = Trust.UpperBound(allied ? 150 : 100);
             }
             else if (Posture == Posture.Hostile)
-            {
                 Trust -= dt.TrustGainedAtPeace;
-            }
+
 
             if (Treaty_NAPact)      Trust += 0.0125f;
             if (Treaty_OpenBorders) Trust += 0.0125f;
@@ -600,12 +599,7 @@ namespace Ship_Game.Gameplay
                     us.EndPeaceWith(them);
             }
 
-            TurnsAbove95 += Trust <= 95f ? 0 : 1;
-            TrustUsed = 0f;
-
-            foreach (TrustEntry te in TrustEntries) TrustUsed += te.TrustCost;
-            foreach (FearEntry  te in FearEntries)  FearUsed  += te.FearCost;
-
+            TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
             if (!Treaty_Alliance && !Treaty_OpenBorders)
             {
                 float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
