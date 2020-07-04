@@ -18,7 +18,7 @@ namespace Ship_Game.AI
                 DTrait ourPersonality = OwnerEmpire.data.DiplomaticPersonality;
                 if (ourPersonality != null)
                 {
-                    relation.Posture = Posture.Neutral;
+                    relation.ChangeToNeutral();
                     if (relation.Anger_FromShipsInOurBorders > ourPersonality.Territorialism / 3f)
                         relation.Anger_FromShipsInOurBorders = ourPersonality.Territorialism / 3f;
                     if (relation.Anger_TerritorialConflict > ourPersonality.Territorialism / 3f)
@@ -42,7 +42,7 @@ namespace Ship_Game.AI
                 relationThem.PreparingForWar = false;
                 relationThem.ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 relationThem.WarHistory.Add(relationThem.ActiveWar);
-                relationThem.Posture = Posture.Neutral;
+                relationThem.ChangeToNeutral();
                 if (EmpireManager.Player != them)
                 {
                     if (relationThem.Anger_FromShipsInOurBorders >
@@ -341,7 +341,7 @@ namespace Ship_Game.AI
                 OwnerEmpire.GetRelations(them).PreparingForWar = false;
                 OwnerEmpire.GetRelations(them).ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 OwnerEmpire.GetRelations(them).WarHistory.Add(OwnerEmpire.GetRelations(them).ActiveWar);
-                OwnerEmpire.GetRelations(them).Posture = Posture.Neutral;
+                OwnerEmpire.GetRelations(them).ChangeToNeutral();
                 if (OwnerEmpire.GetRelations(them).Anger_FromShipsInOurBorders >
                     OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3f)
                 {
@@ -373,7 +373,6 @@ namespace Ship_Game.AI
                 them.GetRelations(OwnerEmpire).PreparingForWar = false;
                 them.GetRelations(OwnerEmpire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 them.GetRelations(OwnerEmpire).WarHistory.Add(them.GetRelations(OwnerEmpire).ActiveWar);
-                them.GetRelations(OwnerEmpire).Posture = Posture.Neutral;
                 if (EmpireManager.Player != them)
                 {
                     if (them.GetRelations(OwnerEmpire).Anger_FromShipsInOurBorders >
@@ -423,7 +422,7 @@ namespace Ship_Game.AI
             if (ourOffer.NAPact)
             {
                 them.SignTreatyWith(us, TreatyType.NonAggression);
-                if (Empire.Universe.PlayerEmpire != them)
+                if (!them.isPlayer)
                 {
                     FearEntry te = new FearEntry();
                     switch (them.Personality)
@@ -731,10 +730,10 @@ namespace Ship_Game.AI
 
             if (ourOffer.OpenBorders)   valueToThem += 5f;
             if (theirOffer.OpenBorders) valueToUs   += 0.01f;
-            if (ourOffer.NAPact)        valueToThem += 5f;
-            if (theirOffer.NAPact)      valueToUs   += 5f;
-            if (ourOffer.TradeTreaty)   valueToThem += 5f;
-            if (theirOffer.TradeTreaty) valueToUs   += OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 1 ? 20f : 5f;
+            if (ourOffer.NAPact)        valueToThem += 10f;
+            if (theirOffer.NAPact)      valueToUs   += 10f;
+            if (ourOffer.TradeTreaty)   valueToThem += 10f;
+            if (theirOffer.TradeTreaty) valueToUs   += OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 20f : 10f;
 
             foreach (string tech in ourOffer.TechnologiesOffered)
             {

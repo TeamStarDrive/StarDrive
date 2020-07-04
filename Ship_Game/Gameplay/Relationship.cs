@@ -34,7 +34,7 @@ namespace Ship_Game.Gameplay
     public sealed class Relationship : IDisposable
     {
         [Serialize(0)] public FederationQuest FedQuest;
-        [Serialize(1)] public Posture Posture = Posture.Neutral;
+        [Serialize(1)] public Posture Posture = Posture.Neutral;  // FB - use SetPosture privately or ChangeTo methods publicly
         [Serialize(2)] public string Name;
         [Serialize(3)] public bool Known;
         [Serialize(4)] public float IntelligenceBudget;
@@ -92,7 +92,7 @@ namespace Ship_Game.Gameplay
         [Serialize(49)] public float AggressionAgainstUsPenalty;
         [Serialize(50)] public float InitialStrength;
         [Serialize(51)] public int TurnsKnown;
-        [Serialize(52)] public int TurnsAbove95;
+        [Serialize(52)] public int TurnsAbove95; // Trust
         [Serialize(53)] public int TurnsAllied;
 
         [Serialize(54)] public BatchRemovalCollection<TrustEntry> TrustEntries = new BatchRemovalCollection<TrustEntry>();
@@ -421,13 +421,6 @@ namespace Ship_Game.Gameplay
             Anger_DiplomaticConflict -= diploAngerMinus;
             TotalAnger               -= diploAngerMinus;
             Trust                    += trustEarned;
-            if (Trust > 100f && !Treaty_Alliance)
-            {
-                Trust = 100f;
-                return;
-            }
-            if (Trust > 150f && Treaty_Alliance)
-                Trust = 150f;
         }
 
         public void SetImperialistWar()
@@ -469,16 +462,12 @@ namespace Ship_Game.Gameplay
         public void UpdatePlayerRelations(Empire us, Empire them)
         {
             UpdateIntelligence(us, them);
-
             if (Treaty_Trade)
-            {
                 Treaty_Trade_TurnsExisted++;
-            }
-
+            
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
-                Treaty_Peace = false;
-                us.GetRelations(them).Treaty_Peace = false;
+                us.EndPeaceWith(them);
                 Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
             }
         }
@@ -486,20 +475,15 @@ namespace Ship_Game.Gameplay
         public void UpdateRelationship(Empire us, Empire them)
         {
             if (us.data.Defeated)
-            {
                 return;
-            }
 
-            if (them.data.Defeated)
+            if (them.data.Defeated && AtWar)
             {
-                if (AtWar)
-                {
-                    AtWar                 = false;
-                    PreparingForWar       = false;
-                    ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                    WarHistory.Add(ActiveWar);
-                    ActiveWar             = null;
-                }
+                AtWar                 = false;
+                PreparingForWar       = false;
+                ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                WarHistory.Add(ActiveWar);
+                ActiveWar             = null;
             }
 
             if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == them)
@@ -545,22 +529,25 @@ namespace Ship_Game.Gameplay
             }
 
             if (Posture == Posture.Hostile && Trust > 50f && TotalAnger < 10f)
-                Posture = Posture.Neutral;
+                ChangeToNeutral();
+
             if (them.isFaction)
-                AtWar = false;
+                AtWar = false;  // TODO - why this is needed
 
             UpdateIntelligence(us, them);
             if (AtWar && ActiveWar != null) 
-            {
                 ActiveWar.TurnsAtWar += 1f;
-            }
 
+            TrustUsed = 0f;
             foreach (TrustEntry te in TrustEntries)
             {
                 te.TurnsInExistence += 1;
                 if (te.TurnTimer != 0 && te.TurnsInExistence > 250)
                     TrustEntries.QueuePendingRemoval(te);
+                else
+                    TrustUsed += te.TrustCost;
             }
+
             TrustEntries.ApplyPendingRemovals();
 
             foreach (FearEntry te in FearEntries)
@@ -568,7 +555,10 @@ namespace Ship_Game.Gameplay
                 te.TurnsInExistence += 1f;
                 if (te.TurnTimer != 0 && !(te.TurnsInExistence <= 250f))
                     FearEntries.QueuePendingRemoval(te);
+                else
+                    FearUsed += te.FearCost;
             }
+
             FearEntries.ApplyPendingRemovals();
 
             TurnsAllied = Treaty_Alliance ? TurnsAllied + 1 : 0;
@@ -576,43 +566,33 @@ namespace Ship_Game.Gameplay
             DTrait dt = us.data.DiplomaticPersonality;
             if (Posture == Posture.Friendly)
             {
-                Trust += dt.TrustGainedAtPeace;
+                Trust      += dt.TrustGainedAtPeace;
                 bool allied = us.GetRelations(them).Treaty_Alliance;
-                if      (Trust > 100f && !allied) Trust = 100f;
-                else if (Trust > 150f &&  allied) Trust = 150f;
+                Trust       = Trust.UpperBound(allied ? 150 : 100);
             }
             else if (Posture == Posture.Hostile)
-            {
                 Trust -= dt.TrustGainedAtPeace;
-            }
+
 
             if (Treaty_NAPact)      Trust += 0.0125f;
-            if (Treaty_OpenBorders) Trust += 0.0125f;
+            if (Treaty_OpenBorders) Trust += 0.025f;
             if (Treaty_Trade)
             {
-                Trust += 0.0125f;
+                Trust += 0.025f;
                 Treaty_Trade_TurnsExisted += 1;
             }
 
             if (Treaty_Peace)
             {
-                if (--PeaceTurnsRemaining <= 0)
-                {
-                    Treaty_Peace = false;
-                    us.GetRelations(them).Treaty_Peace = false;
-                }
                 Anger_DiplomaticConflict    -= 0.1f;
                 Anger_FromShipsInOurBorders -= 0.1f;
                 Anger_MilitaryConflict      -= 0.1f;
                 Anger_TerritorialConflict   -= 0.1f;
+                if (--PeaceTurnsRemaining <= 0)
+                    us.EndPeaceWith(them);
             }
 
-            TurnsAbove95 += (Trust <= 95f) ? 0 : 1;
-            TrustUsed = 0f;
-
-            foreach (TrustEntry te in TrustEntries) TrustUsed += te.TrustCost;
-            foreach (FearEntry  te in FearEntries)  FearUsed  += te.FearCost;
-
+            TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
             if (!Treaty_Alliance && !Treaty_OpenBorders)
             {
                 float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
@@ -625,34 +605,37 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-
             float ourMilScore   = 2300f + us.MilitaryScore;
             float theirMilScore = 2300f + them.MilitaryScore;
-            Threat = (theirMilScore - ourMilScore) / ourMilScore * 100;
-            if (Threat > 100f) Threat = 100f;
+            Threat              = (theirMilScore - ourMilScore) / ourMilScore * 100;
+            Threat              = Threat.UpperBound(100);
+
             if (us.MilitaryScore < 1000f) Threat = 0f;
 
-            if (Trust > 100f && !us.GetRelations(them).Treaty_Alliance)
-                Trust = 100f;
-            else if (Trust > 150f && us.GetRelations(them).Treaty_Alliance)
-                Trust = 150f;
+            Relationship usToThem = us.GetRelations(them);
+            Trust = Trust.UpperBound(usToThem.Treaty_Alliance ? 150 : 100);
 
             InitialStrength += dt.NaturalRelChange;
-            if (Anger_TerritorialConflict > 0f) Anger_TerritorialConflict -= dt.AngerDissipation;
-            if (Anger_TerritorialConflict < 0f) Anger_TerritorialConflict = 0f;
+            if (Anger_TerritorialConflict > 0f)
+                Anger_TerritorialConflict = (Anger_TerritorialConflict - dt.AngerDissipation).LowerBound(0);
 
-            if (Anger_FromShipsInOurBorders > 100f) Anger_FromShipsInOurBorders = 100f;
-            if (Anger_FromShipsInOurBorders > 0f)   Anger_FromShipsInOurBorders -= dt.AngerDissipation;
-            if (Anger_FromShipsInOurBorders < 0f)   Anger_FromShipsInOurBorders = 0f;
+            if (Anger_MilitaryConflict > 0f)
+                Anger_MilitaryConflict = (Anger_MilitaryConflict - dt.AngerDissipation).LowerBound(0);
 
-            if (Anger_MilitaryConflict > 0f) Anger_MilitaryConflict -= dt.AngerDissipation;
-            if (Anger_MilitaryConflict < 0f) Anger_MilitaryConflict = 0f;
-            if (Anger_DiplomaticConflict > 0f) Anger_DiplomaticConflict -= dt.AngerDissipation;
-            if (Anger_DiplomaticConflict < 0f) Anger_DiplomaticConflict = 0f;
+            if (Anger_DiplomaticConflict > 0f) 
+                Anger_DiplomaticConflict = (Anger_DiplomaticConflict - dt.AngerDissipation).LowerBound(0);
 
-            TotalAnger = Anger_DiplomaticConflict + Anger_FromShipsInOurBorders + Anger_MilitaryConflict + Anger_TerritorialConflict;
-            TotalAnger = TotalAnger > 100 ? 100 : TotalAnger;
-            TurnsKnown += 1;
+            if (Anger_FromShipsInOurBorders > 0f)
+                Anger_FromShipsInOurBorders -= dt.AngerDissipation;
+
+            Anger_FromShipsInOurBorders = Anger_FromShipsInOurBorders.Clamped(0, 100);
+
+            TotalAnger = (Anger_DiplomaticConflict 
+                         + Anger_FromShipsInOurBorders 
+                         + Anger_MilitaryConflict 
+                         + Anger_TerritorialConflict).UpperBound(100);
+
+            TurnsKnown            += 1;
             turnsSinceLastContact += 1;
         }
 
@@ -730,15 +713,6 @@ namespace Ship_Game.Gameplay
                 war.RestoreFromSave(false);
         }
 
-        public void ResetRelation() // todo move the empire_relationship
-        {
-            Treaty_Alliance    = false;
-            Treaty_NAPact      = false;
-            Treaty_OpenBorders = false;
-            Treaty_Peace       = false;
-            Treaty_Trade       = false;
-        }
-
         public DebugTextBlock DebugWar()
         {
             var debug = new DebugTextBlock
@@ -756,6 +730,26 @@ namespace Ship_Game.Gameplay
 
             ActiveWar?.WarDebugData(ref debug);
             return debug;
+        }
+
+        void SetPosture(Posture posture)
+        {
+            Posture = posture;
+        }
+
+        public void ChangeToFriendly()
+        {
+            SetPosture(Posture.Friendly);
+        }
+
+        public void ChangeToNeutral()
+        {
+            SetPosture(Posture.Neutral);
+        }
+
+        public void ChangeToHostile()
+        {
+            SetPosture(Posture.Hostile);
         }
     }
 
