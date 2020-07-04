@@ -6,8 +6,7 @@ namespace Ship_Game.AI {
 
     public sealed partial class EmpireAI
     {
-        private int FirstDemand = 20;
-
+        private int FirstDemand  = 20;
         private int SecondDemand = 75;
 
         private void AssessAngerAggressive(KeyValuePair<Empire, Relationship> Relationship,
