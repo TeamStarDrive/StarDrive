@@ -474,7 +474,7 @@ namespace Ship_Game.Gameplay
             
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
-                us.EndPeachWith(them);
+                us.EndPeaceWith(them);
                 Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
             }
         }
@@ -592,18 +592,15 @@ namespace Ship_Game.Gameplay
 
             if (Treaty_Peace)
             {
-                if (--PeaceTurnsRemaining <= 0)
-                {
-                    Treaty_Peace = false;
-                    us.GetRelations(them).Treaty_Peace = false;
-                }
                 Anger_DiplomaticConflict    -= 0.1f;
                 Anger_FromShipsInOurBorders -= 0.1f;
                 Anger_MilitaryConflict      -= 0.1f;
                 Anger_TerritorialConflict   -= 0.1f;
+                if (--PeaceTurnsRemaining <= 0)
+                    us.EndPeaceWith(them);
             }
 
-            TurnsAbove95 += (Trust <= 95f) ? 0 : 1;
+            TurnsAbove95 += Trust <= 95f ? 0 : 1;
             TrustUsed = 0f;
 
             foreach (TrustEntry te in TrustEntries) TrustUsed += te.TrustCost;
@@ -621,34 +618,37 @@ namespace Ship_Game.Gameplay
                 }
             }
 
-
             float ourMilScore   = 2300f + us.MilitaryScore;
             float theirMilScore = 2300f + them.MilitaryScore;
-            Threat = (theirMilScore - ourMilScore) / ourMilScore * 100;
-            if (Threat > 100f) Threat = 100f;
+            Threat              = (theirMilScore - ourMilScore) / ourMilScore * 100;
+            Threat              = Threat.UpperBound(100);
+
             if (us.MilitaryScore < 1000f) Threat = 0f;
 
-            if (Trust > 100f && !us.GetRelations(them).Treaty_Alliance)
-                Trust = 100f;
-            else if (Trust > 150f && us.GetRelations(them).Treaty_Alliance)
-                Trust = 150f;
+            Relationship usToThem = us.GetRelations(them);
+            Trust = Trust.UpperBound(usToThem.Treaty_Alliance ? 150 : 100);
 
             InitialStrength += dt.NaturalRelChange;
-            if (Anger_TerritorialConflict > 0f) Anger_TerritorialConflict -= dt.AngerDissipation;
-            if (Anger_TerritorialConflict < 0f) Anger_TerritorialConflict = 0f;
+            if (Anger_TerritorialConflict > 0f)
+                Anger_TerritorialConflict = (Anger_TerritorialConflict - dt.AngerDissipation).LowerBound(0);
 
-            if (Anger_FromShipsInOurBorders > 100f) Anger_FromShipsInOurBorders = 100f;
-            if (Anger_FromShipsInOurBorders > 0f)   Anger_FromShipsInOurBorders -= dt.AngerDissipation;
-            if (Anger_FromShipsInOurBorders < 0f)   Anger_FromShipsInOurBorders = 0f;
+            if (Anger_MilitaryConflict > 0f)
+                Anger_MilitaryConflict = (Anger_MilitaryConflict - dt.AngerDissipation).LowerBound(0);
 
-            if (Anger_MilitaryConflict > 0f) Anger_MilitaryConflict -= dt.AngerDissipation;
-            if (Anger_MilitaryConflict < 0f) Anger_MilitaryConflict = 0f;
-            if (Anger_DiplomaticConflict > 0f) Anger_DiplomaticConflict -= dt.AngerDissipation;
-            if (Anger_DiplomaticConflict < 0f) Anger_DiplomaticConflict = 0f;
+            if (Anger_DiplomaticConflict > 0f) 
+                Anger_DiplomaticConflict = (Anger_DiplomaticConflict - dt.AngerDissipation).LowerBound(0);
 
-            TotalAnger = Anger_DiplomaticConflict + Anger_FromShipsInOurBorders + Anger_MilitaryConflict + Anger_TerritorialConflict;
-            TotalAnger = TotalAnger > 100 ? 100 : TotalAnger;
-            TurnsKnown += 1;
+            if (Anger_FromShipsInOurBorders > 0f)
+                Anger_FromShipsInOurBorders -= dt.AngerDissipation;
+
+            Anger_FromShipsInOurBorders = Anger_FromShipsInOurBorders.Clamped(0, 100);
+
+            TotalAnger = (Anger_DiplomaticConflict 
+                         + Anger_FromShipsInOurBorders 
+                         + Anger_MilitaryConflict 
+                         + Anger_TerritorialConflict).UpperBound(100);
+
+            TurnsKnown            += 1;
             turnsSinceLastContact += 1;
         }
 

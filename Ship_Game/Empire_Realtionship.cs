@@ -65,7 +65,7 @@ namespace Ship_Game
             BreakTreatyWith(them, TreatyType.NonAggression);
         }
 
-        public void EndPeachWith(Empire them)
+        public void EndPeaceWith(Empire them)
         {
             BreakTreatyWith(them, TreatyType.Peace);
         }
