@@ -69,25 +69,25 @@ namespace Ship_Game.AI
 
         private void DoAggRuthAgentManager()
         {
-            int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.15f;
-            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
+            int offense          = CalculateSpyUsage(out int defenders);
+            float offSpyModifier = 1 + (int)CurrentGame.Difficulty * 0.115f;
+            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Aggressive);
         }
 
         private void DoCunningAgentManager()
         {
-            int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.2f;
-            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
+            int offense          = CalculateSpyUsage(out int defenders);
+            float offSpyModifier = 1 + (int)CurrentGame.Difficulty * 0.13f;
+            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Cunning);
         }
 
         private void DoHonPacAgentManager()
         {
-            int offense = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
-            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
+            int offense          = CalculateSpyUsage(out int defenders);
+            float offSpyModifier = 1 + (int)CurrentGame.Difficulty * 0.1f;
+            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
             AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Honorable);
         }
 
