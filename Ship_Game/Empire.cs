@@ -605,10 +605,8 @@ namespace Ship_Game
                 return;
 
             foreach (var kv in Relationships)
-            {
-                kv.Value.ResetRelation();
-                kv.Key.GetRelations(this).ResetRelation();
-            }
+                BreakAllTreatiesWith(kv.Key, includingPeace: true);
+
             foreach (Ship ship in OwnedShips)
             {
                 ship.AI.ClearOrders();
@@ -644,10 +642,7 @@ namespace Ship_Game
                 return;
 
             foreach (var kv in Relationships)
-            {
-                kv.Value.ResetRelation();
-                kv.Key.GetRelations(this).ResetRelation();
-            }
+                BreakAllTreatiesWith(kv.Key, includingPeace: true);
 
             foreach (Ship ship in OwnedShips)
             {
