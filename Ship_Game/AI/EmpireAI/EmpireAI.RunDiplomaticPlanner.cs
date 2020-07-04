@@ -285,6 +285,7 @@ namespace Ship_Game.AI
                         break;
                     case Posture.Neutral:
                         AssessDiplomaticAnger(relations, them);
+                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
                         OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
                         if (relations.TurnsKnown > FirstDemand && relations.Treaty_NAPact)
                             relations.ChangeToFriendly();
@@ -532,7 +533,6 @@ namespace Ship_Game.AI
                 if (DoNotInteract(relations, them))
                     continue;
 
-                relations.ChangeToNeutral();
                 ReferToMilitary(relations, them, threatForInsult: 0);
                 switch (relations.Posture)
                 {
@@ -543,6 +543,7 @@ namespace Ship_Game.AI
                         OfferAlliance(relations, them);
                         break;
                     case Posture.Neutral:
+                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
                         AssessDiplomaticAnger(relations, them);
                         break;
                     case Posture.Hostile when relations.ActiveWar != null:
@@ -581,6 +582,7 @@ namespace Ship_Game.AI
                         OfferAlliance(relations, them);
                         break;
                     case Posture.Neutral:
+                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
                         AssessDiplomaticAnger(relations, them);
                         OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
                         if (relations.TurnsKnown > FirstDemand && relations.Treaty_NAPact)

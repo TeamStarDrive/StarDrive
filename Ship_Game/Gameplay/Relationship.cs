@@ -575,10 +575,10 @@ namespace Ship_Game.Gameplay
 
 
             if (Treaty_NAPact)      Trust += 0.0125f;
-            if (Treaty_OpenBorders) Trust += 0.0125f;
+            if (Treaty_OpenBorders) Trust += 0.025f;
             if (Treaty_Trade)
             {
-                Trust += 0.0125f;
+                Trust += 0.025f;
                 Treaty_Trade_TurnsExisted += 1;
             }
 
