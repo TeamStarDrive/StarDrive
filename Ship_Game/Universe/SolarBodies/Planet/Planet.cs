@@ -79,7 +79,7 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
-        public bool Safe => !EnemyInRange(clearAndPresentDanger: true) || !MightBeAWarZone(Owner);
+        public bool Safe => !SpaceCombatNearPlanet && !MightBeAWarZone(Owner);
 
         public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
 
@@ -399,34 +399,39 @@ namespace Ship_Game
 
         void UpdateSpaceCombatBuildings(float elapsedTime)
         {
+            if (Owner == null) 
+                return;
 
-            if (Owner != null && (NoSpaceCombatTargetsFoundDelay.Less(2) || EnemyInRange()))
+            bool enemyInRange = ParentSystem.HostileForcesPresent(Owner);
+            if (NoSpaceCombatTargetsFoundDelay.Less(2) || enemyInRange)
             {
-                bool targetFound = false;
+
+                bool targetNear = false;
                 NoSpaceCombatTargetsFoundDelay -= elapsedTime;
                 for (int i = 0; i < BuildingList.Count; ++i)
                 {
                     Building building = BuildingList[i];
-                    building.UpdateSpaceCombatActions(elapsedTime, this, out targetFound);
+                    building.UpdateSpaceCombatActions(elapsedTime, this, out bool targetFound);
+                    targetNear |= targetFound;
                 }
 
-                if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0)
+                if (!targetNear && NoSpaceCombatTargetsFoundDelay <= 0)
                 {
-                    SpaceCombatNearPlanet = ThreatsNearPlanet();
+                    SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange);
                     NoSpaceCombatTargetsFoundDelay = 2f;
                 }
             }
         }
 
-        bool ThreatsNearPlanet()
+        bool ThreatsNearPlanet(bool enemyInRange)
         {
-            if (!EnemyInRange(clearAndPresentDanger: true))
+            if (!enemyInRange)
                 return false;
 
             for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
             {
                 Ship ship = ParentSystem.ShipList[i];
-                if (ship.Center.InRadius(Center, 10000)
+                if (ship.Center.InRadius(Center, 15000)
                     && Owner.IsEmpireAttackable(ship.loyalty))
                 {
                     return true;
@@ -454,9 +459,6 @@ namespace Ship_Game
                     continue;
 
                 float currentD = Vector2.Distance(Center, ship.Center);
-
-                SpaceCombatNearPlanet = currentD < 10000;
-
                 if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
                 {
                     previousT = currentD;
@@ -474,6 +476,7 @@ namespace Ship_Game
             if (troop != null)
                 target = troop;
 
+            SpaceCombatNearPlanet = target != null;
             return target;
         }
 
@@ -890,7 +893,7 @@ namespace Ship_Game
 
         private void UpdateHomeDefenseHangars(Building b)
         {
-            if (EnemyInRange() || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
+            if (SpaceCombatNearPlanet || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
                 return;
 
             if (ParentSystem.ShipList.Any(t => t.HomePlanet != null))
@@ -999,10 +1002,10 @@ namespace Ship_Game
                                       : !ParentSystem.HostileForcesPresent(Owner))
                 return false;
 
-            float distance = GravityWellRadius.Clamped(7500, 15000);
+            float distance = GravityWellRadius.LowerBound(7500);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner?.IsEmpireAttackable(ship.loyalty, ship) == true)// && ship.InRadius(Center, distance))
+                if (Owner?.IsEmpireAttackable(ship.loyalty, ship) == true && ship.InRadius(Center, distance))
                     return true;
             }
             return false;
