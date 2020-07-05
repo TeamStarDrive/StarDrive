@@ -573,8 +573,8 @@ namespace Ship_Game
 
         public void UpdateOwnedPlanet()
         {
-            ++TurnsSinceTurnover;
-            CrippledTurns = Math.Max(0, CrippledTurns - 1);
+            TurnsSinceTurnover += 1;
+            CrippledTurns = (CrippledTurns).LowerBound(0);
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
@@ -593,6 +593,7 @@ namespace Ship_Game
             GrowPopulation();
             TroopManager.HealTroops(2);
             RepairBuildings(1);
+            CallForHelp();
         }
 
         private void NotifyEmptyQueue()
@@ -1128,6 +1129,28 @@ namespace Ship_Game
                 b.CombatStrength  = (b.CombatStrength + repairAmount).Clamped(0, t.CombatStrength);
                 b.Strength        = (b.Strength + repairAmount).Clamped(0, t.Strength);
                 UpdateHomeDefenseHangars(b);
+            }
+        }
+
+        void CallForHelp()
+        {
+            if (!SpaceCombatNearPlanet)
+                return;
+
+            for (int i = 0; i < ParentSystem.ShipList.Count; i++)
+            {
+                Ship ship = ParentSystem.ShipList[i];
+                if (ship.loyalty != Owner || ship.InCombat)
+                    continue;
+
+                if (!ship.IsFreighter 
+                    && ship.BaseStrength > 0 
+                    && (ship.AI.State == AI.AIState.AwaitingOrders || ship.AI.State == AI.AIState.Orbit))
+                {
+                    // Move Offensively to planet
+                    Vector2 finalDir = ship.Position.DirectionToTarget(Center);
+                    ship.AI.OrderMoveToNoStop(Center, finalDir, false, this, AI.AIState.MoveTo, null, true);
+                }
             }
         }
 
