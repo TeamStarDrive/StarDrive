@@ -169,7 +169,7 @@ namespace Ship_Game.AI
             if ((usToThem.ActiveWar.TurnsAtWar % 100).NotZero( )) 
                 return;
 
-            WarState warState = WarState.NotApplicable;
+            WarState warState;
             switch (usToThem.ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
@@ -181,7 +181,7 @@ namespace Ship_Game.AI
                     }
 
                     warState = usToThem.ActiveWar.GetBorderConflictState();
-                    if (CheckLosingBadly())
+                    if (CheckLosingBadly("OFFERPEACE_LOSINGBC"))
                         break;
 
                     switch (warState)
@@ -195,7 +195,7 @@ namespace Ship_Game.AI
                     break;
                 case WarType.ImperialistWar:
                     warState = usToThem.ActiveWar.GetWarScoreState();
-                    if (CheckLosingBadly())
+                    if (CheckLosingBadly("OFFERPEACE_PLEADING"))
                         break;
 
                     switch (warState)
@@ -210,7 +210,7 @@ namespace Ship_Game.AI
                     break;
                 case WarType.DefensiveWar:
                     warState = usToThem.ActiveWar.GetBorderConflictState();
-                    if (CheckLosingBadly())
+                    if (CheckLosingBadly("OFFERPEACE_PLEADING"))
                         break;
 
                     switch (warState)
@@ -227,13 +227,13 @@ namespace Ship_Game.AI
 
             usToThem.turnsSinceLastContact = 0;
 
-            bool CheckLosingBadly()
+            bool CheckLosingBadly(string whichPeace)
             {
                 if (!onlyBadly) 
                     return false;
 
                 if (warState == WarState.LosingBadly)
-                    OfferPeace(usToThem, them, "OFFERPEACE_PLEADING");
+                    OfferPeace(usToThem, them, whichPeace);
 
                 return true;
             }
@@ -284,15 +284,15 @@ namespace Ship_Game.AI
                         OfferAlliance(relations, them);
                         break;
                     case Posture.Neutral:
+                        if (relations.TurnsKnown > FirstDemand && relations.Treaty_NAPact
+                            || relations.Trust > 50f && relations.TotalAnger < 10)
+                        {
+                            relations.ChangeToFriendly();
+                            break;
+                        }
                         AssessDiplomaticAnger(relations, them);
                         OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
                         OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
-                        if (relations.TurnsKnown > FirstDemand && relations.Treaty_NAPact)
-                            relations.ChangeToFriendly();
-
-                        if (relations.Trust > 50f && relations.TotalAnger < 10)
-                            relations.ChangeToFriendly();
-
                         break;
                     case Posture.Hostile when relations.ActiveWar != null:
                         OfferPeace(relations, them);
@@ -321,7 +321,6 @@ namespace Ship_Game.AI
                     OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
 
                 AssessDiplomaticAnger(relations, them);
-                relations.ChangeToHostile();
                 if (relations.AtWar)
                     continue;
 
