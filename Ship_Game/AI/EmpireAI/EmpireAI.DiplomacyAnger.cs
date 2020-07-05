@@ -6,8 +6,8 @@ namespace Ship_Game.AI {
 
     public sealed partial class EmpireAI
     {
-        private int FirstDemand  = 20;
-        private int SecondDemand = 75;
+        private readonly int FirstDemand  = 20;
+        private readonly int SecondDemand = 75;
 
         private void AssessDiplomaticAnger(Relationship usToThem, Empire them)
         {
@@ -27,7 +27,13 @@ namespace Ship_Game.AI {
                 usToThem.PreparingForWarType = WarType.BorderConflict;
                 return;
             }
-            if (usToThem.Anger_FromShipsInOurBorders > OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4f 
+
+            WarnAboutShips(usToThem, them);
+        }
+
+        void WarnAboutShips(Relationship usToThem, Empire them)
+        {
+            if (usToThem.Anger_FromShipsInOurBorders > OwnerEmpire.data.DiplomaticPersonality.Territorialism / 4f
                 && !usToThem.AtWar && !usToThem.WarnedAboutShips)
             {
                 if (them.isPlayer && usToThem.turnsSinceLastContact > FirstDemand)
@@ -38,12 +44,13 @@ namespace Ship_Game.AI {
 
                 usToThem.turnsSinceLastContact = 0;
                 usToThem.WarnedAboutShips      = true;
-                return;
             }
-            if (!usToThem.WarnedAboutShips || usToThem.AtWar || !OwnerEmpire.IsEmpireAttackable(them)) 
+
+            if (!usToThem.WarnedAboutShips || usToThem.AtWar || !OwnerEmpire.IsEmpireAttackable(them))
                 return;
 
-            if (them.CurrentMilitaryStrength < OwnerEmpire.CurrentMilitaryStrength * (1f - OwnerEmpire.data.DiplomaticPersonality.Territorialism * 0.01f))
+            int territorialism = OwnerEmpire.data.DiplomaticPersonality.Territorialism;
+            if (them.CurrentMilitaryStrength < OwnerEmpire.CurrentMilitaryStrength * (1f - territorialism * 0.01f))
                 DeclareWarOn(them, WarType.ImperialistWar);
         }
         

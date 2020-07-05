@@ -641,12 +641,16 @@ namespace Ship_Game.Gameplay
 
         public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader = true)
         {
-            if (Treaty_OpenBorders) return false;
-             float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * .1f) + Anger_TerritorialConflict;
+            if (Treaty_OpenBorders) 
+                return false;
+
+            float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * 0.1f) + Anger_TerritorialConflict;
             if (isTrader)
             {
-                if (Treaty_Trade) borderAnger *= .2f;
-                else if (DoWeShareATradePartner(targetEmpire, attackingEmpire)) borderAnger *= .5f;
+                if (Treaty_Trade)
+                    return false;
+                if (DoWeShareATradePartner(targetEmpire, attackingEmpire)) 
+                    borderAnger *= 0.1f;
             }
 
             return borderAnger + 10 > (personality?.Territorialism  ?? EmpireManager.Player.data.BorderTolerance);
