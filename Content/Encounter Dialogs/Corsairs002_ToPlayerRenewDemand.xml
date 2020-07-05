@@ -53,7 +53,7 @@ Regards,
       <SetWar>true</SetWar>
       <Text>What, is this some sort of SING humor? You don't have the credits! Unfortunately for you, this is not my problem. We're gonna collect our money through your freighters!</Text>
       <EndTransmission>true</EndTransmission>
-      <SetPlayerContactStep>3</SetPlayerContactStep> !--pay twice to end the war-->
+      <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->
     </Message>
 
