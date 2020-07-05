@@ -400,8 +400,8 @@ namespace Ship_Game.AI
                 if (!MoveType.HasFlag(MoveTypes.LastWayPoint)) return combat;
 
                 if (distance > 10000) return combat;
-                
-                return Goal?.IsPriorityMovement() != true;
+
+                return Goal?.IsPriorityMovement() ?? combat;
             }
 
             ~ShipGoal() { Destroy(); } // finalizer
