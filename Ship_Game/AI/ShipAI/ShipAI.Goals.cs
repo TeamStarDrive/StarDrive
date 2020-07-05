@@ -395,13 +395,14 @@ namespace Ship_Game.AI
 
             public bool HasCombatMove(float distance)
             {
-                bool combat = MoveType.HasFlag(MoveTypes.Combat);
+                bool combat       = MoveType.HasFlag(MoveTypes.Combat);
+                bool lastWayPoint = MoveType.HasFlag(MoveTypes.LastWayPoint);
 
-                if (!MoveType.HasFlag(MoveTypes.LastWayPoint)) return combat;
+                if (!lastWayPoint && distance > 0)   return combat;
+                if (distance > 10000)                return combat;
+                if (distance < 1000 && Goal == null) return true;
 
-                if (distance > 10000) return combat;
-                
-                return Goal?.IsPriorityMovement() != true;
+                return Goal?.IsPriorityMovement() ?? combat;
             }
 
             ~ShipGoal() { Destroy(); } // finalizer
