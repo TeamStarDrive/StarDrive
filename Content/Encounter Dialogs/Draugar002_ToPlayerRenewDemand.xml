@@ -58,7 +58,7 @@ I was hoping you would say that. It is so much more fun to get your food by your
 Oh dear, it seems like you dont have enough credits. Silly you! Oh well, freighter snacks are yummy, especially if they contain colonists.
 	  </Text>
       <EndTransmission>true</EndTransmission>
-      <SetPlayerContactStep>3</SetPlayerContactStep> !--pay twice to end the war-->
+      <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->
     </Message>
 
