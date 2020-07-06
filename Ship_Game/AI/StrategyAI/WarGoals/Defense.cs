@@ -11,13 +11,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// </summary>
         public Defense(Campaign campaign, War war) : base(campaign, war) => CreateSteps();
 
-        public Defense(CampaignType campaignType, War war) : base(campaignType, war)
-        {
-            CreateSteps();
-        }
+        public Defense(CampaignType campaignType, War war) : base(campaignType, war) => CreateSteps();
 
         void CreateSteps()
         {
+            IsCoreCampaign = false;
             Steps = new Func<GoalStep>[]
             {
                 SetTargets,
@@ -28,34 +26,28 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         GoalStep SetTargets()
         {
-            AddTargetSystems(OwnerWar.ContestedSystems);
-            if (TargetSystems.IsEmpty) return GoalStep.GoalComplete;
+            if (Them.isFaction) return GoalStep.TryAgain;
+            AddTargetSystems(Owner.GetOwnedSystems().Filter(s=> s.OwnerList.Contains(Them)));
+            AddTargetSystems(OwnerWar.GetTheirBorderSystems());
+            if (TargetSystems.IsEmpty)
+                return GoalStep.TryAgain;
             return GoalStep.GoToNextStep;
         }
 
+        GoalStep SetupRallyPoint() => SetupRallyPoint(TargetSystems);
+
         GoalStep AttackSystems()
         {
-            if (HaveConqueredTargets()) return GoalStep.GoalComplete;
+            if (HaveConqueredTargets()) return GoalStep.RestartGoal;
 
             var tasks = new WarTasks(Owner, Them);
             foreach(var system in TargetSystems)
             {
                 if (HaveConqueredTarget(system)) continue;
-                tasks.StandardAssault(system, 0, 2);
+                tasks.StandardAssault(system, -5);
             }
             Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
             return GoalStep.RestartGoal;
         }
-
-        bool HaveConqueredTargets()
-        {
-            foreach(var system in TargetSystems)
-            {
-                if (!HaveConqueredTarget(system)) return false;
-            }
-            return true;
-        }
-
-        bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
     }
 }

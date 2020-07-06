@@ -28,45 +28,27 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         GoalStep SetTargets()
         {
-            AddTargetSystems(OwnerWar.GetTheirNearSystems().UniqueExclude(OwnerWar.ContestedSystems));
-            AddTargetSystems(OwnerWar.GetTheirBorderSystems().UniqueExclude(OwnerWar.ContestedSystems));
-            if (TargetSystems.IsEmpty) return GoalStep.GoalFailed;
+            AddTargetSystems(OwnerWar.GetTheirNearSystems());
+            AddTargetSystems(OwnerWar.GetTheirBorderSystems());
+            if (TargetSystems.IsEmpty) return GoalStep.GoalComplete;
 
             return GoalStep.GoToNextStep;
         }
 
+        GoalStep SetupRallyPoint() => SetupRallyPoint(TargetSystems);
+
         GoalStep AttackSystems()
         {
-            if (HaveConqueredTargets()) return GoalStep.GoalComplete;
-            
-            var fleets = Owner.AllFleetsReady();
-            float strength = fleets.AccumulatedStrength;
+            Array<SolarSystem> currentTargets = new Array<SolarSystem>();
+            CreateTargetList(currentTargets);
 
-            var tasks = new WarTasks(Owner, Them);
-            
-            foreach(var system in TargetSystems)
-            {
-                if (HaveConqueredTarget(system)) continue;
+            if (Owner.GetOwnedSystems().Count == 0) return GoalStep.GoalFailed;
+            UpdateTargetSystemList();
+            if (HaveConqueredTargets() || currentTargets.IsEmpty)     return GoalStep.RestartGoal;
+            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
 
-                float defense = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
-                strength -= defense * 2;
-
-                tasks.StandardAssault(system, OwnerWar.Priority(), 2);
-                if (strength < 0) break;
-            }
-            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
-            return GoalStep.RestartGoal;
+            AttackSystemsInList(currentTargets);
+            return GoalStep.TryAgain;
         }
-
-        bool HaveConqueredTargets()
-        {
-            foreach(var system in TargetSystems)
-            {
-                if (!HaveConqueredTarget(system)) return false;
-            }
-            return true;
-        }
-
-        bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
     }
 }

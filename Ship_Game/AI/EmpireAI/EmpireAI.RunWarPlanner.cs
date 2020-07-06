@@ -372,20 +372,20 @@ namespace Ship_Game.AI
                         Empire them = kv.Key;
                         if (rel.Treaty_Peace || !rel.PreparingForWar) continue;
 
-                        float distanceMod = OwnerEmpire.GetWeightedCenter().Distance(them.GetWeightedCenter());
-                        distanceMod /= 1800000f; // current solar system width * 3. 
+                        float minDistanceToThem = OwnerEmpire.MinDistanceToNearestOwnedSystemIn(them.GetOwnedSystems(), out SolarSystem nearestSystem);
+
+                        if (minDistanceToThem < 0) continue;
+                        float projectorRadius = OwnerEmpire.GetProjectorRadius();
+                        float distanceMultiplier = (minDistanceToThem / (Empire.Universe.UniverseSize / 4f)).LowerBound(1);
 
                         float enemyStrength = kv.Key.CurrentMilitaryStrength;
 
-                        if (enemyStrength * ( 1 + distanceMod) > fleets.AccumulatedStrength - currentTaskStrength ) continue;
+                        float anger = rel.TotalAnger  / 100 + OwnerEmpire.GetWarOffensiveRatio();
+
+                        if (enemyStrength * distanceMultiplier > fleets.AccumulatedStrength * anger - currentTaskStrength ) continue;
 
                         // all out war
                         if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)
-                        {
-                            DeclareWarOn(them, rel.PreparingForWarType);
-                        }
-                        // We share a solar system
-                        else if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
                         {
                             DeclareWarOn(them, rel.PreparingForWarType);
                         }
@@ -406,6 +406,11 @@ namespace Ship_Game.AI
                             {
                                 DeclareWarOn(them, rel.PreparingForWarType);
                             }
+                        }
+                        // We share a solar system
+                        else if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
+                        {
+                            DeclareWarOn(them, rel.PreparingForWarType);
                         }
 
                         break;
