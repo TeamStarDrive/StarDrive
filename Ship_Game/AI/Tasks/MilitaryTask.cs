@@ -197,10 +197,12 @@ namespace Ship_Game.AI.Tasks
             {
                 Troop t = TargetPlanet.TroopsHere[index];
                 if (t.Loyalty != Owner
-                    || TargetPlanet.EnemyInRange(true)
+                    || TargetPlanet.SpaceCombatNearPlanet
                     || t.AvailableAttackActions == 0
                     || t.MoveTimer > 0)
+                {
                     continue;
+                }
 
                 toLaunch.Add(t);
             }
