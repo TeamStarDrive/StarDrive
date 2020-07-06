@@ -44,6 +44,14 @@ namespace Ship_Game
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
 
+        public float GetWarOffensiveRatio()
+        {
+            float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
+            float militaryRatio  = Research.Strategy.MilitaryRatio;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            return (1 + territorialism + militaryRatio + opportunism) / 4;
+        }
+
         readonly int[] MoneyHistory = new int[10];
         int MoneyHistoryIndex = 0;
 
@@ -448,6 +456,12 @@ namespace Ship_Game
             return nearAO;
         }
 
+        public Planet[] GetAOCoreWorlds() => EmpireAI.AreasOfOperations.Select(ao => ao.CoreWorld);
+
+        public AO GetAOFromCoreWorld(Planet coreWorld)
+        {
+            return EmpireAI.AreasOfOperations.Find(a => a.CoreWorld == coreWorld);
+        }
         public Planet[] GetSafeAOWorlds()
         {
             var safeWorlds = new Array<Planet>();
@@ -608,6 +622,9 @@ namespace Ship_Game
             {
                 kv.Value.ResetRelation();
                 kv.Key.GetRelations(this).ResetRelation();
+                var them = kv.Key;
+                GetRelations(them).AtWar = false;
+                them.GetRelations(this).AtWar = false;
             }
             foreach (Ship ship in OwnedShips)
             {
@@ -3032,7 +3049,10 @@ namespace Ship_Game
             return OwnedSolarSystems.FindClosestTo(position);
         }
 
-        public bool FindNearestOwnedSystemTo(Array<SolarSystem> systems, out SolarSystem nearestSystem)
+        /// <summary>
+        /// Finds the nearest owned system to systems in list. Returns TRUE if found.
+        /// </summary>
+        public bool FindNearestOwnedSystemTo(IEnumerable<SolarSystem>systems, out SolarSystem nearestSystem)
         {
             nearestSystem  = null;
             if (OwnedSolarSystems.Count == 0)
@@ -3052,6 +3072,27 @@ namespace Ship_Game
                 }
             }
             return nearestSystem != null;
+        }
+
+        public float MinDistanceToNearestOwnedSystemIn(IEnumerable<SolarSystem> systems, out SolarSystem nearestSystem)
+        {
+            nearestSystem = null;
+            if (OwnedSolarSystems.Count == 0)
+                return -1; // We do not have any system owned, maybe we are defeated
+
+            float distance = float.MaxValue;
+            foreach (SolarSystem system in systems)
+            {
+                var nearest = OwnedSolarSystems.FindClosestTo(system);
+                if (nearest == null) continue;
+                float testDistance = system.Position.Distance(nearest.Position);
+                if (testDistance < distance)
+                {
+                    distance = testDistance;
+                    nearestSystem = nearest;
+                }
+            }
+            return distance;
         }
 
         public bool UpdateContactsAndBorders(float elapsedTime)

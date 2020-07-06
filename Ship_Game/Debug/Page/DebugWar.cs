@@ -46,7 +46,7 @@ namespace Ship_Game.Debug.Page
         public override void Update(float deltaTime)
         {
             var text = new Array<DebugTextBlock>();
-
+            if (EmpireAtWar.data.Defeated) return;
             foreach (var kv in EmpireAtWar.AllRelations)
             {
                 var relation = kv.Value;

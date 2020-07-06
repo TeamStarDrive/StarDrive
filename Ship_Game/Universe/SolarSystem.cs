@@ -268,6 +268,11 @@ namespace Ship_Game
             return PlanetList.Sum(p => p.ColonyRawValue(empire));
         }
 
+        public float WarValueTo(Empire empire)
+        { 
+            return PlanetList.Sum(p => p.ColonyWarValueTo(empire));
+        }
+
         readonly Map<Empire, EmpireSolarSystemStatus> Status = new Map<Empire, EmpireSolarSystemStatus>();
 
         EmpireSolarSystemStatus GetStatus(Empire empire)
