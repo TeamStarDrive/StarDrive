@@ -674,7 +674,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(SelectedPlanet);
                 if (input.LeftMouseDoubleClick)
                 {
-                    SnapViewColony();
+                    SnapViewColony(SelectedPlanet.Owner != EmpireManager.Player && !Debug);
                     SelectionBox = new Rectangle();
                 }
                 else
