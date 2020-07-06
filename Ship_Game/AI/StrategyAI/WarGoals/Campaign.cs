@@ -164,23 +164,23 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// The AO will allow the AO process to protect and maintain the AO rally.
         /// Should be called after attack targets are assigned.
         /// </summary>
-        protected GoalStep SetupRallyPoint(Array<SolarSystem> targetSystems)
+        protected virtual GoalStep SetupRallyPoint()
         {
-            float closestRallypoint          = float.MaxValue;
+            float closestRallyPoint          = float.MaxValue;
             SolarSystem rallySystem          = null;
             Planet rallyPlanet               = null;
 
-            if (targetSystems.IsEmpty) return GoalStep.RestartGoal;
+            if (TargetSystems.IsEmpty) return GoalStep.RestartGoal;
 
-            foreach (var system in targetSystems)
+            foreach (var system in TargetSystems)
             {
                 Planet nearestSafeRallyPoint = Owner.FindNearestSafeRallyPoint(system.Position);
                 float systemDistanceToRally  = nearestSafeRallyPoint.ParentSystem.Position.Distance(system.Position);
 
-                if (closestRallypoint > systemDistanceToRally)
+                if (closestRallyPoint > systemDistanceToRally)
                 {
                     rallyPlanet            = nearestSafeRallyPoint;
-                    closestRallypoint      = systemDistanceToRally;
+                    closestRallyPoint      = systemDistanceToRally;
                     rallySystem            = nearestSafeRallyPoint.ParentSystem;
                 }
             }
@@ -212,6 +212,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
+        protected float PercentageCleared()
+        {
+            return (float)TargetSystems.Sum(s => s.OwnerList.Contains(Them) ? 0 : 1) / TargetSystems.Count.LowerBound(1);
+        }
+
         protected bool HaveConqueredTargets()
         {
             foreach (var system in TargetSystems)
@@ -224,7 +229,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
 
-        protected GoalStep CreateTargetList(Array<SolarSystem> currentTargets)
+        protected GoalStep CreateTargetList(Array<SolarSystem> targets)
         {
             Vector2 empireCenter     = Owner.GetWeightedCenter();
             var fleets               = Owner.AllFleetsReady();
@@ -234,13 +239,13 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             float allTargetsStrength = strength;
 
             // these loops are not cheap but the frequency of the calcs should be pretty low.
-            float minDistanceToThem = Owner.MinDistanceToNearestOwnedSystemIn(Them.GetOwnedSystems(), out SolarSystem nearestSystem);
-            float numberOfTargets    = TargetSystems.Count.LowerBound(1);
-            float averageImportance  = TargetSystems.Sum(s => s.WarValueTo(Owner)) / numberOfTargets;
+            float minDistanceToThem  = Owner.MinDistanceToNearestOwnedSystemIn(Them.GetOwnedSystems(), out SolarSystem nearestSystem);
+            float numberOfTargets    = targets.Count.LowerBound(1);
+            float averageImportance  = targets.Sum(s => s.WarValueTo(Owner)) / numberOfTargets;
             
             // goal here is to sort the targets by closeness and value.
             // we will emphasize above average war targets and nearby planets. 
-            foreach (var system in TargetSystems.Sorted(s =>
+            foreach (var system in targets.Sorted(s =>
             {
                 float warValueRatio   = s.WarValueTo(Owner) / averageImportance;
                 // high value targets will be worth more
@@ -277,12 +282,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 for (int i = 0; i < winnableTarget.Count * Owner.GetWarOffensiveRatio(); i++)
                 {
                     var system = winnableTarget[i];
-                    currentTargets.AddUnique(system);
+                    AddTargetSystem(system);
                 }
             }
             else if (allTargets.NotEmpty)
             {
-                currentTargets.AddUnique(allTargets.FindClosestTo(empireCenter));
+                AddTargetSystem(allTargets.FindClosestTo(empireCenter));
             }
             else
             {
@@ -290,6 +295,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
             return GoalStep.GoToNextStep;
         }
+
+        protected void AttackSystemsInList(int fleetsPerTarget = 1) => AttackSystemsInList(TargetSystems, fleetsPerTarget);
 
         protected void AttackSystemsInList(Array<SolarSystem> currentTargets, int fleetsPerTarget = 1)
         {
@@ -303,6 +310,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 priorityMod++;
             }
             Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
+        }
+
+        protected virtual GoalStep AttackSystems()
+        {
+            if (Owner.GetOwnedSystems().Count == 0) return GoalStep.GoalFailed;
+            if (HaveConqueredTargets() || PercentageCleared() > 0.5f) return GoalStep.RestartGoal;
+            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
+
+            AttackSystemsInList();
+            return GoalStep.TryAgain;
         }
     }
 }
