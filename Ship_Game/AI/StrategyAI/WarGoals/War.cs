@@ -56,7 +56,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void RemoveCampaign(Campaign campaign) => Campaigns.Remove(campaign);
 
-        public int Priority() => 10 - (int)GetBorderConflictState();
+        public int Priority()
+        {
+            if (Them.isFaction) return 1;
+            var warState = GetBorderConflictState();
+            return 10 - (int)warState;
+        }
 
         public War()
         {
@@ -93,11 +98,23 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         void CreateCampaigns()
         {
             Campaigns = new Array<Campaign>();
+            CreateCoreCampaigns();
+
+            var defense = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
+            Campaigns.Add(defense);
+            
+
+            Initialized = true;
+        }
+
+        void CreateCoreCampaigns()
+        {
             switch (WarType)
             {
                 case WarType.BorderConflict:
                     {
                         var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureBorder, this);
+                        campaign.AddTargetSystems(GetTheirBorderSystems());
                         Campaigns.Add(campaign);
                         break;
                     }
@@ -110,8 +127,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     }
                 case WarType.DefensiveWar:
                     {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureBorder, this);
-                        campaign.AddTargetSystems(ContestedSystems.Filter(s => Us.GetEmpireAI().IsInOurAOs(s.Position)));
+                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
+                        campaign.AddTargetSystems(Us.GetOwnedSystems().Filter(s =>
+                        {
+                            if (s.OwnerList.Contains(Them))
+                                return Us.GetEmpireAI().IsInOurAOs(s.Position);
+                            return false;
+                        }));
+                        campaign.IsCoreCampaign = true;
                         Campaigns.Add(campaign);
                         break;
                     }
@@ -124,13 +147,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                         break;
                     }
             }
-            if (ContestedSystemCount > 0)
-            {
-                var defense = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
-                Campaigns.Add(defense);
-            }
-
-            Initialized = true;
         }
 
         void PopulateHistoricLostSystems()
@@ -205,6 +221,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public WarState GetWarScoreState()
         {
+            if (Them.isFaction) return WarState.NotApplicable;
             float lostColonyPercent = LostColonyPercent;
             float spaceWarKd        = SpaceWarKd;
 
@@ -290,6 +307,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 CreateCampaigns();
             }
+            else if (Campaigns.Find(c => c.IsCoreCampaign) == null)
+            {
+                CreateCoreCampaigns();
+            }
             else
             {
                 if (!Campaigns.Any(d=>d.Type == Campaign.CampaignType.Defense))
@@ -322,7 +343,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (attacker == Them)
             {
                 ColoniesLost++;
-                AddToContestedSystems(colony.ParentSystem);
             }
         }
 
@@ -331,12 +351,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (loser == Them)
             {
                 ColoniesWon++;
-                if (colony.ParentSystem.OwnerList.Contains(Them))
-                    AddToContestedSystems(colony.ParentSystem);
             }
         }
 
-        void AddToContestedSystems(SolarSystem system)
+        bool AddToContestedSystems(SolarSystem system)
         {
             if (ContestedSystemsGUIDs.AddUnique(system.guid))
             {
@@ -344,7 +362,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 ContestedSystems.CopyTo(contested, 0);
                 contested[ContestedSystemsGUIDs.Count - 1] = system;
                 ContestedSystems = contested;
+                return true;
             }
+            return false;
         }
 
         public void WarDebugData(ref DebugTextBlock debug)

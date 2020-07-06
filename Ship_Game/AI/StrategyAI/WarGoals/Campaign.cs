@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
@@ -32,6 +33,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public Array<Guid> SystemGuids = new Array<Guid>();
         protected Array<SolarSystem> TargetSystems = new Array<SolarSystem>();
         public AO RallyAO;
+        public bool IsCoreCampaign = true;
 
         public Campaign() { }
 
@@ -42,13 +44,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// </summary>
         public Campaign(Campaign campaign, War war) : base(campaign)
         {
-            Type          = campaign.Type;
-            OwnerWar      = war;
-            Owner         = EmpireManager.GetEmpireByName(war.UsName);
-            Them          = EmpireManager.GetEmpireByName(war.ThemName);
-            UID           = $"{Type.ToString()} - {ID}";
-            SystemGuids   = campaign.SystemGuids;
-            RallyAO       = campaign.RallyAO;
+            Type           = campaign.Type;
+            OwnerWar       = war;
+            Owner          = EmpireManager.GetEmpireByName(war.UsName);
+            Them           = EmpireManager.GetEmpireByName(war.ThemName);
+            UID            = $"{Type.ToString()} - {ID}";
+            SystemGuids    = campaign.SystemGuids;
+            RallyAO        = campaign.RallyAO;
+            IsCoreCampaign = campaign.IsCoreCampaign;
             RestoreFromSave(war);
         }
 
@@ -161,42 +164,145 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// The AO will allow the AO process to protect and maintain the AO rally.
         /// Should be called after attack targets are assigned.
         /// </summary>
-        protected GoalStep SetupRallyPoint()
+        protected GoalStep SetupRallyPoint(Array<SolarSystem> targetSystems)
         {
-            float rallyDistanceToTargets     = float.MaxValue;
-            SolarSystem rallySystem = null;
-            Planet rallyPlanet      = null;
-            float aoDistanceToTargets        = float.MaxValue;
+            float closestRallypoint          = float.MaxValue;
+            SolarSystem rallySystem          = null;
+            Planet rallyPlanet               = null;
 
-            foreach (var system in TargetSystems)
+            if (targetSystems.IsEmpty) return GoalStep.RestartGoal;
+
+            foreach (var system in targetSystems)
             {
-                Planet rally = Owner.FindNearestSafeRallyPoint(system.Position);
-                float distance = rally.ParentSystem.Position.Distance(system.Position);
+                Planet nearestSafeRallyPoint = Owner.FindNearestSafeRallyPoint(system.Position);
+                float systemDistanceToRally  = nearestSafeRallyPoint.ParentSystem.Position.Distance(system.Position);
 
-                if (rallyDistanceToTargets > distance)
+                if (closestRallypoint > systemDistanceToRally)
                 {
-                    rallyPlanet   = rally;
-                    rallyDistanceToTargets = distance;
-                    rallySystem   = rally.ParentSystem;
-                    aoDistanceToTargets    = Owner.GetEmpireAI().DistanceToClosestAO(system.Position);
+                    rallyPlanet            = nearestSafeRallyPoint;
+                    closestRallypoint      = systemDistanceToRally;
+                    rallySystem            = nearestSafeRallyPoint.ParentSystem;
                 }
             }
             if (rallySystem != null && rallyPlanet.Owner == Owner)
             {
-                float arbitraryMinDistance = Owner.GetProjectorRadius(rallyPlanet);
-
-                if (RallyAO?.CoreWorld != rallyPlanet)
+                if (!Owner.GetAOCoreWorlds().Contains(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
                 {
-                    if (aoDistanceToTargets - rallyDistanceToTargets > arbitraryMinDistance * 5)
-                    {
-                        AO newAO = new AO(rallyPlanet, Owner.GetProjectorRadius(rallyPlanet));
-                        Owner.GetEmpireAI().AreasOfOperations.Add(newAO);
-                        RallyAO = newAO;
-                    }
+                    AO newAO = new AO(rallyPlanet, Owner.GetProjectorRadius(rallyPlanet));
+                    Owner.GetEmpireAI().AreasOfOperations.Add(newAO);
+                    RallyAO = newAO;
                 }
+                if (RallyAO == null)
+                    RallyAO = Owner.GetAOFromCoreWorld(rallyPlanet);
                 return GoalStep.GoToNextStep;
             }
             return GoalStep.TryAgain;
+        }
+
+        protected void UpdateTargetSystemList() => UpdateTargetSystemList(TargetSystems);
+
+        protected void UpdateTargetSystemList(Array<SolarSystem> solarSystems)
+        {
+            for (int x = 0; x < solarSystems.Count; x++)
+            {
+                var s = solarSystems[x];
+                if (s.OwnerList.Contains(Them))
+                    continue;
+                solarSystems.RemoveAt(x);
+            }
+        }
+
+        protected bool HaveConqueredTargets()
+        {
+            foreach (var system in TargetSystems)
+            {
+                if (!HaveConqueredTarget(system))
+                    return false;
+            }
+            return true;
+        }
+
+        protected bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
+
+        protected GoalStep CreateTargetList(Array<SolarSystem> currentTargets)
+        {
+            Vector2 empireCenter     = Owner.GetWeightedCenter();
+            var fleets               = Owner.AllFleetsReady();
+            float strength           = fleets.AccumulatedStrength * Owner.GetWarOffensiveRatio();
+            var winnableTarget       = new Array<SolarSystem>();
+            var allTargets           = new Array<SolarSystem>();
+            float allTargetsStrength = strength;
+
+            // these loops are not cheap but the frequency of the calcs should be pretty low.
+            float minDistanceToThem = Owner.MinDistanceToNearestOwnedSystemIn(Them.GetOwnedSystems(), out SolarSystem nearestSystem);
+            float numberOfTargets    = TargetSystems.Count.LowerBound(1);
+            float averageImportance  = TargetSystems.Sum(s => s.WarValueTo(Owner)) / numberOfTargets;
+            
+            // goal here is to sort the targets by closeness and value.
+            // we will emphasize above average war targets and nearby planets. 
+            foreach (var system in TargetSystems.Sorted(s =>
+            {
+                float warValueRatio   = s.WarValueTo(Owner) / averageImportance;
+                // high value targets will be worth more
+                warValueRatio        *= warValueRatio < 1 ? 1 : 2;
+                float distance        = s.Position.SqDist(empireCenter);
+                float rangeRatio      = minDistanceToThem / distance;
+                // sorted sorts ascend so we multiply by negative 1 to make the high value targets effectively smaller.
+                return (warValueRatio - rangeRatio) * -1f;
+            }))
+            {
+                if (HaveConqueredTarget(system)) continue;
+
+                float defense = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
+                float rangeMod = system.Position.Distance(empireCenter) / minDistanceToThem;
+                if (defense * rangeMod < strength)
+                {
+                    winnableTarget.Add(system);
+                    strength -= defense;
+                    allTargetsStrength -= defense;
+                    continue;
+                }
+
+                if (allTargetsStrength > 0)
+                {
+                    allTargets.Add(system);
+                    allTargetsStrength -= defense;
+                }
+
+                if (strength < 0) break;
+            }
+
+            if (winnableTarget.NotEmpty)
+            {
+                for (int i = 0; i < winnableTarget.Count * Owner.GetWarOffensiveRatio(); i++)
+                {
+                    var system = winnableTarget[i];
+                    currentTargets.AddUnique(system);
+                }
+            }
+            else if (allTargets.NotEmpty)
+            {
+                currentTargets.AddUnique(allTargets.FindClosestTo(empireCenter));
+            }
+            else
+            {
+                return GoalStep.GoalComplete;
+            }
+            return GoalStep.GoToNextStep;
+        }
+
+        protected void AttackSystemsInList(Array<SolarSystem> currentTargets, int fleetsPerTarget = 1)
+        {
+            int priorityMod = 0;
+
+            var tasks = new WarTasks(Owner, Them);
+
+            foreach (var system in currentTargets)
+            {
+                tasks.StandardAssault(system, OwnerWar.Priority() + priorityMod, fleetsPerTarget);
+                priorityMod++;
+            }
+            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
         }
     }
 }

@@ -426,6 +426,7 @@ namespace Ship_Game.AI.Tasks
                                             EndTask();
                                     }
                                     RequisitionClaimForce();
+                                    Priority -= 1;
                                     break;
                                 }
                             case 1:

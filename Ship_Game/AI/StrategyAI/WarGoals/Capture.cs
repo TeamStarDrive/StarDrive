@@ -20,42 +20,36 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             Steps = new Func<GoalStep>[] 
             {
-                SetupRallyPoint,
-                AttackSystems
+               VerifyTargets,
+               SetupRallyPoint,
+               AttackSystems
             };
+        }
+
+        GoalStep VerifyTargets()
+        {
+            UpdateTargetSystemList();
+            if (TargetSystems.IsEmpty) return GoalStep.GoalComplete;
+            return GoalStep.GoToNextStep;
+        }
+
+        GoalStep SetupRallyPoint()
+        {
+            return SetupRallyPoint(TargetSystems);
         }
 
         GoalStep AttackSystems()
         {
-            if (HaveConqueredTargets()) return GoalStep.GoalComplete;
+            Array<SolarSystem> currentTargets = new Array<SolarSystem>();
+            CreateTargetList(currentTargets);
 
-            var fleets = Owner.AllFleetsReady();
-            float strength = fleets.AccumulatedStrength;
+            if (Owner.GetOwnedSystems().Count == 0) return GoalStep.GoalFailed;
+            UpdateTargetSystemList();
+            if (HaveConqueredTargets() || currentTargets.IsEmpty) return GoalStep.GoalComplete;
+            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
 
-            var tasks = new WarTasks(Owner, Them);
-            foreach(var system in TargetSystems)
-            {
-                float defense = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
-                strength -= defense;
-
-                if (HaveConqueredTarget(system)) continue;
-                tasks.StandardAssault(system, OwnerWar.Priority() + 5);
-                
-                if (strength < 0) break; 
-            }
-            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
-            return GoalStep.RestartGoal;
+            AttackSystemsInList(currentTargets);
+            return GoalStep.TryAgain;
         }
-
-        bool HaveConqueredTargets()
-        {
-            foreach(var system in TargetSystems)
-            {
-                if (!HaveConqueredTarget(system)) return false;
-            }
-            return true;
-        }
-
-        bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
     }
 }

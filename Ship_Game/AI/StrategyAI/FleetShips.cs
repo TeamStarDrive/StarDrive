@@ -76,7 +76,7 @@ namespace Ship_Game.AI
             out Array<Ship> ships)
         {
             float accumulatedStrength;
-            int completeFleets = 0;
+            int completeFleets=0;
             ships = new Array<Ship>();
             int fleetCount = wantedFleetCount.LowerBound(1);
             var utilityShips = new Array<Ship>();
@@ -89,16 +89,16 @@ namespace Ship_Game.AI
                 accumulatedStrength = gatheredShips.Sum(s => s.GetStrength());
                 ships.AddRange(gatheredShips);
 
-
                 if (ships.Count >= Ratios.MinCombatFleet * setCompletePercent)
                 {
                     completeFleets++;
                     fleetCount--;
                 }
+     
             }
-            while (accumulatedStrength <= strength || fleetCount > 0);
+            while (fleetCount > 0);
 
-            if (ships.Sum(s => s.GetStrength()) >= strength && fleetCount <= 0)
+            if (AccumulatedStrength >= strength && fleetCount <= 0)
                 completeFleets = wantedFleetCount;
 
             for (int x =0; x< (wantedFleetCount + completeFleets).LowerBound(1); x++)
@@ -192,7 +192,7 @@ namespace Ship_Game.AI
                     shipSet.Add(ship);
                     Ships.RemoveSwapLast(ship);
                     AccumulatedStrength += ship.GetStrength();
-                    if (shipSet.Count >= wanted)
+                    if (shipSet.Count >= wanted * WantedFleetCompletePercentage)
                         break;
                 }
 

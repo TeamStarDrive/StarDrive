@@ -345,6 +345,13 @@ namespace Ship_Game
             return value;
         }
 
+        public float ColonyWarValueTo(Empire empire)
+        {
+            if (Owner == null)                    return ColonyPotentialValue(empire);
+            if (Owner.GetRelations(empire)?.AtWar == true) return ColonyWorthTo(empire);
+            return 0;
+        }
+
         public void AddProjectile(Projectile projectile)
         {
             Projectiles.Add(projectile);

@@ -64,8 +64,11 @@ namespace Ship_Game.Commands.Goals
                 if (empire.isPlayer)
                     return GoalStep.GoalFailed;
 
-                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
-                task.Priority = -2;
+                var task       = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
+                // need to adjust this by personality.
+                // this task will increase in priority as time goes by. 
+                // this will generally only have an effect during war. 
+                task.Priority  = RandomMath.IntBetween(10,100);
                 empire.GetEmpireAI().AddPendingTask(task);
             }
 
@@ -192,8 +195,9 @@ namespace Ship_Game.Commands.Goals
 
         bool PositiveEnemyPresence(out float spaceStrength)
         {
-            spaceStrength = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
-            return spaceStrength > 10 || ColonizationTarget.GetGroundStrengthOther(empire).Greater(0);
+            spaceStrength   = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
+            float groundStr = ColonizationTarget.GetGroundStrengthOther(empire);
+            return spaceStrength > 10 || groundStr > 0;
         }
 
         bool IsPlanetBuildingColonyShip()
