@@ -79,7 +79,7 @@ namespace Ship_Game.AI.Research
                 { "Economic",     Randomizer(strat.ExpansionRatio, Economics)   },
                 { "Industry",     Randomizer(strat.IndustryRatio,  Industry)    },
                 { "General",      Randomizer(strat.ResearchRatio,  0)           },
-                { "GroundCombat", Randomizer(strat.MilitaryRatio,  Wars * .5f)  },
+                { "GroundCombat", Randomizer(strat.MilitaryRatio,  Wars * 0.5f) },
             };
 
             return priority;
@@ -181,8 +181,8 @@ namespace Ship_Game.AI.Research
             switch (shipTechs)
             {
                 case 1: shipTechToAdd = "ShipHull:ShipDefense:ShipWeapons:ShipGeneral"; break;
-                case 2: shipTechToAdd = "ShipDefense:ShipWeapons:ShipHull";             break;
-                case 3: shipTechToAdd = "ShipWeapons:ShipHull:ShipDefense";             break;
+                case 2: shipTechToAdd = "ShipHull:ShipDefense:ShipWeapons";             break;
+                case 3: shipTechToAdd = "ShipHull:ShipWeapons:ShipDefense";             break;
                 case 4: shipTechToAdd = "ShipHull:ShipGeneral:ShipDefense:ShipWeapons"; break;
             }
 

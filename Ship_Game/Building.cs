@@ -155,8 +155,7 @@ namespace Ship_Game
 
         void UpdateSpaceWeaponTimer(float elapsedTime)
         {
-            if (isWeapon)
-                WeaponTimer -= elapsedTime;
+            WeaponTimer -= elapsedTime;
         }
 
         void FireOnSpaceTarget(Planet planet, Ship target)
@@ -227,6 +226,9 @@ namespace Ship_Game
         public void UpdateSpaceCombatActions(float elapsedTime, Planet p, out bool targetFound)
         {
             targetFound = false;
+            if (!isWeapon && DefenseShipsCapacity == 0)
+                return;
+
             UpdateSpaceWeaponTimer(elapsedTime);
             if (ReadyToFireOnSpaceTargets || CanLaunchDefenseShips(p.Owner))
             {
