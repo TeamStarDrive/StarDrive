@@ -2,10 +2,8 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
-    public class Defense : Campaign
+    public sealed class Defense : AttackSystems
     {
-        SolarSystem CurrentTarget;
-
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Defense"/> class.
         /// </summary>
@@ -13,40 +11,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public Defense(CampaignType campaignType, War war) : base(campaignType, war) => CreateSteps();
 
-        void CreateSteps()
-        {
-            IsCoreCampaign = false;
-            Steps = new Func<GoalStep>[]
-            {
-                SetTargets,
-                SetupRallyPoint,
-                AttackSystems
-            };
-        }
-
-        GoalStep SetTargets()
+        protected override GoalStep SetupTargets()
         {
             if (Them.isFaction) return GoalStep.TryAgain;
-            AddTargetSystems(Owner.GetOwnedSystems().Filter(s=> s.OwnerList.Contains(Them)));
-            AddTargetSystems(OwnerWar.GetTheirBorderSystems());
-            if (TargetSystems.IsEmpty)
-                return GoalStep.TryAgain;
-            return GoalStep.GoToNextStep;
+
+            var targets = new Array<SolarSystem>();
+            targets.AddRange(Owner.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them)));
+            targets.AddRange(OwnerWar.GetTheirBorderSystems());
+            return SetTargets(targets);
         }
 
-        GoalStep SetupRallyPoint() => SetupRallyPoint(TargetSystems);
-
-        GoalStep AttackSystems()
+        protected override GoalStep CustomExtension()
         {
-            if (HaveConqueredTargets()) return GoalStep.RestartGoal;
-
-            var tasks = new WarTasks(Owner, Them);
-            foreach(var system in TargetSystems)
-            {
-                if (HaveConqueredTarget(system)) continue;
-                tasks.StandardAssault(system, -5);
-            }
-            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
             return GoalStep.RestartGoal;
         }
     }
