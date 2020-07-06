@@ -370,7 +370,7 @@ namespace Ship_Game.AI
                         if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
                         Relationship rel = kv.Value;
                         Empire them = kv.Key;
-                        if (rel.Treaty_Peace || !rel.PreparingForWar) continue;
+                        if (rel.Treaty_Peace || !rel.PreparingForWar || rel.AtWar) continue;
 
                         float minDistanceToThem = OwnerEmpire.MinDistanceToNearestOwnedSystemIn(them.GetOwnedSystems(), out SolarSystem nearestSystem);
 

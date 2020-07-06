@@ -2,10 +2,8 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
-    public class CaptureBorderPlanets : Campaign
+    public class CaptureBorderPlanets : AttackSystems
     {
-        SolarSystem CurrentTarget;
-
         /// <summary>
         /// Initializes from save a new instance of the <see cref="CaptureBorderPlanets"/> class.
         /// </summary>
@@ -16,39 +14,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateSteps();
         }
 
-        void CreateSteps()
+        protected override GoalStep SetupTargets()
         {
-            Steps = new Func<GoalStep>[] 
-            {
-                SetTargets,
-                SetupRallyPoint,
-                AttackSystems
-            };
+            var targets = new Array<SolarSystem>();
+            targets.AddRange(OwnerWar.GetTheirNearSystems());
+            targets.AddRange(OwnerWar.GetTheirBorderSystems());
+            return SetTargets(targets);
         }
 
-        GoalStep SetTargets()
+        protected override GoalStep CustomExtension()
         {
-            AddTargetSystems(OwnerWar.GetTheirNearSystems());
-            AddTargetSystems(OwnerWar.GetTheirBorderSystems());
-            if (TargetSystems.IsEmpty) return GoalStep.GoalComplete;
-
-            return GoalStep.GoToNextStep;
-        }
-
-        GoalStep SetupRallyPoint() => SetupRallyPoint(TargetSystems);
-
-        GoalStep AttackSystems()
-        {
-            Array<SolarSystem> currentTargets = new Array<SolarSystem>();
-            CreateTargetList(currentTargets);
-
-            if (Owner.GetOwnedSystems().Count == 0) return GoalStep.GoalFailed;
-            UpdateTargetSystemList();
-            if (HaveConqueredTargets() || currentTargets.IsEmpty)     return GoalStep.RestartGoal;
-            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
-
-            AttackSystemsInList(currentTargets);
-            return GoalStep.TryAgain;
+            return GoalStep.RestartGoal;
         }
     }
 }

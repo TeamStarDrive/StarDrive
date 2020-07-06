@@ -2,7 +2,7 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
-    public class Capture : Campaign
+    public class Capture : AttackSystems
     {
         SolarSystem CurrentTarget;
 
@@ -16,40 +16,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateSteps();
         }
 
-        void CreateSteps()
+        protected override GoalStep SetupTargets()
         {
-            Steps = new Func<GoalStep>[] 
-            {
-               VerifyTargets,
-               SetupRallyPoint,
-               AttackSystems
-            };
+            var targets = new Array<SolarSystem>();
+            targets.AddRange(OwnerWar.GetTheirBorderSystems());
+            return SetTargets(targets);
         }
 
-        GoalStep VerifyTargets()
+        protected override GoalStep CustomExtension()
         {
-            UpdateTargetSystemList();
-            if (TargetSystems.IsEmpty) return GoalStep.GoalComplete;
-            return GoalStep.GoToNextStep;
-        }
-
-        GoalStep SetupRallyPoint()
-        {
-            return SetupRallyPoint(TargetSystems);
-        }
-
-        GoalStep AttackSystems()
-        {
-            Array<SolarSystem> currentTargets = new Array<SolarSystem>();
-            CreateTargetList(currentTargets);
-
-            if (Owner.GetOwnedSystems().Count == 0) return GoalStep.GoalFailed;
-            UpdateTargetSystemList();
-            if (HaveConqueredTargets() || currentTargets.IsEmpty) return GoalStep.GoalComplete;
-            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
-
-            AttackSystemsInList(currentTargets);
-            return GoalStep.TryAgain;
+            return GoalStep.RestartGoal;
         }
     }
 }
