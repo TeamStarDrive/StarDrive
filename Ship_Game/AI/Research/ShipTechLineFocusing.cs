@@ -377,6 +377,9 @@ namespace Ship_Game.AI.Research
             HashSet<string> goodShipTechs = new HashSet<string>();
             foreach (var ship in researchableShips)
             {
+                if (!OwnerEmpire.IsHullUnlocked(ship.shipData.Hull))
+                    continue;
+
                 var researchableTechs = shipTechs.Intersect(ship.shipData.TechsNeeded);
                 foreach (var tech in researchableTechs)
                     goodShipTechs.Add(tech);
