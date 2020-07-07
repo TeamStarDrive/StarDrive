@@ -35,7 +35,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public Array<Campaign> Campaigns;
         public bool Initialized;
         private readonly WarScore Score;
-        public Array<Guid> FailedAssaults = new Array<Guid>(); 
+        public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();
+        public Array<AO> Theaters = new Array<AO>();
         
         public WarState GetBorderConflictState() => Score.GetBorderConflictState();
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => 
@@ -263,6 +264,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             if (loser != Them) return;
             ColoniesWon++;
+        }
+
+        public void SystemAssaultFailed(SolarSystem system)
+        {
+            SystemAssaultFailures.TryGetValue(system.guid, out int count);
+            SystemAssaultFailures[system.guid] = ++count;
         }
 
         bool AddToContestedSystems(SolarSystem system)
