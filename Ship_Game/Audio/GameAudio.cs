@@ -81,27 +81,27 @@ namespace Ship_Game.Audio
                 Log.Info($"GameAudio.Device: {device.FriendlyName}");
                 AudioDevices.CurrentDevice = device; // make sure it's always properly in sync
 
-                SettingsFile = settingsFile;
-                WaveBankFile = waveBankFile;
+                SettingsFile  = settingsFile;
+                WaveBankFile  = waveBankFile;
                 SoundBankFile = soundBankFile;
 
-                AudioEngine = new AudioEngine(settingsFile, TimeSpan.FromMilliseconds(250), device.ID);
-                WaveBank = new WaveBank(AudioEngine, waveBankFile, 0, 16);
-                SoundBank = new SoundBank(AudioEngine, soundBankFile);
+                AudioEngine      = new AudioEngine(settingsFile, TimeSpan.FromMilliseconds(250), device.ID);
+                WaveBank         = new WaveBank(AudioEngine, waveBankFile, 0, 16);
+                SoundBank        = new SoundBank(AudioEngine, soundBankFile);
                 TrackedInstances = new Array<TrackedHandle>();
 
                 while (!WaveBank.IsPrepared)
                     AudioEngine.Update();
 
                 // these are specific to "Audio/ShipGameProject.xgs"
-                Global = AudioEngine.GetCategory("Global");
-                Default = AudioEngine.GetCategory("Default");
-                Music = AudioEngine.GetCategory("Music");
-                Weapons = AudioEngine.GetCategory("Weapons");
+                Global      = AudioEngine.GetCategory("Global");
+                Default     = AudioEngine.GetCategory("Default");
+                Music       = AudioEngine.GetCategory("Music");
+                Weapons     = AudioEngine.GetCategory("Weapons");
                 RacialMusic = AudioEngine.GetCategory("RacialMusic");
                 CombatMusic = AudioEngine.GetCategory("CombatMusic");
 
-                SfxQueue = new Array<QueuedSfx>(16);
+                SfxQueue  = new Array<QueuedSfx>(16);
                 SfxThread = new Thread(SfxEnqueueThread) { Name = "GameAudioSfx" };
                 SfxThread.Start();
 
@@ -158,12 +158,12 @@ namespace Ship_Game.Audio
         // Configures GameAudio from GlobalStats MusicVolume and EffectsVolume
         public static void ConfigureAudioSettings()
         {
-            float music = GlobalStats.MusicVolume;
+            float music   = GlobalStats.MusicVolume;
             float effects = GlobalStats.EffectsVolume;
 
-            MusicDisabled = music <= 0.001f;
+            MusicDisabled   = music <= 0.001f;
             EffectsDisabled = effects <= 0.001f;
-            AudioDisabled = AudioEngineGood && MusicDisabled && EffectsDisabled;
+            AudioDisabled   = AudioEngineGood && MusicDisabled && EffectsDisabled;
             if (!AudioEngineGood) return;
 
             Global.SetVolume(AudioDisabled ? 0.0f : 1.0f);
