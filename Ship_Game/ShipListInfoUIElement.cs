@@ -323,28 +323,17 @@ namespace Ship_Game
 
         void OnSelectedShipsListButtonClicked(SkinnableButton button)
         {
-            // added by gremlin filter by selected ship in shiplist.
-            if (Screen.Input.IsShiftKeyDown)
+            if (Screen.Input.IsShiftKeyDown && Screen.Input.IsCtrlKeyDown)
             {
-                foreach (Ship filter in Screen.SelectedShipList)
-                {
-                    if (filter.DesignRole != HoveredShip.DesignRole)
-                        Screen.SelectedShipList.QueuePendingRemoval(filter);
-                }
-
-                Screen.SelectedShipList.ApplyPendingRemovals();
-                SetShipList(Screen.SelectedShipList, false);
+                FilterShipList(s => s.Name == HoveredShip.Name);
+            }
+            else if (Screen.Input.IsShiftKeyDown)
+            {
+                FilterShipList(s=> s.DesignRole == HoveredShip.DesignRole);
             }
             else if (Screen.Input.IsCtrlKeyDown)
             {
-                foreach (Ship filter in Screen.SelectedShipList)
-                {
-                    if (filter.DesignRole != HoveredShip.DesignRole || filter.BaseHull != HoveredShip.BaseHull)
-                        Screen.SelectedShipList.QueuePendingRemoval(filter);
-                }
-
-                Screen.SelectedShipList.ApplyPendingRemovals();
-                SetShipList(Screen.SelectedShipList, false);
+                FilterShipList(s => s.DesignRole == HoveredShip.DesignRole && s.BaseHull == HoveredShip.BaseHull);
             }
             else
             {
@@ -353,6 +342,18 @@ namespace Ship_Game
                 Screen.SelectedShip = HoveredShip; //fbedard: multi-select
                 Screen.ShipInfoUIElement.SetShip(HoveredShip);
             }
+        }
+
+        private void FilterShipList(Predicate<Ship> predicate)
+        {
+            for (int i = Screen.SelectedShipList.Count - 1; i >= 0; i--)
+            {
+                Ship filter = Screen.SelectedShipList[i];
+                if (predicate(filter)) continue;
+                Screen.SelectedShipList.RemoveSwapLast(filter);
+            }
+
+            SetShipList(Screen.SelectedShipList, false);
         }
 
         public void SetShipList(Array<Ship> shipList, bool isFleet)
