@@ -80,8 +80,7 @@ namespace Ship_Game
             HandleFleetSelections(input);
             HandleShipSelectionAndOrders();
 
-            if (input.LeftMouseDoubleClick)
-                InputClickableItems(input);
+            InputClickableItems(input);
 
             if (!LookingAtPlanet)
             {
@@ -589,7 +588,7 @@ namespace Ship_Game
         {
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
-                if (!input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
+                if (!clickableShip.HitTest(input.CursorPosition))
                     continue;
                 if (clickableShip.shipToClick?.inSensorRange != true || pickedSomethingThisFrame)
                     continue;
@@ -943,15 +942,19 @@ namespace Ship_Game
 
         void InputClickableItems(InputState input)
         {
+            if (!input.LeftMouseDoubleClick) return;
+
             SelectedShipList.Clear();
             if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
                 previousSelection = SelectedShip;
             SelectedShip = null;
+
+
             if (viewState <= UnivScreenState.SystemView)
             {
                 foreach (ClickablePlanets clickablePlanets in ClickPlanetList)
                 {
-                    if (input.CursorPosition.InRadius(clickablePlanets.ScreenPos, clickablePlanets.Radius))
+                    if (clickablePlanets.HitTest(input.CursorPosition))
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
@@ -959,24 +962,9 @@ namespace Ship_Game
                     }
                 }
             }
-            foreach (ClickableShip clickableShip in ClickableShipsList)
-            {
-                if (!input.CursorPosition.InRadius(clickableShip.ScreenPos, clickableShip.Radius))
-                    continue;
-                pickedSomethingThisFrame = true;
-                SelectedShipList.AddUnique(clickableShip.shipToClick);
 
-                foreach (ClickableShip ship in ClickableShipsList)
-                {
-                    if (clickableShip.shipToClick != ship.shipToClick &&
-                        ship.shipToClick.loyalty == clickableShip.shipToClick.loyalty &&
-                        ship.shipToClick.shipData.Role == clickableShip.shipToClick.shipData.Role)
-                    {
-                        SelectedShipList.AddUnique(ship.shipToClick);
-                    }
-                }
-                break;
-            }
+            SelectShipsByClickingonShip(input);
+
             if (viewState > UnivScreenState.SystemView)
             {
                 for (int i = 0; i < ClickableSystems.Count; ++i)
@@ -993,6 +981,45 @@ namespace Ship_Game
                             GameAudio.NegativeClick();
                     }
                 }
+            }
+        }
+
+        private void SelectShipsByClickingonShip(InputState input)
+        {
+            foreach (ClickableShip clickableShip in ClickableShipsList)
+            {
+                if (!clickableShip.HitTest(input.CursorPosition))
+                    continue;
+
+                pickedSomethingThisFrame = true;
+                SelectedShipList.AddUnique(clickableShip.shipToClick);
+                var clicked = clickableShip.shipToClick;
+
+                foreach (ClickableShip clickTest in ClickableShipsList)
+                {
+                    var ship = clickTest.shipToClick;
+
+                    if (clicked == ship || ship.loyalty != clicked.loyalty) continue;
+
+                    bool sameHull   = ship.BaseHull == clicked.BaseHull;
+                    bool sameRole   = ship.DesignRole == clicked.DesignRole;
+                    bool sameDesign = ship.Name == clicked.Name;
+
+                    if (input.IsCtrlKeyDown && input.IsShiftKeyDown)
+                    {
+                        if (sameDesign) SelectedShipList.AddUnique(ship);
+                    }
+                    else if (input.IsCtrlKeyDown)
+                    {
+                        if (sameRole && sameHull) SelectedShipList.AddUnique(ship);
+                    }
+                    else if (input.IsShiftKeyDown)
+                    {
+                        if (sameRole) SelectedShipList.AddUnique(ship);
+                    }
+                    else if (clicked.BaseHull == ship.BaseHull) SelectedShipList.AddUnique(ship);
+                }
+                break;
             }
         }
 
