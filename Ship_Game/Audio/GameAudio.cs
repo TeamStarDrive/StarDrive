@@ -18,6 +18,7 @@ namespace Ship_Game.Audio
         static bool AudioDisabled;
         static bool EffectsDisabled;
         static bool MusicDisabled;
+        static bool AudioEngineGood;
 
         static AudioCategory Global;
         static AudioCategory Default;
@@ -67,12 +68,13 @@ namespace Ship_Game.Audio
             try
             {
                 Destroy(); // just in case
-
+                AudioEngineGood = false;
                 // try selecting an audio device if no argument given
                 if (device == null && !AudioDevices.PickAudioDevice(out device))
                 {
                     Log.Warning("GameAudio is disabled since audio device selection failed.");
                     AudioDisabled = true;
+                    AudioEngineGood = false;
                     return;
                 }
 
@@ -83,34 +85,33 @@ namespace Ship_Game.Audio
                 WaveBankFile = waveBankFile;
                 SoundBankFile = soundBankFile;
 
-                AudioEngine  = new AudioEngine(settingsFile, TimeSpan.FromMilliseconds(250), device.ID);
-                WaveBank     = new WaveBank(AudioEngine, waveBankFile, 0, 16);
-                SoundBank    = new SoundBank(AudioEngine, soundBankFile);
+                AudioEngine = new AudioEngine(settingsFile, TimeSpan.FromMilliseconds(250), device.ID);
+                WaveBank = new WaveBank(AudioEngine, waveBankFile, 0, 16);
+                SoundBank = new SoundBank(AudioEngine, soundBankFile);
                 TrackedInstances = new Array<TrackedHandle>();
 
                 while (!WaveBank.IsPrepared)
                     AudioEngine.Update();
 
                 // these are specific to "Audio/ShipGameProject.xgs"
-                Global      = AudioEngine.GetCategory("Global");
-                Default     = AudioEngine.GetCategory("Default");
-                Music       = AudioEngine.GetCategory("Music");
-                Weapons     = AudioEngine.GetCategory("Weapons");
+                Global = AudioEngine.GetCategory("Global");
+                Default = AudioEngine.GetCategory("Default");
+                Music = AudioEngine.GetCategory("Music");
+                Weapons = AudioEngine.GetCategory("Weapons");
                 RacialMusic = AudioEngine.GetCategory("RacialMusic");
                 CombatMusic = AudioEngine.GetCategory("CombatMusic");
 
-                SfxQueue  = new Array<QueuedSfx>(16);
-                SfxThread = new Thread(SfxEnqueueThread) {Name = "GameAudioSfx"};
+                SfxQueue = new Array<QueuedSfx>(16);
+                SfxThread = new Thread(SfxEnqueueThread) { Name = "GameAudioSfx" };
                 SfxThread.Start();
 
                 Listener = new AudioListener();
             }
             catch (Exception ex)
             {
-                AudioEngine = null;
-                WaveBank    = null;
-                SoundBank   = null;
                 Log.Error(ex, "AudioEngine init failed. Please make sure that Speakers/Headphones are attached");
+                Destroy();
+                AudioEngineGood = false;
             }
         }
 
@@ -118,18 +119,18 @@ namespace Ship_Game.Audio
         public static void Destroy()
         {
             SfxThread = null;
-            if (SfxQueue != null) lock(SfxQueue)
-            {
-                SfxQueue.Clear();
-                SfxQueue = null;
-            }
+            if (SfxQueue != null) lock (SfxQueue)
+                {
+                    SfxQueue.Clear();
+                    SfxQueue = null;
+                }
 
             if (TrackedInstances != null) lock (TrackedInstances)
-            {
-                for (int i = 0; i < TrackedInstances.Count; ++i)
-                    TrackedInstances[i].DestroyInstance();
-                TrackedInstances.Clear();
-            }
+                {
+                    for (int i = 0; i < TrackedInstances.Count; ++i)
+                        TrackedInstances[i].DestroyInstance();
+                    TrackedInstances.Clear();
+                }
             SoundBank?.Dispose(ref SoundBank);
             WaveBank?.Dispose(ref WaveBank);
             AudioEngine?.Dispose(ref AudioEngine);
@@ -150,18 +151,20 @@ namespace Ship_Game.Audio
 
         public static void Update3DSound(in Vector3 listenerPosition)
         {
-            Listener.Position = listenerPosition;
+            if (AudioEngineGood)
+                Listener.Position = listenerPosition;
         }
 
         // Configures GameAudio from GlobalStats MusicVolume and EffectsVolume
         public static void ConfigureAudioSettings()
         {
-            float music   = GlobalStats.MusicVolume;
+            float music = GlobalStats.MusicVolume;
             float effects = GlobalStats.EffectsVolume;
 
-            MusicDisabled   = music   <= 0.001f;
+            MusicDisabled = music <= 0.001f;
             EffectsDisabled = effects <= 0.001f;
-            AudioDisabled = MusicDisabled && EffectsDisabled;
+            AudioDisabled = AudioEngineGood && MusicDisabled && EffectsDisabled;
+            if (!AudioEngineGood) return;
 
             Global.SetVolume(AudioDisabled ? 0.0f : 1.0f);
             Music.SetVolume(music);
@@ -173,15 +176,16 @@ namespace Ship_Game.Audio
 
         public static void StopGenericMusic(bool immediate = true)
         {
-            Music.Stop(immediate ? AudioStopOptions.Immediate : AudioStopOptions.AsAuthored);
+            if (AudioEngineGood)
+                Music.Stop(immediate ? AudioStopOptions.Immediate : AudioStopOptions.AsAuthored);
         }
 
-        public static void PauseGenericMusic()  => Music.Pause();
-        public static void ResumeGenericMusic() => Music.Resume();
-        public static void MuteGenericMusic()   => Music.SetVolume(0f);
-        public static void UnMuteGenericMusic() => Music.SetVolume(GlobalStats.MusicVolume);
-        public static void MuteRacialMusic()    => RacialMusic.SetVolume(0f);
-        public static void UnMuteRacialMusic()  => RacialMusic.SetVolume(GlobalStats.MusicVolume);
+        public static void PauseGenericMusic()  { if (!CantPlayMusic()) Music.Pause(); }
+        public static void ResumeGenericMusic() { if (!CantPlayMusic()) Music.Resume(); }
+        public static void MuteGenericMusic()   { if (!CantPlayMusic()) Music.SetVolume(0f); }
+        public static void UnMuteGenericMusic() { if (CantPlayMusic()) Music.SetVolume(GlobalStats.MusicVolume); }
+        public static void MuteRacialMusic()    { if(!CantPlayMusic()) RacialMusic.SetVolume(0f);}
+        public static void UnMuteRacialMusic()  { if (!CantPlayMusic()) RacialMusic.SetVolume(GlobalStats.MusicVolume); }
 
         public static void NegativeClick()    => PlaySfxAsync("UI_Misc20"); // "eek-eek"
         public static void AffirmativeClick() => PlaySfxAsync("echo_affirm1"); // soft "bubble" affirm
@@ -211,6 +215,7 @@ namespace Ship_Game.Audio
         // this is used for the DiplomacyScreen
         public static void SwitchToRacialMusic()
         {
+            if (CantPlayMusic()) return;
             Music.Stop(AudioStopOptions.Immediate);
             MuteGenericMusic();
             UnMuteRacialMusic();
@@ -218,6 +223,7 @@ namespace Ship_Game.Audio
 
         public static void SwitchBackToGenericMusic()
         {
+            if (CantPlayMusic()) return;
             UnMuteGenericMusic();
             Music.Resume();
             RacialMusic.Stop(AudioStopOptions.Immediate);
@@ -285,7 +291,7 @@ namespace Ship_Game.Audio
         public static bool CantPlaySfx(string cueName)
         {
             const int frameSfxLimit = 1; // @ 60fps, this is max 60 SFX per second
-            return AudioDisabled || EffectsDisabled || ThisFrameSfxCount > frameSfxLimit || cueName.IsEmpty();
+            return !AudioEngineGood || AudioDisabled || EffectsDisabled || ThisFrameSfxCount > frameSfxLimit || cueName.IsEmpty();
         }
 
         public static void PlaySfxAsync(string cueName, AudioEmitter emitter = null)
@@ -319,8 +325,10 @@ namespace Ship_Game.Audio
 
         static bool CantPlayMusic(string music)
         {
-            return AudioDisabled || MusicDisabled || music.IsEmpty();
+            return !AudioEngineGood || AudioDisabled || MusicDisabled || music.IsEmpty();
         }
+
+        static bool CantPlayMusic() => CantPlayMusic(null);
 
         public static AudioHandle PlayMusic(string cueName)
         {
@@ -338,6 +346,8 @@ namespace Ship_Game.Audio
 
         static void DisposeStoppedInstances()
         {
+            if (TrackedInstances == null) return;
+
             lock (TrackedInstances)
             {
                 for (int i = 0; i < TrackedInstances.Count; i++)
