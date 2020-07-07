@@ -323,17 +323,17 @@ namespace Ship_Game
 
         void OnSelectedShipsListButtonClicked(SkinnableButton button)
         {
-            // added by gremlin filter by selected ship in shiplist.
-            if (Screen.Input.IsKeyDown(Keys.LeftShift))
+            if (Screen.Input.SelectSameDesign)
             {
-                foreach (Ship filter in Screen.SelectedShipList)
-                {
-                    if (filter.shipData.Role != HoveredShip.shipData.Role)
-                        Screen.SelectedShipList.QueuePendingRemoval(filter);
-                }
-
-                Screen.SelectedShipList.ApplyPendingRemovals();
-                SetShipList(Screen.SelectedShipList, false);
+                FilterShipList(s => s.Name == HoveredShip.Name);
+            }
+            else if (Screen.Input.SelectSameRole)
+            {
+                FilterShipList(s=> s.DesignRole == HoveredShip.DesignRole);
+            }
+            else if (Screen.Input.SelectSameRoleAndHull)
+            {
+                FilterShipList(s => s.DesignRole == HoveredShip.DesignRole && s.BaseHull == HoveredShip.BaseHull);
             }
             else
             {
@@ -342,6 +342,18 @@ namespace Ship_Game
                 Screen.SelectedShip = HoveredShip; //fbedard: multi-select
                 Screen.ShipInfoUIElement.SetShip(HoveredShip);
             }
+        }
+
+        private void FilterShipList(Predicate<Ship> predicate)
+        {
+            for (int i = Screen.SelectedShipList.Count - 1; i >= 0; i--)
+            {
+                Ship filter = Screen.SelectedShipList[i];
+                if (predicate(filter)) continue;
+                Screen.SelectedShipList.RemoveSwapLast(filter);
+            }
+
+            SetShipList(Screen.SelectedShipList, false);
         }
 
         public void SetShipList(Array<Ship> shipList, bool isFleet)
