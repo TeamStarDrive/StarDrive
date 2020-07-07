@@ -7,12 +7,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Capture"/> class.
         /// </summary>
-        protected AttackSystems(Campaign campaign, War war) : base(campaign, war) => CreateSteps();
+        protected AttackSystems(Campaign campaign, War war) : base(campaign, war){}
 
-        protected AttackSystems(CampaignType campaignType, War war) : base(campaignType, war)
-        {
-            CreateSteps();
-        }
+        protected AttackSystems(CampaignType campaignType, War war) : base(campaignType, war){}
 
         protected void CreateSteps()
         {
@@ -21,8 +18,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                SetupTargets,
                SetupRallyPoint,
                AttackSystems,
-               AssesCampaign,
-               CustomExtension
+               AssesCampaign
             };
         }
 
@@ -31,7 +27,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             return GoalStep.GoToNextStep;
         }
-        protected abstract GoalStep CustomExtension();
 
         protected GoalStep SetTargets(Array<SolarSystem> targets)
         {
