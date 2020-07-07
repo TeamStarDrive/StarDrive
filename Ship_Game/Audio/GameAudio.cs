@@ -328,7 +328,7 @@ namespace Ship_Game.Audio
             return !AudioEngineGood || AudioDisabled || MusicDisabled || music.IsEmpty();
         }
 
-        static bool CantPlayMusic() => CantPlayMusic(null);
+        static bool CantPlayMusic() => !AudioEngineGood || AudioDisabled || MusicDisabled;
 
         public static AudioHandle PlayMusic(string cueName)
         {
