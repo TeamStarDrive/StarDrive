@@ -323,15 +323,15 @@ namespace Ship_Game
 
         void OnSelectedShipsListButtonClicked(SkinnableButton button)
         {
-            if (Screen.Input.IsShiftKeyDown && Screen.Input.IsCtrlKeyDown)
+            if (Screen.Input.SelectSameDesign)
             {
                 FilterShipList(s => s.Name == HoveredShip.Name);
             }
-            else if (Screen.Input.IsShiftKeyDown)
+            else if (Screen.Input.SelectSameRole)
             {
                 FilterShipList(s=> s.DesignRole == HoveredShip.DesignRole);
             }
-            else if (Screen.Input.IsCtrlKeyDown)
+            else if (Screen.Input.SelectSameRoleAndHull)
             {
                 FilterShipList(s => s.DesignRole == HoveredShip.DesignRole && s.BaseHull == HoveredShip.BaseHull);
             }

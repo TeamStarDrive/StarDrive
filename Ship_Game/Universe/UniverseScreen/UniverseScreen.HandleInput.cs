@@ -1005,15 +1005,15 @@ namespace Ship_Game
                     bool sameRole   = ship.DesignRole == clicked.DesignRole;
                     bool sameDesign = ship.Name == clicked.Name;
 
-                    if (input.IsCtrlKeyDown && input.IsShiftKeyDown)
+                    if (input.SelectSameDesign)
                     {
                         if (sameDesign) SelectedShipList.AddUnique(ship);
                     }
-                    else if (input.IsCtrlKeyDown)
+                    else if (input.SelectSameRoleAndHull)
                     {
                         if (sameRole && sameHull) SelectedShipList.AddUnique(ship);
                     }
-                    else if (input.IsShiftKeyDown)
+                    else if (input.SelectSameRole)
                     {
                         if (sameRole) SelectedShipList.AddUnique(ship);
                     }
