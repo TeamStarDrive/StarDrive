@@ -21,6 +21,22 @@ namespace Ship_Game.Ships
             throw new InvalidOperationException(
                 $"BUG! Ship must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Ship XXX;` PROPERTIES/FIELDS. {this}");
 
+        public static Array<Ship> GetShipsFromGuids(Array<Guid> guids)
+        {
+            var systems = new Array<Ship>();
+            for (int i = 0; i < guids.Count; i++)
+            {
+                var guid = guids[i];
+                var ship = GetShipFromGuid(guid);
+                if (ship != null)
+                    systems.Add(ship);
+            }
+
+            return systems;
+        }
+
+        public static Ship GetShipFromGuid(Guid guid) => Empire.Universe.MasterShipList.Find(s => s.guid == guid);
+
         public string VanityName                = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
 

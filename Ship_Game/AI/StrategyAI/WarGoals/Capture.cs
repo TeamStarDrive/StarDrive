@@ -4,8 +4,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public class Capture : AttackSystems
     {
-        SolarSystem CurrentTarget;
-
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Capture"/> class.
         /// </summary>

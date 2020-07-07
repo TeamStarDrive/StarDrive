@@ -34,6 +34,7 @@ namespace Ship_Game.AI
         //[Serialize(6)] private bool Flip; // @todo Change savegame version before reassigning Serialize indices
         [Serialize(7)] public float Radius;
         [Serialize(8)] public int TurnsToRelax;
+        [Serialize(9)] public Guid AOGuid = Guid.NewGuid();
         public Fleet GetCoreFleet()                        => CoreFleet;
         public Planet GetPlanet() => CoreWorld;
 

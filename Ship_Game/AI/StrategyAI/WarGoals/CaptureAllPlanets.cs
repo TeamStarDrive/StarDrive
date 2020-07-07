@@ -5,9 +5,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public class CaptureAllPlanets : AttackSystems
     {
-        SolarSystem CurrentTarget;
-        Array<SolarSystem> CurrentTargets;
-
         /// <summary>
         /// Initializes from save a new instance of the <see cref="CaptureAllPlanets"/> class.
         /// </summary>

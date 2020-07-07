@@ -55,6 +55,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them           = EmpireManager.GetEmpireByName(war.ThemName);
             UID            = $"{Type.ToString()} - {ID}";
             SystemGuids    = campaign.SystemGuids;
+            ShipGuids      = campaign.ShipGuids;
+            PlanetGuids    = campaign.PlanetGuids;
             RallyAO        = campaign.RallyAO;
             IsCoreCampaign = campaign.IsCoreCampaign;
             RestoreFromSave(war);
@@ -151,6 +153,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         void RestoreFromSave(War war)
         {
             TargetSystems = SolarSystem.GetSolarSystemsFromGuids(SystemGuids);
+            TargetShips   = Ship.GetShipsFromGuids(ShipGuids);
+            TargetPlanets = Planet.GetPlanetsFromGuids(PlanetGuids);
             OwnerWar      = war;
             Them          = EmpireManager.GetEmpireByName(war.ThemName);
             RestoreFromSave(war.UsName);
@@ -319,12 +323,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected virtual GoalStep AttackSystems()
         {
-            if (Owner.GetOwnedSystems().Count == 0) return GoalStep.GoalFailed;
+            if (Owner.GetOwnedSystems().Count == 0)                   return GoalStep.GoalFailed;
             if (HaveConqueredTargets() || PercentageCleared() > 0.5f) return GoalStep.RestartGoal;
             if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
 
             AttackSystemsInList();
-            return GoalStep.TryAgain;
+            return GoalStep.GoToNextStep;
         }
     }
 }
