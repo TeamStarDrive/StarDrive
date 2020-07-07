@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
@@ -30,10 +31,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public CampaignType Type;
         protected War OwnerWar;
         protected Empire Them;
-        public Array<Guid> SystemGuids = new Array<Guid>();
+        public Array<Guid> SystemGuids             = new Array<Guid>();
         protected Array<SolarSystem> TargetSystems = new Array<SolarSystem>();
+        public Array<Guid> ShipGuids               = new Array<Guid>();
+        protected Array<Ship> TargetShips          = new Array<Ship>();
+        public Array<Guid> PlanetGuids             = new Array<Guid>();
+        protected Array<Planet> TargetPlanets      = new Array<Planet>();
         public AO RallyAO;
-        public bool IsCoreCampaign = true;
+        public bool IsCoreCampaign                 = true;
 
         public Campaign() { }
 

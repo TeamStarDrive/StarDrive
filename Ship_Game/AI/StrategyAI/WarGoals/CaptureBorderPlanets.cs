@@ -21,10 +21,5 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             targets.AddRange(OwnerWar.GetTheirBorderSystems());
             return SetTargets(targets);
         }
-
-        protected override GoalStep CustomExtension()
-        {
-            return GoalStep.RestartGoal;
-        }
     }
 }
