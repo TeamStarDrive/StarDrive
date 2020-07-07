@@ -324,11 +324,22 @@ namespace Ship_Game
         void OnSelectedShipsListButtonClicked(SkinnableButton button)
         {
             // added by gremlin filter by selected ship in shiplist.
-            if (Screen.Input.IsKeyDown(Keys.LeftShift))
+            if (Screen.Input.IsShiftKeyDown)
             {
                 foreach (Ship filter in Screen.SelectedShipList)
                 {
-                    if (filter.shipData.Role != HoveredShip.shipData.Role)
+                    if (filter.DesignRole != HoveredShip.DesignRole)
+                        Screen.SelectedShipList.QueuePendingRemoval(filter);
+                }
+
+                Screen.SelectedShipList.ApplyPendingRemovals();
+                SetShipList(Screen.SelectedShipList, false);
+            }
+            else if (Screen.Input.IsCtrlKeyDown)
+            {
+                foreach (Ship filter in Screen.SelectedShipList)
+                {
+                    if (filter.DesignRole != HoveredShip.DesignRole || filter.BaseHull != HoveredShip.BaseHull)
                         Screen.SelectedShipList.QueuePendingRemoval(filter);
                 }
 
