@@ -68,7 +68,7 @@ namespace Ship_Game.Audio
             try
             {
                 Destroy(); // just in case
-                AudioEngineGood = false;
+                AudioEngineGood = true;
                 // try selecting an audio device if no argument given
                 if (device == null && !AudioDevices.PickAudioDevice(out device))
                 {
