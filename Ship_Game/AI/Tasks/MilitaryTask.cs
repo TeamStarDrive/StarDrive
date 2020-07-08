@@ -343,6 +343,9 @@ namespace Ship_Game.AI.Tasks
                     }
                 case TaskType.AssaultPlanet:
                     {
+                        if (TargetPlanet.Owner == null || Owner.IsEmpireHostile(TargetPlanet.Owner))
+                            EndTask();
+
                         if (Step < 0)
                         {
                             Step++;
@@ -500,6 +503,9 @@ namespace Ship_Game.AI.Tasks
                     }
                 case TaskType.GlassPlanet:
                     {
+                        if (TargetPlanet.Owner == null || Owner.IsEmpireHostile(TargetPlanet.Owner))
+                            EndTask();
+
                         if (Step == 0) RequisitionGlassForce();
                         else
                         {
@@ -526,17 +532,22 @@ namespace Ship_Game.AI.Tasks
 
             if (type == TaskType.Exploration ||type ==TaskType.AssaultPlanet)
             {
+
                 float ourGroundStrength = TargetPlanet.GetGroundStrength(Owner);
                 if (ourGroundStrength > 0)
                 {
                     if (type == TaskType.Exploration)
                     {
+                        if (TargetPlanet.Owner != null && !Owner.IsEmpireHostile(TargetPlanet.Owner))
+                            EndTask();
                         Planet p = TargetPlanet;
                         if (p.BuildingList.Find(relic => relic.EventHere) != null)
                             return;
                     }
                     else if (type == TaskType.AssaultPlanet)
                     {
+                        if (TargetPlanet.Owner == null || Owner.IsEmpireHostile(TargetPlanet.Owner))
+                            EndTask();
                         float groundStr = TargetPlanet.GetGroundStrengthOther(Owner);
                         if (groundStr > 0)
                             return;
