@@ -43,15 +43,13 @@ namespace Ship_Game.AI
                         OwnerEmpire.BreakAllianceWith(ally);
                     }
 
-                    ourRelationToAlly.Trust -= anger;
+                    ourRelationToAlly.Trust                    -= anger;
                     ourRelationToAlly.Anger_DiplomaticConflict += anger;
                 })
             };
 
-            if (ally == Empire.Universe.PlayerEmpire)
-            {
+            if (ally.isPlayer)
                 DiplomacyScreen.Show(OwnerEmpire, dialogue, ourOffer, offer, enemy);
-            }
         }
 
         public void DeclareWarFromEvent(Empire them, WarType wt)

@@ -103,9 +103,9 @@ namespace Ship_Game.Gameplay
         [Serialize(59)] public float WeOweThem;
         [Serialize(60)] public int TurnsAtWar;
         [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
-        [XmlIgnore] [JsonIgnore] public EmpireRiskAssessment Risk;
-        [XmlIgnore][JsonIgnore]
-        public Empire Them => EmpireManager.GetEmpireByName(Name);
+        [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
+        [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
+        [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
 
         /// <summary>
         /// Tech transfer restriction.
@@ -114,13 +114,10 @@ namespace Ship_Game.Gameplay
         /// </summary>
         [XmlIgnore][JsonIgnore]
         readonly Array<TechUnlockType> PreventContentExchangeOf =
-                                         new Array<TechUnlockType>
-                                         {
-                                             TechUnlockType.Diplomacy
-                                         };
+                                       new Array<TechUnlockType> { TechUnlockType.Diplomacy };
 
         public bool AllowRacialTrade() => !PreventContentExchangeOf.Contains(TechUnlockType.Diplomacy);
-        public bool HaveRejectedDemandTech
+        public bool HaveRejectedDemandTech // TODO check this
         {
             get => haveRejectedDemandTech;
             set
@@ -128,12 +125,12 @@ namespace Ship_Game.Gameplay
                 if (!(haveRejectedDemandTech = value))
                     return;
                 Trust -= 20f;
-                TotalAnger += 20f;
+                TotalAnger += 20f; // TODO check this
                 Anger_DiplomaticConflict += 20f;
             }
         }
 
-        public bool HaveRejectedNapact
+        public bool HaveRejectedNaPact
         {
             get => haveRejectedNAPact;
             set
