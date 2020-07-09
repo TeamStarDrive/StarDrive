@@ -574,7 +574,7 @@ namespace Ship_Game
         public void UpdateOwnedPlanet()
         {
             TurnsSinceTurnover += 1;
-            CrippledTurns = (CrippledTurns).LowerBound(0);
+            CrippledTurns = (CrippledTurns - 1).LowerBound(0);
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();

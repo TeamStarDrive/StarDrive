@@ -913,6 +913,7 @@ namespace Ship_Game
             public Vector2 ScreenPos;
             public float Radius;
             public Planet planetToClick;
+            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
         }
 
         public struct ClickableShip
@@ -920,6 +921,7 @@ namespace Ship_Game
             public Vector2 ScreenPos;
             public float Radius;
             public Ship shipToClick;
+            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
         }
 
         struct ClickableSystem
@@ -929,7 +931,7 @@ namespace Ship_Game
             public SolarSystem systemToClick;
             public bool Touched(Vector2 touchPoint)
             {
-                if (!(Vector2.Distance(touchPoint, ScreenPos) <= Radius)) return false;
+                if (!touchPoint.InRadius(ScreenPos, Radius)) return false;
 
                 GameAudio.MouseOver();
                 return true;
@@ -943,6 +945,7 @@ namespace Ship_Game
             public float Radius;
             public string UID;
             public Goal AssociatedGoal;
+            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, Radius);
         }
 
         struct ClickableFleet
@@ -950,6 +953,7 @@ namespace Ship_Game
             public Fleet fleet;
             public Vector2 ScreenPos;
             public float ClickRadius;
+            public bool HitTest(Vector2 touch) => touch.InRadius(ScreenPos, ClickRadius);
         }
         public enum UnivScreenState
         {
