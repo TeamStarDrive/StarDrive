@@ -149,7 +149,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         protected virtual bool ShouldDisengage()
         {
-            return MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem && !Owner.AI.HasPriorityTarget;
+            return !Owner.AI.HasPriorityTarget && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem);
         }
 
         /// <summary>
@@ -280,9 +280,11 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 
         protected bool WeCantCatchThem(float distanceToTarget)
         {
+            if (OwnerTarget.CombatDisabled) return false;
+            
             float distanceRatio = DistanceToTarget / DesiredCombatRange;
             float maxSpeedRatio = Owner.VelocityMaximum / OwnerTarget.VelocityMaximum.LowerBound(0.1f);
-            float currentSpeedRatio = Owner.CurrentVelocity / OwnerTarget.CurrentVelocity.LowerBound(0.1f);
+            float currentSpeedRatio = Owner.CurrentVelocity.LowerBound(50) / OwnerTarget.CurrentVelocity.LowerBound(75);
             return maxSpeedRatio < 1f && currentSpeedRatio < 1.5f && distanceRatio > 0.9f;
         }
         protected bool TheyCantCatchUs(float distanceToTarget)
@@ -293,7 +295,9 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected ChaseState ChaseStatus(float distance)
         {
             ChaseState chase = ChaseState.None;
-
+            if (Owner.AI.HasPriorityOrder || Owner.AI.HasPriorityTarget) return chase;
+            if (OwnerTarget.CombatDisabled || Owner.CurrentVelocity + OwnerTarget.CurrentVelocity < 100) return chase;
+            
             if (DeltaOurMovementToTheirMovement > 45f)        return ChaseState.None;
 
             if (DeltaOurMovementToOurDirectionToTarget < 20)  chase |= ChaseState.WeAreChasing;
@@ -311,7 +315,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         public void ErraticMovement(float distanceToTarget, float deltaTime)
         {
             ErraticTimer -= deltaTime;
-            if (AI.IsFiringAtMainTarget)
+            if (AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder)
             {
                 ZigZag = Vector2.Zero;
                 return;
