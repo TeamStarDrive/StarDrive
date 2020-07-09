@@ -32,211 +32,6 @@ namespace Ship_Game.AI
             }
         }
 
-        void OfferTrade(Relationship usToThem, Empire them, float availableTrust)
-        {
-            if (usToThem.TurnsKnown < SecondDemand
-                || usToThem.AtWar
-                || usToThem.Treaty_Trade
-                || usToThem.HaveRejected_TRADE
-                || availableTrust <= OwnerEmpire.data.DiplomaticPersonality.Trade
-                || usToThem.turnsSinceLastContact < SecondDemand)
-            {
-                return;
-            }
-
-            Offer offer1 = new Offer
-            {
-                TradeTreaty   = true,
-                AcceptDL      = "Trade Accepted",
-                RejectDL      = "Trade Rejected",
-                ValueToModify = new Ref<bool>(() => usToThem.HaveRejected_TRADE,
-                                               x => usToThem.HaveRejected_TRADE = x)
-            };
-
-            Offer offer2 = new Offer { TradeTreaty = true };
-            if (them == Player)
-                DiplomacyScreen.Show(OwnerEmpire, "Offer Trade", offer2, offer1);
-            else
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
-
-            usToThem.turnsSinceLastContact = 0;
-        }
-
-        void OfferOpenBorders(Relationship usToThem, Empire them, float availableTrust)
-        {
-            float territorialism = OwnerEmpire.data.DiplomaticPersonality.Territorialism;
-            if (usToThem.turnsSinceLastContact < SecondDemand
-                || usToThem.AtWar
-                || usToThem.Trust < 20f
-                || usToThem.HaveRejected_OpenBorders
-                || !usToThem.Treaty_NAPact
-                || !usToThem.Treaty_Trade
-                || usToThem.Treaty_OpenBorders
-                || availableTrust < OwnerEmpire.data.DiplomaticPersonality.Territorialism / 2f
-                || usToThem.Anger_TerritorialConflict + usToThem.Anger_FromShipsInOurBorders < 0.75f * territorialism)
-            {
-                return;
-            }
-
-            bool friendlyOpen      = usToThem.Trust > 50f;
-            Offer openBordersOffer = new Offer
-            {
-                OpenBorders   = true,
-                AcceptDL      = "Open Borders Accepted",
-                RejectDL      = friendlyOpen ? "Open Borders Friends Rejected" : "Open Borders Rejected",
-                ValueToModify = new Ref<bool>(() => usToThem.HaveRejected_OpenBorders,
-                                               x => usToThem.HaveRejected_OpenBorders = x)
-            };
-
-            Offer ourOffer = new Offer { OpenBorders = true };
-            if (them.isPlayer)
-                DiplomacyScreen.Show(OwnerEmpire, friendlyOpen ? "Offer Open Borders Friends" : "Offer Open Borders", ourOffer, openBordersOffer);
-            else
-                them.GetEmpireAI().AnalyzeOffer(ourOffer, openBordersOffer, OwnerEmpire, Offer.Attitude.Pleading);
-
-            usToThem.turnsSinceLastContact = 0;
-        }
-
-        void OfferAlliance(Relationship usToThem, Empire them)
-        {
-            if (usToThem.TurnsAbove95 < 100
-                || usToThem.turnsSinceLastContact < FirstDemand
-                || usToThem.Treaty_Alliance
-                || !usToThem.Treaty_Trade
-                || !usToThem.Treaty_NAPact
-                || usToThem.HaveRejected_Alliance
-                || usToThem.TotalAnger >= 20)
-            {
-                return;
-            }
-
-            Offer offer1 = new Offer
-            {
-                Alliance      = true,
-                AcceptDL      = "ALLIANCE_ACCEPTED",
-                RejectDL      = "ALLIANCE_REJECTED",
-                ValueToModify = new Ref<bool>(() => usToThem.HaveRejected_Alliance,
-                    x =>
-                    {
-                        usToThem.HaveRejected_Alliance = x;
-                        SetAlliance(!usToThem.HaveRejected_Alliance);
-                    })
-            };
-
-            Offer offer2 = new Offer();
-            if (them == Empire.Universe.PlayerEmpire)
-                DiplomacyScreen.Show(OwnerEmpire, "OFFER_ALLIANCE", offer2, offer1);
-            else
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
-
-            usToThem.turnsSinceLastContact = 0;
-        }
-
-        void OfferNonAggression(Relationship usToThem, Empire them, float availableTrust)
-        {
-            if (usToThem.TurnsKnown < FirstDemand
-                || usToThem.Treaty_NAPact
-                || availableTrust <= OwnerEmpire.data.DiplomaticPersonality.NAPact
-                || usToThem.HaveRejectedNaPact
-                || usToThem.turnsSinceLastContact < SecondDemand)
-            {
-                return;
-            }
-
-            Offer offer1 = new Offer
-            {
-                NAPact        = true,
-                AcceptDL      = "NAPact Accepted",
-                RejectDL      = "NAPact Rejected",
-                ValueToModify = new Ref<bool>(() => usToThem.HaveRejectedNaPact,
-                                               x => usToThem.HaveRejectedNaPact = x)
-            };
-
-            Offer offer2 = new Offer { NAPact = true };
-            if (them == Empire.Universe.PlayerEmpire)
-                DiplomacyScreen.Show(OwnerEmpire, "Offer NAPact", offer2, offer1);
-            else
-                them.GetEmpireAI().AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
-
-            usToThem.turnsSinceLastContact = 0;
-        }
-
-        void OfferPeace(Relationship usToThem, Empire them, bool onlyBadly = false) 
-        {
-            if ((usToThem.ActiveWar.TurnsAtWar % 100).NotZero()) 
-                return;
-
-            WarState warState;
-            switch (usToThem.ActiveWar.WarType)
-            {
-                case WarType.BorderConflict:
-                    if (usToThem.Anger_FromShipsInOurBorders +
-                        usToThem.Anger_TerritorialConflict >
-                        OwnerEmpire.data.DiplomaticPersonality.Territorialism)
-                    {
-                        return;
-                    }
-
-                    warState = usToThem.ActiveWar.GetBorderConflictState();
-                    if (CheckLosingBadly("OFFERPEACE_LOSINGBC"))
-                        break;
-
-                    switch (warState)
-                    {
-                        case WarState.LosingSlightly:
-                        case WarState.LosingBadly:     OfferPeace(usToThem, them, "OFFERPEACE_LOSINGBC");  break;
-                        case WarState.WinningSlightly: OfferPeace(usToThem, them, "OFFERPEACE_FAIR");      break;
-                        case WarState.Dominating:      OfferPeace(usToThem, them, "OFFERPEACE_WINNINGBC"); break;
-                    }
-
-                    break;
-                case WarType.ImperialistWar:
-                    warState = usToThem.ActiveWar.GetWarScoreState();
-                    if (CheckLosingBadly("OFFERPEACE_PLEADING"))
-                        break;
-
-                    switch (warState)
-                    {
-                        case WarState.LosingSlightly:
-                        case WarState.LosingBadly:     OfferPeace(usToThem, them, "OFFERPEACE_PLEADING");       break;
-                        case WarState.WinningSlightly: OfferPeace(usToThem, them, "OFFERPEACE_FAIR");           break;
-                        case WarState.Dominating:      OfferPeace(usToThem, them, "OFFERPEACE_FAIR_WINNING");   break;
-                        case WarState.EvenlyMatched:   OfferPeace(usToThem, them, "OFFERPEACE_EVENLY_MATCHED"); break;
-                    }
-
-                    break;
-                case WarType.DefensiveWar:
-                    warState = usToThem.ActiveWar.GetBorderConflictState();
-                    if (CheckLosingBadly("OFFERPEACE_PLEADING"))
-                        break;
-
-                    switch (warState)
-                    {
-                        case WarState.LosingSlightly:
-                        case WarState.LosingBadly:     OfferPeace(usToThem, them, "OFFERPEACE_PLEADING");       break;
-                        case WarState.WinningSlightly: OfferPeace(usToThem, them, "OFFERPEACE_FAIR");           break;
-                        case WarState.Dominating:      OfferPeace(usToThem, them, "OFFERPEACE_FAIR_WINNING");   break;
-                        case WarState.EvenlyMatched:   OfferPeace(usToThem, them, "OFFERPEACE_EVENLY_MATCHED"); break;
-                    }
-
-                    break;
-            }
-
-            usToThem.turnsSinceLastContact = 0;
-
-            // Aggressive / Xenophobic / Ruthless will request peace only if losing badly
-            bool CheckLosingBadly(string whichPeace)
-            {
-                if (!onlyBadly) 
-                    return false;
-
-                if (warState == WarState.LosingBadly)
-                    OfferPeace(usToThem, them, whichPeace);
-
-                return true;
-            }
-        }
-
         void RequestHelpFromAllies(Relationship usToEnemy, Empire enemy)
         {
             if (usToEnemy.ActiveWar == null) // They Accepted Peace
@@ -277,26 +72,27 @@ namespace Ship_Game.AI
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
+                        relations.OfferTrade(OwnerEmpire);
                         // Todo Trade Tech
-                        OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
-                        OfferOpenBorders(relations, them, relations.Trust - relations.TrustUsed);
-                        OfferAlliance(relations, them);
+                        relations.OfferNonAggression(OwnerEmpire);
+                        relations.OfferNonAggression(OwnerEmpire);
+                        relations.OfferOpenBorders(OwnerEmpire);
+                        relations.OfferAlliance(OwnerEmpire);
                         ChangeToNeutralIfPossible(relations, them);
                         break;
                     case Posture.Neutral:
-                        AssessDiplomaticAnger(relations, them);
-                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
-                        OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
+                        relations.AssessDiplomaticAnger(OwnerEmpire);
+                        relations.OfferTrade(OwnerEmpire);
+                        relations.OfferNonAggression(OwnerEmpire);
                         ChangeToFriendlyIfPossible(relations, them);
                         ChangeToHostileIfPossible(relations, them);
                         break;
                     case Posture.Hostile when relations.ActiveWar != null:
-                        OfferPeace(relations, them);
+                        relations.RequestPeace(OwnerEmpire);
                         RequestHelpFromAllies(relations, them);
                         break;
                     case Posture.Hostile:
-                        AssessDiplomaticAnger(relations, them);
+                        relations.AssessDiplomaticAnger(OwnerEmpire);
                         ChangeToNeutralIfPossible(relations, them);
                         break;
                 }
@@ -318,26 +114,27 @@ namespace Ship_Game.AI
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
-                        OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
+                        relations.OfferTrade(OwnerEmpire);
+                        relations.OfferNonAggression(OwnerEmpire);
                         // todo Trade Tech
                         ChangeToNeutralIfPossible(relations, them);
                         break;
                     case Posture.Neutral:
-                        AssessDiplomaticAnger(relations, them);
+                        relations.AssessDiplomaticAnger(OwnerEmpire);
                         if (!them.IsRuthless)
-                            OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
+                            relations.OfferTrade(OwnerEmpire);
 
                         ChangeToFriendlyIfPossible(relations, them);
                         ChangeToHostileIfPossible(relations, them);
-                        ReferToMilitary(relations, them, threatForInsult: -15, compliment: false);
+                        relations.ReferToMilitary(OwnerEmpire, threatForInsult: -20, compliment: false);
                         break;
                     case Posture.Hostile when relations.ActiveWar != null:
                         RequestHelpFromAllies(relations, them);
                         break;
-                    case Posture.Hostile:
-                        ReferToMilitary(relations, them, threatForInsult: -15, compliment: false);
-                        AssessDiplomaticAnger(relations, them);
+                    case
+                        Posture.Hostile:
+                        relations.ReferToMilitary(OwnerEmpire, threatForInsult: -15, compliment: false);
+                        relations.AssessDiplomaticAnger(OwnerEmpire);
                         ChangeToNeutralIfPossible(relations, them);
                         break;
                 }
@@ -359,11 +156,11 @@ namespace Ship_Game.AI
                 if (DoNotInteract(relations, them))
                     continue;
 
-                AssessDiplomaticAnger(relations, them);
+                relations.AssessDiplomaticAnger(OwnerEmpire);
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
+                        relations.OfferTrade(OwnerEmpire);
                         ChangeToNeutralIfPossible(relations, them);
                         break;
                     case Posture.Neutral:
@@ -375,7 +172,7 @@ namespace Ship_Game.AI
 
                         break; ;
                     case Posture.Hostile when relations.ActiveWar != null:
-                        OfferPeace(relations, them, onlyBadly: true);
+                        relations.RequestPeace(OwnerEmpire, onlyBadly: true);
                         break;
                     case Posture.Hostile:
                         ChangeToNeutralIfPossible(relations, them);
@@ -418,36 +215,6 @@ namespace Ship_Game.AI
             }
 
             return enemyStr;
-        }
-
-        void ReferToMilitary(Relationship usToThem, Empire them, float threatForInsult, bool compliment = true)
-        {
-            float anger = OwnerEmpire.IsAggressive ? 15 : 5;
-            if (usToThem.Threat <= threatForInsult)
-            {
-                if (!usToThem.HaveInsulted_Military && usToThem.TurnsKnown > FirstDemand)
-                {
-                    usToThem.HaveInsulted_Military = true;
-                    if (them.isPlayer)
-                        DiplomacyScreen.Show(OwnerEmpire, "Insult Military");
-                }
-
-                usToThem.Anger_DiplomaticConflict += anger;
-            }
-            else if (compliment && usToThem.Threat > 25f && usToThem.TurnsKnown > FirstDemand)
-            {
-                if (!usToThem.HaveComplimented_Military && usToThem.HaveInsulted_Military &&
-                    usToThem.TurnsKnown > FirstDemand && them.isPlayer)
-                {
-                    usToThem.HaveComplimented_Military = true;
-                    if (!usToThem.HaveInsulted_Military || usToThem.TurnsKnown <= SecondDemand)
-                        DiplomacyScreen.Show(OwnerEmpire, "Compliment Military");
-                    else
-                        DiplomacyScreen.Show(OwnerEmpire, "Compliment Military Better");
-                }
-
-                usToThem.Anger_DiplomaticConflict -= anger;
-            }
         }
 
         bool TheyArePotentialTargetRuthless(Relationship relations, Empire them)
@@ -553,24 +320,24 @@ namespace Ship_Game.AI
                 if (DoNotInteract(relations, them))
                     continue;
 
-                AssessDiplomaticAnger(relations, them);
-                ReferToMilitary(relations, them, threatForInsult: 0);
+                relations.AssessDiplomaticAnger(OwnerEmpire);
+                relations.ReferToMilitary(OwnerEmpire, threatForInsult: 0);
                 switch (relations.Posture)
                 {
                     case Posture.Friendly:
-                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
-                        OfferNonAggression(relations, them, relations.Trust - relations.TrustUsed);
-                        OfferOpenBorders(relations, them, relations.Trust - relations.TrustUsed);
-                        OfferAlliance(relations, them);
+                        relations.OfferTrade(OwnerEmpire);
+                        relations.OfferNonAggression(OwnerEmpire);
+                        relations.OfferOpenBorders(OwnerEmpire);
+                        relations.OfferAlliance(OwnerEmpire);
                         ChangeToNeutralIfPossible(relations, them);
                         break;
                     case Posture.Neutral:
-                        OfferTrade(relations, them, relations.Trust - relations.TrustUsed);
+                        relations.OfferTrade(OwnerEmpire);
                         ChangeToFriendlyIfPossible(relations, them);
                         ChangeToHostileIfPossible(relations, them);
                         break;
                     case Posture.Hostile when relations.ActiveWar != null:
-                        OfferPeace(relations, them, onlyBadly: true);
+                        relations.RequestPeace(OwnerEmpire, onlyBadly: true);
                         RequestHelpFromAllies(relations, them);
                         break;
                     case Posture.Hostile:
