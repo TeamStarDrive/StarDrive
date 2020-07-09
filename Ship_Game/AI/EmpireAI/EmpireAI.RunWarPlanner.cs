@@ -255,25 +255,6 @@ namespace Ship_Game.AI
             relations.Trust = 0f;
         }
 
-        public void OfferPeace(Relationship usToThem, Empire them, string whichPeace)
-        {
-            var offerPeace = new Offer
-            {
-                PeaceTreaty   = true,
-                AcceptDL      = "OFFERPEACE_ACCEPTED",
-                RejectDL      = "OFFERPEACE_REJECTED",
-                ValueToModify = new Ref<bool>(() => false, x => usToThem.SetImperialistWar())
-            };
-
-            string dialogue = whichPeace;
-            Offer ourOffer  = new Offer { PeaceTreaty = true };
-
-            if (them == Empire.Universe.PlayerEmpire)
-                DiplomacyScreen.Show(OwnerEmpire, dialogue, ourOffer, offerPeace);
-            else
-                them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, OwnerEmpire, Offer.Attitude.Respectful);
-        }
-
         private void RunWarPlanner()
         {
             if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
