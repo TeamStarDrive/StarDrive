@@ -434,9 +434,17 @@ namespace Ship_Game
 
         float QualityForRemnants()
         {
-            float quality = BaseFertility + MineralRichness + MaxPopulationBillionFor(EmpireManager.Remnants);
+            float fertilityMod = 1;
+            float richnessMod  = 1;
+            if (EmpireManager.Player.IsCybernetic)
+            {
+                fertilityMod = 0.5f;
+                richnessMod  = IsBarrenType ? 6f : 3f;
+            }
 
-            //Boost the quality score for planets that are very rich
+            float quality = BaseFertility*fertilityMod + MineralRichness* richnessMod + MaxPopulationBillionFor(EmpireManager.Remnants);
+
+            // Boost the quality score for planets that are very rich
             if (MineralRichness > 1.5f)
                 quality += 2;
 
@@ -456,8 +464,9 @@ namespace Ship_Game
             if (ParentSystem.isStartingSystem)
                 return; // Don't create Remnants on starting systems
 
-            float quality = QualityForRemnants();
-            int d100      = RollDie(100);
+            float quality   = QualityForRemnants();
+            int dieModifier = (int)CurrentGame.Difficulty*5 - 5; // easy -5, brutal +10
+            int d100        = RollDie(100) + dieModifier;
 
             switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
             {
@@ -472,13 +481,13 @@ namespace Ship_Game
 
         void VeryRareRemnantPresence(float quality, int d100)
         {
-            if (quality > 18f && d100 >= 70)
+            if (quality > 15f && d100 >= 70)
                 AddMinorRemnantShips();
         }
 
         void RareRemnantPresence(float quality, int d100)
         {
-            if (quality > 18f && d100 >= 70)
+            if (quality > 15f && d100 >= 70)
                 AddMajorRemnantShips(); // RedFox, changed the rare remnant to Major
         }
 
@@ -486,30 +495,30 @@ namespace Ship_Game
         {
             if (quality > 18f)
             {
-                if (d100 >= 30) AddMinorRemnantShips();
+                if (d100 >= 40) AddMinorRemnantShips();
                 if (d100 >= 60) AddMajorRemnantShips();
                 if (d100 >= 80) AddSupportRemnantShips();
-                if (d100 >= 98) AddTorpedoRemnantShips();
+                if (d100 >= 95) AddTorpedoRemnantShips();
             }
             else if (quality > 15f)
             {
-                if (d100 >= 50) AddMinorRemnantShips();
-                if (d100 >= 75) AddMiniRemnantShips();
+                if (d100 >= 60) AddMinorRemnantShips();
+                if (d100 >= 70) AddMiniRemnantShips();
                 if (d100 >= 85) AddSupportRemnantShips();
-                if (d100 >= 95) AddMajorRemnantShips();
+                if (d100 >= 98) AddMajorRemnantShips();
             }
             else if (quality > 8f)
             {
-                if (d100 >= 70) AddMiniRemnantShips();
+                if (d100 >= 60) AddMiniRemnantShips();
                 if (d100 >= 75) AddMinorRemnantShips();
-                if (d100 >= 85) AddSupportRemnantShips();
+                if (d100 >= 90) AddSupportRemnantShips();
                 if (d100 >= 95) AddMinorRemnantShips();
             }
         }
 
         void MoreRemnantPresence(float quality, int d100)
         {
-            NormalRemnantPresence(quality, d100);
+            NormalRemnantPresence(quality, RollDie(100));
             if (quality >= 15f)
             {
                 if (d100 >= 25) AddMinorRemnantShips();
@@ -529,7 +538,7 @@ namespace Ship_Game
 
         void MuchMoreRemnantPresence(float quality, int d100)
         {
-            MoreRemnantPresence(quality, d100);
+            MoreRemnantPresence(quality, RollDie(100));
             if (quality >= 18f)
             {
                 AddMajorRemnantShips();
@@ -560,7 +569,7 @@ namespace Ship_Game
 
         void EverywhereRemnantPresence(float quality, int d100)
         {
-            MuchMoreRemnantPresence(quality, d100);
+            MuchMoreRemnantPresence(quality, RollDie(100));
             if (quality >= 18f)
             {
                 AddMajorRemnantShips();
