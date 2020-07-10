@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
@@ -18,11 +19,10 @@ namespace Ship_Game.AI
 
         [XmlIgnore][JsonIgnore] public Planet CoreWorld { get; private set; }
         [XmlIgnore][JsonIgnore] Array<Ship> OffensiveForcePool                = new Array<Ship>();
-        [XmlIgnore][JsonIgnore] Fleet CoreFleet                               = new Fleet();
-        [XmlIgnore][JsonIgnore] readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
+        [XmlIgnore][JsonIgnore] Fleet CoreFleet                               ;
+        [XmlIgnore][JsonIgnore] Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
         [XmlIgnore][JsonIgnore] Planet[] PlanetsInAo                          = NoPlanets;
         [XmlIgnore][JsonIgnore] Planet[] OurPlanetsInAo                       = NoPlanets;
-        [XmlIgnore] [JsonIgnore] public Vector2 Center;
         [XmlIgnore][JsonIgnore] Empire Owner                                  => CoreWorld.Owner;
 
         [Serialize(0)] public int ThreatLevel;
@@ -35,6 +35,7 @@ namespace Ship_Game.AI
         [Serialize(7)] public float Radius;
         [Serialize(8)] public int TurnsToRelax;
         [Serialize(9)] public Guid AOGuid = Guid.NewGuid();
+        [Serialize(10)] public Vector2 Center;
         public Fleet GetCoreFleet()                        => CoreFleet;
         public Planet GetPlanet() => CoreWorld;
 
@@ -86,6 +87,7 @@ namespace Ship_Game.AI
             CoreWorld                           = p;
             CoreWorldGuid                       = p.guid;
             WhichFleet                          = p.Owner.CreateFleetKey();
+            CoreFleet                           = new Fleet();
             p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
             CoreFleet.Name                      = "Core Fleet";
             CoreFleet.FinalPosition             = p.Center;
@@ -97,6 +99,18 @@ namespace Ship_Game.AI
                 if (planet.Center.InRadius(CoreWorld.Center, radius))
                     tempPlanet.Add(planet);
             PlanetsInAo                         = tempPlanet.ToArray();
+        }
+
+        public void AddPlanet(Planet p)
+        {
+            PlanetsInAo.Add(p, out var ps);
+            PlanetsInAo = ps;
+        }
+
+        public void AddPlanets(IList<Planet> ps)
+        {
+            var planets = PlanetsInAo.Union(ps);
+            PlanetsInAo = planets.ToArray();
         }
 
         private bool IsCoreFleetFull()
@@ -126,6 +140,10 @@ namespace Ship_Game.AI
             return true;
         }
 
+        public void AddAnyShips(Array<Ship> ships)
+        {
+            OffensiveForcePool.AddUniqueRef(ships);
+        }
 
         public bool RemoveShip(Ship ship)
         {
@@ -138,57 +156,20 @@ namespace Ship_Game.AI
             return OffensiveForcePool.RemoveRef(ship);
         }
 
-        public void InitFromSave(UniverseData data, Empire owner)
+        public void InitFromSave(Empire owner)
         {
-            foreach (SolarSystem sys in data.SolarSystemsList)
-            {
-                foreach (Planet p in sys.PlanetList)
-                    if (p.guid == CoreWorldGuid)
-                        SetPlanet(p);
-            }
+            SetPlanet(Planet.GetPlanetFromGuid(CoreWorldGuid));
+            PlanetsInAo              = Empire.Universe.PlanetsDict.Values.Filter(p => p.Center.InRadius(this));
+            OffensiveForcePool       = Ship.GetShipsFromGuids(OffensiveForceGuids);
+            ShipsWaitingForCoreFleet = Ship.GetShipsFromGuids(ShipsWaitingGuids);
 
-            var tempPlanet = new Array<Planet>();
-            foreach (SolarSystem sys in data.SolarSystemsList)
-            {
-                foreach (Planet p in sys.PlanetList)
-                    if (p.Center.InRadius(Center, Radius))
-                        tempPlanet.Add(p);
-            }
-            PlanetsInAo = tempPlanet.ToArray();
+            var fleet = owner.GetFleetsDict().FilterValues(f => f.Guid == FleetGuid).FirstOrDefault();
 
-            OffensiveForceGuids.RemoveDuplicates();
-            foreach (Guid guid in OffensiveForceGuids)
+            if (fleet != null)
             {
-                foreach (Ship ship in data.MasterShipList)
-                {
-                    if (ship.guid != guid) continue;
-                    OffensiveForcePool.Add(ship);
-                    ship.AddedOnLoad = true;
-                }
+                SetFleet(fleet);
             }
-
-            ShipsWaitingGuids.RemoveDuplicates();
-            foreach (Guid guid in ShipsWaitingGuids)
-            {
-                foreach (Ship ship in data.MasterShipList)
-                {
-                    if (ship.guid != guid) continue;
-                    ShipsWaitingForCoreFleet.Add(ship);
-                    ship.AddedOnLoad = true;
-                }
-            }
-
-            bool didSetFleet = false;
-            foreach (var kv in owner.GetFleetsDict())
-            {
-                if (kv.Value.Guid == FleetGuid)
-                {
-                    didSetFleet = true;
-                    SetFleet(kv.Value);
-                }
-            }
-
-            if (!didSetFleet)
+            else
             {
                 string fleetName = WhichFleet != -1 ? owner.GetFleetsDict()[WhichFleet].Name : "";
                 Log.Warning($"Savegame FleetGuid {FleetGuid} ({owner.Name} fleetIdx:{WhichFleet} [{fleetName}]) not found in owner FleetsDict!!");
@@ -230,8 +211,9 @@ namespace Ship_Game.AI
 
         public void SetPlanet(Planet p)
         {
+            if (p == null && CoreWorld == null) return;
             CoreWorld = p;
-            Center    = p.Center;
+            Center    = p?.Center ?? Vector2.Zero;
         }
 
         public void Update()

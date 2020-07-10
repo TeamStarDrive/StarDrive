@@ -2,33 +2,28 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
-    public abstract class AttackSystems : Campaign
+    abstract class AttackShips : Campaign
     {
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Capture"/> class.
         /// </summary>
-        protected AttackSystems(Campaign campaign, Theater theater) : base(campaign, theater){}
+        protected AttackShips(Campaign campaign, Theater war) : base(campaign, war) { }
 
-        protected AttackSystems(CampaignType campaignType, Theater theater) : base(campaignType, theater){}
+        protected AttackShips(CampaignType campaignType, Theater war) : base(campaignType, war) { }
 
         protected void CreateSteps()
         {
             Steps = new Func<GoalStep>[]
             {
-               SetupTargets,
+               SetupShipTargets,
                SetupRallyPoint,
                AttackSystems,
                AssesCampaign
             };
         }
 
-        protected abstract GoalStep SetupTargets();
-        protected virtual GoalStep AssesCampaign()
-        {
-            if (TargetSystems.IsEmpty)
-                return GoalStep.GoalComplete;
-            return GoalStep.RestartGoal;
-        }
+        protected abstract GoalStep SetupShipTargets();
+        protected virtual GoalStep AssesCampaign() => GoalStep.RestartGoal;
 
         protected GoalStep SetTargets(Array<SolarSystem> targets)
         {

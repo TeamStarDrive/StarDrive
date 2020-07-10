@@ -23,16 +23,16 @@ namespace Ship_Game.Ships
 
         public static Array<Ship> GetShipsFromGuids(Array<Guid> guids)
         {
-            var systems = new Array<Ship>();
+            var ships = new Array<Ship>();
             for (int i = 0; i < guids.Count; i++)
             {
                 var guid = guids[i];
                 var ship = GetShipFromGuid(guid);
                 if (ship != null)
-                    systems.Add(ship);
+                    ships.AddUnique(ship);
             }
 
-            return systems;
+            return ships;
         }
 
         public static Ship GetShipFromGuid(Guid guid) => Empire.Universe.MasterShipList.Find(s => s.guid == guid);

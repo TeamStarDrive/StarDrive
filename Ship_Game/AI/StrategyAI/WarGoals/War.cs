@@ -32,11 +32,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         private Empire Us;
         public string UsName;
         public string ThemName;
-        public Array<Campaign> Campaigns;
+        //public Array<Campaign> Campaigns;
         public bool Initialized;
-        private readonly WarScore Score;
+        readonly WarScore Score;
         public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();
-        public Array<AO> Theaters = new Array<AO>();
+        public TheatersOfWar WarTheaters;
         
         public WarState GetBorderConflictState() => Score.GetBorderConflictState();
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => 
@@ -52,8 +52,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore]
         public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
-        [JsonIgnore][XmlIgnore]
-        public float SpaceWarKd         => StrengthKilled / (StrengthLost + 0.01f);
+        [JsonIgnore]
+        [XmlIgnore]
+        public float SpaceWarKd => StrengthKilled / StrengthLost.LowerBound(1);
 
         int ContestedSystemCount => ContestedSystems.Count(s => s.OwnerList.Contains(Them));
 
@@ -62,8 +63,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         Relationship OurRelationToThem;
 
         WarTasks Tasks;
-
-        public void RemoveCampaign(Campaign campaign) => Campaigns.Remove(campaign);
 
         public int Priority()
         {
@@ -74,6 +73,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public War()
         {
+            Score = new WarScore(this, Us);
         }
 
         public War(Empire us, Empire them, float starDate, WarType warType)
@@ -96,64 +96,65 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             OurRelationToThem           = us.GetRelations(them);
             Score                       = new WarScore(this, Us);
             PopulateHistoricLostSystems();
+            WarTheaters = new TheatersOfWar(this);
+            WarTheaters.Initialize();
         }
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
         {
             var war = new War(owner, target, Empire.Universe.StarDate, warType);
-            war.CreateCampaigns();
             return war;
         }
 
-        void CreateCampaigns()
-        {
-            Campaigns = new Array<Campaign>();
-            CreateCoreCampaigns();
-            var defense = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
-            Campaigns.Add(defense);
-            Initialized = true;
-        }
+        //void CreateCampaigns()
+        //{
+        //    Campaigns = new Array<Campaign>();
+        //    CreateCoreCampaigns();
+        //    var defense = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
+        //    Campaigns.Add(defense);
+        //    Initialized = true;
+        //}
 
-        void CreateCoreCampaigns()
-        {
-            switch (WarType)
-            {
-                case WarType.BorderConflict:
-                    {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureBorder, this);
-                        Campaigns.Add(campaign);
-                        break;
-                    }
-                case WarType.ImperialistWar:
-                case WarType.GenocidalWar:
-                    {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureAll, this);
-                        Campaigns.Add(campaign);
-                        break;
-                    }
-                case WarType.DefensiveWar:
-                    {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
-                        campaign.AddTargetSystems(Us.GetOwnedSystems().Filter(s =>
-                        {
-                            if (s.OwnerList.Contains(Them))
-                                return Us.GetEmpireAI().IsInOurAOs(s.Position);
-                            return false;
-                        }));
-                        campaign.IsCoreCampaign = true;
-                        Campaigns.Add(campaign);
-                        break;
-                    }
-                case WarType.SkirmishWar:
-                    {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.Capture, this);
-                        campaign.AddTargetSystems(GetTheirBorderSystems());
-                        campaign.AddTargetSystems(GetTheirNearSystems());
-                        Campaigns.Add(campaign);
-                        break;
-                    }
-            }
-        }
+        //void CreateCoreCampaigns()
+        //{
+        //    switch (WarType)
+        //    {
+        //        case WarType.BorderConflict:
+        //            {
+        //                var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureBorder, this);
+        //                Campaigns.Add(campaign);
+        //                break;
+        //            }
+        //        case WarType.ImperialistWar:
+        //        case WarType.GenocidalWar:
+        //            {
+        //                var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureAll, this);
+        //                Campaigns.Add(campaign);
+        //                break;
+        //            }
+        //        case WarType.DefensiveWar:
+        //            {
+        //                var campaign = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
+        //                campaign.AddTargetSystems(Us.GetOwnedSystems().Filter(s =>
+        //                {
+        //                    if (s.OwnerList.Contains(Them))
+        //                        return Us.GetEmpireAI().IsInOurAOs(s.Position);
+        //                    return false;
+        //                }));
+        //                campaign.IsCoreCampaign = true;
+        //                Campaigns.Add(campaign);
+        //                break;
+        //            }
+        //        case WarType.SkirmishWar:
+        //            {
+        //                var campaign = Campaign.CreateInstance(Campaign.CampaignType.Capture, this);
+        //                campaign.AddTargetSystems(GetTheirBorderSystems());
+        //                campaign.AddTargetSystems(GetTheirNearSystems());
+        //                Campaigns.Add(campaign);
+        //                break;
+        //            }
+        //    }
+        //}
 
         void PopulateHistoricLostSystems()
         {
@@ -198,47 +199,30 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (activeWar)
             {
                 PopulateHistoricLostSystems();
+                if (WarTheaters == null) WarTheaters = new TheatersOfWar(this);
+                WarTheaters.RestoreFromSave(this);
 
-                if (!Initialized)
-                {
-                    CreateCampaigns();
-                }
-                else
-                {
-                    for (int i = 0; i < Campaigns.Count; i++)
-                        Campaigns[i] = Campaign.CreateInstanceFromSave(Campaigns[i], this);
-                }
+                //if (!Initialized)
+                //{
+                //    CreateCampaigns();
+                //}
+                //else
+                //{
+                //    for (int i = 0; i < Campaigns.Count; i++)
+                //        Campaigns[i] = Campaign.CreateInstanceFromSave(Campaigns[i], this);
+                //}
             }
             else
             {
-                Campaigns = null;
+                WarTheaters = null;
             }
         }
 
         public WarState ConductWar()
         {
-            for (int i = 0; i < Campaigns.Count; i++)
-            {
-                var campaign = Campaigns[i];
-                campaign?.Evaluate();
-            }
+            if(!WarTheaters.Initialized) WarTheaters.Initialize();
+            WarTheaters.Evaluate();
 
-            if (Campaigns.IsEmpty)
-            {
-                CreateCampaigns();
-            }
-            else if (Campaigns.Find(c => c.IsCoreCampaign) == null)
-            {
-                CreateCoreCampaigns();
-            }
-            else if (!Campaigns.Any(d => d.Type == Campaign.CampaignType.Defense))
-            {
-                if (ContestedSystemCount > 0)
-                {
-                    var defense = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
-                    Campaigns.Add(defense);
-                }
-            }
             return Score.GetWarScoreState();
         }
 
@@ -272,19 +256,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             SystemAssaultFailures[system.guid] = ++count;
         }
 
-        bool AddToContestedSystems(SolarSystem system)
-        {
-            if (ContestedSystemsGUIDs.AddUnique(system.guid))
-            {
-                var contested = new SolarSystem[ContestedSystemsGUIDs.Count];
-                ContestedSystems.CopyTo(contested, 0);
-                contested[ContestedSystemsGUIDs.Count - 1] = system;
-                ContestedSystems = contested;
-                return true;
-            }
-            return false;
-        }
-
         public void WarDebugData(ref DebugTextBlock debug)
         {
             string pad = "     ";
@@ -301,27 +272,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             debug.AddLine($"{pad}Colonies Won : {ColoniesWon}");
             debug.AddLine($"{pad}Colonies Lost Percentage :% {(int)(LostColonyPercent * 100)}.00");
 
-            for (int i = 0; i < Campaigns.Count; i++)
-            {
-                var campaign = Campaigns[i];
-                debug.AddLine($"{pad}Campaign : {campaign}");
-                if (campaign.RallyAO?.CoreWorld != null)
-                    debug.AddLine($"{pad2}Rally : {campaign.RallyAO.CoreWorld}");
-                debug.AddLine($"{pad2}Targets : {campaign.SystemGuids.Count}");
-                var systems = SolarSystem.GetSolarSystemsFromGuids(campaign.SystemGuids);
-                foreach (var system in systems)
-                {
-                    if (system.OwnerList.Contains(Them))
-                    {
-                        debug.AddLine($"{pad2}Target : {system}");
-                    }
-                    else
-                    {
-                        debug.AddLine($"{pad2}Taken  : {system}");
-                    }
-                }
-                debug.AddLine($"{pad2}Step : {campaign.StepName}");
-            }
+            debug = WarTheaters.DebugText(debug, pad, pad2);
 
             foreach (var system in ContestedSystems)
             {
