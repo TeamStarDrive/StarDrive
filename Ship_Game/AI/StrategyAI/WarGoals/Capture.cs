@@ -7,9 +7,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Capture"/> class.
         /// </summary>
-        public Capture(Campaign campaign, War war) : base(campaign, war) => CreateSteps();
+        public Capture(Campaign campaign, Theater theater) : base(campaign, theater) => CreateSteps();
 
-        public Capture(CampaignType campaignType, War war) : base(campaignType, war)
+        public Capture(CampaignType campaignType, Theater theater) : base(campaignType, theater)
         {
             CreateSteps();
         }
@@ -17,7 +17,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected override GoalStep SetupTargets()
         {
             var targets = new Array<SolarSystem>();
-            targets.AddRange(OwnerWar.GetTheirBorderSystems());
+            targets.AddRange(OwnerWar.GetTheirBorderSystems().Filter(s=>
+            {
+                bool isExplored = s.IsExploredBy(Owner);
+                bool inAO = false;
+                if (isExplored)
+                    inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
+                return isExplored && inAO;
+            }));
             return SetTargets(targets);
         }
     }

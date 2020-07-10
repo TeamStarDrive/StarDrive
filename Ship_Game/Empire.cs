@@ -2847,20 +2847,52 @@ namespace Ship_Game
 
         public EmpireAI GetEmpireAI() => EmpireAI;
 
+        public Vector2 GetCenter()
+        {
+            Vector2 center = Vector2.Zero;
+            float radius = 0;
+            if (OwnedPlanets.Count > 0)
+            {
+                int planets = 0;
+                var avgPlanetCenter = new Vector2();
+                for (int i = 0; i < OwnedPlanets.Count; i++)
+                {
+                    Planet planet = OwnedPlanets[i];
+                    ++planets;
+                    avgPlanetCenter += planet.Center;
+                }
+
+                center = avgPlanetCenter / planets;
+            }
+            else
+            {
+                int items = 0;
+                var avgEmpireCenter = new Vector2();
+                for (int i = 0; i < OwnedShips.Count; i++)
+                {
+                    var planet = OwnedShips[i];
+                    ++items;
+                    avgEmpireCenter += planet.Center;
+                }
+                center =avgEmpireCenter / items.LowerBound(1);
+            }
+            return center;
+        }
+
         public Vector2 GetWeightedCenter()
         {
             int planets = 0;
             var avgPlanetCenter = new Vector2();
 
             using (OwnedPlanets.AcquireReadLock())
-            foreach (Planet planet in OwnedPlanets)
-            {
-                for (int x = 0; x < planet.PopulationBillion; ++x)
+                foreach (Planet planet in OwnedPlanets)
                 {
-                    ++planets;
-                    avgPlanetCenter += planet.Center;
+                    for (int x = 0; x < planet.PopulationBillion; ++x)
+                    {
+                        ++planets;
+                        avgPlanetCenter += planet.Center;
+                    }
                 }
-            }
             if (planets == 0)
                 planets = 1;
             return avgPlanetCenter / planets;
@@ -3033,7 +3065,7 @@ namespace Ship_Game
                 return true;
             if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null)
                 return false;
-            return rel.AtWar || rel.PreparingForWar;
+            return rel.AtWar;
         }
 
         public Planet FindPlanet(Guid planetGuid)
@@ -3042,6 +3074,28 @@ namespace Ship_Game
                 if (p.guid == planetGuid)
                     return p;
             return null;
+        }
+
+        public AO EmpireAO()
+        {
+            Vector2 center = GetCenter();
+            float radius = 0;
+            if (OwnedPlanets.Count > 0)
+            {
+                var furthestSystem = OwnedSolarSystems.FindMax(s => s.Position.SqDist(center));
+                radius = furthestSystem.Position.Distance(center);
+            }
+            else
+            {
+                var furthest = OwnedShips.FindMax(s => s.Position.SqDist(center));
+                radius = furthest.Center.Distance(center);
+            }
+            return new AO(center, radius);
+        }
+
+        public SolarSystem FindFurthestOwnedSystemFrom(Vector2 position)
+        {
+            return OwnedSolarSystems.FindFurthestFrom(position);
         }
 
         public SolarSystem FindNearestOwnedSystemTo(Vector2 position)

@@ -39,7 +39,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected Array<Planet> TargetPlanets      = new Array<Planet>();
         public AO RallyAO;
         public bool IsCoreCampaign                 = true;
-
+        protected Theater OwnerTheater;
         public Campaign() { }
 
         /// <summary>
@@ -47,45 +47,47 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// the expanded class is saved as a campaign. So when restored  from save the expanded class must be recreated.  
         /// this constructor takes the generic campaign and uses that and other data fields to recreated the expanded class. 
         /// </summary>
-        public Campaign(Campaign campaign, War war) : base(campaign)
+        public Campaign(Campaign campaign, Theater theater) : base(campaign)
         {
             Type           = campaign.Type;
-            OwnerWar       = war;
-            Owner          = EmpireManager.GetEmpireByName(war.UsName);
-            Them           = EmpireManager.GetEmpireByName(war.ThemName);
+            OwnerWar       = theater.GetWar();
+            Owner          = EmpireManager.GetEmpireByName(OwnerWar.UsName);
+            Them           = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
             UID            = $"{Type.ToString()} - {ID}";
             SystemGuids    = campaign.SystemGuids;
             ShipGuids      = campaign.ShipGuids;
             PlanetGuids    = campaign.PlanetGuids;
             RallyAO        = campaign.RallyAO;
             IsCoreCampaign = campaign.IsCoreCampaign;
-            RestoreFromSave(war);
+            OwnerTheater   = theater;
+            RestoreFromSave(theater);
         }
 
         /// <summary>
         /// This is the normal constructor. Ideally this class is never manually created.
         /// Instead the instance creator should be used. 
         /// </summary>
-        protected Campaign(CampaignType campaignType, War war) : base(campaignType.ToString())
+        protected Campaign(CampaignType campaignType, Theater theater) : base(campaignType.ToString())
         {
-            Type     = campaignType;
-            OwnerWar = war;
-            Owner    = EmpireManager.GetEmpireByName(war.UsName);
-            Them     = EmpireManager.GetEmpireByName(war.ThemName);
-            UID      = campaignType.ToString();
+            Type         = campaignType;
+            OwnerWar     = theater.GetWar();
+            Owner        = EmpireManager.GetEmpireByName(OwnerWar.UsName);
+            Them         = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
+            UID          = campaignType.ToString();
+            OwnerTheater = theater;
         }
 
         /// <summary>
         /// Standard campaign instance creator.  
         /// </summary>
-        public static Campaign CreateInstance(CampaignType campaignType, War war)
+        public static Campaign CreateInstance(CampaignType campaignType, Theater theater)
         {
             switch (campaignType)
             {
-                case CampaignType.Capture:       return new Capture(campaignType, war);
-                case CampaignType.CaptureBorder: return new CaptureBorderPlanets(campaignType, war);
-                case CampaignType.CaptureAll:    return new CaptureAllPlanets(campaignType, war);
-                case CampaignType.Defense:       return new Defense(campaignType, war);
+                case CampaignType.Capture:       return new Capture(campaignType, theater);
+                case CampaignType.CaptureBorder: return new CaptureBorderPlanets(campaignType, theater);
+                case CampaignType.CaptureAll:    return new CaptureAllPlanets(campaignType, theater);
+                case CampaignType.Defense:       return new Defense(campaignType, theater);
             }
             return null;
         }
@@ -93,21 +95,21 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// <summary>
         /// campaign instance creator used by the save restore process. This will restore the campaign to the expanded class.
         /// </summary>
-        public static Campaign CreateInstanceFromSave(Campaign campaign, War war)
+        public static Campaign CreateInstanceFromSave(Campaign campaign, Theater theater)
         {
             switch (campaign.Type)
             {
                 case CampaignType.None:
-                    campaign.RestoreFromSave(war);
+                    campaign.RestoreFromSave(theater);
                     return campaign;
                 case CampaignType.Capture:
-                    return new Capture(campaign, war);
+                    return new Capture(campaign, theater);
                 case CampaignType.CaptureBorder:
-                    return new CaptureBorderPlanets(campaign, war);
+                    return new CaptureBorderPlanets(campaign, theater);
                 case CampaignType.CaptureAll:
-                    return new CaptureAllPlanets(campaign, war);
+                    return new CaptureAllPlanets(campaign, theater);
                 case CampaignType.Defense:
-                    return new Defense(campaign, war);
+                    return new Defense(campaign, theater);
                 case CampaignType.Destroy:
                     break;
                 case CampaignType.Blockade:
@@ -124,7 +126,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public override string UID { get; }
         
-        protected override void RemoveThisGoal() => OwnerWar.RemoveCampaign(this);
+        public void PurgeTasks()
+        {
+            // need a connection before military tasks and campaigns. 
+        }
+
+        protected override void RemoveThisGoal() => OwnerTheater.RemoveCampaign(this);
 
         /// <summary>
         /// Adds a target system to the list and also adds the guid for save and save restore. 
@@ -150,14 +157,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// <summary>
         /// Specific parts that need to be restored. 
         /// </summary>
-        void RestoreFromSave(War war)
+        void RestoreFromSave(Theater war)
         {
             TargetSystems = SolarSystem.GetSolarSystemsFromGuids(SystemGuids);
             TargetShips   = Ship.GetShipsFromGuids(ShipGuids);
             TargetPlanets = Planet.GetPlanetsFromGuids(PlanetGuids);
-            OwnerWar      = war;
-            Them          = EmpireManager.GetEmpireByName(war.ThemName);
-            RestoreFromSave(war.UsName);
+            OwnerWar      = war.GetWar();
+            Them          = EmpireManager.GetEmpireByName(war.GetWar().ThemName);
+            RestoreFromSave(war.GetWar().UsName);
         }
 
         /// <summary>
@@ -181,19 +188,21 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             if (TargetSystems.IsEmpty) return GoalStep.RestartGoal;
 
-            foreach (var system in TargetSystems)
-            {
-                Planet nearestSafeRallyPoint = Owner.FindNearestSafeRallyPoint(system.Position);
-                float systemDistanceToRally  = nearestSafeRallyPoint.ParentSystem.Position.Distance(system.Position);
+            rallyPlanet = Owner.FindNearestSafeRallyPoint(OwnerTheater.TheaterAO.Center);
 
-                if (closestRallyPoint > systemDistanceToRally)
-                {
-                    rallyPlanet            = nearestSafeRallyPoint;
-                    closestRallyPoint      = systemDistanceToRally;
-                    rallySystem            = nearestSafeRallyPoint.ParentSystem;
-                }
-            }
-            if (rallySystem != null && rallyPlanet.Owner == Owner)
+            //foreach (var system in TargetSystems)
+            //{
+            //    Planet nearestSafeRallyPoint = Owner.FindNearestSafeRallyPoint(system.Position);
+            //    float systemDistanceToRally  = nearestSafeRallyPoint.ParentSystem.Position.Distance(system.Position);
+
+            //    if (closestRallyPoint > systemDistanceToRally)
+            //    {
+            //        rallyPlanet            = nearestSafeRallyPoint;
+            //        closestRallyPoint      = systemDistanceToRally;
+            //        rallySystem            = nearestSafeRallyPoint.ParentSystem;
+            //    }
+            //}
+            if (rallyPlanet.Owner == Owner)
             {
                 if (!Owner.GetAOCoreWorlds().Contains(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
                 {
@@ -238,7 +247,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
 
-        protected GoalStep CreateTargetList(Array<SolarSystem> targets)
+        protected GoalStep CreateTargetSystemList(Array<SolarSystem> targets)
         {
             Vector2 empireCenter     = Owner.GetWeightedCenter();
             var fleets               = Owner.AllFleetsReady();

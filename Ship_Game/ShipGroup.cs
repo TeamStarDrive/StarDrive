@@ -500,7 +500,8 @@ namespace Ship_Game
 
                 Ship ship = Ships[i];
                 if (ship.AI.State == AIState.HoldPosition || ship.AI.State == AIState.Bombard 
-                                                          || ship.AI.State == AIState.AssaultPlanet)
+                                                          || ship.AI.State == AIState.AssaultPlanet
+                                                          || ship.AI.State == AIState.Resupply)
                 {
                     continue;
                 }
