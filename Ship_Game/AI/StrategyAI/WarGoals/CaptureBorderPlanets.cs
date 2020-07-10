@@ -2,71 +2,38 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
-    public class CaptureBorderPlanets : Campaign
+    public class CaptureBorderPlanets : AttackSystems
     {
-        SolarSystem CurrentTarget;
-
         /// <summary>
         /// Initializes from save a new instance of the <see cref="CaptureBorderPlanets"/> class.
         /// </summary>
-        public CaptureBorderPlanets(Campaign campaign, War war) : base(campaign, war) => CreateSteps();
+        public CaptureBorderPlanets(Campaign campaign, Theater war) : base(campaign, war) => CreateSteps();
 
-        public CaptureBorderPlanets(CampaignType campaignType, War war) : base(campaignType, war)
+        public CaptureBorderPlanets(CampaignType campaignType, Theater war) : base(campaignType, war)
         {
             CreateSteps();
         }
 
-        void CreateSteps()
+        protected override GoalStep SetupTargets()
         {
-            Steps = new Func<GoalStep>[] 
+            var targets = new Array<SolarSystem>();
+            targets.AddRange(OwnerWar.GetTheirNearSystems().Filter(s=>
             {
-                SetTargets,
-                SetupRallyPoint,
-                AttackSystems
-            };
-        }
-
-        GoalStep SetTargets()
-        {
-            AddTargetSystems(OwnerWar.GetTheirNearSystems().UniqueExclude(OwnerWar.ContestedSystems));
-            AddTargetSystems(OwnerWar.GetTheirBorderSystems().UniqueExclude(OwnerWar.ContestedSystems));
-            if (TargetSystems.IsEmpty) return GoalStep.GoalFailed;
-
-            return GoalStep.GoToNextStep;
-        }
-
-        GoalStep AttackSystems()
-        {
-            if (HaveConqueredTargets()) return GoalStep.GoalComplete;
-            
-            var fleets = Owner.AllFleetsReady();
-            float strength = fleets.AccumulatedStrength;
-
-            var tasks = new WarTasks(Owner, Them);
-            
-            foreach(var system in TargetSystems)
+                bool isExplored = s.IsExploredBy(Owner);
+                bool inAO = false;
+                if (isExplored)
+                    inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
+                return isExplored && inAO;
+            }));
+            targets.AddRange(OwnerWar.GetTheirBorderSystems().Filter(s=>
             {
-                if (HaveConqueredTarget(system)) continue;
-
-                float defense = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
-                strength -= defense * 2;
-
-                tasks.StandardAssault(system, OwnerWar.Priority(), 2);
-                if (strength < 0) break;
-            }
-            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
-            return GoalStep.RestartGoal;
+                bool isExplored = s.IsExploredBy(Owner);
+                bool inAO = false;
+                if (isExplored)
+                    inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
+                return isExplored && inAO;
+            }));
+            return SetTargets(targets);
         }
-
-        bool HaveConqueredTargets()
-        {
-            foreach(var system in TargetSystems)
-            {
-                if (!HaveConqueredTarget(system)) return false;
-            }
-            return true;
-        }
-
-        bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
     }
 }
