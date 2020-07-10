@@ -3037,16 +3037,26 @@ namespace Ship_Game
         {
             if (targetEmpire == this || targetEmpire == null)
                 return false;
-            if (isFaction || targetEmpire.isFaction)
-                return true;
-            
-            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null || rel.Treaty_NAPact || rel.Treaty_Peace)
-                return false;
-            if(!rel.Known || rel.AtWar)
+
+            Relationship rel = GetRelations(targetEmpire);
+
+            if (rel?.AtWar != false || !rel.Known)
                 return true;
 
-            if (rel.TotalAnger > 50)
+            if (rel.Treaty_Peace || rel.Treaty_NAPact || rel.Treaty_Alliance)
+                return false;
+
+            if (isFaction || targetEmpire.isFaction)
                 return true;
+
+            if (!isPlayer)
+            {
+                float trustworthiness = targetEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 100;
+                float peacefulness    = 1 - targetEmpire.Research.Strategy.MilitaryRatio;
+
+                if (rel.TotalAnger > trustworthiness * peacefulness)
+                    return true;
+            }
 
             if (target == null)
                 return true; // this is an inanimate check, so it won't cause trouble?
@@ -3061,11 +3071,12 @@ namespace Ship_Game
         {
             if (targetEmpire == this || targetEmpire == null)
                 return false;
-            if (isFaction || targetEmpire.isFaction)
-                return true;
-            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null)
-                return false;
-            return rel.AtWar;
+
+            Relationship rel = GetRelations(targetEmpire);
+
+            if (rel == null) return false;
+            
+            return rel.AtWar || (isFaction || targetEmpire.isFaction) && !rel.Treaty_Peace && !rel.Treaty_NAPact;
         }
 
         public Planet FindPlanet(Guid planetGuid)
