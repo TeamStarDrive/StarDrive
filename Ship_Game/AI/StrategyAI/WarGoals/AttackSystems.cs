@@ -25,8 +25,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected abstract GoalStep SetupTargets();
         protected virtual GoalStep AssesCampaign()
         {
-            if (TargetSystems.IsEmpty)
+            if (!TargetSystems.Any(s=> s.OwnerList.Contains(Them)))
+            {
+                OwnerTheater.RemoveCampaign(this);
                 return GoalStep.GoalComplete;
+            }
             return GoalStep.RestartGoal;
         }
 
@@ -34,8 +37,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             CreateTargetSystemList(targets);
 
-            if (TargetSystems.IsEmpty)
-                return GoalStep.TryAgain;
+
+            //if (TargetSystems.IsEmpty)
+            //    return GoalStep.TryAgain;
 
             UpdateTargetSystemList();
 

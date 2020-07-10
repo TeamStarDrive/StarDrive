@@ -190,18 +190,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             rallyPlanet = Owner.FindNearestSafeRallyPoint(OwnerTheater.TheaterAO.Center);
 
-            //foreach (var system in TargetSystems)
-            //{
-            //    Planet nearestSafeRallyPoint = Owner.FindNearestSafeRallyPoint(system.Position);
-            //    float systemDistanceToRally  = nearestSafeRallyPoint.ParentSystem.Position.Distance(system.Position);
-
-            //    if (closestRallyPoint > systemDistanceToRally)
-            //    {
-            //        rallyPlanet            = nearestSafeRallyPoint;
-            //        closestRallyPoint      = systemDistanceToRally;
-            //        rallySystem            = nearestSafeRallyPoint.ParentSystem;
-            //    }
-            //}
             if (rallyPlanet.Owner == Owner)
             {
                 if (!Owner.GetAOCoreWorlds().Contains(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
@@ -256,8 +244,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var allTargets           = new Array<SolarSystem>();
             float allTargetsStrength = strength;
 
+            Vector2 nearestPoint = RallyAO?.Center ?? empireCenter;
             // these loops are not cheap but the frequency of the calcs should be pretty low.
-            float minDistanceToThem  = Owner.MinDistanceToNearestOwnedSystemIn(Them.GetOwnedSystems(), out SolarSystem nearestSystem);
+            float minDistanceToThem = Them.FindNearestOwnedSystemTo(nearestPoint).Position.Distance(nearestPoint);
             float numberOfTargets    = targets.Count.LowerBound(1);
             float averageImportance  = targets.Sum(s => s.WarValueTo(Owner)) / numberOfTargets;
             
@@ -276,7 +265,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 if (HaveConqueredTarget(system)) continue;
 
-                float defense = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
+                float defense  = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
                 float rangeMod = system.Position.Distance(empireCenter) / minDistanceToThem;
                 if (defense * rangeMod < strength)
                 {
@@ -297,19 +286,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             if (winnableTarget.NotEmpty)
             {
-                for (int i = 0; i < winnableTarget.Count * Owner.GetWarOffensiveRatio(); i++)
-                {
-                    var system = winnableTarget[i];
-                    AddTargetSystem(system);
-                }
+                AddTargetSystem(winnableTarget.First);
+                //for (int i = 0; i < winnableTarget.Count * Owner.GetWarOffensiveRatio(); i++)
+                //{
+                //    var system = winnableTarget[i];
+                //    AddTargetSystem(system);
+                //}
             }
             else if (allTargets.NotEmpty)
             {
                 AddTargetSystem(allTargets.FindClosestTo(empireCenter));
-            }
-            else
-            {
-                return GoalStep.GoalComplete;
             }
             return GoalStep.GoToNextStep;
         }
@@ -333,8 +319,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected virtual GoalStep AttackSystems()
         {
             if (Owner.GetOwnedSystems().Count == 0)                   return GoalStep.GoalFailed;
-            if (HaveConqueredTargets() || PercentageCleared() > 0.5f) return GoalStep.RestartGoal;
-            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
+            //if (HaveConqueredTargets() || PercentageCleared() > 0.5f) return GoalStep.RestartGoal;
+//            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
 
             AttackSystemsInList();
             return GoalStep.GoToNextStep;

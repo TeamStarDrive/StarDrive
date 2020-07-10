@@ -38,10 +38,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var theater = Theaters[i];
                 theater?.Evaluate();
             }
+            // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
-            if (theirSystems > TheirSystemCount)
+            if (!Initialized || theirSystems > TheirSystemCount)
             {
                 TheirSystemCount = theirSystems;
+                
                 Initialize();
                 Defense.TheaterAO = Us.EmpireAO();
             }
@@ -57,10 +59,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 Defense = new Theater(Us.EmpireAO(), this);
 
                 Defense.AddCampaignType(Campaign.CampaignType.Defense);
-                //AddTheaters(CreateDefensiveAO(), new Array<Campaign.CampaignType> { Campaign.CampaignType.Defense });
             }
-
-
         }
 
         public void AddTheater(AO ao, Array<Campaign.CampaignType> campaignTypes)
@@ -89,12 +88,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         void CreateTheaters()
         {
             var campaignTypes = new Array<Campaign.CampaignType>();
-            var aos = new Array<AO>();
+            var aos           = new Array<AO>();
             switch (OwnerWar.WarType)
             {
                 case WarType.BorderConflict:
                     {
-                        //AddTheaters(CreateDefensiveAO(), new Array<Campaign.CampaignType> { Campaign.CampaignType.Defense });
                         campaignTypes.Add(Campaign.CampaignType.CaptureBorder);
                         aos = CreateBorderAOs();
 
@@ -104,16 +102,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 case WarType.GenocidalWar:
                     {
                         campaignTypes.Add(Campaign.CampaignType.CaptureAll);
-                            //AddTheaters(CreateDefensiveAO(), new Array<Campaign.CampaignType> { Campaign.CampaignType.Defense });
                         aos = CreateImperialisticAO();
                         break;
                     }
                 case WarType.DefensiveWar:
                     campaignTypes.Add(Campaign.CampaignType.Defense);
-                    aos = CreateDefensiveAO();
+                    aos = CreateBorderAOs();
                     break;
                 case WarType.SkirmishWar:
-                    //AddTheaters(CreateDefensiveAO(), new Array<Campaign.CampaignType> { Campaign.CampaignType.Defense });
                     campaignTypes.Add(Campaign.CampaignType.CaptureBorder);
                     aos = CreateBorderAOs();
                     break;

@@ -97,7 +97,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Score                       = new WarScore(this, Us);
             PopulateHistoricLostSystems();
             WarTheaters = new TheatersOfWar(this);
-            WarTheaters.Initialize();
+           // WarTheaters.Initialize();
         }
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
@@ -220,7 +220,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public WarState ConductWar()
         {
-            if(!WarTheaters.Initialized) WarTheaters.Initialize();
+            //if(!WarTheaters.Initialized) WarTheaters.Initialize();
             WarTheaters.Evaluate();
 
             return Score.GetWarScoreState();

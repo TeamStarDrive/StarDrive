@@ -344,7 +344,7 @@ namespace Ship_Game.AI.Tasks
                     }
                 case TaskType.AssaultPlanet:
                     {
-                        if (TargetPlanet.Owner == null || Owner.IsEmpireHostile(TargetPlanet.Owner))
+                        if (TargetPlanet.Owner == null || !Owner.IsEmpireHostile(TargetPlanet.Owner))
                             EndTask();
 
                         if (Step < 0)
