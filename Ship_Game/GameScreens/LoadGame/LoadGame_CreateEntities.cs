@@ -413,7 +413,7 @@ namespace Ship_Game
         static void CreateAOs(UniverseData data)
         {
             foreach (Empire e in data.EmpireList)
-                e.GetEmpireAI().InitializeAOsFromSave(data);
+                e.GetEmpireAI().InitializeAOsFromSave();
         }
 
         static void CreateMilitaryTasks(SavedGame.EmpireSaveData d, Empire e, UniverseData data)

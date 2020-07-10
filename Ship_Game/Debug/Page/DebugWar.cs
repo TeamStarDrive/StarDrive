@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI.StrategyAI.WarGoals;
 
 namespace Ship_Game.Debug.Page
 {
@@ -61,7 +62,17 @@ namespace Ship_Game.Debug.Page
 
         void DrawPathInfo()
         {
-
+            foreach(var rel in EmpireAtWar.AllRelations)
+            {
+                var war = rel.Value.ActiveWar;
+                if (war == null ||  war.Them.isFaction) continue;
+                foreach(var theater in war.WarTheaters.Theaters)
+                {
+                    var ao = theater.TheaterAO;
+                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, (float)war.GetWarScoreState());
+                }
+            }
+                
         }
     }
 }

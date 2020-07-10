@@ -315,6 +315,26 @@ namespace Ship_Game.AI
             return str;
         }
 
+        public Array<Pin> GetPinsInAO(AO ao, Empire us, bool hostileOnly = false)
+        {
+            var pins = new Array<Pin>();
+            using (PinsMutex.AcquireReadLock())
+            {
+                foreach (Pin pin in Pins.Values)
+                {
+                    if (pin.Position.InRadius(ao))
+                    {
+                        Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                        {
+                            if (us.IsEmpireHostile(pinEmpire))
+                                pins.Add(pin);
+                        }
+                    }
+                }
+            }
+            return pins;
+        }
+
         public void UpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
         {
             if (!Pins.TryGetValue(ship.guid, out Pin pin))
