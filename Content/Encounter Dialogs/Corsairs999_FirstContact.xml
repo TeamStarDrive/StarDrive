@@ -22,7 +22,7 @@
       <Index>1</Index>
       <Text>Your subspace transmitter cracks in a strange noise. You get a feeling that you are not welcome here.</Text>
       <SetPlayerContactStep>1</SetPlayerContactStep>  <!--They will get annoyed-->
-      <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after player met them-->
+      <SetFactionContactStep>1</SetFactionContactStep> <!-- Money demand after player met them-->
       <EndTransmission>true</EndTransmission>
       </Message>
   </MessageList>
