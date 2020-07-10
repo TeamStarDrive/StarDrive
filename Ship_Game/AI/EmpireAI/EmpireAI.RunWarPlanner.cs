@@ -14,6 +14,20 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
+        public float ValueOfAllWarSystems()
+        {
+            float value = 0;
+            foreach (var rel in OwnerEmpire.AllRelations)
+            {
+                var war = rel.Value.ActiveWar;
+                if (war == null) continue;
+                value = war.WarTheaters.Theaters.Sum(t => t.TheaterAO.GetWarValueOfSystemsInAOTo(OwnerEmpire)).LowerBound(1);
+            }
+            return value;
+        }
+
+        public Theater Defense;
+
         public void CallAllyToWar(Empire ally, Empire enemy)
         {
             var offer = new Offer

@@ -41,7 +41,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             //if (TargetSystems.IsEmpty)
             //    return GoalStep.TryAgain;
 
-            UpdateTargetSystemList();
+            //UpdateTargetSystemList();
 
             return GoalStep.GoToNextStep;
         }
