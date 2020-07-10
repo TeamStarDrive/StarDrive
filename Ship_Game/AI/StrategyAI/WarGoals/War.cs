@@ -37,7 +37,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         readonly WarScore Score;
         public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();
         public TheatersOfWar WarTheaters;
-        
+
         public WarState GetBorderConflictState() => Score.GetBorderConflictState();
         public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => 
             Score.GetBorderConflictState(coloniesOffered);
@@ -68,7 +68,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             if (Them.isFaction) return 1;
             var warState = Score.GetWarScoreState();
-            return 10 - (int)warState;
+            return 8 - (int)warState;
         }
 
         public War()
@@ -97,7 +97,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Score                       = new WarScore(this, Us);
             PopulateHistoricLostSystems();
             WarTheaters = new TheatersOfWar(this);
-           // WarTheaters.Initialize();
         }
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
@@ -105,56 +104,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var war = new War(owner, target, Empire.Universe.StarDate, warType);
             return war;
         }
-
-        //void CreateCampaigns()
-        //{
-        //    Campaigns = new Array<Campaign>();
-        //    CreateCoreCampaigns();
-        //    var defense = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
-        //    Campaigns.Add(defense);
-        //    Initialized = true;
-        //}
-
-        //void CreateCoreCampaigns()
-        //{
-        //    switch (WarType)
-        //    {
-        //        case WarType.BorderConflict:
-        //            {
-        //                var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureBorder, this);
-        //                Campaigns.Add(campaign);
-        //                break;
-        //            }
-        //        case WarType.ImperialistWar:
-        //        case WarType.GenocidalWar:
-        //            {
-        //                var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureAll, this);
-        //                Campaigns.Add(campaign);
-        //                break;
-        //            }
-        //        case WarType.DefensiveWar:
-        //            {
-        //                var campaign = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
-        //                campaign.AddTargetSystems(Us.GetOwnedSystems().Filter(s =>
-        //                {
-        //                    if (s.OwnerList.Contains(Them))
-        //                        return Us.GetEmpireAI().IsInOurAOs(s.Position);
-        //                    return false;
-        //                }));
-        //                campaign.IsCoreCampaign = true;
-        //                Campaigns.Add(campaign);
-        //                break;
-        //            }
-        //        case WarType.SkirmishWar:
-        //            {
-        //                var campaign = Campaign.CreateInstance(Campaign.CampaignType.Capture, this);
-        //                campaign.AddTargetSystems(GetTheirBorderSystems());
-        //                campaign.AddTargetSystems(GetTheirNearSystems());
-        //                Campaigns.Add(campaign);
-        //                break;
-        //            }
-        //    }
-        //}
 
         void PopulateHistoricLostSystems()
         {
@@ -201,16 +150,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 PopulateHistoricLostSystems();
                 if (WarTheaters == null) WarTheaters = new TheatersOfWar(this);
                 WarTheaters.RestoreFromSave(this);
-
-                //if (!Initialized)
-                //{
-                //    CreateCampaigns();
-                //}
-                //else
-                //{
-                //    for (int i = 0; i < Campaigns.Count; i++)
-                //        Campaigns[i] = Campaign.CreateInstanceFromSave(Campaigns[i], this);
-                //}
             }
             else
             {
@@ -220,7 +159,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public WarState ConductWar()
         {
-            //if(!WarTheaters.Initialized) WarTheaters.Initialize();
             WarTheaters.Evaluate();
 
             return Score.GetWarScoreState();

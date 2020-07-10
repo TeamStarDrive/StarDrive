@@ -9,6 +9,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
     {
         public Guid TheaterGuid = Guid.NewGuid();
         public AO TheaterAO;
+        public int Priority;
         War OwnerWar;
         SolarSystem[] Systems;
         Ship[] Ships;
@@ -52,6 +53,13 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 Campaigns.Clear();
                 return;
             }
+
+            if (CampaignsWanted.Contains(Campaign.CampaignType.Defense))
+            {
+                Pins    = Us.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(TheaterAO, Us);
+                Ships   = Pins.Select(p => p.Ship);
+            }
+
             CreateWantedCampaigns();
             RemoveUnwantedCampaigns();
             //Systems = Them.GetOwnedSystems().Filter(s=> s.Position.InRadius(TheaterAO));
