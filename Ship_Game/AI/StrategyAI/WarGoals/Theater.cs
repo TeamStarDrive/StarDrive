@@ -54,9 +54,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
             CreateWantedCampaigns();
             RemoveUnwantedCampaigns();
-            Systems = Them.GetOwnedSystems().Filter(s=> s.Position.InRadius(TheaterAO));
-            Pins    = Us.GetEmpireAI().ThreatMatrix.GetPinsInAO(TheaterAO, Us, true);
-            Ships   = Pins.Select(p => p.Ship);
+            //Systems = Them.GetOwnedSystems().Filter(s=> s.Position.InRadius(TheaterAO));
+            //Pins    = Us.GetEmpireAI().ThreatMatrix.GetPinsInAO(TheaterAO, Us, true);
+            //Ships   = Pins.Select(p => p.Ship);
             for (int i = 0; i < Campaigns.Count; i++)
             {
                 var campaign = Campaigns[i];

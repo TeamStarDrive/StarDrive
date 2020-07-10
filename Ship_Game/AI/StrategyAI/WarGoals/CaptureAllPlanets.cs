@@ -26,6 +26,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
                 return isExplored && inAO;
             }));
+
             return SetTargets(targets);
         }
     }
