@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29001.49
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "-p;l.47", "-p;l.47.csproj", "{8071E07A-300E-485D-B139-066E15E82178}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarDrive", "StarDrive.csproj", "{8071E07A-300E-485D-B139-066E15E82178}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680} = {6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}
 	EndProjectSection
