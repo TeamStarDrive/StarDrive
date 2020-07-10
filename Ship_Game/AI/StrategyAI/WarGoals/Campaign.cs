@@ -310,7 +310,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             foreach (var system in currentTargets)
             {
-                tasks.StandardAssault(system, OwnerWar.Priority() + priorityMod, fleetsPerTarget);
+                tasks.StandardAssault(system, OwnerTheater.Priority + priorityMod, fleetsPerTarget);
                 priorityMod++;
             }
             Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());

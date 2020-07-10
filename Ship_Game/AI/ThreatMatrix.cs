@@ -315,7 +315,7 @@ namespace Ship_Game.AI
             return str;
         }
 
-        public Array<Pin> GetPinsInAO(AO ao, Empire us, bool hostileOnly = false)
+        public Array<Pin> GetEnemyPinsInAO(AO ao, Empire us)
         {
             var pins = new Array<Pin>();
             using (PinsMutex.AcquireReadLock())

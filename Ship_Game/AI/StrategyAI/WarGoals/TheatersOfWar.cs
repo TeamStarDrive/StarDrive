@@ -14,7 +14,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public bool Initialized;
         public Array<Theater> Theaters = new Array<Theater>();
         public War GetWar() => OwnerWar;
-        Theater Defense;
         int TheirSystemCount = 0;
         public TheatersOfWar (War war)
         {
@@ -33,10 +32,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void Evaluate()
         {
+            float totalValue = Us.GetEmpireAI().ValueOfAllWarSystems();
+
             for (int i = Theaters.Count - 1; i >= 0; i--)
             {
                 var theater = Theaters[i];
-                theater?.Evaluate();
+                float value = theater.TheaterAO.GetWarValueOfSystemsInAOTo(Us).LowerBound(1);
+                theater.Priority = 5 - (int)((value / totalValue) * 5) + OwnerWar.Priority();
+                theater.Evaluate();
             }
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
@@ -45,20 +48,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 TheirSystemCount = theirSystems;
                 
                 Initialize();
-                Defense.TheaterAO = Us.EmpireAO();
+                Us.GetEmpireAI().Defense.TheaterAO = Us.EmpireAO();
             }
-            Defense?.Evaluate();
+            Us.GetEmpireAI().Defense?.Evaluate();
         }
 
         public void Initialize()
         {
             CreateTheaters();
             Initialized = true;
-            if (Defense == null && !Us.isFaction)
+            if (Us.GetEmpireAI().Defense == null && !Us.isFaction)
             {
-                Defense = new Theater(Us.EmpireAO(), this);
+                Us.GetEmpireAI().Defense = new Theater(Us.EmpireAO(), this);
 
-                Defense.AddCampaignType(Campaign.CampaignType.Defense);
+                Us.GetEmpireAI().Defense.AddCampaignType(Campaign.CampaignType.Defense);
             }
         }
 
@@ -116,7 +119,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            foreach(var ao in aos)
+
+            foreach (var ao in aos)
             {
                 AddTheater(ao, campaignTypes);
             }

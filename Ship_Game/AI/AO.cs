@@ -361,6 +361,17 @@ namespace Ship_Game.AI
             }
         }
 
+        public float GetWarValueOfSystemsInAOTo(Empire empire)
+        {
+            var systems = Empire.Universe.SolarSystemDict.Values.Filter(s=> s.Position.InRadius(this));
+            return systems.Sum(s => s.WarValueTo(empire));
+        }
+
+        public float StrengthOpposing(Empire empire)
+        {
+            return empire.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(this, empire).Sum(p=> p.Strength);
+        }
+
         public void Dispose()
         {
             Dispose(true);
