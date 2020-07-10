@@ -44,6 +44,14 @@ namespace Ship_Game
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
 
+        public float GetWarOffensiveRatio()
+        {
+            float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
+            float militaryRatio  = Research.Strategy.MilitaryRatio;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            return (1 + territorialism + militaryRatio + opportunism) / 4;
+        }
+
         readonly int[] MoneyHistory = new int[10];
         int MoneyHistoryIndex = 0;
 
@@ -448,6 +456,12 @@ namespace Ship_Game
             return nearAO;
         }
 
+        public Planet[] GetAOCoreWorlds() => EmpireAI.AreasOfOperations.Select(ao => ao.CoreWorld);
+
+        public AO GetAOFromCoreWorld(Planet coreWorld)
+        {
+            return EmpireAI.AreasOfOperations.Find(a => a.CoreWorld == coreWorld);
+        }
         public Planet[] GetSafeAOWorlds()
         {
             var safeWorlds = new Array<Planet>();
@@ -608,6 +622,9 @@ namespace Ship_Game
             {
                 kv.Value.ResetRelation();
                 kv.Key.GetRelations(this).ResetRelation();
+                var them = kv.Key;
+                GetRelations(them).AtWar = false;
+                them.GetRelations(this).AtWar = false;
             }
             foreach (Ship ship in OwnedShips)
             {
@@ -2830,20 +2847,52 @@ namespace Ship_Game
 
         public EmpireAI GetEmpireAI() => EmpireAI;
 
+        public Vector2 GetCenter()
+        {
+            Vector2 center = Vector2.Zero;
+            float radius = 0;
+            if (OwnedPlanets.Count > 0)
+            {
+                int planets = 0;
+                var avgPlanetCenter = new Vector2();
+                for (int i = 0; i < OwnedPlanets.Count; i++)
+                {
+                    Planet planet = OwnedPlanets[i];
+                    ++planets;
+                    avgPlanetCenter += planet.Center;
+                }
+
+                center = avgPlanetCenter / planets;
+            }
+            else
+            {
+                int items = 0;
+                var avgEmpireCenter = new Vector2();
+                for (int i = 0; i < OwnedShips.Count; i++)
+                {
+                    var planet = OwnedShips[i];
+                    ++items;
+                    avgEmpireCenter += planet.Center;
+                }
+                center =avgEmpireCenter / items.LowerBound(1);
+            }
+            return center;
+        }
+
         public Vector2 GetWeightedCenter()
         {
             int planets = 0;
             var avgPlanetCenter = new Vector2();
 
             using (OwnedPlanets.AcquireReadLock())
-            foreach (Planet planet in OwnedPlanets)
-            {
-                for (int x = 0; x < planet.PopulationBillion; ++x)
+                foreach (Planet planet in OwnedPlanets)
                 {
-                    ++planets;
-                    avgPlanetCenter += planet.Center;
+                    for (int x = 0; x < planet.PopulationBillion; ++x)
+                    {
+                        ++planets;
+                        avgPlanetCenter += planet.Center;
+                    }
                 }
-            }
             if (planets == 0)
                 planets = 1;
             return avgPlanetCenter / planets;
@@ -3038,12 +3087,37 @@ namespace Ship_Game
             return null;
         }
 
+        public AO EmpireAO()
+        {
+            Vector2 center = GetCenter();
+            float radius = 0;
+            if (OwnedPlanets.Count > 0)
+            {
+                var furthestSystem = OwnedSolarSystems.FindMax(s => s.Position.SqDist(center));
+                radius = furthestSystem.Position.Distance(center);
+            }
+            else
+            {
+                var furthest = OwnedShips.FindMax(s => s.Position.SqDist(center));
+                radius = furthest.Center.Distance(center);
+            }
+            return new AO(center, radius);
+        }
+
+        public SolarSystem FindFurthestOwnedSystemFrom(Vector2 position)
+        {
+            return OwnedSolarSystems.FindFurthestFrom(position);
+        }
+
         public SolarSystem FindNearestOwnedSystemTo(Vector2 position)
         {
             return OwnedSolarSystems.FindClosestTo(position);
         }
 
-        public bool FindNearestOwnedSystemTo(Array<SolarSystem> systems, out SolarSystem nearestSystem)
+        /// <summary>
+        /// Finds the nearest owned system to systems in list. Returns TRUE if found.
+        /// </summary>
+        public bool FindNearestOwnedSystemTo(IEnumerable<SolarSystem>systems, out SolarSystem nearestSystem)
         {
             nearestSystem  = null;
             if (OwnedSolarSystems.Count == 0)
@@ -3063,6 +3137,27 @@ namespace Ship_Game
                 }
             }
             return nearestSystem != null;
+        }
+
+        public float MinDistanceToNearestOwnedSystemIn(IEnumerable<SolarSystem> systems, out SolarSystem nearestSystem)
+        {
+            nearestSystem = null;
+            if (OwnedSolarSystems.Count == 0)
+                return -1; // We do not have any system owned, maybe we are defeated
+
+            float distance = float.MaxValue;
+            foreach (SolarSystem system in systems)
+            {
+                var nearest = OwnedSolarSystems.FindClosestTo(system);
+                if (nearest == null) continue;
+                float testDistance = system.Position.Distance(nearest.Position);
+                if (testDistance < distance)
+                {
+                    distance = testDistance;
+                    nearestSystem = nearest;
+                }
+            }
+            return distance;
         }
 
         public bool UpdateContactsAndBorders(float elapsedTime)

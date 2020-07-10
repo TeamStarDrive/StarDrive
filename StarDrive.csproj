@@ -202,11 +202,16 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\ShipAIMovement.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\OrbitPlan.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\AttackShips.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\AttackSystems.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Campaign.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Defense.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\CaptureAllPlanets.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Capture.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\CaptureBorderPlanets.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Theater.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\TheatersOfWar.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\WarScore.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\WarTasks.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />

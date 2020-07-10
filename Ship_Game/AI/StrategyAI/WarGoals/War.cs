@@ -11,6 +11,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public class War
     {
+        public Guid WarGuid = Guid.NewGuid();
         public WarType WarType;
         public float OurStartingStrength;
         public float TheirStartingStrength;
@@ -31,8 +32,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         private Empire Us;
         public string UsName;
         public string ThemName;
-        public Array<Campaign> Campaigns;
+        //public Array<Campaign> Campaigns;
         public bool Initialized;
+        readonly WarScore Score;
+        public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();
+        public TheatersOfWar WarTheaters;
+
+        public WarState GetBorderConflictState() => Score.GetBorderConflictState();
+        public WarState GetBorderConflictState(Array<Planet> coloniesOffered) => 
+            Score.GetBorderConflictState(coloniesOffered);
+        public WarState GetWarScoreState() => Score.GetWarScoreState();
 
         [JsonIgnore][XmlIgnore]
         public Empire Them { get; private set; }
@@ -40,11 +49,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         [JsonIgnore][XmlIgnore]
         public SolarSystem[] ContestedSystems { get; private set; }
         [JsonIgnore][XmlIgnore]
-        public float LostColonyPercent => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
+        public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore]
         public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
-        [JsonIgnore][XmlIgnore]
-        public float SpaceWarKd => StrengthKilled / (StrengthLost + 0.01f);
+        [JsonIgnore]
+        [XmlIgnore]
+        public float SpaceWarKd => StrengthKilled / StrengthLost.LowerBound(1);
 
         int ContestedSystemCount => ContestedSystems.Count(s => s.OwnerList.Contains(Them));
 
@@ -54,12 +64,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         WarTasks Tasks;
 
-        public void RemoveCampaign(Campaign campaign) => Campaigns.Remove(campaign);
-
-        public int Priority() => 10 - (int)GetBorderConflictState();
+        public int Priority()
+        {
+            if (Them.isFaction) return 1;
+            var warState = Score.GetWarScoreState();
+            return 8 - (int)warState;
+        }
 
         public War()
         {
+            Score = new WarScore(this, Us);
         }
 
         public War(Empire us, Empire them, float starDate, WarType warType)
@@ -80,57 +94,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
             OurRelationToThem           = us.GetRelations(them);
+            Score                       = new WarScore(this, Us);
             PopulateHistoricLostSystems();
+            WarTheaters = new TheatersOfWar(this);
         }
 
         public static War CreateInstance(Empire owner, Empire target, WarType warType)
         {
             var war = new War(owner, target, Empire.Universe.StarDate, warType);
-            war.CreateCampaigns();
             return war;
-        }
-
-        void CreateCampaigns()
-        {
-            Campaigns = new Array<Campaign>();
-            switch (WarType)
-            {
-                case WarType.BorderConflict:
-                    {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureBorder, this);
-                        Campaigns.Add(campaign);
-                        break;
-                    }
-                case WarType.ImperialistWar:
-                case WarType.GenocidalWar:
-                    {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureAll, this);
-                        Campaigns.Add(campaign);
-                        break;
-                    }
-                case WarType.DefensiveWar:
-                    {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.CaptureBorder, this);
-                        campaign.AddTargetSystems(ContestedSystems.Filter(s => Us.GetEmpireAI().IsInOurAOs(s.Position)));
-                        Campaigns.Add(campaign);
-                        break;
-                    }
-                case WarType.SkirmishWar:
-                    {
-                        var campaign = Campaign.CreateInstance(Campaign.CampaignType.Capture, this);
-                        campaign.AddTargetSystems(GetTheirBorderSystems());
-                        campaign.AddTargetSystems(GetTheirNearSystems());
-                        Campaigns.Add(campaign);
-                        break;
-                    }
-            }
-            if (ContestedSystemCount > 0)
-            {
-                var defense = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
-                Campaigns.Add(defense);
-            }
-
-            Initialized = true;
         }
 
         void PopulateHistoricLostSystems()
@@ -152,89 +124,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var systems = ContestedSystems;
             for (int x = 0; x < systems.Length; x++) contestedSystemGUIDs.Add(systems[x].guid);
             return contestedSystemGUIDs;
-        }
-
-        public WarState GetBorderConflictState() => GetBorderConflictState(null);
-
-        public WarState GetBorderConflictState(Array<Planet> coloniesOffered)
-        {
-            if (StartingNumContestedSystems == 0)
-                return GetWarScoreState();
-
-            int contestedSystemDifference = GetContestedSystemDifferential(coloniesOffered);
-
-            if (contestedSystemDifference == StartingNumContestedSystems)
-                return WarState.EvenlyMatched;
-
-            //winning
-            if (contestedSystemDifference > 0)
-            {
-                if (contestedSystemDifference == StartingNumContestedSystems)
-                    return WarState.Dominating;
-                return WarState.WinningSlightly;
-            }
-
-            //losing
-            if (contestedSystemDifference == -StartingNumContestedSystems)
-                return WarState.LosingBadly;
-
-            return WarState.LosingSlightly;
-        }
-
-        public int GetContestedSystemDifferential(Array<Planet> coloniesOffered)
-        {
-            // -- if we arent there
-            // ++ if they arent there but we are
-            int offeredCleanSystems = 0;
-            if (coloniesOffered != null)
-                foreach (Planet planet in coloniesOffered)
-                {
-                    var system = planet.ParentSystem;
-                    if (!system.OwnerList.Contains(Them))
-                        offeredCleanSystems++;
-                }
-
-            int reclaimedSystems = offeredCleanSystems + ContestedSystems
-                                       .Count(s => !s.OwnerList.Contains(Them) && s.OwnerList.Contains(Us));
-
-            int lostSystems = ContestedSystems
-                .Count(s => !s.OwnerList.Contains(Us) && s.OwnerList.Contains(Them));
-
-            return reclaimedSystems - lostSystems;
-        }
-
-        public WarState GetWarScoreState()
-        {
-            float lostColonyPercent = LostColonyPercent;
-            float spaceWarKd        = SpaceWarKd;
-
-            //They Are weaker than us
-            if (TotalThreatAgainst <= 1f)
-            {
-                if (lostColonyPercent > 0.5f) return WarState.LosingBadly;
-                if (lostColonyPercent > 0.25f) return WarState.LosingSlightly;
-                if (lostColonyPercent > 0.1f) return WarState.EvenlyMatched;
-
-                if (spaceWarKd.AlmostZero())   return WarState.ColdWar;
-                if (spaceWarKd > 1.5f)         return WarState.Dominating;
-                if (spaceWarKd > 0.75f)        return WarState.WinningSlightly;
-                if (spaceWarKd > 0.35f)        return WarState.EvenlyMatched;
-                if (spaceWarKd > 0.15)         return WarState.LosingSlightly;
-                return WarState.LosingBadly;
-            }
-
-            if (lostColonyPercent > 0.5f) return WarState.LosingBadly;
-
-            if (lostColonyPercent.AlmostZero() && spaceWarKd.AlmostZero())
-                return WarState.ColdWar;
-
-            if (spaceWarKd.AlmostZero()) return WarState.ColdWar;
-            if (spaceWarKd > 1.25f)    return WarState.Dominating;
-            if (spaceWarKd > 1.0f) return WarState.WinningSlightly;
-            if (spaceWarKd > 0.85f) return WarState.EvenlyMatched;
-            if (spaceWarKd > 0.5)   return WarState.LosingSlightly;
-
-            return WarState.LosingBadly;
         }
 
         public void SetCombatants(Empire u, Empire t)
@@ -259,50 +148,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (activeWar)
             {
                 PopulateHistoricLostSystems();
-
-                if (!Initialized)
-                {
-                    CreateCampaigns();
-                }
-                else
-                {
-                    for (int i = 0; i < Campaigns.Count; i++)
-                    {
-                        Campaigns[i] = Campaign.CreateInstanceFromSave(Campaigns[i], this);
-                    }
-                }
+                if (WarTheaters == null) WarTheaters = new TheatersOfWar(this);
+                WarTheaters.RestoreFromSave(this);
             }
             else
             {
-                Campaigns = null;
+                WarTheaters = null;
             }
         }
 
         public WarState ConductWar()
         {
-            for (int i = 0; i < Campaigns.Count; i++)
-            {
-                var campaign = Campaigns[i];
-                campaign?.Evaluate();
-            }
+            WarTheaters.Evaluate();
 
-            if (Campaigns.IsEmpty)
-            {
-                CreateCampaigns();
-            }
-            else
-            {
-                if (!Campaigns.Any(d=>d.Type == Campaign.CampaignType.Defense))
-                {
-                    if (ContestedSystemCount > 0)
-                    {
-                        var defense = Campaign.CreateInstance(Campaign.CampaignType.Defense, this);
-                        Campaigns.Add(defense);
-                    }
-                }
-            }
-
-            return GetWarScoreState();
+            return Score.GetWarScoreState();
         }
 
         public void ShipWeLost(Ship target)
@@ -319,32 +178,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void PlanetWeLost(Empire attacker, Planet colony)
         {
-            if (attacker == Them)
-            {
-                ColoniesLost++;
-                AddToContestedSystems(colony.ParentSystem);
-            }
+            if (attacker != Them) return;
+            ColoniesLost++;
         }
 
         public void PlanetWeWon(Empire loser, Planet colony)
         {
-            if (loser == Them)
-            {
-                ColoniesWon++;
-                if (colony.ParentSystem.OwnerList.Contains(Them))
-                    AddToContestedSystems(colony.ParentSystem);
-            }
+            if (loser != Them) return;
+            ColoniesWon++;
         }
 
-        void AddToContestedSystems(SolarSystem system)
+        public void SystemAssaultFailed(SolarSystem system)
         {
-            if (ContestedSystemsGUIDs.AddUnique(system.guid))
-            {
-                var contested = new SolarSystem[ContestedSystemsGUIDs.Count];
-                ContestedSystems.CopyTo(contested, 0);
-                contested[ContestedSystemsGUIDs.Count - 1] = system;
-                ContestedSystems = contested;
-            }
+            SystemAssaultFailures.TryGetValue(system.guid, out int count);
+            SystemAssaultFailures[system.guid] = ++count;
         }
 
         public void WarDebugData(ref DebugTextBlock debug)
@@ -352,7 +199,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             string pad = "     ";
             string pad2 = pad + "  *";
             debug.AddLine($"{pad}WarType:{WarType}");
-            debug.AddLine($"{pad}WarState:{GetWarScoreState()}");
+            debug.AddLine($"{pad}WarState:{Score.GetWarScoreState()}");
             debug.AddLine($"{pad}With: {ThemName}");
             debug.AddLine($"{pad}ThreatRatio = % {(int)(TotalThreatAgainst * 100)}");
             debug.AddLine($"{pad}StartDate {StartDate}");
@@ -363,34 +210,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             debug.AddLine($"{pad}Colonies Won : {ColoniesWon}");
             debug.AddLine($"{pad}Colonies Lost Percentage :% {(int)(LostColonyPercent * 100)}.00");
 
-            for (int i = 0; i < Campaigns.Count; i++)
-            {
-                var campaign = Campaigns[i];
-                debug.AddLine($"{pad}Campaign : {campaign}");
-                if (campaign.RallyAO?.CoreWorld != null)
-                    debug.AddLine($"{pad2}Rally : {campaign.RallyAO.CoreWorld}");
-                debug.AddLine($"{pad2}Targets : {campaign.SystemGuids.Count}");
-                var systems = SolarSystem.GetSolarSystemsFromGuids(campaign.SystemGuids);
-                foreach (var system in systems)
-                {
-                    if (system.OwnerList.Contains(Them))
-                    {
-                        debug.AddLine($"{pad2}Target : {system}");
-                    }
-                    else
-                    {
-                        debug.AddLine($"{pad2}Taken  : {system}");
-                    }
-                }
-                debug.AddLine($"{pad2}Step : {campaign.StepName}");
-            }
+            debug = WarTheaters.DebugText(debug, pad, pad2);
 
             foreach (var system in ContestedSystems)
             {
-                bool ourForcesPresent = system.OwnerList.Contains(Us);
+                bool ourForcesPresent   = system.OwnerList.Contains(Us);
                 bool theirForcesPresent = system.OwnerList.Contains(Them);
-                int value = (int)system.PlanetList.Sum(p => p.ColonyBaseValue(Us));
-                bool hasFleetTask = Us.GetEmpireAI().IsAssaultingSystem(system);
+                int value               = (int)system.PlanetList.Sum(p => p.ColonyBaseValue(Us));
+                bool hasFleetTask       = Us.GetEmpireAI().IsAssaultingSystem(system);
                 debug.AddLine($"{pad2}System: {system.Name}  value:{value}  task:{hasFleetTask}");
                 debug.AddLine($"{pad2}OurForcesPresent:{ourForcesPresent}  TheirForcesPresent:{theirForcesPresent}");
             }
