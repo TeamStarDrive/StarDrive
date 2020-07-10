@@ -12,6 +12,22 @@ namespace Ship_Game
 {
     public partial class Planet : SolarSystemBody, IDisposable
     {
+        public static Array<Planet> GetPlanetsFromGuids(Array<Guid> guids)
+        {
+            var items = new Array<Planet>();
+            for (int i = 0; i < guids.Count; i++)
+            {
+                var guid = guids[i];
+                var item = GetPlanetFromGuid(guid);
+                if (item != null)
+                    items.Add(item);
+            }
+
+            return items;
+        }
+
+        public static Planet GetPlanetFromGuid(Guid guid) => Empire.Universe.GetPlanet(guid);
+
         public enum ColonyType
         {
             Core = 0,
@@ -343,6 +359,13 @@ namespace Ship_Game
             value += MineralRichness * 10;
             value += PotentialMaxPopBillionsFor(empire) * 5;
             return value;
+        }
+
+        public float ColonyWarValueTo(Empire empire)
+        {
+            if (Owner == null)                    return ColonyPotentialValue(empire);
+            if (Owner.GetRelations(empire)?.AtWar == true) return ColonyWorthTo(empire);
+            return 0;
         }
 
         public void AddProjectile(Projectile projectile)

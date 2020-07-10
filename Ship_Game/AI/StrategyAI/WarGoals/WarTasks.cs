@@ -35,7 +35,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 if (planet.Owner == Target)
                 {
-                    while (!IsAlreadyAssaultingPlanet(planet))
+                    while (!IsAlreadyAssaultingPlanet(planet, fleetsPerTarget))
                     {
                         Tasks.Add(new MilitaryTask(planet, Owner){Priority = priority});
                     }
