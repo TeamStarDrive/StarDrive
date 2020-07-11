@@ -30,6 +30,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(16)] public int Priority;
         [Serialize(17)] public int TaskBombTimeNeeded;
         [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
+        [Serialize(19)] public Guid WarpGuid = Guid.Empty;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
@@ -431,6 +432,7 @@ namespace Ship_Game.AI.Tasks
                                             EndTask();
                                     }
                                     RequisitionClaimForce();
+                                    Priority -= 1;
                                     break;
                                 }
                             case 1:
