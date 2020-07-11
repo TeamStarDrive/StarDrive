@@ -59,7 +59,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         }
 
         // @note Goals are mainly evaluated during Empire update
-        public GoalStep Evaluate()
+        public virtual GoalStep Evaluate()
         {
             // CG hrmm i guess this should just be part of the goal enum.
             // But that will require more cleanup of the goals.
