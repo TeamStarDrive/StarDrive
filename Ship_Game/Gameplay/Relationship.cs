@@ -698,7 +698,7 @@ namespace Ship_Game.Gameplay
 
         void OfferTrade(Empire us)
         {
-            if (TurnsKnown < SecondDemand
+            if (TurnsKnown < FirstDemand
                 || AtWar
                 || Treaty_Trade
                 || HaveRejected_TRADE
