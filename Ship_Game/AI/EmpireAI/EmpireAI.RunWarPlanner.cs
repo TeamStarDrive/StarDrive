@@ -353,6 +353,7 @@ namespace Ship_Game.AI
 
         void UpdateEmpireDefense()
         {
+            if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) return;
             if (EmpireDefense == null)
             {
                 var newWar = War.CreateInstance(OwnerEmpire, OwnerEmpire, WarType.EmpireDefense);
