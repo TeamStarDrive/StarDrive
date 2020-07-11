@@ -649,7 +649,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                SetAlliance(true, them);
+                usToThem.SetAlliance(true, OwnerEmpire, them);
                 text = "AI_ALLIANCE_ACCEPT";
                 allianceGood = true;
             }
@@ -1081,16 +1081,6 @@ namespace Ship_Game.AI
             public string Answer;
             public bool Peace;
         }
-
-        public void SetAlliance(bool ally, Empire them)
-        {
-            if (ally)
-                OwnerEmpire.SignAllianceWith(them);
-            else
-                OwnerEmpire.BreakAllianceWith(them);
-        }
-
-        public void SetAlliance(bool ally) => SetAlliance(ally, Empire.Universe.PlayerEmpire);
 
         OfferQuality ProcessQuality(float valueToUs, float valueToThem)
         {
