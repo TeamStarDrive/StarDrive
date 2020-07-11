@@ -201,6 +201,7 @@ namespace Ship_Game
             float minimumPayment     = Level * 100 * multiplier;
             float victimNetPotential = (victim.PotentialIncome - victim.AllSpending).LowerBound(0) * multiplier;
             float payment            = (victim.Money + victimNetPotential*PaymentPeriodTurns) * basePercentage/100;
+            payment                 *= (Level / 3f).LowerBound(1);
 
             return (payment * multiplier).LowerBound(minimumPayment).RoundTo10();
         }
