@@ -31,7 +31,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(16)] public int Priority;
         [Serialize(17)] public int TaskBombTimeNeeded;
         [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
-        [Serialize(19)] public Guid WarpGuid = Guid.Empty;
+        [Serialize(19)] public Guid TaskGuid = Guid.NewGuid();
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
@@ -41,8 +41,15 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
+        [XmlIgnore] [JsonIgnore] public SolarSystem System;
+        public bool IsTaskAOInSystem(SolarSystem system)
+        {
+            if (System != null) return system == System;
+            if (!system.Position.InRadius(AO, AORadius)) return false;
+            System = system;
+            return true;
+        }
 
-        public bool IsTaskAOInSystem(SolarSystem system) => system.Position.InRadius(AO, AORadius);
         public bool IsDefendingSystem(SolarSystem system)
         {
             if (type != TaskType.ClearAreaOfEnemies) return false;
@@ -355,7 +362,15 @@ namespace Ship_Game.AI.Tasks
                     break;
                 case TaskType.ClearAreaOfEnemies:
                     {
-                        if      (Step == 0) RequisitionDefenseForce();
+                        if      (Step == 0)
+                        {
+                            RequisitionDefenseForce();
+                            if (EnemyStrength < 10)
+                            {
+                                EndTask();
+                            }
+
+                        }
                         else if (Step == 1) ExecuteAndAssess();
                         break;
                     }

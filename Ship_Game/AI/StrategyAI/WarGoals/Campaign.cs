@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
@@ -38,9 +39,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected Array<Ship> TargetShips          = new Array<Ship>();
         public Array<Guid> PlanetGuids             = new Array<Guid>();
         protected Array<Planet> TargetPlanets      = new Array<Planet>();
+        public Array<Guid> TaskGuids               = new Array<Guid>();
         public AO RallyAO;
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
+        protected WarTasks Tasks;
         public Campaign() { }
 
         /// <summary>
@@ -62,6 +65,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             IsCoreCampaign = campaign.IsCoreCampaign;
             OwnerTheater   = theater;
             RestoreFromSave(theater);
+            Tasks          = new WarTasks(Owner, Them);
         }
 
         /// <summary>
@@ -76,6 +80,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them         = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
             UID          = campaignType.ToString();
             OwnerTheater = theater;
+            Tasks        = new WarTasks(Owner, Them);
         }
 
         /// <summary>
@@ -127,10 +132,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         }
 
         public override string UID { get; }
-        
+
+        public override GoalStep Evaluate()
+        {
+            var state = base.Evaluate();
+            Tasks.Update();
+            return state;
+        }
         public void PurgeTasks()
         {
-            // need a connection before military tasks and campaigns. 
+            Tasks.PurgeAllTasks();
         }
 
         protected override void RemoveThisGoal() => OwnerTheater.RemoveCampaign(this);
@@ -308,14 +319,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             int priorityMod = 0;
 
-            var tasks = new WarTasks(Owner, Them);
-
             foreach (var system in currentTargets)
             {
-                tasks.StandardAssault(system, OwnerTheater.Priority + priorityMod, fleetsPerTarget);
+                Tasks.StandardAssault(system, OwnerTheater.Priority + priorityMod, fleetsPerTarget);
                 priorityMod++;
             }
-            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
         }
 
         protected virtual GoalStep AttackSystems()
@@ -327,18 +335,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
         {
-            int priorityMod = 0;
-
-            var tasks = new WarTasks(Owner, Them);
-
             for (int i = 0; i < currentTargets.Count; i++)
             {
                 var system = currentTargets[i];
-                tasks.StandardSystemDefense(system, 0, strengths[i]);
-                priorityMod++;
+                Tasks.StandardSystemDefense(system, 0, strengths[i]);
             }
-
-            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
         }
     }
 }

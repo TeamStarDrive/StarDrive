@@ -17,8 +17,21 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             var targets = new Array<SolarSystem>();
             targets.AddRange(UniverseScreen.SolarSystemList.Filter(s => {
+                if (s.OwnerList.Count < 1) return false;
                 bool isExplored = s.IsExploredBy(Owner);
                 bool theyAreThere = s.OwnerList.Contains(Them);
+                if (Owner == Them)
+                {
+                    theyAreThere = false;
+                    foreach (var empire in s.OwnerList)
+                    {
+                        if (Owner.IsEmpireHostile(empire))
+                        {
+                            theyAreThere = true;
+                            break;
+                        }
+                    }
+                }
                 bool inAO = false;
                 if (isExplored && theyAreThere)
                     inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
