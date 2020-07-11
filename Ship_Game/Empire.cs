@@ -619,7 +619,12 @@ namespace Ship_Game
                 return;
 
             foreach (var kv in Relationships)
+            {
                 BreakAllTreatiesWith(kv.Key, includingPeace: true);
+                var them = kv.Key;
+                GetRelations(them).AtWar = false;
+                them.GetRelations(this).AtWar = false;
+            }
 
             foreach (Ship ship in OwnedShips)
             {
