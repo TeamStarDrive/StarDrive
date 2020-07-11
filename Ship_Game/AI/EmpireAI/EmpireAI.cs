@@ -135,10 +135,10 @@ namespace Ship_Game.AI
 
         public bool IsInOurAOs(Vector2 location) => AoContainingPosition(location) != null;
 
-        public void InitializeAOsFromSave(UniverseData data)
+        public void InitializeAOsFromSave()
         {
             foreach (AO area in AreasOfOperations)
-                area.InitFromSave(data, OwnerEmpire);
+                area.InitFromSave(OwnerEmpire);
         }
 
         public void RunEventChecker(KeyValuePair<Empire, Relationship> them)

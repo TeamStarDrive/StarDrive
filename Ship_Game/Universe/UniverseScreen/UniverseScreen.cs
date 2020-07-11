@@ -243,6 +243,7 @@ namespace Ship_Game
 
         public Planet GetPlanet(Guid guid)
         {
+            if (guid == Guid.Empty) return null;
             if (PlanetsDict.TryGetValue(guid, out Planet planet))
                 return planet;
             Log.Error($"Guid for planet not found: {guid}");
