@@ -10,6 +10,7 @@ namespace Ship_Game
 		//same as borderConflict
 		DefensiveWar,
 		//do border conflict then attack all border systems. then imperialist war. 
-        SkirmishWar
+        SkirmishWar,
+		EmpireDefense
 	}
 }
