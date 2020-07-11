@@ -46,24 +46,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (!Initialized || theirSystems > TheirSystemCount)
             {
                 TheirSystemCount = theirSystems;
-                
                 Initialize();
-                Us.GetEmpireAI().Defense.TheaterAO = Us.EmpireAO();
             }
-            Us.GetEmpireAI().Defense?.Evaluate();
         }
 
         public void Initialize()
         {
-            CreateTheaters();
             Initialized = true;
-            if (Us.GetEmpireAI().Defense == null && !Us.isFaction)
-            {
-                Us.GetEmpireAI().Defense = new Theater(Us.EmpireAO(), this);
-
-                Us.GetEmpireAI().Defense.AddCampaignType(Campaign.CampaignType.Defense);
-                Us.GetEmpireAI().Defense.AddCampaignType(Campaign.CampaignType.SystemDefense);
-            }
+            CreateTheaters();
         }
 
         public void AddTheater(AO ao, Array<Campaign.CampaignType> campaignTypes)
@@ -110,12 +100,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                         break;
                     }
                 case WarType.DefensiveWar:
-                    campaignTypes.Add(Campaign.CampaignType.Defense);
-                    aos = CreateBorderAOs();
+                    //campaignTypes.Add(Campaign.CampaignType.Defense);
+                    //campaignTypes.Add(Campaign.CampaignType.SystemDefense);
+                    aos = CreateDefensiveAO();
                     break;
                 case WarType.SkirmishWar:
                     campaignTypes.Add(Campaign.CampaignType.CaptureBorder);
                     aos = CreateBorderAOs();
+                    break;
+                case WarType.EmpireDefense:
+                    campaignTypes.Add(Campaign.CampaignType.Defense);
+                    campaignTypes.Add(Campaign.CampaignType.SystemDefense);
+                    aos = CreateEmpireDefenseAO();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -134,6 +130,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         }
 
         Array<AO> CreateDefensiveAO()
+        {
+            return new Array<AO> { Us.EmpireAO() };
+        }
+
+        Array<AO> CreateEmpireDefenseAO()
         {
             return new Array<AO> { Us.EmpireAO() };
         }

@@ -54,10 +54,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 return;
             }
 
-            if (CampaignsWanted.Contains(Campaign.CampaignType.Defense))
+            if (CampaignsWanted.Contains(Campaign.CampaignType.SystemDefense))
             {
                 Pins    = Us.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(TheaterAO, Us).ToArray();
-                Ships   = Pins.Select(p => p.Ship);
             }
 
             CreateWantedCampaigns();
