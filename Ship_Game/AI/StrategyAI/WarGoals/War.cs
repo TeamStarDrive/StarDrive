@@ -107,6 +107,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         void PopulateHistoricLostSystems()
         {
+            if (OurRelationToThem == null) return;
             foreach (var lostSystem in OurRelationToThem.GetPlanetsLostFromWars())
             {
                 if (lostSystem.OwnerList.Contains(Them))
