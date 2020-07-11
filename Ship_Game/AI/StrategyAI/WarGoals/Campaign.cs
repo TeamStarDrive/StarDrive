@@ -25,6 +25,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Blockade,
             Feint,
             Attrition,
+            SystemDefense
 
         }
 
@@ -88,6 +89,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 case CampaignType.CaptureBorder: return new CaptureBorderPlanets(campaignType, theater);
                 case CampaignType.CaptureAll:    return new CaptureAllPlanets(campaignType, theater);
                 case CampaignType.Defense:       return new Defense(campaignType, theater);
+                case CampaignType.SystemDefense: return new SystemDefense(campaignType, theater);
             }
             return null;
         }
@@ -244,9 +246,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var allTargets           = new Array<SolarSystem>();
             float allTargetsStrength = strength;
 
-            Vector2 nearestPoint = RallyAO?.Center ?? empireCenter;
+            Vector2 nearestPoint     = RallyAO?.Center ?? empireCenter;
             // these loops are not cheap but the frequency of the calcs should be pretty low.
-            float minDistanceToThem = Them.FindNearestOwnedSystemTo(nearestPoint).Position.Distance(nearestPoint);
+            float minDistanceToThem  = Them.FindNearestOwnedSystemTo(nearestPoint)?.Position.Distance(nearestPoint) ?? 1000000;
             float numberOfTargets    = targets.Count.LowerBound(1);
             float averageImportance  = targets.Sum(s => s.WarValueTo(Owner)) / numberOfTargets;
             
@@ -319,11 +321,24 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected virtual GoalStep AttackSystems()
         {
             if (Owner.GetOwnedSystems().Count == 0)                   return GoalStep.GoalFailed;
-            //if (HaveConqueredTargets() || PercentageCleared() > 0.5f) return GoalStep.RestartGoal;
-//            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Owner) return GoalStep.RestartGoal;
-
             AttackSystemsInList();
             return GoalStep.GoToNextStep;
+        }
+
+        protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
+        {
+            int priorityMod = 0;
+
+            var tasks = new WarTasks(Owner, Them);
+
+            for (int i = 0; i < currentTargets.Count; i++)
+            {
+                var system = currentTargets[i];
+                tasks.StandardSystemDefense(system, 0, strengths[i]);
+                priorityMod++;
+            }
+
+            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
         }
     }
 }

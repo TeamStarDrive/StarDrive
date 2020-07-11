@@ -62,6 +62,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 Us.GetEmpireAI().Defense = new Theater(Us.EmpireAO(), this);
 
                 Us.GetEmpireAI().Defense.AddCampaignType(Campaign.CampaignType.Defense);
+                Us.GetEmpireAI().Defense.AddCampaignType(Campaign.CampaignType.SystemDefense);
             }
         }
 
