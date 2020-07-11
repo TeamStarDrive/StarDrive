@@ -294,7 +294,7 @@ namespace Ship_Game.AI.Tasks
                                 , true).LowerBound(100);
             InitFleetRequirements((int)minStrength, minTroopStrength: 40, minBombMinutes: 0);
 
-            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin * 0.5f;
+            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
 
             if (CreateTaskFleet("Exploration Force", battleFleetSize, true) 
                                 == RequisitionStatus.Complete)
@@ -414,8 +414,10 @@ namespace Ship_Game.AI.Tasks
                 });
             }
 
+            float strengthNeeded = Math.Max(MinimumTaskForceStrength, EnemyStrength);
+
             // All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, TaskBombTimeNeeded
+            TaskForce = fleetShips.ExtractShipSet(strengthNeeded, TaskBombTimeNeeded
                 , NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets);
 
             if (TaskForce.IsEmpty)

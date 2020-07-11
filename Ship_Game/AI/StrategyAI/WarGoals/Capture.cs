@@ -2,60 +2,30 @@
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
-    public class Capture : Campaign
+    public class Capture : AttackSystems
     {
-        SolarSystem CurrentTarget;
-
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Capture"/> class.
         /// </summary>
-        public Capture(Campaign campaign, War war) : base(campaign, war) => CreateSteps();
+        public Capture(Campaign campaign, Theater theater) : base(campaign, theater) => CreateSteps();
 
-        public Capture(CampaignType campaignType, War war) : base(campaignType, war)
+        public Capture(CampaignType campaignType, Theater theater) : base(campaignType, theater)
         {
             CreateSteps();
         }
 
-        void CreateSteps()
+        protected override GoalStep SetupTargets()
         {
-            Steps = new Func<GoalStep>[] 
+            var targets = new Array<SolarSystem>();
+            targets.AddRange(OwnerWar.GetTheirBorderSystems().Filter(s=>
             {
-                SetupRallyPoint,
-                AttackSystems
-            };
+                bool isExplored = s.IsExploredBy(Owner);
+                bool inAO = false;
+                if (isExplored)
+                    inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
+                return isExplored && inAO;
+            }));
+            return SetTargets(targets);
         }
-
-        GoalStep AttackSystems()
-        {
-            if (HaveConqueredTargets()) return GoalStep.GoalComplete;
-
-            var fleets = Owner.AllFleetsReady();
-            float strength = fleets.AccumulatedStrength;
-
-            var tasks = new WarTasks(Owner, Them);
-            foreach(var system in TargetSystems)
-            {
-                float defense = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
-                strength -= defense;
-
-                if (HaveConqueredTarget(system)) continue;
-                tasks.StandardAssault(system, OwnerWar.Priority() + 5);
-                
-                if (strength < 0) break; 
-            }
-            Owner.GetEmpireAI().AddPendingTasks(tasks.GetNewTasks());
-            return GoalStep.RestartGoal;
-        }
-
-        bool HaveConqueredTargets()
-        {
-            foreach(var system in TargetSystems)
-            {
-                if (!HaveConqueredTarget(system)) return false;
-            }
-            return true;
-        }
-
-        bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
     }
 }
