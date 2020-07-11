@@ -205,6 +205,7 @@
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\AttackShips.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\AttackSystems.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Campaign.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\SystemDefense.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Defense.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\CaptureAllPlanets.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Capture.cs" />

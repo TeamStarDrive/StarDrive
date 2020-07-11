@@ -880,14 +880,13 @@ namespace Ship_Game.Fleets
                     TaskStep = 3;
                     break;
                 case 3:
-                    if (!AttackEnemyStrengthClumpsInAO(task))
-                        DoOrbitTaskArea(task);
-                    else
-                        CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    AttackEnemyStrengthClumpsInAO(task);
+                        
+                        //CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (EndInvalidTask(!Owner.IsEmpireAttackable(task.TargetPlanet.Owner)))
+                    if (EndInvalidTask(Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner) < 1))
                         break;
                     if (ShipsOffMission(task))
                         TaskStep = 3;
