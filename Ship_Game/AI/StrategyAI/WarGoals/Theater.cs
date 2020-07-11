@@ -13,7 +13,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         War OwnerWar;
         SolarSystem[] Systems;
         Ship[] Ships;
-        Array<ThreatMatrix.Pin> Pins;
+        ThreatMatrix.Pin[] Pins;
         Empire Us;
         public Array<Campaign.CampaignType> CampaignsWanted;
         public Array<Campaign> Campaigns;
@@ -56,7 +56,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             if (CampaignsWanted.Contains(Campaign.CampaignType.Defense))
             {
-                Pins    = Us.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(TheaterAO, Us);
+                Pins    = Us.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(TheaterAO, Us).ToArray();
                 Ships   = Pins.Select(p => p.Ship);
             }
 
@@ -93,6 +93,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public SolarSystem[] GetPlanets()                          => Systems;
         public Ship[] GetShips()                                   => Ships;
+        public ThreatMatrix.Pin[] GetPins() => Pins;
 
         /// <summary>
         /// Adds the type of the campaign. Campaign will be created at next update.

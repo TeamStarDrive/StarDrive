@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
@@ -50,5 +51,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             return numberOfFleets <= assaults ;
         }
+
+        public void StandardSystemDefense(SolarSystem system, int priority, float strengthWanted)
+        {
+            if (IsAlreadyDefendingSystem(system)) return;
+            Vector2 center = system.Position;
+            float radius   = system.Radius * 1.5f;
+            Tasks.Add(new MilitaryTask(center, radius, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
+                { Priority = priority });
+        }
+
+        bool IsAlreadyDefendingSystem(SolarSystem system)
+        {
+            return Tasks.Any(t => t.IsDefendingSystem(system));
+        }
+
     }
 }

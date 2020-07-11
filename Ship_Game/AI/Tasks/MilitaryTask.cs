@@ -5,6 +5,7 @@ using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Ship_Game.AI.Tasks
@@ -35,10 +36,18 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
+        [XmlIgnore] [JsonIgnore] public SolarSystem TargetSystem { get; private set; }
         [XmlIgnore] [JsonIgnore] public Ship TargetShip { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
+
+        public bool IsTaskAOInSystem(SolarSystem system) => system.Position.InRadius(AO, AORadius);
+        public bool IsDefendingSystem(SolarSystem system)
+        {
+            if (type != TaskType.ClearAreaOfEnemies) return false;
+            return IsTaskAOInSystem(system);
+        }
 
         public MilitaryTask()
         {
@@ -101,12 +110,20 @@ namespace Ship_Game.AI.Tasks
 
         public MilitaryTask(AO ao)
         {
-            AO = ao.Center;
-            AORadius = ao.Radius;
-            type = TaskType.CohesiveClearAreaOfEnemies;
-            WhichFleet = ao.WhichFleet;
+            AO              = ao.Center;
+            AORadius        = ao.Radius;
+            type            = TaskType.CohesiveClearAreaOfEnemies;
+            WhichFleet      = ao.WhichFleet;
             IsCoreFleetTask = true;
             SetEmpire(ao.GetCoreFleet().Owner);
+        }
+
+        public MilitaryTask(Vector2 center, float radius, float strengthWanted, TaskType taskType)
+        {
+            AO                       = center;
+            AORadius                 = radius;
+            type                     = taskType;
+            MinimumTaskForceStrength = strengthWanted;
         }
 
         public MilitaryTask(Planet target, Empire owner)
@@ -338,7 +355,7 @@ namespace Ship_Game.AI.Tasks
                     break;
                 case TaskType.ClearAreaOfEnemies:
                     {
-                        if      (Step == 0) RequisitionCoreFleet();
+                        if      (Step == 0) RequisitionDefenseForce();
                         else if (Step == 1) ExecuteAndAssess();
                         break;
                     }
