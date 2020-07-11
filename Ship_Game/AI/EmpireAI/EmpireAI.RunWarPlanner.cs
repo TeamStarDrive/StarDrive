@@ -14,6 +14,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
+        public War EmpireDefense;
         public float ValueOfAllWarSystems()
         {
             float value = 0;
@@ -25,8 +26,6 @@ namespace Ship_Game.AI
             }
             return value;
         }
-
-        public Theater Defense;
 
         public void CallAllyToWar(Empire ally, Empire enemy)
         {
@@ -352,17 +351,29 @@ namespace Ship_Game.AI
             }
         }
 
+        void UpdateEmpireDefense()
+        {
+            if (EmpireDefense == null)
+            {
+                var newWar = War.CreateInstance(OwnerEmpire, OwnerEmpire, WarType.EmpireDefense);
+                EmpireDefense = newWar;
+            }
+            EmpireDefense.ConductWar();
+        }
+
         private void RunWarPlanner()
         {
+            UpdateEmpireDefense();
             if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
                 return;
             WarState worstWar = WarState.NotApplicable;
-
+            bool atWar = false;
             foreach(var kv in OwnerEmpire.AllRelations)
             {
                 if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
                 Relationship rel = kv.Value;
                 if (rel.ActiveWar == null) continue;
+                atWar = true;
                 var currentWar = rel.ActiveWar.ConductWar();
                 worstWar = worstWar > currentWar ? currentWar : worstWar;
             }
