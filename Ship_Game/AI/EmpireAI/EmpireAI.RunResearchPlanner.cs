@@ -21,8 +21,7 @@ namespace Ship_Game.AI
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
             OwnerEmpire.data.TechDelayTime++;
 
-            var researchPriorities = new ResearchPriorities(OwnerEmpire, BuildCapacity, command
-                , TechChooser.ScriptType.ToString());
+            var researchPriorities = new ResearchPriorities(OwnerEmpire, BuildCapacity);
 
             TechChooser.InitializeNewResearchRun(researchPriorities);
             DebugLog($"ResearchStrategy : {TechChooser.ScriptType.ToString()}");

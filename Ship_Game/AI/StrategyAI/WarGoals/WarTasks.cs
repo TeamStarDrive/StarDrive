@@ -7,19 +7,36 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
     public class WarTasks
     {
         readonly Array<MilitaryTask> Tasks;
+        readonly Array<MilitaryTask> NewTasks;
         readonly Empire Owner;
         readonly Empire Target;
 
         public WarTasks(Empire owner, Empire target)
         {
-            Owner = owner;
-            Target = target;
-            Tasks = new Array<MilitaryTask>();
+            Owner    = owner;
+            Target   = target;
+            Tasks    = new Array<MilitaryTask>();
+            NewTasks = new Array<MilitaryTask>();
         }
 
-        public Array<MilitaryTask> GetNewTasks()
+        public virtual void Update()
         {
-            return Tasks;
+            ProcessNewTasks();
+            for (int i = Tasks.Count - 1; i >= 0; i--)
+            {
+                var task = Tasks[i];
+                if (task.QueuedForRemoval)
+                    Tasks.RemoveAtSwapLast(i);
+            }
+        }
+
+        public void PurgeAllTasks()
+        {
+            foreach (var task in Tasks)
+            {
+                Owner.GetEmpireAI().QueueForRemoval(task);
+            }
+            Update();
         }
 
         public void StandardAssault(IEnumerable<SolarSystem> systemsToAttack, int priority)
@@ -38,7 +55,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 {
                     while (!IsAlreadyAssaultingPlanet(planet, fleetsPerTarget))
                     {
-                        Tasks.Add(new MilitaryTask(planet, Owner){Priority = priority});
+                        CreateTask(new MilitaryTask(planet, Owner){Priority = priority});
                     }
                 }
             }
@@ -47,7 +64,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         bool IsAlreadyAssaultingPlanet(Planet planetToAssault, int numberOfFleets = 1)
         {
             int assaults = Tasks.Count(t => t.TargetPlanet == planetToAssault);
-            assaults    += Owner.GetEmpireAI().CountAssaultsOnPlanet(planetToAssault);
+            assaults    += NewTasks.Count(t => t.TargetPlanet == planetToAssault);
 
             return numberOfFleets <= assaults ;
         }
@@ -57,13 +74,30 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (IsAlreadyDefendingSystem(system)) return;
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;
-            Tasks.Add(new MilitaryTask(center, radius, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
-                { Priority = priority });
+            CreateTask(new MilitaryTask(center, radius, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
+            {
+                Priority = priority,
+                System   = system
+            });
         }
 
         bool IsAlreadyDefendingSystem(SolarSystem system)
         {
-            return Tasks.Any(t => t.IsDefendingSystem(system));
+            if (Tasks.Any(t => t.IsDefendingSystem(system))) return true;
+            return NewTasks.Any(t => t.IsDefendingSystem(system));
+        }
+
+        void CreateTask(MilitaryTask task)
+        {
+            Tasks.Add(task);
+            NewTasks.Add(task);
+        }
+
+        void ProcessNewTasks()
+        {
+            if (NewTasks.Count == 0) return;
+            Owner.GetEmpireAI().AddPendingTasks(NewTasks);
+            NewTasks.Clear();
         }
 
     }
