@@ -716,7 +716,7 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Open Borders with "+ relationship.Key.data.Traits.Plural);
 
                     if (relationship.Value.AtWar)
-                        DrawString(15f, $"War with {relationship.Key.data.Traits.Plural} ({relationship.Value.ActiveWar.WarType})");
+                        DrawString(15f, $"War with {relationship.Key.data.Traits.Plural} ({relationship.Value.ActiveWar?.WarType})");
                 }
                 ++column;
                 if (Screen.SelectedSystem != null)

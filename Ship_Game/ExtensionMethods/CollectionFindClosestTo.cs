@@ -82,7 +82,7 @@ namespace Ship_Game
 
         public static Planet FindClosestTo(this Array<Planet> planets, Ship toShip)
         {
-            return FindClosestTo(planets.ToArray(), planets.Count, toShip.Center);
+            return FindClosestTo(planets.GetInternalArrayItems(), planets.Count, toShip.Center);
         }
 
         public static Planet FindClosestTo(this Planet[] planets, int count, Vector2 to)
@@ -142,9 +142,9 @@ namespace Ship_Game
             return found;
         }
 
-        public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, SolarSystem toPlanet)
+        public static SolarSystem FindClosestTo(this IList<SolarSystem> systems, SolarSystem toPlanet)
         {
-            return FindClosestTo(systems.GetInternalArrayItems(), systems.Count, toPlanet.Position);
+            return FindClosestTo(systems, systems.Count, toPlanet.Position);
         }
 
         public static SolarSystem FindClosestTo(this SolarSystem[] systems, SolarSystem toPlanet)
@@ -164,15 +164,15 @@ namespace Ship_Game
 
         public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, Ship toShip)
         {
-            return FindClosestTo(systems.ToArray(), systems.Count, toShip.Center);
+            return FindClosestTo(systems.GetInternalArrayItems(), systems.Count, toShip.Center);
         }
 
         public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, Vector2 position)
         {
-            return FindClosestTo(systems.ToArray(), systems.Count, position);
+            return FindClosestTo(systems.GetInternalArrayItems(), systems.Count, position);
         }
 
-        public static SolarSystem FindClosestTo(this SolarSystem[] systems, int count, Vector2 to)
+        public static SolarSystem FindClosestTo(this IList<SolarSystem> systems, int count, Vector2 to)
         {
             if (count <= 0)
                 return null;
@@ -186,6 +186,31 @@ namespace Ship_Game
                 if (distance < min)
                 {
                     min = distance;
+                    found = target;
+                }
+            }
+            return found;
+        }
+
+        public static SolarSystem FindFurthestFrom(this IList<SolarSystem> systems, Vector2 position)
+        {
+            return FindFurthestFrom(systems, systems.Count, position);
+        }
+
+        public static SolarSystem FindFurthestFrom(this IList<SolarSystem> systems, int count, Vector2 to)
+        {
+            if (count <= 0)
+                return null;
+
+            SolarSystem found = systems[0];
+            float max = to.SqDist(found.Position);
+            for (int i = 1; i < count; ++i)
+            {
+                SolarSystem target = systems[i];
+                float distance = to.SqDist(target.Position);
+                if (distance < max)
+                {
+                    max = distance;
                     found = target;
                 }
             }
