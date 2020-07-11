@@ -14,6 +14,20 @@ namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
+        public float ValueOfAllWarSystems()
+        {
+            float value = 0;
+            foreach (var rel in OwnerEmpire.AllRelations)
+            {
+                var war = rel.Value.ActiveWar;
+                if (war == null) continue;
+                value = war.WarTheaters.Theaters.Sum(t => t.TheaterAO.GetWarValueOfSystemsInAOTo(OwnerEmpire)).LowerBound(1);
+            }
+            return value;
+        }
+
+        public Theater Defense;
+
         public void CallAllyToWar(Empire ally, Empire enemy)
         {
             var offer = new Offer
@@ -287,22 +301,22 @@ namespace Ship_Game.AI
                         if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
                         Relationship rel = kv.Value;
                         Empire them = kv.Key;
-                        if (rel.Treaty_Peace || !rel.PreparingForWar) continue;
+                        if (rel.Treaty_Peace || !rel.PreparingForWar || rel.AtWar) continue;
 
-                        float distanceMod = OwnerEmpire.GetWeightedCenter().Distance(them.GetWeightedCenter());
-                        distanceMod /= 1800000f; // current solar system width * 3. 
+                        float minDistanceToThem = OwnerEmpire.MinDistanceToNearestOwnedSystemIn(them.GetOwnedSystems(), out SolarSystem nearestSystem);
+
+                        if (minDistanceToThem < 0) continue;
+                        float projectorRadius = OwnerEmpire.GetProjectorRadius();
+                        float distanceMultiplier = (minDistanceToThem / (Empire.Universe.UniverseSize / 4f)).LowerBound(1);
 
                         float enemyStrength = kv.Key.CurrentMilitaryStrength;
 
-                        if (enemyStrength * ( 1 + distanceMod) > fleets.AccumulatedStrength - currentTaskStrength ) continue;
+                        float anger = rel.TotalAnger  / 100 + OwnerEmpire.GetWarOffensiveRatio();
+
+                        if (enemyStrength * distanceMultiplier > fleets.AccumulatedStrength * anger - currentTaskStrength ) continue;
 
                         // all out war
                         if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)
-                        {
-                            DeclareWarOn(them, rel.PreparingForWarType);
-                        }
-                        // We share a solar system
-                        else if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
                         {
                             DeclareWarOn(them, rel.PreparingForWarType);
                         }
@@ -323,6 +337,11 @@ namespace Ship_Game.AI
                             {
                                 DeclareWarOn(them, rel.PreparingForWarType);
                             }
+                        }
+                        // We share a solar system
+                        else if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
+                        {
+                            DeclareWarOn(them, rel.PreparingForWarType);
                         }
 
                         break;
