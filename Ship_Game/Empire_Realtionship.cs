@@ -1,11 +1,4 @@
-﻿using Newtonsoft.Json;
-using Ship_Game.AI;
-using Ship_Game.Commands.Goals;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Serialization;
+﻿using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {

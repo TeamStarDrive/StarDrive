@@ -244,7 +244,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             StatementsSL.Reset();
             TheirText = "";
-            if (TheirOffer.NAPact && ThemAndUs.HaveRejectedNapact)
+            if (TheirOffer.NAPact && ThemAndUs.HaveRejectedNaPact)
             {
                 TheirText = GetDialogueByName("ComeAround_NAPACT") + "\n\n";
             }
