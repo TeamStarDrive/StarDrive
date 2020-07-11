@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI.Research
 {
@@ -9,22 +11,20 @@ namespace Ship_Game.AI.Research
         public float Wars { get; }
         public float Economics { get; }
         public float BuildCapacity { get; }
-        public string Command { get; }
-        public string Command2 { get; }
         private readonly float FoodNeeds;
         private readonly float Industry;
+        private readonly float ShipHulls;
         public readonly string TechCategoryPrioritized;
         private readonly Empire OwnerEmpire;
 
-        public ResearchPriorities(Empire empire, float buildCapacity, string command, string command2) : this()
+        public ResearchPriorities(Empire empire, float buildCapacity) : this()
         {
             OwnerEmpire          = empire;
             BuildCapacity        = buildCapacity;
-            Command              = command;
-            Command2             = command2;
-            ResearchDebt         = CalcReserchDebt(empire, out Array<TechEntry> availableTechs);
+            ResearchDebt         = CalcResearchDebt(empire, out Array<TechEntry> availableTechs);
             Wars                 = CalcWars(empire, availableTechs);
             Economics            = CalcEconomics(empire);
+            ShipHulls            = CalcShipHulls(Wars);
 
             CalcFoodAndIndustry(empire, out FoodNeeds, out Industry);
             Map<string, int> priority = CreatePriorityMap(empire);
@@ -35,24 +35,38 @@ namespace Ship_Game.AI.Research
         string CreateTechString(Map<string, int> priority)
         {
             string techCategoryPrioritized = "TECH";
-            int max = 0;
+            int maxStrings                 = 7;
+            int numStrings                 = 0;
+            bool hullPriority              = false;
             foreach (var pWeighted in priority.OrderByDescending(weight => weight.Value))
             {
-                if (max > 6)
+                if (numStrings > maxStrings)
                     break;
+
                 if (pWeighted.Value < 0)
                     continue;
 
-                techCategoryPrioritized += ":";
+                // Filter out ship techs and lower num tech types if ship hull is wanted the most.
+                if (techCategoryPrioritized == "TECH" && pWeighted.Key == "ShipHull")
+                {
+                    hullPriority = true;
+                    maxStrings = 1;
+                }
+
                 if (pWeighted.Key == "SHIPTECH")
                 {
+                    if (hullPriority) 
+                        continue;
+
+                    techCategoryPrioritized += ":";
                     techCategoryPrioritized += GetShipTechString();
-                    max += 3;
+                    numStrings += 3;
                 }
                 else
                 {
+                    techCategoryPrioritized += ":";
                     techCategoryPrioritized += pWeighted.Key;
-                    max++;
+                    numStrings++;
                 }
             }
 
@@ -74,6 +88,7 @@ namespace Ship_Game.AI.Research
             var priority = new Map<string, int>
             {
                 { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars)        },
+                { "ShipHull",     Randomizer(strat.MilitaryRatio,  ShipHulls)   },
                 { "Research",     Randomizer(strat.ResearchRatio,  ResearchDebt)},
                 { "Colonization", Randomizer(strat.ExpansionRatio, FoodNeeds)   },
                 { "Economic",     Randomizer(strat.ExpansionRatio, Economics)   },
@@ -94,6 +109,36 @@ namespace Ship_Game.AI.Research
                                                                                                                    : 0;
 
             return wars.Clamped(0, 1);
+        }
+
+        float CalcShipHulls(float wars)
+        {
+            float maxBonus = 0;
+            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            {
+                Empire empire          = kv.Key;
+                Relationship relations = kv.Value;
+                if (!relations.Known && empire.isFaction)
+                    continue;
+
+                float empireBonus = CalcCanBuildHulls(empire);
+                if (empireBonus > maxBonus)
+                    maxBonus = empireBonus;
+            }
+
+            maxBonus = (maxBonus - CalcCanBuildHulls(OwnerEmpire)).LowerBound(0);
+            return maxBonus + wars;
+        }
+
+        float CalcCanBuildHulls(Empire empire)
+        {
+            float canBuildBonus = 0;
+            if (empire.canBuildCorvettes) canBuildBonus += 0.25f;
+            if (empire.canBuildFrigates)  canBuildBonus += 0.25f;
+            if (empire.canBuildCruisers)  canBuildBonus += 0.25f;
+            if (empire.canBuildCapitals)  canBuildBonus += 0.25f;
+
+            return canBuildBonus;
         }
 
         void CalcFoodAndIndustry(Empire empire, out float foodNeeds, out float industry)
@@ -133,7 +178,7 @@ namespace Ship_Game.AI.Research
             return empire.data.TaxRate + workerEfficiency;
         }
 
-        float CalcReserchDebt(Empire empire, out Array<TechEntry> availableTechs)
+        float CalcResearchDebt(Empire empire, out Array<TechEntry> availableTechs)
         {
             float researchDebt = 0;
             availableTechs = OwnerEmpire.CurrentTechsResearchable();
@@ -177,13 +222,12 @@ namespace Ship_Game.AI.Research
         string GetShipTechString()
         {
             string shipTechToAdd = "";
-            int shipTechs = RandomMath.IntBetween(1, 4);
+            int shipTechs = RandomMath.RollDie(3);
             switch (shipTechs)
             {
-                case 1: shipTechToAdd = "ShipHull:ShipDefense:ShipWeapons:ShipGeneral"; break;
-                case 2: shipTechToAdd = "ShipHull:ShipDefense:ShipWeapons";             break;
-                case 3: shipTechToAdd = "ShipHull:ShipWeapons:ShipDefense";             break;
-                case 4: shipTechToAdd = "ShipHull:ShipGeneral:ShipDefense:ShipWeapons"; break;
+                case 1: shipTechToAdd = "ShipDefense:ShipWeapons:ShipGeneral"; break;
+                case 2: shipTechToAdd = "ShipWeapons:ShipGeneral:ShipDefense"; break;
+                case 3: shipTechToAdd = "ShipGeneral:ShipDefense:ShipWeapons"; break;
             }
 
             return shipTechToAdd;

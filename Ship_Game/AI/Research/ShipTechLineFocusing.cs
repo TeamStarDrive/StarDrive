@@ -378,7 +378,13 @@ namespace Ship_Game.AI.Research
             foreach (var ship in researchableShips)
             {
                 if (!OwnerEmpire.IsHullUnlocked(ship.shipData.Hull))
+                {
+                    var hullTechs = FilterHullTech(ship);
+                    for (int i = 0; i < hullTechs.Count; i++)
+                        goodShipTechs.Add(hullTechs[i]);
+
                     continue;
+                }
 
                 var researchableTechs = shipTechs.Intersect(ship.shipData.TechsNeeded);
                 foreach (var tech in researchableTechs)
@@ -413,6 +419,20 @@ namespace Ship_Game.AI.Research
                 }
             }
             return bestShipTechs;
+        }
+
+        private Array<string> FilterHullTech(Ship ship)
+        {
+            Array<string> hullTechs = new Array<string>();
+            var shipTechs = ConvertStringToTech(ship.shipData.TechsNeeded);
+            for (int i = 0; i < shipTechs.Count; i++)
+            {
+                TechEntry tech = shipTechs[i];
+                if (tech.GetUnlockableHulls(OwnerEmpire).Count > 0)
+                    hullTechs.Add(tech.ToString());
+            }
+
+            return hullTechs;
         }
 
         public bool BestShipNeedsHull(Array<TechEntry> availableTechs) => ShipHullTech(BestCombatShip, availableTechs) != null;
