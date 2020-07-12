@@ -353,7 +353,8 @@ namespace Ship_Game.AI
 
         void UpdateEmpireDefense()
         {
-            if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) return;
+            if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) 
+                return;
             if (EmpireDefense == null)
             {
                 var newWar = War.CreateInstance(OwnerEmpire, OwnerEmpire, WarType.EmpireDefense);
@@ -388,8 +389,9 @@ namespace Ship_Game.AI
                 });
 
                 var fleets                 = OwnerEmpire.AllFleetsReady();
+                float fleetsStrength       = fleets.FleetsStrength();
 
-                if (fleets.AccumulatedStrength > currentTaskStrength)
+                if (fleetsStrength > currentTaskStrength)
                 {
                     foreach (var kv in OwnerEmpire.AllRelations)
                     {
@@ -406,9 +408,9 @@ namespace Ship_Game.AI
 
                         float enemyStrength = kv.Key.CurrentMilitaryStrength;
 
-                        float anger = rel.TotalAnger  / 100 + OwnerEmpire.GetWarOffensiveRatio();
+                        float anger = (rel.TotalAnger  / 100) * OwnerEmpire.GetWarOffensiveRatio();
 
-                        if (enemyStrength * distanceMultiplier > fleets.AccumulatedStrength * anger - currentTaskStrength ) continue;
+                        if (enemyStrength * distanceMultiplier > fleetsStrength * anger - currentTaskStrength ) continue;
 
                         // all out war
                         if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)

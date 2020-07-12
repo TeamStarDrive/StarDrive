@@ -608,7 +608,7 @@ namespace Ship_Game.Fleets
                         break;
                     }
                     RearShipsToCombat(combatOffset, false);
-                    Vector2 resetPosition = task.AO.OffsetTowards(AveragePosition(), 500);
+                    Vector2 resetPosition = task.AO.OffsetTowards(AveragePosition(), 1500);
                     EngageCombatToPlanet(resetPosition, true);
                     TaskStep = 5;
                     break;
@@ -616,7 +616,7 @@ namespace Ship_Game.Fleets
                 case 5:
                     switch (StatusOfPlanetAssault(task))
                     {
-                        case Status.NotApplicable: break;
+                        case Status.NotApplicable: TaskStep = 4; break;
                         case Status.Good:          TaskStep = 6; break;
                         case Status.Critical:
                             {
@@ -1510,6 +1510,7 @@ namespace Ship_Game.Fleets
             // If it is active , it adds the ship again. It does not seem right.
             if (Ships.RemoveRef(ship) && ship.Active)
             {
+                ship.AI.ClearOrders();
                 ship.loyalty.AddShipNextFrame(ship);
                 return true;
             }

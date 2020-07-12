@@ -84,7 +84,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         bool IsAlreadyDefendingSystem(SolarSystem system)
         {
             if (Tasks.Any(t => t.IsDefendingSystem(system))) return true;
-            return NewTasks.Any(t => t.IsDefendingSystem(system));
+            if (NewTasks.Any(t => t.IsDefendingSystem(system))) return true;
+            return Owner.GetEmpireAI().IsClearTaskTargetingAO(system);
         }
 
         void CreateTask(MilitaryTask task)
