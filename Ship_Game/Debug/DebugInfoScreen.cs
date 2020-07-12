@@ -630,7 +630,9 @@ namespace Ship_Game.Debug
                 DrawString($"Treasury Goal: {e.GetEmpireAI().TreasuryGoal().String()}");
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
-                DrawString($"Ship Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) T:{(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
+                DrawString($"Ship Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) InUse:{(int)e.TotalShipMaintenance} - Scrap:{(int)e.TotalMaintenanceInScrap}");
+                DrawString($"Ship War Maint:  War:{(int)e.TotalWarShipMaintenance} - Orb:{(int)e.TotalOrbitalMaintenance} - Trp:{(int)e.TotalTroopShipMaintenance}");
+                DrawString($"Ship Civ Maint:  Civ:{(int)e.TotalCivShipMaintenance} - Sup:{(int)e.TotalEmpireSupportMaintenance}");
 
                 Array<Ship> ships = e.GetShips();
                 DrawString($"Ship Count:  ({ships.Count}) " +
