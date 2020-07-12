@@ -153,6 +153,12 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
+        public bool IsClearTaskTargetingAO(SolarSystem system)
+        {
+            return TaskList.Any(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies
+                                        && task.System == system || task.AO.InRadius(system.Position, task.AORadius));
+        }
+
         public MilitaryTask[] GetExpansionTasks()
         {
             return TaskList.Filter(task => task.TargetPlanet != null &&
@@ -247,9 +253,11 @@ namespace Ship_Game.AI
         {
             var militaryTask = new MilitaryTask
             {
-                AO = p.Center,
+                AO       = p.Center,
                 AORadius = 50000f,
-                type = MilitaryTask.TaskType.Exploration
+                type     = MilitaryTask.TaskType.Exploration,
+                Priority = 20
+
             };
             militaryTask.SetTargetPlanet(p);
             militaryTask.SetEmpire(OwnerEmpire);
