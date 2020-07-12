@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
+using Newtonsoft.Json;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -20,11 +22,16 @@ namespace Ship_Game.AI
         public int InvasionTroops { get; private set; }
         public float InvasionTroopStrength { get; private set; }
         public int BombSecsAvailable { get; private set; }
+        int[] RoleCount;
+        float[] RoleStrength;
 
         public FleetShips(Empire ownerEmpire)
         {
-            OwnerEmpire = ownerEmpire;
-            Ratios = new FleetRatios(OwnerEmpire);
+            OwnerEmpire  = ownerEmpire;
+            Ratios       = new FleetRatios(OwnerEmpire);
+            int items    = Enum.GetNames(typeof(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole)).Length;
+            RoleCount    = new int[items];
+            RoleStrength = new float[items];
         }
 
         public FleetShips(Empire ownerEmpire, Ship[] ships) : this(ownerEmpire)
@@ -58,7 +65,11 @@ namespace Ship_Game.AI
                 || ship.fleet != null)
                 return false;
 
-            AccumulatedStrength += ship.GetStrength();
+            int roleIndex            = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
+            RoleCount[roleIndex]    += 1;
+            RoleStrength[roleIndex] += ship.GetStrength(); 
+            AccumulatedStrength     += ship.GetStrength();
+            
             Ships.Add(ship);
 
             if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Troop)
@@ -70,6 +81,30 @@ namespace Ship_Game.AI
                 BombSecsAvailable += ship.BombsGoodFor60Secs;
 
             return true;
+        }
+
+        public float FleetsStrength()
+        {
+            CountFleets(out var strength);
+            return strength;
+        }
+
+        public int CountFleets(out float strength)
+        {
+            int filledRoles = 0;
+            strength = 0;
+            foreach(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole item in Enum.GetValues(typeof(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole)))
+            {
+                float wanted       = Ratios.GetWanted(item);
+                if (wanted        <= 0) continue;
+                int index          = (int)item;
+                float have         = RoleCount[index];
+                float filled       = have / wanted;
+                float roleStrength = RoleStrength[index];
+                strength          += (filled > 1 ? roleStrength : 0);
+                filledRoles        = (int)Math.Min(filledRoles, filled);
+            }
+            return filledRoles;
         }
 
         public int ExtractFleetShipsUpToStrength(float strength, float setCompletePercent, int wantedFleetCount,

@@ -173,6 +173,7 @@ namespace Ship_Game.AI.Tasks
 
             Owner.GetEmpireAI().QueueForRemoval(this);
 
+
             if (Owner.isFaction)
             {
                 FactionEndTask();
@@ -433,7 +434,8 @@ namespace Ship_Game.AI.Tasks
                     }
                 case TaskType.Exploration:
                     {
-                        if (Step == 0) RequisitionExplorationForce();
+                        if (Owner.GetEmpireAI().TroopShuttleCapacity > 0)
+                            if (Step == 0) RequisitionExplorationForce();
                         break;
                     }
                 case TaskType.DefendSystem:
@@ -455,6 +457,7 @@ namespace Ship_Game.AI.Tasks
                         switch (Step)
                         {
                             case 0:
+                                if (Owner.GetEmpireAI().TroopShuttleCapacity > 0)
                                 {
                                     if (TargetPlanet.Owner != null)
                                     {
@@ -465,8 +468,8 @@ namespace Ship_Game.AI.Tasks
                                     }
                                     RequisitionClaimForce();
                                     Priority -= 1;
-                                    break;
                                 }
+                                break;
                             case 1:
                                 {
                                     var fleetDictionary = Owner.GetFleetsDict();
