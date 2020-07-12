@@ -10,11 +10,17 @@ namespace Ship_Game.AI
     {
         private float FindTaxRateToReturnAmount(float amount)
         {
-            for (int i = 0; i < 100; i++)
+            if (amount <= 0) return 0f;
+            for (int i = 1; i < 100; i++)
             {
-                if (OwnerEmpire.EstimateNetIncomeAtTaxRate(i / 100f) >= amount)
+                float taxRate = i / 100f;
+                //float amountMade = OwnerEmpire.EstimateNetIncomeAtTaxRate(taxRate);
+
+                float amountMade = taxRate * OwnerEmpire.GrossIncome;
+
+                if (amountMade >= amount)
                 {
-                    return i / 100f;
+                    return taxRate;
                 }
             }
             return 1;
@@ -30,24 +36,26 @@ namespace Ship_Game.AI
             // the values below are now weights to adjust the budget areas. 
             float defense                  = 6;  // 0.015f;
             float SSP                      = 2;  // 0.003f;
-            float build                    = 10; // 0.02f;
+            float build                    = 15; // 0.02f;
             float spy                      = 100;
             float colony                   = 7;  // 0.015f;
             float savings                  = 350;
+            float troopShuttles = 6;
 
             float total = (defense + SSP + build + spy + colony + savings) ;
 
-            defense /= total;
-            SSP     /= total;
-            build   /= total;
-            spy     /= total;
-            colony  /= total;
+            defense       /= total;
+            SSP           /= total;
+            build         /= total;
+            spy           /= total;
+            colony        /= total;
+            troopShuttles /= total;
 
             // for the player they don't use some budgets. so distribute them to areas they do
             // spy budget is a special case currently and is not distributed. 
             if (OwnerEmpire.isPlayer)
             {
-                float budgetBalance = build / 3f;
+                float budgetBalance = (build + TroopShuttleCapacity) / 3f;
                 defense            += budgetBalance;
                 colony             += budgetBalance;
                 SSP                += budgetBalance;
@@ -55,7 +63,7 @@ namespace Ship_Game.AI
                 spy                 = 0;
             }
 
-            // gamestate attempts to increase the budget if there are wars or lack of some resources. 
+            // gamestate attempts to increase the budget if there are wars or lack of some resources.  
             // its primarily geared at ship building. 
             float riskLimit                = (normalizedBudget * 6 / treasuryGoal).Clamped(0.01f,2);
             float gameState                = GetRisk(riskLimit);
@@ -64,7 +72,7 @@ namespace Ship_Game.AI
             BuildCapacity                  = DetermineBuildCapacity(treasuryGoal, gameState, build);
             OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(treasuryGoal, spy);
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal, colony);
-
+            TroopShuttleCapacity                  = DetermineBuildCapacity(treasuryGoal, gameState, troopShuttles) - OwnerEmpire.TotalTroopShipMaintenance;
             PlanetBudgetDebugInfo();
         }
 
@@ -149,8 +157,8 @@ namespace Ship_Game.AI
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full years) of total income.
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
                                  + OwnerEmpire.data.FlatMoneyBonus;
-
-            treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
+            float timeSpan = 200 * OwnerEmpire.data.treasuryGoal;
+            treasuryGoal *= timeSpan;
             return treasuryGoal.LowerBound(100);
         }
 
@@ -185,16 +193,22 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer && !OwnerEmpire.data.AutoTaxes)
                 return;
+            float money    = OwnerEmpire.Money;
+            float timeSpan = 200 * OwnerEmpire.data.treasuryGoal;
 
-            const float normalTaxRate = 0.25f;
-            float treasuryGoalRatio   = (Math.Max(OwnerEmpire.Money, 100)) / treasuryGoal;
-            float desiredTaxRate;
-            if (treasuryGoalRatio.Greater(1))
-                desiredTaxRate = -(float)Math.Round((treasuryGoalRatio - 1), 2); // this will decrease tax based on ratio
-            else
-                desiredTaxRate = (float)Math.Round(1 - treasuryGoalRatio, 2); // this will increase tax based on opposite ratio
+            float treasuryGap = treasuryGoal - money;
+            float totalMaintenance = OwnerEmpire.TotalShipMaintenance + OwnerEmpire.TotalBuildingMaintenance;
+            float neededPerTurn = treasuryGap / timeSpan;
+            float treasuryToMoneyRatio = (money / treasuryGoal).Clamped(0.01f, 1);
+            float taxesNeeded = FindTaxRateToReturnAmount(neededPerTurn).Clamped(0.0f, 0.95f);
+            float increase = taxesNeeded - OwnerEmpire.data.TaxRate;
+            if (!taxesNeeded.AlmostEqual(0))
+            {
+                float wanted = OwnerEmpire.data.TaxRate + (increase ) * treasuryToMoneyRatio;
+                //float wanted = OwnerEmpire.data.TaxRate + (increase > 0 ? 0.05f : -0.05f) * treasuryToMoneyRatio;
 
-            OwnerEmpire.data.TaxRate  = (normalTaxRate + desiredTaxRate).Clamped(0.01f,0.95f);
+                OwnerEmpire.data.TaxRate = wanted.Clamped(0.01f, 0.95f);
+            }
         }
 
         public Array<PlanetBudget> PlanetBudgets;
@@ -214,14 +228,14 @@ namespace Ship_Game.AI
                 var totalRisk = kv.Value.Risk.Risk;
                 var maxRisk   = kv.Value.Risk.Risk;
 
-                if (kv.Value.AtWar)
+                if (kv.Value.AtWar || kv.Value.PreparingForWar)
                 {
                     risk += totalRisk;
                 }
-                else if(kv.Value.PreparingForWar)
-                {
-                    risk = Math.Max(totalRisk, risk);
-                }
+                //else if(kv.Value.PreparingForWar)
+                //{
+                //    risk = Math.Max(totalRisk, risk);
+                //}
                 else
                 {
                     risk = Math.Max(maxRisk, risk);
