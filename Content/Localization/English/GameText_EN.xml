@@ -4727,6 +4727,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Clears the buildable items filter.</Text>
     </Token>
     <Token>
+      <Index>1871</Index>
+      <Text>We Managed to destroy a pirate base!\n We found equipment worth</Text>
+    </Token>
+    <Token>
       <Index>1887</Index>
       <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
     </Token>
