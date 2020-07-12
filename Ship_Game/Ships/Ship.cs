@@ -1405,6 +1405,9 @@ namespace Ship_Game.Ships
             exp        += exp * loyalty.data.ExperienceMod;
             experience += exp;
             ConvertExperienceToLevel();
+
+            if (killed.loyalty?.WeArePirates ?? false)
+                killed.loyalty.Pirates.KillBaseReward(loyalty, killed);
         }
 
         public float ExperienceShipIsWorth()

@@ -359,6 +359,18 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");; 
         }
 
+        public void AddDestroyedPirateBase(Ship s, float reward)
+        {
+            string message = $"{new LocalizedText(GameText.DestroyedPirateBase).Text} {reward.String(0)} credits.";
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = s.loyalty,
+                Message         = message,
+                ReferencedItem1 = s,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddScrapProgressNotification(string message, string iconPath, string action, string techName)
         {
             AddNotification(new Notification
