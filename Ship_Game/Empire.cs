@@ -143,6 +143,10 @@ namespace Ship_Game
         public float TotalShipMaintenance { get; private set; }
         public float TotalWarShipMaintenance { get; private set; }
         public float TotalCivShipMaintenance { get; private set; }
+        public float TotalEmpireSupportMaintenance { get; private set; }
+        public float TotalOrbitalMaintenance { get; private set; }
+        public float TotalMaintenanceInScrap { get; private set; }
+        public float TotalTroopShipMaintenance { get; private set; }
 
         public float updateContactsTimer = .2f;
         private bool InitializedHostilesDict;
@@ -224,7 +228,12 @@ namespace Ship_Game
         public int Id;
 
         public string Name => data.Traits.Name;
-        public void AddShipNextFrame(Ship s) => Pool.AddShipNextFame(s);
+        public void AddShipNextFrame(Ship s)
+        {
+            s.AI.ClearOrdersAndWayPoints(AIState.AwaitingOrders, false);
+            Pool.AddShipNextFame(s);
+        }
+
         public void AddShipNextFrame(Ship[] s)
         {
             foreach (var ship in s)
@@ -1692,17 +1701,20 @@ namespace Ship_Game
 
         private void UpdateShipMaintenance()
         {
-            TotalShipMaintenance = 0.0f;
-            TotalWarShipMaintenance = 0f;
-            TotalCivShipMaintenance = 0f;
-            var maintenenceInScrap = 0f;
+            TotalShipMaintenance          = 0.0f;
+            TotalWarShipMaintenance       = 0f;
+            TotalCivShipMaintenance       = 0f;
+            TotalOrbitalMaintenance       = 0;
+            TotalEmpireSupportMaintenance = 0;
+            TotalMaintenanceInScrap       = 0f;
+            TotalTroopShipMaintenance     = 0;
             using (OwnedShips.AcquireReadLock())
                 foreach (Ship ship in OwnedShips)
                 {
                     float maintenance = ship.GetMaintCost();
                     if (!ship.Active || ship.AI.State >= AIState.Scrap)
                     {
-                        maintenenceInScrap += maintenance;
+                        TotalMaintenanceInScrap += maintenance;
                         continue;
                     }
                     if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == ShipData.RoleName.platform && ship.IsTethered)
@@ -1712,9 +1724,20 @@ namespace Ship_Game
                         data.DefenseBudget -= maintenance;
                     }
                     if (ship.DesignRoleType == ShipData.RoleType.WarSupport) TotalWarShipMaintenance += maintenance;
-                    if (ship.DesignRoleType == ShipData.RoleType.Warship)    TotalWarShipMaintenance += maintenance;
-                    if (ship.DesignRoleType == ShipData.RoleType.Civilian)   TotalCivShipMaintenance += maintenance;
-                    TotalShipMaintenance += maintenance;
+                    else
+                    if (ship.DesignRoleType == ShipData.RoleType.Warship) TotalWarShipMaintenance += maintenance;
+                    else
+                    if (ship.DesignRoleType == ShipData.RoleType.Civilian) TotalCivShipMaintenance += maintenance;
+                    else
+                    if (ship.DesignRoleType == ShipData.RoleType.EmpireSupport) TotalEmpireSupportMaintenance += maintenance;
+                    else
+                    if (ship.DesignRoleType == ShipData.RoleType.Orbital) TotalOrbitalMaintenance += maintenance;
+                    else
+                    if (ship.DesignRoleType == ShipData.RoleType.Troop) 
+                        TotalTroopShipMaintenance += maintenance;
+                    else
+                        Log.Warning("what is it");
+                    TotalShipMaintenance   += maintenance; 
                 }
 
             using (OwnedProjectors.AcquireReadLock())
