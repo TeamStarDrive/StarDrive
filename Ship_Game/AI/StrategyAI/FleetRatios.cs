@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Windows.Forms;
 using Microsoft.Xna.Framework;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI
 {
@@ -26,12 +28,13 @@ namespace Ship_Game.AI
         public float MinSupport { get; set; }
         public int MinCombatFleet { get; set; }
 
+        int[] CountIndexed;
         public Empire OwnerEmpire { get; }
 
         public FleetRatios(Empire empire)
         {
             OwnerEmpire    = empire;
-
+            CountIndexed = new int[9];
             TotalCount     = 0;
             MinFighters    = 0;
             MinCorvettes   = 0;
@@ -61,6 +64,7 @@ namespace Ship_Game.AI
             else                                    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters);
 
             SetCounts(counts);
+            CountIndexed = counts;
         }
 
         private void SetCounts(int[] counts)
@@ -93,6 +97,37 @@ namespace Ship_Game.AI
                                + MinCapitals);
             TotalCount = MinCombatFleet + MinBombers + MinTroopShip + MinSupport + MinCarriers;
 
+        }
+
+        public float GetWanted(ShipData.RoleName role) => GetWanted(EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(role));
+        public float GetWanted(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole role)
+        {
+            int index = CombatRoleToRatio(role);
+            if (index == -1) return -1;
+            return CountIndexed[index];
+        }
+
+        public static int CombatRoleToRatio(ShipData.RoleName role)
+        {
+            return CombatRoleToRatio(EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(role));
+        } 
+
+        public static int CombatRoleToRatio(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole role)
+        {
+            switch (role)
+            {
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Fighter:   return 0;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Corvette:  return 1;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Frigate:   return 2;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Cruiser:   return 3;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Capital:   return 4;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.TroopShip: return 5;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Bomber:    return 6;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Carrier:   return 7;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Support:   return 8;
+                
+            }
+            return -1;
         }
     }
 }
