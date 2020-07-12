@@ -115,7 +115,7 @@ namespace Ship_Game
         // Core World aims for +1 NetIncome
         void AssignCoreWorldFarmers(float labor)
         {
-            float minPerTurn = MinIncomePerTurn(Storage.Food, Food) * (1-Owner.Research.Strategy.ResearchRatio);
+            float minPerTurn = MinIncomePerTurn(Storage.Food, Food);
             float farmers = Food.EstPercentForNetIncome(minPerTurn);
 
             if (farmers > 0 && farmers < 0.1f)
@@ -128,10 +128,12 @@ namespace Ship_Game
         {
             if (labor <= 0f) return;
 
-            float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
-            float workers = Prod.EstPercentForNetIncome(minPerTurn);
+            float researchNeed = Level < 3 ? 1 : 1 - (0.25f + Owner.Research.Strategy.ResearchRatio) / 2;
 
-            workers += EvaluateProductionQueue();
+            float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
+            float workers = Prod.EstPercentForNetIncome(minPerTurn) * researchNeed;
+
+            //workers *= EvaluateProductionQueue();
             workers = workers.Clamped(0.1f, 1.0f);
             //    workers = 0.75f; // minimum value if construction is going on
 
@@ -157,14 +159,15 @@ namespace Ship_Game
 
             // colony level ranges from 1 worst to 5 best.
             // this should give a range from 0 - .25f
-            float colonyDevelopmentBonus = (5 - Level) * 0.05f;
+            float colonyDevelopmentBonus = (6 - Level) * 0.05f;
             float colonyTypeBonus        = 0;
             switch (colonyType)
             {
                 case ColonyType.Industrial: colonyTypeBonus = 0.05f; break;
                 case ColonyType.Military:   colonyTypeBonus = 0.01f; break;
             }
-            float workerPercentage = colonyDevelopmentBonus + colonyTypeBonus;
+
+            float workerPercentage = 0.3f + colonyDevelopmentBonus + colonyTypeBonus;
 
             if (item.isBuilding)
             {
