@@ -42,7 +42,7 @@ namespace Ship_Game.AI
             float savings                  = 350;
             float troopShuttles = 6;
 
-            float total = (defense + SSP + build + spy + colony + savings) ;
+            float total = (defense + SSP + build + spy + colony + savings + troopShuttles) ;
 
             defense       /= total;
             SSP           /= total;
@@ -55,7 +55,7 @@ namespace Ship_Game.AI
             // spy budget is a special case currently and is not distributed. 
             if (OwnerEmpire.isPlayer)
             {
-                float budgetBalance = (build + TroopShuttleCapacity) / 3f;
+                float budgetBalance = (build + troopShuttles) / 3f;
                 defense            += budgetBalance;
                 colony             += budgetBalance;
                 SSP                += budgetBalance;
