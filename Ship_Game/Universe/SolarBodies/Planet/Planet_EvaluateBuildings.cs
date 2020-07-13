@@ -558,14 +558,13 @@ namespace Ship_Game
             // Build it!
             Construction.Enqueue(ResourceManager.CreateBuilding(Building.OutpostId));
 
-            // Move Outpost to the top of the list, and rush production
+            // Move Outpost to the top of the list
             for (int i = 0; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && q.Building.IsOutpost)
                 {
                     Construction.MoveTo(0, i);
-                    Construction.RushProduction(0, ProdHere);
                     break;
                 }
             }

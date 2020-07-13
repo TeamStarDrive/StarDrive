@@ -47,7 +47,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
                 return false;
 
-            float amount = Math.Min(ProductionHere, maxAmount);
+            float amount = maxAmount.UpperBound(ProductionHere);
 
             // inject artificial surplus to instantly rush & finish production
             if (Empire.Universe.Debug)
