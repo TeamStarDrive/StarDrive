@@ -4731,6 +4731,46 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>We Managed to destroy a pirate base!\n We found equipment worth</Text>
     </Token>
     <Token>
+      <Index>1872</Index>
+      <Text>Production Infrastructure</Text>
+    </Token>
+    <Token>
+      <Index>1873</Index>
+      <Text>Maximum Production To Queue Per Turn</Text>
+    </Token>
+    <Token>
+      <Index>1874</Index>
+      <Text>Colonists per Habitable Tile (Billions)</Text>
+    </Token>
+    <Token>
+      <Index>1875</Index>
+      <Text>Colonists per Biosphere (Billions)</Text>
+    </Token>
+    <Token>
+      <Index>1876</Index>
+      <Text>Net food per colonist allocated to Food Production</Text>
+    </Token>
+    <Token>
+      <Index>1877</Index>
+      <Text>Net flat food generated per turn</Text>
+    </Token>
+    <Token>
+      <Index>1878</Index>
+      <Text>Net production per colonist allocated to Industry</Text>
+    </Token>
+    <Token>
+      <Index>1879</Index>
+      <Text>Net flat production generated per turn</Text>
+    </Token>
+    <Token>
+      <Index>1880</Index>
+      <Text>Net research per colonist allocated to Science</Text>
+    </Token>
+    <Token>
+      <Index>1881</Index>
+      <Text>Net flat research generated per turn</Text>
+    </Token>
+    <Token>
       <Index>1887</Index>
       <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
     </Token>

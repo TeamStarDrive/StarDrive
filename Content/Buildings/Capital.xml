@@ -5,6 +5,7 @@
   <PlusResearchPerColonist>.5</PlusResearchPerColonist>
   <StorageAdded>200</StorageAdded>
   <Icon>megacity</Icon>
+  <Infrastructure>4</Infrastructure>
   <Strength>25</Strength>
   <CombatStrength>25</CombatStrength>
   <SoftAttack>50</SoftAttack>
