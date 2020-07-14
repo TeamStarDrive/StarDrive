@@ -802,7 +802,7 @@ namespace Ship_Game.Fleets
                         CoreFleetSubTask = null;
                         break;
                     }
-                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    CancelFleetMoveInArea(task.AO, task.AORadius);
                     TaskStep = 4;
                     break;
                 case 4:
@@ -856,7 +856,7 @@ namespace Ship_Game.Fleets
 
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
-            if (EndInvalidTask(!StillCombatEffective(task)))
+            if (EndInvalidTask(!StillCombatEffective(task) || task.TargetSystem?.OwnerList.Contains(Owner) != true))
             {
                 FleetTask = null;
                 TaskStep = 0;
@@ -881,15 +881,12 @@ namespace Ship_Game.Fleets
                     break;
                 case 3:
                     AttackEnemyStrengthClumpsInAO(task);
-                        
-                        //CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     TaskStep = 4;
                     break;
                 case 4:
                     if (EndInvalidTask(Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner) < 1))
                         break;
-                    if (ShipsOffMission(task))
-                        TaskStep = 3;
+                    TaskStep = 3;
                     break;
             }
         }
