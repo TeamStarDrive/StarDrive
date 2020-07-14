@@ -929,6 +929,10 @@ namespace Ship_Game.Gameplay
             // FB: Added shield pen chance
             off *= 1 + ShieldPenChance / 100;
 
+            if (TerminalPhaseAttack)
+                off *= 1 + TerminalPhaseDistance * TerminalPhaseSpeedMod / 50000;
+
+
             // FB: Added correct exclusion offense calcs
             float exclusionMultiplier = 1;
             if (Excludes_Fighters)  exclusionMultiplier -= 0.15f;

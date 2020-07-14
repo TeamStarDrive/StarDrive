@@ -476,6 +476,12 @@ namespace Ship_Game
             else
                 DrawStat(ref cursor, Localizer.Token(127), isBallistic ? ballisticDamage : energyDamage, 83);
 
+            if (w.TerminalPhaseAttack)
+            {
+                DrawStat(ref cursor, "T.Range", w.TerminalPhaseDistance, 269);
+                DrawStat(ref cursor, "T.Speed", w.TerminalPhaseSpeedMod * speed, 270);
+            }
+
             cursor.X += 152f;
             cursor.Y = startY;
 
