@@ -318,7 +318,7 @@ namespace Ship_Game.AI
 
                 if (troop.Loyalty == null || !troop.CanMove)
                     continue;
-                Ship launched = troop.Launch();
+                Ship launched = troop.Launch(true);
                 if (launched == null)
                 {
                     Log.Warning($"CreateFleet: Troop launched from planet became null");
