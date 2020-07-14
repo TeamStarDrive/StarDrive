@@ -4236,6 +4236,8 @@ namespace Ship_Game
         /// <summary>Small Clusters Game Mode</summary>
         SmallClustersGame = 1890,
         /// <summary>Clear items Filter</summary>
-        ClearBuildableItemsFilter = 1870
+        ClearBuildableItemsFilter = 1870,
+        /// <summary>We Destroyed a pirate base</summary>
+        DestroyedPirateBase = 1871
     }
 }

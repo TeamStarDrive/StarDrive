@@ -927,6 +927,21 @@ namespace Ship_Game
             }
         }
 
+        public void KillBaseReward(Empire killer, Ship killedShip)
+        {
+            if (!GetBases(out Array<Ship> bases)    
+                || !bases.Any(b => b == killedShip)
+                || killer.isFaction)
+            {
+                return; // The killed ship is not a pirate base or not relevant
+            }
+
+            float reward = (500 + RandomMath.RollDie(1000) + Level * 100).RoundUpToMultipleOf(10);
+            killer.AddMoney(reward);
+            if (killer.isPlayer)
+                Empire.Universe.NotificationManager.AddDestroyedPirateBase(killedShip, reward);
+        }
+
         bool FoundPirateBaseInSystemOf(Empire victim, out Ship pirateBase)
         {
             pirateBase = null;
