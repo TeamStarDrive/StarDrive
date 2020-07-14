@@ -50,7 +50,7 @@ namespace Ship_Game.AI.Research
                 if (techCategoryPrioritized == "TECH" && pWeighted.Key == "ShipHull")
                 {
                     hullPriority = true;
-                    maxStrings = 1;
+                    maxStrings = 0;
                 }
 
                 if (pWeighted.Key == "SHIPTECH")
