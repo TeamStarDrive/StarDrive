@@ -4,7 +4,7 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-
+        public float MaxProduction              => Prod.NetIncome + 1 + BuildingList.Sum(b => b.Infrastructure);
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / 3).LowerBound(0.1f);
         float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
@@ -152,7 +152,7 @@ namespace Ship_Game
                 }
             }
 
-            return prodToSpend;
+            return prodToSpend.UpperBound(MaxProduction);
         }
     }
 }

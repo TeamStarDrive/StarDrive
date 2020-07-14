@@ -99,8 +99,8 @@ namespace Ship_Game
         void OnApplyClicked()
         {
             InputState input = GameBase.ScreenManager.input;
-            float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-            RunOnEmpireThread(() => RushProduction(Item, maxAmount));
+            float maxAmount = (input.IsCtrlKeyDown ? Planet.ProdHere : 10f).UpperBound(Item.ProductionNeeded);
+            RunOnEmpireThread(() => RushProduction(Item, maxAmount.UpperBound(Planet.ProdHere)));
         }
 
         void RushProduction(QueueItem item, float amount)
