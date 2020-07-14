@@ -10,7 +10,7 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-        EnumFlatMap<ColonyPriority, float> Priorities = new EnumFlatMap<ColonyPriority, float>();
+        private readonly EnumFlatMap<ColonyPriority, float> Priorities = new EnumFlatMap<ColonyPriority, float>();
 
         private enum ColonyPriority
         {
@@ -27,7 +27,8 @@ namespace Ship_Game
             CreditsPerCol,
             TaxPercent,
             Fertility,
-            SpacePort
+            SpacePort,
+            InfraStructure
         }
 
         bool IsPlanetExtraDebugTarget()
@@ -84,6 +85,7 @@ namespace Ship_Game
             CalcMoneyPriorities();
             CalcStoragePriorities();
             CalcSpacePortPriorities();
+            CalcInfrastructurePriority();
 
             if (IsPlanetExtraDebugTarget())
             {
@@ -159,6 +161,13 @@ namespace Ship_Game
             Priorities[ColonyPriority.ProdFlat]        = flat;
             Priorities[ColonyPriority.ProdPerRichness] = perRichness;
             Priorities[ColonyPriority.ProdPerCol]      = perCol;
+        }
+
+        void CalcInfrastructurePriority()
+        {
+            float infra = PopulationBillion / 2 - BuildingList.Sum(b => b.Infrastructure);
+            infra = ApplyGovernorBonus(infra, 2f, 2.5f, 0.25f, 0.25f, 1.5f);
+            Priorities[ColonyPriority.InfraStructure] = infra;
         }
 
         void CalcPopulationPriorities()
@@ -358,31 +367,6 @@ namespace Ship_Game
             return lowestScore;
         }
 
-        void ChooseMostExpensiveBuilding(Array<Building> buildings, out Building expensive)
-        {
-            expensive = null;
-            if (buildings.Count == 0)
-                return;
-
-            if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE MOST EXPENSIVE BUILDING ====");
-
-            float maintenance = 0;
-            for (int i = 0; i < buildings.Count; i++)
-            {
-                Building b = buildings[i];
-                if (!SuitableForScrap(b))
-                    continue;
-
-                if (b.ActualMaintenance(this) >  maintenance)
-                    expensive = b;
-            }
-
-            if (expensive != null && IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Red, $"-- Planet {Name}: most expensive Building is {expensive.Name} " +
-                                            $"with maintenance of {expensive.ActualMaintenance(this)} -- ");
-        }
-
         bool SuitableForBuild(Building b, float budget)
         {
             if (b.IsMilitary || b.IsTerraformer || b.IsBiospheres) 
@@ -439,6 +423,7 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage * 20);
             score += EvalTraits(Priorities[ColonyPriority.Fertility], b.MaxFertilityOnBuildFor(Owner, Category) * 2);
             score += EvalTraits(Priorities[ColonyPriority.SpacePort], b.IsSpacePort ? 5 : 0);
+            score += EvalTraits(Priorities[ColonyPriority.InfraStructure], b.Infrastructure * 3);
 
             score *= FertilityMultiplier(b);
             score *= constructionMultiplier;
@@ -573,14 +558,13 @@ namespace Ship_Game
             // Build it!
             Construction.Enqueue(ResourceManager.CreateBuilding(Building.OutpostId));
 
-            // Move Outpost to the top of the list, and rush production
+            // Move Outpost to the top of the list
             for (int i = 0; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && q.Building.IsOutpost)
                 {
                     Construction.MoveTo(0, i);
-                    Construction.RushProduction(0, ProdHere);
                     break;
                 }
             }
