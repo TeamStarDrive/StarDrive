@@ -1723,20 +1723,27 @@ namespace Ship_Game
                     {
                         data.DefenseBudget -= maintenance;
                     }
-                    if (ship.DesignRoleType == ShipData.RoleType.WarSupport) TotalWarShipMaintenance += maintenance;
-                    else
-                    if (ship.DesignRoleType == ShipData.RoleType.Warship) TotalWarShipMaintenance += maintenance;
-                    else
-                    if (ship.DesignRoleType == ShipData.RoleType.Civilian) TotalCivShipMaintenance += maintenance;
-                    else
-                    if (ship.DesignRoleType == ShipData.RoleType.EmpireSupport) TotalEmpireSupportMaintenance += maintenance;
-                    else
-                    if (ship.DesignRoleType == ShipData.RoleType.Orbital) TotalOrbitalMaintenance += maintenance;
-                    else
-                    if (ship.DesignRoleType == ShipData.RoleType.Troop) 
-                        TotalTroopShipMaintenance += maintenance;
-                    else
-                        Log.Warning("what is it");
+                    switch (ship.DesignRoleType) {
+                        case ShipData.RoleType.WarSupport:
+                        case ShipData.RoleType.Warship:
+                            TotalWarShipMaintenance += maintenance;
+                            break;
+                        case ShipData.RoleType.Civilian:
+                            TotalCivShipMaintenance += maintenance;
+                            break;
+                        case ShipData.RoleType.EmpireSupport:
+                            TotalEmpireSupportMaintenance += maintenance;
+                            break;
+                        case ShipData.RoleType.Orbital:
+                            TotalOrbitalMaintenance += maintenance;
+                            break;
+                        case ShipData.RoleType.Troop:
+                            TotalTroopShipMaintenance += maintenance;
+                            break;
+                        default:
+                            Log.Warning("what is it");
+                            break;
+                    }
                     TotalShipMaintenance   += maintenance; 
                 }
 

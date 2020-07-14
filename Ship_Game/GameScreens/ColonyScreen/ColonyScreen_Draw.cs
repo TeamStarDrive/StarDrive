@@ -18,13 +18,13 @@ namespace Ship_Game
         int FreighterUpdateTimer;
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
-            string toolTip, bool percent = false, bool signs = true)
+            string toolTip, bool percent = false, bool signs = true, int digits = 2)
         {
-            DrawBuildingInfo(ref cursor, batch, value, ResourceManager.Texture(texture), toolTip, percent, signs);
+            DrawBuildingInfo(ref cursor, batch, value, ResourceManager.Texture(texture), toolTip, digits, percent, signs);
         }
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, SubTexture texture,
-            string toolTip, bool percent = false, bool signs = true)
+            string toolTip, int digits, bool percent = false, bool signs = true)
         {
             if (value.AlmostEqual(0))
                 return;
@@ -41,7 +41,7 @@ namespace Ship_Game
 
             batch.Draw(texture, fIcon, Color.White);
             string suffix = percent ? "% " : " ";
-            string text = string.Concat(plusOrMinus, Math.Abs(value).String(2), suffix, toolTip);
+            string text = string.Concat(plusOrMinus, Math.Abs(value).String(digits), suffix, toolTip);
             batch.DrawString(Font12, text, tCursor, color);
             cursor.Y += Font12.LineSpacing + 10;
         }
@@ -605,14 +605,15 @@ namespace Ship_Game
 
         void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch)
         {
-            DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
-            DrawBuildingInfo(ref cursor, batch, P.BasePopPerTile / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", "Net flat production generated per turn");
-            DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", "Net research per colonist allocated to Science");
-            DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", "Net flat research generated per turn");
+            DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", Localizer.Token(1874));
+            DrawBuildingInfo(ref cursor, batch, P.BasePopPerTile / 1000, "UI/icon_pop_22", Localizer.Token(1875));
+            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist, "NewUI/icon_food", Localizer.Token(1876), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", Localizer.Token(1877), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", Localizer.Token(1878), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", Localizer.Token(1879), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", Localizer.Token(1880), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", Localizer.Token(1881), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.MaxProduction, "NewUI/icon_queue_rushconstruction", Localizer.Token(1873), digits: 1);
         }
 
         void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b)
@@ -632,6 +633,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", Localizer.Token(362));
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", Localizer.Token(363));
             DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * 10, "NewUI/icon_queue_rushconstruction", Localizer.Token(6137));
+            DrawBuildingInfo(ref bCursor, batch, b.Infrastructure, "NewUI/icon_queue_rushconstruction", Localizer.Token(1872));
             DrawBuildingInfo(ref bCursor, batch, b.CombatStrength, "Ground_UI/Ground_Attack", Localizer.Token(364));
             DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
 
