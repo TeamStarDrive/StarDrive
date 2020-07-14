@@ -47,7 +47,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
                 return false;
 
-            float amount = Math.Min(ProductionHere, maxAmount);
+            float amount = maxAmount.UpperBound(ProductionHere);
 
             // inject artificial surplus to instantly rush & finish production
             if (Empire.Universe.Debug)
@@ -82,7 +82,6 @@ namespace Ship_Game.Universe.SolarBodies
 
             float netSpend     = spendMax - spend;
             q.ProductionSpent += (netSpend); // apply it
-            Owner.ChargeCreditsOnProduction(q, netSpend); // charge credits
 
             // if we spent everything, this QueueItem is complete
             return spend <= 0f;
@@ -99,7 +98,10 @@ namespace Ship_Game.Universe.SolarBodies
             // apply production to specified item
             if (ConstructionQueue.Count > itemIndex)
             {
-                SpendProduction(ConstructionQueue[itemIndex], maxAmount);
+                QueueItem item = ConstructionQueue[itemIndex];
+                SpendProduction(item, maxAmount);
+                if (playerRush && !Empire.Universe.Debug)
+                    Owner.AddMoney(-maxAmount);
             }
 
             for (int i = 0; i < ConstructionQueue.Count;)
@@ -117,7 +119,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 if (q.IsComplete)
                 {
-                    ProcessCompleteQueueItem(q, playerRush);
+                    ProcessCompleteQueueItem(q);
                     continue; // this item was removed, so skip ++i
                 }
                 ++i;
@@ -125,7 +127,7 @@ namespace Ship_Game.Universe.SolarBodies
             return true;
         }
 
-        void ProcessCompleteQueueItem(QueueItem q, bool playerRushed)
+        void ProcessCompleteQueueItem(QueueItem q)
         {
             bool ok = false;
 
@@ -133,11 +135,8 @@ namespace Ship_Game.Universe.SolarBodies
             else if (q.isShip) ok = OnShipComplete(q);
             else if (q.isTroop) ok = TrySpawnTroop(q);
 
-            if (ok && playerRushed)
-            {
-                float credits = (q.Cost * 0.1f).Clamped(1f, 10f);
-                Owner.AddMoney(-credits);
-            }
+            if (!Empire.Universe.Debug || !Owner.isPlayer)
+                Owner.ChargeCreditsOnProduction(q, q.ProductionSpent);
 
             Finish(q, success: ok);
         }
