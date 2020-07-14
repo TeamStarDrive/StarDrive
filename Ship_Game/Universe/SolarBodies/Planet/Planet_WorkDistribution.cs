@@ -157,9 +157,9 @@ namespace Ship_Game
             if (item == null)       return 0;
             if (item.IsPlayerAdded) return 1;
 
-            float buildDesire = Owner.Research.Strategy.MilitaryRatio + Owner.Research.Strategy.ExpansionRatio +
-                                                                       Owner.Research.Strategy.IndustryRatio +
-                                                                       Owner.data.DiplomaticPersonality.Opportunism;
+            float buildDesire = (Owner.data.DiplomaticPersonality?.Opportunism ?? 1) + Owner.Research.Strategy.MilitaryRatio 
+                                                                                     + Owner.Research.Strategy.ExpansionRatio 
+                                                                                     + Owner.Research.Strategy.IndustryRatio;
 
             // colony level ranges from 1 worst to 5 best.
             // Gives a base line from .3 to about .1 depending on research wants
