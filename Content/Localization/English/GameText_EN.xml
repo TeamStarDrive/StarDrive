@@ -4771,6 +4771,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Net flat research generated per turn</Text>
     </Token>
     <Token>
+      <Index>1882</Index>
+      <Text>This Missile has Terminal Phase. This means that at the specified range, the missile will increase speed and will fly straight to the target. This makes it's interception harder.</Text>
+    </Token>
+    <Token>
+      <Index>1883</Index>
+      <Text>This is the speed the missile accelerates to when Terminal Phase is initiated.</Text>
+    </Token>
+    <Token>
       <Index>1887</Index>
       <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
     </Token>
