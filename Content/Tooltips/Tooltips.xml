@@ -1350,5 +1350,15 @@
       <Title>Hangar Size</Title>
       <Data>1865</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>269</TIP_ID>
+      <Title>Terminal Phase Range</Title>
+      <Data>1882</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>270</TIP_ID>
+      <Title>Terminal Phase Speed</Title>
+      <Data>1883</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
