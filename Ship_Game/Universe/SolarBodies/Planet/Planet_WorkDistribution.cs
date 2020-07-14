@@ -157,9 +157,13 @@ namespace Ship_Game
             if (item == null)       return 0;
             if (item.IsPlayerAdded) return 1;
 
+            float buildDesire = (Owner.data.DiplomaticPersonality?.Opportunism ?? 1) + Owner.Research.Strategy.MilitaryRatio 
+                                                                                     + Owner.Research.Strategy.ExpansionRatio 
+                                                                                     + Owner.Research.Strategy.IndustryRatio;
+
             // colony level ranges from 1 worst to 5 best.
-            // this should give a range from 0 - .25f
-            float colonyDevelopmentBonus = (6 - Level) * 0.05f;
+            // Gives a base line from .3 to about .1 depending on research wants
+            float colonyDevelopmentBonus = ((6 + buildDesire) - Level * Owner.Research.Strategy.ResearchRatio) * 0.05f;
             float colonyTypeBonus        = 0;
             switch (colonyType)
             {
@@ -167,7 +171,7 @@ namespace Ship_Game
                 case ColonyType.Military:   colonyTypeBonus = 0.01f; break;
             }
 
-            float workerPercentage = 0.3f + colonyDevelopmentBonus + colonyTypeBonus;
+            float workerPercentage = colonyDevelopmentBonus + colonyTypeBonus;
 
             if (item.isBuilding)
             {
