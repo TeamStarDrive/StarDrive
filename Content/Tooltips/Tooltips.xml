@@ -1360,5 +1360,10 @@
       <Title>Terminal Phase Speed</Title>
       <Data>1883</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>271</TIP_ID>
+      <Title>Delayed Ignition</Title>
+      <Data>1884</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

@@ -482,6 +482,9 @@ namespace Ship_Game
                 DrawStat(ref cursor, "T.Speed", w.TerminalPhaseSpeedMod * speed, 270);
             }
 
+            if (w.DelayedIgnition.Greater(0))
+                DrawStat(ref cursor, "Ignition", w.DelayedIgnition, 271);
+
             cursor.X += 152f;
             cursor.Y = startY;
 
