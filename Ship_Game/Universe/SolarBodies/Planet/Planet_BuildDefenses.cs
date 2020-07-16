@@ -22,7 +22,6 @@ namespace Ship_Game
             var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations  = FilterOrbitals(ShipData.RoleName.station);
             var wantedOrbitals   = new WantedOrbitals(rank);
-            Log.Info($"Planet Rank: {rank}");
 
             BuildOrScrapShipyard(wantedOrbitals.Shipyards, budget.Orbitals);
             BuildOrScrapStations(currentStations, wantedOrbitals.Stations, budget.Orbitals);
