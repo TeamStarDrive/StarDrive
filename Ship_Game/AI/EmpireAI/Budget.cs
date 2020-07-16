@@ -12,11 +12,9 @@ namespace Ship_Game.AI.Budget
         public readonly float EmpireRatio;
         public float SystemRank => SysCom?.RankImportance ?? 0;
         public readonly SystemCommander SysCom;
-        public readonly PlanetTracker PlanetValues;
         private readonly Empire Owner;
         private float EmpireColonizationBudget => Owner.data.ColonyBudget;
         private float EmpireDefenseBudget => Owner.data.DefenseBudget;
-        private SolarSystem System;
         private readonly Planet Planet;
 
         public readonly float CivilianBuildings;
@@ -25,17 +23,15 @@ namespace Ship_Game.AI.Budget
 
         public PlanetBudget(Planet planet)
         {
-            SysCom = planet?.Owner?.GetEmpireAI().
-                DefensiveCoordinator.GetSystemCommander(planet.ParentSystem);
-
-            if (planet == null || SysCom == null)
+            if (planet?.Owner == null)
                 return;
 
+            SysCom = planet.Owner.GetEmpireAI().
+                DefensiveCoordinator.GetSystemCommander(planet.ParentSystem);
+
             Planet              = planet;
-            System              = planet.ParentSystem;
             Owner               = planet.Owner;
-            PlanetValues        = SysCom.GetPlanetValues(planet);
-            EmpireRatio         = SysCom.PercentageOfValue * PlanetValues.RatioInSystem;
+            EmpireRatio         = planet.ColonyValue / Owner.TotalColonyValues;
             CivilianBuildings   = EmpireColonizationBudget * EmpireRatio - planet.CivilianBuildingsMaintenance;
             float defenseBudget = EmpireDefenseBudget * EmpireRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
@@ -72,9 +68,7 @@ namespace Ship_Game.AI.Budget
                               $"\nDefenseBudge (orbitals and ground): {(Orbitals + MilitaryBuildings).String(2)}" +
                               $"\nOrbitals: {Orbitals.String(2)}" +
                               $"\nMilitaryBuildings: {MilitaryBuildings.String(2)}" +
-                              $"\nSystem Rank: {SystemRank}" +
-                              $"\nIn SysTem Rank: {(int)(PlanetValues.RankInSystem * 10)}" +
-                              $"\nValue: {(int)PlanetValues.Value}"; ;
+                              $"\nSystem Rank: {SystemRank}";
 
             screen.DrawStringProjected(Planet.Center + new Vector2(1000, 0), 0f, 1f, Color.LightGray, drawText);
         }

@@ -72,7 +72,7 @@ namespace Ship_Game.AI
             BuildCapacity                  = DetermineBuildCapacity(treasuryGoal, gameState, build);
             OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(treasuryGoal, spy);
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal, colony);
-            TroopShuttleCapacity                  = DetermineBuildCapacity(treasuryGoal, gameState, troopShuttles) - OwnerEmpire.TotalTroopShipMaintenance;
+            TroopShuttleCapacity           = DetermineBuildCapacity(treasuryGoal, gameState, troopShuttles) - OwnerEmpire.TotalTroopShipMaintenance;
             PlanetBudgetDebugInfo();
         }
 
