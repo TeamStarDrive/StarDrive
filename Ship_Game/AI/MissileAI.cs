@@ -29,18 +29,19 @@ namespace Ship_Game.AI
         float DelayedIgnitionTimer;
 
 
-            public MissileAI(Projectile missile, GameplayObject target)
+        public MissileAI(Projectile missile, GameplayObject target)
         {
             Missile              = missile;
             Target               = target;
             DelayedIgnitionTimer = missile.Weapon.DelayedIgnition;
             Missile.Velocity     = missile.Weapon.Owner?.Velocity ?? Vector2.Zero;
-            /*float randomDeviation = RandomMath.RandomBetween(100f, 200f);
-            float randomDeviation2 = RandomMath.RandomBetween(0f, 1f) > 0.5f ? randomDeviation : -randomDeviation;
-            Missile.Velocity.X += Missile.Velocity.X > 0 ? randomDeviation2 : -randomDeviation2;
-            Missile.Velocity.Y += Missile.Velocity.Y > 0 ? -randomDeviation2 : randomDeviation2;*/
 
-            Missile.Velocity = Missile.Velocity.LeftVector();
+            if (Missile.Weapon.DelayedIgnition.Greater(0))
+            {
+                float launchDir   = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
+                float rotation    = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
+                Missile.Velocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(20));
+            }
 
             if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)
                 MaxNozzleDirection = 0.02f; // Torpedoes wiggle less
