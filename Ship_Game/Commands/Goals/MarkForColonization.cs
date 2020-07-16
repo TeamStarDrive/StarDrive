@@ -41,7 +41,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep TargetPlanetStatus()
         {
-            if (ColonizationTarget.Owner != null)
+            if (ColonizationTarget.Owner != null && !ColonizationTarget.Owner.isFaction)
             {
                 if (ColonizationTarget.Owner == empire)
                     return GoalStep.GoalComplete;
