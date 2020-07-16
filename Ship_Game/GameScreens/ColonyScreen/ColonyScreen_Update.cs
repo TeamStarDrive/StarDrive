@@ -32,8 +32,8 @@ namespace Ship_Game
             if (P.Owner != Empire.Universe.player || !P.GovOrbitals || P.colonyType == Planet.ColonyType.Colony)
                 return;
 
-            PlanetBudget budget  = P.AllocateColonyBudget();
-            var wantedOrbitals   = new WantedOrbitals(P.GetColonyRank(budget));
+            int rank             = P.GetColonyRank();
+            var wantedOrbitals   = new WantedOrbitals(rank);
             int currentPlatforms = P.NumPlatforms + P.OrbitalsBeingBuilt(ShipData.RoleName.platform);
             int currentStations  = P.NumStations + P.OrbitalsBeingBuilt(ShipData.RoleName.station);
             int currentShipyards = P.NumShipyards + P.ShipyardsBeingBuilt();
