@@ -155,7 +155,7 @@ namespace Ship_Game.Gameplay
             Rotation = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
             VelocityMax = Speed + inheritedVelocity.Length();
 
-            InitialDuration = Duration = (Range/Speed) * durationMod;
+            InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
             ParticleDelay  += Weapon.particleDelay;
 
             if (Owner?.loyalty.data.ArmorPiercingBonus > 0
@@ -585,7 +585,8 @@ namespace Ship_Game.Gameplay
 
         public void MoveStraight()
         {
-            Velocity = Direction * VelocityMax; 
+            if (TrailTurnedOn) // engine is ignited
+                Velocity = Direction * VelocityMax; 
         }
         
         public bool Touch(GameplayObject target)
