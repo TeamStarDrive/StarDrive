@@ -4779,6 +4779,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>This is the speed the missile accelerates to when Terminal Phase is initiated.</Text>
     </Token>
     <Token>
+      <Index>1884</Index>
+      <Text>This Missile has delayed ignition, meaning it will slowly float during the time specified (in seconds) and then ignite it's engine. This makes it more vulnerable to interception when fired from short ranges.</Text>
+    </Token>
+    <Token>
       <Index>1887</Index>
       <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
     </Token>
