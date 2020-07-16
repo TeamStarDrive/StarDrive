@@ -66,6 +66,7 @@ namespace Ship_Game.Gameplay
         public bool FlashExplode;
         bool InFrustum;
         bool Deflected;
+        public bool TrailTurnedOn { get; protected set; } = true;
    
 
         public Ship Owner { get; protected set; }
@@ -137,6 +138,7 @@ namespace Ship_Game.Gameplay
             WeaponType            = Weapon.WeaponType;
             RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
             ArmorPiercing         = (int)Weapon.ArmourPen;
+            TrailTurnedOn         = !Weapon.Tag_Guided || Weapon.DelayedIgnition.AlmostZero();
 
             Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
@@ -153,7 +155,7 @@ namespace Ship_Game.Gameplay
             Rotation = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
             VelocityMax = Speed + inheritedVelocity.Length();
 
-            InitialDuration = Duration = (Range/Speed) * durationMod;
+            InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
             ParticleDelay  += Weapon.particleDelay;
 
             if (Owner?.loyalty.data.ArmorPiercingBonus > 0
@@ -434,14 +436,14 @@ namespace Ship_Game.Gameplay
             }
             var newPosition = new Vector3(Center.X, Center.Y, -ZStart);
 
-            if (FiretrailEmitter != null && InFrustum)
+            if (FiretrailEmitter != null && InFrustum && TrailTurnedOn)
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
                     FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + VelocityDirection * Speed * 1.75f);
                 }
             }
-            if (TrailEmitter != null && InFrustum)
+            if (TrailEmitter != null && InFrustum && TrailTurnedOn)
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
@@ -583,7 +585,8 @@ namespace Ship_Game.Gameplay
 
         public void MoveStraight()
         {
-            Velocity = Direction * VelocityMax; 
+            if (TrailTurnedOn) // engine is ignited
+                Velocity = Direction * VelocityMax; 
         }
         
         public bool Touch(GameplayObject target)
@@ -797,6 +800,11 @@ namespace Ship_Game.Gameplay
                     Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(center), Vector3.Zero);
                     break;
             }
+        }
+
+        public void IgniteEngine()
+        {
+            TrailTurnedOn = true;
         }
 
         static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
