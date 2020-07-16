@@ -187,6 +187,7 @@ namespace Ship_Game
         public Color ThrustColor0;
         public Color ThrustColor1;
         public float MaxColonyValue { get; private set; }
+        public float TotalColonyValues { get; private set; }
         public Ship BestPlatformWeCanBuild { get; private set; }
         public Ship BestStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
@@ -1554,8 +1555,17 @@ namespace Ship_Game
         //How often would it be calculated.
         private void UpdateMaxColonyValue()
         {
-            if (OwnedPlanets.Count > 0)
-                MaxColonyValue = OwnedPlanets.Max(p => p.ColonyValue);
+            MaxColonyValue    = 0;
+            TotalColonyValues = 0;
+
+            for (int i = 0; i < OwnedPlanets.Count; i++)
+            {
+                Planet planet = OwnedPlanets[i];
+                TotalColonyValues += planet.ColonyValue;
+                if (planet.ColonyValue > MaxColonyValue)
+                    MaxColonyValue = planet.ColonyValue;
+
+            }
         }
 
         private void UpdateBestOrbitals()
