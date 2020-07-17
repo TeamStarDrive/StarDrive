@@ -164,10 +164,10 @@ namespace Ship_Game.Gameplay
             else if (Planet != null)     durationMod = 2.0f;
 
             // @todo Do not inherit parent velocity until we fix target prediction code
-            // it is passed as parameters to this method as vector zero for now, unless it is MIRV
-            //Vector2 inheritedVelocity = Vector2.Zero; // (Owner?.Velocity ?? Vector2.Zero);
+            // it is passed as vector zero parameter for now, unless it is MIRV
+            // Vector2 inheritedVelocity = Vector2.Zero; // (Owner?.Velocity ?? Vector2.Zero);
             VelocityMax = Speed; // + inheritedVelocity.Length();
-            Velocity = Speed * direction; // + inheritedVelocity;
+            Velocity    = Speed * direction + inheritedVelocity;
             Rotation    = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
 
             InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
@@ -286,8 +286,11 @@ namespace Ship_Game.Gameplay
             bool playSound = true;
             for (int i = 0; i < Weapon.MirvWarheads; i++)
             {
-                var warhead      = Create(mirv, Position, Direction, target, playSound, Velocity);
-                warhead.FirstRun = false;
+                float launchDir          = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
+                Vector2 separationVel    = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
+                Vector2 separationVector = mirv.Tag_Guided ? Velocity : separationVel;
+                // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
+                Create(mirv, Position, Direction, target, playSound, separationVector);
                 playSound        = false;
             }
 
