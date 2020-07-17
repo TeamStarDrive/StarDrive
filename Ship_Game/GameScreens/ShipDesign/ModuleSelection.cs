@@ -494,7 +494,7 @@ namespace Ship_Game
                 DrawStat(ref cursor, "Ignition", w.DelayedIgnition, 271);
 
             if (w.MirvWarheads > 0)
-                DrawStat(ref cursor, "Warheads", w.MirvWarheads, 272);
+                DrawStat(ref cursor, "MIRV", w.MirvWarheads, 272);
 
             cursor.X += 152f;
             cursor.Y = startY;
