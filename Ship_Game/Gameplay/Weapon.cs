@@ -168,6 +168,9 @@ namespace Ship_Game.Gameplay
         public float TerminalPhaseDistance;
         public float TerminalPhaseSpeedMod = 2f;
         public float DelayedIgnition;
+        public float MirvWarheads;
+        public float MirvSeparationDistance;
+        public string MirvWeapon;
         public float ArmourPen = 0f;
         public string SecondaryFire;
         public bool AltFireMode;
