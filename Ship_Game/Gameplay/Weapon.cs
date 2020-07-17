@@ -934,7 +934,12 @@ namespace Ship_Game.Gameplay
             off *= 1 + ShieldPenChance / 100;
 
             if (TerminalPhaseAttack)
-                off *= 1 + TerminalPhaseDistance * TerminalPhaseSpeedMod / 50000;
+            {
+                if (TerminalPhaseSpeedMod > 1)
+                    off *= 1 + TerminalPhaseDistance * TerminalPhaseSpeedMod / 50000;
+                else
+                    off *= TerminalPhaseSpeedMod / 2;
+            }
 
 
             // FB: Added correct exclusion offense calcs
@@ -946,7 +951,16 @@ namespace Ship_Game.Gameplay
             off *= exclusionMultiplier;
 
             // Imprecision gets worse when range gets higher
-            off *= !Tag_Missile && !Tag_Torpedo ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).LowerBound(0.1f) : 1f;
+            off *= !Tag_Guided ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).LowerBound(0.1f) : 1f;
+            
+            // Multiple warheads
+            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            {
+                off             *= 0.25f; // Warheads mostly do the damage
+                Weapon warhead   = ResourceManager.CreateWeapon(MirvWeapon);
+                float warheadOff = warhead.CalculateOffense() * MirvWarheads;
+                off             += warheadOff;
+            }
 
             if (m == null)
                 return off * OffPowerMod;
