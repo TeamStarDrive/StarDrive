@@ -29,12 +29,12 @@ namespace Ship_Game.AI
         float DelayedIgnitionTimer;
 
 
-        public MissileAI(Projectile missile, GameplayObject target)
+        public MissileAI(Projectile missile, GameplayObject target, Vector2 initialVelocity)
         {
             Missile              = missile;
             Target               = target;
             DelayedIgnitionTimer = missile.Weapon.DelayedIgnition;
-            Missile.Velocity     = missile.Weapon.Owner?.Velocity ?? Vector2.Zero;
+            Missile.Velocity     = initialVelocity;
 
             if (Missile.Weapon.DelayedIgnition.Greater(0))
             {
@@ -188,6 +188,12 @@ namespace Ship_Game.AI
                 if (Jammed)
                 {
                     MoveTowardsTargetJammed(elapsedTime);
+                    return;
+                }
+
+                if (Missile.Weapon.MirvWarheads > 0 && distanceToTarget <= Missile.Weapon.MirvSeparationDistance)
+                {
+                    Missile.CreateMirv(Target);
                     return;
                 }
 
