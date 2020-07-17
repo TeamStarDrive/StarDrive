@@ -941,6 +941,9 @@ namespace Ship_Game.Gameplay
                     off *= TerminalPhaseSpeedMod / 2;
             }
 
+            if (DelayedIgnition.Greater(0))
+                off *= 1 - (DelayedIgnition / 10).UpperBound(0.95f); 
+
 
             // FB: Added correct exclusion offense calcs
             float exclusionMultiplier = 1;
