@@ -4641,7 +4641,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <!-- Data added in Venus -->
     <Token>
       <Index>1818</Index>
-      <Text>This weapon has MIRV, meaning it will eject several warheads close to the target, mostly to ensure some of the warheads avoid interception.</Text>
+      <Text>This weapon has MIRV, meaning it will eject several warheads close to the target, mostly to ensure some of the warheads avoid interception. Damage and any modifiers you will see is per war head.</Text>
     </Token>
     <!-- Personality traits-->
     <Token>
@@ -4780,6 +4780,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>1883</Index>
       <Text>This is the speed the missile accelerates to when Terminal Phase is initiated.</Text>
+    </Token>
+    <Token>
+      <Index>1884</Index>
+      <Text>This Missile has delayed ignition, meaning it will slowly float during the time specified (in seconds) and then ignite it's engine. This makes it more vulnerable to interception when fired from short ranges.</Text>
     </Token>
     <Token>
       <Index>1887</Index>
