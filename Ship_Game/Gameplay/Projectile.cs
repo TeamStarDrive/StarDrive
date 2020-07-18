@@ -185,6 +185,9 @@ namespace Ship_Game.Gameplay
             }
             else if (Weapon.Tag_Guided)
             {
+                if (!Weapon.isTurret)
+                    Rotation = Owner?.Rotation + Weapon.Module.FacingRadians ?? Rotation;
+
                 Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
                 MissileAI               = new MissileAI(this, target, missileVelocity);
             }
@@ -613,7 +616,7 @@ namespace Ship_Game.Gameplay
                 Vector2 thrustDirection = (Rotation + nozzleRotation).RadiansToDirection();
                 Velocity += thrustDirection * (acceleration * elapsedTime);
             }
-            else // apply magic braking effect, this helps avoid useless rocket spirals
+            else if (Speed > 200)// apply magic braking effect, this helps avoid useless rocket spirals
             {
                 acceleration *= -0.2f;
                 Velocity += Velocity.Normalized() * (acceleration * elapsedTime * 0.5f);
