@@ -81,7 +81,8 @@ namespace Ship_Game.Universe.SolarBodies
             P.Storage.ConsumeProduction(ref spend);
 
             float netSpend     = spendMax - spend;
-            q.ProductionSpent += (netSpend); // apply it
+            q.ProductionSpent += netSpend; // apply it
+            Owner.ChargeCreditsOnProduction(q, netSpend);
 
             // if we spent everything, this QueueItem is complete
             return spend <= 0f;
@@ -124,6 +125,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 ++i;
             }
+
             return true;
         }
 
@@ -134,9 +136,6 @@ namespace Ship_Game.Universe.SolarBodies
             if (q.isBuilding) ok = OnBuildingComplete(q);
             else if (q.isShip) ok = OnShipComplete(q);
             else if (q.isTroop) ok = TrySpawnTroop(q);
-
-            if (!Empire.Universe.Debug || !Owner.isPlayer)
-                Owner.ChargeCreditsOnProduction(q, q.ProductionSpent);
 
             Finish(q, success: ok);
         }
