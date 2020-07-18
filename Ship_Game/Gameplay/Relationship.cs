@@ -1040,13 +1040,17 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetRuthless(Empire us, Empire them)
         {
-            if (Threat < 0f && TurnsKnown > SecondDemand && !Treaty_Alliance)
+            if (ActiveWar != null)
                 return false;
 
-            if (Threat < -40f)
+            if (Threat > 0f || TurnsKnown < SecondDemand)
+                return false;
+
+            if (Threat < -40f && !Treaty_Alliance)
                 return true;
 
-            if (us.GetEmpireAI().ExpansionAI.DesiredPlanets.Any(p => p.Owner == them))
+            // Ruthless will break alliances if the other party does not have strong military but valuable colonies
+            if (Threat < -40f && us.TotalColonyValues < them.TotalColonyValues)
                 return true;
 
             return false;
@@ -1059,7 +1063,7 @@ namespace Ship_Game.Gameplay
 
             if (Threat < -15f && TurnsKnown > SecondDemand && !Treaty_Alliance)
             {
-                if (TotalAnger > 75f || us.GetEmpireAI().ExpansionAI.DesiredPlanets.Any(p => p.Owner == them))
+                if (TotalAnger > 75f || us.MaxColonyValue < them.MaxColonyValue)
                     return true;
             }
             else if (Threat <= -45f && TotalAnger > 20f)
