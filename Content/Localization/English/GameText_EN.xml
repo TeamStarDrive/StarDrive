@@ -4638,8 +4638,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1817</Index>
       <Text>Your forces enter the mysterious tomb and find evidence of a long dead civilization. Deep within the tomb's halls they discover a mysterious artifact encased in some sort of energy shield. They disable the shield and take the artifact. \n \n Upon returning to the planet's surface, they find themselves surrounded by the skeletons of the long dead, seemingly animated by the same energy field that had encased the artifact!</Text>
     </Token>
-
-
+    <!-- Data added in Venus -->
+    <Token>
+      <Index>1818</Index>
+      <Text>This weapon has MIRV, meaning it will eject several warheads close to the target, mostly to ensure some of the warheads avoid interception. Damage and any modifiers you will see is per war head.</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>

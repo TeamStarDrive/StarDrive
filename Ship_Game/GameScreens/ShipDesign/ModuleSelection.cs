@@ -445,16 +445,24 @@ namespace Ship_Game
 
         void DrawWeaponStats(SpriteBatch batch, Vector2 cursor, ShipModule m, Weapon w, float startY)
         {
+            Weapon wOrMirv = w; // We want some stats to show warhead stats and not weapon stats
+            if (w.MirvWarheads > 0 && w.MirvWeapon.NotEmpty())
+            {
+                Weapon warhead = ResourceManager.CreateWeapon(w.MirvWeapon);
+                wOrMirv        = warhead;
+            }
+
+
             float range = ModifiedWeaponStat(w, WeaponStat.Range);
-            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
+            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus() + w.DelayedIgnition;
             float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
             
             bool repair = w.isRepairBeam;
             bool isBeam = repair || w.isBeam;
-            bool isBallistic = w.explodes && w.OrdinanceRequiredToFire > 0f;
+            bool isBallistic = wOrMirv.explodes && wOrMirv.OrdinanceRequiredToFire > 0f;
             float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -60f : +60f) : 0f;
 
-            float rawDamage = ModifiedWeaponStat(w, WeaponStat.Damage) * GetHullDamageBonus();
+            float rawDamage       = ModifiedWeaponStat(wOrMirv, WeaponStat.Damage) * GetHullDamageBonus();
             float beamDamage      = rawDamage * beamMultiplier;
             float ballisticDamage = rawDamage + rawDamage * EmpireManager.Player.data.OrdnanceEffectivenessBonus;
             float energyDamage    = rawDamage;
@@ -476,7 +484,7 @@ namespace Ship_Game
             else
                 DrawStat(ref cursor, Localizer.Token(127), isBallistic ? ballisticDamage : energyDamage, 83);
 
-            if (w.TerminalPhaseAttack)
+            if (wOrMirv.TerminalPhaseAttack)
             {
                 DrawStat(ref cursor, "T.Range", w.TerminalPhaseDistance, 269);
                 DrawStat(ref cursor, "T.Speed", w.TerminalPhaseSpeedMod * speed, 270);
@@ -485,6 +493,9 @@ namespace Ship_Game
             if (w.DelayedIgnition.Greater(0))
                 DrawStat(ref cursor, "Ignition", w.DelayedIgnition, 271);
 
+            if (w.MirvWarheads > 0)
+                DrawStat(ref cursor, "MIRV", w.MirvWarheads, 272);
+
             cursor.X += 152f;
             cursor.Y = startY;
 
@@ -492,67 +503,65 @@ namespace Ship_Game
 
             if (rawDamage > 0f)
             {
-                int salvos = w.SalvoCount > 0 ? w.SalvoCount : 1;
+                int salvos      = w.SalvoCount.LowerBound(1);
                 int projectiles = w.ProjectileCount > 0 ? w.ProjectileCount : 1;
                 float dps = isBeam ? (beamDamage / delay)
-                                   : (salvos / delay) * w.ProjectileCount * (isBallistic ? ballisticDamage : energyDamage);
+                                   : (salvos / delay) * w.ProjectileCount 
+                                                      * (isBallistic ? ballisticDamage : energyDamage) 
+                                                      * w.MirvWarheads.LowerBound(1);
 
                 DrawStat(ref cursor, "DPS", dps, 86);
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
                 if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, 242);
             }
 
-
             DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
             DrawStat(ref cursor, "Delay", delay, 183);
-
-
             DrawStat(ref cursor, "EMP", w.EMPDamage, 110);
+
             float siphon = w.SiphonDamage + w.SiphonDamage * beamMultiplier;
             DrawStat(ref cursor, "Siphon", siphon, 184);
 
             float tractor = w.MassDamage + w.MassDamage * beamMultiplier;
             DrawStat(ref cursor, "Tractor", tractor, 185);
+
             float powerDamage = w.PowerDamage + w.PowerDamage * beamMultiplier;
             DrawStat(ref cursor, "Pwr Dmg", powerDamage, 186);
-
             DrawStat(ref cursor, Localizer.Token(130), m.FieldOfFire.ToDegrees(), 88);
             DrawStat(ref cursor, "Ord / Shot", w.OrdinanceRequiredToFire, 89);
-
-
             DrawStat(ref cursor, "Pwr / Shot", w.PowerRequiredToFire, 90);
 
             if (w.Tag_Guided && GlobalStats.HasMod && GlobalStats.ActiveModInfo.enableECM)
                 DrawStatPercentLine(ref cursor, Localizer.Token(6005), w.ECMResist, 155);
 
-            DrawResistancePercent(ref cursor, w, "VS Armor", WeaponStat.Armor);
-            DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
-            DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance / 100, 181, isPercent: true);
+            DrawResistancePercent(ref cursor, wOrMirv, "VS Armor", WeaponStat.Armor);
+            DrawResistancePercent(ref cursor, wOrMirv, "VS Shield", WeaponStat.Shield);
+            DrawStat(ref cursor, "Shield Pen", wOrMirv.ShieldPenChance / 100, 181, isPercent: true);
             DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
             DrawStat(ref cursor, Localizer.Token(6175), m.DamageThreshold, 221);
             if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(1992), m.RepairDifficulty, 241); // Complexity
 
-            if (w.TruePD)
+            if (wOrMirv.TruePD)
             {
                 WriteLine(ref cursor);
                 DrawString(batch, ref cursor, "Cannot Target Ships" );
             }
             else
-            if (w.Excludes_Fighters || w.Excludes_Corvettes ||
-                w.Excludes_Capitals || w.Excludes_Stations)
+            if (wOrMirv.Excludes_Fighters || wOrMirv.Excludes_Corvettes ||
+                wOrMirv.Excludes_Capitals || wOrMirv.Excludes_Stations)
             {
                 WriteLine(ref cursor);
                 DrawString(batch, ref cursor, "Cannot Target:");
 
-                if (w.Excludes_Fighters)
+                if (wOrMirv.Excludes_Fighters)
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useDrones)
                         WriteLine(batch, ref cursor, "Drones");
                     WriteLine(batch, ref cursor, "Fighters");
                 }
-                if (w.Excludes_Corvettes) WriteLine(batch, ref cursor, "Corvettes");
-                if (w.Excludes_Capitals) WriteLine(batch, ref cursor, "Capitals");
-                if (w.Excludes_Stations) WriteLine(batch, ref cursor, "Stations");
+                if (wOrMirv.Excludes_Corvettes) WriteLine(batch, ref cursor, "Corvettes");
+                if (wOrMirv.Excludes_Capitals)  WriteLine(batch, ref cursor, "Capitals");
+                if (wOrMirv.Excludes_Stations)  WriteLine(batch, ref cursor, "Stations");
             }
         }
 
