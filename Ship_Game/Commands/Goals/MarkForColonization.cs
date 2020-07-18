@@ -23,6 +23,7 @@ namespace Ship_Game.Commands.Goals
             };
 
         }
+
         public MarkForColonization(Planet toColonize, Empire e) : this()
         {
             empire             = e;
@@ -41,10 +42,14 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep TargetPlanetStatus()
         {
-            if (ColonizationTarget.Owner != null && !ColonizationTarget.Owner.isFaction)
+            if (ColonizationTarget.Owner != null)
             {
                 if (ColonizationTarget.Owner == empire)
                     return GoalStep.GoalComplete;
+
+                // If the owner is a faction, fail the goal so next time we also get a claim fleet to invade
+                if (ColonizationTarget.Owner.isFaction) 
+                    return FinishedShip != null ? GoalStep.GoalFailed : GoalStep.GoToNextStep;
 
                 foreach (var relationship in empire.AllRelations)
                     empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
@@ -197,6 +202,9 @@ namespace Ship_Game.Commands.Goals
         {
             spaceStrength   = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
             float groundStr = ColonizationTarget.GetGroundStrengthOther(empire);
+            if (ColonizationTarget.Owner.isFaction && groundStr.AlmostZero())
+                groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty
+
             return spaceStrength > 10 || groundStr > 0;
         }
 

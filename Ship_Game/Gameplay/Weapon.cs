@@ -168,6 +168,9 @@ namespace Ship_Game.Gameplay
         public float TerminalPhaseDistance;
         public float TerminalPhaseSpeedMod = 2f;
         public float DelayedIgnition;
+        public float MirvWarheads;
+        public float MirvSeparationDistance;
+        public string MirvWeapon;
         public float ArmourPen = 0f;
         public string SecondaryFire;
         public bool AltFireMode;
@@ -908,9 +911,6 @@ namespace Ship_Game.Gameplay
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
             off *= Tag_Guided ? 3f : 1f;
 
-            //FB: Range margins are less steep for missiles
-            off *= !Tag_Missile && !Tag_Torpedo ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000);
-
             // FB: simpler calcs for these.
             off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
             off *= EffectVsArmor < 1 ? 1f - (1f - EffectVsArmor) / 2f : 1f;
@@ -931,7 +931,12 @@ namespace Ship_Game.Gameplay
             off *= 1 + ShieldPenChance / 100;
 
             if (TerminalPhaseAttack)
-                off *= 1 + TerminalPhaseDistance * TerminalPhaseSpeedMod / 50000;
+            {
+                if (TerminalPhaseSpeedMod > 1)
+                    off *= 1 + TerminalPhaseDistance * TerminalPhaseSpeedMod / 50000;
+                else
+                    off *= TerminalPhaseSpeedMod / 2;
+            }
 
             if (DelayedIgnition.Greater(0))
                 off *= 1 - (DelayedIgnition / 10).UpperBound(0.95f); 
@@ -946,7 +951,19 @@ namespace Ship_Game.Gameplay
             off *= exclusionMultiplier;
 
             // Imprecision gets worse when range gets higher
-            off *= !Tag_Missile && !Tag_Torpedo ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).LowerBound(0.1f) : 1f;
+            off *= !Tag_Guided ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).LowerBound(0.1f) : 1f;
+            
+            // Multiple warheads
+            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            {
+                off             *= 0.25f; // Warheads mostly do the damage
+                Weapon warhead   = ResourceManager.CreateWeapon(MirvWeapon);
+                float warheadOff = warhead.CalculateOffense() * MirvWarheads;
+                off             += warheadOff;
+            }
+
+            // FB: Range margins are less steep for missiles
+            off *= (!Tag_Guided ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000)) * MirvWarheads.LowerBound(1);
 
             if (m == null)
                 return off * OffPowerMod;
@@ -954,7 +971,7 @@ namespace Ship_Game.Gameplay
             // FB: Kinetics which does also require more than minimal power to shoot is less effective
             off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
 
-            //FB: Kinetics which does also require more than minimal power to maintain is less effective
+            // FB: Kinetics which does also require more than minimal power to maintain is less effective
             off *= Tag_Kinetic && m.PowerDraw > 2 * m.Area ? 0.5f : 1f;
             // FB: Turrets get some off
             off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
@@ -962,7 +979,7 @@ namespace Ship_Game.Gameplay
             // FB: Field of Fire is also important
             off *= (m.FieldOfFire > RadMath.PI/3) ? (m.FieldOfFire/3) : 1f;
 
-            //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+            // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * OffPowerMod;
         }
 
