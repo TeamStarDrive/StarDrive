@@ -709,7 +709,8 @@ namespace Ship_Game.Fleets
                 case 4:
                     if (task.TargetPlanet.Owner != null)
                     {
-                        if (task.TargetPlanet.Owner.isFaction)
+                        // Land troops if the owner is us or a faction
+                        if (task.TargetPlanet.Owner.isFaction || task.TargetPlanet.Owner == Owner)
                             OrderShipsToInvade(Ships, task, false);
 
                         FleetTask.EndTask();
