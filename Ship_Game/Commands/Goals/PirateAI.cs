@@ -47,30 +47,5 @@ namespace Ship_Game.Commands.Goals
 
             return GoalStep.GoalComplete;
         }
-
-        GoalStep CorsairPlanOld() // This is for legacy load save, will be removed later.
-        {
-            bool alreadyRaiding = empire.GetEmpireAI().HasTaskOfType(MilitaryTask.TaskType.CorsairRaid);
-            if (!alreadyRaiding)
-            {
-                foreach (KeyValuePair<Empire, Relationship> r in empire.AllRelations)
-                {
-                    if (r.Value.AtWar && r.Key.GetPlanets().Count > 0 && empire.GetShips().Count > 0)
-                    {
-                        var center = new Vector2();
-                        foreach (Ship ship in empire.GetShips())
-                            center += ship.Center;
-                        center /= empire.GetShips().Count;
-
-                        var task = new MilitaryTask(empire);
-                        task.SetTargetPlanet(r.Key.GetPlanets().FindMin(p => p.Center.SqDist(center)));
-                        task.TaskTimer = 300f;
-                        task.type = MilitaryTask.TaskType.CorsairRaid;
-                        empire.GetEmpireAI().AddPendingTask(task);
-                    }
-                }
-            }
-            return GoalStep.TryAgain;
-        }
     }
 }

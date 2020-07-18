@@ -403,29 +403,6 @@ namespace Ship_Game.AI.Tasks
                         }
                         break;
                     }
-                case TaskType.CorsairRaid:
-                    {
-                        if (Step != 0)
-                            break;
-
-                        Owner.GetFleetsDict()[1].Reset();
-                        foreach (Ship shipToAdd in Owner.GetShips())
-                        {
-                            if (shipToAdd.shipData.Role != ShipData.RoleName.platform)
-                                Owner.GetFleetsDict()[1].AddShip(shipToAdd);
-                        }
-
-                        if (Owner.GetFleetsDict()[1].Ships.Count <= 0)
-                            break;
-
-                        Owner.GetFleetsDict()[1].Name = "Corsair Raiders";
-                        Owner.GetFleetsDict()[1].AutoArrange();
-                        Owner.GetFleetsDict()[1].FleetTask = this;
-                        WhichFleet = 1;
-                        Step = 1;
-                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, new Vector2(0f, -1), false);
-                        break;
-                    }
                 case TaskType.CohesiveClearAreaOfEnemies:
                     {
                         if      (Step == 0) RequisitionCoreFleet();

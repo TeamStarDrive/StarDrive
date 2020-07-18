@@ -26,12 +26,22 @@ namespace Ship_Game.AI
         readonly float MaxNozzleDirection = 0.5f;
         readonly float InitialPhaseDirection;
         float InitialPhaseTimer = 0.5f;
+        float DelayedIgnitionTimer;
 
 
-        public MissileAI(Projectile missile, GameplayObject target)
+        public MissileAI(Projectile missile, GameplayObject target, Vector2 initialVelocity)
         {
-            Missile = missile;
-            Target  = target;
+            Missile              = missile;
+            Target               = target;
+            DelayedIgnitionTimer = missile.Weapon.DelayedIgnition;
+            Missile.Velocity     = initialVelocity;
+
+            if (Missile.Weapon.DelayedIgnition.Greater(0))
+            {
+                float launchDir   = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
+                float rotation    = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
+                Missile.Velocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(20));
+            }
 
             if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)
                 MaxNozzleDirection = 0.02f; // Torpedoes wiggle less
@@ -87,7 +97,7 @@ namespace Ship_Game.AI
                         Target = ship.GetRandomInternalModule(Missile);
                         return;
                     }
-                }                
+                }
             }
 
             if (TargetList?.IsEmpty ?? true)
@@ -160,15 +170,30 @@ namespace Ship_Game.AI
 
                 if (!CalculatedJamming && distanceToTarget <= 4000f && Target is ShipModule targetModule)
                 {
-                    float targetEcm = targetModule.GetParent().ECMValue;
-                    float ecmResist = Missile.Weapon.ECMResist + RandomMath.RandomBetween(0f, 1f);
-                    Jammed = (ecmResist < targetEcm);
+                    float targetEcm   = targetModule.GetParent().ECMValue;
+                    float ecmResist   = Missile.Weapon.ECMResist + RandomMath.RandomBetween(0f, 1f);
+                    Jammed            = (ecmResist < targetEcm);
                     CalculatedJamming = true;
+                }
+
+                if (DelayedIgnitionTimer > 0) // ignition phase for some missiles
+                {
+                    DelayedIgnitionTimer -= elapsedTime;
+                    if (DelayedIgnitionTimer.LessOrEqual(0))
+                        Missile.IgniteEngine();
+
+                    return;
                 }
 
                 if (Jammed)
                 {
                     MoveTowardsTargetJammed(elapsedTime);
+                    return;
+                }
+
+                if (Missile.Weapon.MirvWarheads > 0 && distanceToTarget <= Missile.Weapon.MirvSeparationDistance)
+                {
+                    Missile.CreateMirv(Target);
                     return;
                 }
 
@@ -179,10 +204,11 @@ namespace Ship_Game.AI
                 }
             }
 
-            TargetUpdateTimer -= elapsedTime;
-            ErrorAdjustTimer -= elapsedTime;
+            TargetUpdateTimer    -= elapsedTime;
+            ErrorAdjustTimer     -= elapsedTime;
             RandomDirectionTimer -= elapsedTime;
-            InitialPhaseTimer -= elapsedTime;
+            InitialPhaseTimer    -= elapsedTime;
+            
 
             if (TargetUpdateTimer <= 0f)
             {

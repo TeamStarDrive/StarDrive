@@ -335,7 +335,7 @@ namespace Ship_Game
             float value = 0;
             value += ColonyRawValue(empire);
             value += BuildingList.Any(b => b.IsCapital) ? 100 : 0;
-            value += BuildingList.Sum(b => b.ActualCost) / 10;
+            value += BuildingList.Sum(b => b.ActualCost) / 100;
             value += PopulationBillion * 5;
 
             return value;

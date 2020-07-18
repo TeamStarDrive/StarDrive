@@ -152,12 +152,14 @@ namespace Ship_Game.AI
             UpdateUtilityModuleAI(elapsedTime);
             ThrustTarget = Vector2.Zero;
 
+            UpdateCombatStateAI(elapsedTime);
+
             if (UpdateOrderQueueAI(elapsedTime))
                 return;
 
             AIStateRebase();
-            UpdateCombatStateAI(elapsedTime);
         }
+
         public Ship NearBySupplyShip => 
             FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays && supply.SupplyShipCanSupply,
         supply => -supply.Center.SqDist(Owner.Center));
@@ -273,6 +275,11 @@ namespace Ship_Game.AI
         {
             TriggerDelay -= elapsedTime;
             FireOnMainTargetTime -= elapsedTime;
+            if (TriggerDelay < 0)
+            {
+                TriggerDelay = elapsedTime * 2;
+                FireOnTarget();
+            }
             if (BadGuysNear && !IgnoreCombat && !HasPriorityOrder)
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
@@ -292,12 +299,6 @@ namespace Ship_Game.AI
                                 OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
                                 break;
                         }
-                    }
-
-                    if (TriggerDelay < 0)
-                    {
-                        TriggerDelay = elapsedTime * 2;
-                        FireOnTarget();
                     }
                 }
             }
