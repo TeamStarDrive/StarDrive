@@ -616,7 +616,7 @@ namespace Ship_Game.Gameplay
                 Vector2 thrustDirection = (Rotation + nozzleRotation).RadiansToDirection();
                 Velocity += thrustDirection * (acceleration * elapsedTime);
             }
-            else if (Speed > 200)// apply magic braking effect, this helps avoid useless rocket spirals
+            else if (Velocity.Length() > 200) // apply magic braking effect, this helps avoid useless rocket spirals
             {
                 acceleration *= -0.2f;
                 Velocity += Velocity.Normalized() * (acceleration * elapsedTime * 0.5f);
