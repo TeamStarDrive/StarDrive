@@ -4638,8 +4638,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1817</Index>
       <Text>Your forces enter the mysterious tomb and find evidence of a long dead civilization. Deep within the tomb's halls they discover a mysterious artifact encased in some sort of energy shield. They disable the shield and take the artifact. \n \n Upon returning to the planet's surface, they find themselves surrounded by the skeletons of the long dead, seemingly animated by the same energy field that had encased the artifact!</Text>
     </Token>
-
-
+    <!-- Data added in Venus -->
+    <Token>
+      <Index>1818</Index>
+      <Text>This weapon has MIRV, meaning it will eject several warheads close to the target, mostly to ensure some of the warheads avoid interception. Damage and any modifiers you will see is per war head.</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>
@@ -4769,6 +4772,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>1881</Index>
       <Text>Net flat research generated per turn</Text>
+    </Token>
+    <Token>
+      <Index>1882</Index>
+      <Text>This Missile has Terminal Phase. This means that at the specified range, the missile will increase speed and will fly straight to the target. This makes it's interception harder.</Text>
+    </Token>
+    <Token>
+      <Index>1883</Index>
+      <Text>This is the speed the missile accelerates to when Terminal Phase is initiated.</Text>
+    </Token>
+    <Token>
+      <Index>1884</Index>
+      <Text>This Missile has delayed ignition, meaning it will slowly float during the time specified (in seconds) and then ignite it's engine. This makes it more vulnerable to interception when fired from short ranges.</Text>
     </Token>
     <Token>
       <Index>1887</Index>

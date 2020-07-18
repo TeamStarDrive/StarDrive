@@ -89,6 +89,8 @@ namespace Ship_Game
 
             if (IsPlanetExtraDebugTarget())
             {
+                int rank = GetColonyRank();
+                Log.Info($"Planet Rank: {rank} ({ColonyValue.String(0)}/{Owner.MaxColonyValue.String(0)})");
                 Log.Info(ConsoleColor.Green,$"**** {Name} - Governor Priorities        ****");
                 foreach ((ColonyPriority key, float value) in Priorities.Values)
                     Log.Info($"{key,-16} = {value}");
