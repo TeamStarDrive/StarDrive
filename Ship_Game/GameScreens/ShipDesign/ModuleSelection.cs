@@ -486,8 +486,8 @@ namespace Ship_Game
 
             if (wOrMirv.TerminalPhaseAttack)
             {
-                DrawStat(ref cursor, "T.Range", w.TerminalPhaseDistance, 269);
-                DrawStat(ref cursor, "T.Speed", w.TerminalPhaseSpeedMod * speed, 270);
+                DrawStat(ref cursor, "T.Range", wOrMirv.TerminalPhaseDistance, 269);
+                DrawStat(ref cursor, "T.Speed", wOrMirv.TerminalPhaseSpeedMod * speed, 270);
             }
 
             if (w.DelayedIgnition.Greater(0))
