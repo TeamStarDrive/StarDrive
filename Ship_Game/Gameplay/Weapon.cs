@@ -911,9 +911,6 @@ namespace Ship_Game.Gameplay
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
             off *= Tag_Guided ? 3f : 1f;
 
-            //FB: Range margins are less steep for missiles
-            off *= !Tag_Missile && !Tag_Torpedo ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000);
-
             // FB: simpler calcs for these.
             off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
             off *= EffectVsArmor < 1 ? 1f - (1f - EffectVsArmor) / 2f : 1f;
@@ -965,13 +962,16 @@ namespace Ship_Game.Gameplay
                 off             += warheadOff;
             }
 
+            // FB: Range margins are less steep for missiles
+            off *= !Tag_Guided ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000);
+
             if (m == null)
                 return off * OffPowerMod;
 
             // FB: Kinetics which does also require more than minimal power to shoot is less effective
             off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
 
-            //FB: Kinetics which does also require more than minimal power to maintain is less effective
+            // FB: Kinetics which does also require more than minimal power to maintain is less effective
             off *= Tag_Kinetic && m.PowerDraw > 2 * m.Area ? 0.5f : 1f;
             // FB: Turrets get some off
             off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
@@ -979,7 +979,7 @@ namespace Ship_Game.Gameplay
             // FB: Field of Fire is also important
             off *= (m.FieldOfFire > RadMath.PI/3) ? (m.FieldOfFire/3) : 1f;
 
-            //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
+            // Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * OffPowerMod;
         }
 
