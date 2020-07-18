@@ -87,7 +87,21 @@ namespace Ship_Game.Gameplay
                 Owner   = weapon.Owner,
                 Module  = weapon.Module
             };
-            projectile.Initialize(origin, direction, target, playSound);
+            projectile.Initialize(origin, direction, target, playSound, Vector2.Zero);
+            return projectile;
+        }
+
+        // For Mirv creation
+        public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, bool playSound, Vector2 inheritedVelocity)
+        {
+            var projectile = new Projectile(weapon.Owner.loyalty, GameObjectType.Proj)
+            {
+                Weapon   = weapon,
+                Owner    = weapon.Owner,
+                Module   = weapon.Module,
+                FirstRun = false
+            };
+            projectile.Initialize(origin, direction, target, playSound, inheritedVelocity);
             return projectile;
         }
 
@@ -99,7 +113,7 @@ namespace Ship_Game.Gameplay
                 Planet  = planet,
                 ZStart  = -2500f
             };
-            projectile.Initialize(planet.Center, direction, target, playSound: true);
+            projectile.Initialize(planet.Center, direction, target, playSound: true, Vector2.Zero);
             return projectile;
         }
 
@@ -113,13 +127,13 @@ namespace Ship_Game.Gameplay
                 Owner   = owner,
                 Module  = weapon.Module
             };
-            projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false);
+            projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
             projectile.Duration = pdata.Duration; // apply duration from save data
             projectile.FirstRun = false;
             return projectile;
         }
 
-        void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
+        void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound, Vector2 inheritedVelocity)
         {
             ++DebugInfoScreen.ProjCreated;
             Position = origin;
@@ -150,10 +164,11 @@ namespace Ship_Game.Gameplay
             else if (Planet != null)     durationMod = 2.0f;
 
             // @todo Do not inherit parent velocity until we fix target prediction code
-            Vector2 inheritedVelocity = Vector2.Zero; // (Owner?.Velocity ?? Vector2.Zero);
-            Velocity = Speed*direction + inheritedVelocity;
-            Rotation = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
-            VelocityMax = Speed + inheritedVelocity.Length();
+            // it is passed as vector zero parameter for now, unless it is MIRV
+            // Vector2 inheritedVelocity = Vector2.Zero; // (Owner?.Velocity ?? Vector2.Zero);
+            VelocityMax = Speed; // + inheritedVelocity.Length();
+            Velocity    = Speed * direction + inheritedVelocity;
+            Rotation    = Velocity.Normalized().ToRadians(); // used for drawing the projectile in correct direction
 
             InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
             ParticleDelay  += Weapon.particleDelay;
@@ -163,9 +178,19 @@ namespace Ship_Game.Gameplay
             {
                 ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
             }
-        
-            if (Weapon.IsRepairDrone)   DroneAI   = new DroneAI(this);
-            else if (Weapon.Tag_Guided) MissileAI = new MissileAI(this, target);
+
+            if (Weapon.IsRepairDrone)
+            {
+                DroneAI = new DroneAI(this);
+            }
+            else if (Weapon.Tag_Guided)
+            {
+                if (!Weapon.isTurret)
+                    Rotation = Owner?.Rotation + Weapon.Module.FacingRadians ?? Rotation;
+
+                Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
+                MissileAI               = new MissileAI(this, target, missileVelocity);
+            }
             
             LoadContent();
             Initialize();
@@ -254,6 +279,25 @@ namespace Ship_Game.Gameplay
             Rotation             = Velocity.Normalized().ToRadians();
             if (RandomMath.RollDie(2) == 2)
                 Empire.Universe.beamflashes.AddParticleThreadB(GetBackgroundPos(deflectionPoint), Vector3.Zero);
+        }
+
+        public void CreateMirv(GameplayObject target)
+        {
+            Weapon mirv = ResourceManager.CreateWeapon(Weapon.MirvWeapon);
+            mirv.Owner  = Owner;
+            mirv.Module = Module;
+            bool playSound = true;
+            for (int i = 0; i < Weapon.MirvWarheads; i++)
+            {
+                float launchDir          = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
+                Vector2 separationVel    = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
+                Vector2 separationVector = mirv.Tag_Guided ? Velocity : separationVel;
+                // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
+                Create(mirv, Position, Direction, target, playSound, separationVector);
+                playSound        = false;
+            }
+
+            Die(null, false);
         }
 
         public override Vector2 JammingError()
@@ -572,7 +616,7 @@ namespace Ship_Game.Gameplay
                 Vector2 thrustDirection = (Rotation + nozzleRotation).RadiansToDirection();
                 Velocity += thrustDirection * (acceleration * elapsedTime);
             }
-            else // apply magic braking effect, this helps avoid useless rocket spirals
+            else if (Velocity.Length() > 200) // apply magic braking effect, this helps avoid useless rocket spirals
             {
                 acceleration *= -0.2f;
                 Velocity += Velocity.Normalized() * (acceleration * elapsedTime * 0.5f);
