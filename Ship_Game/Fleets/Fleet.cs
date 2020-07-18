@@ -403,7 +403,6 @@ namespace Ship_Game.Fleets
             {
                 case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask);         break;
                 case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);              break;
-                case MilitaryTask.TaskType.CorsairRaid:                DoCorsairRaid(elapsedTime);              break;
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
                 case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask);              break;
                 case MilitaryTask.TaskType.DefendSystem:               DoDefendSystem(FleetTask);               break;
@@ -636,27 +635,6 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void DoCorsairRaid(float elapsedTime)
-        {
-            if (TaskStep != 0)
-                return;
-
-            FleetTask.TaskTimer -= elapsedTime;
-            Ship station = Owner.GetShips().Find(ship => ship.Name == "Corsair Asteroid Base");
-            if (FleetTask.TaskTimer > 0.0)
-            {
-                EndInvalidTask(Ships.Count == 0);
-                return;
-            }
-            if (EndInvalidTask(station == null))
-                return;
-
-            AssembleFleet2(FinalPosition, Vector2.One);
-            // ReSharper disable once PossibleNullReferenceException station should never be null here
-            FormationWarpTo(station.Position, Vector2.One, queueOrder: false);
-            FleetTask.EndTaskWithMove();
-        }
-
         void DoDefendSystem(MilitaryTask task)
         {
             // this is currently unused. the system needs to be created with a defensive fleet.
@@ -730,7 +708,13 @@ namespace Ship_Game.Fleets
                     break;
                 case 4:
                     if (task.TargetPlanet.Owner != null)
+                    {
+                        // Land troops if the owner is us or a faction
+                        if (task.TargetPlanet.Owner.isFaction || task.TargetPlanet.Owner == Owner)
+                            OrderShipsToInvade(Ships, task, false);
+
                         FleetTask.EndTask();
+                    }
                     break;
             }
         }

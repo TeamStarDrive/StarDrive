@@ -18,21 +18,19 @@ namespace Ship_Game
                 return;
             }
 
+            int rank             = GetColonyRank();
             var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations  = FilterOrbitals(ShipData.RoleName.station);
-            var wantedOrbitals   = new WantedOrbitals(GetColonyRank(budget));
+            var wantedOrbitals   = new WantedOrbitals(rank);
 
             BuildOrScrapShipyard(wantedOrbitals.Shipyards, budget.Orbitals);
             BuildOrScrapStations(currentStations, wantedOrbitals.Stations, budget.Orbitals);
             BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, budget.Orbitals);
         }
 
-        public int GetColonyRank(PlanetBudget budget)
+        public int GetColonyRank()
         {
-            float maxSystemValue = ParentSystem.PlanetList.Max(v => v.ColonyValue);
-            float ratioValue     = ColonyValue / maxSystemValue.LowerBound(1);
-
-            int rank = (int)(budget.SystemRank * ratioValue);
+            int rank = (int)Math.Round(ColonyValue/Owner.MaxColonyValue * 10, 0);
             return ApplyRankModifiers(rank);
         }
 
