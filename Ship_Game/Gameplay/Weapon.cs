@@ -963,7 +963,7 @@ namespace Ship_Game.Gameplay
             }
 
             // FB: Range margins are less steep for missiles
-            off *= !Tag_Guided ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000);
+            off *= (!Tag_Guided ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000)) * MirvWarheads.LowerBound(1);
 
             if (m == null)
                 return off * OffPowerMod;
