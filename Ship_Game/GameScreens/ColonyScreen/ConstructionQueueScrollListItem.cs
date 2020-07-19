@@ -107,7 +107,7 @@ namespace Ship_Game
         {
             int index = Planet.ConstructionQueue.IndexOf(item);
 
-            if (index >=0 && !item.IsComplete && Planet.Construction.RushProduction(index, amount, playerRush: true))
+            if (index >=0 && !item.IsComplete && Planet.Construction.RushProduction(index, amount, rush: true))
             {
                 GameAudio.AcceptClick();
             }
