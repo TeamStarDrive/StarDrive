@@ -203,6 +203,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             rallyPlanet = Owner.FindNearestSafeRallyPoint(OwnerTheater.TheaterAO.Center);
 
+            // createEmpire AO
             if (rallyPlanet.Owner == Owner)
             {
                 if (!Owner.GetAOCoreWorlds().Contains(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
@@ -261,7 +262,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // these loops are not cheap but the frequency of the calcs should be pretty low.
             float minDistanceToThem  = Them.FindNearestOwnedSystemTo(nearestPoint)?.Position.Distance(nearestPoint) ?? 1000000;
             float numberOfTargets    = targets.Count.LowerBound(1);
-            float averageImportance  = targets.Sum(s => s.WarValueTo(Owner)) / numberOfTargets;
+            float averageImportance  = OwnerTheater.TheaterAO.WarValueOfPlanets / numberOfTargets;
             
             // goal here is to sort the targets by closeness and value.
             // we will emphasize above average war targets and nearby planets. 

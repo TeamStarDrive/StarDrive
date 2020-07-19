@@ -14,32 +14,21 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected override GoalStep SetupTargets()
         {
             if (Them.isFaction) return GoalStep.TryAgain;
+            if (Them != Owner)  return SetTargets(SystemsWithThem());
 
-            var targets = new Array<SolarSystem>();
-            targets.AddRange(UniverseScreen.SolarSystemList.Filter(s => {
-                if (s.OwnerList.Count < 1) return false;
-                bool isExplored = s.IsExploredBy(Owner);
-                bool theyAreThere = s.OwnerList.Contains(Them);
-                if (Owner == Them)
+            var systems = new Array<SolarSystem>();
+            Array<SolarSystem> AOSystems = OwnerTheater.GetSystems();
+            for (int i = 0; i < AOSystems.Count; i++)
+            {
+                var s = AOSystems[i];
+                foreach (var owner in s.OwnerList)
                 {
-                    theyAreThere = false;
-                    foreach (var empire in s.OwnerList)
-                    {
-                        if (Owner.IsEmpireHostile(empire))
-                        {
-                            theyAreThere = true;
-                            break;
-                        }
-                    }
+                    if (Owner.GetRelations(owner)?.AtWar != true) continue;
+                    systems.Add(s);
+                    break;
                 }
-                bool inAO = false;
-                if (isExplored && theyAreThere)
-                    inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
-                return inAO;
-
-            }));
-            //targets.AddRange(OwnerWar.GetTheirBorderSystems());
-            return SetTargets(targets);
+            }
+            return SetTargets(systems);
         }
     }
 }
