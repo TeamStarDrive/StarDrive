@@ -661,16 +661,10 @@ namespace Ship_Game.Gameplay
 
         void UpdateThreat(Empire us, Empire them)
         {
-            if (us.MilitaryScore < 1000f)
-            {
-                Threat = 0f;
-                return;
-            }
-
-            float ourMilScore   = 2300f + us.MilitaryScore;
+            float ourMilScore   = 2300f + us.MilitaryScore; // The 2300 is to reduce fluctuations for small numbers
             float theirMilScore = 2300f + them.MilitaryScore;
-            Threat              = (theirMilScore - ourMilScore) / ourMilScore * 100;
-            Threat              = Threat.UpperBound(100);
+            Threat              = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
+
         }
 
         public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader = true)
@@ -971,8 +965,8 @@ namespace Ship_Game.Gameplay
             Offer demandTech       = new Offer();
 
             demandTech.TechnologiesOffered.AddUnique(techToDemand.UID);
-            XenoDemandedTech = true;
-            Offer theirDemand          = new Offer
+            XenoDemandedTech  = true;
+            Offer theirDemand = new Offer
             {
                 AcceptDL      = "Xeno Demand Tech Accepted",
                 RejectDL      = "Xeno Demand Tech Rejected",
@@ -1046,11 +1040,11 @@ namespace Ship_Game.Gameplay
             if (Threat > 0f || TurnsKnown < SecondDemand)
                 return false;
 
-            if (Threat < -40f && !Treaty_Alliance)
+            if (Threat < -75f && !Treaty_Alliance)
                 return true;
 
             // Ruthless will break alliances if the other party does not have strong military but valuable colonies
-            if (Threat < -40f && us.TotalColonyValues < them.TotalColonyValues)
+            if (Threat < -75f && us.TotalColonyValues < them.TotalColonyValues)
                 return true;
 
             return false;
@@ -1061,12 +1055,12 @@ namespace Ship_Game.Gameplay
             if (ActiveWar != null)
                 return false;
 
-            if (Threat < -15f && TurnsKnown > SecondDemand && !Treaty_Alliance)
+            if (Threat < -40f && TurnsKnown > SecondDemand && !Treaty_Alliance)
             {
                 if (TotalAnger > 75f || us.MaxColonyValue < them.MaxColonyValue)
                     return true;
             }
-            else if (Threat <= -45f && TotalAnger > 20f)
+            else if (Threat <= -75f && TotalAnger > 20f)
             {
                 return true;
             }
