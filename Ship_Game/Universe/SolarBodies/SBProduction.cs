@@ -41,7 +41,7 @@ namespace Ship_Game.Universe.SolarBodies
             return ConstructionQueue;
         }
 
-        public bool RushProduction(int itemIndex, float maxAmount, bool playerRush = false)
+        public bool RushProduction(int itemIndex, float maxAmount, bool rush = false)
         {
             // don't allow rush if we're crippled
             if (IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
@@ -55,7 +55,7 @@ namespace Ship_Game.Universe.SolarBodies
                 amount = SurplusThisTurn = 1000;
             }
 
-            return ApplyProductionToQueue(maxAmount: amount, itemIndex, playerRush);
+            return ApplyProductionToQueue(maxAmount: amount, itemIndex, rush);
         }
 
         // The Remnant get a "magic" production cheat
@@ -91,7 +91,7 @@ namespace Ship_Game.Universe.SolarBodies
         // @note `maxProduction` is a max limit, this method will attempt
         //       to consume no more than `maxAmount` from local production
         // @return true if at least some production was applied
-        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool playerRush = false)
+        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool rush = false)
         {
             if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
                 return false;
@@ -101,8 +101,11 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 QueueItem item = ConstructionQueue[itemIndex];
                 SpendProduction(item, maxAmount);
-                if (playerRush && !Empire.Universe.Debug)
+                if (rush && !Empire.Universe.Debug)
+                {
                     Owner.AddMoney(-maxAmount);
+                    Owner.ChargeRushFees(maxAmount);
+                }
             }
 
             for (int i = 0; i < ConstructionQueue.Count;)

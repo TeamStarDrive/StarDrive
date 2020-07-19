@@ -124,7 +124,7 @@ namespace Ship_Game
                     RunOnEmpireThread(() =>
                     {
                         bool hasValidConstruction = p.Construction.NotEmpty && !p.ConstructionQueue[0].IsComplete;
-                        if (hasValidConstruction && p.Construction.RushProduction(0, maxAmount, playerRush: true))
+                        if (hasValidConstruction && p.Construction.RushProduction(0, maxAmount, rush: true))
                         {
                             GameAudio.AcceptClick();
                         }
