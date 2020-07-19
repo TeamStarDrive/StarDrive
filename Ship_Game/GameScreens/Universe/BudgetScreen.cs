@@ -179,7 +179,7 @@ namespace Ship_Game.GameScreens
 
             costs.AddItem(316, ()   => -Player.TotalBuildingMaintenance); // "Building Maint."
             costs.AddItem(317, ()   => -Player.TotalShipMaintenance); // "Ship Maint."
-            costs.AddItem(317, ()   => -Player.MoneySpendOnProductionThisTurn); // "production costs."
+            costs.AddItem(1819, ()  => -Player.MoneySpendOnProductionThisTurn); // "production costs."
             costs.SetTotalFooter(()       => -Player.AllSpending); // "Total"
         }
 
