@@ -392,10 +392,9 @@ namespace Ship_Game
         {
             if (IsUniverseInitialized)
                 return;
+
             IsUniverseInitialized = true;
-
             CreateStartingShips();
-
             InitializeSolarSystems();
             CreatePlanetsLookupTable();
             CreateStationTethers();
@@ -484,14 +483,11 @@ namespace Ship_Game
 
         void CreateStartingShips()
         {
-            if (StarDate > 1000f) // not a new game
+            if (StarDate > 1000f || MasterShipList.Count > 0) // not a new game or load game at stardate 1000 
                 return;
 
-            foreach (Empire empire in EmpireManager.Empires)
+            foreach (Empire empire in EmpireManager.MajorEmpires)
             {
-                if (empire.isFaction)
-                    continue;
-
                 Planet homePlanet    = empire.GetPlanets()[0];
                 string colonyShip    = empire.data.DefaultColonyShip;
                 string startingScout = empire.data.StartingScout;
@@ -499,9 +495,9 @@ namespace Ship_Game
                                        ? empire.data.StartingShip
                                        : empire.data.PrototypeShip;
 
-                Ship.CreateShipAt(starterShip, empire, homePlanet, new Vector2(350f, 0.0f), true);
-                Ship.CreateShipAt(colonyShip, empire, homePlanet, new Vector2(-2000, -2000), true);
-                Ship.CreateShipAt(startingScout, empire, homePlanet, new Vector2(-2500, -2000), true);
+                Ship.CreateShipAt(starterShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 3), true);
+                Ship.CreateShipAt(colonyShip, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 2), true);
+                Ship.CreateShipAt(startingScout, empire, homePlanet, RandomMath.Vector2D(homePlanet.ObjectRadius * 3), true);
             }
         }
 
