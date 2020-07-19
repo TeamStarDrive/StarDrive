@@ -3144,7 +3144,7 @@ namespace Ship_Game
                 var furthest = OwnedShips.FindMax(s => s.Position.SqDist(center));
                 radius = furthest.Center.Distance(center);
             }
-            return new AO(center, radius);
+            return new AO(this, center, radius);
         }
 
         public SolarSystem FindFurthestOwnedSystemFrom(Vector2 position)
