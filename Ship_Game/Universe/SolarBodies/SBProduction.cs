@@ -193,7 +193,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (q.Goal is BuildConstructionShip || q.Goal is BuildOrbital)
             {
                 shipAt.IsConstructor = true;
-                shipAt.VanityName = "Construction Ship";
+                shipAt.VanityName = q.sData.Name;
                 shipAt.AI.SetPriorityOrder(true);
             }
 
@@ -275,7 +275,7 @@ namespace Ship_Game.Universe.SolarBodies
                 isOrbital     = true,
                 Goal          = goal,
                 NotifyOnEmpty = false,
-                DisplayName   = $"Construction Ship ({platform.Name})",
+                DisplayName   = $"{constructor.Name} ({platform.Name})",
                 QueueNumber   = ConstructionQueue.Count,
                 sData         = constructor.shipData,
                 Cost          = platform.GetCost(Owner)

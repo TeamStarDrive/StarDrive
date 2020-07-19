@@ -65,7 +65,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             BuildPosition              = FindNewOrbitalLocation();
             FinishedShip.IsConstructor = true;
-            FinishedShip.VanityName    = "Construction Ship";
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             return GoalStep.GoToNextStep;
         }
