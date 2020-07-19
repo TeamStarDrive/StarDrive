@@ -2982,19 +2982,22 @@ namespace Ship_Game
                 return;
             }
 
+            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * 0.75f;
+            for (int i = 0; i < OwnedShips.Count; i++)
+            {
+                Ship ship = OwnedShips[i];
+                if (isPlayer && ship.Name == data.CurrentAutoScout
+                    || !isPlayer && ship.DesignRole == ShipData.RoleName.scout && ship.fleet == null )
+                {
+                    ship.DoExplore();
+                    if (++numScouts >= desiredScouts)
+                        return;
+                }
+            }
+
             // already building a scout? then just quit
             if (EmpireAI.HasGoal(GoalType.BuildScout))
                 return;
-
-            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * 0.75f;
-            foreach (Ship ship in OwnedShips)
-            {
-                if (ship.DesignRole != ShipData.RoleName.scout || ship.fleet != null)
-                    continue;
-                ship.DoExplore();
-                if (++numScouts >= desiredScouts)
-                    return;
-            }
 
             EmpireAI.Goals.Add(new BuildScout(this));
         }
