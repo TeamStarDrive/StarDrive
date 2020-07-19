@@ -40,7 +40,7 @@ namespace Ship_Game.AI
             {
                 float launchDir   = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
                 float rotation    = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
-                Missile.Velocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(20));
+                Missile.Velocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(100));
             }
 
             if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)

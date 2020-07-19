@@ -101,7 +101,7 @@ namespace Ship_Game.Gameplay
                 Module   = weapon.Module,
                 FirstRun = false
             };
-            projectile.Initialize(origin, direction, target, playSound, inheritedVelocity);
+            projectile.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
             return projectile;
         }
 
@@ -133,7 +133,7 @@ namespace Ship_Game.Gameplay
             return projectile;
         }
 
-        void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound, Vector2 inheritedVelocity)
+        void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound, Vector2 inheritedVelocity, bool isMirv = false)
         {
             ++DebugInfoScreen.ProjCreated;
             Position = origin;
@@ -185,7 +185,7 @@ namespace Ship_Game.Gameplay
             }
             else if (Weapon.Tag_Guided)
             {
-                if (!Weapon.isTurret)
+                if (!Weapon.isTurret && !isMirv)
                     Rotation = Owner?.Rotation + Weapon.Module.FacingRadians ?? Rotation;
 
                 Vector2 missileVelocity = inheritedVelocity != Vector2.Zero ? inheritedVelocity : Weapon.Owner?.Velocity ?? Vector2.Zero;
