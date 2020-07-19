@@ -387,6 +387,7 @@ namespace Ship_Game.AI
 
             // stick around until the empire goal picks the ship for refit
             ClearOrders(AIState.HoldPosition);
+            SetPriorityOrder(true); // Especially for freighters manually refitted by the player, so they wont be taken to trade again
         }
 
         void DoRepairDroneLogic(Weapon w)
