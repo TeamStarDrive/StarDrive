@@ -33,6 +33,9 @@ namespace Ship_Game
         public void AssignMission(AgentMission mission, Empire owner, string targetEmpire)
         {
             ResourceManager.AgentMissionData.Initialize(mission, out int index, out int turns, out int cost);
+            if (cost > 0 && cost > owner.Money)
+                return; // Do not go into negative money, cost > 0 check is for 0 mission cost which can be done in negative
+
             if (Mission == AgentMission.Undercover)
             {
                 foreach (Mole m in owner.data.MoleList)
@@ -439,7 +442,7 @@ namespace Ship_Game
                     aftermath.MessageToVictim = $"{Localizer.Token(6059)} {Localizer.Token(6049)} {us.data.Traits.Name}";
                     break;
                 case SpyMissionStatus.FailedCritically:
-                    aftermath.MessageId       = 6062;
+                    aftermath.MessageId       = 6061;
                     aftermath.AgentKilled     = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";
