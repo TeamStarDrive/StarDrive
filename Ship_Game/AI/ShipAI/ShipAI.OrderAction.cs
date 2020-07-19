@@ -101,6 +101,7 @@ namespace Ship_Game.AI
         {
             if (State == AIState.Explore && ExplorationTarget != null)
                 return;
+
             ClearWayPoints();
             ClearOrders();
             AddShipGoal(Plan.Explore, AIState.Explore);
