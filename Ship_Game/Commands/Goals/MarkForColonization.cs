@@ -202,7 +202,7 @@ namespace Ship_Game.Commands.Goals
         {
             spaceStrength   = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
             float groundStr = ColonizationTarget.GetGroundStrengthOther(empire);
-            if (ColonizationTarget.Owner.isFaction && groundStr.AlmostZero())
+            if (ColonizationTarget.Owner != null && ColonizationTarget.Owner.isFaction && groundStr.AlmostZero())
                 groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty
 
             return spaceStrength > 10 || groundStr > 0;

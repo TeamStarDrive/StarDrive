@@ -1667,7 +1667,6 @@ namespace Ship_Game
             ++TurnCount;
 
             UpdateTradeIncome();
-            ResetMoneySpentOnProduction();
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             Money += NetIncome;
@@ -1697,6 +1696,7 @@ namespace Ship_Game
 
         public void UpdateEmpirePlanets()
         {
+            ResetMoneySpentOnProduction();
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
                     planet.UpdateOwnedPlanet();
@@ -3237,10 +3237,15 @@ namespace Ship_Game
                 RefundCredits(b.ActualCost, 0.5f);
         }
 
-        void ChargeCredits(float cost)
+        public void ChargeRushFees(float amount)
         {
-            float creditsToCharge = ProductionCreditCost(cost);
-            MoneySpendOnProductionThisTurn += creditsToCharge;
+            ChargeCredits(amount, rush: true);
+        }
+
+        void ChargeCredits(float cost, bool rush = false)
+        {
+            float creditsToCharge           = rush ? cost : ProductionCreditCost(cost);
+            MoneySpendOnProductionThisTurn += creditsToCharge; 
             AddMoney(-creditsToCharge);
         }
 
