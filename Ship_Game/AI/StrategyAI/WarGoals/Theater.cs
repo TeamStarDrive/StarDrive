@@ -11,7 +11,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public AO TheaterAO;
         public int Priority;
         War OwnerWar;
-        SolarSystem[] Systems;
+        protected Array<SolarSystem> Systems => TheaterAO.GetAoSystems();
         Ship[] Ships;
         ThreatMatrix.Pin[] Pins;
         Empire Us;
@@ -30,7 +30,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             TheaterAO       = ao;
             Theaters        = theaters;
             OwnerWar        = Theaters.GetWar();
-            Systems         = new SolarSystem[0];
             Ships           = new Ship[0];
             Us              = EmpireManager.GetEmpireByName(OwnerWar.UsName);
             CampaignsWanted = new Array<Campaign.CampaignType>();
@@ -54,6 +53,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 return;
             }
 
+            TheaterAO.Update();
+
             if (CampaignsWanted.Contains(Campaign.CampaignType.SystemDefense))
             {
                 Pins    = Us.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(TheaterAO, Us).ToArray();
@@ -61,9 +62,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             CreateWantedCampaigns();
             RemoveUnwantedCampaigns();
-            //Systems = Them.GetOwnedSystems().Filter(s=> s.Position.InRadius(TheaterAO));
-            //Pins    = Us.GetEmpireAI().ThreatMatrix.GetPinsInAO(TheaterAO, Us, true);
-            //Ships   = Pins.Select(p => p.Ship);
+
             for (int i = 0; i < Campaigns.Count; i++)
             {
                 var campaign = Campaigns[i];
@@ -90,7 +89,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateWantedCampaigns();
         }
 
-        public SolarSystem[] GetPlanets()                          => Systems;
+        public Array<SolarSystem> GetSystems()                          => Systems;
         public Ship[] GetShips()                                   => Ships;
         public ThreatMatrix.Pin[] GetPins() => Pins;
 
@@ -115,7 +114,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         }
 
         public Array<Campaign.CampaignType> GetWantedCampaignsCopy()   => CampaignsWanted.Clone();
-        public bool WantsCampaign(Campaign.CampaignType type)      => CampaignsWanted.Contains(type);
 
         public bool RemoveCampaign(Campaign campaign) => Campaigns.Remove(campaign);
 
