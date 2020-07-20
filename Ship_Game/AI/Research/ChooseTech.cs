@@ -316,7 +316,7 @@ namespace Ship_Game.AI.Research
             return 0;
         }
 
-        private TechnologyType ConvertTechStringTechType(string typeName)
+        public static TechnologyType ConvertTechStringTechType(string typeName)
         {
             TechnologyType techType = TechnologyType.General;
             try
