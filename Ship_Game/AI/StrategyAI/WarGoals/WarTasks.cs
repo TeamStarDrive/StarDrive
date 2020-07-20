@@ -74,10 +74,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (IsAlreadyDefendingSystem(system)) return;
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;
-            CreateTask(new MilitaryTask(center, radius, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
+            CreateTask(new MilitaryTask(center, radius,system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
-                Priority = priority,
-                System   = system
+                Priority      = priority
             });
         }
 
