@@ -840,7 +840,8 @@ namespace Ship_Game.Fleets
 
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
-            if (EndInvalidTask(!StillCombatEffective(task) || task.TargetSystem?.OwnerList.Contains(Owner) != true))
+            if (EndInvalidTask(!StillCombatEffective(task)) || task.TargetSystem?.ShipList.Any(s=> (s.loyalty != Owner 
+                                                                                                   &&  Owner.GetRelations(s.loyalty).AtWar)) != true)
             {
                 FleetTask = null;
                 TaskStep = 0;
