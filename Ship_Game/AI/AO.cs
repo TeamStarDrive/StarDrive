@@ -54,6 +54,7 @@ namespace Ship_Game.AI
         [XmlIgnore][JsonIgnore] Planet[] OurPlanetsInAo                            = NoPlanets;
         [XmlIgnore][JsonIgnore] SolarSystem[] SystemsInAo                          = NoSystem;
         [XmlIgnore][JsonIgnore] Empire Owner;
+        [XmlIgnore][JsonIgnore] int ThreatTimer;
 
         [Serialize(0)] public int ThreatLevel;
         [Serialize(1)] public Guid CoreWorldGuid;
@@ -89,10 +90,12 @@ namespace Ship_Game.AI
 
         public Array<SolarSystem> GetAoSystems() => new Array<SolarSystem>(SystemsInAo);
 
-        public void SetThreatLevel()
+        public void UpdateThreatLevel()
         {
-            ThreatLevel = (int)Owner.GetEmpireAI().ThreatMatrix.
-                PingRadarStrengthLargestCluster(Center, Radius, Owner, 50000);
+            if (--ThreatTimer > 0) return;
+            ThreatLevel = (int)Owner.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(Center, Radius, Owner, 50000);
+            // arbitrary performance consideration.
+            ThreatTimer = 5;
         }
 
         public int GetNumOffensiveForcePoolShips() => OffensiveForcePool.Count;
@@ -288,6 +291,8 @@ namespace Ship_Game.AI
             if (PlanetsInAo.Length == 0 && Owner != null) SetupPlanetsInAO();
 
             if (OurPlanetsInAo.Length == 0 && Owner != null && PlanetsInAo.Length > 0) OurPlanetsInAo = PlanetsInAo.Filter(p => p.Owner == Owner);
+
+            UpdateThreatLevel();
 
             for (int i = 0; i < PlanetData.Length; i++) PlanetData[i].Update(Empire.Universe?.StarDate ?? 0);
 
