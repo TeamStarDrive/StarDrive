@@ -41,12 +41,12 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
-        [XmlIgnore] [JsonIgnore] public SolarSystem System;
+        
         public bool IsTaskAOInSystem(SolarSystem system)
         {
-            if (System != null) return system == System;
+            if (TargetSystem != null) return system == TargetSystem;
             if (!system.Position.InRadius(AO, AORadius)) return false;
-            System = system;
+            TargetSystem = system;
             return true;
         }
 
@@ -125,12 +125,13 @@ namespace Ship_Game.AI.Tasks
             SetEmpire(ao.GetCoreFleet().Owner);
         }
 
-        public MilitaryTask(Vector2 center, float radius, float strengthWanted, TaskType taskType)
+        public MilitaryTask(Vector2 center, float radius, SolarSystem system, float strengthWanted, TaskType taskType)
         {
             AO                       = center;
             AORadius                 = radius;
             type                     = taskType;
             MinimumTaskForceStrength = strengthWanted;
+            TargetSystem             = system;
         }
 
         public MilitaryTask(Planet target, Empire owner)
@@ -366,7 +367,7 @@ namespace Ship_Game.AI.Tasks
                         if      (Step == 0)
                         {
                             RequisitionDefenseForce();
-                            if (EnemyStrength < 10)
+                            if (EnemyStrength < 10 && TargetSystem?.ShipList.Any(s=> s.loyalty == Owner) != false)
                             {
                                 EndTask();
                             }

@@ -37,6 +37,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = Theaters.Count - 1; i >= 0; i--)
             {
                 var theater = Theaters[i];
+                theater.TheaterAO.Update();
                 float value = theater.TheaterAO.GetWarValueOfSystemsInAOTo(Us).Clamped(1, totalValue);
                 theater.Priority = 5 - (int)((value / totalValue) * 5) + OwnerWar.Priority();
                 theater.Evaluate();
@@ -96,6 +97,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 case WarType.GenocidalWar:
                     {
                         campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
+                        campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
                         aos = CreateImperialisticAO();
                         break;
                     }
