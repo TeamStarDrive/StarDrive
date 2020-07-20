@@ -4,6 +4,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public abstract class AttackSystems : Campaign
     {
+        protected Array<SolarSystem> SystemsWithThem()
+        {
+            return new Array<SolarSystem>(OwnerTheater.GetSystems().Filter(s =>
+                s.IsExploredBy(Owner) && s.OwnerList.Contains(Them)));
+        }
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Capture"/> class.
         /// </summary>

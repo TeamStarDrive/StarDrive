@@ -54,6 +54,7 @@ namespace Ship_Game.AI
 
             if (name == "The Remnant" && !fromSave)
                 Goals.Add(new RemnantAI(OwnerEmpire));
+            EmpireDefense?.RestoreFromSave(true);
         }
 
         void RunManagers()
