@@ -14,26 +14,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateSteps();
         }
 
-        protected override GoalStep SetupTargets()
-        {
-            var targets = new Array<SolarSystem>();
-            targets.AddRange(OwnerWar.GetTheirNearSystems().Filter(s=>
-            {
-                bool isExplored = s.IsExploredBy(Owner);
-                bool inAO = false;
-                if (isExplored)
-                    inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
-                return isExplored && inAO;
-            }));
-            targets.AddRange(OwnerWar.GetTheirBorderSystems().Filter(s=>
-            {
-                bool isExplored = s.IsExploredBy(Owner);
-                bool inAO = false;
-                if (isExplored)
-                    inAO = s.Position.InRadius(OwnerTheater.TheaterAO);
-                return isExplored && inAO;
-            }));
-            return SetTargets(targets);
-        }
+        protected override GoalStep SetupTargets() => SetTargets(SystemsWithThem());
     }
 }
