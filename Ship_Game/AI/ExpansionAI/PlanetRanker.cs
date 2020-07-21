@@ -7,7 +7,7 @@ namespace Ship_Game.AI.ExpansionAI
     {
         public Planet Planet;
         public float Value;
-        public bool CantColonize;
+        public bool CanColonize;
         public bool PoorPlanet;
         private readonly float DistanceMod;
 
@@ -16,26 +16,23 @@ namespace Ship_Game.AI.ExpansionAI
             return $"{Planet.Name} Value={Value} DistanceMod={DistanceMod}"; // EnemyStr={EnemyStrength}";
         }
 
-        public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, float longestDistance, Vector2 empireCenter)
+        public PlanetRanker(Empire empire, Planet planet, float longestDistance, Vector2 empireCenter)
         {
             Planet                = planet;
             DistanceMod           = 1;
-            CantColonize          = false;
+            CanColonize           = true;
             PoorPlanet            = false;
             float rawValue        = planet.ColonyPotentialValue(empire);
 
-            if (!planet.ParentSystem.IsOwnedBy(empire))
+            if (!Planet.ParentSystem.IsOwnedBy(empire))
                 DistanceMod= (planet.Center.Distance(empireCenter)/longestDistance * 10).Clamped(1,10);
 
             Value              = rawValue / DistanceMod;
-            bool moralityBlock = IsColonizeBlockedByMorals(planet.ParentSystem, empire);
-            CantColonize       = IsBadWorld(planet, canColonizeBarren) || moralityBlock;
+            bool moralityBlock = IsColonizeBlockedByMorals(Planet.ParentSystem, empire);
+
+            // We can colonize if we are not morally blocked and any planet better than 10 or we are the sole owners of this system
+            CanColonize =  !moralityBlock && (rawValue > 10 || Planet.ParentSystem.IsOnlyOwnedBy(empire));
         }
-
-        public bool CanColonize => !CantColonize;
-
-        static bool IsBadWorld(Planet planet, bool canColonizeBarren)
-            => planet.IsBarrenType && !canColonizeBarren && planet.SpecialCommodities == 0;
 
         private bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
         {
