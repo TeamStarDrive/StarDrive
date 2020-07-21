@@ -189,7 +189,6 @@ namespace Ship_Game.AI.ExpansionAI
             if (planetList.Count == 0)
                 return false;
 
-            bool canColonizeBarren = Owner.IsBuildingUnlocked(Building.BiospheresId);
             float longestDistance  = planetList.Last().Center.Distance(empireCenter);
         
             for (int i = 0; i < planetList.Count; i++)
@@ -198,7 +197,7 @@ namespace Ship_Game.AI.ExpansionAI
                 // The planet ranker does the ranking
                 if (!markedPlanets.Contains(p)) // Don't include planets we are already trying to colonize
                 {
-                    var pr = new PlanetRanker(Owner, p, canColonizeBarren, longestDistance, empireCenter);
+                    var pr = new PlanetRanker(Owner, p, longestDistance, empireCenter);
                     if (pr.CanColonize)
                         planetRanker.Add(pr);
                 }
