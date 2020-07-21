@@ -1040,6 +1040,7 @@ namespace Ship_Game
 
         public void InitializeFromSave()
         {
+            InitDifficultyModifiers();
             EmpireAI = new EmpireAI(this, fromSave: true);
             for (int key = 1; key < 1; ++key)
             {
@@ -1072,7 +1073,6 @@ namespace Ship_Game
                 ShipsWeCanBuild.Add(ship);
 
             UpdateShipsWeCanBuild();
-            InitDifficultyModifiers();
             CreateThrusterColors();
             UpdateShipsWeCanBuild();
             Research.Update();

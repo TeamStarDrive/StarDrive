@@ -14,8 +14,8 @@ namespace Ship_Game.AI.ExpansionAI
         private readonly Array<SolarSystem> MarkedForExploration = new Array<SolarSystem>();
         private Array<Goal> Goals => Owner.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
-        private int ExpandSearchTimer;
-        private int MaxSystemsToCheckedDiv;  
+        public int ExpandSearchTimer { get; private set; }
+        public int MaxSystemsToCheckedDiv { get; private set; }
 
         public Planet[] DesiredPlanets => RankedPlanets?.FilterSelect(r=> r.Planet?.Owner != Owner,
                                                                       r => r.Planet) ?? Empty<Planet>.Array;
@@ -58,8 +58,8 @@ namespace Ship_Game.AI.ExpansionAI
         public ExpansionPlanner(Empire empire)
         {
             Owner                  = empire;
-            MaxSystemsToCheckedDiv = IsExpansionists ? 4 : 6;
-            ExpandSearchTimer      = Owner.DifficultyModifiers.ExpandSearchTurns;
+            SetMaxSystemsToCheckedDiv(IsExpansionists ? 4 : 6);
+            ResetExpandSearchTimer();
         }
 
         /// <summary>
@@ -112,15 +112,15 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 if (--ExpandSearchTimer <= 0) // increase search area if timer is done
                 {
-                    ExpandSearchTimer      = Owner.DifficultyModifiers.ExpandSearchTurns;
+                    ResetExpandSearchTimer();
                     MaxSystemsToCheckedDiv = (MaxSystemsToCheckedDiv - 1).LowerBound(1);
                 }
 
                 return;
             }
 
-            ExpandSearchTimer = Owner.DifficultyModifiers.ExpandSearchTurns;
-            RankedPlanets     = allPlanetsRanker.SortedDescending(pr => pr.Value);
+            ResetExpandSearchTimer();
+            RankedPlanets = allPlanetsRanker.SortedDescending(pr => pr.Value);
 
             // Take action on the found planets
             CreateColonyGoals(currentColonizationGoals);
@@ -251,6 +251,21 @@ namespace Ship_Game.AI.ExpansionAI
         public void RemoveExplorationTargetFromList(SolarSystem system)
         {
             MarkedForExploration.Remove(system);
+        }
+
+        public void SetExpandSearchTimer(int value)
+        {
+            ExpandSearchTimer = value;
+        }
+
+        public void SetMaxSystemsToCheckedDiv(int value)
+        {
+            MaxSystemsToCheckedDiv = value;
+        }
+
+        public void ResetExpandSearchTimer()
+        {
+            SetExpandSearchTimer(Owner.DifficultyModifiers.ExpandSearchTurns);
         }
     }
 }
