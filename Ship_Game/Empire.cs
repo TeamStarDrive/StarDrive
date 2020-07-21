@@ -2366,7 +2366,8 @@ namespace Ship_Game
 
             if (Money < 0.0 && !isFaction)
             {
-                data.TurnsBelowZero += (short)(1 + -1 * (Money) / 500);
+                float ratio = ((AllSpending - Money) / PotentialIncome.LowerBound(1));
+                data.TurnsBelowZero += (short)(ratio);
             }
             else
             {
@@ -2440,7 +2441,8 @@ namespace Ship_Game
                 }
 
                 RandomEventManager.UpdateEvents();
-                if (data.TurnsBelowZero > 0 && Money < 0.0)
+
+                if ((Money / AllSpending.LowerBound(1)) < 2)
                     Universe.NotificationManager.AddMoneyWarning();
 
                 if (!Universe.NoEliminationVictory)
