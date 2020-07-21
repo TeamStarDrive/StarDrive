@@ -38,7 +38,7 @@ namespace Ship_Game.AI
             float SSP                      = 2;  // 0.003f;
             float build                    = 15; // 0.02f;
             float spy                      = 100;
-            float colony                   = 7;  // 0.015f;
+            float colony                   = 10;  // 0.015f;
             float savings                  = 350;
             float troopShuttles = 6;
 
