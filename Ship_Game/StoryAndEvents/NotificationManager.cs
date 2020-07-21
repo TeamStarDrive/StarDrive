@@ -250,13 +250,13 @@ namespace Ship_Game
 
         public void AddMoneyWarning()
         {
-            string message = Localizer.Token(2296);
+            string message = LocalizedText.Parse("{LowMoneyWarning}").Text;  // Localizer.Token(2296);
             if (IsNotificationPresent(message))
                 return;
 
             AddNotification(new Notification
             {
-                Pause    = false,
+                Pause    = true,
                 Message  = message,
                 IconPath = "UI/icon_warning_money"
             }, "sd_ui_notification_warning", "sd_trade_01");
