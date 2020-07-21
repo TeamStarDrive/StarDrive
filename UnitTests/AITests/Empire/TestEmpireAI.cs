@@ -67,13 +67,12 @@ namespace UnitTests.AITests.Empire
                 toRemove.RemoveFromUniverseUnsafe();
         }
 
-
+        /* going to add tests here
         [TestMethod]
         public void TestExpansionPlannerColonize()
         {
             var expansionAI = TestEmpire.GetEmpireAI().ExpansionAI;
             TestEmpire.AutoColonize = true;
-            TestEmpire.data.EconomicPersonality.Name = "Expansionists";
             expansionAI.RunExpansionPlanner();
 
             Assert.AreEqual(13, expansionAI.RankedPlanets.Length,
@@ -92,7 +91,7 @@ namespace UnitTests.AITests.Empire
             Assert.AreEqual(3, markedPlanet.Length, "Expected 3 colony goals ");
             expansionAI.RunExpansionPlanner();
 
-        }
+        }*/
 
         [TestMethod]
         [Ignore]

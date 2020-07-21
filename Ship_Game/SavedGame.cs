@@ -149,7 +149,8 @@ namespace Ship_Game
                 e.SaveMoneyHistory(empireToSave);
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
-
+                empireToSave.ExpandSearchTimer        = e.GetEmpireAI().ExpansionAI.ExpandSearchTimer;
+                empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
 
                 if (e.WeArePirates)
                 {
@@ -567,6 +568,8 @@ namespace Ship_Game
             [Serialize(23)] public Array<Guid> SpawnedShips;
             [Serialize(24)] public Array<string> ShipsWeCanSpawn;
             [Serialize(25)] public Array<float> NormalizedMoney;
+            [Serialize(25)] public int ExpandSearchTimer;
+            [Serialize(25)] public int MaxSystemsToCheckedDiv;
         }
 
         public class FleetSave
