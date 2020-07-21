@@ -21,6 +21,7 @@
         public readonly int MineralDecayDivider;
         public readonly float PiratePayModifier;
         public readonly int MinStartingColonies; // Starting colonies what we want
+        public readonly int ExpandSearchTurns; // For Expansion
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -64,6 +65,7 @@
                     PiratePayModifier    = 0.5f;
                     ExpansionModifier    = 0.2f;
                     MinStartingColonies  = 3;
+                    ExpandSearchTurns    = 150;
 
                     if (!empire.isPlayer)
                     {
@@ -90,6 +92,7 @@
                     PiratePayModifier    = 0.75f;
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
+                    ExpandSearchTurns    = 100;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -106,6 +109,7 @@
                     PiratePayModifier    = 1f;
                     ExpansionModifier    = 0.05f;
                     MinStartingColonies  = 5;
+                    ExpandSearchTurns    = 75;
 
                     if (!empire.isPlayer)
                     {
@@ -133,6 +137,7 @@
                     PiratePayModifier    = 1.5f;
                     ExpansionModifier    = 0f;
                     MinStartingColonies  = 6;
+                    ExpandSearchTurns    = 50;
 
                     if (!empire.isPlayer)
                     {

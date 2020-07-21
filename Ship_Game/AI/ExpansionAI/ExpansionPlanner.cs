@@ -14,6 +14,8 @@ namespace Ship_Game.AI.ExpansionAI
         private readonly Array<SolarSystem> MarkedForExploration = new Array<SolarSystem>();
         private Array<Goal> Goals => Owner.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
+        private int ExpandSearchTimer;
+        private int MaxSystemsToCheckedDiv;  
 
         public Planet[] DesiredPlanets => RankedPlanets?.FilterSelect(r=> r.Planet?.Owner != Owner,
                                                                       r => r.Planet) ?? Empty<Planet>.Array;
@@ -51,11 +53,13 @@ namespace Ship_Game.AI.ExpansionAI
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
         bool  IsExpansionists    => Owner.data.EconomicPersonality.Name == "Expansionists";
-        float ExpansionThreshold => (IsExpansionists ? 0.3f : 0.4f) + Owner.DifficultyModifiers.ExpansionModifier;
+        float ExpansionThreshold => (IsExpansionists ? 0.35f : 0.45f) + Owner.DifficultyModifiers.ExpansionModifier;
 
         public ExpansionPlanner(Empire empire)
         {
-            Owner = empire;
+            Owner                  = empire;
+            MaxSystemsToCheckedDiv = IsExpansionists ? 4 : 6;
+            ExpandSearchTimer      = Owner.DifficultyModifiers.ExpandSearchTurns;
         }
 
         /// <summary>
@@ -92,8 +96,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
-            int maxCheckedDiv     = IsExpansionists ? 4 : 6;
-            int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / maxCheckedDiv).LowerBound(3);
+            int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / MaxSystemsToCheckedDiv).LowerBound(3);
             Vector2 empireCenter  = Owner.GetWeightedCenter();
 
             Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(ownedSystems);
@@ -105,10 +108,19 @@ namespace Ship_Game.AI.ExpansionAI
             }
 
             // Rank all known planets near the empire
-            if (!GatherAllPlanetRanks(potentialPlanets, currentColonizationGoals, empireCenter, out Array <PlanetRanker> allPlanetsRanker))
-                return;
+            if (!GatherAllPlanetRanks(potentialPlanets, currentColonizationGoals, empireCenter, out Array<PlanetRanker> allPlanetsRanker))
+            {
+                if (--ExpandSearchTimer <= 0) // increase search area if timer is done
+                {
+                    ExpandSearchTimer      = Owner.DifficultyModifiers.ExpandSearchTurns;
+                    MaxSystemsToCheckedDiv = (MaxSystemsToCheckedDiv - 1).LowerBound(1);
+                }
 
-            RankedPlanets = allPlanetsRanker.SortedDescending(pr => pr.Value);
+                return;
+            }
+
+            ExpandSearchTimer = Owner.DifficultyModifiers.ExpandSearchTurns;
+            RankedPlanets     = allPlanetsRanker.SortedDescending(pr => pr.Value);
 
             // Take action on the found planets
             CreateColonyGoals(currentColonizationGoals);
