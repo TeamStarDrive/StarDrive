@@ -52,7 +52,7 @@ namespace Ship_Game.AI.ExpansionAI
         }
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
-        bool  IsExpansionists    => Owner.data.EconomicPersonality.Name == "Expansionists";
+        bool  IsExpansionists    => Owner.data.EconomicPersonality?.Name == "Expansionists";
         float ExpansionThreshold => (IsExpansionists ? 0.35f : 0.45f) + Owner.DifficultyModifiers.ExpansionModifier;
 
         public ExpansionPlanner(Empire empire)
@@ -110,7 +110,8 @@ namespace Ship_Game.AI.ExpansionAI
             // Rank all known planets near the empire
             if (!GatherAllPlanetRanks(potentialPlanets, currentColonizationGoals, empireCenter, out Array<PlanetRanker> allPlanetsRanker))
             {
-                if (--ExpandSearchTimer <= 0) // increase search area if timer is done
+                // Nothing found in current search area
+                if (--ExpandSearchTimer <= 0 && MaxSystemsToCheckedDiv > 1) // increase search area if timer is done
                 {
                     ResetExpandSearchTimer();
                     MaxSystemsToCheckedDiv = (MaxSystemsToCheckedDiv - 1).LowerBound(1);
