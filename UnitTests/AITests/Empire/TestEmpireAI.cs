@@ -67,7 +67,7 @@ namespace UnitTests.AITests.Empire
                 toRemove.RemoveFromUniverseUnsafe();
         }
 
-        /*
+        /* going to add tests here
         [TestMethod]
         public void TestExpansionPlannerColonize()
         {
