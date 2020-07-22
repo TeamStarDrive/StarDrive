@@ -17,10 +17,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (Them != Owner)  return SetTargets(SystemsWithThem());
 
             var systems = new Array<SolarSystem>();
-            Array<SolarSystem> AOSystems = OwnerTheater.GetSystems();
-            for (int i = 0; i < AOSystems.Count; i++)
+            Array<SolarSystem> aoSystems = OwnerTheater.GetSystems();
+            for (int i = 0; i < aoSystems.Count; i++)
             {
-                var s = AOSystems[i];
+                var s = aoSystems[i];
                 foreach (var owner in s.OwnerList)
                 {
                     if (Owner.GetRelations(owner)?.AtWar != true) continue;
