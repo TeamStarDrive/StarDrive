@@ -43,7 +43,7 @@ namespace Ship_Game
                     return 0;
 
                 int min = Storage.FoodRatio > 0.75f ? 1 : 0;
-                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(min, 7);
+                return ((int)(Food.NetIncome / 2 + Storage.Food / 25)).Clamped(min, 10);
             }
         }
 
