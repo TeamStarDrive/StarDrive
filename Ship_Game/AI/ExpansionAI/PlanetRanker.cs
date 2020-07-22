@@ -30,8 +30,8 @@ namespace Ship_Game.AI.ExpansionAI
             Value              = rawValue / DistanceMod;
             bool moralityBlock = IsColonizeBlockedByMorals(Planet.ParentSystem, empire);
 
-            // We can colonize if we are not morally blocked and any planet better than 10 or we are the sole owners of this system
-            CanColonize =  !moralityBlock && (rawValue > 10 || Planet.ParentSystem.IsOnlyOwnedBy(empire));
+            // We can colonize if we are not morally blocked and any planet better than 10
+            CanColonize =  !moralityBlock && (rawValue > 10);
         }
 
         private bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
