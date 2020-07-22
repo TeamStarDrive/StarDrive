@@ -193,6 +193,7 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new HashSet<string>();
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
+        public float TotalPotentialResearchPerColonist { get; private set; }
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -1697,9 +1698,13 @@ namespace Ship_Game
         public void UpdateEmpirePlanets()
         {
             ResetMoneySpentOnProduction();
+            TotalPotentialResearchPerColonist = 0;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
+                {
+                    TotalPotentialResearchPerColonist += planet.TotalPotentialResearchersYield;
                     planet.UpdateOwnedPlanet();
+                }
         }
 
         public void GovernPlanets()
