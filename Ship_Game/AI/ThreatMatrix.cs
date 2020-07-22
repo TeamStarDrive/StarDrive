@@ -190,9 +190,9 @@ namespace Ship_Game.AI
 
         public Map<Vector2, float> PingRadarStrengthClusters(Vector2 position, float radius, float granularity, Empire empire)
         {
-            var retList = new Map<Vector2, float>();
+            var retList       = new Map<Vector2, float>();
             Array<Ship> pings = PingRadarShip(position, radius, empire);
-            var filter = new HashSet<Ship>();
+            var filter        = new HashSet<Ship>();
 
             for (int i = 0; i < pings.Count; i++)
             {
@@ -292,43 +292,43 @@ namespace Ship_Game.AI
         public float PingRadarStr(Vector2 position, float radius, Empire us, bool netStrength = false, bool hostileOnly = false)
         {
             float str = 0f;
-            using (PinsMutex.AcquireReadLock())
+            Pin[] pins = GetPins();
+            for (int i = 0; i < pins.Length; i++)
             {
-                foreach (Pin pin in Pins.Values)
+                Pin pin = pins[i];
+                if (pin.Position.InRadius(position, radius))
                 {
-                    if (pin.Position.InRadius(position, radius))
+                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                    if (!hostileOnly)
                     {
-                        Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
-                        if (!hostileOnly)
-                        {
-                            str += us.IsEmpireAttackable(pinEmpire) ? pin.Strength : 0;
-                        }
-                        else
-                        {
-                            str += us.IsEmpireHostile(pinEmpire) ? pin.Strength : 0;
-                        }
-                        if (netStrength)
-                            str -= pinEmpire == us ? pin.Strength : 0;
+                        str += us.IsEmpireAttackable(pinEmpire) ? pin.Strength : 0;
                     }
+                    else
+                    {
+                        str += us.IsEmpireHostile(pinEmpire) ? pin.Strength : 0;
+                    }
+
+                    if (netStrength)
+                        str -= pinEmpire == us ? pin.Strength : 0;
                 }
             }
+
             return str;
         }
 
         public Array<Pin> GetEnemyPinsInAO(AO ao, Empire us)
         {
             var pins = new Array<Pin>();
-            using (PinsMutex.AcquireReadLock())
             {
-                foreach (Pin pin in Pins.Values)
+                Pin[] pins1 = GetPins();
+                for (int i = 0; i < pins1.Length; i++)
                 {
-                    if (pin.Position.InRadius(ao))
+                    Pin pin = pins1[i];
+                    if (!pin.Position.InRadius(ao)) continue;
+                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
                     {
-                        Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
-                        {
-                            if (us.IsEmpireHostile(pinEmpire))
-                                pins.Add(pin);
-                        }
+                        if (us.IsEmpireHostile(pinEmpire))
+                            pins.Add(pin);
                     }
                 }
             }
@@ -348,6 +348,8 @@ namespace Ship_Game.AI
             else
                 pin.Refresh(ship, inSensorRadius, shipInBorders);
         }
+
+        public Pin[] GetPins() => Pins.AtomicValuesArray();
 
         public bool RemovePin(Ship ship) => RemovePin(ship.guid);
 
