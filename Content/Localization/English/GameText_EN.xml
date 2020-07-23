@@ -1732,7 +1732,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 
     <Token>
       <Index>472</Index>
-      <Text>+0.5 food per assigned colonist</Text>
+      <Text>+1 food per assigned colonist</Text>
     </Token>
     <Token>
       <Index>473</Index>
@@ -1740,11 +1740,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>474</Index>
-      <Text>Xeno mines are the first real step towards exploiting a planet's mineral deposits, creating +0.5 production per colonist assigned to industrial tasks.</Text>
+      <Text>Xeno mines are the first real step towards exploiting a planet's mineral deposits, creating +1 production per colonist assigned to industrial tasks.</Text>
     </Token>
     <Token>
       <Index>475</Index>
-      <Text>+0.5 production per assigned colonist, +2 Infrastructure</Text>
+      <Text>+1 production per assigned colonist, +2 Infrastructure</Text>
     </Token>
 
     
@@ -7000,7 +7000,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>471</Index>
-      <Text>Xeno Farms are large complexes dedicated to the successful integration of our farming and husbandry techniques with alien soils and nutrients.  The production of this building scales with the number of farmers assigned on this planet. Provides +0.5 food per turn per assigned colonist. </Text>
+      <Text>Xeno Farms are large complexes dedicated to the successful integration of our farming and husbandry techniques with alien soils and nutrients.  The production of this building scales with the number of farmers assigned on this planet. Provides +1 food per turn per assigned colonist. </Text>
     </Token>
     <Token>
       <Index>527</Index>

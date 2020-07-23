@@ -437,7 +437,10 @@ namespace Ship_Game
 
             score *= FertilityMultiplier(b);
 
-            float effectiveness = chooseBest? CostEffectivenessMultiplier(b.Cost, totalProd, score) : 1;
+            float effectiveness = chooseBest? CostEffectivenessMultiplier(b.Cost, totalProd) : 1;
+            if (b.IsMoneyBuilding)
+                effectiveness *= 1.2f;
+
             score *= effectiveness;
 
             if (IsPlanetExtraDebugTarget())
@@ -473,20 +476,19 @@ namespace Ship_Game
             return 1;
         }
 
-        float CostEffectivenessMultiplier(float cost, float expectedProd, float score)
+        float CostEffectivenessMultiplier(float cost, float expectedProd)
         {
             if (expectedProd >= cost)
                 return 1;
 
             // This will allow the colony to slowly build more expensive buildings as it grows
-            float neededProd = (cost - expectedProd).LowerBound(1);
-            float multiplier = score / neededProd;
+            float multiplier = expectedProd / cost.LowerBound(1);
             return multiplier.Clamped(0,1); 
         }
 
         void TryBuildTerraformers(float budget)
         {
-            if (NumWantedTerraformers <= 0 || TerraformerInTheWorks)
+            if (IsStarving || NumWantedTerraformers <= 0 || TerraformerInTheWorks)
                 return;
 
             Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
@@ -532,6 +534,7 @@ namespace Ship_Game
         {
             if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
                 || CivilianBuildingInTheWorks
+                || IsStarving
                 || HabitablePercentage.AlmostEqual(1)) // all tiles are habitable
             {
                 return false;
