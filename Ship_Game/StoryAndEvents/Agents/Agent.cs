@@ -330,7 +330,7 @@ namespace Ship_Game
                     break;
                 case SpyMissionStatus.FailedCritically:
                     aftermath.MessageToVictim = $"{Localizer.Token(6073)} {Localizer.Token(6049)} {us.data.Traits.Name}";
-                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6074)} {us.data.Traits.Name}";
+                    aftermath.CustomMessage   = $"{Name} {Localizer.Token(6074)} {TargetEmpire}";
                     aftermath.AgentKilled     = true;
                     aftermath.RelationDamage  = 20;
                     aftermath.DamageReason    = "Caught Spying Failed";

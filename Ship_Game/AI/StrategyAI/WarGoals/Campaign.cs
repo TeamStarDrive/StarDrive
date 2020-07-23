@@ -125,6 +125,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     break;
                 case CampaignType.Attrition:
                     break;
+                case CampaignType.SystemDefense:
+                    return new SystemDefense(campaign, theater);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -203,6 +206,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             rallyPlanet = Owner.FindNearestSafeRallyPoint(OwnerTheater.TheaterAO.Center);
 
+            // createEmpire AO
             if (rallyPlanet.Owner == Owner)
             {
                 if (!Owner.GetAOCoreWorlds().Contains(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
@@ -254,61 +258,47 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var fleets               = Owner.AllFleetsReady();
             float strength           = fleets.AccumulatedStrength * Owner.GetWarOffensiveRatio();
             var winnableTarget       = new Array<SolarSystem>();
-            var allTargets           = new Array<SolarSystem>();
-            float allTargetsStrength = strength;
 
             Vector2 nearestPoint     = RallyAO?.Center ?? empireCenter;
             // these loops are not cheap but the frequency of the calcs should be pretty low.
             float minDistanceToThem  = Them.FindNearestOwnedSystemTo(nearestPoint)?.Position.Distance(nearestPoint) ?? 1000000;
             float numberOfTargets    = targets.Count.LowerBound(1);
-            float averageImportance  = targets.Sum(s => s.WarValueTo(Owner)) / numberOfTargets;
-            
+            float averageImportance  = OwnerTheater.TheaterAO.WarValueOfPlanets / numberOfTargets;
+
             // goal here is to sort the targets by closeness and value.
             // we will emphasize above average war targets and nearby planets. 
-            foreach (var system in targets.Sorted(s =>
+            var sortedTargets = targets.Sorted(s =>
             {
-                float warValueRatio   = s.WarValueTo(Owner) / averageImportance;
+                float warValueRatio = s.WarValueTo(Owner) / averageImportance;
                 // high value targets will be worth more
-                warValueRatio        *= warValueRatio < 1 ? 1 : 2;
-                float distance        = s.Position.SqDist(empireCenter);
-                float rangeRatio      = minDistanceToThem / distance;
+                warValueRatio *= warValueRatio < 1 ? 1 : 2;
+                float distance = s.Position.SqDist(nearestPoint);
+                float rangeRatio = minDistanceToThem / distance;
                 // sorted sorts ascend so we multiply by negative 1 to make the high value targets effectively smaller.
                 return (warValueRatio - rangeRatio) * -1f;
-            }))
+            });
+
+            foreach (var system in sortedTargets)
             {
                 if (HaveConqueredTarget(system)) continue;
 
-                float defense  = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
-                float rangeMod = system.Position.Distance(empireCenter) / minDistanceToThem;
+                float defense  = OwnerTheater.TheaterAO.ThreatLevel;
+                float rangeMod = ((system.Position.Distance(nearestPoint) / minDistanceToThem) /2).LowerBound(1);
                 if (defense * rangeMod < strength)
                 {
                     winnableTarget.Add(system);
-                    strength -= defense;
-                    allTargetsStrength -= defense;
-                    continue;
+                    strength           -= defense;
                 }
-
-                if (allTargetsStrength > 0)
-                {
-                    allTargets.Add(system);
-                    allTargetsStrength -= defense;
-                }
-
-                if (strength < 0) break;
             }
 
             if (winnableTarget.NotEmpty)
             {
                 AddTargetSystem(winnableTarget.First);
-                //for (int i = 0; i < winnableTarget.Count * Owner.GetWarOffensiveRatio(); i++)
-                //{
-                //    var system = winnableTarget[i];
-                //    AddTargetSystem(system);
-                //}
             }
-            else if (allTargets.NotEmpty)
+            // make sure to add something if we dont have something
+            else if (sortedTargets.Length > 0 && TargetSystems.IsEmpty)
             {
-                AddTargetSystem(allTargets.FindClosestTo(empireCenter));
+                AddTargetSystem(sortedTargets[0]);
             }
             return GoalStep.GoToNextStep;
         }
