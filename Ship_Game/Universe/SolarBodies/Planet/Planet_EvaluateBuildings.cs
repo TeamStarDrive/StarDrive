@@ -483,7 +483,7 @@ namespace Ship_Game
 
             // This will allow the colony to slowly build more expensive buildings as it grows
             float multiplier = expectedProd / cost.LowerBound(1);
-            return multiplier.Clamped(0,2); 
+            return multiplier.Clamped(0,1); 
         }
 
         void TryBuildTerraformers(float budget)
