@@ -43,17 +43,18 @@ namespace Ship_Game
             float farmers = Food.EstPercentForNetIncome(+1f);
 
             // modify nominal farmers by overage or underage
-            farmers += CalculateMod(percent, Storage.FoodRatio).Clamped(-0.35f, 0.50f);
+            farmers += CalculateMod(percent, Storage.FoodRatio).Clamped(-0.35f, 0.5f);
             return farmers.Clamped(0f, 0.9f);
         }
 
         float WorkToPercentage(float percent) // Production
         {
-            if (percent <= 0f) return 0;
+            if (percent <= 0f || Prod.YieldPerColonist <= 0.1f) 
+                return 0;
 
             float workers = Prod.EstPercentForNetIncome(+1f);
 
-            workers += CalculateMod(percent, Storage.ProdRatio).Clamped(-0.35f, 1.00f);
+            workers += CalculateMod(percent, Storage.ProdRatio).Clamped(-0.35f, 0.5f);
             return workers.Clamped(0f, 1f);
         }
 
@@ -61,16 +62,22 @@ namespace Ship_Game
         // Core world aims to balance everything, without maximizing food/prod/res
         void AssignCoreWorldWorkers()
         {
+            float remainingWork;
             if (IsCybernetic) // Filthy Opteris
+            {
                 AssignCoreWorldProduction(1f);
+                remainingWork = 1;
+            }
             else // Strategy for Flesh-bags:
             {
                 AssignCoreWorldFarmers(1f);
-                AssignCoreWorldProduction(1f - Food.Percent); // then we optimize production
+                remainingWork = 1 - Food.Percent;
             }
 
             if (ConstructionQueue.Count > 0)
-                Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * EvaluateProductionQueue());
+                Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
+            else
+                AssignCoreWorldProduction(remainingWork - MinimumResearch(remainingWork));
 
             Res.AutoBalanceWorkers(); // rest goes to research
         }
@@ -78,12 +85,36 @@ namespace Ship_Game
         // Work for Anything that is not a Core World or Trade Hub is dealt here
         void AssignOtherWorldsWorkers(float percentFood, float percentProd)
         {
-            Food.Percent = FarmToPercentage(percentFood);
-            Prod.Percent = Math.Min(1 - Food.Percent, WorkToPercentage(percentProd));
+            Food.Percent        = FarmToPercentage(percentFood);
+            float remainingWork = 1 - Food.Percent;
+            Prod.Percent        = WorkToPercentage(percentProd).UpperBound(remainingWork);
             if (ConstructionQueue.Count > 0)
-                Prod.Percent = Math.Max(Prod.Percent, (1 - Food.Percent) * EvaluateProductionQueue());
+                Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(Prod.Percent);
+            else
+                Prod.Percent = remainingWork - MinimumResearch(remainingWork);
 
             Res.AutoBalanceWorkers(); // rest goes to research
+        }
+
+        float MinimumResearch(float availableWork)
+        {
+            if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero())
+                return 0; // No need to use researchers
+
+            float maximumCut; // Maximum cut the research can take from remaining work
+            switch (colonyType)
+            {
+                default:
+                case ColonyType.Core:         maximumCut = 0.3f;  break;
+                case ColonyType.Research:     maximumCut = 0.75f; break;
+                case ColonyType.Agricultural: maximumCut = 0.2f; break;
+                case ColonyType.Military:
+                case ColonyType.Industrial:   maximumCut = 0.1f; break;
+            }
+
+            float researchRatio = TotalPotentialResearchersYield / Owner.TotalPotentialResearchPerColonist;
+            return researchRatio.UpperBound(maximumCut) * availableWork;
+            
         }
 
         public void ResetFoodAfterInvasionSuccess()
@@ -154,8 +185,13 @@ namespace Ship_Game
         float EvaluateProductionQueue()
         {
             var item = ConstructionQueue.FirstOrDefault();
-            if (item == null)       return 0;
-            if (item.IsPlayerAdded) return 1;
+            if (item == null
+                || item.IsPlayerAdded
+                || Res.YieldPerColonist.AlmostZero())
+            {
+                return 1;
+            }
+
 
             float buildDesire = (Owner.data.DiplomaticPersonality?.Opportunism ?? 1) + Owner.Research.Strategy.MilitaryRatio 
                                                                                      + Owner.Research.Strategy.ExpansionRatio 

@@ -72,6 +72,8 @@ namespace Ship_Game
             e.InitializeFromSave();
             e.Money = sdata.Money;
             e.GetEmpireAI().AreasOfOperations = sdata.AOs;
+            e.GetEmpireAI().ExpansionAI.SetExpandSearchTimer(sdata.ExpandSearchTimer);
+            e.GetEmpireAI().ExpansionAI.SetMaxSystemsToCheckedDiv(sdata.MaxSystemsToCheckedDiv.LowerBound(1));
             e.RestoreUnserializableDataFromSave();
 
             if (e.WeArePirates)
