@@ -314,7 +314,7 @@ namespace Ship_Game
 
 
             float highestScore = 1f; // So a building with a low value of 1 or less will not be built.
-            float totalProd    = Storage.Prod + IncomingProd;
+            float totalProd    = Storage.Prod + IncomingProd + Prod.NetIncome.LowerBound(0);
             
             for (int i = 0; i < buildings.Count; i++)
             {
