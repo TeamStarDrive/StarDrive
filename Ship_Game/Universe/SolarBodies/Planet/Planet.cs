@@ -425,10 +425,9 @@ namespace Ship_Game
             if (Owner == null) 
                 return;
 
-            bool enemyInRange = ParentSystem.HostileForcesPresent(Owner);
+            bool enemyInRange = ParentSystem.DangerousForcesPresent(Owner);
             if (NoSpaceCombatTargetsFoundDelay.Less(2) || enemyInRange)
             {
-
                 bool targetNear = false;
                 NoSpaceCombatTargetsFoundDelay -= elapsedTime;
                 for (int i = 0; i < BuildingList.Count; ++i)
@@ -455,6 +454,8 @@ namespace Ship_Game
             {
                 Ship ship = ParentSystem.ShipList[i];
                 if (ship.Center.InRadius(Center, 15000)
+                    && ship.BaseStrength > 10
+                    && (!ship.IsTethered || ship.GetTether() == this) // orbitals orbiting another nearby planet
                     && Owner.IsEmpireAttackable(ship.loyalty))
                 {
                     return true;

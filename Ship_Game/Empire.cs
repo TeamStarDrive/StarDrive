@@ -193,6 +193,7 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new HashSet<string>();
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
+        public float TotalPotentialResearchPerColonist { get; private set; }
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -1037,6 +1038,7 @@ namespace Ship_Game
 
         public void InitializeFromSave()
         {
+            InitDifficultyModifiers();
             EmpireAI = new EmpireAI(this, fromSave: true);
             for (int key = 1; key < 1; ++key)
             {
@@ -1069,7 +1071,6 @@ namespace Ship_Game
                 ShipsWeCanBuild.Add(ship);
 
             UpdateShipsWeCanBuild();
-            InitDifficultyModifiers();
             CreateThrusterColors();
             UpdateShipsWeCanBuild();
             Research.Update();
@@ -1695,9 +1696,13 @@ namespace Ship_Game
         public void UpdateEmpirePlanets()
         {
             ResetMoneySpentOnProduction();
+            TotalPotentialResearchPerColonist = 0;
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
+                {
+                    TotalPotentialResearchPerColonist += planet.TotalPotentialResearchersYield;
                     planet.UpdateOwnedPlanet();
+                }
         }
 
         public void GovernPlanets()
@@ -2364,7 +2369,8 @@ namespace Ship_Game
 
             if (Money < 0.0 && !isFaction)
             {
-                data.TurnsBelowZero += (short)(1 + -1 * (Money) / 500);
+                float ratio = ((AllSpending - Money) / PotentialIncome.LowerBound(1));
+                data.TurnsBelowZero += (short)(ratio);
             }
             else
             {
@@ -2436,7 +2442,8 @@ namespace Ship_Game
                 }
 
                 RandomEventManager.UpdateEvents();
-                if (data.TurnsBelowZero > 0 && Money < 0.0)
+
+                if ((Money / AllSpending.LowerBound(1)) < 2)
                     Universe.NotificationManager.AddMoneyWarning();
 
                 if (!Universe.NoEliminationVictory)
@@ -3133,7 +3140,7 @@ namespace Ship_Game
                 var furthest = OwnedShips.FindMax(s => s.Position.SqDist(center));
                 radius = furthest.Center.Distance(center);
             }
-            return new AO(center, radius);
+            return new AO(this, center, radius);
         }
 
         public SolarSystem FindFurthestOwnedSystemFrom(Vector2 position)
