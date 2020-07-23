@@ -232,7 +232,7 @@ namespace Ship_Game
             }
 
             UpdateFreighters();
-            if (IncomingFreighters > 0 && P.Owner?.isPlayer == true)
+            if (IncomingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
             {
                 Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
                 Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
@@ -252,7 +252,7 @@ namespace Ship_Game
                 batch.DrawString(Font12, $"{IncomingColoFreighters}", incomingData, Color.White);
             }
 
-            if (OutgoingFreighters > 0 && P.Owner?.isPlayer == true)
+            if (OutgoingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
             {
                 Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
                 Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
