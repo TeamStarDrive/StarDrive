@@ -71,6 +71,8 @@ namespace Ship_Game
                 SimpleBuild(budget); // Let's try to build something within our budget
             else
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
+
+            PrioritizeFoodIfNeeded();
         }
 
         // Fat Bastard - This will create a map with Governor priorities per building trait
@@ -111,8 +113,8 @@ namespace Ship_Game
             float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus*fertilityBonus).LowerBound(0);
             if (IsStarving)
             {
-                perCol += 2 * Fertility;
-                flat   += (2 - Fertility).LowerBound(0);
+                perCol += 3 * Fertility;
+                flat   += (3 - Fertility).LowerBound(0);
             }
 
             perCol += (1 - Storage.FoodRatio) * Fertility;
@@ -370,8 +372,14 @@ namespace Ship_Game
 
         bool SuitableForBuild(Building b, float budget)
         {
-            if (b.IsMilitary || b.IsTerraformer || b.IsBiospheres) 
-                return false; // Different logic for these
+            if (b.IsMilitary
+                || b.IsTerraformer
+                || b.IsBiospheres  // Different logic for the above
+                // If starving and this buildings does not produce food while we have food buildings available for build, filter it
+                || NonCybernetic && IsStarving && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
+            {
+                return false;
+            }
 
             float maintenance = b.ActualMaintenance(this);
             if (maintenance < budget || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
@@ -388,6 +396,7 @@ namespace Ship_Game
                 || b.IsTerraformer
                 || b.IsMilitary
                 || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
+                || IsStarving && b.ProducesFood && NonCybernetic // Dont scrap food buildings when starving
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1) // Dont scrap our last spaceport
             {
                 return false;
@@ -435,10 +444,10 @@ namespace Ship_Game
             {
                  if (score > 0f)
                      Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-10} " +
-                                                 $"{score.SignString()} {"",3} {"Multiplier:",-10} {effectiveness.String(2)}");
+                                                 $"{score.SignString()} {"",3} {"Effectiveness:",-13} {effectiveness.String(2)}");
                  else
                      Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-10} " +
-                                                    $"{score.SignString()} {"", 3} {"Multiplier:",-10} {effectiveness.String(2)}");
+                                                    $"{score.SignString()} {"", 3} {"Effectiveness:",-13} {effectiveness.String(2)}");
             }
 
             return score;
@@ -570,6 +579,32 @@ namespace Ship_Game
                 {
                     Construction.MoveTo(0, i);
                     break;
+                }
+            }
+        }
+
+        void PrioritizeFoodIfNeeded()
+        {
+            if (IsCybernetic || !IsStarving)
+                return;
+
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isBuilding)
+                {
+                    if (q.Building.ProducesFood)
+                    {
+                        Construction.MoveTo(0, i);
+                        break;
+                    }
+
+                    // Cancel ongoing building if there is a food building available for build
+                    if (!q.Building.IsMilitary && BuildingsCanBuild.Any(f => f.ProducesFood))
+                    {
+                        Construction.Cancel(q);
+                        break;
+                    }
                 }
             }
         }
