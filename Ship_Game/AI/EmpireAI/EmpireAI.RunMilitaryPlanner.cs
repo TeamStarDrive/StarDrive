@@ -156,7 +156,7 @@ namespace Ship_Game.AI
         public bool IsClearTaskTargetingAO(SolarSystem system)
         {
             return TaskList.Any(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies
-                                        && task.System == system || task.AO.InRadius(system.Position, task.AORadius));
+                                        && task.TargetSystem == system || task.AO.InRadius(system.Position, task.AORadius));
         }
 
         public MilitaryTask[] GetExpansionTasks()

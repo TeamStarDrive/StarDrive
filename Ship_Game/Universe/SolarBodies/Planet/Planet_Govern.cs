@@ -8,6 +8,8 @@ namespace Ship_Game
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / 3).LowerBound(0.1f);
         float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
+        public float TotalPotentialResearchersYield    => Res.YieldPerColonist * PopulationBillion;
+
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();

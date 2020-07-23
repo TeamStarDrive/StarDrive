@@ -19,7 +19,7 @@ namespace Ship_Game.AI
         }
         public void ManageAOs()
         {
-            bool checkThreatLevel = --ThreatTimer <= 0;
+            
             if (ThreatTimer < 0) ThreatTimer = 2f;
 
             float ownerStr = Owner.CurrentMilitaryStrength;
@@ -34,8 +34,6 @@ namespace Ship_Game.AI
                     areasOfOperation.Dispose();
                     continue;
                 }
-
-                if (checkThreatLevel) areasOfOperation.SetThreatLevel();
             }
             
             Planet[] aoPlanets = GetAOPlanets(out HashSet<SolarSystem> aoSystems);
