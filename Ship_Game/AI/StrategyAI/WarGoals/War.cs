@@ -32,7 +32,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         private Empire Us;
         public string UsName;
         public string ThemName;
-        //public Array<Campaign> Campaigns;
         public bool Initialized;
         readonly WarScore Score;
         public Map<Guid, int> SystemAssaultFailures = new Map<Guid, int>();

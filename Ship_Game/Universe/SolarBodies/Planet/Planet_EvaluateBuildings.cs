@@ -60,8 +60,8 @@ namespace Ship_Game
             else
             {
                 TryBuildTerraformers(budget); // Build Terraformers if needed
-                TryBuildBiospheres(budget); // Build Biospheres if needed
                 BuildOrReplaceBuilding(budget);
+                TryBuildBiospheres(budget); // Build Biospheres if needed
             }
         }
 
@@ -71,6 +71,8 @@ namespace Ship_Game
                 SimpleBuild(budget); // Let's try to build something within our budget
             else
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
+
+            PrioritizeFoodIfNeeded();
         }
 
         // Fat Bastard - This will create a map with Governor priorities per building trait
@@ -103,7 +105,7 @@ namespace Ship_Game
             if (IsCybernetic)
                 return;
 
-            float foodToFeedAll      = FoodConsumptionPerColonist * PopulationBillion;
+            float foodToFeedAll      = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
             float flatFoodToFeedAll  = foodToFeedAll - Food.NetFlatBonus;
             float fertilityBonus     = Fertility > 0 ? 1 / Fertility : 0;
 
@@ -111,8 +113,8 @@ namespace Ship_Game
             float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus*fertilityBonus).LowerBound(0);
             if (IsStarving)
             {
-                perCol += 2 * Fertility;
-                flat   += (2 - Fertility).LowerBound(0);
+                perCol += 3 * Fertility;
+                flat   += (3 - Fertility).LowerBound(0);
             }
 
             perCol += (1 - Storage.FoodRatio) * Fertility;
@@ -122,8 +124,8 @@ namespace Ship_Game
                 perCol += Fertility;
 
 
-            flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 1.5f, 1f);
-            perCol = ApplyGovernorBonus(perCol, 1.25f, 0.25f, 0.25f, 2f, 0.25f);
+            flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f);
+            perCol = ApplyGovernorBonus(perCol, 1.75f, 0.5f, 0.25f, 3f, 0.25f);
             Priorities[ColonyPriority.FoodFlat]   = flat;
             Priorities[ColonyPriority.FoodPerCol] = perCol;
         }
@@ -320,8 +322,7 @@ namespace Ship_Game
                 if (!SuitableForBuild(b, budget))
                     continue;
 
-                float constructionMultiplier = ConstructionMultiplier(b, totalProd);
-                float buildingScore          = EvaluateBuilding(b, constructionMultiplier);
+                float buildingScore = EvaluateBuilding(b, totalProd);
                 if (buildingScore > highestScore)
                 {
                     best         = b;
@@ -353,8 +354,8 @@ namespace Ship_Game
                 if (!SuitableForScrap(b, storageInUse, scrapZeroMaintenance))
                     continue;
 
-                // construction multiplier is 1 since there is no need to build anything, we are checking for scrap
-                float buildingScore = EvaluateBuilding(b, 1);
+                // Using b.Cost since actually we wont use effectiveness (no production needed)
+                float buildingScore = EvaluateBuilding(b, b.Cost, chooseBest: false);
                 if (buildingScore < lowestScore)
                 {
                     worst = b;
@@ -371,8 +372,14 @@ namespace Ship_Game
 
         bool SuitableForBuild(Building b, float budget)
         {
-            if (b.IsMilitary || b.IsTerraformer || b.IsBiospheres) 
-                return false; // Different logic for these
+            if (b.IsMilitary
+                || b.IsTerraformer
+                || b.IsBiospheres  // Different logic for the above
+                // If starving and this buildings does not produce food while we have food buildings available for build, filter it
+                || NonCybernetic && IsStarving && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
+            {
+                return false;
+            }
 
             float maintenance = b.ActualMaintenance(this);
             if (maintenance < budget || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
@@ -389,6 +396,7 @@ namespace Ship_Game
                 || b.IsTerraformer
                 || b.IsMilitary
                 || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
+                || IsStarving && b.ProducesFood && NonCybernetic // Dont scrap food buildings when starving
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1) // Dont scrap our last spaceport
             {
                 return false;
@@ -408,7 +416,7 @@ namespace Ship_Game
         bool IsStorageWasted(float storageInUse, float storageAdded) => Storage.Max - storageAdded < storageInUse;
 
         // Gretman function, to support DoGoverning()
-        float EvaluateBuilding(Building b, float constructionMultiplier)
+        float EvaluateBuilding(Building b, float totalProd, bool chooseBest = true)
         {
             float score = 0;
             score += EvalTraits(Priorities[ColonyPriority.FoodFlat], b.PlusFlatFoodAmount);
@@ -428,16 +436,18 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.InfraStructure], b.Infrastructure * 3);
 
             score *= FertilityMultiplier(b);
-            score *= constructionMultiplier;
 
-             if (IsPlanetExtraDebugTarget())
+            float effectiveness = chooseBest? CostEffectivenessMultiplier(b.Cost, totalProd, score) : 1;
+            score *= effectiveness;
+
+            if (IsPlanetExtraDebugTarget())
             {
                  if (score > 0f)
                      Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-10} " +
-                                                 $"{score.SignString()} {"",3} {"Multiplier:",-10} {constructionMultiplier.String(2)}");
+                                                 $"{score.SignString()} {"",3} {"Effectiveness:",-13} {effectiveness.String(2)}");
                  else
                      Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-10} " +
-                                                    $"{score.SignString()} {"", 3} {"Multiplier:",-10} {constructionMultiplier.String(2)}");
+                                                    $"{score.SignString()} {"", 3} {"Effectiveness:",-13} {effectiveness.String(2)}");
             }
 
             return score;
@@ -463,14 +473,14 @@ namespace Ship_Game
             return 1;
         }
 
-        float ConstructionMultiplier(Building b, float expectedProd)
+        float CostEffectivenessMultiplier(float cost, float expectedProd, float score)
         {
-            if (expectedProd >= b.Cost)
+            if (expectedProd >= cost)
                 return 1;
 
             // This will allow the colony to slowly build more expensive buildings as it grows
-            float missingProd = b.Cost - expectedProd;
-            float multiplier  = EstimatedAverageProduction / missingProd;
+            float neededProd = (cost - expectedProd).LowerBound(1);
+            float multiplier = score / neededProd;
             return multiplier.Clamped(0,1); 
         }
 
@@ -512,7 +522,8 @@ namespace Ship_Game
                 if (Category != Owner.data.PreferredEnv || NonCybernetic && BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
                     num += 2;
 
-                num -= Math.Max(BuildingList.Count(b => b.IsTerraformer), 0);
+                if (num > 0)
+                    num = (num - BuildingList.Count(b => b.IsTerraformer)).LowerBound(0);
                 return num;
             }
         }
@@ -568,6 +579,32 @@ namespace Ship_Game
                 {
                     Construction.MoveTo(0, i);
                     break;
+                }
+            }
+        }
+
+        void PrioritizeFoodIfNeeded()
+        {
+            if (IsCybernetic || !IsStarving)
+                return;
+
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isBuilding)
+                {
+                    if (q.Building.ProducesFood)
+                    {
+                        Construction.MoveTo(0, i);
+                        break;
+                    }
+
+                    // Cancel ongoing building if there is a food building available for build
+                    if (!q.Building.IsMilitary && BuildingsCanBuild.Any(f => f.ProducesFood))
+                    {
+                        Construction.Cancel(q);
+                        break;
+                    }
                 }
             }
         }

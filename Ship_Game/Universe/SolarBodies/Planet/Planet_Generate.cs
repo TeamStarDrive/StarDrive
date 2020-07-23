@@ -336,7 +336,7 @@ namespace Ship_Game
                 if (IsCybernetic)
                     return 0;
 
-                float racialEnvMultiplier = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
+                float racialEnvMultiplier = 1.5f / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1.5f;
                 return racialEnvMultiplier;
             }
         }
