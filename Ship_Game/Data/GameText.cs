@@ -4238,6 +4238,8 @@ namespace Ship_Game
         /// <summary>Clear items Filter</summary>
         ClearBuildableItemsFilter = 1870,
         /// <summary>We Destroyed a pirate base</summary>
-        DestroyedPirateBase = 1871
+        DestroyedPirateBase = 1871,
+        /// <summary>Low MoneyWarning</summary>
+        LowMoneyWarning = 2296
     }
 }

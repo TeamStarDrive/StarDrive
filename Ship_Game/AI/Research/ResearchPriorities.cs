@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI.Research
 {
@@ -28,16 +29,15 @@ namespace Ship_Game.AI.Research
 
             CalcFoodAndIndustry(empire, out FoodNeeds, out Industry);
             Map<string, int> priority = CreatePriorityMap(empire);
-            TechCategoryPrioritized   = CreateTechString(priority);
+            TechCategoryPrioritized   = CreateTechString(priority, availableTechs);
             AddDebugLog(priority);
         }
 
-        string CreateTechString(Map<string, int> priority)
+        string CreateTechString(Map<string, int> priority, Array<TechEntry> availableTechs)
         {
             string techCategoryPrioritized = "TECH";
             int maxStrings                 = 7;
             int numStrings                 = 0;
-            bool hullPriority              = false;
             foreach (var pWeighted in priority.OrderByDescending(weight => weight.Value))
             {
                 if (numStrings > maxStrings)
@@ -47,22 +47,20 @@ namespace Ship_Game.AI.Research
                     continue;
 
                 // Filter out ship techs and lower num tech types if ship hull is wanted the most.
-                if (techCategoryPrioritized == "TECH" && pWeighted.Key == "ShipHull")
+                if (techCategoryPrioritized == "TECH"
+                    && pWeighted.Key == "ShipHull"
+                    && availableTechs.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType(pWeighted.Key)))
+                    && GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseResearchableShipTechs)
                 {
-                    hullPriority = true;
                     maxStrings = 1;
                 }
 
                 if (pWeighted.Key == "SHIPTECH")
                 {
-                    if (hullPriority) 
-                        continue;
-
-                    techCategoryPrioritized += ":";
-                    techCategoryPrioritized += GetShipTechString();
+                    techCategoryPrioritized += GetShipTechString(availableTechs);
                     numStrings += 3;
                 }
-                else
+                else if (availableTechs.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType(pWeighted.Key))))
                 {
                     techCategoryPrioritized += ":";
                     techCategoryPrioritized += pWeighted.Key;
@@ -219,15 +217,24 @@ namespace Ship_Game.AI.Research
             return (needs * p.Level / 2).LowerBound(0);
         }
 
-        string GetShipTechString()
+        string GetShipTechString(Array<TechEntry> availableTech)
         {
             string shipTechToAdd = "";
-            int shipTechs = RandomMath.RollDie(3);
-            switch (shipTechs)
+            Array<string> shipTech = new Array<string>();
+            if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipWeapons"))))
+                shipTech.Add("ShipWeapons");
+
+            if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipDefense"))))
+                shipTech.Add("ShipDefense");
+
+            if (availableTech.Any(t => t.IsTechnologyType(ChooseTech.ConvertTechStringTechType("ShipGeneral"))))
+                shipTech.Add("ShipGeneral");
+
+            while (shipTech.Count > 0)
             {
-                case 1: shipTechToAdd = "ShipDefense:ShipWeapons:ShipGeneral"; break;
-                case 2: shipTechToAdd = "ShipWeapons:ShipGeneral:ShipDefense"; break;
-                case 3: shipTechToAdd = "ShipGeneral:ShipDefense:ShipWeapons"; break;
+                string techToAdd = shipTech.RandItem();
+                shipTechToAdd   += $":{techToAdd}";
+                shipTech.Remove(techToAdd);
             }
 
             return shipTechToAdd;

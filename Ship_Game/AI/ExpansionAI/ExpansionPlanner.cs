@@ -14,6 +14,8 @@ namespace Ship_Game.AI.ExpansionAI
         private readonly Array<SolarSystem> MarkedForExploration = new Array<SolarSystem>();
         private Array<Goal> Goals => Owner.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
+        public int ExpandSearchTimer { get; private set; }
+        public int MaxSystemsToCheckedDiv { get; private set; }
 
         public Planet[] DesiredPlanets => RankedPlanets?.FilterSelect(r=> r.Planet?.Owner != Owner,
                                                                       r => r.Planet) ?? Empty<Planet>.Array;
@@ -50,12 +52,14 @@ namespace Ship_Game.AI.ExpansionAI
         }
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
-        bool  IsExpansionists    => Owner.data.EconomicPersonality.Name == "Expansionists";
-        float ExpansionThreshold => (IsExpansionists ? 0.3f : 0.4f) + Owner.DifficultyModifiers.ExpansionModifier;
+        bool  IsExpansionists    => Owner.data.EconomicPersonality?.Name == "Expansionists";
+        float ExpansionThreshold => (IsExpansionists ? 0.35f : 0.45f) + Owner.DifficultyModifiers.ExpansionModifier;
 
         public ExpansionPlanner(Empire empire)
         {
-            Owner = empire;
+            Owner                  = empire;
+            SetMaxSystemsToCheckedDiv(IsExpansionists ? 4 : 6);
+            ResetExpandSearchTimer();
         }
 
         /// <summary>
@@ -92,8 +96,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
-            int maxCheckedDiv     = IsExpansionists ? 4 : 6;
-            int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / maxCheckedDiv).LowerBound(3);
+            int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / MaxSystemsToCheckedDiv).LowerBound(3);
             Vector2 empireCenter  = Owner.GetWeightedCenter();
 
             Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(ownedSystems);
@@ -105,9 +108,19 @@ namespace Ship_Game.AI.ExpansionAI
             }
 
             // Rank all known planets near the empire
-            if (!GatherAllPlanetRanks(potentialPlanets, currentColonizationGoals, empireCenter, out Array <PlanetRanker> allPlanetsRanker))
-                return;
+            if (!GatherAllPlanetRanks(potentialPlanets, currentColonizationGoals, empireCenter, out Array<PlanetRanker> allPlanetsRanker))
+            {
+                // Nothing found in current search area
+                if (--ExpandSearchTimer <= 0 && MaxSystemsToCheckedDiv > 1) // increase search area if timer is done
+                {
+                    ResetExpandSearchTimer();
+                    MaxSystemsToCheckedDiv = (MaxSystemsToCheckedDiv - 1).LowerBound(1);
+                }
 
+                return;
+            }
+
+            ResetExpandSearchTimer();
             RankedPlanets = allPlanetsRanker.SortedDescending(pr => pr.Value);
 
             // Take action on the found planets
@@ -177,7 +190,6 @@ namespace Ship_Game.AI.ExpansionAI
             if (planetList.Count == 0)
                 return false;
 
-            bool canColonizeBarren = Owner.IsBuildingUnlocked(Building.BiospheresId);
             float longestDistance  = planetList.Last().Center.Distance(empireCenter);
         
             for (int i = 0; i < planetList.Count; i++)
@@ -186,7 +198,7 @@ namespace Ship_Game.AI.ExpansionAI
                 // The planet ranker does the ranking
                 if (!markedPlanets.Contains(p)) // Don't include planets we are already trying to colonize
                 {
-                    var pr = new PlanetRanker(Owner, p, canColonizeBarren, longestDistance, empireCenter);
+                    var pr = new PlanetRanker(Owner, p, longestDistance, empireCenter);
                     if (pr.CanColonize)
                         planetRanker.Add(pr);
                 }
@@ -239,6 +251,21 @@ namespace Ship_Game.AI.ExpansionAI
         public void RemoveExplorationTargetFromList(SolarSystem system)
         {
             MarkedForExploration.Remove(system);
+        }
+
+        public void SetExpandSearchTimer(int value)
+        {
+            ExpandSearchTimer = value;
+        }
+
+        public void SetMaxSystemsToCheckedDiv(int value)
+        {
+            MaxSystemsToCheckedDiv = value;
+        }
+
+        public void ResetExpandSearchTimer()
+        {
+            SetExpandSearchTimer(Owner.DifficultyModifiers.ExpandSearchTurns);
         }
     }
 }
