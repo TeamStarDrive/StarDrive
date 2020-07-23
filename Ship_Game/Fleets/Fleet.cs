@@ -800,6 +800,7 @@ namespace Ship_Game.Fleets
         {
             if (task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.GetRelations(Owner).AtWar == false) {task.EndTask(); return;}
             if (task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1)          {task.EndTask(); return;}
+            if (!Ships.Any(s=> s.Bomb60SecStatus() != Status.NotApplicable))                                {task.EndTask(); return;}
             
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
@@ -843,26 +844,20 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    FleetTaskGatherAtRally(task);
-                    TaskStep = 1;
+                    CombatMoveToAO(task, distanceFromAO: 10000f);
+                    TaskStep++;
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely())
-                        break;
-                    GatherAtAO(task, distanceFromAO: 10000f);
-                    TaskStep = 2;
-                    break;
-                case 2:
                     if (!ArrivedAtCombatRally(FinalPosition))
                         break;
-                    TaskStep = 3;
+                    TaskStep++;
                     break;
-                case 3:
+                case 2:
                     AttackEnemyStrengthClumpsInAO(task);
                     TaskStep++;
                     break;
                 default:
-                    if (TaskStep++ > 10) TaskStep = 3;
+                    if (TaskStep++ > 10) TaskStep = 2;
                     break;
             }
         }
@@ -949,6 +944,8 @@ namespace Ship_Game.Fleets
         {
             FleetMoveToPosition(task.AO, distanceFromAO, false);
         }
+
+        void CombatMoveToAO(MilitaryTask task, float distanceFromAO) => FleetMoveToPosition(task.AO, distanceFromAO, true);
 
         void FleetMoveToPosition(Vector2 position, float offsetToAO, bool combatMove)
         {
