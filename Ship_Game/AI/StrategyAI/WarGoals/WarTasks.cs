@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 
@@ -51,11 +52,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             foreach (var planet in system.PlanetList.SortedDescending(p => p.ColonyBaseValue(Owner)))
             {
-                if (planet.Owner == Target)
+                if (planet.Owner == Target && planet.Owner != Owner)
                 {
                     while (!IsAlreadyAssaultingPlanet(planet, fleetsPerTarget))
                     {
                         CreateTask(new MilitaryTask(planet, Owner){Priority = priority});
+
+                        if (Owner.canBuildBombers)
+                        {
+                            var task = new MilitaryTask(planet, Owner) { Priority = priority, type = MilitaryTask.TaskType.GlassPlanet };
+                            CreateTask(task);
+                        }
                     }
                 }
             }

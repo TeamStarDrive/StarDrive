@@ -180,28 +180,30 @@ namespace Ship_Game.AI
         // and then pings around that ship to create a cluster of enemies
         public Array<Ship> PingRadarClosestEnemyCluster(Vector2 position, float radius, float granularity, Empire empire)
         {
-            Array<Ship> pings = PingRadarShip(position, radius, empire);
+            Array<Pin> pings = GetEnemyPinsInRadius(position, radius, empire);
             if (pings.IsEmpty)
-                return pings;
+                return new Array<Ship>();
 
-            Ship closest = pings.FindMin(ship => ship.Position.SqDist(position));
-            return PingRadarShip(closest.Center, granularity, empire);
+            Pin closest = pings.FindMin(ship => ship.Position.SqDist(position));
+            return PingRadarShip(closest.Position, granularity, empire);
         }
 
+        public Map<Vector2, float> PingRadarStrengthClusters(AO ao, float granularity, Empire empire) => PingRadarStrengthClusters(ao.Center, ao.Radius, granularity, empire);
         public Map<Vector2, float> PingRadarStrengthClusters(Vector2 position, float radius, float granularity, Empire empire)
         {
             var retList       = new Map<Vector2, float>();
-            Array<Ship> pings = PingRadarShip(position, radius, empire);
+            Array<Pin> pings = GetEnemyPinsInRadius(position, radius, empire);
             var filter        = new HashSet<Ship>();
 
             for (int i = 0; i < pings.Count; i++)
             {
-                Ship ship = pings[i];
+                var ping = pings[i];
+                Ship ship = ping.Ship;
                 if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
                     continue;
 
-                Array<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
-                if (cluster.Count != 0)
+                Array<Ship> cluster = PingRadarShip(ping.Position, granularity, empire);
+                if (cluster.NotEmpty)
                 {
                     retList.Add(ship.Center, cluster.Sum(str => str.GetStrength()));
                     filter.UnionWith(cluster);
@@ -242,16 +244,17 @@ namespace Ship_Game.AI
         public float PingRadarStrengthLargestCluster(Vector2 position, float radius, Empire empire, float granularity = 50000f)
         {
             var filter = new HashSet<Ship>();
-            Array<Ship> pings = PingRadarShip(position, radius, empire);
+            Array<Pin> pings = GetEnemyPinsInRadius(position, radius, empire);
             float largestCluster = 0;
 
             for (int i = 0; i < pings.Count; i++)
             {
-                Ship ship = pings[i];
+                var pin = pings[i];
+                Ship ship = pin.Ship;
                 if (ship == null || ship.IsGuardian || filter.Contains(ship))
                     continue;
 
-                Array<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
+                Array<Ship> cluster = PingRadarShip(pin.Position, granularity, empire);
                 if (cluster.Count != 0)
                 {
                     float clusterStrength = cluster.Sum(str => str.GetStrength());
@@ -286,6 +289,7 @@ namespace Ship_Game.AI
 
         public float PingHostileStr(Vector2 position, float radius, Empire us)
             => PingRadarStr(position, radius, us, netStrength: false, true);
+        public float PingHostileStr(AO ao, Empire us) => PingRadarStr(ao.Center, ao.Radius, us, netStrength: false, true);
         public float PingNetHostileStr(Vector2 position, float radius, Empire us)
             => PingRadarStr(position, radius, us, netStrength: true, true);
 
@@ -316,7 +320,9 @@ namespace Ship_Game.AI
             return str;
         }
 
-        public Array<Pin> GetEnemyPinsInAO(AO ao, Empire us)
+
+        public Array<Pin> GetEnemyPinsInAO(AO ao, Empire us) => GetEnemyPinsInRadius(ao.Center, ao.Radius, us);
+        public Array<Pin> GetEnemyPinsInRadius(Vector2 position, float radius, Empire us)
         {
             var pins = new Array<Pin>();
             {
@@ -324,7 +330,7 @@ namespace Ship_Game.AI
                 for (int i = 0; i < pins1.Length; i++)
                 {
                     Pin pin = pins1[i];
-                    if (!pin.Position.InRadius(ao)) continue;
+                    if (!pin.Position.InRadius(position, radius)) continue;
                     Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
                     {
                         if (us.IsEmpireHostile(pinEmpire))
