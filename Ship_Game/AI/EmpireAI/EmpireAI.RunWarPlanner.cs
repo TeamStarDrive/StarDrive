@@ -286,13 +286,18 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
                 return;
             WarState worstWar = WarState.NotApplicable;
-            bool atWar = false;
+            bool preparingForWar = false;
             foreach(var kv in OwnerEmpire.AllRelations)
             {
-                if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
+                if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer)
+                    continue;
+
                 Relationship rel = kv.Value;
-                if (rel.ActiveWar == null) continue;
-                atWar = true;
+                preparingForWar |= rel.PreparingForWar;
+                if (rel.ActiveWar == null) 
+                    continue;
+
+
                 var currentWar = rel.ActiveWar.ConductWar();
                 worstWar = worstWar > currentWar ? currentWar : worstWar;
             }
