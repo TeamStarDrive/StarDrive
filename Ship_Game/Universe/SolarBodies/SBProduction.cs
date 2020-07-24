@@ -48,6 +48,8 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
 
             float amount = maxAmount.UpperBound(ProductionHere);
+            if (amount > Owner.Money)
+                return false; // Not enough credits to rush
 
             // inject artificial surplus to instantly rush & finish production
             if (Empire.Universe.Debug)

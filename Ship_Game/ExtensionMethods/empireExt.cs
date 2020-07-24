@@ -9,10 +9,10 @@ namespace Ship_Game
         /// <summary>
         /// Empire extension for getting available troops ships
         /// </summary>
-        public static Array<Ship> GetAvailableTroopShips(this Empire empire)
+        public static Array<Ship> GetAvailableTroopShips(this Empire empire, out int troopsInFleets)
         {
-            var ships = new Array<Ship>();
-
+            var ships      = new Array<Ship>();
+            troopsInFleets = 0;
             BatchRemovalCollection<Ship> collection = empire.GetShips();
             for (int x = 0; x < collection.Count; x++)
             {
@@ -20,7 +20,6 @@ namespace Ship_Game
                 if (!ship.Active
                     || ship.shipData.Role != ShipData.RoleName.troop
                     || !ship.IsDefaultTroopTransport
-                    || ship.fleet != null
                     || ship.Mothership != null
                     || ship.AI.State == AIState.Scrap
                     || ship.AI.State == AIState.RebaseToShip
@@ -28,7 +27,11 @@ namespace Ship_Game
                 {
                     continue;
                 }
-                ships.Add(ship);
+
+                if (ship.fleet != null)
+                    troopsInFleets += ship.GetOurTroops().Count;
+                else
+                    ships.Add(ship);
             }
 
             return ships;

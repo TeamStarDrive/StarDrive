@@ -73,6 +73,7 @@ namespace Ship_Game
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
 
             PrioritizeFoodIfNeeded();
+            PrioritiesProductionIfNeeded();
         }
 
         // Fat Bastard - This will create a map with Governor priorities per building trait
@@ -110,10 +111,10 @@ namespace Ship_Game
             float fertilityBonus     = Fertility > 0 ? 1 / Fertility : 0;
 
             float flat   = (flatFoodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
-            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus*fertilityBonus).LowerBound(0);
+            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
             if (IsStarving)
             {
-                perCol += 3 * Fertility;
+                perCol += 3 + Fertility;
                 flat   += (3 - Fertility).LowerBound(0);
             }
 
@@ -314,7 +315,7 @@ namespace Ship_Game
 
 
             float highestScore = 1f; // So a building with a low value of 1 or less will not be built.
-            float totalProd    = Storage.Prod + IncomingProd;
+            float totalProd    = Storage.Prod + IncomingProd + Prod.NetIncome.LowerBound(0);
             
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -437,7 +438,10 @@ namespace Ship_Game
 
             score *= FertilityMultiplier(b);
 
-            float effectiveness = chooseBest? CostEffectivenessMultiplier(b.Cost, totalProd, score) : 1;
+            float effectiveness = chooseBest? CostEffectivenessMultiplier(b.Cost, totalProd) : 1;
+            if (b.IsMoneyBuilding)
+                effectiveness *= 1.2f;
+
             score *= effectiveness;
 
             if (IsPlanetExtraDebugTarget())
@@ -473,20 +477,19 @@ namespace Ship_Game
             return 1;
         }
 
-        float CostEffectivenessMultiplier(float cost, float expectedProd, float score)
+        float CostEffectivenessMultiplier(float cost, float expectedProd)
         {
             if (expectedProd >= cost)
                 return 1;
 
             // This will allow the colony to slowly build more expensive buildings as it grows
-            float neededProd = (cost - expectedProd).LowerBound(1);
-            float multiplier = score / neededProd;
+            float multiplier = expectedProd / cost.LowerBound(1);
             return multiplier.Clamped(0,1); 
         }
 
         void TryBuildTerraformers(float budget)
         {
-            if (NumWantedTerraformers <= 0 || TerraformerInTheWorks)
+            if (IsStarving || NumWantedTerraformers <= 0 || TerraformerInTheWorks)
                 return;
 
             Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
@@ -532,6 +535,7 @@ namespace Ship_Game
         {
             if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
                 || CivilianBuildingInTheWorks
+                || IsStarving
                 || HabitablePercentage.AlmostEqual(1)) // all tiles are habitable
             {
                 return false;
@@ -596,6 +600,7 @@ namespace Ship_Game
                     if (q.Building.ProducesFood)
                     {
                         Construction.MoveTo(0, i);
+                        Construction.RushProduction(0, 10, true);
                         break;
                     }
 
@@ -605,6 +610,23 @@ namespace Ship_Game
                         Construction.Cancel(q);
                         break;
                     }
+                }
+            }
+        }
+
+        void PrioritiesProductionIfNeeded()
+        {
+            if (Prod.NetIncome > 1)
+                return;
+
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isBuilding && q.Building.ProducesProduction)
+                {
+                    Construction.MoveTo(0, i);
+                    Construction.RushProduction(0, 10, true);
+                    break;
                 }
             }
         }
