@@ -166,8 +166,16 @@ namespace Ship_Game.AI
             if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter())).First();
-                OwnerEmpire.GetRelations(closest).PreparingForWar     = true;
-                OwnerEmpire.GetRelations(closest).PreparingForWarType = WarType.ImperialistWar;
+                Relationship usToThem = OwnerEmpire.GetRelations(closest);
+                if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
+                {
+                    usToThem.ActiveWar.WarTheaters.AddCaptureAll();
+                    return;
+                }
+
+                usToThem.PreparingForWar     = true;
+                usToThem.PreparingForWarType = WarType.ImperialistWar;
+
             }
         }
 
@@ -175,9 +183,16 @@ namespace Ship_Game.AI
         {
             if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 2 < OwnerEmpire.CurrentMilitaryStrength)
             {
-                Empire weakest = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
-                OwnerEmpire.GetRelations(weakest).PreparingForWar     = true;
-                OwnerEmpire.GetRelations(weakest).PreparingForWarType = WarType.ImperialistWar;
+                Empire weakest       = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
+                Relationship usToThem = OwnerEmpire.GetRelations(weakest);
+                if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
+                {
+                    usToThem.ActiveWar.WarTheaters.AddCaptureAll();
+                    return;
+                }
+
+                usToThem.PreparingForWar     = true;
+                usToThem.PreparingForWarType = WarType.ImperialistWar;
             }
         }
 
