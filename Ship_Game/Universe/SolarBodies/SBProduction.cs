@@ -84,7 +84,8 @@ namespace Ship_Game.Universe.SolarBodies
 
             float netSpend     = spendMax - spend;
             q.ProductionSpent += netSpend; // apply it
-            Owner.ChargeCreditsOnProduction(q, netSpend);
+            if (!Empire.Universe.Debug)
+                Owner.ChargeCreditsOnProduction(q, netSpend);
 
             // if we spent everything, this QueueItem is complete
             return spend <= 0f;
