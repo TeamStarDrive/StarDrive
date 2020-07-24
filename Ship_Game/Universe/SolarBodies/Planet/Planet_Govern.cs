@@ -106,6 +106,7 @@ namespace Ship_Game
         public float LimitedProductionExpenditure()
         {
             float prodToSpend;
+            bool empireCanExport = Owner.TotalProdExportSlots - FreeProdExportSlots > Level.LowerBound(3);
             if (colonyType == ColonyType.Colony)
             {
                 switch (PS)
@@ -132,24 +133,38 @@ namespace Ship_Game
                 switch (PS)
                 {
                     default: // Importing
+                        if (!empireCanExport)
+                        {
+                            prodToSpend = Prod.NetIncome * 0.5f; ; 
+                            break;
+                        }
                         if (IncomingProdFreighters > 0)
                             prodToSpend = ProdHere + Prod.NetIncome; // We have incoming prod, so we can spend more now
                         else
-                            prodToSpend = (ProdHere + Prod.NetIncome) * 0.5f; // Spend less since nothing is coming
+                            prodToSpend = Prod.NetIncome + Storage.ProdRatio*2; // Spend less since nothing is coming
                         break;
                     case GoodState.STORE:
-                        prodToSpend = ProdHere * 0.5f; // Spend some of our store since we are storing for building stuff
+                        if (empireCanExport)
+                        {
+                            prodToSpend = Prod.NetIncome + 1; ; // Our empire has open export slots, so we can allow storage to dwindle
+                            break;
+                        }
+                        if (Storage.ProdRatio.AlmostEqual(1))
+                            prodToSpend = Prod.NetIncome; // Spend all our Income since storage is full
+                        else
+                            prodToSpend = Prod.NetIncome * 0.5f; // Store 50% of our prod income
                         break;
                     case GoodState.EXPORT:
-                        if (OutgoingProdFreighters > 0 && ConstructionQueue.Count < 6)
+                        if (empireCanExport)
                         {
-                            if (Storage.ProdRatio > 0.8f)
-                                prodToSpend = Prod.NetIncome + Storage.Prod * 0.1f; // We are actively exporting but can afford some storage spending
-                            else
-                                prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
+                            prodToSpend = ProdHere; // Our empire has open export slots, so we can allow storage to dwindle
+                            break;
                         }
+
+                        if (Storage.ProdRatio > 0.8f)
+                            prodToSpend = Prod.NetIncome + Storage.Prod * 0.1f; // We are actively exporting but can afford some storage spending
                         else
-                            prodToSpend = ProdHere; // We are exporting but there is no demand or we are building many things, so let's spend it ourselves
+                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
                         break;
                 }
             }

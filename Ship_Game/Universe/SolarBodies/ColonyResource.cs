@@ -92,12 +92,12 @@ namespace Ship_Game.Universe.SolarBodies
             return minWorkers.NaNChecked(0f, "WorkersNeededForEquilibrium").Clamped(0.0f, 0.9f);
         }
 
-        public float EstPercentForNetIncome(float targetNetIncome)
+        public float EstPercentForNetIncome(float targetNetIncome, bool cybernetic = false)
         {
             // give negative flat bonus to shift the equilibrium point
             // towards targetNetIncome
             float flat = (-targetNetIncome) / (1f - Tax);
-            return WorkersNeededForEquilibrium(flat);
+            return WorkersNeededForEquilibrium(flat, cybernetic ? -1 : 0);
         }
 
 
@@ -155,7 +155,7 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
 
-            YieldPerColonist = Planet.Fertility * (1 + plusPerColonist);
+            YieldPerColonist = Planet.Fertility + plusPerColonist;
             Tax = 0f;
             // If we use tax effects with Food resource,
             // we need a base yield offset for balance
@@ -186,14 +186,14 @@ namespace Ship_Game.Universe.SolarBodies
             foreach (Building b in Planet.BuildingList)
             {
                 plusPerColonist += b.PlusProdPerColonist;
-                FlatBonus += b.PlusProdPerRichness * richness;
-                FlatBonus += b.PlusFlatProductionAmount;
+                FlatBonus       += b.PlusProdPerRichness * richness;
+                FlatBonus       += b.PlusFlatProductionAmount;
             }
             float productMod = Planet.Owner.data.Traits.ProductionMod;
-            YieldPerColonist = richness * (1+ plusPerColonist) * (1 + productMod);
+            YieldPerColonist = (richness + plusPerColonist) * (1 + productMod);
 
             // Cybernetics consume production and will starve at 100% tax, so ease up on them
-            Tax = Planet.NonCybernetic ? Planet.Owner.data.TaxRate : Planet.Owner.data.TaxRate  * 0.75f;
+            Tax = Planet.NonCybernetic ? Planet.Owner.data.TaxRate : Planet.Owner.data.TaxRate  * 0.5f;
         }
 
         protected override float AvgResourceConsumption()
