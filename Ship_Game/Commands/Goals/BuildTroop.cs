@@ -28,10 +28,16 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
+            if (empire.GetEmpireAI().DefensiveCoordinator.TroopsToTroopsWantedRatio > 1)
+                return GoalStep.GoalFailed;
+
             // find a planet
             Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
             if (empire.FindPlanetToBuildAt(empire.MilitaryOutposts, troopTemplate, out Planet planet))
             {
+                if (planet.ConstructionQueue.Any(q => q.isTroop))
+                    return GoalStep.TryAgain;
+
                 // submit troop into queue
                 planet.Construction.Enqueue(troopTemplate, this);
                 PlanetBuildingAt = planet;
