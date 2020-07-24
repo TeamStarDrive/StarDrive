@@ -31,7 +31,7 @@ namespace Ship_Game.AI.ExpansionAI
             bool moralityBlock = IsColonizeBlockedByMorals(Planet.ParentSystem, empire);
 
             // We can colonize if we are not morally blocked and any planet better than 10
-            CanColonize =  !moralityBlock && (rawValue > 10);
+            CanColonize =  !moralityBlock && (rawValue > 20 || empire.IsCybernetic && planet.MineralRichness > 0.9);
         }
 
         private bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
