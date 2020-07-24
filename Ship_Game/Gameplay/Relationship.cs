@@ -616,13 +616,11 @@ namespace Ship_Game.Gameplay
             if (Treaty_Alliance || Treaty_OpenBorders) 
                 return;
 
-            float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
+            float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(us, them);
             if (strShipsInBorders > 0)
             {
-                if (!Treaty_NAPact)
-                    Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strShipsInBorders / (us.MilitaryScore);
-                else
-                    Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strShipsInBorders / (us.MilitaryScore * 2f);
+                int multiplier = Treaty_NAPact ? 1 : 2; // We are less concerned if we have NAP with them
+                Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strShipsInBorders / (us.MilitaryScore * multiplier);
             }
         }
 
@@ -1013,7 +1011,7 @@ namespace Ship_Game.Gameplay
 
             Empire them = Them;
             if (us.Personality == PersonalityType.Aggressive && Threat < -15f)
-                Anger_DiplomaticConflict += 0.1f;
+                Anger_DiplomaticConflict += us.data.DiplomaticPersonality.AngerDissipation + 0.1f;
 
             if (Anger_MilitaryConflict >= 5 && !AtWar && !Treaty_Peace)
             {
@@ -1034,7 +1032,7 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetRuthless(Empire us, Empire them)
         {
-            if (ActiveWar != null)
+            if (ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar)
                 return false;
 
             if (Threat > 0f || TurnsKnown < SecondDemand)
@@ -1052,7 +1050,7 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetAggressive(Empire us, Empire them)
         {
-            if (ActiveWar != null)
+            if (ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar)
                 return false;
 
             if (Threat < -40f && TurnsKnown > SecondDemand && !Treaty_Alliance)
@@ -1131,7 +1129,7 @@ namespace Ship_Game.Gameplay
                     break;
             }
 
-            if (!AtWar && TheyArePotentialTargetRuthless(us, them))
+            if (TheyArePotentialTargetRuthless(us, them))
                 theyArePotentialTargets = true;
         }
 
