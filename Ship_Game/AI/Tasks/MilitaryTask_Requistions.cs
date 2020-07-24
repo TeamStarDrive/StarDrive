@@ -331,17 +331,19 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {type}");
 
-            if (TargetPlanet.Owner == null || TargetPlanet.Owner == Owner ||
+            if (!Owner.canBuildBombers || TargetPlanet.Owner == null || TargetPlanet.Owner == Owner ||
                 Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
             {
                 EndTask();
                 return;
             }
+
             EnemyStrength = TargetPlanet.ParentSystem.ShipList.Sum(s => s.loyalty == TargetPlanet.Owner ? s.BaseStrength : 0);
             AO = TargetPlanet.Center;
-            InitFleetRequirements(minFleetStrength: 1000, minTroopStrength: 0, minBombMinutes: 2);
+            int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 10).LowerBound(3) + (int)Math.Ceiling(TargetPlanet.PopulationBillion);
+            InitFleetRequirements(minFleetStrength: 100 * bombTimeNeeded, minTroopStrength: 0, minBombMinutes: bombTimeNeeded);
 
-            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
+            float battleFleetSize = 0.25f;
 
             if (CreateTaskFleet("Doom Fleet", battleFleetSize) == RequisitionStatus.Complete)
             {
@@ -381,22 +383,20 @@ namespace Ship_Game.AI.Tasks
 
             FleetShips fleetShips = Owner.AllFleetsReady(rallyPoint.Center);
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
-
-            // if we cant build bombers then convert bombtime to troops. 
-            // This assume a standard troop strength of 10 
-            if (fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
-                NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).LowerBound(0) * 10;
-
-            if (fleetShips.AccumulatedStrength < EnemyStrength)
+            Array<Troop> troopsOnPlanets = new Array<Troop>();
+            if (NeededTroopStrength > 0)
             {
-                // send a core fleet and wait.
-                SendSofteningFleet(EnemyStrength);
-                return  RequisitionStatus.NotEnoughShipStrength;
-            }
+                // if we cant build bombers then convert bombtime to troops. 
+                // This assume a standard troop strength of 10 
+                if (NeededTroopStrength > 0 && fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
+                    NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).LowerBound(0) * 10;
 
-            // See if we need to gather troops from planets. Bail if not enough
-            if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out Array<Troop> troopsOnPlanets, rallyPoint.Center, highTroopPriority))
-                return RequisitionStatus.NotEnoughTroopStrength;
+                // See if we need to gather troops from planets. Bail if not enough
+                if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out troopsOnPlanets, rallyPoint.Center, highTroopPriority))
+                    return RequisitionStatus.NotEnoughTroopStrength;
+            }
+            else if (TaskBombTimeNeeded > fleetShips.BombSecsAvailable)
+                return RequisitionStatus.NotEnoughBomberStrength;
 
             int wantedNumberOfFleets = 1;
             if (TargetPlanet?.Owner != null)

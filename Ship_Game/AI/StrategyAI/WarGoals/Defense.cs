@@ -17,15 +17,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (Them != Owner)  return SetTargets(SystemsWithThem());
 
             var systems = new Array<SolarSystem>();
-            Array<SolarSystem> AOSystems = OwnerTheater.GetSystems();
-            for (int i = 0; i < AOSystems.Count; i++)
+            Array<SolarSystem> aoSystems = OwnerTheater.GetSystems();
+            if (OwnerTheater.TheaterAO.ThreatLevel > 0)
             {
-                var s = AOSystems[i];
-                foreach (var owner in s.OwnerList)
+                for (int i = 0; i < aoSystems.Count; i++)
                 {
-                    if (Owner.GetRelations(owner)?.AtWar != true) continue;
-                    systems.Add(s);
-                    break;
+                    var s = aoSystems[i];
+                    float str = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(s.Position, 400000, Owner);
+                    systems.AddUniqueRef(s);
                 }
             }
             return SetTargets(systems);
