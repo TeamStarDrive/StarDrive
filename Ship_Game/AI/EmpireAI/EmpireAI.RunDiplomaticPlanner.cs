@@ -151,7 +151,8 @@ namespace Ship_Game.AI
             int enemyStr = 0;
             foreach (KeyValuePair<Empire, Relationship> relationship in OwnerEmpire.AllRelations)
             {
-                if (!relationship.Key.data.Defeated 
+                if (!relationship.Key.isFaction
+                    &&!relationship.Key.data.Defeated 
                     && (relationship.Value.AtWar || relationship.Value.PreparingForWar))
                 {
                     enemyStr += (int)relationship.Key.CurrentMilitaryStrength;
@@ -163,21 +164,34 @@ namespace Ship_Game.AI
 
         void PrepareToAttackClosest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.CurrentMilitaryStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter())).First();
-                OwnerEmpire.GetRelations(closest).PreparingForWar     = true;
-                OwnerEmpire.GetRelations(closest).PreparingForWarType = WarType.ImperialistWar;
+                Relationship usToThem = OwnerEmpire.GetRelations(closest);
+                if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
+                {
+                    usToThem.ActiveWar.WarTheaters.AddCaptureAll();
+                    return;
+                }
+
+                DeclareWarOn(closest, WarType.ImperialistWar);
+
             }
         }
 
         void PrepareToAttackWeakest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 2 < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
             {
-                Empire weakest = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
-                OwnerEmpire.GetRelations(weakest).PreparingForWar     = true;
-                OwnerEmpire.GetRelations(weakest).PreparingForWarType = WarType.ImperialistWar;
+                Empire weakest       = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
+                Relationship usToThem = OwnerEmpire.GetRelations(weakest);
+                if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
+                {
+                    usToThem.ActiveWar.WarTheaters.AddCaptureAll();
+                    return;
+                }
+
+                DeclareWarOn(weakest, WarType.ImperialistWar);
             }
         }
 
