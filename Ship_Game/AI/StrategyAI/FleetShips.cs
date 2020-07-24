@@ -278,13 +278,17 @@ namespace Ship_Game.AI
         public Array<Ship> ExtractShipSet(float minStrength, int bombingSecs,
             int wantedTroopStrength, Array<Troop> planetTroops, int minimumFleetSize)
         {
-            Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, WantedFleetCompletePercentage
-                , minimumFleetSize, out int fleetCount);
+            Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, WantedFleetCompletePercentage, minimumFleetSize, out int fleetCount);
+            
             if (ships.IsEmpty)
                 return new Array<Ship>();
-
-            LaunchTroopsAndAddToShipList(wantedTroopStrength, planetTroops);
-            ships.AddRange(ExtractTroops(wantedTroopStrength));
+            
+            if (wantedTroopStrength > 0)
+            {
+                LaunchTroopsAndAddToShipList(wantedTroopStrength, planetTroops);
+                ships.AddRange(ExtractTroops(wantedTroopStrength));
+            }
+            
             ships.AddRange(ExtractBombers(bombingSecs, fleetCount));
 
             CheckForShipErrors(ships);
