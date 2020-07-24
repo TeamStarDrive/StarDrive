@@ -165,7 +165,7 @@ namespace Ship_Game
         {
             if (labor <= 0f) return;
 
-            float researchNeed = Level < 3 ? 1 : 1 - (0.25f + Owner.Research.Strategy.ResearchRatio) / 2;
+            float researchNeed = Level < 3 ? 1 : 1 - (0.25f + Owner.Research.Strategy.ResearchRatio);
 
             float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
             float workers = Prod.EstPercentForNetIncome(minPerTurn, IsCybernetic) * researchNeed;

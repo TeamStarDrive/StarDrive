@@ -110,10 +110,10 @@ namespace Ship_Game
             float fertilityBonus     = Fertility > 0 ? 1 / Fertility : 0;
 
             float flat   = (flatFoodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
-            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus*fertilityBonus).LowerBound(0);
+            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
             if (IsStarving)
             {
-                perCol += 3 * Fertility;
+                perCol += 3 + Fertility;
                 flat   += (3 - Fertility).LowerBound(0);
             }
 
