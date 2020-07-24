@@ -37,7 +37,7 @@ namespace Ship_Game
         // calculate farmers up to percent
         float FarmToPercentage(float percent) // Production
         {
-            if (percent <= 0f || Food.YieldPerColonist <= 0.5f || IsCybernetic)
+            if (percent <= 0f || Food.YieldPerColonist <= 0.1f || IsCybernetic)
                 return 0; // No farming here, so never mind
 
             float farmers = Food.EstPercentForNetIncome(+1f);
@@ -52,7 +52,7 @@ namespace Ship_Game
             if (percent <= 0f || Prod.YieldPerColonist <= 0.1f) 
                 return 0;
 
-            float workers = Prod.EstPercentForNetIncome(+1f);
+            float workers = Prod.EstPercentForNetIncome(+1f, IsCybernetic);
 
             workers += CalculateMod(percent, Storage.ProdRatio).Clamped(-0.35f, 0.5f);
             return workers.Clamped(0f, 1f);
@@ -66,6 +66,7 @@ namespace Ship_Game
             if (IsCybernetic) // Filthy Opteris
             {
                 AssignCoreWorldProduction(1f);
+                //WorkToPercentage(1);
                 remainingWork = 1;
             }
             else // Strategy for Flesh-bags:
@@ -74,11 +75,13 @@ namespace Ship_Game
                 remainingWork = 1 - Food.Percent;
             }
 
-            if (ConstructionQueue.Count > 0)
-                Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
-            else
-                AssignCoreWorldProduction(remainingWork - MinimumResearch(remainingWork));
-
+            if (NonCybernetic)
+            {
+                if (ConstructionQueue.Count > 0)
+                    Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
+                else
+                    AssignCoreWorldProduction(remainingWork - MinimumResearch(remainingWork));
+            }
             Res.AutoBalanceWorkers(); // rest goes to research
         }
 
@@ -88,17 +91,20 @@ namespace Ship_Game
             Food.Percent        = FarmToPercentage(percentFood);
             float remainingWork = 1 - Food.Percent;
             Prod.Percent        = WorkToPercentage(percentProd).UpperBound(remainingWork);
-            if (ConstructionQueue.Count > 0)
-                Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(Prod.Percent);
-            else
-                Prod.Percent = remainingWork - MinimumResearch(remainingWork);
+            if (NonCybernetic)
+            {
+                if (ConstructionQueue.Count > 0)
+                    Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(Prod.Percent);
+                else
+                    Prod.Percent = remainingWork - MinimumResearch(remainingWork);
+            }
 
             Res.AutoBalanceWorkers(); // rest goes to research
         }
 
         float MinimumResearch(float availableWork)
         {
-            if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero())
+            if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero() || IsCybernetic)
                 return 0; // No need to use researchers
 
             float maximumCut; // Maximum cut the research can take from remaining work
@@ -159,14 +165,14 @@ namespace Ship_Game
         {
             if (labor <= 0f) return;
 
-            float researchNeed = Level < 3 ? 1 : 1 - (0.25f + Owner.Research.Strategy.ResearchRatio) / 2;
+            float researchNeed = Level < 3 ? 1 : 1 - (0.25f + Owner.Research.Strategy.ResearchRatio);
 
             float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
-            float workers = Prod.EstPercentForNetIncome(minPerTurn) * researchNeed;
+            float workers = Prod.EstPercentForNetIncome(minPerTurn, IsCybernetic);
 
-            //workers *= EvaluateProductionQueue();
             workers = workers.Clamped(0.1f, 1.0f);
-            //    workers = 0.75f; // minimum value if construction is going on
+            if (IsCybernetic & ConstructionQueue.Count > 0)
+                 workers *= 1.2f;
 
             Prod.Percent = workers * labor;
         }
@@ -184,6 +190,9 @@ namespace Ship_Game
 
         float EvaluateProductionQueue()
         {
+            if (IsCybernetic)
+                return 1;
+
             var item = ConstructionQueue.FirstOrDefault();
             if (item == null
                 || item.IsPlayerAdded
@@ -251,6 +260,7 @@ namespace Ship_Game
 
             if (workerPercentage <= 0)
                 Log.Error($"Queue Item gave no bonus production. This is likely a bug. item: {item.DisplayName} ");
+
             return workerPercentage.Clamped(0.0f,1.0f);
         }
     }
