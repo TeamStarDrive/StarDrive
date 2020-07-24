@@ -151,7 +151,8 @@ namespace Ship_Game.AI
             int enemyStr = 0;
             foreach (KeyValuePair<Empire, Relationship> relationship in OwnerEmpire.AllRelations)
             {
-                if (!relationship.Key.data.Defeated 
+                if (!relationship.Key.isFaction
+                    &&!relationship.Key.data.Defeated 
                     && (relationship.Value.AtWar || relationship.Value.PreparingForWar))
                 {
                     enemyStr += (int)relationship.Key.CurrentMilitaryStrength;
@@ -163,7 +164,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackClosest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.CurrentMilitaryStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter())).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
@@ -173,15 +174,14 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                usToThem.PreparingForWar     = true;
-                usToThem.PreparingForWarType = WarType.ImperialistWar;
+                DeclareWarOn(closest, WarType.ImperialistWar);
 
             }
         }
 
         void PrepareToAttackWeakest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 2 < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
             {
                 Empire weakest       = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(weakest);
@@ -191,8 +191,7 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                usToThem.PreparingForWar     = true;
-                usToThem.PreparingForWarType = WarType.ImperialistWar;
+                DeclareWarOn(weakest, WarType.ImperialistWar);
             }
         }
 
