@@ -1011,7 +1011,10 @@ namespace Ship_Game.Gameplay
 
             Empire them = Them;
             if (us.Personality == PersonalityType.Aggressive && Threat < -15f)
-                Anger_DiplomaticConflict += us.data.DiplomaticPersonality.AngerDissipation + 0.1f;
+            {
+                float angerMod = -Threat / 15;// every -15 threat will give +0.1 anger
+                Anger_DiplomaticConflict += us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod;
+            }
 
             if (Anger_MilitaryConflict >= 5 && !AtWar && !Treaty_Peace)
             {
