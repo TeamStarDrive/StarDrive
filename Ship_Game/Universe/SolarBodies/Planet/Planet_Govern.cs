@@ -138,18 +138,16 @@ namespace Ship_Game
                             prodToSpend = (ProdHere + Prod.NetIncome) * 0.5f; // Spend less since nothing is coming
                         break;
                     case GoodState.STORE:
-                        prodToSpend = ProdHere * 0.5f; // Spend some of our store since we are storing for building stuff
+                        if (Storage.ProdRatio.AlmostEqual(1))
+                            prodToSpend = Prod.NetIncome; // Spend all our Income since storage is full
+                        else
+                            prodToSpend = Prod.NetIncome * 0.5f; // Store 50% of our prod income
                         break;
                     case GoodState.EXPORT:
-                        if (OutgoingProdFreighters > 0 && ConstructionQueue.Count < 6)
-                        {
-                            if (Storage.ProdRatio > 0.8f)
-                                prodToSpend = Prod.NetIncome + Storage.Prod * 0.1f; // We are actively exporting but can afford some storage spending
-                            else
-                                prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
-                        }
+                        if (Storage.ProdRatio > 0.8f)
+                            prodToSpend = Prod.NetIncome + Storage.Prod * 0.1f; // We are actively exporting but can afford some storage spending
                         else
-                            prodToSpend = ProdHere; // We are exporting but there is no demand or we are building many things, so let's spend it ourselves
+                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // We are actively exporting so save some for storage
                         break;
                 }
             }
