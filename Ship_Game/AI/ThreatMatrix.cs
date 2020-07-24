@@ -72,7 +72,7 @@ namespace Ship_Game.AI
             return Pins.ContainsKey(guid);
         }
         
-        public float StrengthOfAllEmpireShipsInBorders(Empire them)
+        public float StrengthOfAllEmpireShipsInBorders(Empire us, Empire them)
         {
             float str = 0f;
             using (PinsMutex.AcquireReadLock())
@@ -80,8 +80,11 @@ namespace Ship_Game.AI
                 foreach (Pin pin in Pins.Values)
                 {
                     Empire pinEmpire = pin.GetEmpire();
-                    if (pinEmpire == them  && pin.InBorders)   
-                        str += pin.Strength + 1;
+                    if (pinEmpire == them && pin.InBorders)
+                    {
+                        if (pin.Ship != null && (pin.Ship.System?.IsOnlyOwnedBy(us) ?? true))
+                            str += pin.Strength;
+                    }
                 }
             }
             return str;
