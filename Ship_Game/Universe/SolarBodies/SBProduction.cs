@@ -48,6 +48,8 @@ namespace Ship_Game.Universe.SolarBodies
                 return false;
 
             float amount = maxAmount.UpperBound(ProductionHere);
+            if (amount > Owner.Money)
+                return false; // Not enough credits to rush
 
             // inject artificial surplus to instantly rush & finish production
             if (Empire.Universe.Debug)
@@ -82,7 +84,8 @@ namespace Ship_Game.Universe.SolarBodies
 
             float netSpend     = spendMax - spend;
             q.ProductionSpent += netSpend; // apply it
-            Owner.ChargeCreditsOnProduction(q, netSpend);
+            if (!Empire.Universe.Debug)
+                Owner.ChargeCreditsOnProduction(q, netSpend);
 
             // if we spent everything, this QueueItem is complete
             return spend <= 0f;
