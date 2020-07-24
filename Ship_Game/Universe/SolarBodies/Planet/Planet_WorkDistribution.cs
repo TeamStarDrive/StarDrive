@@ -168,11 +168,11 @@ namespace Ship_Game
             float researchNeed = Level < 3 ? 1 : 1 - (0.25f + Owner.Research.Strategy.ResearchRatio);
 
             float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
-            float workers = Prod.EstPercentForNetIncome(minPerTurn, IsCybernetic) * researchNeed;
+            float workers = Prod.EstPercentForNetIncome(minPerTurn, IsCybernetic);
 
             workers = workers.Clamped(0.1f, 1.0f);
             if (IsCybernetic & ConstructionQueue.Count > 0)
-                 workers = workers.LowerBound(0.75f); // minimum value if construction is going on
+                 workers *= 1.2f;
 
             Prod.Percent = workers * labor;
         }

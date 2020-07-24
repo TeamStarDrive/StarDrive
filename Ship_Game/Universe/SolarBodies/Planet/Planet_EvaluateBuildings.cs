@@ -73,6 +73,7 @@ namespace Ship_Game
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
 
             PrioritizeFoodIfNeeded();
+            PrioritiesProductionIfNeeded();
         }
 
         // Fat Bastard - This will create a map with Governor priorities per building trait
@@ -599,6 +600,7 @@ namespace Ship_Game
                     if (q.Building.ProducesFood)
                     {
                         Construction.MoveTo(0, i);
+                        Construction.RushProduction(0, 10, true);
                         break;
                     }
 
@@ -608,6 +610,23 @@ namespace Ship_Game
                         Construction.Cancel(q);
                         break;
                     }
+                }
+            }
+        }
+
+        void PrioritiesProductionIfNeeded()
+        {
+            if (Prod.NetIncome > 1)
+                return;
+
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isBuilding && q.Building.ProducesProduction)
+                {
+                    Construction.MoveTo(0, i);
+                    Construction.RushProduction(0, 10, true);
+                    break;
                 }
             }
         }
