@@ -3,6 +3,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
 using Ship_Game.Ships.AI;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.AI
 {
@@ -442,6 +443,9 @@ namespace Ship_Game.AI
             ResetPriorityOrder(clearOrders);
             HadPO = clearOrders;
             ClearWayPoints();
+
+            //if (!Owner.loyalty.isPlayer) // TODO check with crunchy
+            //    Owner.fleet?.RemoveShip(Owner); // Avoid lingering fleets for the AI
 
             Target       = null;
             OrbitTarget  = toOrbit;
