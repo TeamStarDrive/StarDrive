@@ -16,19 +16,19 @@ namespace Ship_Game
                 if (Rect.HitTest(input.CursorPosition)) //fbedard: add tooltip for CategoryList
                 {
                     string tooltip = new[]{
-                        "Repair when structural integrity is 40% or less",
+                        "Repair when structural integrity is 70% or less",
 
                         "Can be used as Freighter. Evade when enemies are near. " +
-                        "Repair when structural integrity is 85% or less" ,
+                        "Repair when structural integrity is 95% or less" ,
 
                         "Can be used as Scout +" +
-                        "Repair when structural integrity is 65% or less" ,
+                        "Repair when structural integrity is 85% or less" ,
 
-                        "Repair when structural integrity is 50% or less" ,
+                        "Repair when structural integrity is 80% or less" ,
 
-                        "Repair when structural integrity is 35% or less. " ,
+                        "Repair when structural integrity is 75% or less. " ,
 
-                        "Repair when structural integrity is 20% or less." ,
+                        "Repair when structural integrity is 50% or less." ,
 
                         "Never Repair! Never Rearm!\n(unless ordered)"
 

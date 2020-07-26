@@ -1700,11 +1700,15 @@ namespace Ship_Game
             ResetMoneySpentOnProduction();
             TotalPotentialResearchPerColonist = 0;
             using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet planet in OwnedPlanets)
+            {
+                TotalProdExportSlots = OwnedPlanets.Sum(p => p.FreeProdExportSlots); // Done before UpdateOwnedPlanet
+                for (int i = 0; i < OwnedPlanets.Count; i++)
                 {
-                    TotalPotentialResearchPerColonist += planet.TotalPotentialResearchersYield;
+                    Planet planet = OwnedPlanets[i];
+                    TotalPotentialResearchPerColonist += planet.TotalPotentialResearchersYield; // Done before DoGoverning
                     planet.UpdateOwnedPlanet();
                 }
+            }
         }
 
         public void GovernPlanets()
