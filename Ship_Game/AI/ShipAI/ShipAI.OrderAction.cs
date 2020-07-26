@@ -447,8 +447,11 @@ namespace Ship_Game.AI
             OrbitTarget  = toOrbit;
             AwaitClosest = toOrbit;
             AddResupplyPlanetGoal(toOrbit);
-            Vector2 escapePos = Owner.Position + Owner.Direction.Normalized() * 30000;
-            OrderResupplyEscape(escapePos, Owner.Direction);
+            if (!Owner.Inhibited)
+            {
+                Vector2 escapePos = Owner.Position + Owner.Direction.Normalized() * 30000;
+                OrderResupplyEscape(escapePos, Owner.Direction);
+            }
         }
 
         public void OrderReturnToHangar()
