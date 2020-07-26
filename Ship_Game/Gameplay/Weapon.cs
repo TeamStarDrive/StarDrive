@@ -812,7 +812,7 @@ namespace Ship_Game.Gameplay
             p.ShieldDamageBonus     += mod.ShieldDamage;
             
             // Shield Penetration TODO
-            float shieldPenChance = Module.GetParent().loyalty.data.ShieldPenBonusChance;
+            float shieldPenChance = Module?.GetParent().loyalty.data.ShieldPenBonusChance ?? 0;
             shieldPenChance      += mod.ShieldPenetration * 100;
             shieldPenChance      += ShieldPenChance;
             actualShieldPenChance = Math.Max(shieldPenChance, actualShieldPenChance);
