@@ -798,17 +798,10 @@ namespace Ship_Game.Fleets
 
         void DoGlassPlanet(MilitaryTask task)
         {
-            if (task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner == null)
-                task.EndTask();
-            else if (task.TargetPlanet.Owner != null & task.TargetPlanet.Owner != Owner && !task.TargetPlanet.Owner.GetRelations(Owner).AtWar)
-            {
-                task.EndTask();
-            }
-            else
-             if (EndInvalidTask(task.TargetPlanet.Owner == Owner || 
-                                         task.TargetPlanet.Owner == null  ||
-                                         !task.TargetPlanet.Owner.GetRelations(Owner).AtWar))
-                return;
+            if (task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.GetRelations(Owner).AtWar == false) {task.EndTask(); return;}
+            if (task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1)          {task.EndTask(); return;}
+            if (!Ships.Any(s=> s.Bomb60SecStatus() != Status.NotApplicable))                                {task.EndTask(); return;}
+            
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
             {
@@ -828,6 +821,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 3;
                     break;
                 case 3:
+                    EngageCombatToPlanet(task.TargetPlanet.Center, true);
                     StartBombing(task);
                     TaskStep = 4;
                     break;
@@ -840,38 +834,30 @@ namespace Ship_Game.Fleets
 
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
-            if (EndInvalidTask(!StillCombatEffective(task)) || task.TargetSystem?.ShipList.Any(s=> (s.loyalty != Owner 
-                                                                                                   &&  Owner.GetRelations(s.loyalty).AtWar)) != true)
+            if (EndInvalidTask(!StillCombatEffective(task)) || Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner) < 1)
             {
                 FleetTask = null;
                 TaskStep = 0;
                 return;
             }
+
             switch (TaskStep)
             {
                 case 0:
-                    FleetTaskGatherAtRally(task);
-                    TaskStep = 1;
+                    CombatMoveToAO(task, distanceFromAO: 10000f);
+                    TaskStep++;
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely())
-                        break;
-                    GatherAtAO(task, distanceFromAO: 10000f);
-                    TaskStep = 2;
-                    break;
-                case 2:
                     if (!ArrivedAtCombatRally(FinalPosition))
                         break;
-                    TaskStep = 3;
+                    TaskStep++;
                     break;
-                case 3:
+                case 2:
                     AttackEnemyStrengthClumpsInAO(task);
-                    TaskStep = 4;
+                    TaskStep++;
                     break;
-                case 4:
-                    if (EndInvalidTask(Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner) < 1))
-                        break;
-                    TaskStep = 3;
+                default:
+                    if (TaskStep++ > 10) TaskStep = 2;
                     break;
             }
         }
@@ -958,6 +944,8 @@ namespace Ship_Game.Fleets
         {
             FleetMoveToPosition(task.AO, distanceFromAO, false);
         }
+
+        void CombatMoveToAO(MilitaryTask task, float distanceFromAO) => FleetMoveToPosition(task.AO, distanceFromAO, true);
 
         void FleetMoveToPosition(Vector2 position, float offsetToAO, bool combatMove)
         {
@@ -1075,10 +1063,10 @@ namespace Ship_Game.Fleets
         {
             var strengthCluster = new ThreatMatrix.StrengthCluster
             {
-                Empire = Owner,
+                Empire      = Owner,
                 Granularity = 5000f,
-                Position = task.AO,
-                Radius = task.AORadius
+                Position    = task.AO,
+                Radius      = task.AORadius
             };
 
             strengthCluster = Owner.GetEmpireAI().ThreatMatrix.FindLargestStrengthClusterLimited(strengthCluster, GetStrength(), AveragePosition());

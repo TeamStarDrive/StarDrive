@@ -179,6 +179,12 @@ namespace Ship_Game.AI
             AddWayPoint(position, finalDir, clearWayPoints, speedLimit: 0f, targetPlanet, wantedState, offensiveMove, false, goal);
         }
 
+        public void OrderResupplyEscape(Vector2 position, Vector2 finalDir)
+        {
+            ShipGoal goal = new ShipGoal(Plan.MoveToWithin1000, position, finalDir, AIState.Resupply, MoveTypes.WayPoint, 0, null);
+            OrderQueue.PushToFront(goal);
+        }
+
         // Adds a WayPoint, optionally clears previous WayPoints
         // Then clears all existing ship orders and generates new move orders from WayPoints
         void AddWayPoint(Vector2 position, Vector2 finalDir, bool clearWayPoints,
@@ -440,8 +446,12 @@ namespace Ship_Game.AI
             Target       = null;
             OrbitTarget  = toOrbit;
             AwaitClosest = toOrbit;
-
             AddResupplyPlanetGoal(toOrbit);
+            if (!Owner.Inhibited)
+            {
+                Vector2 escapePos = Owner.Position + Owner.Direction.Normalized() * 30000;
+                OrderResupplyEscape(escapePos, Owner.Direction);
+            }
         }
 
         public void OrderReturnToHangar()
