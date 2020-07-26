@@ -24,7 +24,7 @@ namespace Ship_Game
                         "Can be used as Scout +" +
                         "Repair when structural integrity is 85% or less" ,
 
-                        "Repair when structural integrity is 90% or less" ,
+                        "Repair when structural integrity is 80% or less" ,
 
                         "Repair when structural integrity is 75% or less. " ,
 
