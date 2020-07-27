@@ -1461,8 +1461,10 @@ namespace Ship_Game.Fleets
                 ship.HyperspaceReturn();
                 return true;
             }
-            else
+            else 
             {
+                if (ship.Active)
+                    Log.Warning($"Ship was not part of this fleet: {this} ---- Ship: {ship} ");
                 Ships.Remove(ship);
             }
 
