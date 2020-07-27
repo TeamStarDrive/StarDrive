@@ -17,7 +17,9 @@ namespace Ship_Game.AI
             [Serialize(2)] public string EmpireName;
             [Serialize(3)] public bool InBorders;
             [Serialize(4)] public int EmpireId = 0;
+            [Serialize(5)] public Guid SystemGuid = Guid.Empty;
             [XmlIgnore][JsonIgnore] public Ship Ship;
+            [XmlIgnore][JsonIgnore] public SolarSystem System;
 
             public Pin(Ship ship, bool inBorders)
             {
@@ -26,6 +28,8 @@ namespace Ship_Game.AI
                 EmpireName = ship.loyalty.data.Traits.Name;
                 InBorders  = inBorders;
                 Ship       = ship;
+                SystemGuid = ship.System?.guid ?? Guid.Empty;
+                System     = ship.System;
             }
 
             public Pin(){}
@@ -47,8 +51,10 @@ namespace Ship_Game.AI
                     EmpireId   = ship.loyalty.Id;
                 }
 
-                InBorders = shipInBorders;
-                Ship      = ship;
+                InBorders  = shipInBorders;
+                Ship       = ship;
+                System     = ship.System;
+                SystemGuid = ship.System?.guid ?? Guid.Empty;
             }
         }
 
