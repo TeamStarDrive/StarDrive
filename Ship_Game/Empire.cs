@@ -860,9 +860,9 @@ namespace Ship_Game
                 if (ship.fleet != null)
                     continue;
                 if (ship.AI.State == AIState.Resupply
-                    && ship.AI.State == AIState.Refit
-                    && ship.AI.State == AIState.Scrap
-                    && ship.AI.State == AIState.Scuttle)
+                    || ship.AI.State == AIState.Refit
+                    || ship.AI.State == AIState.Scrap
+                    || ship.AI.State == AIState.Scuttle)
                     continue;
                 readyShips.Add(ship);
             }
