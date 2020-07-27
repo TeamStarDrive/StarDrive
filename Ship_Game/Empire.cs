@@ -1700,11 +1700,15 @@ namespace Ship_Game
             ResetMoneySpentOnProduction();
             TotalPotentialResearchPerColonist = 0;
             using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet planet in OwnedPlanets)
+            {
+                TotalProdExportSlots = OwnedPlanets.Sum(p => p.FreeProdExportSlots); // Done before UpdateOwnedPlanet
+                for (int i = 0; i < OwnedPlanets.Count; i++)
                 {
-                    TotalPotentialResearchPerColonist += planet.TotalPotentialResearchersYield;
+                    Planet planet = OwnedPlanets[i];
+                    TotalPotentialResearchPerColonist += planet.TotalPotentialResearchersYield; // Done before DoGoverning
                     planet.UpdateOwnedPlanet();
                 }
+            }
         }
 
         public void GovernPlanets()
@@ -2438,7 +2442,12 @@ namespace Ship_Game
                                         Universe.NotificationManager.AddPeacefulMergerNotification(biggest, strongest);
                                     else
                                         Universe.NotificationManager.AddSurrendered(biggest, strongest);
+
                                     biggest.AbsorbEmpire(strongest);
+                                    if (biggest.GetRelations(this).ActiveWar == null)
+                                        biggest.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
+                                    else
+                                        biggest.GetRelations(this).ActiveWar.WarTheaters.AddCaptureAll();
                                 }
                             }
                         }
