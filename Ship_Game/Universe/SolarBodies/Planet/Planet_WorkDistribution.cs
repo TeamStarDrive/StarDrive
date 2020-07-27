@@ -212,8 +212,8 @@ namespace Ship_Game
             float colonyTypeBonus        = 0;
             switch (colonyType)
             {
-                case ColonyType.Industrial: colonyTypeBonus = 0.05f; break;
-                case ColonyType.Military:   colonyTypeBonus = 0.01f; break;
+                case ColonyType.Industrial: colonyTypeBonus = 0.2f; break;
+                case ColonyType.Military:   colonyTypeBonus = 0.05f; break;
             }
 
             float workerPercentage = colonyDevelopmentBonus + colonyTypeBonus;

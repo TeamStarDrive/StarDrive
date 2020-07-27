@@ -487,7 +487,7 @@ namespace Ship_Game
 
         void RareRemnantPresence(float quality, int d100)
         {
-            if (quality > 15f && d100 >= 70)
+            if (quality > 15f && d100 >= 60)
                 AddMajorRemnantShips(); // RedFox, changed the rare remnant to Major
         }
 
@@ -495,24 +495,24 @@ namespace Ship_Game
         {
             if (quality > 18f)
             {
-                if (d100 >= 40) AddMinorRemnantShips();
-                if (d100 >= 60) AddMajorRemnantShips();
-                if (d100 >= 80) AddSupportRemnantShips();
-                if (d100 >= 95) AddTorpedoRemnantShips();
+                if (d100 >= 30) AddMinorRemnantShips();
+                if (d100 >= 50) AddMajorRemnantShips();
+                if (d100 >= 70) AddSupportRemnantShips();
+                if (d100 >= 90) AddTorpedoRemnantShips();
             }
             else if (quality > 15f)
             {
-                if (d100 >= 60) AddMinorRemnantShips();
-                if (d100 >= 70) AddMiniRemnantShips();
-                if (d100 >= 85) AddSupportRemnantShips();
-                if (d100 >= 98) AddMajorRemnantShips();
+                if (d100 >= 50) AddMinorRemnantShips();
+                if (d100 >= 60) AddMiniRemnantShips();
+                if (d100 >= 70) AddSupportRemnantShips();
+                if (d100 >= 85) AddMajorRemnantShips();
             }
             else if (quality > 8f)
             {
-                if (d100 >= 60) AddMiniRemnantShips();
-                if (d100 >= 75) AddMinorRemnantShips();
-                if (d100 >= 90) AddSupportRemnantShips();
-                if (d100 >= 95) AddMinorRemnantShips();
+                if (d100 >= 50) AddMiniRemnantShips();
+                if (d100 >= 60) AddMinorRemnantShips();
+                if (d100 >= 70) AddSupportRemnantShips();
+                if (d100 >= 85) AddMinorRemnantShips();
             }
         }
 
@@ -614,7 +614,10 @@ namespace Ship_Game
             if (RollDice(50))
                 AddMinorRemnantShips();
 
-            if (RollDice(50)) 
+            if (RollDice(50))
+                AddMinorRemnantShips();
+
+            if (RollDice(75)) 
                 AddRemnantGuardians(1, "Ancient Assimilator");
         }
 
