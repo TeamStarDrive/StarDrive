@@ -108,13 +108,10 @@ namespace Ship_Game.AI.Tasks
 
             if (invasionTroopStrength < NeededTroopStrength)
             {
-                troopsOnPlanetNeeded = GetTroopsOnPlanets(rallyPoint, NeededTroopStrength, 
-                                              out float planetsTroopStrength, troopPriorityHigh);
-
-                if (invasionTroopStrength + planetsTroopStrength >= NeededTroopStrength)
-                    return true;
+                troopsOnPlanetNeeded   = GetTroopsOnPlanets(rallyPoint, NeededTroopStrength, out float planetsTroopStrength, troopPriorityHigh);
+                invasionTroopStrength += planetsTroopStrength;
             }
-            return true;
+            return invasionTroopStrength >= NeededTroopStrength;
         }
 
         /// <summary>
@@ -159,33 +156,6 @@ namespace Ship_Game.AI.Tasks
             AO closestAo = aos.FindMinFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted,
                                                ao => ao.Center.SqDist(AO));
             return closestAo?.GetCoreFleet();
-        }
-
-        void SendSofteningFleet(float enemyStrength)
-        {
-            Fleet coreFleet = FindClosestCoreFleet(MinimumTaskForceStrength);
-            if (coreFleet == null || coreFleet.FleetTask != null)
-                return;
-
-            // don't send the fleet if it definitely cannot take the fight
-            if (!coreFleet.CanTakeThisFight(enemyStrength))
-                return;
-
-            var clearArea = new MilitaryTask(coreFleet.Owner)
-            {
-                AO = TargetPlanet.Center,
-                AORadius = 75000f,
-                type = TaskType.ClearAreaOfEnemies,
-                TargetPlanet = TargetPlanet,
-                TargetPlanetGuid = TargetPlanet.guid
-            };
-
-            coreFleet.Owner.GetEmpireAI().AddPendingTask(clearArea);
-            clearArea.WhichFleet = Owner.GetFleetsDict().FindFirstKeyForValue(coreFleet);
-            coreFleet.FleetTask = clearArea;
-            clearArea.IsCoreFleetTask  = true;
-            coreFleet.TaskStep  = 1;
-            clearArea.Step = 1;
         }
 
         void RequisitionCoreFleet()
@@ -381,9 +351,10 @@ namespace Ship_Game.AI.Tasks
                 return RequisitionStatus.NoRallyPoint;
 
 
-            FleetShips fleetShips = Owner.AllFleetsReady(rallyPoint.Center);
+            FleetShips fleetShips                    = Owner.AllFleetsReady(rallyPoint.Center);
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
-            Array<Troop> troopsOnPlanets = new Array<Troop>();
+            var troopsOnPlanets                      = new Array<Troop>();
+
             if (NeededTroopStrength > 0)
             {
                 // if we cant build bombers then convert bombtime to troops. 

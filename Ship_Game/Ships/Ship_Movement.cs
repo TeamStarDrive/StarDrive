@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
@@ -453,6 +454,70 @@ namespace Ship_Game.Ships
 
             if (IsSpooling && !Inhibited && MaxFTLSpeed >= LightSpeedConstant)
                 UpdateWarpSpooling(elapsedTime);
+        }
+
+        public bool GetEscapeVector(out Vector2 escapePos)
+        {
+            escapePos = Position + Direction.Normalized() * 20000; // default vector - straight through
+
+            if (!InCombat) // No need for escape vector if not in combat - turn around
+                return false;
+
+            if (IsInFriendlyProjectorRange || !Empire.Universe.GravityWells)
+                return true; // Wont be inhibited - straight through
+
+            switch (System)
+            {
+                case null when Inhibited: return false; // Ship Inhibitor - turn around
+                case null:                return true;  // Outer space - straight through
+            }
+
+            Array<Planet> potentialWells = new Array<Planet>();
+            foreach (Planet planet in System.PlanetList)
+            {
+                if (Position.InRadius(planet.Center, 20000 + planet.GravityWellRadius))
+                    potentialWells.Add(planet);
+            }
+
+            if (potentialWells.Count == 0)
+                return true; // No wells nearby
+
+            int leastWells = int.MaxValue;
+            int leftOrRight = RandomMath.RollDie(2) == 1 ? 1 : -1;
+            for (int i = 0; i <= 11; i++ )
+            {
+                float rotation = Rotation + i * 0.52356f*leftOrRight; // 30 degrees
+                Vector2 pathToCheck = rotation.RadiansToDirection();
+                if (!WellsInPath(potentialWells, pathToCheck, 2000, out int wellHits))
+                {
+                    escapePos = Position + pathToCheck * 20000;
+                    break; // Found direction with no wells
+                }
+
+                if (wellHits < leastWells)
+                {
+                    leastWells = wellHits;
+                    escapePos = Position +  pathToCheck * 20000; // try to get the path with least well hits
+                }
+            }
+
+            return true;
+        }
+
+        bool WellsInPath(Array<Planet> wells, Vector2 path, int pathResolution, out int wellHits)
+        {
+            wellHits = 0;
+            foreach (Planet planet in wells)
+            {
+                for (int i = 1; i <= 10; i++)
+                {
+                    Vector2 posToCheck = Position + path * i * pathResolution;
+                    if (posToCheck.InRadius(planet.Center, planet.GravityWellRadius))
+                        wellHits += 1;
+                }
+            }
+
+            return wellHits > 0;
         }
     }
 }
