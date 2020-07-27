@@ -46,8 +46,8 @@ namespace Ship_Game.Gameplay
 
         [Serialize(10)] public float Anger_FromShipsInOurBorders;
         [Serialize(11)] public float Anger_TerritorialConflict;
-        [Serialize(12)] public float Anger_MilitaryConflict;
-        [Serialize(13)] public float Anger_DiplomaticConflict;
+        [Serialize(12)] public float Anger_MilitaryConflict; // FB - Use AddAngermilitaryConflict
+        [Serialize(13)] public float Anger_DiplomaticConflict; // FB - Use AddAngerDiplomaticConflict
 
         [Serialize(14)] public int SpiesDetected;
         [Serialize(15)] public int TimesSpiedOnAlly;
@@ -131,7 +131,7 @@ namespace Ship_Game.Gameplay
                     return;
                 Trust -= 20f;
                 TotalAnger += 20f; // TODO check this
-                Anger_DiplomaticConflict += 20f;
+                AddAngerDiplomaticConflict(20);
             }
         }
 
@@ -241,7 +241,7 @@ namespace Ship_Game.Gameplay
                 if (why == "Caught Spying")
                 {
                     SpiesDetected            += 1;
-                    Anger_DiplomaticConflict += amount;
+                    AddAngerDiplomaticConflict(amount);
                     TotalAnger               += amount;
                     Trust                    -= amount;
 
@@ -292,7 +292,7 @@ namespace Ship_Game.Gameplay
                 }
                 else if (why == "Caught Spying Failed")
                 {
-                    Anger_DiplomaticConflict += amount;
+                    AddAngerDiplomaticConflict(amount);
                     TotalAnger               += amount;
                     Trust                    -= amount;
 
@@ -322,7 +322,7 @@ namespace Ship_Game.Gameplay
                 }
                 else if (why == "Insulted")
                 {
-                    Anger_DiplomaticConflict += amount;
+                    AddAngerDiplomaticConflict(amount);
                     TotalAnger               += amount;
                     Trust                    -= amount;
                 }
@@ -399,7 +399,7 @@ namespace Ship_Game.Gameplay
                 {
                     if (Anger_MilitaryConflict.AlmostZero() && !AtWar)
                     {
-                        Anger_MilitaryConflict += amount;
+                        AddAngerMilitaryConflict(amount);
                         Trust -= amount;
                         if (Empire.Universe.PlayerEmpire == them && !us.isFaction)
                         {
@@ -410,7 +410,7 @@ namespace Ship_Game.Gameplay
                         }
                     }
 
-                    Anger_MilitaryConflict += amount;
+                    AddAngerMilitaryConflict(amount);
                 }
             }
         }
@@ -425,10 +425,10 @@ namespace Ship_Game.Gameplay
             return InitialStrength - Anger_FromShipsInOurBorders - Anger_TerritorialConflict - Anger_MilitaryConflict - Anger_DiplomaticConflict + Trust;
         }
 
-        public void ImproveRelations(float trustEarned, float diploAngerMinus)
+        public void ImproveRelations(float trustEarned, float angerToReduce)
         {
-            Anger_DiplomaticConflict -= diploAngerMinus;
-            TotalAnger               -= diploAngerMinus;
+            AddAngerDiplomaticConflict(-angerToReduce);
+            TotalAnger               -= angerToReduce;
             Trust                    += trustEarned;
         }
 
@@ -536,9 +536,9 @@ namespace Ship_Game.Gameplay
             UpdateAngerBorders(us, them);
             UpdatePeace(us, them);
             Anger_TerritorialConflict   = (Anger_TerritorialConflict - personality.AngerDissipation).LowerBound(0);
-            Anger_MilitaryConflict      = (Anger_MilitaryConflict - personality.AngerDissipation).LowerBound(0);
-            Anger_DiplomaticConflict    = (Anger_DiplomaticConflict - personality.AngerDissipation).LowerBound(0);
             Anger_FromShipsInOurBorders = (Anger_FromShipsInOurBorders - personality.AngerDissipation).LowerBound(0);
+            AddAngerDiplomaticConflict(-personality.AngerDissipation);
+            AddAngerMilitaryConflict(-personality.AngerDissipation);
 
             TotalAnger = (Anger_DiplomaticConflict
                          + Anger_FromShipsInOurBorders
@@ -603,7 +603,8 @@ namespace Ship_Game.Gameplay
             if (!Treaty_Peace) 
                 return;
 
-            Anger_DiplomaticConflict    -= 0.1f;
+            AddAngerDiplomaticConflict(-0.1f);
+            AddAngerMilitaryConflict(-0.1f);
             Anger_FromShipsInOurBorders -= 0.1f;
             Anger_MilitaryConflict      -= 0.1f;
             Anger_TerritorialConflict   -= 0.1f;
@@ -834,7 +835,7 @@ namespace Ship_Game.Gameplay
                         DiplomacyScreen.Show(us, "Insult Military");
                 }
 
-                Anger_DiplomaticConflict += anger;
+                AddAngerDiplomaticConflict(anger);
             }
             else if (compliment && Threat > 25f && TurnsKnown > FirstDemand)
             {
@@ -848,7 +849,7 @@ namespace Ship_Game.Gameplay
                         DiplomacyScreen.Show(us, "Compliment Military Better");
                 }
 
-                Anger_DiplomaticConflict -= anger;
+                AddAngerDiplomaticConflict(-anger);
             }
         }
 
@@ -1013,7 +1014,7 @@ namespace Ship_Game.Gameplay
             if (us.Personality == PersonalityType.Aggressive && Threat < -15f)
             {
                 float angerMod = -Threat / 15;// every -15 threat will give +0.1 anger
-                Anger_DiplomaticConflict += us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod;
+                AddAngerDiplomaticConflict(us.data.DiplomaticPersonality.AngerDissipation + 0.1f * angerMod);
             }
 
             if (Anger_MilitaryConflict >= 5 && !AtWar && !Treaty_Peace)
@@ -1235,23 +1236,37 @@ namespace Ship_Game.Gameplay
                     if (TotalAnger > 10)
                     {
                         if (!Treaty_NAPact && Trust < 50 || Treaty_NAPact && Trust < 10)
-                            break;
+                            break; // Friendly to Neutral
+                    }
+                    else
+                    {
+                        if (Treaty_NAPact && Trust > 10)
+                            break; // Hostile to Neutral
                     }
 
                     return;
                 case PersonalityType.Aggressive:
                     if (Threat > -15 && TotalAnger < 50 && Trust > 15)
-                        break;
+                        break;  // Hostile to Neutral
+
+                    if (Threat < -15 && TotalAnger > 50 && Trust < 15)
+                        break; // Friendly to Neutral
 
                     return;
                 case PersonalityType.Ruthless:
                     if (Trust > 10 && TotalAnger < 20)
-                        break;
+                        break; // Hostile to Neutral
+
+                    if (Trust < 10 && TotalAnger > 20)
+                        break; // Friendly to Neutral
 
                     return;
                 case PersonalityType.Xenophobic:
                     if (Trust > 10 && TotalAnger < 10)
-                        break;
+                        break; // Hostile to Neutral
+
+                    if (Trust < 10 && TotalAnger > 10)
+                        break; // Friendly to Neutral
 
                     return;
             }
@@ -1303,7 +1318,7 @@ namespace Ship_Game.Gameplay
         {
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(ourShip);
 
-            Anger_MilitaryConflict += killedExpSettings.KillExp;
+            AddAngerMilitaryConflict(killedExpSettings.KillExp);
             ActiveWar?.ShipWeLost(ourShip);
 
         }
@@ -1312,7 +1327,7 @@ namespace Ship_Game.Gameplay
         public void LostAColony(Planet colony, Empire attacker)
         {
             ActiveWar?.PlanetWeLost(attacker, colony);
-            Anger_MilitaryConflict += colony.ColonyValue;
+            AddAngerMilitaryConflict(colony.ColonyValue);
         }
 
         public void WonAColony(Planet colony, Empire loser)
@@ -1372,6 +1387,21 @@ namespace Ship_Game.Gameplay
 
             ActiveWar?.WarDebugData(ref debug);
             return debug;
+        }
+
+        public void AddAngerDiplomaticConflict(float amount)
+        {
+            Anger_DiplomaticConflict = (Anger_DiplomaticConflict+ amount).LowerBound(0);
+        }
+
+        public void AddAngerMilitaryConflict(float amount)
+        {
+            Anger_MilitaryConflict = (Anger_MilitaryConflict + amount).LowerBound(0);
+        }
+
+        public void ResetAngerMilitaryConflict()
+        {
+            AddAngerMilitaryConflict(-Anger_MilitaryConflict);
         }
 
         void SetPosture(Posture posture)

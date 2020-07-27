@@ -299,11 +299,12 @@ namespace Ship_Game
 
                     var r = new Relationship(e.data.Traits.Name);
                     empire.AddRelationships(e, r);
-                    if (e == Player && Difficulty > UniverseData.GameDifficulty.Normal)
+                    if (e == Player && Difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
                     {
                         float angerMod = (int) Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
-                        r.Anger_DiplomaticConflict = angerMod;
-                        r.Anger_MilitaryConflict = 1;
+                        r.AddAngerDiplomaticConflict(angerMod);
+                        r.ResetAngerMilitaryConflict();
+                        r.AddAngerMilitaryConflict(1);
                     }
                 }
             }
