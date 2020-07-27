@@ -443,6 +443,9 @@ namespace Ship_Game.AI
             HadPO = clearOrders;
             ClearWayPoints();
 
+            if (!Owner.loyalty.isPlayer)
+                Owner.fleet?.RemoveShip(Owner); // Avoid lingering fleets for the AI
+
             Target       = null;
             OrbitTarget  = toOrbit;
             AwaitClosest = toOrbit;
