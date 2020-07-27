@@ -569,13 +569,15 @@ namespace Ship_Game.Ships
                 {
                     ShipModule hangar = AllTroopBays[i];
                     Ship hangarShip = hangar.GetHangarShip();
-                    if (hangarShip != null && hangarShip.AI.State != AIState.Boarding)
+                    if (hangarShip != null)
                     {
-                        hangarShip.AI.OrderTroopToBoardShip(targetShip);
                         sendingTroops = true;
+                        if (hangarShip.AI.State != AIState.Boarding && hangarShip.AI.State != AIState.Resupply)
+                            hangarShip.AI.OrderTroopToBoardShip(targetShip);
                     }
                 }
             }
+
             return sendingTroops;
         }
 
