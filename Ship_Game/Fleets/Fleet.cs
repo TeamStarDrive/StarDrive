@@ -1461,6 +1461,10 @@ namespace Ship_Game.Fleets
                 ship.HyperspaceReturn();
                 return true;
             }
+            else
+            {
+                Ships.Remove(ship);
+            }
 
             Empire.Universe.DebugWin?.DebugLogText("Fleet RemoveShip: Ship is not in this fleet", DebugModes.Normal);
             return false;
