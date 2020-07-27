@@ -344,9 +344,9 @@ namespace Ship_Game.AI
 
             public TroopsInSystems(Empire empire, Map<SolarSystem, SystemCommander> DefenseDict)
             {
-                TotalCurrentTroops = 0;
-                TotalTroopWanted = 0;
-                TroopShips = empire.GetAvailableTroopShips();
+                TotalCurrentTroops         = 0;
+                TotalTroopWanted           = 0;
+                TroopShips = empire.GetAvailableTroopShips(out int troopsInFleets);
                 foreach (var kv in DefenseDict)
                 {
                     int currentTroops = kv.Value.TroopCount;
@@ -379,7 +379,7 @@ namespace Ship_Game.AI
                     }
 
                     kv.Value.TroopCount = currentTroops;
-                    TotalCurrentTroops += currentTroops;
+                    TotalCurrentTroops += currentTroops+ troopsInFleets;
                     TotalTroopWanted += kv.Value.IdealTroopCount;
                 }
             }

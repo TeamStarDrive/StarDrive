@@ -207,5 +207,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
             return debug;
         }
+
+        public void AddCaptureAll()
+        {
+            var campaignTypes = new Array<Campaign.CampaignType>();
+            campaignTypes.Add(Campaign.CampaignType.CaptureAll);
+            var aos = CreateImperialisticAO();
+
+            foreach (var ao in aos)
+            {
+                AddTheater(ao, campaignTypes);
+            }
+        }
     }
 }
