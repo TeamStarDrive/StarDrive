@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.Ships;
+using static Ship_Game.AI.ThreatMatrix;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
@@ -28,31 +29,37 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected override GoalStep SetupShipTargets()
         {
-            //var fleets    = new Array<Fleet>();
-            var pins      = OwnerTheater.GetPins();
-            //var ships     = new Array<Ship>();
-            var systems   = new Array<SolarSystem>();
-            var strengths = new Array<int>();
-            foreach (var pin in pins)
+            //var fleets         = new Array<Fleet>();
+            Pin[] pins           = OwnerTheater.GetPins();
+            //var ships          = new Array<Ship>();
+            var systems          = new Array<SolarSystem>();
+            var strengths        = new Array<int>();
+            var ownedSystems     = Owner.GetOwnedSystems();
+            var pinsNotInSystems = new Array<Pin>();
+            for (int i = 0; i < pins.Length; i++)
             {
+                var pin = pins[i];
                 if (!pin.InBorders || pin.Ship?.Active != true) continue;
-                if (pin.Ship.System == null) continue;
-                //if (pin.Ship.fleet == null) continue;
-                //ships.AddUnique(pin.Ship);
-                //fleets.AddUnique(pin.Ship.fleet);
-                systems.AddUnique(pin.Ship.System);
-                int systemIndex = systems.IndexOf(pin.Ship.System);
+                if (pin.System == null) continue;
+
+                systems.AddUnique(pin.System);
+                int systemIndex = systems.IndexOf(pin.System);
                 if (strengths.Count < systems.Count)
                 {
-                    strengths.Add((int)pin.Strength);
+                    strengths.Add((int) pin.Strength);
                 }
                 else
                 {
-                    strengths[systemIndex] += (int)pin.Strength;
+                    strengths[systemIndex] += (int) pin.Strength;
                 }
             }
-            if (systems.IsEmpty) return GoalStep.GoToNextStep;
+
             DefendSystemsInList(systems, strengths);
+            if (systems.IsEmpty && pinsNotInSystems.NotEmpty)
+            {
+                var pin = pinsNotInSystems.FindMax(p => p.Strength);
+                AttackArea(pin.Position, 100000, pin.Strength);
+            }
             return GoalStep.GoToNextStep;
         }
     }

@@ -28,7 +28,7 @@ namespace Ship_Game
             AddTab("Spc");
             ModuleSelectList = Add(new ModuleSelectScrollList(this, Screen));
 
-            var acsub = new Rectangle(Rect.X, Rect.Bottom + 15, 305, 370);
+            var acsub = new Rectangle(Rect.X, Rect.Bottom + 15, 305, 400);
 
             ActiveModSubMenu = Add(new Submenu(acsub));
             ActiveModSubMenu.AddTab("Active Module");
