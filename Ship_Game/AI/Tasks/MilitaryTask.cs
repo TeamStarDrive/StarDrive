@@ -82,8 +82,9 @@ namespace Ship_Game.AI.Tasks
                 AO                       = targetShip.Center,
                 type                     = TaskType.AssaultPirateBase,
                 AORadius                 = 20000,
-                MinimumTaskForceStrength = targetShip.BaseStrength,
-                TargetShipGuid           = targetShip.guid
+                EnemyStrength            = targetShip.BaseStrength,
+                TargetShipGuid           = targetShip.guid,
+                MinimumTaskForceStrength = 100
             };
             return militaryTask;
         }
@@ -96,7 +97,8 @@ namespace Ship_Game.AI.Tasks
                 AO                       = targetPlanet.Center,
                 type                     = TaskType.GlassPlanet,
                 AORadius                 = targetPlanet.GravityWellRadius,
-                MinimumTaskForceStrength = minStrength
+                EnemyStrength            = minStrength,
+                MinimumTaskForceStrength = 100
             };
             return militaryTask;
         }
@@ -130,7 +132,7 @@ namespace Ship_Game.AI.Tasks
             AO                       = center;
             AORadius                 = radius;
             type                     = taskType;
-            MinimumTaskForceStrength = strengthWanted;
+            EnemyStrength            = strengthWanted;
             TargetSystem             = system;
         }
 
@@ -147,7 +149,8 @@ namespace Ship_Game.AI.Tasks
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
-            MinimumTaskForceStrength = strWanted;
+            EnemyStrength            = strWanted;
+            MinimumTaskForceStrength = 100;
         }
 
         public MilitaryTask(Empire owner)
@@ -364,16 +367,15 @@ namespace Ship_Game.AI.Tasks
                     break;
                 case TaskType.ClearAreaOfEnemies:
                     {
-                        if      (Step == 0)
+                        if (Step == 0)
                         {
-                            RequisitionDefenseForce();
-                            if (EnemyStrength < 10 && TargetSystem?.ShipList.Any(s=> s.loyalty == Owner) != false)
+                            if (EnemyStrength < 1)
                             {
                                 EndTask();
+                                break;
                             }
-
+                            RequisitionDefenseForce();
                         }
-                        else if (Step == 1) ExecuteAndAssess();
                         break;
                     }
                 case TaskType.AssaultPlanet:
@@ -442,7 +444,10 @@ namespace Ship_Game.AI.Tasks
                                         Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
 
                                         if (rel != null && (!rel.AtWar && !rel.PreparingForWar))
+                                        {
                                             EndTask();
+                                            break;
+                                        }
                                     }
                                     RequisitionClaimForce();
                                     Priority -= 1;
@@ -585,8 +590,8 @@ namespace Ship_Game.AI.Tasks
                 if (!ship.Active || ship.InCombat && Step < 1 || ship.AI.State == AIState.Scrap)
                 {
                     ship.ClearFleet();
-                    if (ship.Active && ship.AI.State != AIState.Scrap)
-                        Owner.Pool.ForcePoolAdd(ship);
+                    //if (ship.Active && ship.AI.State != AIState.Scrap)
+                    //    Owner.Pool.ForcePoolAdd(ship);
                 }
                 else
                 {

@@ -415,9 +415,9 @@ namespace Ship_Game
             {
                 Ship ship = Ships[i];
                 if (queueOrder)
-                    ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove);
+                    ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
                 else
-                    ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove);
+                    ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove: offensiveMove);
 
                 if (ship.loyalty == EmpireManager.Player)
                     ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);

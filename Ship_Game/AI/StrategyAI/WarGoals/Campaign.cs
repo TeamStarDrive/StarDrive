@@ -325,11 +325,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
         {
+            int priority = 1;
             for (int i = 0; i < currentTargets.Count; i++)
             {
                 var system = currentTargets[i];
-                Tasks.StandardSystemDefense(system, 0, strengths[i]);
+                Tasks.StandardSystemDefense(system, priority++, strengths[i]);
             }
+        }
+
+        protected void AttackArea(Vector2 center, float radius, float strength)
+        {
+            Tasks.StandardAreaClear(center, radius, 2, strength);
         }
     }
 }
