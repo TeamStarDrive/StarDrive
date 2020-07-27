@@ -443,8 +443,8 @@ namespace Ship_Game.AI
             HadPO = clearOrders;
             ClearWayPoints();
 
-            if (!Owner.loyalty.isPlayer)
-                Owner.fleet?.RemoveShip(Owner); // Avoid lingering fleets for the AI
+            //if (!Owner.loyalty.isPlayer) TODO: we cant do this since removeship does not remove the ship from the Ships list. Should Investigate
+            //    Owner.fleet?.RemoveShip(Owner); // Avoid lingering fleets for the AI
 
             Target       = null;
             OrbitTarget  = toOrbit;
