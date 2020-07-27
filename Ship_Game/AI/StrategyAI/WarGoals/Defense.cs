@@ -18,13 +18,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             var systems = new Array<SolarSystem>();
             Array<SolarSystem> aoSystems = OwnerTheater.GetSystems();
+
             if (OwnerTheater.TheaterAO.ThreatLevel > 0)
             {
                 for (int i = 0; i < aoSystems.Count; i++)
                 {
                     var s = aoSystems[i];
-                    float str = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(s.Position, 400000, Owner);
-                    systems.AddUniqueRef(s);
+                    float str = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(s.Position, s.Radius * 1.5f, Owner);
+                    if (str > 0) systems.AddUniqueRef(s);
+                    else 
+                        TargetSystems.RemoveRef(s);
                 }
             }
             return SetTargets(systems);
