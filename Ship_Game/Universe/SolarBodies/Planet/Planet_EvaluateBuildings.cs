@@ -616,7 +616,7 @@ namespace Ship_Game
 
         void PrioritiesProductionIfNeeded()
         {
-            if (Prod.NetIncome > 1)
+            if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
                 return;
 
             for (int i = 0; i < ConstructionQueue.Count; ++i)

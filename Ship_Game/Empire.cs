@@ -857,9 +857,9 @@ namespace Ship_Game
                 if (ship.fleet != null)
                     continue;
                 if (ship.AI.State == AIState.Resupply
-                    && ship.AI.State == AIState.Refit
-                    && ship.AI.State == AIState.Scrap
-                    && ship.AI.State == AIState.Scuttle)
+                    || ship.AI.State == AIState.Refit
+                    || ship.AI.State == AIState.Scrap
+                    || ship.AI.State == AIState.Scuttle)
                     continue;
                 readyShips.Add(ship);
             }
@@ -2438,7 +2438,12 @@ namespace Ship_Game
                                         Universe.NotificationManager.AddPeacefulMergerNotification(biggest, strongest);
                                     else
                                         Universe.NotificationManager.AddSurrendered(biggest, strongest);
+
                                     biggest.AbsorbEmpire(strongest);
+                                    if (biggest.GetRelations(this).ActiveWar == null)
+                                        biggest.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
+                                    else
+                                        biggest.GetRelations(this).ActiveWar.WarTheaters.AddCaptureAll();
                                 }
                             }
                         }

@@ -113,7 +113,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 case WarType.EmpireDefense:
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);
                     campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
-                    aos                = CreateEmpireDefenseAO();
+                    aos                = CreateBorderAOs();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
