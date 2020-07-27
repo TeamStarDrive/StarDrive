@@ -87,11 +87,27 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             });
         }
 
+        public void StandardAreaClear(Vector2 center, float radius, int priority, float strengthWanted)
+        {
+            if (IsAlreadyClearingArea(center, radius)) return;
+            CreateTask(new MilitaryTask(center, radius, null, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
+            {
+                Priority      = priority
+            });
+        }
+
         bool IsAlreadyDefendingSystem(SolarSystem system)
         {
-            if (Tasks.Any(t => t.IsDefendingSystem(system))) return true;
+            if (Tasks.Any(t => t.IsDefendingSystem(system)))    return true;
             if (NewTasks.Any(t => t.IsDefendingSystem(system))) return true;
             return Owner.GetEmpireAI().IsClearTaskTargetingAO(system);
+        }
+
+        bool IsAlreadyClearingArea(Vector2 center, float radius)
+        {
+            if (Tasks.Any(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies && t.AO.InRadius(center, radius))) return true;
+            if (Tasks.Any(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies && t.AO.InRadius(center, radius))) return true;
+            return Owner.GetEmpireAI().IsClearTaskTargetingAO(center, radius);
         }
 
         void CreateTask(MilitaryTask task)
