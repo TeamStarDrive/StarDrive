@@ -159,6 +159,11 @@ namespace Ship_Game.AI
                                         && task.TargetSystem == system || task.AO.InRadius(system.Position, task.AORadius));
         }
 
+        public bool IsClearTaskTargetingAO(Vector2 center, float radius)
+        {
+            return TaskList.Any(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies && task.AO.InRadius(center, radius));
+        }
+
         public MilitaryTask[] GetExpansionTasks()
         {
             return TaskList.Filter(task => task.TargetPlanet != null &&
