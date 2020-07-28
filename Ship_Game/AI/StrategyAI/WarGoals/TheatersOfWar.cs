@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Debug;
 
@@ -33,14 +34,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public void Evaluate()
         {
             float totalValue = Us.GetEmpireAI().ValueOfAllWarSystems();
-
+            var empireCenter = Us.GetWeightedCenter();
+            float baseDistance = DistanceToClosestTheater(empireCenter);
             for (int i = Theaters.Count - 1; i >= 0; i--)
             {
                 var theater = Theaters[i];
-                theater.TheaterAO.Update();
-                float value = theater.TheaterAO.GetWarValueOfSystemsInAOTo(Us).Clamped(1, totalValue);
-                theater.Priority = 5 - (int)((value / totalValue) * 5) + OwnerWar.Priority();
+                theater.SetTheaterPriority(totalValue, baseDistance, empireCenter);
                 theater.Evaluate();
+
             }
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
@@ -49,6 +50,19 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 TheirSystemCount = theirSystems;
                 Initialize();
             }
+        }
+
+        float DistanceToClosestTheater(Vector2 position)
+        {
+            float closest = float.MaxValue;
+            for (int i = 0; i < Theaters.Count; i++)
+            {
+                var theater    = Theaters[i];
+                float distance = theater.TheaterAO.Center.Distance(position);
+                closest        = Math.Min(closest, distance);
+            }
+
+            return closest;
         }
 
         public void Initialize()

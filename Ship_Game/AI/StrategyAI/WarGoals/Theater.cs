@@ -42,6 +42,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void Evaluate()
         {
+            TheaterAO.Update();
             if (Remove)
             {
                 for (int i = Campaigns.Count - 1; i >= 0; i--)
@@ -133,6 +134,19 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var campaignType = CampaignsWanted[i];
                 AddCampaign(campaignType);
             }
+        }
+
+        public void SetTheaterPriority(float totalWarValue, float baseDistance, Vector2 position)
+        {
+            float value = TheaterAO.GetWarValueOfSystemsInAOTo(Us).Clamped(1, totalWarValue);
+            float distanceFromPosition = float.MaxValue;
+            foreach (var p in TheaterAO.GetPlanets())
+            {
+                float distance = p.Center.Distance(position);
+                distanceFromPosition = Math.Min(distanceFromPosition, distance);
+            }
+            int distanceMod = (int)(distanceFromPosition / baseDistance).UpperBound(10);
+            Priority    = 5 + distanceMod - (int)((value / totalWarValue) * 5) + OwnerWar.Priority();
         }
 
         public DebugTextBlock DebugText(DebugTextBlock debug, string pad, string pad2)
