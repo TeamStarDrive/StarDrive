@@ -271,9 +271,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 float warValueRatio = s.WarValueTo(Owner) / averageImportance;
                 // high value targets will be worth more
-                warValueRatio *= warValueRatio < 1 ? 1 : 2;
-                float distance = s.Position.SqDist(nearestPoint);
-                float rangeRatio = minDistanceToThem / distance;
+                warValueRatio      *= warValueRatio < 1 ? 1 : 2;
+                float distance      = s.Position.SqDist(nearestPoint);
+                float rangeRatio    = minDistanceToThem / distance;
                 // sorted sorts ascend so we multiply by negative 1 to make the high value targets effectively smaller.
                 return (warValueRatio - rangeRatio) * -1f;
             });
@@ -307,12 +307,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected void AttackSystemsInList(Array<SolarSystem> currentTargets, int fleetsPerTarget = 1)
         {
-            int priorityMod = 0;
+            int priority = OwnerTheater.Priority;
 
             foreach (var system in currentTargets)
             {
-                Tasks.StandardAssault(system, OwnerTheater.Priority + priorityMod, fleetsPerTarget);
-                priorityMod++;
+                if (priority > 10) break;
+                Tasks.StandardAssault(system, priority++, fleetsPerTarget);
             }
         }
 
@@ -325,17 +325,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
         {
-            int priority = 1;
+            int priority = OwnerTheater.Priority + 2;
             for (int i = 0; i < currentTargets.Count; i++)
             {
                 var system = currentTargets[i];
+                if (priority > 10) break;
                 Tasks.StandardSystemDefense(system, priority++, strengths[i]);
             }
         }
 
         protected void AttackArea(Vector2 center, float radius, float strength)
         {
-            Tasks.StandardAreaClear(center, radius, 2, strength);
+            int priority = OwnerTheater.Priority + 2;
+            if (priority > 10) return;
+            Tasks.StandardAreaClear(center, radius, priority, strength);
         }
     }
 }

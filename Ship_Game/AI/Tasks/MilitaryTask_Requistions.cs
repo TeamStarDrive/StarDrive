@@ -16,7 +16,7 @@ namespace Ship_Game.AI.Tasks
             // RedFox: I removed ClampMin(minimumStrength) because this was causing infinite
             //         Create-Destroy-Create loop of ClearAreaOfEnemies MilitaryTasks
             //         Lets just report what the actual strength is.
-            return Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
+            return Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(AO, AORadius, Owner);
         }
 
         private int GetTargetPlanetGroundStrength(int minimumStrength)
