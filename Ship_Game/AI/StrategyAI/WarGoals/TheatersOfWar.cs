@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using Ship_Game.Debug;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
@@ -15,6 +18,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public Array<Theater> Theaters = new Array<Theater>();
         public War GetWar() => OwnerWar;
         int TheirSystemCount = 0;
+        [XmlIgnore][JsonIgnore] public float WarValue => Theaters.Sum(t => t.TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us));
+        
         public TheatersOfWar (War war)
         {
             if (war is null) return;
@@ -32,23 +37,35 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void Evaluate()
         {
-            float totalValue = Us.GetEmpireAI().ValueOfAllWarSystems();
-
+            var empireCenter = Us.GetWeightedCenter();
+            float baseDistance = DistanceToClosestTheater(empireCenter);
             for (int i = Theaters.Count - 1; i >= 0; i--)
             {
                 var theater = Theaters[i];
-                theater.TheaterAO.Update();
-                float value = theater.TheaterAO.GetWarValueOfSystemsInAOTo(Us).Clamped(1, totalValue);
-                theater.Priority = 5 - (int)((value / totalValue) * 5) + OwnerWar.Priority();
+                theater.SetTheaterPriority(baseDistance, empireCenter);
                 theater.Evaluate();
+
             }
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
-            if (!Initialized || theirSystems > TheirSystemCount)
+            if (!Initialized || theirSystems > 0 && theirSystems != TheirSystemCount)
             {
                 TheirSystemCount = theirSystems;
                 Initialize();
             }
+        }
+
+        float DistanceToClosestTheater(Vector2 position)
+        {
+            float closest = float.MaxValue;
+            for (int i = 0; i < Theaters.Count; i++)
+            {
+                var theater    = Theaters[i];
+                float distance = theater.TheaterAO.Center.Distance(position);
+                closest        = Math.Min(closest, distance);
+            }
+
+            return closest;
         }
 
         public void Initialize()
@@ -88,24 +105,25 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             switch (OwnerWar.WarType)
             {
                 case WarType.BorderConflict:
-                    {
-                        campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
-                        aos = CreateBorderAOs();
-                        break;
-                    }
+                    //{
+                    //    campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
+                    //    aos = CreateBorderAOs();
+                    //    break;
+                    //}
                 case WarType.ImperialistWar:
                 case WarType.GenocidalWar:
+                case WarType.DefensiveWar:
                     {
                         campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
                         campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
                         aos = CreateImperialisticAO();
                         break;
                     }
-                case WarType.DefensiveWar:
-                    aos                = CreateDefensiveAO();
-                    campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
-                    replaceExistingAOs = true;
-                    break;
+                // until defensive wars can end remarking this. 
+                //case WarType.DefensiveWar:
+                //    aos                = CreateBorderAOs();
+                //    campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
+                //    break;
                 case WarType.SkirmishWar:
                     campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
                     aos                = CreateBorderAOs();
@@ -113,7 +131,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 case WarType.EmpireDefense:
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);
                     campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
-                    aos                = CreateBorderAOs();
+                    aos                = CreateDefensiveAO();
+                    replaceExistingAOs = true;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -153,8 +172,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             var theirAo     = Them.EmpireAO();
             var UsAO        = Us.GetWeightedCenter();
-            float minAoSize = 600000 * 3;
-            float maxAoSize = Empire.Universe.Width / 4;
+            float minAoSize = 600000;
+            float maxAoSize = (Empire.Universe.UniverseSize).LowerBound(minAoSize);
             var aoSize      = (theirAo.Radius / 2).Clamped(minAoSize, maxAoSize);
             var aos         = new Array<AO>();
             foreach (var theater in Theaters)
@@ -176,7 +195,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 }
             }
             while (system != null);
-
             return newAos;
         }
 
@@ -201,10 +219,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public DebugTextBlock DebugText(DebugTextBlock debug, string pad1, string pad2)
         {
             debug.AddLine($"Theaters : {Theaters.Count}");
-            foreach(var theater in Theaters)
+            debug.AddLine($"WarValue : {WarValue}");
+            for (int i = 0; i < Theaters.Count; i++)
             {
+                var theater = Theaters[i];
+                debug.AddLine($"Theater : {i} WarValue : {theater.WarValue}");
                 debug = theater.DebugText(debug, pad1, pad2);
             }
+
             return debug;
         }
 

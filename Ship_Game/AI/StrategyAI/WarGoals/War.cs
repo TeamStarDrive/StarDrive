@@ -67,7 +67,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             if (Them.isFaction) return 1;
             var warState = Score.GetWarScoreState();
-            return 8 - (int)warState;
+            if (Us != Them)
+            {
+                float strengthMod = Us.CurrentMilitaryStrength / Them.CurrentMilitaryStrength;
+                return 8 - (int)((int)warState * strengthMod).UpperBound(8);
+            }
+            return 0;
         }
 
         public War()
