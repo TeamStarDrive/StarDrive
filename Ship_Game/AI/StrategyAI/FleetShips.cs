@@ -327,7 +327,7 @@ namespace Ship_Game.AI
                 if (InvasionTroopStrength > wantedTroopStrength)
                     break;
 
-                if (troop.Loyalty == null || !troop.CanMove)
+                if (troop.Loyalty == null)
                     continue;
                 Ship launched = troop.Launch(true);
                 if (launched == null)
