@@ -301,9 +301,11 @@ namespace Ship_Game
                     empire.AddRelationships(e, r);
                     if (e == Player && Difficulty > UniverseData.GameDifficulty.Normal)
                     {
-                        float angerMod = (int) Difficulty * (90 - empire.data.DiplomaticPersonality.Trustworthiness);
-                        r.Anger_DiplomaticConflict = angerMod;
-                        r.Anger_MilitaryConflict = 1;
+                        float trustMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
+                        r.Trust       -= trustMod;
+
+                        float territoryMod          = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
+                        r.Anger_TerritorialConflict = territoryMod;
                     }
                 }
             }
