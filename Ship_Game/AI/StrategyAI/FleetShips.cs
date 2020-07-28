@@ -176,9 +176,9 @@ namespace Ship_Game.AI
         public Array<Ship> ExtractSetsOfCombatShips(float strength, float setCompletePercentage, int wantedFleetCount , out int fleetCount)
         {
             Array<Ship> ships = new Array<Ship>();
-            fleetCount = ExtractFleetShipsUpToStrength(strength, setCompletePercentage, wantedFleetCount,
-                out Array<Ship> fleetShips);
-            if (fleetCount > 0)
+            fleetCount = ExtractFleetShipsUpToStrength(strength, setCompletePercentage, wantedFleetCount, out Array<Ship> fleetShips);
+            
+            if (fleetCount > 0 && fleetShips.Sum(s=> s.GetStrength()) >= strength)
                 ships.AddRange(fleetShips);
 
             return ships;
