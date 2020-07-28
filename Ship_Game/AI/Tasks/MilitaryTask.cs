@@ -449,7 +449,8 @@ namespace Ship_Game.AI.Tasks
                                         }
                                     }
                                     RequisitionClaimForce();
-                                    Priority -= 1;
+                                    Priority += Priority < 1 ? 20 : -1;
+
                                 }
                                 break;
                             case 1:

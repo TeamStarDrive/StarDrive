@@ -546,17 +546,6 @@ namespace Ship_Game.Fleets
                     TaskStep = 1;
                     break;
                 case 1:
-                    // if target planet is in same system as rally skip to step 3
-                    //if (FleetTask?.TargetPlanet?.ParentSystem.Position.InRadius(FinalPosition, 500000) == true)
-                    //{
-                    //    var status = FleetMoveStatus(500000, FleetTask.TargetPlanet.ParentSystem.Position);
-                    //    if (status.HasFlag(MoveStatus.MajorityAssembled))
-                    //    {
-                    //        TaskStep =3;
-                    //    }
-                    //    break;
-                    //}
-
                     if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
                         break;
                     GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 1.5f);
@@ -661,7 +650,7 @@ namespace Ship_Game.Fleets
 
         void DoClaimDefense(MilitaryTask task)
         {
-            if (EndInvalidTask(task.TargetPlanet.Owner != null))
+            if (EndInvalidTask(task.TargetPlanet.Owner != null || !CanTakeThisFight(task.EnemyStrength)))
                 return;
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
