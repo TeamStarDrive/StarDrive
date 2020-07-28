@@ -70,8 +70,13 @@ namespace Ship_Game.AI.Tasks
                 type                     = TaskType.DefendClaim,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
                 MinimumTaskForceStrength = minStrength,
-                Owner                    = owner
-        };
+                Owner                    = owner,
+                // need to adjust this by personality.
+                // this task will increase in priority as time goes by. 
+                // this will generally only have an effect during war. 
+                Priority                 = 20
+            };
+
             return militaryTask;
         }
 
@@ -414,7 +419,14 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.Exploration:
                     {
                         if (Owner.GetEmpireAI().TroopShuttleCapacity > 0)
-                            if (Step == 0) RequisitionExplorationForce();
+                            if (Step == 0)
+                            {
+                                RequisitionExplorationForce();
+                                if (Step < 1)
+                                {
+                                    Priority += Priority > 1 ? -1 : 20;
+                                }
+                            }
                         break;
                     }
                 case TaskType.DefendSystem:
