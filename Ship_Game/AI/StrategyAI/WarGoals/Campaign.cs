@@ -261,21 +261,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             Vector2 nearestPoint     = RallyAO?.Center ?? empireCenter;
             // these loops are not cheap but the frequency of the calcs should be pretty low.
-            float minDistanceToThem  = Them.FindNearestOwnedSystemTo(nearestPoint)?.Position.Distance(nearestPoint) ?? 1000000;
-            float numberOfTargets    = targets.Count.LowerBound(1);
-            float averageImportance  = OwnerTheater.TheaterAO.WarValueOfPlanets / numberOfTargets;
+            float minDistanceToThem  = Them.FindNearestOwnedSystemTo(nearestPoint)?.Position.SqDist(nearestPoint) ?? 1000000;
 
             // goal here is to sort the targets by closeness and value.
             // we will emphasize above average war targets and nearby planets. 
             var sortedTargets = targets.Sorted(s =>
             {
-                float warValueRatio = s.WarValueTo(Owner) / averageImportance;
-                // high value targets will be worth more
-                warValueRatio      *= warValueRatio < 1 ? 1 : 2;
                 float distance      = s.Position.SqDist(nearestPoint);
-                float rangeRatio    = minDistanceToThem / distance;
-                // sorted sorts ascend so we multiply by negative 1 to make the high value targets effectively smaller.
-                return (warValueRatio - rangeRatio) * -1f;
+                // farther will be larger
+                float rangeRatio    = distance / minDistanceToThem;
+
+                return rangeRatio;
             });
 
             foreach (var system in sortedTargets)
@@ -283,7 +279,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (HaveConqueredTarget(system)) continue;
 
                 float defense  = OwnerTheater.TheaterAO.ThreatLevel;
-                float rangeMod = ((system.Position.Distance(nearestPoint) / minDistanceToThem) /2).LowerBound(1);
+                float rangeMod = ((system.Position.SqDist(nearestPoint) / minDistanceToThem)).LowerBound(1);
                 if (defense * rangeMod < strength)
                 {
                     winnableTarget.Add(system);
@@ -295,11 +291,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 AddTargetSystem(winnableTarget.First);
             }
-            // make sure to add something if we dont have something
-            else if (sortedTargets.Length > 0 && TargetSystems.IsEmpty)
-            {
-                AddTargetSystem(sortedTargets[0]);
-            }
+            //// make sure to add something if we dont have something
+            //else if (sortedTargets.Length > 0 && TargetSystems.IsEmpty)
+            //{
+            //    AddTargetSystem(sortedTargets[0]);
+            //}
             return GoalStep.GoToNextStep;
         }
 

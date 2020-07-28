@@ -365,11 +365,10 @@ namespace Ship_Game.AI
             }
         }
 
-        public float GetWarValueOfSystemsInAOTo(Empire empire)
+        public float GetWarAttackValueOfSystemsInAOTo(Empire empire)
         {
             if (Owner == empire) return WarValueOfPlanets;
-            var systems = SystemsInAo.Filter(s=> s.Position.InRadius(this));
-            return systems.Sum(s => s.WarValueTo(empire));
+            return SystemsInAo.Sum(s => s.WarValueTo(empire));
         }
 
         public float StrengthOpposing(Empire empire)

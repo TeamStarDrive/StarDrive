@@ -310,7 +310,7 @@ namespace Ship_Game.AI.Tasks
 
             EnemyStrength = TargetPlanet.ParentSystem.ShipList.Sum(s => s.loyalty == TargetPlanet.Owner ? s.BaseStrength : 0);
             AO = TargetPlanet.Center;
-            int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 10).LowerBound(3) + (int)Math.Ceiling(TargetPlanet.PopulationBillion);
+            int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion);
             InitFleetRequirements(minFleetStrength: 100 * bombTimeNeeded, minTroopStrength: 0, minBombMinutes: bombTimeNeeded);
 
             float battleFleetSize = 0.25f;
