@@ -304,8 +304,8 @@ namespace Ship_Game
                         float trustMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
                         r.Trust       -= trustMod;
 
-                        float territoryMod          = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
-                        r.Anger_TerritorialConflict = territoryMod;
+                        float territoryMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
+                        r.AddAngerTerritorialConflict(territoryMod);
                     }
                 }
             }
