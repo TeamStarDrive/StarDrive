@@ -10,67 +10,66 @@ namespace Ship_Game.AI
         {
             if (theirOffer.PeaceTreaty)
             {
-                Relationship relations          = OwnerEmpire.GetRelations(them);
-                relations.AtWar                 = false;
-                relations.PreparingForWar       = false;
-                relations.ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                relations.WarHistory.Add(relations.ActiveWar);
+                Relationship usToThem          = OwnerEmpire.GetRelations(them);
+                usToThem.AtWar                 = false;
+                usToThem.PreparingForWar       = false;
+                usToThem.ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                usToThem.WarHistory.Add(usToThem.ActiveWar);
                 DTrait ourPersonality = OwnerEmpire.data.DiplomaticPersonality;
                 if (ourPersonality != null)
                 {
-                    relations.ChangeToNeutral();
-                    if (relations.Anger_FromShipsInOurBorders > ourPersonality.Territorialism / 3f)
-                        relations.Anger_FromShipsInOurBorders = ourPersonality.Territorialism / 3f;
-                    if (relations.Anger_TerritorialConflict > ourPersonality.Territorialism / 3f)
-                        relations.Anger_TerritorialConflict = ourPersonality.Territorialism / 3f;
+                    usToThem.ChangeToNeutral();
+                    float borderAngerToReduce = usToThem.Anger_FromShipsInOurBorders - ourPersonality.Territorialism / 3f;
+                    if (borderAngerToReduce > 0)
+                        usToThem.AddAngerShipsInOurBorders(-borderAngerToReduce);
+
+                    float territoryAngerToReduce = usToThem.Anger_TerritorialConflict - ourPersonality.Territorialism / 3f;
+                    if (territoryAngerToReduce > 0)
+                        usToThem.AddAngerTerritorialConflict(-borderAngerToReduce);
                 }
-                relations.ResetAngerMilitaryConflict();
-                relations.WarnedAboutShips = false;
-                relations.WarnedAboutColonizing = false;
-                relations.HaveRejectedDemandTech = false;
-                relations.HaveRejected_OpenBorders = false;
-                relations.HaveRejected_TRADE = false;
-                relations.HasDefenseFleet = false;
-                if (relations.DefenseFleet != -1)
-                    OwnerEmpire.GetFleetsDict()[relations.DefenseFleet].FleetTask.EndTask();
+                usToThem.ResetAngerMilitaryConflict();
+                usToThem.WarnedAboutShips = false;
+                usToThem.WarnedAboutColonizing = false;
+                usToThem.HaveRejectedDemandTech = false;
+                usToThem.HaveRejected_OpenBorders = false;
+                usToThem.HaveRejected_TRADE = false;
+                usToThem.HasDefenseFleet = false;
+                if (usToThem.DefenseFleet != -1)
+                    OwnerEmpire.GetFleetsDict()[usToThem.DefenseFleet].FleetTask.EndTask();
 
                 RemoveMilitaryTasksTargeting(them);
 
-                relations.ActiveWar = null;
-                Relationship relationThem = them.GetRelations(OwnerEmpire);
-                relationThem.AtWar = false;
-                relationThem.PreparingForWar = false;
-                relationThem.ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                relationThem.WarHistory.Add(relationThem.ActiveWar);
-                relationThem.ChangeToNeutral();
+                usToThem.ActiveWar = null;
+                Relationship themToUs = them.GetRelations(OwnerEmpire);
+                themToUs.AtWar = false;
+                themToUs.PreparingForWar = false;
+                themToUs.ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                themToUs.WarHistory.Add(themToUs.ActiveWar);
+                themToUs.ChangeToNeutral();
                 if (EmpireManager.Player != them)
                 {
-                    if (relationThem.Anger_FromShipsInOurBorders >
-                        them.data.DiplomaticPersonality.Territorialism / 3f)
+                    float borderAngerToReduce = themToUs.Anger_FromShipsInOurBorders - them.data.DiplomaticPersonality.Territorialism / 3f;
+                    if (borderAngerToReduce > 0)
+                        themToUs.AddAngerShipsInOurBorders(-borderAngerToReduce);
+
+                    float territoryAngerToReduce = themToUs.Anger_TerritorialConflict - them.data.DiplomaticPersonality.Territorialism / 3f;
+                    if (territoryAngerToReduce > 0)
+                        themToUs.AddAngerTerritorialConflict(-territoryAngerToReduce);
+
+                    themToUs.ResetAngerMilitaryConflict();
+                    themToUs.WarnedAboutShips = false;
+                    themToUs.WarnedAboutColonizing = false;
+                    themToUs.HaveRejectedDemandTech = false;
+                    themToUs.HaveRejected_OpenBorders = false;
+                    themToUs.HaveRejected_TRADE = false;
+                    if (themToUs.DefenseFleet != -1)
                     {
-                        relationThem.Anger_FromShipsInOurBorders =
-                            them.data.DiplomaticPersonality.Territorialism / 3f;
-                    }
-                    if (relationThem.Anger_TerritorialConflict >
-                        them.data.DiplomaticPersonality.Territorialism / 3f)
-                    {
-                        relationThem.Anger_TerritorialConflict =
-                            them.data.DiplomaticPersonality.Territorialism / 3f;
-                    }
-                    relationThem.ResetAngerMilitaryConflict();
-                    relationThem.WarnedAboutShips = false;
-                    relationThem.WarnedAboutColonizing = false;
-                    relationThem.HaveRejectedDemandTech = false;
-                    relationThem.HaveRejected_OpenBorders = false;
-                    relationThem.HaveRejected_TRADE = false;
-                    if (relationThem.DefenseFleet != -1)
-                    {
-                        them.GetFleetsDict()[relationThem.DefenseFleet].FleetTask.EndTask();
+                        them.GetFleetsDict()[themToUs.DefenseFleet].FleetTask.EndTask();
                     }
 
                     them.GetEmpireAI().RemoveMilitaryTasksTargeting(OwnerEmpire);
                 }
-                relationThem.ActiveWar = null;
+                themToUs.ActiveWar = null;
                 if (them == Empire.Universe.PlayerEmpire || OwnerEmpire == Empire.Universe.PlayerEmpire)
                 {
                     Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(OwnerEmpire, them);
@@ -337,69 +336,62 @@ namespace Ship_Game.AI
         {
             if (theirOffer.PeaceTreaty)
             {
-                OwnerEmpire.GetRelations(them).AtWar = false;
-                OwnerEmpire.GetRelations(them).PreparingForWar = false;
-                OwnerEmpire.GetRelations(them).ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                OwnerEmpire.GetRelations(them).WarHistory.Add(OwnerEmpire.GetRelations(them).ActiveWar);
-                OwnerEmpire.GetRelations(them).ChangeToNeutral();
-                if (OwnerEmpire.GetRelations(them).Anger_FromShipsInOurBorders >
-                    OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3f)
+                Relationship usToThem = OwnerEmpire.GetRelations(them);
+                usToThem.AtWar = false;
+                usToThem.PreparingForWar = false;
+                usToThem.ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                usToThem.WarHistory.Add(usToThem.ActiveWar);
+                usToThem.ActiveWar = null;
+                usToThem.ChangeToNeutral();
+                float borderAngerToReduce = usToThem.Anger_FromShipsInOurBorders - us.data.DiplomaticPersonality.Territorialism / 3f;
+                if (borderAngerToReduce > 0)
+                    usToThem.AddAngerShipsInOurBorders(-borderAngerToReduce);
+
+                float territoryAngerToReduce = usToThem.Anger_TerritorialConflict - us.data.DiplomaticPersonality.Territorialism / 3f;
+                if (territoryAngerToReduce > 0)
+                    usToThem.AddAngerTerritorialConflict(-territoryAngerToReduce);
+
+                usToThem.ResetAngerMilitaryConflict();
+                usToThem.WarnedAboutShips = false;
+                usToThem.WarnedAboutColonizing = false;
+                usToThem.HaveRejectedDemandTech = false;
+                usToThem.HaveRejected_OpenBorders = false;
+                usToThem.HaveRejected_TRADE = false;
+                usToThem.HasDefenseFleet = false;
+                if (usToThem.DefenseFleet != -1)
                 {
-                    OwnerEmpire.GetRelations(them).Anger_FromShipsInOurBorders =
-                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3f;
-                }
-                if (OwnerEmpire.GetRelations(them).Anger_TerritorialConflict >
-                    OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3f)
-                {
-                    OwnerEmpire.GetRelations(them).Anger_TerritorialConflict =
-                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3f;
-                }
-                OwnerEmpire.GetRelations(them).ResetAngerMilitaryConflict();
-                OwnerEmpire.GetRelations(them).WarnedAboutShips = false;
-                OwnerEmpire.GetRelations(them).WarnedAboutColonizing = false;
-                OwnerEmpire.GetRelations(them).HaveRejectedDemandTech = false;
-                OwnerEmpire.GetRelations(them).HaveRejected_OpenBorders = false;
-                OwnerEmpire.GetRelations(them).HaveRejected_TRADE = false;
-                OwnerEmpire.GetRelations(them).HasDefenseFleet = false;
-                if (OwnerEmpire.GetRelations(them).DefenseFleet != -1)
-                {
-                    OwnerEmpire.GetFleetsDict()[OwnerEmpire.GetRelations(them).DefenseFleet].FleetTask.EndTask();
+                    OwnerEmpire.GetFleetsDict()[usToThem.DefenseFleet].FleetTask.EndTask();
                 }
 
                 RemoveMilitaryTasksTargeting(them);
-
-                OwnerEmpire.GetRelations(them).ActiveWar = null;
-                them.GetRelations(OwnerEmpire).AtWar = false;
-                them.GetRelations(OwnerEmpire).PreparingForWar = false;
-                them.GetRelations(OwnerEmpire).ActiveWar.EndStarDate = Empire.Universe.StarDate;
-                them.GetRelations(OwnerEmpire).WarHistory.Add(them.GetRelations(OwnerEmpire).ActiveWar);
+                Relationship themToUs = them.GetRelations(OwnerEmpire);
+                themToUs.AtWar = false;
+                themToUs.PreparingForWar = false;
+                themToUs.ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                themToUs.WarHistory.Add(themToUs.ActiveWar);
+                themToUs.ActiveWar = null;
                 if (EmpireManager.Player != them)
                 {
-                    if (them.GetRelations(OwnerEmpire).Anger_FromShipsInOurBorders >
-                        them.data.DiplomaticPersonality.Territorialism / 3f)
+                    float theirBorderAngerToReduce = themToUs.Anger_FromShipsInOurBorders - them.data.DiplomaticPersonality.Territorialism / 3f;
+                    if (theirBorderAngerToReduce > 0)
+                        themToUs.AddAngerShipsInOurBorders(-theirBorderAngerToReduce);
+
+                    float theirTerritoryAngerToReduce = themToUs.Anger_TerritorialConflict - them.data.DiplomaticPersonality.Territorialism / 3f;
+                    if (theirTerritoryAngerToReduce > 0)
+                        themToUs.AddAngerTerritorialConflict(-theirTerritoryAngerToReduce);
+                    
+                    themToUs.ResetAngerMilitaryConflict();
+                    themToUs.WarnedAboutShips = false;
+                    themToUs.WarnedAboutColonizing = false;
+                    themToUs.HaveRejectedDemandTech = false;
+                    themToUs.HaveRejected_OpenBorders = false;
+                    themToUs.HaveRejected_TRADE = false;
+                    if (themToUs.DefenseFleet != -1)
                     {
-                        them.GetRelations(OwnerEmpire).Anger_FromShipsInOurBorders =
-                            them.data.DiplomaticPersonality.Territorialism / 3f;
-                    }
-                    if (them.GetRelations(OwnerEmpire).Anger_TerritorialConflict >
-                        them.data.DiplomaticPersonality.Territorialism / 3f)
-                    {
-                        them.GetRelations(OwnerEmpire).Anger_TerritorialConflict =
-                            them.data.DiplomaticPersonality.Territorialism / 3f;
-                    }
-                    them.GetRelations(OwnerEmpire).ResetAngerMilitaryConflict();
-                    them.GetRelations(OwnerEmpire).WarnedAboutShips = false;
-                    them.GetRelations(OwnerEmpire).WarnedAboutColonizing = false;
-                    them.GetRelations(OwnerEmpire).HaveRejectedDemandTech = false;
-                    them.GetRelations(OwnerEmpire).HaveRejected_OpenBorders = false;
-                    them.GetRelations(OwnerEmpire).HaveRejected_TRADE = false;
-                    if (them.GetRelations(OwnerEmpire).DefenseFleet != -1)
-                    {
-                        them.GetFleetsDict()[them.GetRelations(OwnerEmpire).DefenseFleet].FleetTask.EndTask();
+                        them.GetFleetsDict()[themToUs.DefenseFleet].FleetTask.EndTask();
                     }
                     them.GetEmpireAI().RemoveMilitaryTasksTargeting(OwnerEmpire);
                 }
-                them.GetRelations(OwnerEmpire).ActiveWar = null;
             }
             if (theirOffer.NAPact)
             {

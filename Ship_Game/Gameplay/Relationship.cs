@@ -44,9 +44,9 @@ namespace Ship_Game.Gameplay
         [Serialize(8)] public bool WarnedAboutColonizing;
         [Serialize(9)] public int PlayerContactStep; //  Encounter Step to use when the player contacts this faction
 
-        [Serialize(10)] public float Anger_FromShipsInOurBorders;
-        [Serialize(11)] public float Anger_TerritorialConflict;
-        [Serialize(12)] public float Anger_MilitaryConflict; // FB - Use AddAngermilitaryConflict
+        [Serialize(10)] public float Anger_FromShipsInOurBorders; // FB - Use AddAngerShipsInOurBorders
+        [Serialize(11)] public float Anger_TerritorialConflict; // FB - Use AddAngerTerritorialConflict
+        [Serialize(12)] public float Anger_MilitaryConflict; // FB - Use AddAngerMilitaryConflict
         [Serialize(13)] public float Anger_DiplomaticConflict; // FB - Use AddAngerDiplomaticConflict
 
         [Serialize(14)] public int SpiesDetected;
@@ -196,7 +196,7 @@ namespace Ship_Game.Gameplay
         public void StoleOurColonyClaim(Empire owner, Planet claimedPlanet)
         {
             NumberStolenClaims++;
-            Anger_TerritorialConflict += 5f + (float) Math.Pow(5, NumberStolenClaims);
+            AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
             StolenSystems.AddUnique(claimedPlanet.ParentSystem.guid);
         }
 
@@ -365,7 +365,7 @@ namespace Ship_Game.Gameplay
                     }
 
                     float expansion = UniverseScreen.SolarSystemList.Count / us.GetOwnedSystems().Count + them.GetOwnedSystems().Count;
-                    Anger_TerritorialConflict += amount + expansion;
+                    AddAngerTerritorialConflict(amount + expansion);
                     Trust -= amount;
 
                     if (Anger_TerritorialConflict < us.data.DiplomaticPersonality.Territorialism && !AtWar)
@@ -535,8 +535,8 @@ namespace Ship_Game.Gameplay
         {
             UpdateAngerBorders(us, them);
             UpdatePeace(us, them);
-            Anger_TerritorialConflict   = (Anger_TerritorialConflict - personality.AngerDissipation).LowerBound(0);
-            Anger_FromShipsInOurBorders = (Anger_FromShipsInOurBorders - personality.AngerDissipation).LowerBound(0);
+            AddAngerTerritorialConflict(-personality.AngerDissipation);
+            AddAngerShipsInOurBorders(-personality.AngerDissipation);
             AddAngerDiplomaticConflict(-personality.AngerDissipation);
             AddAngerMilitaryConflict(-personality.AngerDissipation);
 
@@ -605,9 +605,8 @@ namespace Ship_Game.Gameplay
 
             AddAngerDiplomaticConflict(-0.1f);
             AddAngerMilitaryConflict(-0.1f);
-            Anger_FromShipsInOurBorders -= 0.1f;
-            Anger_MilitaryConflict      -= 0.1f;
-            Anger_TerritorialConflict   -= 0.1f;
+            AddAngerShipsInOurBorders(-0.1f);
+            AddAngerTerritorialConflict(-0.1f);
             if (--PeaceTurnsRemaining <= 0)
                 us.EndPeaceWith(them);
         }
@@ -621,7 +620,8 @@ namespace Ship_Game.Gameplay
             if (strShipsInBorders > 0)
             {
                 int multiplier = Treaty_NAPact ? 1 : 2; // We are less concerned if we have NAP with them
-                Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strShipsInBorders / (us.MilitaryScore * multiplier);
+                float borderAnger = (100f - Trust) / 100f * strShipsInBorders / (us.MilitaryScore * multiplier);
+                AddAngerShipsInOurBorders(borderAnger);
             }
         }
 
@@ -1402,6 +1402,16 @@ namespace Ship_Game.Gameplay
         public void ResetAngerMilitaryConflict()
         {
             AddAngerMilitaryConflict(-Anger_MilitaryConflict);
+        }
+
+        public void AddAngerShipsInOurBorders(float amount)
+        {
+            Anger_FromShipsInOurBorders = (Anger_FromShipsInOurBorders + amount).LowerBound(0);
+        }
+
+        public void AddAngerTerritorialConflict(float amount)
+        {
+            Anger_TerritorialConflict = (Anger_TerritorialConflict + amount).LowerBound(0);
         }
 
         void SetPosture(Posture posture)

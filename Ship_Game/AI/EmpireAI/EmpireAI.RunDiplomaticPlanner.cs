@@ -216,9 +216,9 @@ namespace Ship_Game.AI
                         float modifiedWeight = GetModifiedTerritorialWeight(weight, usToThem, others, closeSystem);
 
                         if (usToThem.Anger_TerritorialConflict > 0)
-                            usToThem.Anger_TerritorialConflict += (usToThem.Anger_TerritorialConflict + borders.RankImportance * modifiedWeight) / usToThem.Anger_TerritorialConflict;
+                            usToThem.AddAngerTerritorialConflict((usToThem.Anger_TerritorialConflict + borders.RankImportance * modifiedWeight) / usToThem.Anger_TerritorialConflict);
                         else
-                            usToThem.Anger_TerritorialConflict += borders.RankImportance * modifiedWeight;
+                            usToThem.AddAngerTerritorialConflict(borders.RankImportance * modifiedWeight);
                     }
                 }
             }
