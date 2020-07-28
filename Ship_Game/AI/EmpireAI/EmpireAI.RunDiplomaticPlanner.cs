@@ -11,6 +11,11 @@ namespace Ship_Game.AI {
         {
             if (OwnerEmpire.isPlayer)
                 return;
+            
+            //DiplomaticTraits dt = ResourceManager.DiplomaticTraits;
+            //OwnerEmpire.data.DiplomaticPersonality = RandomMath.RandItem(dt.DiplomaticTraitsList);
+
+
             string name = OwnerEmpire.data.DiplomaticPersonality.Name;
             if (name != null)
             {
