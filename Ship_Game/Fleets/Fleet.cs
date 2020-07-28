@@ -1449,17 +1449,13 @@ namespace Ship_Game.Fleets
                 ship.AI.ClearOrders();
                 ship.loyalty.AddShipNextFrame(ship);
                 ship.HyperspaceReturn();
-                return true;
             }
             else 
             {
                 if (ship.Active)
                     Log.Warning($"Ship was not part of this fleet: {this} ---- Ship: {ship} ");
-                Ships.Remove(ship);
             }
-
-            Empire.Universe.DebugWin?.DebugLogText("Fleet RemoveShip: Ship is not in this fleet", DebugModes.Normal);
-            return false;
+            return Ships.Remove(ship);
         }
 
         // @return The desired formation pos for this ship
