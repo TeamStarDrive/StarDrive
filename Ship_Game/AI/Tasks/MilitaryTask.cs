@@ -32,6 +32,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(17)] public int TaskBombTimeNeeded;
         [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
         [Serialize(19)] public Guid TaskGuid = Guid.NewGuid();
+        [Serialize(19)] public Array<Vector2> PatrolPoints;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
@@ -117,14 +118,12 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
-        public MilitaryTask(AO ao)
+        public MilitaryTask(AO ao, Array<Vector2> patrolPoints)
         {
             AO              = ao.Center;
             AORadius        = ao.Radius;
             type            = TaskType.CohesiveClearAreaOfEnemies;
-            WhichFleet      = ao.WhichFleet;
-            IsCoreFleetTask = true;
-            SetEmpire(ao.GetCoreFleet().Owner);
+            PatrolPoints    = patrolPoints;
         }
 
         public MilitaryTask(Vector2 center, float radius, SolarSystem system, float strengthWanted, TaskType taskType)
@@ -450,7 +449,8 @@ namespace Ship_Game.AI.Tasks
                                         }
                                     }
                                     RequisitionClaimForce();
-                                    Priority -= 1;
+                                    Priority += Priority < 1 ? 20 : -1;
+
                                 }
                                 break;
                             case 1:
@@ -703,7 +703,8 @@ namespace Ship_Game.AI.Tasks
             DefendClaim,
             DefendPostInvasion,
             GlassPlanet,
-            AssaultPirateBase
+            AssaultPirateBase,
+            Patrol
         }
 
         [Flags]
@@ -729,6 +730,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.CorsairRaid:        taskCat |= TaskCategory.War; break;
                 case TaskType.DefendSystem:
                 case TaskType.CohesiveClearAreaOfEnemies:
+                case TaskType.Patrol:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
                 case TaskType.DefendClaim:
                 case TaskType.Exploration:        taskCat |= TaskCategory.Expansion; break;
