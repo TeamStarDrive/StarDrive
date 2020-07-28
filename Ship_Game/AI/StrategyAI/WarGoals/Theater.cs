@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 
@@ -21,6 +23,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         bool Initialized;
         bool Remove = false;
         public War GetWar() => OwnerWar;
+
+        [XmlIgnore] [JsonIgnore] public float WarValue => TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us);
 
         Empire Them => OwnerWar.Them;
 
@@ -135,8 +139,22 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
+        public void SetTheaterPriority(float baseDistance, Vector2 position)
+        {
+            // trying to figure out how to incorporate planet value but all it does is attack homeworlds right now. 
+            // so remarking that code and just going by distance. 
+            //float totalWarValue          = OwnerWar.WarTheaters.WarValue.LowerBound(1); 
+            //float theaterValue           = WarValue.Clamped(1, totalWarValue);
+            float distanceFromPosition   = TheaterAO.Center.Distance(position);
+            float distanceMod            =  distanceFromPosition / baseDistance;
+            //float warValueMod            = theaterValue / (totalWarValue * distanceMod);
+            
+            Priority                     = (int)(OwnerWar.Priority() + 2 * distanceMod);
+        }
+
         public DebugTextBlock DebugText(DebugTextBlock debug, string pad, string pad2)
         {
+            debug.AddLine($"{pad}TheaterPri : {Priority}");
             for (int i = 0; i < Campaigns.Count; i++)
             {
                 var campaign = Campaigns[i];

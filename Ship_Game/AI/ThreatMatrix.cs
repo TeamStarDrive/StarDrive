@@ -16,8 +16,9 @@ namespace Ship_Game.AI
             [Serialize(1)] public float Strength;
             [Serialize(2)] public string EmpireName;
             [Serialize(3)] public bool InBorders;
-            [Serialize(4)] public int EmpireId = 0;
+            [Serialize(4)] public int EmpireId    = 0;
             [Serialize(5)] public Guid SystemGuid = Guid.Empty;
+            [Serialize(6)] public Guid PinGuid    = Guid.NewGuid();
             [XmlIgnore][JsonIgnore] public Ship Ship;
             [XmlIgnore][JsonIgnore] public SolarSystem System;
 
@@ -55,6 +56,14 @@ namespace Ship_Game.AI
                 Ship       = ship;
                 System     = ship.System;
                 SystemGuid = ship.System?.guid ?? Guid.Empty;
+            }
+
+            public static Pin FindPinByGuid(Guid pinGuid, Empire empire)
+            {
+                var pins = empire.GetEmpireAI().ThreatMatrix.GetPins();
+                var pin = pins.Find(p => p.PinGuid == pinGuid);
+                return pin;
+
             }
         }
 
