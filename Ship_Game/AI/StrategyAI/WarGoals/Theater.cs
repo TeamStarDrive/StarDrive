@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 
@@ -22,6 +24,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         bool Remove = false;
         public War GetWar() => OwnerWar;
 
+        [XmlIgnore] [JsonIgnore] public float WarValue => TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us);
+
         Empire Them => OwnerWar.Them;
 
         public Theater() { }
@@ -42,7 +46,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void Evaluate()
         {
-            TheaterAO.Update();
             if (Remove)
             {
                 for (int i = Campaigns.Count - 1; i >= 0; i--)
@@ -136,21 +139,22 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        public void SetTheaterPriority(float totalWarValue, float baseDistance, Vector2 position)
+        public void SetTheaterPriority(float baseDistance, Vector2 position)
         {
-            float value = TheaterAO.GetWarValueOfSystemsInAOTo(Us).Clamped(1, totalWarValue);
-            float distanceFromPosition = float.MaxValue;
-            foreach (var p in TheaterAO.GetPlanets())
-            {
-                float distance = p.Center.Distance(position);
-                distanceFromPosition = Math.Min(distanceFromPosition, distance);
-            }
-            int distanceMod = (int)(distanceFromPosition / baseDistance).UpperBound(10);
-            Priority    = 5 + distanceMod - (int)((value / totalWarValue) * 5) + OwnerWar.Priority();
+            // trying to figure out how to incorporate planet value but all it does is attack homeworlds right now. 
+            // so remarking that code and just going by distance. 
+            //float totalWarValue          = OwnerWar.WarTheaters.WarValue.LowerBound(1); 
+            //float theaterValue           = WarValue.Clamped(1, totalWarValue);
+            float distanceFromPosition   = TheaterAO.Center.Distance(position);
+            float distanceMod            =  distanceFromPosition / baseDistance;
+            //float warValueMod            = theaterValue / (totalWarValue * distanceMod);
+            
+            Priority                     = (int)(OwnerWar.Priority() + 2 * distanceMod);
         }
 
         public DebugTextBlock DebugText(DebugTextBlock debug, string pad, string pad2)
         {
+            debug.AddLine($"{pad}TheaterPri : {Priority}");
             for (int i = 0; i < Campaigns.Count; i++)
             {
                 var campaign = Campaigns[i];
