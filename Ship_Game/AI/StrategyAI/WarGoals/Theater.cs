@@ -141,6 +141,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void SetTheaterPriority(float baseDistance, Vector2 position)
         {
+            // empire defense
+            if (Us==Them)
+            {
+                Priority = 2;
+                return;
+            }
             // trying to figure out how to incorporate planet value but all it does is attack homeworlds right now. 
             // so remarking that code and just going by distance. 
             //float totalWarValue          = OwnerWar.WarTheaters.WarValue.LowerBound(1); 
@@ -149,7 +155,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             float distanceMod            =  distanceFromPosition / baseDistance;
             //float warValueMod            = theaterValue / (totalWarValue * distanceMod);
             
-            Priority                     = (int)(OwnerWar.Priority() + 2 * distanceMod);
+            Priority                     = (int)(OwnerWar.Priority().LowerBound(1) * distanceMod).UpperBound(9);
         }
 
         public DebugTextBlock DebugText(DebugTextBlock debug, string pad, string pad2)
