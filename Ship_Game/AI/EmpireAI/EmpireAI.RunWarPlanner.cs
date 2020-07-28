@@ -15,16 +15,18 @@ namespace Ship_Game.AI
     public sealed partial class EmpireAI
     {
         public War EmpireDefense;
-        public float ValueOfAllWarSystems()
+        public float TotalWarValue { get; private set; }
+        public void SetTotalWarValue()
         {
             float value = 0;
             foreach (var rel in OwnerEmpire.AllRelations)
             {
+                var them = rel.Key;
                 var war = rel.Value.ActiveWar;
-                if (war == null) continue;
-                value = war.WarTheaters.Theaters.Sum(t => t.TheaterAO.GetWarValueOfSystemsInAOTo(OwnerEmpire)).LowerBound(1);
+                if (!rel.Value.AtWar) continue;
+                value = them.GetOwnedSystems().Sum(s => s.WarValueTo(OwnerEmpire)).LowerBound(1);
             }
-            return value;
+            TotalWarValue = value;
         }
 
         public void CallAllyToWar(Empire ally, Empire enemy)
@@ -282,6 +284,7 @@ namespace Ship_Game.AI
 
         private void RunWarPlanner()
         {
+            SetTotalWarValue();
             UpdateEmpireDefense();
             if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
                 return;

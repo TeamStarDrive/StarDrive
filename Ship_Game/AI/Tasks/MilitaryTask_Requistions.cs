@@ -16,7 +16,7 @@ namespace Ship_Game.AI.Tasks
             // RedFox: I removed ClampMin(minimumStrength) because this was causing infinite
             //         Create-Destroy-Create loop of ClearAreaOfEnemies MilitaryTasks
             //         Lets just report what the actual strength is.
-            return Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
+            return Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(AO, AORadius, Owner);
         }
 
         private int GetTargetPlanetGroundStrength(int minimumStrength)
@@ -122,7 +122,7 @@ namespace Ship_Game.AI.Tasks
         private int BombTimeNeeded()
         {
             //ground landing spots. if we dont have a significant space to land troops. create them. 
-            int bombTime =  TargetPlanet.TotalDefensiveStrength / 20  ;
+            int bombTime =  TargetPlanet.TotalDefensiveStrength / 10  ;
 
             //shields are a real pain. this may need a lot more code to deal with. 
             bombTime    += (int)TargetPlanet.ShieldStrengthMax / 50;
@@ -286,7 +286,7 @@ namespace Ship_Game.AI.Tasks
             }
             EnemyStrength = GetEnemyShipStrengthInAO();
             AO = TargetPlanet.Center;
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 100 ,minBombMinutes: 1);
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 100 ,minBombMinutes: 3);
 
             float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
 
@@ -310,7 +310,7 @@ namespace Ship_Game.AI.Tasks
 
             EnemyStrength = TargetPlanet.ParentSystem.ShipList.Sum(s => s.loyalty == TargetPlanet.Owner ? s.BaseStrength : 0);
             AO = TargetPlanet.Center;
-            int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 10).LowerBound(3) + (int)Math.Ceiling(TargetPlanet.PopulationBillion);
+            int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion);
             InitFleetRequirements(minFleetStrength: 100 * bombTimeNeeded, minTroopStrength: 0, minBombMinutes: bombTimeNeeded);
 
             float battleFleetSize = 0.25f;
