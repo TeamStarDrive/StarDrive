@@ -122,7 +122,7 @@ namespace Ship_Game.AI.Tasks
         private int BombTimeNeeded()
         {
             //ground landing spots. if we dont have a significant space to land troops. create them. 
-            int bombTime =  TargetPlanet.TotalDefensiveStrength / 20  ;
+            int bombTime =  TargetPlanet.TotalDefensiveStrength / 10  ;
 
             //shields are a real pain. this may need a lot more code to deal with. 
             bombTime    += (int)TargetPlanet.ShieldStrengthMax / 50;
@@ -286,7 +286,7 @@ namespace Ship_Game.AI.Tasks
             }
             EnemyStrength = GetEnemyShipStrengthInAO();
             AO = TargetPlanet.Center;
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 100 ,minBombMinutes: 1);
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 100 ,minBombMinutes: 3);
 
             float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
 

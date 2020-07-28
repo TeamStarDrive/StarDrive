@@ -70,10 +70,6 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoalFailed;
 
                 var task       = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
-                // need to adjust this by personality.
-                // this task will increase in priority as time goes by. 
-                // this will generally only have an effect during war. 
-                task.Priority  = RandomMath.IntBetween(10,100);
                 empire.GetEmpireAI().AddPendingTask(task);
             }
 
