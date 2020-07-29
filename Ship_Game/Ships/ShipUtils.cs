@@ -7,7 +7,8 @@ namespace Ship_Game.Ships
         // This will also update shield max power of modules if there are amplifiers
         public static float UpdateShieldAmplification(ShipModule[] amplifiers, ShipModule[] shields)
         {
-            int numShields = shields.Length;
+            var mainShields = shields.Filter(s => s.ModuleType == ShipModuleType.Shield);
+            int numShields  = shields.Length;
             if (numShields == 0)
                 return 0;
 
@@ -28,8 +29,9 @@ namespace Ship_Game.Ships
 
         public static float GetShieldAmplification(ShipModule[] amplifiers, ShipModule[] shields)
         {
-            int numShields          = shields.Length;
-            int numAmplifiers       = amplifiers.Length;
+            var mainShields   = shields.Filter(s => s.ModuleType == ShipModuleType.Shield);
+            int numShields    = mainShields.Length;
+            int numAmplifiers = amplifiers.Length;
 
             if (numAmplifiers == 0 || numShields == 0)
                 return 0;
