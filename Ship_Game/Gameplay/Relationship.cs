@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Debug;
 using Ship_Game.GameScreens.DiplomacyScreen;
+using System.Windows.Forms;
 
 namespace Ship_Game.Gameplay
 {
@@ -956,8 +957,7 @@ namespace Ship_Game.Gameplay
             }
 
             Empire them = Them;
-            Array<TechEntry> potentialDemands = them.GetEmpireAI().TradableTechs(us);
-            if (potentialDemands.Count == 0)
+            if (!them.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialDemands))
                 return;
 
             TechEntry techToDemand = potentialDemands.RandItem();
@@ -979,6 +979,112 @@ namespace Ship_Game.Gameplay
                 them.GetEmpireAI().AnalyzeOffer(theirDemand, demandTech, us, Offer.Attitude.Threaten);
 
             turnsSinceLastContact = 0;
+        }
+
+        void TradeTech(Empire us)
+        {
+            Empire them = Them;
+            if (them == Player || ActiveWar != null || turnsSinceLastContact < SecondDemand || Posture == Posture.Hostile)
+                return;
+
+            // Get techs we can offer them
+            if (!TechsToOffer(us, them, out Array<TechEntry> ourTechs))
+                return;
+            
+            // Get techs they can offer us
+            if (!TechsToOffer(them, us, out Array<TechEntry> theirTechs))
+                return;
+
+            // Get final techs we offer and their techs we want to trade 
+            if (!DetermineTechTrade(us, them, ourTechs, theirTechs, out string ourTechOffer, out Array<string> theirTechOffer))
+                return;
+
+            Offer ourOffer = new Offer();
+            ourOffer.TechnologiesOffered.Add(ourTechOffer);
+            Offer theirOffer = new Offer();
+            foreach (string techName in theirTechOffer)
+                theirOffer.TechnologiesOffered.Add(techName);
+
+            Offer.Attitude ourAttitude = us.IsAggressive || us.IsRuthless || us.IsXenophobic ? Offer.Attitude.Respectful : Offer.Attitude.Pleading;
+            them.GetEmpireAI().AnalyzeOffer(ourOffer, theirOffer, us, ourAttitude);
+        }
+
+        bool TechsToOffer(Empire us, Empire them, out Array<TechEntry> techs)
+        {
+            techs = new Array<TechEntry>();
+            if (!us.GetEmpireAI().TradableTechs(them, out Array<TechEntry> ourTechs))
+                return false;
+
+            var theirDesigns = them.GetOurFactionShips();
+            foreach (TechEntry entry in ourTechs)
+            {
+                Technology tech = entry.Tech;
+                if (entry.IsOnlyShipTech() && !them.WeCanUseThis(tech, theirDesigns))
+                    continue;
+
+                ourTechs.Add(entry);
+            }
+
+            return ourTechs.Count > 0;
+        }
+
+        bool DetermineTechTrade(Empire us, Empire them, Array<TechEntry> ourTechs, Array<TechEntry> theirTechs, 
+            out string ourFinalOffer, out Array<string> theirFinalOffer)
+        {
+            //theirFinalOffer = new Array<string>();
+
+            TechEntry ourTech = ourTechs.RandItem();
+            float ourTechCost = ourTech.Tech.ActualCost;
+            ourFinalOffer     = ourTech.UID;
+            if (!GetTheirTechsForOurOffer(ourTechCost, them.GetRelations(us).Posture, theirTechs, out theirFinalOffer))
+                return false;
+
+            return theirFinalOffer.Count > 0;
+        }
+
+        bool GetTheirTechsForOurOffer(float ourTechCost, Posture theirPosture, Array<TechEntry> theirTechs,  out Array<string> theirFinalTech)
+        {
+            theirFinalTech      = new Array<string>();
+            float techCostRatio = GetTechTradeCostRatio(theirPosture);
+            float theirMaxCost  = ourTechCost * techCostRatio;
+            float totalCost     = 0;
+
+            foreach (TechEntry tech in theirTechs.Sorted(t => t.TechCost))
+            {
+                if (tech.Tech.ActualCost + totalCost > theirMaxCost)
+                    break;
+
+                theirFinalTech.Add(tech.UID);
+                totalCost += tech.Tech.ActualCost;
+            }
+
+            return theirFinalTech.Count > 0;
+        }
+
+        float GetTechTradeCostRatio(Posture theirPosture)
+        {
+            float techCostRatio = 1; // Less than 1 means we want cheaper cost than what we offer
+            switch (Posture)
+            {
+                case Posture.Friendly:
+                    switch (theirPosture)
+                    {
+                        case Posture.Neutral: techCostRatio = 0.9f; break;
+                        case Posture.Hostile: techCostRatio = 0.75f; break;
+                    }
+
+                    break;
+                case Posture.Neutral:
+                    switch (theirPosture)
+                    {
+                        case Posture.Friendly: techCostRatio = 1.1f; break;
+                        case Posture.Hostile: techCostRatio = 0.9f; break;
+                    }
+
+                    break;
+            }
+
+            return techCostRatio;
         }
 
         void WarnAboutShips(Empire us)
@@ -1070,6 +1176,14 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
+        bool TheyArePotentialTargetXenophobic(Empire us, Empire them)
+        {
+            if (ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar || Posture == Posture.Friendly)
+                return false;
+
+            return them.GetPlanets().Count > us.GetPlanets().Count * 0.75f || TotalAnger > 20f;
+        }
+
         // Pacifist, Cunning, Honorable
         public void DoConservative(Empire us, Empire them)
         {
@@ -1077,8 +1191,7 @@ namespace Ship_Game.Gameplay
             {
                 case Posture.Friendly:
                     OfferTrade(us);
-                    // Todo Trade Tech
-                    OfferNonAggression(us);
+                    TradeTech(us);
                     OfferNonAggression(us);
                     OfferOpenBorders(us);
                     OfferAlliance(us);
@@ -1087,6 +1200,7 @@ namespace Ship_Game.Gameplay
                 case Posture.Neutral:
                     AssessDiplomaticAnger(us);
                     OfferTrade(us);
+                    TradeTech(us);
                     OfferNonAggression(us);
                     ChangeToFriendlyIfPossible(us);
                     ChangeToHostileIfPossible(us);
@@ -1104,20 +1218,18 @@ namespace Ship_Game.Gameplay
 
         public void DoRuthless(Empire us, Empire them, out bool theyArePotentialTargets)
         {
-            theyArePotentialTargets = false;
             switch (Posture)
             {
                 case Posture.Friendly:
                     OfferTrade(us);
                     OfferNonAggression(us);
-                    // todo Trade Tech
+                    TradeTech(us);
                     ChangeToNeutralIfPossible(us);
                     break;
                 case Posture.Neutral:
                     AssessDiplomaticAnger(us);
-                    if (!them.IsRuthless)
-                        OfferTrade(us);
-
+                    OfferTrade(us);
+                    TradeTech(us);
                     ChangeToFriendlyIfPossible(us);
                     ChangeToHostileIfPossible(us);
                     ReferToMilitary(us, threatForInsult: -20, compliment: false);
@@ -1133,8 +1245,7 @@ namespace Ship_Game.Gameplay
                     break;
             }
 
-            if (TheyArePotentialTargetRuthless(us, them))
-                theyArePotentialTargets = true;
+            theyArePotentialTargets = TheyArePotentialTargetRuthless(us, them);
         }
 
         public void DoAggressive(Empire us, Empire them, out bool theyArePotentialTargets)
@@ -1146,6 +1257,7 @@ namespace Ship_Game.Gameplay
             {
                 case Posture.Friendly:
                     OfferTrade(us);
+                    TradeTech(us);
                     OfferNonAggression(us);
                     OfferOpenBorders(us);
                     OfferAlliance(us);
@@ -1153,6 +1265,7 @@ namespace Ship_Game.Gameplay
                     break;
                 case Posture.Neutral:
                     OfferTrade(us);
+                    TradeTech(us);
                     ChangeToFriendlyIfPossible(us);
                     ChangeToHostileIfPossible(us);
                     break;
@@ -1161,14 +1274,12 @@ namespace Ship_Game.Gameplay
                     us.GetEmpireAI().RequestHelpFromAllies(this, them, FirstDemand);
                     break;
                 case Posture.Hostile:
-                    if (TheyArePotentialTargetAggressive(us, them))
-                        theyArePotentialTargets = true;
-
+                    theyArePotentialTargets = TheyArePotentialTargetAggressive(us, them);
                     break;
             }
         }
 
-        public void DoXenophobic(Empire us)
+        public void DoXenophobic(Empire us, Empire them, out bool theyArePotentialTargets)
         {
             AssessDiplomaticAnger(us);
             switch (Posture)
@@ -1186,9 +1297,12 @@ namespace Ship_Game.Gameplay
                     RequestPeace(us, onlyBadly: true);
                     break;
                 case Posture.Hostile:
+                    DemandTech(us);
                     ChangeToNeutralIfPossible(us);
                     break;
             }
+
+            theyArePotentialTargets = TheyArePotentialTargetXenophobic(us, them);
         }
 
         void ChangeToFriendlyIfPossible(Empire us)
@@ -1202,7 +1316,6 @@ namespace Ship_Game.Gameplay
                         break;
 
                     return;
-
                 case PersonalityType.Aggressive:
                     if (TurnsKnown > SecondDemand && Threat > 0 && Trust > 50f && TotalAnger < 10)
                         break;
