@@ -22,7 +22,7 @@ namespace Ship_Game.AI
 
         private readonly Empire OwnerEmpire;
         private readonly BatchRemovalCollection<SolarSystem> MarkedForExploration = new BatchRemovalCollection<SolarSystem>();
-        private readonly OffensiveForcePoolManager OffensiveForcePoolManager;
+        public readonly OffensiveForcePoolManager OffensiveForcePoolManager;
 
         public string EmpireName;
         public DefensiveCoordinator DefensiveCoordinator;
