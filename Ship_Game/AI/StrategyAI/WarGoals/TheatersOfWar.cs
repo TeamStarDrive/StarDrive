@@ -37,8 +37,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void Evaluate()
         {
-            var empireCenter = Us.GetWeightedCenter();
-            float baseDistance = DistanceToClosestTheater(empireCenter);
+            var empireCenter   = Us.GetWeightedCenter();
+            float baseDistance = DistanceOfTheaterClosestTo(empireCenter);
             for (int i = Theaters.Count - 1; i >= 0; i--)
             {
                 var theater = Theaters[i];
@@ -55,7 +55,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        float DistanceToClosestTheater(Vector2 position)
+        float DistanceOfTheaterClosestTo(Vector2 position)
         {
             float closest = float.MaxValue;
             for (int i = 0; i < Theaters.Count; i++)

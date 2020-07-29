@@ -266,7 +266,9 @@ namespace Ship_Game.Ships
 
         public void UpdateShieldPowerMax(float shieldAmplify)
         {
-            ActualShieldPowerMax = (shield_power_max + shieldAmplify) * Bonuses.ShieldMod;
+            // only amplify dedicated shields
+            float actualAmplify = ModuleType == ShipModuleType.Shield ? shieldAmplify : 0;
+            ActualShieldPowerMax = (shield_power_max + actualAmplify) * Bonuses.ShieldMod;
         }
 
         public bool IsAmplified => ActualShieldPowerMax > shield_power_max * Bonuses.ShieldMod;
