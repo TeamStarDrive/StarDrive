@@ -4891,7 +4891,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1912</Index>
-      <Text>When powered, this amplifies the Maximum Power of the shields in your ships. This number is also divided by the total number of shields.</Text>
+      <Text>When powered, this amplifies the Maximum Power of the main shields in your ships. This number is also divided by the total number ofi main shields. Main shields are dedicated shield modules and appear under the "Shield" tab.</Text>
     </Token>
     <Token>
       <Index>1913</Index>
@@ -5511,7 +5511,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2076</Index>
-      <Text>Indicates the total hitpoints of all of the ship's shield modules combined, including all Shield Amplifiers. The Color of the title will be Gold, if any Shield Amplifiers are installed.</Text>
+      <Text>Indicates the total hitpoints of all of the ship's shield modules combined, including all Shield Amplifiers. The Color of the title will be Gold if any Shield Amplifiers are installed and effective.</Text>
     </Token>
     <Token>
       <Index>2077</Index>

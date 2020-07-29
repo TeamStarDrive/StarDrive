@@ -17,6 +17,7 @@ namespace Ship_Game.AI
         {
             Owner = owner;
         }
+
         public void ManageAOs()
         {
             
@@ -32,7 +33,6 @@ namespace Ship_Game.AI
                     AreasOfOperations.RemoveAt(index);
                     areasOfOperation.ClearOut();
                     areasOfOperation.Dispose();
-                    continue;
                 }
             }
             
@@ -94,5 +94,31 @@ namespace Ship_Game.AI
                 }
             return allPlanets;
         }
+
+        Planet[] GetAOCoreWorlds() => AreasOfOperations.Select(ao => ao.CoreWorld);
+
+        public AO GetAOContaining(Planet planetToCheck)
+        {
+            return AreasOfOperations.Find(ao=> ao.CoreWorld == planetToCheck || ao.GetPlanets().Contains(planetToCheck));
+        }
+
+        public AO GetAOContaining(Vector2 point)
+        {
+            return AreasOfOperations.Find(ao => point.InRadius(ao.Center, ao.Radius));
+        }
+
+        public bool IsPlanetCoreWorld(Planet planetToCheck)
+        {
+            if (planetToCheck.Owner != Owner) return false;
+            return AreasOfOperations.Any(ao=> ao.CoreWorld == planetToCheck);
+        }
+
+        public AO CreateAO(Planet coreWorld, float radius)
+        {
+            var newAO = new AO(coreWorld, radius);
+            AreasOfOperations.Add(newAO);
+            return newAO;
+        }
+
     }
 }

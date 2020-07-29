@@ -351,7 +351,7 @@ namespace Ship_Game.AI.Tasks
                 return RequisitionStatus.NoRallyPoint;
 
 
-            FleetShips fleetShips                    = Owner.AllFleetsReady(rallyPoint.Center);
+            FleetShips fleetShips                    = Owner.Pool.EmpireReadyFleets;
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
             var troopsOnPlanets                      = new Array<Troop>();
 
