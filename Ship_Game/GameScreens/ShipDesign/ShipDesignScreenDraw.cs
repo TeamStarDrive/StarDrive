@@ -554,9 +554,9 @@ namespace Ship_Game
 
             var stats = new ShipStats();
             stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0);
-
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
             shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
+            bool mainShieldsPresent      = modules.Shields.Any(s => s.ModuleType == ShipModuleType.Shield);
             Power netPower = Power.Calculate(modules.Modules, EmpireManager.Player);
 
             // Other modification to the ship and draw values
@@ -579,7 +579,7 @@ namespace Ship_Game
             WriteLine(ref cursor);
 
             DrawHitPointsAndRepair(ref cursor, hitPoints, repairRate);
-            DrawShieldsStats(ref cursor, totalShieldAmplify, shieldPower, shieldAmplifyPerShield);
+            DrawShieldsStats(ref cursor, totalShieldAmplify, shieldPower, shieldAmplifyPerShield, mainShieldsPresent);
             DrawEmpAndEcm(ref cursor, empResist, totalEcm);
             WriteLine(ref cursor);
 
@@ -757,9 +757,9 @@ namespace Ship_Game
                 DrawStatColor(ref cursor, TintedValue(6189, totalEcm, 234, Color.Goldenrod));
         }
 
-        void DrawShieldsStats(ref Vector2 cursor, float totalShieldAmplify, float shieldPower, float shieldAmplifyPerShield)
+        void DrawShieldsStats(ref Vector2 cursor, float totalShieldAmplify, float shieldPower, float shieldAmplifyPerShield, bool mainShieldsPresent)
         {
-            Color shieldMaxColor = totalShieldAmplify > 0 ? Color.Gold : Color.Goldenrod;
+            Color shieldMaxColor = totalShieldAmplify > 0 && mainShieldsPresent ? Color.Gold : Color.Goldenrod;
             if (shieldPower > 0) 
                 DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, shieldMaxColor));
 
