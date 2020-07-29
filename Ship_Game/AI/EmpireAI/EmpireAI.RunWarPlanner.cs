@@ -16,6 +16,7 @@ namespace Ship_Game.AI
     {
         public War EmpireDefense;
         public float TotalWarValue { get; private set; }
+        public float WarStrength = 0;
         public void SetTotalWarValue()
         {
             float value = 0;
@@ -286,6 +287,7 @@ namespace Ship_Game.AI
         {
             SetTotalWarValue();
             UpdateEmpireDefense();
+
             if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
                 return;
             WarState worstWar = WarState.NotApplicable;
@@ -313,29 +315,25 @@ namespace Ship_Game.AI
                     return f.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.FleetNeeded);
                 });
 
-                var fleets                 = OwnerEmpire.AllFleetsReady();
-                float fleetsStrength       = fleets.FleetsStrength();
-
-                if (fleetsStrength > currentTaskStrength)
+                if (WarStrength > currentTaskStrength)
                 {
                     foreach (var kv in OwnerEmpire.AllRelations)
                     {
                         if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
                         Relationship rel = kv.Value;
-                        Empire them = kv.Key;
+                        Empire them      = kv.Key;
                         if (rel.Treaty_Peace || !rel.PreparingForWar || rel.AtWar) continue;
 
                         float minDistanceToThem = OwnerEmpire.MinDistanceToNearestOwnedSystemIn(them.GetOwnedSystems(), out SolarSystem nearestSystem);
 
                         if (minDistanceToThem < 0) continue;
-                        float projectorRadius = OwnerEmpire.GetProjectorRadius();
+                        float projectorRadius    = OwnerEmpire.GetProjectorRadius();
                         float distanceMultiplier = (minDistanceToThem / (Empire.Universe.UniverseSize / 4f)).LowerBound(1);
-
-                        float enemyStrength = kv.Key.CurrentMilitaryStrength;
+                        float enemyStrength      = kv.Key.Pool.EmpireReadyFleets.AccumulatedStrength;
 
                         float anger = (rel.TotalAnger  / 100) * OwnerEmpire.GetWarOffensiveRatio();
 
-                        if (enemyStrength * distanceMultiplier > fleetsStrength * anger - currentTaskStrength ) continue;
+                        if (enemyStrength * distanceMultiplier > WarStrength * anger - currentTaskStrength ) continue;
 
                         // all out war
                         if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)

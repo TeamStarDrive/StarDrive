@@ -61,7 +61,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             SystemGuids    = campaign.SystemGuids;
             ShipGuids      = campaign.ShipGuids;
             PlanetGuids    = campaign.PlanetGuids;
-            RallyAO        = campaign.RallyAO;
+            RallyAO        = campaign.RallyAO ?? theater.RallyAO;
             IsCoreCampaign = campaign.IsCoreCampaign;
             OwnerTheater   = theater;
             RestoreFromSave(theater);
@@ -138,6 +138,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public override GoalStep Evaluate()
         {
+            RallyAO   = OwnerTheater.RallyAO;
             var state = base.Evaluate();
             Tasks.Update();
             return state;
@@ -191,35 +192,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Owner = EmpireManager.GetEmpireByName(ownerName);
         }
 
-        /// <summary>
-        /// Creates an empire AO for the rally position.
-        /// The AO will allow the AO process to protect and maintain the AO rally.
-        /// Should be called after attack targets are assigned.
-        /// </summary>
         protected virtual GoalStep SetupRallyPoint()
         {
-            float closestRallyPoint          = float.MaxValue;
-            SolarSystem rallySystem          = null;
-            Planet rallyPlanet               = null;
-
-            if (TargetSystems.IsEmpty) return GoalStep.RestartGoal;
-
-            rallyPlanet = Owner.FindNearestSafeRallyPoint(OwnerTheater.TheaterAO.Center);
-
-            // createEmpire AO
-            if (rallyPlanet.Owner == Owner)
-            {
-                if (!Owner.GetAOCoreWorlds().Contains(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
-                {
-                    AO newAO = new AO(rallyPlanet, Owner.GetProjectorRadius(rallyPlanet));
-                    Owner.GetEmpireAI().AreasOfOperations.Add(newAO);
-                    RallyAO = newAO;
-                }
-                if (RallyAO == null)
-                    RallyAO = Owner.GetAOFromCoreWorld(rallyPlanet);
-                return GoalStep.GoToNextStep;
-            }
-            return GoalStep.TryAgain;
+            if (OwnerTheater.RallyAO == null) return GoalStep.TryAgain;
+            RallyAO = OwnerTheater.RallyAO;
+            return GoalStep.GoToNextStep;
         }
 
         protected void UpdateTargetSystemList() => UpdateTargetSystemList(TargetSystems);
@@ -254,36 +231,36 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected GoalStep CreateTargetSystemList(Array<SolarSystem> targets)
         {
-            Vector2 empireCenter     = Owner.GetWeightedCenter();
-            var fleets               = Owner.AllFleetsReady();
-            float strength           = fleets.AccumulatedStrength * Owner.GetWarOffensiveRatio();
+            // attempt to sort targets by systems in AO that are nearest to rally AO.
+            // the create a winnable targets list evaluating each system 
+
             var winnableTarget       = new Array<SolarSystem>();
-
-            Vector2 nearestPoint     = RallyAO?.Center ?? empireCenter;
+            Vector2 rallyPoint       = RallyAO.Center;
+            
             // these loops are not cheap but the frequency of the calcs should be pretty low.
-            float minDistanceToThem  = Them.FindNearestOwnedSystemTo(nearestPoint)?.Position.SqDist(nearestPoint) ?? 1000000;
+            float distanceToAOCenter  = OwnerTheater.TheaterAO.Center.SqDist(rallyPoint);
 
-            // goal here is to sort the targets by closeness and value.
-            // we will emphasize above average war targets and nearby planets. 
+            // goal here is to sort the targets by closeness
             var sortedTargets = targets.Sorted(s =>
             {
-                float distance      = s.Position.SqDist(nearestPoint);
-                // farther will be larger
-                float rangeRatio    = distance / minDistanceToThem;
-
+                float distanceToPlanet      = s.Position.SqDist(rallyPoint);
+                // the sort is ascending smaller values will be first
+                float rangeRatio            = distanceToPlanet / distanceToAOCenter;
                 return rangeRatio;
             });
+            
+            float strength = Owner.Pool.EmpireReadyFleets.AccumulatedStrength;
 
             foreach (var system in sortedTargets)
             {
                 if (HaveConqueredTarget(system)) continue;
 
-                float defense  = OwnerTheater.TheaterAO.ThreatLevel;
-                float rangeMod = ((system.Position.SqDist(nearestPoint) / minDistanceToThem)).LowerBound(1);
-                if (defense * rangeMod < strength)
+                float defense  = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, system.Radius, Owner);
+
+                if (defense  < strength)
                 {
                     winnableTarget.Add(system);
-                    strength           -= defense;
+                    strength -= defense;
                 }
             }
 
@@ -291,11 +268,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 AddTargetSystem(winnableTarget.First);
             }
-            //// make sure to add something if we dont have something
-            //else if (sortedTargets.Length > 0 && TargetSystems.IsEmpty)
-            //{
-            //    AddTargetSystem(sortedTargets[0]);
-            //}
+
             return GoalStep.GoToNextStep;
         }
 

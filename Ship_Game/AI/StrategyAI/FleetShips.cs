@@ -14,16 +14,17 @@ namespace Ship_Game.AI
     /// </summary>
     public class FleetShips
     {
+        // need to add a way to prefer ships near to a point
         public float AccumulatedStrength { get; private set; }
         private readonly Empire OwnerEmpire;
         private readonly FleetRatios Ratios;
-        private Array<Ship> Ships = new Array<Ship>();
+        private readonly Array<Ship> Ships = new Array<Ship>();
         public float WantedFleetCompletePercentage = 0.25f;
         public int InvasionTroops { get; private set; }
         public float InvasionTroopStrength { get; private set; }
         public int BombSecsAvailable { get; private set; }
-        int[] RoleCount;
-        float[] RoleStrength;
+        readonly int[] RoleCount;
+        readonly float[] RoleStrength;
 
         public FleetShips(Empire ownerEmpire)
         {

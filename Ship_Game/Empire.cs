@@ -283,7 +283,7 @@ namespace Ship_Game
 
         public Planet FindNearestRallyPoint(Vector2 location)
         {
-            return RallyPoints.FindMin(p => p.Center.SqDist(location))
+            return RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Center.SqDist(location))
                 ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
         }
 
@@ -865,14 +865,6 @@ namespace Ship_Game
             }
 
             return readyShips.ToArray();
-        }
-
-        public FleetShips AllFleetsReady(Vector2 targetPosition)
-        {
-            var ships = AllFleetReadyShips();
-            ships.Sort(s => s.Center.SqDist(targetPosition));
-            //return a fleet creator. 
-            return new FleetShips(this, ships);
         }
 
         public FleetShips AllFleetsReady()
