@@ -19,9 +19,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         Empire Us;
         public Array<Campaign.CampaignType> CampaignsWanted;
         public Array<Campaign> Campaigns;
-        TheatersOfWar Theaters;
         bool Initialized;
         bool Remove = false;
+        public AO RallyAO { get; private set; }
         public War GetWar() => OwnerWar;
 
         [XmlIgnore] [JsonIgnore] public float WarValue => TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us);
@@ -32,8 +32,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public Theater (AO ao, TheatersOfWar theaters)
         {
             TheaterAO       = ao;
-            Theaters        = theaters;
-            OwnerWar        = Theaters.GetWar();
+            OwnerWar        = theaters.GetWar();
             Ships           = new Ship[0];
             Us              = EmpireManager.GetEmpireByName(OwnerWar.UsName);
             CampaignsWanted = new Array<Campaign.CampaignType>();
@@ -58,6 +57,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
 
             TheaterAO.Update();
+            SetupRallyPoint();
 
             if (CampaignsWanted.Contains(Campaign.CampaignType.SystemDefense))
             {
@@ -185,5 +185,39 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return debug;
         }
 
+        float FindTheirNearestSystemToPoint(Vector2 point)
+        {
+            return Them.FindNearestOwnedSystemTo(point)?.Position.SqDist(point) ?? 1000000;
+        }
+
+        /// <summary>
+        /// Creates an empire AO for the rally position.
+        /// The AO will allow the AO process to protect and maintain the AO rally.
+        /// Should be called after attack targets are assigned.
+        /// </summary>
+        protected void SetupRallyPoint()
+        {
+            //if (TheaterAO.GetPlanets().Length == 0) return;
+
+            float closestRallyPoint          = float.MaxValue;
+            SolarSystem rallySystem          = null;
+            Planet rallyPlanet               = null;
+            var aoManager = Us.GetEmpireAI().OffensiveForcePoolManager;
+
+            rallyPlanet = Us.FindNearestRallyPoint(TheaterAO.Center) ?? Us.Capital;
+
+
+            // createEmpire AO
+            if (rallyPlanet.Owner == Us)
+            {
+                if (!aoManager.IsPlanetCoreWorld(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
+                {
+                    var newAO = aoManager.CreateAO(rallyPlanet, Us.GetProjectorRadius(rallyPlanet));
+                    RallyAO = newAO;
+                }
+                if (RallyAO == null)
+                    RallyAO = aoManager.GetAOContaining(rallyPlanet);       
+            }
+        }
     }
 }

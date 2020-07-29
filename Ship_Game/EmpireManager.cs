@@ -266,6 +266,7 @@ namespace Ship_Game
             {
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
+                empire.Pool.UpdatePools();
             }
         }
     }
