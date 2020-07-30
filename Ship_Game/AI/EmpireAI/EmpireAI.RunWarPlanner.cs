@@ -378,13 +378,25 @@ namespace Ship_Game.AI
             foreach(var kv in OwnerEmpire.AllRelations)
             {
                 if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
+                if (kv.Key.data.Defeated && kv.Value.ActiveWar != null)
+                {
+                    var relationThem = kv.Value;
+                    relationThem.AtWar = false;
+                    relationThem.PreparingForWar = false;
+                    relationThem.ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                    relationThem.WarHistory.Add(relationThem.ActiveWar);
+                    relationThem.Posture = Posture.Neutral;
+                    relationThem.ActiveWar = null;
+                    continue;
+                }
+
                 Relationship rel = kv.Value;
                 if (rel.ActiveWar == null) continue;
                 atWar = true;
                 var currentWar = rel.ActiveWar.ConductWar();
                 worstWar = worstWar > currentWar ? currentWar : worstWar;
             }
-
+            WarStrength = OwnerEmpire.Pool.EmpireReadyFleets.AccumulatedStrength;
             // start a new war by military strength
             if (worstWar > WarState.EvenlyMatched)
             {
@@ -395,9 +407,11 @@ namespace Ship_Game.AI
 
                 if (WarStrength > currentTaskStrength)
                 {
+                    WarStrength = OwnerEmpire.Pool.EmpireReadyFleets.AccumulatedStrength;
+
                     foreach (var kv in OwnerEmpire.AllRelations)
                     {
-                        if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
+                        if (kv.Key.data.Defeated || GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
                         Relationship rel = kv.Value;
                         Empire them      = kv.Key;
                         if (rel.Treaty_Peace || !rel.PreparingForWar || rel.AtWar) continue;
