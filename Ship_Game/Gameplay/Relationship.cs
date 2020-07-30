@@ -1022,10 +1022,10 @@ namespace Ship_Game.Gameplay
                 if (entry.IsOnlyShipTech() && !them.WeCanUseThis(tech, theirDesigns))
                     continue;
 
-                ourTechs.Add(entry);
+                techs.Add(entry);
             }
 
-            return ourTechs.Count > 0;
+            return techs.Count > 0;
         }
 
         bool DetermineTechTrade(Empire us, Empire them, Array<TechEntry> ourTechs, Array<TechEntry> theirTechs, 
