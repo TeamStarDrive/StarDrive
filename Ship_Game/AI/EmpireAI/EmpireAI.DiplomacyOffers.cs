@@ -711,26 +711,25 @@ namespace Ship_Game.AI
                 {
                     totalTrustRequiredFromUs -= dt.NAPact;
                 }
-            }
-            foreach (string tech in ourOffer.TechnologiesOffered)
-            {
-                totalTrustRequiredFromUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
+
             }
 
             float valueToThem = 0f;
             float valueToUs   = 0f;
 
+            foreach (string tech in ourOffer.TechnologiesOffered)
+            {
+                float value              = ResourceManager.Tech(tech).DiplomaticValueTo(them, 0.02f);
+                valueToThem              += value;
+                totalTrustRequiredFromUs += value;
+            }
+
             if (ourOffer.OpenBorders)   valueToThem += 5f;
             if (theirOffer.OpenBorders) valueToUs   += 0.01f;
             if (ourOffer.NAPact)        valueToThem += 10f;
             if (theirOffer.NAPact)      valueToUs   += 10f;
-            if (ourOffer.TradeTreaty)   valueToThem += 10f;
+            if (ourOffer.TradeTreaty)   valueToThem += them.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 20f : 10f;
             if (theirOffer.TradeTreaty) valueToUs   += OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 20f : 10f;
-
-            foreach (string tech in ourOffer.TechnologiesOffered)
-            {
-                valueToThem += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
-            }
 
             valueToThem += ourOffer.ArtifactsOffered.Count() * 15f;
             valueToUs   += theirOffer.ArtifactsOffered.Count() * 15f;
@@ -739,8 +738,10 @@ namespace Ship_Game.AI
             {
                 valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
             }
+
             if (us.GetPlanets().Count - ourOffer.ColoniesOffered.Count + theirOffer.ColoniesOffered.Count < 1)
             {
+                // todo not sure this is needed, better check the colony value
                 us.GetRelations(them).DamageRelationship(us, them, "Insulted", 25f, null);
                 return "OfferResponse_Reject_Insulting";
             }
@@ -781,9 +782,8 @@ namespace Ship_Game.AI
                 AcceptOffer(theirOffer, ourOffer, us, them);
                 return "OfferResponse_Accept_Gift";
             }
-            valueToUs -= valueToUs * usToThem.TotalAnger / 100f;
-            float offerDifferential   = valueToUs / (valueToThem + 0.01f);
-            OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem);
+            valueToUs -= valueToUs * usToThem.Anger_DiplomaticConflict / 100f;
+            OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out float offerDifferential);
             switch (attitude)
             {
                 case Offer.Attitude.Pleading:
@@ -792,7 +792,7 @@ namespace Ship_Game.AI
                         if (offerQuality != OfferQuality.Great)
                             return "OfferResponse_InsufficientTrust";
 
-                        us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                        usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
                         AcceptOffer(theirOffer, ourOffer, us, them);
                         return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
@@ -820,7 +820,7 @@ namespace Ship_Game.AI
 
                     break;
                 case Offer.Attitude.Respectful:
-                    if (totalTrustRequiredFromUs + us.GetRelations(them).TrustUsed <= us.GetRelations(them).Trust)
+                    if (totalTrustRequiredFromUs + usToThem.TrustUsed <= usToThem.Trust)
                     {
                         switch (offerQuality)
                         {
@@ -967,7 +967,7 @@ namespace Ship_Game.AI
             }
 
             valueToUs += valueToUs * them.data.Traits.DiplomacyMod; // TODO FB - need to be smarter here
-            OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem);
+            OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out _);
             PeaceAnswer response      = ProcessPeace("REJECT_OFFER_PEACE_POOROFFER"); // Default response is reject
             switch (us.GetRelations(them).ActiveWar.WarType)
             {
@@ -1074,17 +1074,17 @@ namespace Ship_Game.AI
             public bool Peace;
         }
 
-        OfferQuality ProcessQuality(float valueToUs, float valueToThem)
+        OfferQuality ProcessQuality(float valueToUs, float valueToThem, out float offerDiff)
         {
-            float offerDifferential = valueToUs / valueToThem.LowerBound(0.0001f);
+            offerDiff = valueToUs / valueToThem.LowerBound(0.01f);
 
-            if (offerDifferential.AlmostEqual(1) && valueToUs > 0)
+            if (offerDiff.AlmostEqual(1) && valueToUs > 0)
                 return OfferQuality.Fair;
 
-            if (offerDifferential > 1.45f) return OfferQuality.Great;
-            if (offerDifferential > 1.1f)  return OfferQuality.Good;
-            if (offerDifferential > 0.9f)  return OfferQuality.Fair;
-            if (offerDifferential > 0.65f) return OfferQuality.Poor;
+            if (offerDiff > 1.45f) return OfferQuality.Great;
+            if (offerDiff > 1.1f)  return OfferQuality.Good;
+            if (offerDiff > 0.9f)  return OfferQuality.Fair;
+            if (offerDiff > 0.65f) return OfferQuality.Poor;
 
             return OfferQuality.Insulting;
         }
