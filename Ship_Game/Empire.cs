@@ -2214,10 +2214,11 @@ namespace Ship_Game
                 for (int i = 0; i < BorderNodes.Count; i++)
                 {
                     InfluenceNode item5 = BorderNodes[i];
-                    foreach (InfluenceNode item6 in BorderNodes)
+                    for (int x = BorderNodes.Count - 1; x >= 0; x--)
                     {
-                        if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
-                            BorderNodes.QueuePendingRemoval(item6);
+                        InfluenceNode item6 = BorderNodes[x];
+                    if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
+                        BorderNodes.RemoveAtSwapLast(x);
                     }
                 }
 
