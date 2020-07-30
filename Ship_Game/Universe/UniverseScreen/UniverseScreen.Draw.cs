@@ -856,7 +856,7 @@ namespace Ship_Game
             {
                 foreach (Ship ship in player.KnownShips)
                 {
-                    if (!ship.Active || !ScreenRectangle.HitTest(ship.ScreenPosition))
+                    if (!ship.Active || !ship.inSensorRange || !ScreenRectangle.HitTest(ship.ScreenPosition))
                         continue;
 
                     DrawTacticalIcon(ship);
