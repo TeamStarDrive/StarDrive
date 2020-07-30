@@ -429,7 +429,7 @@ namespace Ship_Game.AI.Research
             for (int i = 0; i < shipTechs.Count; i++)
             {
                 TechEntry tech = shipTechs[i];
-                if (tech.GetUnlockableHulls(OwnerEmpire).Count > 0)
+                if (!tech.Unlocked && tech.GetUnlockableHulls(OwnerEmpire).Count > 0)
                     hullTechs.Add(tech.UID);
             }
 
