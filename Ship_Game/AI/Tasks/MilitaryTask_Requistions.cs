@@ -32,13 +32,13 @@ namespace Ship_Game.AI.Tasks
             if (strengthNeeded <= 0) return potentialTroops;
 
             var defenseDict     = Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict;
-            var troopSystems    = Owner.GetOwnedSystems().Sorted(dist => dist.Position.SqDist(rallyPoint));
+            var troopSystems    = Owner.GetOwnedSystems().Sorted(dist => -1 * dist.Position.SqDist(rallyPoint));
             
             for (int x = 0; x < troopSystems.Length; x++)
             {
                 SolarSystem system     = troopSystems[x];
                 SystemCommander sysCom = defenseDict[system];
-                if (!sysCom.IsEnoughTroopStrength) 
+                if (!sysCom.IsEnoughTroopStrength && !troopPriorityHigh) 
                     continue;
                 
                 for (int i = 0; i < system.PlanetList.Count; i++)
@@ -389,7 +389,7 @@ namespace Ship_Game.AI.Tasks
 
             // All's Good... Make a fleet
             TaskForce = fleetShips.ExtractShipSet(strengthNeeded, TaskBombTimeNeeded
-                , NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets);
+                , NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets, rallyCenter: rallyPoint.Center);
 
             if (TaskForce.IsEmpty)
                 return RequisitionStatus.FailedToCreateAFleet;

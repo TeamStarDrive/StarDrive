@@ -138,7 +138,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public override GoalStep Evaluate()
         {
-            RallyAO   = OwnerTheater.RallyAO;
+            RallyAO   = RallyAO ?? OwnerTheater.RallyAO;
             var state = base.Evaluate();
             Tasks.Update();
             return state;
