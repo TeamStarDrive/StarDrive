@@ -154,8 +154,8 @@ namespace Ship_Game.Universe.SolarBodies
                 FlatBonus       += b.PlusFlatFoodAmount;
             }
 
-
-            YieldPerColonist = Planet.Fertility + plusPerColonist;
+            float fertility  = Planet.Fertility;
+            YieldPerColonist = fertility.Less(1) ? fertility + plusPerColonist : fertility * (1 + plusPerColonist);
             Tax = 0f;
             // If we use tax effects with Food resource,
             // we need a base yield offset for balance
@@ -190,7 +190,7 @@ namespace Ship_Game.Universe.SolarBodies
                 FlatBonus       += b.PlusFlatProductionAmount;
             }
             float productMod = Planet.Owner.data.Traits.ProductionMod;
-            YieldPerColonist = (richness + plusPerColonist) * (1 + productMod);
+            YieldPerColonist = richness * (1 + plusPerColonist) * (1 + productMod);
 
             // Cybernetics consume production and will starve at 100% tax, so ease up on them
             Tax = Planet.NonCybernetic ? Planet.Owner.data.TaxRate : Planet.Owner.data.TaxRate  * 0.5f;
