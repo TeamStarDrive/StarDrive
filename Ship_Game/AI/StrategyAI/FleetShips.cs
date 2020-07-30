@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.Empires.ShipPools;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI
@@ -36,6 +39,11 @@ namespace Ship_Game.AI
         }
 
         public FleetShips(Empire ownerEmpire, Ship[] ships) : this(ownerEmpire)
+        {
+            AddShips(ships);
+        }
+
+        void AddShips(IEnumerable<Ship> ships)
         {
             foreach (var ship in ships) AddShip(ship);
         }
@@ -111,18 +119,18 @@ namespace Ship_Game.AI
         public int ExtractFleetShipsUpToStrength(float strength, float setCompletePercent, int wantedFleetCount,
             out Array<Ship> ships)
         {
-            float accumulatedStrength;
-            int completeFleets=0;
-            ships = new Array<Ship>();
-            int fleetCount = wantedFleetCount.LowerBound(1);
-            var utilityShips = new Array<Ship>();
+            float extractedShipStrength = 0;
+            int completeFleets          = 0;
+            ships                       = new Array<Ship>();
+            int fleetCount              = wantedFleetCount.LowerBound(1);
+            var utilityShips            = new Array<Ship>();
             do
             {
                 var gatheredShips = GetCoreFleet();
                 if (gatheredShips.IsEmpty)
                     break;
 
-                accumulatedStrength = gatheredShips.Sum(s => s.GetStrength());
+                extractedShipStrength += gatheredShips.Sum(s => s.GetStrength());
                 ships.AddRange(gatheredShips);
 
                 if (ships.Count >= Ratios.MinCombatFleet * setCompletePercent)
@@ -132,9 +140,9 @@ namespace Ship_Game.AI
                 }
      
             }
-            while (fleetCount > 0);
+            while (fleetCount > 0 || extractedShipStrength < strength);
 
-            if (AccumulatedStrength >= strength && fleetCount <= 0)
+            if (extractedShipStrength >= strength && fleetCount <= 0)
                 completeFleets = wantedFleetCount;
 
             for (int x =0; x< (wantedFleetCount + completeFleets).LowerBound(1); x++)
@@ -181,6 +189,9 @@ namespace Ship_Game.AI
             
             if (fleetCount > 0 && fleetShips.Sum(s=> s.GetStrength()) >= strength)
                 ships.AddRange(fleetShips);
+
+            if (ships.IsEmpty)
+                AddShips(ships);
 
             return ships;
         }
@@ -277,10 +288,12 @@ namespace Ship_Game.AI
         /// /// <param name="minimumFleetSize">Attempt to get this many fleets</param>
         /// <returns></returns>
         public Array<Ship> ExtractShipSet(float minStrength, int bombingSecs,
-            int wantedTroopStrength, Array<Troop> planetTroops, int minimumFleetSize)
+            int wantedTroopStrength, Array<Troop> planetTroops, int minimumFleetSize, Vector2 rallyCenter)
         {
             // create static empty ship array.
             if (BombSecsAvailable < bombingSecs) return new Array<Ship>();
+
+            SortShipsByDistanceToPoint(rallyCenter);
 
             Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, WantedFleetCompletePercentage, minimumFleetSize, out int fleetCount);
             
@@ -303,6 +316,8 @@ namespace Ship_Game.AI
 
             return ships;
         }
+
+        void SortShipsByDistanceToPoint(Vector2 point) => Ships.Sort(s => s.Center.SqDist(point));
 
         static void CheckForShipErrors(Array<Ship> ships)
         {
