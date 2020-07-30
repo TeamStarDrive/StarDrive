@@ -485,7 +485,7 @@ namespace Ship_Game.Fleets
 
         void DoPostInvasionDefense(MilitaryTask task)
         {
-            if (EndInvalidTask(--DefenseTurns <= 0))
+            if (EndInvalidTask(--DefenseTurns <= 0 || !Owner.IsEmpireHostile(task.TargetPlanet.Owner)))
                 return;
 
             switch (TaskStep)
@@ -494,6 +494,7 @@ namespace Ship_Game.Fleets
                     if (EndInvalidTask(FleetTask.TargetPlanet?.Owner != Owner))
                         break;
                     SetPostInvasionFleetCombat();
+                    DefenseTurns = 50;
                     TaskStep = 1;
                     break;
                 case 1:
