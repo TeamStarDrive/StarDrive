@@ -60,7 +60,7 @@ namespace Ship_Game.AI
                     }
 
                     ourRelationToAlly.Trust                    -= anger;
-                    ourRelationToAlly.Anger_DiplomaticConflict += anger;
+                    ourRelationToAlly.AddAngerDiplomaticConflict(anger);
                 })
             };
 
@@ -104,12 +104,12 @@ namespace Ship_Game.AI
                     {
                         Relationship otherRelationToUs = kv.Key.GetRelations(OwnerEmpire);
                         otherRelationToUs.Trust                    -= 50f;
-                        otherRelationToUs.Anger_DiplomaticConflict += 20f;
+                        otherRelationToUs.AddAngerDiplomaticConflict(20f);
                         otherRelationToUs.UpdateRelationship(kv.Key, OwnerEmpire);
                     }
                 }
                 theirRelationToUs.Trust                    -= 50f;
-                theirRelationToUs.Anger_DiplomaticConflict += 50f;
+                theirRelationToUs.AddAngerDiplomaticConflict(50f);
                 theirRelationToUs.UpdateRelationship(them, OwnerEmpire);
             }
 
@@ -159,7 +159,7 @@ namespace Ship_Game.AI
                             if (kv.Key != player)
                             {
                                 kv.Value.Trust -= 50f;
-                                kv.Value.Anger_DiplomaticConflict += 20f;
+                                kv.Value.AddAngerDiplomaticConflict(20f);
                             }
                         }
                     }
@@ -174,20 +174,20 @@ namespace Ship_Game.AI
                         DiplomacyScreen.Show(OwnerEmpire, player, "Declare War Defense BrokenNA");
                         OwnerEmpire.BreakTreatyWith(player, TreatyType.NonAggression);
                         aiRelationToPlayer.Trust -= 50f;
-                        aiRelationToPlayer.Anger_DiplomaticConflict += 50f;
+                        aiRelationToPlayer.AddAngerDiplomaticConflict(50);
                         foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
                         {
                             if (kv.Key != player)
                             {
                                 kv.Value.Trust -= 50f;
-                                kv.Value.Anger_DiplomaticConflict += 20f;
+                                kv.Value.AddAngerDiplomaticConflict(20);
                             }
                         }
                     }
                     else
                     {
                         DiplomacyScreen.Show(OwnerEmpire, player, "Declare War Defense");
-                        aiRelationToPlayer.Anger_DiplomaticConflict += 25f;
+                        aiRelationToPlayer.AddAngerDiplomaticConflict(25);
                         aiRelationToPlayer.Trust -= 25f;
                     }
                     break;
@@ -208,11 +208,9 @@ namespace Ship_Game.AI
             ourRelationToThem.FedQuest = null;
             if (OwnerEmpire == Empire.Universe.PlayerEmpire && ourRelationToThem.Treaty_NAPact)
             {
-                Relationship item                                = them.GetRelations(OwnerEmpire);
-                item.Trust                                       = item.Trust - 50f;
-                Relationship angerDiplomaticConflict             = them.GetRelations(OwnerEmpire);
-                angerDiplomaticConflict.Anger_DiplomaticConflict =
-                    angerDiplomaticConflict.Anger_DiplomaticConflict + 50f;
+                Relationship themToUs = them.GetRelations(OwnerEmpire);
+                themToUs.Trust -= 50f;
+                themToUs.AddAngerDiplomaticConflict(50);
                 them.GetRelations(OwnerEmpire).UpdateRelationship(them, OwnerEmpire);
             }
 
