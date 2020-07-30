@@ -987,6 +987,8 @@ namespace Ship_Game.Gameplay
             if (them == Player || ActiveWar != null || turnsSinceLastContact < SecondDemand || Posture == Posture.Hostile)
                 return;
 
+            turnsSinceLastContact = 0;
+
             // Get techs we can offer them
             if (!TechsToOffer(us, them, out Array<TechEntry> ourTechs))
                 return;
@@ -1049,7 +1051,7 @@ namespace Ship_Game.Gameplay
             float theirMaxCost  = ourTechCost * techCostRatio;
             float totalCost     = 0;
 
-            foreach (TechEntry tech in theirTechs.Sorted(t => t.TechCost))
+            foreach (TechEntry tech in theirTechs.Sorted(t => t.Tech.ActualCost))
             {
                 if (tech.Tech.ActualCost + totalCost > theirMaxCost)
                     break;
@@ -1504,12 +1506,12 @@ namespace Ship_Game.Gameplay
 
         public void AddAngerDiplomaticConflict(float amount)
         {
-            Anger_DiplomaticConflict = (Anger_DiplomaticConflict+ amount).LowerBound(0);
+            Anger_DiplomaticConflict = (Anger_DiplomaticConflict + amount).Clamped(0, 100);
         }
 
         public void AddAngerMilitaryConflict(float amount)
         {
-            Anger_MilitaryConflict = (Anger_MilitaryConflict + amount).LowerBound(0);
+            Anger_MilitaryConflict = (Anger_MilitaryConflict + amount).Clamped(0, 100);
         }
 
         public void ResetAngerMilitaryConflict()
@@ -1519,12 +1521,12 @@ namespace Ship_Game.Gameplay
 
         public void AddAngerShipsInOurBorders(float amount)
         {
-            Anger_FromShipsInOurBorders = (Anger_FromShipsInOurBorders + amount).LowerBound(0);
+            Anger_FromShipsInOurBorders = (Anger_FromShipsInOurBorders + amount).Clamped(0, 100);
         }
 
         public void AddAngerTerritorialConflict(float amount)
         {
-            Anger_TerritorialConflict = (Anger_TerritorialConflict + amount).LowerBound(0);
+            Anger_TerritorialConflict = (Anger_TerritorialConflict + amount).Clamped(0, 100);
         }
 
         void SetPosture(Posture posture)
