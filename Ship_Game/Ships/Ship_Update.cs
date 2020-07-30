@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
 
         void UpdateVisibility(float elapsedTime, bool forceVisible)
         {
-            bool inFrustum = forceVisible || (System == null || System.isVisible)
+            bool inFrustum = forceVisible || inSensorRange && (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
                 && (Empire.Universe.Frustum.Contains(Position, 2000f) || 
                     (AI?.Target != null &&

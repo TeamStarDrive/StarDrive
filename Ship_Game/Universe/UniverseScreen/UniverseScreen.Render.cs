@@ -564,8 +564,8 @@ namespace Ship_Game
                 {
                     SceneObjBackQueue.RemoveAtSwapLast(i);
                 }
-                else if (viewState <= UnivScreenState.SystemView
-                     && (ship.System == null || ship.System.isVisible)
+                else if (ship.inSensorRange && viewState <= UnivScreenState.SystemView
+                     && (ship.System == null || ship.System.isVisible) 
                      && Frustum.Contains(ship.Center, 2000f))
                 {
                     ship.CreateSceneObject();
