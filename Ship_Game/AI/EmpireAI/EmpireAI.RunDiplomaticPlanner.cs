@@ -113,6 +113,7 @@ namespace Ship_Game.AI
 
         void DoXenophobicRelations()
         {
+            Array<Empire> potentialTargets = new Array<Empire>();
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
             foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
             {
@@ -121,21 +122,25 @@ namespace Ship_Game.AI
                 if (DoNotInteract(relations, them))
                     continue;
 
-                relations.DoXenophobic(OwnerEmpire);
+                relations.DoXenophobic(OwnerEmpire, them, out bool theyArePotentialTargets);
+                if (theyArePotentialTargets)
+                    potentialTargets.Add(them);
             }
+
+            PrepareToAttackXenophobic(potentialTargets);
         }
 
-        public Array<TechEntry> TradableTechs(Empire them)
+        public bool TradableTechs(Empire them, out Array<TechEntry> tradableTechs)
         {
-            var tradableTechs = new Array<TechEntry>();
-            var available     = OwnerEmpire.TechsAvailableForTrade(them);
+            tradableTechs = new Array<TechEntry>();
+            var available = OwnerEmpire.TechsAvailableForTrade(them);
             foreach (TechEntry tech in available)
             {
                 if (tech.TheyCanUseThis(OwnerEmpire, them))
                     tradableTechs.Add(tech);
             }
 
-            return tradableTechs;
+            return tradableTechs.Count > 0;
         }
 
         bool DoNotInteract(Relationship relations, Empire them)
@@ -175,7 +180,23 @@ namespace Ship_Game.AI
                 }
 
                 DeclareWarOn(closest, WarType.ImperialistWar);
+            }
+        }
 
+        void PrepareToAttackXenophobic(Array<Empire> potentialTargets)
+        {
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
+            {
+                Empire closest = potentialTargets.Sorted(e => e.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter())).First();
+                Relationship usToThem = OwnerEmpire.GetRelations(closest);
+                if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
+                {
+                    usToThem.ActiveWar.WarTheaters.AddCaptureAll();
+                    return;
+                }
+
+                usToThem.PreparingForWar     = true;
+                usToThem.PreparingForWarType = WarType.GenocidalWar;
             }
         }
 
@@ -216,9 +237,9 @@ namespace Ship_Game.AI
                         float modifiedWeight = GetModifiedTerritorialWeight(weight, usToThem, others, closeSystem);
 
                         if (usToThem.Anger_TerritorialConflict > 0)
-                            usToThem.Anger_TerritorialConflict += (usToThem.Anger_TerritorialConflict + borders.RankImportance * modifiedWeight) / usToThem.Anger_TerritorialConflict;
+                            usToThem.AddAngerTerritorialConflict((usToThem.Anger_TerritorialConflict + borders.RankImportance * modifiedWeight) / usToThem.Anger_TerritorialConflict);
                         else
-                            usToThem.Anger_TerritorialConflict += borders.RankImportance * modifiedWeight;
+                            usToThem.AddAngerTerritorialConflict(borders.RankImportance * modifiedWeight);
                     }
                 }
             }

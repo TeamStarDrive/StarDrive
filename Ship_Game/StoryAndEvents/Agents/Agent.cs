@@ -401,15 +401,14 @@ namespace Ship_Game
                 return aftermath;
             }
 
-            var potentialTechs = victim.GetEmpireAI().TradableTechs(us).Select(t => t.UID);
-            if (potentialTechs.Length == 0)
+            if (!victim.GetEmpireAI().TradableTechs(us, out Array<TechEntry> potentialTechs))
             {
-                aftermath.MessageId   = 6063;
+                aftermath.MessageId = 6063;
                 aftermath.ShouldAddXp = false;
                 return aftermath;
             }
 
-            string stolenTech     = potentialTechs.RandItem();
+            string stolenTech     = potentialTechs.RandItem().UID;
             string stolenTechName = Localizer.Token(ResourceManager.TechTree[stolenTech].NameIndex);
 
             switch (missionStatus)

@@ -337,7 +337,7 @@
     </Token>
     <Token>
       <Index>87</Index>
-      <Text>Races that have been foolish enough to heavily pollute their own homeworld have a -.5 Fertility penalty on their homeworld, making quick colonization a top priority</Text>
+      <Text>Races that have been foolish enough to heavily pollute their own homeworld have a -0.5 Fertility penalty on their homeworld, making quick colonization a top priority</Text>
     </Token>
     <Token>
       <Index>88</Index>
@@ -888,7 +888,7 @@
     </Token>
     <Token>
       <Index>219</Index>
-      <Text>Indicates how much food this planet will produce per assigned colonist per turn (a turn is .1 StarDate). Some building or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time. The number in parentheses indicates the fertility modifier of this colony, based on your empire's suitable environments.</Text>
+      <Text>Indicates how much food this planet will produce per assigned colonist per turn (a turn is 0.1 StarDate). Some building or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time. The number in parentheses indicates the fertility modifier of this colony, based on your empire's suitable environments. Fertility above 1 can boost buildings which grand food per assigned colonist as they will serve as a multiplier. Non Cybernetic Races consume food.</Text>
     </Token>
     <Token>
       <Index>221</Index>
@@ -1767,7 +1767,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>504</Index>
-      <Text>Colonizing barren planets or planets with a low fertility score means that food production will be critical to that colony's survival.  Aeroponic farming techniques provide a basic level of sustenance to support a small colony. </Text>
+      <Text>Colonizing barren planets or planets with a low fertility score means that food production will be critical to that colony's survival. Aeroponic farming techniques provide a basic level of sustenance to support a small colony. </Text>
     </Token>
     <Token>
       <Index>505</Index>
@@ -5063,11 +5063,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1965</Index>
-      <Text>Indicates the tile range this troop can fire from. Veterans (level 3 or above) get +1 bonus to their range.</Text>
+      <Text>Indicates the tile range this troop can fire from. Veterans (level 5 or above) get +1 bonus to their range.</Text>
     </Token>
     <Token>
       <Index>1966</Index>
-      <Text>Range</Text>
+      <Text>Range</Text>in
     </Token>
     <Token>
       <Index>1967</Index>
