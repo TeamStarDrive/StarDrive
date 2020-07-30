@@ -1639,7 +1639,6 @@ namespace Ship_Game
 
         public void UpdateFleets(float elapsedTime)
         {
-            updateContactsTimer -= elapsedTime;
             FleetUpdateTimer -= elapsedTime;
             foreach (var kv in FleetsDict)
             {
