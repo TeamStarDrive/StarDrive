@@ -774,7 +774,9 @@ namespace Ship_Game.Fleets
         {
             if (EndInvalidTask(task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.GetRelations(Owner).AtWar == false)) return;
             if (EndInvalidTask(task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1))          return;
-            if (EndInvalidTask(!Ships.Any(s=> s.Bomb60SecStatus() != Status.NotApplicable)))                                        return;
+            var noBombs = !Ships.Select(s => s.Bomb60SecStatus()).Any(bt=> bt != Status.NotApplicable && bt != Status.Critical);
+            if (EndInvalidTask(noBombs)) 
+                return;
             
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
