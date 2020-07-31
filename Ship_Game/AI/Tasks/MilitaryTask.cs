@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
@@ -32,8 +33,9 @@ namespace Ship_Game.AI.Tasks
         [Serialize(17)] public int TaskBombTimeNeeded;
         [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
         [Serialize(19)] public Guid TaskGuid = Guid.NewGuid();
-        [Serialize(19)] public Array<Vector2> PatrolPoints;
-
+        [Serialize(20)] public Array<Vector2> PatrolPoints;
+        [Serialize(21)] public Campaign OwnerCampaign;
+        
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
@@ -42,7 +44,7 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
-        
+
         public bool IsTaskAOInSystem(SolarSystem system)
         {
             if (TargetSystem != null) return system == TargetSystem;
@@ -748,6 +750,38 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.Exploration:        taskCat |= TaskCategory.Expansion; break;
             }
             return taskCat;
+        }
+
+        public void RestoreFromSave(Empire e, UniverseData data)
+        {
+            SetEmpire(e);
+
+            if (PatrolPoints == null) PatrolPoints = new Array<Vector2>();
+
+            if (data.FindPlanet(TargetPlanetGuid, out Planet p))
+                SetTargetPlanet(p);
+
+            if (data.FindShip(TargetShipGuid, out Ship ship))
+                SetTargetShip(ship);
+
+            foreach (Guid guid in HeldGoals)
+            {
+                foreach (Goal g in e.GetEmpireAI().Goals)
+                {
+                    if (g.guid == guid)
+                    {
+                        g.Held = true;
+                        break;
+                    }
+                }
+            }
+
+            if (WhichFleet != -1)
+            {
+                if (e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
+                    fleet.FleetTask = this;
+                else WhichFleet = 0;
+            }
         }
     }
 }

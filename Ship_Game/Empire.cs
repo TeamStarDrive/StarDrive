@@ -283,7 +283,7 @@ namespace Ship_Game
 
         public Planet FindNearestRallyPoint(Vector2 location)
         {
-            return RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Center.SqDist(location))
+            return  RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Center.SqDist(location))
                 ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
         }
 
@@ -2212,10 +2212,11 @@ namespace Ship_Game
                 for (int i = 0; i < BorderNodes.Count; i++)
                 {
                     InfluenceNode item5 = BorderNodes[i];
-                    foreach (InfluenceNode item6 in BorderNodes)
+                    for (int x = BorderNodes.Count - 1; x >= 0; x--)
                     {
-                        if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
-                            BorderNodes.QueuePendingRemoval(item6);
+                        InfluenceNode item6 = BorderNodes[x];
+                    if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
+                        BorderNodes.RemoveAtSwapLast(x);
                     }
                 }
 
