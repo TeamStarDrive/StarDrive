@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -49,23 +50,30 @@ namespace Ship_Game
         public bool Careless   => Trustworthiness <= 60;
         [XmlIgnore]
         [JsonIgnore]
-        public TraitType TraitName
+        public PersonalityType TraitName
         {
             get
             {
-                Enum.TryParse(Name, out TraitType traitType);
+                Enum.TryParse(Name, out PersonalityType traitType);
                 return traitType;
             }
         }
-        public enum TraitType
+
+        public DTrait() // For Player Empire Only
         {
-            Cunning,
-            Ruthless,
-            Aggressive,
-            Honorable,
-            Xenophobic,
-            Pacifist
+            Name = "None";
         }
+    }
+
+    public enum PersonalityType
+    {
+        None, // For player nad avoid null checks
+        Cunning,
+        Ruthless,
+        Aggressive,
+        Honorable,
+        Xenophobic,
+        Pacifist
     }
 
     /// <summary>
@@ -271,6 +279,7 @@ namespace Ship_Game
         [Serialize(126)] public bool IsPirateFaction;
         [Serialize(127)] public int PiratePaymentPeriodTurns = 100; 
         [Serialize(128)] public int MinimumColoniesForStartPayment = 3;
+        [Serialize(129)] public Array<float> NormalizedMilitaryScore;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;
@@ -371,6 +380,16 @@ namespace Ship_Game
                 case WeaponStat.Shield:    return tag.ShieldDamage;
                 default: return 0f;
             }
+        }
+
+        public float NormalizeMilitaryScore(float currentStr)
+        {
+            int maxItems = 10;
+            if (NormalizedMilitaryScore.Count == maxItems)
+                NormalizedMilitaryScore.RemoveAt(0);
+
+            NormalizedMilitaryScore.Add(currentStr);
+            return NormalizedMilitaryScore.Sum() / NormalizedMilitaryScore.Count;
         }
     }
 } 

@@ -631,12 +631,12 @@ namespace Ship_Game
 
             foreach (var kv in Relationships)
             {
-                kv.Value.ResetRelation();
-                kv.Key.GetRelations(this).ResetRelation();
+                BreakAllTreatiesWith(kv.Key, includingPeace: true);
                 var them = kv.Key;
                 GetRelations(them).AtWar = false;
                 them.GetRelations(this).AtWar = false;
             }
+
             foreach (Ship ship in OwnedShips)
             {
                 ship.AI.ClearOrders();
@@ -672,10 +672,7 @@ namespace Ship_Game
                 return;
 
             foreach (var kv in Relationships)
-            {
-                kv.Value.ResetRelation();
-                kv.Key.GetRelations(this).ResetRelation();
-            }
+                BreakAllTreatiesWith(kv.Key, includingPeace: true);
 
             foreach (Ship ship in OwnedShips)
             {
@@ -1516,6 +1513,7 @@ namespace Ship_Game
             UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
             UpdateContactsAndBorders(1f);
+            UpdateMilitaryStrengths();
             CalculateScore();
             UpdateRelationships();
             UpdateShipMaintenance(); ;
@@ -2401,9 +2399,7 @@ namespace Ship_Game
                             aiTotalScore += empire.TotalScore;
                             if (empire.TotalScore > score)
                                 score = empire.TotalScore;
-                            if (empire.data.DiplomaticPersonality.Name == "Aggressive"
-                                || empire.data.DiplomaticPersonality.Name == "Ruthless"
-                                || empire.data.DiplomaticPersonality.Name == "Xenophobic")
+                            if (empire.IsAggressive || empire.IsRuthless || empire.IsXenophobic)
                                 aggressiveEmpires.Add(empire);
                         }
                     }
@@ -2758,15 +2754,8 @@ namespace Ship_Game
             }
 
 
-            data.MilitaryScoreTotal += CurrentMilitaryStrength;
-            TotalScore = (int)(MilitaryScore / 100.0 + IndustrialScore + TechScore + ExpansionScore);
-            MilitaryScore = data.ScoreAverage == 0 ? 0f : data.MilitaryScoreTotal / data.ScoreAverage;
-            ++data.ScoreAverage;
-            if (data.ScoreAverage >= 120)  //fbedard: reset every 60 turns
-            {
-                data.MilitaryScoreTotal = MilitaryScore * 60f;
-                data.ScoreAverage = 60;
-            }
+            MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
+            TotalScore    = (int)(MilitaryScore/100 + IndustrialScore + TechScore + ExpansionScore);
         }
 
         private void AbsorbAllEnvPreferences(Empire target)

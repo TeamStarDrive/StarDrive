@@ -381,12 +381,12 @@ namespace Ship_Game.Ships
                 return true;
 
             // the below does a search for being in borders so its expensive.
-            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker
-                    , AI.State == AIState.SystemTrader)
+            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
                 && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
             {
                     return true;
             }
+
             return false;
         }
 
