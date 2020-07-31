@@ -423,33 +423,9 @@ namespace Ship_Game
 
         static void CreateMilitaryTasks(SavedGame.EmpireSaveData d, Empire e, UniverseData data)
         {
-            foreach (MilitaryTask task in d.GSAIData.MilitaryTaskList)
+            for (int i = 0; i < d.GSAIData.MilitaryTaskList.Count; i++)
             {
-                task.SetEmpire(e);
-                if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
-                    task.SetTargetPlanet(p);
-
-                if (data.FindShip(task.TargetShipGuid, out Ship ship))
-                    task.SetTargetShip(ship);
-
-                foreach (Guid guid in task.HeldGoals)
-                {
-                    foreach (Goal g in e.GetEmpireAI().Goals)
-                    {
-                        if (g.guid == guid)
-                        {
-                            g.Held = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (task.WhichFleet != -1)
-                {
-                    if (e.GetFleetsDict().TryGetValue(task.WhichFleet, out Fleet fleet))
-                        fleet.FleetTask = task;
-                    else task.WhichFleet = 0;
-                }
+                d.GSAIData.MilitaryTaskList[i].RestoreFromSave(e, data);
             }
 
             e.GetEmpireAI().ReadFromSave(d.GSAIData);
