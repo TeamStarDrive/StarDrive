@@ -338,14 +338,14 @@ namespace Ship_Game
                     DiplomacyScreen.Show(Owner, "Invaded NA Pact", ParentSystem);
                     Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
                     Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
-                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 50f;
+                    Owner.GetRelations(Empire.Universe.PlayerEmpire).AddAngerDiplomaticConflict(50);
                 }
                 else
                 {
                     DiplomacyScreen.Show(Owner, "Invaded Start War", ParentSystem);
                     Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
                     Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
-                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 25f;
+                    Owner.GetRelations(Empire.Universe.PlayerEmpire).AddAngerDiplomaticConflict(25);
                 }
             }
         }
