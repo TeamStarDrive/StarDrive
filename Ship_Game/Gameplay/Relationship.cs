@@ -110,8 +110,9 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
         [XmlIgnore][JsonIgnore] Empire Player => Empire.Universe.PlayerEmpire;
 
-        private readonly int FirstDemand  = 20;
-        private readonly int SecondDemand = 75;
+        private readonly int FirstDemand    = 20;
+        private readonly int SecondDemand   = 75;
+        private readonly int TechTradeTurns = 100;
 
         /// <summary>
         /// Tech transfer restriction.
@@ -984,7 +985,7 @@ namespace Ship_Game.Gameplay
         void TradeTech(Empire us)
         {
             Empire them = Them;
-            if (them == Player || ActiveWar != null || turnsSinceLastContact < SecondDemand || Posture == Posture.Hostile)
+            if (them == Player || ActiveWar != null || turnsSinceLastContact < TechTradeTurns || Posture == Posture.Hostile)
                 return;
 
             turnsSinceLastContact = 0;
