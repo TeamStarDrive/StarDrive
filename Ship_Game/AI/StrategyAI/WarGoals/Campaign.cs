@@ -39,11 +39,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected Array<Ship> TargetShips          = new Array<Ship>();
         public Array<Guid> PlanetGuids             = new Array<Guid>();
         protected Array<Planet> TargetPlanets      = new Array<Planet>();
-        public Array<Guid> TaskGuids               = new Array<Guid>();
         public AO RallyAO;
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
-        protected WarTasks Tasks;
+        public WarTasks Tasks;
         public Campaign() { }
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             OwnerWar       = theater.GetWar();
             Owner          = EmpireManager.GetEmpireByName(OwnerWar.UsName);
             Them           = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
-            UID            = $"{Type.ToString()} - {ID}";
+            UID            = $"{Type} - {ID}";
             SystemGuids    = campaign.SystemGuids;
             ShipGuids      = campaign.ShipGuids;
             PlanetGuids    = campaign.PlanetGuids;
@@ -65,7 +64,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             IsCoreCampaign = campaign.IsCoreCampaign;
             OwnerTheater   = theater;
             RestoreFromSave(theater);
-            Tasks          = new WarTasks(Owner, Them);
+            Tasks          = new WarTasks(Owner, Them, this);
         }
 
         /// <summary>
@@ -80,7 +79,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them         = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
             UID          = campaignType.ToString();
             OwnerTheater = theater;
-            Tasks        = new WarTasks(Owner, Them);
+            if (Tasks == null)
+            {
+                Tasks = new WarTasks(Owner, Them, this);
+            }
+            else
+            {
+                Tasks.RestoreFromSave(Owner, Them, this);
+            }
         }
 
         /// <summary>
@@ -212,21 +218,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        protected float PercentageCleared()
-        {
-            return (float)TargetSystems.Sum(s => s.OwnerList.Contains(Them) ? 0 : 1) / TargetSystems.Count.LowerBound(1);
-        }
-
-        protected bool HaveConqueredTargets()
-        {
-            foreach (var system in TargetSystems)
-            {
-                if (!HaveConqueredTarget(system))
-                    return false;
-            }
-            return true;
-        }
-
         protected bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
 
         protected GoalStep CreateTargetSystemList(Array<SolarSystem> targets)
@@ -235,23 +226,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // the create a winnable targets list evaluating each system 
 
             var winnableTarget       = new Array<SolarSystem>();
-            Vector2 rallyPoint       = RallyAO.Center;
-            
-            // these loops are not cheap but the frequency of the calcs should be pretty low.
-            float distanceToAOCenter  = OwnerTheater.TheaterAO.Center.SqDist(rallyPoint);
-
-            // goal here is to sort the targets by closeness
-            var sortedTargets = targets.Sorted(s =>
-            {
-                float distanceToPlanet      = s.Position.SqDist(rallyPoint);
-                // the sort is ascending smaller values will be first
-                float rangeRatio            = distanceToPlanet / distanceToAOCenter;
-                return rangeRatio;
-            });
             
             float strength = Owner.Pool.EmpireReadyFleets.AccumulatedStrength;
 
-            foreach (var system in sortedTargets)
+            foreach (var system in targets)
             {
                 if (HaveConqueredTarget(system)) continue;
 
@@ -264,10 +242,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 }
             }
 
-            if (winnableTarget.NotEmpty)
-            {
+            if (winnableTarget.NotEmpty) 
                 AddTargetSystem(winnableTarget.First);
-            }
 
             return GoalStep.GoToNextStep;
         }
@@ -281,7 +257,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             foreach (var system in currentTargets)
             {
                 if (priority > 10) break;
-                Tasks.StandardAssault(system, priority++, fleetsPerTarget);
+                Tasks.StandardAssault(system, priority++,  fleetsPerTarget);
             }
         }
 

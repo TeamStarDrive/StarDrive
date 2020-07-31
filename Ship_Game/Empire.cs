@@ -283,7 +283,7 @@ namespace Ship_Game
 
         public Planet FindNearestRallyPoint(Vector2 location)
         {
-            return RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Center.SqDist(location))
+            return  RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Center.SqDist(location))
                 ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
         }
 
