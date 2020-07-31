@@ -392,6 +392,7 @@ namespace Ship_Game.AI.Research
             }
             return UseOnlyWantedShipTechs(goodShipTechs, nonShipTechs);
         }
+
         private HashSet<string> UseOnlyWantedShipTechs(IEnumerable<string> shipTechs, HashSet<string> nonShipTechs)
         {
             //combine the wanted shiptechs with the nonshiptechs.
@@ -428,8 +429,8 @@ namespace Ship_Game.AI.Research
             for (int i = 0; i < shipTechs.Count; i++)
             {
                 TechEntry tech = shipTechs[i];
-                if (tech.GetUnlockableHulls(OwnerEmpire).Count > 0)
-                    hullTechs.Add(tech.ToString());
+                if (!tech.Unlocked && tech.GetUnlockableHulls(OwnerEmpire).Count > 0)
+                    hullTechs.Add(tech.UID);
             }
 
             return hullTechs;
