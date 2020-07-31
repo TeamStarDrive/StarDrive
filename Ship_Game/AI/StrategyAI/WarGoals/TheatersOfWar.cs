@@ -76,7 +76,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void AddTheater(AO ao, Array<Campaign.CampaignType> campaignTypes)
         {
-            
             Theater theater = new Theater(ao, this);
             Theaters.Add(theater);
             foreach (var ct in campaignTypes)
