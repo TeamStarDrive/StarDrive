@@ -462,12 +462,16 @@ namespace Ship_Game
         /// There are no checks here for ships already in some action.
         /// this can cause a cancel current order and orbit loop.
         /// </summary>
-        internal void DoOrbitAreaRestricted(Planet planet, Vector2 position, float radius)
+        internal void DoOrbitAreaRestricted(Planet planet, Vector2 position, float radius, bool excludeInvade = false)
         {
             foreach (Ship ship in Ships)
             {
-                if (ship.AI.State != AIState.Orbit && ship.Center.InRadius(ship.Center, radius))
+                if (ship.AI.State != AIState.Orbit
+                    && (!excludeInvade || ship.AI.State == AIState.AssaultPlanet)
+                    && ship.Center.InRadius(ship.Center, radius))
+                {
                     ship.OrderToOrbit(planet);
+                }
             }
         }
 

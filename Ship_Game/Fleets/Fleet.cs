@@ -651,8 +651,12 @@ namespace Ship_Game.Fleets
 
         void DoClaimDefense(MilitaryTask task)
         {
-            if (EndInvalidTask(task.TargetPlanet.Owner != null || !CanTakeThisFight(task.EnemyStrength)))
+            if (EndInvalidTask(task.TargetPlanet.Owner != null && !task.TargetPlanet.Owner.isFaction
+                               || !CanTakeThisFight(task.EnemyStrength)))
+            {
                 return;
+            }
+
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
             {
@@ -663,33 +667,22 @@ namespace Ship_Game.Fleets
                 case 1:
                     if (!HasArrivedAtRallySafely())
                         break;
+
                     GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius * 1.5f);
                     TaskStep = 2;
                     break;
                 case 2:
                     if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
                         break;
+
                     TaskStep = 3;
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
-                    if (!DoOrbitTaskArea(task))
-                    {
+                    if (!DoOrbitTaskArea(task, excludeInvade: true))
                         AttackEnemyStrengthClumpsInAO(task);
-                        OrderShipsToInvade(Ships, task, false);
-                    }
 
-                    TaskStep = 4;
-                    break;
-                case 4:
-                    if (task.TargetPlanet.Owner != null)
-                    {
-                        // Land troops if the owner is us or a faction
-                        if (task.TargetPlanet.Owner.isFaction || task.TargetPlanet.Owner == Owner)
-                            OrderShipsToInvade(Ships, task, false);
-
-                        FleetTask.EndTask();
-                    }
+                    OrderShipsToInvade(Ships, task, false);
                     break;
             }
         }
@@ -845,14 +838,14 @@ namespace Ship_Game.Fleets
         }
 
         /// @return true if order successful. Fails when enemies near.
-        bool DoOrbitTaskArea(MilitaryTask task)
+        bool DoOrbitTaskArea(MilitaryTask task, bool excludeInvade = false)
         {
             TaskCombatStatus = FleetInAreaInCombat(task.AO, task.AORadius);
 
             if (TaskCombatStatus < CombatStatus.ClearSpace)
                 return false;
 
-            DoOrbitAreaRestricted(task.TargetPlanet, task.AO, task.AORadius);
+            DoOrbitAreaRestricted(task.TargetPlanet, task.AO, task.AORadius, excludeInvade);
             return true;
         }
 
