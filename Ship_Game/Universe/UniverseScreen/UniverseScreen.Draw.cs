@@ -237,22 +237,24 @@ namespace Ship_Game
                 var empireColor = empire.EmpireColor;
                 using (empire.BorderNodes.AcquireReadLock())
                 {
-                    foreach (Empire.InfluenceNode influ in empire.BorderNodes)
+                    for (int x = 0; x < empire.BorderNodes.Count; x++)
                     {
+                        Empire.InfluenceNode influ = empire.BorderNodes[x];
                         if (!Frustum.Contains(influ.Position, influ.Radius))
                             continue;
                         if (!influ.Known)
                             continue;
                         Vector2 nodePos = ProjectToScreenPosition(influ.Position);
-                        int size = (int)Math.Abs(
+                        int size = (int) Math.Abs(
                             ProjectToScreenPosition(influ.Position.PointFromAngle(90f, influ.Radius)).X - nodePos.X);
 
-                        Rectangle rect = new Rectangle((int)nodePos.X, (int)nodePos.Y, size * 5, size * 5);
+                        Rectangle rect = new Rectangle((int) nodePos.X, (int) nodePos.Y, size * 5, size * 5);
                         spriteBatch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF,
                             SpriteEffects.None, 1f);
 
-                        foreach (Empire.InfluenceNode influ2 in empire.BorderNodes)
+                        for (int i = 0; i < empire.BorderNodes.Count; i++)
                         {
+                            Empire.InfluenceNode influ2 = empire.BorderNodes[i];
                             if (!influ2.Known)
                                 continue;
                             if (influ.Position == influ2.Position || influ.Radius > influ2.Radius ||
@@ -261,8 +263,10 @@ namespace Ship_Game
 
                             Vector2 endPos = ProjectToScreenPosition(influ2.Position);
                             float rotation = nodePos.RadiansToTarget(endPos);
-                            rect = new Rectangle((int)endPos.X, (int)endPos.Y, size * 3 / 2, (int)nodePos.Distance(endPos));
-                            spriteBatch.Draw(nodeConnect, rect, empireColor, rotation, new Vector2(2f, 2f), SpriteEffects.None, 1f);
+                            rect = new Rectangle((int) endPos.X, (int) endPos.Y, size * 3 / 2,
+                                (int) nodePos.Distance(endPos));
+                            spriteBatch.Draw(nodeConnect, rect, empireColor, rotation, new Vector2(2f, 2f),
+                                SpriteEffects.None, 1f);
                         }
                     }
                 }
