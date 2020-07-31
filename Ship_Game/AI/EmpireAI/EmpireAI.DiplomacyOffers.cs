@@ -717,13 +717,23 @@ namespace Ship_Game.AI
             float valueToThem = 0f;
             float valueToUs   = 0f;
 
-            foreach (string tech in ourOffer.TechnologiesOffered)
+            foreach (string tech in theirOffer.TechnologiesOffered)
             {
-                float value              = ResourceManager.Tech(tech).DiplomaticValueTo(them, 0.02f);
-                valueToThem              += value;
-                totalTrustRequiredFromUs += value;
+                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
             }
 
+            if (ourOffer.TechnologiesOffered.Count > 0)
+            {
+                foreach (string tech in ourOffer.TechnologiesOffered)
+                {
+                    float value = ResourceManager.Tech(tech).DiplomaticValueTo(them, 0.02f);
+                    valueToThem += value;
+                    totalTrustRequiredFromUs += value;
+                }
+
+                // if value for them is higher, reduce a little trust needed
+                totalTrustRequiredFromUs -= ((valueToThem - valueToUs) / 2).UpperBound(0);
+            }
             if (ourOffer.OpenBorders)   valueToThem += 5f;
             if (theirOffer.OpenBorders) valueToUs   += 0.01f;
             if (ourOffer.NAPact)        valueToThem += 10f;
@@ -733,11 +743,6 @@ namespace Ship_Game.AI
 
             valueToThem += ourOffer.ArtifactsOffered.Count() * 15f;
             valueToUs   += theirOffer.ArtifactsOffered.Count() * 15f;
-
-            foreach (string tech in theirOffer.TechnologiesOffered)
-            {
-                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
-            }
 
             if (us.GetPlanets().Count - ourOffer.ColoniesOffered.Count + theirOffer.ColoniesOffered.Count < 1)
             {
