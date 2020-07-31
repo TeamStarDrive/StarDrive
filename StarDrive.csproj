@@ -181,7 +181,6 @@
     <Compile Include="Ship_Game\AI\StrategyAI\FleetBuildRatios.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\FleetShips.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\ShipBuilder.cs" />
-    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyOffers.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunAgentManager.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunDiplomaticPlanner.cs" />
