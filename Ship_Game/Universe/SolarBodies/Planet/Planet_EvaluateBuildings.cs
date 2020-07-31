@@ -108,21 +108,21 @@ namespace Ship_Game
 
             float foodToFeedAll      = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
             float flatFoodToFeedAll  = foodToFeedAll - Food.NetFlatBonus;
-            float fertilityBonus     = Fertility > 0 ? 1 / Fertility : 0;
+            float fertilityBonus     = Fertility.Less(1) ? 1 : Fertility;
 
             float flat   = (flatFoodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
             float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
             if (IsStarving)
             {
-                perCol += 3 + Fertility;
+                perCol += 3 * fertilityBonus;
                 flat   += (3 - Fertility).LowerBound(0);
             }
 
-            perCol += (1 - Storage.FoodRatio) * Fertility;
+            perCol += (1 - Storage.FoodRatio) * fertilityBonus;
             flat   += 1 - Storage.FoodRatio;
 
             if (colonyType == ColonyType.Agricultural)
-                perCol += Fertility;
+                perCol *= fertilityBonus;
 
 
             flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f);
@@ -464,15 +464,20 @@ namespace Ship_Game
             if (b.MaxFertilityOnBuild.AlmostZero())
                 return 1;
 
-            if (IsCybernetic && b.MaxFertilityOnBuild > 0)
-                return 0.5f; // Fertility increasing buildings score should be very high in order to be worth building by cybernetics
+            // Fertility increasing buildings score should be very high in order to be worth building by cybernetics
+            if (IsCybernetic)
+                return b.MaxFertilityOnBuild > 0 ? 0.25f : 1; 
 
             if (b.MaxFertilityOnBuild < 0 && colonyType == ColonyType.Agricultural)
                 return 0; // Never build fertility reducers on Agricultural colonies
 
             float projectedMaxFertility = MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category);
             if (projectedMaxFertility < 1)
-                return projectedMaxFertility.LowerBound(0); // multiplier will be smaller in direct relation to its effect
+            {
+                // Multiplier will be smaller in direct relation to its effect if not Core
+                if (colonyType == ColonyType.Core)
+                    return colonyType == ColonyType.Core ? 0 : projectedMaxFertility.LowerBound(0);
+            }
 
             return 1;
         }
