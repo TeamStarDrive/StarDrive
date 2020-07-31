@@ -130,7 +130,7 @@ namespace Ship_Game
                 t.UpdateAttackActions(-1);
 
                 t.FaceEnemy(targetTile, ourTile);
-                if (targetTile.BuildingOnTile)
+                if (targetTile.CombatBuildingOnTile)
                 {
                     t.UpdateMoveActions(-1);
                     CombatScreen.StartCombat(t, targetTile.building, targetTile, Ground);
