@@ -17,6 +17,7 @@ namespace Ship_Game.AI
         public War EmpireDefense;
         public float TotalWarValue { get; private set; }
         public float WarStrength = 0;
+        
         public void SetTotalWarValue()
         {
             float value = 0;

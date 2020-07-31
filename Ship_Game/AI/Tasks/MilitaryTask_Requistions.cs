@@ -50,9 +50,9 @@ namespace Ship_Game.AI.Tasks
 
                     float planetMinStr                 = sysCom.PlanetTroopMin(planet);
                     float planetDefendingTroopStrength = planet.GetDefendingTroopCount();
-                    float maxCanTake                   = troopPriorityHigh 
-                                    ? 5 
-                                    : (planetDefendingTroopStrength - (planetMinStr - 3)).LowerBound(0);
+                    float maxCanTake                   = troopPriorityHigh && !planet.RecentCombat && !planet.ParentSystem.HostileForcesPresent(Owner)
+                        ? 5 
+                        : (planetDefendingTroopStrength - (planetMinStr - 3)).LowerBound(0);
 
                     if (maxCanTake > 0)
                     {
@@ -290,7 +290,7 @@ namespace Ship_Game.AI.Tasks
 
             float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
 
-            if (CreateTaskFleet("Invasion Fleet", battleFleetSize) == RequisitionStatus.Complete)
+            if (CreateTaskFleet("Invasion Fleet", battleFleetSize, true) == RequisitionStatus.Complete)
             {
                 Step = 1;
             }
@@ -346,7 +346,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             // where the fleet will gather after requisition before moving to target AO.
-            Planet rallyPoint = Owner.FindNearestRallyPoint(AO);
+            Planet rallyPoint = GetRallyPlanet();
             if (rallyPoint == null)
                 return RequisitionStatus.NoRallyPoint;
 
@@ -357,10 +357,15 @@ namespace Ship_Game.AI.Tasks
 
             if (NeededTroopStrength > 0)
             {
+                int bombDeficit = (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).LowerBound(0);
                 // if we cant build bombers then convert bombtime to troops. 
                 // This assume a standard troop strength of 10 
-                if (NeededTroopStrength > 0 && fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
-                    NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).LowerBound(0) * 10;
+                if (bombDeficit > 0)
+                {
+                    
+                    NeededTroopStrength += bombDeficit * 10;
+                    TaskBombTimeNeeded = 0;
+                }
 
                 // See if we need to gather troops from planets. Bail if not enough
                 if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out troopsOnPlanets, rallyPoint.Center, highTroopPriority))
@@ -376,8 +381,8 @@ namespace Ship_Game.AI.Tasks
                 {
                     if (p.Owner == TargetPlanet.Owner)
                     {
-                        var extraFleets = TargetPlanet.Level;
-                        extraFleets    += TargetPlanet.HasWinBuilding ? 2 : 0;
+                        int extraFleets = TargetPlanet.Level > 2 ? 1 :0;
+                        extraFleets    += TargetPlanet.HasWinBuilding ? 1 : 0;
                         extraFleets    += TargetPlanet.BuildingList.Any(b => b.IsCapital) ? 1 : 0;
                         return extraFleets;
                     }
@@ -396,6 +401,11 @@ namespace Ship_Game.AI.Tasks
 
             CreateFleet(TaskForce, fleetName);
             return RequisitionStatus.Complete;
+        }
+
+        Planet GetRallyPlanet()
+        {
+            return Owner.FindNearestRallyPoint(AO);
         }
 
         void InitFleetRequirements(int minFleetStrength, int minTroopStrength, int minBombMinutes)

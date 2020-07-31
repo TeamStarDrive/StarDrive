@@ -188,10 +188,13 @@ namespace Ship_Game.AI
             fleetCount = ExtractFleetShipsUpToStrength(strength, setCompletePercentage, wantedFleetCount, out Array<Ship> fleetShips);
             
             if (fleetCount > 0 && fleetShips.Sum(s=> s.GetStrength()) >= strength)
+            {
                 ships.AddRange(fleetShips);
-
-            if (ships.IsEmpty)
-                AddShips(ships);
+            }
+            else
+            {
+                AddShips(fleetShips);
+            }
 
             return ships;
         }
