@@ -226,6 +226,11 @@ namespace Ship_Game.Universe.SolarBodies
             // Outposts and Capital Cities always grant a small bonus
             YieldPerColonist = plusPerColonist * (1 + researchMod);
             Tax = Planet.Owner.data.TaxRate * Planet.Owner.data.Traits.ResearchTaxMultiplier;
+
+            // Cybernetics get Tax reduction of 25% on production so they wont starve.
+            // This does not come free, more tax is added to the research
+            if (Planet.IsCybernetic)
+                Tax = (Tax * 1.25f).UpperBound(1);
         }
 
         // @todo Estimate how much research we need

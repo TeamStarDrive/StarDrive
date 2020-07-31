@@ -1049,7 +1049,7 @@ namespace Ship_Game
         }
         private void GrowPopulation()
         {
-            if (Owner == null || RecentCombat)
+            if (Owner == null)
                 return;
 
             if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
@@ -1059,7 +1059,7 @@ namespace Ship_Game
             }
             else if (IsStarving)
                 Population += Unfed * 10f; // Reduces population depending on starvation severity.
-            else
+            else if (!RecentCombat)
             {
                 // population is increased
                 float balanceGrowth = (1 - PopulationRatio).Clamped(0.1f, 1f);
