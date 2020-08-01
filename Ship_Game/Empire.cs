@@ -135,6 +135,9 @@ namespace Ship_Game
         // For Pirate Factions. This will allow the Empire to be pirates
         public Pirates Pirates { get; private set; }
 
+        // For Remnants Factions. This will allow the Empire to be Remnants
+        public Remnants Remnants { get; private set; }
+
         public Color EmpireColor;
         public static UniverseScreen Universe;
         private EmpireAI EmpireAI;
@@ -206,6 +209,7 @@ namespace Ship_Game
         public bool IsCybernetic             => data.Traits.Cybernetic != 0;
         public bool NonCybernetic            => data.Traits.Cybernetic == 0;
         public bool WeArePirates             => Pirates != null; // Use this to figure out if this empire is pirate faction
+        public bool WeAreRemnants            => Remnants != null; // Use this to figure out if this empire is pirate faction
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
@@ -268,6 +272,11 @@ namespace Ship_Game
         public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)
         {
             Pirates = new Pirates(this, fromSave, goals);
+        }
+
+        public void SetAsRemnants(bool fromSave, BatchRemovalCollection<Goal> goals)
+        {
+            Remnants = new Remnants(this, fromSave, goals);
         }
 
         public void AddMoney(float moneyDiff)
@@ -2952,11 +2961,17 @@ namespace Ship_Game
 
         public bool KillsForRemnantStory(Empire they, Ship killedShip)
         {
-            if (!isFaction || this != EmpireManager.Remnants) return false;
-            if (!they.isPlayer) return false;
-            if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) return false;
+            if (!WeAreRemnants) 
+                return false;
+
+            if (!they.isPlayer) 
+                return false;
+
+            if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) 
+                return false;
+
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
-            GlobalStats.IncrementRemnantKills((int)killedExpSettings.KillExp, they);
+            Remnants.IncrementKills((int)killedExpSettings.KillExp);
             return true;
         }
 

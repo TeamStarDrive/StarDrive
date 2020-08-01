@@ -281,6 +281,9 @@ namespace Ship_Game
         [Serialize(128)] public int MinimumColoniesForStartPayment = 3;
         [Serialize(129)] public Array<float> NormalizedMilitaryScore;
 
+        // FB - For Pirates
+        [Serialize(130)] public bool IsRemnantFaction;
+
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;
 
