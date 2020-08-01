@@ -543,7 +543,7 @@ namespace Ship_Game
             systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 
                                                                  && s.RingList.Count > 0 
                                                                  && !s.PiratePresence
-                                                                 && !s.PlanetList.Any(p => p.Guardians.Count > 0));
+                                                                 && !s.ShipList.Any(g => g.IsGuardian));
 
             return systems.Length > 0;
         }
