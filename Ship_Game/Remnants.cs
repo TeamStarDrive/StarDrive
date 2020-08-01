@@ -228,7 +228,7 @@ namespace Ship_Game
                 AddMinorRemnantShips(p);
 
             if (RollDice(10))
-                AddRemnantGuardians(1, "Ancient Assimilator", p);
+                AddRemnantGuardians(1, Owner.data.RemnantAssimilator, p);
         }
 
         void AddMinorRemnantShips(Planet p)
@@ -236,36 +236,36 @@ namespace Ship_Game
             int numXenoFighters = RollDie(5) + 1;
             int numDrones = RollDie(3);
 
-            AddRemnantGuardians(numXenoFighters, "Xeno Fighter", p);
-            AddRemnantGuardians(numDrones, "Heavy Drone", p);
+            AddRemnantGuardians(numXenoFighters, Owner.data.RemnantFighter, p);
+            AddRemnantGuardians(numDrones, Owner.data.RemnantCorvette, p);
         }
 
         void AddMiniRemnantShips(Planet p)  //Added by Gretman
         {
             int numXenoFighters = RollDie(3);
 
-            AddRemnantGuardians(numXenoFighters, "Xeno Fighter", p);
-            AddRemnantGuardians(1, "Heavy Drone", p);
+            AddRemnantGuardians(numXenoFighters, Owner.data.RemnantFighter, p);
+            AddRemnantGuardians(1, Owner.data.RemnantCorvette, p);
         }
 
         void AddSupportRemnantShips(Planet p)  //Added by Gretman
         {
             int numSupportDrones = RollDie(4);
-            AddRemnantGuardians(numSupportDrones, "Support Drone", p);
+            AddRemnantGuardians(numSupportDrones, Owner.data.RemnantSupportSmall, p);
         }
 
         void AddCarrierRemnantShips(Planet p)  //Added by Gretman
         {
-            AddRemnantGuardians(1, "Ancient Carrier", p);
+            AddRemnantGuardians(1, Owner.data.RemnantCarrier, p);
             if (RollDice(20)) // 20% chance for another carrier
-                AddRemnantGuardians(1, "Ancient Carrier", p);
+                AddRemnantGuardians(1, Owner.data.RemnantCarrier, p);
         }
 
         void AddTorpedoRemnantShips(Planet p)  //Added by Gretman
         {
-            AddRemnantGuardians(1, "Ancient Torpedo Cruiser", p);
+            AddRemnantGuardians(1, Owner.data.RemnantCruiser, p);
             if (RollDice(10)) // 10% chance for another torpedo cruiser
-                AddRemnantGuardians(1, "Ancient Torpedo Cruiser", p);
+                AddRemnantGuardians(1, Owner.data.RemnantCruiser, p);
         }
 
         void AddRemnantGuardians(int numShips, string shipName, Planet p)

@@ -2,10 +2,19 @@
 <EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Faction>1</Faction>
   <PortraitName>Imperium</PortraitName>
-  <IsRemnantFaction>true</IsRemnantFaction>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   <StartingScout>Xeno Fighter</StartingScout>
   <BaseShipLevel>3</BaseShipLevel>
+
+  <IsRemnantFaction>true</IsRemnantFaction>
+  <RemnantFighter>Xeno Fighter</RemnantFighter>
+  <RemnantCorvette>Heavy Drone</RemnantCorvette>
+  <RemnantSupportSmall>Support Drone</RemnantSupportSmall>
+  <RemnantCarrier>Ancient Carrier</RemnantCarrier>
+  <RemnantAssimilator>Ancient Assimilator</RemnantAssimilator>
+  <RemnantCruiser>Ancient Torpedo Cruiser</RemnantCruiser>
+  <RemnantMotherShip>Remnant Mothership</RemnantMotherShip>
+  <RemnantExterminator>Remnant Exterminator</RemnantExterminator>
 
   <!-- Fertility multipliers for environments. For Remnants, this will control amount of guardian fleet deploy at game creation -->
   <EnvTerran>2</EnvTerran>
