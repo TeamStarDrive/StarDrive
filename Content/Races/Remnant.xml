@@ -2,6 +2,7 @@
 <EmpireData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Faction>1</Faction>
   <PortraitName>Imperium</PortraitName>
+  <IsRemnantFaction>true</IsRemnantFaction>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   <StartingScout>Xeno Fighter</StartingScout>
   <BaseShipLevel>3</BaseShipLevel>

@@ -341,25 +341,6 @@ namespace Ship_Game
                 ProjectPieMenu(SelectedPlanet.Center, 2500f);
             }
 
-            if (GlobalStats.RemnantArmageddon)
-            {
-                if (!Paused) ArmageddonTimer -= elapsedTime;
-                if (ArmageddonTimer < 0.0)
-                {
-                    ArmageddonTimer = 300f;
-                    ++ArmageddonCounter;
-                    if (ArmageddonCounter > 5)
-                        ArmageddonCounter = 5;
-                    for (int i = 0; i < ArmageddonCounter; ++i)
-                    {
-                        Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                                player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
-                                    RandomMath.RandomBetween(-500000f, 500000f)));
-                        exterminator.AI.DefaultAIState = AIState.Exterminate;
-                    }
-                }
-            }
-
             //clear out general object removal.
             TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();

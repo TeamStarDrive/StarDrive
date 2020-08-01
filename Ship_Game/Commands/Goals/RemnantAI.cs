@@ -10,10 +10,13 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "RemnantAI";
         public override string UID => ID;
+        private Remnants Remnants;
+
         public RemnantAI() : base(GoalType.RemnantAI)
         {
             Steps = new Func<GoalStep>[]
             {
+                CreateGuardians,
                 CreateAColony,
                 UtilizeColony,
                 Exterminate
@@ -22,6 +25,11 @@ namespace Ship_Game.Commands.Goals
         public RemnantAI(Empire owner) : this()
         {
             empire = owner;
+        }
+
+        public sealed override void PostInit()
+        {
+            Remnants = empire.Remnants;
         }
 
         Planet NearestColonyTarget(Vector2 shipPosition)
@@ -50,6 +58,19 @@ namespace Ship_Game.Commands.Goals
                 !assimilate.AI.BadGuysNear &&
                 assimilate.GetStrength() >= 50)
             );
+        }
+
+        GoalStep CreateGuardians()
+        {
+            foreach (SolarSystem solarSystem in UniverseScreen.SolarSystemList)
+            {
+                foreach (Planet p in solarSystem.PlanetList)
+                {
+                    Remnants.GenerateRemnantPresence(p);
+                }
+            }
+
+            return GoalStep.GoToNextStep;
         }
 
         GoalStep CreateAColony()
@@ -126,7 +147,7 @@ namespace Ship_Game.Commands.Goals
                 if (target != null)
                     ship.AI.OrderLandAllTroops(target);
             }
-            return GoalStep.RestartGoal;
+            return GoalStep.GoalComplete;
         }
     }
 }
