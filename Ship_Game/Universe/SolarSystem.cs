@@ -470,10 +470,6 @@ namespace Ship_Game
                 foreach (string building in ringData.BuildingList)
                     ResourceManager.CreateBuilding(building).SetPlanet(newOrbital);
 
-                // Add ships to orbit
-                foreach (string ship in ringData.Guardians)
-                    newOrbital.Guardians.Add(ship);
-
                 // Add moons to planets
                 for (int j = 0; j < ringData.Moons.Count; j++)
                 {
