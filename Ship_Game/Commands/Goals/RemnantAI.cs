@@ -27,11 +27,6 @@ namespace Ship_Game.Commands.Goals
             empire = owner;
         }
 
-        public sealed override void PostInit()
-        {
-            Remnants = empire.Remnants;
-        }
-
         Planet NearestColonyTarget(Vector2 shipPosition)
         {
             return Empire.Universe.PlanetsDict.Values.ToArray()
@@ -66,7 +61,7 @@ namespace Ship_Game.Commands.Goals
             {
                 foreach (Planet p in solarSystem.PlanetList)
                 {
-                    Remnants.GenerateRemnantPresence(p);
+                    empire.Remnants.GenerateRemnantPresence(p);
                 }
             }
 
