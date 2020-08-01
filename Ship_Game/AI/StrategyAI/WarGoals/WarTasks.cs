@@ -15,10 +15,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public WarTasks(Empire owner, Empire target, Campaign campaign)
         {
-            Owner     = owner;
-            Target    = target;
-            NewTasks  = new Array<MilitaryTask>();
-            TaskGuids = new Array<Guid>();
+            Owner         = owner;
+            Target        = target;
+            NewTasks      = new Array<MilitaryTask>();
+            TaskGuids     = new Array<Guid>();
+            OwnerCampaign = campaign;
         }
 
         public void RestoreFromSave(Empire owner, Empire target, Campaign campaign)
@@ -31,6 +32,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public virtual void Update()
         {
             ProcessNewTasks();
+            ProcessTaskMemory();
+        }
+
+        void ProcessTaskMemory()
+        {
+            for (int i = TaskGuids.Count - 1; i >= 0; i--)
+            {
+                var taskGuid = TaskGuids[i];
+                var task = Owner.GetEmpireAI().GetTaskByGuid(taskGuid);
+                if (task is null) TaskGuids.RemoveAtSwapLast(i);
+            }
         }
 
         public void PurgeAllTasks()
