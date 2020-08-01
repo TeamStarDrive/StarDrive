@@ -78,9 +78,6 @@ namespace Ship_Game
         public SavedGame(UniverseScreen screenToSave, string saveAs)
         {
             SaveData.SaveGameVersion       = SaveGameVersion;
-            SaveData.RemnantKills          = GlobalStats.RemnantKills;
-            SaveData.RemnantActivation     = GlobalStats.RemnantActivation;
-            SaveData.RemnantArmageddon     = GlobalStats.RemnantArmageddon;
             SaveData.gameDifficulty        = CurrentGame.Difficulty;
             SaveData.GalaxySize            = CurrentGame.GalaxySize;
             SaveData.AutoColonize          = EmpireManager.Player.AutoColonize;
@@ -568,8 +565,10 @@ namespace Ship_Game
             [Serialize(23)] public Array<Guid> SpawnedShips;
             [Serialize(24)] public Array<string> ShipsWeCanSpawn;
             [Serialize(25)] public Array<float> NormalizedMoney;
-            [Serialize(25)] public int ExpandSearchTimer;
-            [Serialize(25)] public int MaxSystemsToCheckedDiv;
+            [Serialize(26)] public int ExpandSearchTimer;
+            [Serialize(27)] public int MaxSystemsToCheckedDiv;
+            [Serialize(28)] public float RemnantStoryTriggerKillsXp;
+            [Serialize(29)] public bool RemnantStoryActivated;
         }
 
         public class FleetSave

@@ -79,6 +79,9 @@ namespace Ship_Game
             if (e.WeArePirates)
                 e.Pirates.RestoreFromSave(sdata);
 
+            if (e.WeAreRemnants)
+                e.Remnants.RestoreFromSave(sdata);
+
             return e;
         }
 

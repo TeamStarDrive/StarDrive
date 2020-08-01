@@ -47,13 +47,12 @@ namespace Ship_Game.AI
             if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
-            string name = OwnerEmpire.data.Traits.Name;
-
             if (OwnerEmpire.isFaction && OwnerEmpire.data.IsPirateFaction && !GlobalStats.DisablePirates)
                 OwnerEmpire.SetAsPirates(fromSave, Goals);
 
-            if (name == "The Remnant" && !fromSave)
-                Goals.Add(new RemnantAI(OwnerEmpire));
+            if (OwnerEmpire.isFaction && OwnerEmpire.data.IsRemnantFaction)
+                OwnerEmpire.SetAsRemnants(fromSave, Goals);
+
             EmpireDefense?.RestoreFromSave(true);
         }
 

@@ -11,7 +11,6 @@
         public readonly float TaskForceStrength;
         public readonly bool DataVisibleToPlayer;
         public readonly float Anger;
-        public readonly int RemnantStory;
         public readonly int ShipLevel;
         public readonly bool HideTacticalData;
         public readonly float MaxDesiredPlanets;
@@ -165,7 +164,6 @@
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
             DiploWeightVsPlayer = (int)difficulty + 1;
             Anger               = 1 + ((int)difficulty + 1) * 0.2f;
-            RemnantStory        = (int)difficulty * 3;
 
             if (empire.isPlayer)
             {
