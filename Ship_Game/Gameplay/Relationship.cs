@@ -110,9 +110,9 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
         [XmlIgnore][JsonIgnore] Empire Player => Empire.Universe.PlayerEmpire;
 
-        private readonly int FirstDemand    = 20;
-        private readonly int SecondDemand   = 75;
-        private readonly int TechTradeTurns = 100;
+        private readonly int FirstDemand   = 20;
+        private readonly int SecondDemand  = 75;
+        public readonly int TechTradeTurns = 100;
 
         /// <summary>
         /// Tech transfer restriction.
