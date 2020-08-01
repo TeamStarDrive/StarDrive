@@ -857,7 +857,11 @@ namespace Ship_Game.AI
                         case OfferQuality.Poor:
                             return "OfferResponse_Reject_PoorOffer_LowTrust";
                         case OfferQuality.Fair:
+                            return "OfferResponse_InsufficientTrust";
                         case OfferQuality.Good:
+                            if (themToUs.turnsSinceLastContact >= themToUs.TechTradeTurns) // So it wont be exploited by the player
+                                usToThem.ImproveRelations(2f.UpperBound(valueToUs), 5);
+
                             return "OfferResponse_InsufficientTrust";
                         case OfferQuality.Great:
                             usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs);
