@@ -1110,7 +1110,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             int territorialism = us.data.DiplomaticPersonality.Territorialism;
-            if (them.CurrentMilitaryStrength < us.CurrentMilitaryStrength * (1f - territorialism * 0.01f))
+            if (them.CurrentMilitaryStrength < us.CurrentMilitaryStrength * (1f - territorialism * 0.01f) && !Treaty_Peace)
                 us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
         }
 
@@ -1145,7 +1145,7 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetRuthless(Empire us, Empire them)
         {
-            if (ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar)
+            if (Treaty_Peace || ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar)
                 return false;
 
             if (Threat > 0f || TurnsKnown < SecondDemand)
@@ -1163,7 +1163,7 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetAggressive(Empire us, Empire them)
         {
-            if (ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar)
+            if (Treaty_Peace || ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar)
                 return false;
 
             if (Threat < -40f && TurnsKnown > SecondDemand && !Treaty_Alliance)
@@ -1181,7 +1181,7 @@ namespace Ship_Game.Gameplay
 
         bool TheyArePotentialTargetXenophobic(Empire us, Empire them)
         {
-            if (ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar || Posture == Posture.Friendly)
+            if (Treaty_Peace || ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar || Posture == Posture.Friendly)
                 return false;
 
             return them.GetPlanets().Count > us.GetPlanets().Count * 0.75f || TotalAnger > 20f;
