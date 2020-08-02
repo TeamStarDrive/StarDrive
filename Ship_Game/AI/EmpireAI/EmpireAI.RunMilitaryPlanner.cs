@@ -606,25 +606,24 @@ namespace Ship_Game.AI
             }
         }
 
-        //fbedard: Build a ship with a random role
+        // fbedard: Build a ship with a random role
 
         public string GetAShip(RoleBuildInfo buildRatios)
         {
-
             //Find ship to build
-
             Map<ShipData.RoleName, float> pickRoles = buildRatios.CreateBuildPriorities();
 
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
-                string buildThis = PickFromCandidates(kv.Key, OwnerEmpire);
-                if (buildThis.IsEmpty())
+                Ship ship = PickFromCandidates(kv.Key, OwnerEmpire);
+                if (ship == null)
                     continue;
+
                 buildRatios.IncrementShipCount(kv.Key);
-                return buildThis;
+                return ship.Name;
             }
 
-            return null;  //Find nothing to build !
+            return null;  // Found nothing to build !
         }
     }
 }

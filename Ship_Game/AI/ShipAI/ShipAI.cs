@@ -487,7 +487,7 @@ namespace Ship_Game.AI
                 // check if inside minimum warp jump range. If not do a full warp process.
                 if (Owner.fleet.FinalPosition.InRadius(Owner.Center, 7500))
                 {
-                    SetPriorityOrder(true);
+                    SetPriorityOrder(true);  // FB this might cause serious issues that make orbiting ships stuck with PO and not available anymore for the AI.
                     State = AIState.AwaitingOrders;
                     AddShipGoal(Plan.MakeFinalApproach,
                         Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
