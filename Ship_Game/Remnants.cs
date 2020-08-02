@@ -11,12 +11,13 @@ using System.Windows.Forms;
 namespace Ship_Game
 {
     using static RandomMath;
+    using static HelperFunctions;
     public class Remnants
     {
         public readonly Empire Owner;
         public readonly BatchRemovalCollection<Goal> Goals;
         private float StoryTriggerKillsXp;
-        private bool StoryActivated;
+        private bool Activated;
         public static bool Armageddon;
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
@@ -30,19 +31,79 @@ namespace Ship_Game
 
         public void RestoreFromSave(SavedGame.EmpireSaveData sData)
         {
-            StoryActivated      = sData.RemnantStoryActivated;
+            Activated           = sData.RemnantStoryActivated;
             StoryTriggerKillsXp = sData.RemnantStoryTriggerKillsXp;
         }
 
         public void IncrementKills(int exp)
         {
             StoryTriggerKillsXp += exp;
-            float expTrigger = ShipRole.GetMaxExpValue();
-            if (StoryTriggerKillsXp >= expTrigger && !StoryActivated)
+            float expTrigger = ShipRole.GetMaxExpValue() * EmpireManager.MajorEmpires.Length;
+            if (StoryTriggerKillsXp >= expTrigger && !Activated)
             {
                 Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
-                StoryActivated = true;
+                Activate();
             }
+        }
+
+        void Activate()
+        {
+            if (!CreatePortal(out Ship portal))
+            {
+                Log.Warning($"Could not create a portal for {Owner.data.Name}, they will not be activated!");
+                return;
+            }
+
+            Activated = true;
+            // create the portal goal based on story
+        }
+
+        public bool CreatePortal(out Ship portal)
+        {
+            portal             = null;
+            SolarSystem system = null;
+
+            if (!GetRadiatingStars(out SolarSystem[] systems)) // Prefer stars which emit radiation
+                if (!GetLoneSystem(out system)) // Try a lone system
+                    if (!GetUnownedSystems(out systems)) // Fallback to any unowned system
+                        return false; // Could not find a spot
+
+            if (system == null)
+                system = systems.RandItem();
+
+            Vector2 pos = system.Position.GenerateRandomPointOnCircle(system.Sun.Radius + 20000);
+            return SpawnShip(RemnantShipType.Portal, pos, out portal);
+        }
+
+        bool SpawnShip(RemnantShipType shipType, Vector2 where, out Ship remnantShip)
+        {
+            remnantShip = null;
+            string shipName;
+            switch (shipType)
+            {
+                default:
+                case RemnantShipType.Fighter:      shipName = Owner.data.RemnantFighter;      break;
+                case RemnantShipType.Corvette:     shipName = Owner.data.RemnantCorvette;     break;
+                case RemnantShipType.SmallSupport: shipName = Owner.data.RemnantSupportSmall; break;
+                case RemnantShipType.Assimilator:  shipName = Owner.data.RemnantAssimilator;  break;
+                case RemnantShipType.Carrier:      shipName = Owner.data.RemnantCarrier;      break;
+                case RemnantShipType.Mothership:   shipName = Owner.data.RemnantMotherShip;   break;
+                case RemnantShipType.Exterminator: shipName = Owner.data.RemnantExterminator; break;
+                case RemnantShipType.Portal:       shipName = Owner.data.RemnantPortal;       break;
+            }
+
+            if (shipName.NotEmpty())
+            {
+                remnantShip = Ship.CreateShipAtPoint(shipName, Owner, where);
+                if (remnantShip == null)
+                    Log.Warning($"Could not spawn required Remnant ship named {shipName} for {Owner.Name}, check race xml");
+            }
+            else
+            {
+                Log.Warning($"Pirate ship name was empty for {Owner.Name}, check race xml for typos");
+            }
+
+            return remnantShip != null;
         }
 
         float QualityForRemnants(Planet planet)
@@ -272,7 +333,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < numShips; ++i)
             {
-                Ship guardian = Ship.CreateShipAt(shipName, EmpireManager.Remnants, p, RandomMath.Vector2D(p.ObjectRadius * 2), true);
+                Ship guardian = Ship.CreateShipAt(shipName, EmpireManager.Remnants, p, Vector2D(p.ObjectRadius * 2), true);
                 guardian.IsGuardian = true;
             }
         }
@@ -300,4 +361,17 @@ namespace Ship_Game
             }
         }
     }*/
+
+    public enum RemnantShipType
+    {
+        Fighter,
+        Corvette,
+        SmallSupport,
+        Carrier,
+        Assimilator,
+        Cruiser,
+        Mothership,
+        Exterminator,
+        Portal
+    }
 }

@@ -15,6 +15,7 @@
   <RemnantCruiser>Ancient Torpedo Cruiser</RemnantCruiser>
   <RemnantMotherShip>Remnant Mothership</RemnantMotherShip>
   <RemnantExterminator>Remnant Exterminator</RemnantExterminator>
+  <RemnantPortal>Forward Base I</RemnantPortal>
 
   <!-- Fertility multipliers for environments. For Remnants, this will control amount of guardian fleet deploy at game creation -->
   <EnvTerran>2</EnvTerran>
