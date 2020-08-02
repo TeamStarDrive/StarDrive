@@ -16,9 +16,10 @@ namespace Ship_Game
     {
         public readonly Empire Owner;
         public readonly BatchRemovalCollection<Goal> Goals;
-        private float StoryTriggerKillsXp;
-        private bool Activated;
+        public float StoryTriggerKillsXp { get; private set; }
+        public bool Activated { get; private set; }
         public static bool Armageddon;
+        public RemnantStory Story { get; private set; }
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -26,13 +27,14 @@ namespace Ship_Game
             Goals = goals;
 
             if (!fromSave)
-                goals.Add(new RemnantAI(Owner));
+                Story = PickStory(goals);
         }
 
         public void RestoreFromSave(SavedGame.EmpireSaveData sData)
         {
             Activated           = sData.RemnantStoryActivated;
             StoryTriggerKillsXp = sData.RemnantStoryTriggerKillsXp;
+            Story               = (RemnantStory)sData.RemnantStoryType;
         }
 
         public void IncrementKills(int exp)
@@ -339,6 +341,24 @@ namespace Ship_Game
                 if (SpawnShip(type, pos, out Ship ship))
                     ship.OrderToOrbit(p);
             }
+        }
+
+        RemnantStory PickStory(BatchRemovalCollection<Goal> goals)
+        {
+            switch (RollDie(3))
+            {
+                default:
+                case 1: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientBalancers;
+                case 2: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientExterminators;
+                case 3: goals.Add(new RemnantAI(Owner)); return RemnantStory.ColonizeGalaxy;
+            }
+        }
+
+        public enum RemnantStory
+        {
+            AncientBalancers,
+            AncientExterminators,
+            ColonizeGalaxy
         }
     }
 

@@ -158,6 +158,12 @@ namespace Ship_Game
                     empireToSave.ShipsWeCanSpawn     = e.Pirates.ShipsWeCanSpawn;
                 }
 
+                if (e.WeAreRemnants)
+                {
+                    empireToSave.RemnantStoryActivated      = e.Remnants.Activated;
+                    empireToSave.RemnantStoryTriggerKillsXp = e.Remnants.StoryTriggerKillsXp;
+                    empireToSave.RemnantStoryType           = (int)e.Remnants.Story;
+                }
 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
                 {
@@ -569,6 +575,7 @@ namespace Ship_Game
             [Serialize(27)] public int MaxSystemsToCheckedDiv;
             [Serialize(28)] public float RemnantStoryTriggerKillsXp;
             [Serialize(29)] public bool RemnantStoryActivated;
+            [Serialize(30)] public int RemnantStoryType;
         }
 
         public class FleetSave
