@@ -21,9 +21,9 @@ namespace Ship_Game.ShipDesignIssues
             EmpireStats         = new EmpireShipDesignStats(Player);
         }
 
-        void AddDesignIssue(DesignIssueType type, EmpireShipDesignStats stats, WarningLevel severity, string addRemediationText = "")
+        void AddDesignIssue(DesignIssueType type, WarningLevel severity, string addRemediationText = "")
         {
-            DesignIssueDetails details = new DesignIssueDetails(type, stats, severity, addRemediationText);
+            DesignIssueDetails details = new DesignIssueDetails(type, severity, addRemediationText);
             CurrentDesignIssues.Add(details);
             UpdateCurrentWarningLevel(details.Severity);
         }
@@ -101,42 +101,56 @@ namespace Ship_Game.ShipDesignIssues
         public void CheckIssueNoCommand(int numCommand)
         {
             if (Role != ShipData.RoleName.platform && numCommand == 0)
-                AddDesignIssue(DesignIssueType.NoCommand, EmpireStats, WarningLevel.Critical);
+                AddDesignIssue(DesignIssueType.NoCommand, WarningLevel.Critical);
         }
 
         public void CheckIssueBackupCommand(int numCommand, int size)
         {
             if (Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
-                AddDesignIssue(DesignIssueType.BackUpCommand, EmpireStats, WarningLevel.Major);
+                AddDesignIssue(DesignIssueType.BackUpCommand, WarningLevel.Major);
         }
 
         public void  CheckIssueUnpoweredModules(bool unpoweredModules)
         {
             if (unpoweredModules)
-                AddDesignIssue(DesignIssueType.UnpoweredModules, EmpireStats, WarningLevel.Major);
+                AddDesignIssue(DesignIssueType.UnpoweredModules, WarningLevel.Major);
         }
 
-        public void CheckIssueOrdnance(float ordnanceUsed, float ordnanceRecovered, float ammoTime, int size)
+        public void CheckIssueOrdnanceBurst(float burst, float cap)
+        {
+            if (burst.LessOrEqual(0) || burst < cap)
+                return;
+
+            WarningLevel level;
+            float efficiency = cap / burst;
+            if (efficiency > 0.75f)     level = WarningLevel.Minor;
+            else if (efficiency > 0.5f) level = WarningLevel.Major;
+            else                        level = WarningLevel.Critical;
+
+            AddDesignIssue(DesignIssueType.HighBurstOrdnance, level, $" {(efficiency*100).String(0)}%");
+        }
+
+        public void CheckIssueOrdnance(float ordnanceUsed, float ordnanceRecovered, float ammoTime)
         {
             if ((ordnanceUsed - ordnanceRecovered).LessOrEqual(0))
                 return;  // Inf ammo
 
             if (ammoTime < 5)
             {
-                AddDesignIssue(DesignIssueType.NoOrdnance, EmpireStats, WarningLevel.Critical);
+                AddDesignIssue(DesignIssueType.NoOrdnance, WarningLevel.Critical);
             }
             else if (!IsPlatform)
             {
                 int goodAmmoTime = LargeCraft ? 50 : 25;
                 if (ammoTime < goodAmmoTime)
-                    AddDesignIssue(DesignIssueType.LowOrdnance, EmpireStats, WarningLevel.Minor);
+                    AddDesignIssue(DesignIssueType.LowOrdnance, WarningLevel.Minor);
             }
         }
 
         public void CheckIssuePowerRecharge(float recharge)
         {
             if (recharge.Less(0))
-                AddDesignIssue(DesignIssueType.NegativeRecharge, EmpireStats, WarningLevel.Critical);
+                AddDesignIssue(DesignIssueType.NegativeRecharge, WarningLevel.Critical);
         }
 
         public void CheckIssueLowWarpTime(float warpDraw, float ftlTime, float warpSpeed)
@@ -145,7 +159,7 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             WarningLevel severity = ftlTime < 60 ? WarningLevel.Critical : WarningLevel.Major;
-            AddDesignIssue(DesignIssueType.LowWarpTime, EmpireStats, severity);
+            AddDesignIssue(DesignIssueType.LowWarpTime, severity);
         }
 
         public void CheckIssueNoWarp(float speed, float warpSpeed)
@@ -156,7 +170,7 @@ namespace Ship_Game.ShipDesignIssues
             if (warpSpeed.LessOrEqual(0))
             {
                 WarningLevel severity = LargeCraft ? WarningLevel.Critical : WarningLevel.Informative;
-                AddDesignIssue(DesignIssueType.NoWarp, EmpireStats, severity);
+                AddDesignIssue(DesignIssueType.NoWarp, severity);
             }
         }
 
@@ -179,7 +193,7 @@ namespace Ship_Game.ShipDesignIssues
 
             float averageEmpireWarpSpeed = EmpireStats.AverageEmpireWarpSpeed(Role);
             string averageWarpString = $" {civilianOrMilitary} ({averageEmpireWarpSpeed.GetNumberString()}).";
-            AddDesignIssue(DesignIssueType.SlowWarp, EmpireStats, severity, averageWarpString);
+            AddDesignIssue(DesignIssueType.SlowWarp, severity, averageWarpString);
         }
 
         public void CheckIssueNoSpeed(float speed)
@@ -187,7 +201,7 @@ namespace Ship_Game.ShipDesignIssues
             if (speed.Greater(0) || Stationary)
                 return;
 
-            AddDesignIssue(DesignIssueType.NoSpeed, EmpireStats, WarningLevel.Critical);
+            AddDesignIssue(DesignIssueType.NoSpeed, WarningLevel.Critical);
         }
 
         public void CheckTargetExclusions(bool hasWeapons, bool canTargetFighters, bool  canTargetCorvettes, bool canTargetCapitals)
@@ -197,14 +211,14 @@ namespace Ship_Game.ShipDesignIssues
 
             WarningLevel severity = LargeCraft ? WarningLevel.Major : WarningLevel.Critical;
             if (!canTargetFighters)
-                AddDesignIssue(DesignIssueType.CantTargetFighters, EmpireStats, severity);
+                AddDesignIssue(DesignIssueType.CantTargetFighters, severity);
 
             if (!canTargetCorvettes)
-                AddDesignIssue(DesignIssueType.CantTargetCorvettes, EmpireStats, severity);
+                AddDesignIssue(DesignIssueType.CantTargetCorvettes, severity);
 
             severity = LargeCraft ? WarningLevel.Critical : WarningLevel.Minor;
             if (!canTargetCapitals)
-                AddDesignIssue(DesignIssueType.CantTargetCapitals, EmpireStats, severity);
+                AddDesignIssue(DesignIssueType.CantTargetCapitals, severity);
         }
 
         public void CheckTruePD(int size, int pointDefenseValue)
@@ -216,7 +230,7 @@ namespace Ship_Game.ShipDesignIssues
             WarningLevel severity = pointDefenseValue < threshold / 2 ? WarningLevel.Major
                                                                       : WarningLevel.Minor;
 
-            AddDesignIssue(DesignIssueType.LowPdValue, EmpireStats, severity);
+            AddDesignIssue(DesignIssueType.LowPdValue, severity);
         }
 
         public void CheckWeaponPowerTime(bool hasEnergyWeapons, bool excessPowerConsumed, float weaponPowerTime)
@@ -231,7 +245,7 @@ namespace Ship_Game.ShipDesignIssues
             else if (weaponPowerTime < 20) severity = WarningLevel.Informative;
 
             if (severity > WarningLevel.None)
-                AddDesignIssue(DesignIssueType.LowWeaponPowerTime, EmpireStats, severity);
+                AddDesignIssue(DesignIssueType.LowWeaponPowerTime, severity);
         }
 
         public void CheckCombatEfficiency(float excessPowerConsumed, float weaponPowerTime, float netPowerRecharge, 
@@ -265,7 +279,7 @@ namespace Ship_Game.ShipDesignIssues
             if (severity > WarningLevel.None)
             {
                 string efficiencyText = $" {new LocalizedText(2565).Text} {netEfficiency.String(0)}%.";
-                AddDesignIssue(DesignIssueType.NotIdealCombatEfficiency, EmpireStats, severity, efficiencyText);
+                AddDesignIssue(DesignIssueType.NotIdealCombatEfficiency, severity, efficiencyText);
             }
         }
 
@@ -277,7 +291,7 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             WarningLevel severity = burstEnergyPowerTime < 1 ? WarningLevel.Critical : WarningLevel.Major;
-            AddDesignIssue(DesignIssueType.LowBurstPowerTime, EmpireStats, severity);
+            AddDesignIssue(DesignIssueType.LowBurstPowerTime, severity);
         }
 
         public void CheckOrdnanceVsEnergyWeapons(int numWeapons, int numOrdnanceWeapons)
@@ -286,11 +300,11 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             if (numOrdnanceWeapons < numWeapons)
-                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyPlayerOrder, EmpireStats, WarningLevel.Informative);
+                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyPlayerOrder, WarningLevel.Informative);
 
             float ordnanceToEnergyRatio = (float)numOrdnanceWeapons / numWeapons;
             if (ordnanceToEnergyRatio.LessOrEqual(ShipResupply.KineticToEnergyRatio))
-                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyCombat, EmpireStats, WarningLevel.Informative);
+                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyCombat, WarningLevel.Informative);
         }
 
         public void CheckTroopsVsBays(int numTroops, int numTroopBays)
@@ -300,7 +314,7 @@ namespace Ship_Game.ShipDesignIssues
 
             int diff             = numTroopBays - numTroops;
             string troopsMissing = $" {diff} {new LocalizedText(2564).Text}";
-            AddDesignIssue(DesignIssueType.LowTroopsForBays, EmpireStats, WarningLevel.Major, troopsMissing);
+            AddDesignIssue(DesignIssueType.LowTroopsForBays, WarningLevel.Major, troopsMissing);
         }
 
         public void CheckTroops(int numTroops, int size)
@@ -318,7 +332,7 @@ namespace Ship_Game.ShipDesignIssues
             else                return;
 
             string troopsMissing = $" {diff} {new LocalizedText(2564).Text}";
-            AddDesignIssue(DesignIssueType.LowTroops, EmpireStats, severity, troopsMissing);
+            AddDesignIssue(DesignIssueType.LowTroops, severity, troopsMissing);
         }
 
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
@@ -359,7 +373,8 @@ namespace Ship_Game.ShipDesignIssues
         NoOrdnanceResupplyPlayerOrder,
         LowTroops,
         LowTroopsForBays,
-        NotIdealCombatEfficiency
+        NotIdealCombatEfficiency,
+        HighBurstOrdnance
     }
 
     public enum WarningLevel
@@ -381,8 +396,7 @@ namespace Ship_Game.ShipDesignIssues
         public readonly string Remediation;
         public readonly SubTexture Texture;
 
-        public DesignIssueDetails(DesignIssueType issueType, ShipDesignIssues.EmpireShipDesignStats stats, 
-               WarningLevel severity, string addToRemediationText)
+        public DesignIssueDetails(DesignIssueType issueType, WarningLevel severity, string addToRemediationText)
         {
             Type     = issueType;
             Severity = severity;
@@ -412,13 +426,13 @@ namespace Ship_Game.ShipDesignIssues
                     Title       = new LocalizedText(2510).Text;
                     Problem     = new LocalizedText(2511).Text;
                     Remediation = new LocalizedText(2512).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoOrdnance.png");
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoOrdnance");
                     break;
                 case DesignIssueType.LowOrdnance:
                     Title       = new LocalizedText(2513).Text;
                     Problem     = new LocalizedText(2514).Text;
                     Remediation = new LocalizedText(2515).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueLowOrdnance.png");
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowOrdnance");
                     break;
                 case DesignIssueType.LowWarpTime:
                     Title       = new LocalizedText(2516).Text;
@@ -515,6 +529,12 @@ namespace Ship_Game.ShipDesignIssues
                     Problem     = new LocalizedText(2567).Text;
                     Remediation = new LocalizedText(2568).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowWeaponPowerEfficiency");
+                    break;
+                case DesignIssueType.HighBurstOrdnance:
+                    Title       = new LocalizedText(2569).Text;
+                    Problem     = new LocalizedText(2570).Text;
+                    Remediation = new LocalizedText(2571).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueHighBurstOrdnance");
                     break;
             }
 
