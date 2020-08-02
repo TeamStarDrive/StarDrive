@@ -1842,12 +1842,14 @@ namespace Ship_Game
             if (Universe != null && isPlayer)
                 Universe.aw.UpdateDropDowns();
 
-            PreferredAuxillaryShips[ShipData.RoleName.bomber]
-                = PickFromCandidates(ShipData.RoleName.bomber, this, targetModule: ShipModuleType.Bomb);
+            Ship preferredBomber = PickFromCandidates(ShipData.RoleName.bomber, this, targetModule: ShipModuleType.Bomb);
+            if (preferredBomber != null)
+                PreferredAuxillaryShips[ShipData.RoleName.bomber] = preferredBomber.Name;
 
-            PreferredAuxillaryShips[ShipData.RoleName.carrier]
-                = PickFromCandidates(ShipData.RoleName.carrier, this, targetModule: ShipModuleType.Hangar);
-
+            Ship preferredCarrier = PickFromCandidates(ShipData.RoleName.carrier, this, targetModule: ShipModuleType.Hangar);
+            if (preferredCarrier != null)
+                PreferredAuxillaryShips[ShipData.RoleName.carrier] = preferredCarrier.Name;
+                
             UpdateBestOrbitals();
             UpdateDefenseShipBuildingOffense();
 
