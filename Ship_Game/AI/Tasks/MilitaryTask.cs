@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
@@ -32,7 +33,9 @@ namespace Ship_Game.AI.Tasks
         [Serialize(17)] public int TaskBombTimeNeeded;
         [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
         [Serialize(19)] public Guid TaskGuid = Guid.NewGuid();
-
+        [Serialize(20)] public Array<Vector2> PatrolPoints;
+        [Serialize(21)] public Campaign OwnerCampaign;
+        
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
@@ -41,7 +44,7 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
-        
+
         public bool IsTaskAOInSystem(SolarSystem system)
         {
             if (TargetSystem != null) return system == TargetSystem;
@@ -69,8 +72,13 @@ namespace Ship_Game.AI.Tasks
                 type                     = TaskType.DefendClaim,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
                 MinimumTaskForceStrength = minStrength,
-                Owner                    = owner
-        };
+                Owner                    = owner,
+                // need to adjust this by personality.
+                // this task will increase in priority as time goes by. 
+                // this will generally only have an effect during war. 
+                Priority                 = 20
+            };
+
             return militaryTask;
         }
 
@@ -117,14 +125,12 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
-        public MilitaryTask(AO ao)
+        public MilitaryTask(AO ao, Array<Vector2> patrolPoints)
         {
             AO              = ao.Center;
             AORadius        = ao.Radius;
             type            = TaskType.CohesiveClearAreaOfEnemies;
-            WhichFleet      = ao.WhichFleet;
-            IsCoreFleetTask = true;
-            SetEmpire(ao.GetCoreFleet().Owner);
+            PatrolPoints    = patrolPoints;
         }
 
         public MilitaryTask(Vector2 center, float radius, SolarSystem system, float strengthWanted, TaskType taskType)
@@ -415,7 +421,14 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.Exploration:
                     {
                         if (Owner.GetEmpireAI().TroopShuttleCapacity > 0)
-                            if (Step == 0) RequisitionExplorationForce();
+                            if (Step == 0)
+                            {
+                                RequisitionExplorationForce();
+                                if (Step < 1)
+                                {
+                                    Priority += Priority > 1 ? -1 : 20;
+                                }
+                            }
                         break;
                     }
                 case TaskType.DefendSystem:
@@ -450,7 +463,8 @@ namespace Ship_Game.AI.Tasks
                                         }
                                     }
                                     RequisitionClaimForce();
-                                    Priority -= 1;
+                                    Priority += Priority < 1 ? 20 : -1;
+
                                 }
                                 break;
                             case 1:
@@ -703,7 +717,8 @@ namespace Ship_Game.AI.Tasks
             DefendClaim,
             DefendPostInvasion,
             GlassPlanet,
-            AssaultPirateBase
+            AssaultPirateBase,
+            Patrol
         }
 
         [Flags]
@@ -729,11 +744,44 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.CorsairRaid:        taskCat |= TaskCategory.War; break;
                 case TaskType.DefendSystem:
                 case TaskType.CohesiveClearAreaOfEnemies:
+                case TaskType.Patrol:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
                 case TaskType.DefendClaim:
                 case TaskType.Exploration:        taskCat |= TaskCategory.Expansion; break;
             }
             return taskCat;
+        }
+
+        public void RestoreFromSave(Empire e, UniverseData data)
+        {
+            SetEmpire(e);
+
+            if (PatrolPoints == null) PatrolPoints = new Array<Vector2>();
+
+            if (data.FindPlanet(TargetPlanetGuid, out Planet p))
+                SetTargetPlanet(p);
+
+            if (data.FindShip(TargetShipGuid, out Ship ship))
+                SetTargetShip(ship);
+
+            foreach (Guid guid in HeldGoals)
+            {
+                foreach (Goal g in e.GetEmpireAI().Goals)
+                {
+                    if (g.guid == guid)
+                    {
+                        g.Held = true;
+                        break;
+                    }
+                }
+            }
+
+            if (WhichFleet != -1)
+            {
+                if (e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
+                    fleet.FleetTask = this;
+                else WhichFleet = 0;
+            }
         }
     }
 }
