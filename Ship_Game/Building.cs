@@ -171,7 +171,7 @@ namespace Ship_Game
         bool ReadyToFireOnSpaceTargets            => WeaponTimer.Less(0);
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 0;
 
-        static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
+        static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
                                               => ShipBuilder.PickFromCandidates(roleName, empire);
 
         void LaunchDefenseShips(Planet p, Ship target, Empire empire)
@@ -179,12 +179,12 @@ namespace Ship_Game
             if (CurrentNumDefenseShips <= 0 || target == null)
                 return;
 
-            string selectedShip = GetDefenseShipName(DefenseShipsRole, empire);
-            if (selectedShip.IsEmpty()) // the empire does not have any ship of this role to launch
+            Ship selectedShip = GetDefenseShipName(DefenseShipsRole, empire);
+            if (selectedShip == null) // the empire does not have any ship of this role to launch
                 return;
 
             Vector2 launchVector = MathExt.RandomOffsetAndDistance(p.Center, 1000);
-            Ship defenseShip = Ship.CreateDefenseShip(selectedShip, empire, launchVector, p);
+            Ship defenseShip = Ship.CreateDefenseShip(selectedShip.Name, empire, launchVector, p);
             if (defenseShip == null)
             {
                 Log.Warning($"Could not create defense ship, ship name = {selectedShip}");
@@ -211,8 +211,9 @@ namespace Ship_Game
 
             Offense = 0;
             UpdateOffense();
-            string shipName = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
-            if (ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship))
+            Ship pickedShip = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
+
+            if (pickedShip != null && ResourceManager.ShipsDict.TryGetValue(pickedShip.Name, out Ship ship))
                 DefenseShipStrength = ship.CalculateShipStrength() * DefenseShipsCapacity;
 
             Offense += DefenseShipStrength;
