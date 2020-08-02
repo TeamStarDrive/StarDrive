@@ -1214,57 +1214,71 @@ namespace Ship_Game
         {
             KnownShips.Clear();
             InfluenceNode[] influenceNodes = SensorNodes.ToArray();
+            var borderNodes = BorderNodes.ToArray();
 
             bool showAll = isPlayer && Universe.Debug;
 
             for (int i = 0; i < Universe.MasterShipList.Count; ++i)
             {
                 Ship nearby = Universe.MasterShipList[i];
-                if (nearby.Active && UpdateShipInfluence(nearby, influenceNodes, showAll))
+                if (!nearby.Active) continue;
+
+                if (nearby.loyalty != this)
+                {
+                    if (UpdateTheirShipsInfluence(nearby, influenceNodes, showAll));
+                        KnownShips.Add(nearby);
+                }
+                else 
+                {
+                    UpdateOurShipsInfluence(nearby, borderNodes, showAll);    
                     KnownShips.Add(nearby);
+                }
             }
         }
 
-        bool UpdateShipInfluence(Ship nearby, InfluenceNode[] influenceNodes, bool showAll)
+        bool UpdateTheirShipsInfluence(Ship nearby, InfluenceNode[] influenceNodes, bool showAll)
         {
-            if (nearby.loyalty != this) // update from another empire
+            bool inSensorRadius = false;
+            bool border = false;
+
+            for (int i = 0; i < influenceNodes.Length; i++)
             {
-                bool inSensorRadius = false;
-                bool border = false;
-
-                for (int i = 0; i < influenceNodes.Length; i++)
+                InfluenceNode node = influenceNodes[i];
+                // showAll only has an effect in debug. so it wont save cycles putting it first. 
+                if (nearby.Center.InRadius(node.Position, node.Radius) || showAll)
                 {
-                    InfluenceNode node = influenceNodes[i];
-                    // showAll only has an effect in debug. so it wont save cycles putting it first. 
-                    if (nearby.Center.InRadius(node.Position, node.Radius) || showAll)
+                    if (TryGetRelations(nearby.loyalty,
+                            out Relationship loyalty) && !loyalty.Known)
+                        DoFirstContact(nearby.loyalty);
+
+                    inSensorRadius = true;
+                    if (node.SourceObject is Ship shipKey &&
+                        (shipKey.inborders || shipKey.IsSubspaceProjector) ||
+                        node.SourceObject is SolarSystem ||
+                        node.SourceObject is Planet)
                     {
-                        if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
-                            DoFirstContact(nearby.loyalty);
-
-                        inSensorRadius = true;
-                        if (node.SourceObject is Ship shipKey && (shipKey.inborders || shipKey.IsSubspaceProjector) ||
-                            node.SourceObject is SolarSystem || node.SourceObject is Planet)
-                        {
-                            border = true;
-                        }
-                        nearby.inSensorRange |= isPlayer;
-                        break;
+                        border = true;
                     }
+                    nearby.KnownByEmpires.SetSeen(this);
+                    break;
                 }
-
-                nearby.SetProjectorInfluence(this, border);
-                EmpireAI.ThreatMatrix.UpdatePin(nearby, border, inSensorRadius);
-                return inSensorRadius;
             }
 
+            nearby.SetProjectorInfluence(this, border);
+            EmpireAI.ThreatMatrix.UpdatePin(nearby, border, inSensorRadius);
+            return inSensorRadius;
+        }
+
+        bool UpdateOurShipsInfluence(Ship nearby, InfluenceNode[] influenceNodes, bool showAll)
+        {
             // update our own empire ships
             EmpireAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
-            nearby.inSensorRange |= isPlayer;
+            nearby.KnownByEmpires.SetSeen(this);
             nearby.inborders = false;
 
-            for (int i = 0; i < BorderNodes.Count; ++i)
+            for (int i = 0; i < influenceNodes.Length; ++i)
             {
-                InfluenceNode node = BorderNodes[i];
+                InfluenceNode node = influenceNodes[i];
                 if (node.Position.InRadius(nearby.Center, node.Radius))
                 {
                     nearby.inborders = true;
@@ -3211,7 +3225,7 @@ namespace Ship_Game
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
 
                 UpdateKnownShips();
-                updateContactsTimer = elapsedTime + RandomMath.RandomBetween(4f, 6.5f);
+                updateContactsTimer = elapsedTime + RandomMath.RandomBetween(1f, 2f);
             }
             return bordersChanged;
         }
