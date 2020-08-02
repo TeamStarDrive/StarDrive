@@ -6680,6 +6680,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2568</Index>
       <Text>Add Reactors to offset the excess power consumption, or Energy Storage to increase Powered Weapon's time.</Text>
     </Token>
+    <Token>
+      <Index>2569</Index>
+      <Text>Burst Ordnance Higher Than Storage</Text>
+    </Token>
+    <Token>
+      <Index>2570</Index>
+      <Text>The ship consumes more ordnance in a single bust of all it's weapons than it has stores for. The ship will operate at lower efficiency.</Text>
+    </Token>
+    <Token>
+      <Index>2571</Index>
+      <Text>Add ordnance storage to support burst Ordnance usage. Current Ordnance Weapon Efficiency is</Text>
+    </Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>
