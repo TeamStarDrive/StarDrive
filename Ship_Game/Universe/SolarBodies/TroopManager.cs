@@ -130,7 +130,7 @@ namespace Ship_Game
                 t.UpdateAttackActions(-1);
 
                 t.FaceEnemy(targetTile, ourTile);
-                if (targetTile.BuildingOnTile)
+                if (targetTile.CombatBuildingOnTile)
                 {
                     t.UpdateMoveActions(-1);
                     CombatScreen.StartCombat(t, targetTile.building, targetTile, Ground);
@@ -338,14 +338,14 @@ namespace Ship_Game
                     DiplomacyScreen.Show(Owner, "Invaded NA Pact", ParentSystem);
                     Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
                     Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
-                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 50f;
+                    Owner.GetRelations(Empire.Universe.PlayerEmpire).AddAngerDiplomaticConflict(50);
                 }
                 else
                 {
                     DiplomacyScreen.Show(Owner, "Invaded Start War", ParentSystem);
                     Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
                     Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
-                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Anger_DiplomaticConflict += 25f;
+                    Owner.GetRelations(Empire.Universe.PlayerEmpire).AddAngerDiplomaticConflict(25);
                 }
             }
         }

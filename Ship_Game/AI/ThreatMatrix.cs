@@ -16,8 +16,9 @@ namespace Ship_Game.AI
             [Serialize(1)] public float Strength;
             [Serialize(2)] public string EmpireName;
             [Serialize(3)] public bool InBorders;
-            [Serialize(4)] public int EmpireId = 0;
+            [Serialize(4)] public int EmpireId    = 0;
             [Serialize(5)] public Guid SystemGuid = Guid.Empty;
+            [Serialize(6)] public Guid PinGuid    = Guid.NewGuid();
             [XmlIgnore][JsonIgnore] public Ship Ship;
             [XmlIgnore][JsonIgnore] public SolarSystem System;
 
@@ -56,6 +57,14 @@ namespace Ship_Game.AI
                 System     = ship.System;
                 SystemGuid = ship.System?.guid ?? Guid.Empty;
             }
+
+            public static Pin FindPinByGuid(Guid pinGuid, Empire empire)
+            {
+                var pins = empire.GetEmpireAI().ThreatMatrix.GetPins();
+                var pin = pins.Find(p => p.PinGuid == pinGuid);
+                return pin;
+
+            }
         }
 
         //not sure we need this.
@@ -78,7 +87,7 @@ namespace Ship_Game.AI
             return Pins.ContainsKey(guid);
         }
         
-        public float StrengthOfAllEmpireShipsInBorders(Empire them)
+        public float StrengthOfAllEmpireShipsInBorders(Empire us, Empire them)
         {
             float str = 0f;
             using (PinsMutex.AcquireReadLock())
@@ -86,8 +95,11 @@ namespace Ship_Game.AI
                 foreach (Pin pin in Pins.Values)
                 {
                     Empire pinEmpire = pin.GetEmpire();
-                    if (pinEmpire == them  && pin.InBorders)   
-                        str += pin.Strength + 1;
+                    if (pinEmpire == them && pin.InBorders)
+                    {
+                        if (pin.Ship != null && (pin.Ship.System?.IsOnlyOwnedBy(us) ?? true))
+                            str += pin.Strength;
+                    }
                 }
             }
             return str;

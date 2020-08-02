@@ -453,6 +453,7 @@ namespace Ship_Game
             };
             player.data.SpyModifier = RaceSummary.SpyMultiplier;
             player.data.Traits = RaceSummary;
+            player.data.DiplomaticPersonality = new DTrait();
 
             float modifier = 1f;
             switch (StarEnum)
