@@ -5,6 +5,7 @@ using Ship_Game.Audio;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships.DataPackets;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
@@ -125,7 +126,8 @@ namespace Ship_Game.Ships
         public bool Deleted;
         public bool inborders;
         private float BonusEMP_Protection;
-        public bool inSensorRange;
+        public bool inSensorRange => KnownByEmpires.KnownByPlayer;
+        public KnownByEmpire KnownByEmpires = new KnownByEmpire();
         public bool EMPdisabled;
         private float updateTimer;
         public float HealPerTurn;
@@ -167,7 +169,6 @@ namespace Ship_Game.Ships
         public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
         public bool IsSubspaceProjector => Name == "Subspace Projector";
-
         public bool HasBombs => BombBays.Count > 0;
 
         public bool IsConstructor
@@ -1205,47 +1206,47 @@ namespace Ship_Game.Ships
              this seems redundant. there are several places where ships are checked for being in sensors.
              ScanForShipsInSensors,
              */
+
             if (Empire.Universe.Debug)
             {
-                inSensorRange = true;
+                KnownByEmpires.SetSeenByPlayer();
                 return;
             }
 
             if (loyalty.isPlayer || EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance)
-                inSensorRange = true;
+                KnownByEmpires.SetSeenByPlayer();
 
             if (inSensorRange)
             {
-                SetOtherShipsInsensorRange();
+                SetOtherShipsInSensorRange();
             }
         }
-
-        private void SetOtherShipsInsensorRange()
+        
+        private void SetOtherShipsInSensorRange()
         {
             GameplayObject[] nearby = GetObjectsInSensors(GameObjectType.Ship);
             bool checkFromThis = loyalty.isPlayer || EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance;
-            foreach (GameplayObject go in nearby)
+            for (int i = 0; i < nearby.Length; i++)
             {
+                GameplayObject go = nearby[i];
                 Ship ship;
                 if (checkFromThis)
                 {
-                    ship = (Ship)go;
+                    ship = (Ship) go;
                     if (go.GetLoyalty().isPlayer || ship.inSensorRange || !Center.InRadius(go.Position, SensorRange))
                         continue;
-                    ship.inSensorRange = true;
+                    ship.KnownByEmpires.SetSeenByPlayer();
                     break;
                 }
 
                 if (go.GetLoyalty().isPlayer)
                 {
-                    ship = (Ship)go;
+                    ship = (Ship) go;
                     if (Center.OutsideRadius(ship.Position, ship.SensorRange))
                         continue;
-                    inSensorRange = true;
+                    KnownByEmpires.SetSeenByPlayer();
                     break;
                 }
-                inSensorRange = false;
-
             }
         }
 

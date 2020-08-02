@@ -95,6 +95,8 @@ namespace Ship_Game.Ships
                 Die(null, true);
             }
 
+            KnownByEmpires.Update(elapsedTime);
+
             if (!Active)
                 return;
 
