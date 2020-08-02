@@ -2964,9 +2964,6 @@ namespace Ship_Game
             if (!WeAreRemnants) 
                 return false;
 
-            if (!they.isPlayer) 
-                return false;
-
             if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) 
                 return false;
 
