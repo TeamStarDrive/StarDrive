@@ -16,10 +16,10 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
-                CreateGuardians,
-                CreateAColony,
-                UtilizeColony,
-                Exterminate
+                CreateGuardians
+                //CreateAColony,
+                //UtilizeColony,
+                //Exterminate
             };
         }
         public RemnantAI(Empire owner) : this()
@@ -65,7 +65,7 @@ namespace Ship_Game.Commands.Goals
                 }
             }
 
-            return GoalStep.GoToNextStep;
+            return GoalStep.GoalComplete;
         }
 
         GoalStep CreateAColony()
