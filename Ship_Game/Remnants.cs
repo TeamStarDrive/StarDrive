@@ -97,6 +97,8 @@ namespace Ship_Game
                 remnantShip = Ship.CreateShipAtPoint(shipName, Owner, where);
                 if (remnantShip == null)
                     Log.Warning($"Could not spawn required Remnant ship named {shipName} for {Owner.Name}, check race xml");
+                else
+                    remnantShip.IsGuardian = true;
             }
             else
             {
@@ -289,7 +291,7 @@ namespace Ship_Game
                 AddMinorRemnantShips(p);
 
             if (RollDice(10))
-                AddRemnantGuardians(1, Owner.data.RemnantAssimilator, p);
+                AddRemnantGuardians(1, RemnantShipType.Assimilator, p);
         }
 
         void AddMinorRemnantShips(Planet p)
@@ -297,44 +299,45 @@ namespace Ship_Game
             int numXenoFighters = RollDie(5) + 1;
             int numDrones = RollDie(3);
 
-            AddRemnantGuardians(numXenoFighters, Owner.data.RemnantFighter, p);
-            AddRemnantGuardians(numDrones, Owner.data.RemnantCorvette, p);
+            AddRemnantGuardians(numXenoFighters, RemnantShipType.Fighter, p);
+            AddRemnantGuardians(numDrones, RemnantShipType.Corvette, p);
         }
 
         void AddMiniRemnantShips(Planet p)  //Added by Gretman
         {
             int numXenoFighters = RollDie(3);
 
-            AddRemnantGuardians(numXenoFighters, Owner.data.RemnantFighter, p);
-            AddRemnantGuardians(1, Owner.data.RemnantCorvette, p);
+            AddRemnantGuardians(numXenoFighters, RemnantShipType.Fighter, p);
+            AddRemnantGuardians(1, RemnantShipType.Corvette, p);
         }
 
         void AddSupportRemnantShips(Planet p)  //Added by Gretman
         {
             int numSupportDrones = RollDie(4);
-            AddRemnantGuardians(numSupportDrones, Owner.data.RemnantSupportSmall, p);
+            AddRemnantGuardians(numSupportDrones, RemnantShipType.SmallSupport, p);
         }
 
         void AddCarrierRemnantShips(Planet p)  //Added by Gretman
         {
-            AddRemnantGuardians(1, Owner.data.RemnantCarrier, p);
+            AddRemnantGuardians(1, RemnantShipType.Carrier, p);
             if (RollDice(20)) // 20% chance for another carrier
-                AddRemnantGuardians(1, Owner.data.RemnantCarrier, p);
+                AddRemnantGuardians(1, RemnantShipType.Carrier, p);
         }
 
         void AddTorpedoRemnantShips(Planet p)  //Added by Gretman
         {
-            AddRemnantGuardians(1, Owner.data.RemnantCruiser, p);
+            AddRemnantGuardians(1, RemnantShipType.Cruiser, p);
             if (RollDice(10)) // 10% chance for another torpedo cruiser
-                AddRemnantGuardians(1, Owner.data.RemnantCruiser, p);
+                AddRemnantGuardians(1, RemnantShipType.Cruiser, p);
         }
 
-        void AddRemnantGuardians(int numShips, string shipName, Planet p)
+        void AddRemnantGuardians(int numShips, RemnantShipType type, Planet p)
         {
             for (int i = 0; i < numShips; ++i)
             {
-                Ship guardian = Ship.CreateShipAt(shipName, EmpireManager.Remnants, p, Vector2D(p.ObjectRadius * 2), true);
-                guardian.IsGuardian = true;
+                Vector2 pos = p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
+                if (SpawnShip(type, pos, out Ship ship))
+                    ship.OrderToOrbit(p);
             }
         }
     }
