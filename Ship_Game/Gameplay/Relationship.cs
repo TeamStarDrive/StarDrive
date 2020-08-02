@@ -1184,7 +1184,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace || ActiveWar != null && ActiveWar.WarType != WarType.DefensiveWar || Posture == Posture.Friendly)
                 return false;
 
-            return them.GetPlanets().Count > us.GetPlanets().Count * 0.75f || TotalAnger > 20f;
+            return them.GetPlanets().Count > us.GetPlanets().Count * 1.25f && TotalAnger > 20f;
         }
 
         // Pacifist, Cunning, Honorable
