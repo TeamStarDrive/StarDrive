@@ -10,15 +10,7 @@ namespace Ship_Game.AI
         public const int OrbitalsLimit  = 27; // FB - Maximum of 27 stations or platforms (or shipyards)
         public const int ShipYardsLimit = 2; // FB - Maximum of 2 shipyards
 
-        public static void PickRoles(ref float numShips, float desiredShips, ShipData.RoleName role, Map<ShipData.RoleName, float>
-            rolesPicked)
-        {
-            if (numShips >= desiredShips)
-                return;
-            rolesPicked.Add(role, numShips / desiredShips);
-        }
-
-        public static string PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0,
+        public static Ship PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0,
                       ShipModuleType targetModule = ShipModuleType.Dummy,
                       ShipData.HangarOptions designation = ShipData.HangarOptions.General,
                       bool normalizedStrength = true)
@@ -77,7 +69,7 @@ namespace Ship_Game.AI
             return best;
         }
         
-        private static string PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, 
+        static Ship PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, 
                                                            ShipModuleType targetModule,
                                                            ShipData.HangarOptions designation,
                                                            bool normalizedStrength = true)
@@ -92,7 +84,7 @@ namespace Ship_Game.AI
                 potentialShips = potentialShips.Filter(ship => ship.AnyModulesOf(targetModule));
 
             if (potentialShips.Length == 0)
-                return "";
+                return null;
 
             float maxStrength = normalizedStrength ? potentialShips.Max(ship => ship.NormalizedStrength)
                                                    : potentialShips.Max(ship => ship.BaseStrength);
@@ -104,7 +96,7 @@ namespace Ship_Game.AI
 
 
             if (bestShips.Length == 0)
-                return "";
+                return null;
 
             Ship pickedShip = RandomMath.RandItem(bestShips);
 
@@ -119,7 +111,7 @@ namespace Ship_Game.AI
                       $"    Strength: {pickedShip.NormalizedStrength}\n" +
                       $"    Name: {pickedShip.Name}. Range: {levelAdjust}");
             }
-            return pickedShip.Name;
+            return pickedShip;
         }
 
         public static bool PickColonyShip(Empire empire, out Ship colonyShip)
@@ -241,15 +233,11 @@ namespace Ship_Game.AI
 
         public static Ship BestShipWeCanBuild(ShipData.RoleName role, Empire empire)
         {
-            string shipName = PickFromCandidates(role, empire);
-            if (shipName.IsEmpty())
+            Ship bestShip = PickFromCandidates(role, empire);
+            if (bestShip == null || bestShip.shipData.IsShipyard || bestShip.IsSubspaceProjector) 
                 return null;
 
-            ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship);
-            if (ship == null || ship.shipData.IsShipyard || ship.IsSubspaceProjector) 
-                return null;
-
-            return ship;
+            return bestShip;
         }
     }
    
