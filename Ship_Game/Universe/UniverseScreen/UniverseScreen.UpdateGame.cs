@@ -313,6 +313,7 @@ namespace Ship_Game
             float shipTime = !Paused ? 0.01666667f : 0;
             DeepSpaceThread(shipTime);
             var realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
+
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
                 SolarSystemList[i].Update(shipTime, this, realTime);
