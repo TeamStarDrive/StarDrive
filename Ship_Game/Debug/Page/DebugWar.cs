@@ -69,7 +69,7 @@ namespace Ship_Game.Debug.Page
                 foreach(var theater in war.WarTheaters.Theaters)
                 {
                     var ao = theater.TheaterAO;
-                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, (float)war.GetWarScoreState());
+                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, (float)war.GetWarScoreState() * 2 + 1);
                 }
             }
                 

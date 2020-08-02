@@ -39,11 +39,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected Array<Ship> TargetShips          = new Array<Ship>();
         public Array<Guid> PlanetGuids             = new Array<Guid>();
         protected Array<Planet> TargetPlanets      = new Array<Planet>();
-        public Array<Guid> TaskGuids               = new Array<Guid>();
         public AO RallyAO;
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
-        protected WarTasks Tasks;
+        public WarTasks Tasks;
         public Campaign() { }
 
         /// <summary>
@@ -57,15 +56,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             OwnerWar       = theater.GetWar();
             Owner          = EmpireManager.GetEmpireByName(OwnerWar.UsName);
             Them           = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
-            UID            = $"{Type.ToString()} - {ID}";
+            UID            = $"{Type} - {ID}";
             SystemGuids    = campaign.SystemGuids;
             ShipGuids      = campaign.ShipGuids;
             PlanetGuids    = campaign.PlanetGuids;
-            RallyAO        = campaign.RallyAO;
+            RallyAO        = campaign.RallyAO ?? theater.RallyAO;
             IsCoreCampaign = campaign.IsCoreCampaign;
             OwnerTheater   = theater;
             RestoreFromSave(theater);
-            Tasks          = new WarTasks(Owner, Them);
+            Tasks          = new WarTasks(Owner, Them, this);
         }
 
         /// <summary>
@@ -80,7 +79,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them         = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
             UID          = campaignType.ToString();
             OwnerTheater = theater;
-            Tasks        = new WarTasks(Owner, Them);
+            if (Tasks == null)
+            {
+                Tasks = new WarTasks(Owner, Them, this);
+            }
+            else
+            {
+                Tasks.RestoreFromSave(Owner, Them, this);
+            }
         }
 
         /// <summary>
@@ -138,6 +144,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public override GoalStep Evaluate()
         {
+            RallyAO   = RallyAO ?? OwnerTheater.RallyAO;
             var state = base.Evaluate();
             Tasks.Update();
             return state;
@@ -191,35 +198,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Owner = EmpireManager.GetEmpireByName(ownerName);
         }
 
-        /// <summary>
-        /// Creates an empire AO for the rally position.
-        /// The AO will allow the AO process to protect and maintain the AO rally.
-        /// Should be called after attack targets are assigned.
-        /// </summary>
         protected virtual GoalStep SetupRallyPoint()
         {
-            float closestRallyPoint          = float.MaxValue;
-            SolarSystem rallySystem          = null;
-            Planet rallyPlanet               = null;
-
-            if (TargetSystems.IsEmpty) return GoalStep.RestartGoal;
-
-            rallyPlanet = Owner.FindNearestSafeRallyPoint(OwnerTheater.TheaterAO.Center);
-
-            // createEmpire AO
-            if (rallyPlanet.Owner == Owner)
-            {
-                if (!Owner.GetAOCoreWorlds().Contains(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
-                {
-                    AO newAO = new AO(rallyPlanet, Owner.GetProjectorRadius(rallyPlanet));
-                    Owner.GetEmpireAI().AreasOfOperations.Add(newAO);
-                    RallyAO = newAO;
-                }
-                if (RallyAO == null)
-                    RallyAO = Owner.GetAOFromCoreWorld(rallyPlanet);
-                return GoalStep.GoToNextStep;
-            }
-            return GoalStep.TryAgain;
+            if (OwnerTheater.RallyAO == null) return GoalStep.TryAgain;
+            RallyAO = OwnerTheater.RallyAO;
+            return GoalStep.GoToNextStep;
         }
 
         protected void UpdateTargetSystemList() => UpdateTargetSystemList(TargetSystems);
@@ -235,71 +218,33 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        protected float PercentageCleared()
-        {
-            return (float)TargetSystems.Sum(s => s.OwnerList.Contains(Them) ? 0 : 1) / TargetSystems.Count.LowerBound(1);
-        }
-
-        protected bool HaveConqueredTargets()
-        {
-            foreach (var system in TargetSystems)
-            {
-                if (!HaveConqueredTarget(system))
-                    return false;
-            }
-            return true;
-        }
-
         protected bool HaveConqueredTarget(SolarSystem system) => !system.OwnerList.Contains(Them);
 
         protected GoalStep CreateTargetSystemList(Array<SolarSystem> targets)
         {
-            Vector2 empireCenter     = Owner.GetWeightedCenter();
-            var fleets               = Owner.AllFleetsReady();
-            float strength           = fleets.AccumulatedStrength * Owner.GetWarOffensiveRatio();
+            // attempt to sort targets by systems in AO that are nearest to rally AO.
+            // the create a winnable targets list evaluating each system 
+
             var winnableTarget       = new Array<SolarSystem>();
+            
+            float strength = Owner.Pool.EmpireReadyFleets.AccumulatedStrength;
 
-            Vector2 nearestPoint     = RallyAO?.Center ?? empireCenter;
-            // these loops are not cheap but the frequency of the calcs should be pretty low.
-            float minDistanceToThem  = Them.FindNearestOwnedSystemTo(nearestPoint)?.Position.Distance(nearestPoint) ?? 1000000;
-            float numberOfTargets    = targets.Count.LowerBound(1);
-            float averageImportance  = OwnerTheater.TheaterAO.WarValueOfPlanets / numberOfTargets;
-
-            // goal here is to sort the targets by closeness and value.
-            // we will emphasize above average war targets and nearby planets. 
-            var sortedTargets = targets.Sorted(s =>
-            {
-                float warValueRatio = s.WarValueTo(Owner) / averageImportance;
-                // high value targets will be worth more
-                warValueRatio *= warValueRatio < 1 ? 1 : 2;
-                float distance = s.Position.SqDist(nearestPoint);
-                float rangeRatio = minDistanceToThem / distance;
-                // sorted sorts ascend so we multiply by negative 1 to make the high value targets effectively smaller.
-                return (warValueRatio - rangeRatio) * -1f;
-            });
-
-            foreach (var system in sortedTargets)
+            foreach (var system in targets)
             {
                 if (HaveConqueredTarget(system)) continue;
 
-                float defense  = OwnerTheater.TheaterAO.ThreatLevel;
-                float rangeMod = ((system.Position.Distance(nearestPoint) / minDistanceToThem) /2).LowerBound(1);
-                if (defense * rangeMod < strength)
+                float defense  = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, system.Radius, Owner);
+
+                if (defense  < strength)
                 {
                     winnableTarget.Add(system);
-                    strength           -= defense;
+                    strength -= defense;
                 }
             }
 
-            if (winnableTarget.NotEmpty)
-            {
+            if (winnableTarget.NotEmpty) 
                 AddTargetSystem(winnableTarget.First);
-            }
-            // make sure to add something if we dont have something
-            else if (sortedTargets.Length > 0 && TargetSystems.IsEmpty)
-            {
-                AddTargetSystem(sortedTargets[0]);
-            }
+
             return GoalStep.GoToNextStep;
         }
 
@@ -307,12 +252,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected void AttackSystemsInList(Array<SolarSystem> currentTargets, int fleetsPerTarget = 1)
         {
-            int priorityMod = 0;
+            int priority = OwnerTheater.Priority;
 
             foreach (var system in currentTargets)
             {
-                Tasks.StandardAssault(system, OwnerTheater.Priority + priorityMod, fleetsPerTarget);
-                priorityMod++;
+                if (priority > 10) break;
+                Tasks.StandardAssault(system, priority++,  fleetsPerTarget);
             }
         }
 
@@ -325,17 +270,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
         {
-            int priority = 1;
+            int priority = OwnerTheater.Priority + 2;
             for (int i = 0; i < currentTargets.Count; i++)
             {
                 var system = currentTargets[i];
+                if (priority > 10) break;
                 Tasks.StandardSystemDefense(system, priority++, strengths[i]);
             }
         }
 
         protected void AttackArea(Vector2 center, float radius, float strength)
         {
-            Tasks.StandardAreaClear(center, radius, 2, strength);
+            int priority = OwnerTheater.Priority + 2;
+            if (priority > 10) return;
+            Tasks.StandardAreaClear(center, radius, priority, strength);
         }
     }
 }

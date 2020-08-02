@@ -568,8 +568,8 @@ namespace Ship_Game
             [Serialize(23)] public Array<Guid> SpawnedShips;
             [Serialize(24)] public Array<string> ShipsWeCanSpawn;
             [Serialize(25)] public Array<float> NormalizedMoney;
-            [Serialize(25)] public int ExpandSearchTimer;
-            [Serialize(25)] public int MaxSystemsToCheckedDiv;
+            [Serialize(26)] public int ExpandSearchTimer;
+            [Serialize(27)] public int MaxSystemsToCheckedDiv;
         }
 
         public class FleetSave

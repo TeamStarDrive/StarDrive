@@ -44,25 +44,22 @@ namespace Ship_Game.AI
 
         public void CreateMissionsByTrait()
         {
-            switch (OwnerEmpire.data.DiplomaticPersonality.TraitName)
+            switch (OwnerEmpire.Personality)
             {
-                case DTrait.TraitType.Cunning:
-                case DTrait.TraitType.Xenophobic:
+                default:
+                case PersonalityType.Cunning:
+                case PersonalityType.Xenophobic:
                     DoCunningAgentManager();
                     break;
 
-                case DTrait.TraitType.Ruthless:
-                case DTrait.TraitType.Aggressive:
+                case PersonalityType.Ruthless:
+                case PersonalityType.Aggressive:
                     DoAggRuthAgentManager();
                     break;
 
-                case DTrait.TraitType.Honorable:
-                case DTrait.TraitType.Pacifist:
+                case PersonalityType.Honorable:
+                case PersonalityType.Pacifist:
                     DoHonPacAgentManager();
-                    break;
-
-                default:
-                    DoCunningAgentManager();
                     break;
             }
         }
@@ -71,27 +68,27 @@ namespace Ship_Game.AI
         {
             int offense          = CalculateSpyUsage(out int defenders);
             float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.115f;
-            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
-            AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Aggressive);
+            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            AssignSpyMissions(offense, desiredOffense, PersonalityType.Aggressive);
         }
 
         private void DoCunningAgentManager()
         {
             int offense          = CalculateSpyUsage(out int defenders);
             float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.13f;
-            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
-            AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Cunning);
+            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            AssignSpyMissions(offense, desiredOffense, PersonalityType.Cunning);
         }
 
         private void DoHonPacAgentManager()
         {
             int offense          = CalculateSpyUsage(out int defenders);
             float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.1f;
-            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier + 0.5f);
-            AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Honorable);
+            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            AssignSpyMissions(offense, desiredOffense, PersonalityType.Honorable);
         }
 
-        private void AssignSpyMissions(int offense, int desiredOffense, DTrait.TraitType traitType)
+        private void AssignSpyMissions(int offense, int desiredOffense, PersonalityType traitType)
         {
             Array<Empire> potentialTargets = FindEmpireTargets();
             if (potentialTargets.Count <= 0) return;
@@ -108,13 +105,13 @@ namespace Ship_Game.AI
                 Array<AgentMission> potentialMissions;
                 switch (traitType)
                 {
-                    case DTrait.TraitType.Honorable:
+                    case PersonalityType.Honorable:
                         potentialMissions = PotentialPeacefulMissions(agent, target);
                         break;
-                    case DTrait.TraitType.Cunning:
+                    case PersonalityType.Cunning:
                         potentialMissions = PotentialCunningSpyMissions(agent, target);
                         break;
-                    case DTrait.TraitType.Aggressive:
+                    case PersonalityType.Aggressive:
                         potentialMissions = PotentialAggressiveMissions(agent, target);
                         break;
                     default:

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.Tasks;
 using Microsoft.Xna.Framework;
+using System.Threading.Tasks;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -13,8 +14,8 @@ namespace Ship_Game.AI
 
     public sealed partial class EmpireAI
     {
-        readonly Array<MilitaryTask> TaskList = new Array<MilitaryTask>();
-        readonly Array<MilitaryTask> TasksToAdd = new Array<MilitaryTask>();
+        readonly Array<MilitaryTask> TaskList      = new Array<MilitaryTask>();
+        readonly Array<MilitaryTask> TasksToAdd    = new Array<MilitaryTask>();
         readonly Array<MilitaryTask> TasksToRemove = new Array<MilitaryTask>();
 
         void RunMilitaryPlanner()
@@ -23,11 +24,11 @@ namespace Ship_Game.AI
                 return;
 
             RunGroundPlanner();
-            NumberOfShipGoals = 3;
-            var offensiveGoals = SearchForGoals(GoalType.BuildOffensiveShips);
+            NumberOfShipGoals   = 3;
+            var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
             var planetsBuilding = new Array<Planet>();
             foreach (var goal in offensiveGoals) planetsBuilding.AddUnique(goal.PlanetBuildingAt);
-            var effectiveGoals = offensiveGoals.Count / planetsBuilding.Count.LowerBound(1);
+            var effectiveGoals  = offensiveGoals.Count / planetsBuilding.Count.LowerBound(1);
             BuildWarShips(effectiveGoals);
 
             Goals.ApplyPendingRemovals();
@@ -36,7 +37,23 @@ namespace Ship_Game.AI
             Toughnuts = 0;
             float maxStr = TaskList.Sum(t => t.MinimumTaskForceStrength);
             var olderWar = OwnerEmpire.GetOldestWar();
-            TaskList.Sort(t => t.Priority + (t.MinimumTaskForceStrength / maxStr) + (t.ToString().Length / 1000f));
+
+            TaskList.Sort(t =>
+            {
+                int pri            = t.Priority * 1000;
+                pri               += (int)(t.TargetPlanet?.ColonyWarValueTo(OwnerEmpire) ?? t.TargetSystem?.WarValueTo(OwnerEmpire) ?? 0);
+                pri               += (t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "").Length;
+
+                if (t.OwnerCampaign != null)
+                {
+                    Vector2 rallyPoint = t.OwnerCampaign.RallyAO.Center;
+                    Vector2 point      = t.TargetPlanet?.Center ?? t.TargetSystem?.Position ?? rallyPoint;
+                    float distance     = point.SqDist(rallyPoint).LowerBound(1);
+                    pri               += (int)(Math.Round(distance / Empire.Universe.UniverseSize + 1, 1) * 10000);
+                }
+                return pri;
+            });
+
             foreach (MilitaryTask task in TaskList)
             {
                 if (!task.QueuedForRemoval)
@@ -236,6 +253,19 @@ namespace Ship_Game.AI
 
         public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, Planet planet)
                     => TaskList.Any(t => t.type == taskType && t.TargetPlanet == planet);
+
+        public MilitaryTask GetTaskByGuid(Guid guid) => TaskList.Find(t => t.TaskGuid == guid);
+
+        public bool EndTaskByGuid(Guid guid)
+        {
+            var task = GetTaskByGuid(guid);
+            if (task == null) return false;
+            if (!TasksToRemove.Contains(task))
+            {
+                task.EndTask();
+            }
+            return true;
+        }
 
         public void WriteToSave(SavedGame.GSAISAVE aiSave)
         {

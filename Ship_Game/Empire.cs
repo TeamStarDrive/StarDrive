@@ -283,7 +283,7 @@ namespace Ship_Game
 
         public Planet FindNearestRallyPoint(Vector2 location)
         {
-            return RallyPoints.FindMin(p => p.Center.SqDist(location))
+            return  RallyPoints.FindMinFiltered(p=> p.Owner == this, p => p.Center.SqDist(location))
                 ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
         }
 
@@ -631,12 +631,12 @@ namespace Ship_Game
 
             foreach (var kv in Relationships)
             {
-                kv.Value.ResetRelation();
-                kv.Key.GetRelations(this).ResetRelation();
+                BreakAllTreatiesWith(kv.Key, includingPeace: true);
                 var them = kv.Key;
                 GetRelations(them).AtWar = false;
                 them.GetRelations(this).AtWar = false;
             }
+
             foreach (Ship ship in OwnedShips)
             {
                 ship.AI.ClearOrders();
@@ -672,10 +672,7 @@ namespace Ship_Game
                 return;
 
             foreach (var kv in Relationships)
-            {
-                kv.Value.ResetRelation();
-                kv.Key.GetRelations(this).ResetRelation();
-            }
+                BreakAllTreatiesWith(kv.Key, includingPeace: true);
 
             foreach (Ship ship in OwnedShips)
             {
@@ -868,14 +865,6 @@ namespace Ship_Game
             }
 
             return readyShips.ToArray();
-        }
-
-        public FleetShips AllFleetsReady(Vector2 targetPosition)
-        {
-            var ships = AllFleetReadyShips();
-            ships.Sort(s => s.Center.SqDist(targetPosition));
-            //return a fleet creator. 
-            return new FleetShips(this, ships);
         }
 
         public FleetShips AllFleetsReady()
@@ -1524,6 +1513,7 @@ namespace Ship_Game
             UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
             UpdateContactsAndBorders(1f);
+            UpdateMilitaryStrengths();
             CalculateScore();
             UpdateRelationships();
             UpdateShipMaintenance(); ;
@@ -1649,7 +1639,6 @@ namespace Ship_Game
 
         public void UpdateFleets(float elapsedTime)
         {
-            updateContactsTimer -= elapsedTime;
             FleetUpdateTimer -= elapsedTime;
             foreach (var kv in FleetsDict)
             {
@@ -2223,10 +2212,11 @@ namespace Ship_Game
                 for (int i = 0; i < BorderNodes.Count; i++)
                 {
                     InfluenceNode item5 = BorderNodes[i];
-                    foreach (InfluenceNode item6 in BorderNodes)
+                    for (int x = BorderNodes.Count - 1; x >= 0; x--)
                     {
-                        if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
-                            BorderNodes.QueuePendingRemoval(item6);
+                        InfluenceNode item6 = BorderNodes[x];
+                    if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
+                        BorderNodes.RemoveAtSwapLast(x);
                     }
                 }
 
@@ -2409,9 +2399,7 @@ namespace Ship_Game
                             aiTotalScore += empire.TotalScore;
                             if (empire.TotalScore > score)
                                 score = empire.TotalScore;
-                            if (empire.data.DiplomaticPersonality.Name == "Aggressive"
-                                || empire.data.DiplomaticPersonality.Name == "Ruthless"
-                                || empire.data.DiplomaticPersonality.Name == "Xenophobic")
+                            if (empire.IsAggressive || empire.IsRuthless || empire.IsXenophobic)
                                 aggressiveEmpires.Add(empire);
                         }
                     }
@@ -2766,15 +2754,8 @@ namespace Ship_Game
             }
 
 
-            data.MilitaryScoreTotal += CurrentMilitaryStrength;
-            TotalScore = (int)(MilitaryScore / 100.0 + IndustrialScore + TechScore + ExpansionScore);
-            MilitaryScore = data.ScoreAverage == 0 ? 0f : data.MilitaryScoreTotal / data.ScoreAverage;
-            ++data.ScoreAverage;
-            if (data.ScoreAverage >= 120)  //fbedard: reset every 60 turns
-            {
-                data.MilitaryScoreTotal = MilitaryScore * 60f;
-                data.ScoreAverage = 60;
-            }
+            MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
+            TotalScore    = (int)(MilitaryScore/100 + IndustrialScore + TechScore + ExpansionScore);
         }
 
         private void AbsorbAllEnvPreferences(Empire target)

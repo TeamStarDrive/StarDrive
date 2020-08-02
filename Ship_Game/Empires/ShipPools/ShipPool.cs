@@ -15,6 +15,7 @@ namespace Ship_Game.Empires.ShipPools
         public void ClearForcePools()         => ForcePool.Clear();
         public bool Remove(Ship ship)         => ForcePool.RemoveRef(ship);
 
+        public FleetShips EmpireReadyFleets { get; private set; }
         public ShipPool(Empire empire)
         {
             Owner = empire;
@@ -25,6 +26,7 @@ namespace Ship_Game.Empires.ShipPools
             RemoveInvalidShipsFromForcePool();
             AddShipsToForcePoolFromShipsToAdd();
             ErrorCheckPools();
+            EmpireReadyFleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
         }
 
         public void RemoveShipFromFleetAndPools(Ship ship)
