@@ -1212,87 +1212,59 @@ namespace Ship_Game
         void UpdateKnownShips()
         {
             KnownShips.Clear();
-            InfluenceNode[] influenceNodes = SensorNodes.ToArray();
 
-            bool showAll = isPlayer && Universe.Debug;
-
-            for (int i = 0; i < Universe.MasterShipList.Count; ++i)
+            foreach(var node in BorderNodes)
             {
-                Ship nearby = Universe.MasterShipList[i];
-                if (nearby.Active && UpdateShipInfluence(nearby, influenceNodes, showAll))
-                    KnownShips.Add(nearby);
+                if (node.SourceObject is Ship projector)
+                {
+                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(projector, node.Radius, GameObjectType.Ship);
+                    UpdateShipInInfluence(nearbyObjects, false, node);
+                }
+                else
+                {
+                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
+                    UpdateShipInInfluence(nearbyObjects, true, node);
+
+                }
+            }
+
+            for (int i = 0; i < Universe.MasterShipList.Count; i++)
+            {
+                var ship = Universe.MasterShipList[i];
+                bool shipKnown = ship.KnownByEmpires.KnownBy(this);
+
+                if (shipKnown || (isPlayer && Universe.Debug))
+                {
+                    KnownShips.AddUniqueRef(ship);
+                    if (ship.loyalty != this)
+                    {
+                        EmpireAI.ThreatMatrix.UpdatePin(ship, ship.IsInFriendlyProjectorRange, shipKnown);
+
+                        if (GetRelations(ship.loyalty)?.Known == false)
+                            DoFirstContact(ship.loyalty);
+                    }
+                }
+                else if (ship.loyalty != this)
+                {
+                    EmpireAI.ThreatMatrix.UpdatePin(ship, ship.IsInFriendlyProjectorRange, false);
+                }
             }
         }
 
-        bool UpdateShipInfluence(Ship nearby, InfluenceNode[] influenceNodes, bool showAll)
+        void UpdateShipInInfluence(GameplayObject[] nearbyObjects, bool setVisible, InfluenceNode node)
         {
-            if (nearby.loyalty != this) // update from another empire
+            float sensorRange = 0;
+            if (setVisible && node.SourceObject is Planet planet) sensorRange = planet.SensorRange;
+
+            for (int i = 0; i < nearbyObjects.Length; i++)
             {
-                bool inSensorRadius = false;
-                bool border = false;
+                var obj   = nearbyObjects[i];
+                Ship ship = (Ship) obj;
+                if (setVisible && sensorRange > 0 && ship.InRadius(node.Position, sensorRange))
+                    ship.KnownByEmpires.SetSeen(this, updateContactsTimer + 0.02f);
 
-                for (int i = 0; i < influenceNodes.Length; i++)
-                {
-                    InfluenceNode node = influenceNodes[i];
-                    // showAll only has an effect in debug. so it wont save cycles putting it first. 
-                    if (nearby.Center.InRadius(node.Position, node.Radius) || showAll)
-                    {
-                        if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
-                            DoFirstContact(nearby.loyalty);
-
-                        inSensorRadius = true;
-                        if (node.SourceObject is Ship shipKey && (shipKey.inborders || shipKey.IsSubspaceProjector) ||
-                            node.SourceObject is SolarSystem || node.SourceObject is Planet)
-                        {
-                            border = true;
-                        }
-                        nearby.inSensorRange |= isPlayer;
-                        break;
-                    }
-                }
-
-                nearby.SetProjectorInfluence(this, border);
-                EmpireAI.ThreatMatrix.UpdatePin(nearby, border, inSensorRadius);
-                return inSensorRadius;
+                ship.SetProjectorInfluence(this, true);
             }
-
-            // update our own empire ships
-            EmpireAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
-            nearby.inSensorRange |= isPlayer;
-            nearby.inborders = false;
-
-            for (int i = 0; i < BorderNodes.Count; ++i)
-            {
-                InfluenceNode node = BorderNodes[i];
-                if (node.Position.InRadius(nearby.Center, node.Radius))
-                {
-                    nearby.inborders = true;
-                    break;
-                }
-            }
-
-            if (!nearby.inborders)
-            {
-                foreach (KeyValuePair<Empire, Relationship> relationship in Relationships)
-                {
-                    if (relationship.Value.Treaty_Alliance)
-                    {
-                        Empire e = relationship.Key;
-                        for (int i = 0; i < e.BorderNodes.Count; ++i)
-                        {
-                            InfluenceNode node = e.BorderNodes[i];
-                            if (node.Position.InRadius(nearby.Center, node.Radius))
-                            {
-                                nearby.inborders = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            nearby.SetProjectorInfluence(this, nearby.inborders);
-            return true; // always add, because this ship is from our own empire
         }
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
@@ -3207,12 +3179,11 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
+                updateContactsTimer = elapsedTime * 2; // + RandomMath.RandomBetween(0.5f, 0.75f);
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
-
                 UpdateKnownShips();
-                updateContactsTimer = elapsedTime + RandomMath.RandomBetween(4f, 6.5f);
             }
             return bordersChanged;
         }
