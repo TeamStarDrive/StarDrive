@@ -124,10 +124,8 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
             => TroopManager.EmpireTroops(empire, maxToTake);
 
-        public GameplayObject[] GetNearByShips() => UniverseScreen.SpaceManager.FindNearby(
-                                            Center, GravityWellRadius,
-                                            GameObjectType.Ship, Owner);
-        
+        public GameplayObject[] GetNearByShips() => GetNearByShips(GravityWellRadius);
+        public GameplayObject[] GetNearByShips(float radius) => UniverseScreen.SpaceManager.FindNearby(Center, radius,GameObjectType.Ship, Owner);
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
