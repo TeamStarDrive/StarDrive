@@ -1071,7 +1071,6 @@ namespace Ship_Game
             foreach (string ship in data.unlockShips) // unlock ships from empire data
                 ShipsWeCanBuild.Add(ship);
 
-            UpdateShipsWeCanBuild();
             CreateThrusterColors();
             UpdateShipsWeCanBuild();
             Research.Update();

@@ -516,6 +516,7 @@ namespace Ship_Game.Ships
 
             if (!fromSave)
                 InitShieldsPower();
+
             RecalculatePower();
             NetPower = Power.Calculate(ModuleSlotList, loyalty);
             Carrier.PrepShipHangars(loyalty);
