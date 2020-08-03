@@ -759,14 +759,14 @@ namespace Ship_Game.Debug
             {
                 if (e.isPlayer || e.isFaction)
                     continue;
-
-                foreach (ThreatMatrix.Pin pin in e.GetEmpireAI().ThreatMatrix.PinValues)
+                var pins = e.GetEmpireAI().ThreatMatrix.PinValues;
+                foreach (ThreatMatrix.Pin pin in pins)
                 {
-                    if (pin.Position == Vector2.Zero|| pin.Ship == null) continue;
-                    Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 6, e.EmpireColor);
+                    if (pin.Position == Vector2.Zero || pin.Ship == null) continue;
+                    Screen.DrawCircleProjected(pin.Position, 110150f + pin.Ship.Radius, 6, e.EmpireColor);
 
                     if (!pin.InBorders) continue;
-                    Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 3, e.EmpireColor);
+                    Screen.DrawCircleProjected(pin.Position, 110150f + pin.Ship.Radius, 3, e.EmpireColor);
                 }
 
             }
