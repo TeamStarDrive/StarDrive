@@ -1209,7 +1209,6 @@ namespace Ship_Game.Ships
             if (Empire.Universe.Debug)
             {
                 KnownByEmpires.SetSeenByPlayer();
-                return;
             }
 
             KnownByEmpires.SetSeen(loyalty);

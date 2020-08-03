@@ -1213,7 +1213,7 @@ namespace Ship_Game
         void UpdateKnownShips()
         {
             KnownShips.Clear();
-            var nearbyShips = new Array<Ship>();
+
             foreach(var node in BorderNodes)
             {
                 if (node.SourceObject is Ship projector)
@@ -1234,12 +1234,13 @@ namespace Ship_Game
                 var ship = Universe.MasterShipList[i];
                 bool shipKnown = ship.KnownByEmpires.KnownBy(this);
 
-                if (shipKnown || isPlayer && Universe.Debug)
+                if (shipKnown || (isPlayer && Universe.Debug))
                 {
                     KnownShips.AddUniqueRef(ship);
                     if (ship.loyalty != this)
                     {
                         EmpireAI.ThreatMatrix.UpdatePin(ship, ship.IsInFriendlyProjectorRange, shipKnown);
+
                         if (GetRelations(ship.loyalty)?.Known == false)
                             DoFirstContact(ship.loyalty);
                     }
@@ -3177,7 +3178,7 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                updateContactsTimer = elapsedTime + RandomMath.RandomBetween(0.5f, 0.75f);
+                updateContactsTimer = elapsedTime * 2; // + RandomMath.RandomBetween(0.5f, 0.75f);
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
