@@ -9,7 +9,7 @@ namespace Ship_Game.Ships.DataPackets
     {
         public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] > 0;
         float[] SeenByID;
-        public const float KnownDuration = 2;
+        public const float KnownDuration = 0.5f;
 
         public KnownByEmpire()
         {
@@ -31,8 +31,8 @@ namespace Ship_Game.Ships.DataPackets
             }
         }
 
-        public void SetSeen(Empire empire)          => SeenByID[empire.Id-1] = KnownDuration;
-        public bool KnownBy(Empire empire)          => SeenByID[empire.Id-1] > 0;
-        public void SetSeenByPlayer()               => SetSeen(EmpireManager.Player);
+        public void SetSeen(Empire empire, float timer = KnownDuration) => SeenByID[empire.Id-1] = timer;
+        public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] > 0;
+        public void SetSeenByPlayer()                  => SetSeen(EmpireManager.Player);
     }
 }
