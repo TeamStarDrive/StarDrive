@@ -105,7 +105,7 @@ namespace Ship_Game.Ships
             }
 
             FTLModifier = 1f;
-            if (inborders && loyalty.data.Traits.InBordersSpeedBonus > 0)
+            if (IsInFriendlyProjectorRange && loyalty.data.Traits.InBordersSpeedBonus > 0)
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= projectorBonus;
 
