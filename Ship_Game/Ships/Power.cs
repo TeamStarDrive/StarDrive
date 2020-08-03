@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Ship_Game.Ships
+﻿namespace Ship_Game.Ships
 {
     public struct Power
     {
@@ -22,9 +20,9 @@ namespace Ship_Game.Ships
             if (modules == null)
                 return new Power();
 
-            foreach (ShipModule module in modules)
+            for (int i = 0; i < modules.Length; i++)
             {
-
+                ShipModule module = modules[i];
                 if (!module.Active || (!module.Powered && module.PowerDraw > 0f) && !designModule)
                     continue;
                 
