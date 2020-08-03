@@ -1855,6 +1855,7 @@ namespace Ship_Game.Ships
             if (IsPlatformOrStation || shipData.CarrierShip)
                 return true;
 
+            NetPower = Power.Calculate(ModuleSlotList, empire);
             return ShipIsGoodForGoals(float.MinValue, empire);
         }
 
