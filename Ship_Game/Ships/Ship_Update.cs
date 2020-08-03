@@ -96,7 +96,8 @@ namespace Ship_Game.Ships
             }
 
             KnownByEmpires.Update(elapsedTime);
-
+            UpdateInfluence(elapsedTime);
+            SetShipsVisibleByPlayer();
             if (!Active)
                 return;
 

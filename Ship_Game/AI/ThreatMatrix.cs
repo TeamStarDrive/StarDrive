@@ -50,12 +50,11 @@ namespace Ship_Game.AI
                     Strength   = ship.GetStrength();
                     EmpireName = ship.loyalty.data.Traits.Name;
                     EmpireId   = ship.loyalty.Id;
+                    System     = ship.System;
+                    SystemGuid = ship.System?.guid ?? Guid.Empty;
+                    InBorders  = shipInBorders;
                 }
-
-                InBorders  = shipInBorders;
-                Ship       = ship;
-                System     = ship.System;
-                SystemGuid = ship.System?.guid ?? Guid.Empty;
+                Ship = ship;
             }
 
             public static Pin FindPinByGuid(Guid pinGuid, Empire empire)

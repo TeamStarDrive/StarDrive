@@ -362,7 +362,7 @@ namespace Ship_Game.AI
                     return motherRange;               
             }
             sensorShip = Owner;
-            float sensorRange = Owner.SensorRange + (Owner.inborders ? 10000 : 0);
+            float sensorRange = Owner.SensorRange + (Owner.IsInFriendlyProjectorRange ? 10000 : 0);
             return sensorRange;
             
             
