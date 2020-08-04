@@ -1482,6 +1482,7 @@ namespace Ship_Game.Gameplay
         public void RestoreWarsFromSave()
         {
             ActiveWar?.RestoreFromSave(true);
+            
             foreach (var war in WarHistory)
                 war.RestoreFromSave(false);
         }

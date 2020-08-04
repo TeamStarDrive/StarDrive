@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using Ship_Game.AI.Tasks;
@@ -159,6 +160,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             else
             {
                 WarTheaters = null;
+            }
+            if (WarTheaters != null)
+            {
+                Us.GetEmpireAI().RestoreTaskCampaigns(this);
             }
         }
 

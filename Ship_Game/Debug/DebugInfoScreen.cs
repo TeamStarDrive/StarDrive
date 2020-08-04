@@ -766,7 +766,7 @@ namespace Ship_Game.Debug
                     float increaser = (int)Empire.Universe.viewState / 100f;
                     Screen.DrawCircleProjected(pin.Position,  increaser + pin.Ship.Radius, 6, e.EmpireColor);
 
-                    if (!pin.InBorders) continue;
+                    if (!pin.Ship?.IsInBordersOf(e) == true) continue;
                     Screen.DrawCircleProjected(pin.Position, increaser + pin.Ship.Radius, 3, e.EmpireColor);
                 }
 

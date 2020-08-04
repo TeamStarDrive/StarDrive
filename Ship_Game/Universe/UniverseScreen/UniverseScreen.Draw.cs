@@ -857,21 +857,27 @@ namespace Ship_Game
             //       We can select all ships inside screen area and check if those ships are Known
             using (player.KnownShips.AcquireReadLock())
             {
-                foreach (Ship ship in player.KnownShips)
+                for (int i = 0; i < player.KnownShips.Count; i++)
                 {
-                    if (!ship.Active || !ship.inSensorRange || !ScreenRectangle.HitTest(ship.ScreenPosition))
+                    Ship ship = player.KnownShips[i];
+                    if (!ship.Active || !ship.inSensorRange ||
+                        !ScreenRectangle.HitTest(ship.ScreenPosition))
                         continue;
 
                     DrawTacticalIcon(ship);
                     DrawOverlay(ship);
 
-                    if (SelectedShip != ship && !SelectedShipList.Contains(ship))
+                    if (SelectedShip != ship &&
+                        !SelectedShipList.Contains(ship))
                         continue;
 
                     Color color = Color.LightGreen;
                     if (player != ship.loyalty)
-                        color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
-                    batch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius, color);
+                        color = player.IsEmpireAttackable(ship.loyalty)
+                            ? Color.Red
+                            : Color.Gray;
+                    batch.BracketRectangle(ship.ScreenPosition,
+                        ship.ScreenRadius, color);
                 }
             }
 
