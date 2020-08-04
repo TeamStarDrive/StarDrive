@@ -3266,6 +3266,8 @@ namespace Ship_Game
                 var relationship = kv.Value;
                 relationship.RestoreWarsFromSave();
             }
+            
+            EmpireAI.EmpireDefense?.RestoreFromSave(true);
         }
 
         public void Dispose()
