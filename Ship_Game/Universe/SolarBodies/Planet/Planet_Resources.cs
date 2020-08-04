@@ -114,7 +114,7 @@ namespace Ship_Game
             if (Owner?.isFaction ?? true)
                 return false;
 
-            int threshold = (((int)(CurrentGame.GalaxySize+1) * 12).LowerBound(15));
+            int threshold = (((int)(CurrentGame.GalaxySize) * 12).LowerBound(15));
             if (Owner.NonCybernetic)
             {
                 if (TurnsToEmptyStorage(Food.NetIncome, FoodHere + IncomingFood) < threshold)
