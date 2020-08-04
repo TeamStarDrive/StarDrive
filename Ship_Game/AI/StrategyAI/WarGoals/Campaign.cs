@@ -29,7 +29,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             SystemDefense
 
         }
-
+        
         public CampaignType Type;
         protected War OwnerWar;
         protected Empire Them;
@@ -43,6 +43,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
         public WarTasks Tasks;
+        public Guid CampaignGuid = Guid.NewGuid();
         public Campaign() { }
 
         /// <summary>

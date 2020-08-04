@@ -783,5 +783,27 @@ namespace Ship_Game.AI.Tasks
                 else WhichFleet = 0;
             }
         }
+
+        public void RestoreCampaignFromSave(War war)
+        {
+            if (OwnerCampaign != null)
+            {
+                Guid guid = OwnerCampaign?.CampaignGuid ?? Guid.Empty;
+                OwnerCampaign = null;
+
+                foreach (var theater in war.WarTheaters.Theaters)
+                {
+                    foreach (var campaign in theater.Campaigns)
+                    {
+                        if (campaign.CampaignGuid == guid)
+                        {
+                            OwnerCampaign = campaign;
+                            break;
+                        }
+                    }
+                    if (OwnerCampaign != null) break;
+                }
+            }
+        }
     }
 }
