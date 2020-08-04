@@ -40,13 +40,13 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt == null || PlanetBuildingAt.NotConstructing)
                 return GoalStep.TryAgain;
 
-            if (PlanetBuildingAt.ConstructionQueue[0].Goal == this) 
+            if (empire.IsMilitarists 
+                && PlanetBuildingAt.ConstructionQueue[0].Goal == this
+                && PlanetBuildingAt.Storage.ProdRatio > 0.75f 
+                && empire.data.TaxRate < 0.25f) 
             {
-                if (PlanetBuildingAt.Storage.ProdRatio > 0.75f && empire.data.TaxRate < 0.25f)
-                {
-                    float rush = 10;
-                    PlanetBuildingAt.Construction.RushProduction(0, rush.UpperBound(PlanetBuildingAt.ProdHere), rush: true);
-                }
+                const float rush = 10;
+                PlanetBuildingAt.Construction.RushProduction(0, rush.UpperBound(PlanetBuildingAt.ProdHere), rush: true);
             }
             return GoalStep.TryAgain;
         }
