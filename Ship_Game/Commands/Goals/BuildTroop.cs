@@ -28,7 +28,8 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPlanetToBuildAt()
         {
-            if (empire.GetEmpireAI().DefensiveCoordinator.TroopsToTroopsWantedRatio > 1)
+            float troopRatio = empire.GetEmpireAI().DefensiveCoordinator.TroopsToTroopsWantedRatio;
+            if (troopRatio.GreaterOrEqual(1))
                 return GoalStep.GoalFailed;
 
             // find a planet
@@ -40,6 +41,9 @@ namespace Ship_Game.Commands.Goals
 
                 // submit troop into queue
                 planet.Construction.Enqueue(troopTemplate, this);
+                if (RandomMath.RollDice(100 - troopRatio * 100))
+                    planet.Construction.PrioritizeTroop();
+
                 PlanetBuildingAt = planet;
                 return GoalStep.GoToNextStep;
             }

@@ -380,6 +380,19 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
+        public void PrioritizeTroop()
+        {
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isTroop)
+                {
+                    MoveTo(0, i);
+                    break;
+                }
+            }
+        }
+
         public void Reorder(int oldIndex, int newIndex)
         {
             ConstructionQueue.Reorder(oldIndex, newIndex);
