@@ -4,8 +4,7 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-        public float MaxProduction              => Prod.NetIncome + MaxProdToTakeFromStorage;
-        public float MaxProdToTakeFromStorage   => 1 + BuildingList.Sum(b => b.Infrastructure);
+        public float MaxProduction              => Prod.NetIncome + InfraStructure;
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / 3).LowerBound(0.1f);
         float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
@@ -151,7 +150,7 @@ namespace Ship_Game
                     case GoodState.STORE:
                         if (empireCanExport)
                         {
-                            prodToSpend = Prod.NetIncome + 1; ; // Our empire has open export slots, so we can allow storage to dwindle
+                            prodToSpend = Prod.NetIncome + 10; // Our empire has open export slots, so we can allow storage to dwindle
                             break;
                         }
                         if (Storage.ProdRatio.AlmostEqual(1))
