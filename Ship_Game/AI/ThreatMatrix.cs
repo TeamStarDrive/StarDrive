@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
@@ -18,7 +19,7 @@ namespace Ship_Game.AI
             [Serialize(3)] public bool InBorders;
             [Serialize(4)] public int EmpireId    = 0;
             [Serialize(5)] public Guid SystemGuid = Guid.Empty;
-            [Serialize(6)] public Guid PinGuid    = Guid.NewGuid();
+            [Serialize(6)] public Guid PinGuid;
             [XmlIgnore][JsonIgnore] public Ship Ship;
             [XmlIgnore][JsonIgnore] public SolarSystem System;
 
@@ -31,6 +32,7 @@ namespace Ship_Game.AI
                 Ship       = ship;
                 SystemGuid = ship.System?.guid ?? Guid.Empty;
                 System     = ship.System;
+                PinGuid    = ship.guid;
             }
 
             public Pin(){}
@@ -57,12 +59,17 @@ namespace Ship_Game.AI
                 Ship = ship;
             }
 
+            public bool IsPinInRadius(Vector2 point, float radius)
+            {
+                if (Ship == null) return false;
+                return Position.InRadius(point, radius);
+            }
+
             public static Pin FindPinByGuid(Guid pinGuid, Empire empire)
             {
                 var pins = empire.GetEmpireAI().ThreatMatrix.GetPins();
                 var pin = pins.Find(p => p.PinGuid == pinGuid);
                 return pin;
-
             }
         }
 
@@ -283,24 +290,6 @@ namespace Ship_Game.AI
 
         }
 
-        public void ClearPinsInSensorRange(Vector2 position, float radius)
-        {
-            Pin[] pins = PinValues; // somewhat atomic copy, since we're about to modify Pins Map.
-            for (int i = 0; i < pins.Length; ++i)
-            {
-                Pin pin = pins[i];
-                Ship ship = pin.Ship;
-                if (pin.Position.InRadius(position, radius))
-                {
-                    if (ship != null)
-                    {
-                        bool inSensor = ship.Center.InRadius(position, radius);
-                        pin.Refresh(ship, pin.InBorders, inSensor);
-                    }
-                }
-            }
-        }
-
         public float PingNetRadarStr(Vector2 position, float radius, Empire us)
             => PingRadarStr(position, radius, us, netStrength:true);
 
@@ -358,7 +347,7 @@ namespace Ship_Game.AI
             return pins;
         }
 
-        public void UpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
+        public void AddOrUpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
         {
             if (!Pins.TryGetValue(ship.guid, out Pin pin))
             {
@@ -370,6 +359,20 @@ namespace Ship_Game.AI
             }
             else
                 pin.Refresh(ship, inSensorRadius, shipInBorders);
+        }
+
+        public void ClearPinsInSensorRange(Vector2 position, float radius)
+        {
+            Pin[] pins = PinValues; // somewhat atomic copy, since we're about to modify Pins Map.
+
+            for (int i = 0; i < pins.Length; ++i)
+            {
+                Pin pin = pins[i];
+                Ship ship = pin.Ship;
+
+                if (pin.IsPinInRadius(position, radius))
+                    Pins.Remove(pin.PinGuid);
+            }
         }
 
         public Pin[] GetPins() => Pins.AtomicValuesArray();
