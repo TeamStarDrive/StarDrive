@@ -1212,22 +1212,22 @@ namespace Ship_Game
 
         void UpdateKnownShips()
         {
-            KnownShips.Clear();
-
-            foreach(var node in BorderNodes)
+            for (int i = 0; i < BorderNodes.Count; i++)
             {
+                var node = BorderNodes[i];
                 if (node.SourceObject is Ship projector)
                 {
-                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(projector, node.Radius, GameObjectType.Ship);
+                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(projector,node.Radius, GameObjectType.Ship);
                     UpdateShipInInfluence(nearbyObjects, false, node);
                 }
                 else
                 {
-                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
+                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(node.Position,node.Radius, GameObjectType.Ship);
                     UpdateShipInInfluence(nearbyObjects, true, node);
-
                 }
             }
+
+            Array<Ship> currentlyKnown = new Array<Ship>();
 
             for (int i = 0; i < Universe.MasterShipList.Count; i++)
             {
@@ -1236,20 +1236,23 @@ namespace Ship_Game
 
                 if (shipKnown || (isPlayer && Universe.Debug))
                 {
-                    KnownShips.AddUniqueRef(ship);
+                    currentlyKnown.AddUniqueRef(ship);
+
                     if (ship.loyalty != this)
                     {
-                        EmpireAI.ThreatMatrix.UpdatePin(ship, ship.IsInFriendlyProjectorRange, shipKnown);
-
                         if (GetRelations(ship.loyalty)?.Known == false)
                             DoFirstContact(ship.loyalty);
                     }
                 }
-                else if (ship.loyalty != this)
-                {
-                    EmpireAI.ThreatMatrix.UpdatePin(ship, ship.IsInFriendlyProjectorRange, false);
-                }
             }
+
+            if (isPlayer)
+            {
+                using (KnownShips.AcquireWriteLock())
+                    KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
+            }
+            else
+                KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
         }
 
         void UpdateShipInInfluence(GameplayObject[] nearbyObjects, bool setVisible, InfluenceNode node)
@@ -1262,7 +1265,7 @@ namespace Ship_Game
                 var obj   = nearbyObjects[i];
                 Ship ship = (Ship) obj;
                 if (setVisible && sensorRange > 0 && ship.InRadius(node.Position, sensorRange))
-                    ship.KnownByEmpires.SetSeen(this, updateContactsTimer + 0.02f);
+                    ship.KnownByEmpires.SetSeen(this,updateContactsTimer + 0.02f);
 
                 ship.SetProjectorInfluence(this, true);
             }
@@ -3178,7 +3181,7 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                updateContactsTimer = elapsedTime * 2; // + RandomMath.RandomBetween(0.5f, 0.75f);
+                updateContactsTimer =  RandomMath.RandomBetween(0.5f, 1.5f); //elapsedTime * 2; // +
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
