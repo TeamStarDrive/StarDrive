@@ -95,6 +95,13 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool IsInBordersOf(Empire empire)
+        {
+            if (empire == loyalty) return InOwnerInfluence;
+
+            return Influences?.Any(i=> i.Foreign == empire) ?? false;
+        }
+
         public IEnumerable<Empire> GetProjectorInfluenceEmpires()
         {
             if (InOwnerInfluence)
