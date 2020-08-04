@@ -290,17 +290,6 @@ namespace Ship_Game
                 CheckForRefitFreighter(idleFreighter, 20, betterFreighter);
         }
 
-        public float GoodsLimits(Goods goods) // this will be replaced with exposed  variable for the players in the trade window
-        {
-            float limit = 1; // it is a multiplier
-            switch (goods)
-            {
-                case Goods.Food:       limit = ManualTrade ? 1 : 0.5f;  break;
-                case Goods.Production: limit = ManualTrade ? 1 : 0.25f; break;
-            }
-            return limit;
-        }
-
         // Percentage to check if there is better suited freighter model available
         public void CheckForRefitFreighter(Ship freighter, int percentage, Ship betterFreighter = null)
         {
