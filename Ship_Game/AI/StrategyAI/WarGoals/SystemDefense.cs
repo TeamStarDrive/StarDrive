@@ -1,12 +1,5 @@
-﻿using Ship_Game.Fleets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.Ships;
+﻿using System;
 using static Ship_Game.AI.ThreatMatrix;
-using System.Net.NetworkInformation;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
