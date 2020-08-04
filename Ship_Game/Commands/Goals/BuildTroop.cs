@@ -34,7 +34,7 @@ namespace Ship_Game.Commands.Goals
 
             // find a planet
             Troop troopTemplate = ResourceManager.GetTroopTemplate(ToBuildUID);
-            if (empire.FindPlanetToBuildAt(empire.MilitaryOutposts, troopTemplate, out Planet planet))
+            if (empire.FindPlanetToBuildTroopAt(empire.MilitaryOutposts, troopTemplate, out Planet planet))
             {
                 if (planet.ConstructionQueue.Count(q => q.isTroop) >= 2)
                     return GoalStep.TryAgain;

@@ -76,6 +76,7 @@ namespace Ship_Game
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
         public float OrbitalsMaintenance { get; private set; }
         public float MilitaryBuildingsMaintenance { get; private set; }
+        public float InfraStructure { get; private set; }
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -825,16 +826,17 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-            bool spacePort = false;
-            AllowInfantry  = false;
-            RepairPerTurn        = 0;
-            TerraformToAdd       = 0;
-            ShieldStrengthMax    = 0;
-            ShipBuildingModifier = 0;
-            SensorRange          = 0;
-            TotalDefensiveStrength     = 0;
-            PlusFlatPopulationPerTurn  = 0;
-            float totalStorage         = 0;
+            bool spacePort            = false;
+            AllowInfantry             = false;
+            InfraStructure            = 1;
+            RepairPerTurn             = 0;
+            TerraformToAdd            = 0;
+            ShieldStrengthMax         = 0;
+            ShipBuildingModifier      = 0;
+            SensorRange               = 0;
+            TotalDefensiveStrength    = 0;
+            PlusFlatPopulationPerTurn = 0;
+            float totalStorage        = 0;
 
             if (!loadUniverse) // FB - this is needed since OrbitalStations from save has only GUID, so we must not use this when loading a game
             {
@@ -864,6 +866,7 @@ namespace Ship_Game
                 TerraformToAdd            += b.PlusTerraformPoints;
                 totalStorage              += b.StorageAdded;
                 RepairPerTurn             += b.ShipRepair;
+                InfraStructure            += b.Infrastructure;
 
                 if (b.SensorRange > SensorRange)
                     SensorRange = b.SensorRange;
