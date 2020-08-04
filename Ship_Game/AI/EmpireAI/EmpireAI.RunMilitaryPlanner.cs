@@ -6,6 +6,7 @@ using System.Linq;
 using Ship_Game.AI.Tasks;
 using Microsoft.Xna.Framework;
 using System.Threading.Tasks;
+using Ship_Game.AI.StrategyAI.WarGoals;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -64,6 +65,12 @@ namespace Ship_Game.AI
                 }
             }
             ApplyPendingChanges();
+        }
+
+        public void RestoreTaskCampaigns(War war)
+        {
+            foreach(var task in TaskList)
+                task.RestoreCampaignFromSave(war);
         }
 
         void ApplyPendingChanges()
