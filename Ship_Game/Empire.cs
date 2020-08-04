@@ -844,6 +844,7 @@ namespace Ship_Game
         }
 
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
+        public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
         public Ship[] AllFleetReadyShips()
         {
@@ -3186,6 +3187,7 @@ namespace Ship_Game
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
                 UpdateKnownShips();
+                EmpireAI.ThreatMatrix.UpdateAllPins(this);
             }
             return bordersChanged;
         }
