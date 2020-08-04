@@ -10,10 +10,12 @@ namespace Ship_Game.Ships
         // This could be Planets, SolarSystem projectors, Subspace projectors/ships
         // This is an optimized lookup system, because these properties are queried every frame
         bool InOwnerInfluence;
+        
         struct ForeignInfluence
         {
             public Empire Foreign;
             public Relationship Relationship; // our relation with this foreign empire
+            public float Timer;
         }
         int InfluenceCount;
         ForeignInfluence[] Influences;
@@ -21,8 +23,33 @@ namespace Ship_Game.Ships
         void ResetProjectorInfluence()
         {
             InOwnerInfluence = false;
-            InfluenceCount = 0;
-            Influences = null;
+            InfluenceCount   = 0;
+            Influences       = null;
+        }
+
+        public void UpdateInfluence(float elapsedTime)
+        {
+            if (InfluenceCount < 1) return;
+            for (int i= 0; i< Influences.Length; i++)
+            {
+                var influence    = Influences[i];
+                influence.Timer -= elapsedTime;
+                Influences[i]    = influence;
+            }
+
+            for (int index = 0; index < Influences.Length; ++index)
+            {
+                var influence =Influences[index];
+                if (influence.Timer <= 0 && influence.Foreign != null)
+                {
+                    // RemoveAtSwapLast algorithm
+                    if (influence.Foreign == loyalty) InOwnerInfluence = false;
+
+                    int last          = --InfluenceCount;
+                    Influences[index] = Influences[last];
+                    Influences[last]  = default;
+                }
+            }
         }
 
         /// Optimized quite heavily to handle the most common case
@@ -36,7 +63,11 @@ namespace Ship_Game.Ships
             {
                 for (int index = 0; index < InfluenceCount; ++index)
                     if (Influences[index].Foreign == empire) // it's already set?
+                    {
+                        ref ForeignInfluence influence = ref Influences[index];
+                        influence.Timer = empire.updateContactsTimer + 0.02f;
                         return;
+                    }
 
                 if (Influences == null)
                     Influences = new ForeignInfluence[4];
@@ -46,6 +77,7 @@ namespace Ship_Game.Ships
                 ref ForeignInfluence dst = ref Influences[InfluenceCount++];
                 dst.Foreign = empire;
                 dst.Relationship = loyalty.GetRelations(empire);
+                dst.Timer = empire.updateContactsTimer + 0.02f;
             }
             else // unset
             {

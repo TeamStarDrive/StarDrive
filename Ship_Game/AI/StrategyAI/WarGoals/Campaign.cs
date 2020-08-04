@@ -56,6 +56,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             OwnerWar       = theater.GetWar();
             Owner          = EmpireManager.GetEmpireByName(OwnerWar.UsName);
             Them           = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
+            if (Owner == null || Them == null)
+                Log.Warning("no empires");
             UID            = $"{Type} - {ID}";
             SystemGuids    = campaign.SystemGuids;
             ShipGuids      = campaign.ShipGuids;
