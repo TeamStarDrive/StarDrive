@@ -215,6 +215,11 @@ namespace Ship_Game
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
         public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
+        public bool IsExpansionists           => data.EconomicPersonality?.Name == "Expansionists";
+        public bool IsIndustrialists          => data.EconomicPersonality?.Name == "Industrialists";
+        public bool IsGeneralists             => data.EconomicPersonality?.Name == "Generalists";
+        public bool IsMilitarists             => data.EconomicPersonality?.Name == "Militarists";
+        public bool IsTechnologists           => data.EconomicPersonality?.Name == "Technologists";
 
         public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
