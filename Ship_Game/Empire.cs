@@ -336,24 +336,25 @@ namespace Ship_Game
             return false;
         }
 
-        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Troop troop, out Planet chosen)
+        public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, out Planet chosen)
         {
             if (ports.Count != 0)
             {
                 float cost = troop.ActualCost;
-                chosen = FindPlanetToBuildAt(ports, cost);
+                chosen = FindPlanetToBuildAt(ports, cost, forTroop: true);
                 return true;
             }
+
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {troop} at! Candidates:{ports.Count}");
             chosen = null;
             return false;
         }
 
-        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost)
+        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, bool forTroop = false)
         {
             // focus on the best producing planets (number depends on the empire size)
             if (GetBestPorts(ports, out Planet[] bestPorts))
-                return bestPorts.Sorted(p => p.TurnsUntilQueueComplete(cost)).First();
+                return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, forTroop));
 
             return null;
         }
@@ -363,9 +364,11 @@ namespace Ship_Game
             bestPorts = null;
             if (ports.Count > 0)
             {
-                int numPlanetsToFocus = (OwnedPlanets.Count / 5).Clamped(1, ports.Count + 1);
-                bestPorts = ports.SortedDescending(p => p.Prod.NetMaxPotential);
-                bestPorts = bestPorts.Take(numPlanetsToFocus).ToArray();
+                // The divider will slowly increase, so a race with 20 planets will have the divider + 1 for better prod focus
+                float planetDivider   = IsIndustrialists ? 5f + OwnedPlanets.Count/20f : 4f + OwnedPlanets.Count/20f;
+                int numPlanetsToFocus = ((int)Math.Ceiling(OwnedPlanets.Count / planetDivider)).Clamped(1, ports.Count + 1);
+                bestPorts             = ports.SortedDescending(p => p.Prod.NetMaxPotential);
+                bestPorts             = bestPorts.Take(numPlanetsToFocus).ToArray();
             }
 
             return bestPorts != null;
