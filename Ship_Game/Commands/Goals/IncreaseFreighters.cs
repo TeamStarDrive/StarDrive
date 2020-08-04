@@ -34,7 +34,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             planet.Construction.Enqueue(freighter, this, notifyOnEmpty: false);
-            if (empire.IsIndustrialists)
+            if (empire.IsIndustrialists || RandomMath.RollDie(empire.MaxFreightersInQueue) == 1)
                 planet.Construction.PrioritizeShip(freighter);
 
             return GoalStep.GoToNextStep;
