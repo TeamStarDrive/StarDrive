@@ -6,7 +6,7 @@ namespace Ship_Game
 {
     public partial class Planet // Created by Fat Bastard
     {
-        readonly Array<Ship> IncomingFreighters = new Array<Ship>();
+        public readonly Array<Ship> IncomingFreighters = new Array<Ship>();
         readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
 
         public float IncomingFood { get; protected set; }
@@ -140,14 +140,32 @@ namespace Ship_Game
             return freighterList.Count(s => s.AI.HasTradeGoal(goods));
         }
 
+        // Freighters on the way to pick up from us
+        public int NumOutgoingFreightersPickUp(Array<Ship> freighterList, Goods goods)
+        {
+            int numFreighters = 0;
+            for (int i = 0; i < freighterList.Count; i++)
+            {
+                Ship freighter = freighterList[i];
+                if (freighter.Active
+                    && freighter.AI.FindGoal(ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal)
+                    && goal.Trade.Goods == goods)
+                {
+                    numFreighters += 1;
+                }
+            }
+
+            return numFreighters;
+        }
+
         public int FreeGoodsImportSlots(Goods goods)
         {
             switch (goods)
             {
-                case Goods.Food: return FreeFoodImportSlots;
+                case Goods.Food:       return FreeFoodImportSlots;
                 case Goods.Production: return FreeProdImportSlots;
-                case Goods.Colonists: return FreeColonistImportSlots;
-                default: return 0;
+                case Goods.Colonists:  return FreeColonistImportSlots;
+                default:               return 0;
             }
         }
 
@@ -200,19 +218,31 @@ namespace Ship_Game
             }
         }
 
-        public float ExportableFood(Planet importPlanet, float eta)
+        public float ExportableFood(Planet exportPlanet, Planet importPlanet, float eta)
         {
             float maxFoodLoad   = importPlanet.Storage.Max - importPlanet.FoodHere;
-            float foodLoadLimit = Owner?.GoodsLimits(Goods.Food) ?? 0;
-            maxFoodLoad         = (maxFoodLoad - importPlanet.Food.NetIncome * eta).Clamped(0, Storage.Max * foodLoadLimit);
-            return maxFoodLoad;
+            float foodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Food);
+            maxFoodLoad        -= importPlanet.Food.NetIncome * eta;
+            return maxFoodLoad.Clamped(0, foodLoadLimit);
         }
 
-        public float ExportableProd(Planet importPlanet)
+        public float ExportableProd(Planet exportPlanet, Planet importPlanet, float eta)
         {
-            float prodLoadLimit = Owner?.GoodsLimits(Goods.Production) ?? 0;
-            float maxProdLoad   = ProdHere.Clamped(0f, Storage.Max * prodLoadLimit);
-            return maxProdLoad;
+            float maxProdLoad   = importPlanet.Storage.Max - importPlanet.ProdHere;
+            float prodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Production);
+            if (importPlanet.Prod.NetIncome < 0) // Cybernetics can have negative production
+            {
+                maxProdLoad -= importPlanet.Food.NetIncome * eta;
+            }
+            else
+            {
+                if (importPlanet.ConstructionQueue.Count > 0)
+                    maxProdLoad += importPlanet.MaxProdToTakeFromStorage * eta.UpperBound(importPlanet.TurnsUntilQueueCompleted);
+                else
+                    maxProdLoad = ProdHere.UpperBound(maxProdLoad);
+            }
+
+            return maxProdLoad.Clamped(0f, prodLoadLimit); ;
         }
 
         void CalcIncomingGoods()
@@ -232,6 +262,18 @@ namespace Ship_Game
             }
 
             return numGoods;
+        }
+
+        public float ExportGoodsLimit(Goods goods)
+        {
+            float limit = 0; // it is a multiplier
+            switch (goods)
+            {
+                case Goods.Food:       limit = FoodHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(2); break;
+                case Goods.Production: limit = ProdHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(4); break;
+                case Goods.Colonists:  limit = Population * 0.2f;                               break;
+            }
+            return limit;
         }
     }
 }
