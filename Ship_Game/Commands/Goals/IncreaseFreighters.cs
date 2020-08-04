@@ -34,6 +34,9 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             planet.Construction.Enqueue(freighter, this, notifyOnEmpty: false);
+            if (empire.IsIndustrialists)
+                planet.Construction.PrioritizeShip(freighter);
+
             return GoalStep.GoToNextStep;
         }
 

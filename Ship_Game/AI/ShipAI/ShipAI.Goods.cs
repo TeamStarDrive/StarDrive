@@ -60,7 +60,7 @@ namespace Ship_Game.AI
                 case Goods.Production:
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
-                    float maxProdLoad        = exportPlanet.ExportableProd(importPlanet);
+                    float maxProdLoad        = exportPlanet.ExportableProd(importPlanet, eta);
                     if (maxProdLoad.AlmostZero())
                     {
                         AI.CancelTradePlan(exportPlanet); // there is nothing to load, wft?

@@ -6,7 +6,7 @@ namespace Ship_Game
 {
     public partial class Planet // Created by Fat Bastard
     {
-        readonly Array<Ship> IncomingFreighters = new Array<Ship>();
+        public readonly Array<Ship> IncomingFreighters = new Array<Ship>();
         readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
 
         public float IncomingFood { get; protected set; }
@@ -204,15 +204,27 @@ namespace Ship_Game
         {
             float maxFoodLoad   = importPlanet.Storage.Max - importPlanet.FoodHere;
             float foodLoadLimit = Owner?.GoodsLimits(Goods.Food) ?? 0;
-            maxFoodLoad         = (maxFoodLoad - importPlanet.Food.NetIncome * eta).Clamped(0, Storage.Max * foodLoadLimit);
-            return maxFoodLoad;
+            maxFoodLoad        -= importPlanet.Food.NetIncome * eta;
+            return maxFoodLoad.Clamped(0, Storage.Max * foodLoadLimit);
         }
 
-        public float ExportableProd(Planet importPlanet)
+        public float ExportableProd(Planet importPlanet, float eta)
         {
+            float maxProdLoad   = importPlanet.Storage.Max - importPlanet.ProdHere;
             float prodLoadLimit = Owner?.GoodsLimits(Goods.Production) ?? 0;
-            float maxProdLoad   = ProdHere.Clamped(0f, Storage.Max * prodLoadLimit);
-            return maxProdLoad;
+            if (importPlanet.Prod.NetIncome < 0) // Cybernetics can have negative production
+            {
+                maxProdLoad -= importPlanet.Food.NetIncome * eta;
+            }
+            else
+            {
+                if (importPlanet.ConstructionQueue.Count > 0)
+                    maxProdLoad += importPlanet.MaxProdToTakeFromStorage * eta.UpperBound(importPlanet.TurnsUntilQueueCompleted);
+                else
+                    maxProdLoad = ProdHere.UpperBound(maxProdLoad);
+            }
+
+            return maxProdLoad.Clamped(0f, Storage.Max * prodLoadLimit); ;
         }
 
         void CalcIncomingGoods()
