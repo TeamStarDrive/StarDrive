@@ -320,8 +320,7 @@ namespace Ship_Game.Gameplay
             if (MissileAI?.Target.GetLoyalty() == attacker)
                 return true;
 
-            if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade
-                && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(Owner))
+            if (!attackerRelationThis.Treaty_OpenBorders && !attackerRelationThis.Treaty_Trade && Owner.IsInBordersOf(attacker))
                 return true;
             
             return false;

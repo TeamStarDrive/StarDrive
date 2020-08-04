@@ -380,9 +380,8 @@ namespace Ship_Game.Ships
                 && System != null && attacker.GetOwnedSystems().ContainsRef(System))
                 return true;
 
-            // the below does a search for being in borders so its expensive.
             if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
-                && attacker.GetEmpireAI().ThreatMatrix.ShipInOurBorders(this))
+                && IsInBordersOf(attacker))
             {
                     return true;
             }
@@ -1198,13 +1197,14 @@ namespace Ship_Game.Ships
 
         }
 
-        public void SetShipsVisibleByPlayer()
+        /// <summary>
+        /// Sets if ship can be "seen" by an empire.
+        /// this should be merged with scanForCombatTargets at some point. we effectively doing this check twice.
+        /// however this routine is on a fading timer. so while we are doing the check twice they do need to update at different intervals. 
+        /// </summary>
+        public void SetShipsVisible(float elapsedTime)
         {
-            /* Changed this so that the other ships will only check if they are not in sensors if they have been marked
-             inSensors. Player ships will check for to see that ships near them are in sensor range.
-             this seems redundant. there are several places where ships are checked for being in sensors.
-             ScanForShipsInSensors,
-             */
+            KnownByEmpires.Update(elapsedTime);
             if (KnownByEmpires.KnownBy(loyalty)) return;
             if (Empire.Universe.Debug)
             {
@@ -1220,30 +1220,25 @@ namespace Ship_Game.Ships
             }
 
             SetOtherShipsInSensorRange();
-            //loyalty.GetEmpireAI().ThreatMatrix.ClearPinsInSensorRange(Center, SensorRange);
         }
         
         private void SetOtherShipsInSensorRange()
         {
-            GameplayObject[] nearby = GetObjectsInSensors(GameObjectType.Ship);
-            //bool checkFromThis = loyalty.isPlayer || EmpireManager.Player.GetRelations(loyalty).Treaty_Alliance;
-            for (int i = 0; i < nearby.Length; i++)
+            var nearby = AI.PotentialTargets; 
+
+            for (int i = 0; i < nearby.Count; i++)
             {
-                GameplayObject go = nearby[i];
-                Ship ship = (Ship) go;
+                var ship = nearby[i];
+                if (!ship.Active) continue;
+
                 if (ship.KnownByEmpires.KnownBy(loyalty)) continue;
 
                 ship.KnownByEmpires.SetSeen(loyalty);
+                var allies = EmpireManager.GetAllies(loyalty);
+                
+                foreach(var ally in allies)
+                    ship.KnownByEmpires.SetSeen(ally);
                 break;
-
-                //if (go.GetLoyalty().isPlayer)
-                //{
-                //    ship = (Ship) go;
-                //    if (Center.OutsideRadius(ship.Position, ship.SensorRange))
-                //        continue;
-                //    KnownByEmpires.SetSeenByPlayer();
-                //    break;
-                //}
             }
         }
 
