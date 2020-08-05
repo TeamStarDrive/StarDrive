@@ -38,13 +38,17 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindShipAndPlanetToRefit()
         {
-            if (ToBuildUID == null)
+            if (ToBuildUID == null || !GetNewShip(out Ship newShip))
+            {
+                RemoveGoalFromFleet();
                 return GoalStep.GoalFailed;  // No better ship is available
+            }
 
             if (OldShip.AI.State == AIState.Refit)
                 RemoveOldRefitGoal();
 
-            PlanetBuildingAt = empire.RallyShipYardNearestTo(OldShip.Center);
+            PlanetBuildingAt = empire.FindPlanetToBuildAt(empire.SafeSpacePorts, OldShip.RefitCost(newShip));
+
             if (PlanetBuildingAt == null)
             {
                 OldShip.AI.ClearOrders();
@@ -87,12 +91,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 return GoalStep.GoalFailed;
             }
 
-            Ship newShip = ResourceManager.GetShipTemplate(ToBuildUID, false);
-            if (newShip == null)
-            {
-                RemoveGoalFromFleet();
+            if (!GetNewShip(out Ship newShip))
                 return GoalStep.GoalFailed;  // Could not find ship to build in ship dictionary
-            }
 
             var qi = new QueueItem(PlanetBuildingAt)
             {
@@ -177,6 +177,12 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             if (OldShip.AI.FindGoal(ShipAI.Plan.Refit, out ShipAI.ShipGoal shipGoal))
                 OldShip.loyalty.GetEmpireAI().RemoveGoal(GoalType.Refit, g => g.OldShip == OldShip);
+        }
+
+        bool GetNewShip(out Ship newShip)
+        {
+            newShip = ResourceManager.GetShipTemplate(ToBuildUID, false);
+            return newShip != null;
         }
     }
 }
