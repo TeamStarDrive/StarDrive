@@ -4647,6 +4647,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1819</Index>
       <Text>Production Fees</Text>
     </Token>
+    <Token>
+      <Index>1820</Index>
+      <Text>Waiting for Refit Ship</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>

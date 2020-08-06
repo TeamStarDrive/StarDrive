@@ -268,7 +268,7 @@ namespace Ship_Game.AI
             Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
                 OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, 
-                    Owner.fleet.FinalDirection, true, null, State);
+                    Owner.fleet.FinalDirection, true, State);
         }
 
         void UpdateCombatStateAI(float elapsedTime)
@@ -516,7 +516,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null, AIState.MoveTo);
+                OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, AIState.MoveTo);
             }
         }
 

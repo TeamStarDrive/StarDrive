@@ -167,9 +167,8 @@ namespace Ship_Game.AI
                 target = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
             }
 
-            if (target != null && (target.Center + g.Goal.TetherOffset).Distance(Owner.Center) > 200f)
+            if (target != null && (g.Goal.BuildPosition).Distance(Owner.Center) > 200f)
             {
-                g.Goal.BuildPosition = target.Center + g.Goal.TetherOffset;
                 OrderDeepSpaceBuild(g.Goal);
                 return;
             }
@@ -188,6 +187,8 @@ namespace Ship_Game.AI
                 planetToTether.OrbitalStations.Add(orbital.guid, orbital);
             }
             Owner.QueueTotalRemoval();
+            if (g.Goal.OldShip?.Active == true) // we are refitting something
+                g.Goal.OldShip.QueueTotalRemoval();
         }
 
         void DoDeployOrbital(ShipGoal g)
@@ -199,10 +200,16 @@ namespace Ship_Game.AI
                 return;
             }
 
-            Planet target = g.Goal.PlanetBuildingAt;
-            if (target.Owner != Owner.loyalty) // FB - Planet owner has changed
+            Planet target = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
+            if (target == null || target.Owner != Owner.loyalty) // FB - Planet owner has changed
             {
                 OrderScrapShip();
+                return;
+            }
+
+            if (g.Goal.BuildPosition.Distance(Owner.Center) > 200f) // correct build position after long travel
+            {
+                OrderDeepSpaceBuild(g.Goal);
                 return;
             }
 
@@ -213,6 +220,8 @@ namespace Ship_Game.AI
                 orbital.TetherToPlanet(target);
                 target.OrbitalStations.Add(orbital.guid, orbital);
                 Owner.QueueTotalRemoval();
+                if (g.Goal.OldShip?.Active == true) // we are refitting something
+                    g.Goal.OldShip.QueueTotalRemoval();
             }
 
             OrderScrapShip();
@@ -386,8 +395,13 @@ namespace Ship_Game.AI
                 ClearOrders();
 
             // stick around until the empire goal picks the ship for refit
-            ClearOrders(AIState.HoldPosition);
-            SetPriorityOrder(true); // Especially for freighters manually refitted by the player, so they wont be taken to trade again
+            if (!Owner.IsPlatformOrStation)
+            {
+                ClearOrders(AIState.HoldPosition);
+                SetPriorityOrder(true); // Especially for freighters manually refitted by the player, so they wont be taken to trade again
+            }
+
+            ClearOrders(AIState.Refit);  // For orbitals
         }
 
         void DoRepairDroneLogic(Weapon w)
