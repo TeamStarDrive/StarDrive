@@ -474,7 +474,7 @@ namespace Ship_Game.AI
                             }
                         }
                     }
-                    MaxProcessingPerTurn = (PendingActions.Count / 60);
+                    MaxProcessingPerTurn = (PendingActions.Count / 30);
                 });
         }
 
