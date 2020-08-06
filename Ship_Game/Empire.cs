@@ -976,7 +976,7 @@ namespace Ship_Game
             {
                 var tech = entry.Value.Tech;
                 bool modulesNotHulls = tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0;
-                if (modulesNotHulls && !WeCanUseThis(tech, ourShips))
+                if (modulesNotHulls && !WeCanUseThisInDesigns(entry.Value, ourShips))
                     entry.Value.shipDesignsCanuseThis = false;
             }
 
@@ -1890,8 +1890,20 @@ namespace Ship_Game
             return true;
         }
 
-        public bool WeCanUseThis(Technology tech, Array<Ship> ourFactionShips)
+        public bool WeCanUseThisTech(TechEntry checkedTech, Array<Ship> ourFactionShips)
         {
+            if (checkedTech.IsHidden(this))
+                return false;
+
+            if (!checkedTech.IsOnlyShipTech())
+                return true;
+
+            return WeCanUseThisInDesigns(checkedTech, ourFactionShips);
+        }
+
+        public bool WeCanUseThisInDesigns(TechEntry checkedTech, Array<Ship> ourFactionShips)
+        {
+            Technology tech = checkedTech.Tech;
             foreach (Ship ship in ourFactionShips)
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
