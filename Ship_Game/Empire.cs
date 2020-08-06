@@ -3180,13 +3180,13 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                updateContactsTimer =  RandomMath.RandomBetween(0.5f, 1.5f); 
+                updateContactsTimer =  RandomMath.RandomBetween(0.3f, 0.75f); 
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
                 UpdateKnownShips();
-                EmpireAI.ThreatMatrix.UpdateAllPins(this);
             }
+            EmpireAI.ThreatMatrix.UpdateAllPins(this);
             EmpireAI.ThreatMatrix.ProcessPendingActions();
             return bordersChanged;
         }
