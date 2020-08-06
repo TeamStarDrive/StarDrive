@@ -1231,7 +1231,7 @@ namespace Ship_Game.Ships
                 var ship = nearby[i];
                 if (!ship.Active) continue;
 
-                if (ship.KnownByEmpires.KnownBy(loyalty)) continue;
+                if (ship.KnownByEmpires.KnownBy(loyalty) || !ship.Center.InRadius(Center, SensorRange)) continue;
 
                 ship.KnownByEmpires.SetSeen(loyalty);
                 var allies = EmpireManager.GetAllies(loyalty);
