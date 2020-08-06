@@ -243,13 +243,19 @@ namespace Ship_Game.Universe
 
         public void MoveShipToLocation(Vector2 pos, Vector2 direction, Ship ship)
         {
+            if  (ship.IsPlatformOrStation)
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
             GameAudio.AffirmativeClick();
             if (Input.QueueAction)
             {
                 if (Input.OrderOption)
                     ship.AI.OrderMoveDirectlyTo(pos, direction, false, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
                 else
-                    ship.AI.OrderMoveTo(pos, direction, false, null, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
+                    ship.AI.OrderMoveTo(pos, direction, false, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
             }
             else if (Input.OrderOption)
             {
@@ -257,7 +263,7 @@ namespace Ship_Game.Universe
             }
             else
             {
-                ship.AI.OrderMoveTo(pos, direction, true, null, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
+                ship.AI.OrderMoveTo(pos, direction, true, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
             }
 
             ship.AI.OrderHoldPositionOffensive(pos, direction);

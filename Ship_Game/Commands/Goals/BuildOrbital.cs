@@ -127,7 +127,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         {
             foreach (Ship ship in empire.GetShips().Filter(s => s.IsConstructor))
             {
-                if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) && g.Goal.PlanetBuildingAt == PlanetBuildingAt)
+                if (ship.AI.FindGoal(ShipAI.Plan.DeployOrbital, out ShipAI.ShipGoal g) && g.Goal.TetherTarget == TetherTarget)
                 {
                     Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                         g.Goal.BuildPosition, 1000, Color.LightCyan, 10.0f);

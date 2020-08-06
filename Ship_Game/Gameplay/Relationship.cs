@@ -1021,11 +1021,8 @@ namespace Ship_Game.Gameplay
             var theirDesigns = them.GetOurFactionShips();
             foreach (TechEntry entry in ourTechs)
             {
-                Technology tech = entry.Tech;
-                if (entry.IsOnlyShipTech() && !them.WeCanUseThis(tech, theirDesigns))
-                    continue;
-
-                techs.Add(entry);
+                if (them.WeCanUseThisTech(entry, theirDesigns))
+                    techs.Add(entry);
             }
 
             return techs.Count > 0;
