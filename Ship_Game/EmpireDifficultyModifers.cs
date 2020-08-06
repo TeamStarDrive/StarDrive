@@ -88,7 +88,7 @@
                     FleetCompletenessMin = 0.5f;
                     CreditsMultiplier    = 0.2f;
                     EnemyTroopStrength   = 1.1f;
-                    MineralDecayDivider  = 75;
+                    MineralDecayDivider  = 50;
                     PiratePayModifier    = 0.75f;
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
@@ -105,7 +105,7 @@
                     FleetCompletenessMin = 0.75f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     EnemyTroopStrength   = 1.25f;
-                    MineralDecayDivider  = 50;
+                    MineralDecayDivider  = 25;
                     PiratePayModifier    = 1f;
                     ExpansionModifier    = 0.05f;
                     MinStartingColonies  = 5;
@@ -133,7 +133,7 @@
                     FleetCompletenessMin = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     EnemyTroopStrength   = 1.5f;
-                    MineralDecayDivider  = 35;
+                    MineralDecayDivider  = 15;
                     PiratePayModifier    = 1.5f;
                     ExpansionModifier    = 0f;
                     MinStartingColonies  = 6;
