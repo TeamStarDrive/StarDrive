@@ -978,7 +978,7 @@ namespace Ship_Game.Fleets
                     if (ship.InRadius(position, radius)) continue;
                     Vector2 movePos = position + ship.AI.FleetNode.FleetOffset / size;
                     ship.AI.OrderMoveTo(movePos, position.DirectionToTarget(FleetTask.AO)
-                        , true, null, AIState.AwaitingOrders, null, true);
+                        , true, AIState.AwaitingOrders, null, true);
                 }
             }
             return false;
@@ -1014,7 +1014,7 @@ namespace Ship_Game.Fleets
                         continue;
                     }
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
-                    ship.AI.OrderMoveTo(kv.Key, vFacing, true, null, AIState.MoveTo, offensiveMove: true);
+                    ship.AI.OrderMoveTo(kv.Key, vFacing, true, AIState.MoveTo, offensiveMove: true);
                     ship.ForceCombatTimer();
 
                     availableShips.RemoveAtSwapLast(i);

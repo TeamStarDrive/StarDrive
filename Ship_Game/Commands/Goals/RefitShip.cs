@@ -139,7 +139,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
                     FinishedShip.RelativeFleetOffset = node.FleetOffset;
                     FinishedShip.AI.OrderMoveTo(Fleet.FinalPosition + FinishedShip.RelativeFleetOffset, 
-                        Fleet.FinalDirection, true, null, AIState.AwaitingOrders);
+                        Fleet.FinalDirection, true, AIState.AwaitingOrders);
                 }
             }
 
