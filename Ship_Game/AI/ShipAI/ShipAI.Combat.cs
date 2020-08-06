@@ -3,6 +3,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
+using Ship_Game.Ships.DataPackets;
 
 namespace Ship_Game.AI
 {
@@ -172,15 +173,16 @@ namespace Ship_Game.AI
                 }
             }
 
-            GameplayObject[] nearbyShips = sensorShip.GetObjectsInSensors(GameObjectType.Ship, radius);
+            GameplayObject[] nearbyShips = sensorShip.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
             for (int x = 0; x < nearbyShips.Length; x++)
             {
                 var go = nearbyShips[x];
                 var nearbyShip = (Ship) go;
-                if (!nearbyShip.Active || nearbyShip.dying
-                                       || Owner.Center.OutsideRadius(nearbyShip.Center,
-                                           radius + (radius < 0.01f ? 10000 : 0)))
+                if (!nearbyShip.Active || nearbyShip.dying)
+                { 
+                    nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
                     continue;
+                }
 
                 Empire empire = nearbyShip.loyalty;
                 if (empire == Owner.loyalty)
@@ -192,12 +194,18 @@ namespace Ship_Game.AI
                 bool isAttackable = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
                 if (!isAttackable)
                     continue;
+                BadGuysNear = true;
+                if (Owner.IsSubspaceProjector  || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
+                {
+                    PotentialTargets.Add(nearbyShip);
+                    continue;
+                }
 
                 armorAvg += nearbyShip.armor_max;
                 shieldAvg += nearbyShip.shield_max;
                 dpsAvg += nearbyShip.GetDPS();
                 sizeAvg += nearbyShip.SurfaceArea;
-                BadGuysNear = true;
+                
                 if (radius < 1)
                     continue;
 
@@ -211,6 +219,9 @@ namespace Ship_Game.AI
 
                 NearByShips.Add(sw);
             }
+
+            if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
+                return null;
 
             if (Target is Ship shipTarget)
             {
@@ -290,6 +301,8 @@ namespace Ship_Game.AI
         void SetCombatStatus()
         {
             float radius = GetSensorRadius(out Ship sensorShip);
+            if (Owner.IsSubspaceProjector) {ScanForCombatTargets(sensorShip, radius); return;}
+
             if (Owner.fleet != null)
             {
                 if (!HasPriorityTarget)
@@ -403,32 +416,6 @@ namespace Ship_Game.AI
                     bombBay.InstalledWeapon.CooldownTimer = bombBay.InstalledWeapon.fireDelay;
                 }
             }
-        }
-
-
-        public struct ShipWeight
-        {
-            public Ship Ship;
-            public float Weight;
-
-            public ShipWeight(Ship ship, float weight = 0)
-            {
-                Ship = ship;
-                Weight = weight;                
-            }
-            public ShipWeight(GameplayObject gamePlayObject, float weight = 0) : this(gamePlayObject as Ship, weight) { }            
-            
-            //We can just say shipWieght += 2 to add 2 the shipweight
-            public static ShipWeight operator + (ShipWeight shipWeight, float weight) => new ShipWeight(shipWeight.Ship, shipWeight.Weight + weight);            
-            
-            //same this for a ship although... seems silly since im not "adding" a ship.
-            public static ShipWeight operator +(ShipWeight shipWeight, Ship ship) => new ShipWeight(ship, shipWeight.Weight);
-
-            //i dont know how overload the "=" operator and keep the ship. 
-            public void SetWeight(float weight) => Weight = weight;
-            
-
-
         }
     }
 }
