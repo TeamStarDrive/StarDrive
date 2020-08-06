@@ -409,7 +409,7 @@ namespace Ship_Game.AI
                 using (PinsMutex.AcquireWriteLock())
                 {
                     int count=0;
-                    while (PendingActions.NotEmpty && count < MaxProcessingPerTurn.LowerBound(50))
+                    while (PendingActions.NotEmpty && count < MaxProcessingPerTurn.LowerBound(1))
                     {
                         count++;
                         PendingActions.Dequeue()?.Invoke();
@@ -474,7 +474,7 @@ namespace Ship_Game.AI
                             }
                         }
                     }
-                    MaxProcessingPerTurn = (PendingActions.Count / 10);
+                    MaxProcessingPerTurn = (PendingActions.Count / 60);
                 });
         }
 
