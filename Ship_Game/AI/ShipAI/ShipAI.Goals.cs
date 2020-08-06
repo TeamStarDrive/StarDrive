@@ -216,31 +216,37 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
-            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, planet, AIState.Colonize);
+            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, AIState.Colonize);
             AddShipGoal(Plan.Colonize, planet.Center, Vectors.Up, planet, g, AIState.Colonize);
         }
 
         public void OrderMoveAndRebase(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, false, p, AIState.Rebase);
+            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, false, AIState.Rebase);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
         public void OrderMoveAndRefit(Planet planet, Goal g)
         {
-            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, planet, AIState.Refit);
+            if (!Owner.IsPlatformOrStation)
+            {
+                OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, AIState.Refit);
+                IgnoreCombat = true;
+                ResetPriorityOrder(clearOrders: false);
+            }
+
             AddShipGoal(Plan.Refit, planet, g, AIState.Refit);
         }
 
         public void OrderMoveAndScrap(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, p, AIState.Scrap);
+            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 
         public void OderMoveAndDefendSystem(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, null, AIState.SystemDefender);
+            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, AIState.SystemDefender);
             AddShipGoal(Plan.DefendSystem, AIState.SystemDefender);
         }
 

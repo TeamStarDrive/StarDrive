@@ -287,6 +287,23 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
+        public void Enqueue(Ship orbitalRefit, Ship constructor, float refitCost, Goal goal)
+        {
+            var qi = new QueueItem(P)
+            {
+                isShip        = true,
+                isOrbital     = true,
+                Goal          = goal,
+                NotifyOnEmpty = false,
+                DisplayName   = $"{constructor.Name} ({orbitalRefit.Name})",
+                QueueNumber   = ConstructionQueue.Count,
+                sData         = constructor.shipData,
+                Cost          = refitCost
+            };
+            
+            ConstructionQueue.Add(qi);
+        }
+
         public void Enqueue(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
         {
             var qi = new QueueItem(P)
