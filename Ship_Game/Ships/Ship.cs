@@ -1205,7 +1205,7 @@ namespace Ship_Game.Ships
         public void SetShipsVisible(float elapsedTime)
         {
             KnownByEmpires.Update(elapsedTime);
-            if (KnownByEmpires.KnownBy(loyalty)) return;
+            //if (KnownByEmpires.KnownBy(loyalty)) return;
             if (Empire.Universe.Debug)
             {
                 KnownByEmpires.SetSeenByPlayer();
@@ -1224,21 +1224,22 @@ namespace Ship_Game.Ships
         
         private void SetOtherShipsInSensorRange()
         {
-            var nearby = AI.PotentialTargets; 
+            var nearby =  AI.PotentialTargets; //UniverseScreen.SpaceManager.FindNearby(this, SensorRange, GameObjectType.Ship);
 
             for (int i = 0; i < nearby.Count; i++)
             {
                 var ship = nearby[i];
                 if (!ship.Active) continue;
 
-                if (ship.KnownByEmpires.KnownBy(loyalty)) continue;
+                //if (ship.KnownByEmpires.KnownBy(loyalty)) continue;
 
                 ship.KnownByEmpires.SetSeen(loyalty);
                 var allies = EmpireManager.GetAllies(loyalty);
                 
                 foreach(var ally in allies)
+                {
                     ship.KnownByEmpires.SetSeen(ally);
-                break;
+                }
             }
         }
 
