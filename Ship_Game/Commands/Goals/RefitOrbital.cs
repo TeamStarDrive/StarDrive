@@ -52,7 +52,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             }
 
             OldShip.ClearFleet();
-            //OldShip.AI.OrderRefitTo(PlanetBuildingAt, this);
             OldShip.AI.State = AIState.Refit;
             Planet targetPlanet = OldShip.GetTether();
             if (targetPlanet != null)
