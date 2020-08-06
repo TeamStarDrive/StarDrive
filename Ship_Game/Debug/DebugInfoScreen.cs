@@ -757,8 +757,6 @@ namespace Ship_Game.Debug
         {
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e.isPlayer || e.isFaction)
-                    continue;
                 var pins = e.GetEmpireAI().ThreatMatrix.GetPins();
                 foreach (ThreatMatrix.Pin pin in pins)
                 {

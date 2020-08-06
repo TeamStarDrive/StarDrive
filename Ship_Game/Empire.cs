@@ -1217,7 +1217,7 @@ namespace Ship_Game
                 var node = BorderNodes[i];
                 if (node.SourceObject is Ship projector)
                 {
-                    GameplayObject[] nearbyObjects = projector.AI.PotentialTargets.ToArray<GameplayObject>();     UniverseScreen.SpaceManager.FindNearby(projector,node.Radius, GameObjectType.Ship);
+                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(projector,node.Radius, GameObjectType.Ship);
                     UpdateShipInInfluence(nearbyObjects, false, node);
                 }
                 else
