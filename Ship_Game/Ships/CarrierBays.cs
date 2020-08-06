@@ -374,7 +374,7 @@ namespace Ship_Game.Ships
             float slowestFighterSpeed = Owner.SpeedLimit * 2;
 
             RecallingShipsBeforeWarp = true;
-            if (jumpDistance > 7500f)
+            if (jumpDistance > 25000f) // allows the carrier to jump small distances and then recall fighters
             {
                 recallFighters = true;
                 foreach (ShipModule hangar in AllActiveHangars)
@@ -392,7 +392,7 @@ namespace Ship_Game.Ships
                         || !hangarShip.hasCommand
                         || hangarShip.dying
                         || hangarShip.EnginesKnockedOut
-                        || rangeToCarrier > 25000f )
+                        || rangeToCarrier > Owner.SensorRange)
                     {
                         recallFighters = false;
                         if (hangarShip.ScuttleTimer <= 0f && hangarShip.WarpThrust < 1f)
@@ -606,7 +606,7 @@ namespace Ship_Game.Ships
                 if (IsPrimaryCarrierRole && Owner.AI.CombatState != CombatState.ShortRange)
                     range = Owner.SensorRange;
                 else
-                    range = Owner.DesiredCombatRange;
+                    range = Owner.WeaponsMaxRange;
 
                 if (!Owner.ManualHangarOverride && distanceToTarget < range)
                     return true;
