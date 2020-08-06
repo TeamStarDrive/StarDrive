@@ -122,7 +122,6 @@ namespace Ship_Game
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
         private int TurnCount = 1;
-        private Fleet DefensiveFleet = new Fleet();
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
@@ -2189,11 +2188,11 @@ namespace Ship_Game
                 InfluenceNode influenceNodeB = BorderNodes.RecycleObject() ?? new InfluenceNode();
 
                 influenceNodeS.Position     = ship.Center;
-                influenceNodeS.Radius       = GetProjectorRadius(); //projectors used as sensors again
+                influenceNodeS.Radius       = GetProjectorRadius(); 
                 influenceNodeS.SourceObject = ship;
 
                 influenceNodeB.Position     = ship.Center;
-                influenceNodeB.Radius       = GetProjectorRadius(); //projectors used as sensors again
+                influenceNodeB.Radius       = GetProjectorRadius();
                 influenceNodeB.SourceObject = ship;
                 bool seen                   = known || EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(ship.guid);
                 influenceNodeB.Known        = seen;
@@ -2208,12 +2207,12 @@ namespace Ship_Game
             using (BorderNodes.AcquireReadLock())
                 for (int i = 0; i < BorderNodes.Count; i++)
                 {
-                    InfluenceNode item5 = BorderNodes[i];
+                    InfluenceNode borderNode = BorderNodes[i];
                     for (int x = BorderNodes.Count - 1; x >= 0; x--)
                     {
-                        InfluenceNode item6 = BorderNodes[x];
-                    if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
-                        BorderNodes.RemoveAtSwapLast(x);
+                        InfluenceNode nodeToPurge = BorderNodes[x];
+                        if (nodeToPurge.SourceObject == borderNode.SourceObject && nodeToPurge.Radius < borderNode.Radius)
+                            BorderNodes.RemoveAtSwapLast(x);
                     }
                 }
 
@@ -2230,7 +2229,7 @@ namespace Ship_Game
                 Ship pirateBase             = bases[i];
                 InfluenceNode influenceNode = BorderNodes.RecycleObject() ?? new InfluenceNode();
                 influenceNode.Position      = pirateBase.Center;
-                influenceNode.Radius        = 60000;
+                influenceNode.Radius        = pirateBase.SensorRange;
                 influenceNode.SourceObject  = pirateBase;
                 influenceNode.Known         = EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(pirateBase.guid);
                 BorderNodes.Add(influenceNode);
@@ -2883,8 +2882,7 @@ namespace Ship_Game
 
         public Vector2 GetCenter()
         {
-            Vector2 center = Vector2.Zero;
-            float radius = 0;
+            Vector2 center;
             if (OwnedPlanets.Count > 0)
             {
                 int planets = 0;
@@ -3203,13 +3201,14 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                updateContactsTimer =  RandomMath.RandomBetween(0.5f, 1.5f); //elapsedTime * 2; // +
+                updateContactsTimer =  RandomMath.RandomBetween(0.5f, 1.5f); 
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
                 UpdateKnownShips();
                 EmpireAI.ThreatMatrix.UpdateAllPins(this);
             }
+            EmpireAI.ThreatMatrix.ProcessPendingActions();
             return bordersChanged;
         }
 
