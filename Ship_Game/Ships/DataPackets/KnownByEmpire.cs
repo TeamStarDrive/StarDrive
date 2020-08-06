@@ -25,7 +25,7 @@ namespace Ship_Game.Ships.DataPackets
         /// <summary>
         /// The known duration. how long the object will be known for. .5 = roughly half a second. 
         /// </summary>
-        public const float KnownDuration = 0.5f;
+        public const float KnownDuration = 1f;
 
         public KnownByEmpire()
         {

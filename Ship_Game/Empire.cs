@@ -1217,7 +1217,7 @@ namespace Ship_Game
                 var node = BorderNodes[i];
                 if (node.SourceObject is Ship projector)
                 {
-                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(projector,node.Radius, GameObjectType.Ship);
+                    GameplayObject[] nearbyObjects = projector.AI.PotentialTargets.ToArray<GameplayObject>();     UniverseScreen.SpaceManager.FindNearby(projector,node.Radius, GameObjectType.Ship);
                     UpdateShipInInfluence(nearbyObjects, false, node);
                 }
                 else
@@ -3180,13 +3180,13 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                updateContactsTimer =  RandomMath.RandomBetween(0.6f, 1f); 
+                updateContactsTimer =  RandomMath.RandomBetween(3f, 4f); 
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
                 UpdateKnownShips();
+                EmpireAI.ThreatMatrix.UpdateAllPins(this);
             }
-            EmpireAI.ThreatMatrix.UpdateAllPins(this);
             EmpireAI.ThreatMatrix.ProcessPendingActions();
             return bordersChanged;
         }
