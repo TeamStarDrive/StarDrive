@@ -1174,7 +1174,7 @@ namespace Ship_Game
                 {
                     // Move Offensively to planet
                     Vector2 finalDir = ship.Position.DirectionToTarget(Center);
-                    ship.AI.OrderMoveToNoStop(Center, finalDir, false, this, AI.AIState.MoveTo, null, true);
+                    ship.AI.OrderMoveToNoStop(Center, finalDir, false, AI.AIState.MoveTo, null, true);
                 }
             }
         }
