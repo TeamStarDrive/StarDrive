@@ -433,7 +433,13 @@ namespace Ship_Game.AI
                     // separate pins with ships unseen ships.
                     foreach (var kv in pins)
                     {
-                        if (kv.Value.Ship?.KnownByEmpires.KnownBy(owner) == true) continue;
+                        if (kv.Value.Ship?.KnownByEmpires.KnownBy(owner) == true)
+                        {
+                            var ship = kv.Value.Ship;
+                            if (ships.Contains(ship)) continue;
+                            PendingActions.Enqueue(() => AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true));
+                            continue;
+                        }
                         pinsWithNotSeenShips.Add(kv);
                     }
 
@@ -444,7 +450,8 @@ namespace Ship_Game.AI
                         {
                             if (ship == null)
                                 PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
-                            else if (!ship.Active) continue;
+                            else if (!ship.Active)
+                                PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
                             else if (pin.Value.Position.InRadius(ship.Position, ship.SensorRange))
                             {
                                 PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
