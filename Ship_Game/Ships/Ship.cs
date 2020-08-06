@@ -1205,7 +1205,7 @@ namespace Ship_Game.Ships
         public void SetShipsVisible(float elapsedTime)
         {
             KnownByEmpires.Update(elapsedTime);
-            //if (KnownByEmpires.KnownBy(loyalty)) return;
+            if (KnownByEmpires.KnownBy(loyalty)) return;
             if (Empire.Universe.Debug)
             {
                 KnownByEmpires.SetSeenByPlayer();
@@ -1231,13 +1231,12 @@ namespace Ship_Game.Ships
                 var ship = nearby[i];
                 if (!ship.Active) continue;
 
-                //if (ship.KnownByEmpires.KnownBy(loyalty)) continue;
-
                 ship.KnownByEmpires.SetSeen(loyalty);
                 var allies = EmpireManager.GetAllies(loyalty);
-                
-                foreach(var ally in allies)
+
+                for (int x = 0; x < allies.Count; x++)
                 {
+                    var ally = allies[x];
                     ship.KnownByEmpires.SetSeen(ally);
                 }
             }
