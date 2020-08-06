@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
 
@@ -42,6 +44,18 @@ namespace Ship_Game.AI
             }
 
             public Pin(){}
+
+            public void RestoreUnSerializedData(Guid shipGuid)
+            {
+                var ship = Empire.Universe.MasterShipList.Find(s=> s.guid == shipGuid);
+                if (ship == null) return;
+
+                PinGuid = shipGuid;
+                Ship    = ship;
+
+                if (SystemGuid != Guid.Empty)
+                    System = SolarSystem.GetSolarSystemFromGuid(SystemGuid);
+            }
 
             public Empire GetEmpire()
             {
@@ -83,10 +97,11 @@ namespace Ship_Game.AI
 
         //not sure we need this.
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
-        readonly Map<Guid, Pin> Pins = new Map<Guid, Pin>();
+        readonly Map<Guid, Pin> Pins            = new Map<Guid, Pin>();
+
         [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingActions = new SafeQueue<Action>();
         Task Updater;
-
+        [XmlIgnore][JsonIgnore] int MaxProcessingPerTurn;
         public Pin[] PinValues
         {
             get
@@ -394,7 +409,7 @@ namespace Ship_Game.AI
                 using (PinsMutex.AcquireWriteLock())
                 {
                     int count=0;
-                    while (PendingActions.NotEmpty && count < 3000)
+                    while (PendingActions.NotEmpty && count < MaxProcessingPerTurn.LowerBound(50))
                     {
                         count++;
                         PendingActions.Dequeue()?.Invoke();
@@ -425,7 +440,6 @@ namespace Ship_Game.AI
                     // add or update pins for ship targets
                     foreach (var ship in ships)
                     {
-                        if (ship?.Active != true) continue;
                         foreach (var target in ship.AI.PotentialTargets)
                             PendingActions.Enqueue(() => AddOrUpdatePin(target, target.IsInBordersOf(owner), true));
                     }
@@ -433,14 +447,14 @@ namespace Ship_Game.AI
                     // separate pins with ships unseen ships.
                     foreach (var kv in pins)
                     {
-                        if (kv.Value.Ship?.KnownByEmpires.KnownBy(owner) == true)
+                        var ship =kv.Value?.Ship;
+                        if (ship?.dying == false && ship.Active && ship.KnownByEmpires.KnownBy(owner))
                         {
-                            var ship = kv.Value.Ship;
-                            if (ships.Contains(ship)) continue;
-                            PendingActions.Enqueue(() => AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true));
-                            continue;
+                            if (owner.IsEmpireAttackable(ship.loyalty))
+                                PendingActions.Enqueue(() => AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true));
                         }
-                        pinsWithNotSeenShips.Add(kv);
+                        else
+                            pinsWithNotSeenShips.Add(kv);
                     }
 
                     // remove seen pins with not seen ships. 
@@ -448,9 +462,11 @@ namespace Ship_Game.AI
                     {
                         foreach (var pin in pinsWithNotSeenShips)
                         {
-                            if (ship == null)
+                            if (pin.Value.Ship?.Active != true)
+                            {
                                 PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
-                            else if (!ship.Active)
+                            }
+                            else if (!pin.Value.Ship.Active)
                                 PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
                             else if (pin.Value.Position.InRadius(ship.Position, ship.SensorRange))
                             {
@@ -458,6 +474,7 @@ namespace Ship_Game.AI
                             }
                         }
                     }
+                    MaxProcessingPerTurn = (PendingActions.Count / 10);
                 });
         }
 
@@ -473,8 +490,18 @@ namespace Ship_Game.AI
             {
                 for (int i = 0; i < aiSave.PinGuids.Count; i++)
                 {
-                    Pins.Add(aiSave.PinGuids[i], aiSave.PinList[i]);
+                    var key = aiSave.PinGuids[i];
+                    var value = aiSave.PinList[i];
+                    Pins.Add(key, value);
                 }
+            }
+        }
+
+        public void RestorePinGuidsFromSave()
+        {
+            foreach (var kv in Pins)
+            {
+                kv.Value.RestoreUnSerializedData(kv.Key);
             }
         }
 
