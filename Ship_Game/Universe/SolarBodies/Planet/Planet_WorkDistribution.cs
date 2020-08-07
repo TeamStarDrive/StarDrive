@@ -94,7 +94,7 @@ namespace Ship_Game
             if (NonCybernetic)
             {
                 if (ConstructionQueue.Count > 0)
-                    Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(Prod.Percent);
+                    Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
                 else
                     Prod.Percent = remainingWork - MinimumResearch(remainingWork);
             }
@@ -106,6 +106,9 @@ namespace Ship_Game
         {
             if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero() || IsCybernetic)
                 return 0; // No need to use researchers
+
+            if (Storage.ProdRatio.AlmostEqual(1) && ConstructionQueue.Count == 0)
+                return availableWork;
 
             float maximumCut; // Maximum cut the research can take from remaining work
             switch (colonyType)
@@ -194,9 +197,7 @@ namespace Ship_Game
                 return 1;
 
             var item = ConstructionQueue.FirstOrDefault();
-            if (item == null
-                || item.IsPlayerAdded
-                || Res.YieldPerColonist.AlmostZero())
+            if (item == null || Res.YieldPerColonist.AlmostZero())
             {
                 return 1;
             }

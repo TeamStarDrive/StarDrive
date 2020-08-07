@@ -39,7 +39,7 @@ namespace Ship_Game.Ships
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
             // Since we just created the object, it must be visible
-            UpdateVisibility(0f, forceVisible: true);
+            UpdateVisibilityToPlayer(0f, forceVisible: true);
 
             ScreenManager.Instance.AddObject(ShipSO);
         }
@@ -56,7 +56,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdateVisibility(float elapsedTime, bool forceVisible)
+        void UpdateVisibilityToPlayer(float elapsedTime, bool forceVisible)
         {
             bool inFrustum = forceVisible || inSensorRange && (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
@@ -94,10 +94,9 @@ namespace Ship_Game.Ships
                 }
                 Die(null, true);
             }
+            
+            UpdateVisibilityToPlayer(elapsedTime, forceVisible: false);
 
-            KnownByEmpires.Update(elapsedTime);
-            UpdateInfluence(elapsedTime);
-            SetShipsVisibleByPlayer();
             if (!Active)
                 return;
 
@@ -113,7 +112,6 @@ namespace Ship_Game.Ships
                 if (ScuttleTimer <= 0f) Die(null, true);
             }
 
-            UpdateVisibility(elapsedTime, forceVisible: false);
             ShieldRechargeTimer += elapsedTime;
 
             if (TetheredTo != null)
@@ -125,7 +123,9 @@ namespace Ship_Game.Ships
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
+            UpdateInfluence(elapsedTime);
             SetFleetCapableStatus();
+            SetShipsVisible(elapsedTime);
 
             if (!dying) UpdateAlive(elapsedTime);
             else        UpdateDying(elapsedTime);

@@ -1,10 +1,4 @@
-﻿using Ship_Game.Fleets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.Ships;
+﻿using System;
 using static Ship_Game.AI.ThreatMatrix;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
@@ -39,7 +33,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = 0; i < pins.Length; i++)
             {
                 var pin = pins[i];
-                if (!pin.InBorders || pin.Ship?.Active != true) continue;
+                if (pin.Ship?.Active != true || !pin.Ship.IsInBordersOf(Owner)) continue;
                 if (pin.System == null) continue;
 
                 systems.AddUnique(pin.System);
