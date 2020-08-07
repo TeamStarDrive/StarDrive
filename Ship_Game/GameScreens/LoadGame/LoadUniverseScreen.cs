@@ -208,6 +208,8 @@ namespace Ship_Game
 
             CreateAOs(data);
             FinalizeShips(us);
+            foreach(Empire empire in EmpireManager.Empires)
+                empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
 
             GameAudio.StopGenericMusic(immediate: false);
 

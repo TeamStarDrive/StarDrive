@@ -1,10 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Schema;
 using Ship_Game.Ships;
+using Ship_Game.Utils;
 
 namespace Ship_Game.AI
 {
@@ -15,13 +21,16 @@ namespace Ship_Game.AI
             [Serialize(0)] public Vector2 Position;
             [Serialize(1)] public float Strength;
             [Serialize(2)] public string EmpireName;
+
+            /// <summary>
+            /// This indicates that the PIN is in borders not the current ship status. 
+            /// </summary>
             [Serialize(3)] public bool InBorders;
             [Serialize(4)] public int EmpireId    = 0;
             [Serialize(5)] public Guid SystemGuid = Guid.Empty;
-            [Serialize(6)] public Guid PinGuid    = Guid.NewGuid();
+            [Serialize(6)] public Guid PinGuid;
             [XmlIgnore][JsonIgnore] public Ship Ship;
             [XmlIgnore][JsonIgnore] public SolarSystem System;
-
             public Pin(Ship ship, bool inBorders)
             {
                 Position   = ship.Center;
@@ -31,9 +40,22 @@ namespace Ship_Game.AI
                 Ship       = ship;
                 SystemGuid = ship.System?.guid ?? Guid.Empty;
                 System     = ship.System;
+                PinGuid    = ship.guid;
             }
 
             public Pin(){}
+
+            public void RestoreUnSerializedData(Guid shipGuid)
+            {
+                var ship = Empire.Universe.MasterShipList.Find(s=> s.guid == shipGuid);
+                if (ship == null) return;
+
+                PinGuid = shipGuid;
+                Ship    = ship;
+
+                if (SystemGuid != Guid.Empty)
+                    System = SolarSystem.GetSolarSystemFromGuid(SystemGuid);
+            }
 
             public Empire GetEmpire()
             {
@@ -57,19 +79,29 @@ namespace Ship_Game.AI
                 Ship = ship;
             }
 
+            public bool IsPinInRadius(Vector2 point, float radius)
+            {
+                if (Ship == null) return false;
+                return Position.InRadius(point, radius);
+            }
+
             public static Pin FindPinByGuid(Guid pinGuid, Empire empire)
             {
                 var pins = empire.GetEmpireAI().ThreatMatrix.GetPins();
                 var pin = pins.Find(p => p.PinGuid == pinGuid);
                 return pin;
-
             }
+
+            public Guid GetGuid() => Ship?.guid ?? PinGuid;
         }
 
         //not sure we need this.
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
-        readonly Map<Guid, Pin> Pins = new Map<Guid, Pin>();
+        readonly Map<Guid, Pin> Pins            = new Map<Guid, Pin>();
 
+        [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingActions = new SafeQueue<Action>();
+        Task Updater;
+        [XmlIgnore][JsonIgnore] int MaxProcessingPerTurn;
         public Pin[] PinValues
         {
             get
@@ -94,7 +126,7 @@ namespace Ship_Game.AI
                 foreach (Pin pin in Pins.Values)
                 {
                     Empire pinEmpire = pin.GetEmpire();
-                    if (pinEmpire == them && pin.InBorders)
+                    if (pinEmpire == them && pin.Ship?.IsInBordersOf(us) == true)
                     {
                         if (pin.Ship != null && (pin.Ship.System?.IsOnlyOwnedBy(us) ?? true))
                             str += pin.Strength;
@@ -193,6 +225,22 @@ namespace Ship_Game.AI
             return results;
         }
 
+        Array<Pin> PingRadarPins(Vector2 position, float radius, Empire empire)
+        {
+            var results = new Array<Pin>();
+            var pins = Pins.Values.ToArray();
+            for (int i = pins.Length - 1; i >= 0; i--)
+            {
+                Pin pin = pins[i];
+                if (position.InRadius(pin.Position, radius) && empire.IsEmpireHostile(pin.GetEmpire()))
+                {
+                    results.Add(pin);
+                }
+            }
+
+            return results;
+        }
+
         // Pings for enemy ships, chooses the closest enemy ship
         // and then pings around that ship to create a cluster of enemies
         public Array<Ship> PingRadarClosestEnemyCluster(Vector2 position, float radius, float granularity, Empire empire)
@@ -209,20 +257,19 @@ namespace Ship_Game.AI
         public Map<Vector2, float> PingRadarStrengthClusters(Vector2 position, float radius, float granularity, Empire empire)
         {
             var retList       = new Map<Vector2, float>();
-            Array<Pin> pings = GetEnemyPinsInRadius(position, radius, empire);
-            var filter        = new HashSet<Ship>();
+            Array<Pin> pings  = GetEnemyPinsInRadius(position, radius, empire);
+            var filter        = new HashSet<Pin>();
 
             for (int i = 0; i < pings.Count; i++)
             {
                 var ping = pings[i];
-                Ship ship = ping.Ship;
-                if (ship == null || filter.Contains(ship) || retList.ContainsKey(ship.Center))
+                if ((filter.Contains(ping) || retList.ContainsKey(ping.Position)))
                     continue;
 
-                Array<Ship> cluster = PingRadarShip(ping.Position, granularity, empire);
+                Array<Pin> cluster = PingRadarPins(ping.Position, granularity, empire);
                 if (cluster.NotEmpty)
                 {
-                    retList.Add(ship.Center, cluster.Sum(str => str.GetStrength()));
+                    retList.Add(ping.Position, cluster.Sum(str => str.Strength));
                     filter.UnionWith(cluster);
                 }
             }
@@ -283,24 +330,6 @@ namespace Ship_Game.AI
 
         }
 
-        public void ClearPinsInSensorRange(Vector2 position, float radius)
-        {
-            Pin[] pins = PinValues; // somewhat atomic copy, since we're about to modify Pins Map.
-            for (int i = 0; i < pins.Length; ++i)
-            {
-                Pin pin = pins[i];
-                Ship ship = pin.Ship;
-                if (pin.Position.InRadius(position, radius))
-                {
-                    if (ship != null)
-                    {
-                        bool inSensor = ship.Center.InRadius(position, radius);
-                        pin.Refresh(ship, pin.InBorders, inSensor);
-                    }
-                }
-            }
-        }
-
         public float PingNetRadarStr(Vector2 position, float radius, Empire us)
             => PingRadarStr(position, radius, us, netStrength:true);
 
@@ -348,7 +377,7 @@ namespace Ship_Game.AI
                 {
                     Pin pin = pins1[i];
                     if (!pin.Position.InRadius(position, radius)) continue;
-                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                    Empire pinEmpire = pin.Ship?.loyalty ?? pin.GetEmpire();
                     {
                         if (us.IsEmpireHostile(pinEmpire))
                             pins.Add(pin);
@@ -358,9 +387,9 @@ namespace Ship_Game.AI
             return pins;
         }
 
-        public void UpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
+        public void AddOrUpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
         {
-            if (!Pins.TryGetValue(ship.guid, out Pin pin))
+            if (!Pins.TryGetValue(ship?.guid ?? Guid.Empty, out Pin pin))
             {
                 if (!inSensorRadius)
                     return; // don't add new pin if not in sensor radius
@@ -368,8 +397,85 @@ namespace Ship_Game.AI
                 pin = new Pin(ship, shipInBorders);
                 Pins.Add(ship.guid, pin);
             }
-            else
+            else if (ship?.Active == true)
                 pin.Refresh(ship, inSensorRadius, shipInBorders);
+        }
+
+        public void ProcessPendingActions()
+        {
+            if (Updater?.IsCompleted == false) return;
+            try 
+            {
+                using (PinsMutex.AcquireWriteLock())
+                {
+                    int count=0;
+                    while (PendingActions.NotEmpty && count < MaxProcessingPerTurn.LowerBound(1))
+                    {
+                        count++;
+                        PendingActions.Dequeue()?.Invoke();
+                    }
+                }
+            }
+            catch
+            {
+                Log.Error($"ThreatMatrix Update Failed with {PendingActions.Count} in queue");
+            }
+        }
+
+        public void UpdateAllPins(Empire owner)
+        {
+            if (Updater?.IsCompleted == false || PendingActions.NotEmpty) return;
+            
+            var pins                 = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
+            var ships                = owner.GetShips().Clone();
+            var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
+
+            foreach (var empire in EmpireManager.GetAllies(owner))
+            {
+                ships.AddRange(empire.GetShips());
+            }
+
+            Updater = Task.Run(()=>
+                {
+                    // add or update pins for ship targets
+                    foreach (var ship in ships)
+                    {
+                        foreach (var target in ship.AI.PotentialTargets)
+                            PendingActions.Enqueue(() => AddOrUpdatePin(target, target.IsInBordersOf(owner), true));
+                    }
+
+                    // separate pins with ships unseen ships.
+                    foreach (var kv in pins)
+                    {
+                        var ship =kv.Value?.Ship;
+                        if (ship?.dying == false && ship.Active && ship.KnownByEmpires.KnownBy(owner))
+                        {
+                            if (owner.IsEmpireAttackable(ship.loyalty))
+                                PendingActions.Enqueue(() => AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true));
+                        }
+                        else
+                            pinsWithNotSeenShips.Add(kv);
+                    }
+
+                    // remove seen pins with not seen ships. 
+                    foreach (var ship in ships)
+                    {
+                        foreach (var pin in pinsWithNotSeenShips)
+                        {
+                            if (pin.Value.Ship?.Active != true)
+                            {
+                                PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
+                            }
+                            else if (!pin.Value.Ship.Active)
+                                PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
+                            else if (pin.Value.Position.InRadius(ship.Position, ship.SensorRange))
+                            {
+                                PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
+                            }
+                        }
+                    }
+                    MaxProcessingPerTurn = (PendingActions.Count / 30);
+                });
         }
 
         public Pin[] GetPins() => Pins.AtomicValuesArray();
@@ -384,8 +490,18 @@ namespace Ship_Game.AI
             {
                 for (int i = 0; i < aiSave.PinGuids.Count; i++)
                 {
-                    Pins.Add(aiSave.PinGuids[i], aiSave.PinList[i]);
+                    var key = aiSave.PinGuids[i];
+                    var value = aiSave.PinList[i];
+                    Pins.Add(key, value);
                 }
+            }
+        }
+
+        public void RestorePinGuidsFromSave()
+        {
+            foreach (var kv in Pins)
+            {
+                kv.Value.RestoreUnSerializedData(kv.Key);
             }
         }
 
@@ -402,28 +518,6 @@ namespace Ship_Game.AI
                     aiSave.PinList.Add(guid.Value);
                 }
             }
-        }
-
-        public void ClearBorders()
-        {
-            using (PinsMutex.AcquireWriteLock())
-            {
-                foreach (Pin pin in Pins.Values)
-                {
-                    if (pin.InBorders)
-                    {
-                        if (!pin.Ship.Active || pin.Ship?.IsSubspaceProjector != true)
-                            pin.InBorders = false;
-                    }
-                }
-            }
-        }
-
-        public bool ShipInOurBorders(Ship s)
-        {
-            // NOTE: We can't lock the mutex here, because of `Ship.IsAttackable`
-            //       causing recursive mutex
-            return Pins.TryGetValue(s.guid, out Pin pin) && pin.InBorders;
         }
 
         public void GetTechsFromPins(HashSet<string> techs, Empire empire)

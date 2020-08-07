@@ -7,15 +7,35 @@ namespace Ship_Game.Ships.DataPackets
     /// </summary>
     public class KnownByEmpire
     {
-        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] > 0;
+        /// <summary>
+        /// The draw time buffer. we aren't locked here so the draw might read while the value is being updated.
+        /// this gives a little buffer to help the draw routine deal with that. 
+        /// </summary>
+        const float DrawTimeBuffer = 0.2f;
+
+        /// <summary>
+        /// Gets a value indicating whether ship is [known by player]. Used for ui stuff.
+        /// use KnownBy(empire) for everything but UI
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [known by player]; otherwise, <c>false</c>.
+        /// </value>
+        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] > -DrawTimeBuffer;
         float[] SeenByID;
-        public const float KnownDuration = 0.5f;
+        /// <summary>
+        /// The known duration. how long the object will be known for. .5 = roughly half a second. 
+        /// </summary>
+        public const float KnownDuration = 1f;
 
         public KnownByEmpire()
         {
             SeenByID = new float[EmpireManager.NumEmpires];
         }
 
+        /// <summary>
+        /// Updates the specified elapsed time.
+        /// </summary>
+        /// <param name="elapsedTime">The elapsed time.</param>
         public void Update(float elapsedTime)
         {
             if (SeenByID.Length != EmpireManager.NumEmpires)
@@ -31,8 +51,17 @@ namespace Ship_Game.Ships.DataPackets
             }
         }
 
+        /// <summary>
+        /// Sets if the ship has been seen by an empire;
+        /// </summary>
+        /// <param name="empire">The empire.</param>
+        /// <param name="timer">The timer.</param>
         public void SetSeen(Empire empire, float timer = KnownDuration) => SeenByID[empire.Id-1] = timer;
         public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] > 0;
+
+        /// <summary>
+        /// Sets the ship as seen by player. Unlike "knownByPlayer" this can be used anywhere. 
+        /// </summary>
         public void SetSeenByPlayer()                  => SetSeen(EmpireManager.Player);
     }
 }
