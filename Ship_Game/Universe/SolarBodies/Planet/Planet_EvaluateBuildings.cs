@@ -283,6 +283,9 @@ namespace Ship_Game
 
         void ReplaceBuilding(float budget)
         {
+            if (BuildingsHereCanBeBuiltAnywhere)
+                return;
+
             // Replace works even if the governor is not scrapping buildings when there is no budget
             float worstBuildingScore = ChooseWorstBuilding(BuildingList, scrapZeroMaintenance: true, out Building worstBuilding);
             if (worstBuilding == null)
