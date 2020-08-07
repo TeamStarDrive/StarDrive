@@ -84,45 +84,14 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, TroopType, tCursor, Color.White);
                 pb.Draw(batch);
             }
-
-            //foreach (ScrollList.Entry entry in CQueue.VisibleExpandedEntries)
-            //{
-            //    entry.CheckHoverNoSound(Input.CursorPosition);
-
-            //    var qi = entry.Get<QueueItem>();
-            //    var position = new Vector2(entry.X + 40f, entry.Y);
-            //    DrawText(ref position, qi.DisplayText);
-            //    var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-            //    var progress = new ProgressBar(r, qi.Cost, qi.ProductionSpent);
-
-            //    if (qi.isBuilding)
-            //    {
-            //        SubTexture icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
-            //        batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-            //        progress.Draw(batch);
-            //    }
-            //    else if (qi.isShip)
-            //    {
-            //        batch.Draw(qi.sData.Icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-            //        progress.Draw(batch);
-            //    }
-            //    else if (qi.isTroop)
-            //    {
-            //        Troop template = ResourceManager.GetTroopTemplate(qi.TroopType);
-            //        template.Draw(batch, new Rectangle(entry.X, entry.Y, 29, 30));
-            //        progress.Draw(batch);
-            //    }
-            //}
         }
 
         public int TurnsUntilComplete
         {
             get
             {
-                float production = Planet.Prod.NetIncome;
-                if (production <= 0f)
-                    return 999;
-                float turns = ProductionNeeded / production;
+                float production = Planet.EstimatedAverageProduction + Planet.InfraStructure;
+                float turns      = ProductionNeeded / production;
                 return (int)Math.Ceiling(turns);
             }
         }

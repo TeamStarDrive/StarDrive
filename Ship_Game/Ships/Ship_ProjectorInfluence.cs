@@ -75,9 +75,9 @@ namespace Ship_Game.Ships
                     Array.Resize(ref Influences, Influences.Length*2);
 
                 ref ForeignInfluence dst = ref Influences[InfluenceCount++];
-                dst.Foreign = empire;
-                dst.Relationship = loyalty.GetRelations(empire);
-                dst.Timer = empire.updateContactsTimer + 0.02f;
+                dst.Foreign              = empire;
+                dst.Relationship         = loyalty.GetRelations(empire);
+                dst.Timer                = empire.updateContactsTimer + 0.02f;
             }
             else // unset
             {
@@ -93,6 +93,13 @@ namespace Ship_Game.Ships
                     }
                 }
             }
+        }
+
+        public bool IsInBordersOf(Empire empire)
+        {
+            if (empire == loyalty) return InOwnerInfluence;
+
+            return Influences?.Any(i=> i.Foreign == empire) ?? false;
         }
 
         public IEnumerable<Empire> GetProjectorInfluenceEmpires()

@@ -1066,7 +1066,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>264</Index>
-      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. Production output reduction for Cybernetics is 75% of the tax rate while their research suffer a penalty of 25%. Food is not Taxed.</Text>
+      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. Production output reduction for Cybernetics is 50% of the tax rate.</Text>
     </Token>
     <Token>
       <Index>265</Index>
@@ -4647,6 +4647,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1819</Index>
       <Text>Production Fees</Text>
     </Token>
+    <Token>
+      <Index>1820</Index>
+      <Text>Waiting for Refit Ship</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>
@@ -5043,11 +5047,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1960</Index>
-      <Text>Governor Manages Orbitals</Text>
+      <Text>Governor Manages Defense</Text>
     </Token>
     <Token>
       <Index>1961</Index>
-      <Text>The Governor will build Stations, Shipyards and Platforms based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire. You will see a list of each orbital type (if your empire can build that type) below the colony grid specifying how many orbitals the planet has vs. how many the Governor is planning to have, based on colony value.</Text>
+      <Text>The Governor will build Stations, Shipyards, Platforms and Military Buildings based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire. You will see a list of each orbital type (if your empire can build that type) below the colony grid specifying how many orbitals the planet has vs. how many the Governor is planning to have, based on colony value.</Text>
     </Token>
     <Token>
       <Index>1962</Index>

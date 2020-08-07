@@ -122,7 +122,6 @@ namespace Ship_Game
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
         private int TurnCount = 1;
-        private Fleet DefensiveFleet = new Fleet();
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
@@ -219,6 +218,11 @@ namespace Ship_Game
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
         public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
+        public bool IsExpansionists           => data.EconomicPersonality?.Name == "Expansionists";
+        public bool IsIndustrialists          => data.EconomicPersonality?.Name == "Industrialists";
+        public bool IsGeneralists             => data.EconomicPersonality?.Name == "Generalists";
+        public bool IsMilitarists             => data.EconomicPersonality?.Name == "Militarists";
+        public bool IsTechnologists           => data.EconomicPersonality?.Name == "Technologists";
 
         public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
@@ -340,24 +344,25 @@ namespace Ship_Game
             return false;
         }
 
-        public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Troop troop, out Planet chosen)
+        public bool FindPlanetToBuildTroopAt(IReadOnlyList<Planet> ports, Troop troop, out Planet chosen)
         {
             if (ports.Count != 0)
             {
                 float cost = troop.ActualCost;
-                chosen = FindPlanetToBuildAt(ports, cost);
+                chosen = FindPlanetToBuildAt(ports, cost, forTroop: true);
                 return true;
             }
+
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {troop} at! Candidates:{ports.Count}");
             chosen = null;
             return false;
         }
 
-        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost)
+        public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost, bool forTroop = false)
         {
             // focus on the best producing planets (number depends on the empire size)
             if (GetBestPorts(ports, out Planet[] bestPorts))
-                return bestPorts.Sorted(p => p.TurnsUntilQueueComplete(cost)).First();
+                return bestPorts.FindMin(p => p.TurnsUntilQueueComplete(cost, forTroop));
 
             return null;
         }
@@ -367,9 +372,11 @@ namespace Ship_Game
             bestPorts = null;
             if (ports.Count > 0)
             {
-                int numPlanetsToFocus = (OwnedPlanets.Count / 5).Clamped(1, ports.Count + 1);
-                bestPorts = ports.SortedDescending(p => p.Prod.NetMaxPotential);
-                bestPorts = bestPorts.Take(numPlanetsToFocus).ToArray();
+                // The divider will slowly increase, so a race with 20 planets will have the divider + 1 for better prod focus
+                float planetDivider   = IsIndustrialists ? 5f + OwnedPlanets.Count/20f : 4f + OwnedPlanets.Count/20f;
+                int numPlanetsToFocus = ((int)Math.Ceiling(OwnedPlanets.Count / planetDivider)).Clamped(1, ports.Count + 1);
+                bestPorts             = ports.SortedDescending(p => p.Prod.NetMaxPotential);
+                bestPorts             = bestPorts.Take(numPlanetsToFocus).ToArray();
             }
 
             return bestPorts != null;
@@ -853,6 +860,7 @@ namespace Ship_Game
         }
 
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
+        public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
         public Ship[] AllFleetReadyShips()
         {
@@ -976,7 +984,7 @@ namespace Ship_Game
             {
                 var tech = entry.Value.Tech;
                 bool modulesNotHulls = tech.ModulesUnlocked.Count > 0 && tech.HullsUnlocked.Count == 0;
-                if (modulesNotHulls && !WeCanUseThis(tech, ourShips))
+                if (modulesNotHulls && !WeCanUseThisInDesigns(entry.Value, ourShips))
                     entry.Value.shipDesignsCanuseThis = false;
             }
 
@@ -1220,22 +1228,22 @@ namespace Ship_Game
 
         void UpdateKnownShips()
         {
-            KnownShips.Clear();
-
-            foreach(var node in BorderNodes)
+            for (int i = 0; i < BorderNodes.Count; i++)
             {
+                var node = BorderNodes[i];
                 if (node.SourceObject is Ship projector)
                 {
-                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(projector, node.Radius, GameObjectType.Ship);
+                    GameplayObject[] nearbyObjects = projector.AI.PotentialTargets.ToArray<GameplayObject>();     UniverseScreen.SpaceManager.FindNearby(projector,node.Radius, GameObjectType.Ship);
                     UpdateShipInInfluence(nearbyObjects, false, node);
                 }
                 else
                 {
-                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
+                    GameplayObject[] nearbyObjects = UniverseScreen.SpaceManager.FindNearby(node.Position,node.Radius, GameObjectType.Ship);
                     UpdateShipInInfluence(nearbyObjects, true, node);
-
                 }
             }
+
+            Array<Ship> currentlyKnown = new Array<Ship>();
 
             for (int i = 0; i < Universe.MasterShipList.Count; i++)
             {
@@ -1244,20 +1252,23 @@ namespace Ship_Game
 
                 if (shipKnown || (isPlayer && Universe.Debug))
                 {
-                    KnownShips.AddUniqueRef(ship);
+                    currentlyKnown.AddUniqueRef(ship);
+
                     if (ship.loyalty != this)
                     {
-                        EmpireAI.ThreatMatrix.UpdatePin(ship, ship.IsInFriendlyProjectorRange, shipKnown);
-
                         if (GetRelations(ship.loyalty)?.Known == false)
                             DoFirstContact(ship.loyalty);
                     }
                 }
-                else if (ship.loyalty != this)
-                {
-                    EmpireAI.ThreatMatrix.UpdatePin(ship, ship.IsInFriendlyProjectorRange, false);
-                }
             }
+
+            if (isPlayer)
+            {
+                using (KnownShips.AcquireWriteLock())
+                    KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
+            }
+            else
+                KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
         }
 
         void UpdateShipInInfluence(GameplayObject[] nearbyObjects, bool setVisible, InfluenceNode node)
@@ -1270,7 +1281,7 @@ namespace Ship_Game
                 var obj   = nearbyObjects[i];
                 Ship ship = (Ship) obj;
                 if (setVisible && sensorRange > 0 && ship.InRadius(node.Position, sensorRange))
-                    ship.KnownByEmpires.SetSeen(this, updateContactsTimer + 0.02f);
+                    ship.KnownByEmpires.SetSeen(this,updateContactsTimer + 0.02f);
 
                 ship.SetProjectorInfluence(this, true);
             }
@@ -1887,8 +1898,20 @@ namespace Ship_Game
             return true;
         }
 
-        public bool WeCanUseThis(Technology tech, Array<Ship> ourFactionShips)
+        public bool WeCanUseThisTech(TechEntry checkedTech, Array<Ship> ourFactionShips)
         {
+            if (checkedTech.IsHidden(this))
+                return false;
+
+            if (!checkedTech.IsOnlyShipTech())
+                return true;
+
+            return WeCanUseThisInDesigns(checkedTech, ourFactionShips);
+        }
+
+        public bool WeCanUseThisInDesigns(TechEntry checkedTech, Array<Ship> ourFactionShips)
+        {
+            Technology tech = checkedTech.Tech;
             foreach (Ship ship in ourFactionShips)
             {
                 foreach (Technology.UnlockedMod entry in tech.ModulesUnlocked)
@@ -2174,11 +2197,11 @@ namespace Ship_Game
                 InfluenceNode influenceNodeB = BorderNodes.RecycleObject() ?? new InfluenceNode();
 
                 influenceNodeS.Position     = ship.Center;
-                influenceNodeS.Radius       = GetProjectorRadius(); //projectors used as sensors again
+                influenceNodeS.Radius       = GetProjectorRadius(); 
                 influenceNodeS.SourceObject = ship;
 
                 influenceNodeB.Position     = ship.Center;
-                influenceNodeB.Radius       = GetProjectorRadius(); //projectors used as sensors again
+                influenceNodeB.Radius       = GetProjectorRadius();
                 influenceNodeB.SourceObject = ship;
                 bool seen                   = known || EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(ship.guid);
                 influenceNodeB.Known        = seen;
@@ -2193,12 +2216,12 @@ namespace Ship_Game
             using (BorderNodes.AcquireReadLock())
                 for (int i = 0; i < BorderNodes.Count; i++)
                 {
-                    InfluenceNode item5 = BorderNodes[i];
+                    InfluenceNode borderNode = BorderNodes[i];
                     for (int x = BorderNodes.Count - 1; x >= 0; x--)
                     {
-                        InfluenceNode item6 = BorderNodes[x];
-                    if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
-                        BorderNodes.RemoveAtSwapLast(x);
+                        InfluenceNode nodeToPurge = BorderNodes[x];
+                        if (nodeToPurge.SourceObject == borderNode.SourceObject && nodeToPurge.Radius < borderNode.Radius)
+                            BorderNodes.RemoveAtSwapLast(x);
                     }
                 }
 
@@ -2215,7 +2238,7 @@ namespace Ship_Game
                 Ship pirateBase             = bases[i];
                 InfluenceNode influenceNode = BorderNodes.RecycleObject() ?? new InfluenceNode();
                 influenceNode.Position      = pirateBase.Center;
-                influenceNode.Radius        = 60000;
+                influenceNode.Radius        = pirateBase.SensorRange;
                 influenceNode.SourceObject  = pirateBase;
                 influenceNode.Known         = EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(pirateBase.guid);
                 BorderNodes.Add(influenceNode);
@@ -2868,8 +2891,7 @@ namespace Ship_Game
 
         public Vector2 GetCenter()
         {
-            Vector2 center = Vector2.Zero;
-            float radius = 0;
+            Vector2 center;
             if (OwnedPlanets.Count > 0)
             {
                 int planets = 0;
@@ -3191,12 +3213,14 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                updateContactsTimer = elapsedTime * 2; // + RandomMath.RandomBetween(0.5f, 0.75f);
+                updateContactsTimer =  RandomMath.RandomBetween(3f, 4f); 
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
                 UpdateKnownShips();
+                EmpireAI.ThreatMatrix.UpdateAllPins(this);
             }
+            EmpireAI.ThreatMatrix.ProcessPendingActions();
             return bordersChanged;
         }
 
@@ -3274,6 +3298,8 @@ namespace Ship_Game
                 var relationship = kv.Value;
                 relationship.RestoreWarsFromSave();
             }
+            
+            EmpireAI.EmpireDefense?.RestoreFromSave(true);
         }
 
         public void Dispose()

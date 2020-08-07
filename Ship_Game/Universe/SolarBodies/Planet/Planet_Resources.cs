@@ -174,7 +174,7 @@ namespace Ship_Game
 
         public float GetGoodAmount(string good) => Storage.GetGoodAmount(good);
         public void AddGood(string goodId, int amount) => Storage.AddCommodity(goodId, amount);
-        bool NeedToStoreFood => Food.Percent > 0.75f && Food.NetIncome < 0; // We are struggling to produce food
+        bool NeedToStoreFood => Food.NetMaxPotential < 0 || Food.Percent > 0.75f && Food.NetIncome < 0; // We are struggling to produce food
 
         void DetermineFoodState(float importThreshold, float exportThreshold)
         {
