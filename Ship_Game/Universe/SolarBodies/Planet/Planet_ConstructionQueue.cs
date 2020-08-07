@@ -62,7 +62,6 @@ namespace Ship_Game
 
         public bool MilitaryBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && b.IsMilitary);
         public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && !b.IsMilitary);
-        public bool BuildingInTheWorks         => ConstructionQueue.Any(b => b.isBuilding);
 
         public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);
         public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
@@ -76,6 +75,8 @@ namespace Ship_Game
         public bool BuildingBuilt(int bid)   => BuildingList.Any(existing => existing.BID == bid);
         public bool BuildingInQueue(int bid) => ConstructionQueue
                                                .Any(q => q.isBuilding && q.Building.BID == bid);
+
+        public bool BuildingsHereCanBeBuiltAnywhere => !BuildingList.Any(b => !b.CanBuildAnywhere);
 
         // exists on planet OR in queue
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
