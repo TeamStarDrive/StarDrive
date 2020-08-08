@@ -169,7 +169,7 @@ namespace Ship_Game
             };
 
             RandomEventManager.ActiveEvent = saveData.RandomEvent;
-            CurrentGame.StartNew(data, saveData.GamePacing);
+            CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier);
             
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
