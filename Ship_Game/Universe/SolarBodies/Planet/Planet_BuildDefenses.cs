@@ -346,6 +346,9 @@ namespace Ship_Game
 
         void BuildAndScrapMilitaryBuildings(float budget)
         {
+            if (Owner.isPlayer && !GovOrbitals)
+                return;
+
             if (MilitaryBuildingInTheWorks)
                 return;
 
