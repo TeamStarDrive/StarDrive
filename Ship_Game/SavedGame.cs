@@ -861,6 +861,7 @@ namespace Ship_Game
             [Serialize(33)] public bool EliminationMode;
             [Serialize(34)] public bool AutoPickBestFreighter;
             [Serialize(35)] public GalSize GalaxySize = GalSize.Medium;
+            [Serialize(36)] public float StarsModifier = 1;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Ship_Game
 
         /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
-        [XmlIgnore] public float ActualCost => Cost * CurrentGame.Pace;
+        [XmlIgnore] public float ActualCost => Cost * ResearchMultiplier() * CurrentGame.Pace;
 
         [XmlIgnore] public Technology[] Children;
         [XmlIgnore] public Technology[] Parents;
@@ -124,6 +124,24 @@ namespace Ship_Game
             public string Type;
         }
 
+        float ResearchMultiplier()
+        {
+            if (Parents.Length == 0 || EmpireManager.MajorEmpires.Length == 0)
+                return 1;
+
+            int idealNumPlayers     = (int)(CurrentGame.GalaxySize) + 3;
+            float galSizeModifier   = ((int)CurrentGame.GalaxySize / 2f).LowerBound(0.25f);
+            int techDepth           = Parents.Length.LowerBound(1);
+            float techDepthModifier = (techDepth * galSizeModifier) / techDepth;
+            float extraPlanetsMod   = 1 + GlobalStats.ExtraPlanets * 0.1f;
+            float playerRatio       = CurrentGame.GalaxySize != GalSize.Medium ? idealNumPlayers / (float)EmpireManager.MajorEmpires.Length
+                                                                               : 1; // Cheaper for more empires if bigger than medium
+
+            // use more modifiers for medium or larger maps
+            return CurrentGame.GalaxySize >= GalSize.Medium ? techDepthModifier * galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod * playerRatio
+                                                            : galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod;
+        }
+
         public Building[] GetBuildings()
         {
             var buildings = new HashSet<Building>();
@@ -145,18 +163,33 @@ namespace Ship_Game
             return value;
         }
 
-        Technology[] ResolveLeadsToTechs(string what, Array<LeadsToTech> leads)
+        Technology[] ResolveLeadsToTechs(Array<LeadsToTech> leads)
         {
             var resolved = new Array<Technology>();
             foreach (LeadsToTech leadsTo in leads)
             {
                 if (ResourceManager.TryGetTech(leadsTo.UID, out Technology child))
-                {
                     resolved.Add(child);
+                else
+                    Log.Warning(ConsoleColor.DarkRed, $"Tech '{UID}' LeadsTo '{leadsTo.UID}' does not exist!");
+            }
+
+            return resolved.ToArray();
+        }
+
+        Technology[] ResolveComeFromTechs(Array<LeadsToTech> parents)
+        {
+            var resolved = new Array<Technology>();
+            foreach (LeadsToTech comesFrom in parents)
+            {
+                if (ResourceManager.TryGetTech(comesFrom.UID, out Technology parent))
+                {
+                    resolved.Add(parent);
+                    resolved.AddRange(parent.ResolveComeFromTechs(parent.ComesFrom));
                 }
                 else
                 {
-                    Log.Warning(ConsoleColor.DarkRed, $"Tech '{UID}' {what} '{leadsTo.UID}' does not exist!");
+                    Log.Warning(ConsoleColor.DarkRed, $"Tech '{UID}' ComesFrom '{comesFrom.UID}' does not exist!");
                 }
             }
             return resolved.ToArray();
@@ -164,8 +197,9 @@ namespace Ship_Game
 
         public void ResolveLeadsToTechs()
         {
-            Children = ResolveLeadsToTechs("LeadsTo", LeadsTo);
-            Parents  = ResolveLeadsToTechs("ComesFrom", ComesFrom);
+            Children = ResolveLeadsToTechs(LeadsTo);
+            Parents  = ResolveComeFromTechs(ComesFrom);
+
         }
 
         public void UpdateTechnologyTypesFromUnlocks()
