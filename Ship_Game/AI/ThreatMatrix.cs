@@ -427,12 +427,14 @@ namespace Ship_Game.AI
             if (Updater?.IsCompleted == false || PendingActions.NotEmpty) return;
             
             var pins                 = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
-            var ships                = owner.GetShips().Clone();
+            var ships                = owner.GetShips();
             var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
+            ships.AddRange(owner.GetProjectors());
 
             foreach (var empire in EmpireManager.GetAllies(owner))
             {
                 ships.AddRange(empire.GetShips());
+                ships.AddRange(empire.GetProjectors());
             }
 
             Updater = Task.Run(()=>
@@ -450,7 +452,7 @@ namespace Ship_Game.AI
                         var ship =kv.Value?.Ship;
                         if (ship?.dying == false && ship.Active && ship.KnownByEmpires.KnownBy(owner))
                         {
-                            if (owner.IsEmpireAttackable(ship.loyalty))
+                            if (ship.loyalty != owner && owner.GetRelations(ship.loyalty).Treaty_Alliance != true)
                                 PendingActions.Enqueue(() => AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true));
                         }
                         else
