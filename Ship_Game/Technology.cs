@@ -134,8 +134,7 @@ namespace Ship_Game
             int techDepth           = Parents.Length.LowerBound(1);
             float techDepthModifier = (techDepth * galSizeModifier) / techDepth;
             float extraPlanetsMod   = 1 + GlobalStats.ExtraPlanets * 0.1f;
-            float playerRatio       = CurrentGame.GalaxySize != GalSize.Medium ? idealNumPlayers / (float)EmpireManager.MajorEmpires.Length
-                                                                               : 1; // Cheaper for more empires if bigger than medium
+            float playerRatio       = idealNumPlayers / (float)EmpireManager.MajorEmpires.Length; // Cheaper for more empires if bigger than medium
 
             // use more modifiers for medium or larger maps
             return CurrentGame.GalaxySize >= GalSize.Medium ? techDepthModifier * galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod * playerRatio
