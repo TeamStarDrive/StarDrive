@@ -50,7 +50,7 @@ namespace Ship_Game
 
                     Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
 
-                    EmpireManager.RestoreUnserializableDataFromSave();
+                    //EmpireManager.RestoreUnserializableDataFromSave();
                 }
                 catch (Exception e)
                 {
@@ -209,10 +209,10 @@ namespace Ship_Game
             
             StarDriveGame.Instance.ResetElapsedTime();
             us.LoadContent();
-            us.UpdateAllSystems(0.01f);
-
             CreateAOs(data);
+            us.WarmUpShipsForLoad();
             FinalizeShips(us);
+            EmpireManager.RestoreUnserializableDataFromSave();
             foreach(Empire empire in EmpireManager.Empires)
                 empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
 
