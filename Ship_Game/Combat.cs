@@ -85,11 +85,10 @@ namespace Ship_Game
 
             if (DefendingTroop != null)
             {
-                DefendingTroop.DamageTroop(damage);
-                if (DefendingTroop.Strength > 0) // Troops are still alive
+                DefendingTroop.DamageTroop(damage, Planet, DefenseTile, out bool dead);
+                if (!dead) // Troops are still alive
                     return;
 
-                DefenseTile.TroopsHere.Remove(DefendingTroop);
                 Planet.ActiveCombats.QueuePendingRemoval(this);
                 if (isViewing)
                 {
