@@ -139,7 +139,7 @@ namespace Ship_Game
             float playerRatio       = idealNumPlayers / (float)EmpireManager.MajorEmpires.Length; // Cheaper for more empires if bigger than medium
 
             // use more modifiers for medium or larger maps
-            return CurrentGame.GalaxySize >= GalSize.Medium ? techDepthModifier * galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod * playerRatio
+            return CurrentGame.GalaxySize > GalSize.Medium ? techDepthModifier * galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod * playerRatio
                                                             : galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod;
         }
 
