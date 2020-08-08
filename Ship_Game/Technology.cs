@@ -126,7 +126,7 @@ namespace Ship_Game
 
         float ResearchMultiplier()
         {
-            if (Parents.Length == 0 || EmpireManager.MajorEmpires.Length == 0)
+            if (!GlobalStats.ModChangeResearchCost || Parents.Length == 0 || EmpireManager.MajorEmpires.Length == 0)
                 return 1;
 
             int idealNumPlayers     = (int)(CurrentGame.GalaxySize) + 3;
@@ -138,9 +138,11 @@ namespace Ship_Game
             float extraPlanetsMod   = 1 + GlobalStats.ExtraPlanets * 0.1f;
             float playerRatio       = idealNumPlayers / (float)EmpireManager.MajorEmpires.Length; // Cheaper for more empires if bigger than medium
 
-            // use more modifiers for medium or larger maps
-            return CurrentGame.GalaxySize > GalSize.Medium ? techDepthModifier * galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod * playerRatio
-                                                            : galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod;
+            // Use more modifiers for medium or larger maps
+            float multiplierToUse = CurrentGame.GalaxySize > GalSize.Medium ? techDepthModifier * galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod * playerRatio
+                                                                            : galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod;
+
+            return multiplierToUse * GlobalStats.ActiveModInfo.CostBasedOnSizeRatio;
         }
 
         public Building[] GetBuildings()
