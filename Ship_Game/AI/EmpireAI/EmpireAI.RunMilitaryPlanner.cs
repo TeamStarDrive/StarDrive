@@ -41,18 +41,23 @@ namespace Ship_Game.AI
 
             TaskList.Sort(t =>
             {
-                int pri            = t.Priority * 1000;
-                pri               += (int)(t.TargetPlanet?.ColonyWarValueTo(OwnerEmpire) ?? t.TargetSystem?.WarValueTo(OwnerEmpire) ?? 0);
-                pri               += (t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "").Length;
+                string pri            = (t.Priority.LowerBound(0)).ToString();
+                string value          = (1000 - (int)(t.TargetPlanet?.ColonyWarValueTo(OwnerEmpire) 
+                                                      ?? t.TargetSystem?.WarValueTo(OwnerEmpire) ?? 0)).LowerBound(0).ToString();
+                //pri               += (t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "").Length;
+                string distanceMod    ="0";
 
-                if (t.OwnerCampaign != null)
-                {
-                    Vector2 rallyPoint = t.OwnerCampaign.RallyAO.Center;
-                    Vector2 point      = t.TargetPlanet?.Center ?? t.TargetSystem?.Position ?? rallyPoint;
-                    float distance     = point.SqDist(rallyPoint).LowerBound(1);
-                    pri               += (int)(Math.Round(distance / Empire.Universe.UniverseSize + 1, 1) * 10000);
-                }
-                return pri;
+                Vector2 rallyPoint = t.OwnerCampaign?.RallyAO?.Center ?? OwnerEmpire.GetWeightedCenter();
+
+                Vector2 point      = t.TargetPlanet?.Center ?? t.TargetSystem?.Position ?? rallyPoint;
+                float distance     = point.Distance(rallyPoint).LowerBound(1);
+                distanceMod        = ((int)(Math.Round(distance / (Empire.Universe.UniverseSize * 2)+ 1, 1))).UpperBound(99).ToString();
+            
+                pri         = pri.PadLeft(3,'0');
+                distanceMod = distanceMod.PadLeft(2,'0');
+                value       = value.PadLeft(5,'0');
+
+                return int.Parse(pri + distanceMod + value);
             });
 
             foreach (MilitaryTask task in TaskList)
