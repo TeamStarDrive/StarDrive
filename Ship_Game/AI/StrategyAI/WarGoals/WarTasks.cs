@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 
@@ -86,12 +87,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
+        public bool IsAlreadyAssaultingSystem(SolarSystem system)
+        {
+            bool assaults = NewTasks.Any(t => t.TargetPlanet.ParentSystem == system && t.type == MilitaryTask.TaskType.AssaultPlanet);
+            return Owner.GetEmpireAI().AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, system);
+        }
+
         bool IsAlreadyAssaultingPlanet(Planet planetToAssault, int numberOfFleets = 1)
         {
-            int assaults    = NewTasks.Count(t => t.TargetPlanet == planetToAssault);
+            int assaults = NewTasks.Count(t => t.TargetPlanet == planetToAssault);
             if (numberOfFleets <= assaults) return true;
 
-            assaults += Owner.GetEmpireAI().CountAssaultsOnPlanet(planetToAssault);
+            assaults = Owner.GetEmpireAI().CountAssaultsOnPlanet(planetToAssault);
             return numberOfFleets <= assaults ;
         }
 
