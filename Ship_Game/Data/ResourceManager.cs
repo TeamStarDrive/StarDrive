@@ -1377,6 +1377,7 @@ namespace Ship_Game
         {
             LoadBasicContentForTesting();
             LoadTechTree();
+            TechValidator();
             //SunType.LoadAll(); currently wont load from test.
         }
 
