@@ -182,15 +182,18 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
-        public bool IsClearTaskTargetingAO(SolarSystem system)
+        public bool IsClearTaskTargetingAO(SolarSystem system, Campaign campaign = null)
         {
             return TaskList.Any(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies
-                                        && task.TargetSystem == system || task.AO.InRadius(system.Position, task.AORadius));
+                                        && (task.TargetSystem == system || task.AO.InRadius(system.Position, task.AORadius))
+                                        && (campaign == null || campaign == task.OwnerCampaign));
         }
 
-        public bool IsClearTaskTargetingAO(Vector2 center, float radius)
+        public bool IsClearTaskTargetingAO(Vector2 center, float radius, Campaign campaign = null)
         {
-            return TaskList.Any(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies && task.AO.InRadius(center, radius));
+            return TaskList.Any(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies 
+                                        && task.AO.InRadius(center, radius)
+                                        && (campaign == null || campaign == task.OwnerCampaign));
         }
 
         public MilitaryTask[] GetExpansionTasks()
@@ -257,14 +260,17 @@ namespace Ship_Game.AI
 
         public int CountTaskTargeting(MilitaryTask.TaskType taskType, Planet planet)
             => TaskList.Count(t => t.type == taskType && t.TargetPlanet == planet);
+        
+        public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem, Campaign campaign = null)
+                    => TaskList.Any(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem 
+                        && (campaign == null || t.OwnerCampaign == campaign));
 
-        public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem)
-                    => TaskList.Any(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem);
         public int CountTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem)
                     => TaskList.Count(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem);
 
-        public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, Planet planet)
-                    => TaskList.Any(t => t.type == taskType && t.TargetPlanet == planet);
+        public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, Planet planet, Campaign campaign = null) 
+                    => TaskList.Any(t => (t.type == taskType && t.TargetPlanet == planet) 
+                                 && (campaign == null || t.OwnerCampaign == campaign));
 
         public MilitaryTask GetTaskByGuid(Guid guid) => TaskList.Find(t => t.TaskGuid == guid);
 

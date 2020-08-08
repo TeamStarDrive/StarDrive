@@ -142,9 +142,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public void SetTheaterPriority(float baseDistance, Vector2 position)
         {
             // empire defense
-            if (Us==Them)
+            if (OwnerWar.WarType == WarType.EmpireDefense)
             {
-                Priority = 2;
+                Priority = 0;
                 return;
             }
             // trying to figure out how to incorporate planet value but all it does is attack homeworlds right now. 
