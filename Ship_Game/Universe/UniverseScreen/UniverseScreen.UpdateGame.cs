@@ -159,6 +159,16 @@ namespace Ship_Game
             perfavg5.Stop();
         }
 
+        /// <summary>
+        /// Used to make ships alive at game load
+        /// </summary>
+        public void WarmUpShipsForLoad()
+        {
+            UpdateShipsAndFleets(0.1f);
+            UpdateAllSystems(0.01f);
+            DeepSpaceThread(0.01f);
+        }
+
         void RemoveDeadProjectiles()
         {
             for (int i = 0; i < DeepSpaceShips.Count; i++)
@@ -263,7 +273,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdateShipsAndFleets(float elapsedTime)
+        public void UpdateShipsAndFleets(float elapsedTime)
         {
             perfavg4.Start();
 
@@ -422,7 +432,7 @@ namespace Ship_Game
             return new Point(x, y);
         }
 
-        void DeepSpaceThread(float elapsedTime)
+        public void DeepSpaceThread(float elapsedTime)
         {
             SpaceManager.GetDeepSpaceShips(DeepSpaceShips);
 
