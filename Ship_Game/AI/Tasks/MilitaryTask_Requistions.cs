@@ -131,7 +131,10 @@ namespace Ship_Game.AI.Tasks
 
         AO FindClosestAO(float strWanted = 100)
         {
-            var aos = Owner.GetEmpireAI().AreasOfOperations;
+            if (OwnerCampaign?.RallyAO != null) 
+                return OwnerCampaign.RallyAO;
+
+            var aos =  Owner.GetEmpireAI().AreasOfOperations;
             if (aos.Count == 0)
             {
                 Log.Info($"{Owner.Name} has no areas of operation");
