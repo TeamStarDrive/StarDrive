@@ -485,7 +485,7 @@ namespace Ship_Game.Fleets
 
         void DoPostInvasionDefense(MilitaryTask task)
         {
-            if (EndInvalidTask(--DefenseTurns <= 0 || !Owner.IsEmpireHostile(task.TargetPlanet.Owner)))
+            if (EndInvalidTask(--DefenseTurns <= 0))
                 return;
 
             switch (TaskStep)
@@ -508,32 +508,53 @@ namespace Ship_Game.Fleets
 
         public static void CreatePostInvasionFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner)
         {
-            fleet.TaskStep = 0;
+            fleet.TaskStep   = 0;
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
             owner.GetEmpireAI().QueueForRemoval(task);
-            fleet.FleetTask = postInvasion;
+            fleet.FleetTask  = postInvasion;
             owner.GetEmpireAI().AddPendingTask(postInvasion);
         }
+
+        bool TryOrderPostAssaultFleet(MilitaryTask task, int minimumTaskStep)
+        {
+            if (TaskStep <= minimumTaskStep ||
+                (task.TargetPlanet.Owner != Owner &&
+                 !task.TargetPlanet.AnyOfOurTroops(Owner))) return false;
+            CreatePostInvasionFromCurrentTask(this, task, Owner);
+
+           for (int x = 0; x < Ships.Count; ++x)
+           {
+               var ship = Ships[x];
+               if (ship.Carrier.AnyAssaultOpsAvailable)
+                   RemoveShip(ship);
+           }
+           return true;
+        }
+
+        bool TryOrderPostBombFleet(MilitaryTask task, int minimumTaskStep)
+        {
+            if (TaskStep <= minimumTaskStep || task.TargetPlanet.Owner != null ) return false;
+            CreatePostInvasionFromCurrentTask(this, task, Owner);
+
+           for (int x = 0; x < Ships.Count; ++x)
+           {
+               var ship = Ships[x];
+               if (ship.Carrier.AnyAssaultOpsAvailable)
+                   RemoveShip(ship);
+           }
+           return true;
+        }
+
 
         void DoAssaultPlanet(MilitaryTask task)
         {
             if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
             {
-                if (TaskStep > 2 && (task.TargetPlanet.Owner == Owner || task.TargetPlanet.AnyOfOurTroops(Owner)))
-                {
-                    CreatePostInvasionFromCurrentTask(this, task, Owner);
-
-                    for (int x = 0; x < Ships.Count; ++x)
-                    {
-                        var ship = Ships[x];
-                        if (ship.Carrier.AnyAssaultOpsAvailable)
-                            RemoveShip(ship);
-                    }
-                }
-                else
+                if (!TryOrderPostAssaultFleet(task, 2))
                 {
                     Log.Info($"Invasion ({Owner.Name}) planet ({task.TargetPlanet}) Not attackable");
                     task.EndTask();
+                    
                 }
                 return;
             }
@@ -765,11 +786,14 @@ namespace Ship_Game.Fleets
 
         void DoGlassPlanet(MilitaryTask task)
         {
-            if (EndInvalidTask(task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.GetRelations(Owner).AtWar == false)) return;
-            if (EndInvalidTask(task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1))          return;
-            var noBombs = !Ships.Select(s => s.Bomb60SecStatus()).Any(bt=> bt != Status.NotApplicable && bt != Status.Critical);
-            if (EndInvalidTask(noBombs)) 
+            bool endTask  = task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.GetRelations(Owner).AtWar == false;
+            endTask      |= task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1;
+            endTask      |= !Ships.Select(s => s.Bomb60SecStatus()).Any(bt=> bt != Status.NotApplicable && bt != Status.Critical);
+            if (endTask)
+            {
+                EndInvalidTask(!TryOrderPostBombFleet(task, 3));
                 return;
+            }
             
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
@@ -809,7 +833,7 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    CombatMoveToAO(task, distanceFromAO: 300000f);
+                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius());
                     TaskStep++;
                     break;
                 case 1:

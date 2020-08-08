@@ -228,7 +228,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // attempt to sort targets by systems in AO that are nearest to rally AO.
             // the create a winnable targets list evaluating each system 
 
-            var winnableTarget       = new Array<SolarSystem>();
+            var winnableTarget = new Array<SolarSystem>();
             
             float strength = Owner.Pool.EmpireReadyFleets.AccumulatedStrength;
 
@@ -245,8 +245,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 }
             }
 
-            if (winnableTarget.NotEmpty) 
+            var currentTarget = targets.Find(s=>Tasks.IsAlreadyAssaultingSystem(s));
+
+            if (winnableTarget.NotEmpty && currentTarget == null)
                 AddTargetSystem(winnableTarget.First);
+            else if (currentTarget != null)
+                AddTargetSystem(currentTarget);
 
             return GoalStep.GoToNextStep;
         }
@@ -259,26 +263,36 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             foreach (var system in currentTargets)
             {
+                int contestedSystemMod = system.OwnerList.Contains(Them) ? 2 : 0;
+
                 if (priority > 10) break;
-                Tasks.StandardAssault(system, priority++,  fleetsPerTarget);
+                Tasks.StandardAssault(system, priority - contestedSystemMod,  fleetsPerTarget);
+                priority++;
             }
         }
 
         protected virtual GoalStep AttackSystems()
         {
-            if (Owner.GetOwnedSystems().Count == 0)                   return GoalStep.GoalFailed;
+            if (Owner.GetOwnedSystems().Count == 0)                   return GoalStep.RestartGoal;
             AttackSystemsInList();
             return GoalStep.GoToNextStep;
         }
 
         protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
         {
-            int priority = OwnerTheater.Priority + 2;
+            int priority = OwnerTheater.Priority;
+
+            Array<int> sentToTask = new Array<int>();
+
             for (int i = 0; i < currentTargets.Count; i++)
             {
-                var system = currentTargets[i];
+                if (sentToTask.Contains(i)) continue;
+                var closestSystem = currentTargets.FindClosestTo(RallyAO.Center);
+                int closestIndex  = currentTargets.IndexOf(closestSystem);
+                sentToTask.Add(closestIndex);
                 if (priority > 10) break;
-                Tasks.StandardSystemDefense(system, priority++, strengths[i]);
+                Tasks.StandardSystemDefense(closestSystem, priority, strengths[closestIndex]);
+                priority += 2;
             }
         }
 
