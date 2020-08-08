@@ -416,6 +416,9 @@ namespace Ship_Game
             float enemyTroopStrength = TroopList.Where(t => 
                 t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.ActualStrengthMax);
 
+            if (Owner == allButThisEmpire)
+                return enemyTroopStrength; // The planet is ours, so no need to check from buildings
+
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b;
