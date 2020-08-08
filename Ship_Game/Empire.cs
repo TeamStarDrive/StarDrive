@@ -2238,7 +2238,7 @@ namespace Ship_Game
 
         bool IsSensorNodeVisible(bool known, Ship ship)
         {
-            return known || ship.KnownByEmpires.KnownBy(this) ||  EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(ship.guid);
+            return known || ship.KnownByEmpires.KnownByPlayer ||  EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(ship.guid);
         }
 
         private void SetBordersByPlanet(bool empireKnown)

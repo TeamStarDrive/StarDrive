@@ -427,7 +427,7 @@ namespace Ship_Game.AI
             if (Updater?.IsCompleted == false || PendingActions.NotEmpty) return;
             
             var pins                 = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
-            var ships                = owner.GetShips();
+            var ships                = owner.GetShips().Clone();
             var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
             ships.AddRange(owner.GetProjectors());
 
