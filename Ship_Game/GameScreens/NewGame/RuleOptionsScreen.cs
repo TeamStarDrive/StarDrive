@@ -102,7 +102,8 @@ namespace Ship_Game
             FTLPenaltySlider.Tip = 2286;
             EnemyFTLPenaltySlider.Tip = 7041;
             GravityWellSize.Tip = 6003;
-            extraPlanets.Tip = "Add extra planets to each system, avoiding lone stars as well";
+            extraPlanets.Tip = "Add extra planets to each system, avoiding lone stars as well. " +
+                               "This will slightly increase research cost per technology.";
             MinimumWarpRange.Tip = "Minimum warp range a ship must have before it needs to recharge for the AI to build it";
 
             IncreaseMaintenance.Tip = "Multiply Global Maintenance Cost By  SSP's Are Not Affected";

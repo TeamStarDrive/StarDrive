@@ -176,11 +176,11 @@ namespace Ship_Game
             }
 
             AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(),
-                tip:"Sets the scale of the generated galaxy");
+                tip:"Sets the scale of the generated galaxy. Scale other than Medium will increase/decrease research cost of technologies");
             AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(),
-                tip:"Number of Solar Systems packed into the Universe");
+                tip:"Number of Solar Systems packed into the Universe. Technology research costs will scale up or down as well");
             AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => NumOpponents.ToString(),
-                tip:"Sets the number of AI opponents you must face");
+                tip:"Sets the number of AI opponents you must face. On a large scale galaxy, this might also affect research cost of technologies.");
             ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
             AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameTips.Pacing);
             AddOption("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
