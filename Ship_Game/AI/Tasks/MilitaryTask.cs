@@ -44,6 +44,7 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
+        [XmlIgnore] [JsonIgnore] public Planet RallyPlanet => OwnerCampaign?.RallyAO?.CoreWorld ?? Owner.FindNearestRallyPoint(AO);
 
         public bool IsTaskAOInSystem(SolarSystem system)
         {
