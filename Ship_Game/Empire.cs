@@ -1380,6 +1380,7 @@ namespace Ship_Game
             #endif
 
             UpdateTimer -= elapsedTime;
+            if (IsEmpireDead()) return;
             UpdateMilitaryStrengths();
 
             if (UpdateTimer <= 0f && !data.Defeated)

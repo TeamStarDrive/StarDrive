@@ -45,7 +45,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public WarTasks Tasks;
         public Guid CampaignGuid = Guid.NewGuid();
         public Campaign() { }
-
+        public int GetPriority()      => OwnerTheater.Priority;
+        public WarType GetWarType()   => OwnerWar.WarType;
+        public WarState GetWarState() => OwnerWar.GetWarScoreState();
         /// <summary>
         /// this is a restore from save constructor. 
         /// the expanded class is saved as a campaign. So when restored  from save the expanded class must be recreated.  
@@ -267,7 +269,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
                 if (priority > 10) break;
                 Tasks.StandardAssault(system, priority - contestedSystemMod,  fleetsPerTarget);
-                priority++;
+                if (OwnerWar.WarType != WarType.EmpireDefense)
+                    priority++;
             }
         }
 
