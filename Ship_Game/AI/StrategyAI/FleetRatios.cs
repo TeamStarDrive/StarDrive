@@ -107,6 +107,16 @@ namespace Ship_Game.AI
             return CountIndexed[index];
         }
 
+        public int MaxCombatRoleIndex()
+        {
+            int max =0;
+            for (int x =0; x < 5; x++)
+            {
+                max = CountIndexed[x] > 0 ? x : max;
+            }
+            return max + 1;
+        }
+
         public static int CombatRoleToRatio(ShipData.RoleName role)
         {
             return CombatRoleToRatio(EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(role));

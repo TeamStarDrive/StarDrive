@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Remoting;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
@@ -68,50 +69,62 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             foreach (var planet in system.PlanetList.SortedDescending(p => p.ColonyBaseValue(Owner)))
             {
                 if (planet.Owner != Target || planet.Owner == Owner) continue;
-
-                while (!IsAlreadyAssaultingPlanet(planet))
+                if (IsAlreadyAssaultingPlanet(planet))               continue;
+                
+                CreateTask(new MilitaryTask(planet, Owner)
                 {
-                    CreateTask(new MilitaryTask(planet, Owner)
-                    {
-                        Priority = priority,
-                        OwnerCampaign = this.OwnerCampaign
-                    });
+                    Priority = priority,
+                    OwnerCampaign = this.OwnerCampaign
+                });
 
-                    if (Owner.canBuildBombers && !IsAlreadyGlassingPlanet(planet))
+                if (Owner.canBuildBombers && !IsAlreadyGlassingPlanet(planet))
+                {
+                    var task = new MilitaryTask(planet, Owner)
                     {
-                        var task = new MilitaryTask(planet, Owner)
-                        {
-                            Priority = priority + 1,
-                            type = MilitaryTask.TaskType.GlassPlanet,
-                            OwnerCampaign = this.OwnerCampaign
-                        };
-                        CreateTask(task);
-                    }
+                        Priority = priority + 1,
+                        type = MilitaryTask.TaskType.GlassPlanet,
+                        OwnerCampaign = this.OwnerCampaign
+                    };
+                    CreateTask(task);
                 }
             }
         }
 
         public bool IsAlreadyAssaultingSystem(SolarSystem system)
         {
-            bool assaults = NewTasks.Any(t => t.TargetPlanet.ParentSystem == system && t.type == MilitaryTask.TaskType.AssaultPlanet);
-            return  assaults || Owner.GetEmpireAI().AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, system, OwnerCampaign);
+            bool assaults     = NewTasks.Any(t => t.TargetPlanet.ParentSystem == system && t.type == MilitaryTask.TaskType.AssaultPlanet);
+            return  assaults || Owner.GetEmpireAI().IsAssaultingSystem(system, OwnerCampaign);
         }
 
         bool IsAlreadyAssaultingPlanet(Planet planetToAssault)
         {
-            bool assaults = NewTasks.Any(t => t.TargetPlanet == planetToAssault && t.type == MilitaryTask.TaskType.AssaultPlanet);
-            return assaults || Owner.GetEmpireAI().AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet,planetToAssault, OwnerCampaign);
+            bool assaults    = NewTasks.Any(t => t.TargetPlanet == planetToAssault && t.type == MilitaryTask.TaskType.AssaultPlanet);
+            return assaults || Owner.GetEmpireAI().IsAssaultingPlanet(planetToAssault, OwnerCampaign);
         }
 
         bool IsAlreadyGlassingPlanet(Planet planetToAssault)
         {
-            bool assaults = NewTasks.Any(t => t.TargetPlanet == planetToAssault && t.type == MilitaryTask.TaskType.GlassPlanet);
-            return assaults || Owner.GetEmpireAI().AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet,planetToAssault, OwnerCampaign);
+            bool assaults    = NewTasks.Any(t => t.TargetPlanet == planetToAssault && t.type == MilitaryTask.TaskType.GlassPlanet);
+            return assaults || Owner.GetEmpireAI().IsGlassingPlanet(planetToAssault, OwnerCampaign);
+        }
+
+        bool IsAlreadyDefendingSystem(SolarSystem system)
+        {
+            bool defending    = NewTasks.Any(t => t.IsDefendingSystem(system));
+            return defending || Owner.GetEmpireAI().IsClearingArea(system.Position, system.Radius, OwnerCampaign);
+                                        
+        }
+
+        bool IsAlreadyClearingArea(Vector2 center, float radius)
+        {
+            bool clearing    = NewTasks.Any(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies && t.AO.InRadius(center, radius));
+            return clearing || Owner.GetEmpireAI().IsClearingArea(center, radius, OwnerCampaign);
         }
 
         public void StandardSystemDefense(SolarSystem system, int priority, float strengthWanted)
         {
             if (IsAlreadyDefendingSystem(system)) return;
+            
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;
             CreateTask(new MilitaryTask(center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
@@ -129,18 +142,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 OwnerCampaign = this.OwnerCampaign,
                 Priority      = priority
             });
-        }
-
-        bool IsAlreadyDefendingSystem(SolarSystem system)
-        {
-            if (NewTasks.Any(t => t.IsDefendingSystem(system))) return true;
-            return Owner.GetEmpireAI().IsClearTaskTargetingAO(system, OwnerCampaign);
-        }
-
-        bool IsAlreadyClearingArea(Vector2 center, float radius)
-        {
-            if (NewTasks.Any(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies && t.AO.InRadius(center, radius))) return true;
-            return Owner.GetEmpireAI().IsClearTaskTargetingAO(center, radius, OwnerCampaign);
         }
 
         void CreateTask(MilitaryTask task)
