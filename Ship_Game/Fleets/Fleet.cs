@@ -491,8 +491,6 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 0:
-                    if (EndInvalidTask(FleetTask.TargetPlanet?.Owner != Owner))
-                        break;
                     SetPostInvasionFleetCombat();
                     DefenseTurns = 50;
                     TaskStep = 1;

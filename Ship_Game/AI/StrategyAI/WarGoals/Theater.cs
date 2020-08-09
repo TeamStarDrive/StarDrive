@@ -144,7 +144,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // empire defense
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
-                Priority = 0;
+                Priority = 2;
                 return;
             }
             // trying to figure out how to incorporate planet value but all it does is attack homeworlds right now. 
@@ -205,7 +205,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var aoManager = Us.GetEmpireAI().OffensiveForcePoolManager;
 
             rallyPlanet = Us.FindNearestRallyPoint(TheaterAO.Center) ?? Us.Capital;
-
+            
 
             // createEmpire AO
             if (rallyPlanet.Owner == Us)
