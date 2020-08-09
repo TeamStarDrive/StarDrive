@@ -71,7 +71,7 @@ namespace Ship_Game.Ships
         Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
-        public float EMPDamage;
+        public float EMPDamage { get; private set; }
         public Fleet fleet;
         public float yRotation;
         public float MechanicalBoardingDefense;
@@ -238,8 +238,8 @@ namespace Ship_Game.Ships
             HomePlanet = planet;
         }
 
-        public float EmpTolerance => SurfaceArea + BonusEMP_Protection;
-        public float EmpRecovery => 1 + BonusEMP_Protection / 1000;
+        public float EmpTolerance  => SurfaceArea + BonusEMP_Protection;
+        public float EmpRecovery   => InCombat ? 1 + BonusEMP_Protection / 1000 : 20 + BonusEMP_Protection / 50;
         public float HealthPercent => Health / HealthMax;
 
         public void DebugDamage(float percent)
@@ -282,7 +282,12 @@ namespace Ship_Game.Ships
 
         public bool IsPlatformOrStation => shipData.Role == ShipData.RoleName.platform || shipData.Role == ShipData.RoleName.station;
 
-        public void CauseEmpDamage(float empDamage)     => EMPDamage += empDamage;
+        public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
+        {
+            EMPDamage   = (EMPDamage + empDamage).Clamped(0, 10000f.LowerBound(EmpTolerance*10));
+            EMPdisabled = EMPDamage > EmpTolerance;
+        }
+
         public void CausePowerDamage(float powerDamage) => PowerCurrent = (PowerCurrent - powerDamage).Clamped(0, PowerStoreMax);
         public void AddPower(float powerAcquired)       => PowerCurrent = (PowerCurrent + powerAcquired).Clamped(0, PowerStoreMax);
 
@@ -1005,11 +1010,7 @@ namespace Ship_Game.Ships
             ShipEngines.Update();
 
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
-            {
-                EMPDamage -= EmpRecovery;
-                EMPDamage = Math.Max(0, EMPDamage);
-                EMPdisabled = EMPDamage > EmpTolerance;
-            }
+                CauseEmpDamage(-EmpRecovery);
 
             Rotation = Rotation.AsNormalizedRadians();
 
