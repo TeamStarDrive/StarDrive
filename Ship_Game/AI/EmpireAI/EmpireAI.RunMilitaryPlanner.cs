@@ -36,31 +36,11 @@ namespace Ship_Game.AI
 
             // this where the global AI attack stuff happens.
             Toughnuts = 0;
-            float maxStr = TaskList.Sum(t => t.MinimumTaskForceStrength);
-            var olderWar = OwnerEmpire.GetOldestWar();
 
-            TaskList.Sort(t =>
-            {
-                string pri            = (t.Priority.LowerBound(0)).ToString();
-                string value          = (1000 - (int)(t.TargetPlanet?.ColonyWarValueTo(OwnerEmpire) 
-                                                      ?? t.TargetSystem?.WarValueTo(OwnerEmpire) ?? 0)).LowerBound(0).ToString();
-                //pri               += (t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "").Length;
-                string distanceMod    ="0";
+            var tasks = FilterMilitaryTasks();
+            SortMilitaryTasks(tasks);
 
-                Vector2 rallyPoint = t.OwnerCampaign?.RallyAO?.Center ?? OwnerEmpire.GetWeightedCenter();
-
-                Vector2 point      = t.TargetPlanet?.Center ?? t.TargetSystem?.Position ?? rallyPoint;
-                float distance     = point.Distance(rallyPoint).LowerBound(1);
-                distanceMod        = ((int)(Math.Round(distance / (Empire.Universe.UniverseSize * 2)+ 1, 1))).UpperBound(99).ToString();
-            
-                pri         = pri.PadLeft(3,'0');
-                distanceMod = distanceMod.PadLeft(2,'0');
-                value       = value.PadLeft(5,'0');
-
-                return int.Parse(pri + distanceMod + value);
-            });
-
-            foreach (MilitaryTask task in TaskList)
+            foreach (MilitaryTask task in tasks)
             {
                 if (!task.QueuedForRemoval)
                 {
@@ -70,6 +50,54 @@ namespace Ship_Game.AI
                 }
             }
             ApplyPendingChanges();
+        }
+
+        public MilitaryTask[] MilitaryTasksToEvaluate()
+        {
+            var tasks = FilterMilitaryTasks();
+            SortMilitaryTasks(tasks);
+            return tasks;
+        }
+
+        public MilitaryTask[] FilterMilitaryTasks()
+        {
+            float maxStr = TaskList.Sum(t => t.MinimumTaskForceStrength);
+            var olderWar = OwnerEmpire.GetOldestWar();
+            int minPriority = TaskList.FindMinFiltered(t=> t.OwnerCampaign != null && t.WhichFleet < 1 &&
+                                                                            t.type != MilitaryTask.TaskType.ClearAreaOfEnemies &&
+                                                                            t.OwnerCampaign.GetWarType() != WarType.EmpireDefense
+                                                    , t=> t.GetAdjustedPriority())?.Priority ?? 100;
+
+            var tasks = TaskList.Filter(t=> t.OwnerCampaign == null || 
+                                            t.OwnerCampaign.GetWarType() == WarType.EmpireDefense || 
+                                            t.WhichFleet > 0 ||
+                                            (t.Priority <= minPriority));
+            return tasks;
+        }
+
+        public void SortMilitaryTasks(MilitaryTask[] tasks)
+        {
+            tasks.Sort(t =>
+            {
+                if (t.WhichFleet > 0) return int.MaxValue;
+                string pri = (t.Priority.LowerBound(0)).ToString();
+                string value = (1000 - (int)(t.TargetPlanet?.ColonyWarValueTo(OwnerEmpire)
+                                                      ?? t.TargetSystem?.WarValueTo(OwnerEmpire) ?? 0)).LowerBound(0).ToString();
+                            //pri               += (t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "").Length;
+                            string distanceMod = "0";
+
+                Vector2 rallyPoint = t.OwnerCampaign?.RallyAO?.Center ?? OwnerEmpire.GetWeightedCenter();
+
+                Vector2 point = t.TargetPlanet?.Center ?? t.TargetSystem?.Position ?? rallyPoint;
+                float distance = point.Distance(rallyPoint).LowerBound(1);
+                distanceMod = ((int)(Math.Round(distance / (Empire.Universe.UniverseSize * 2) + 1, 1))).UpperBound(99).ToString();
+
+                pri = pri.PadLeft(3, '0');
+                distanceMod = distanceMod.PadLeft(2, '0');
+                value = value.PadLeft(5, '0');
+
+                return int.Parse(pri + distanceMod + value);
+            });
         }
 
         public void RestoreTaskCampaigns(War war)
@@ -182,20 +210,6 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
-        public bool IsClearTaskTargetingAO(SolarSystem system, Campaign campaign = null)
-        {
-            return TaskList.Any(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies
-                                        && (task.TargetSystem == system || task.AO.InRadius(system.Position, task.AORadius))
-                                        && (campaign == null || campaign == task.OwnerCampaign));
-        }
-
-        public bool IsClearTaskTargetingAO(Vector2 center, float radius, Campaign campaign = null)
-        {
-            return TaskList.Any(task => task.type == MilitaryTask.TaskType.ClearAreaOfEnemies 
-                                        && task.AO.InRadius(center, radius)
-                                        && (campaign == null || campaign == task.OwnerCampaign));
-        }
-
         public MilitaryTask[] GetExpansionTasks()
         {
             return TaskList.Filter(task => task.TargetPlanet != null &&
@@ -244,33 +258,33 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public bool IsAssaultingSystem(SolarSystem system)
-                    => AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, system);
+        public bool IsAssaultingSystem(SolarSystem system, Campaign campaign = null)
+                    => FindTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, system, campaign) != null; 
+        public bool IsAssaultingPlanet(Planet planet, Campaign campaign = null)
+                    => FindTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, planet, campaign) != null;
+        public bool IsClaimingSystem(SolarSystem system, Campaign campaign = null)
+                    => FindTaskTargeting(MilitaryTask.TaskType.DefendClaim, system, campaign) != null;
+        public bool IsGlassingSystem(SolarSystem system, Campaign campaign = null)
+                    => FindTaskTargeting(MilitaryTask.TaskType.GlassPlanet, system, campaign) != null;
+        public bool IsGlassingPlanet(Planet planet, Campaign campaign = null)
+                    => FindTaskTargeting(MilitaryTask.TaskType.GlassPlanet, planet, campaign) != null;
+        public bool IsClearingArea(SolarSystem system, Campaign campaign = null)
+                    => FindTaskTargeting(MilitaryTask.TaskType.ClearAreaOfEnemies, system, campaign) != null;
 
-        public bool IsClaimingSystem(SolarSystem system)
-                    => AnyTaskTargeting(MilitaryTask.TaskType.DefendClaim, system);
+        public bool IsClearingArea(Vector2 center, float radius, Campaign campaign = null) 
+                    => FindTaskTargeting(MilitaryTask.TaskType.ClearAreaOfEnemies, center, radius, campaign) != null;
 
-        public bool IsGlassingSystem(SolarSystem system)
-                    => AnyTaskTargeting(MilitaryTask.TaskType.GlassPlanet, system);
-
-        public bool IsAssaultingPlanet(Planet planet)
-                    => AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, planet);
-        public int CountAssaultsOnPlanet(Planet planet)
-            => CountTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, planet);
-
-        public int CountTaskTargeting(MilitaryTask.TaskType taskType, Planet planet)
-            => TaskList.Count(t => t.type == taskType && t.TargetPlanet == planet);
-        
-        public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem, Campaign campaign = null)
-                    => TaskList.Any(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem 
+        public MilitaryTask FindTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem, Campaign campaign = null)
+                    => TaskList.Find(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem 
                         && (campaign == null || t.OwnerCampaign == campaign));
 
-        public int CountTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem)
-                    => TaskList.Count(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem);
-
-        public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, Planet planet, Campaign campaign = null) 
-                    => TaskList.Any(t => (t.type == taskType && t.TargetPlanet == planet) 
+        public MilitaryTask FindTaskTargeting(MilitaryTask.TaskType taskType, Planet planet, Campaign campaign = null) 
+                    => TaskList.Find(t => (t.type == taskType && t.TargetPlanet == planet) 
                                  && (campaign == null || t.OwnerCampaign == campaign));
+
+        public MilitaryTask FindTaskTargeting(MilitaryTask.TaskType taskType, Vector2 position, float radius, Campaign campaign = null) 
+                    => TaskList.Find(task => task.type == taskType && task.AO.InRadius(position, radius)
+                                && (campaign == null || campaign == task.OwnerCampaign));
 
         public MilitaryTask GetTaskByGuid(Guid guid) => TaskList.Find(t => t.TaskGuid == guid);
 

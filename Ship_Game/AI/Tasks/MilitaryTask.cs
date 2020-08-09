@@ -43,8 +43,14 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] public Ship TargetShip { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
-        [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
+        [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner?.GetFleetOrNull(WhichFleet);
         [XmlIgnore] [JsonIgnore] public Planet RallyPlanet => OwnerCampaign?.RallyAO?.CoreWorld ?? Owner.FindNearestRallyPoint(AO);
+
+        public int GetAdjustedPriority()
+        {
+            int warPriority = (int)(OwnerCampaign?.GetWarState() ?? 0);
+            return Priority - warPriority;
+        }
 
         public bool IsTaskAOInSystem(SolarSystem system)
         {
@@ -348,6 +354,7 @@ namespace Ship_Game.AI.Tasks
 
         public void Evaluate(Empire e)
         {
+            Priority = OwnerCampaign?.GetPriority() ?? Priority;
             Owner = e;
             if (WhichFleet >-1)
             {
