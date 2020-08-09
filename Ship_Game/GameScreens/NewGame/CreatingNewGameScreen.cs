@@ -58,11 +58,11 @@ namespace Ship_Game
                 GalaxySize            = universeSize
             };
 
-            CurrentGame.StartNew(Data, pace, starNumModifier);
+            CurrentGame.StartNew(Data, pace, starNumModifier, GlobalStats.ExtraPlanets);
             Player = player;
             player.isPlayer = true;
 
-            CurrentGame.StartNew(Data, pace, starNumModifier);
+            CurrentGame.StartNew(Data, pace, starNumModifier, GlobalStats.ExtraPlanets);
             player.Initialize();
             player.data.CurrentAutoScout     = player.data.ScoutShip;
             player.data.CurrentAutoColony    = player.data.ColonyShip;
