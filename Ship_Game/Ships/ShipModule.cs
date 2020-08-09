@@ -718,12 +718,12 @@ namespace Ship_Game.Ships
 
         void CreateHitDebris(Projectile proj)
         {
-            if (proj == null)
+            if (proj == null || !RandomMath.RollDice(50 + Area))
                 return;
 
             if (proj.Weapon.Tag_Kinetic || proj.Weapon.Tag_Explosive)
             {
-                Vector2 velocity = Parent.Velocity * (1 + RandomMath.RollDie(200)/100);
+                Vector2 velocity = Parent.Velocity + RandomMath.Vector2D(Parent.Velocity.Length()) * (1 + RandomMath.RollDie(200)/100);
                 SpawnDebris(1, velocity, 1);
             }
         }
