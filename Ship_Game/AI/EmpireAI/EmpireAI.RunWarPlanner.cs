@@ -284,10 +284,13 @@ namespace Ship_Game.AI
 
         private void RunWarPlanner()
         {
+            if (OwnerEmpire.data.Defeated) return;
+            if (OwnerEmpire.GetPlanets().Count == 0)
+                return;
             SetTotalWarValue();
             UpdateEmpireDefense();
 
-            if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
+            if (OwnerEmpire.isPlayer)
                 return;
             WarState worstWar = WarState.NotApplicable;
             bool preparingForWar = false;
