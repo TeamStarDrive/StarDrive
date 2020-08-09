@@ -293,8 +293,8 @@ namespace Ship_Game
 
         public Planet FindNearestSafeRallyPoint(Vector2 location)
         {
-            return RallyPoints.FindMinFiltered(p => !IsEmpireAttackable(p.Owner), p => p.Center.SqDist(location))
-                ?? OwnedPlanets.FindMinFiltered(p=> !IsEmpireAttackable(p.Owner), p => p.Center.SqDist(location));
+            return SafeSpacePorts.FindMin(p => p.Center.SqDist(location))
+                ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
         }
 
         public Planet RallyShipYardNearestTo(Vector2 position)
