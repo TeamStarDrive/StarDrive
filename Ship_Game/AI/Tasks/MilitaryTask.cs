@@ -797,7 +797,6 @@ namespace Ship_Game.AI.Tasks
             if (OwnerCampaign != null)
             {
                 Guid guid = OwnerCampaign?.CampaignGuid ?? Guid.Empty;
-                OwnerCampaign = null;
 
                 foreach (var theater in war.WarTheaters.Theaters)
                 {
@@ -812,6 +811,8 @@ namespace Ship_Game.AI.Tasks
                     if (OwnerCampaign != null) break;
                 }
             }
+            else if (type == TaskType.AssaultPlanet || type == TaskType.ClearAreaOfEnemies)
+                Log.Warning("task campaign was null");
         }
     }
 }

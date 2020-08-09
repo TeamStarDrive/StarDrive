@@ -63,17 +63,25 @@ namespace Ship_Game.AI
         {
             float maxStr = TaskList.Sum(t => t.MinimumTaskForceStrength);
             var olderWar = OwnerEmpire.GetOldestWar();
-            int minPriority = TaskList.FindMinFiltered(t=> t.OwnerCampaign != null && t.WhichFleet < 1 &&
-                                                                            t.type != MilitaryTask.TaskType.ClearAreaOfEnemies &&
-                                                                            t.OwnerCampaign.GetWarType() != WarType.EmpireDefense
-                                                    , t=> t.GetAdjustedPriority())?.Priority ?? 100;
 
+            var warTasks = new Array<MilitaryTask>();
+            foreach (var war in OwnerEmpire.AllActiveWars())
+            {
+                // filter war tasks by greatest priority per war.
+                var priorityTasks = TaskList.Filter(t=> t.OwnerCampaign != null && t.WhichFleet < 1 &&
+                                                                        t.type != MilitaryTask.TaskType.ClearAreaOfEnemies &&
+                                                                        t.OwnerCampaign.GetWarType() != WarType.EmpireDefense &&
+                                                                        t.OwnerCampaign.WarMatch(war) && 
+                                                                        t.GetAdjustedPriority() <= war.GetMinPriority());
+                warTasks.AddRange(priorityTasks);
+            }
+
+            // all tasks not associated with war.
             var tasks = TaskList.Filter(t=> t.OwnerCampaign == null || 
                                             t.OwnerCampaign.GetWarType() == WarType.EmpireDefense || 
-                                            t.WhichFleet > 0 ||
-                                            (t.Priority <= minPriority));
-            return tasks;
-        }
+                                            t.WhichFleet > 0);
+            warTasks.AddRange(tasks);
+            return warTasks.ToArray();        }
 
         public void SortMilitaryTasks(MilitaryTask[] tasks)
         {
@@ -90,7 +98,7 @@ namespace Ship_Game.AI
 
                 Vector2 point = t.TargetPlanet?.Center ?? t.TargetSystem?.Position ?? rallyPoint;
                 float distance = point.Distance(rallyPoint).LowerBound(1);
-                distanceMod = ((int)(Math.Round(distance / (Empire.Universe.UniverseSize * 2) + 1, 1))).UpperBound(99).ToString();
+                distanceMod = ((int)(Math.Round(distance / (Empire.Universe.UniverseSize * 2) * 100, 1))).UpperBound(99).ToString();
 
                 pri = pri.PadLeft(3, '0');
                 distanceMod = distanceMod.PadLeft(2, '0');
