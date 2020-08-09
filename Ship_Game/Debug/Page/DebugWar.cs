@@ -48,7 +48,7 @@ namespace Ship_Game.Debug.Page
         {
             var text = new Array<DebugTextBlock>();
             if (EmpireAtWar.data.Defeated) return;
-            foreach (var kv in EmpireAtWar.AllRelations)
+            foreach (var kv in EmpireAtWar.AllRelations.Sorted(r=> r.Value.AtWar))
             {
                 var relation = kv.Value;
                 if (relation.Known && !kv.Key.isFaction && kv.Key != EmpireAtWar && !kv.Key.data.Defeated)

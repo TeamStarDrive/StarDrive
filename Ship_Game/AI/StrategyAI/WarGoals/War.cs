@@ -62,7 +62,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public IReadOnlyList<SolarSystem> GetHistoricLostSystems() => HistoricLostSystems;
         Relationship OurRelationToThem;
 
-        WarTasks Tasks;
+        public int GetMinPriority() => WarTheaters.MinPriority() - (int)GetWarScoreState();
 
         public int Priority()
         {
@@ -208,17 +208,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             string pad = "     ";
             string pad2 = pad + "  *";
-            debug.AddLine($"{pad}WarType:{WarType}");
-            debug.AddLine($"{pad}WarState:{Score.GetWarScoreState()}");
-            debug.AddLine($"{pad}With: {ThemName}");
-            debug.AddLine($"{pad}ThreatRatio = % {(int)(TotalThreatAgainst * 100)}");
-            debug.AddLine($"{pad}StartDate {StartDate}");
-            debug.AddLine($"{pad}Their Strength killed:{StrengthKilled}");
-            debug.AddLine($"{pad}Our Strength killed:{StrengthLost}");
-            debug.AddLine($"{pad}KillDeath: {(int)StrengthKilled} / {(int)StrengthLost} = % {(int)(SpaceWarKd * 100)}");
-            debug.AddLine($"{pad}Colonies Lost : {ColoniesLost}");
-            debug.AddLine($"{pad}Colonies Won : {ColoniesWon}");
-            debug.AddLine($"{pad}Colonies Lost Percentage :% {(int)(LostColonyPercent * 100)}.00");
+            debug.AddLine($"WarType:{WarType}");
+            debug.AddLine($"WarState:{Score.GetWarScoreState()}");
+            debug.AddLine($"ThreatRatio = % {(int)(TotalThreatAgainst * 100)}");
+            debug.AddLine($"StartDate {StartDate}");
+            debug.AddLine($"killed: {StrengthKilled} Lost: {StrengthLost} Ratio: % {(int)(SpaceWarKd * 100)}");
+            debug.AddLine($"Colonies Won : {ColoniesWon} Lost : {ColoniesLost} Ratio: % {(int)(LostColonyPercent * 100)}.00");
 
             debug = WarTheaters.DebugText(debug, pad, pad2);
 

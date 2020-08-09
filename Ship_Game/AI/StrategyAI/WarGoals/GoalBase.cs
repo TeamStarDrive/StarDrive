@@ -21,7 +21,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected GoalBase() { }
 
-        protected GoalBase(GoalBase source)
+        protected GoalBase(GoalBase source, string goalName)
         {
             ID                = source.ID;
             OwnerName         = source.OwnerName;
@@ -31,7 +31,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             MainGoalCompleted = source.MainGoalCompleted;
             Steps             = source.Steps;
             Holding           = source.Holding;
-            GoalName          = source.GoalName;
+            GoalName          = goalName;
         }
 
         protected GoalBase(string goalName)

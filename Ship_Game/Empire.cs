@@ -1279,7 +1279,7 @@ namespace Ship_Game
         }
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
-
+        public War[] AllActiveWars() => Relationships.FilterValues(r=> r.AtWar).Select(r=> r.ActiveWar);
         public Relationship GetRelations(Empire withEmpire)
         {
             Relationships.TryGetValue(withEmpire, out Relationship rel);
@@ -3294,6 +3294,15 @@ namespace Ship_Game
             }
             
             EmpireAI.EmpireDefense?.RestoreFromSave(true);
+            foreach (var task in GetEmpireAI().GetTasks())
+            {
+                if (!task.OwnerCampaign?.IsRecoveredCorrectlyFromSave() == true)
+                {
+                    task.OwnerCampaign = null;
+                    Log.Warning("Compatibility: resetting invalid task.");
+                }
+
+            }
         }
 
         public void Dispose()
