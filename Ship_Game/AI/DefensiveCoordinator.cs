@@ -131,6 +131,8 @@ namespace Ship_Game.AI
         {
             foreach (Planet p in Empire.Universe.PlanetsDict.Values)
                 //@TODO move this to planet.
+                // FB - This code is crappy. And it launches troops into space combat zones as well
+                // and it doesnt only clear empty planets but also added the planet to defense dict. very misleading
             {
                 if (Us != EmpireManager.Player && p.Owner != Us && !p.EventsOnBuildings() && !p.TroopsHereAreEnemies(Us))
                 {
