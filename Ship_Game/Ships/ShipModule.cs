@@ -704,15 +704,29 @@ namespace Ship_Game.Ships
 
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
+
             if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
-                if (beam != null) beam.CreateHitParticles(Center3D.Z);
+                if      (beam != null)            beam.CreateHitParticles(Center3D.Z);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
+
+                CreateHitDebris(proj);
             }
 
             return true;
         }
 
+        void CreateHitDebris(Projectile proj)
+        {
+            if (proj == null)
+                return;
+
+            if (proj.Weapon.Tag_Kinetic || proj.Weapon.Tag_Explosive)
+            {
+                Vector2 velocity = Parent.Velocity * (1 + RandomMath.RollDie(200)/100);
+                SpawnDebris(1, velocity, 1);
+            }
+        }
         float GetGlobalArmourBonus()
         {
             if (GlobalStats.ActiveModInfo?.useHullBonuses == true &&
@@ -794,7 +808,6 @@ namespace Ship_Game.Ships
             ++DebugInfoScreen.ModulesDied;
             ShieldPower = 0f;
 
-            SolarSystem inSystem = Parent.System;
             if (Active && Parent.InFrustum)
             {
                 var center = new Vector3(Center.X, Center.Y, -100f);
@@ -804,6 +817,8 @@ namespace Ship_Game.Ships
                     Vector3 pos = parentAlive ? center : new Vector3(Parent.Center, UniverseRandom.RandomBetween(-25f, 25f));
                     Empire.Universe.explosionParticles.AddParticleThreadA(pos, Vector3.Zero);
                 }
+
+                SpawnDebris(Area, Parent.Velocity);
             }
 
             Active = false;
@@ -827,13 +842,17 @@ namespace Ship_Game.Ships
                             ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }
             }
-            
-            int size = Area;
-            int debrisCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
-            if (debrisCount != 0)
+        }
+
+        void SpawnDebris(int size, Vector2 velocity, int count = 0)
+        {
+            if (count == 0) 
+                count = (int)RandomMath.RandomBetween(0, size / 2 + 1);
+
+            if (count != 0)
             {
-                float debrisScale = size * 0.033f;
-                SpaceJunk.SpawnJunk(debrisCount, Center, Parent.Velocity, this, 1.0f, debrisScale);
+                float debrisScale = size * 0.05f;
+                SpaceJunk.SpawnJunk(count, Center, velocity, this, 1.0f, debrisScale, ignite: false);
             }
         }
 
