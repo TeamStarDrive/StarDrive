@@ -459,14 +459,16 @@ namespace Ship_Game
         /// </summary>
         internal void DoOrbitAreaRestricted(Planet planet, Vector2 position, float radius, bool excludeInvade = false)
         {
-            foreach (Ship ship in Ships)
+            for (int i = 0; i < Ships.Count; i++)
             {
-                if (ship.AI.State != AIState.Orbit
-                    && (!excludeInvade || ship.AI.State == AIState.AssaultPlanet)
-                    && ship.Center.InRadius(ship.Center, radius))
-                {
-                    ship.OrderToOrbit(planet);
-                }
+                Ship ship = Ships[i];
+                if (excludeInvade && (ship.DesignRole == ShipData.RoleName.troopShip || ship.shipData.Role == ShipData.RoleName.troop))
+                    continue;
+
+                if (ship.AI.State == AIState.Orbit || !ship.Center.InRadius(position, radius))
+                    continue;
+
+                ship.OrderToOrbit(planet);
             }
         }
 

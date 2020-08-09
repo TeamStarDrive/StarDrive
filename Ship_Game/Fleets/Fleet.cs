@@ -687,7 +687,7 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely())
                         break;
 
-                    GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius * 1.5f);
+                    GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
                     TaskStep = 2;
                     break;
                 case 2:
@@ -698,6 +698,22 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
+                    CombatMoveToAO(task, FleetTask.TargetPlanet.GravityWellRadius * 1.5f);
+                    TaskStep = 4;
+                    break;
+
+                case 4:
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                        break;
+
+                    TaskStep = 5;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    break;
+                case 5:
+                     AttackEnemyStrengthClumpsInAO(task);
+                    TaskStep = 6;
+                    break;
+                case 6:
                     if (!DoOrbitTaskArea(task, excludeInvade: true))
                         AttackEnemyStrengthClumpsInAO(task);
 
