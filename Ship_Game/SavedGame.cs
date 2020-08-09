@@ -83,6 +83,8 @@ namespace Ship_Game
             SaveData.RemnantArmageddon     = GlobalStats.RemnantArmageddon;
             SaveData.gameDifficulty        = CurrentGame.Difficulty;
             SaveData.GalaxySize            = CurrentGame.GalaxySize;
+            SaveData.StarsModifier         = CurrentGame.StarsModifier;
+            SaveData.ExtraPlanets          = CurrentGame.ExtraPlanets;
             SaveData.AutoColonize          = EmpireManager.Player.AutoColonize;
             SaveData.AutoExplore           = EmpireManager.Player.AutoExplore;
             SaveData.AutoFreighters        = EmpireManager.Player.AutoFreighters;
@@ -862,6 +864,7 @@ namespace Ship_Game
             [Serialize(34)] public bool AutoPickBestFreighter;
             [Serialize(35)] public GalSize GalaxySize = GalSize.Medium;
             [Serialize(36)] public float StarsModifier = 1;
+            [Serialize(37)] public int ExtraPlanets;
         }
     }
 }
