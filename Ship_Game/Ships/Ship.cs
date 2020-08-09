@@ -284,7 +284,7 @@ namespace Ship_Game.Ships
 
         public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
         {
-            EMPDamage   = (EMPDamage + empDamage).LowerBound(0);
+            EMPDamage   = (EMPDamage + empDamage).Clamped(0, 10000f.LowerBound(EmpTolerance*10));
             EMPdisabled = EMPDamage > EmpTolerance;
         }
 
