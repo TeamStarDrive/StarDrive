@@ -71,7 +71,7 @@ namespace Ship_Game.Ships
         Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
-        public float EMPDamage;
+        public float EMPDamage { get; private set; }
         public Fleet fleet;
         public float yRotation;
         public float MechanicalBoardingDefense;
