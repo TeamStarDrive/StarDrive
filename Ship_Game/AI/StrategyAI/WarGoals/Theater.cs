@@ -67,10 +67,13 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateWantedCampaigns();
             RemoveUnwantedCampaigns();
 
-            for (int i = 0; i < Campaigns.Count; i++)
+            if (Priority <= OwnerWar.LowestTheaterPriority)
             {
-                var campaign = Campaigns[i];
-                campaign.Evaluate();
+                for (int i = 0; i < Campaigns.Count; i++)
+                {
+                    var campaign = Campaigns[i];
+                    campaign.Evaluate();
+                }
             }
         }
 
@@ -156,10 +159,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             
             float distanceFromPosition   = TheaterAO.Center.Distance(position);
             float distanceMod            =  distanceFromPosition - baseDistance;
-            distanceMod /= (TheaterAO.Radius / 2);
-            //float warValueMod            = theaterValue / (totalWarValue * distanceMod);
-            
-            //Priority                     = (int)(OwnerWar.Priority().LowerBound(1) * distanceMod).UpperBound(9);
+            distanceMod                 /= (TheaterAO.Radius / 2);
             Priority                     = (int)distanceMod.LowerBound(1);
         }
 

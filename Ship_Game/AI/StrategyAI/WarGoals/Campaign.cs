@@ -44,7 +44,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
         public WarTasks Tasks;
-        public Guid CampaignGuid = Guid.NewGuid();
         public Campaign() { }
         public int GetPriority()      => OwnerTheater.Priority;
         public bool WarMatch(War war) => war == OwnerWar;
@@ -83,7 +82,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 Tasks.RestoreFromSave(Owner, Them, this);
             }
-            CampaignGuid   = campaign.CampaignGuid;
         }
 
         /// <summary>
@@ -285,7 +283,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (priority > 10) break;
                 Tasks.StandardAssault(system, priority - contestedSystemMod,  fleetsPerTarget);
                 if (OwnerWar.WarType != WarType.EmpireDefense)
-                    priority++;
+                    priority += 4;
             }
         }
 
@@ -298,7 +296,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
         {
-            int priority = OwnerTheater.Priority;
+            int priority = OwnerTheater.Priority + 1;
 
             Array<int> sentToTask = new Array<int>();
 
