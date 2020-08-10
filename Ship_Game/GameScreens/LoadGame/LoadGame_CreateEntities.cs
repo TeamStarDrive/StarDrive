@@ -44,11 +44,10 @@ namespace Ship_Game
                 e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
                 e.EmpireColor  = e.data.Traits.Color;
                 e.RestoreMoneyHistoryFromSave(sdata);
-                e.data.CurrentAutoScout     = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
-                e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
-                e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
-                e.data.CurrentConstructor   = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
-
+                e.data.CurrentAutoScout       = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
+                e.data.CurrentAutoColony      = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
+                e.data.CurrentAutoFreighter   = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
+                e.data.CurrentConstructor     = sdata.CurrentConstructor   ?? e.data.ConstructorShip;
                 e.IncreaseFastVsBigFreighterRatio(sdata.FastVsBigFreighterRatio - e.FastVsBigFreighterRatio);
                 if (sdata.empireData.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
@@ -68,13 +67,12 @@ namespace Ship_Game
                 }
                 else Log.Warning($"LoadTech ignoring invalid tech: {tech.UID}");
             }
-            
             e.InitializeFromSave();
             e.Money = sdata.Money;
+            e.GetEmpireAI().EmpireDefense = sdata.EmpireDefense;
             e.GetEmpireAI().AreasOfOperations = sdata.AOs;
             e.GetEmpireAI().ExpansionAI.SetExpandSearchTimer(sdata.ExpandSearchTimer);
             e.GetEmpireAI().ExpansionAI.SetMaxSystemsToCheckedDiv(sdata.MaxSystemsToCheckedDiv.LowerBound(1));
-            e.RestoreUnserializableDataFromSave();
 
             if (e.WeArePirates)
                 e.Pirates.RestoreFromSave(sdata);
@@ -425,7 +423,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < d.GSAIData.MilitaryTaskList.Count; i++)
             {
-                d.GSAIData.MilitaryTaskList[i].RestoreFromSave(e, data);
+                d.GSAIData.MilitaryTaskList[i].RestoreFromSaveFromSaveNoUniverse(e, data);
             }
 
             e.GetEmpireAI().ReadFromSave(d.GSAIData);

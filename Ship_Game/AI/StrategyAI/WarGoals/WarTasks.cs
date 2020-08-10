@@ -4,13 +4,13 @@ using System.Linq;
 using System.Runtime.Remoting;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Ships;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public class WarTasks
     {
-        public Array<Guid> TaskGuids;
-        readonly Array<MilitaryTask> NewTasks;
+        public Array<MilitaryTask> NewTasks;
         Empire Owner;
         Empire Target;
         Campaign OwnerCampaign;
@@ -20,7 +20,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Owner         = owner;
             Target        = target;
             NewTasks      = new Array<MilitaryTask>();
-            TaskGuids     = new Array<Guid>();
             OwnerCampaign = campaign;
         }
 
@@ -29,31 +28,25 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Owner         = owner;
             Target        = target;
             OwnerCampaign = campaign;
+            
+            NewTasks.ForEach(t=> t.RestoreFromSaveFromUniverse(owner));
         }
 
         public virtual void Update()
         {
-            ProcessNewTasks();
-            ProcessTaskMemory();
-        }
-
-        void ProcessTaskMemory()
-        {
-            for (int i = TaskGuids.Count - 1; i >= 0; i--)
+            for (int i = 0; i < NewTasks.Count; i++)
             {
-                var taskGuid = TaskGuids[i];
-                var task = Owner.GetEmpireAI().GetTaskByGuid(taskGuid);
-                if (task is null) TaskGuids.RemoveAtSwapLast(i);
+                var task = NewTasks[i];
+                if (task.QueuedForRemoval)
+                {
+                    NewTasks.RemoveAtSwapLast(i);
+                }
+                else
+                {
+                    task.RallyAO   = OwnerCampaign.RallyAO;
+                    task.Evaluate(Owner);
+                }
             }
-        }
-
-        public void PurgeAllTasks()
-        {
-            foreach (var task in TaskGuids) 
-                Owner.GetEmpireAI().EndTaskByGuid(task);
-            TaskGuids.Clear();
-
-            Update();
         }
 
         public void StandardAssault(IEnumerable<SolarSystem> systemsToAttack, int priority)
@@ -73,8 +66,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 
                 CreateTask(new MilitaryTask(planet, Owner)
                 {
-                    Priority = priority,
-                    OwnerCampaign = this.OwnerCampaign
+                    Priority = priority
                 });
 
                 if (Owner.canBuildBombers && !IsAlreadyGlassingPlanet(planet))
@@ -82,8 +74,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     var task = new MilitaryTask(planet, Owner)
                     {
                         Priority = priority + 1,
-                        type = MilitaryTask.TaskType.GlassPlanet,
-                        OwnerCampaign = this.OwnerCampaign
+                        type = MilitaryTask.TaskType.GlassPlanet
                     };
                     CreateTask(task);
                 }
@@ -92,33 +83,33 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public bool IsAlreadyAssaultingSystem(SolarSystem system)
         {
-            bool assaults     = NewTasks.Any(t => t.TargetPlanet.ParentSystem == system && t.type == MilitaryTask.TaskType.AssaultPlanet);
-            return  assaults || Owner.GetEmpireAI().IsAssaultingSystem(system, OwnerCampaign);
+            bool assaults     = NewTasks.Any(t => t.type == MilitaryTask.TaskType.AssaultPlanet && t.TargetPlanet.ParentSystem == system);
+            return  assaults;// || Owner.GetEmpireAI().IsAssaultingSystem(system, OwnerCampaign);
         }
 
         bool IsAlreadyAssaultingPlanet(Planet planetToAssault)
         {
-            bool assaults    = NewTasks.Any(t => t.TargetPlanet == planetToAssault && t.type == MilitaryTask.TaskType.AssaultPlanet);
-            return assaults || Owner.GetEmpireAI().IsAssaultingPlanet(planetToAssault, OwnerCampaign);
+            bool assaults    = NewTasks.Any(t => t.type == MilitaryTask.TaskType.AssaultPlanet && t.TargetPlanet == planetToAssault);
+            return assaults;// || Owner.GetEmpireAI().IsAssaultingPlanet(planetToAssault, OwnerCampaign);
         }
 
         bool IsAlreadyGlassingPlanet(Planet planetToAssault)
         {
-            bool assaults    = NewTasks.Any(t => t.TargetPlanet == planetToAssault && t.type == MilitaryTask.TaskType.GlassPlanet);
-            return assaults || Owner.GetEmpireAI().IsGlassingPlanet(planetToAssault, OwnerCampaign);
+            bool assaults    = NewTasks.Any(t => t.type == MilitaryTask.TaskType.GlassPlanet && t.TargetPlanet == planetToAssault);
+            return assaults;// || Owner.GetEmpireAI().IsGlassingPlanet(planetToAssault, OwnerCampaign);
         }
 
         bool IsAlreadyDefendingSystem(SolarSystem system)
         {
             bool defending    = NewTasks.Any(t => t.IsDefendingSystem(system));
-            return defending || Owner.GetEmpireAI().IsClearingArea(system.Position, system.Radius, OwnerCampaign);
+            return defending;// || Owner.GetEmpireAI().IsClearingArea(system.Position, system.Radius, OwnerCampaign);
                                         
         }
 
         bool IsAlreadyClearingArea(Vector2 center, float radius)
         {
             bool clearing    = NewTasks.Any(t => t.type == MilitaryTask.TaskType.ClearAreaOfEnemies && t.AO.InRadius(center, radius));
-            return clearing || Owner.GetEmpireAI().IsClearingArea(center, radius, OwnerCampaign);
+            return clearing;
         }
 
         public void StandardSystemDefense(SolarSystem system, int priority, float strengthWanted)
@@ -129,7 +120,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             float radius   = system.Radius * 1.5f;
             CreateTask(new MilitaryTask(center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
-                OwnerCampaign = this.OwnerCampaign,
                 Priority      = priority
             });
         }
@@ -139,22 +129,19 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (IsAlreadyClearingArea(center, radius)) return;
             CreateTask(new MilitaryTask(center, radius, null, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
-                OwnerCampaign = this.OwnerCampaign,
                 Priority      = priority
             });
+        }
+
+        public void PurgeAllTasks()
+        {
+            foreach(var task in NewTasks)
+                task.EndTask();
         }
 
         void CreateTask(MilitaryTask task)
         {
             NewTasks.Add(task);
-            TaskGuids.Add(task.TaskGuid);
-        }
-
-        void ProcessNewTasks()
-        {
-            if (NewTasks.Count == 0) return;
-            Owner.GetEmpireAI().AddPendingTasks(NewTasks);
-            NewTasks.Clear();
         }
     }
 }
