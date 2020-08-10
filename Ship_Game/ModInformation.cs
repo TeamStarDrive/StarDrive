@@ -67,6 +67,10 @@ namespace Ship_Game
         public int SteppeHab = 67;
         public int SwampHab  = 67;
         public int TerranHab = 75;
+
+        // Research costs will be increased based on map size to balance the increased capacity of larger maps
+        public bool ChangeResearchCostBasedOnSize;
+        public float CostBasedOnSizeRatio = 1;  // Allow tuning the change up/down
         
         public int ChanceForCategory(PlanetCategory category)
         {

@@ -67,10 +67,13 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateWantedCampaigns();
             RemoveUnwantedCampaigns();
 
-            for (int i = 0; i < Campaigns.Count; i++)
+            if (Priority <= OwnerWar.LowestTheaterPriority)
             {
-                var campaign = Campaigns[i];
-                campaign.Evaluate();
+                for (int i = 0; i < Campaigns.Count; i++)
+                {
+                    var campaign = Campaigns[i];
+                    campaign.Evaluate();
+                }
             }
         }
 
@@ -139,23 +142,25 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        public void SetTheaterPriority(float baseDistance, Vector2 position)
+        public void SetTheaterPriority(float baseDistance)
         {
+
             // empire defense
-            if (Us==Them)
+            if (OwnerWar.WarType == WarType.EmpireDefense)
             {
                 Priority = 2;
                 return;
             }
+            Vector2 position = RallyAO?.Center ?? Us.GetWeightedCenter();
             // trying to figure out how to incorporate planet value but all it does is attack homeworlds right now. 
             // so remarking that code and just going by distance. 
             //float totalWarValue          = OwnerWar.WarTheaters.WarValue.LowerBound(1); 
             //float theaterValue           = WarValue.Clamped(1, totalWarValue);
-            float distanceFromPosition   = TheaterAO.Center.Distance(position);
-            float distanceMod            =  distanceFromPosition / baseDistance;
-            //float warValueMod            = theaterValue / (totalWarValue * distanceMod);
             
-            Priority                     = (int)(OwnerWar.Priority().LowerBound(1) * distanceMod).UpperBound(9);
+            float distanceFromPosition   = TheaterAO.Center.Distance(position);
+            float distanceMod            =  distanceFromPosition - baseDistance;
+            distanceMod                 /= (TheaterAO.Radius / 2);
+            Priority                     = (int)distanceMod.LowerBound(1);
         }
 
         public DebugTextBlock DebugText(DebugTextBlock debug, string pad, string pad2)
@@ -164,20 +169,20 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = 0; i < Campaigns.Count; i++)
             {
                 var campaign = Campaigns[i];
-                debug.AddLine($"{pad}Campaign : {campaign}");
+                debug.AddLine($"{pad}Campaign : {campaign.Type.ToString()}");
                 if (campaign.RallyAO?.CoreWorld != null)
-                    debug.AddLine($"{pad2}Rally : {campaign.RallyAO.CoreWorld}");
+                    debug.AddLine($"{pad2}Rally : {campaign.RallyAO.CoreWorld.Name}");
                 debug.AddLine($"{pad2}Targets : {campaign.SystemGuids.Count}");
                 var systems = SolarSystem.GetSolarSystemsFromGuids(campaign.SystemGuids);
                 foreach (var system in systems)
                 {
                     if (system.OwnerList.Contains(Them))
                     {
-                        debug.AddLine($"{pad2}Target : {system}");
+                        debug.AddLine($"{pad2}Target : {system.Name}");
                     }
                     else
                     {
-                        debug.AddLine($"{pad2}Taken  : {system}");
+                        debug.AddLine($"{pad2}Taken  : {system.Name}");
                     }
                 }
                 debug.AddLine($"{pad2}Step : {campaign.StepName}");
@@ -205,7 +210,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var aoManager = Us.GetEmpireAI().OffensiveForcePoolManager;
 
             rallyPlanet = Us.FindNearestRallyPoint(TheaterAO.Center) ?? Us.Capital;
-
+            
 
             // createEmpire AO
             if (rallyPlanet.Owner == Us)
