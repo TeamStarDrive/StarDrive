@@ -7,7 +7,7 @@ if ( [System.IO.File]::Exists($stardrive) )
 }
 else
 {
-    $url = "https://filebin.net/jikeykt2f2njtbdd/StarDrive.zip?t=4gj9qmk6"
+    $url = "https://srv-file7.gofile.io/download/N3n4d5/StarDrive.zip"
     $zip = "C:\Projects\BlackBox\StarDrive.zip"
     $out = "C:\Projects\BlackBox\StarDrive"
     $start_time = Get-Date
