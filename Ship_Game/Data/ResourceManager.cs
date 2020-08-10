@@ -1630,7 +1630,7 @@ namespace Ship_Game
             }
             else
             {
-                Console.WriteLine("Couldn't find Content/FleetBuildRatios.yawml");
+                Console.WriteLine("Couldn't find Content/FleetBuildRatios.yaml");
 
                 foreach (FileInfo file in Dir.GetFilesNoSub(RootContent.RootDirectory))
                 {
