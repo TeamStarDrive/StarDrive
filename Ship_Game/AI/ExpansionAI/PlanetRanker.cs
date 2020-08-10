@@ -37,7 +37,7 @@ namespace Ship_Game.AI.ExpansionAI
         private bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
         {
             if (s.OwnerList.Count == 0
-                || s.IsOwnedBy(ownerEmpire)
+                || s.IsOnlyOwnedBy(ownerEmpire)
                 || ownerEmpire.isFaction
                 || ownerEmpire.data?.DiplomaticPersonality == null)
             {

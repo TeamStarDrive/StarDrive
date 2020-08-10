@@ -197,7 +197,7 @@ namespace Ship_Game
             float ratio = Storage.FoodRatio;
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
-            if      (ratio < importThreshold && ShortOnFood())               FS = GoodState.IMPORT; // If below importThreshold, its time to import.
+            if      (ratio < importThreshold || ShortOnFood())               FS = GoodState.IMPORT; // If below importThreshold, its time to import.
             else if (NeedToStoreFood)                                        FS = GoodState.STORE; // We are struggling to produce food
             else if (FS == GoodState.IMPORT && ratio >= importThreshold * 2) FS = GoodState.STORE;  // Until you reach 2x importThreshold, then switch to Store
             else if (FS == GoodState.EXPORT && ratio <= exportThreshold / 2) FS = GoodState.STORE;  // If we were exporting, and drop below half exportThreshold, stop exporting
