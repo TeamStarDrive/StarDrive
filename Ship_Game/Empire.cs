@@ -1495,7 +1495,6 @@ namespace Ship_Game
         {
             UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
-            UpdateContactsAndBorders(1f);
             UpdateMilitaryStrengths();
             CalculateScore();
             UpdateRelationships();
@@ -2250,31 +2249,10 @@ namespace Ship_Game
                 //loop over OWN planets
                 InfluenceNode influenceNode1 = BorderNodes.RecycleObject() ?? new InfluenceNode();
 
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
-                {
-                    influenceNode1.SourceObject = planet;
-                    influenceNode1.Position = planet.Center;
-                }
-                else
-                {
-                    influenceNode1.SourceObject = planet.ParentSystem;
-                    influenceNode1.Position = planet.ParentSystem.Position;
-                }
-
-                influenceNode1.Radius = 1f;
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
-                {
-                    for (int i = 0; i < planet.BuildingList.Count; i++)
-                    {
-                        Building t = planet.BuildingList[i];
-                        if (influenceNode1.Radius < t.ProjectorRange)
-                            influenceNode1.Radius = t.ProjectorRange;
-                    }
-                }
-                else
-                    influenceNode1.Radius = isFaction ? 20000f : GetProjectorRadius(planet);
-
-                influenceNode1.Known = known;
+                influenceNode1.SourceObject = planet;
+                influenceNode1.Position     = planet.Center;
+                influenceNode1.Radius       = planet.SensorRange;
+                influenceNode1.Known        = known;
                 BorderNodes.Add(influenceNode1);
 
                 InfluenceNode influenceNode3 = SensorNodes.RecycleObject() ?? new InfluenceNode();
