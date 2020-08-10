@@ -1279,7 +1279,7 @@ namespace Ship_Game
         }
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
-
+        public War[] AllActiveWars() => Relationships.FilterValues(r=> r.AtWar).Select(r=> r.ActiveWar);
         public Relationship GetRelations(Empire withEmpire)
         {
             Relationships.TryGetValue(withEmpire, out Relationship rel);
@@ -3292,7 +3292,7 @@ namespace Ship_Game
                 var relationship = kv.Value;
                 relationship.RestoreWarsFromSave();
             }
-            
+
             EmpireAI.EmpireDefense?.RestoreFromSave(true);
         }
 
