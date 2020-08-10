@@ -1369,8 +1369,8 @@ namespace Ship_Game
             LoadBasicContentForTesting();
             LoadPlanetTypes();
             LoadSunZoneData();
-            //LoadBuildRatios();
-            //SunType.LoadAll(); currently wont load from test.
+            LoadBuildRatios();
+            SunType.LoadAll();
         }
 
         public static void LoadTechContentForTesting()
@@ -1378,7 +1378,7 @@ namespace Ship_Game
             LoadBasicContentForTesting();
             LoadTechTree();
             TechValidator();
-            //SunType.LoadAll(); currently wont load from test.
+            SunType.LoadAll();
         }
 
         static void TechValidator()
