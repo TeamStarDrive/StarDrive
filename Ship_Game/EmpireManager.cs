@@ -263,10 +263,11 @@ namespace Ship_Game
             if (Empires.IsEmpty)
                 Log.Error($"must be called after empireList is populated.");
             foreach(Empire empire in Empires)
-            {
+            { 
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
                 empire.Pool.UpdatePools();
+                empire.UpdateContactsAndBorders(1f);
             }
         }
     }

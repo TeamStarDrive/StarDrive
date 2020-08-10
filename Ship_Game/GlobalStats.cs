@@ -171,8 +171,9 @@ namespace Ship_Game
             if (ShadowDetail <= 1) ShipVisibility     = ObjectVisibility.RenderedAndCastShadows;
             if (ShadowDetail <= 0) AsteroidVisibility = ObjectVisibility.RenderedAndCastShadows;
         }
-        
-        
+
+        public static bool ModChangeResearchCost => HasMod && ActiveModInfo.ChangeResearchCostBasedOnSize;
+
         public static float GetShadowQuality(int shadowDetail)
         {
             switch (shadowDetail) // 1.0f highest, 0.0f lowest

@@ -15,6 +15,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateSteps();
         }
 
-        protected override GoalStep SetupTargets() => SetTargets(SystemsWithThem());
+        protected override GoalStep SetupTargets()
+        {
+            var sortByRange = new Array<SolarSystem>(SystemsWithThem().Sorted(s=> s.Position.SqDist(RallyAO.Center)));
+
+            return SetTargets(sortByRange);
+        }
     }
 }
