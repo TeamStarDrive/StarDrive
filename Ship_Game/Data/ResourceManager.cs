@@ -1622,22 +1622,6 @@ namespace Ship_Game
 
         static void LoadBuildRatios()
         {
-            Console.WriteLine($"LoadBuildRatios CurrentDir={Directory.GetCurrentDirectory()} Content={RootContent.RootDirectory}");
-            FileInfo f = GetModOrVanillaFile("FleetBuildRatios.yaml");
-            if (f != null)
-            {
-                Console.WriteLine($"FullPath={f.FullName}");
-            }
-            else
-            {
-                Console.WriteLine("Couldn't find Content/FleetBuildRatios.yaml");
-
-                foreach (FileInfo file in Dir.GetFilesNoSub(RootContent.RootDirectory))
-                {
-                    Console.WriteLine($"Content File: {file.FullName}");
-                }
-            }
-
             using (var parser = new YamlParser("FleetBuildRatios.yaml"))
             {
                 var ratios = parser.DeserializeArray<FleetBuildRatios>();
