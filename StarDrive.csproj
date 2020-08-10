@@ -1562,7 +1562,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Content\FleetBuildRatios.yaml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Fonts\Arial11Bold.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
