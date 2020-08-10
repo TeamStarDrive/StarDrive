@@ -208,10 +208,11 @@ namespace Ship_Game
 
         public void CalcAndDrawProgressBars(SpriteBatch batch)
         {
-            float fleetOrdnance    = 0f;
-            float fleetOrdnanceMax = 0f;
-            float fleetShields     = 0f;
-            float fleetShieldsMax  = 0f;
+            float fleetOrdnance      = 0f;
+            float fleetOrdnanceMax   = 0f;
+            float fleetShields       = 0f;
+            float fleetShieldsMax    = 0f;
+            float fleetHealthPercent = 0f;
 
             for (int i = 0; i < ShipList.Count; i++)
             {
@@ -219,31 +220,38 @@ namespace Ship_Game
                 if (ship == null)
                     continue;
 
-                fleetOrdnance    += ship.Ordinance;
-                fleetOrdnanceMax += ship.OrdinanceMax;
-                fleetShields     += ship.shield_power;
-                fleetShieldsMax  += ship.shield_max;
+                fleetOrdnance      += ship.Ordinance;
+                fleetOrdnanceMax   += ship.OrdinanceMax;
+                fleetShields       += ship.shield_power;
+                fleetShieldsMax    += ship.shield_max;
+                fleetHealthPercent += ship.HealthPercent;
             }
 
-            DrawProgressBar(batch, fleetOrdnance, fleetOrdnanceMax, Housing.Y + 115, "brown", "Modules/Ordnance");
-            DrawProgressBar(batch, fleetShields, fleetShieldsMax, Housing.Y + 137, "blue", "Modules/Shield_1KW");
+            fleetHealthPercent = (fleetHealthPercent / ShipList.Count() * 100).Clamped(0,100);
+            int barYPos        = Housing.Y + 115;
+            DrawProgressBar(batch, fleetHealthPercent, 100, "green", "StatusIcons/icon_structure", ref barYPos, true);
+            DrawProgressBar(batch, fleetOrdnance, fleetOrdnanceMax, "brown", "Modules/Ordnance", ref barYPos);
+            DrawProgressBar(batch, fleetShields, fleetShieldsMax, "blue", "Modules/Shield_1KW", ref barYPos);
         }
 
-        public void DrawProgressBar(SpriteBatch batch, float value, float maxValue, int y, string color, string texture)
+        public void DrawProgressBar(SpriteBatch batch, float value, float maxValue, string color, string texture, ref int yPos, bool percentage = false)
         {
             if (maxValue.LessOrEqual(0))
                 return;
 
-            var barRect = new Rectangle(45, y, 130, 18);
-            var bar     = new ProgressBar(barRect)
+            var barRect = new Rectangle(45, yPos, 130, 18);
+            var bar = new ProgressBar(barRect)
             {
-                Max      = maxValue,
-                Progress = value,
-                color    = color
+                Max            = maxValue,
+                Progress       = value,
+                color          = color,
+                DrawPercentage = percentage
             };
+
             bar.Draw(batch);
             Rectangle texRect = new Rectangle(barRect.X - 25, barRect.Y, 20, 20);
             batch.Draw(ResourceManager.Texture(texture), texRect, Color.White);
+            yPos += 22;
         }
 
         public override bool HandleInput(InputState input)
