@@ -724,7 +724,7 @@ namespace Ship_Game.Ships
             if (proj.Weapon.Tag_Kinetic || proj.Weapon.Tag_Explosive)
             {
                 Vector2 velocity = Parent.Velocity + RandomMath.Vector2D(Parent.Velocity.Length()) * (1 + RandomMath.RollDie(200)/100);
-                SpawnDebris(1, velocity, 1);
+                SpawnDebris(1, velocity, 1, ignite: false);
             }
         }
         float GetGlobalArmourBonus()
@@ -818,7 +818,7 @@ namespace Ship_Game.Ships
                     Empire.Universe.explosionParticles.AddParticleThreadA(pos, Vector3.Zero);
                 }
 
-                SpawnDebris(Area, Parent.Velocity);
+                SpawnDebris(Area, Parent.Velocity,0);
             }
 
             Active = false;
@@ -844,7 +844,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        void SpawnDebris(int size, Vector2 velocity, int count = 0)
+        void SpawnDebris(int size, Vector2 velocity, int count, bool ignite = true)
         {
             if (count == 0) 
                 count = (int)RandomMath.RandomBetween(0, size / 2 + 1);
@@ -852,7 +852,7 @@ namespace Ship_Game.Ships
             if (count != 0)
             {
                 float debrisScale = size * 0.05f;
-                SpaceJunk.SpawnJunk(count, Center, velocity, this, 1.0f, debrisScale, ignite: false);
+                SpaceJunk.SpawnJunk(count, Center, velocity, this, 1.0f, debrisScale, ignite: ignite);
             }
         }
 
