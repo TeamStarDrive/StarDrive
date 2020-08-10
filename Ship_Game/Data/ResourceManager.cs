@@ -1377,6 +1377,7 @@ namespace Ship_Game
         {
             LoadBasicContentForTesting();
             LoadTechTree();
+            TechValidator();
             //SunType.LoadAll(); currently wont load from test.
         }
 
@@ -1426,6 +1427,9 @@ namespace Ship_Game
                 if (!tech.Unlockable)
                     Log.WarningVerbose($"Tech {tech.UID} has no way to unlock! Source: '{tech.DebugSourceFile}'");
             }
+
+            foreach (Technology tech in TechTree.Values)
+                tech.ResolveLeadsToTechs();
         }
 
         static void LoadTechTree()
@@ -1457,9 +1461,6 @@ namespace Ship_Game
                 // categorize extra techs
                 tech.UpdateTechnologyTypesFromUnlocks();
             }
-
-            foreach (Technology tech in TechTree.Values)
-                tech.ResolveLeadsToTechs();
         }
 
         static void LoadToolTips()

@@ -342,9 +342,19 @@ namespace Ship_Game
                 Level = (Level + 1).Clamped(0,10);
         }
 
-        public void DamageTroop(float amount)
+        /// <summary>
+        /// Damages the troop also removes the troop from relevant lists, if it was destroyed.
+        /// </summary>
+        public void DamageTroop(float amount, Planet planet, PlanetGridSquare tile, out bool dead)
         {
-            Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
+            dead = false;
+            Strength = (Strength - amount).UpperBound(ActualStrengthMax);
+            if (Strength.LessOrEqual(0))
+            {
+                planet.TroopsHere.Remove(this);
+                tile.TroopsHere.Remove(this);
+                dead = true;
+            }
         }
 
         public void DamageTroop(Ship combatShip, ref float damage)
@@ -362,7 +372,7 @@ namespace Ship_Game
 
         public void HealTroop(float amount)
         {
-            DamageTroop(-amount);
+            Strength = (Strength + amount).UpperBound(ActualStrengthMax);
         }
 
         public float ActualStrengthMax
@@ -476,7 +486,7 @@ namespace Ship_Game
             AssignTroopToTile(planet, tileToLand, resetMove);
             // some buildings can injure landing troops
             if (Owner != planet.Owner)
-                DamageTroop(planet.TotalInvadeInjure);
+                DamageTroop(planet.TotalInvadeInjure, planet, tileToLand,  out bool _);
 
             tileToLand.CheckAndTriggerEvent(planet, Loyalty);
             return true;

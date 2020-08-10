@@ -140,7 +140,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 supply      *= HasSpacePort ? 5f : 2f;
                 supply      *= ship.InCombat ? 0.1f : 10f;
                 supply       = Math.Max(.1f, supply);
-                ship.AddPower(supply);
+                ship.AddPower(supply*10);
                 ship.ChangeOrdnance(supply);
             }
         }
@@ -148,7 +148,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private float CalcRepairPool()
         {
             float outOfCombatBonus = P.SpaceCombatNearPlanet ? 0.1f : 10;
-            float repairPool       = RepairPerTurn * outOfCombatBonus /  P.ShipBuildingModifier;
+            float repairPool       = RepairPerTurn * outOfCombatBonus / P.ShipBuildingModifier;
 
             return repairPool;
         }
@@ -162,6 +162,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
             int repairLevel = Level + NumShipYards;
             ship.ApplyAllRepair(repairPool, repairLevel, repairShields: true);
+            ship.CauseEmpDamage(-repairPool * 10); // Remove EMP
         }
 
         private void LoadTroops(Ship ship, int garrisonSize)

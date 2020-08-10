@@ -5492,7 +5492,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>2070</Index>
       <Text>Hangars are capable of sustaning a single ship per hangar at a time. If that ship is destroyed, then the hangar goes on cooldown for the amount of time indicated here. When the hangar is off of cooldown, a new ship will be generated and can launch from the hangar.</Text>
-    </Token>
+</Token>
     <Token>
       <Index>2071</Index>
       <Text>Indicates the total production value of this ship design</Text>
