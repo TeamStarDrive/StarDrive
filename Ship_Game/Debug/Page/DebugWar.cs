@@ -22,7 +22,7 @@ namespace Ship_Game.Debug.Page
             if (!Visible)
                 return;
 
-            DrawPathInfo();
+            DrawWarAOs();
             base.Draw(batch);
         }
 
@@ -60,19 +60,19 @@ namespace Ship_Game.Debug.Page
             base.Update(deltaTime);
         }
 
-        void DrawPathInfo()
+        void DrawWarAOs()
         {
             foreach(var rel in EmpireAtWar.AllRelations)
             {
                 var war = rel.Value.ActiveWar;
                 if (war == null ||  war.Them.isFaction) continue;
-                foreach(var theater in war.WarTheaters.Theaters)
+                for (int i = 0; i < war.WarTheaters.Theaters.Count; i++)
                 {
-                    var ao = theater.TheaterAO;
-                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, (float)war.GetWarScoreState() * 2 + 1);
+                    var theater = war.WarTheaters.Theaters[i];
+                    var ao      = theater.TheaterAO;
+                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, (float) war.GetWarScoreState() * 2 + 1);
                 }
             }
-                
         }
     }
 }

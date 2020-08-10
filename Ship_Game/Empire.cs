@@ -3292,17 +3292,8 @@ namespace Ship_Game
                 var relationship = kv.Value;
                 relationship.RestoreWarsFromSave();
             }
-            
-            EmpireAI.EmpireDefense?.RestoreFromSave(true);
-            foreach (var task in GetEmpireAI().GetTasks())
-            {
-                if (!task.OwnerCampaign?.IsRecoveredCorrectlyFromSave() == true)
-                {
-                    task.OwnerCampaign = null;
-                    Log.Warning("Compatibility: resetting invalid task.");
-                }
 
-            }
+            EmpireAI.EmpireDefense?.RestoreFromSave(true);
         }
 
         public void Dispose()

@@ -681,7 +681,7 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                MilitaryTask[] tasks = e.GetEmpireAI().MilitaryTasksToEvaluate();
+                MilitaryTask[] tasks = e.GetEmpireAI().GetTasks().ToArray();
                 for (int j = 0; j < tasks.Length; j++)
                 {
                     MilitaryTask task = tasks[j];
@@ -695,7 +695,7 @@ namespace Ship_Game.Debug
                     NewLine();
                     var planet =task.TargetPlanet?.Name ?? "";
                     DrawString($"FleetTask: {task.type} {sysName} {planet}");
-                    DrawString(15f, $"Step:  {task.Step} - Priority:{task.GetAdjustedPriority()}");
+                    DrawString(15f, $"Step:  {task.Step} - Priority:{task.Priority}");
                     float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
                     DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength}");
                     if (task.WhichFleet != -1)
