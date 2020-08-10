@@ -34,11 +34,10 @@ namespace Ship_Game.AI
 
             Goals.ApplyPendingRemovals();
 
-            // this where the global AI attack stuff happens.
+            // Empire Military needs not directly related to war. 
             Toughnuts = 0;
 
-            var tasks = FilterMilitaryTasks();
-            SortMilitaryTasks(tasks);
+            var tasks = TaskList.SortedDescending(t=> t.Priority);
 
             foreach (MilitaryTask task in tasks)
             {
@@ -50,68 +49,6 @@ namespace Ship_Game.AI
                 }
             }
             ApplyPendingChanges();
-        }
-
-        public MilitaryTask[] MilitaryTasksToEvaluate()
-        {
-            var tasks = FilterMilitaryTasks();
-            SortMilitaryTasks(tasks);
-            return tasks;
-        }
-
-        public MilitaryTask[] FilterMilitaryTasks()
-        {
-            float maxStr = TaskList.Sum(t => t.MinimumTaskForceStrength);
-            var olderWar = OwnerEmpire.GetOldestWar();
-
-            var warTasks = new Array<MilitaryTask>();
-            foreach (var war in OwnerEmpire.AllActiveWars())
-            {
-                // filter war tasks by greatest priority per war.
-                var priorityTasks = TaskList.Filter(t=> t.OwnerCampaign != null && t.WhichFleet < 1 &&
-                                                                        t.type != MilitaryTask.TaskType.ClearAreaOfEnemies &&
-                                                                        t.OwnerCampaign.GetWarType() != WarType.EmpireDefense &&
-                                                                        t.OwnerCampaign.WarMatch(war) && 
-                                                                        t.GetAdjustedPriority() <= war.GetMinPriority());
-                warTasks.AddRange(priorityTasks);
-            }
-
-            // all tasks not associated with war.
-            var tasks = TaskList.Filter(t=> t.OwnerCampaign == null || 
-                                            t.OwnerCampaign.GetWarType() == WarType.EmpireDefense || 
-                                            t.WhichFleet > 0);
-            warTasks.AddRange(tasks);
-            return warTasks.ToArray();        }
-
-        public void SortMilitaryTasks(MilitaryTask[] tasks)
-        {
-            tasks.Sort(t =>
-            {
-                if (t.WhichFleet > 0) return int.MaxValue;
-                string pri = (t.Priority.LowerBound(0)).ToString();
-                string value = (1000 - (int)(t.TargetPlanet?.ColonyWarValueTo(OwnerEmpire)
-                                                      ?? t.TargetSystem?.WarValueTo(OwnerEmpire) ?? 0)).LowerBound(0).ToString();
-                            //pri               += (t.TargetPlanet?.Name ?? t.TargetSystem?.Name ?? "").Length;
-                            string distanceMod = "0";
-
-                Vector2 rallyPoint = t.OwnerCampaign?.RallyAO?.Center ?? OwnerEmpire.GetWeightedCenter();
-
-                Vector2 point = t.TargetPlanet?.Center ?? t.TargetSystem?.Position ?? rallyPoint;
-                float distance = point.Distance(rallyPoint).LowerBound(1);
-                distanceMod = ((int)(Math.Round(distance / (Empire.Universe.UniverseSize * 2) * 100, 1))).UpperBound(99).ToString();
-
-                pri = pri.PadLeft(3, '0');
-                distanceMod = distanceMod.PadLeft(2, '0');
-                value = value.PadLeft(5, '0');
-
-                return int.Parse(pri + distanceMod + value);
-            });
-        }
-
-        public void RestoreTaskCampaigns(War war)
-        {
-            foreach(var task in TaskList)
-                task.RestoreCampaignFromSave(war);
         }
 
         void ApplyPendingChanges()
@@ -265,34 +202,6 @@ namespace Ship_Game.AI
                     return true;
             return false;
         }
-
-        public bool IsAssaultingSystem(SolarSystem system, Campaign campaign = null)
-                    => FindTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, system, campaign) != null; 
-        public bool IsAssaultingPlanet(Planet planet, Campaign campaign = null)
-                    => FindTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, planet, campaign) != null;
-        public bool IsClaimingSystem(SolarSystem system, Campaign campaign = null)
-                    => FindTaskTargeting(MilitaryTask.TaskType.DefendClaim, system, campaign) != null;
-        public bool IsGlassingSystem(SolarSystem system, Campaign campaign = null)
-                    => FindTaskTargeting(MilitaryTask.TaskType.GlassPlanet, system, campaign) != null;
-        public bool IsGlassingPlanet(Planet planet, Campaign campaign = null)
-                    => FindTaskTargeting(MilitaryTask.TaskType.GlassPlanet, planet, campaign) != null;
-        public bool IsClearingArea(SolarSystem system, Campaign campaign = null)
-                    => FindTaskTargeting(MilitaryTask.TaskType.ClearAreaOfEnemies, system, campaign) != null;
-
-        public bool IsClearingArea(Vector2 center, float radius, Campaign campaign = null) 
-                    => FindTaskTargeting(MilitaryTask.TaskType.ClearAreaOfEnemies, center, radius, campaign) != null;
-
-        public MilitaryTask FindTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem, Campaign campaign = null)
-                    => TaskList.Find(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem 
-                        && (campaign == null || t.OwnerCampaign == campaign));
-
-        public MilitaryTask FindTaskTargeting(MilitaryTask.TaskType taskType, Planet planet, Campaign campaign = null) 
-                    => TaskList.Find(t => (t.type == taskType && t.TargetPlanet == planet) 
-                                 && (campaign == null || t.OwnerCampaign == campaign));
-
-        public MilitaryTask FindTaskTargeting(MilitaryTask.TaskType taskType, Vector2 position, float radius, Campaign campaign = null) 
-                    => TaskList.Find(task => task.type == taskType && task.AO.InRadius(position, radius)
-                                && (campaign == null || campaign == task.OwnerCampaign));
 
         public MilitaryTask GetTaskByGuid(Guid guid) => TaskList.Find(t => t.TaskGuid == guid);
 

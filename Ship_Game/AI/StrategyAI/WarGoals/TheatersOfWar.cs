@@ -27,7 +27,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Us       = EmpireManager.GetEmpireByName(OwnerWar.UsName);
         }
 
-        public int MinPriority() => Theaters.Min(t=>t.Priority);
+        public int MinPriority() => Theaters.FindMin(t=>t.Priority)?.Priority ?? 100;
 
         public void RestoreFromSave(War war)
         {
@@ -44,9 +44,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 var theater = Theaters[i];
                 theater.SetTheaterPriority(baseDistance);
-                theater.Evaluate();
-
             }
+
+            Theater[] theaters = Theaters.SortedDescending(t=> t.Priority);
+            for (int i = 0; i < theaters.Length; i++) 
+                theaters[i].Evaluate();
+
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
             if (!Initialized || theirSystems > 0 && theirSystems != TheirSystemCount)
