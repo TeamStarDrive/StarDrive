@@ -26,7 +26,7 @@ namespace Ship_Game
         {
         }
 
-        public SpaceJunk(Vector2 parentPos, Vector2 parentVel, float spawnRadius, float scaleMod, bool useStaticSmoke)
+        public SpaceJunk(Vector2 parentPos, Vector2 parentVel, float spawnRadius, float scaleMod, bool useStaticSmoke, bool ignite = true)
         {
             float radius = spawnRadius + 25f;
             ScaleMod = scaleMod;                        
@@ -34,7 +34,7 @@ namespace Ship_Game
             Position.X = RandomMath2.RandomBetween(parentPos.X - radius, parentPos.X + radius);
             Position.Y = RandomMath2.RandomBetween(parentPos.Y - radius, parentPos.Y + radius);
             Position.Z = RandomMath2.RandomBetween(-radius*0.5f, radius*0.5f);
-            CreateSceneObject(parentPos);
+            CreateSceneObject(parentPos, ignite);
 
             // inherit extra velocity from parent
             Velocity.X += parentVel.X;
@@ -49,48 +49,54 @@ namespace Ship_Game
             Scale = RandomMath2.RandomBetween(scaleMin, scaleMax) * ScaleMod;
         }
 
-        void CreateSceneObject(Vector2 parentPos)
+        void CreateSceneObject(Vector2 parentPos, bool ignite)
         {
-            RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
-            Duration    = RandomMath2.RandomBetween(0, Duration * 1f) * Scale;
-            MaxDuration = Duration;
-            int random  = RandomMath2.InRange(ResourceManager.NumJunkModels);
+            RotationRadians  = RandomMath.Vector3D(0.01f, 1.02f);
+            Duration         = RandomMath2.RandomBetween(0, Duration * 1f) * Scale;
+            MaxDuration      = Duration;
+            int random       = RandomMath2.InRange(ResourceManager.NumJunkModels);
+            float flameParts = 0;
+
             switch (random)
             {
                 case 6:
                     RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.5f, 1f);
+                    ignite = false;
                     break;
                 case 7:
                     RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
-                    FlameTrail = Empire.Universe.fireTrailParticles.NewEmitter(500f * Scale, Position);
+                    flameParts = 500f;
                     ProjTrail  = Empire.Universe.projectileTrailParticles.NewEmitter(200f, Position);
                     break;
                 case 8:
                     RandomValues(parentPos, -5f, 5f, 0.5f, 3.5f, 0.7f, 0.1f);
-                    FlameTrail = Empire.Universe.flameParticles.NewEmitter(30 * Scale, Position);
+                    flameParts = 30f;
                     ProjTrail  = Empire.Universe.projectileTrailParticles.NewEmitter(200f * Scale, Position);
                     break;
                 case 11:
                     RandomValues(parentPos, -5f, 5f, 0.5f, 3.5f, 0.5f, 0.8f);
-                    FlameTrail = Empire.Universe.fireTrailParticles.NewEmitter(200 * Scale, Position);
+                    flameParts = 200f;
                     break;
                 case 12:
                     RandomValues(parentPos, -3f, 3f, 0.01f, 0.5f, 0.3f, 0.8f);
+                    ignite = false;
                     break;
                 case 13:
                     RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
+                    ignite = false;
                     break;
                 default:
                     RandomValues(parentPos, -2f, 2f, 0.01f, 1.02f, 0.5f, 2f);
-                    FlameTrail = Empire.Universe.flameParticles.NewEmitter(30 * Scale, Position);
+                    flameParts = 30f;
                     break;
             }
 
+            if (ignite)
+                FlameTrail = Empire.Universe.flameParticles.NewEmitter(flameParts * Scale, Position);
+
+            // special Emitter that will degrade faster than the others and doesnt move from the original spawn locaton. 
             if (UseStaticSmoke)
-            {
-                // special Emitter that will degrade faster than the others and doesnt move from the original spawn locaton. 
                 StaticSmoke = Empire.Universe.smokePlumeParticles.NewEmitter(60 * Scale, Position);
-            }
 
             ModelMesh mesh = ResourceManager.GetJunkModel(random).Meshes[0];
             So = new SceneObject(mesh)
@@ -106,7 +112,8 @@ namespace Ship_Game
          * @param scaleMod Applies additional scale modifier on the spawned junk
          */
         public static void SpawnJunk(int howMuchJunk, Vector2 position, Vector2 velocity,
-                                     GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f, bool staticSmoke = false)
+                                     GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f,
+                                     bool staticSmoke = false, bool ignite = true)
         {
             if (Empire.Universe == null)
             {
@@ -123,7 +130,7 @@ namespace Ship_Game
             var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
             {
-                junk[i] = new SpaceJunk(position, velocity, spawnRadius, scaleMod, staticSmoke);
+                junk[i] = new SpaceJunk(position, velocity, spawnRadius, scaleMod, staticSmoke, ignite);
             }
 
             // now lock and add to scene
