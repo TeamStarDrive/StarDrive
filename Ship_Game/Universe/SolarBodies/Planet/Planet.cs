@@ -161,7 +161,7 @@ namespace Ship_Game
             int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
             float bioSphereMaxPop   = BasePopPerTile * numBiospheresNeeded;
 
-            return bioSphereMaxPop + naturalMaxPop;
+            return bioSphereMaxPop/2 + naturalMaxPop;
         }
 
         public float PotentialMaxFertilityFor(Empire empire)
@@ -353,8 +353,10 @@ namespace Ship_Game
         public float ColonyPotentialValue(Empire empire)
         {
             float value = 0;
+            if (empire.IsCybernetic)
+                value += PotentialMaxFertilityFor(empire) * 10;
+
             value += SpecialCommodities * 10;
-            value += PotentialMaxFertilityFor(empire) * 10;
             value += MineralRichness * 10;
             value += PotentialMaxPopBillionsFor(empire) * 5;
             return value;
@@ -988,7 +990,7 @@ namespace Ship_Game
             if (RandomMath.RollDice(decayChance))
             {
                 bool notifyPlayer = MineralRichness.AlmostEqual(1);
-                MineralRichness  -= 0.01f;
+                MineralRichness  -= 0.02f;
                 if (notifyPlayer)
                 {
                     string fullText = $"{Name} {new LocalizedText(1866).Text}";

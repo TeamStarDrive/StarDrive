@@ -95,7 +95,8 @@ namespace Ship_Game
                 TechEntry tech = triggerer.GetTechEntry(UnlockTech);
                 if (!tech.Unlocked)
                 {
-                    triggerer.UnlockTech(tech, TechUnlockType.Event);
+                    //triggerer.UnlockTech(tech, TechUnlockType.Event); // FB making secret tech need research instead
+                    tech.SetDiscovered(triggerer);
                 }
                 else
                 {
