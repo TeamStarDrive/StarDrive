@@ -32,10 +32,9 @@ namespace Ship_Game.AI.Tasks
         [Serialize(16)] public int Priority;
         [Serialize(17)] public int TaskBombTimeNeeded;
         [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
-        [Serialize(19)] public Guid TaskGuid = Guid.NewGuid();
+        [Serialize(19)] public Guid TaskGuid       = Guid.NewGuid();
         [Serialize(20)] public Array<Vector2> PatrolPoints;
-        [Serialize(21)] public Campaign OwnerCampaign;
-        
+
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
@@ -43,14 +42,9 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] public Ship TargetShip { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
-        [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner?.GetFleetOrNull(WhichFleet);
-        [XmlIgnore] [JsonIgnore] public Planet RallyPlanet => OwnerCampaign?.RallyAO?.CoreWorld ?? Owner.FindNearestRallyPoint(AO);
-
-        public int GetAdjustedPriority()
-        {
-            int warPriority = (int)(OwnerCampaign?.GetWarState() ?? 0);
-            return Priority - warPriority;
-        }
+        [XmlIgnore] [JsonIgnore] public Fleet Fleet    => Owner?.GetFleetOrNull(WhichFleet);
+        [XmlIgnore] [JsonIgnore] public Planet RallyPlanet => GetRallyPlanet();
+        [XmlIgnore] [JsonIgnore] public AO RallyAO;
 
         public bool IsTaskAOInSystem(SolarSystem system)
         {
@@ -354,7 +348,6 @@ namespace Ship_Game.AI.Tasks
 
         public void Evaluate(Empire e)
         {
-            Priority = OwnerCampaign?.GetPriority() ?? Priority;
             Owner = e;
             if (WhichFleet >-1)
             {
@@ -760,16 +753,30 @@ namespace Ship_Game.AI.Tasks
             return taskCat;
         }
 
-        public void RestoreFromSave(Empire e, UniverseData data)
+        public void RestoreFromSaveFromSaveNoUniverse(Empire e, UniverseData data)
+        {
+            data.FindPlanet(TargetPlanetGuid, out Planet p);
+            data.FindShip(TargetShipGuid, out Ship ship);
+            RestoreFromSaveFromSave(e, ship, p);
+        }
+
+        public void RestoreFromSaveFromUniverse(Empire e)
+        {
+            var ship   =  Ship.GetShipFromGuid(TargetShipGuid);
+            var planet = Planet.GetPlanetFromGuid(TargetPlanetGuid);
+            RestoreFromSaveFromSave(e, ship, planet);
+        }
+
+        void RestoreFromSaveFromSave(Empire e, Ship ship, Planet p)
         {
             SetEmpire(e);
 
             if (PatrolPoints == null) PatrolPoints = new Array<Vector2>();
 
-            if (data.FindPlanet(TargetPlanetGuid, out Planet p))
+            if (p != null)
                 SetTargetPlanet(p);
-
-            if (data.FindShip(TargetShipGuid, out Ship ship))
+            
+            if (ship != null)
                 SetTargetShip(ship);
 
             foreach (Guid guid in HeldGoals)
@@ -789,28 +796,6 @@ namespace Ship_Game.AI.Tasks
                 if (e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
                     fleet.FleetTask = this;
                 else WhichFleet = 0;
-            }
-        }
-
-        public void RestoreCampaignFromSave(War war)
-        {
-            if (OwnerCampaign != null)
-            {
-                Guid guid = OwnerCampaign?.CampaignGuid ?? Guid.Empty;
-                OwnerCampaign = null;
-
-                foreach (var theater in war.WarTheaters.Theaters)
-                {
-                    foreach (var campaign in theater.Campaigns)
-                    {
-                        if (campaign.CampaignGuid == guid)
-                        {
-                            OwnerCampaign = campaign;
-                            break;
-                        }
-                    }
-                    if (OwnerCampaign != null) break;
-                }
             }
         }
     }

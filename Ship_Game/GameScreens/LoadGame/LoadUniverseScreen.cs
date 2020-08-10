@@ -46,11 +46,10 @@ namespace Ship_Game
                     Universe = CreateUniverseScreen(data, save, Progress.NextStep()); // 1244ms
                     Log.Info(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
 
+                    EmpireManager.RestoreUnserializableDataFromSave();
                     Progress.Finish();
 
                     Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
-
-                    //EmpireManager.RestoreUnserializableDataFromSave();
                 }
                 catch (Exception e)
                 {
@@ -212,7 +211,6 @@ namespace Ship_Game
             CreateAOs(data);
             us.WarmUpShipsForLoad();
             FinalizeShips(us);
-            EmpireManager.RestoreUnserializableDataFromSave();
             foreach(Empire empire in EmpireManager.Empires)
                 empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
 
