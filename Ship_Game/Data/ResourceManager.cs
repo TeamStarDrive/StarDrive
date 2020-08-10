@@ -1613,6 +1613,10 @@ namespace Ship_Game
 
         static void LoadBuildRatios()
         {
+            Console.WriteLine($"LoadBuildRatios CurrentDir={Directory.GetCurrentDirectory()} Content={RootContent.RootDirectory}");
+            FileInfo f = ResourceManager.GetModOrVanillaFile("FleetBuildRatios.yaml");
+            Console.WriteLine($"FullPath={f.FullName}");
+
             using (var parser = new YamlParser("FleetBuildRatios.yaml"))
             {
                 var ratios = parser.DeserializeArray<FleetBuildRatios>();
