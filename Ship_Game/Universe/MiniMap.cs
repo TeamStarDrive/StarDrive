@@ -135,7 +135,7 @@ namespace Ship_Game
                 for (int i = 0; i < list.Count; i++)
                 {
                     Empire.InfluenceNode node = list[i];
-                    if (!node.Known)
+                    if (node == null || !node.Known)
                         continue;
 
                     float nodeRad = WorldToMiniRadius(node.Radius);
