@@ -58,7 +58,7 @@
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.25f;
-                    FleetCompletenessMin = 0.25f;
+                    FleetCompletenessMin = 0.1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.1f : 0.25f;
                     EnemyTroopStrength   = 1f;
                     MineralDecayDivider  = 100;
@@ -85,10 +85,10 @@
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
-                    FleetCompletenessMin = 0.5f;
+                    FleetCompletenessMin = 0.25f;
                     CreditsMultiplier    = 0.2f;
                     EnemyTroopStrength   = 1.1f;
-                    MineralDecayDivider  = 75;
+                    MineralDecayDivider  = 50;
                     PiratePayModifier    = 0.75f;
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
@@ -102,10 +102,10 @@
                     ShipLevel            = 2;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
-                    FleetCompletenessMin = 0.75f;
+                    FleetCompletenessMin = 0.5f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     EnemyTroopStrength   = 1.25f;
-                    MineralDecayDivider  = 50;
+                    MineralDecayDivider  = 25;
                     PiratePayModifier    = 1f;
                     ExpansionModifier    = 0.05f;
                     MinStartingColonies  = 5;
@@ -130,10 +130,10 @@
                     ShipLevel            = 3;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
-                    FleetCompletenessMin = 1f;
+                    FleetCompletenessMin = 0.6f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     EnemyTroopStrength   = 1.5f;
-                    MineralDecayDivider  = 35;
+                    MineralDecayDivider  = 15;
                     PiratePayModifier    = 1.5f;
                     ExpansionModifier    = 0f;
                     MinStartingColonies  = 6;

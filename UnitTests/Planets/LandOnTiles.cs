@@ -9,8 +9,8 @@ namespace UnitTests.Planets
     {
         public TestLandOnTile()
         {
-            LoadPlanetContent();
             CreateGameInstance();
+            LoadPlanetContent();
             ResourceManager.LoadProjectileMeshes();
             CreateTestEnv();
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
@@ -43,19 +44,24 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
         public WarTasks Tasks;
-        public Guid CampaignGuid = Guid.NewGuid();
         public Campaign() { }
+        public int GetPriority()      => OwnerTheater.Priority;
+        public bool WarMatch(War war) => war == OwnerWar;
+        public WarType GetWarType()   => OwnerWar?.WarType ?? WarType.EmpireDefense;
+        public WarState GetWarState() => OwnerWar?.GetWarScoreState() ?? WarState.NotApplicable;
 
+        public bool IsRecoveredCorrectlyFromSave() => OwnerTheater != null;
         /// <summary>
         /// this is a restore from save constructor. 
         /// the expanded class is saved as a campaign. So when restored  from save the expanded class must be recreated.  
         /// this constructor takes the generic campaign and uses that and other data fields to recreated the expanded class. 
         /// </summary>
-        public Campaign(Campaign campaign, Theater theater) : base(campaign)
+        public Campaign(Campaign campaign, Theater theater) : base(campaign, campaign.Type.ToString())
         {
             Type           = campaign.Type;
             OwnerWar       = theater.GetWar();
             Owner          = EmpireManager.GetEmpireByName(OwnerWar.UsName);
+            OwnerName      = OwnerWar.UsName;
             Them           = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
             if (Owner == null || Them == null)
                 Log.Warning("no empires");
@@ -67,7 +73,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             IsCoreCampaign = campaign.IsCoreCampaign;
             OwnerTheater   = theater;
             RestoreFromSave(theater);
-            Tasks          = new WarTasks(Owner, Them, this);
+            Tasks          = campaign.Tasks;
+            if (campaign.Tasks == null)
+            {
+                Tasks = new WarTasks(Owner, Them, this);
+            }
+            else
+            {
+                Tasks.RestoreFromSave(Owner, Them, this);
+            }
         }
 
         /// <summary>
@@ -82,6 +96,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them         = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
             UID          = campaignType.ToString();
             OwnerTheater = theater;
+            
             if (Tasks == null)
             {
                 Tasks = new WarTasks(Owner, Them, this);
@@ -228,7 +243,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // attempt to sort targets by systems in AO that are nearest to rally AO.
             // the create a winnable targets list evaluating each system 
 
-            var winnableTarget       = new Array<SolarSystem>();
+            var winnableTarget = new Array<SolarSystem>();
             
             float strength = Owner.Pool.EmpireReadyFleets.AccumulatedStrength;
 
@@ -245,8 +260,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 }
             }
 
-            if (winnableTarget.NotEmpty) 
+            var currentTarget = targets.Find(s=>Tasks.IsAlreadyAssaultingSystem(s));
+
+            if (winnableTarget.NotEmpty && currentTarget == null)
                 AddTargetSystem(winnableTarget.First);
+            else if (currentTarget != null)
+                AddTargetSystem(currentTarget);
 
             return GoalStep.GoToNextStep;
         }
@@ -259,26 +278,37 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             foreach (var system in currentTargets)
             {
+                int contestedSystemMod = system.OwnerList.Contains(Them) ? 2 : 0;
+
                 if (priority > 10) break;
-                Tasks.StandardAssault(system, priority++,  fleetsPerTarget);
+                Tasks.StandardAssault(system, priority - contestedSystemMod,  fleetsPerTarget);
+                if (OwnerWar.WarType != WarType.EmpireDefense)
+                    priority += 4;
             }
         }
 
         protected virtual GoalStep AttackSystems()
         {
-            if (Owner.GetOwnedSystems().Count == 0)                   return GoalStep.GoalFailed;
+            if (Owner.GetOwnedSystems().Count == 0)                   return GoalStep.RestartGoal;
             AttackSystemsInList();
             return GoalStep.GoToNextStep;
         }
 
         protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
         {
-            int priority = OwnerTheater.Priority + 2;
+            int priority = OwnerTheater.Priority + 1;
+
+            Array<int> sentToTask = new Array<int>();
+
             for (int i = 0; i < currentTargets.Count; i++)
             {
-                var system = currentTargets[i];
+                if (sentToTask.Contains(i)) continue;
+                var closestSystem = currentTargets.FindClosestTo(RallyAO.Center);
+                int closestIndex  = currentTargets.IndexOf(closestSystem);
+                sentToTask.Add(closestIndex);
                 if (priority > 10) break;
-                Tasks.StandardSystemDefense(system, priority++, strengths[i]);
+                Tasks.StandardSystemDefense(closestSystem, priority, strengths[closestIndex]);
+                priority += 2;
             }
         }
 

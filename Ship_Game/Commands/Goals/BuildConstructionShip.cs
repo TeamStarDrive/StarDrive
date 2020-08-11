@@ -46,7 +46,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (!empire.FindClosestSpacePort(BuildPosition, out Planet planet))
+            Planet planet = empire.FindPlanetToBuildAt(empire.SafeSpacePorts, toBuild.GetCost(empire));
+            if (planet == null)
                 return GoalStep.TryAgain;
 
             // toBuild is only used for cost calculation

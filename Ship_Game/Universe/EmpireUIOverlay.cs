@@ -457,14 +457,15 @@ namespace Ship_Game
                 Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_gradient"), new Rectangle(res2.X, res2.Y, res2.Width, res2.Height), gradientSourceRect, Color.White);
                 Empire.Universe.ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("EmpireTopBar/empiretopbar_res2_over"), res2, Color.White);
                 int research = (int)empire.Research.Current.Progress;
+                int resCost = (int)empire.Research.Current.TechCost;
                 float plusRes = empire.Research.NetResearch;
                 float x = res2.X + res2.Width - 30;
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
-                object[] str = { research.ToString(), "/", empire.Research.Current.TechCost, " (+", plusRes.ToString("#.0"), ")" };
+                object[] str = { research, "/", resCost, " (+", plusRes.String(1), ")" };
                 textCursor.X = x - arial12Bold.MeasureString(string.Concat(str)).X;
                 textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
                 SpriteFont spriteFont = Fonts.Arial12Bold;
-                object[] objArray = { research.ToString(), "/", empire.Research.Current.TechCost, " (+", plusRes.ToString("#.0"), ")" };
+                object[] objArray = { research, "/", resCost, " (+", plusRes.String(1), ")" };
                 spriteBatch.DrawString(spriteFont, string.Concat(objArray), textCursor, new Color(255, 240, 189));
                 return;
             }

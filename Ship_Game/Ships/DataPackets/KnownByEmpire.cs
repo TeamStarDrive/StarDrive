@@ -11,7 +11,6 @@ namespace Ship_Game.Ships.DataPackets
         /// The draw time buffer. we aren't locked here so the draw might read while the value is being updated.
         /// this gives a little buffer to help the draw routine deal with that. 
         /// </summary>
-        const float DrawTimeBuffer = 0.2f;
 
         /// <summary>
         /// Gets a value indicating whether ship is [known by player]. Used for ui stuff.
@@ -20,12 +19,12 @@ namespace Ship_Game.Ships.DataPackets
         /// <value>
         ///   <c>true</c> if [known by player]; otherwise, <c>false</c>.
         /// </value>
-        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] > -DrawTimeBuffer;
+        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] + KnownDuration > 0;
         float[] SeenByID;
         /// <summary>
         /// The known duration. how long the object will be known for. .5 = roughly half a second. 
         /// </summary>
-        public const float KnownDuration = 0.5f;
+        public const float KnownDuration = 1f;
 
         public KnownByEmpire()
         {
@@ -57,7 +56,7 @@ namespace Ship_Game.Ships.DataPackets
         /// <param name="empire">The empire.</param>
         /// <param name="timer">The timer.</param>
         public void SetSeen(Empire empire, float timer = KnownDuration) => SeenByID[empire.Id-1] = timer;
-        public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] > 0;
+        public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] + KnownDuration > 0;
 
         /// <summary>
         /// Sets the ship as seen by player. Unlike "knownByPlayer" this can be used anywhere. 
