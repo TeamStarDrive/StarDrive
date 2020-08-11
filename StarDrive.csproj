@@ -1792,6 +1792,9 @@
     <None Include="Content\Textures\StatusIcons\icon_structure.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\Textures\TacticalIcons\symbol_support.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Content\Textures\UI\icon_hangar.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
