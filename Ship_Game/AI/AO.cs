@@ -253,7 +253,7 @@ namespace Ship_Game.AI
                 OffensiveForceGuids.Add(ship.guid);
             foreach (Ship ship in ShipsWaitingForCoreFleet)
                 ShipsWaitingGuids.Add(ship.guid);
-            FleetGuid = CoreFleet.Guid;
+            FleetGuid = CoreFleet?.Guid ?? Guid.Empty; 
         }
 
         public float GetPoolStrength()

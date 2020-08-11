@@ -182,7 +182,7 @@ namespace Ship_Game.AI
                         return;
                     }
 
-                    nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                    nearestRallyPoint = Owner.loyalty.FindNearestSafeRallyPoint(Owner.Center);
                     break;
                 case ResupplyReason.LowOrdnanceNonCombat:
                     supplyShip = NearBySupplyShip;
@@ -192,7 +192,7 @@ namespace Ship_Game.AI
                         return;
                     }
 
-                    nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                    nearestRallyPoint = Owner.loyalty.FindNearestSafeRallyPoint(Owner.Center);
                     break;
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
@@ -200,7 +200,7 @@ namespace Ship_Game.AI
                     if (repairShip != null)
                         SetUpSupplyEscort(repairShip, supplyType: "Repair");
                     else
-                        nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                        nearestRallyPoint = Owner.loyalty.FindNearestSafeRallyPoint(Owner.Center);
                     break;
                 case ResupplyReason.LowTroops:
                     if (Owner.Carrier.SendTroopsToShip)
@@ -214,7 +214,7 @@ namespace Ship_Game.AI
                         return;
                     }
 
-                    nearestRallyPoint = Owner.loyalty.RallyPoints.FindMax(p => p.TroopsHere.Count);
+                    nearestRallyPoint = Owner.loyalty.SafeSpacePorts.FindMax(p => p.TroopsHere.Count);
                     break;
                 case ResupplyReason.NotNeeded:
                     TerminateResupplyIfDone();
@@ -268,7 +268,7 @@ namespace Ship_Game.AI
             Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
                 OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, 
-                    Owner.fleet.FinalDirection, true, null, State);
+                    Owner.fleet.FinalDirection, true, State);
         }
 
         void UpdateCombatStateAI(float elapsedTime)
@@ -516,7 +516,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null, AIState.MoveTo);
+                OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, AIState.MoveTo);
             }
         }
 
