@@ -148,6 +148,7 @@ namespace Ship_Game
         public float TotalTroopShipMaintenance { get; private set; }
 
         public float updateContactsTimer = 0.2f;
+        public float MaxContactTimer = 4;
         private bool InitializedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
         public float GrossPlanetIncome { get; private set; }
@@ -1272,7 +1273,7 @@ namespace Ship_Game
                 var obj   = nearbyObjects[i];
                 Ship ship = (Ship) obj;
                 if (setVisible && sensorRange > 0 && ship.InRadius(node.Position, sensorRange))
-                    ship.KnownByEmpires.SetSeen(this,updateContactsTimer + 0.02f);
+                    ship.KnownByEmpires.SetSeen(this,updateContactsTimer);
 
                 ship.SetProjectorInfluence(this, true);
             }
@@ -3185,7 +3186,7 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                updateContactsTimer = elapsedTime < 1 ? RandomMath.RandomBetween(3f, 4f) : 0; 
+                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? RandomMath.RandomBetween(2f, 3f) : 0; 
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
