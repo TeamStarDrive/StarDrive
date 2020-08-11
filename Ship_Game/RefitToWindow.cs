@@ -131,7 +131,7 @@ namespace Ship_Game
 
         void OnRefitOneClicked(UIButton b)
         {
-            EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal());
+            EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal(ShipToRefit));
             GameAudio.EchoAffirmative();
             ExitScreen();
         }
@@ -141,20 +141,20 @@ namespace Ship_Game
             foreach (Ship ship in EmpireManager.Player.GetShips())
             {
                 if (ship.Name == ShipToRefit.Name)
-                    EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal());
+                    EmpireManager.Player.GetEmpireAI().Goals.Add(GetRefitGoal(ship));
             }
 
             GameAudio.EchoAffirmative();
             ExitScreen();
         }
 
-        Goal GetRefitGoal()
+        Goal GetRefitGoal(Ship ship)
         {
             Goal refitShip;
             if (ShipToRefit.IsPlatformOrStation)
-                refitShip = new RefitOrbital(ShipToRefit, RefitTo.Name, EmpireManager.Player);
+                refitShip = new RefitOrbital(ship, RefitTo.Name, EmpireManager.Player);
             else
-                refitShip = new RefitShip(ShipToRefit, RefitTo.Name, EmpireManager.Player);
+                refitShip = new RefitShip(ship, RefitTo.Name, EmpireManager.Player);
 
             return refitShip;
         }
