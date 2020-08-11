@@ -204,7 +204,6 @@ namespace Ship_Game
             StarDriveGame.Instance.ResetElapsedTime();
             us.LoadContent();
             CreateAOs(data);
-            us.WarmUpShipsForLoad();
             FinalizeShips(us);
             foreach(Empire empire in EmpireManager.Empires)
                 empire.GetEmpireAI().ThreatMatrix.RestorePinGuidsFromSave();
