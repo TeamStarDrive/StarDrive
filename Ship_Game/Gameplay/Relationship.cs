@@ -1021,11 +1021,8 @@ namespace Ship_Game.Gameplay
             var theirDesigns = them.GetOurFactionShips();
             foreach (TechEntry entry in ourTechs)
             {
-                Technology tech = entry.Tech;
-                if (entry.IsOnlyShipTech() && !them.WeCanUseThis(tech, theirDesigns))
-                    continue;
-
-                techs.Add(entry);
+                if (them.WeCanUseThisTech(entry, theirDesigns))
+                    techs.Add(entry);
             }
 
             return techs.Count > 0;
@@ -1491,16 +1488,16 @@ namespace Ship_Game.Gameplay
         {
             var debug = new DebugTextBlock
             {
-                Header      = $"RelationShip Status: {Name}",
+                Header      = $"Relation To: {Name}",
                 HeaderColor = EmpireManager.GetEmpireByName(Name).EmpireColor
             };
 
             debug.AddLine($"Total Anger: {(int)TotalAnger}");
-            debug.AddLine($"Anger From Ships in Borders: {(int)Anger_FromShipsInOurBorders}");
-            debug.AddLine($"Anger From Military: {(int)Anger_MilitaryConflict}");
-            debug.AddLine($"Anger From Territory Violation: {(int)Anger_TerritorialConflict}");
-            debug.AddLine($"Anger From Diplomatic Faux pas: {(int)Anger_DiplomaticConflict}");
-            debug.AddLine($"Trust: {(int)Trust} TrustUsed: {(int)TrustUsed}");
+            debug.AddLine($" Border: {(int)Anger_FromShipsInOurBorders}");
+            debug.AddLine($" Military: {(int)Anger_MilitaryConflict}");
+            debug.AddLine($" Territory: {(int)Anger_TerritorialConflict}");
+            debug.AddLine($" Diplomatic: {(int)Anger_DiplomaticConflict}");
+            debug.AddLine($" Trust: {(int)Trust} TrustUsed: {(int)TrustUsed}");
 
             ActiveWar?.WarDebugData(ref debug);
             return debug;

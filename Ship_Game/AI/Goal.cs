@@ -35,7 +35,8 @@ namespace Ship_Game.AI
         PirateRaidCombatShip,
         PirateDefendBase,
         PirateProtection,
-        AssaultPirateBase
+        AssaultPirateBase,
+        RefitOrbital
     }
 
     public enum GoalStep
@@ -136,6 +137,7 @@ namespace Ship_Game.AI
                 case IncreaseFreighters.ID:     return new IncreaseFreighters();
                 case MarkForColonization.ID:    return new MarkForColonization();
                 case RefitShip.ID:              return new RefitShip();
+                case RefitOrbital.ID:           return new RefitOrbital();
                 case BuildOrbital.ID:           return new BuildOrbital();
                 case RemnantAI.ID:              return new RemnantAI();
                 case PirateAI.ID:               return new PirateAI();

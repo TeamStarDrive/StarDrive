@@ -161,7 +161,7 @@ namespace Ship_Game
             int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
             float bioSphereMaxPop   = BasePopPerTile * numBiospheresNeeded;
 
-            return bioSphereMaxPop + naturalMaxPop;
+            return bioSphereMaxPop/2 + naturalMaxPop;
         }
 
         public float PotentialMaxFertilityFor(Empire empire)
@@ -353,8 +353,10 @@ namespace Ship_Game
         public float ColonyPotentialValue(Empire empire)
         {
             float value = 0;
+            if (empire.IsCybernetic)
+                value += PotentialMaxFertilityFor(empire) * 10;
+
             value += SpecialCommodities * 10;
-            value += PotentialMaxFertilityFor(empire) * 10;
             value += MineralRichness * 10;
             value += PotentialMaxPopBillionsFor(empire) * 5;
             return value;
@@ -972,8 +974,8 @@ namespace Ship_Game
             if (MineralRichness.LessOrEqual(0.1f)) // minimum decay limit
                 return;
 
-            // If the planet outputs 50 production on Brutal, the chance to decay is 1%
-            float decayChance = Prod.NetIncome / Owner.DifficultyModifiers.MineralDecayDivider;
+            // If the planet outputs 100 production on Brutal, the chance to decay is 5%
+            float decayChance = Prod.GrossIncome / Owner.DifficultyModifiers.MineralDecayDivider;
 
             // Larger planets have less chance for reduction
             decayChance /= Scale.LowerBound(0.1f);
@@ -988,7 +990,7 @@ namespace Ship_Game
             if (RandomMath.RollDice(decayChance))
             {
                 bool notifyPlayer = MineralRichness.AlmostEqual(1);
-                MineralRichness  -= 0.01f;
+                MineralRichness  -= 0.02f;
                 if (notifyPlayer)
                 {
                     string fullText = $"{Name} {new LocalizedText(1866).Text}";
@@ -1174,7 +1176,7 @@ namespace Ship_Game
                 {
                     // Move Offensively to planet
                     Vector2 finalDir = ship.Position.DirectionToTarget(Center);
-                    ship.AI.OrderMoveToNoStop(Center, finalDir, false, this, AI.AIState.MoveTo, null, true);
+                    ship.AI.OrderMoveToNoStop(Center, finalDir, false, AI.AIState.MoveTo, null, true);
                 }
             }
         }

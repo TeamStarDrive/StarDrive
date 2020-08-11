@@ -83,6 +83,8 @@ namespace Ship_Game
             SaveData.RemnantArmageddon     = GlobalStats.RemnantArmageddon;
             SaveData.gameDifficulty        = CurrentGame.Difficulty;
             SaveData.GalaxySize            = CurrentGame.GalaxySize;
+            SaveData.StarsModifier         = CurrentGame.StarsModifier;
+            SaveData.ExtraPlanets          = CurrentGame.ExtraPlanets;
             SaveData.AutoColonize          = EmpireManager.Player.AutoColonize;
             SaveData.AutoExplore           = EmpireManager.Player.AutoExplore;
             SaveData.AutoFreighters        = EmpireManager.Player.AutoFreighters;
@@ -151,6 +153,7 @@ namespace Ship_Game
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
                 empireToSave.ExpandSearchTimer        = e.GetEmpireAI().ExpansionAI.ExpandSearchTimer;
                 empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
+                empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
 
                 if (e.WeArePirates)
                 {
@@ -570,6 +573,7 @@ namespace Ship_Game
             [Serialize(25)] public Array<float> NormalizedMoney;
             [Serialize(26)] public int ExpandSearchTimer;
             [Serialize(27)] public int MaxSystemsToCheckedDiv;
+            [Serialize(28)] public Ship_Game.AI.StrategyAI.WarGoals.War EmpireDefense;
         }
 
         public class FleetSave
@@ -861,6 +865,8 @@ namespace Ship_Game
             [Serialize(33)] public bool EliminationMode;
             [Serialize(34)] public bool AutoPickBestFreighter;
             [Serialize(35)] public GalSize GalaxySize = GalSize.Medium;
+            [Serialize(36)] public float StarsModifier = 1;
+            [Serialize(37)] public int ExtraPlanets;
         }
     }
 }

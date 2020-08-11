@@ -103,7 +103,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             {
                 Technology tech = entry.Tech;
                 // FB - Do not trade ship tech that the AI cannot use due to lack of pre-made designs
-                if (!Them.isPlayer && entry.IsOnlyShipTech() && !Them.WeCanUseThis(tech, theirDesigns))
+                if (!Them.isPlayer && !Them.WeCanUseThisTech(entry, theirDesigns))
                     continue;
                 
                 var text = LocalizedText.Parse($"{{{tech.NameIndex}}}: {(int)tech.ActualCost}");

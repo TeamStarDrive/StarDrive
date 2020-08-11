@@ -174,7 +174,10 @@ namespace Ship_Game
             if (orbitalList.IsEmpty || OrbitalsInTheWorks)
                 return;
 
-            Ship weakestWeHave  = orbitalList.FindMin(s => s.NormalizedStrength);
+            Ship weakestWeHave = orbitalList.FindMin(s => s.NormalizedStrength);
+            if (weakestWeHave.AI.State == AIState.Refit)
+                return; // refit one orbital at a time
+
             float weakestMaint  = weakestWeHave.GetMaintCost(Owner);
             Ship bestWeCanBuild = PickOrbitalToBuild(role, budget + weakestMaint);
 
@@ -184,10 +187,22 @@ namespace Ship_Game
             if (bestWeCanBuild.NormalizedStrength.Less(weakestWeHave.NormalizedStrength * 1.2f))
                 return; // replace only if str is 20% more than the current weakest orbital
 
-            ScrapOrbital(weakestWeHave);
-            AddOrbital(bestWeCanBuild);
+            string debugReplaceOrRefit;
+            if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
+            {
+                Goal refitOrbital = new RefitOrbital(weakestWeHave, bestWeCanBuild.Name, Owner);
+                Owner.GetEmpireAI().Goals.Add(refitOrbital);
+                debugReplaceOrRefit = "REFITTING";
+            }
+            else
+            {
+                ScrapOrbital(weakestWeHave);
+                AddOrbital(bestWeCanBuild);
+                debugReplaceOrRefit = "REPLACING";
+            }
+
             if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Cyan, $"{Name}, {Owner.Name} - REPLACING Orbital ----- {weakestWeHave.Name}" +
+                Log.Info(ConsoleColor.Cyan, $"{Name}, {Owner.Name} - {debugReplaceOrRefit} Orbital ----- {weakestWeHave.Name}" +
                          $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
         }
 
@@ -331,6 +346,9 @@ namespace Ship_Game
 
         void BuildAndScrapMilitaryBuildings(float budget)
         {
+            if (Owner.isPlayer && !GovOrbitals)
+                return;
+
             if (MilitaryBuildingInTheWorks)
                 return;
 
