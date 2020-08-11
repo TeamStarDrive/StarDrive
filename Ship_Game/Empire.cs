@@ -148,6 +148,7 @@ namespace Ship_Game
         public float TotalTroopShipMaintenance { get; private set; }
 
         public float updateContactsTimer = 0.2f;
+        public float MaxContactTimer = 4;
         private bool InitializedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
         public float GrossPlanetIncome { get; private set; }
@@ -1272,7 +1273,7 @@ namespace Ship_Game
                 var obj   = nearbyObjects[i];
                 Ship ship = (Ship) obj;
                 if (setVisible && sensorRange > 0 && ship.InRadius(node.Position, sensorRange))
-                    ship.KnownByEmpires.SetSeen(this,updateContactsTimer + 0.02f);
+                    ship.KnownByEmpires.SetSeen(this,updateContactsTimer);
 
                 ship.SetProjectorInfluence(this, true);
             }
@@ -2245,31 +2246,46 @@ namespace Ship_Game
         {
             foreach (Planet planet in GetPlanets())
             {
-                bool known = empireKnown|| planet.ParentSystem.IsExploredBy(EmpireManager.Player);
+                bool known = empireKnown || planet.IsExploredBy(EmpireManager.Player);
                 //loop over OWN planets
-                InfluenceNode influenceNode1 = BorderNodes.RecycleObject() ?? new InfluenceNode();
+                InfluenceNode borderNode = BorderNodes.RecycleObject() ?? new InfluenceNode();
 
-                influenceNode1.SourceObject = planet;
-                influenceNode1.Position     = planet.Center;
-                influenceNode1.Radius       = planet.SensorRange;
-                influenceNode1.Known        = known;
-                BorderNodes.Add(influenceNode1);
+                borderNode.SourceObject = planet;
+                borderNode.Position     = planet.Center;
+                borderNode.Radius       = planet.SensorRange;
+                borderNode.Known        = known;
 
-                InfluenceNode influenceNode3 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                influenceNode3.SourceObject  = planet;
-                influenceNode3.Position      = planet.Center;
-                influenceNode3.Radius        = isFaction ? 1f : data.SensorModifier;
-                influenceNode3.Known         = known;
-                for (int i = 0; i < planet.BuildingList.Count; i++)
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 {
-                    Building t = planet.BuildingList[i];
-                    if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
+                    for (int i = 0; i < planet.BuildingList.Count; i++)
                     {
-                        influenceNode3.Radius = t.SensorRange * data.SensorModifier;
+                        Building t = planet.BuildingList[i];
+                        if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
+                        {
+                            borderNode.Radius = Math.Max(borderNode.Radius, t.ProjectorRange);
+                        }
                     }
                 }
+                else
+                {
+                    borderNode.Radius = GetProjectorRadius(planet);
+                }
 
-                SensorNodes.Add(influenceNode3);
+                BorderNodes.Add(borderNode);
+                
+                InfluenceNode sensorNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
+                sensorNode.SourceObject  = planet;
+                sensorNode.Position      = planet.Center;
+                sensorNode.Radius        = isFaction ? 1f : data.SensorModifier;
+                sensorNode.Known         = known;
+                
+                for (int i = 0; i < planet.BuildingList.Count; i++)
+                {
+                    float sensorRadius = planet.BuildingList[i].SensorRange * data.SensorModifier;
+                    sensorNode.Radius  = Math.Max(sensorNode.Radius, sensorRadius);
+                }
+
+                SensorNodes.Add(sensorNode);
             }
         }
 
@@ -3185,7 +3201,7 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                updateContactsTimer = elapsedTime < 1 ? RandomMath.RandomBetween(3f, 4f) : 0; 
+                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? RandomMath.RandomBetween(2f, 3f) : 0; 
                 int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
