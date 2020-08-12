@@ -10,22 +10,29 @@ namespace Ship_Game.Ships
         // This could be Planets, SolarSystem projectors, Subspace projectors/ships
         // This is an optimized lookup system, because these properties are queried every frame
         bool InOwnerInfluence;
-        float OwnerInfluenceTimer =0;
+        float OwnerInfluenceTimer = -100;
         float GetBuffer() => loyalty.MaxContactTimer;
         struct ForeignInfluence
         {
             public Empire Foreign;
             public Relationship Relationship; // our relation with this foreign empire
             public float Timer;
+            public ForeignInfluence(float defaultTimer)
+            {
+                Foreign = null;
+                Relationship = null;
+                Timer = defaultTimer;
+            }
         }
         int InfluenceCount;
         ForeignInfluence[] Influences;
 
         void ResetProjectorInfluence()
         {
-            InOwnerInfluence = false;
-            InfluenceCount   = 0;
-            Influences       = null;
+            InOwnerInfluence    = false;
+            InfluenceCount      = 0;
+            Influences          = null;
+            OwnerInfluenceTimer = -100;
         }
 
         public void UpdateInfluence(float elapsedTime)
@@ -86,7 +93,7 @@ namespace Ship_Game.Ships
                         // RemoveAtSwapLast algorithm
                         int last = --InfluenceCount;
                         Influences[index] = Influences[last];
-                        Influences[last] = default;
+                        Influences[last]  = default;
                         return;
                     }
                 }
