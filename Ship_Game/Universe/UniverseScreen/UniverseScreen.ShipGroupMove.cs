@@ -201,6 +201,9 @@ namespace Ship_Game
 
         void MoveFleetToMouse(Fleet fleet, Planet targetPlanet, Ship targetShip, bool wasProjecting)
         {
+            if (fleet.Ships.Count == 0)
+                return;
+
             if (wasProjecting)
             {
                 ShipCommands.MoveFleetToLocation(targetShip, targetPlanet, Project.FleetCenter, Project.Direction, fleet);

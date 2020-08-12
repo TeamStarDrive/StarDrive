@@ -241,6 +241,7 @@
     <Compile Include="Ship_Game\Commands\Goals\PirateProtection.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidTransport.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\GoalBase.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RefitOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
     <Compile Include="Ship_Game\Data\GameTips.cs" />
@@ -1563,7 +1564,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Content\FleetBuildRatios.yaml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Fonts\Arial11Bold.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1791,6 +1792,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\StatusIcons\icon_structure.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\TacticalIcons\symbol_support.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\UI\icon_hangar.xnb">
@@ -2085,6 +2089,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\IssueCantTargetFighters.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueHighBurstOrdnance.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\IssueLowEnergyBurstTime.png">

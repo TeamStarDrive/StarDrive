@@ -139,6 +139,8 @@ namespace UnitTests
 
         public void LoadPlanetContent()
         {
+            if (Game == null)
+                throw new Exception("CreateGameInstance() must be called BEFORE LoadPlanetContent() !");
             ResourceManager.LoadPlanetContentForTesting();
         }
 

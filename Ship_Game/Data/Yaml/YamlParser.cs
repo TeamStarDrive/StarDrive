@@ -17,12 +17,19 @@ namespace Ship_Game.Data.Yaml
         readonly Array<Error> LoggedErrors = new Array<Error>();
         public IReadOnlyList<Error> Errors => LoggedErrors;
 
-        public YamlParser(string file) : this(ResourceManager.GetModOrVanillaFile(file))
+        public YamlParser(string file)
         {
+            FileInfo f = ResourceManager.GetModOrVanillaFile(file);
+            Reader = OpenStream(f, file);
+            Root = new YamlNode { Key = f?.NameNoExt() ?? "", Value = null };
+            Parse();
         }
 
-        public YamlParser(FileInfo f) : this(f?.NameNoExt(), OpenStream(f))
+        public YamlParser(FileInfo f)
         {
+            Reader = OpenStream(f);
+            Root = new YamlNode { Key = f?.NameNoExt() ?? "", Value = null };
+            Parse();
         }
 
         public YamlParser(string name, TextReader reader)

@@ -27,6 +27,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Us       = EmpireManager.GetEmpireByName(OwnerWar.UsName);
         }
 
+        public int MinPriority() => Theaters.FindMin(t=>t.Priority)?.Priority ?? 100;
+
         public void RestoreFromSave(War war)
         {
             OwnerWar = war;
@@ -37,15 +39,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void Evaluate()
         {
-            var empireCenter   = Us.GetWeightedCenter();
-            float baseDistance = DistanceOfTheaterClosestTo(empireCenter);
+            float baseDistance = TheaterClosestToItsRally();
             for (int i = Theaters.Count - 1; i >= 0; i--)
             {
                 var theater = Theaters[i];
-                theater.SetTheaterPriority(baseDistance, empireCenter);
-                theater.Evaluate();
-
+                theater.SetTheaterPriority(baseDistance);
             }
+
+            Theater[] theaters = Theaters.SortedDescending(t=> t.Priority);
+            for (int i = 0; i < theaters.Length; i++) 
+                theaters[i].Evaluate();
+
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
             if (!Initialized || theirSystems > 0 && theirSystems != TheirSystemCount)
@@ -55,14 +59,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        float DistanceOfTheaterClosestTo(Vector2 position)
+        float TheaterClosestToItsRally()
         {
+            Vector2 defaultPosition = Us.GetWeightedCenter();
             float closest = float.MaxValue;
             for (int i = 0; i < Theaters.Count; i++)
             {
-                var theater    = Theaters[i];
-                float distance = theater.TheaterAO.Center.Distance(position);
-                closest        = Math.Min(closest, distance);
+                var theater      = Theaters[i];
+                Vector2 position = theater.RallyAO?.Center ?? default;
+                float distance   = theater.TheaterAO.Center.Distance(position);
+                closest          = Math.Min(closest, distance);
             }
 
             return closest;
@@ -130,6 +136,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 case WarType.EmpireDefense:
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);
                     campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
+                    campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
                     aos                = CreateDefensiveAO();
                     replaceExistingAOs = true;
                     break;

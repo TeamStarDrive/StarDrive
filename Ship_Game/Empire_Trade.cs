@@ -123,8 +123,9 @@ namespace Ship_Game
 
         private void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList)
         {
+            // Order importing planets to balance freighters distribution
             Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
-                                                        .OrderBy(p => p.StorageRatio(goods)).ToArray();
+                                                        .OrderBy(p => p.FreighterTraffic(p.IncomingFreighters, goods)).ToArray();
             if (importingPlanets.Length == 0)
                 return;
 
@@ -132,14 +133,15 @@ namespace Ship_Game
             if (exportingPlanets.Length == 0)
                 return;
 
-            if (IdleFreighters.Length == 0)
+            if (IdleFreighters.Length == 0) // Need trade but no freighters found
             {
                 BuildFreighter();
                 return;
             }
 
-            foreach (Planet importPlanet in importingPlanets)
+            for (int i = 0; i < importingPlanets.Length; i++)
             {
+                Planet importPlanet = importingPlanets[i];
                 // Check if the closest freighter has the goods we need
                 if (FoundFreighterWithCargo(IdleFreighters, importPlanet, goods, out Ship closestIdleFreighter))
                     closestIdleFreighter.AI.SetupFreighterPlan(importPlanet, goods);
@@ -286,17 +288,6 @@ namespace Ship_Game
 
             foreach (Ship idleFreighter in IdleFreighters)
                 CheckForRefitFreighter(idleFreighter, 20, betterFreighter);
-        }
-
-        public float GoodsLimits(Goods goods) // this will be replaced with exposed  variable for the players in the trade window
-        {
-            float limit = 1; // it is a multiplier
-            switch (goods)
-            {
-                case Goods.Food:       limit = ManualTrade ? 1 : 0.5f;  break;
-                case Goods.Production: limit = ManualTrade ? 1 : 0.25f; break;
-            }
-            return limit;
         }
 
         // Percentage to check if there is better suited freighter model available

@@ -22,8 +22,6 @@ namespace Ship_Game
         readonly ScrollList2<SelectedShipListItem> SelectedShipsSL;
         public Rectangle Power;
         public Rectangle Shields;
-        public Rectangle Ordnance;
-        ProgressBar oBar;
         public ToggleButton GridButton;
         readonly Rectangle Housing;
         readonly SlidingElement SlidingElement;
@@ -151,26 +149,7 @@ namespace Ship_Game
                         batch.DrawString(Fonts.Arial14Bold, $" ({ShipList.Count})", namePos, Color.LightBlue);
                     }
 
-                    float fleetOrdnance = 0f;
-                    float fleetOrdnanceMax = 0f;
-                    foreach (Ship ship in ShipList)
-                    {
-                        fleetOrdnance = fleetOrdnance + ship.Ordinance;
-                        fleetOrdnanceMax = fleetOrdnanceMax + ship.OrdinanceMax;
-                    }
-                    if (fleetOrdnanceMax > 0f)
-                    {
-                        var pordrect = new Rectangle(45, Housing.Y + 115, 130, 18);
-                        oBar = new ProgressBar(pordrect)
-                        {
-                            Max = fleetOrdnanceMax,
-                            Progress = fleetOrdnance,
-                            color = "brown"
-                        };
-                        oBar.Draw(batch);
-                        Ordnance = new Rectangle(pordrect.X - 25, pordrect.Y, 20, 20);
-                        batch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
-                    }
+                    CalcAndDrawProgressBars(batch);
                 }
             }
             else
@@ -225,6 +204,54 @@ namespace Ship_Game
             }
 
             GridButton.Draw(ScreenManager);
+        }
+
+        public void CalcAndDrawProgressBars(SpriteBatch batch)
+        {
+            float fleetOrdnance      = 0f;
+            float fleetOrdnanceMax   = 0f;
+            float fleetShields       = 0f;
+            float fleetShieldsMax    = 0f;
+            float fleetHealthPercent = 0f;
+
+            for (int i = 0; i < ShipList.Count; i++)
+            {
+                Ship ship = ShipList[i];
+                if (ship == null)
+                    continue;
+
+                fleetOrdnance      += ship.Ordinance;
+                fleetOrdnanceMax   += ship.OrdinanceMax;
+                fleetShields       += ship.shield_power;
+                fleetShieldsMax    += ship.shield_max;
+                fleetHealthPercent += ship.HealthPercent;
+            }
+
+            fleetHealthPercent = (fleetHealthPercent / ShipList.Count() * 100).Clamped(0,100);
+            int barYPos        = Housing.Y + 115;
+            DrawProgressBar(batch, fleetHealthPercent, 100, "green", "StatusIcons/icon_structure", ref barYPos, true);
+            DrawProgressBar(batch, fleetOrdnance, fleetOrdnanceMax, "brown", "Modules/Ordnance", ref barYPos);
+            DrawProgressBar(batch, fleetShields, fleetShieldsMax, "blue", "Modules/Shield_1KW", ref barYPos);
+        }
+
+        public void DrawProgressBar(SpriteBatch batch, float value, float maxValue, string color, string texture, ref int yPos, bool percentage = false)
+        {
+            if (maxValue.LessOrEqual(0))
+                return;
+
+            var barRect = new Rectangle(45, yPos, 130, 18);
+            var bar = new ProgressBar(barRect)
+            {
+                Max            = maxValue,
+                Progress       = value,
+                color          = color,
+                DrawPercentage = percentage
+            };
+
+            bar.Draw(batch);
+            Rectangle texRect = new Rectangle(barRect.X - 25, barRect.Y, 20, 20);
+            batch.Draw(ResourceManager.Texture(texture), texRect, Color.White);
+            yPos += 22;
         }
 
         public override bool HandleInput(InputState input)

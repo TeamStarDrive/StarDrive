@@ -76,6 +76,7 @@ namespace Ship_Game
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
         public float OrbitalsMaintenance { get; private set; }
         public float MilitaryBuildingsMaintenance { get; private set; }
+        public float InfraStructure { get; private set; }
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -160,7 +161,7 @@ namespace Ship_Game
             int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
             float bioSphereMaxPop   = BasePopPerTile * numBiospheresNeeded;
 
-            return bioSphereMaxPop + naturalMaxPop;
+            return bioSphereMaxPop/2 + naturalMaxPop;
         }
 
         public float PotentialMaxFertilityFor(Empire empire)
@@ -352,8 +353,10 @@ namespace Ship_Game
         public float ColonyPotentialValue(Empire empire)
         {
             float value = 0;
+            if (empire.IsCybernetic)
+                value += PotentialMaxFertilityFor(empire) * 10;
+
             value += SpecialCommodities * 10;
-            value += PotentialMaxFertilityFor(empire) * 10;
             value += MineralRichness * 10;
             value += PotentialMaxPopBillionsFor(empire) * 5;
             return value;
@@ -825,16 +828,17 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-            bool spacePort = false;
-            AllowInfantry  = false;
-            RepairPerTurn        = 0;
-            TerraformToAdd       = 0;
-            ShieldStrengthMax    = 0;
-            ShipBuildingModifier = 0;
-            SensorRange          = 0;
-            TotalDefensiveStrength     = 0;
-            PlusFlatPopulationPerTurn  = 0;
-            float totalStorage         = 0;
+            bool spacePort            = false;
+            AllowInfantry             = false;
+            InfraStructure            = 1;
+            RepairPerTurn             = 0;
+            TerraformToAdd            = 0;
+            ShieldStrengthMax         = 0;
+            ShipBuildingModifier      = 0;
+            SensorRange               = 0;
+            TotalDefensiveStrength    = 0;
+            PlusFlatPopulationPerTurn = 0;
+            float totalStorage        = 0;
 
             if (!loadUniverse) // FB - this is needed since OrbitalStations from save has only GUID, so we must not use this when loading a game
             {
@@ -864,6 +868,7 @@ namespace Ship_Game
                 TerraformToAdd            += b.PlusTerraformPoints;
                 totalStorage              += b.StorageAdded;
                 RepairPerTurn             += b.ShipRepair;
+                InfraStructure            += b.Infrastructure;
 
                 if (b.SensorRange > SensorRange)
                     SensorRange = b.SensorRange;
@@ -969,8 +974,8 @@ namespace Ship_Game
             if (MineralRichness.LessOrEqual(0.1f)) // minimum decay limit
                 return;
 
-            // If the planet outputs 50 production on Brutal, the chance to decay is 1%
-            float decayChance = Prod.NetIncome / Owner.DifficultyModifiers.MineralDecayDivider;
+            // If the planet outputs 100 production on Brutal, the chance to decay is 5%
+            float decayChance = Prod.GrossIncome / Owner.DifficultyModifiers.MineralDecayDivider;
 
             // Larger planets have less chance for reduction
             decayChance /= Scale.LowerBound(0.1f);
@@ -985,7 +990,7 @@ namespace Ship_Game
             if (RandomMath.RollDice(decayChance))
             {
                 bool notifyPlayer = MineralRichness.AlmostEqual(1);
-                MineralRichness  -= 0.01f;
+                MineralRichness  -= 0.02f;
                 if (notifyPlayer)
                 {
                     string fullText = $"{Name} {new LocalizedText(1866).Text}";
@@ -1171,7 +1176,7 @@ namespace Ship_Game
                 {
                     // Move Offensively to planet
                     Vector2 finalDir = ship.Position.DirectionToTarget(Center);
-                    ship.AI.OrderMoveToNoStop(Center, finalDir, false, this, AI.AIState.MoveTo, null, true);
+                    ship.AI.OrderMoveToNoStop(Center, finalDir, false, AI.AIState.MoveTo, null, true);
                 }
             }
         }

@@ -422,7 +422,8 @@ namespace Ship_Game
             float repairRate               = 0f;
             float sensorRange              = 0f;
             float sensorBonus              = 0f;
-            float ordnanceUsed             = 0f;
+            float avgOrdnanceUsed          = 0f;
+            float burstOrdnance            = 0f;
             float ordnanceRecovered        = 0f;
             float weaponPowerNeeded        = 0f;
             float empResist                = 0f;
@@ -490,7 +491,7 @@ namespace Ship_Game
                 repairRate         += module.ActualBonusRepairRate;
                 ordnanceRecovered  += module.OrdnanceAddedPerSecond;
                 targets            += module.TargetTracking;
-                ordnanceUsed       += module.BayOrdnanceUsagePerSecond;
+                avgOrdnanceUsed    += module.BayOrdnanceUsagePerSecond;
                 totalEcm            = module.ECM.LowerBound(totalEcm);
                 sensorRange         = module.SensorRange.LowerBound(sensorRange);
                 sensorBonus         = module.SensorBonus.LowerBound(sensorBonus);
@@ -516,7 +517,8 @@ namespace Ship_Game
                     bEnergyWeapons = true;
 
                 numWeaponSlots    += module.Area;
-                ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
+                avgOrdnanceUsed   += weapon.AverageOrdnanceUsagePerSecond;
+                burstOrdnance     += weapon.BurstOrdnanceUsagePerSecond;
                 weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
                 if (!weapon.TruePD)
                 {
@@ -587,7 +589,7 @@ namespace Ship_Game
             DrawPropulsion(ref cursor, stats.MaxSTLSpeed, stats.TurnRadsPerSec.ToDegrees(), afterburnerSpd:0f);
             WriteLine(ref cursor);
 
-            DrawOrdnanceAndTroops(ref cursor, ordnanceCap, ordnanceUsed, ordnanceRecovered, troopCount, out float ammoTime);
+            DrawOrdnanceAndTroops(ref cursor, ordnanceCap, avgOrdnanceUsed, ordnanceRecovered, troopCount, out float ammoTime);
             WriteLine(ref cursor);
 
             DrawCargoTargetsAndSensors(ref cursor, cargoSpace, targets, sensorRange, sensorBonus, ActiveHull.Bonuses);
@@ -606,8 +608,9 @@ namespace Ship_Game
                 DesignIssues.CheckIssueNoCommand(numCommandModules);
                 DesignIssues.CheckIssueBackupCommand(numCommandModules, size);
                 DesignIssues.CheckIssueUnpoweredModules(unpoweredModules);
-                DesignIssues.CheckIssueOrdnance(ordnanceUsed,  ordnanceRecovered, ammoTime, size);
+                DesignIssues.CheckIssueOrdnance(avgOrdnanceUsed, ordnanceRecovered, ammoTime);
                 DesignIssues.CheckIssuePowerRecharge(powerRecharge);
+                DesignIssues.CheckIssueOrdnanceBurst(burstOrdnance, ordnanceCap);
                 DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, stats.MaxFTLSpeed);
                 DesignIssues.CheckIssueNoWarp(stats.MaxSTLSpeed, stats.MaxFTLSpeed);
                 DesignIssues.CheckIssueSlowWarp(stats.MaxFTLSpeed);
