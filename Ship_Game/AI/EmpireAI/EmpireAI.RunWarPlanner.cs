@@ -284,13 +284,19 @@ namespace Ship_Game.AI
 
         private void RunWarPlanner()
         {
+            if (OwnerEmpire.data.Defeated) return;
+            if (OwnerEmpire.GetPlanets().Count == 0)
+                return;
             SetTotalWarValue();
             UpdateEmpireDefense();
 
-            if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
+            if (OwnerEmpire.isPlayer)
                 return;
             WarState worstWar = WarState.NotApplicable;
             bool preparingForWar = false;
+
+            var activeWars = new Array<War>();
+
             foreach(var kv in OwnerEmpire.AllRelations)
             {
                 if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) 
@@ -313,10 +319,16 @@ namespace Ship_Game.AI
                 if (rel.ActiveWar == null) 
                     continue;
 
-
-                var currentWar = rel.ActiveWar.ConductWar();
-                worstWar = worstWar > currentWar ? currentWar : worstWar;
+                activeWars.Add(rel.ActiveWar);
             }
+
+            // Process wars by their success.
+            foreach(War war in activeWars.SortedDescending(w=> w.GetPriority()))
+            {
+                var currentWar = war.ConductWar();
+                worstWar       = worstWar > currentWar ? currentWar : worstWar;
+            }
+
             WarStrength = OwnerEmpire.Pool.EmpireReadyFleets.AccumulatedStrength;
             // start a new war by military strength
             if (worstWar > WarState.EvenlyMatched)

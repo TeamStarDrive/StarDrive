@@ -4,7 +4,7 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-        public float MaxProduction              => Prod.NetIncome + 1 + BuildingList.Sum(b => b.Infrastructure);
+        public float MaxProduction              => Prod.NetIncome + InfraStructure;
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / 3).LowerBound(0.1f);
         float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
@@ -51,7 +51,11 @@ namespace Ship_Game
                     AssignOtherWorldsWorkers(0.333f, 1);
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.4f, 1f);    // Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
-                    DetermineProdState(0.15f, 0.666f); // Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
+                    if (NonCybernetic)
+                        DetermineProdState(0.1f, 0.5f); // Start Importing if prod drops below 10%, stop importing at 20%. Start exporting at 50%, and dont stop unless below 25%.
+                    else
+                        DetermineProdState(0.2f, 0.66f); // Start Importing if prod drops below 20%, stop importing at 40%. Start exporting at 66%, and dont stop unless below 33%.
+
                     break;
                 case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
@@ -146,7 +150,7 @@ namespace Ship_Game
                     case GoodState.STORE:
                         if (empireCanExport)
                         {
-                            prodToSpend = Prod.NetIncome + 1; ; // Our empire has open export slots, so we can allow storage to dwindle
+                            prodToSpend = Prod.NetIncome + 10; // Our empire has open export slots, so we can allow storage to dwindle
                             break;
                         }
                         if (Storage.ProdRatio.AlmostEqual(1))

@@ -6,7 +6,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using Ship_Game.Ships.AI;
-using SynapseGaming.LightingSystem.Lights;
 using Ship_Game.Fleets;
 
 namespace Ship_Game
@@ -804,21 +803,74 @@ namespace Ship_Game
                     batch.DrawString(Fonts.Pirulen12, fleetButton.Key.ToString(),
                         new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4), Color.Orange);
 
-                    //draw ship icons to right of button
-                    Vector2 shipSpacingH = new Vector2( fleetButton.ClickRect.X + 50, fleetButton.ClickRect.Y);
-                    for (int x = 0; x < fleetButton.Fleet.Ships.Count; ++x)
-                    {
-                        Ship ship = fleetButton.Fleet.Ships[x];
-                        var iconHousing = new Rectangle((int) shipSpacingH.X, (int) shipSpacingH.Y, 15, 15);
-                        shipSpacingH.X +=  15f;
-                        if (shipSpacingH.X > 200f)
-                        {
-                            shipSpacingH.X = fleetButton.ClickRect.X + 50f;
-                            shipSpacingH.Y += 15f;
-                        }
-                        batch.Draw(ship.GetTacticalIcon(), iconHousing, fleetButton.Fleet.Owner.EmpireColor);
-                    }
+                    DrawFleetShipIcons(batch, fleetButton);
                 }
+            }
+        }
+
+        void DrawFleetShipIcons(SpriteBatch batch, FleetButton fleetButton)
+        {
+            int x = fleetButton.ClickRect.X + 55; // Offset from the button
+            int y = fleetButton.ClickRect.Y;
+
+            if (fleetButton.Fleet.Ships.Count <= 30)
+                DrawFleetShipIcons30(batch, fleetButton, x, y);
+            else 
+                DrawFleetShipIconsSums(batch, fleetButton, x, y);
+        }
+
+        void DrawFleetShipIcons30(SpriteBatch batch, FleetButton fleetButton, int x, int y)
+        {
+            // Draw ship icons to right of button
+            Vector2 shipSpacingH = new Vector2(x, y);
+            for (int i = 0; i < fleetButton.Fleet.Ships.Count; ++i)
+            {
+                Ship ship       = fleetButton.Fleet.Ships[i];
+                var iconHousing = new Rectangle((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
+                shipSpacingH.X += 15f;
+                if (shipSpacingH.X > 210) // 10 Ships per row
+                {
+                    shipSpacingH.X  = x;
+                    shipSpacingH.Y += 15f;
+                }
+
+                batch.Draw(ship.GetTacticalIcon(), iconHousing, fleetButton.Fleet.Owner.EmpireColor);
+            }
+        }
+
+        void DrawFleetShipIconsSums(SpriteBatch batch, FleetButton fleetButton, int x, int y)
+        {
+            Color color = fleetButton.Fleet.Owner.EmpireColor;
+            var sums    = new Map<string, int>();
+            for (int i = 0; i < fleetButton.Fleet.Ships.Count; ++i)
+            {
+                Ship ship   = fleetButton.Fleet.Ships[i];
+                string icon = $"TacticalIcons/{ship.GetTacticalIcon().Name}";
+                if (sums.TryGetValue(icon, out int value))
+                    sums[icon] = value + 1;
+                else
+                    sums.Add(icon, 1);
+            }
+
+            Vector2 shipSpacingH = new Vector2(x, y);
+            int roleCounter = 1;
+            foreach (string role in sums.Keys.ToArray())
+            {
+                var iconHousing = new Rectangle((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
+                string sum = $"{sums[role]}x";
+                batch.DrawString(Fonts.Arial10, sum, iconHousing.X, iconHousing.Y, color);
+                float ident = Fonts.Arial10.MeasureString(sum).X;
+                shipSpacingH.X += ident;
+                iconHousing.X  += (int)ident;
+                batch.Draw(ResourceManager.Texture(role), iconHousing, color);
+                shipSpacingH.X += 25f;
+                if (roleCounter % 4 == 0) // 4 roles per line
+                {
+                    shipSpacingH.X  = x;
+                    shipSpacingH.Y += 15f;
+                }
+
+                roleCounter += 1;
             }
         }
 

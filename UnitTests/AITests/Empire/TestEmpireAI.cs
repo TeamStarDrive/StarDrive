@@ -15,8 +15,8 @@ namespace UnitTests.AITests.Empire
     {
         public TestEmpireAI()
         {
-            LoadPlanetContent();
             CreateGameInstance();
+            LoadPlanetContent();
             CreateTestEnv();
         }
 
@@ -94,7 +94,6 @@ namespace UnitTests.AITests.Empire
         }*/
 
         [TestMethod]
-        [Ignore]
         public void FirstTestShipBuilt()
         {
             ClearEmpireShips();
@@ -104,12 +103,11 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        [Ignore]
         public void TestBuildCounts()
         {
             ClearEmpireShips();
             // setup Build
-            var build           = new RoleBuildInfo(2, Player.GetEmpireAI(), true);
+            var build = new RoleBuildInfo(2, Player.GetEmpireAI(), true);
 
             // init base variables
             var combatRole      = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ShipData.RoleName.fighter);
@@ -147,7 +145,6 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        [Ignore]
         public void TestBuildScrap()
         {
             ClearEmpireShips();

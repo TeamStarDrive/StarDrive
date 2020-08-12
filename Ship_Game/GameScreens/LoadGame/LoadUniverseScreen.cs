@@ -46,11 +46,10 @@ namespace Ship_Game
                     Universe = CreateUniverseScreen(data, save, Progress.NextStep()); // 1244ms
                     Log.Info(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
 
+                    EmpireManager.RestoreUnserializableDataFromSave();
                     Progress.Finish();
 
                     Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
-
-                    EmpireManager.RestoreUnserializableDataFromSave();
                 }
                 catch (Exception e)
                 {
@@ -169,7 +168,7 @@ namespace Ship_Game
             };
 
             RandomEventManager.ActiveEvent = saveData.RandomEvent;
-            CurrentGame.StartNew(data, saveData.GamePacing);
+            CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets);
             
             EmpireManager.Clear();
             if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
@@ -209,8 +208,6 @@ namespace Ship_Game
             
             StarDriveGame.Instance.ResetElapsedTime();
             us.LoadContent();
-            us.UpdateAllSystems(0.01f);
-
             CreateAOs(data);
             FinalizeShips(us);
             foreach(Empire empire in EmpireManager.Empires)

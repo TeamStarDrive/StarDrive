@@ -52,13 +52,12 @@ namespace Ship_Game.AI.ExpansionAI
         }
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
-        bool  IsExpansionists    => Owner.data.EconomicPersonality?.Name == "Expansionists";
-        float ExpansionThreshold => (IsExpansionists ? 0.35f : 0.45f) + Owner.DifficultyModifiers.ExpansionModifier;
+        float ExpansionThreshold => (Owner.IsExpansionists ? 0.35f : 0.45f) + Owner.DifficultyModifiers.ExpansionModifier;
 
         public ExpansionPlanner(Empire empire)
         {
             Owner                  = empire;
-            SetMaxSystemsToCheckedDiv(IsExpansionists ? 4 : 6);
+            SetMaxSystemsToCheckedDiv(Owner.IsExpansionists ? 4 : 6);
             ResetExpandSearchTimer();
         }
 

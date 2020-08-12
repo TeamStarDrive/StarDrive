@@ -285,6 +285,9 @@ namespace Ship_Game
                 Log.HideConsoleWindow();
         }
 
+        static FileInfo ModInfo(string file)     => new FileInfo( Path.Combine(GlobalStats.ModPath, file) );
+        static FileInfo ContentInfo(string file) => new FileInfo( Path.Combine(RootContent.RootDirectory, file) );
+
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
         // Example relativePath: "Textures/myAtlas.xml"
         public static FileInfo GetModOrVanillaFile(string relativePath)
@@ -292,11 +295,11 @@ namespace Ship_Game
             FileInfo info;
             if (GlobalStats.HasMod)
             {
-                info = new FileInfo(GlobalStats.ModPath + relativePath);
+                info = ModInfo(relativePath);
                 if (info.Exists)
                     return info;
             }
-            info = new FileInfo("Content/" + relativePath);
+            info = ContentInfo(relativePath);
             return info.Exists ? info : null;
         }
 
@@ -304,10 +307,16 @@ namespace Ship_Game
         static T TryDeserialize<T>(string file) where T : class
         {
             FileInfo info = null;
-            if (GlobalStats.HasMod) info = new FileInfo(GlobalStats.ModPath + file);
-            if (info == null || !info.Exists) info = new FileInfo("Content/" + file);
-            if (!info.Exists)
-                return null;
+            if (GlobalStats.HasMod)
+            {
+                info = ModInfo(file);
+            }
+            if (info == null || !info.Exists)
+            {
+                info = ContentInfo(file);
+                if (!info.Exists)
+                    return null;
+            }
             using (Stream stream = info.OpenRead())
                 return (T)new XmlSerializer(typeof(T)).Deserialize(stream);
         }
@@ -1369,15 +1378,16 @@ namespace Ship_Game
             LoadBasicContentForTesting();
             LoadPlanetTypes();
             LoadSunZoneData();
-            //LoadBuildRatios();
-            //SunType.LoadAll(); currently wont load from test.
+            LoadBuildRatios();
+            SunType.LoadAll();
         }
 
         public static void LoadTechContentForTesting()
         {
             LoadBasicContentForTesting();
             LoadTechTree();
-            //SunType.LoadAll(); currently wont load from test.
+            TechValidator();
+            SunType.LoadAll();
         }
 
         static void TechValidator()
@@ -1426,6 +1436,9 @@ namespace Ship_Game
                 if (!tech.Unlockable)
                     Log.WarningVerbose($"Tech {tech.UID} has no way to unlock! Source: '{tech.DebugSourceFile}'");
             }
+
+            foreach (Technology tech in TechTree.Values)
+                tech.ResolveLeadsToTechs();
         }
 
         static void LoadTechTree()
@@ -1457,9 +1470,6 @@ namespace Ship_Game
                 // categorize extra techs
                 tech.UpdateTechnologyTypesFromUnlocks();
             }
-
-            foreach (Technology tech in TechTree.Values)
-                tech.ResolveLeadsToTechs();
         }
 
         static void LoadToolTips()

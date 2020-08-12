@@ -64,7 +64,7 @@ namespace Ship_Game.AI
             }
 
             if (ship.IsPlatformOrStation
-                || ship.AI.BadGuysNear
+                || ship.InCombat
                 || ship.engineState == Ship.MoveState.Warp
                 || ship.fleet != null
                 || ship.Mothership != null
@@ -100,20 +100,26 @@ namespace Ship_Game.AI
 
         public int CountFleets(out float strength)
         {
-            int filledRoles = 0;
+            float filledRoles = float.MaxValue;
             strength = 0;
+            int wantedRoles = 0;
+            float completionWanted = 0.1f;
+            int maxCombatIndex = Ratios.MaxCombatRoleIndex();
             foreach(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole item in Enum.GetValues(typeof(EmpireAI.RoleBuildInfo.RoleCounts.CombatRole)))
             {
-                float wanted       = Ratios.GetWanted(item);
+                float wanted       = (Ratios.GetWanted(item) * completionWanted).LowerBound(1);// > 0 ? 1 : 0;
                 if (wanted        <= 0) continue;
+                wantedRoles++;
                 int index          = (int)item;
                 float have         = RoleCount[index];
                 float filled       = have / wanted;
                 float roleStrength = RoleStrength[index];
                 strength          += (filled > 1 ? roleStrength : 0);
-                filledRoles        = (int)Math.Min(filledRoles, filled);
+                bool requiredRole = index > maxCombatIndex - 1 && index < maxCombatIndex + 1;
+                if (!requiredRole) continue;
+                filledRoles       = Math.Min(filled, filledRoles);
             }
-            return filledRoles;
+            return (int)filledRoles;
         }
 
         public int ExtractFleetShipsUpToStrength(float strength, float setCompletePercent, int wantedFleetCount,
@@ -152,33 +158,28 @@ namespace Ship_Game.AI
             return completeFleets;
         }
 
-        public Array<Ship> GetBasicFleet()
-        {
-            var ships = new Array<Ship>();
-            ships.AddRange(ExtractShips(Ships, Ratios.MinFighters, ShipData.RoleName.fighter));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCorvettes, ShipData.RoleName.corvette));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinFrigates, ShipData.RoleName.frigate));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCruisers, ShipData.RoleName.cruiser));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCapitals, ShipData.RoleName.capital));
-            return ships;
-        }
-
         public Array<Ship> GetCoreFleet()
         {
+            int maxCombatIndex = Ratios.MaxCombatRoleIndex();
             var ships = new Array<Ship>();
-            ships.AddRange(ExtractShips(Ships, Ratios.MinFighters, ShipData.RoleName.fighter));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCorvettes, ShipData.RoleName.corvette));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinFrigates, ShipData.RoleName.frigate));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCruisers, ShipData.RoleName.cruiser));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCapitals, ShipData.RoleName.capital));
+            int role = 1;
+            ships.AddRange(ExtractShips(Ships, Ratios.MinFighters, ShipData.RoleName.fighter, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
+            role++;
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCorvettes, ShipData.RoleName.corvette, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
+            role++;
+            ships.AddRange(ExtractShips(Ships, Ratios.MinFrigates, ShipData.RoleName.frigate, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
+            role++;
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCruisers, ShipData.RoleName.cruiser, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
+            role++;
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCapitals, ShipData.RoleName.capital, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
             return ships;
         }
 
         public Array<Ship> GetSupplementalFleet()
         {
             var ships = new Array<Ship>();
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCarriers, ShipData.RoleName.carrier));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinSupport, ShipData.RoleName.support));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCarriers, ShipData.RoleName.carrier, false));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinSupport, ShipData.RoleName.support,false));
             return ships;
         }
 
@@ -226,12 +227,13 @@ namespace Ship_Game.AI
             return ships;
         }
 
-        private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, ShipData.RoleName role)
-            => ExtractShips(ships, wanted, s => s.DesignRole == role);
+        private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, ShipData.RoleName role, bool required)
+            => ExtractShips(ships, wanted, s => s.DesignRole == role, required);
 
-        private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, Func<Ship, bool> shipFilter)
+        private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, Func<Ship, bool> shipFilter, bool required)
         {
             var shipSet = new Array<Ship>();
+            
             if (wanted > 0)
                 for (int x = ships.Count - 1; x >= 0; x--)
                 {
@@ -242,10 +244,14 @@ namespace Ship_Game.AI
                     shipSet.Add(ship);
                     Ships.RemoveSwapLast(ship);
                     AccumulatedStrength += ship.GetStrength();
+
                     if (shipSet.Count >= wanted * WantedFleetCompletePercentage)
                         break;
                 }
-
+            if (!required || shipSet.Count >= wanted * WantedFleetCompletePercentage)
+                return shipSet;
+            AddShips(shipSet);
+            shipSet.Clear();
             return shipSet;
         }
         /// <summary>
