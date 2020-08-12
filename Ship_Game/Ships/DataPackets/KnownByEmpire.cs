@@ -29,6 +29,7 @@ namespace Ship_Game.Ships.DataPackets
         public KnownByEmpire()
         {
             SeenByID = new float[EmpireManager.NumEmpires];
+            for (int i = 0; i < SeenByID.Length; i++) SeenByID[i] = -100;
         }
 
         /// <summary>
