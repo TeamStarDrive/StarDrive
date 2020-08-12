@@ -374,7 +374,7 @@ namespace Ship_Game.Ships
             float slowestFighterSpeed = Owner.SpeedLimit * 2;
 
             RecallingShipsBeforeWarp = true;
-            if (jumpDistance > 7500f)
+            if (jumpDistance > 25000f) // allows the carrier to jump small distances and then recall fighters
             {
                 recallFighters = true;
                 foreach (ShipModule hangar in AllActiveHangars)
@@ -392,7 +392,7 @@ namespace Ship_Game.Ships
                         || !hangarShip.hasCommand
                         || hangarShip.dying
                         || hangarShip.EnginesKnockedOut
-                        || rangeToCarrier > 25000f )
+                        || rangeToCarrier > Owner.SensorRange)
                     {
                         recallFighters = false;
                         if (hangarShip.ScuttleTimer <= 0f && hangarShip.WarpThrust < 1f)
@@ -526,21 +526,28 @@ namespace Ship_Game.Ships
             }
         }
 
-        private string GetDynamicShipName(ShipModule hangar, Empire empire)
+        string GetDynamicShipName(ShipModule hangar, Empire empire)
         {
             ShipData.HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
-            string selectedShip = string.Empty;
+            float strongest = 0;
+            string bestShip = string.Empty;
             foreach (var role in hangar.HangarRoles)
             {
-                selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize,
+                Ship selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize,
                     designation: desiredShipCategory, normalizedStrength: false);
 
                 // If no desired category is available in the empire, try to get the best ship we have regardless of category for this role
-                if (selectedShip.IsEmpty() && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
+                if (selectedShip == null && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
                     selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize, normalizedStrength : false);
-                if (selectedShip.NotEmpty()) break;
+
+                if (selectedShip != null && selectedShip.BaseStrength.GreaterOrEqual(strongest))
+                {
+                    strongest = selectedShip.BaseStrength;
+                    bestShip  = selectedShip.Name;
+                }
             }
-            return selectedShip;
+
+            return bestShip;
         }
 
         /// <summary>
@@ -599,7 +606,7 @@ namespace Ship_Game.Ships
                 if (IsPrimaryCarrierRole && Owner.AI.CombatState != CombatState.ShortRange)
                     range = Owner.SensorRange;
                 else
-                    range = Owner.DesiredCombatRange;
+                    range = Owner.WeaponsMaxRange;
 
                 if (!Owner.ManualHangarOverride && distanceToTarget < range)
                     return true;

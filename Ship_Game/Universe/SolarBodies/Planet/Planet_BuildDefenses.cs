@@ -174,7 +174,10 @@ namespace Ship_Game
             if (orbitalList.IsEmpty || OrbitalsInTheWorks)
                 return;
 
-            Ship weakestWeHave  = orbitalList.FindMin(s => s.NormalizedStrength);
+            Ship weakestWeHave = orbitalList.FindMin(s => s.NormalizedStrength);
+            if (weakestWeHave.AI.State == AIState.Refit)
+                return; // refit one orbital at a time
+
             float weakestMaint  = weakestWeHave.GetMaintCost(Owner);
             Ship bestWeCanBuild = PickOrbitalToBuild(role, budget + weakestMaint);
 
@@ -184,10 +187,22 @@ namespace Ship_Game
             if (bestWeCanBuild.NormalizedStrength.Less(weakestWeHave.NormalizedStrength * 1.2f))
                 return; // replace only if str is 20% more than the current weakest orbital
 
-            ScrapOrbital(weakestWeHave);
-            AddOrbital(bestWeCanBuild);
+            string debugReplaceOrRefit;
+            if (weakestWeHave.DesignRole == bestWeCanBuild.DesignRole)
+            {
+                Goal refitOrbital = new RefitOrbital(weakestWeHave, bestWeCanBuild.Name, Owner);
+                Owner.GetEmpireAI().Goals.Add(refitOrbital);
+                debugReplaceOrRefit = "REFITTING";
+            }
+            else
+            {
+                ScrapOrbital(weakestWeHave);
+                AddOrbital(bestWeCanBuild);
+                debugReplaceOrRefit = "REPLACING";
+            }
+
             if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Cyan, $"{Name}, {Owner.Name} - REPLACING Orbital ----- {weakestWeHave.Name}" +
+                Log.Info(ConsoleColor.Cyan, $"{Name}, {Owner.Name} - {debugReplaceOrRefit} Orbital ----- {weakestWeHave.Name}" +
                          $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
         }
 
@@ -331,6 +346,9 @@ namespace Ship_Game
 
         void BuildAndScrapMilitaryBuildings(float budget)
         {
+            if (Owner.isPlayer && !GovOrbitals)
+                return;
+
             if (MilitaryBuildingInTheWorks)
                 return;
 
@@ -382,19 +400,19 @@ namespace Ship_Game
             {
                 case 1: Platforms  = 0; Stations = 0; Shipyards = 0; break;
                 case 2: Platforms  = 0; Stations = 0; Shipyards = 0; break;
-                case 3: Platforms  = 3; Stations = 0; Shipyards = 0; break;
-                case 4: Platforms  = 4; Stations = 0; Shipyards = 0; break;
-                case 5: Platforms  = 7; Stations = 0; Shipyards = 1; break;
-                case 6: Platforms  = 3; Stations = 1; Shipyards = 1; break;
-                case 7: Platforms  = 3; Stations = 1; Shipyards = 1; break;
-                case 8: Platforms  = 3; Stations = 2; Shipyards = 1; break;
-                case 9: Platforms  = 6; Stations = 2; Shipyards = 1; break;
-                case 10: Platforms = 3; Stations = 3; Shipyards = 2; break;
-                case 11: Platforms = 3; Stations = 3; Shipyards = 2; break;
-                case 12: Platforms = 3; Stations = 4; Shipyards = 2; break;
-                case 13: Platforms = 3; Stations = 4; Shipyards = 2; break;
-                case 14: Platforms = 3; Stations = 4; Shipyards = 2; break;
-                case 15: Platforms = 0; Stations = 5; Shipyards = 2; break;
+                case 3: Platforms  = 1; Stations = 0; Shipyards = 0; break;
+                case 4: Platforms  = 2; Stations = 0; Shipyards = 0; break;
+                case 5: Platforms  = 3; Stations = 1; Shipyards = 0; break;
+                case 6: Platforms  = 4; Stations = 1; Shipyards = 1; break;
+                case 7: Platforms  = 5; Stations = 1; Shipyards = 1; break;
+                case 8: Platforms  = 6; Stations = 2; Shipyards = 1; break;
+                case 9: Platforms  = 7; Stations = 2; Shipyards = 1; break;
+                case 10: Platforms = 8; Stations = 3; Shipyards = 2; break;
+                case 11: Platforms = 9; Stations = 3; Shipyards = 2; break;
+                case 12: Platforms = 9; Stations = 4; Shipyards = 2; break;
+                case 13: Platforms = 9; Stations = 4; Shipyards = 2; break;
+                case 14: Platforms = 9; Stations = 5; Shipyards = 2; break;
+                case 15: Platforms = 9; Stations = 6; Shipyards = 2; break;
                 default: Platforms = 0; Stations = 0; Shipyards = 0; break;
             }
         }

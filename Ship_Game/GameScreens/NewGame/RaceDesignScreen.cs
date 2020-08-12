@@ -175,18 +175,27 @@ namespace Ship_Game
                 return button;
             }
 
-            AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(),
-                tip:"Sets the scale of the generated galaxy");
-            AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(),
-                tip:"Number of Solar Systems packed into the Universe");
-            AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => NumOpponents.ToString(),
-                tip:"Sets the number of AI opponents you must face");
+            string galaxySizeTip = "Sets the scale of the generated galaxy";
+            if (GlobalStats.ModChangeResearchCost)
+                galaxySizeTip += ". Scale other than Medium will increase/decrease research cost of technologies.";
+
+            string solarSystemsTip = "Number of Solar Systems packed into the Universe";
+            if (GlobalStats.ModChangeResearchCost)
+                solarSystemsTip += ". Technology research costs will scale up or down as well";
+
+            string opponentsTip = "Sets the number of AI opponents you must face";
+            if (GlobalStats.ModChangeResearchCost)
+                opponentsTip += ". On a large scale galaxy, this might also affect research cost of technologies.";
+
+            AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(), tip: galaxySizeTip);
+            AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(), tip: solarSystemsTip);
+            AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => NumOpponents.ToString(), tip: opponentsTip);
             ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
             AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameTips.Pacing);
             AddOption("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
                 tip:"Hard and Brutal increase AI Aggressiveness and gives them extra bonuses");
             AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
-                tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare");
+                tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare.");
 
             var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
             DescriptionTextList = Add(new ScrollList2<TextListItem>(description, DescriptionTextFont.LineSpacing));

@@ -100,14 +100,7 @@ namespace Ship_Game
                         troopHitChance = (int)(troopHitChance * 0.1f);
 
                     if (RandomMath.RollDice(troopHitChance))
-                    {
-                        troop.DamageTroop(damage);
-                        if (troop.Strength <= 0)
-                        {
-                            Surface.TroopsHere.Remove(troop);
-                            TargetTile.TroopsHere.Remove(troop);
-                        }
-                    }
+                        troop.DamageTroop(damage, Surface, TargetTile, out _);
                 }
             }
         }

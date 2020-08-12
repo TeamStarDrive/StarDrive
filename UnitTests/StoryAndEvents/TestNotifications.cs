@@ -16,8 +16,8 @@ namespace UnitTests.NotificationTests
 
         public TestNotifications()
         {
-            LoadPlanetContent();
             CreateGameInstance();
+            LoadPlanetContent();
         }
 
         void CreateTestEnv(out Empire empire)

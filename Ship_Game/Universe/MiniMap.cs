@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -128,14 +129,13 @@ namespace Ship_Game
             base.Draw(batch);
         }
 
-        void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list, SpriteBatch batch)
+        void DrawNode(Empire empire, IList<Empire.InfluenceNode> list, SpriteBatch batch)
         {
-            using (list.AcquireReadLock())
             {
                 for (int i = 0; i < list.Count; i++)
                 {
                     Empire.InfluenceNode node = list[i];
-                    if (!node.Known)
+                    if (node == null || !node.Known)
                         continue;
 
                     float nodeRad = WorldToMiniRadius(node.Radius);
@@ -178,8 +178,8 @@ namespace Ship_Game
         
         void DrawNode(Empire e, SpriteBatch batch)
         {
-            DrawNode(e, e.BorderNodes, batch);
-            DrawNode(e, e.SensorNodes, batch);
+            DrawNode(e, e.BorderNodes.ToArray(), batch);
+            DrawNode(e, e.SensorNodes.ToArray(), batch);
         }
 
         void ZoomToShip_OnClick(ToggleButton toggleButton)

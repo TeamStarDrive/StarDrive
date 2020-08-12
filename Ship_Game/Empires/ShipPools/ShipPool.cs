@@ -14,6 +14,8 @@ namespace Ship_Game.Empires.ShipPools
         public bool ForcePoolContains(Ship s) => ForcePool.ContainsRef(s);
         public void ClearForcePools()         => ForcePool.Clear();
         public bool Remove(Ship ship)         => ForcePool.RemoveRef(ship);
+        public float InitialStrength = 0;
+        public int InitialReadyFleets =0;
 
         public FleetShips EmpireReadyFleets { get; private set; }
         public ShipPool(Empire empire)
@@ -27,6 +29,9 @@ namespace Ship_Game.Empires.ShipPools
             AddShipsToForcePoolFromShipsToAdd();
             ErrorCheckPools();
             EmpireReadyFleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
+            InitialReadyFleets += EmpireReadyFleets.CountFleets(out float initialStrength);
+            InitialReadyFleets /=2;
+            InitialStrength = (initialStrength + InitialStrength) / 2;
         }
 
         public void RemoveShipFromFleetAndPools(Ship ship)

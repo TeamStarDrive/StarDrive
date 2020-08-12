@@ -131,7 +131,8 @@ namespace Ship_Game.AI.Tasks
 
         AO FindClosestAO(float strWanted = 100)
         {
-            var aos = Owner.GetEmpireAI().AreasOfOperations;
+            if (RallyAO != null) return RallyAO;
+            var aos =  Owner.GetEmpireAI().AreasOfOperations;
             if (aos.Count == 0)
             {
                 Log.Info($"{Owner.Name} has no areas of operation");
@@ -403,10 +404,7 @@ namespace Ship_Game.AI.Tasks
             return RequisitionStatus.Complete;
         }
 
-        Planet GetRallyPlanet()
-        {
-            return Owner.FindNearestRallyPoint(AO);
-        }
+        Planet GetRallyPlanet() => RallyAO?.GetPlanet() ?? Owner.FindNearestRallyPoint(AO);
 
         void InitFleetRequirements(int minFleetStrength, int minTroopStrength, int minBombMinutes)
         {

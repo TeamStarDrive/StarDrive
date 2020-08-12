@@ -449,14 +449,14 @@ namespace Ship_Game.Debug
                 VisualizeShipOrderQueue(ship);
                 DrawWeaponArcs(ship);
 
-                DrawString($"On Defense: {ship.DoingSystemDefense}");
+                DrawString($"On Defense: {ship.loyalty.GetEmpireAI().DefensiveCoordinator.Contains(ship)}");
                 if (ship.fleet != null)
                 {
                     DrawString($"Fleet {ship.fleet.Name}  {(int)ship.fleet.FinalPosition.X}x{(int)ship.fleet.FinalPosition.Y}");
                     DrawString($"Fleet speed: {ship.fleet.SpeedLimit}");
                 }
 
-                DrawString(!ship.loyalty.Pool.ForcePoolContains(ship) ? "NOT In Force Pool" : "In Force Pool");
+                DrawString(ship.loyalty.GetEmpireAI().AreasOfOperations.Any(ao=> ao.OffensiveForcePoolContains(ship)) ? "In Force Pool" : "NOT In Force Pool");
 
                 if (ship.AI.State == AIState.SystemDefender)
                 {
@@ -664,7 +664,9 @@ namespace Ship_Game.Debug
                                         + "/" + e.GetTotalPopPotential().String(1));
 
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
-                DrawString("Military Str: "+ e.MilitaryScore);
+                DrawString("Military Str: "+ (int)e.MilitaryScore);
+                int fleetsReady = e.Pool.EmpireReadyFleets.CountFleets(out float fleetStr);
+                DrawString($"Fleets: Str: {(int)e.Pool.InitialStrength} Avail: {e.Pool.InitialReadyFleets}");
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
                 {
                     Goal g = e.GetEmpireAI().Goals[x];
@@ -679,7 +681,7 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                MilitaryTask[] tasks = e.GetEmpireAI().GetTasks().Sorted(t=> t.Priority);
+                MilitaryTask[] tasks = e.GetEmpireAI().GetTasks().ToArray();
                 for (int j = 0; j < tasks.Length; j++)
                 {
                     MilitaryTask task = tasks[j];
@@ -691,16 +693,15 @@ namespace Ship_Game.Debug
                             sysName = sys.Name;
                     }
                     NewLine();
-                    DrawString($"FleetTask: {task.type} {sysName} {task.TargetPlanet?.Name}");
-                    DrawString(15f, "Step:  " + task.Step);
-                    DrawString(15f, "EnemyStrength: " + task.EnemyStrength);
-                    DrawString(15f, "MinStrNeeded: " + task.MinimumTaskForceStrength);
+                    var planet =task.TargetPlanet?.Name ?? "";
+                    DrawString($"FleetTask: {task.type} {sysName} {planet}");
+                    DrawString(15f, $"Step:  {task.Step} - Priority:{task.Priority}");
+                    float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
+                    DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength}");
                     if (task.WhichFleet != -1)
                     {
                         DrawString(15f, "Fleet: " + task.Fleet.Name);
-                        DrawString(15f, " Ships: " + task.Fleet.Ships.Count);
-                        DrawString(15f, " Strength: " + task.Fleet.GetStrength());
-                        DrawString(15f, " CanTakeThisFight: " + task.Fleet.CanTakeThisFight(task.EnemyStrength));
+                        DrawString(15f, $" Ships: {task.Fleet.Ships.Count} CanWin: {task.Fleet.CanTakeThisFight(task.EnemyStrength)}");
                     }
                 }
 
