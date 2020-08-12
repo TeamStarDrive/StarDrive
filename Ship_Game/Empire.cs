@@ -1246,7 +1246,7 @@ namespace Ship_Game
                 {
                     currentlyKnown.AddUniqueRef(ship);
 
-                    if (isPlayer && ship.loyalty != this)
+                    if (ship.loyalty != this)
                     {
                         if (GetRelations(ship.loyalty)?.Known == false)
                             DoFirstContact(ship.loyalty);
