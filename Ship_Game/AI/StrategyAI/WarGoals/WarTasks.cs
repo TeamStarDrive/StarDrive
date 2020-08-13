@@ -11,6 +11,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
     public class WarTasks
     {
         public Array<MilitaryTask> NewTasks;
+        public Array<Guid> HardTargets;
         Empire Owner;
         Empire Target;
         Campaign OwnerCampaign;
@@ -21,6 +22,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Target        = target;
             NewTasks      = new Array<MilitaryTask>();
             OwnerCampaign = campaign;
+            HardTargets   = new Array<Guid>();
         }
 
         public void RestoreFromSave(Empire owner, Empire target, Campaign campaign)
@@ -39,6 +41,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var task = NewTasks[i];
                 if (task.QueuedForRemoval)
                 {
+                    CreateTaskAfterActionReport(task);
                     NewTasks.RemoveAtSwapLast(i);
                 }
                 else
@@ -47,6 +50,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     task.Evaluate(Owner);
                 }
             }
+        }
+
+        void CreateTaskAfterActionReport(MilitaryTask task)
+        {
+            bool planetObjectiveWon = task.TargetPlanet?.Owner == null ||  task.TargetPlanet.Owner == Owner;
+            if (task.TargetPlanet != null && planetObjectiveWon)
+                HardTargets.Add(task.TargetPlanet.guid);
+            
         }
 
         public void StandardAssault(IEnumerable<SolarSystem> systemsToAttack, int priority)
@@ -141,6 +152,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         void CreateTask(MilitaryTask task)
         {
+            //var planet = task.TargetPlanet;
+            //if (planet != null)
+            //{
+            //    int fails = HardTargets.Count(p=>p == planet.guid);
+            //    task.FleetCount += fails;
+            //}
             NewTasks.Add(task);
         }
     }
