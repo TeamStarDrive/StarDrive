@@ -5,14 +5,13 @@ using Ship_Game.Ships;
 
 namespace UnitTests.Ships
 {
-    /*  FB - AppVeyor cant handle new files
     [TestClass]
     public class TestShields : StarDriveTest
     {
         public TestShields()
         {
-            LoadStarterShips("TEST_ShipShield");
             CreateGameInstance();
+            LoadStarterShips("TEST_ShipShield");
         }
 
         void CreateTestEnv(out Ship ship)
@@ -41,5 +40,4 @@ namespace UnitTests.Ships
             Assert.That.Equal(ship.shield_max, 1400);
         }
     }
-    */
 }
