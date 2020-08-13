@@ -191,15 +191,12 @@ namespace Ship_Game
 
         private void DrawInfluenceNodes()
         {
-            var uiNode = ResourceManager.Texture("UI/node");
+            var uiNode= ResourceManager.Texture("UI/node");
             var viewport = Viewport;
             using (player.SensorNodes.AcquireReadLock())
                 foreach (Empire.InfluenceNode influ in player.SensorNodes)
                 {
-                    //Vector3 local_1 = viewport.Project(influ.Position.ToVec3(), this.projection, this.view,
-                    //    Matrix.Identity);
-                    //Vector2 unProject = ProjectToScreenPosition(influ.Position);
-                    Vector2 screenPos = ProjectToScreenPosition(influ.Position);  //local_1.ToVec2();
+                    Vector2 screenPos = ProjectToScreenPosition(influ.Position);
                     Vector3 local_4 = viewport.Project(
                         new Vector3(influ.Position.PointFromAngle(90f, influ.Radius * 1.5f), 0.0f), Projection,
                         View, Matrix.Identity);
@@ -227,7 +224,7 @@ namespace Ship_Game
             var nodeCorrected = ResourceManager.Texture("UI/nodecorrected");
             var nodeConnect = ResourceManager.Texture("UI/nodeconnect");
 
-            foreach (Empire empire in EmpireManager.Empires)
+            foreach (Empire empire in EmpireManager.Empires.Sorted(e=> e.MilitaryScore))
             {
                 if (!Debug && empire != player && !player.GetRelations(empire).Known)
                     continue;
@@ -238,10 +235,11 @@ namespace Ship_Game
                     for (int x = 0; x < empire.BorderNodes.Count; x++)
                     {
                         Empire.InfluenceNode influ = empire.BorderNodes[x];
-                        if (!Frustum.Contains(influ.Position, influ.Radius))
-                            continue;
                         if (!influ.Known)
                             continue;
+                        if (!Frustum.Contains(influ.Position, influ.Radius))
+                            continue;
+                 
                         Vector2 nodePos = ProjectToScreenPosition(influ.Position);
                         int size = (int) Math.Abs(
                             ProjectToScreenPosition(influ.Position.PointFromAngle(90f, influ.Radius)).X - nodePos.X);
@@ -667,11 +665,11 @@ namespace Ship_Game
                     Fleet fleet = fleets[i];
                     if (fleet.Ships.Count <= 0)
                         continue;
-                    if (!Debug && player.DifficultyModifiers.HideTacticalData && player.IsEmpireAttackable(fleet.Owner))
+                    if ((!Debug && player.DifficultyModifiers.HideTacticalData) && player.IsEmpireAttackable(fleet.Owner))
                         continue;
                     Vector2 averagePos = fleet.AveragePosition();
                     bool inSensors = player.IsPointInSensors(averagePos);
-                    if (!inSensors && !Debug && fleet.Owner != player)
+                    if (!inSensors && fleet.Owner != player)
                         continue;
 
                     SubTexture icon = fleet.Icon;
