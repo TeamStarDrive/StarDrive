@@ -422,12 +422,12 @@ namespace Ship_Game.AI
             }
         }
 
-        public void UpdateAllPins(Empire owner)
+        public bool UpdateAllPins(Empire owner)
         {
-            if (Updater?.IsCompleted == false || PendingActions.NotEmpty) return;
+            if (Updater?.IsCompleted == false || PendingActions.NotEmpty) return false;
             
-            var pins                 = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
-            var ships                = owner.GetShips().Clone();
+            var pins= Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
+            var ships      = owner.GetShips().Clone();
             var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
             ships.AddRange(owner.GetProjectors());
 
@@ -478,6 +478,7 @@ namespace Ship_Game.AI
                     }
                     MaxProcessingPerTurn = (PendingActions.Count / 30);
                 });
+            return true;
         }
 
         public Pin[] GetPins() => Pins.AtomicValuesArray();
