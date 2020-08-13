@@ -2306,7 +2306,7 @@ namespace Ship_Game
             foreach(var empire in EmpireManager.Empires)
             {
                 var relation = GetRelations(empire);
-                if (relation == null || !relation.Treaty_Alliance && !Universe.Debug) continue;
+                if (relation == null || !relation.Treaty_Alliance && (!Universe.Debug || !isPlayer)) continue;
                 bool wellKnown = true;
                 Planet[] array = empire.OwnedPlanets.ToArray();
                 for (int y = 0; y < array.Length; y++)
