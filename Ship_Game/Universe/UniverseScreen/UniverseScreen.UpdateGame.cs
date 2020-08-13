@@ -400,6 +400,7 @@ namespace Ship_Game
                 for (var i = 0; i < EmpireManager.NumEmpires; i++)
                 {
                     Empire empire = EmpireManager.Empires[i];
+                    if (empire.data.Defeated) continue;
                     empire.Update(elapsedTime);
                 }
 
