@@ -194,7 +194,7 @@ namespace Ship_Game
             }
 
             if (b.IsBiospheres)
-                description = $"{(p.BasePopPerTile/1000).String(2) } {description}";
+                description = $"{(p.PopPerBiosphere/1000).String(2) } {description}";
             
             return description;
         }

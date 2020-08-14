@@ -166,7 +166,8 @@ namespace Ship_Game
                 for (int y = 0; y < TileMaxY; ++y)
                 {
                     bool habitableTile = RollDice(tileChance);
-                    TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
+                    bool terraformable = !habitableTile && RollDice(25) || habitableTile;
+                    TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile, terraformable));
                     if (habitableTile)
                         ++numHabitableTiles;
                 }
@@ -239,8 +240,8 @@ namespace Ship_Game
             TerraformBioSpheres();
         }
 
-        public bool TilesToTerraform      => TilesList.Any(t => !t.Habitable && !t.Biosphere);
-        public bool BioSpheresToTerraform => TilesList.Any(t => t.Biosphere);
+        public bool TilesToTerraform      => TilesList.Any(t => t.CanTerraform);
+        public bool BioSpheresToTerraform => TilesList.Any(t => t.BioCanTerraform);
 
         private bool TerraformTiles()
         {
@@ -250,7 +251,7 @@ namespace Ship_Game
 
             TerraformPoints += TerraformToAdd * 5; // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
-                CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && !t.Biosphere));
+                CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable));
 
             return true;
         }
@@ -286,9 +287,9 @@ namespace Ship_Game
                 return;
             }
 
-            TerraformPoints += TerraformToAdd * 10; // Terraforming Biospheres is much faster than the whole planet
+            TerraformPoints += TerraformToAdd * 5; // Terraforming Biospheres is much faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
-                CompleteTileTerraforming(TilesList.Filter(t => t.Biosphere));
+                CompleteTileTerraforming(TilesList.Filter(t => t.BioCanTerraform));
         }
 
         private void CompleteTileTerraforming(PlanetGridSquare[] possibleTiles)

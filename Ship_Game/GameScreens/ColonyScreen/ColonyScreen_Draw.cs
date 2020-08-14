@@ -15,7 +15,8 @@ namespace Ship_Game
         int OutgoingFoodFreighters;
         int OutgoingProdFreighters;
         int OutgoingColoFreighters;
-        int FreighterUpdateTimer;
+        int UpdateTimer;
+        bool TerraformResearched;
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
             string toolTip, bool percent = false, bool signs = true, int digits = 2)
@@ -65,6 +66,12 @@ namespace Ship_Game
             {
                 var biosphere = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y, 20, 20);
                 batch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, Color.White);
+            }
+
+            if (TerraformResearched && (pgs.CanTerraform || pgs.BioCanTerraform))
+            {
+                var terraform = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 20, pgs.ClickRect.Y, 20, 20);
+                batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);
             }
 
             if (pgs.TroopsAreOnTile)
@@ -231,7 +238,7 @@ namespace Ship_Game
                 batch.DrawString(Font12, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
             }
 
-            UpdateFreighters();
+            UpdateData();
             if (IncomingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
             {
                 Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
@@ -540,7 +547,13 @@ namespace Ship_Game
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             bCursor.Y += Font20.LineSpacing * 5;
-                            batch.DrawString(Font12, $"{P.BasePopPerTile.String(0)} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
+                            if (TerraformResearched && pgs.BioCanTerraform)
+                            {
+                                batch.DrawString(Font12, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
+                                bCursor.Y += Font20.LineSpacing;
+                            }
+
+                            batch.DrawString(Font12, $"{P.PopPerBiosphere.String(0)} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
                             return;
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
@@ -567,7 +580,13 @@ namespace Ship_Game
                         }
 
                         bCursor.Y += Font20.LineSpacing * 5;
-                        batch.DrawString(Font12, $"{P.BasePopPerTile.String(0)} {MultiLineFormat(1896)}", bCursor, Color.Gold);
+                        if (TerraformResearched && pgs.CanTerraform)
+                        {
+                            batch.DrawString(Font12, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
+                            bCursor.Y += Font20.LineSpacing;
+                        }
+
+                        batch.DrawString(Font12, $"{P.PopPerBiosphere.String(0)} {MultiLineFormat(1896)}", bCursor, Color.Gold);
                         return;
                     }
 
@@ -684,9 +703,9 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, b.TheWeapon.NetFireDelay, "UI/icon_offense", "Fire Delay", signs: false);
         }
 
-        void UpdateFreighters() // This will update freighters in an interval to reduce threading issues
+        void UpdateData() // This will update freighters in an interval to reduce threading issues
         {
-            if (FreighterUpdateTimer <= 0)
+            if (UpdateTimer <= 0)
             {
                 IncomingFreighters     = P.NumIncomingFreighters;
                 IncomingFoodFreighters = P.IncomingFoodFreighters;
@@ -696,11 +715,12 @@ namespace Ship_Game
                 OutgoingFoodFreighters = P.OutgoingFoodFreighters;
                 OutgoingProdFreighters = P.OutgoingProdFreighters;
                 OutgoingColoFreighters = P.OutGoingColonistsFreighters;
-                FreighterUpdateTimer   = 60;
+                TerraformResearched    = Player.IsBuildingUnlocked(Building.TerraformerId);
+                UpdateTimer            = 60;
             }
             else if (!Empire.Universe.Paused)
             {
-                FreighterUpdateTimer -= 1;
+                UpdateTimer -= 1;
             }
         }
     }
