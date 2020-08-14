@@ -6,6 +6,7 @@ using Ship_Game.Utils;
 using System;
 using System.Linq;
 using Ship_Game.Ships.AI;
+using Ship_Game.Ships.DataPackets;
 
 namespace Ship_Game.AI
 {
@@ -641,7 +642,7 @@ namespace Ship_Game.AI
             if (ScanForThreatTimer <= 0f)
             {
                 SetCombatStatus();
-                ScanForThreatTimer = 2f;
+                ScanForThreatTimer = 1f;
             }
         }
 

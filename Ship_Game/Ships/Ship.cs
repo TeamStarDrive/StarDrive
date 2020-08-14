@@ -126,7 +126,7 @@ namespace Ship_Game.Ships
         public bool Deleted;
         private float BonusEMP_Protection;
         public bool inSensorRange => KnownByEmpires.KnownByPlayer;
-        public KnownByEmpire KnownByEmpires = new KnownByEmpire();
+        public KnownByEmpire KnownByEmpires;
         public bool EMPdisabled;
         private float updateTimer;
         public float HealPerTurn;
@@ -1203,21 +1203,22 @@ namespace Ship_Game.Ships
         /// </summary>
         public void SetShipsVisible(float elapsedTime)
         {
-            KnownByEmpires.Update(elapsedTime);
             if (KnownByEmpires.KnownBy(loyalty)) return;
             if (Empire.Universe.Debug)
             {
                 KnownByEmpires.SetSeenByPlayer();
             }
-
-            KnownByEmpires.SetSeen(loyalty);
-
-            foreach(var rel in loyalty.AllRelations)
+            if (!Empire.Universe.Debug)
             {
-                if (!rel.Value.Treaty_Alliance) continue;
-                KnownByEmpires.SetSeen(rel.Key);
-            }
+                KnownByEmpires.SetSeen(loyalty);
+            
 
+                foreach(var rel in loyalty.AllRelations)
+                {
+                    if (!rel.Value.Treaty_Alliance) continue;
+                    KnownByEmpires.SetSeen(rel.Key);
+                }
+            }
             SetOtherShipsInSensorRange();
         }
         
