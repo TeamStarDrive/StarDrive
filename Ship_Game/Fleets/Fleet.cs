@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
+using Microsoft.Xna.Framework.Net;
 
 namespace Ship_Game.Fleets
 {
@@ -874,8 +875,10 @@ namespace Ship_Game.Fleets
                     TaskStep++;
                     break;
                 case 2:
-                    AttackEnemyStrengthClumpsInAO(task);
-                    TaskStep++;
+                    if(AttackEnemyStrengthClumpsInAO(task, Ships))
+                        TaskStep++;
+                    else
+                        DoOrbitTaskArea(task);
                     break;
                 default:
                     if (TaskCombatStatus != CombatStatus.InCombat) TaskStep = 2;
@@ -1042,7 +1045,9 @@ namespace Ship_Game.Fleets
 
         Ship[] AvailableShips => AllButRearShips.Filter(ship => !ship.AI.HasPriorityOrder);
 
-        bool AttackEnemyStrengthClumpsInAO(MilitaryTask task)
+        bool AttackEnemyStrengthClumpsInAO(MilitaryTask task) => AttackEnemyStrengthClumpsInAO(task, AvailableShips);
+
+        bool AttackEnemyStrengthClumpsInAO(MilitaryTask task, IEnumerable<Ship> ships)
         {
             Map<Vector2, float> enemyClumpsDict = Owner.GetEmpireAI().ThreatMatrix
                 .PingRadarStrengthClusters(task.AO, task.AORadius, 2500, Owner);
@@ -1050,33 +1055,35 @@ namespace Ship_Game.Fleets
             if (enemyClumpsDict.Count == 0)
                 return false;
 
-            var availableShips = new Array<Ship>(AvailableShips);
-
-            foreach (var kv in enemyClumpsDict.OrderBy(dis => dis.Key.SqDist(task.AO)))
+            var availableShips = new Array<Ship>(ships);
+            while(availableShips.Count > 0)
             {
-                if (availableShips.Count == 0)
-                    break;
-
-                float attackStr = 0.0f;
-                for (int i = availableShips.Count - 1; i >= 0; --i)
+                foreach (var kv in enemyClumpsDict.OrderBy(dis => dis.Key.SqDist(task.AO)))
                 {
-                    if (attackStr > kv.Value * 3)
+                    if (availableShips.Count == 0)
                         break;
 
-                    Ship ship = availableShips[i];
-                    if (ship.AI.HasPriorityOrder || ship.InCombat || ship.AI.State == AIState.AssaultPlanet)
+                    float attackStr = 0.0f;
+                    for (int i = availableShips.Count - 1; i >= 0; --i)
                     {
-                        availableShips.RemoveAtSwapLast(i);
-                        continue;
-                    }
-                    Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
-                    ship.AI.OrderMoveTo(kv.Key, vFacing, true, AIState.MoveTo, offensiveMove: true);
-                    ship.ForceCombatTimer();
+                        //if (attackStr > kv.Value * 3)
+                        //    break;
 
-                    availableShips.RemoveAtSwapLast(i);
-                    attackStr += ship.GetStrength();
+                        Ship ship = availableShips[i];
+                        if (ship.AI.HasPriorityOrder || ship.InCombat || ship.AI.State == AIState.AssaultPlanet)
+                        {
+                            availableShips.RemoveAtSwapLast(i);
+                            continue;
+                        }
+                        Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
+                        ship.AI.OrderMoveTo(kv.Key, vFacing, true, AIState.MoveTo, offensiveMove: true);
+                        ship.ForceCombatTimer();
+
+                        availableShips.RemoveAtSwapLast(i);
+                        attackStr += ship.GetStrength();
+                    }
                 }
-            }
+            } 
 
             foreach (Ship needEscort in RearShips)
             {

@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using Ship_Game.Debug;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
@@ -6,11 +7,14 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace Ship_Game.AI.Tasks
 {
     public partial class MilitaryTask
     {
+        public int FleetCount = 1;
+
         float GetEnemyShipStrengthInAO()
         {
             // RedFox: I removed ClampMin(minimumStrength) because this was causing infinite
@@ -194,7 +198,7 @@ namespace Ship_Game.AI.Tasks
 
             InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 0, minBombMinutes: 0);
 
-            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
+            float battleFleetSize = 0.6f + Owner.DifficultyModifiers.FleetCompletenessMin;
 
             if (CreateTaskFleet("Defensive Fleet", battleFleetSize) == RequisitionStatus.Complete)
             {
@@ -375,10 +379,10 @@ namespace Ship_Game.AI.Tasks
             else if (TaskBombTimeNeeded > fleetShips.BombSecsAvailable)
                 return RequisitionStatus.NotEnoughBomberStrength;
 
-            int wantedNumberOfFleets = 1;
+            int wantedNumberOfFleets = FleetCount;
             if (TargetPlanet?.Owner != null)
             {
-                wantedNumberOfFleets = TargetPlanet.ParentSystem.PlanetList.Max(p =>
+                wantedNumberOfFleets += TargetPlanet.ParentSystem.PlanetList.Max(p =>
                 {
                     if (p.Owner == TargetPlanet.Owner)
                     {
@@ -391,7 +395,13 @@ namespace Ship_Game.AI.Tasks
                 });
             }
 
-            float strengthNeeded = Math.Max(MinimumTaskForceStrength, EnemyStrength);
+            float strengthIncrease = 1;
+            if (wantedNumberOfFleets > 2)
+            {
+                strengthIncrease += wantedNumberOfFleets - 3;
+                wantedNumberOfFleets =3;
+            }
+            float strengthNeeded = Math.Max(MinimumTaskForceStrength, EnemyStrength) * strengthIncrease;
 
             // All's Good... Make a fleet
             TaskForce = fleetShips.ExtractShipSet(strengthNeeded, TaskBombTimeNeeded

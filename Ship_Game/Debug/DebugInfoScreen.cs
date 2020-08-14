@@ -758,19 +758,20 @@ namespace Ship_Game.Debug
         {
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e.isPlayer || e.isFaction)
-                    continue;
                 var pins = e.GetEmpireAI().ThreatMatrix.GetPins();
-                foreach (ThreatMatrix.Pin pin in pins)
+                for (int i = 0; i < pins.Length; i++)
                 {
-                    if (pin.Position == Vector2.Zero || pin.Ship == null) continue;
-                    float increaser = (int)Empire.Universe.viewState / 100f;
-                    Screen.DrawCircleProjected(pin.Position,  increaser + pin.Ship.Radius, 6, e.EmpireColor);
+                    ThreatMatrix.Pin pin = pins[i];
+                    if (pin?.Ship == null || pin.Position == Vector2.Zero)
+                        continue;
+                    float increaser = (int) Empire.Universe.viewState / 100f;
+                    Screen.DrawCircleProjected(pin.Position,
+                        increaser + pin.Ship.Radius, 6, e.EmpireColor);
 
                     if (!pin.InBorders) continue;
-                    Screen.DrawCircleProjected(pin.Position, increaser + pin.Ship.Radius, 3, e.EmpireColor);
+                    Screen.DrawCircleProjected(pin.Position,
+                        increaser + pin.Ship.Radius, 3, e.EmpireColor);
                 }
-
             }
         }
 
