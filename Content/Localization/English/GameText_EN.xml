@@ -1495,7 +1495,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>407</Index>
-      <Text>Biospheres are special, highly adaptable living habitats. Biospheres may only be built on Uninhabitable terrain; in doing so, the terrain becomes habitable and the planet gains max population based on the Colonists per Tile. Economic buildings can thereafter be built underneath the biosphere.</Text>
+      <Text>Biospheres are special, highly adaptable living habitats. Biospheres may only be built on Uninhabitable terrain; in doing so, the terrain becomes habitable and the planet gains max population based on the half of the Colonists per Tile. Economic buildings can thereafter be built underneath the biosphere.</Text>
     </Token>
     <Token>
       <Index>408</Index>
