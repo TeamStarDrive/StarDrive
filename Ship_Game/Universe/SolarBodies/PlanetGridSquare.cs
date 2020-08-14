@@ -14,6 +14,7 @@ namespace Ship_Game
         public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public bool Biosphere;
+        public bool Terraformable; // This tile can be habitable if terraformed
         public Building building;
         public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
@@ -27,6 +28,8 @@ namespace Ship_Game
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
         public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
         public bool EventOnTile          => BuildingOnTile && building.EventHere;
+        public bool BioCanTerraform      => Biosphere && Terraformable;
+        public bool CanTerraform         => !Habitable && Terraformable;
 
         public bool IsTileFree(Empire empire)
         {
@@ -100,12 +103,13 @@ namespace Ship_Game
         {
         }
 
-        public PlanetGridSquare(int x, int y, Building b, bool hab)
+        public PlanetGridSquare(int x, int y, Building b, bool hab, bool terraformable)
         {
-            this.x = x;
-            this.y = y;
-            Habitable = hab;
-            building = b;
+            this.x        = x;
+            this.y        = y;
+            Habitable     = hab;
+            building      = b;
+            Terraformable = terraformable;
         }
 
         public void AddTroop(Troop troop)
@@ -292,12 +296,13 @@ namespace Ship_Game
         {
             return new SavedGame.PGSData
             {
-                x          = x,
-                y          = y,
-                Habitable  = Habitable,
-                Biosphere  = Biosphere,
-                building   = building,
-                TroopsHere = TroopsHere
+                x             = x,
+                y             = y,
+                Habitable     = Habitable,
+                Biosphere     = Biosphere,
+                building      = building,
+                TroopsHere    = TroopsHere,
+                Terraformable = Terraformable
             };
         }
     }

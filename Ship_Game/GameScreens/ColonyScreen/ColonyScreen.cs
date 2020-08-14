@@ -224,10 +224,9 @@ namespace Ship_Game
         {
             color                       = Color.LightGreen;
             float targetFertility       = TerraformTargetFertility();
-            int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
-            int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
-            float minEstimatedMaxPop    = P.TileArea * P.BasePopPerTile * Player.RacialEnvModifer(Player.data.PreferredEnv) 
-                                          + P.BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease);
+            int numUninhabitableTiles   = P.TilesList.Count(t => t.CanTerraform && !t.Biosphere);
+            int numBiospheres           = P.TilesList.Count(t => t.BioCanTerraform);
+            float minEstimatedMaxPop    = P.PotentialMaxPopBillionsFor(Player);
 
             string text = "Terraformer Process Stages:\n";
             string initialText = text;
@@ -236,7 +235,7 @@ namespace Ship_Game
                 text += $"  * Make {numUninhabitableTiles} tiles habitable\n";
 
             if (P.Category != Player.data.PreferredEnv)
-                text += $"  * Terraform the planet to {Player.data.PreferredEnv.ToString()}.\n";
+                text += $"  * Terraform the planet to {Player.data.PreferredEnv}.\n";
 
             if (numBiospheres > 0)
                 text += $"  * Remove {numBiospheres} Biospheres.\n";
@@ -255,8 +254,8 @@ namespace Ship_Game
                 text += $"  * Max Fertility will be changed to {targetFertility}.\n";
             }
 
-            if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
-                text += $"  * Expected Max Population will be {(minEstimatedMaxPop / 1000).String(2)} Billion colonists.\n";
+            if (minEstimatedMaxPop > P.MaxPopulationBillionFor(Player))
+                text += $"  * Expected Max Population will be {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
 
             if (text == initialText)
             {
