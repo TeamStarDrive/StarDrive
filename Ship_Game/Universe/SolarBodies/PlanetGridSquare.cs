@@ -99,10 +99,6 @@ namespace Ship_Game
             return LockOnEnemyTroop(us, out _);
         }
 
-        public PlanetGridSquare()
-        {
-        }
-
         public PlanetGridSquare(int x, int y, Building b, bool hab, bool terraformable)
         {
             this.x        = x;
