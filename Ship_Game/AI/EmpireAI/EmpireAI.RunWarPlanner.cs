@@ -353,7 +353,7 @@ namespace Ship_Game.AI
 
                         if (minDistanceToThem < 0) continue;
                         float projectorRadius    = OwnerEmpire.GetProjectorRadius();
-                        float distanceMultiplier = (minDistanceToThem / (Empire.Universe.UniverseSize / 4f)).LowerBound(1);
+                        float distanceMultiplier = (minDistanceToThem / (Empire.Universe.UniverseSize / 2f)).LowerBound(1);
                         float enemyStrength      = kv.Key.Pool.EmpireReadyFleets.AccumulatedStrength;
 
                         float anger = (rel.TotalAnger  / 100) * OwnerEmpire.GetWarOffensiveRatio();

@@ -38,6 +38,7 @@ namespace Ship_Game.Ships
             InitializeStatus(fromSave);
             InitializeThrusters();
             DesignRole = GetDesignRole();
+            KnownByEmpires = new DataPackets.KnownByEmpire(this);
         }
 
         Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
@@ -63,6 +64,8 @@ namespace Ship_Game.Ships
                 Log.Warning(ConsoleColor.DarkRed, $"Unexpected failure while spawning ship '{Name}'. Is the module list corrupted??");
                 return; // return and crash again...
             }
+
+            KnownByEmpires = new DataPackets.KnownByEmpire(this);
 
             ThrusterList.Capacity = template.ThrusterList.Count;
             foreach (Thruster t in template.ThrusterList)

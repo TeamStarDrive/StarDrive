@@ -47,8 +47,15 @@ namespace Ship_Game
                 Device.Clear(Color.Black);
 
                 batch.Begin();
-                LoadingPlayer.Draw(batch);
-                SplashPlayer.Draw(batch);
+                try
+                {
+                    LoadingPlayer.Draw(batch);
+                    SplashPlayer.Draw(batch);
+                }
+                catch
+                {
+                    Log.Warning($"Video Player thread error Begin cannot be called again. Line 52 of Game loading screen." );
+                }
                 if (BridgeTexture != null)
                     batch.Draw(BridgeTexture, BridgeRect, Color.White);
                 batch.End();
