@@ -552,8 +552,11 @@ namespace Ship_Game
         {
             RemoveBuildingFromPlanet(tile);
             tile.Habitable = false;
+
             if (tile.Biosphere)
                 ClearBioSpheresFromList(tile);
+            else
+                tile.Terraformable = false;
 
             UpdateMaxPopulation();
         }
