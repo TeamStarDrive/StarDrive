@@ -170,6 +170,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.ShipWeight.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\CombatManeuvers\CombatMovement.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\HoldPosition.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\BroadSides.cs" />
@@ -399,6 +400,7 @@
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
+    <Compile Include="Ship_Game\Ships\DataPackets\ShipWeight.cs" />
     <Compile Include="Ship_Game\Ships\ModuleCache.cs" />
     <Compile Include="Ship_Game\Ships\ShipStats.cs" />
     <Compile Include="Ship_Game\Ships\ShipUtils.cs" />
@@ -1562,7 +1564,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Content\FleetBuildRatios.yaml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Fonts\Arial11Bold.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1790,6 +1792,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\StatusIcons\icon_structure.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Textures\TacticalIcons\symbol_support.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Textures\UI\icon_hangar.xnb">
