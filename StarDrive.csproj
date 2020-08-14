@@ -170,6 +170,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
+    <Compile Include="Ship_Game\AI\ShipAI\ShipAI.ShipWeight.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\CombatManeuvers\CombatMovement.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\HoldPosition.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\BroadSides.cs" />
@@ -400,6 +401,7 @@
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
+    <Compile Include="Ship_Game\Ships\DataPackets\ShipWeight.cs" />
     <Compile Include="Ship_Game\Ships\ModuleCache.cs" />
     <Compile Include="Ship_Game\Ships\ShipStats.cs" />
     <Compile Include="Ship_Game\Ships\ShipUtils.cs" />
