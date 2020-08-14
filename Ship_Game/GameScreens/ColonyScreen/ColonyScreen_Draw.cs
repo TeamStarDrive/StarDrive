@@ -70,7 +70,7 @@ namespace Ship_Game
 
             if (TerraformResearched && (pgs.CanTerraform || pgs.BioCanTerraform))
             {
-                var terraform = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y + pgs.ClickRect.Height-20, 20, 20);
+                var terraform = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 20, pgs.ClickRect.Y, 20, 20);
                 batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);
             }
 
@@ -547,7 +547,13 @@ namespace Ship_Game
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             bCursor.Y += Font20.LineSpacing * 5;
-                            batch.DrawString(Font12, $"{P.BasePopPerTile.String(0)} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
+                            if (TerraformResearched && pgs.BioCanTerraform)
+                            {
+                                batch.DrawString(Font12, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
+                                bCursor.Y += Font20.LineSpacing;
+                            }
+
+                            batch.DrawString(Font12, $"{P.PopPerBiosphere.String(0)} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
                             return;
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
@@ -574,7 +580,13 @@ namespace Ship_Game
                         }
 
                         bCursor.Y += Font20.LineSpacing * 5;
-                        batch.DrawString(Font12, $"{P.BasePopPerTile.String(0)} {MultiLineFormat(1896)}", bCursor, Color.Gold);
+                        if (TerraformResearched && pgs.CanTerraform)
+                        {
+                            batch.DrawString(Font12, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
+                            bCursor.Y += Font20.LineSpacing;
+                        }
+
+                        batch.DrawString(Font12, $"{P.PopPerBiosphere.String(0)} {MultiLineFormat(1896)}", bCursor, Color.Gold);
                         return;
                     }
 
