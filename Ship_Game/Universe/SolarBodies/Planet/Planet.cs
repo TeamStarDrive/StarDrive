@@ -165,7 +165,7 @@ namespace Ship_Game
                 return bioSphereMaxPop + naturalMaxPop;
             }
 
-            if (bioSpheresResearched)
+            if (bioSpheresResearched) // Biospheres and terraformers researched
             {
                 int terraformableTiles  = TilesList.Count(t => t.CanTerraform);
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
