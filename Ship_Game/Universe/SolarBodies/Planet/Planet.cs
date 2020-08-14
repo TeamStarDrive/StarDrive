@@ -71,6 +71,7 @@ namespace Ship_Game
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
         public float SensorRange { get; private set; }
+        public float ProjectorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; }
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
@@ -835,7 +836,7 @@ namespace Ship_Game
             TerraformToAdd            = 0;
             ShieldStrengthMax         = 0;
             ShipBuildingModifier      = 0;
-            SensorRange               = 0;
+            SensorRange               = ObjectRadius + 2000;
             TotalDefensiveStrength    = 0;
             PlusFlatPopulationPerTurn = 0;
             float totalStorage        = 0;
@@ -872,6 +873,8 @@ namespace Ship_Game
 
                 if (b.SensorRange > SensorRange)
                     SensorRange = b.SensorRange;
+                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
+                    ProjectorRange = Math.Max(ProjectorRange, b.ProjectorRange + ObjectRadius);
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 if (b.WinsGame)
@@ -879,6 +882,8 @@ namespace Ship_Game
                 if (b.AllowShipBuilding || b.IsSpacePort)
                     spacePort = true;
             }
+            if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.usePlanetaryProjection)
+                ProjectorRange = Owner.GetProjectorRadius() + ObjectRadius;
 
             UpdateMaxPopulation();
             TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
