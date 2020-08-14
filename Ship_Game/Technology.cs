@@ -132,14 +132,14 @@ namespace Ship_Game
             int idealNumPlayers     = (int)(CurrentGame.GalaxySize) + 3;
             float galSizeModifier   = ((int)CurrentGame.GalaxySize / 2f).LowerBound(0.25f);
             int techDepth           = Parents.Length.LowerBound(1);
-            float techDepthModifier = CurrentGame.GalaxySize > GalSize.Medium ? (techDepth*techDepth/6).LowerBound(1) : 1;
+            float techDepthModifier = CurrentGame.GalaxySize > GalSize.Medium ? ((techDepth/2)*(techDepth/2)).LowerBound(1) : 1;
 
             float extraPlanetsMod   = 1 + CurrentGame.ExtraPlanets * 0.25f;
             float playerRatio       = idealNumPlayers / (float)EmpireManager.MajorEmpires.Length; // Cheaper for more empires if bigger than medium
 
             float multiplierToUse = techDepthModifier * galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod * playerRatio;
 
-            return multiplierToUse * GlobalStats.ActiveModInfo.CostBasedOnSizeRatio;
+            return (multiplierToUse * GlobalStats.ActiveModInfo.CostBasedOnSizeRatio).Clamped(0.25f, 30f);
         }
 
         public Building[] GetBuildings()
