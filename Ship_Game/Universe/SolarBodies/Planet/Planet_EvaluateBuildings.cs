@@ -524,18 +524,19 @@ namespace Ship_Game
                     return 0;
 
                 int num = 0;
-                if (TilesList.Any(t => !t.Habitable))
+                if (TilesList.Any(t => !t.CanTerraform))
                     num += 1;
 
-                if (TilesList.Any(t => t.Biosphere))
+                if (TilesList.Any(t => t.BioCanTerraform))
                     num += 1;
 
                 if (Category != Owner.data.PreferredEnv || NonCybernetic && BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
                     num += 2;
 
                 if (num > 0)
-                    num = (num - BuildingList.Count(b => b.IsTerraformer)).LowerBound(0);
-                return num;
+                    num = (num - TerraformersHere).LowerBound(0);
+
+                return num.UpperBound(TerraformerLimit);
             }
         }
 
