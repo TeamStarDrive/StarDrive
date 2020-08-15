@@ -100,6 +100,13 @@ namespace Ship_Game
             return true;
         }
 
+        public void ClearTextInput()
+        {
+            HandlingInput     = false;
+            TextInputCaptured = false;
+            Text              = "";
+        }
+
         static bool TextInputCaptured;
 
         public override bool HandleInput(InputState input)
