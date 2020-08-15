@@ -126,6 +126,8 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
             => TroopManager.EmpireTroops(empire, maxToTake);
 
+        public int TerraformerLimit => ((int)(TilesList.Count(t => t.Habitable && !t.Biosphere) * 0.25f)).LowerBound(1);
+
         public GameplayObject[] GetNearByShips() => GetNearByShips(GravityWellRadius);
         public GameplayObject[] GetNearByShips(float radius) => UniverseScreen.SpaceManager.FindNearby(Center, radius,GameObjectType.Ship, Owner);
 
@@ -1168,6 +1170,7 @@ namespace Ship_Game
         public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
         public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
+        public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
 
 
         private void RepairBuildings(int repairAmount)
