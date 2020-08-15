@@ -257,6 +257,7 @@ namespace Ship_Game
             if (minEstimatedMaxPop > P.MaxPopulationBillionFor(Player))
                 text += $"  * Expected Max Population will be {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
 
+            text += $"  * Current Maximum Terraformer: {P.TerraformerLimit}\n";
             if (text == initialText)
             {
                 color = Color.Yellow;
