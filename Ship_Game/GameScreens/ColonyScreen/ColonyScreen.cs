@@ -155,6 +155,7 @@ namespace Ship_Game
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 80, RightMenu.Y + 17), ""));
             FilterBuildableItems.Font = Font12;
+            FilterBuildableItems.ClickableArea = new Rectangle((int)RightMenu.X + 75, (int)RightMenu.Y+ 15, (int)RightMenu.Width - 400, 42);
             FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
             Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
