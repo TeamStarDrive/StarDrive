@@ -438,7 +438,7 @@ namespace Ship_Game.AI
                 ships.AddRange(empire.GetProjectors());
             }
 
-            Empire.Universe.AddToDataCollector(()=>
+            //Empire.Universe.AddToDataCollector(()=>
                 {
                     // add or update pins for ship targets
                     foreach (var ship in ships)
@@ -477,8 +477,8 @@ namespace Ship_Game.AI
                             }
                         }
                     }
-                    MaxProcessingPerTurn = (PendingActions.Count / 30);
-                });
+                    MaxProcessingPerTurn = (PendingActions.Count);// / 30);
+                }//);
             return true;
         }
 
