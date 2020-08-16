@@ -1526,7 +1526,8 @@ namespace Ship_Game
                 TakeTurn();
             }
             SetRallyPoints();
-            UpdateFleets(elapsedTime);
+            lock (Empire.Universe.DataCollectorLocker)
+                UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
@@ -3204,23 +3205,18 @@ namespace Ship_Game
 
         public void UpdateContactsAndBorders(float elapsedTime)
         {
-            //bool bordersChanged = false;
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
                 updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? 1f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
-                //int oldBorderNodesCount = BorderNodes.Count;
                 Empire.Universe.AddToDataCollector(()=>
                     {
                         ResetBorders();
-              //          bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
                         ScanFromAllInfluenceNodes();
                         EmpireAI.ThreatMatrix.UpdateAllPins(this);
                         EmpireAI.ThreatMatrix.ProcessPendingActions();
                     });
             }
-            
-            //return bordersChanged;
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);

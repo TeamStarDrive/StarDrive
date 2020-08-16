@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using Ship_Game.Ships.DataPackets;
+using Newtonsoft.Json.Bson;
 
 namespace Ship_Game.AI
 {
@@ -73,6 +74,11 @@ namespace Ship_Game.AI
             return true;
         }
 
+        public GameplayObject[] GetObjectsInSensors(GameObjectType gameObjectType, float radius)
+        {
+            return UniverseScreen.SpaceManager.FindNearby(Owner, radius, gameObjectType);
+        }
+
         public void CancelIntercept()
         {
             HasPriorityTarget = false;
@@ -139,21 +145,22 @@ namespace Ship_Game.AI
                 if (Owner.Mothership != null)
                 {
                     Owner.Mothership.AI.TrackProjectiles.ForEach(p=> TrackProjectiles.AddUnique(p));
-                    //TrackProjectiles.(Owner.Mothership.AI.TrackProjectiles);
                 }
                 return;
             }
 
-            //GameplayObject[] projectiles = GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
-            if (GetProjectilesInSensors(out GameplayObject[] projectiles, Owner.WeaponsMaxRange))
+            GameplayObject[] projectiles = GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
+            //if (GetProjectilesInSensors(out GameplayObject[] projectiles, Owner.WeaponsMaxRange))
             {
                 TrackProjectiles.Clear();
                 if (Owner.Mothership != null)
                     TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
-                foreach (GameplayObject go in projectiles)
+                for (int i = 0; i < projectiles.Length; i++)
                 {
-                    var missile = (Projectile)go;
-                    if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
+                    GameplayObject go = projectiles[i];
+                    var missile = (Projectile) go;
+                    if (missile.Weapon.Tag_Intercept &&
+                        Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
                         TrackProjectiles.Add(missile);
                 }
             }
@@ -227,9 +234,9 @@ namespace Ship_Game.AI
                 }
             }
 
-            //GameplayObject[] nearbyShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
-            if (!GetShipsInSensors(out GameplayObject[] nearbyShips, radius + (radius < 0.01f ? 10000 : 0)))
-                return Target;
+            GameplayObject[] nearbyShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
+            //if (!GetShipsInSensors(out GameplayObject[] nearbyShips, radius + (radius < 0.01f ? 10000 : 0)))
+            //    return Target;
             for (int x = 0; x < nearbyShips.Length; x++)
             {
                 var go = nearbyShips[x];
