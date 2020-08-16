@@ -12,7 +12,7 @@ namespace Ship_Game
 
         /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
-        [XmlIgnore] public float ActualCost => Cost * ResearchMultiplier() * CurrentGame.Pace;
+        [XmlIgnore] public float ActualCost => (Cost * ResearchMultiplier() * CurrentGame.Pace).RoundTo10();
 
         [XmlIgnore] public Technology[] Children;
         [XmlIgnore] public Technology[] Parents;
@@ -126,20 +126,24 @@ namespace Ship_Game
 
         float ResearchMultiplier()
         {
-            if (!GlobalStats.ModChangeResearchCost || Parents.Length == 0 || EmpireManager.MajorEmpires.Length == 0)
+            if (!GlobalStats.ModChangeResearchCost || EmpireManager.MajorEmpires.Length == 0)
                 return 1;
+
 
             int idealNumPlayers     = (int)(CurrentGame.GalaxySize) + 3;
             float galSizeModifier   = ((int)CurrentGame.GalaxySize / 2f).LowerBound(0.25f);
-            int techDepth           = Parents.Length.LowerBound(1);
-            float techDepthModifier = CurrentGame.GalaxySize > GalSize.Medium ? ((techDepth/2)*(techDepth/2)).LowerBound(1) : 1;
-
             float extraPlanetsMod   = 1 + CurrentGame.ExtraPlanets * 0.25f;
-            float playerRatio       = idealNumPlayers / (float)EmpireManager.MajorEmpires.Length; // Cheaper for more empires if bigger than medium
+            float playerRatio       = idealNumPlayers / (float)EmpireManager.MajorEmpires.Length;
+            float settingsRatio     = galSizeModifier * extraPlanetsMod * playerRatio;
 
-            float multiplierToUse = techDepthModifier * galSizeModifier * CurrentGame.StarsModifier * extraPlanetsMod * playerRatio;
+            if (settingsRatio.Less(1))
+                return settingsRatio.LowerBound(0.25f);
 
-            return (multiplierToUse * GlobalStats.ActiveModInfo.CostBasedOnSizeRatio).Clamped(0.25f, 30f);
+            int costThreshold       = GlobalStats.ActiveModInfo.CostBasedOnSizeThreshold;
+            float costRatio         = settingsRatio.AlmostEqual(1) ? 1 : Cost / costThreshold;
+            float multiplierToUse   = galSizeModifier * extraPlanetsMod * playerRatio * costRatio;
+
+            return multiplierToUse.Clamped(1, 18);
         }
 
         public Building[] GetBuildings()
