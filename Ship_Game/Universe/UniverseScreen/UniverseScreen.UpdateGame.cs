@@ -13,6 +13,7 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         readonly ActionPool AsyncDataCollector = new ActionPool();
+        public object DataCollectorLocker => AsyncDataCollector.Locker;
         public void AddToDataCollector(Action action) => AsyncDataCollector.Add(action);
 
         void ProcessTurnsMonitored()
@@ -151,7 +152,7 @@ namespace Ship_Game
 
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
-                using(AsyncDataCollector.ThreadLock)
+                lock(AsyncDataCollector.Locker)
                     SpaceManager.Update(elapsedTime);
                 
                 // process all collected data collection
@@ -389,13 +390,11 @@ namespace Ship_Game
 
             if (IsActive)
             {
-                for (int i = 0; i < EmpireManager.NumEmpires; i++)
+                Parallel.ForEach(EmpireManager.Empires, empire=>
                 {
-                    Empire empire = EmpireManager.Empires[i];
-
-                    empire.Pool.UpdatePools();
-                    empire.UpdateContactsAndBorders(0.01666667f);
-                }
+                 empire.Pool.UpdatePools();
+                 empire.UpdateContactsAndBorders(0.01666667f);
+                });
             }
 
             PreEmpirePerf.Stop();

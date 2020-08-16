@@ -9,8 +9,13 @@ namespace Ship_Game.Threading
     {
         readonly SafeQueue<Action> ActionToBeThreaded = new SafeQueue<Action>();
         Thread Worker;
-        public ScopedReadLock ThreadLock => ActionToBeThreaded.AcquireReadLock() ;
+        public Object Locker;
         public void Add(Action itemToThread) => ActionToBeThreaded.Enqueue(itemToThread);
+
+        public ActionPool()
+        {
+            Locker = new object();
+        }
 
         public void Update()
         {
@@ -27,9 +32,12 @@ namespace Ship_Game.Threading
         {
             while (ActionToBeThreaded.NotEmpty)
             {
-                  ActionToBeThreaded.Dequeue().Invoke();
+                lock (Empire.Universe.DataCollectorLocker)
+                {
+                    var action = ActionToBeThreaded.Dequeue();
+                    action?.Invoke();
+                }     
             }
         }
-
     }
 }
