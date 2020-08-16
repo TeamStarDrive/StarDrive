@@ -641,7 +641,7 @@ namespace Ship_Game.AI
             ScanForThreatTimer -= elapsedTime;
             if (ScanForThreatTimer <= 0f)
             {
-                SetCombatStatus();
+                Empire.Universe.AddToDataCollector(SetCombatStatus);
                 ScanForThreatTimer = 1f;
             }
         }
