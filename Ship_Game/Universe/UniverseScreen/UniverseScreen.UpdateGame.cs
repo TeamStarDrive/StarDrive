@@ -151,7 +151,10 @@ namespace Ship_Game
 
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
-                SpaceManager.Update(elapsedTime);
+                using(AsyncDataCollector.ThreadLock)
+                    SpaceManager.Update(elapsedTime);
+                
+                // process all collected data collection
                 AsyncDataCollector.Update();
                 ProcessTurnUpdateMisc(elapsedTime);
 
