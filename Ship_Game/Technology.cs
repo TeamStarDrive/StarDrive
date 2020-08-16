@@ -12,7 +12,7 @@ namespace Ship_Game
 
         /// This is purely used for logging/debugging to mark where the Technology was loaded from
         [XmlIgnore] public string DebugSourceFile = "<unknown>.xml";
-        [XmlIgnore] public float ActualCost => (Cost * ResearchMultiplier() * CurrentGame.Pace).RoundTo10();
+        [XmlIgnore] public float ActualCost => ResearchMultiplier() * CurrentGame.Pace;
 
         [XmlIgnore] public Technology[] Children;
         [XmlIgnore] public Technology[] Parents;
@@ -127,23 +127,32 @@ namespace Ship_Game
         float ResearchMultiplier()
         {
             if (!GlobalStats.ModChangeResearchCost || EmpireManager.MajorEmpires.Length == 0)
-                return 1;
+                return Cost;
 
 
             int idealNumPlayers     = (int)(CurrentGame.GalaxySize) + 3;
             float galSizeModifier   = ((int)CurrentGame.GalaxySize / 2f).LowerBound(0.25f);
+            float starsModifier     = CurrentGame.StarsModifier;
             float extraPlanetsMod   = 1 + CurrentGame.ExtraPlanets * 0.25f;
             float playerRatio       = idealNumPlayers / (float)EmpireManager.MajorEmpires.Length;
-            float settingsRatio     = galSizeModifier * extraPlanetsMod * playerRatio;
+            float settingsRatio     = galSizeModifier * extraPlanetsMod * playerRatio * starsModifier;
 
             if (settingsRatio.Less(1))
-                return settingsRatio.LowerBound(0.25f);
+                return (Cost * settingsRatio.LowerBound(0.5f)).RoundTo10();
 
-            int costThreshold       = GlobalStats.ActiveModInfo.CostBasedOnSizeThreshold;
-            float costRatio         = settingsRatio.AlmostEqual(1) ? 1 : Cost / costThreshold;
-            float multiplierToUse   = galSizeModifier * extraPlanetsMod * playerRatio * costRatio;
+            float costRatio         = GetCostRatio();
+            float multiplierToUse   = 1 + settingsRatio * costRatio;
 
-            return multiplierToUse.Clamped(1, 18);
+            return (Cost * multiplierToUse.Clamped(1, 25)).RoundDownTo10();
+
+            float GetCostRatio()
+            {
+                if (settingsRatio.LessOrEqual(1))
+                    return 0;
+
+                int costThreshold = GlobalStats.ActiveModInfo.CostBasedOnSizeThreshold;
+                return Cost > costThreshold ? 1 : Cost / costThreshold;
+            }
         }
 
         public Building[] GetBuildings()
