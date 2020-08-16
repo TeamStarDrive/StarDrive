@@ -33,17 +33,14 @@ namespace Ship_Game.AI
 
         public bool GetShipsInSensors(out GameplayObject[] scannedItems, float radius)
         {
-            if (ScannedShips.Length ==0 || ScannedProjectiles.Length == 0)
+            if (ScannedShips.Length ==0)
             {
                 Empire.Universe.AddToDataCollector(()=>
                 {
                     if (Owner.Active)
                     {
                         radius = Math.Min(radius, Owner.SensorRange);
-                        if (ScannedShips.Length == 0)
-                            ScannedShips       = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Ship);
-                        if (ScannedProjectiles.Length == 0)
-                            ScannedProjectiles = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Proj);
+                        ScannedShips = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Ship);
                     }
                 });
                 scannedItems = default;
@@ -59,7 +56,15 @@ namespace Ship_Game.AI
         {
             if (ScannedProjectiles.Length ==0)
             {
-                scannedItems = default;
+                Empire.Universe.AddToDataCollector(()=>
+                {
+                    if (Owner.Active)
+                    {
+                        radius = Math.Min(radius, Owner.WeaponsMaxRange);
+                        ScannedProjectiles = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Proj);
+                    }
+                });
+                scannedItems = null;
                 return false;
             }
 
