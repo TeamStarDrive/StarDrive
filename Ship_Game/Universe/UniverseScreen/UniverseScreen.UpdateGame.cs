@@ -3,6 +3,7 @@ using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -11,6 +12,8 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
+        readonly ActionPool AsyncDataCollector = new ActionPool();
+        public void AddToDataCollector(Action action) => AsyncDataCollector.Add(action);
 
         void ProcessTurnsMonitored()
         {
@@ -149,7 +152,7 @@ namespace Ship_Game
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
                 SpaceManager.Update(elapsedTime);
-
+                AsyncDataCollector.Update();
                 ProcessTurnUpdateMisc(elapsedTime);
 
                 // bulk remove all dead projectiles to prevent their update next frame

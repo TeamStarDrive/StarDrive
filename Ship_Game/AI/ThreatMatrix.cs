@@ -100,7 +100,7 @@ namespace Ship_Game.AI
         readonly Map<Guid, Pin> Pins            = new Map<Guid, Pin>();
 
         [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingActions = new SafeQueue<Action>();
-        Task Updater;
+        TaskResult UpdateResults;
         [XmlIgnore][JsonIgnore] int MaxProcessingPerTurn;
         public Pin[] PinValues
         {
@@ -403,7 +403,8 @@ namespace Ship_Game.AI
 
         public void ProcessPendingActions()
         {
-            if (Updater?.IsCompleted == false) return;
+            if (UpdateResults?.IsComplete == false) return;
+            UpdateResults?.CancelAndWait();
             try 
             {
                 using (PinsMutex.AcquireWriteLock())
@@ -424,7 +425,7 @@ namespace Ship_Game.AI
 
         public bool UpdateAllPins(Empire owner)
         {
-            if (Updater?.IsCompleted == false || PendingActions.NotEmpty) return false;
+            if (PendingActions.NotEmpty) return false;
             
             var pins= Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
             var ships      = owner.GetShips().Clone();
@@ -437,7 +438,7 @@ namespace Ship_Game.AI
                 ships.AddRange(empire.GetProjectors());
             }
 
-            Updater = Task.Run(()=>
+            Empire.Universe.AddToDataCollector(()=>
                 {
                     // add or update pins for ship targets
                     foreach (var ship in ships)

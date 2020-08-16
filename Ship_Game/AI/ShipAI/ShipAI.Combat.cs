@@ -27,6 +27,46 @@ namespace Ship_Game.AI
         public Array<Ship> TargetQueue = new Array<Ship>();
         public bool HasPriorityTarget;
         private float TriggerDelay;
+        
+        GameplayObject[] ScannedShips = new GameplayObject[0];
+        GameplayObject[] ScannedProjectiles = new GameplayObject[0];
+
+        public bool GetShipsInSensors(out GameplayObject[] scannedItems, float radius)
+        {
+            if (ScannedShips.Length ==0 || ScannedProjectiles.Length == 0)
+            {
+                Empire.Universe.AddToDataCollector(()=>
+                {
+                    if (Owner.Active)
+                    {
+                        radius = Math.Min(radius, Owner.SensorRange);
+                        if (ScannedShips.Length == 0)
+                            ScannedShips       = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Ship);
+                        if (ScannedProjectiles.Length == 0)
+                            ScannedProjectiles = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Proj);
+                    }
+                });
+                scannedItems = default;
+                return false;
+            }
+
+            scannedItems = ScannedShips;
+            ScannedShips = new GameplayObject[0];
+            return true;
+        }
+
+        public bool GetProjectilesInSensors(out GameplayObject[] scannedItems, float radius)
+        {
+            if (ScannedProjectiles.Length ==0)
+            {
+                scannedItems = default;
+                return false;
+            }
+
+            scannedItems       = ScannedProjectiles;
+            ScannedProjectiles = new GameplayObject[0];
+            return true;
+        }
 
         public void CancelIntercept()
         {
@@ -89,19 +129,28 @@ namespace Ship_Game.AI
         {
             bool hasPointDefense = OwnerHasPointDefense();
 
-            TrackProjectiles.Clear();
-            if (Owner.Mothership != null)
-                TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
-            
             if (Owner.TrackingPower <= 0 || !hasPointDefense)
-                return;
-
-            GameplayObject[] projectiles = Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
-            foreach (GameplayObject go in projectiles)
             {
-                var missile = (Projectile)go;
-                if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
-                    TrackProjectiles.Add(missile);
+                if (Owner.Mothership != null)
+                {
+                    Owner.Mothership.AI.TrackProjectiles.ForEach(p=> TrackProjectiles.AddUnique(p));
+                    //TrackProjectiles.(Owner.Mothership.AI.TrackProjectiles);
+                }
+                return;
+            }
+
+            //GameplayObject[] projectiles = GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
+            if (GetProjectilesInSensors(out GameplayObject[] projectiles, Owner.WeaponsMaxRange))
+            {
+                TrackProjectiles.Clear();
+                if (Owner.Mothership != null)
+                    TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
+                foreach (GameplayObject go in projectiles)
+                {
+                    var missile = (Projectile)go;
+                    if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
+                        TrackProjectiles.Add(missile);
+                }
             }
             TrackProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
         }
@@ -173,7 +222,9 @@ namespace Ship_Game.AI
                 }
             }
 
-            GameplayObject[] nearbyShips = sensorShip.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
+            //GameplayObject[] nearbyShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
+            if (!GetShipsInSensors(out GameplayObject[] nearbyShips, radius + (radius < 0.01f ? 10000 : 0)))
+                return Target;
             for (int x = 0; x < nearbyShips.Length; x++)
             {
                 var go = nearbyShips[x];
@@ -221,7 +272,7 @@ namespace Ship_Game.AI
             }
 
             if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
-                return null;
+                return Target;
 
             if (Target is Ship shipTarget)
             {

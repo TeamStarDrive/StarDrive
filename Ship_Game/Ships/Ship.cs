@@ -157,13 +157,6 @@ namespace Ship_Game.Ships
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
-        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None,
-                                                    float radius = float.MaxValue)
-        {
-            radius = Math.Min(radius, SensorRange);
-            return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
-        }
-
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
         public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
