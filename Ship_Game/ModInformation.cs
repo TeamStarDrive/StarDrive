@@ -72,7 +72,7 @@ namespace Ship_Game
 
         // Research costs will be increased based on map size to balance the increased capacity of larger maps
         public bool ChangeResearchCostBasedOnSize;
-        public float CostBasedOnSizeRatio = 1;  // Allow tuning the change up/down
+        public int CostBasedOnSizeThreshold = 1000;  // Allow tuning the change up/down
         
         public int ChanceForCategory(PlanetCategory category)
         {
