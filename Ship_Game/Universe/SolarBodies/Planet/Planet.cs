@@ -908,10 +908,11 @@ namespace Ship_Game
 
             if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 ProjectorRange = Owner.GetProjectorRadius() + ObjectRadius;
-
-            TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
             else 
                 ProjectorRange = projectorRange;
+
+            TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
+
             SensorRange = sensorRange;
             UpdateMaxPopulation();
             TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
