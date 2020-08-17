@@ -403,14 +403,12 @@ namespace Ship_Game.AI
 
         public void ProcessPendingActions()
         {
-            //if (UpdateResults?.IsComplete == false) return;
-            //UpdateResults?.CancelAndWait();
             try 
             {
                 using (PinsMutex.AcquireWriteLock())
                 {
                   //  int count=0;
-                    while (PendingActions.NotEmpty) // && count < MaxProcessingPerTurn.LowerBound(1))
+                    while (PendingActions.NotEmpty)
                     {
                        // count++;
                         PendingActions.Dequeue()?.Invoke();
