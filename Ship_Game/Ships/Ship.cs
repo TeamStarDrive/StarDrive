@@ -1089,7 +1089,6 @@ namespace Ship_Game.Ships
                 UpdateInhibitedFromEnemyShips();
             }
 
-            //SetShipsVisibleByPlayer();
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Update(1);
 

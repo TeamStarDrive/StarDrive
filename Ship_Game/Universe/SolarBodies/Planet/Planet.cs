@@ -860,6 +860,9 @@ namespace Ship_Game
                     OrbitalStations.Remove(key);
             }
 
+            float projectorRange = 0;
+            float sensorRange = 0;
+
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -871,10 +874,9 @@ namespace Ship_Game
                 RepairPerTurn             += b.ShipRepair;
                 InfraStructure            += b.Infrastructure;
 
-                if (b.SensorRange > SensorRange)
-                    SensorRange = b.SensorRange;
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
-                    ProjectorRange = Math.Max(ProjectorRange, b.ProjectorRange + ObjectRadius);
+                if (b.SensorRange > sensorRange)
+                    sensorRange = b.SensorRange;
+                projectorRange = Math.Max(projectorRange, b.ProjectorRange + ObjectRadius);
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 if (b.WinsGame)
@@ -884,7 +886,9 @@ namespace Ship_Game
             }
             if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 ProjectorRange = Owner.GetProjectorRadius() + ObjectRadius;
-
+            else 
+                ProjectorRange = projectorRange;
+            SensorRange = sensorRange;
             UpdateMaxPopulation();
             TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
 

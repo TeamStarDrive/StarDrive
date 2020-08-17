@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -262,14 +263,19 @@ namespace Ship_Game
         {
             if (Empires.IsEmpty)
                 Log.Error($"must be called after empireList is populated.");
+            
             Empire.Universe.WarmUpShipsForLoad();
+            Empire.Universe.AsyncDataCollector.ManualUpdate(true);
             foreach(Empire empire in Empires)
             { 
+                empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
                 empire.Pool.UpdatePools();
                 empire.UpdateContactsAndBorders(1f);
             }
+            Empire.Universe.AsyncDataCollector.ManualUpdate(true);
+            Empire.Universe.AsyncDataCollector.Initialize();
         }
     }
 }
