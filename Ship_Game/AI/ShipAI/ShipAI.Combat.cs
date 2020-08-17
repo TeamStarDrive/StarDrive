@@ -3,8 +3,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
-using Ship_Game.Ships.DataPackets;
-using Newtonsoft.Json.Bson;
 
 namespace Ship_Game.AI
 {
@@ -29,57 +27,11 @@ namespace Ship_Game.AI
         public bool HasPriorityTarget;
         private float TriggerDelay;
         
-        //GameplayObject[] ScannedTargetShips         = new GameplayObject[0];
-        //GameplayObject[] ScannedProjectiles         = new GameplayObject[0];
         readonly Array<ShipWeight> ScannedNearby      = new Array<ShipWeight>();
         readonly Array<Ship> ScannedTargets           = new Array<Ship>();
         readonly Array<Ship> ScannedFriendlies        = new Array<Ship>();
         readonly Array<Projectile> ScannedProjectiles = new Array<Projectile>();
         bool ScanComplete                             = true;
-        
-
-
-        //public bool GetShipsInSensors(out GameplayObject[] scannedItems, float radius)
-        //{
-        //    if (ScannedTargetShips.Length ==0)
-        //    {
-        //        Empire.Universe.AddToDataCollector(()=>
-        //        {
-        //            if (Owner.Active)
-        //            {
-        //                radius = Math.Min(radius, Owner.SensorRange);
-        //                ScannedTargetShips = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Ship);
-        //            }
-        //        });
-        //        scannedItems = default;
-        //        return false;
-        //    }
-
-        //    scannedItems = ScannedTargetShips;
-        //    ScannedTargetShips = new GameplayObject[0];
-        //    return true;
-        //}
-
-        //public bool GetProjectilesInSensors(out GameplayObject[] scannedItems, float radius)
-        //{
-        //    if (ScannedProjectiles.Length ==0)
-        //    {
-        //        Empire.Universe.AddToDataCollector(()=>
-        //        {
-        //            if (Owner.Active)
-        //            {
-        //                radius = Math.Min(radius, Owner.WeaponsMaxRange);
-        //                ScannedProjectiles = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Proj);
-        //            }
-        //        });
-        //        scannedItems = null;
-        //        return false;
-        //    }
-
-        //    scannedItems       = ScannedProjectiles;
-        //    ScannedProjectiles = new GameplayObject[0];
-        //    return true;
-        //}
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType gameObjectType, float radius)
         {
