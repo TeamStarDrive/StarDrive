@@ -155,6 +155,7 @@ namespace Ship_Game
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 80, RightMenu.Y + 17), ""));
             FilterBuildableItems.Font = Font12;
+            FilterBuildableItems.ClickableArea = new Rectangle((int)RightMenu.X + 75, (int)RightMenu.Y+ 15, (int)RightMenu.Width - 400, 42);
             FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
             Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
             var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
@@ -224,10 +225,9 @@ namespace Ship_Game
         {
             color                       = Color.LightGreen;
             float targetFertility       = TerraformTargetFertility();
-            int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
-            int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
-            float minEstimatedMaxPop    = P.TileArea * P.BasePopPerTile * Player.RacialEnvModifer(Player.data.PreferredEnv) 
-                                          + P.BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease);
+            int numUninhabitableTiles   = P.TilesList.Count(t => t.CanTerraform && !t.Biosphere);
+            int numBiospheres           = P.TilesList.Count(t => t.BioCanTerraform);
+            float minEstimatedMaxPop    = P.PotentialMaxPopBillionsFor(Player);
 
             string text = "Terraformer Process Stages:\n";
             string initialText = text;
@@ -236,7 +236,7 @@ namespace Ship_Game
                 text += $"  * Make {numUninhabitableTiles} tiles habitable\n";
 
             if (P.Category != Player.data.PreferredEnv)
-                text += $"  * Terraform the planet to {Player.data.PreferredEnv.ToString()}.\n";
+                text += $"  * Terraform the planet to {Player.data.PreferredEnv}.\n";
 
             if (numBiospheres > 0)
                 text += $"  * Remove {numBiospheres} Biospheres.\n";
@@ -255,9 +255,10 @@ namespace Ship_Game
                 text += $"  * Max Fertility will be changed to {targetFertility}.\n";
             }
 
-            if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
-                text += $"  * Expected Max Population will be {(minEstimatedMaxPop / 1000).String(2)} Billion colonists.\n";
+            if (minEstimatedMaxPop > P.MaxPopulationBillionFor(Player))
+                text += $"  * Expected Max Population will be {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
 
+            text += $"  * Current Maximum Terraformers: {P.TerraformerLimit}\n";
             if (text == initialText)
             {
                 color = Color.Yellow;
