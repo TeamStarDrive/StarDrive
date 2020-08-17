@@ -403,16 +403,16 @@ namespace Ship_Game.AI
 
         public void ProcessPendingActions()
         {
-            if (UpdateResults?.IsComplete == false) return;
-            UpdateResults?.CancelAndWait();
+            //if (UpdateResults?.IsComplete == false) return;
+            //UpdateResults?.CancelAndWait();
             try 
             {
                 using (PinsMutex.AcquireWriteLock())
                 {
-                    int count=0;
-                    while (PendingActions.NotEmpty && count < MaxProcessingPerTurn.LowerBound(1))
+                  //  int count=0;
+                    while (PendingActions.NotEmpty) // && count < MaxProcessingPerTurn.LowerBound(1))
                     {
-                        count++;
+                       // count++;
                         PendingActions.Dequeue()?.Invoke();
                     }
                 }
@@ -438,47 +438,53 @@ namespace Ship_Game.AI
                 ships.AddRange(empire.GetProjectors());
             }
 
-            //Empire.Universe.AddToDataCollector(()=>
+            // add or update pins for ship targets
+            foreach (var ship in ships)
+            {
+                foreach (var target in ship.AI.PotentialTargets)
+                    PendingActions.Enqueue(() =>
+                        AddOrUpdatePin(target, target.IsInBordersOf(owner),
+                            true));
+            }
+
+            // separate pins with ships unseen ships.
+            foreach (var kv in pins)
+            {
+                var ship = kv.Value?.Ship;
+                if (ship?.dying == false && ship.Active &&
+                    ship.KnownByEmpires.KnownBy(owner))
                 {
-                    // add or update pins for ship targets
-                    foreach (var ship in ships)
-                    {
-                        foreach (var target in ship.AI.PotentialTargets)
-                            PendingActions.Enqueue(() => AddOrUpdatePin(target, target.IsInBordersOf(owner), true));
-                    }
+                    if (ship.loyalty != owner &&
+                        owner.GetRelations(ship.loyalty).Treaty_Alliance !=
+                        true)
+                        PendingActions.Enqueue(() =>
+                            AddOrUpdatePin(ship, ship.IsInBordersOf(owner),
+                                true));
+                }
+                else
+                    pinsWithNotSeenShips.Add(kv);
+            }
 
-                    // separate pins with ships unseen ships.
-                    foreach (var kv in pins)
+            // remove seen pins with not seen ships. 
+            foreach (var ship in ships)
+            {
+                foreach (var pin in pinsWithNotSeenShips)
+                {
+                    if (pin.Value.Ship?.Active != true)
                     {
-                        var ship =kv.Value?.Ship;
-                        if (ship?.dying == false && ship.Active && ship.KnownByEmpires.KnownBy(owner))
-                        {
-                            if (ship.loyalty != owner && owner.GetRelations(ship.loyalty).Treaty_Alliance != true)
-                                PendingActions.Enqueue(() => AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true));
-                        }
-                        else
-                            pinsWithNotSeenShips.Add(kv);
+                        PendingActions.Enqueue(() => Pins.Remove(pin.Key));
                     }
+                    else if (!pin.Value.Ship.Active)
+                        PendingActions.Enqueue(() => Pins.Remove(pin.Key));
+                    else if (pin.Value.Position.InRadius(ship.Position,
+                        ship.SensorRange))
+                    {
+                        PendingActions.Enqueue(() => Pins.Remove(pin.Key));
+                    }
+                }
+            }
 
-                    // remove seen pins with not seen ships. 
-                    foreach (var ship in ships)
-                    {
-                        foreach (var pin in pinsWithNotSeenShips)
-                        {
-                            if (pin.Value.Ship?.Active != true)
-                            {
-                                PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
-                            }
-                            else if (!pin.Value.Ship.Active)
-                                PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
-                            else if (pin.Value.Position.InRadius(ship.Position, ship.SensorRange))
-                            {
-                                PendingActions.Enqueue(()=> Pins.Remove(pin.Key));
-                            }
-                        }
-                    }
-                    MaxProcessingPerTurn = (PendingActions.Count);// / 30);
-                }//);
+            MaxProcessingPerTurn = (PendingActions.Count / 10);
             return true;
         }
 

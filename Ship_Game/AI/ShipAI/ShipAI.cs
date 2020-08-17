@@ -638,11 +638,19 @@ namespace Ship_Game.AI
 
         void ScanForThreat(float elapsedTime)
         {
+            bool wasAbove0 = ScanForThreatTimer >=0;
             ScanForThreatTimer -= elapsedTime;
-            if (ScanForThreatTimer <= 0f)
+            if (ScanForThreatTimer < 0f && wasAbove0)
             {
                 Empire.Universe.AddToDataCollector(SetCombatStatus);
-                ScanForThreatTimer = 1f;
+            }
+            if (ScanComplete)
+            {
+                ScanComplete     = false;
+                TrackProjectiles = new Array<Projectile>(ScannedProjectiles);
+                PotentialTargets = new BatchRemovalCollection<Ship>(ScannedTargets);
+                FriendliesNearby = new BatchRemovalCollection<Ship>(ScannedFriendlies);
+                NearByShips      = new Array<ShipWeight>(ScannedNearby);
             }
         }
 

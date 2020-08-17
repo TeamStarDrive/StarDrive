@@ -29,50 +29,57 @@ namespace Ship_Game.AI
         public bool HasPriorityTarget;
         private float TriggerDelay;
         
-        GameplayObject[] ScannedShips = new GameplayObject[0];
-        GameplayObject[] ScannedProjectiles = new GameplayObject[0];
+        //GameplayObject[] ScannedTargetShips         = new GameplayObject[0];
+        //GameplayObject[] ScannedProjectiles         = new GameplayObject[0];
+        readonly Array<ShipWeight> ScannedNearby      = new Array<ShipWeight>();
+        readonly Array<Ship> ScannedTargets           = new Array<Ship>();
+        readonly Array<Ship> ScannedFriendlies        = new Array<Ship>();
+        readonly Array<Projectile> ScannedProjectiles = new Array<Projectile>();
+        bool ScanComplete                             = true;
+        
 
-        public bool GetShipsInSensors(out GameplayObject[] scannedItems, float radius)
-        {
-            if (ScannedShips.Length ==0)
-            {
-                Empire.Universe.AddToDataCollector(()=>
-                {
-                    if (Owner.Active)
-                    {
-                        radius = Math.Min(radius, Owner.SensorRange);
-                        ScannedShips = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Ship);
-                    }
-                });
-                scannedItems = default;
-                return false;
-            }
 
-            scannedItems = ScannedShips;
-            ScannedShips = new GameplayObject[0];
-            return true;
-        }
+        //public bool GetShipsInSensors(out GameplayObject[] scannedItems, float radius)
+        //{
+        //    if (ScannedTargetShips.Length ==0)
+        //    {
+        //        Empire.Universe.AddToDataCollector(()=>
+        //        {
+        //            if (Owner.Active)
+        //            {
+        //                radius = Math.Min(radius, Owner.SensorRange);
+        //                ScannedTargetShips = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Ship);
+        //            }
+        //        });
+        //        scannedItems = default;
+        //        return false;
+        //    }
 
-        public bool GetProjectilesInSensors(out GameplayObject[] scannedItems, float radius)
-        {
-            if (ScannedProjectiles.Length ==0)
-            {
-                Empire.Universe.AddToDataCollector(()=>
-                {
-                    if (Owner.Active)
-                    {
-                        radius = Math.Min(radius, Owner.WeaponsMaxRange);
-                        ScannedProjectiles = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Proj);
-                    }
-                });
-                scannedItems = null;
-                return false;
-            }
+        //    scannedItems = ScannedTargetShips;
+        //    ScannedTargetShips = new GameplayObject[0];
+        //    return true;
+        //}
 
-            scannedItems       = ScannedProjectiles;
-            ScannedProjectiles = new GameplayObject[0];
-            return true;
-        }
+        //public bool GetProjectilesInSensors(out GameplayObject[] scannedItems, float radius)
+        //{
+        //    if (ScannedProjectiles.Length ==0)
+        //    {
+        //        Empire.Universe.AddToDataCollector(()=>
+        //        {
+        //            if (Owner.Active)
+        //            {
+        //                radius = Math.Min(radius, Owner.WeaponsMaxRange);
+        //                ScannedProjectiles = UniverseScreen.SpaceManager.FindNearby(Owner, radius, GameObjectType.Proj);
+        //            }
+        //        });
+        //        scannedItems = null;
+        //        return false;
+        //    }
+
+        //    scannedItems       = ScannedProjectiles;
+        //    ScannedProjectiles = new GameplayObject[0];
+        //    return true;
+        //}
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType gameObjectType, float radius)
         {
@@ -152,19 +159,19 @@ namespace Ship_Game.AI
             GameplayObject[] projectiles = GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
             //if (GetProjectilesInSensors(out GameplayObject[] projectiles, Owner.WeaponsMaxRange))
             {
-                TrackProjectiles.Clear();
+                ScannedProjectiles.Clear();
                 if (Owner.Mothership != null)
-                    TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
+                    ScannedProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
                 for (int i = 0; i < projectiles.Length; i++)
                 {
                     GameplayObject go = projectiles[i];
                     var missile = (Projectile) go;
                     if (missile.Weapon.Tag_Intercept &&
                         Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
-                        TrackProjectiles.Add(missile);
+                        ScannedProjectiles.Add(missile);
                 }
             }
-            TrackProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
+            ScannedProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
         }
 
         private bool OwnerHasPointDefense()
@@ -181,9 +188,9 @@ namespace Ship_Game.AI
         public Ship ScanForCombatTargets(Ship sensorShip, float radius)
         {
             BadGuysNear = false;
-            FriendliesNearby.Clear();
-            PotentialTargets.Clear();
-            NearByShips.Clear();
+            ScannedFriendlies.Clear();
+            ScannedTargets.Clear();
+            ScannedNearby.Clear();
 
             if (HasPriorityTarget)
             {
@@ -234,12 +241,12 @@ namespace Ship_Game.AI
                 }
             }
 
-            GameplayObject[] nearbyShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
-            //if (!GetShipsInSensors(out GameplayObject[] nearbyShips, radius + (radius < 0.01f ? 10000 : 0)))
+            GameplayObject[] scannedShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
+            //if (!GetShipsInSensors(out GameplayObject[] ScannedNearby, radius + (radius < 0.01f ? 10000 : 0)))
             //    return Target;
-            for (int x = 0; x < nearbyShips.Length; x++)
+            for (int x = 0; x < scannedShips.Length; x++)
             {
-                var go = nearbyShips[x];
+                var go = scannedShips[x];
                 var nearbyShip = (Ship) go;
                 if (!nearbyShip.Active || nearbyShip.dying)
                 { 
@@ -250,17 +257,17 @@ namespace Ship_Game.AI
                 Empire empire = nearbyShip.loyalty;
                 if (empire == Owner.loyalty)
                 {
-                    FriendliesNearby.Add(nearbyShip);
+                    ScannedFriendlies.Add(nearbyShip);
                     continue;
                 }
 
-                bool isAttackable = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
-                if (!isAttackable)
+                bool canAttack = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
+                if (!canAttack)
                     continue;
                 BadGuysNear = true;
                 if (Owner.IsSubspaceProjector  || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
                 {
-                    PotentialTargets.Add(nearbyShip);
+                    ScannedTargets.Add(nearbyShip);
                     continue;
                 }
 
@@ -274,13 +281,13 @@ namespace Ship_Game.AI
 
                 var sw = new ShipWeight(nearbyShip, 1);
 
-                if (BadGuysNear && nearbyShip.AI.Target is Ship nearbyShipsTarget &&
-                    nearbyShipsTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
+                if (BadGuysNear && nearbyShip.AI.Target is Ship ScannedNearbyTarget &&
+                    ScannedNearbyTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                 {
                     sw += 3f;
                 }
 
-                NearByShips.Add(sw);
+                ScannedNearby.Add(sw);
             }
 
             if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
@@ -291,22 +298,22 @@ namespace Ship_Game.AI
                 if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
                 {
                     var sw = new ShipWeight(shipTarget, 1);
-                    NearByShips.AddUnique(sw);
+                    ScannedNearby.AddUnique(sw);
                 }
             }
             if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
             {
                 var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
-                NearByShips.AddUnique(sw);
+                ScannedNearby.AddUnique(sw);
             }
 
             Owner.Carrier.SupplyShuttle.ProcessSupplyShuttles(radius);
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
-            ShipWeight[] sortedList2 = NearByShips.Filter(weight => weight.Weight > -100)
+            ShipWeight[] sortedList2 = ScannedNearby.Filter(weight => weight.Weight > -100)
                 .OrderByDescending(weight => weight.Weight).ToArray();
 
-            PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
+            ScannedTargets.AddRange(sortedList2.Select(ship => ship.Ship));
 
             if (Target?.Active != true)
             {
@@ -363,8 +370,14 @@ namespace Ship_Game.AI
 
         void SetCombatStatus()
         {
+            ScanForThreatTimer = Owner.loyalty.MaxContactTimer;
             float radius = GetSensorRadius(out Ship sensorShip);
-            if (Owner.IsSubspaceProjector) {ScanForCombatTargets(sensorShip, radius); return;}
+            if (Owner.IsSubspaceProjector)
+            {
+                ScanForCombatTargets(sensorShip, radius); 
+                ScanComplete = true;
+                return;
+            }
 
             if (Owner.fleet != null)
             {
@@ -387,6 +400,8 @@ namespace Ship_Game.AI
                 else
                     ScanForCombatTargets(sensorShip, radius);
             }
+
+            ScanComplete = true;
 
             if (State == AIState.Resupply || DoNotEnterCombat)
                 return;

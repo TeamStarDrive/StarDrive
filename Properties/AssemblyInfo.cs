@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("b38aad3b-18b8-41a8-b758-0e5614dafc49")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
 
-[assembly: AssemblyInformationalVersion("feature/AdvancedPirateLogic_8472 4e7448324")]
+[assembly: AssemblyInformationalVersion("fix/flashingVisibility_9207 bf8311f87")]

@@ -47,6 +47,7 @@ namespace Ship_Game
                     Log.Info(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
 
                     EmpireManager.RestoreUnserializableDataFromSave();
+                    
                     Progress.Finish();
 
                     Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
