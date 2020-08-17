@@ -126,6 +126,8 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
             => TroopManager.EmpireTroops(empire, maxToTake);
 
+        public int TerraformerLimit => ((int)(TilesList.Count(t => t.Habitable && !t.Biosphere) * 0.25f)).LowerBound(1);
+
         public GameplayObject[] GetNearByShips() => GetNearByShips(GravityWellRadius);
         public GameplayObject[] GetNearByShips(float radius) => UniverseScreen.SpaceManager.FindNearby(Center, radius,GameObjectType.Ship, Owner);
 
@@ -148,22 +150,38 @@ namespace Ship_Game
 
         public float PotentialMaxPopFor(Empire empire)
         {
-            if (empire.IsBuildingUnlocked(Building.TerraformerId))
-                return BasePopPerTile * empire.RacialEnvModifer(Category) * TileArea;
+            bool bioSpheresResearched = empire.IsBuildingUnlocked(Building.BiospheresId);
+            bool terraformResearched  = empire.IsBuildingUnlocked(Building.TerraformerId);
 
             // We calculate this  and not using MaxPop since it might be an enemy planet with biospheres
             int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * empire.RacialEnvModifer(Category);
 
-            if (!empire.IsBuildingUnlocked(Building.BiospheresId)) // Biospheres not researched yet
+            if (!bioSpheresResearched && !terraformResearched)
                 return naturalMaxPop;
 
-            // check potential with biospheres
-            int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
-            float bioSphereMaxPop   = BasePopPerTile * numBiospheresNeeded;
+            if (bioSpheresResearched && !terraformResearched)
+            {
+                int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
+                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
+                return bioSphereMaxPop + naturalMaxPop;
+            }
 
-            return bioSphereMaxPop/2 + naturalMaxPop;
+            if (bioSpheresResearched) // Biospheres and terraformers researched
+            {
+                int terraformableTiles  = TilesList.Count(t => t.CanTerraform);
+                int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
+                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
+                naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * empire.RacialEnvModifer(empire.data.PreferredEnv);
+                return bioSphereMaxPop + naturalMaxPop;
+            }
+
+            // Only Terraformers researched
+            int potentialTiles = TilesList.Count(t => t.Terraformable);
+            return BasePopPerTile * potentialTiles * empire.RacialEnvModifer(empire.data.PreferredEnv);
         }
+
+        public float PopPerBiosphere => BasePopPerTile / 2;
 
         public float PotentialMaxFertilityFor(Empire empire)
         {
@@ -176,11 +194,11 @@ namespace Ship_Game
             if (!Habitable)
                 return 0;
 
-            float minimumPop = BasePopPerTile + PopulationBonus; // At least a tile's worth population and any max pop bonus buildings have
+            float minimumPop = BasePopPerTile/2 + PopulationBonus; // At least 1/2 tile's worth population and any max pop bonus buildings have
             if (empire == null)
-                return Math.Max(minimumPop, MaxPopValFromTiles + PopulationBonus);
+                return (MaxPopValFromTiles + PopulationBonus).LowerBound(minimumPop);
 
-            return Math.Max(minimumPop, MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus);
+            return (MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus).LowerBound(minimumPop);
         }
 
         public int FreeTilesWithRebaseOnTheWay(Empire empire)
@@ -536,8 +554,11 @@ namespace Ship_Game
         {
             RemoveBuildingFromPlanet(tile);
             tile.Habitable = false;
+
             if (tile.Biosphere)
                 ClearBioSpheresFromList(tile);
+            else
+                tile.Terraformable = false;
 
             UpdateMaxPopulation();
         }
@@ -674,11 +695,11 @@ namespace Ship_Game
 
             int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
-                                    + BuildingList.Count(b => b.IsBiospheres) * BasePopPerTile;
+                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere;
 
 
             MaxPopValFromTiles = Math.Max(BasePopPerTile, BasePopPerTile * numHabitableTiles);
-            MaxPopBillionVal = MaxPopValFromTiles / 1000f;
+            MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
         }
 
         public int Level { get; private set; }
@@ -884,8 +905,11 @@ namespace Ship_Game
                 if (b.AllowShipBuilding || b.IsSpacePort)
                     spacePort = true;
             }
+
             if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 ProjectorRange = Owner.GetProjectorRadius() + ObjectRadius;
+
+            TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
             else 
                 ProjectorRange = projectorRange;
             SensorRange = sensorRange;
@@ -1151,6 +1175,7 @@ namespace Ship_Game
         public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
         public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
+        public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
 
 
         private void RepairBuildings(int repairAmount)
