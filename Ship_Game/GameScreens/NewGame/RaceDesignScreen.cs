@@ -62,7 +62,8 @@ namespace Ship_Game
                 AllTraits.Add(new TraitEntry { trait = t });
             }
             GlobalStats.Statreset();
-            NumOpponents = GlobalStats.ActiveMod?.mi?.MaxOpponents ?? ResourceManager.MajorRaces.Count-1;
+            int maxOpponentsLimit = ResourceManager.MajorRaces.Count - 1;
+            NumOpponents = GlobalStats.ActiveMod?.mi?.DefaultNumOpponents.UpperBound(maxOpponentsLimit) ?? maxOpponentsLimit;
         }
 
         RacialTrait GetRacialTraits()

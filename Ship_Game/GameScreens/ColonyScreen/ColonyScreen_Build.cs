@@ -282,9 +282,9 @@ namespace Ship_Game
 
         void OnClearFilterClick(UIButton b)
         {
-            FilterBuildableItems.Text = "";
-            FilterItemsText           = "";
-            ResetBuildableList        = true;
+            FilterItemsText    = "";
+            ResetBuildableList = true;
+            FilterBuildableItems.ClearTextInput();
         }
 
         void OnBuildShipyardClick(UIButton b)

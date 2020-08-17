@@ -55,6 +55,9 @@ namespace Ship_Game
             string restriction = mod.Restrictions.ToString();
             batch.DrawString(Fonts.Arial8Bold, restriction, tCursor, Color.Orange);
             tCursor.X += Fonts.Arial8Bold.MeasureString(restriction).X;
+            string size = $" ({mod.XSIZE}x{mod.YSIZE})";
+            batch.DrawString(Fonts.Arial8Bold, size, tCursor, Color.Gray);
+            tCursor.X += Fonts.Arial8Bold.MeasureString(size).X;
 
             if (mod.IsRotatable)
             {
