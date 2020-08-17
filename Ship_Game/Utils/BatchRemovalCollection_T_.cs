@@ -15,11 +15,9 @@ namespace Ship_Game
         {
             PendingRemovals = new ConcurrentStack<T>();
         }
-        public BatchRemovalCollection(ICollection<T> listToCopy, bool noRemoveQueue = false)
+        public BatchRemovalCollection(ICollection<T> listToCopy) : this()
         {
             base.AddRange(listToCopy);
-            if (noRemoveQueue) return;
-            PendingRemovals = new ConcurrentStack<T>();
         }
 
         // Acquires a deterministic Read Lock on this Collection
@@ -127,12 +125,11 @@ namespace Ship_Game
             return arr;
         }
 
-        public T RecycleObject()
+        public T RecycleObject(Func<T,T> action)
         {
             if (!PendingRemovals.TryPop(out T item))
                 return item;
-            (item as Empire.InfluenceNode)?.Wipe();
-            return item;
+            return action(item);
         }
 
         public void Dispose()

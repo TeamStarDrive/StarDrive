@@ -12,7 +12,7 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        readonly ActionPool AsyncDataCollector = new ActionPool();
+        public readonly ActionPool AsyncDataCollector = new ActionPool();
         public object DataCollectorLocker => AsyncDataCollector.Locker;
         public void AddToDataCollector(Action action) => AsyncDataCollector.Add(action);
 
@@ -38,6 +38,7 @@ namespace Ship_Game
                     if (ProcessTurnsThread == null)
                         break; // this thread is aborting
 
+                    AsyncDataCollector.Initialize();
                     ProcessNextTurn();
                     failedLoops = 0; // no exceptions this turn
                 }
@@ -155,8 +156,6 @@ namespace Ship_Game
                 lock(AsyncDataCollector.Locker)
                     SpaceManager.Update(elapsedTime);
                 
-                // process all collected data collection
-                AsyncDataCollector.Update();
                 ProcessTurnUpdateMisc(elapsedTime);
 
                 // bulk remove all dead projectiles to prevent their update next frame
@@ -392,8 +391,8 @@ namespace Ship_Game
             {
                 Parallel.ForEach(EmpireManager.Empires, empire=>
                 {
-                 empire.Pool.UpdatePools();
-                 empire.UpdateContactsAndBorders(0.01666667f);
+                     empire.Pool.UpdatePools();
+                     empire.UpdateContactsAndBorders(0.01666667f);
                 });
             }
 
