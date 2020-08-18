@@ -265,7 +265,7 @@ namespace Ship_Game
                 Log.Error($"must be called after empireList is populated.");
             
             Empire.Universe.WarmUpShipsForLoad();
-            Empire.Universe.AsyncDataCollector.ManualUpdate(true);
+            Empire.Universe.AsyncDataCollector.ManualUpdate();
             foreach(Empire empire in Empires)
             { 
                 empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
@@ -274,7 +274,7 @@ namespace Ship_Game
                 empire.Pool.UpdatePools();
                 empire.UpdateContactsAndBorders(1f);
             }
-            Empire.Universe.AsyncDataCollector.ManualUpdate(true);
+            Empire.Universe.AsyncDataCollector.ManualUpdate();
             Empire.Universe.AsyncDataCollector.Initialize();
         }
     }
