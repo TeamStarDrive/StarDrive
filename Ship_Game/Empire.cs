@@ -3236,9 +3236,8 @@ namespace Ship_Game
                 Empire.Universe.AddToDataCollector(()=>
                 {
                     EmpireAI.ThreatMatrix.UpdateAllPins(this);
-                    EmpireAI.ThreatMatrix.ProcessPendingActions();
                 });
-                
+                EmpireAI.ThreatMatrix.ProcessPendingActions();
             }
             
         }
