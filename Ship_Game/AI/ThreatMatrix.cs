@@ -439,10 +439,17 @@ namespace Ship_Game.AI
             // add or update pins for ship targets
             foreach (var ship in ships)
             {
-                foreach (var target in ship.AI.PotentialTargets)
+                if (!ship.Active) continue;
+
+                var targets = ship.AI.PotentialTargets.ToArray();
+
+                for (int x = 0; x < targets.Length; x++)
+                {
+                    var target = targets[x];
                     PendingActions.Enqueue(() =>
                         AddOrUpdatePin(target, target.IsInBordersOf(owner),
                             true));
+                }
             }
 
             // separate pins with ships unseen ships.

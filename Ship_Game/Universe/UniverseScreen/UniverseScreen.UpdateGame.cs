@@ -391,10 +391,12 @@ namespace Ship_Game
             if (IsActive)
             {
                 Parallel.ForEach(EmpireManager.Empires, empire=>
+                //foreach(var empire in EmpireManager.Empires)
                 {
                      empire.Pool.UpdatePools();
-                     empire.UpdateContactsAndBorders(0.01666667f);
                 });
+                foreach(var empire in EmpireManager.Empires) 
+                    empire.UpdateContactsAndBorders(0.01666667f);
             }
 
             PreEmpirePerf.Stop();

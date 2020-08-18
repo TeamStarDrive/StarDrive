@@ -126,7 +126,7 @@ namespace Ship_Game
         public EmpireData data;
         public DiplomacyDialog dd;
         public string PortraitName;
-
+        public bool ScanComplete = true;
         // faction means it's not an actual Empire like Humans or Kulrathi
         // it doesn't normally colonize or make war plans.
         // it gets special instructions, usually event based, for example Corsairs
@@ -1223,18 +1223,18 @@ namespace Ship_Game
 
         void ScanFromAllInfluenceNodes()
         {
-            using (BorderNodes.AcquireReadLock())
-                for (int i = 0; i < BorderNodes.Count; i++)
-                {
-                    var node = BorderNodes[i];
-                    ScanFromInfluenceNode(node, ScanType.Influence);
-                }
-            using (SensorNodes.AcquireReadLock())
+            //using (BorderNodes.AcquireReadLock())
+            for (int i = 0; i < BorderNodes.Count; i++)
+            {
+                var node = BorderNodes[i];
+                ScanFromInfluenceNode(node, ScanType.Influence);
+            }
+            //using (SensorNodes.AcquireReadLock())
             for (int i = 0; i < SensorNodes.Count; i++)
-                {
-                    var node = SensorNodes[i];
-                    ScanFromInfluenceNode(node, ScanType.Ships);
-                }
+            {
+                var node = SensorNodes[i];
+                ScanFromInfluenceNode(node, ScanType.Ships);
+            }
 
             Array<Ship> currentlyKnown = new Array<Ship>();
 
@@ -3218,21 +3218,27 @@ namespace Ship_Game
 
         public void UpdateContactsAndBorders(float elapsedTime)
         {
-            bool greaterThan0 = updateContactsTimer >= 0;
             updateContactsTimer -= elapsedTime;
-            if (updateContactsTimer < 0f && !data.Defeated && greaterThan0)
+            if (updateContactsTimer < 0f && !data.Defeated && ScanComplete)
             {
+                if (MaxContactTimer >0 && updateContactsTimer < MaxContactTimer * -1)
+                    Log.Error($"Action Pool was too slow for contact");
+                ScanComplete = false;
+
+                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? 1f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
+
                 Empire.Universe.AddToDataCollector(()=>
                     { 
-                        updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? 1f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
                         ResetBorders();
                         ScanFromAllInfluenceNodes();
+                        ScanComplete = true;
                     });
-                    Empire.Universe.AddToDataCollector(()=>
-                    {
-                        EmpireAI.ThreatMatrix.UpdateAllPins(this);
-                        EmpireAI.ThreatMatrix.ProcessPendingActions();
-                    });
+                Empire.Universe.AddToDataCollector(()=>
+                {
+                    EmpireAI.ThreatMatrix.UpdateAllPins(this);
+                    EmpireAI.ThreatMatrix.ProcessPendingActions();
+                });
+                
             }
             
         }

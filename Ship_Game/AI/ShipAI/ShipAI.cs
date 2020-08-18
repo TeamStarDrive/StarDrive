@@ -638,19 +638,24 @@ namespace Ship_Game.AI
 
         void ScanForThreat(float elapsedTime)
         {
-            bool wasAbove0 = ScanForThreatTimer >=0;
-            ScanForThreatTimer -= elapsedTime;
-            if (ScanForThreatTimer < 0f && wasAbove0)
-            {
-                Empire.Universe.AddToDataCollector(SetCombatStatus);
-            }
             if (ScanComplete)
             {
                 ScanComplete     = false;
-                TrackProjectiles = new Array<Projectile>(ScannedProjectiles);
-                PotentialTargets = new BatchRemovalCollection<Ship>(ScannedTargets);
-                FriendliesNearby = new BatchRemovalCollection<Ship>(ScannedFriendlies);
+                TrackProjectiles = new Array<Projectile>(ScannedProjectiles.ToArray());
+                PotentialTargets = new BatchRemovalCollection<Ship>(ScannedTargets.ToArray());
+                
+                FriendliesNearby = new BatchRemovalCollection<Ship>(ScannedFriendlies.ToArray());
                 NearByShips      = new Array<ShipWeight>(ScannedNearby);
+                Owner.Carrier.SupplyShuttle.ProcessSupplyShuttles(GetSensorRadius());
+            }
+
+            ScanForThreatTimer -= elapsedTime;
+            if (ScanForThreatTimer < 0f && !ScanComplete)
+            {
+                if (ScanForThreatTimer < -1f)//  Owner.loyalty.MaxContactTimer * -1)
+                    Log.Warning($"ActioPool Took To Long");
+                ScanForThreatTimer = 1f;// Owner.loyalty.MaxContactTimer;
+                Empire.Universe.AddToDataCollector(SetCombatStatus);
             }
         }
 
