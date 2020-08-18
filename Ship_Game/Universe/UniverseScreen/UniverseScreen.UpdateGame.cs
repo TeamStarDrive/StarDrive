@@ -13,7 +13,7 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         public readonly ActionPool AsyncDataCollector = new ActionPool();
-        public object DataCollectorLocker => AsyncDataCollector.Locker;
+        public object DataCollectorGameThreadLocker => AsyncDataCollector.GameThreadLocker;
         public void AddToDataCollector(Action action) => AsyncDataCollector.Add(action);
 
         void ProcessTurnsMonitored()
@@ -153,9 +153,10 @@ namespace Ship_Game
 
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
-                lock(AsyncDataCollector.Locker)
+                lock(AsyncDataCollector.GameThreadLocker)
                     SpaceManager.Update(elapsedTime);
                 
+                AsyncDataCollector.MoveItemsToThread();
                 ProcessTurnUpdateMisc(elapsedTime);
 
                 // bulk remove all dead projectiles to prevent their update next frame
