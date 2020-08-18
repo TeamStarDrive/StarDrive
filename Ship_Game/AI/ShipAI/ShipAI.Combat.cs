@@ -217,16 +217,16 @@ namespace Ship_Game.AI
                 if (!canAttack)
                     continue;
                 BadGuysNear = true;
-                if (Owner.IsSubspaceProjector  || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
+                if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
                 {
                     ScannedTargets.Add(nearbyShip);
                     continue;
                 }
 
-                armorAvg += nearbyShip.armor_max;
+                armorAvg  += nearbyShip.armor_max;
                 shieldAvg += nearbyShip.shield_max;
-                dpsAvg += nearbyShip.GetDPS();
-                sizeAvg += nearbyShip.SurfaceArea;
+                dpsAvg    += nearbyShip.GetDPS();
+                sizeAvg   += nearbyShip.SurfaceArea;
                 
                 if (radius < 1)
                     continue;
@@ -259,7 +259,6 @@ namespace Ship_Game.AI
                 ScannedNearby.AddUnique(sw);
             }
 
-            Owner.Carrier.SupplyShuttle.ProcessSupplyShuttles(radius);
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
             ShipWeight[] sortedList2 = ScannedNearby.Filter(weight => weight.Weight > -100)
@@ -290,19 +289,19 @@ namespace Ship_Game.AI
 
         private void SetTargetWeights(float armorAvg, float shieldAvg, float dpsAvg, float sizeAvg)
         {
-            armorAvg  /= NearByShips.Count + .01f;
-            shieldAvg /= NearByShips.Count + .01f;
-            dpsAvg    /= NearByShips.Count + .01f;
+            armorAvg  /= ScannedNearby.Count + .01f;
+            shieldAvg /= ScannedNearby.Count + .01f;
+            dpsAvg    /= ScannedNearby.Count + .01f;
 
-            for (int i = NearByShips.Count - 1; i >= 0; i--)
+            for (int i = ScannedNearby.Count - 1; i >= 0; i--)
             {
 
-                ShipWeight copyWeight = NearByShips[i]; //Remember we have a copy.
+                ShipWeight copyWeight = ScannedNearby[i]; //Remember we have a copy.
                 copyWeight += CombatAI.ApplyWeight(copyWeight.Ship);
 
                 if (Owner.fleet == null || FleetNode == null)
                 {
-                    NearByShips[i] = copyWeight;//update stored weight from copy
+                    ScannedNearby[i] = copyWeight;//update stored weight from copy
                     continue;
                 }
 
@@ -316,13 +315,12 @@ namespace Ship_Game.AI
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.SurfaceArea, sizeAvg, FleetNode.SizeWeight);
                 copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet, copyWeight.Ship);
                 //ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
-                NearByShips[i] = copyWeight;
+                ScannedNearby[i] = copyWeight;
             }
         }
 
         void SetCombatStatus()
         {
-            ScanForThreatTimer = Owner.loyalty.MaxContactTimer;
             float radius = GetSensorRadius(out Ship sensorShip);
             if (Owner.IsSubspaceProjector)
             {
