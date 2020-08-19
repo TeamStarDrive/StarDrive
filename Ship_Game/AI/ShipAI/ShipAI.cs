@@ -638,7 +638,7 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.TroopToShip, State);
         }
         
-        void ScanForThreat(float elapsedTime)
+        public void ScanForThreat(float elapsedTime)
         {
             if (ScanComplete && !ScanDataProcessed)
             {
