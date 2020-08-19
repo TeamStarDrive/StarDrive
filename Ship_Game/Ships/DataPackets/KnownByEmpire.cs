@@ -61,7 +61,7 @@ namespace Ship_Game.Ships.DataPackets
             //    SeenByID[EmpireManager.Player.Id - 1] = timer;
         }
 
-        public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] + KnownDuration > 0;
+        public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] + 0.2f > 0;
 
         /// <summary>
         /// Sets the ship as seen by player. Unlike "knownByPlayer" this can be used anywhere. 

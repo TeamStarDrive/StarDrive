@@ -652,9 +652,9 @@ namespace Ship_Game.AI
             ScanForThreatTimer -= elapsedTime;
             if (ScanForThreatTimer < 0f && !ScanComplete)
             {
-                if (ScanForThreatTimer < -1f)//  Owner.loyalty.MaxContactTimer * -1)
+                if (ScanForThreatTimer < -0.02f)
                     Log.Warning($"ActioPool Took To Long");
-                ScanForThreatTimer = 1f;// Owner.loyalty.MaxContactTimer;
+                ScanForThreatTimer = Owner.loyalty.MaxContactTimer;
                 Empire.Universe.AddToDataCollector(SetCombatStatus);
             }
         }
