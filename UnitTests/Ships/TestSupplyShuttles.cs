@@ -15,8 +15,9 @@ namespace UnitTests.Ships
         public TestSupplyShuttles()
         {
             // Excalibur class has all the bells and whistles
-            LoadStarterShips(new[]{ "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
             CreateGameInstance();
+            LoadStarterShips(new[]{ "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
+            
         }
 
         void CreateTestEnv(out Empire empire, out Ship ship, out Ship target)
@@ -39,6 +40,8 @@ namespace UnitTests.Ships
             ship.AI.CombatState = state;
             ship.shipStatusChanged = true;
             ship.Update(1f);
+            Universe.AsyncDataCollector.ManualUpdate();
+            ship.Update(1f);
         }
 
         [TestMethod]
@@ -47,6 +50,7 @@ namespace UnitTests.Ships
             CreateTestEnv(out Empire empire, out Ship ship, out Ship target);
             target.ChangeOrdnance(-target.OrdinanceMax * 0.5f);
             UpdateStatus(ship, CombatState.Artillery);
+            ship.UpdateResupply();
             Assert.IsTrue(ship.Carrier.HasSupplyShuttlesInSpace);
         }
 
@@ -56,6 +60,7 @@ namespace UnitTests.Ships
             CreateTestEnv(out Empire empire, out Ship ship, out Ship target);
             ship.ChangeOrdnance(-(ship.OrdinanceMax -50));
             UpdateStatus(ship, CombatState.Artillery);
+            ship.UpdateResupply();
             Assert.IsTrue(ship.Carrier.HasSupplyShuttlesInSpace);
         }
     }
