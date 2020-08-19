@@ -701,7 +701,7 @@ namespace Ship_Game
                 if (go == searchAreaRect.Obj || !searchAreaRect.HitTestNearby(ref so))
                     continue;
 
-                if (numNearby == nearby.Length) // "clever" resize
+                if (numNearby >= nearby.Length) // "clever" resize
                     Array.Resize(ref nearby, numNearby + count);
 
                 nearby[numNearby++] = go;
