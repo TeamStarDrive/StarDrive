@@ -618,36 +618,82 @@ namespace Ship_Game
         }
 
 
-        UILabel DebugText;
+        UILabel DebugGameStats;
+        UILabel DebugGameStatValues;
+        UILabel DebugGamePerf;
+        UILabel DebugGamePerfValues;
 
         void HideDebugGameInfo()
         {
-            DebugText?.Hide();
+            DebugGameStats?.Hide();
+            DebugGameStatValues?.Hide();
+            DebugGamePerf?.Hide();
+            DebugGamePerfValues?.Hide();
         }
 
         void ShowDebugGameInfo()
         {
-            if (DebugText == null)
-                DebugText = Label(ScreenWidth - 250f, 44f, "");
-
-            DebugText.Show();
-            DebugText.MultilineText = new Array<string>
+            if (DebugGameStats == null)
             {
-                "Comparisons:      " + GlobalStats.Comparisons,
-                "Dis Check Avg:    " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter,
-                "Modules Updated:  " + GlobalStats.ModuleUpdates,
-                "Arc Checks:       " + GlobalStats.WeaponArcChecks,
-                "Beam Tests:       " + GlobalStats.BeamTests,
-                "Memory:           " + Memory,
-                "",
-                "Ship Count:       " + MasterShipList.Count,
-                "Ship Time:        " + Perfavg2,
-                "Empire Time:      " + EmpireUpdatePerf,
-                "PreEmpire Time:   " + PreEmpirePerf,
-                "Post Empire Time: " + perfavg4,
-                "",
-                "Total Time:       " + perfavg5
+                DebugGameStats = Label(150f, 44f, "");
+                DebugGameStatValues = Label(150f, 44f, "");
+                DebugGamePerf =Label(150f, 44f, "");
+                DebugGamePerfValues =Label(150f, 44f, "");
+            }
+            
+            DebugGameStats.Show();
+            DebugGameStats.MultilineText = new Array<string>
+            {
+                "Comparisons:      " ,
+                "Dis Check Avg:    " ,
+                "Modules Updated:  " ,
+                "Arc Checks:       " ,
+                "Beam Tests:       " ,
+                "Memory:           "
             };
+            DebugGameStatValues.SetAbsPos(DebugGameStats.TopLeft.X + DebugGameStats.Size.X , DebugGameStats.Y);
+            DebugGameStatValues.Show();
+            DebugGameStatValues.MultilineText = new Array<string>
+            {
+                "" + GlobalStats.Comparisons,
+                "" + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter,
+                "" + GlobalStats.ModuleUpdates,
+                "" + GlobalStats.WeaponArcChecks,
+                "" + GlobalStats.BeamTests,
+                "" + Memory
+            };
+
+            DebugGamePerf.SetAbsPos(DebugGameStatValues.TopLeft.X + DebugGameStatValues.Size.X + 50, DebugGameStatValues.Y);
+            DebugGamePerf.Show();
+            DebugGamePerf.MultilineText = new Array<string>
+            {
+                "Ship Count:  " ,
+                "Ship Time:  " ,
+                "Empire Time:  " ,
+                "PreEmpire Time:  " ,
+                "Post Empire Time:  " ,
+                "Collision Time: " ,
+                "---Total Time:  ",
+                "Action Q  Time:  " 
+
+            };
+            
+            DebugGamePerf.Align = TextAlign.Default;
+
+            DebugGamePerfValues.X = DebugGamePerf.TopLeft.X + DebugGamePerf.Size.X;
+            DebugGamePerfValues.Show();
+            DebugGamePerfValues.MultilineText = new Array<string>
+            {
+                "" + MasterShipList.Count,
+                "" + Perfavg2,
+                "" + EmpireUpdatePerf,
+                "" + PreEmpirePerf,
+                "" + perfavg4,
+                "" + CollisionTime,
+                "" + perfavg5,
+                "" + Empire.Universe.AsyncDataCollector.ProcessTime,
+            };
+
         }
 
         void DrawFleetIcons()

@@ -13,7 +13,6 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         public readonly ActionPool AsyncDataCollector = new ActionPool();
-        public object DataCollectorGameThreadLocker => AsyncDataCollector.GameThreadLocker;
         public void AddToDataCollector(Action action) => AsyncDataCollector.Add(action);
 
         void ProcessTurnsMonitored()
@@ -151,12 +150,16 @@ namespace Ship_Game
                 // this will update all ship Center coordinates
                 ProcessTurnShipsAndSystems(elapsedTime);
 
+                CollisionTime.Start();
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
-                lock(AsyncDataCollector.GameThreadLocker)
-                    SpaceManager.Update(elapsedTime);
                 
+                SpaceManager.Update(elapsedTime);
+                CollisionTime.Stop();
+
+                ActionQTime.Start();
                 AsyncDataCollector.MoveItemsToThread();
+                ActionQTime.Stop();
                 ProcessTurnUpdateMisc(elapsedTime);
 
                 // bulk remove all dead projectiles to prevent their update next frame

@@ -1255,12 +1255,12 @@ namespace Ship_Game
                 }
             }
 
-            if (isPlayer)
-            {
-                using (KnownShips.AcquireWriteLock())
-                    KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
-            }
-            else
+            //if (isPlayer)
+            //{
+            //    //using (KnownShips.AcquireWriteLock())
+            //        KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
+            //}
+            //else
                 KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
         }
 
@@ -3225,7 +3225,7 @@ namespace Ship_Game
                     Log.Error($"Action Pool was too slow for contact");
                 ScanComplete = false;
 
-                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? 1f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
+                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? 0.5f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
 
                 Empire.Universe.AddToDataCollector(()=>
                     { 
