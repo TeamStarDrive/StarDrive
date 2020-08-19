@@ -37,6 +37,7 @@ namespace Ship_Game.Threading
 
         Exception ThreadException = null;
 
+        int StillProcessingCounter = 0;
         
         public ActionPool()
         {
@@ -78,22 +79,21 @@ namespace Ship_Game.Threading
                 ThreadException = null;
             }
 
-            if (IsProcessing)
+            if (ActionProcessor.NotEmpty)
             {
-                if (Empire.Universe?.DebugWin != null)
+                ActionsAvailable.Set();
+                StillProcessingCounter++;
+                if (Empire.Universe?.DebugWin != null && StillProcessingCounter > 5)
                     Log.Warning($"Action Pool Unable to process all items. Processed: " +
                                 $"{ActionsProcessedThisTurn} Waiting {ActionAccumulator.Count} " +
-                                $"AVGProcessed: {AvgActionsProcessed} " +
+                                $"TurnsInProcess: {StillProcessingCounter} " +
                                 $" ThreadState {Worker?.ThreadState}");
                 return Worker?.ThreadState ?? ThreadState.Stopped;
             }
 
-            if (ActionProcessor.IsEmpty && ActionAccumulator.Count > 10)// && --MoveTimeDelay < 0)
+            if (ActionProcessor.IsEmpty && ActionAccumulator.Count > 100)// && --MoveTimeDelay < 0)
             {
-                if (Empire.Universe?.DebugWin != null)
-                {
-                    Log.Warning($"Action Pool ActionsProcess Last Update = {ActionsProcessedThisTurn} : AVG {AvgActionsProcessed} ");
-                }
+                StillProcessingCounter = 0;
 
                 ActionProcessor = new Array<Action>(ActionAccumulator);
                 ActionAccumulator = new Array<Action>(1000);
@@ -118,18 +118,19 @@ namespace Ship_Game.Threading
 
         void ProcessQueuedItems()
         {
+            Array<Action> localActionQueue;
             while (true)
             {
-                ActionsAvailable.WaitOne(100);
+                ActionsAvailable.WaitOne(50);
+
+                if (ActionProcessor.Count == 0) continue;
 
                 ProcessTime.Start();
                 IsProcessing = true;
                 int processedLastTurn = ActionsProcessedThisTurn;
                 ActionsProcessedThisTurn = 0;
 
-                Array<Action> localActionQueue;
                 localActionQueue = new Array<Action>(ActionProcessor);
-                ActionProcessor = EmptyArray;
 
                 Parallel.ForEach(localActionQueue, action =>
                 {
@@ -143,6 +144,7 @@ namespace Ship_Game.Threading
                         ThreadException = ex;
                     }
                 });
+                ActionProcessor = EmptyArray;
                 AvgActionsProcessed = (ActionsProcessedThisTurn + processedLastTurn) / 2f;
                 IsProcessing = false;
                 ProcessTime.Stop();
