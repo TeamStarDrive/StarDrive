@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
         // This is an optimized lookup system, because these properties are queried every frame
         bool InOwnerInfluence;
         float OwnerInfluenceTimer = -100;
-        float GetBuffer() => loyalty.MaxContactTimer;
+        float GetBuffer() => 0.02f;
         struct ForeignInfluence
         {
             public Empire Foreign;
