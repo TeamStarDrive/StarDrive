@@ -684,7 +684,7 @@ namespace Ship_Game
             DebugGamePerfValues.Show();
             DebugGamePerfValues.MultilineText = new Array<string>
             {
-                "" + MasterShipList.Count,
+                "" + MasterShipList.Count + "           Max \\/",
                 "" + Perfavg2,
                 "" + EmpireUpdatePerf,
                 "" + PreEmpirePerf,
