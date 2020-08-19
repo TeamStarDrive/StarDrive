@@ -1261,7 +1261,11 @@ namespace Ship_Game
             //        KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
             //}
             //else
+            Empire.Universe.RunOnEmpireThread(()=>
+            {
                 KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
+            });
+                //KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
         }
 
         enum ScanType
@@ -3298,14 +3302,13 @@ namespace Ship_Game
             public bool Known;
             public GameplayObject GameObject;
 
-            public InfluenceNode Wipe()
+            public void Wipe()
             {
                 Position      = Vector2.Zero;
                 SourceObject  = null;
                 DrewThisTurn  = false;
                 Radius        = 0;
                 Known         = false;
-                return this;
             }
         }
 
