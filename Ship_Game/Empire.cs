@@ -3229,7 +3229,7 @@ namespace Ship_Game
                     Log.Warning($"Action Pool was too slow for contact");
                 ScanComplete = false;
 
-                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? .25f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
+                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? 0.5f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
 
                 Empire.Universe.AddToDataCollector(()=>
                     { 
