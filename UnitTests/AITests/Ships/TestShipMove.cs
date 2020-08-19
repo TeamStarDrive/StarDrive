@@ -12,11 +12,14 @@ namespace UnitTests.AITests.Ships
     {
         public TestShipMove()
         {
-            LoadStarterShipVulcan();
             CreateGameInstance();
-            CreateUniverseAndPlayerEmpire(out _);
+            LoadStarterShipVulcan();
         }
 
+        void CreateTestEnv()
+        {
+            CreateUniverseAndPlayerEmpire(out _);
+        }
         Ship CreateTestShip()
         {
             Ship ship = SpawnShip("Vulcan Scout", Player, Vector2.Zero);
@@ -34,6 +37,7 @@ namespace UnitTests.AITests.Ships
         [TestMethod]
         public void MoveShip()
         {
+            CreateTestEnv();
             Ship ship              = CreateTestShip();
             var enemySpawnLocation = new Vector2(30000, 0);
             Ship enemy             = CreateEnemyTestShip(enemySpawnLocation);
@@ -50,6 +54,7 @@ namespace UnitTests.AITests.Ships
             {
                 ship.Update(0.01666666f);
                 Universe.AsyncDataCollector.ManualUpdate();
+                ship.AI.ScanForThreat(10);
             }
             bool sawEnemyShip       = false;
 
@@ -59,6 +64,9 @@ namespace UnitTests.AITests.Ships
                 UniverseScreen.SpaceManager.Update(0.0166666f);
                 ship.Update(0.01666666f);
                 enemy.Update(0.01666666f);
+                Universe.AsyncDataCollector.ManualUpdate();
+                ship.AI.ScanForThreat(10);
+                enemy.AI.ScanForThreat(10);
                 sawEnemyShip |= ship.AI.BadGuysNear;
             }
             Assert.IsTrue(sawEnemyShip, "Did not see an enemy while at warp");
@@ -83,7 +91,10 @@ namespace UnitTests.AITests.Ships
             {
                 UniverseScreen.SpaceManager.Update(0.0166666f);
                 ship.Update(0.01666666f);
-                enemy.Update(0.01666666f);
+                enemy.Update(0.01666666f);                
+                Universe.AsyncDataCollector.ManualUpdate();
+                ship.AI.ScanForThreat(10);
+                enemy.AI.ScanForThreat(10);
                 sawEnemyShip |= ship.AI.BadGuysNear;
             }
 
