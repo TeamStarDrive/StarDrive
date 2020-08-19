@@ -161,10 +161,13 @@ namespace Ship_Game.Ships
         {
             Array<Ship> friendlyShips = Owner.AI.FriendliesNearby;
 
-            Ship[] shipsInNeed = friendlyShips.Filter(ship => ship.Active &&
-                ship.shipData.Role != ShipData.RoleName.supply
-                && ship != Owner
-                && ship.Supply.AcceptExternalSupply(SupplyType.Rearm));
+            Ship[] shipsInNeed = friendlyShips.Filter(ship =>
+            {
+                return ship.Active &&
+                       ship.shipData.Role != ShipData.RoleName.supply
+                       && ship != Owner
+                       && ship.Supply.AcceptExternalSupply(SupplyType.Rearm);
+            });
 
             shipsInNeed.Sort(ship =>
             {

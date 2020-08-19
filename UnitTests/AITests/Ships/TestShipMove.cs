@@ -49,6 +49,7 @@ namespace UnitTests.AITests.Ships
             while (ship.engineState != Ship.MoveState.Warp)
             {
                 ship.Update(0.01666666f);
+                Universe.AsyncDataCollector.ManualUpdate();
             }
             bool sawEnemyShip       = false;
 
