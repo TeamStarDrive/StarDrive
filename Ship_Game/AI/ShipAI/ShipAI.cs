@@ -38,6 +38,8 @@ namespace Ship_Game.AI
 
         readonly OrbitPlan Orbit;
 
+        public Action ScanResults;
+
         public ShipAI(Ship owner)
         {
             Owner = owner;
@@ -635,23 +637,27 @@ namespace Ship_Game.AI
             EscortTarget = s;
             AddShipGoal(Plan.TroopToShip, State);
         }
-
+        
         void ScanForThreat(float elapsedTime)
         {
-            if (ScanComplete)
+            if (ScanComplete && !ScanDataProcessed)
             {
-                ScanComplete = false;
-                TrackProjectiles = new Array<Projectile>(ScannedProjectiles);
-                PotentialTargets = new BatchRemovalCollection<Ship>(ScannedTargets);
-                FriendliesNearby = new BatchRemovalCollection<Ship>(ScannedFriendlies);
-                NearByShips      = new Array<ShipWeight>(ScannedNearby);
+                ScanDataProcessed = true;
+                TrackProjectiles  = new Array<Projectile>(ScannedProjectiles);
+                PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
+                FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
+                NearByShips       = new Array<ShipWeight>(ScannedNearby);
             }
 
             ScanForThreatTimer -= elapsedTime;
-            if (ScanForThreatTimer < 0f && !ScanComplete)
+            if (ScanForThreatTimer < 0f && ScanComplete)
             {
-                if (ScanForThreatTimer < -0.02f)
-                    Log.Warning($"ActioPool Took To Long");
+                if (ScanForThreatTimer < -0.02f && ScanComplete)
+                {
+                    Log.Warning($"ActionPool Took To Long");
+                }
+
+                ScanComplete       = false;
                 ScanForThreatTimer = Owner.loyalty.MaxContactTimer;
                 Empire.Universe.AddToDataCollector(SetCombatStatus);
             }

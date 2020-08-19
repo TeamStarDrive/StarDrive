@@ -31,7 +31,9 @@ namespace Ship_Game.AI
         readonly Array<Ship> ScannedTargets           = new Array<Ship>();
         readonly Array<Ship> ScannedFriendlies        = new Array<Ship>();
         readonly Array<Projectile> ScannedProjectiles = new Array<Projectile>();
-        bool ScanComplete                             = true;
+        
+        bool ScanComplete = true;
+        bool ScanDataProcessed = true;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType gameObjectType, float radius)
         {
@@ -352,6 +354,7 @@ namespace Ship_Game.AI
             }
 
             ScanComplete = true;
+
             if (State == AIState.Resupply || DoNotEnterCombat)
                 return;
 
