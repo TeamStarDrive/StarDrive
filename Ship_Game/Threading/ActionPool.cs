@@ -92,7 +92,7 @@ namespace Ship_Game.Threading
             if (ActionsBeingProcessed.IsEmpty && (ActionAccumulator.NotEmpty))
             {
                 StillProcessingCounter = 0;
-                ActionsBeingProcessed        = new Array<Action>(ActionAccumulator);
+                ActionsBeingProcessed  = new Array<Action>(ActionAccumulator);
                 ActionAccumulator      = new Array<Action>(1000);
                 ActionsAvailable.Set();
             }
