@@ -656,7 +656,7 @@ namespace Ship_Game.AI
                 {
                     Log.Warning($"ActionPool Took To Long");
                 }
-
+                ScanDataProcessed  = false;
                 ScanComplete       = false;
                 ScanForThreatTimer = Owner.loyalty.MaxContactTimer;
                 Empire.Universe.AddToDataCollector(SetCombatStatus);
