@@ -640,13 +640,11 @@ namespace Ship_Game.AI
         {
             if (ScanComplete)
             {
-                ScanComplete     = false;
-                TrackProjectiles = new Array<Projectile>(ScannedProjectiles.ToArray());
-                PotentialTargets = new BatchRemovalCollection<Ship>(ScannedTargets.ToArray());
-                
-                FriendliesNearby = new BatchRemovalCollection<Ship>(ScannedFriendlies.ToArray());
+                ScanComplete = false;
+                TrackProjectiles = new Array<Projectile>(ScannedProjectiles);
+                PotentialTargets = new BatchRemovalCollection<Ship>(ScannedTargets);
+                FriendliesNearby = new BatchRemovalCollection<Ship>(ScannedFriendlies);
                 NearByShips      = new Array<ShipWeight>(ScannedNearby);
-                Owner.Carrier.SupplyShuttle.ProcessSupplyShuttles(GetSensorRadius());
             }
 
             ScanForThreatTimer -= elapsedTime;

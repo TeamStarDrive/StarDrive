@@ -438,9 +438,10 @@ namespace Ship_Game.AI
             }
 
             // add or update pins for ship targets
-            foreach (var ship in ships)
+            for (int i = 0; i < ships.Count; i++)
             {
-                if (!ship.Active) continue;
+                var ship = ships[i];
+                if (ship?.Active != true) continue;
 
                 var targets = ship.AI.PotentialTargets.ToArray();
 
