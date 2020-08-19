@@ -424,8 +424,9 @@ namespace Ship_Game.AI
         public bool UpdateAllPins(Empire owner)
         {
             if (PendingActions.NotEmpty) return false;
+            var pinList = Pins.ToArray();
             
-            var pins= Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
+            var pins= pinList.ToDictionary(key=> key.Key, pin=> pin.Value);
             var ships      = owner.GetShips().Clone();
             var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
             ships.AddRange(owner.GetProjectors());
@@ -471,11 +472,13 @@ namespace Ship_Game.AI
             }
 
             // remove seen pins with not seen ships. 
-            foreach (var ship in ships)
+            for (int i = 0; i < ships.Count; i++)
             {
-                foreach (var pin in pinsWithNotSeenShips)
+                var ship = ships[i];
+                for (int x = 0; x < pinsWithNotSeenShips.Count; x++)
                 {
-                    if (pin.Value.Ship?.Active != true)
+                    var pin = pinsWithNotSeenShips[x];
+                    if (pin.Value?.Ship?.Active != true)
                     {
                         PendingActions.Enqueue(() => Pins.Remove(pin.Key));
                     }

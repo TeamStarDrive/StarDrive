@@ -28,6 +28,8 @@ namespace Ship_Game
         readonly PerfTimer PreEmpirePerf     = new PerfTimer();
         readonly PerfTimer perfavg4          = new PerfTimer();
         readonly PerfTimer perfavg5          = new PerfTimer();
+        readonly PerfTimer CollisionTime     = new PerfTimer();
+        readonly PerfTimer ActionQTime        = new PerfTimer();
 
         public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
