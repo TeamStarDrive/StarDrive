@@ -31,6 +31,7 @@ namespace Ship_Game.AI
         readonly Array<Ship> ScannedTargets           = new Array<Ship>();
         readonly Array<Ship> ScannedFriendlies        = new Array<Ship>();
         readonly Array<Projectile> ScannedProjectiles = new Array<Projectile>();
+        Ship ScannedTarget = null;
         
         bool ScanComplete = true;
         bool ScanDataProcessed = true;
@@ -334,21 +335,21 @@ namespace Ship_Game.AI
             if (Owner.fleet != null)
             {
                 if (!HasPriorityTarget)
-                    Target = ScanForCombatTargets(sensorShip, radius);
+                    ScannedTarget = ScanForCombatTargets(sensorShip, radius);
                 else
                     ScanForCombatTargets(sensorShip, radius);
             }
             else if (!HasPriorityTarget)
             {
                 if (Owner.Mothership != null)
-                    Target = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
+                    ScannedTarget = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
                 else
-                    Target = ScanForCombatTargets(sensorShip, radius);
+                    ScannedTarget = ScanForCombatTargets(sensorShip, radius);
             }
             else
             {
                 if (Owner.Mothership != null)
-                    Target = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
+                    ScannedTarget = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
                 else
                     ScanForCombatTargets(sensorShip, radius);
             }
