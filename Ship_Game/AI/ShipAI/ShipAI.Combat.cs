@@ -318,7 +318,7 @@ namespace Ship_Game.AI
                 ScannedNearby[i] = copyWeight;
             }
         }
-
+        
         void SetCombatStatus()
         {
             float radius = GetSensorRadius(out Ship sensorShip);
@@ -352,7 +352,6 @@ namespace Ship_Game.AI
             }
 
             ScanComplete = true;
-
             if (State == AIState.Resupply || DoNotEnterCombat)
                 return;
 

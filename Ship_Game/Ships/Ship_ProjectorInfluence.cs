@@ -74,6 +74,10 @@ namespace Ship_Game.Ships
                         return;
                     }
 
+                var relation =loyalty.GetRelations(empire);
+                if (relation == null) 
+                    return;
+
                 if (Influences == null)
                     Influences = new ForeignInfluence[4];
                 else if (Influences.Length == InfluenceCount)
@@ -81,7 +85,7 @@ namespace Ship_Game.Ships
 
                 ref ForeignInfluence dst = ref Influences[InfluenceCount++];
                 dst.Foreign              = empire;
-                dst.Relationship         = loyalty.GetRelations(empire);
+                dst.Relationship         = relation;
                 dst.Timer                = empire.updateContactsTimer;
             }
             else // unset
