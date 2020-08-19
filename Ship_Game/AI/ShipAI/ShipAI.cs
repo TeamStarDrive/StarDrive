@@ -647,6 +647,13 @@ namespace Ship_Game.AI
                 PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
                 FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
                 NearByShips       = new Array<ShipWeight>(ScannedNearby);
+                Target            = ScannedTarget;
+                
+                ScannedTarget     = null;
+                TrackProjectiles  = null;
+                PotentialTargets  = null;
+                FriendliesNearby  = null;
+                NearByShips       = null;
             }
 
             ScanForThreatTimer -= elapsedTime;
@@ -654,7 +661,7 @@ namespace Ship_Game.AI
             {
                 if (ScanForThreatTimer < -0.02f && ScanComplete)
                 {
-                    Log.Warning($"ActionPool Took To Long");
+                    Log.Warning($"ScanForThreat: ActionPool Took To Long. May need to increase scan interval");
                 }
                 ScanDataProcessed  = false;
                 ScanComplete       = false;
