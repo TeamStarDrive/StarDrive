@@ -2249,16 +2249,16 @@ namespace Ship_Game
                 tempBorderNodes.Add(influenceNodeB);
             }
 
-            SetPirateBorders(tempBorderNodes
-);
-            using (SensorNodes.AcquireWriteLock())
+            SetPirateBorders(tempBorderNodes);
+
+            //using (SensorNodes.AcquireWriteLock())
             {
                 SensorNodes.ClearPendingRemovals();
                 SensorNodes.ClearAndRecycle();
                 SensorNodes.AddRange(tempSensorNodes);
             }
 
-            using (BorderNodes.AcquireWriteLock())
+            //using (BorderNodes.AcquireWriteLock())
             {
                 BorderNodes.ClearPendingRemovals();
                 BorderNodes.ClearAndRecycle();
@@ -3225,11 +3225,11 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated && ScanComplete)
             {
-                if (MaxContactTimer >0 && updateContactsTimer < MaxContactTimer * -1)
-                    Log.Error($"Action Pool was too slow for contact");
+                if (MaxContactTimer >0 && updateContactsTimer < elapsedTime * -2)
+                    Log.Warning($"Action Pool was too slow for contact");
                 ScanComplete = false;
 
-                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? 0.5f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
+                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? .25f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
 
                 Empire.Universe.AddToDataCollector(()=>
                     { 

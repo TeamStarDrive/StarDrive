@@ -57,7 +57,7 @@ namespace Ship_Game
 
             // Well... this is kinda complicated to do without a list indeed. Lol!
             if (elapsed > MaxTime) MaxTime  = elapsed;
-            else                   MaxTime  = ((MaxTime*NumSamples + AvgTime * 100) / (NumSamples + AvgTime * 100 ));  // trickle down towards avg time
+            else                   MaxTime  = ((MaxTime*NumSamples) / (NumSamples + 1 ));  // trickle down towards avg time
 
             ++NumSamples;
         }
