@@ -125,11 +125,12 @@ namespace Ship_Game
             return arr;
         }
 
-        public T RecycleObject(Func<T,T> action)
+        public T RecycleObject(Action<T> action)
         {
             if (!PendingRemovals.TryPop(out T item))
                 return item;
-            return action(item);
+            action.Invoke(item);
+            return item;
         }
 
         public void Dispose()

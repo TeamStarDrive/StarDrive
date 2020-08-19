@@ -23,11 +23,9 @@ namespace Ship_Game.Threading
         static readonly Array<Action> EmptyArray   = new Array<Action>(0);
         Array<Action> ActionProcessor              = EmptyArray;
         Array<Action> ActionAccumulator;
-        //readonly object ActionProcessorLock      = new object();
-        //public object GameThreadLocker           = new object();
         bool Initialized;
         int DefaultAccumulatorSize                 = 1000;
-        AutoResetEvent ActionsAvailable            = new AutoResetEvent(false);
+        readonly AutoResetEvent ActionsAvailable            = new AutoResetEvent(false);
         
         public int ActionsProcessedThisTurn {get; private set;}
         public float AvgActionsProcessed {get; private set;}
@@ -90,17 +88,15 @@ namespace Ship_Game.Threading
                 return Worker?.ThreadState ?? ThreadState.Stopped;
             }
 
-            if (ActionProcessor.IsEmpty && ActionAccumulator.Count > 0)// && --MoveTimeDelay < 0)
+            if (ActionProcessor.IsEmpty && ActionAccumulator.Count > 10)// && --MoveTimeDelay < 0)
             {
                 if (Empire.Universe?.DebugWin != null)
                 {
                     Log.Warning($"Action Pool ActionsProcess Last Update = {ActionsProcessedThisTurn} : AVG {AvgActionsProcessed} ");
                 }
-                //lock(ActionProcessorLock)
-                {
-                    ActionProcessor = new Array<Action>(ActionAccumulator);
-                    ActionAccumulator = new Array<Action>(1000);
-                }
+
+                ActionProcessor = new Array<Action>(ActionAccumulator);
+                ActionAccumulator = new Array<Action>(1000);
                 ActionsAvailable.Set();
             }
             return Worker?.ThreadState ?? ThreadState.Stopped;
@@ -124,7 +120,7 @@ namespace Ship_Game.Threading
         {
             while (true)
             {
-                ActionsAvailable.WaitOne();
+                ActionsAvailable.WaitOne(100);
 
                 ProcessTime.Start();
                 IsProcessing = true;
