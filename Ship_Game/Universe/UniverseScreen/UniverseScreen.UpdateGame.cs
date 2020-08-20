@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using Ship_Game.Threading;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace Ship_Game
@@ -157,9 +158,6 @@ namespace Ship_Game
                 SpaceManager.Update(elapsedTime);
                 CollisionTime.Stop();
 
-                ActionQTime.Start();
-                AsyncDataCollector.MoveItemsToThread();
-                ActionQTime.Stop();
                 ProcessTurnUpdateMisc(elapsedTime);
 
                 // bulk remove all dead projectiles to prevent their update next frame
@@ -175,8 +173,8 @@ namespace Ship_Game
         public void WarmUpShipsForLoad()
         {
             UpdateShipsAndFleets(0.1f);
-            UpdateAllSystems(0.01f);
-            DeepSpaceThread(0.01f);
+            Empire.Universe.QueueActionsForThreading(0.1f);
+            Empire.Universe.AsyncDataCollector.ManualUpdate();
         }
 
         void RemoveDeadProjectiles()
@@ -315,7 +313,11 @@ namespace Ship_Game
                     }
                 }
             }
-
+            if (!Paused && IsActive)
+                QueueActionsForThreading(0.01666667f);
+            
+            AsyncDataCollector.MoveItemsToThread();
+            
             for (int i = 0; i < EmpireManager.NumEmpires; i++)
             {
                 foreach (KeyValuePair<int, Fleet> kv in EmpireManager.Empires[i].GetFleetsDict())
@@ -323,8 +325,28 @@ namespace Ship_Game
                     kv.Value.SetSpeed();
                 }
             }
-
             perfavg4.Stop();
+        }
+
+        public void QueueActionsForThreading(float deltaTime)
+        {
+            AsyncDataCollector.Add(()=>
+            {
+                float shipTime = !Paused ? 0.01666667f : 0;
+                Parallel.ForEach(MasterShipList.ToArray(), ship =>
+                {
+                    ship?.AI.ScanForThreat(shipTime);
+                    ship?.UpdateModulePositions(deltaTime);
+                });
+            });
+
+            AsyncDataCollector.Add(()=>
+                Parallel.ForEach(EmpireManager.Empires, empire=>
+                {
+                    if (empire.IsEmpireDead()) return;
+                    empire.UpdateContactsAndBorders(deltaTime);
+                    empire.UpdateMilitaryStrengths();
+                }));
         }
 
         void ProcessTurnShipsAndSystems(float elapsedTime)
@@ -394,12 +416,10 @@ namespace Ship_Game
             if (IsActive)
             {
                 Parallel.ForEach(EmpireManager.Empires, empire=>
-                //foreach(var empire in EmpireManager.Empires)
                 {
-                     empire.Pool.UpdatePools();
+                    if (!empire.data.Defeated)
+                        empire.Pool.UpdatePools();
                 });
-                foreach(var empire in EmpireManager.Empires) 
-                    empire.UpdateContactsAndBorders(0.01666667f);
             }
 
             PreEmpirePerf.Stop();
