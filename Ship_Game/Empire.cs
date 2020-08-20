@@ -1429,8 +1429,6 @@ namespace Ship_Game
             #endif
 
             UpdateTimer -= elapsedTime;
-            if (IsEmpireDead()) return;
-            UpdateMilitaryStrengths();
 
             if (UpdateTimer <= 0f && !data.Defeated)
             {
@@ -1555,7 +1553,7 @@ namespace Ship_Game
             EmpireAI.RunEconomicPlanner();
         }
 
-        private void UpdateMilitaryStrengths()
+        public void UpdateMilitaryStrengths()
         {
             CurrentMilitaryStrength = 0;
             CurrentTroopStrength    = 0;
@@ -2615,7 +2613,7 @@ namespace Ship_Game
             origin.data.RebellionLaunched = true;
         }
 
-        bool IsEmpireDead()
+        public bool IsEmpireDead()
         {
             if (isFaction) return false;
             if (data.Defeated) return true;
@@ -3229,7 +3227,9 @@ namespace Ship_Game
                     Log.Warning($"Action Pool was too slow for contact");
                 ScanComplete = false;
 
-                updateContactsTimer = MaxContactTimer = elapsedTime < 1 ? 0.5f : 0; //   RandomMath.RandomBetween(.5f, 3f) : 0; 
+                MaxContactTimer =40 * elapsedTime;
+                float variance = RandomMath.IntBetween(0,20) * elapsedTime;
+                updateContactsTimer = elapsedTime >= 1 ? 0 : RandomMath.RandomBetween(MaxContactTimer - variance, MaxContactTimer); 
 
                 Empire.Universe.AddToDataCollector(()=>
                     { 

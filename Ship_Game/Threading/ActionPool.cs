@@ -127,9 +127,10 @@ namespace Ship_Game.Threading
                 IsProcessing             = true;
                 int processedLastTurn    = ActionsProcessedThisTurn;
                 ActionsProcessedThisTurn = 0;
-                
-                Parallel.ForEach(ActionsBeingProcessed, action =>
+
+                for (int i = 0; i < ActionsBeingProcessed.Count; i++)
                 {
+                    var action = ActionsBeingProcessed[i];
                     try
                     {
                         action?.Invoke();
@@ -139,7 +140,20 @@ namespace Ship_Game.Threading
                     {
                         ThreadException = ex;
                     }
-                });
+                }
+
+                //Parallel.ForEach(ActionsBeingProcessed, action =>
+                //{
+                //    try
+                //    {
+                //        action?.Invoke();
+                //        ActionsProcessedThisTurn++;
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        ThreadException = ex;
+                //    }
+                //});
                 ActionsBeingProcessed = EmptyArray;
                 AvgActionsProcessed   = (ActionsProcessedThisTurn + processedLastTurn) / 2f;
                 IsProcessing          = false;

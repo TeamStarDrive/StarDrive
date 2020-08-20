@@ -90,7 +90,7 @@ namespace Ship_Game
         {
             ActiveEvent = new RandomEvent
             {
-                TurnTimer          = (int)RandomMath.RandomBetween(10f, 40f),
+                TurnTimer          = (int)RandomMath.AvgRandomBetween(1f, 40f),
                 Name               = "Hyperspace Flux",
                 NotificationString = Localizer.Token(4010),
                 InhibitWarp        = true

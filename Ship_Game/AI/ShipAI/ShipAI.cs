@@ -150,7 +150,22 @@ namespace Ship_Game.AI
                 HadPO = false;
 
             ResetStateFlee();
-            ScanForThreat(elapsedTime);
+            //ScanForThreat(elapsedTime);
+                        if (ScanComplete && !ScanDataProcessed)
+            {
+                ScanDataProcessed = true;
+                TrackProjectiles  = new Array<Projectile>(ScannedProjectiles);
+                PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
+                FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
+                NearByShips       = new Array<ShipWeight>(ScannedNearby);
+                Target            = ScannedTarget;
+                
+                ScannedTarget     = null;
+                ScannedProjectiles.Clear();
+                ScannedTargets.Clear();
+                ScannedFriendlies.Clear();
+                ScannedNearby.Clear();
+            }
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
             UpdateUtilityModuleAI(elapsedTime);
             ThrustTarget = Vector2.Zero;
@@ -640,22 +655,6 @@ namespace Ship_Game.AI
         
         public void ScanForThreat(float elapsedTime)
         {
-            if (ScanComplete && !ScanDataProcessed)
-            {
-                ScanDataProcessed = true;
-                TrackProjectiles  = new Array<Projectile>(ScannedProjectiles);
-                PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
-                FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
-                NearByShips       = new Array<ShipWeight>(ScannedNearby);
-                Target            = ScannedTarget;
-                
-                ScannedTarget     = null;
-                TrackProjectiles  = null;
-                PotentialTargets  = null;
-                FriendliesNearby  = null;
-                NearByShips       = null;
-            }
-
             ScanForThreatTimer -= elapsedTime;
             if (ScanForThreatTimer < 0f && ScanComplete)
             {
@@ -665,7 +664,9 @@ namespace Ship_Game.AI
                 }
                 ScanDataProcessed  = false;
                 ScanComplete       = false;
-                ScanForThreatTimer = Owner.loyalty.MaxContactTimer;
+                float maxContactTimer = Owner.loyalty.MaxContactTimer;
+                float variance = RandomMath.IntBetween(0,20) * elapsedTime;
+                ScanForThreatTimer =  RandomMath.RandomBetween(maxContactTimer - variance, maxContactTimer); 
                 Empire.Universe.AddToDataCollector(SetCombatStatus);
             }
         }
