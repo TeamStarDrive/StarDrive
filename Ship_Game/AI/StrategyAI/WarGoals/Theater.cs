@@ -148,7 +148,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // empire defense
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
-                Priority = 2;
+                Priority = 0;
                 return;
             }
             Vector2 position = RallyAO?.Center ?? Us.GetWeightedCenter();

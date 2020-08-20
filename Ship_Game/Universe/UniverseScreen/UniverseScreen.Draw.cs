@@ -930,12 +930,19 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.None;
 
+            int projectileDrawCap = 10;
             using (player.KnownShips.AcquireReadLock())
             {
-                foreach (Ship ship in player.KnownShips)
+                for (int i = 0; i < player.KnownShips.Count; i++)
                 {
-                    if (viewState <= UnivScreenState.SystemView)
+                    Ship ship = player.KnownShips[i];
+                    if (viewState <= UnivScreenState.PlanetView && ship != null && (ship.InFrustum || ship.AI.Target?.InFrustum == true))
                     {
+                        if (viewState > UnivScreenState.ShipView && --projectileDrawCap < 0 )
+                        {
+                            projectileDrawCap = 2;
+                            continue;
+                        }
                         ship.DrawProjectiles(batch, this);
                     }
                 }
@@ -1038,8 +1045,9 @@ namespace Ship_Game
                     Planet planet = planets[i];
                     using (planet.Projectiles.AcquireReadLock())
                     {
-                        foreach (Projectile p in planets[i].Projectiles)
+                        for (int x = 0; x < planets[i].Projectiles.Count; x++)
                         {
+                            Projectile p = planets[i].Projectiles[x];
                             if (p?.Active ?? false) p.Draw(batch, this);
                         }
                     }
@@ -1082,7 +1090,7 @@ namespace Ship_Game
         void DrawOverlay(Ship ship)
         {
             if (ship.InFrustum && !ship.dying && !LookingAtPlanet && ShowShipNames &&
-                viewState <= UnivScreenState.SystemView)
+                viewState <= UnivScreenState.DetailView)
                 ship.DrawModulesOverlay(this);
         }
 
