@@ -1044,7 +1044,7 @@ namespace Ship_Game
         void DrawOverlay(Ship ship)
         {
             if (ship.InFrustum && !ship.dying && !LookingAtPlanet && ShowShipNames &&
-                viewState <= UnivScreenState.SystemView)
+                viewState <= UnivScreenState.DetailView)
                 ship.DrawModulesOverlay(this);
         }
 
