@@ -3225,25 +3225,16 @@ namespace Ship_Game
             {
                 if (MaxContactTimer >0 && updateContactsTimer < elapsedTime * -2)
                     Log.Warning($"Action Pool was too slow for contact");
+
                 ScanComplete = false;
-
-                MaxContactTimer =40 * elapsedTime;
-                float variance = RandomMath.IntBetween(0,20) * elapsedTime;
-                updateContactsTimer = elapsedTime >= 1 ? 0 : RandomMath.RandomBetween(MaxContactTimer - variance, MaxContactTimer); 
-
-                Empire.Universe.AddToDataCollector(()=>
-                    { 
-                        ResetBorders();
-                        ScanFromAllInfluenceNodes();
-                        ScanComplete = true;
-                    });
-                Empire.Universe.AddToDataCollector(()=>
-                {
-                    EmpireAI.ThreatMatrix.UpdateAllPins(this);
-                });
-                EmpireAI.ThreatMatrix.ProcessPendingActions();
+                MaxContactTimer =35 * elapsedTime;
+                float variance =Id * elapsedTime;
+                updateContactsTimer = elapsedTime >= 1 ? 0 : MaxContactTimer - variance;
+                ResetBorders();
+                ScanFromAllInfluenceNodes();
+                EmpireAI.ThreatMatrix.UpdateAllPins(this);
+                ScanComplete = true;
             }
-            
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
