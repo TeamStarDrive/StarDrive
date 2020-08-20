@@ -106,7 +106,7 @@ namespace Ship_Game.AI
         {
             foreach (ShipGoal g in OrderQueue)
             {
-                if (g.Plan == plan)
+                if (g?.Plan == plan)
                 {
                     goal = g;
                     return true;

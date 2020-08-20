@@ -337,6 +337,7 @@ namespace Ship_Game
                 {
                     ship?.AI.ScanForThreat(shipTime);
                     ship?.UpdateModulePositions(deltaTime);
+                    ship.AI.UpdateCombatStateAI(deltaTime);
                 });
             });
 
