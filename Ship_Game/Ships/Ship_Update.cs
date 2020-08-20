@@ -126,7 +126,6 @@ namespace Ship_Game.Ships
             UpdateInfluence(elapsedTime);
             SetFleetCapableStatus();
             KnownByEmpires.Update(elapsedTime);
-            //SetShipsVisible(elapsedTime);
 
             if (!dying) UpdateAlive(elapsedTime);
             else        UpdateDying(elapsedTime);
