@@ -95,9 +95,15 @@ namespace Ship_Game.AI
             public Guid GetGuid() => Ship?.guid ?? PinGuid;
         }
 
+        public ThreatMatrix(){}
+
+        public ThreatMatrix(Dictionary<Guid,Pin> matrix)
+        {
+            Pins = new Map<Guid, Pin>(matrix);
+        }
         //not sure we need this.
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
-        readonly Map<Guid, Pin> Pins            = new Map<Guid, Pin>();
+        Map<Guid, Pin> Pins            = new Map<Guid, Pin>();
 
         [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingActions = new SafeQueue<Action>();
         TaskResult UpdateResults;
@@ -376,7 +382,7 @@ namespace Ship_Game.AI
                 for (int i = 0; i < pins1.Length; i++)
                 {
                     Pin pin = pins1[i];
-                    if (!pin.Position.InRadius(position, radius)) continue;
+                    if (pin?.Position.InRadius(position, radius) != true) continue;
                     Empire pinEmpire = pin.Ship?.loyalty ?? pin.GetEmpire();
                     {
                         if (us.IsEmpireHostile(pinEmpire))
@@ -405,14 +411,18 @@ namespace Ship_Game.AI
         {
             try 
             {
-                using (PinsMutex.AcquireWriteLock())
+                //Action[] localAction;
+                //using (PinsMutex.AcquireWriteLock())
+                //{
+                //    localAction = PendingActions.TakeAll();
+                //}
+                //foreach (var action in localAction)
+                //{
+                //    action?.Invoke();
+                //}
+                while (PendingActions.NotEmpty)
                 {
-                  //  int count=0;
-                    while (PendingActions.NotEmpty)
-                    {
-                       // count++;
-                        PendingActions.Dequeue()?.Invoke();
-                    }
+                    PendingActions.Dequeue()?.Invoke();
                 }
             }
             catch
@@ -424,9 +434,14 @@ namespace Ship_Game.AI
         public bool UpdateAllPins(Empire owner)
         {
             if (PendingActions.NotEmpty) return false;
-            var pinList = Pins.ToArray();
-            
-            var pins= pinList.ToDictionary(key=> key.Key, pin=> pin.Value);
+
+            ThreatMatrix threatCopy;
+            using (PinsMutex.AcquireReadLock())
+            {
+                var pins = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
+                threatCopy = new ThreatMatrix(pins);
+            }
+
             var ships      = owner.GetShips().Clone();
             var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
             ships.AddRange(owner.GetProjectors());
@@ -448,25 +463,19 @@ namespace Ship_Game.AI
                 for (int x = 0; x < targets.Length; x++)
                 {
                     var target = targets[x];
-                    PendingActions.Enqueue(() =>
-                        AddOrUpdatePin(target, target.IsInBordersOf(owner),
-                            true));
+                    threatCopy.AddOrUpdatePin(target, target.IsInBordersOf(owner), true);
                 }
             }
 
             // separate pins with ships unseen ships.
-            foreach (var kv in pins)
+            foreach (var kv in threatCopy.Pins)
             {
                 var ship = kv.Value?.Ship;
                 if (ship?.dying == false && ship.Active &&
                     ship.KnownByEmpires.KnownBy(owner))
                 {
-                    if (ship.loyalty != owner &&
-                        owner.GetRelations(ship.loyalty).Treaty_Alliance !=
-                        true)
-                        PendingActions.Enqueue(() =>
-                            AddOrUpdatePin(ship, ship.IsInBordersOf(owner),
-                                true));
+                    if (ship.loyalty != owner && owner.GetRelations(ship.loyalty).Treaty_Alliance != true)
+                        threatCopy.AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true);
                 }
                 else
                     pinsWithNotSeenShips.Add(kv);
@@ -481,19 +490,19 @@ namespace Ship_Game.AI
                     var pin = pinsWithNotSeenShips[x];
                     if (pin.Value?.Ship?.Active != true)
                     {
-                        PendingActions.Enqueue(() => Pins.Remove(pin.Key));
+                        threatCopy.Pins.Remove(pin.Key);
                     }
                     else if (!pin.Value.Ship.Active)
-                        PendingActions.Enqueue(() => Pins.Remove(pin.Key));
-                    else if (pin.Value.Position.InRadius(ship.Position,
-                        ship.SensorRange))
                     {
-                        PendingActions.Enqueue(() => Pins.Remove(pin.Key));
+                        threatCopy.Pins.Remove(pin.Key);
+                    }
+                    else if (pin.Value.Position.InRadius(ship.Position, ship.SensorRange))
+                    {
+                        threatCopy.Pins.Remove(pin.Key);
                     }
                 }
             }
-
-            MaxProcessingPerTurn = (PendingActions.Count / 10);
+            PendingActions.Enqueue(()=> this.Pins = threatCopy.Pins);
             return true;
         }
 

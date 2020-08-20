@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
 using System.Linq;
+using System.Threading;
 using Ship_Game.Ships.AI;
 using Ship_Game.Ships.DataPackets;
 
@@ -667,8 +668,8 @@ namespace Ship_Game.AI
                 ScanDataProcessed  = false;
                 ScanComplete       = false;
                 float maxContactTimer = Owner.loyalty.MaxContactTimer;
-                float variance = RandomMath.IntBetween(0,20) * elapsedTime;
-                ScanForThreatTimer =  RandomMath.RandomBetween(maxContactTimer - variance, maxContactTimer); 
+                float variance = Owner.loyalty.Id * elapsedTime;
+                ScanForThreatTimer =  maxContactTimer - variance; 
                 Empire.Universe.AddToDataCollector(SetCombatStatus);
             }
         }
