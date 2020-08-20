@@ -150,8 +150,10 @@ namespace Ship_Game.AI
                 HadPO = false;
 
             ResetStateFlee();
-            //ScanForThreat(elapsedTime);
-                        if (ScanComplete && !ScanDataProcessed)
+
+            // scanning is done from the asyncdatacollector. 
+            // scancomplete means the scan is done.
+            if (ScanComplete && !ScanDataProcessed)
             {
                 ScanDataProcessed = true;
                 TrackProjectiles  = new Array<Projectile>(ScannedProjectiles);
@@ -170,7 +172,7 @@ namespace Ship_Game.AI
             UpdateUtilityModuleAI(elapsedTime);
             ThrustTarget = Vector2.Zero;
 
-            UpdateCombatStateAI(elapsedTime);
+//            UpdateCombatStateAI(elapsedTime);
 
             if (UpdateOrderQueueAI(elapsedTime))
                 return;
@@ -289,7 +291,7 @@ namespace Ship_Game.AI
                     Owner.fleet.FinalDirection, true, State);
         }
 
-        void UpdateCombatStateAI(float elapsedTime)
+        public void UpdateCombatStateAI(float elapsedTime)
         {
             TriggerDelay -= elapsedTime;
             FireOnMainTargetTime -= elapsedTime;
@@ -390,7 +392,7 @@ namespace Ship_Game.AI
         bool EvaluateNextOrderQueueItem(float elapsedTime)
         {
             ShipGoal goal = OrderQueue.PeekFirst;
-            switch (goal.Plan)
+            switch (goal?.Plan)
             {
                 case Plan.Stop:
                     if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }       break;
