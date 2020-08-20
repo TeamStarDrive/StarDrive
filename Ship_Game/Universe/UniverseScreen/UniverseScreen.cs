@@ -954,7 +954,7 @@ namespace Ship_Game
         }
         public enum UnivScreenState
         {
-            DetailView = 10000,
+            DetailView = 7000,
             ShipView   = 15000,
             PlanetView = 35000,
             SystemView = 250000,
