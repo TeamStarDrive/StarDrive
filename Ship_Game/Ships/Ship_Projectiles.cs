@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Projectiles.Count; ++i)
             {
                 Projectile p = Projectiles[i];
-                if (p != null && p.Active) p.Draw(batch, screen);
+                if (p?.Active == true) p.Draw(batch, screen);
             }
         }
 
