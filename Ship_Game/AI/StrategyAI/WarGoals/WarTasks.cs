@@ -131,7 +131,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             float radius   = system.Radius * 1.5f;
             CreateTask(new MilitaryTask(center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
-                Priority      = priority
+                Priority      = priority + 2
             });
         }
 
