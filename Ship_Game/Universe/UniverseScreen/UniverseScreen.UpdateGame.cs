@@ -332,22 +332,28 @@ namespace Ship_Game
         {
             AsyncDataCollector.Add(()=>
             {
-                float shipTime = !Paused ? 0.01666667f : 0;
                 Parallel.ForEach(MasterShipList.ToArray(), ship =>
                 {
-                    ship?.AI.ScanForThreat(shipTime);
-                    ship?.UpdateModulePositions(deltaTime);
+                    if (ship == null) return;
+
+                    ship.AI.ScanForThreat(deltaTime);
+                    ship.UpdateModulePositions(deltaTime);
                     ship.AI.UpdateCombatStateAI(deltaTime);
                 });
             });
-
-            AsyncDataCollector.Add(()=>
-                Parallel.ForEach(EmpireManager.Empires, empire=>
+            
+            AsyncDataCollector.Add(() =>
+            {
+                Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
                     if (empire.IsEmpireDead()) return;
+
                     empire.UpdateContactsAndBorders(deltaTime);
                     empire.UpdateMilitaryStrengths();
-                }));
+                    empire.Pool.UpdatePools();
+                    empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
+                });
+            });
         }
 
         void ProcessTurnShipsAndSystems(float elapsedTime)
@@ -416,11 +422,18 @@ namespace Ship_Game
 
             if (IsActive)
             {
-                Parallel.ForEach(EmpireManager.Empires, empire=>
-                {
-                    if (!empire.data.Defeated)
-                        empire.Pool.UpdatePools();
-                });
+                //Parallel.ForEach(EmpireManager.Empires, empire=>
+                //{
+                //    if (!empire.data.Defeated)
+                //    {
+                //        empire.Pool.UpdatePools();
+                //        empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
+                //    }
+                //});
+                //foreach(var empire in EmpireManager.Empires)
+                //{
+
+                //}
             }
 
             PreEmpirePerf.Stop();

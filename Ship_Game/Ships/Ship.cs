@@ -1055,8 +1055,6 @@ namespace Ship_Game.Ships
         {
              if (AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
              {  
-                Empire.Universe.AsyncDataCollector.Add(()=>
-                    {
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
                 float tan = (float)Math.Tan(yRotation);
@@ -1064,7 +1062,6 @@ namespace Ship_Game.Ships
                 {
                     ModuleSlotList[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
                 }
-                    });
                 GlobalStats.ModuleUpdates += ModuleSlotList.Length;
              }
         }
