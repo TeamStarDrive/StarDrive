@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
             void RemoveDeadProjectiles()
             {
                 for (int i = 0; i < Count; ++i)
-                    if (!Items[i].Active)
+                    if (!Items[i]?.Active == true)
                         RemoveAtSwapLast(i);
             }
 

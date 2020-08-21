@@ -661,10 +661,6 @@ namespace Ship_Game.AI
             ScanForThreatTimer -= elapsedTime;
             if (ScanForThreatTimer < 0f && ScanComplete)
             {
-                if (ScanForThreatTimer < -0.02f && ScanComplete)
-                {
-                    Log.Warning($"ScanForThreat: ActionPool Took To Long. May need to increase scan interval");
-                }
                 ScanDataProcessed  = false;
                 ScanComplete       = false;
                 float maxContactTimer = Owner.loyalty.MaxContactTimer;

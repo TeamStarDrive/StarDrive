@@ -155,6 +155,9 @@ namespace Ship_Game
                 // all the collisions will be triggered here:
                 lock(SpaceManager.LockSpaceManager)
                     SpaceManager.Update(elapsedTime);
+                
+                QueueActionsForThreading(0.01666667f);
+                AsyncDataCollector.MoveItemsToThread();
                 CollisionTime.Stop();
 
                 ProcessTurnUpdateMisc(elapsedTime);
@@ -286,8 +289,7 @@ namespace Ship_Game
 
             if (!Paused && IsActive)
             {
-                QueueActionsForThreading(0.01666667f);
-                AsyncDataCollector.MoveItemsToThread();
+                
             
                 Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
