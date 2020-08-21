@@ -156,14 +156,14 @@ namespace Ship_Game
                 lock(SpaceManager.LockSpaceManager)
                     SpaceManager.Update(elapsedTime);
                 
-                QueueActionsForThreading(0.01666667f);
-                AsyncDataCollector.MoveItemsToThread();
                 CollisionTime.Stop();
 
                 ProcessTurnUpdateMisc(elapsedTime);
 
                 // bulk remove all dead projectiles to prevent their update next frame
                 RemoveDeadProjectiles();
+                QueueActionsForThreading(0.01666667f);
+                AsyncDataCollector.MoveItemsToThread();
             }
 
             perfavg5.Stop();
