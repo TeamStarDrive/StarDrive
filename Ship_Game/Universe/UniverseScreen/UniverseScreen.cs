@@ -37,7 +37,6 @@ namespace Ship_Game
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
         public string StarDateString => StarDate.StarDateString();
-        public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
@@ -180,7 +179,6 @@ namespace Ship_Game
         CursorState cState;
         float radlast;
         int SelectorFrame;
-        public int globalshipCount;
         readonly Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
         public Ship previousSelection;
 

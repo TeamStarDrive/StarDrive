@@ -154,16 +154,19 @@ namespace Ship_Game
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
                 lock(SpaceManager.LockSpaceManager)
+                {
                     SpaceManager.Update(elapsedTime);
-                
+
+                    MasterShipList.ApplyPendingRemovals();
+                    // bulk remove all dead projectiles to prevent their update next frame
+                    RemoveDeadProjectiles();
+                }
+                QueueActionsForThreading(0.01666667f);
+                AsyncDataCollector.MoveItemsToThread();
                 CollisionTime.Stop();
 
                 ProcessTurnUpdateMisc(elapsedTime);
 
-                // bulk remove all dead projectiles to prevent their update next frame
-                RemoveDeadProjectiles();
-                QueueActionsForThreading(0.01666667f);
-                AsyncDataCollector.MoveItemsToThread();
             }
 
             perfavg5.Stop();
@@ -272,15 +275,6 @@ namespace Ship_Game
                     JunkList[index].Update(elapsedTime);
             }
             SelectedShipList.ApplyPendingRemovals();
-            MasterShipList.ApplyPendingRemovals();
-            if (perStarDateTimer <= StarDate)
-            {
-                perStarDateTimer = StarDate + 0.1f;
-                perStarDateTimer = (float) Math.Round(perStarDateTimer, 1);
-                globalshipCount = MasterShipList.Filter(ship => (ship.loyalty != null && !ship.loyalty.isPlayer && !ship.loyalty.isFaction) &&
-                                                                  ship.shipData.Role != ShipData.RoleName.troop &&
-                                                                  ship.Mothership == null).Length;
-            }
         }
 
         public void UpdateShipsAndFleets(float elapsedTime)
@@ -312,10 +306,13 @@ namespace Ship_Game
                 {
                     if (ship == null) return;
                     lock(SpaceManager.LockSpaceManager)
+                    {
                         ship.AI.ScanForThreat(deltaTime);
+                        ship.SetFleetCapableStatus();    
+                        ship.AI.UpdateCombatStateAI(deltaTime);
+                    }
                     ship.UpdateModulePositions(deltaTime);
-                    ship.AI.UpdateCombatStateAI(deltaTime);
-                    ship.SetFleetCapableStatus();
+                    
 
                     if (deltaTime > 0.0f && shiptimer <= 0.0f)
                     {
@@ -347,8 +344,10 @@ namespace Ship_Game
                 Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
                     if (empire.IsEmpireDead()) return;
-
-                    empire.UpdateContactsAndBorders(deltaTime);
+                    lock(SpaceManager.LockSpaceManager)
+                    {
+                        empire.UpdateContactsAndBorders(deltaTime);
+                    }
                     empire.UpdateMilitaryStrengths();
                     empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
                     IReadOnlyList<Planet> list = empire.GetPlanets();
