@@ -64,6 +64,9 @@ namespace Ship_Game
             private set => ShipBuildingModifierValue = value.Clamped(0.001f, 1);
         }
 
+        // Timers
+        float NonCriticalTimer = 0;
+
         public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         private float Unfed;
@@ -416,31 +419,44 @@ namespace Ship_Game
 
         void UpdateHabitable(float elapsedTime)
         {
+            // none of the code below requires an owner.
+
             if (!Habitable)
                 return;
+            if (NonCriticalTimer-- < 0 ) NonCriticalTimer = elapsedTime *5;
 
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
-            UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
             UpdatePlanetaryProjectiles(elapsedTime);
         }
 
         void RefreshOrbitalStations()
         {
-            if (OrbitalStations.Count == 0)
+            if (OrbitalStations.Count == 0 || NonCriticalTimer > 0)
                 return;
 
-            Guid[] keys = OrbitalStations.Keys.ToArray();
-            for (int i = 0; i < keys.Length; i++)
+            Guid[] toRemove = null;
+            int guidIndex =0;
+            foreach(var kv in OrbitalStations)
             {
-                Guid key = keys[i];
-                Ship shipyard = OrbitalStations[key];
+                var shipyard = kv.Value;
                 if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
+                {
+                    if (toRemove == null) toRemove = new Guid[OrbitalStations.Count];
+                    toRemove[guidIndex++] = kv.Key;
+                }
+            }
+            if (toRemove != null)
+            {
+                for (int i = 0; i < guidIndex; i++)
+                {
+                    var key = toRemove[i];
                     OrbitalStations.Remove(key);
+                }
             }
         }
 
-        void UpdateSpaceCombatBuildings(float elapsedTime)
+        public void UpdateSpaceCombatBuildings(float elapsedTime)
         {
             if (Owner == null) 
                 return;
@@ -453,13 +469,14 @@ namespace Ship_Game
                 for (int i = 0; i < BuildingList.Count; ++i)
                 {
                     Building building = BuildingList[i];
-                    building.UpdateSpaceCombatActions(elapsedTime, this, out bool targetFound);
+                    bool targetFound  = false;
+                    building?.UpdateSpaceCombatActions(elapsedTime, this, out targetFound);
                     targetNear |= targetFound;
                 }
 
                 if (!targetNear && NoSpaceCombatTargetsFoundDelay <= 0)
                 {
-                    SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange);
+                    Empire.Universe.RunOnEmpireThread(()=> SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange));
                     NoSpaceCombatTargetsFoundDelay = 2f;
                 }
             }
@@ -493,9 +510,13 @@ namespace Ship_Game
             Ship troop      = null;
             Ship target     = null;
 
-            for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
+            var nearBy = UniverseScreen.SpaceManager.FindNearby(Center, weaponRange, GameObjectType.Ship);
+
+
+            for (int j = 0; j < nearBy.Length; ++j)
             {
-                Ship ship = ParentSystem.ShipList[j];
+                Ship ship = (Ship)nearBy[j];
+
                 if (ship.loyalty == Owner || ship.engineState == Ship.MoveState.Warp)
                     continue;
 

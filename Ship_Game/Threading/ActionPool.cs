@@ -21,12 +21,12 @@ namespace Ship_Game.Threading
     {
         Thread Worker;
         static readonly Array<Action> EmptyArray   = new Array<Action>(0);
-        Array<Action> ActionsBeingProcessed              = EmptyArray;
+        int DefaultAccumulatorSize                 = 1000;
+        readonly AutoResetEvent ActionsAvailable   = new AutoResetEvent(false);
+        Array<Action> ActionsBeingProcessed        = EmptyArray;
         Array<Action> ActionAccumulator;
         bool Initialized;
-        int DefaultAccumulatorSize                 = 1000;
-        readonly AutoResetEvent ActionsAvailable            = new AutoResetEvent(false);
-        
+
         public int ActionsProcessedThisTurn {get; private set;}
         public float AvgActionsProcessed {get; private set;}
         public bool IsProcessing {get; private set;}
