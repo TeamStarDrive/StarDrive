@@ -524,7 +524,7 @@ namespace Ship_Game
                     return 0;
 
                 int num = 0;
-                if (TilesList.Any(t => !t.CanTerraform))
+                if (TilesList.Any(t => t.CanTerraform))
                     num += 1;
 
                 if (TilesList.Any(t => t.BioCanTerraform))
