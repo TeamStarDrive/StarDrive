@@ -322,7 +322,7 @@ namespace Ship_Game.AI
             }
         }
         
-        void SetCombatStatus()
+        public void SetCombatStatus()
         {
             float radius = GetSensorRadius(out Ship sensorShip);
             if (Owner.IsSubspaceProjector)

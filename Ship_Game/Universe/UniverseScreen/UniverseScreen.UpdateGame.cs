@@ -14,7 +14,6 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         public readonly ActionPool AsyncDataCollector = new ActionPool();
-        public void AddToDataCollector(Action action) => AsyncDataCollector.Add(action);
 
         void ProcessTurnsMonitored()
         {
@@ -154,8 +153,8 @@ namespace Ship_Game
                 CollisionTime.Start();
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
-                
-                SpaceManager.Update(elapsedTime);
+                lock(SpaceManager.LockSpaceManager)
+                    SpaceManager.Update(elapsedTime);
                 CollisionTime.Stop();
 
                 ProcessTurnUpdateMisc(elapsedTime);
@@ -283,49 +282,24 @@ namespace Ship_Game
 
         public void UpdateShipsAndFleets(float elapsedTime)
         {
-            perfavg4.Start();
+            PostEmpirePerf.Start();
 
-            if (elapsedTime > 0.0f && shiptimer <= 0.0f)
-            {
-                shiptimer = 1f;
-
-                // @todo REMOVE THIS LOOP BASED RADIUS CHECKING AND USE QUADTREE INSTEAD
-                for (int i = 0; i < MasterShipList.Count; i++)
-                {
-                    Ship ship = MasterShipList[i];
-                    if (!ship.InRadiusOfCurrentSystem)
-                    {
-                        ship.SetSystem(null);
-
-                        for (int x = 0; x < SolarSystemList.Count; x++)
-                        {
-                            SolarSystem system = SolarSystemList[x];
-
-                            if (ship.InRadiusOfSystem(system))
-                            {
-                                system.SetExploredBy(ship.loyalty);
-                                ship.SetSystem(system);
-                                // No need to keep looping through all other systems
-                                // if one is found -Gretman
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
             if (!Paused && IsActive)
-                QueueActionsForThreading(0.01666667f);
-            
-            AsyncDataCollector.MoveItemsToThread();
-            
-            for (int i = 0; i < EmpireManager.NumEmpires; i++)
             {
-                foreach (KeyValuePair<int, Fleet> kv in EmpireManager.Empires[i].GetFleetsDict())
+                QueueActionsForThreading(0.01666667f);
+                AsyncDataCollector.MoveItemsToThread();
+            
+                Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
-                    kv.Value.SetSpeed();
-                }
+                    foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
+                    {
+                        kv.Value.SetSpeed();
+                    }
+                    empire.Pool.UpdatePools();
+                });
             }
-            perfavg4.Stop();
+
+            PostEmpirePerf.Stop();
         }
 
         public void QueueActionsForThreading(float deltaTime)
@@ -335,10 +309,34 @@ namespace Ship_Game
                 Parallel.ForEach(MasterShipList.ToArray(), ship =>
                 {
                     if (ship == null) return;
-
-                    ship.AI.ScanForThreat(deltaTime);
+                    lock(SpaceManager.LockSpaceManager)
+                        ship.AI.ScanForThreat(deltaTime);
                     ship.UpdateModulePositions(deltaTime);
                     ship.AI.UpdateCombatStateAI(deltaTime);
+                    ship.SetFleetCapableStatus();
+
+                    if (deltaTime > 0.0f && shiptimer <= 0.0f)
+                    {
+                        shiptimer = 1f;
+                        if (!ship.InRadiusOfCurrentSystem)
+                        {
+                            ship.SetSystem(null);
+
+                            for (int x = 0; x < SolarSystemList.Count; x++)
+                            {
+                                SolarSystem system = SolarSystemList[x];
+
+                                if (ship.InRadiusOfSystem(system))
+                                {
+                                    system.SetExploredBy(ship.loyalty);
+                                    ship.SetSystem(system);
+                                    // No need to keep looping through all other systems
+                                    // if one is found -Gretman
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 });
             });
             
@@ -350,8 +348,13 @@ namespace Ship_Game
 
                     empire.UpdateContactsAndBorders(deltaTime);
                     empire.UpdateMilitaryStrengths();
-                    empire.Pool.UpdatePools();
                     empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
+                    IReadOnlyList<Planet> list = empire.GetPlanets();
+                    for (int i = 0; i < list.Count; i ++)
+                    {
+                        var planet = list[i ];
+                        planet.UpdateSpaceCombatBuildings(deltaTime); // building weapon timers are in this method. 
+                    }
                 });
             });
         }

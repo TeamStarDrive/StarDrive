@@ -40,8 +40,11 @@ namespace Ship_Game.AI
 
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
-            foreach (ShipGoal g in OrderQueue)
-                g.Dispose();
+            for (int i = 0; i < OrderQueue.Count; i++)
+            {
+                ShipGoal g = OrderQueue[i];
+                g?.Dispose();
+            }
 
             ChangeAIState(newState);
             EscortTarget = null;
