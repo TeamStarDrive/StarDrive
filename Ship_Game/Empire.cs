@@ -866,7 +866,7 @@ namespace Ship_Game
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
-                if (ship.fleet != null)
+                if (ship == null || ship.fleet != null)
                     continue;
                 if (ship.AI.State == AIState.Resupply
                     || ship.AI.State == AIState.Refit
@@ -1243,7 +1243,7 @@ namespace Ship_Game
                 var ship = Universe.MasterShipList[i];
                 bool shipKnown = ship.KnownByEmpires.KnownBy(this);
 
-                if (shipKnown || (isPlayer && Universe.Debug))
+                if (shipKnown || isPlayer && Universe.Debug && Empire.Universe.SelectedShip == null)
                 {
                     currentlyKnown.AddUniqueRef(ship);
 
@@ -1255,17 +1255,10 @@ namespace Ship_Game
                 }
             }
 
-            //if (isPlayer)
-            //{
-            //    //using (KnownShips.AcquireWriteLock())
-            //        KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
-            //}
-            //else
             Empire.Universe.RunOnEmpireThread(()=>
             {
                 KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
             });
-                //KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
         }
 
         enum ScanType
@@ -1277,6 +1270,7 @@ namespace Ship_Game
 
         void ScanFromInfluenceNode(InfluenceNode node, ScanType scanning)
         {
+            bool debug = Empire.Universe?.Debug == true;
             switch (node.SourceObject)
             {
                 case Ship ship:
@@ -1284,10 +1278,19 @@ namespace Ship_Game
                     {
                         case ScanType.Ships:
                             ship.KnownByEmpires.SetSeen(this);
+                            
+                            if (debug && ship == Empire.Universe.SelectedShip)
+                            {
+                                ship.KnownByEmpires.SetSeen(EmpireManager.Player);
+                            }
                             for (int i = 0; i < ship.AI.PotentialTargets.Count; i++)
                             {
                                 var target = ship.AI.PotentialTargets[i];
                                 target.KnownByEmpires.SetSeen(this);
+                                if (debug && ship == Empire.Universe.SelectedShip)
+                                {
+                                    target.KnownByEmpires.SetSeen(EmpireManager.Player);
+                                }
                             }
 
                             break;
@@ -2321,7 +2324,7 @@ namespace Ship_Game
             foreach(var empire in EmpireManager.Empires)
             {
                 var relation = GetRelations(empire);
-                if (relation == null || !relation.Treaty_Alliance && (!Universe.Debug || !isPlayer)) continue;
+                if (relation == null || !relation.Treaty_Alliance && (!Universe.Debug || !isPlayer || Universe.SelectedShip != null)) continue;
                 bool wellKnown = true;
                 Planet[] array = empire.OwnedPlanets.ToArray();
                 for (int y = 0; y < array.Length; y++)
@@ -3231,7 +3234,8 @@ namespace Ship_Game
                 float variance =Id * elapsedTime;
                 updateContactsTimer = elapsedTime >= 1 ? 0 : MaxContactTimer - variance;
                 ResetBorders();
-                ScanFromAllInfluenceNodes();
+                lock(UniverseScreen.SpaceManager.LockSpaceManager)
+                    ScanFromAllInfluenceNodes();
                 EmpireAI.ThreatMatrix.UpdateAllPins(this);
                 ScanComplete = true;
             }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Ship_Game.Sensors;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
@@ -9,6 +10,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
     {
         private float SystemCombatTimer;
         private readonly Planet P;
+        public TimedScanner AllNearShips;
         private float Population  => P.Population;
         private Empire Owner      => P.Owner;
         private Shield Shield     => P.Shield;
@@ -28,6 +30,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         public GeodeticManager (Planet planet)
         {
             P = planet;
+            //AllNearShips = new BasicSensors(this,P.Owner);
         }
 
         public void Update(float elapsedTime)

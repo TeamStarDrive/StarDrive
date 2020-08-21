@@ -669,8 +669,8 @@ namespace Ship_Game.AI
                 ScanComplete       = false;
                 float maxContactTimer = Owner.loyalty.MaxContactTimer;
                 float variance = Owner.loyalty.Id * elapsedTime;
-                ScanForThreatTimer =  maxContactTimer - variance; 
-                Empire.Universe.AddToDataCollector(SetCombatStatus);
+                ScanForThreatTimer =  maxContactTimer - variance;
+                SetCombatStatus();
             }
         }
 

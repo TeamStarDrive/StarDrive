@@ -688,7 +688,7 @@ namespace Ship_Game
                 "" + Perfavg2,
                 "" + EmpireUpdatePerf,
                 "" + PreEmpirePerf,
-                "" + perfavg4,
+                "" + PostEmpirePerf,
                 "" + CollisionTime,
                 "" + perfavg5,
                 "" + Empire.Universe.AsyncDataCollector.ProcessTime,

@@ -30,7 +30,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Count; ++i)
                 {
                     Projectile p = Items[i];
-                    if (p.Active && (p.DieNextFrame || force))
+                    if (p?.Active == true && (p.DieNextFrame || force))
                         p.Die(p, cleanup);
                 }
                 RemoveDeadProjectiles();

@@ -26,7 +26,7 @@ namespace Ship_Game
         readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
         readonly PerfTimer Perfavg2          = new PerfTimer();
         readonly PerfTimer PreEmpirePerf     = new PerfTimer();
-        readonly PerfTimer perfavg4          = new PerfTimer();
+        readonly PerfTimer PostEmpirePerf    = new PerfTimer();
         readonly PerfTimer perfavg5          = new PerfTimer();
         readonly PerfTimer CollisionTime     = new PerfTimer();
 

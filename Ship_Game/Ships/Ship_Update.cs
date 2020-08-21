@@ -124,7 +124,6 @@ namespace Ship_Game.Ships
                 Mothership = null;
 
             UpdateInfluence(elapsedTime);
-            SetFleetCapableStatus();
             KnownByEmpires.Update(elapsedTime);
 
             if (!dying) UpdateAlive(elapsedTime);
