@@ -230,6 +230,7 @@
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\AssaultPirateBase.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\DeployFleetProjector.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateDefendBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateDirectorPayment.cs" />
