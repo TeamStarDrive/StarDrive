@@ -20,6 +20,7 @@ namespace Ship_Game
         public bool Activated { get; private set; }
         public static bool Armageddon;
         public RemnantStory Story { get; private set; }
+        public float Production { get; private set; }
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -35,6 +36,7 @@ namespace Ship_Game
             Activated           = sData.RemnantStoryActivated;
             StoryTriggerKillsXp = sData.RemnantStoryTriggerKillsXp;
             Story               = (RemnantStory)sData.RemnantStoryType;
+            Production          = sData.RemnantProduction;
         }
 
         public void IncrementKills(int exp)
@@ -55,9 +57,10 @@ namespace Ship_Game
                 Log.Warning($"Could not create a portal for {Owner.data.Name}, they will not be activated!");
                 return;
             }
-
+            
             Activated = true;
             // create the portal goal based on story
+            Goals.Add(new RemnantPortal(Owner, portal, portal.SystemName));
         }
 
         public bool CreatePortal(out Ship portal)
@@ -108,6 +111,11 @@ namespace Ship_Game
             }
 
             return remnantShip != null;
+        }
+
+        public void GenerateProduction(float amount)
+        {
+            Production += amount;
         }
 
         float PlanetQuality(Planet planet)
@@ -356,6 +364,7 @@ namespace Ship_Game
 
         public enum RemnantStory
         {
+            None,
             AncientBalancers,
             AncientExterminators,
             ColonizeGalaxy
