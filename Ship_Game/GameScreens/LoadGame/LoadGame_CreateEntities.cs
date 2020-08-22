@@ -138,7 +138,7 @@ namespace Ship_Game
 
             foreach (SavedGame.PGSData d in psdata.PGSList)
             {
-                var pgs = new PlanetGridSquare(d.x, d.y, d.building, d.Habitable)
+                var pgs = new PlanetGridSquare(d.x, d.y, d.building, d.Habitable, d.Terraformable)
                 {
                     Biosphere = d.Biosphere
                 };
