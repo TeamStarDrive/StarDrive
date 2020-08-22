@@ -601,6 +601,9 @@ namespace Ship_Game
             if (IsCybernetic || !IsStarving)
                 return;
 
+            if (PlayerAddedFirstConstructionItem)
+                return; // Do not prioritize over player added queue
+
             for (int i = 0; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
@@ -613,8 +616,8 @@ namespace Ship_Game
                         break;
                     }
 
-                    // Cancel ongoing building if there is a food building available for build
-                    if (!q.Building.IsMilitary && BuildingsCanBuild.Any(f => f.ProducesFood))
+                    // Cancel ongoing building if there is a food building available for build and not player added
+                    if (!q.IsPlayerAdded && !q.Building.IsMilitary && BuildingsCanBuild.Any(f => f.ProducesFood))
                     {
                         Construction.Cancel(q);
                         break;
@@ -627,6 +630,9 @@ namespace Ship_Game
         {
             if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
                 return;
+
+            if (PlayerAddedFirstConstructionItem)
+                return; // Do not prioritize over player added queue
 
             for (int i = 0; i < ConstructionQueue.Count; ++i)
             {

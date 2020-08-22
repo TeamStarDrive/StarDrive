@@ -179,7 +179,15 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                DeclareWarOn(closest, WarType.ImperialistWar);
+                if (closest.isPlayer)
+                {
+                    DeclareWarOn(closest, WarType.ImperialistWar);
+                }
+                else
+                {
+                    usToThem.PreparingForWar = true;
+                    usToThem.PreparingForWarType = WarType.ImperialistWar;
+                }
             }
         }
 
@@ -212,7 +220,15 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                DeclareWarOn(weakest, WarType.ImperialistWar);
+                if (weakest.isPlayer)
+                {
+                    DeclareWarOn(weakest, WarType.ImperialistWar);
+                }
+                else
+                {
+                    usToThem.PreparingForWar = true;
+                    usToThem.PreparingForWarType = WarType.ImperialistWar;
+                }
             }
         }
 
