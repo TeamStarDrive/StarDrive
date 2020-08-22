@@ -166,7 +166,6 @@ namespace Ship_Game
                 CollisionTime.Stop();
 
                 ProcessTurnUpdateMisc(elapsedTime);
-
             }
 
             perfavg5.Stop();
@@ -283,16 +282,20 @@ namespace Ship_Game
 
             if (!Paused && IsActive)
             {
-                
-            
-                Parallel.ForEach(EmpireManager.Empires, empire =>
+                for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
-                    foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
+                    var empire = EmpireManager.Empires[i];
+                    foreach (KeyValuePair<int, Fleet> kv in
+                        empire.GetFleetsDict())
                     {
                         kv.Value.SetSpeed();
                     }
+
                     empire.Pool.UpdatePools();
-                });
+                    empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
+                }
+
+                ;
             }
 
             PostEmpirePerf.Stop();
@@ -302,21 +305,20 @@ namespace Ship_Game
         {
             AsyncDataCollector.Add(()=>
             {
+                bool refreshShipSolarSystem = deltaTime > 0.0f && shiptimer-- <= 0.0f;
                 Parallel.ForEach(MasterShipList.ToArray(), ship =>
                 {
                     if (ship == null) return;
-                    lock(SpaceManager.LockSpaceManager)
-                    {
-                        ship.AI.ScanForThreat(deltaTime);
-                        ship.SetFleetCapableStatus();    
-                        ship.AI.UpdateCombatStateAI(deltaTime);
-                    }
-                    ship.UpdateModulePositions(deltaTime);
+                    ship.AI.ScanForThreat(deltaTime);
+                    ship.SetFleetCapableStatus();    
+                    ship.AI.UpdateCombatStateAI(deltaTime);
                     
+                    ship.UpdateModulePositions(deltaTime);
+                    ship.UpdateInfluence(deltaTime);
+                    ship.KnownByEmpires.Update(deltaTime);
 
-                    if (deltaTime > 0.0f && shiptimer <= 0.0f)
+                    if (refreshShipSolarSystem)
                     {
-                        shiptimer = 1f;
                         if (!ship.InRadiusOfCurrentSystem)
                         {
                             ship.SetSystem(null);
@@ -337,6 +339,8 @@ namespace Ship_Game
                         }
                     }
                 });
+                if (refreshShipSolarSystem)
+                    shiptimer = 1f;
             });
             
             AsyncDataCollector.Add(() =>
@@ -344,18 +348,16 @@ namespace Ship_Game
                 Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
                     if (empire.IsEmpireDead()) return;
-                    lock(SpaceManager.LockSpaceManager)
-                    {
-                        empire.UpdateContactsAndBorders(deltaTime);
-                    }
-                    empire.UpdateMilitaryStrengths();
-                    empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
+                    
+                    empire.UpdateContactsAndBorders(deltaTime);
                     IReadOnlyList<Planet> list = empire.GetPlanets();
                     for (int i = 0; i < list.Count; i ++)
                     {
                         var planet = list[i ];
                         planet.UpdateSpaceCombatBuildings(deltaTime); // building weapon timers are in this method. 
                     }
+                
+                    empire.UpdateMilitaryStrengths();
                 });
             });
         }

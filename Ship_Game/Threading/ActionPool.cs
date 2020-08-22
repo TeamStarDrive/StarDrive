@@ -127,33 +127,22 @@ namespace Ship_Game.Threading
                 IsProcessing             = true;
                 int processedLastTurn    = ActionsProcessedThisTurn;
                 ActionsProcessedThisTurn = 0;
-
-                for (int i = 0; i < ActionsBeingProcessed.Count; i++)
+                lock (UniverseScreen.SpaceManager.LockSpaceManager)
                 {
-                    var action = ActionsBeingProcessed[i];
-                    try
+                    for (int i = 0; i < ActionsBeingProcessed.Count; i++)
                     {
-                        action?.Invoke();
-                        ActionsProcessedThisTurn++;
-                    }
-                    catch (Exception ex)
-                    {
-                        ThreadException = ex;
+                        var action = ActionsBeingProcessed[i];
+                        try
+                        {
+                            action?.Invoke();
+                            ActionsProcessedThisTurn++;
+                        }
+                        catch (Exception ex)
+                        {
+                            ThreadException = ex;
+                        }
                     }
                 }
-
-                //Parallel.ForEach(ActionsBeingProcessed, action =>
-                //{
-                //    try
-                //    {
-                //        action?.Invoke();
-                //        ActionsProcessedThisTurn++;
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        ThreadException = ex;
-                //    }
-                //});
                 ActionsBeingProcessed = EmptyArray;
                 AvgActionsProcessed   = (ActionsProcessedThisTurn + processedLastTurn) / 2f;
                 IsProcessing          = false;

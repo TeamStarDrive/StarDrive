@@ -26,14 +26,19 @@ namespace Ship_Game.Empires.ShipPools
 
         public void UpdatePools()
         {
-            AddShipsToForcePoolFromShipsToAdd();
-            if (PoolCheckTimer-- < 0)
+            if (!Owner.isPlayer)
             {
-                PoolCheckTimer = UniverseRandom.IntBetween(350000,360000);
-                RemoveInvalidShipsFromForcePool();
-                ErrorCheckPools();
+                AddShipsToForcePoolFromShipsToAdd();
+            
+                if (PoolCheckTimer-- < 0)
+                {
+                    PoolCheckTimer = UniverseRandom.IntBetween(350000,360000);
+                    RemoveInvalidShipsFromForcePool();
+                    ErrorCheckPools();
+                }
             }
-            EmpireReadyFleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
+            var fleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
+            EmpireReadyFleets = fleets;
             InitialReadyFleets += EmpireReadyFleets.CountFleets(out float initialStrength);
             InitialReadyFleets /=2;
             InitialStrength = (initialStrength + InitialStrength) / 2;
