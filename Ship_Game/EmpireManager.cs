@@ -32,7 +32,7 @@ namespace Ship_Game
         //       withing the known universe. They belong to the mythical `Void` -- pure Chaos of nothingness
         public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateVoidEmpire());
 
-        public static Empire[] AIEmpires =>
+        public static Empire[] NonPlayerEmpires =>
             Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
 
         public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.isFaction);
