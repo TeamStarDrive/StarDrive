@@ -37,7 +37,8 @@ namespace Ship_Game.AI
         PirateProtection,
         AssaultPirateBase,
         RefitOrbital,
-        DeployFleetProjector
+        DeployFleetProjector,
+        RemnantPortal
     }
 
     public enum GoalStep
@@ -153,6 +154,7 @@ namespace Ship_Game.AI
                 case PirateProtection.ID:       return new PirateProtection();
                 case AssaultPirateBase.ID:      return new AssaultPirateBase();
                 case DeployFleetProjector.ID:   return new DeployFleetProjector();
+                case RemnantPortal.ID:          return new RemnantPortal();
                 case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
