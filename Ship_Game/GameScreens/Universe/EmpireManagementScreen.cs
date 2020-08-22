@@ -134,35 +134,30 @@ namespace Ship_Game
             buildingsRect = new Rectangle(MapRect.CenterX() - desiredWidth/2, MapRect.Y, desiredWidth, desiredHeight);
             MapRect.X = buildingsRect.X;
             MapRect.Width = buildingsRect.Width;
-            int xsize = buildingsRect.Width / 7;
-            int ysize = buildingsRect.Height / 5;
+            int xSize = buildingsRect.Width / 7;
+            int ySize = buildingsRect.Height / 5;
 
-            var pgs = new PlanetGridSquare();
-            foreach (PlanetGridSquare realPgs in SelectedPlanet.TilesList)
-            {
-                pgs.Biosphere  = realPgs.Biosphere;
-                pgs.building   = realPgs.building ?? realPgs.QItem?.Building;
-                pgs.ClickRect  = new Rectangle(buildingsRect.X + realPgs.x * xsize, buildingsRect.Y + realPgs.y * ysize, xsize, ysize);
-                pgs.Habitable  = realPgs.Habitable;
-                pgs.TroopsHere = realPgs.TroopsHere;
-
-                if (!pgs.Habitable)
-                {
-                    batch.FillRectangle(pgs.ClickRect, new Color(0, 0, 0, 200));
-                }
-                batch.DrawRectangle(pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
-
-                if (pgs.building != null)
-                {
-                    Color c = pgs.QItem != null ? White : new Color(White, 128);
-                    batch.Draw(pgs.building.IconTex, pgs.ClickRect.Center() - new Vector2(24), new Vector2(48), c);
-                }
-
-                DrawTileIcons(pgs);
-            }
-
-            batch.Draw(ResourceManager.Texture("PlanetTiles/"+SelectedPlanet.PlanetTileId), buildingsRect, White);
+            batch.Draw(ResourceManager.Texture("PlanetTiles/" + SelectedPlanet.PlanetTileId), buildingsRect, White);
             batch.DrawRectangle(MapRect, new Color(118, 102, 67, 255));
+
+            foreach (PlanetGridSquare tile in SelectedPlanet.TilesList)
+            {
+                var rect = new Rectangle(buildingsRect.X + tile.x * xSize, buildingsRect.Y + tile.y * ySize, xSize, ySize);
+
+                if (!tile.Habitable)
+                {
+                    batch.FillRectangle(rect, new Color(0, 0, 0, 200));
+                }
+                batch.DrawRectangle(rect, new Color(211, 211, 211, 100), 0.5f);
+
+                if (tile.building != null)
+                {
+                    Color c = tile.QItem != null ? White : new Color(White, 128);
+                    batch.Draw(tile.building.IconTex, rect.Center() - new Vector2(18), new Vector2(36), c);
+                }
+
+                DrawTileIcons(tile, rect);
+            }
 
             // draw some border around the governor component
             var GovernorRect = new Rectangle(MapRect.Right, MapRect.Y, e1.Rect.Right - MapRect.Right, MapRect.Height);
@@ -243,74 +238,19 @@ namespace Ship_Game
             return new Rectangle(x + 15 - icon.Width / 2, y, icon.Width, icon.Height);
         }
 
-        void DrawTileIcons(PlanetGridSquare pgs)
+        void DrawTileIcons(PlanetGridSquare pgs, Rectangle rect)
         {
             if (pgs.Biosphere)
             {
-                Rectangle biosphere = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y, 20, 20);
+                Rectangle biosphere = new Rectangle(rect.X, rect.Y, 10, 10);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, White);
+                ScreenManager.SpriteBatch.FillRectangle(rect, EmpireManager.Player.EmpireColor.Alpha(0.4f));
             }
 
-            float numFood = 0f;
-            float numProd = 0f;
-            float numRes = 0f;
-            if (pgs.building != null)
+            if (EmpireManager.Player.IsBuildingUnlocked(Building.TerraformerId) && (pgs.CanTerraform || pgs.BioCanTerraform))
             {
-                if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
-                {
-                    numFood += pgs.building.PlusFoodPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.Food.Percent;
-                    numFood += pgs.building.PlusFlatFoodAmount;
-                }
-                if (pgs.building.PlusFlatProductionAmount > 0f || pgs.building.PlusProdPerColonist > 0f)
-                {
-                    numProd += pgs.building.PlusFlatProductionAmount;
-                    numProd += pgs.building.PlusProdPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.Prod.Percent;
-                }
-                if (pgs.building.PlusResearchPerColonist > 0f || pgs.building.PlusFlatResearchAmount > 0f)
-                {
-                    numRes += pgs.building.PlusResearchPerColonist * SelectedPlanet.PopulationBillion * SelectedPlanet.Res.Percent;
-                    numRes += pgs.building.PlusFlatResearchAmount;
-                }
-            }
-            float total = numFood + numProd + numRes;
-            float totalSpace = pgs.ClickRect.Width - 30;
-            float spacing = totalSpace / total;
-            Rectangle rect = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y + pgs.ClickRect.Height - ResourceManager.Texture("NewUI/icon_food").Height, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-            for (int i = 0; i < numFood; i++)
-            {
-                if (numFood - i <= 0f || numFood - i >= 1f)
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), rect, White);
-                }
-                else
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), new Vector2(rect.X, rect.Y), White, 0f, Vector2.Zero, numFood - i, SpriteEffects.None, 1f);
-                }
-                rect.X = rect.X + (int)spacing;
-            }
-            for (int i = 0; i < numProd; i++)
-            {
-                if (numProd - i <= 0f || numProd - i >= 1f)
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), rect, White);
-                }
-                else
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), new Vector2(rect.X, rect.Y), White, 0f, Vector2.Zero, numProd - i, SpriteEffects.None, 1f);
-                }
-                rect.X = rect.X + (int)spacing;
-            }
-            for (int i = 0; i < numRes; i++)
-            {
-                if (numRes - i <= 0f || numRes - i >= 1f)
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), rect, White);
-                }
-                else
-                {
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), new Vector2(rect.X, rect.Y), White, 0f, Vector2.Zero, numRes - i, SpriteEffects.None, 1f);
-                }
-                rect.X = rect.X + (int)spacing;
+                var terraform = new Rectangle(rect.X + rect.Width - 10, rect.Y, 10, 10);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);
             }
         }
 
