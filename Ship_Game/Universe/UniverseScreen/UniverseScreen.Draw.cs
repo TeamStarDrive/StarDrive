@@ -235,7 +235,7 @@ namespace Ship_Game
                     for (int x = 0; x < empire.BorderNodes.Count; x++)
                     {
                         Empire.InfluenceNode influ = empire.BorderNodes[x];
-                        if (!influ.Known)
+                        if (!influ.KnownToPlayer)
                             continue;
                         if (!Frustum.Contains(influ.Position, influ.Radius))
                             continue;
@@ -251,7 +251,7 @@ namespace Ship_Game
                         for (int i = 0; i < empire.BorderNodes.Count; i++)
                         {
                             Empire.InfluenceNode influ2 = empire.BorderNodes[i];
-                            if (!influ2.Known)
+                            if (!influ2.KnownToPlayer)
                                 continue;
                             if (influ.Position == influ2.Position || influ.Radius > influ2.Radius ||
                                 influ.Position.OutsideRadius(influ2.Position, influ.Radius + influ2.Radius + 150000.0f))

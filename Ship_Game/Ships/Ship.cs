@@ -1053,7 +1053,7 @@ namespace Ship_Game.Ships
 
         public void UpdateModulePositions(float deltaTime)
         {
-             if (AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
+             if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
              {  
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
