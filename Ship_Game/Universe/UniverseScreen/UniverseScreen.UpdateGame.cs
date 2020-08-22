@@ -338,7 +338,6 @@ namespace Ship_Game
                     bool refreshShipSolarS = deltaTime > 0.0f && shiptimer-- <= 0.0f;
                     ship.AI.ScanForThreat(deltaTime);
                     ship.SetFleetCapableStatus();    
-                    ship.AI.UpdateCombatStateAI(deltaTime);
                     
                     ship.UpdateModulePositions(deltaTime);
                     ship.UpdateInfluence(deltaTime);

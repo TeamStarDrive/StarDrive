@@ -173,7 +173,7 @@ namespace Ship_Game.AI
             UpdateUtilityModuleAI(elapsedTime);
             ThrustTarget = Vector2.Zero;
 
-//            UpdateCombatStateAI(elapsedTime);
+            UpdateCombatStateAI(elapsedTime);
 
             if (UpdateOrderQueueAI(elapsedTime))
                 return;
