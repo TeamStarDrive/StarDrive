@@ -490,7 +490,7 @@ namespace Ship_Game
             for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
             {
                 Ship ship = ParentSystem.ShipList[i];
-                if (ship.Center.InRadius(Center, 15000)
+                if (ship?.Center.InRadius(Center, 15000) == true
                     && ship.BaseStrength > 10
                     && (!ship.IsTethered || ship.GetTether() == this) // orbitals orbiting another nearby planet
                     && Owner.IsEmpireAttackable(ship.loyalty))

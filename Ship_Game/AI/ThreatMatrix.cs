@@ -101,9 +101,12 @@ namespace Ship_Game.AI
         {
             Pins = new Map<Guid, Pin>(matrix);
         }
-        //not sure we need this.
+        // not sure we need this.
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
-        Map<Guid, Pin> Pins            = new Map<Guid, Pin>();
+        Map<Guid, Pin> Pins = new Map<Guid, Pin>();
+        
+        int UpdateTimer = 0;
+        int UpdateTickTimerReset = 1 ;
 
         [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingThreadActions = new SafeQueue<Action>();
         [XmlIgnore][JsonIgnore] readonly Array<Action> PendingGameThreadActions = new Array<Action>();
@@ -431,7 +434,8 @@ namespace Ship_Game.AI
 
         public bool UpdateAllPins(Empire owner)
         {
-            if (PendingThreadActions.NotEmpty) return false;
+            if (PendingThreadActions.NotEmpty || UpdateTimer-- > 0) return false;
+            UpdateTimer = UpdateTickTimerReset + owner.Id;
 
             ThreatMatrix threatCopy;
             using (PinsMutex.AcquireReadLock())
