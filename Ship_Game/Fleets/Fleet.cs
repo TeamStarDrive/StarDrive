@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
-using Microsoft.Xna.Framework.Net;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.Fleets
 {
@@ -688,33 +688,39 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely())
                         break;
 
-                    GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
+                    AddFleetProjectorGoal();
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                    if (FleetProjectorGoalInProgress())
                         break;
 
+                    GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
                     TaskStep = 3;
-                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
-                    CombatMoveToAO(task, FleetTask.TargetPlanet.GravityWellRadius * 1.5f);
-                    TaskStep = 4;
-                    break;
-
-                case 4:
                     if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
                         break;
 
-                    TaskStep = 5;
+                    TaskStep = 4;
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
+                case 4:
+                    CombatMoveToAO(task, FleetTask.TargetPlanet.GravityWellRadius * 1.5f);
+                    TaskStep = 5;
+                    break;
                 case 5:
-                     AttackEnemyStrengthClumpsInAO(task);
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                        break;
+
                     TaskStep = 6;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 6:
+                     AttackEnemyStrengthClumpsInAO(task);
+                    TaskStep = 7;
+                    break;
+                case 7:
                     if (!DoOrbitTaskArea(task, excludeInvade: true))
                         AttackEnemyStrengthClumpsInAO(task);
 
@@ -894,6 +900,29 @@ namespace Ship_Game.Fleets
             FleetTask = null;
             TaskStep = 0;
             return true;
+        }
+
+        void AddFleetProjectorGoal()
+        {
+            if (FleetTask?.TargetPlanet == null)
+                return;
+
+            Goal goal = new DeployFleetProjector(this, FleetTask.TargetPlanet, Owner);
+            Owner.GetEmpireAI().AddGoal(goal);
+        }
+
+        bool FleetProjectorGoalInProgress()
+        {
+            var goals = Owner.GetEmpireAI().SearchForGoals(GoalType.DeployFleetProjector).Filter(g => g.Fleet == this);
+            if (goals.Length == 1)
+            {
+                Goal deployGoal = goals[0];
+                if (deployGoal.FinishedShip == null)
+                    return true;
+            }
+
+            return false;
+
         }
 
         /// @return true if order successful. Fails when enemies near.
