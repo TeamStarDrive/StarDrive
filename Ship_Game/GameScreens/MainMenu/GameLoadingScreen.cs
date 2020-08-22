@@ -56,9 +56,12 @@ namespace Ship_Game
                 {
                     Log.Warning($"Video Player thread error Begin cannot be called again. Line 52 of Game loading screen." );
                 }
-                if (BridgeTexture != null)
-                    batch.Draw(BridgeTexture, BridgeRect, Color.White);
-                batch.End();
+                finally
+                {
+                    if (BridgeTexture != null)
+                        batch.Draw(BridgeTexture, BridgeRect, Color.White);
+                    batch.End();
+                }
             }
         }
 

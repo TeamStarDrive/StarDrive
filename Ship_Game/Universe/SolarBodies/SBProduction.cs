@@ -3,6 +3,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -390,6 +391,22 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isShip && q.sData == ship.shipData)
+                {
+                    MoveTo(0, i);
+                    break;
+                }
+            }
+        }
+
+        public void PrioritizeProjector(Vector2 buildPos)
+        {
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isShip 
+                    && q.DisplayName != null
+                    && q.DisplayName.Contains("Subspace Projector")
+                    && q.Goal?.BuildPosition == buildPos)
                 {
                     MoveTo(0, i);
                     break;

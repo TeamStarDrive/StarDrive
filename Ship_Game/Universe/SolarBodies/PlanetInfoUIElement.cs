@@ -261,18 +261,19 @@ namespace Ship_Game
 
             int numHabitableTile    = P.TotalHabitableTiles;
             int numUnhabitableTiles = P.TileArea - numHabitableTile;
-            float popPerTile     = P.BasePopPerTile * fertEnvMultiplier;
-            float biospheredPop  = P.MaxPopulationBillionFor(EmpireManager.Player) + P.BasePopPerTile * numUnhabitableTiles / 1000;
-            float terraformedPop = EmpireManager.Player.RacialEnvModifer(EmpireManager.Player.data.PreferredEnv) * P.BasePopPerTile * P.TileArea / 1000;
+            float popPerTile        = P.BasePopPerTile * fertEnvMultiplier;
+            float biospheredPop     = P.MaxPopulationBillionFor(EmpireManager.Player) + P.PopPerBiosphere * numUnhabitableTiles / 1000;
 
             DrawPlanetStats(TilesRect, $"{numHabitableTile}", "NewUI/icon_tiles", Color.White, Color.White);
             DrawPlanetStats(PopPerTileRect, $"{popPerTile.String(0)}m", "NewUI/icon_poppertile", Color.White, Color.White);
             DrawPlanetStats(BiospheredPopRect, biospheredPop.String(1), "NewUI/icon_biospheres", Color.White, Color.White);
 
             if (EmpireManager.Player.IsBuildingUnlocked(Building.TerraformerId))
-                DrawPlanetStats(TerraformedPopRect, terraformedPop.String(1), 
+            {
+                float terraformedPop = P.PotentialMaxPopBillionsFor(EmpireManager.Player);
+                DrawPlanetStats(TerraformedPopRect, terraformedPop.String(1),
                     "NewUI/icon_terraformer", Color.White, Color.White);
-
+            }
             Mark = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
             Vector2 Text = new Vector2(RightRect.X + 25, Mark.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), Mark, Color.White);

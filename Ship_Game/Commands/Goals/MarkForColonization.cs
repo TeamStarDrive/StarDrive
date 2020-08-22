@@ -83,7 +83,7 @@ namespace Ship_Game.Commands.Goals
 
             if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
             {
-                if (!PositiveEnemyPresence(out _) || task.Fleet?.TaskStep == 6)
+                if (!PositiveEnemyPresence(out _) || task.Fleet?.TaskStep == 7)
                     return GoalStep.GoToNextStep;
 
                 return GoalStep.TryAgain; // Claim task still in progress

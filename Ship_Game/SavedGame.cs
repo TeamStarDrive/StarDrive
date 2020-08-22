@@ -644,6 +644,7 @@ namespace Ship_Game
             [Serialize(3)] public bool Biosphere;
             [Serialize(4)] public Building building;
             [Serialize(5)] public bool Habitable;
+            [Serialize(6)] public bool Terraformable;
         }
 
         public class PlanetSaveData

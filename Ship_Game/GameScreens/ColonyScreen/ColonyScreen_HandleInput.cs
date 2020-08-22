@@ -24,6 +24,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            HandleDetailInfo();
             pFacilities.HandleInput(input);
             if (FilterBuildableItems.HandlingInput)
                 return base.HandleInput(input);
@@ -33,7 +34,6 @@ namespace Ship_Game
 
             P.UpdateIncomes(false);
 
-            HandleDetailInfo();
 
             // We are monitoring AI Colonies
             if (P.Owner != EmpireManager.Player && !Log.HasDebugger)
