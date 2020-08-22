@@ -1269,40 +1269,51 @@ namespace Ship_Game
             Ships
         }
 
-        void ScanFromInfluenceNode(InfluenceNode node, ScanType scanning)
+        void ScanFromInfluenceNode(InfluenceNode node, ScanType scanningFor)
         {
+            bool debug = Empire.Universe?.Debug == true;
             switch (node.SourceObject)
             {
-                case Ship ship:
-                    switch (scanning)
+                case Ship nodeIsShip:
+                    switch (scanningFor)
                     {
                         case ScanType.Ships:
-                            ship.KnownByEmpires.SetSeen(this);
-                            for (int i = 0; i < ship.AI.PotentialTargets.Count; i++)
+                            nodeIsShip.KnownByEmpires.SetSeen(this);
+                            
+                            if (debug && nodeIsShip == Empire.Universe.SelectedShip)
                             {
-                                var target = ship.AI.PotentialTargets[i];
+                                nodeIsShip.KnownByEmpires.SetSeen(EmpireManager.Player);
+                            }
+                            for (int i = 0; i < nodeIsShip.AI.PotentialTargets.Count; i++)
+                            {
+                                var target = nodeIsShip.AI.PotentialTargets[i];
                                 target.KnownByEmpires.SetSeen(this);
+                                if (debug && nodeIsShip == Empire.Universe.SelectedShip)
+                                {
+                                    target.KnownByEmpires.SetSeen(EmpireManager.Player);
+                                }
                             }
 
                             break;
-                        default:
+                        case ScanType.Influence:
                             GameplayObject[] nearby = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
                             for (int i = 0; i < nearby.Length; i++)
                             {
                                 var target = nearby[i];
-                                ship.SetProjectorInfluence(this, true);
+                                ((Ship)target).SetProjectorInfluence(this, true);
                             }
 
                             break;
                     }
                     break;
-                default:
+                default: // Node is not ship. (Planet, spies, etc)
                 {
+                    // find ships in radius of node. 
                     var targets = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
                     for (int i = 0; i < targets.Length; i++)
                     {
                         var target = targets[i];
-                        switch (scanning)
+                        switch (scanningFor)
                         {
                             case ScanType.None:
                                 break;
@@ -1313,13 +1324,13 @@ namespace Ship_Game
                                 ((Ship) target).KnownByEmpires.SetSeen(this);
                                 break;
                             default:
-                                throw new ArgumentOutOfRangeException(nameof(scanning), scanning, null);
+                                throw new ArgumentOutOfRangeException(nameof(scanningFor), scanningFor, null);
                         }
                     }
                     break;
                 }
             }
-        }
+        }	
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
         public War[] AllActiveWars() => Relationships.FilterValues(r=> r.AtWar).Select(r=> r.ActiveWar);
