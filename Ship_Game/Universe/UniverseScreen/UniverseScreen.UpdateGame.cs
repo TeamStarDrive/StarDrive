@@ -37,7 +37,6 @@ namespace Ship_Game
                     if (ProcessTurnsThread == null)
                         break; // this thread is aborting
 
-                    AsyncDataCollector.Initialize();
                     ProcessNextTurn();
                     failedLoops = 0; // no exceptions this turn
                 }
@@ -335,10 +334,8 @@ namespace Ship_Game
                 Parallel.ForEach(MasterShipList.ToArray(), ship =>
                 {
                     if (ship == null) return;
-                    bool refreshShipSolarS = deltaTime > 0.0f && shiptimer-- <= 0.0f;
                     ship.AI.ScanForThreat(deltaTime);
-                    ship.SetFleetCapableStatus();    
-                    
+                    ship.SetFleetCapableStatus();
                     ship.UpdateModulePositions(deltaTime);
                     ship.UpdateInfluence(deltaTime);
                     ship.KnownByEmpires.Update(deltaTime);
@@ -355,7 +352,7 @@ namespace Ship_Game
                     IReadOnlyList<Planet> list = empire.GetPlanets();
                     for (int i = 0; i < list.Count; i ++)
                     {
-                        var planet = list[i ];
+                        var planet = list[i];
                         planet.UpdateSpaceCombatBuildings(deltaTime); // building weapon timers are in this method. 
                     }
                 

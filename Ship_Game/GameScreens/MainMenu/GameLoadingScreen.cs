@@ -46,9 +46,10 @@ namespace Ship_Game
             {
                 Device.Clear(Color.Black);
 
-                batch.Begin();
+                
                 try
                 {
+                    batch.Begin();
                     LoadingPlayer.Draw(batch);
                     SplashPlayer.Draw(batch);
                 }

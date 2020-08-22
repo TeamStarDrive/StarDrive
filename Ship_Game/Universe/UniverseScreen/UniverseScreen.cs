@@ -217,6 +217,7 @@ namespace Ship_Game
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
+            AsyncDataCollector.Initialize();
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -238,6 +239,7 @@ namespace Ship_Game
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
+            AsyncDataCollector.Initialize();
         }
 
         public Planet GetPlanet(Guid guid)
@@ -783,6 +785,7 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
+            AsyncDataCollector.Kill();
 
             RemoveLighting();
             ScreenManager.Music.Stop();
