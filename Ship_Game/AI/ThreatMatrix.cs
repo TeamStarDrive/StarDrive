@@ -105,9 +105,9 @@ namespace Ship_Game.AI
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
         Map<Guid, Pin> Pins            = new Map<Guid, Pin>();
 
-        [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingActions = new SafeQueue<Action>();
-        TaskResult UpdateResults;
-        [XmlIgnore][JsonIgnore] int MaxProcessingPerTurn;
+        [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingThreadActions = new SafeQueue<Action>();
+        [XmlIgnore][JsonIgnore] readonly Array<Action> PendingGameThreadActions = new Array<Action>();
+
         public Pin[] PinValues
         {
             get
@@ -409,31 +409,29 @@ namespace Ship_Game.AI
 
         public void ProcessPendingActions()
         {
-            try 
+            try
             {
-                //Action[] localAction;
-                //using (PinsMutex.AcquireWriteLock())
-                //{
-                //    localAction = PendingActions.TakeAll();
-                //}
-                //foreach (var action in localAction)
-                //{
-                //    action?.Invoke();
-                //}
-                while (PendingActions.NotEmpty)
+                while (PendingThreadActions.NotEmpty)
                 {
-                    PendingActions.Dequeue()?.Invoke();
+                    PendingThreadActions.Dequeue()?.Invoke();
+                }
+
+                for (int i = PendingGameThreadActions.Count - 1; i >= 0; i--)
+                {
+                    var action = PendingGameThreadActions[i];
+                    action.Invoke();
+                    PendingGameThreadActions.RemoveAtSwapLast(i);
                 }
             }
             catch
             {
-                Log.Error($"ThreatMatrix Update Failed with {PendingActions.Count} in queue");
+                Log.Error($"ThreatMatrix Update Failed with {PendingThreadActions.Count} in queue");
             }
         }
 
         public bool UpdateAllPins(Empire owner)
         {
-            if (PendingActions.NotEmpty) return false;
+            if (PendingThreadActions.NotEmpty) return false;
 
             ThreatMatrix threatCopy;
             using (PinsMutex.AcquireReadLock())
@@ -502,7 +500,7 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            PendingActions.Enqueue(()=> this.Pins = threatCopy.Pins);
+            PendingThreadActions.Enqueue(()=> this.Pins = threatCopy.Pins);
             return true;
         }
 
@@ -510,7 +508,14 @@ namespace Ship_Game.AI
 
         public bool RemovePin(Ship ship) => RemovePin(ship.guid);
 
-        bool RemovePin(Guid shipGuid) => Pins.Remove(shipGuid);
+        bool RemovePin(Guid shipGuid)
+        {
+            if (!Pins.ContainsKey(shipGuid)) return false;
+
+            PendingGameThreadActions.Add(()=> Pins.Remove(shipGuid));
+            return true;
+
+        }
 
         public void AddFromSave(SavedGame.GSAISAVE aiSave)
         {
