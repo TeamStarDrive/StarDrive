@@ -88,20 +88,6 @@ namespace Ship_Game.Ships
                 dst.Relationship         = relation;
                 dst.Timer                = empire.updateContactsTimer;
             }
-            //else // unset
-            //{
-            //    for (int index = 0; index < InfluenceCount; ++index)
-            //    {
-            //        if (Influences[index].Foreign == empire)
-            //        {
-            //            // RemoveAtSwapLast algorithm
-            //            int last = --InfluenceCount;
-            //            Influences[index] = Influences[last];
-            //            Influences[last]  = default;
-            //            return;
-            //        }
-            //    }
-            //}
         }
 
         public bool IsInBordersOf(Empire empire)
