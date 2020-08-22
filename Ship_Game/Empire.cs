@@ -697,7 +697,7 @@ namespace Ship_Game
 
         public bool IsPointInSensors(Vector2 point)
         {
-            if (Empire.Universe.Debug) return true;
+            if (Empire.Universe.Debug && Universe.SelectedShip == null) return true;
 
             using (SensorNodes.AcquireReadLock())
                 for (int x = 0; x < SensorNodes.Count; x++)
