@@ -295,7 +295,34 @@ namespace Ship_Game
                     empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
                 }
 
-                ;
+                if (elapsedTime > 0.0f && --shiptimer <= 0.0f)
+                {
+                    shiptimer = 1f;
+                    for (int i = 0; i < MasterShipList.Count; i ++)
+                    {
+                        var ship = MasterShipList[i];
+                        {
+                            if (!ship.InRadiusOfCurrentSystem)
+                            {
+                                ship.SetSystem(null);
+
+                                for (int x = 0; x < SolarSystemList.Count; x++)
+                                {
+                                    SolarSystem system = SolarSystemList[x];
+
+                                    if (ship.InRadiusOfSystem(system))
+                                    {
+                                        system.SetExploredBy(ship.loyalty);
+                                        ship.SetSystem(system);
+                                        // No need to keep looping through all other systems
+                                        // if one is found -Gretman
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             PostEmpirePerf.Stop();
@@ -305,10 +332,10 @@ namespace Ship_Game
         {
             AsyncDataCollector.Add(()=>
             {
-                bool refreshShipSolarSystem = deltaTime > 0.0f && shiptimer-- <= 0.0f;
                 Parallel.ForEach(MasterShipList.ToArray(), ship =>
                 {
                     if (ship == null) return;
+                    bool refreshShipSolarS = deltaTime > 0.0f && shiptimer-- <= 0.0f;
                     ship.AI.ScanForThreat(deltaTime);
                     ship.SetFleetCapableStatus();    
                     ship.AI.UpdateCombatStateAI(deltaTime);
@@ -316,31 +343,7 @@ namespace Ship_Game
                     ship.UpdateModulePositions(deltaTime);
                     ship.UpdateInfluence(deltaTime);
                     ship.KnownByEmpires.Update(deltaTime);
-
-                    if (refreshShipSolarSystem)
-                    {
-                        if (!ship.InRadiusOfCurrentSystem)
-                        {
-                            ship.SetSystem(null);
-
-                            for (int x = 0; x < SolarSystemList.Count; x++)
-                            {
-                                SolarSystem system = SolarSystemList[x];
-
-                                if (ship.InRadiusOfSystem(system))
-                                {
-                                    system.SetExploredBy(ship.loyalty);
-                                    ship.SetSystem(system);
-                                    // No need to keep looping through all other systems
-                                    // if one is found -Gretman
-                                    break;
-                                }
-                            }
-                        }
-                    }
                 });
-                if (refreshShipSolarSystem)
-                    shiptimer = 1f;
             });
             
             AsyncDataCollector.Add(() =>
@@ -426,22 +429,6 @@ namespace Ship_Game
                 return true;
             }
 
-            if (IsActive)
-            {
-                //Parallel.ForEach(EmpireManager.Empires, empire=>
-                //{
-                //    if (!empire.data.Defeated)
-                //    {
-                //        empire.Pool.UpdatePools();
-                //        empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
-                //    }
-                //});
-                //foreach(var empire in EmpireManager.Empires)
-                //{
-
-                //}
-            }
-
             PreEmpirePerf.Stop();
 
             if (IsActive)
@@ -456,7 +443,6 @@ namespace Ship_Game
 
                 MasterShipList.ApplyPendingRemovals();
 
-                shiptimer -= elapsedTime; // 0.01666667f;//
                 EmpireUpdatePerf.Stop();
                 return true;
             }
