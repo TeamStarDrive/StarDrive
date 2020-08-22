@@ -21,7 +21,7 @@ namespace Ship_Game.Threading
     {
         Thread Worker;
         static readonly Array<Action> EmptyArray   = new Array<Action>(0);
-        int DefaultAccumulatorSize                 = 1000;
+        int DefaultAccumulatorSize                 = 10;
         readonly AutoResetEvent ActionsAvailable   = new AutoResetEvent(false);
         Array<Action> ActionsBeingProcessed        = EmptyArray;
         Array<Action> ActionAccumulator;
@@ -32,6 +32,14 @@ namespace Ship_Game.Threading
         public bool IsProcessing {get; private set;}
 
         public PerfTimer ProcessTime = new PerfTimer();
+
+        public void Kill()
+        {
+            Thread dieing = Worker;
+            Worker = null;
+            dieing.Join(250);
+            ActionAccumulator = null;
+        }
         
         public void Add(Action itemToThread) => ActionAccumulator.Add(itemToThread);
 
@@ -81,7 +89,7 @@ namespace Ship_Game.Threading
             if (ActionsBeingProcessed.NotEmpty)
             {
                 StillProcessingCounter++;
-                if (Empire.Universe?.DebugWin != null && StillProcessingCounter > 5)
+                if (Empire.Universe?.DebugWin != null && StillProcessingCounter > 0)
                     Log.Warning($"Action Pool Unable to process all items. Processed: " +
                                 $"{ActionsProcessedThisTurn} Waiting {ActionAccumulator.Count} " +
                                 $"TurnsInProcess: {StillProcessingCounter} " +
@@ -127,6 +135,7 @@ namespace Ship_Game.Threading
                 IsProcessing             = true;
                 int processedLastTurn    = ActionsProcessedThisTurn;
                 ActionsProcessedThisTurn = 0;
+                GlobalStats.MaxParallelism = (Parallel.NumPhysicalCores -1).LowerBound(1);
                 lock (UniverseScreen.SpaceManager.LockSpaceManager)
                 {
                     for (int i = 0; i < ActionsBeingProcessed.Count; i++)
@@ -143,6 +152,7 @@ namespace Ship_Game.Threading
                         }
                     }
                 }
+                GlobalStats.MaxParallelism = -1;
                 ActionsBeingProcessed = EmptyArray;
                 AvgActionsProcessed   = (ActionsProcessedThisTurn + processedLastTurn) / 2f;
                 IsProcessing          = false;

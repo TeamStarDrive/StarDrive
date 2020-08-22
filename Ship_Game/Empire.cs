@@ -3228,13 +3228,10 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated && ScanComplete)
             {
-                if (MaxContactTimer >0 && updateContactsTimer < elapsedTime * -2)
-                    Log.Warning($"Action Pool was too slow for contact");
-
                 ScanComplete = false;
-                MaxContactTimer =35 * elapsedTime;
-                float variance =Id * elapsedTime;
-                updateContactsTimer = elapsedTime >= 1 ? 0 : MaxContactTimer - variance;
+                MaxContactTimer = 30 * elapsedTime;
+                float variance = Id * (elapsedTime * 2);
+                updateContactsTimer = elapsedTime >= 1 ? 0 : MaxContactTimer + variance;
                 ResetBorders();
                     ScanFromAllInfluenceNodes();
                 EmpireAI.ThreatMatrix.UpdateAllPins(this);
