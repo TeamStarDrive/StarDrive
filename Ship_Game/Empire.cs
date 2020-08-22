@@ -1329,7 +1329,7 @@ namespace Ship_Game
                     break;
                 }
             }
-        }
+        }	
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
         public War[] AllActiveWars() => Relationships.FilterValues(r=> r.AtWar).Select(r=> r.ActiveWar);
