@@ -688,20 +688,12 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely())
                         break;
 
-                    Goal goal = new DeployFleetProjector(this, FleetTask.TargetPlanet, Owner);
-                    Owner.GetEmpireAI().AddGoal(goal);
-
+                    AddFleetProjectorGoal();
                     TaskStep = 2;
                     break;
                 case 2:
-                    var goals = Owner.GetEmpireAI().SearchForGoals(GoalType.DeployFleetProjector).Filter(g => g.Fleet == this);
-                    if (goals.Length == 1)
-                    {
-                        Goal deployGoal = goals[0];
-                        if (deployGoal.FinishedShip == null)
-                            break;
-                    }
-
+                    if (FleetProjectorGoalInProgress())
+                        break;
 
                     GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
                     TaskStep = 3;
@@ -908,6 +900,29 @@ namespace Ship_Game.Fleets
             FleetTask = null;
             TaskStep = 0;
             return true;
+        }
+
+        void AddFleetProjectorGoal()
+        {
+            if (FleetTask?.TargetPlanet == null)
+                return;
+
+            Goal goal = new DeployFleetProjector(this, FleetTask.TargetPlanet, Owner);
+            Owner.GetEmpireAI().AddGoal(goal);
+        }
+
+        bool FleetProjectorGoalInProgress()
+        {
+            var goals = Owner.GetEmpireAI().SearchForGoals(GoalType.DeployFleetProjector).Filter(g => g.Fleet == this);
+            if (goals.Length == 1)
+            {
+                Goal deployGoal = goals[0];
+                if (deployGoal.FinishedShip == null)
+                    return true;
+            }
+
+            return false;
+
         }
 
         /// @return true if order successful. Fails when enemies near.
