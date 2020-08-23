@@ -126,6 +126,20 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateRemnantEngagement(Planet planet, Empire owner)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                AO           = planet.Center,
+                AORadius     = 50000f,
+                TargetPlanet = planet
+            };
+
+            militaryTask.SetEmpire(owner);
+            militaryTask.type = TaskType.AssaultPlanet;
+            return militaryTask;
+        }
+
         public MilitaryTask(AO ao, Array<Vector2> patrolPoints)
         {
             AO              = ao.Center;
@@ -719,7 +733,8 @@ namespace Ship_Game.AI.Tasks
             DefendPostInvasion,
             GlassPlanet,
             AssaultPirateBase,
-            Patrol
+            Patrol,
+            RemnantEngagement
         }
 
         [Flags]

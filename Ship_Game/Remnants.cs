@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using System.Windows.Forms;
+using Ship_Game.Fleets;
+using Ship_Game.AI.Tasks;
 
 namespace Ship_Game
 {
@@ -23,6 +25,7 @@ namespace Ship_Game
         public RemnantStory Story { get; private set; }
         public float Production { get; private set; }
         public int Level { get; private set; }
+        public Map<RemnantShipType, float> ShipCosts { get; private set; } = new Map<RemnantShipType, float>();
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -31,6 +34,8 @@ namespace Ship_Game
 
             if (!fromSave)
                 Story = InitAndPickStory(goals);
+
+            CalculateShipCosts();
         }
 
         public void RestoreFromSave(SavedGame.EmpireSaveData sData)
@@ -81,6 +86,19 @@ namespace Ship_Game
             return numRaids < Level;
         }
 
+        public void CreateFleet(Empire owner, Ship ship, string name, MilitaryTask task, out Fleet newFleet)
+        {
+            newFleet = new Fleet
+            {
+                Name      = name,
+                Owner     = owner,
+                FleetTask = task
+            };
+
+            ship.AI.ClearOrders();
+            newFleet.AddShip(ship);
+        }
+
         public bool CreatePortal(out Ship portal)
         {
             portal             = null;
@@ -96,6 +114,52 @@ namespace Ship_Game
 
             Vector2 pos = system.Position.GenerateRandomPointOnCircle(system.Sun.Radius + 20000);
             return SpawnShip(RemnantShipType.Portal, pos, out portal);
+        }
+
+        public bool CreateShip(Ship portal, out Ship ship)
+        {
+            ship = null;
+            RemnantShipType type = SelectShipForCreation();
+            if (!ShipCosts.TryGetValue(type, out float cost) || Production < cost)
+                return false;
+
+            if (!SpawnShip(type, portal.Center, out ship))
+                return false;
+
+            GenerateProduction(-cost);
+            return true;
+        }
+
+        void CalculateShipCosts()
+        {
+            AddShipCost(Owner.data.RemnantFighter, RemnantShipType.Fighter);
+            AddShipCost(Owner.data.RemnantCorvette, RemnantShipType.Corvette);
+            AddShipCost(Owner.data.RemnantSupportSmall, RemnantShipType.SmallSupport);
+            AddShipCost(Owner.data.RemnantAssimilator, RemnantShipType.Assimilator);
+            AddShipCost(Owner.data.RemnantCarrier, RemnantShipType.Carrier);
+            AddShipCost(Owner.data.RemnantMotherShip, RemnantShipType.Mothership);
+            AddShipCost(Owner.data.RemnantExterminator, RemnantShipType.Exterminator);
+        }
+
+        void AddShipCost(string shipName, RemnantShipType type)
+        {
+            Ship ship  = ResourceManager.GetShipTemplate(shipName);
+            float cost = ship.BaseCost;
+            ShipCosts.Add(type, cost);
+        }
+
+        RemnantShipType SelectShipForCreation()
+        {
+            int roll = RollDie(20) + Level;
+            if (roll == 1 + Level) return RemnantShipType.Fighter;
+            if (roll < 8)          return RemnantShipType.Fighter;
+            if (roll < 12)         return RemnantShipType.SmallSupport;
+            if (roll < 17)         return RemnantShipType.Corvette;
+            if (roll < 21)         return RemnantShipType.Assimilator;
+            if (roll < 25)         return RemnantShipType.Carrier;
+            if (roll < 30)         return RemnantShipType.Mothership;
+
+            return RemnantShipType.Exterminator;
         }
 
         bool SpawnShip(RemnantShipType shipType, Vector2 where, out Ship remnantShip)
