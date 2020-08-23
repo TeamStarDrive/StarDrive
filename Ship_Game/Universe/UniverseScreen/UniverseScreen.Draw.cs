@@ -7,6 +7,7 @@ using Ship_Game.Ships;
 using System;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
+using Ship_Game.Debug;
 
 namespace Ship_Game
 {
@@ -538,6 +539,14 @@ namespace Ship_Game
             }
             else if (SelectedShip != null && !LookingAtPlanet)
             {
+                if (Debug && DebugWin != null)
+                {
+                    DebugWin.DrawCircleImm(SelectedShip.Center, SelectedShip.SensorRange, Color.Crimson);
+                    foreach (var target in SelectedShip.AI.NearByShips)
+                    {
+                        DebugWin.DrawCircleImm(target.Ship.Center, target.Ship.SensorRange, Color.Crimson);
+                    }
+                }
                 ShipInfoUIElement.Ship = SelectedShip;
                 ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
                 ShipInfoUIElement.Update(gameTime);
@@ -722,7 +731,7 @@ namespace Ship_Game
 
                     Vector2 averagePos = fleet.AveragePosition();
 
-                    var shipsVisible = fleet.Ships.Filter(s=> s.KnownByEmpires.KnownBy(empireLooking));
+                    var shipsVisible = fleet.Ships.Filter(s=> s?.KnownByEmpires.KnownBy(empireLooking) == true);
 
                     if (shipsVisible.Length == 0)
                         continue;

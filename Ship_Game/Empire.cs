@@ -1283,9 +1283,9 @@ namespace Ship_Game
                             {
                                 nodeIsShip.KnownByEmpires.SetSeen(EmpireManager.Player);
                             }
-                            for (int i = 0; i < nodeIsShip.AI.PotentialTargets.Count; i++)
+                            for (int i = 0; i < nodeIsShip.AI.NearByShips.Count; i++)
                             {
-                                var target = nodeIsShip.AI.PotentialTargets[i];
+                                var target = nodeIsShip.AI.NearByShips[i].Ship;
                                 target.KnownByEmpires.SetSeen(this);
                                 if (debug && nodeIsShip == Empire.Universe.SelectedShip)
                                 {
