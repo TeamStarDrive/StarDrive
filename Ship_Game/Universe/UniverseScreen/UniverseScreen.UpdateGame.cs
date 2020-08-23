@@ -74,6 +74,8 @@ namespace Ship_Game
             }
         }
 
+        int UpdatesOnPause = 90;
+
         void ProcessNextTurn()
         {
             float deltaTime = FrameDeltaTime;
@@ -82,7 +84,6 @@ namespace Ship_Game
             if (Paused)
             {
                 ++TurnId;
-
                 UpdateAllSystems(0.0f);
                 DeepSpaceThread(0.0f);
             }
@@ -175,9 +176,17 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            UpdateShipsAndFleets(0.1f);
-            Empire.Universe.QueueActionsForThreading(0.1f);
-            Empire.Universe.AsyncDataCollector.ManualUpdate();
+            // For some reason it takes about 90 frames to get the spacemanager initially updated
+            for (int x = 0; x < 90; x++)
+            {
+                QueueActionsForThreading(0.016f);
+                AsyncDataCollector.MoveItemsToThread();
+                UpdateShipsAndFleets(0.016f);
+                foreach (var ship in MasterShipList)
+                    ship.AI.ApplySensorScanResults();
+                lock (SpaceManager.LockSpaceManager);
+                    SpaceManager.Update(0.016f);
+            }
         }
 
         void RemoveDeadProjectiles()
@@ -332,10 +341,9 @@ namespace Ship_Game
 
             AsyncDataCollector.Add(()=>
             {
-                foreach(var ship in MasterShipList.ToArray())
+                foreach(var ship in MasterShipList.AtomicCopy())
                 {
                     if (ship == null) continue;
-                    ship.UpdateInfluence(deltaTime);
                     ship.KnownByEmpires.Update(deltaTime);
                     ship.AI.ScanForThreat(deltaTime);
                 }
@@ -343,10 +351,11 @@ namespace Ship_Game
             
             AsyncDataCollector.Add(() =>
             {
+                foreach(var ship in MasterShipList.AtomicCopy())
+                    ship.UpdateInfluence(deltaTime);
                 foreach(var empire in EmpireManager.Empires)
                 {
                     if (empire.IsEmpireDead()) continue;
-                    
                     empire.UpdateContactsAndBorders(deltaTime);
                     IReadOnlyList<Planet> list = empire.GetPlanets();
                     for (int i = 0; i < list.Count; i ++)
