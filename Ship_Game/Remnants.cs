@@ -14,6 +14,7 @@ namespace Ship_Game
     using static HelperFunctions;
     public class Remnants
     {
+        public const int MaxLevel = 20;
         public readonly Empire Owner;
         public readonly BatchRemovalCollection<Goal> Goals;
         public float StoryTriggerKillsXp { get; private set; }
@@ -21,6 +22,7 @@ namespace Ship_Game
         public static bool Armageddon;
         public RemnantStory Story { get; private set; }
         public float Production { get; private set; }
+        public int Level { get; private set; }
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -28,7 +30,7 @@ namespace Ship_Game
             Goals = goals;
 
             if (!fromSave)
-                Story = PickStory(goals);
+                Story = InitAndPickStory(goals);
         }
 
         public void RestoreFromSave(SavedGame.EmpireSaveData sData)
@@ -37,6 +39,7 @@ namespace Ship_Game
             StoryTriggerKillsXp = sData.RemnantStoryTriggerKillsXp;
             Story               = (RemnantStory)sData.RemnantStoryType;
             Production          = sData.RemnantProduction;
+            Level               = sData.RemnantLevel;
         }
 
         public void IncrementKills(int exp)
@@ -52,9 +55,30 @@ namespace Ship_Game
 
         void Activate()
         {
+            // todo - create relevant goals by story
             Activated = true;
             // create story goal
             Goals.Add(new RemnantStoryBalancers(Owner));
+        }
+
+        public bool TryLevelUpByDate(out int newLevel)
+        {
+            newLevel        = 0;
+            int turnsPassed = (int)(Empire.Universe.StarDate * 10);
+            if (turnsPassed % 1000 == 0) // todo divider by game difficulty
+            {
+                Level = (Level + 1).UpperBound(MaxLevel); // todo notify player depending on espionage str
+                newLevel = Level;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool CanDoAnotherEngagement(out int numRaids)
+        {
+            numRaids = Goals.Count(g => g.IsRaid);
+            return numRaids < Level;
         }
 
         public bool CreatePortal(out Ship portal)
@@ -101,7 +125,7 @@ namespace Ship_Game
             }
             else
             {
-                Log.Warning($"Pirate ship name was empty for {Owner.Name}, check race xml for typos");
+                Log.Warning($"Remnant ship name was empty for {Owner.Name}, check race xml for typos");
             }
 
             return remnantShip != null;
@@ -114,7 +138,13 @@ namespace Ship_Game
 
         public int NumPortals()
         {
-            return Owner.GetShips().Count(s => s.Name == Owner.data.RemnantPortal);
+            return Owner.GetShips().Count(s => s.Name == Owner.data.RemnantPortal && s.Active);
+        }
+
+        public bool GetPortals(out Ship[] portals)
+        {
+            portals = Owner.GetShips().Filter(s => s.Name == Owner.data.RemnantPortal && s.Active);
+            return portals.Length > 0;
         }
 
         float PlanetQuality(Planet planet)
@@ -350,7 +380,7 @@ namespace Ship_Game
             }
         }
 
-        RemnantStory PickStory(BatchRemovalCollection<Goal> goals)
+        RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
         {
             switch (RollDie(4))
             {
