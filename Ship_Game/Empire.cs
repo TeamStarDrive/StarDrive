@@ -149,7 +149,7 @@ namespace Ship_Game
         public float TotalTroopShipMaintenance { get; private set; }
 
         public float updateContactsTimer = 0f;
-        public float MaxContactTimer = 4;
+        public float MaxContactTimer = 0f;
         private bool InitializedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
         public float GrossPlanetIncome { get; private set; }
@@ -258,9 +258,6 @@ namespace Ship_Game
             UI       = new EmpireUI(this);
             Research = new EmpireResearch(this);
             Pool     = new ShipPool(this);
-
-            // @note @todo This is very flaky and weird!
-            UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
         }
 
         public Empire(Empire parentEmpire)
@@ -1460,7 +1457,7 @@ namespace Ship_Game
                         continue;
                     empireShipTotal++;
                 }
-                UpdateTimer = GlobalStats.TurnTimer;
+                UpdateTimer = GlobalStats.TurnTimer + (Id -1) * elapsedTime;
                 UpdateEmpirePlanets();
                 UpdateAI(); // Must be done before DoMoney
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game

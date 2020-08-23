@@ -170,7 +170,7 @@ namespace Ship_Game
         bool UseRealLights = true;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
-        int FBTimer;
+        int FBTimer = 60;
         bool pickedSomethingThisFrame;
         bool SelectingWithBox;
         Effect AtmoEffect;
@@ -399,6 +399,8 @@ namespace Ship_Game
             InitializeSolarSystems();
             CreatePlanetsLookupTable();
             CreateStationTethers();
+            EmpireManager.RestoreUnserializableDataFromSave();
+            RecomputeFleetButtons(true);
             CreateProcessTurnsThread();
         }
 

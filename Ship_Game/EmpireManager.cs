@@ -264,6 +264,7 @@ namespace Ship_Game
             if (Empires.IsEmpty)
                 Log.Error($"must be called after empireList is populated.");
             
+            Empire.Universe.AsyncDataCollector.Initialize();
             Empire.Universe.WarmUpShipsForLoad();
             foreach(Empire empire in Empires)
             { 
@@ -271,10 +272,7 @@ namespace Ship_Game
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
                 empire.Pool.UpdatePools();
-                empire.UpdateContactsAndBorders(1f);
             }
-            Empire.Universe.AsyncDataCollector.ManualUpdate();
-            Empire.Universe.AsyncDataCollector.Initialize();
         }
     }
 }
