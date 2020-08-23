@@ -136,7 +136,7 @@ namespace Ship_Game.AI.Tasks
             };
 
             militaryTask.SetEmpire(owner);
-            militaryTask.type = TaskType.AssaultPlanet;
+            militaryTask.type = TaskType.RemnantEngagement;
             return militaryTask;
         }
 
@@ -280,7 +280,7 @@ namespace Ship_Game.AI.Tasks
             Fleet.FleetTask = null;
         }
 
-        private void DisbandFleet(Fleet fleet)
+        public void DisbandFleet(Fleet fleet)
         {
             Fleet.Reset();
             TaskForce.Clear();
