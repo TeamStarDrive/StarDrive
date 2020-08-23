@@ -56,12 +56,17 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
                 Activate();
             }
+
+            // for testing
+            if (!Activated)
+                Activate();
         }
 
         void Activate()
         {
             // todo - create relevant goals by story
             Activated = true;
+            Level++;
             // create story goal
             Goals.Add(new RemnantStoryBalancers(Owner));
         }
@@ -86,20 +91,7 @@ namespace Ship_Game
             return numRaids < Level;
         }
 
-        public void CreateFleet(Empire owner, Ship ship, string name, MilitaryTask task, out Fleet newFleet)
-        {
-            newFleet = new Fleet
-            {
-                Name      = name,
-                Owner     = owner,
-                FleetTask = task
-            };
-
-            ship.AI.ClearOrders();
-            newFleet.AddShip(ship);
-        }
-
-        public bool CreatePortal(out Ship portal)
+        public bool CreatePortal(out Ship portal, out string systemName)
         {
             portal             = null;
             SolarSystem system = null;
@@ -112,7 +104,8 @@ namespace Ship_Game
             if (system == null)
                 system = systems.RandItem();
 
-            Vector2 pos = system.Position.GenerateRandomPointOnCircle(system.Sun.Radius + 20000);
+            Vector2 pos = system.Position.GenerateRandomPointOnCircle(20000);
+            systemName  = system.Name;
             return SpawnShip(RemnantShipType.Portal, pos, out portal);
         }
 
@@ -446,7 +439,7 @@ namespace Ship_Game
 
         RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
         {
-            switch (RollDie(4))
+            switch (RollDie(1)) // todo 1 is for testing  should be 4
             {
                 default:
                 case 1: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientBalancers;

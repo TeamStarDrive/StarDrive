@@ -25,7 +25,7 @@ namespace Ship_Game.Commands.Goals
             empire = owner;
 
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Story: Ancient Balancers for {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Story: Ancient Balancers ----");
         }
 
         public sealed override void PostInit()
@@ -44,10 +44,10 @@ namespace Ship_Game.Commands.Goals
 
         bool CreatePortal()
         {
-            if (!Remnants.CreatePortal(out Ship portal))
+            if (!Remnants.CreatePortal(out Ship portal, out string systemName))
                 return false;
 
-            Remnants.Goals.Add(new RemnantPortal(empire, portal, portal.SystemName));
+            Remnants.Goals.Add(new RemnantPortal(empire, portal, systemName));
             return true;
         }
 
@@ -77,7 +77,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10);
+            if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
                 CreatePortal(); // Second portal in level 10
 
             EngageStrongest();

@@ -49,7 +49,7 @@ namespace Ship_Game.Commands.Goals
             int desiredPlanetLevel = (RandomMath.RollDie(5) - 5 + Remnants.Level).LowerBound(1);
             var potentialPlanets   = TargetEmpire.GetPlanets().Filter(p => p.Level == desiredPlanetLevel);
             if (potentialPlanets.Length == 0) // Try lower level planets if not found exact level
-                potentialPlanets = TargetEmpire.GetPlanets().Filter(p => p.Level < desiredPlanetLevel);
+                potentialPlanets = TargetEmpire.GetPlanets().Filter(p => p.Level != desiredPlanetLevel);
 
             if (potentialPlanets.Length == 0)
                 return false; // Could not find a target planet
@@ -78,7 +78,9 @@ namespace Ship_Game.Commands.Goals
         {
             if (!StillStrongest)
             {
-                // todo release fleet
+                Fleet.OrderEscort(Portal);
+                Fleet.FleetTask.DisbandFleet(Fleet);
+                Fleet.FleetTask.EndTask();
                 return GoalStep.GoalComplete;
             }
 
@@ -89,38 +91,39 @@ namespace Ship_Game.Commands.Goals
             {
                 var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, empire);
                 empire.GetEmpireAI().AddPendingTask(task);
-                Remnants.CreateFleet(empire, ship, "Ancient Balancers", task, out Fleet);
+                task.CreateRemnantFleet(empire, ship, "Ancient Balancers", out Fleet);
             }
             else
             {
                 Fleet.AddShip(ship);
             }
 
-            ship.DoEscort(Portal);
+            ship.AI.AddEscortGoal(Portal);
             if (Fleet.GetStrength() < TargetEmpire.CurrentMilitaryStrength / 2)
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();
-            Fleet.FleetTask.Step = 1;
+            Fleet.TaskStep = 1;
             return GoalStep.GoToNextStep;
         }
 
         GoalStep WaitForCompletion()
         {
-            if (!StillStrongest || Fleet?.Ships.Count == 0)
+            if (!StillStrongest)
             {
-                Fleet?.FleetTask.EndTask();
-                // todo release fleet and order ships to come back
+                Fleet.OrderEscort(Portal);
+                Fleet.FleetTask.DisbandFleet(Fleet);
+                Fleet.FleetTask.EndTask();
                 return GoalStep.GoalComplete;
             }
 
-            if (Fleet?.FleetTask?.Step == 6 || TargetPlanet.Owner != TargetEmpire)
+            if (Fleet.TaskStep == 6 || TargetPlanet.Owner != TargetEmpire)
             {
                 // Select a new planet
                 if (!SelectTargetPlanet())
                     return GoalStep.GoalComplete;
 
-                Fleet.FleetTask.Step = 1;
+                Fleet.TaskStep = 1;
             }
 
             return GoalStep.TryAgain;
