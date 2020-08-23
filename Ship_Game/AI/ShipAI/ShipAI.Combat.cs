@@ -178,6 +178,9 @@ namespace Ship_Game.AI
             {
                 var go = nearbyShips[x];
                 var nearbyShip = (Ship) go;
+
+                var sw = new ShipWeight(nearbyShip, 1);
+                NearByShips.Add(sw);
                 if (!nearbyShip.Active || nearbyShip.dying)
                 { 
                     nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
@@ -208,16 +211,14 @@ namespace Ship_Game.AI
                 
                 if (radius < 1)
                     continue;
-
-                var sw = new ShipWeight(nearbyShip, 1);
-
+                
                 if (BadGuysNear && nearbyShip.AI.Target is Ship nearbyShipsTarget &&
                     nearbyShipsTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                 {
                     sw += 3f;
                 }
 
-                NearByShips.Add(sw);
+                NearByShips[NearByShips.Count -1] = sw;
             }
 
             if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
@@ -276,6 +277,14 @@ namespace Ship_Game.AI
             {
 
                 ShipWeight copyWeight = NearByShips[i]; //Remember we have a copy.
+
+                if (!Owner.loyalty.IsEmpireAttackable(copyWeight.Ship.loyalty))
+                {
+                    copyWeight.Weight = float.MinValue;
+                    NearByShips[i] = copyWeight;
+                    continue;
+                }
+
                 copyWeight += CombatAI.ApplyWeight(copyWeight.Ship);
 
                 if (Owner.fleet == null || FleetNode == null)
