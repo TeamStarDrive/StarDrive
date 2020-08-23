@@ -14,9 +14,9 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
-                CreatePortal,
+                CreateFirstPortal,
                 NotifyPlayer,
-                MonitorState
+                MonitorAndEngage
             };
         }
 
@@ -33,33 +33,55 @@ namespace Ship_Game.Commands.Goals
             Remnants = empire.Remnants;
         }
 
-        GoalStep CreatePortal()
+        void EngageStrongest()
+        {
+            if (!Remnants.CanDoAnotherEngagement(out _))
+                return;
+
+            Empire strongest = EmpireManager.MajorEmpires.FindMax(e => e.CurrentMilitaryStrength);
+            Remnants.Goals.Add(new RemnantBalancersEngage(empire, strongest));
+        }
+
+        bool CreatePortal()
         {
             if (!Remnants.CreatePortal(out Ship portal))
+                return false;
+
+            Remnants.Goals.Add(new RemnantPortal(empire, portal, portal.SystemName));
+            return true;
+        }
+
+        GoalStep CreateFirstPortal()
+        {
+            if (!CreatePortal())
             {
                 Log.Warning($"Could not create a portal for {empire.data.Name}, they will not be activated!");
                 return GoalStep.GoalFailed;
             }
 
-            // create the portal goal
-            Remnants.Goals.Add(new RemnantPortal(empire, portal, portal.SystemName));
             return GoalStep.GoToNextStep;
         }
 
         GoalStep NotifyPlayer()
         {
-            // notify player of story development
+            // todo notify player of story development
             return GoalStep.GoToNextStep;
         }
 
-        GoalStep MonitorState()
+        GoalStep MonitorAndEngage()
         {
-            if (Remnants.NumPortals() > 0)
-                return GoalStep.TryAgain;
+            if (Remnants.NumPortals() == 0)
+            {
+                empire.SetAsDefeated();
+                Empire.Universe.NotificationManager.AddEmpireDiedNotification(empire);
+                return GoalStep.GoalFailed;
+            }
 
-            empire.SetAsDefeated();
-            Empire.Universe.NotificationManager.AddEmpireDiedNotification(empire);
-            return GoalStep.GoalFailed;
+            if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10);
+                CreatePortal(); // Second portal in level 10
+
+            EngageStrongest();
+            return GoalStep.TryAgain;
         }
     }
 }
