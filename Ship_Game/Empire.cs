@@ -1293,13 +1293,13 @@ namespace Ship_Game
                             {
                                 nodeIsShip.KnownByEmpires.SetSeen(EmpireManager.Player);
                             }
-                            for (int i = 0; i < nodeIsShip.AI.PotentialTargets.Count; i++)
+                            for (int i = 0; i < nodeIsShip.AI.NearByShips.Count; i++)
                             {
-                                var target = nodeIsShip.AI.PotentialTargets[i];
-                                target.KnownByEmpires.SetSeen(this);
+                                var target = nodeIsShip.AI.NearByShips[i];
+                                target.Ship.KnownByEmpires.SetSeen(this);
                                 if (debug && nodeIsShip == Empire.Universe.SelectedShip)
                                 {
-                                    target.KnownByEmpires.SetSeen(EmpireManager.Player);
+                                    target.Ship.KnownByEmpires.SetSeen(EmpireManager.Player);
                                 }
                             }
 
