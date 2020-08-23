@@ -301,7 +301,7 @@ namespace Ship_Game.AI
             {
                 ShipWeight copyWeight = ScannedNearby[i]; //Remember we have a copy.
 
-                if (copyWeight.Ship.loyalty == Owner.loyalty)
+                if (!Owner.loyalty.IsEmpireAttackable(copyWeight.Ship.loyalty))
                 {
                     copyWeight.Weight = float.MinValue;
                     ScannedNearby[i] = copyWeight;
