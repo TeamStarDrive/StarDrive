@@ -6,16 +6,15 @@ namespace Ship_Game.Commands.Goals
 {
     public class RemnantPortal : Goal
     {
-        public const string ID     = "RemanantPortal";
+        public const string ID = "RemnantPortal";
         public override string UID => ID;
         private Remnants Remnants;
-        private Ship     Portal;
+        private Ship Portal;
 
-        public RemnantPortal() : base(GoalType.PirateBase)
+        public RemnantPortal() : base(GoalType.RemnantPortal)
         {
             Steps = new Func<GoalStep>[]
             {
-               NotifyPlayer,
                GenerateProduction
             };
         }
@@ -32,11 +31,6 @@ namespace Ship_Game.Commands.Goals
         {
             Remnants = empire.Remnants;
             Portal   = TargetShip;
-        }
-
-        GoalStep NotifyPlayer()
-        {
-            return GoalStep.GoToNextStep;
         }
 
         GoalStep GenerateProduction()

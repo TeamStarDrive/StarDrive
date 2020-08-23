@@ -52,15 +52,9 @@ namespace Ship_Game
 
         void Activate()
         {
-            if (!CreatePortal(out Ship portal))
-            {
-                Log.Warning($"Could not create a portal for {Owner.data.Name}, they will not be activated!");
-                return;
-            }
-            
             Activated = true;
-            // create the portal goal based on story
-            Goals.Add(new RemnantPortal(Owner, portal, portal.SystemName));
+            // create story goal
+            Goals.Add(new RemnantStoryBalancers(Owner));
         }
 
         public bool CreatePortal(out Ship portal)
@@ -116,6 +110,11 @@ namespace Ship_Game
         public void GenerateProduction(float amount)
         {
             Production += amount;
+        }
+
+        public int NumPortals()
+        {
+            return Owner.GetShips().Count(s => s.Name == Owner.data.RemnantPortal);
         }
 
         float PlanetQuality(Planet planet)
@@ -353,12 +352,13 @@ namespace Ship_Game
 
         RemnantStory PickStory(BatchRemovalCollection<Goal> goals)
         {
-            switch (RollDie(3))
+            switch (RollDie(4))
             {
                 default:
                 case 1: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientBalancers;
                 case 2: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientExterminators;
                 case 3: goals.Add(new RemnantAI(Owner)); return RemnantStory.ColonizeGalaxy;
+                case 4: goals.Add(new RemnantAI(Owner)); return RemnantStory.None;
             }
         }
 
