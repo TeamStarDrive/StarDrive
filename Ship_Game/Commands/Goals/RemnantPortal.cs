@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             if (!Portal.InCombat)
-                Remnants.GenerateProduction(Empire.Universe.StarDate - 1000);
+                Remnants.GenerateProduction((Empire.Universe.StarDate - 1000) * empire.DifficultyModifiers.RemnantResourceMod);
 
             return GoalStep.TryAgain;
         }

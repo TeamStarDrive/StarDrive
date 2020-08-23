@@ -47,13 +47,15 @@ namespace Ship_Game
             Level               = sData.RemnantLevel;
         }
 
-        public void IncrementKills(int exp)
+        public void IncrementKills(Empire empire, int exp)
         {
             StoryTriggerKillsXp += exp;
             float expTrigger = ShipRole.GetMaxExpValue() * EmpireManager.MajorEmpires.Length;
             if (StoryTriggerKillsXp >= expTrigger && !Activated)
             {
-                Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
+                if (empire.isPlayer)
+                    Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
+
                 Activate();
             }
 
@@ -75,7 +77,7 @@ namespace Ship_Game
         {
             newLevel        = 0;
             int turnsPassed = (int)(Empire.Universe.StarDate * 10);
-            if (turnsPassed % 1000 == 0) // todo divider by game difficulty
+            if (turnsPassed % Owner.DifficultyModifiers.RemnantTurnsLevelUp == 0) // 500 turns on Normal
             {
                 Level = (Level + 1).UpperBound(MaxLevel); // todo notify player depending on espionage str
                 newLevel = Level;
@@ -95,6 +97,7 @@ namespace Ship_Game
         {
             portal             = null;
             SolarSystem system = null;
+            systemName         = "";
 
             if (!GetRadiatingStars(out SolarSystem[] systems)) // Prefer stars which emit radiation
                 if (!GetLoneSystem(out system)) // Try a lone system
@@ -190,7 +193,7 @@ namespace Ship_Game
 
         public void GenerateProduction(float amount)
         {
-            Production += amount;
+            Production = (Production + amount).UpperBound(Level * Level * 1000); // Level 20 - 400k
         }
 
         public int NumPortals()

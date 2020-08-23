@@ -114,6 +114,16 @@ namespace Ship_Game.Ships
 
         }
 
+        // Used for Remnant portal exit
+        public void EmergeFromPortal()
+        {
+            if (Empire.Universe != null 
+                && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
+            }
+        }
+
         Vector3 GetWarpEffectPosition() => Center.ToVec3();
 
         void UpdateHyperspaceInhibited(float elapsedTime)

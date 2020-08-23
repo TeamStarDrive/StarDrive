@@ -179,6 +179,11 @@ namespace Ship_Game.AI.Tasks
             Owner = owner;
         }
 
+        public void ChangeTargetPlanet(Planet planet)
+        {
+            TargetPlanet = planet;
+        }
+
         public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";
 
         void DeclareWar()
