@@ -138,9 +138,10 @@ namespace Ship_Game.Threading
                 GlobalStats.MaxParallelism = (Parallel.NumPhysicalCores -1).LowerBound(1);
                 lock (UniverseScreen.SpaceManager.LockSpaceManager)
                 {
-                    for (int i = 0; i < ActionsBeingProcessed.Count; i++)
+                    Parallel.ForEach(ActionsBeingProcessed, action =>
+                    //for (int i = 0; i < ActionsBeingProcessed.Count; i++)
                     {
-                        var action = ActionsBeingProcessed[i];
+                        //var action = ActionsBeingProcessed[i];
                         try
                         {
                             action?.Invoke();
@@ -151,6 +152,7 @@ namespace Ship_Game.Threading
                             ThreadException = ex;
                         }
                     }
+                        );
                 }
                 GlobalStats.MaxParallelism = -1;
                 ActionsBeingProcessed = EmptyArray;

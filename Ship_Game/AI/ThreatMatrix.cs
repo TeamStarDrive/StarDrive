@@ -514,11 +514,8 @@ namespace Ship_Game.AI
 
         bool RemovePin(Guid shipGuid)
         {
-            if (!Pins.ContainsKey(shipGuid)) return false;
-
-            PendingGameThreadActions.Add(()=> Pins.Remove(shipGuid));
-            return true;
-
+            using(PinsMutex.AcquireWriteLock())
+                return Pins.Remove(shipGuid);
         }
 
         public void AddFromSave(SavedGame.GSAISAVE aiSave)
