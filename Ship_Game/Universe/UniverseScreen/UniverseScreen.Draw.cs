@@ -235,12 +235,12 @@ namespace Ship_Game
                     continue;
 
                 var empireColor = empire.EmpireColor;
-                using (empire.BorderNodes.AcquireReadLock())
                 {
-                    for (int x = 0; x < empire.BorderNodes.Count; x++)
+                    var nodes = empire.BorderNodes.AtomicCopy();
+                    for (int x = 0; x < nodes.Length; x++)
                     {
                         Empire.InfluenceNode influ = empire.BorderNodes[x];
-                        if (!influ.KnownToPlayer)
+                        if (influ?.KnownToPlayer != true)
                             continue;
                         if (!Frustum.Contains(influ.Position, influ.Radius))
                             continue;
@@ -253,10 +253,10 @@ namespace Ship_Game
                         spriteBatch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF,
                             SpriteEffects.None, 1f);
 
-                        for (int i = 0; i < empire.BorderNodes.Count; i++)
+                        for (int i = 0; i < nodes.Length; i++)
                         {
-                            Empire.InfluenceNode influ2 = empire.BorderNodes[i];
-                            if (!influ2.KnownToPlayer)
+                            Empire.InfluenceNode influ2 = nodes[i];
+                            if (influ2?.KnownToPlayer != true)
                                 continue;
                             if (influ.Position == influ2.Position || influ.Radius > influ2.Radius ||
                                 influ.Position.OutsideRadius(influ2.Position, influ.Radius + influ2.Radius + 150000.0f))
@@ -523,7 +523,7 @@ namespace Ship_Game
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen;
 
             if (SelectedShipList.Count == 0)
-                shipListInfoUI.ClearShipList();
+                shipListInfoUI.ClearShipList();  
             if (SelectedSystem != null && !LookingAtPlanet)
             {
                 sInfoUI.SetSystem(SelectedSystem);
@@ -541,10 +541,12 @@ namespace Ship_Game
             {
                 if (Debug && DebugWin != null)
                 {
-                    DebugWin.DrawCircleImm(SelectedShip.Center, SelectedShip.SensorRange, Color.Crimson);
-                    foreach (var target in SelectedShip.AI.NearByShips)
+                    DebugWin.DrawCircleImm(SelectedShip.Center, SelectedShip.AI.GetSensorRadius(), Color.Crimson);
+                    for (int i = 0; i  < SelectedShip.AI.NearByShips.Count; i ++)
                     {
-                        DebugWin.DrawCircleImm(target.Ship.Center, target.Ship.SensorRange, Color.Crimson);
+                        var target = SelectedShip.AI.NearByShips[i ];
+                        DebugWin.DrawCircleImm(target.Ship.Center,
+                            target.Ship.AI.GetSensorRadius(), Color.Crimson);
                     }
                 }
                 ShipInfoUIElement.Ship = SelectedShip;

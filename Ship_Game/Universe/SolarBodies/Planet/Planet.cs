@@ -476,7 +476,7 @@ namespace Ship_Game
 
                 if (!targetNear && NoSpaceCombatTargetsFoundDelay <= 0)
                 {
-                    Empire.Universe.RunOnEmpireThread(()=> SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange));
+                    SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange);
                     NoSpaceCombatTargetsFoundDelay = 2f;
                 }
             }

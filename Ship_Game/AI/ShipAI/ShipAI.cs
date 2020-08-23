@@ -663,8 +663,8 @@ namespace Ship_Game.AI
             {
                 ScanDataProcessed  = false;
                 ScanComplete       = false;
-                float maxContactTimer = Owner.loyalty.MaxContactTimer;
-                float variance = Owner.loyalty.Id * (elapsedTime * 2);
+                float maxContactTimer = 30 * elapsedTime;
+                float variance = Owner.loyalty.Id * (elapsedTime);
                 ScanForThreatTimer =  maxContactTimer + variance;
                 SetCombatStatus();
             }

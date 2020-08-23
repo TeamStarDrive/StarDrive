@@ -112,7 +112,6 @@ namespace Ship_Game.AI
             }
 
             GameplayObject[] projectiles = GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
-            //if (GetProjectilesInSensors(out GameplayObject[] projectiles, Owner.WeaponsMaxRange))
             {
                 ScannedProjectiles.Clear();
                 if (Owner.Mothership != null)
@@ -121,9 +120,8 @@ namespace Ship_Game.AI
                 {
                     GameplayObject go = projectiles[i];
                     var missile = (Projectile) go;
-                    if (missile.Weapon.Tag_Intercept &&
-                        Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
-                        ScannedProjectiles.Add(missile);
+                    if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
+                        ScannedProjectiles.AddUniqueRef(missile);
                 }
             }
             ScannedProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
@@ -142,6 +140,7 @@ namespace Ship_Game.AI
 
         public Ship ScanForCombatTargets(Ship sensorShip, float radius)
         {
+            Owner.KnownByEmpires.SetSeen(Owner.loyalty);
             BadGuysNear = false;
             ScannedFriendlies.Clear();
             ScannedTargets.Clear();
@@ -162,21 +161,7 @@ namespace Ship_Game.AI
 
             UpdateTrackedProjectiles();
 
-            if (Target is Ship target)
-            {
-                if (target.loyalty == Owner.loyalty)
-                {
-                    Target = null;
-                    HasPriorityTarget = false;
-                }
-                else if (!Intercepting && target.engineState == Ship.MoveState.Warp)
-                {
-                    Target = null;
-                    if (!HasPriorityOrder && Owner.loyalty != Empire.Universe.player)
-                        State = AIState.AwaitingOrders;
-                    return null;
-                }
-            }
+            
 
             //Doctor: Increased this from 0.66f as seemed slightly on the low side. 
             //CombatAI.PreferredEngagementDistance =    Owner.maxWeaponsRange * 0.75f ;
@@ -191,21 +176,20 @@ namespace Ship_Game.AI
                 for (int i = 0; i < thisSystem.PlanetList.Count; i++)
                 {
                     Planet p = thisSystem.PlanetList[i];
-                    BadGuysNear = BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) &&
-                                  Owner.Center.InRadius(p.Center, radius);
+                    BadGuysNear = BadGuysNear || Owner.loyalty.IsEmpireAttackable(p.Owner) && Owner.Center.InRadius(p.Center, radius);
                 }
             }
 
             GameplayObject[] scannedShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
-            //if (!GetShipsInSensors(out GameplayObject[] ScannedNearby, radius + (radius < 0.01f ? 10000 : 0)))
+            //if (scannedShips.Length == 0)
             //    return Target;
             for (int x = 0; x < scannedShips.Length; x++)
             {
                 var go = scannedShips[x];
                 var nearbyShip = (Ship) go;
+                nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
                 if (!nearbyShip.Active || nearbyShip.dying)
                 { 
-                    nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
                     continue;
                 }
 
@@ -243,6 +227,22 @@ namespace Ship_Game.AI
                 }
 
                 ScannedNearby.Add(sw);
+            }
+
+            if (Target is Ship target)
+            {
+                if (target.loyalty == Owner.loyalty)
+                {
+                    Target = null;
+                    HasPriorityTarget = false;
+                }
+                else if (!Intercepting && target.engineState == Ship.MoveState.Warp)
+                {
+                    Target = null;
+                    if (!HasPriorityOrder && Owner.loyalty != Empire.Universe.player)
+                        State = AIState.AwaitingOrders;
+                    return null;
+                }
             }
 
             if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
