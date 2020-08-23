@@ -181,12 +181,15 @@ namespace Ship_Game.AI
             }
 
             GameplayObject[] scannedShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
-            //if (scannedShips.Length == 0)
-            //    return Target;
+ 
             for (int x = 0; x < scannedShips.Length; x++)
             {
                 var go = scannedShips[x];
                 var nearbyShip = (Ship) go;
+
+                var sw = new ShipWeight(nearbyShip, 1);
+                ScannedNearby.Add(sw);
+
                 nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
                 if (!nearbyShip.Active || nearbyShip.dying)
                 { 
@@ -218,15 +221,13 @@ namespace Ship_Game.AI
                 if (radius < 1)
                     continue;
 
-                var sw = new ShipWeight(nearbyShip, 1);
-
                 if (BadGuysNear && nearbyShip.AI.Target is Ship ScannedNearbyTarget &&
                     ScannedNearbyTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                 {
                     sw += 3f;
                 }
 
-                ScannedNearby.Add(sw);
+                ScannedNearby[ScannedNearby.Count -1] = sw;
             }
 
             if (Target is Ship target)
@@ -298,8 +299,15 @@ namespace Ship_Game.AI
 
             for (int i = ScannedNearby.Count - 1; i >= 0; i--)
             {
-
                 ShipWeight copyWeight = ScannedNearby[i]; //Remember we have a copy.
+
+                if (copyWeight.Ship.loyalty == Owner.loyalty)
+                {
+                    copyWeight.Weight = float.MinValue;
+                    ScannedNearby[i] = copyWeight;
+                    continue;
+                }
+
                 copyWeight += CombatAI.ApplyWeight(copyWeight.Ship);
 
                 if (Owner.fleet == null || FleetNode == null)
