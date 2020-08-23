@@ -101,7 +101,7 @@ namespace Ship_Game.Threading
             {
                 StillProcessingCounter = 0;
                 ActionsBeingProcessed  = new Array<Action>(ActionAccumulator);
-                ActionAccumulator      = new Array<Action>(1000);
+                ActionAccumulator      = new Array<Action>(10);
                 ActionsAvailable.Set();
             }
             return Worker?.ThreadState ?? ThreadState.Stopped;

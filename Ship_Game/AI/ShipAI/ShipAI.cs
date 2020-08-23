@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using Ship_Game.Ships.AI;
 using Ship_Game.Ships.DataPackets;
+using Newtonsoft.Json.Bson;
 
 namespace Ship_Game.AI
 {
@@ -152,6 +153,21 @@ namespace Ship_Game.AI
 
             ResetStateFlee();
 
+            ApplySensorScanResults();
+            Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
+            UpdateUtilityModuleAI(elapsedTime);
+            ThrustTarget = Vector2.Zero;
+
+            UpdateCombatStateAI(elapsedTime);
+
+            if (UpdateOrderQueueAI(elapsedTime))
+                return;
+
+            AIStateRebase();
+        }
+
+        public void ApplySensorScanResults()
+        {
             // scanning is done from the asyncdatacollector. 
             // scancomplete means the scan is done.
             if (ScanComplete && !ScanDataProcessed)
@@ -169,16 +185,6 @@ namespace Ship_Game.AI
                 ScannedFriendlies.Clear();
                 ScannedNearby.Clear();
             }
-            Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
-            UpdateUtilityModuleAI(elapsedTime);
-            ThrustTarget = Vector2.Zero;
-
-            UpdateCombatStateAI(elapsedTime);
-
-            if (UpdateOrderQueueAI(elapsedTime))
-                return;
-
-            AIStateRebase();
         }
 
         public Ship NearBySupplyShip => 
