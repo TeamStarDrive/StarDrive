@@ -2959,7 +2959,8 @@ namespace Ship_Game
 
         public void TheyKilledOurShip(Empire they, Ship killedShip)
         {
-            if (KillsForRemnantStory(they, killedShip)) return;
+            if (KillsForRemnantStory(they, killedShip)) 
+                return;
             if (!TryGetRelations(they, out Relationship rel))
                 return;
             rel.LostAShip(killedShip);
@@ -2981,7 +2982,7 @@ namespace Ship_Game
                 return false;
 
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
-            Remnants.IncrementKills((int)killedExpSettings.KillExp);
+            Remnants.IncrementKills(they, (int)killedExpSettings.KillExp);
             return true;
         }
 
