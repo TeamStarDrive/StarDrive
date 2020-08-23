@@ -14,7 +14,7 @@ namespace Ship_Game.Ships.DataPackets
         /// <value>
         ///   <c>true</c> if [known by player]; otherwise, <c>false</c>.
         /// </value>
-        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] + KnownDuration > 0;
+        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] + .02f > 0;
         float[] SeenByID;
         /// <summary>
         /// The known duration. how long the object will be known for. .5 = roughly half a second. 
@@ -57,14 +57,10 @@ namespace Ship_Game.Ships.DataPackets
         public void SetSeen(Empire empire)
         {
             SeenByID[empire.Id - 1] = KnownDuration;
-            //bool debug = Empire.Universe?.Debug == true;
-            //if (debug && empire == Empire.Universe.SelectedShip?.loyalty)
-            //{
-            //    SeenByID[EmpireManager.Player.Id - 1] = KnownDuration;
-            //}
+ 
         }
 
-        public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] + 0.2f > 0;
+        public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] + KnownDuration > 0;
 
         /// <summary>
         /// Sets the ship as seen by player. Unlike "knownByPlayer" this can be used anywhere. 

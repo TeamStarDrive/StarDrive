@@ -329,24 +329,23 @@ namespace Ship_Game
 
         public void QueueActionsForThreading(float deltaTime)
         {
+
             AsyncDataCollector.Add(()=>
             {
-                Parallel.ForEach(MasterShipList.ToArray(), ship =>
+                foreach(var ship in MasterShipList.ToArray())
                 {
-                    if (ship == null) return;
-                    ship.AI.ScanForThreat(deltaTime);
-                    ship.SetFleetCapableStatus();
-                    ship.UpdateModulePositions(deltaTime);
+                    if (ship == null) continue;
                     ship.UpdateInfluence(deltaTime);
                     ship.KnownByEmpires.Update(deltaTime);
-                });
+                    ship.AI.ScanForThreat(deltaTime);
+                }
             });
             
             AsyncDataCollector.Add(() =>
             {
-                Parallel.ForEach(EmpireManager.Empires, empire =>
+                foreach(var empire in EmpireManager.Empires)
                 {
-                    if (empire.IsEmpireDead()) return;
+                    if (empire.IsEmpireDead()) continue;
                     
                     empire.UpdateContactsAndBorders(deltaTime);
                     IReadOnlyList<Planet> list = empire.GetPlanets();
@@ -357,7 +356,17 @@ namespace Ship_Game
                     }
                 
                     empire.UpdateMilitaryStrengths();
-                });
+                }
+            });
+
+            AsyncDataCollector.Add(()=>
+            {
+                foreach(var ship in MasterShipList.ToArray())
+                {
+                    if (ship?.Active != true) continue;
+                    ship.SetFleetCapableStatus();
+                    ship.UpdateModulePositions(deltaTime);
+                }
             });
         }
 

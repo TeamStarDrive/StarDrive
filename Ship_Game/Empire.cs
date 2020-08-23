@@ -148,7 +148,7 @@ namespace Ship_Game
         public float TotalMaintenanceInScrap { get; private set; }
         public float TotalTroopShipMaintenance { get; private set; }
 
-        public float updateContactsTimer = 0.2f;
+        public float updateContactsTimer = 0f;
         public float MaxContactTimer = 4;
         private bool InitializedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
@@ -1221,115 +1221,45 @@ namespace Ship_Game
             }
         }
 
-        void ScanFromAllInfluenceNodes()
+        void ScanFromAllInfluenceNodes(bool scanBordersAndPlanets = true)
         {
-            //using (BorderNodes.AcquireReadLock())
             for (int i = 0; i < BorderNodes.Count; i++)
             {
                 var node = BorderNodes[i];
-                ScanFromInfluenceNode(node, ScanType.Influence);
+                ScanForInfluence(node);
             }
-            //using (SensorNodes.AcquireReadLock())
+
             for (int i = 0; i < SensorNodes.Count; i++)
             {
                 var node = SensorNodes[i];
-                ScanFromInfluenceNode(node, ScanType.Ships);
+                ScanForShips(node);
             }
-
-            Array<Ship> currentlyKnown = new Array<Ship>();
-
-            for (int i = 0; i < Universe.MasterShipList.Count; i++)
-            {
-                var ship = Universe.MasterShipList[i];
-                bool shipKnown = ship.KnownByEmpires.KnownBy(this);
-
-                if (shipKnown || isPlayer && Universe.Debug && Empire.Universe.SelectedShip == null)
-                {
-                    currentlyKnown.AddUniqueRef(ship);
-
-                    if (ship.loyalty != this)
-                    {
-                        if (GetRelations(ship.loyalty)?.Known == false)
-                            DoFirstContact(ship.loyalty);
-                    }
-                }
-            }
-
-            Empire.Universe.RunOnEmpireThread(()=>
-            {
-                KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
-            });
         }
 
-        enum ScanType
-        {
-            None,
-            Influence,
-            Ships
-        }
-
-        void ScanFromInfluenceNode(InfluenceNode node, ScanType scanningFor)
+        void ScanForShips(InfluenceNode node)
         {
             bool debug = Empire.Universe?.Debug == true;
-            switch (node.SourceObject)
+            if (node.SourceObject is Ship) return;
+
+            // find ships in radius of node. 
+            var targets = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
+            for (int i = 0; i < targets.Length; i++)
             {
-                case Ship nodeIsShip:
-                    switch (scanningFor)
-                    {
-                        case ScanType.Ships:
-                            nodeIsShip.KnownByEmpires.SetSeen(this);
-                            
-                            if (debug && nodeIsShip == Empire.Universe.SelectedShip)
-                            {
-                                nodeIsShip.KnownByEmpires.SetSeen(EmpireManager.Player);
-                            }
-                            for (int i = 0; i < nodeIsShip.AI.NearByShips.Count; i++)
-                            {
-                                var target = nodeIsShip.AI.NearByShips[i];
-                                target.Ship.KnownByEmpires.SetSeen(this);
-                                if (debug && nodeIsShip == Empire.Universe.SelectedShip)
-                                {
-                                    target.Ship.KnownByEmpires.SetSeen(EmpireManager.Player);
-                                }
-                            }
-
-                            break;
-                        case ScanType.Influence:
-                            GameplayObject[] nearby = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
-                            for (int i = 0; i < nearby.Length; i++)
-                            {
-                                var target = nearby[i];
-                                ((Ship)target).SetProjectorInfluence(this, true);
-                            }
-
-                            break;
-                    }
-                    break;
-                default: // Node is not ship. (Planet, spies, etc)
-                {
-                    // find ships in radius of node. 
-                    var targets = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
-                    for (int i = 0; i < targets.Length; i++)
-                    {
-                        var target = targets[i];
-                        switch (scanningFor)
-                        {
-                            case ScanType.None:
-                                break;
-                            case ScanType.Influence:
-                                ((Ship) target).SetProjectorInfluence(this, true);
-                                break;
-                            case ScanType.Ships:
-                                ((Ship) target).KnownByEmpires.SetSeen(this);
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException(nameof(scanningFor), scanningFor, null);
-                        }
-                    }
-                    break;
-                }
+                var target = targets[i];
+                ((Ship) target).KnownByEmpires.SetSeen(this);
             }
         }	
+
+        void ScanForInfluence(InfluenceNode node)
+        {
+            var targets = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
+            for (int i = 0; i < targets.Length; i++)
+            {
+                var target = targets[i];
+                ((Ship) target).SetProjectorInfluence(this, true);
+            }
+        }
+
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
         public War[] AllActiveWars() => Relationships.FilterValues(r=> r.AtWar).Select(r=> r.ActiveWar);
@@ -3223,6 +3153,9 @@ namespace Ship_Game
             return distance;
         }
 
+        int ResetBorderTicks = 0;
+        int ResetBorderTicksReset =300;
+
         public void UpdateContactsAndBorders(float elapsedTime)
         {
             updateContactsTimer -= elapsedTime;
@@ -3230,13 +3163,54 @@ namespace Ship_Game
             {
                 ScanComplete = false;
                 MaxContactTimer = 30 * elapsedTime;
-                float variance = Id * (elapsedTime * 2);
+                float variance = Id * (elapsedTime);
                 updateContactsTimer = elapsedTime >= 1 ? 0 : MaxContactTimer + variance;
                 ResetBorders();
-                    ScanFromAllInfluenceNodes();
-                EmpireAI.ThreatMatrix.UpdateAllPins(this);
+                ScanFromAllInfluenceNodes(true);
                 ScanComplete = true;
             }
+
+            if (--ResetBorderTicks < 0)
+            {
+                EmpireAI.ThreatMatrix.UpdateAllPins(this);
+                ResetBorderTicks = ResetBorderTicksReset;
+            }
+
+            Array<Ship> currentlyKnown = new Array<Ship>();
+
+            if (Universe.Debug && Universe.SelectedShip != null)
+            {
+                var ship = Universe.SelectedShip;
+                currentlyKnown.Add(ship);
+                foreach(var seen in ship.AI.NearByShips)
+                {
+                    currentlyKnown.Add(seen.Ship);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Universe.MasterShipList.Count; i++)
+                {
+                    var ship = Universe.MasterShipList[i];
+                    
+                    
+                    bool shipKnown = ship.loyalty == this || ship.KnownByEmpires.KnownBy(this) || (Universe.Debug && isPlayer);
+
+
+                
+                    if (shipKnown)
+                    {
+                        currentlyKnown.Add(ship);
+                        if (ship.loyalty != this && GetRelations(ship.loyalty)?.Known == false)
+                            DoFirstContact(ship.loyalty);
+                    }
+                }
+            }
+
+            Empire.Universe.RunOnEmpireThread(() =>
+            {
+                KnownShips = new BatchRemovalCollection<Ship>(currentlyKnown);
+            });
         }
 
         public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);

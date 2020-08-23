@@ -178,8 +178,8 @@ namespace Ship_Game
         
         void DrawNode(Empire e, SpriteBatch batch)
         {
-            DrawNode(e, e.BorderNodes.ToArray(), batch);
-            DrawNode(e, e.SensorNodes.ToArray(), batch);
+            DrawNode(e, e.BorderNodes.AtomicCopy(), batch);
+            DrawNode(e, e.SensorNodes.AtomicCopy(), batch);
         }
 
         void ZoomToShip_OnClick(ToggleButton toggleButton)
