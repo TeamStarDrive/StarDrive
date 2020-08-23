@@ -74,8 +74,6 @@ namespace Ship_Game
             }
         }
 
-        int UpdatesOnPause = 90;
-
         void ProcessNextTurn()
         {
             float deltaTime = FrameDeltaTime;
@@ -86,6 +84,7 @@ namespace Ship_Game
                 ++TurnId;
                 UpdateAllSystems(0.0f);
                 DeepSpaceThread(0.0f);
+                RecomputeFleetButtons(true);
             }
             else
             {
