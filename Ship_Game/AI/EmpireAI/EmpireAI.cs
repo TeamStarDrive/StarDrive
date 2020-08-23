@@ -81,6 +81,14 @@ namespace Ship_Game.AI
             RunWarPlanner();
         }
 
+        public void RemoveFactionEndedTasks()
+        {
+            foreach (MilitaryTask remove in TasksToRemove)
+                TaskList.RemoveRef(remove);
+
+            TasksToRemove.Clear();
+        }
+
         public void DebugRunResearchPlanner()
         {
             // unlock 5 techs with a focus on ship tech
@@ -225,6 +233,8 @@ namespace Ship_Game.AI
             DefStr = DefensiveCoordinator.GetForcePoolStrength();
             if (!OwnerEmpire.isFaction)
                 RunManagers();
+            else
+                RemoveFactionEndedTasks();
 
             for (int i = Goals.Count - 1; i >= 0; i--)
             {

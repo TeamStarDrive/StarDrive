@@ -59,6 +59,17 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
+        bool SelectClosestNextPlanet(out Planet planet)
+        {
+            planet = null;
+            var potentialPlanets = TargetEmpire.GetPlanets();
+            if (potentialPlanets.Count == 0)
+                return false;
+
+            planet = potentialPlanets.FindMin(p => p.Center.Distance(TargetPlanet.Center));
+            return planet != null;
+        }
+
         GoalStep SelectFirstTargetPlanet()
         {
             return SelectTargetPlanet() ? GoalStep.GoToNextStep : GoalStep.GoalComplete;
@@ -98,6 +109,7 @@ namespace Ship_Game.Commands.Goals
                 Fleet.AddShip(ship);
             }
 
+            ship.EmergeFromPortal();
             ship.AI.AddEscortGoal(Portal);
             if (Fleet.GetStrength() < TargetEmpire.CurrentMilitaryStrength / 2)
                 return GoalStep.TryAgain;
@@ -109,20 +121,25 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep WaitForCompletion()
         {
+            if (Fleet.Ships.Count == 0)
+                return GoalStep.GoalFailed; // fleet is dead
+
             if (!StillStrongest)
             {
                 Fleet.OrderEscort(Portal);
                 Fleet.FleetTask.DisbandFleet(Fleet);
-                Fleet.FleetTask.EndTask();
+                Fleet.FleetTask.EndTask(); // todo its clearing orders as  well, need to change it
                 return GoalStep.GoalComplete;
             }
 
             if (Fleet.TaskStep == 6 || TargetPlanet.Owner != TargetEmpire)
             {
-                // Select a new planet
-                if (!SelectTargetPlanet())
+                // Select a new closest planet
+                if (!SelectClosestNextPlanet(out Planet nextPlanet))
                     return GoalStep.GoalComplete;
 
+                TargetPlanet = nextPlanet;
+                Fleet.FleetTask.ChangeTargetPlanet(TargetPlanet);
                 Fleet.TaskStep = 1;
             }
 
