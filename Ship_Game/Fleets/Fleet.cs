@@ -411,6 +411,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask);        break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask);                break;
                 case MilitaryTask.TaskType.AssaultPirateBase:          DoAssaultPirateBase(FleetTask);          break;
+                case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
             }
         }
 
@@ -725,6 +726,45 @@ namespace Ship_Game.Fleets
                         AttackEnemyStrengthClumpsInAO(task);
 
                     OrderShipsToInvade(Ships, task, false);
+                    break;
+            }
+        }
+
+        void DoRemnantEngagement(MilitaryTask task)
+        {
+            switch (TaskStep)
+            {
+                case 1:
+                    GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                        break;
+
+                    TaskStep = 3;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    break;
+                case 3:
+                    CombatMoveToAO(task, FleetTask.TargetPlanet.GravityWellRadius * 1.5f);
+                    TaskStep = 4;
+                    break;
+                case 4:
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                        break;
+
+                    TaskStep = 5;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    break;
+                case 5:
+                    if (!DoOrbitTaskArea(task))
+                    {
+                        AttackEnemyStrengthClumpsInAO(task);
+                        // todo bombard
+                        break;
+                    }
+
+                    TaskStep = 6;
                     break;
             }
         }

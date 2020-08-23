@@ -1,5 +1,6 @@
 ﻿using System;
 using Ship_Game.AI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
@@ -17,7 +18,9 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 SelectFirstTargetPlanet,
-                SelectPortalToSpawnFrom
+                SelectPortalToSpawnFrom,
+                GatherFleet,
+                WaitForCompletion
             };
         }
 
@@ -39,15 +42,9 @@ namespace Ship_Game.Commands.Goals
 
         public override bool IsRaid => true;
 
-        void EngageStrongest()
-        {
-            if (!Remnants.CanDoAnotherEngagement(out _))
-                return;
-
-            Empire strongest = EmpireManager.MajorEmpires.FindMax(e => e.CurrentMilitaryStrength);
-        }
-
-        GoalStep SelectFirstTargetPlanet()
+        bool StillStrongest => EmpireManager.MajorEmpires.FindMax(e => e.CurrentMilitaryStrength) == TargetEmpire;
+        
+        bool SelectTargetPlanet()
         {
             int desiredPlanetLevel = (RandomMath.RollDie(5) - 5 + Remnants.Level).LowerBound(1);
             var potentialPlanets   = TargetEmpire.GetPlanets().Filter(p => p.Level == desiredPlanetLevel);
@@ -55,11 +52,16 @@ namespace Ship_Game.Commands.Goals
                 potentialPlanets = TargetEmpire.GetPlanets().Filter(p => p.Level < desiredPlanetLevel);
 
             if (potentialPlanets.Length == 0)
-                return GoalStep.GoalFailed; // Could not find a target planet
+                return false; // Could not find a target planet
 
             ColonizationTarget = potentialPlanets.RandItem();
-            TargetPlanet       = ColonizationTarget; // We will ued TargetPlanet for better readability
-            return GoalStep.GoToNextStep;
+            TargetPlanet       = ColonizationTarget; // We will use TargetPlanet for better readability
+            return true;
+        }
+
+        GoalStep SelectFirstTargetPlanet()
+        {
+            return SelectTargetPlanet() ? GoalStep.GoToNextStep : GoalStep.GoalComplete;
         }
 
         GoalStep SelectPortalToSpawnFrom()
@@ -70,6 +72,58 @@ namespace Ship_Game.Commands.Goals
             Portal     = portals.FindMin(s => s.Center.Distance(TargetPlanet.Center));
             TargetShip = Portal; // Save compatibility
             return GoalStep.GoToNextStep;
+        }
+
+        GoalStep GatherFleet()
+        {
+            if (!StillStrongest)
+            {
+                // todo release fleet
+                return GoalStep.GoalComplete;
+            }
+
+            if (!Remnants.CreateShip(Portal, out Ship ship))
+                return GoalStep.TryAgain;
+
+            if (Fleet == null)
+            {
+                var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, empire);
+                empire.GetEmpireAI().AddPendingTask(task);
+                Remnants.CreateFleet(empire, ship, "Ancient Balancers", task, out Fleet);
+            }
+            else
+            {
+                Fleet.AddShip(ship);
+            }
+
+            ship.DoEscort(Portal);
+            if (Fleet.GetStrength() < TargetEmpire.CurrentMilitaryStrength / 2)
+                return GoalStep.TryAgain;
+
+            Fleet.AutoArrange();
+            Fleet.FleetTask.Step = 1;
+            return GoalStep.GoToNextStep;
+        }
+
+        GoalStep WaitForCompletion()
+        {
+            if (!StillStrongest || Fleet?.Ships.Count == 0)
+            {
+                Fleet?.FleetTask.EndTask();
+                // todo release fleet and order ships to come back
+                return GoalStep.GoalComplete;
+            }
+
+            if (Fleet?.FleetTask?.Step == 6 || TargetPlanet.Owner != TargetEmpire)
+            {
+                // Select a new planet
+                if (!SelectTargetPlanet())
+                    return GoalStep.GoalComplete;
+
+                Fleet.FleetTask.Step = 1;
+            }
+
+            return GoalStep.TryAgain;
         }
     }
 }
