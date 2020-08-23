@@ -990,6 +990,15 @@ namespace Ship_Game.Fleets
             }
         }
 
+        public void OrderEscort(Ship escortTarget)
+        {
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                ship.AI.AddEscortGoal(escortTarget);
+            }
+        }
+
         void ClearOrders()
         {
             for (int i = 0; i < Ships.Count; i++)
