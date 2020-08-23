@@ -167,6 +167,7 @@ namespace Ship_Game
                     empireToSave.RemnantStoryTriggerKillsXp = e.Remnants.StoryTriggerKillsXp;
                     empireToSave.RemnantStoryType           = (int)e.Remnants.Story;
                     empireToSave.RemnantProduction          = e.Remnants.Production;
+                    empireToSave.RemnantLevel               = e.Remnants.Level;
                 }
 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
@@ -582,6 +583,7 @@ namespace Ship_Game
             [Serialize(30)] public bool RemnantStoryActivated;
             [Serialize(31)] public int RemnantStoryType;
             [Serialize(32)] public float RemnantProduction;
+            [Serialize(32)] public int RemnantLevel;
         }
 
         public class FleetSave

@@ -39,6 +39,7 @@ namespace Ship_Game.AI
         RefitOrbital,
         DeployFleetProjector,
         RemnantStoryBalancers,
+        RemnantBalancersEngage
     }
 
     public enum GoalStep
@@ -155,6 +156,7 @@ namespace Ship_Game.AI
                 case DeployFleetProjector.ID:   return new DeployFleetProjector();
                 case RemnantStoryBalancers.ID:  return new RemnantStoryBalancers();
                 case RemnantPortal.ID:          return new RemnantPortal();
+                case RemnantBalancersEngage.ID: return new RemnantBalancersEngage();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
