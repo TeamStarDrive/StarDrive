@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals
 
         public override bool IsRaid => true;
 
-        bool StillStrongest => EmpireManager.MajorEmpires.FindMax(e => e.CurrentMilitaryStrength) == TargetEmpire;
+        bool StillStrongest => EmpireManager.MajorEmpires.FindMax(e => e.TotalScore) == TargetEmpire;
         
         bool SelectTargetPlanet()
         {
@@ -89,14 +89,13 @@ namespace Ship_Game.Commands.Goals
         {
             if (!StillStrongest)
             {
-                Fleet.OrderEscort(Portal);
-                Fleet.FleetTask.DisbandFleet(Fleet);
-                Fleet.FleetTask.EndTask();
+                Remnants.ReleaseFleet(Fleet);
                 return GoalStep.GoalComplete;
             }
 
-            if (!Remnants.CreateShip(Portal, out Ship ship))
-                return GoalStep.TryAgain;
+            if (!Remnants.AssignShipInPortalSystem(Portal, out Ship ship))
+                if (!Remnants.CreateShip(Portal, out ship))
+                    return GoalStep.TryAgain;
 
             if (Fleet == null)
             {
@@ -124,16 +123,14 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.Ships.Count == 0)
                 return GoalStep.GoalFailed; // fleet is dead
 
-            if (!StillStrongest)
-            {
-                Fleet.OrderEscort(Portal);
-                Fleet.FleetTask.DisbandFleet(Fleet);
-                Fleet.FleetTask.EndTask(); // todo its clearing orders as  well, need to change it
-                return GoalStep.GoalComplete;
-            }
-
             if (Fleet.TaskStep == 6 || TargetPlanet.Owner != TargetEmpire)
             {
+                if (!StillStrongest)
+                {
+                    Remnants.ReleaseFleet(Fleet);
+                    return GoalStep.GoalComplete;
+                }
+
                 // Select a new closest planet
                 if (!SelectClosestNextPlanet(out Planet nextPlanet))
                     return GoalStep.GoalComplete;
