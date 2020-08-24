@@ -32,6 +32,9 @@ namespace Ship_Game
             Owner = owner;
             Goals = goals;
 
+            Owner.data.FuelCellModifier      = 1.4f;
+            Owner.data.FTLPowerDrainModifier = 0.8f;
+
             if (!fromSave)
                 Story = InitAndPickStory(goals);
 
@@ -49,6 +52,9 @@ namespace Ship_Game
 
         public void IncrementKills(Empire empire, int exp)
         {
+            if (Activated)
+                return;
+
             StoryTriggerKillsXp += exp;
             float expTrigger = ShipRole.GetMaxExpValue() * EmpireManager.MajorEmpires.Length;
             if (StoryTriggerKillsXp >= expTrigger && !Activated)
@@ -91,6 +97,35 @@ namespace Ship_Game
         {
             numRaids = Goals.Count(g => g.IsRaid);
             return numRaids < Level;
+        }
+
+        public bool AssignShipInPortalSystem(Ship portal, out Ship ship)
+        {
+            ship = null;
+            var availableShips = portal.System.ShipList.Filter(s => s.fleet != null && s.loyalty == Owner && !s.InCombat);
+            if (availableShips.Length > 0)
+                ship = availableShips.RandItem();
+
+            return ship != null;
+        }
+
+        public void ReleaseFleet(Fleet fleet)
+        {
+            Array<Ship> ships   = fleet.Ships;
+            Vector2 fleetCenter = fleet.AveragePosition();
+            fleet.FleetTask?.DisbandFleet(fleet);
+            fleet.FleetTask?.EndTask();
+
+            if (!GetPortals(out Ship[] portals))
+                return;
+
+            Ship closestPortal = portals.FindMin(s => s.Center.Distance(fleetCenter));
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                if (ship.loyalty.WeAreRemnants)
+                    ship.AI.AddEscortGoal(closestPortal);
+            }
         }
 
         public bool CreatePortal(out Ship portal, out string systemName)
