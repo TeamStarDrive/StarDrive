@@ -102,7 +102,10 @@ namespace Ship_Game
         public bool AssignShipInPortalSystem(Ship portal, out Ship ship)
         {
             ship = null;
-            var availableShips = portal.System.ShipList.Filter(s => s.fleet != null && s.loyalty == Owner && !s.InCombat);
+            var availableShips = portal.System.ShipList.Filter(s => s.fleet == null 
+                                                                    && s.loyalty == Owner 
+                                                                    && !s.IsPlatformOrStation
+                                                                    && !s.InCombat);
             if (availableShips.Length > 0)
                 ship = availableShips.RandItem();
 
