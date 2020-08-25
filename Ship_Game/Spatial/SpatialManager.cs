@@ -9,6 +9,7 @@ namespace Ship_Game.Gameplay
         readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
         readonly Array<GameplayObject> Pending    = new Array<GameplayObject>();
         Quadtree QuadTree;
+        public readonly object LockSpaceManager     = new object();
 
         public void Setup(float universeRadius)
         {
