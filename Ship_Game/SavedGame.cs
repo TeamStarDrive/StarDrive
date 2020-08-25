@@ -579,11 +579,11 @@ namespace Ship_Game
             [Serialize(26)] public int ExpandSearchTimer;
             [Serialize(27)] public int MaxSystemsToCheckedDiv;
             [Serialize(28)] public AI.StrategyAI.WarGoals.War EmpireDefense;
-            [Serialize(29)] public float RemnantStoryTriggerKillsXp;
-            [Serialize(30)] public bool RemnantStoryActivated;
-            [Serialize(31)] public int RemnantStoryType;
-            [Serialize(32)] public float RemnantProduction;
-            [Serialize(32)] public int RemnantLevel;
+            [Serialize(30)] public float RemnantStoryTriggerKillsXp;
+            [Serialize(31)] public bool RemnantStoryActivated;
+            [Serialize(32)] public int RemnantStoryType;
+            [Serialize(33)] public float RemnantProduction;
+            [Serialize(34)] public int RemnantLevel;
         }
 
         public class FleetSave
