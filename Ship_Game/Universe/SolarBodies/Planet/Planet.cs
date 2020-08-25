@@ -64,6 +64,9 @@ namespace Ship_Game
             private set => ShipBuildingModifierValue = value.Clamped(0.001f, 1);
         }
 
+        // Timers
+        float NonCriticalTimer = 0;
+
         public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         private float Unfed;
@@ -416,31 +419,44 @@ namespace Ship_Game
 
         void UpdateHabitable(float elapsedTime)
         {
+            // none of the code below requires an owner.
+
             if (!Habitable)
                 return;
+            if (NonCriticalTimer-- < 0 ) NonCriticalTimer = elapsedTime *5;
 
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
-            UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
             UpdatePlanetaryProjectiles(elapsedTime);
         }
 
         void RefreshOrbitalStations()
         {
-            if (OrbitalStations.Count == 0)
+            if (OrbitalStations.Count == 0 || NonCriticalTimer > 0)
                 return;
 
-            Guid[] keys = OrbitalStations.Keys.ToArray();
-            for (int i = 0; i < keys.Length; i++)
+            Guid[] toRemove = null;
+            int guidIndex =0;
+            foreach(var kv in OrbitalStations)
             {
-                Guid key = keys[i];
-                Ship shipyard = OrbitalStations[key];
+                var shipyard = kv.Value;
                 if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
+                {
+                    if (toRemove == null) toRemove = new Guid[OrbitalStations.Count];
+                    toRemove[guidIndex++] = kv.Key;
+                }
+            }
+            if (toRemove != null)
+            {
+                for (int i = 0; i < guidIndex; i++)
+                {
+                    var key = toRemove[i];
                     OrbitalStations.Remove(key);
+                }
             }
         }
 
-        void UpdateSpaceCombatBuildings(float elapsedTime)
+        public void UpdateSpaceCombatBuildings(float elapsedTime)
         {
             if (Owner == null) 
                 return;
@@ -453,7 +469,8 @@ namespace Ship_Game
                 for (int i = 0; i < BuildingList.Count; ++i)
                 {
                     Building building = BuildingList[i];
-                    building.UpdateSpaceCombatActions(elapsedTime, this, out bool targetFound);
+                    bool targetFound  = false;
+                    building?.UpdateSpaceCombatActions(elapsedTime, this, out targetFound);
                     targetNear |= targetFound;
                 }
 
@@ -473,7 +490,7 @@ namespace Ship_Game
             for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
             {
                 Ship ship = ParentSystem.ShipList[i];
-                if (ship.Center.InRadius(Center, 15000)
+                if (ship?.Center.InRadius(Center, 15000) == true
                     && ship.BaseStrength > 10
                     && (!ship.IsTethered || ship.GetTether() == this) // orbitals orbiting another nearby planet
                     && Owner.IsEmpireAttackable(ship.loyalty))
@@ -493,9 +510,13 @@ namespace Ship_Game
             Ship troop      = null;
             Ship target     = null;
 
-            for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
+            var nearBy = UniverseScreen.SpaceManager.FindNearby(Center, weaponRange, GameObjectType.Ship);
+
+
+            for (int j = 0; j < nearBy.Length; ++j)
             {
-                Ship ship = ParentSystem.ShipList[j];
+                Ship ship = (Ship)nearBy[j];
+
                 if (ship.loyalty == Owner || ship.engineState == Ship.MoveState.Warp)
                     continue;
 
@@ -881,6 +902,9 @@ namespace Ship_Game
                     OrbitalStations.Remove(key);
             }
 
+            float projectorRange = 0;
+            float sensorRange = 0;
+
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -892,10 +916,9 @@ namespace Ship_Game
                 RepairPerTurn             += b.ShipRepair;
                 InfraStructure            += b.Infrastructure;
 
-                if (b.SensorRange > SensorRange)
-                    SensorRange = b.SensorRange;
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
-                    ProjectorRange = Math.Max(ProjectorRange, b.ProjectorRange + ObjectRadius);
+                if (b.SensorRange > sensorRange)
+                    sensorRange = b.SensorRange;
+                projectorRange = Math.Max(projectorRange, b.ProjectorRange + ObjectRadius);
                 if (b.AllowInfantry)
                     AllowInfantry = true;
                 if (b.WinsGame)
@@ -906,8 +929,12 @@ namespace Ship_Game
 
             if (GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 ProjectorRange = Owner.GetProjectorRadius() + ObjectRadius;
+            else 
+                ProjectorRange = projectorRange;
 
             TerraformToAdd /= Scale; // Larger planets take more time to terraform, visa versa for smaller ones
+
+            SensorRange = sensorRange;
             UpdateMaxPopulation();
             TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
 

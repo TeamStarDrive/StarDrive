@@ -123,11 +123,6 @@ namespace Ship_Game.Ships
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
-            UpdateInfluence(elapsedTime);
-            SetFleetCapableStatus();
-            KnownByEmpires.Update(elapsedTime);
-            //SetShipsVisible(elapsedTime);
-
             if (!dying) UpdateAlive(elapsedTime);
             else        UpdateDying(elapsedTime);
         }

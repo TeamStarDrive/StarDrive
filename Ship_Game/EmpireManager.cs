@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -31,7 +32,7 @@ namespace Ship_Game
         //       withing the known universe. They belong to the mythical `Void` -- pure Chaos of nothingness
         public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateVoidEmpire());
 
-        public static Empire[] AIEmpires =>
+        public static Empire[] NonPlayerEmpires =>
             Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
 
         public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.isFaction);
@@ -262,13 +263,15 @@ namespace Ship_Game
         {
             if (Empires.IsEmpty)
                 Log.Error($"must be called after empireList is populated.");
+            
+            Empire.Universe.AsyncDataCollector.Initialize();
             Empire.Universe.WarmUpShipsForLoad();
             foreach(Empire empire in Empires)
             { 
+                empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
                 empire.Pool.UpdatePools();
-                empire.UpdateContactsAndBorders(1f);
             }
         }
     }

@@ -57,8 +57,7 @@ namespace Ship_Game.Ships.DataPackets
         public void SetSeen(Empire empire)
         {
             SeenByID[empire.Id - 1] = KnownDuration;
-            //if (Empire.Universe.Debug)
-            //    SeenByID[EmpireManager.Player.Id - 1] = timer;
+ 
         }
 
         public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] + KnownDuration > 0;
