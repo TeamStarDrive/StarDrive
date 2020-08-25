@@ -310,7 +310,7 @@ namespace Ship_Game
             return result;
         }
 
-        static int PhysicalCoreCount;
+        public static int PhysicalCoreCount {get; private set;}
         public static int NumPhysicalCores
         {
             get

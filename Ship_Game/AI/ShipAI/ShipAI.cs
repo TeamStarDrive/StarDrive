@@ -664,16 +664,11 @@ namespace Ship_Game.AI
         
         public void ScanForThreat(float elapsedTime)
         {
-            ScanForThreatTimer -= elapsedTime;
-            if (ScanForThreatTimer < 0f && ScanComplete)
-            {
-                ScanDataProcessed  = false;
-                ScanComplete       = false;
-                float maxContactTimer = 30 * elapsedTime;
-                float variance = Owner.loyalty.Id * (elapsedTime);
-                ScanForThreatTimer =  maxContactTimer + variance;
-                SetCombatStatus();
-            }
+            ScanDataProcessed = false;
+            ScanComplete = false;
+            float maxContactTimer = elapsedTime;
+            ScanForThreatTimer = maxContactTimer;
+            SetCombatStatus();
         }
 
         void ResetStateFlee()

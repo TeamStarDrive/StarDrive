@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Media;
 using Ship_Game.Audio;
 using Ship_Game.Data;
 using System;
+using System.ComponentModel.Design;
 
 namespace Ship_Game.GameScreens
 {
@@ -18,6 +19,7 @@ namespace Ship_Game.GameScreens
         readonly VideoPlayer Player;
         readonly GameContentManager Content;
         Texture2D Frame; // last good frame, used for looping video transition delay
+        public bool Active = true;
 
         public bool Visible = true;
 
@@ -61,6 +63,7 @@ namespace Ship_Game.GameScreens
         // Stops audio and music, then disposes any graphics resources
         public void Dispose()
         {
+            Active = false;
             if (Video != null) // avoid double dispose issue
             {
                 Stop();
@@ -237,7 +240,7 @@ namespace Ship_Game.GameScreens
 
         public void Draw(SpriteBatch batch, in Rectangle rect, Color color, float rotation, SpriteEffects effects)
         {
-            if (BeginPlayTask?.IsComplete != true)
+            if (BeginPlayTask?.IsComplete != true || !Active)
                 return;
             
             if (!Visible)

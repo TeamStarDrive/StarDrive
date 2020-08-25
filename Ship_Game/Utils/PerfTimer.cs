@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Ship_Game
 {
@@ -57,7 +58,7 @@ namespace Ship_Game
 
             // Well... this is kinda complicated to do without a list indeed. Lol!
             if (elapsed > MaxTime) MaxTime  = elapsed;
-            else                   MaxTime  = ((MaxTime*NumSamples + elapsed) / (NumSamples + 1 ));  // trickle down towards avg time
+            else                   MaxTime  = (MaxTime*NumSamples + elapsed) / (NumSamples + MaxTime / AvgTime );  // trickle down towards avg time
 
             ++NumSamples;
         }
