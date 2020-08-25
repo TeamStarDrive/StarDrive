@@ -134,6 +134,7 @@ namespace UnitTests
             target.Rotation = shipDirection.Normalized().ToRadians();
             target.InFrustum = true; // force module pos update
             target.UpdateShipStatus(0.01f); // update module pos
+            target.UpdateModulePositions(0.01f);
             return target;
         }
 
