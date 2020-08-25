@@ -171,7 +171,7 @@ namespace Ship_Game.AI
         {
             if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.CurrentMilitaryStrength)
             {
-                Empire closest = potentialTargets.Sorted(e => e.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter())).First();
+                Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
                 if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
                 {
@@ -195,7 +195,7 @@ namespace Ship_Game.AI
         {
             if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
             {
-                Empire closest = potentialTargets.Sorted(e => e.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter())).First();
+                Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
                 if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
                 {

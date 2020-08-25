@@ -77,7 +77,7 @@ namespace Ship_Game
             sb_Owned    = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(1940));
             sb_Distance = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(1939));
 
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => distance.Position.Distance(EmpireManager.Player.GetWeightedCenter())))
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => distance.Position.Distance(EmpireManager.Player.WeightedCenter)))
             {
                 foreach (Planet p in system.PlanetList)
                 {
