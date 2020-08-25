@@ -39,8 +39,8 @@ namespace UnitTests.Ships
         {
             ship.AI.CombatState = state;
             ship.shipStatusChanged = true;
-            ship.Update(1f);
-            Universe.AsyncDataCollector.ManualUpdate();
+            ship.AI.StartSensorScan(0.0166666f);
+            
             ship.Update(1f);
         }
 
@@ -51,7 +51,7 @@ namespace UnitTests.Ships
             target.ChangeOrdnance(-target.OrdinanceMax * 0.5f);
             UpdateStatus(ship, CombatState.Artillery);
             ship.UpdateResupply();
-            Assert.IsTrue(ship.Carrier.HasSupplyShuttlesInSpace);
+            Assert.IsTrue(ship.Carrier.HasSupplyShuttlesInSpace, "Supply Shuttle not found in sensors.");
         }
 
         [TestMethod]
