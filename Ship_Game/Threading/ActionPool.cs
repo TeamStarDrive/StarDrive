@@ -25,6 +25,7 @@ namespace Ship_Game.Threading
         readonly AutoResetEvent ActionsAvailable   = new AutoResetEvent(false);
         Array<Action> ActionsBeingProcessed        = EmptyArray;
         Array<Action> ActionAccumulator;
+        public SafeQueue<Action> RunOnEmpireThread = new SafeQueue<Action>();
         bool Initialized;
 
         public int ActionsProcessedThisTurn {get; private set;}
@@ -52,6 +53,16 @@ namespace Ship_Game.Threading
             ActionAccumulator = new Array<Action>(DefaultAccumulatorSize);
         }
 
+        public void ExecutePendingEmpireThreadActions()
+        {
+            while (RunOnEmpireThread.NotEmpty)
+            {
+                RunOnEmpireThread.Dequeue().Invoke();
+            }
+        }
+
+        public void EnqueueItemForEmpireThread(Action item) => RunOnEmpireThread.Enqueue(item);
+
         /// <summary>
         /// Run On game thread
         /// this will steal the Actions Accumulated and run them on the game thread. 
@@ -72,6 +83,7 @@ namespace Ship_Game.Threading
             }
 
             ActionAccumulator = new Array<Action>(DefaultAccumulatorSize);
+            ExecutePendingEmpireThreadActions();
         }
 
         /// <summary>
@@ -80,6 +92,7 @@ namespace Ship_Game.Threading
         /// </summary>
         public ThreadState MoveItemsToThread()
         {
+            ExecutePendingEmpireThreadActions();
             if (ThreadException != null)
             {
                 Log.Error(ThreadException, $"ActionProcessor Threw in parallel foreach");
@@ -123,7 +136,6 @@ namespace Ship_Game.Threading
 
         void ProcessQueuedItems()
         {
-            Array<Action> localActionQueue;
             while (true)
             {
                 // wait for ActionsBeingProcessed to be populated
@@ -135,13 +147,12 @@ namespace Ship_Game.Threading
                 IsProcessing             = true;
                 int processedLastTurn    = ActionsProcessedThisTurn;
                 ActionsProcessedThisTurn = 0;
-                GlobalStats.MaxParallelism = (Parallel.NumPhysicalCores -1).LowerBound(1);
+                GlobalStats.MaxParallelism = (Parallel.PhysicalCoreCount -1).LowerBound(1);
                 lock (UniverseScreen.SpaceManager.LockSpaceManager)
                 {
-                    Parallel.ForEach(ActionsBeingProcessed, action =>
-                    //for (int i = 0; i < ActionsBeingProcessed.Count; i++)
+                    for (int i = 0; i < ActionsBeingProcessed.Count; i++)
                     {
-                        //var action = ActionsBeingProcessed[i];
+                        var action = ActionsBeingProcessed[i];
                         try
                         {
                             action?.Invoke();
@@ -152,7 +163,6 @@ namespace Ship_Game.Threading
                             ThreadException = ex;
                         }
                     }
-                        );
                 }
                 GlobalStats.MaxParallelism = -1;
                 ActionsBeingProcessed = EmptyArray;

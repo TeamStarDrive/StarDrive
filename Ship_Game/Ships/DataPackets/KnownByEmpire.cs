@@ -14,7 +14,7 @@ namespace Ship_Game.Ships.DataPackets
         /// <value>
         ///   <c>true</c> if [known by player]; otherwise, <c>false</c>.
         /// </value>
-        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] + .02f > 0;
+        public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] + KnownDuration > 0;
         float[] SeenByID;
         /// <summary>
         /// The known duration. how long the object will be known for. .5 = roughly half a second. 
