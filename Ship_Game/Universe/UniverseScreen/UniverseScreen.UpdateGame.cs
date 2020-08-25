@@ -335,47 +335,76 @@ namespace Ship_Game
             PostEmpirePerf.Stop();
         }
 
+        int EmpireScanIncrement = 0;
+        bool EmpireScanFinished = false;
+
+
         public void QueueActionsForThreading(float deltaTime)
         {
+            Empire empireVisibility = EmpireManager.Empires[EmpireScanIncrement];
 
-            AsyncDataCollector.Add(()=>
-            {
-                foreach(var ship in MasterShipList.AtomicCopy())
-                {
-                    if (ship == null) continue;
-                    ship.KnownByEmpires.Update(deltaTime);
-                    ship.AI.ScanForThreat(deltaTime);
-                }
-            });
-            
             AsyncDataCollector.Add(() =>
             {
-                foreach(var ship in MasterShipList.AtomicCopy())
-                    ship.UpdateInfluence(deltaTime);
-                foreach(var empire in EmpireManager.Empires)
+                foreach (var empire in EmpireManager.Empires)
                 {
-                    if (empire.IsEmpireDead()) continue;
-                    empire.UpdateContactsAndBorders(deltaTime);
+                    if (empire.IsEmpireDead())
+                    {                        
+                        continue;
+                    }
+                    Parallel.ForEach(empire.GetShipsAtomic(), ship =>
+                    {
+                        if (ship?.Active != true)
+                        {
+                            if (ship?.KnownByEmpires.KnownByPlayer == true)
+                                ship.KnownByEmpires.SetSeenByPlayer();
+                            return;
+                        }
+
+                        ship.SetFleetCapableStatus();
+                        ship.UpdateModulePositions(deltaTime);
+                        // currently too much for 4 cores
+                        //ship.AI.UpdateCombatStateAI(deltaTime);
+                        if (ship.loyalty == empireVisibility && EmpireScanFinished)
+                        {
+                            ship.KnownByEmpires.Update(deltaTime);
+                            ship.AI.ScanForThreat(deltaTime);
+                        }
+
+                        if (empireVisibility == empire && !EmpireScanFinished)
+                            ship.UpdateInfluence(deltaTime);
+                    });
+
                     IReadOnlyList<Planet> list = empire.GetPlanets();
-                    for (int i = 0; i < list.Count; i ++)
+                    for (int i = 0; i < list.Count; i++)
                     {
                         var planet = list[i];
-                        planet.UpdateSpaceCombatBuildings(deltaTime); // building weapon timers are in this method. 
+                        planet.UpdateSpaceCombatBuildings(
+                            deltaTime); // building weapon timers are in this method. 
                     }
-                
-                    empire.UpdateMilitaryStrengths();
+
+                    if (empireVisibility == empire && !EmpireScanFinished)
+                    {
+                        EmpireScanFinished = true;
+                        empireVisibility.UpdateContactsAndBorders(deltaTime);
+                        empireVisibility.UpdateMilitaryStrengths();
+                    }
+                    else if (empireVisibility == empire)
+                    {
+                        if (++EmpireScanIncrement == EmpireManager.Empires.Count)
+                            EmpireScanIncrement = 0;
+                        EmpireScanFinished = false;
+                    }
+                   
+
+                    empire.PopulateKnownShips();
                 }
             });
 
-            AsyncDataCollector.Add(()=>
+            if (empireVisibility.IsEmpireDead())
             {
-                foreach(var ship in MasterShipList.ToArray())
-                {
-                    if (ship?.Active != true) continue;
-                    ship.SetFleetCapableStatus();
-                    ship.UpdateModulePositions(deltaTime);
-                }
-            });
+                if (++EmpireScanIncrement == EmpireManager.Empires.Count)
+                    EmpireScanIncrement = 0;
+            }
         }
 
         void ProcessTurnShipsAndSystems(float elapsedTime)

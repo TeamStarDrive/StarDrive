@@ -573,13 +573,15 @@ namespace Ship_Game
         public float GetActualStrengthPresent(Empire e)
         {
             float strength = 0f;
-            foreach (Ship ship in ShipList)
+            for (int i = 0; i < ShipList.Count; i++)
             {
+                Ship ship = ShipList[i];
                 if (ship?.Active != true) continue;
                 if (ship.loyalty != e)
                     continue;
                 strength += ship.GetStrength();
             }
+
             return strength;
         }
 
