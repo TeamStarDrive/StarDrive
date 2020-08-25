@@ -258,14 +258,14 @@ namespace Ship_Game.AI
             Goals.Add(goal);
         }
 
-        public void RemoveGoal(GoalType type, Predicate<Goal> removeIf)
+        public void FindAndRemoveGoal(GoalType type, Predicate<Goal> removeIf)
         {
             for (int i = 0; i < Goals.Count; ++i)
             {
                 Goal g = Goals[i];
                 if (g.type == type && removeIf(g))
                 {
-                    Goals.RemoveAt(i);
+                    Goals.QueuePendingRemoval(g);
                     return;
                 }
             }

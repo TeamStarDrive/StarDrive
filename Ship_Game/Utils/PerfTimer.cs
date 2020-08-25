@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Ship_Game
 {
@@ -55,16 +56,16 @@ namespace Ship_Game
 
             AvgTime = (AvgTime*NumSamples + elapsed) / (NumSamples + 1);
 
-            // Well... this is kinda complicated to do without a list indeed
+            // Well... this is kinda complicated to do without a list indeed. Lol!
             if (elapsed > MaxTime) MaxTime  = elapsed;
-            else                   MaxTime *= 0.98f; // trickle down towards avg time
+            else                   MaxTime  = (MaxTime*NumSamples + elapsed) / (NumSamples + MaxTime / AvgTime );  // trickle down towards avg time
 
             ++NumSamples;
         }
 
         public override string ToString()
         {
-            return $"{AvgTime*1000f:0.0,5}ms ({MaxTime*1000f:0.0,5}ms)";
+            return $"{AvgTime*1000f:0.0,5}ms  ( {MaxTime*1000f:0.0,5}ms )";
         }
     }
 }

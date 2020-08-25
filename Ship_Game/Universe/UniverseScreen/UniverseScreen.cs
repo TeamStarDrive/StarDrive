@@ -26,8 +26,9 @@ namespace Ship_Game
         readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
         readonly PerfTimer Perfavg2          = new PerfTimer();
         readonly PerfTimer PreEmpirePerf     = new PerfTimer();
-        readonly PerfTimer perfavg4          = new PerfTimer();
+        readonly PerfTimer PostEmpirePerf    = new PerfTimer();
         readonly PerfTimer perfavg5          = new PerfTimer();
+        readonly PerfTimer CollisionTime     = new PerfTimer();
 
         public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
@@ -36,7 +37,6 @@ namespace Ship_Game
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
         public string StarDateString => StarDate.StarDateString();
-        public float perStarDateTimer = 1000f;
         public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
@@ -170,7 +170,7 @@ namespace Ship_Game
         bool UseRealLights = true;
         public SolarSystem SelectedSystem;
         public Fleet SelectedFleet;
-        int FBTimer;
+        int FBTimer = 60;
         bool pickedSomethingThisFrame;
         bool SelectingWithBox;
         Effect AtmoEffect;
@@ -179,7 +179,6 @@ namespace Ship_Game
         CursorState cState;
         float radlast;
         int SelectorFrame;
-        public int globalshipCount;
         readonly Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
         public Ship previousSelection;
 
@@ -218,6 +217,7 @@ namespace Ship_Game
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
+            AsyncDataCollector.Initialize();
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -239,6 +239,7 @@ namespace Ship_Game
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
+            AsyncDataCollector.Initialize();
         }
 
         public Planet GetPlanet(Guid guid)
@@ -398,6 +399,8 @@ namespace Ship_Game
             InitializeSolarSystems();
             CreatePlanetsLookupTable();
             CreateStationTethers();
+            EmpireManager.RestoreUnserializableDataFromSave();
+            RecomputeFleetButtons(true);
             CreateProcessTurnsThread();
         }
 
@@ -784,6 +787,7 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
+            AsyncDataCollector.Kill();
 
             RemoveLighting();
             ScreenManager.Music.Stop();

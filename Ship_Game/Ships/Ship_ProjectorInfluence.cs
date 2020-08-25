@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
         // This is an optimized lookup system, because these properties are queried every frame
         bool InOwnerInfluence;
         float OwnerInfluenceTimer = -100;
-        float GetBuffer() => loyalty.MaxContactTimer;
+        float GetBuffer() => 0.035f;
         struct ForeignInfluence
         {
             public Empire Foreign;
@@ -74,6 +74,10 @@ namespace Ship_Game.Ships
                         return;
                     }
 
+                var relation =loyalty.GetRelations(empire);
+                if (relation == null) 
+                    return;
+
                 if (Influences == null)
                     Influences = new ForeignInfluence[4];
                 else if (Influences.Length == InfluenceCount)
@@ -81,7 +85,7 @@ namespace Ship_Game.Ships
 
                 ref ForeignInfluence dst = ref Influences[InfluenceCount++];
                 dst.Foreign              = empire;
-                dst.Relationship         = loyalty.GetRelations(empire);
+                dst.Relationship         = relation;
                 dst.Timer                = empire.updateContactsTimer;
             }
         }
@@ -136,7 +140,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < InfluenceCount; ++i)
                 {
                     var influence =Influences[i];
-                    if (influence.Timer + GetBuffer() > 0 );
+                    if (influence.Timer + GetBuffer() > 0 )
                         if (influence.Relationship.AtWar )
                             return true;
 

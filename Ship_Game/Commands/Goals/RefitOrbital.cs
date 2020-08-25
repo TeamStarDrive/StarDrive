@@ -131,7 +131,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         void RemoveOldRefitGoal()
         {
             if (OldShip.AI.FindGoal(ShipAI.Plan.Refit, out _))
-                OldShip.loyalty.GetEmpireAI().RemoveGoal(GoalType.Refit, g => g.OldShip == OldShip);
+                OldShip.loyalty.GetEmpireAI().FindAndRemoveGoal(GoalType.Refit, g => g.OldShip == OldShip);
         }
 
         bool GetNewOrbital(out Ship newOrbital)

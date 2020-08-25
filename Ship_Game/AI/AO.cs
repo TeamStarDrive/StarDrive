@@ -306,7 +306,7 @@ namespace Ship_Game.AI
             for (int i = OffensiveForcePool.Count-1; i >= 0; --i)
             {
                 Ship ship = OffensiveForcePool[i];
-                if (!ship.Active || ship.fleet != null || ship.shipData.Role == ShipData.RoleName.troop || ship.GetStrength() <= 0)
+                if (ship?.Active != true || ship.fleet != null || ship.shipData.Role == ShipData.RoleName.troop || ship.GetStrength() <= 0)
                 {
                     OffensiveForcePool.RemoveAtSwapLast(i);
                 }
