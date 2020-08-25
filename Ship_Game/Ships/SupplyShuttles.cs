@@ -157,17 +157,17 @@ namespace Ship_Game.Ships
             }
         }
 
-        Ship[] ShipsInNeedOfSupplyByPriority( float sensorRange)
+        Ship[] ShipsInNeedOfSupplyByPriority(float sensorRange)
         {
-            Ship[] shipsInNeed;
+            Array<Ship> friendlyShips = Owner.AI.FriendliesNearby;
 
-            BatchRemovalCollection<Ship> friendlyShips = Owner.AI.FriendliesNearby;
-            using (friendlyShips.AcquireReadLock())
+            Ship[] shipsInNeed = friendlyShips.Filter(ship =>
             {
-                shipsInNeed = friendlyShips.Filter(ship => ship.shipData.Role != ShipData.RoleName.supply
-                                                        && ship != Owner
-                                                        && ship.Supply.AcceptExternalSupply(SupplyType.Rearm));
-            }
+                return ship.Active &&
+                       ship.shipData.Role != ShipData.RoleName.supply
+                       && ship != Owner
+                       && ship.Supply.AcceptExternalSupply(SupplyType.Rearm);
+            });
 
             shipsInNeed.Sort(ship =>
             {

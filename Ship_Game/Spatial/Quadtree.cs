@@ -679,8 +679,9 @@ namespace Ship_Game
         static void FindNearbyAtNode(Node node, ref SpatialObj searchAreaRect,
                                      GameObjectType filter, ref int numNearby, ref GameplayObject[] nearby)
         {
+            if (node == null) return;
             byte loyalty = searchAreaRect.Loyalty;
-            int count = node.Count;
+            int count = node.Count; 
             SpatialObj[] items = node.Items;
             for (int i = 0; i < count; ++i)
             {
@@ -700,7 +701,7 @@ namespace Ship_Game
                 if (go == searchAreaRect.Obj || !searchAreaRect.HitTestNearby(ref so))
                     continue;
 
-                if (numNearby == nearby.Length) // "clever" resize
+                if (numNearby >= nearby.Length) // "clever" resize
                     Array.Resize(ref nearby, numNearby + count);
 
                 nearby[numNearby++] = go;
