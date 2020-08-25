@@ -45,13 +45,16 @@ namespace Ship_Game
             if ((DefenderWeight > 0.49f && DefenderWeight < 0.51f) ||
                 (AssistWeight > 0.49f && AssistWeight < 0.51f))
                 return weight;
-            foreach (Ship ship in fleet.Ships)
+            for (int i = 0; i < fleet.Ships.Count; i++)
             {
+                Ship ship = fleet.Ships[i];
+                if (ship == null) continue;
                 if (potential.AI.Target == ship)
                     weight -= 0.5f + DefenderWeight;
                 if (ship.AI.Target == potential)
                     weight -= 5.0f + AssistWeight;
             }
+
             return weight;
         }
 
