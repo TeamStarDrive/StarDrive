@@ -38,6 +38,11 @@ namespace Ship_Game
                 Add(key, value);
         }
 
+        public Map(Dictionary<TKey, TValue> dictionary) : base (dictionary)
+        {
+        }
+        
+
         // Separated throw from this[] to enable MSIL inlining
         void ThrowMapKeyNotFound(TKey key)
         {

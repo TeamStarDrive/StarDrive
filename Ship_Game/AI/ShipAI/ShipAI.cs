@@ -5,8 +5,10 @@ using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
 using System.Linq;
+using System.Threading;
 using Ship_Game.Ships.AI;
 using Ship_Game.Ships.DataPackets;
+using Newtonsoft.Json.Bson;
 
 namespace Ship_Game.AI
 {
@@ -37,7 +39,7 @@ namespace Ship_Game.AI
         readonly PickupGoods PickupGoods;
 
         readonly OrbitPlan Orbit;
-
+        
         public ShipAI(Ship owner)
         {
             Owner = owner;
@@ -148,7 +150,8 @@ namespace Ship_Game.AI
                 HadPO = false;
 
             ResetStateFlee();
-            ScanForThreat(elapsedTime);
+
+            ApplySensorScanResults();
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
             UpdateUtilityModuleAI(elapsedTime);
             ThrustTarget = Vector2.Zero;
@@ -159,6 +162,27 @@ namespace Ship_Game.AI
                 return;
 
             AIStateRebase();
+        }
+
+        public void ApplySensorScanResults()
+        {
+            // scanning is done from the asyncdatacollector. 
+            // scancomplete means the scan is done.
+            if (ScanComplete && !ScanDataProcessed)
+            {
+                ScanDataProcessed = true;
+                TrackProjectiles  = new Array<Projectile>(ScannedProjectiles);
+                PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
+                FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
+                NearByShips       = new Array<ShipWeight>(ScannedNearby);
+                Target            = ScannedTarget;
+                
+                ScannedTarget     = null;
+                ScannedProjectiles.Clear();
+                ScannedTargets.Clear();
+                ScannedFriendlies.Clear();
+                ScannedNearby.Clear();
+            }
         }
 
         public Ship NearBySupplyShip => 
@@ -272,7 +296,7 @@ namespace Ship_Game.AI
                     Owner.fleet.FinalDirection, true, State);
         }
 
-        void UpdateCombatStateAI(float elapsedTime)
+        public void UpdateCombatStateAI(float elapsedTime)
         {
             TriggerDelay -= elapsedTime;
             FireOnMainTargetTime -= elapsedTime;
@@ -373,7 +397,7 @@ namespace Ship_Game.AI
         bool EvaluateNextOrderQueueItem(float elapsedTime)
         {
             ShipGoal goal = OrderQueue.PeekFirst;
-            switch (goal.Plan)
+            switch (goal?.Plan)
             {
                 case Plan.Stop:
                     if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }       break;
@@ -635,16 +659,22 @@ namespace Ship_Game.AI
             EscortTarget = s;
             AddShipGoal(Plan.TroopToShip, State);
         }
-
-        void ScanForThreat(float elapsedTime)
+        
+        public void StartSensorScan(float elapsedTime)
         {
-            ScanForThreatTimer -= elapsedTime;
-            if (ScanForThreatTimer <= 0f)
-            {
-                SetCombatStatus();
-                ScanForThreatTimer = 1f;
-            }
+            ScanDataProcessed = false;
+            ScanComplete = false;
+            float maxContactTimer = elapsedTime;
+            ScanForThreatTimer = maxContactTimer;
+            ScanForTargets();
         }
+
+        public void DoManualSensorScan(float elapsedTime = 0.01666667f)
+        {
+            StartSensorScan(elapsedTime);
+            ApplySensorScanResults();
+        }
+        
 
         void ResetStateFlee()
         {
