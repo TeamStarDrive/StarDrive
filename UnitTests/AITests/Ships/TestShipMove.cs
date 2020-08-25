@@ -53,8 +53,7 @@ namespace UnitTests.AITests.Ships
             while (ship.engineState != Ship.MoveState.Warp)
             {
                 ship.Update(0.01666666f);
-                Universe.AsyncDataCollector.ManualUpdate();
-                ship.AI.ScanForThreat(10);
+                ship.AI.DoManualSensorScan(10);
             }
             bool sawEnemyShip       = false;
 
@@ -64,9 +63,8 @@ namespace UnitTests.AITests.Ships
                 UniverseScreen.SpaceManager.Update(0.0166666f);
                 ship.Update(0.01666666f);
                 enemy.Update(0.01666666f);
-                Universe.AsyncDataCollector.ManualUpdate();
-                ship.AI.ScanForThreat(10);
-                enemy.AI.ScanForThreat(10);
+                ship.AI.DoManualSensorScan(10);
+                enemy.AI.DoManualSensorScan(10);
                 sawEnemyShip |= ship.AI.BadGuysNear;
             }
             Assert.IsTrue(sawEnemyShip, "Did not see an enemy while at warp");
@@ -93,8 +91,8 @@ namespace UnitTests.AITests.Ships
                 ship.Update(0.01666666f);
                 enemy.Update(0.01666666f);                
                 Universe.AsyncDataCollector.ManualUpdate();
-                ship.AI.ScanForThreat(10);
-                enemy.AI.ScanForThreat(10);
+                ship.AI.StartSensorScan(10);
+                enemy.AI.StartSensorScan(10);
                 sawEnemyShip |= ship.AI.BadGuysNear;
             }
 

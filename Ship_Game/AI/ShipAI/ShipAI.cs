@@ -39,9 +39,7 @@ namespace Ship_Game.AI
         readonly PickupGoods PickupGoods;
 
         readonly OrbitPlan Orbit;
-
-        public Action ScanResults;
-
+        
         public ShipAI(Ship owner)
         {
             Owner = owner;
@@ -662,14 +660,21 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.TroopToShip, State);
         }
         
-        public void ScanForThreat(float elapsedTime)
+        public void StartSensorScan(float elapsedTime)
         {
             ScanDataProcessed = false;
             ScanComplete = false;
             float maxContactTimer = elapsedTime;
             ScanForThreatTimer = maxContactTimer;
-            SetCombatStatus();
+            ScanForTargets();
         }
+
+        public void DoManualSensorScan(float elapsedTime = 0.01666667f)
+        {
+            StartSensorScan(elapsedTime);
+            ApplySensorScanResults();
+        }
+        
 
         void ResetStateFlee()
         {

@@ -367,7 +367,7 @@ namespace Ship_Game
                         if (ship.loyalty == empireVisibility && EmpireScanFinished)
                         {
                             ship.KnownByEmpires.Update(deltaTime);
-                            ship.AI.ScanForThreat(deltaTime);
+                            ship.AI.StartSensorScan(deltaTime);
                         }
 
                         if (empireVisibility == empire && !EmpireScanFinished)
