@@ -22,7 +22,7 @@ namespace Ship_Game
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
             ResetGarrisonSize();
-            Owner.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
+            Owner.GetEmpireAI(). FindAndRemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
             NewColonyAffectPresentTroops();
             NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();

@@ -3,14 +3,17 @@ using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Threading;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace Ship_Game
 {
     public partial class UniverseScreen
     {
+        public readonly ActionPool AsyncDataCollector = new ActionPool();
 
         void ProcessTurnsMonitored()
         {
@@ -79,9 +82,9 @@ namespace Ship_Game
             if (Paused)
             {
                 ++TurnId;
-
                 UpdateAllSystems(0.0f);
                 DeepSpaceThread(0.0f);
+                RecomputeFleetButtons(true);
             }
             else
             {
@@ -146,14 +149,22 @@ namespace Ship_Game
                 // this will update all ship Center coordinates
                 ProcessTurnShipsAndSystems(elapsedTime);
 
+                CollisionTime.Start();
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
-                SpaceManager.Update(elapsedTime);
+                lock(SpaceManager.LockSpaceManager)
+                {
+                    SpaceManager.Update(elapsedTime);
+
+                    MasterShipList.ApplyPendingRemovals();
+                    // bulk remove all dead projectiles to prevent their update next frame
+                    RemoveDeadProjectiles();
+                }
+                QueueActionsForThreading(0.01666667f);
+                AsyncDataCollector.MoveItemsToThread();
+                CollisionTime.Stop();
 
                 ProcessTurnUpdateMisc(elapsedTime);
-
-                // bulk remove all dead projectiles to prevent their update next frame
-                RemoveDeadProjectiles();
             }
 
             perfavg5.Stop();
@@ -164,9 +175,17 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            UpdateShipsAndFleets(0.1f);
-            UpdateAllSystems(0.01f);
-            DeepSpaceThread(0.01f);
+            // For some reason it takes about 90 frames to get the spacemanager initially updated
+            for (int x = 0; x < 90; x++)
+            {
+                QueueActionsForThreading(0.016f);
+                AsyncDataCollector.MoveItemsToThread();
+                UpdateShipsAndFleets(0.016f);
+                foreach (var ship in MasterShipList)
+                    ship.AI.ApplySensorScanResults();
+                lock (SpaceManager.LockSpaceManager);
+                    SpaceManager.Update(0.016f);
+            }
         }
 
         void RemoveDeadProjectiles()
@@ -262,59 +281,130 @@ namespace Ship_Game
                     JunkList[index].Update(elapsedTime);
             }
             SelectedShipList.ApplyPendingRemovals();
-            MasterShipList.ApplyPendingRemovals();
-            if (perStarDateTimer <= StarDate)
-            {
-                perStarDateTimer = StarDate + 0.1f;
-                perStarDateTimer = (float) Math.Round(perStarDateTimer, 1);
-                globalshipCount = MasterShipList.Filter(ship => (ship.loyalty != null && !ship.loyalty.isPlayer && !ship.loyalty.isFaction) &&
-                                                                  ship.shipData.Role != ShipData.RoleName.troop &&
-                                                                  ship.Mothership == null).Length;
-            }
         }
 
         public void UpdateShipsAndFleets(float elapsedTime)
         {
-            perfavg4.Start();
+            PostEmpirePerf.Start();
 
-            if (elapsedTime > 0.0f && shiptimer <= 0.0f)
+            if (!Paused && IsActive)
             {
-                shiptimer = 1f;
-
-                // @todo REMOVE THIS LOOP BASED RADIUS CHECKING AND USE QUADTREE INSTEAD
-                for (int i = 0; i < MasterShipList.Count; i++)
+                for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
-                    Ship ship = MasterShipList[i];
-                    if (!ship.InRadiusOfCurrentSystem)
+                    var empire = EmpireManager.Empires[i];
+                    foreach (KeyValuePair<int, Fleet> kv in
+                        empire.GetFleetsDict())
                     {
-                        ship.SetSystem(null);
+                        kv.Value.SetSpeed();
+                    }
 
-                        for (int x = 0; x < SolarSystemList.Count; x++)
+                    empire.Pool.UpdatePools();
+                    empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
+                }
+
+                if (elapsedTime > 0.0f && --shiptimer <= 0.0f)
+                {
+                    shiptimer = 1f;
+                    for (int i = 0; i < MasterShipList.Count; i ++)
+                    {
+                        var ship = MasterShipList[i];
                         {
-                            SolarSystem system = SolarSystemList[x];
-
-                            if (ship.InRadiusOfSystem(system))
+                            if (!ship.InRadiusOfCurrentSystem)
                             {
-                                system.SetExploredBy(ship.loyalty);
-                                ship.SetSystem(system);
-                                // No need to keep looping through all other systems
-                                // if one is found -Gretman
-                                break;
+                                ship.SetSystem(null);
+
+                                for (int x = 0; x < SolarSystemList.Count; x++)
+                                {
+                                    SolarSystem system = SolarSystemList[x];
+
+                                    if (ship.InRadiusOfSystem(system))
+                                    {
+                                        system.SetExploredBy(ship.loyalty);
+                                        ship.SetSystem(system);
+                                        // No need to keep looping through all other systems
+                                        // if one is found -Gretman
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
 
-            for (int i = 0; i < EmpireManager.NumEmpires; i++)
-            {
-                foreach (KeyValuePair<int, Fleet> kv in EmpireManager.Empires[i].GetFleetsDict())
-                {
-                    kv.Value.SetSpeed();
-                }
-            }
+            PostEmpirePerf.Stop();
+        }
 
-            perfavg4.Stop();
+        int EmpireScanIncrement = 0;
+        bool EmpireScanFinished = false;
+
+
+        public void QueueActionsForThreading(float deltaTime)
+        {
+            Empire empireVisibility = EmpireManager.Empires[EmpireScanIncrement];
+
+            AsyncDataCollector.Add(() =>
+            {
+                foreach (var empire in EmpireManager.Empires)
+                {
+                    if (empire.IsEmpireDead())
+                    {                        
+                        continue;
+                    }
+                    Parallel.ForEach(empire.GetShipsAtomic(), ship =>
+                    {
+                        if (ship?.Active != true)
+                        {
+                            if (ship?.KnownByEmpires.KnownByPlayer == true)
+                                ship.KnownByEmpires.SetSeenByPlayer();
+                            return;
+                        }
+
+                        ship.SetFleetCapableStatus();
+                        ship.UpdateModulePositions(deltaTime);
+                        // currently too much for 4 cores
+                        //ship.AI.UpdateCombatStateAI(deltaTime);
+                        if (ship.loyalty == empireVisibility && EmpireScanFinished)
+                        {
+                            ship.KnownByEmpires.Update(deltaTime);
+                            ship.AI.StartSensorScan(deltaTime);
+                        }
+
+                        if (empireVisibility == empire && !EmpireScanFinished)
+                            ship.UpdateInfluence(deltaTime);
+                    });
+
+                    IReadOnlyList<Planet> list = empire.GetPlanets();
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        var planet = list[i];
+                        planet.UpdateSpaceCombatBuildings(
+                            deltaTime); // building weapon timers are in this method. 
+                    }
+
+                    if (empireVisibility == empire && !EmpireScanFinished)
+                    {
+                        EmpireScanFinished = true;
+                        empireVisibility.UpdateContactsAndBorders(deltaTime);
+                        empireVisibility.UpdateMilitaryStrengths();
+                    }
+                    else if (empireVisibility == empire)
+                    {
+                        if (++EmpireScanIncrement == EmpireManager.Empires.Count)
+                            EmpireScanIncrement = 0;
+                        EmpireScanFinished = false;
+                    }
+                   
+
+                    empire.PopulateKnownShips();
+                }
+            });
+
+            if (empireVisibility.IsEmpireDead())
+            {
+                if (++EmpireScanIncrement == EmpireManager.Empires.Count)
+                    EmpireScanIncrement = 0;
+            }
         }
 
         void ProcessTurnShipsAndSystems(float elapsedTime)
@@ -362,17 +452,6 @@ namespace Ship_Game
                 return true;
             }
 
-            if (IsActive)
-            {
-                for (int i = 0; i < EmpireManager.NumEmpires; i++)
-                {
-                    Empire empire = EmpireManager.Empires[i];
-
-                    empire.Pool.UpdatePools();
-                    empire.UpdateContactsAndBorders(0.01666667f);
-                }
-            }
-
             PreEmpirePerf.Stop();
 
             if (IsActive)
@@ -387,7 +466,6 @@ namespace Ship_Game
 
                 MasterShipList.ApplyPendingRemovals();
 
-                shiptimer -= elapsedTime; // 0.01666667f;//
                 EmpireUpdatePerf.Stop();
                 return true;
             }

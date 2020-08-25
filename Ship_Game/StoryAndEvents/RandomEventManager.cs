@@ -19,7 +19,7 @@ namespace Ship_Game
             if (ActiveEvent != null)
                 return;
 
-            int random = RandomMath.IntBetween(1, 1000);
+            int random = RandomMath.IntBetween(1, 2000);
 
             if      (random == 1) HyperSpaceFlux();
             else if (random <= 3) ShiftInOrbit();
@@ -90,7 +90,7 @@ namespace Ship_Game
         {
             ActiveEvent = new RandomEvent
             {
-                TurnTimer          = (int)RandomMath.RandomBetween(10f, 40f),
+                TurnTimer          = (int)RandomMath.AvgRandomBetween(1f, 30f),
                 Name               = "Hyperspace Flux",
                 NotificationString = Localizer.Token(4010),
                 InhibitWarp        = true
