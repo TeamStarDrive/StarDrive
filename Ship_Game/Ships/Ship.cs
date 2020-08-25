@@ -157,13 +157,6 @@ namespace Ship_Game.Ships
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
-        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None,
-                                                    float radius = float.MaxValue)
-        {
-            radius = Math.Min(radius, SensorRange);
-            return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
-        }
-
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
         public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
@@ -180,7 +173,7 @@ namespace Ship_Game.Ships
         public bool CanTakeFleetMoveOrders() => 
             FleetCapableStatus == Status.Good && ShipEngines.EngineStatus >= Status.Poor;
 
-        void SetFleetCapableStatus()
+        public void SetFleetCapableStatus()
         {
             if (!EMPdisabled && !InhibitedByEnemy)
             {
@@ -1012,18 +1005,7 @@ namespace Ship_Game.Ships
 
             Rotation = Rotation.AsNormalizedRadians();
 
-            if (AI.BadGuysNear ||
-                (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
-            {
-                float cos = RadMath.Cos(Rotation);
-                float sin = RadMath.Sin(Rotation);
-                float tan = (float)Math.Tan(yRotation);
-                for (int i = 0; i < ModuleSlotList.Length; ++i)
-                {
-                    ModuleSlotList[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
-                }
-                GlobalStats.ModuleUpdates += ModuleSlotList.Length;
-            }
+            //UpdateModulePositions(deltaTime);
 
             if (!EMPdisabled && hasCommand)
             {
@@ -1069,6 +1051,21 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
         }
 
+        public void UpdateModulePositions(float deltaTime)
+        {
+             if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
+             {  
+                float cos = RadMath.Cos(Rotation);
+                float sin = RadMath.Sin(Rotation);
+                float tan = (float)Math.Tan(yRotation);
+                for (int i = 0; i < ModuleSlotList.Length; ++i)
+                {
+                    ModuleSlotList[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
+                }
+                GlobalStats.ModuleUpdates += ModuleSlotList.Length;
+             }
+        }
+
         void UpdateModulesAndStatus()
         {
             if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
@@ -1096,7 +1093,6 @@ namespace Ship_Game.Ships
                 UpdateInhibitedFromEnemyShips();
             }
 
-            //SetShipsVisibleByPlayer();
             for (int i = 0; i < ModuleSlotList.Length; ++i)
                 ModuleSlotList[i].Update(1);
 
@@ -1184,6 +1180,8 @@ namespace Ship_Game.Ships
         {
             if (Health < 1f)
                 return;
+            
+            Carrier.SupplyShuttle.ProcessSupplyShuttles(AI.GetSensorRadius());
 
             ResupplyReason resupplyReason = Supply.Resupply();
             if (resupplyReason != ResupplyReason.NotNeeded && Mothership?.Active == true)

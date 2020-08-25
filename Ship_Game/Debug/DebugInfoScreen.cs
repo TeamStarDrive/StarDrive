@@ -618,7 +618,7 @@ namespace Ship_Game.Debug
                 if (e.isFaction || e.data.Defeated)
                     continue;
 
-                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 5, e.EmpireColor);
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
                 DrawString(e.data.Traits.Name);
 
                 if (e.data.DiplomaticPersonality != null)

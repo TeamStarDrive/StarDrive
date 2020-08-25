@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
             void RemoveDeadProjectiles()
             {
                 for (int i = 0; i < Count; ++i)
-                    if (!Items[i].Active)
+                    if (!Items[i]?.Active == true)
                         RemoveAtSwapLast(i);
             }
 
@@ -30,7 +30,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Count; ++i)
                 {
                     Projectile p = Items[i];
-                    if (p.Active && (p.DieNextFrame || force))
+                    if (p?.Active == true && (p.DieNextFrame || force))
                         p.Die(p, cleanup);
                 }
                 RemoveDeadProjectiles();
@@ -58,7 +58,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Projectiles.Count; ++i)
             {
                 Projectile p = Projectiles[i];
-                if (p?.Active == true) p.Draw(batch, screen);
+                if (p.Active) p.Draw(batch, screen);
             }
         }
 
