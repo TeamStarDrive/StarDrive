@@ -114,7 +114,7 @@ namespace Ship_Game.AI
 
         public AO(Empire empire)
         {
-            Center = empire.GetWeightedCenter();
+            Center = empire.WeightedCenter;
             Radius = Empire.Universe.UniverseSize / 4;
         }
 
