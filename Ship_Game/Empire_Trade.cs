@@ -306,7 +306,7 @@ namespace Ship_Game
 
         void CalcAverageFreighterCargoCapAndFTLSpeed()
         {
-            if (Universe.StarDate % 2 > 0)
+            if ((Universe.StarDate % 2).Greater(0))
                 return; // Do this once per 2 years
 
             int numFreighters = 0;
