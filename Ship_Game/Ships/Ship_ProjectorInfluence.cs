@@ -118,11 +118,11 @@ namespace Ship_Game.Ships
 
                 for (int i = 0; i < InfluenceCount; ++i)
                 {
-                    var influence =Influences[i];
-                    if (influence.Timer + GetBuffer() > 0 )
+                    var influence = Influences[i];
+                    if (influence.Timer + GetBuffer() > 0)
                     {
                         Relationship r = influence.Relationship;
-                        if (r.Treaty_Alliance || r.Treaty_Trade && IsFreighter)
+                        if (r != null && r.Treaty_Alliance || r.Treaty_Trade && IsFreighter)
                             return true;
                     }
                 }
@@ -141,7 +141,7 @@ namespace Ship_Game.Ships
                 {
                     var influence =Influences[i];
                     if (influence.Timer + GetBuffer() > 0 )
-                        if (influence.Relationship.AtWar )
+                        if (influence.Relationship?.AtWar == true)
                             return true;
 
                 }

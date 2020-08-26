@@ -2205,7 +2205,7 @@ namespace Ship_Game
             }
         }
 
-        private void SetPirateBorders(IList<InfluenceNode> borderNodes)
+        private void SetPirateBorders(ICollection<InfluenceNode> borderNodes)
         {
             if (!WeArePirates || !Pirates.GetBases(out Array<Ship> bases))
                 return;
@@ -2227,7 +2227,7 @@ namespace Ship_Game
             return known || (!ship.BaseCanWarp && EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(ship.guid));
         }
 
-        private void SetBordersByPlanet(bool empireKnown, IList<InfluenceNode> borderNodes, IList<InfluenceNode> sensorNodes)
+        private void SetBordersByPlanet(bool empireKnown, ICollection<InfluenceNode> borderNodes, ICollection<InfluenceNode> sensorNodes)
         {
             foreach (Planet planet in GetPlanets())
             {
@@ -2257,7 +2257,7 @@ namespace Ship_Game
             }
         }
 
-        private void SetBordersKnownByAllies(IList<InfluenceNode> sensorNodes)
+        private void SetBordersKnownByAllies(ICollection<InfluenceNode> sensorNodes)
         {
             foreach(var empire in EmpireManager.Empires)
             {
