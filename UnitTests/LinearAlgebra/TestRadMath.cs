@@ -243,21 +243,25 @@ namespace UnitTests.LinearAlgebra
             float orbitStep = 5f;
             float orbitStepRads = orbitStep.ToRadians();
 
+            // Orbital offset assumes Center is [0,0]
+            Vector2 originalOffset = Vectors.Up*orbitRadius;
+
             Stopwatch s1 = Stopwatch.StartNew();
-            Vector2 orbitPos = center + Vectors.Up*orbitRadius;
+            Vector2 orbitPos = originalOffset;
             for (int i = 0; i < 5000000; ++i)
             {
-                orbitPos = RadMath.OrbitalOffsetRotate(orbitPos, orbitRadius, orbitStepRads);
+                orbitPos = RadMath.OrbitalOffsetRotate(originalOffset, orbitRadius, orbitStepRads);
             }
             s1.Stop();
             Console.WriteLine($"RadMath OrbitalOffsetRotate: {s1.ElapsedMilliseconds}ms {orbitPos}");
 
             Stopwatch s2 = Stopwatch.StartNew();
-            float orbitalAngle = 0f;
+            float orbitalRadians = 0f;
+            orbitPos = default;
             for (int i = 0; i < 5000000; ++i)
             {
-                orbitPos = OriginalOrbitPos(center, orbitalAngle, orbitRadius);
-                orbitalAngle += orbitStep;
+                orbitPos = OriginalOrbitPos(center, orbitalRadians, orbitRadius);
+                orbitalRadians += orbitStepRads;
             }
             s2.Stop();
             Console.WriteLine($"Original OriginalOrbitPos: {s2.ElapsedMilliseconds}ms {orbitPos}");
