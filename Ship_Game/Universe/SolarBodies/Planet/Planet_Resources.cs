@@ -114,13 +114,12 @@ namespace Ship_Game
             if (Owner?.isFaction ?? true)
                 return false;
 
-            int threshold = (((int)(CurrentGame.GalaxySize) * 12).LowerBound(15));
             if (Owner.NonCybernetic)
             {
-                if (TurnsToEmptyStorage(Food.NetIncome, FoodHere + IncomingFood) < threshold)
+                if (TurnsToEmptyStorage(Food.NetIncome, FoodHere + IncomingFood) < AverageImportTurns)
                     return true;
             }
-            else if (TurnsToEmptyStorage(Prod.NetIncome, ProdHere + IncomingProd) < threshold)
+            else if (TurnsToEmptyStorage(Prod.NetIncome, ProdHere + IncomingProd) < AverageImportTurns)
                 return true;
 
             return false;
@@ -172,10 +171,6 @@ namespace Ship_Game
             }
         }
 
-        public float GetGoodAmount(string good) => Storage.GetGoodAmount(good);
-        public void AddGood(string goodId, int amount) => Storage.AddCommodity(goodId, amount);
-        bool NeedToStoreFood => Food.NetMaxPotential < 0 || Food.Percent > 0.75f && Food.NetIncome < 0; // We are struggling to produce food
-
         void DetermineFoodState(float importThreshold, float exportThreshold)
         {
             if (IsCybernetic) return;
@@ -197,8 +192,8 @@ namespace Ship_Game
             float ratio = Storage.FoodRatio;
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
-            if      (ratio < importThreshold || ShortOnFood())               FS = GoodState.IMPORT; // If below importThreshold, its time to import.
-            else if (NeedToStoreFood)                                        FS = GoodState.STORE; // We are struggling to produce food
+            if      (ShortOnFood() || Food.Percent > 0.75f)                  FS = GoodState.IMPORT; 
+            else if (Food.NetMaxPotential < 0)                               FS = GoodState.STORE; // We are struggling to produce food
             else if (FS == GoodState.IMPORT && ratio >= importThreshold * 2) FS = GoodState.STORE;  // Until you reach 2x importThreshold, then switch to Store
             else if (FS == GoodState.EXPORT && ratio <= exportThreshold / 2) FS = GoodState.STORE;  // If we were exporting, and drop below half exportThreshold, stop exporting
             else if (ratio > exportThreshold)                                FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
