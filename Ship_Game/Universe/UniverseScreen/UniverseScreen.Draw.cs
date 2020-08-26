@@ -239,7 +239,7 @@ namespace Ship_Game
                     var nodes = empire.BorderNodes.AtomicCopy();
                     for (int x = 0; x < nodes.Length; x++)
                     {
-                        Empire.InfluenceNode influ = empire.BorderNodes[x];
+                        Empire.InfluenceNode influ = nodes[x];
                         if (influ?.KnownToPlayer != true)
                             continue;
                         if (!Frustum.Contains(influ.Position, influ.Radius))

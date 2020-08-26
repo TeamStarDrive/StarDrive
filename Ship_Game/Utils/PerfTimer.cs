@@ -15,7 +15,7 @@ namespace Ship_Game
         private long Time;
         
         public float AvgTime  { get; private set; }
-        public float MaxTime  { get; private set; }
+        public float MaxTime  { get; private set;}
         public int NumSamples { get; private set; }
 
         static PerfTimer()
@@ -58,7 +58,7 @@ namespace Ship_Game
 
             // Well... this is kinda complicated to do without a list indeed. Lol!
             if (elapsed > MaxTime) MaxTime  = elapsed;
-            else                   MaxTime  = (MaxTime*NumSamples + elapsed) / (NumSamples + MaxTime / AvgTime );  // trickle down towards avg time
+            else                   MaxTime  = (MaxTime*NumSamples + elapsed) / (NumSamples + MaxTime / AvgTime -1);  // trickle down towards avg time
 
             ++NumSamples;
         }
