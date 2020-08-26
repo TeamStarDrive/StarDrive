@@ -54,6 +54,7 @@ namespace Ship_Game
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
 
                 e.SetAverageFreighterCargoCap(sdata.AverageFreighterCargoCap);
+                e.SetAverageFreighterFTLSpeed(sdata.AverageFreighterFTLSpeed);
 
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility

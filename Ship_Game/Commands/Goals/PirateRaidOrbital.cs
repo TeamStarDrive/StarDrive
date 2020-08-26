@@ -64,7 +64,7 @@ namespace Ship_Game.Commands.Goals
             }
             
             // Try locating viable orbital for maximum of 1 year (10 turns), else just give up
-            return Empire.Universe.StarDate % 1 > 0 ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            return (Empire.Universe.StarDate % 1).Greater(0) ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()

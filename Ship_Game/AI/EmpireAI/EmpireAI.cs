@@ -133,7 +133,7 @@ namespace Ship_Game.AI
         public float DistanceToClosestAO(Vector2 position)
         {
             AO ao = FindClosestAOTo(position);
-            if (ao == null) return OwnerEmpire.GetWeightedCenter().Distance(position);
+            if (ao == null) return OwnerEmpire.WeightedCenter.Distance(position);
             return ao.Center.Distance(position);
         }
 

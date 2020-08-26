@@ -96,7 +96,7 @@ namespace Ship_Game.AI.ExpansionAI
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
             int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / MaxSystemsToCheckedDiv).LowerBound(3);
-            Vector2 empireCenter  = Owner.GetWeightedCenter();
+            Vector2 empireCenter  = Owner.WeightedCenter;
 
             Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(ownedSystems);
             if (potentialSystems.Length > 0)

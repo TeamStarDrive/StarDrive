@@ -8,6 +8,7 @@ namespace Ship_Game
     {
         public readonly Array<Ship> IncomingFreighters = new Array<Ship>();
         readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
+        private float AverageImportTurns;
 
         public float IncomingFood { get; protected set; }
         public float IncomingProd { get; protected set; }
@@ -220,10 +221,10 @@ namespace Ship_Game
 
         public float ExportableFood(Planet exportPlanet, Planet importPlanet, float eta)
         {
-            if (!ExportFood)
+            if (!ExportFood || !importPlanet.ImportFood)
                 return 0;
 
-            float maxFoodLoad   = importPlanet.Storage.Max - importPlanet.FoodHere;
+            float maxFoodLoad   = importPlanet.Storage.Max - importPlanet.FoodHere - importPlanet.IncomingFood;
             float foodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Food);
             maxFoodLoad        -= importPlanet.Food.NetIncome * eta;
             return maxFoodLoad.Clamped(0, foodLoadLimit);

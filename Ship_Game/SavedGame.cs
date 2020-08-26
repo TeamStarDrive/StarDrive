@@ -148,6 +148,7 @@ namespace Ship_Game
                 e.SaveMoneyHistory(empireToSave);
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
+                empireToSave.AverageFreighterFTLSpeed = e.AverageFreighterFTLSpeed;
                 empireToSave.ExpandSearchTimer        = e.GetEmpireAI().ExpansionAI.ExpandSearchTimer;
                 empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
                 empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
@@ -579,6 +580,7 @@ namespace Ship_Game
             [Serialize(26)] public int ExpandSearchTimer;
             [Serialize(27)] public int MaxSystemsToCheckedDiv;
             [Serialize(28)] public AI.StrategyAI.WarGoals.War EmpireDefense;
+            [Serialize(29)] public int AverageFreighterFTLSpeed;
             [Serialize(30)] public float RemnantStoryTriggerKillsXp;
             [Serialize(31)] public bool RemnantStoryActivated;
             [Serialize(32)] public int RemnantStoryType;
