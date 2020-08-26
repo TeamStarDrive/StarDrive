@@ -311,7 +311,7 @@ namespace Ship_Game
 
             int numFreighters = 0;
             float cargoCap    = 0;
-            float FTLSpeed    = 0;
+            float warpSpeed   = 0;
 
             for (int i = 0; i < OwnedShips.Count; i++)
             {
@@ -320,12 +320,12 @@ namespace Ship_Game
                 {
                     numFreighters += 1;
                     cargoCap += ship.CargoSpaceMax;
-                    FTLSpeed += ship.MaxFTLSpeed;
+                    warpSpeed += ship.MaxFTLSpeed;
                 }
             }
 
             AverageFreighterCargoCap = (int)(cargoCap / numFreighters.LowerBound(1)).LowerBound(10);
-            AverageFreighterFTLSpeed = (int)(FTLSpeed / numFreighters.LowerBound(1));
+            AverageFreighterFTLSpeed = (int)(warpSpeed / numFreighters.LowerBound(1));
         }
 
         public void SetAverageFreighterCargoCap(int value)
