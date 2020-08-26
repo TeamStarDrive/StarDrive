@@ -151,7 +151,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 Priority = 0;
                 return;
             }
-            Vector2 position = RallyAO?.Center ?? Us.GetWeightedCenter();
+            Vector2 position = RallyAO?.Center ?? Us.WeightedCenter;
             // trying to figure out how to incorporate planet value but all it does is attack homeworlds right now. 
             // so remarking that code and just going by distance. 
             //float totalWarValue          = OwnerWar.WarTheaters.WarValue.LowerBound(1); 

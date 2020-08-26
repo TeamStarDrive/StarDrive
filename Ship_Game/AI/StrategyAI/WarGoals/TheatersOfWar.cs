@@ -61,7 +61,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         float TheaterClosestToItsRally()
         {
-            Vector2 defaultPosition = Us.GetWeightedCenter();
+            Vector2 defaultPosition = Us.WeightedCenter;
             float closest = float.MaxValue;
             for (int i = 0; i < Theaters.Count; i++)
             {
@@ -177,7 +177,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         Array<AO> CreateAOsForSystems(SolarSystem[] systems)
         {
             var theirAo     = Them.EmpireAO();
-            var UsAO        = Us.GetWeightedCenter();
+            var UsAO        = Us.WeightedCenter;
             float minAoSize = 600000;
             float maxAoSize = (Empire.Universe.UniverseSize).LowerBound(minAoSize);
             var aoSize      = (theirAo.Radius / 2).Clamped(minAoSize, maxAoSize);
