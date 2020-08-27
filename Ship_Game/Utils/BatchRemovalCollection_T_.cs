@@ -133,6 +133,10 @@ namespace Ship_Game
             return item;
         }
 
+        public void UnsafeAdd(T item) => base.Add(item);
+
+        public void UnsafeRemove(T item) => base.Remove(item);
+
         public void Dispose()
         {
             Destroy();

@@ -297,7 +297,7 @@ namespace Ship_Game
                     {
                         kv.Value.SetSpeed();
                     }
-
+                    empire.PopulateKnownShips();
                     empire.Pool.UpdatePools();
                     empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
                 }
@@ -351,7 +351,10 @@ namespace Ship_Game
                     {                        
                         continue;
                     }
-                    Parallel.ForEach(empire.GetShipsAtomic(), ship =>
+
+                    var ships = empire.GetShipsAtomic();
+
+                    Parallel.ForEach(ships, ship =>
                     {
                         if (ship?.Active != true)
                         {
@@ -394,9 +397,6 @@ namespace Ship_Game
                             EmpireScanIncrement = 0;
                         EmpireScanFinished = false;
                     }
-                   
-
-                    empire.PopulateKnownShips();
                 }
             });
 

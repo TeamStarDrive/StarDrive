@@ -63,7 +63,7 @@ namespace Ship_Game.GameScreens
         // Stops audio and music, then disposes any graphics resources
         public void Dispose()
         {
-            Active = false;
+            Active = Video != null && Player?.IsDisposed == false;
             if (Video != null) // avoid double dispose issue
             {
                 Stop();
@@ -240,7 +240,7 @@ namespace Ship_Game.GameScreens
 
         public void Draw(SpriteBatch batch, in Rectangle rect, Color color, float rotation, SpriteEffects effects)
         {
-            if (BeginPlayTask?.IsComplete != true || !Active)
+            if (BeginPlayTask?.IsComplete != true || Player.IsDisposed || !Active)
                 return;
             
             if (!Visible)
