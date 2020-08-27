@@ -70,7 +70,7 @@ namespace Ship_Game.Ships
                     if (Influences[index].Foreign == empire) // it's already set?
                     {
                         ref ForeignInfluence influence = ref Influences[index];
-                        influence.Timer = empire.updateContactsTimer;
+                        influence.Timer = empire.MaxContactTimer;
                         return;
                     }
 
@@ -86,7 +86,7 @@ namespace Ship_Game.Ships
                 ref ForeignInfluence dst = ref Influences[InfluenceCount++];
                 dst.Foreign              = empire;
                 dst.Relationship         = relation;
-                dst.Timer                = empire.updateContactsTimer;
+                dst.Timer                = empire.MaxContactTimer;
             }
         }
 
