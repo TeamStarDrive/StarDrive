@@ -454,7 +454,7 @@ namespace Ship_Game
                     for (int i = 0; i < ArmageddonCounter; ++i)
                     {
                         Ship exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                                player.GetWeightedCenter() + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
+                                player.WeightedCenter + new Vector2(RandomMath.RandomBetween(-500000f, 500000f),
                                     RandomMath.RandomBetween(-500000f, 500000f)));
                         exterminator.AI.DefaultAIState = AIState.Exterminate;
                     }

@@ -207,6 +207,7 @@ namespace Ship_Game
         public static extern Vector2 RotatePoint(this Vector2 self, float radians);
 
         // This only deals with a local orbit offset, independent from orbit center
+        // So the local center is always [0,0] and the current [offset] is relative to that
         [DllImport("SDNative.dll")]
         public static extern Vector2 OrbitalOffsetRotate(Vector2 offset, float orbitRadius, float radians);
     }

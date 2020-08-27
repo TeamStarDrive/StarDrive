@@ -195,6 +195,7 @@ namespace Ship_Game
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public float TotalPotentialResearchPerColonist { get; private set; }
+        public Vector2 WeightedCenter;
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -801,8 +802,8 @@ namespace Ship_Game
         public Array<SolarSystem> GetBorderSystems(Empire them, bool hideUnexplored)
         {
             var solarSystems = new Array<SolarSystem>();
-            Vector2 theirCenter = them.GetWeightedCenter();
-            float maxDistance = theirCenter.Distance(GetWeightedCenter()) - 300000;
+            Vector2 theirCenter = them.WeightedCenter;
+            float maxDistance = theirCenter.Distance(WeightedCenter) - 300000;
             
             foreach (var solarSystem in GetOwnedSystems())
             {
@@ -825,6 +826,8 @@ namespace Ship_Game
             OwnedPlanets.Remove(planet);
             if (OwnedPlanets.All(p => p.ParentSystem != planet.ParentSystem)) // system no more in owned planets?
                 OwnedSolarSystems.Remove(planet.ParentSystem);
+
+            CalcWeightedCenter(calcNow: true);
         }
 
         public void ClearAllPlanets()
@@ -849,6 +852,7 @@ namespace Ship_Game
                 throw new ArgumentNullException(nameof(planet.ParentSystem));
 
             OwnedSolarSystems.AddUniqueRef(planet.ParentSystem);
+            CalcWeightedCenter(calcNow: true);
         }
 
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
@@ -2471,7 +2475,8 @@ namespace Ship_Game
 
             if (!isFaction)
             {
-                CalcAverageFreighterCargoCap();
+                CalcAverageFreighterCargoCapAndFTLSpeed();
+                CalcWeightedCenter();
                 DispatchBuildAndScrapFreighters();
                 AssignExplorationTasks();
             }
@@ -2491,8 +2496,7 @@ namespace Ship_Game
 
                 if (rebels != null)
                 {
-                    Vector2 weightedCenter = GetWeightedCenter();
-                    if (OwnedPlanets.FindMax(out Planet planet, p => weightedCenter.SqDist(p.Center)))
+                    if (OwnedPlanets.FindMax(out Planet planet, p => WeightedCenter.SqDist(p.Center)))
                     {
                         if (isPlayer)
                             Universe.NotificationManager.AddRebellionNotification(planet,
@@ -2880,8 +2884,12 @@ namespace Ship_Game
             return center;
         }
 
-        public Vector2 GetWeightedCenter()
+        // This is also done when a planet is added or removed
+        public void CalcWeightedCenter(bool calcNow = false)
         {
+            if (!calcNow && (Universe.StarDate % 1).Greater(0)) 
+                return; // Once per year
+
             int planets = 0;
             var avgPlanetCenter = new Vector2();
 
@@ -2894,9 +2902,8 @@ namespace Ship_Game
                         avgPlanetCenter += planet.Center;
                     }
                 }
-            if (planets == 0)
-                planets = 1;
-            return avgPlanetCenter / planets;
+
+            WeightedCenter=  avgPlanetCenter / planets.LowerBound(1);
         }
 
         public void TheyKilledOurShip(Empire they, Ship killedShip)
@@ -3128,13 +3135,12 @@ namespace Ship_Game
                 return false; // We do not have any system owned, maybe we are defeated
 
             float distance = float.MaxValue;
-            Vector2 center = GetWeightedCenter();
             foreach(SolarSystem system in systems)
             {
                 var nearest = OwnedSolarSystems.FindClosestTo(system);
                 if (nearest == null) continue;
-                float approxDistance = center.SqDist(nearest.Position);
-                if (center.SqDist(nearest.Position) < distance)
+                float approxDistance = WeightedCenter.SqDist(nearest.Position);
+                if (WeightedCenter.SqDist(nearest.Position) < distance)
                 {
                     distance      = approxDistance;
                     nearestSystem = nearest;
