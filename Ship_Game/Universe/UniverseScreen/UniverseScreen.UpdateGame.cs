@@ -387,6 +387,13 @@ namespace Ship_Game
 
                     if (empireVisibility == empire && !EmpireScanFinished)
                     {
+                        foreach (var ssp in empireVisibility.GetProjectors().AtomicCopy())
+                        {
+                            ssp.UpdateModulePositions(deltaTime);
+                            ssp.UpdateInfluence(deltaTime);
+                            ssp.AI.StartSensorScan(deltaTime);
+                            ssp.KnownByEmpires.Update(deltaTime);
+                        }
                         EmpireScanFinished = true;
                         empireVisibility.UpdateContactsAndBorders(deltaTime);
                         empireVisibility.UpdateMilitaryStrengths();
