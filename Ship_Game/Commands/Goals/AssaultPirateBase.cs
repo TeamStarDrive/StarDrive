@@ -83,7 +83,7 @@ namespace Ship_Game.Commands.Goals
         bool GetClosestBaseToCenter(Ship[] basesList, out Ship closestPirateBase)
         {
             closestPirateBase    = null;
-            Vector2 empireCenter = empire.GetWeightedCenter();
+            Vector2 empireCenter = empire.WeightedCenter;
             closestPirateBase    = basesList.FindMin(b => b.Center.Distance(empireCenter));
             return closestPirateBase != null;
         }
