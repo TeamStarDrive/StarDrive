@@ -297,7 +297,7 @@ namespace Ship_Game
                     {
                         kv.Value.SetSpeed();
                     }
-
+                    empire.PopulateKnownShips();
                     empire.Pool.UpdatePools();
                     empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
                 }
@@ -351,7 +351,10 @@ namespace Ship_Game
                     {                        
                         continue;
                     }
-                    Parallel.ForEach(empire.GetShipsAtomic(), ship =>
+
+                    var ships = empire.GetShipsAtomic();
+
+                    Parallel.ForEach(ships, ship =>
                     {
                         if (ship?.Active != true)
                         {
@@ -384,6 +387,13 @@ namespace Ship_Game
 
                     if (empireVisibility == empire && !EmpireScanFinished)
                     {
+                        foreach (var ssp in empireVisibility.GetProjectors().AtomicCopy())
+                        {
+                            ssp.UpdateModulePositions(deltaTime);
+                            ssp.UpdateInfluence(deltaTime);
+                            ssp.AI.StartSensorScan(deltaTime);
+                            ssp.KnownByEmpires.Update(deltaTime);
+                        }
                         EmpireScanFinished = true;
                         empireVisibility.UpdateContactsAndBorders(deltaTime);
                         empireVisibility.UpdateMilitaryStrengths();
@@ -394,9 +404,6 @@ namespace Ship_Game
                             EmpireScanIncrement = 0;
                         EmpireScanFinished = false;
                     }
-                   
-
-                    empire.PopulateKnownShips();
                 }
             });
 
