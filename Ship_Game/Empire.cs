@@ -2003,7 +2003,8 @@ namespace Ship_Game
             using (OwnedShips.AcquireReadLock())
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
-                    num += OwnedShips[i].GetCargo(Goods.Colonists) / 1000;
+                    Ship ship = OwnedShips[i];
+                    num += ship.GetCargo(Goods.Colonists) / 1000;
                 }
 
             return num;
