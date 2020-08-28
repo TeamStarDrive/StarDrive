@@ -757,7 +757,7 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 5:
-                    if (!DoOrbitTaskArea(task))
+                    if (FleetInAreaInCombat(task.AO, task.AORadius) == CombatStatus.InCombat)
                     {
                         AttackEnemyStrengthClumpsInAO(task);
                         // todo bombard

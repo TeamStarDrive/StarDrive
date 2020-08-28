@@ -114,6 +114,9 @@ namespace Ship_Game
 
         public void ReleaseFleet(Fleet fleet)
         {
+            if (fleet == null)
+                return;
+
             Array<Ship> ships   = fleet.Ships;
             Vector2 fleetCenter = fleet.AveragePosition();
             fleet.FleetTask?.DisbandFleet(fleet);
