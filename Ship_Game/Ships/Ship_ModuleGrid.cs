@@ -794,7 +794,8 @@ namespace Ship_Game.Ships
 
             // higher levels lower the limit, which causes a better random pick
             int limit = modules.Length / (level + 1);
-            return modules[RandomMath.InRange(limit)];
+            lock (Empire.Universe.RandomLock)
+                return modules[RandomMath.InRange(limit)];
         }
 
         // This is called for guided weapons to pick a new target
