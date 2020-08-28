@@ -182,6 +182,7 @@ namespace Ship_Game.AI.Tasks
         public void ChangeTargetPlanet(Planet planet)
         {
             TargetPlanet = planet;
+            AO           = planet.Center;
         }
 
         public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";

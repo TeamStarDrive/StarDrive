@@ -62,8 +62,8 @@ namespace Ship_Game.Commands.Goals
         bool SelectClosestNextPlanet(out Planet planet)
         {
             planet = null;
-            var potentialPlanets = TargetEmpire.GetPlanets();
-            if (potentialPlanets.Count == 0)
+            var potentialPlanets = TargetEmpire.GetPlanets().Filter(p => p.ParentSystem != TargetPlanet.ParentSystem);
+            if (potentialPlanets.Length == 0)
                 return false;
 
             planet = potentialPlanets.FindMin(p => p.Center.Distance(TargetPlanet.Center));
