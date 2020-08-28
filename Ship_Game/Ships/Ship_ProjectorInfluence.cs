@@ -70,7 +70,7 @@ namespace Ship_Game.Ships
                     if (Influences[index].Foreign == empire) // it's already set?
                     {
                         ref ForeignInfluence influence = ref Influences[index];
-                        influence.Timer = empire.updateContactsTimer;
+                        influence.Timer = empire.MaxContactTimer;
                         return;
                     }
 
@@ -86,7 +86,7 @@ namespace Ship_Game.Ships
                 ref ForeignInfluence dst = ref Influences[InfluenceCount++];
                 dst.Foreign              = empire;
                 dst.Relationship         = relation;
-                dst.Timer                = empire.updateContactsTimer;
+                dst.Timer                = empire.MaxContactTimer;
             }
         }
 
@@ -118,11 +118,11 @@ namespace Ship_Game.Ships
 
                 for (int i = 0; i < InfluenceCount; ++i)
                 {
-                    var influence =Influences[i];
-                    if (influence.Timer + GetBuffer() > 0 )
+                    var influence = Influences[i];
+                    if (influence.Timer + GetBuffer() > 0)
                     {
                         Relationship r = influence.Relationship;
-                        if (r.Treaty_Alliance || r.Treaty_Trade && IsFreighter)
+                        if (r != null && r.Treaty_Alliance || r.Treaty_Trade && IsFreighter)
                             return true;
                     }
                 }
@@ -141,7 +141,7 @@ namespace Ship_Game.Ships
                 {
                     var influence =Influences[i];
                     if (influence.Timer + GetBuffer() > 0 )
-                        if (influence.Relationship.AtWar )
+                        if (influence.Relationship?.AtWar == true)
                             return true;
 
                 }
