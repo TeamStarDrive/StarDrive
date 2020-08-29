@@ -1264,7 +1264,17 @@ namespace Ship_Game
             for (int i = 0; i < targets.Length; i++)
             {
                 var target = targets[i];
-                ((Ship) target).SetProjectorInfluence(this, true);
+                var ship = (Ship)target;
+                ship.SetProjectorInfluence(this, true);
+                if (ship.DesignRoleType == ShipData.RoleType.Warship)
+                {
+                    if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
+                        if (node.SourceObject is Ship ssp)
+                        {
+                            if (IsEmpireHostile(ship.loyalty))
+                                ssp.HasSeenEmpires.SetSeen(target.GetLoyalty());
+                        }
+                }
             }
         }
 

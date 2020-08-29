@@ -127,6 +127,7 @@ namespace Ship_Game.Ships
         private float BonusEMP_Protection;
         public bool inSensorRange => KnownByEmpires.KnownByPlayer;
         public KnownByEmpire KnownByEmpires;
+        public KnownByEmpire HasSeenEmpires;
         public bool EMPdisabled;
         private float updateTimer;
         public float HealPerTurn;
