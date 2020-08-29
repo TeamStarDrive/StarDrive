@@ -33,13 +33,13 @@ namespace Ship_Game.Commands.Goals
             Remnants = empire.Remnants;
         }
 
-        void EngageStrongest()
+        void EngageStrongest(Ship[] portals)
         {
             if (!Remnants.CanDoAnotherEngagement(out _))
                 return;
 
             Empire strongest = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
-            Remnants.Goals.Add(new RemnantBalancersEngage(empire, strongest));
+            Remnants.Goals.Add(new RemnantBalancersEngage(empire, portals.RandItem(), strongest));
         }
 
         bool CreatePortal()
@@ -70,7 +70,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep MonitorAndEngage()
         {
-            if (Remnants.NumPortals() == 0)
+            if (!Remnants.GetPortals(out Ship[] portals))
             {
                 empire.SetAsDefeated();
                 Empire.Universe.NotificationManager.AddEmpireDiedNotification(empire);
@@ -78,9 +78,9 @@ namespace Ship_Game.Commands.Goals
             }
 
             if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
-                CreatePortal(); // Second portal in level 10
+                CreatePortal(); // Second portal at level 10
 
-            EngageStrongest();
+            EngageStrongest(portals);
             return GoalStep.TryAgain;
         }
     }

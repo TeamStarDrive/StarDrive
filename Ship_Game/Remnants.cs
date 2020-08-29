@@ -96,7 +96,7 @@ namespace Ship_Game
         void SetInitialLevel()
         {
             int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-            int turnsPassed  = (int)(Empire.Universe.StarDate * 10);
+            int turnsPassed  = (int)((Empire.Universe.StarDate - 1000) * 10);
             Level            = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
             Level            = Level.LowerBound(1);
         }
@@ -194,6 +194,19 @@ namespace Ship_Game
             return nextPlanet != null;
         }
 
+        public void CallGuardians(Ship portal) // One guarding from each relevant system
+        {
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+            {
+                var guardians = system.ShipList.Filter(s => s.IsGuardian && !s.InCombat);
+                if (guardians.Length > 0)
+                {
+                    Ship chosenGuardian = guardians.RandItem();
+                    chosenGuardian.AI.AddEscortGoal(portal);
+                }
+            }
+        }
+
         public int GetNumBombersNeeded(Planet planet)
         {
             return RollDice((Level - 1) * 2) ? planet.Level * 2 : 0;
@@ -229,6 +242,7 @@ namespace Ship_Game
                 return false;
 
             GenerateProduction(-cost);
+            ship.EmergeFromPortal();
             return true;
         }
 
