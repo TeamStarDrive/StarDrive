@@ -1464,19 +1464,24 @@ namespace Ship_Game
                 empireShipTotal = 0;
                 empireShipCombat = 0;
                 Inhibitors.Clear();
-                foreach (Ship ship in OwnedShips)
+                for (int i = 0; i < OwnedShips.Count; i++)
                 {
+                    Ship ship = OwnedShips[i];
+                    //if (ship?.Active != true) continue;
+
                     if (ship.InhibitionRadius > 0.0f)
                         Inhibitors.Add(ship);
 
-                    if (ship.fleet == null && ship.InCombat && ship.Mothership == null)  //fbedard: total ships in combat
+                    if (ship.fleet == null && ship.InCombat && ship.Mothership == null) //fbedard: total ships in combat
                         empireShipCombat++;
-                    if (ship.Mothership != null || ship.DesignRole == ShipData.RoleName.troop
-                                                || ship.DesignRole == ShipData.RoleName.freighter
+
+                    if (ship.Mothership != null || ship.DesignRole            == ShipData.RoleName.troop
+                                                || ship.DesignRole            == ShipData.RoleName.freighter
                                                 || ship.shipData.ShipCategory == ShipData.Category.Civilian)
                         continue;
                     empireShipTotal++;
                 }
+
                 UpdateTimer = GlobalStats.TurnTimer + (Id -1) * elapsedTime;
                 UpdateEmpirePlanets();
                 UpdateAI(); // Must be done before DoMoney
@@ -2299,6 +2304,7 @@ namespace Ship_Game
                 for (int z = 0; z < ships.Length; z++)
                 {
                     Ship ship = ships[z];
+                    if (ship?.Active != true) continue;
 
                     InfluenceNode influenceNode = SensorNodes.RecycleObject(n=> n.Wipe()) ?? new InfluenceNode();
                     influenceNode.Position      = ship.Center;
@@ -2308,11 +2314,13 @@ namespace Ship_Game
                     sensorNodes.Add(influenceNode);
                 }
 
-                var projectors = empire.GetShipsAtomic();
+                //loop over all ALLIED projectors
+                var projectors = empire.GetProjectors().AtomicCopy();
                 for (int z = 0; z < projectors.Length; z++)
                 {
                     Ship ship                   = projectors[z];
-                    //loop over all ALLIED projectors
+                    if (ship?.Active != true) continue;
+                    
                     InfluenceNode influenceNode = SensorNodes.RecycleObject(n=> n.Wipe()) ?? new InfluenceNode();
                     influenceNode.Position      = ship.Center;
                     influenceNode.Radius        = ship.SensorRange;

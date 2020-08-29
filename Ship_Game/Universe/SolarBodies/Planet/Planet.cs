@@ -428,6 +428,7 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
             UpdatePlanetaryProjectiles(elapsedTime);
+            //UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
         }
 
         void RefreshOrbitalStations()
