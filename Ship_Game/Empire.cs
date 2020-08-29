@@ -2217,6 +2217,7 @@ namespace Ship_Game
             }
 
             SetPirateBorders(tempBorderNodes);
+            SetRemnantPortalBorders(tempBorderNodes);
 
             SensorNodes.ClearPendingRemovals();
             SensorNodes.ClearAndRecycle();
@@ -2240,6 +2241,23 @@ namespace Ship_Game
                 influenceNode.Radius        = pirateBase.SensorRange;
                 influenceNode.SourceObject  = pirateBase;
                 influenceNode.KnownToPlayer = IsSensorNodeVisible(false, pirateBase);
+                borderNodes.Add(influenceNode);
+            }
+        }
+
+        private void SetRemnantPortalBorders(ICollection<InfluenceNode> borderNodes)
+        {
+            if (!WeAreRemnants || !Remnants.GetPortals(out Ship[] portals))
+                return;
+
+            for (int i = 0; i < portals.Length; i++)
+            {
+                Ship portal                 = portals[i];
+                InfluenceNode influenceNode = BorderNodes.RecycleObject(n => n.Wipe()) ?? new InfluenceNode();
+                influenceNode.Position      = portal.Center;
+                influenceNode.Radius        = portal.SensorRange;
+                influenceNode.SourceObject  = portal;
+                influenceNode.KnownToPlayer = IsSensorNodeVisible(false, portal);
                 borderNodes.Add(influenceNode);
             }
         }
