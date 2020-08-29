@@ -19,17 +19,17 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 SelectFirstTargetPlanet,
-                SelectPortalToSpawnFrom,
                 DetermineNumBombers,
                 GatherFleet,
                 WaitForCompletion
             };
         }
 
-        public RemnantBalancersEngage(Empire owner, Empire target) : this()
+        public RemnantBalancersEngage(Empire owner, Ship portal, Empire target) : this()
         {
             empire       = owner;
             TargetEmpire = target;
+            TargetShip   = portal;
             PostInit();
             Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Engagement: Ancient Balancers for {TargetEmpire.Name} ----");
         }
@@ -38,7 +38,7 @@ namespace Ship_Game.Commands.Goals
         {
             Remnants     = empire.Remnants;
             TargetPlanet = ColonizationTarget;
-            Portal       = TargetShip;
+            Portal       = TargetShip; // Save compatibility
             BombersLevel = ShipLevel;
         }
 
@@ -49,27 +49,17 @@ namespace Ship_Game.Commands.Goals
         bool SelectTargetPlanet()
         {
             bool byLevel = RandomMath.RollDice(Remnants.Level);
-            if (byLevel && !Remnants.SelectTargetPlanetByLevel(TargetEmpire, out TargetPlanet))
+            if (!byLevel || !Remnants.SelectTargetPlanetByLevel(TargetEmpire, out TargetPlanet))
                 if (!Remnants.SelectTargetClosestPlanet(Portal, TargetEmpire, out TargetPlanet))
                     return false; // Could not find a target planet
 
             ColonizationTarget = TargetPlanet; // Using TargetPlanet for better readability
-            return true;
+            return TargetPlanet != null;
         }
 
         GoalStep SelectFirstTargetPlanet()
         {
             return SelectTargetPlanet() ? GoalStep.GoToNextStep : GoalStep.GoalComplete;
-        }
-
-        GoalStep SelectPortalToSpawnFrom()
-        {
-            if (!Remnants.GetPortals(out Ship[] portals))
-                return GoalStep.GoalFailed;
-
-            Portal     = portals.FindMin(s => s.Center.Distance(TargetPlanet.Center));
-            TargetShip = Portal; // Save compatibility
-            return GoalStep.GoToNextStep;
         }
 
         GoalStep DetermineNumBombers()
@@ -102,9 +92,8 @@ namespace Ship_Game.Commands.Goals
                 Fleet.AddShip(ship);
             }
 
-            ship.EmergeFromPortal();
             ship.AI.AddEscortGoal(Portal);
-            if (Fleet.GetStrength() < TargetEmpire.CurrentMilitaryStrength / 4)
+            if (Fleet.GetStrength() < (TargetEmpire.CurrentMilitaryStrength / 4).LowerBound(Remnants.Level * 100))
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();

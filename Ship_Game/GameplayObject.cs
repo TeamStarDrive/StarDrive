@@ -169,6 +169,7 @@ namespace Ship_Game
                 changeTo.AddShip(ship);
                 oldLoyalty.AddBoardedNotification(ship);
                 ship.PiratePostChangeLoyalty();
+                ship.IsGuardian = changeTo.WeAreRemnants;
             }
 
             // this resets the spatial management
