@@ -15,7 +15,8 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
-               GenerateProduction
+                CallGuardians,
+                GenerateProduction
             };
         }
 
@@ -31,6 +32,12 @@ namespace Ship_Game.Commands.Goals
         {
             Remnants = empire.Remnants;
             Portal   = TargetShip;
+        }
+
+        GoalStep CallGuardians()
+        {
+            Remnants.CallGuardians(Portal);
+            return GoalStep.GoToNextStep;
         }
 
         GoalStep GenerateProduction()
