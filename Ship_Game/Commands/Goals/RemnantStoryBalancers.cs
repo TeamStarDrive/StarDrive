@@ -38,7 +38,7 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.CanDoAnotherEngagement(out _))
                 return;
 
-            Empire strongest = EmpireManager.MajorEmpires.FindMax(e => e.TotalScore);
+            Empire strongest = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
             Remnants.Goals.Add(new RemnantBalancersEngage(empire, strongest));
         }
 
