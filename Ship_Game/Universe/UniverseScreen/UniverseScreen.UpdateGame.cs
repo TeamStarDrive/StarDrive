@@ -14,6 +14,7 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         public readonly ActionPool AsyncDataCollector = new ActionPool();
+        public readonly object RandomLock = new object();
 
         void ProcessTurnsMonitored()
         {
@@ -149,17 +150,31 @@ namespace Ship_Game
                 // this will update all ship Center coordinates
                 ProcessTurnShipsAndSystems(elapsedTime);
 
+                MasterShipList.ApplyPendingRemovals();
                 CollisionTime.Start();
+                
+                // The lock assures that the asyncdatacollocter is finished before the quad manager updates.
+                // anything after this lock and before QueueActionForThreading should be thread safe.
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
                 lock(SpaceManager.LockSpaceManager)
-                {
                     SpaceManager.Update(elapsedTime);
 
+                MasterShipList.ApplyPendingRemovals();
+                Parallel.ForEach(EmpireManager.Empires, empire =>
+                {
+                    empire.Pool.UpdatePools();
                     MasterShipList.ApplyPendingRemovals();
-                    // bulk remove all dead projectiles to prevent their update next frame
-                    RemoveDeadProjectiles();
-                }
+                    empire.PopulateKnownShips();
+                    foreach(var planet in empire.GetPlanets())
+                        planet.UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
+                });
+
+                Parallel.ForEach(MasterShipList, ship => ship.AI.UpdateCombatStateAI(elapsedTime));
+                
+                // bulk remove all dead projectiles to prevent their update next frame
+                RemoveDeadProjectiles();
+
                 QueueActionsForThreading(0.01666667f);
                 AsyncDataCollector.MoveItemsToThread();
                 CollisionTime.Stop();
@@ -175,8 +190,8 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            // For some reason it takes about 90 frames to get the spacemanager initially updated
-            for (int x = 0; x < 90; x++)
+            // makes sure all empire vision is updated.
+            for (int x = 0; x < EmpireManager.NumEmpires * 2; x++)
             {
                 QueueActionsForThreading(0.016f);
                 AsyncDataCollector.MoveItemsToThread();
@@ -186,6 +201,7 @@ namespace Ship_Game
                 lock (SpaceManager.LockSpaceManager);
                     SpaceManager.Update(0.016f);
             }
+            EmpireManager.Player.PopulateKnownShips();
         }
 
         void RemoveDeadProjectiles()
@@ -292,13 +308,10 @@ namespace Ship_Game
                 for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
                     var empire = EmpireManager.Empires[i];
-                    foreach (KeyValuePair<int, Fleet> kv in
-                        empire.GetFleetsDict())
+                    foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
                     {
                         kv.Value.SetSpeed();
                     }
-                    empire.PopulateKnownShips();
-                    empire.Pool.UpdatePools();
                     empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
                 }
 
@@ -348,7 +361,7 @@ namespace Ship_Game
                 foreach (var empire in EmpireManager.Empires)
                 {
                     if (empire.IsEmpireDead())
-                    {                        
+                    {
                         continue;
                     }
 
@@ -365,6 +378,7 @@ namespace Ship_Game
 
                         ship.SetFleetCapableStatus();
                         ship.UpdateModulePositions(deltaTime);
+
                         // currently too much for 4 cores
                         //ship.AI.UpdateCombatStateAI(deltaTime);
                         if (ship.loyalty == empireVisibility && EmpireScanFinished)
@@ -376,14 +390,6 @@ namespace Ship_Game
                         if (empireVisibility == empire && !EmpireScanFinished)
                             ship.UpdateInfluence(deltaTime);
                     });
-
-                    IReadOnlyList<Planet> list = empire.GetPlanets();
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        var planet = list[i];
-                        planet.UpdateSpaceCombatBuildings(
-                            deltaTime); // building weapon timers are in this method. 
-                    }
 
                     if (empireVisibility == empire && !EmpireScanFinished)
                     {
