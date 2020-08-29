@@ -25,7 +25,7 @@ namespace Ship_Game
         public RemnantStory Story { get; private set; }
         public float Production { get; private set; }
         public int Level { get; private set; }
-        public Map<RemnantShipType, float> ShipCosts { get; private set; } = new Map<RemnantShipType, float>();
+        public Map<RemnantShipType, float> ShipCosts { get; } = new Map<RemnantShipType, float>();
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -74,23 +74,31 @@ namespace Ship_Game
         {
             // todo - create relevant goals by story
             Activated = true;
-            Level++;
+            SetInitialLevel();
             // create story goal
             Goals.Add(new RemnantStoryBalancers(Owner));
         }
 
         public bool TryLevelUpByDate(out int newLevel)
         {
-            newLevel        = 0;
-            int turnsPassed = (int)(Empire.Universe.StarDate * 10);
-            if (turnsPassed % Owner.DifficultyModifiers.RemnantTurnsLevelUp == 0) // 500 turns on Normal
+            newLevel         = 0;
+            int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp;
+            int turnsPassed  = (int)(Empire.Universe.StarDate * 10);
+            if (turnsPassed % turnsLevelUp == 0) // 500 turns on Normal
             {
-                Level = (Level + 1).UpperBound(MaxLevel); // todo notify player depending on espionage str
-                newLevel = Level;
+                newLevel = Level = (Level + 1).UpperBound(MaxLevel); // todo notify player depending on espionage str
                 return true;
             }
 
             return false;
+        }
+
+        void SetInitialLevel()
+        {
+            int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp;
+            int turnsPassed  = (int)(Empire.Universe.StarDate * 10);
+            Level            = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
+            Level            = Level.LowerBound(1);
         }
 
         public bool CanDoAnotherEngagement(out int numRaids)
@@ -132,6 +140,32 @@ namespace Ship_Game
                 if (ship.loyalty.WeAreRemnants)
                     ship.AI.AddEscortGoal(closestPortal);
             }
+        }
+
+        public bool SelectTargetPlanetByLevel(Empire targetEmpire, out Planet targetPlanet)
+        {
+            targetPlanet           = null;
+            int desiredPlanetLevel = (RollDie(5) - 5 + Level).LowerBound(1);
+            var potentialPlanets   = targetEmpire.GetPlanets().Filter(p => p.Level == desiredPlanetLevel);
+            if (potentialPlanets.Length == 0) // Try lower level planets if not found exact level
+                potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.Level < desiredPlanetLevel);
+
+            if (potentialPlanets.Length == 0)
+                return false; // Could not find a target planet by planet level
+
+            targetPlanet = potentialPlanets.RandItem(); // Using TargetPlanet for better readability
+            return true;
+        }
+
+        public bool SelectTargetClosestPlanet(Ship portal, Empire targetEmpire, out Planet targetPlanet)
+        {
+            targetPlanet = null;
+            var potentialPlanets = targetEmpire.GetPlanets();
+            if (potentialPlanets.Count == 0) // No planets - might be defeated
+                return false;
+
+            targetPlanet = potentialPlanets.FindMin(p => p.Center.Distance(portal.Center));
+            return targetPlanet != null;
         }
 
         public bool CreatePortal(out Ship portal, out string systemName)
@@ -176,6 +210,7 @@ namespace Ship_Game
             AddShipCost(Owner.data.RemnantCarrier, RemnantShipType.Carrier);
             AddShipCost(Owner.data.RemnantMotherShip, RemnantShipType.Mothership);
             AddShipCost(Owner.data.RemnantExterminator, RemnantShipType.Exterminator);
+            AddShipCost(Owner.data.RemnantBomber, RemnantShipType.Bomber);
         }
 
         void AddShipCost(string shipName, RemnantShipType type)
@@ -185,7 +220,7 @@ namespace Ship_Game
             ShipCosts.Add(type, cost);
         }
 
-        RemnantShipType SelectShipForCreation()
+        RemnantShipType SelectShipForCreation() // Note Bombers are created exclusively 
         {
             int roll = RollDie(20) + Level;
             if (roll == 1 + Level) return RemnantShipType.Fighter;
@@ -214,6 +249,7 @@ namespace Ship_Game
                 case RemnantShipType.Mothership:   shipName = Owner.data.RemnantMotherShip;   break;
                 case RemnantShipType.Exterminator: shipName = Owner.data.RemnantExterminator; break;
                 case RemnantShipType.Portal:       shipName = Owner.data.RemnantPortal;       break;
+                case RemnantShipType.Bomber:       shipName = Owner.data.RemnantBomber;       break;
             }
 
             if (shipName.NotEmpty())
@@ -274,8 +310,8 @@ namespace Ship_Game
 
         public void GenerateRemnantPresence(Planet p)
         {
-            if (p.ParentSystem.isStartingSystem)
-                return; // Don't create Remnants on starting systems
+            if (p.ParentSystem.isStartingSystem || p.ParentSystem.PiratePresence)
+                return; // Don't create Remnants on starting systems or Pirate systems
 
             float quality   = PlanetQuality(p);
             int dieModifier = (int)CurrentGame.Difficulty * 5 - 5; // easy -5, brutal +10
@@ -535,6 +571,7 @@ namespace Ship_Game
         Cruiser,
         Mothership,
         Exterminator,
-        Portal
+        Portal,
+        Bomber
     }
 }

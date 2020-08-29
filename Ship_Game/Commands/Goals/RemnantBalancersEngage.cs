@@ -12,6 +12,7 @@ namespace Ship_Game.Commands.Goals
         public Planet TargetPlanet;
         private Remnants Remnants;
         private Ship Portal;
+        private int BombersLevel;
 
         public RemnantBalancersEngage() : base(GoalType.RemnantBalancersEngage)
         {
@@ -37,25 +38,21 @@ namespace Ship_Game.Commands.Goals
             Remnants     = empire.Remnants;
             TargetPlanet = ColonizationTarget;
             Portal       = TargetShip;
-
+            BombersLevel = ShipLevel;
         }
 
         public override bool IsRaid => true;
 
-        bool StillStrongest => EmpireManager.MajorEmpires.FindMax(e => e.TotalScore) == TargetEmpire;
+        bool StillStrongest => EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore) == TargetEmpire;
         
         bool SelectTargetPlanet()
         {
-            int desiredPlanetLevel = (RandomMath.RollDie(5) - 5 + Remnants.Level).LowerBound(1);
-            var potentialPlanets   = TargetEmpire.GetPlanets().Filter(p => p.Level == desiredPlanetLevel);
-            if (potentialPlanets.Length == 0) // Try lower level planets if not found exact level
-                potentialPlanets = TargetEmpire.GetPlanets().Filter(p => p.Level != desiredPlanetLevel);
+            bool byLevel = RandomMath.RollDice(Remnants.Level);
+            if (byLevel && !Remnants.SelectTargetPlanetByLevel(TargetEmpire, out TargetPlanet))
+                if (!Remnants.SelectTargetClosestPlanet(Portal, TargetEmpire, out TargetPlanet))
+                    return false; // Could not find a target planet
 
-            if (potentialPlanets.Length == 0)
-                return false; // Could not find a target planet
-
-            ColonizationTarget = potentialPlanets.RandItem();
-            TargetPlanet       = ColonizationTarget; // We will use TargetPlanet for better readability
+            ColonizationTarget = TargetPlanet; // Using TargetPlanet for better readability
             return true;
         }
 
