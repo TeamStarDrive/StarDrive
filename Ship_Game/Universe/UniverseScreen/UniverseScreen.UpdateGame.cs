@@ -358,8 +358,9 @@ namespace Ship_Game
 
             AsyncDataCollector.Add(() =>
             {
-                foreach (var empire in EmpireManager.Empires)
+                for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
+                    var empire = EmpireManager.Empires[i];
                     if (empire.IsEmpireDead())
                     {
                         continue;
@@ -371,6 +372,7 @@ namespace Ship_Game
                     {
                         if (ship?.Active != true)
                         {
+                            // make sure dead and dying ships can be seen.
                             if (ship?.KnownByEmpires.KnownByPlayer == true)
                                 ship.KnownByEmpires.SetSeenByPlayer();
                             return;
@@ -388,7 +390,9 @@ namespace Ship_Game
                         }
 
                         if (empireVisibility == empire && !EmpireScanFinished)
+                        {
                             ship.UpdateInfluence(deltaTime);
+                        }
                     });
 
                     if (empireVisibility == empire && !EmpireScanFinished)
@@ -399,14 +403,17 @@ namespace Ship_Game
                             ssp.UpdateInfluence(deltaTime);
                             ssp.AI.StartSensorScan(deltaTime);
                             ssp.KnownByEmpires.Update(deltaTime);
+                            ssp.HasSeenEmpires.Update(deltaTime);
                         }
+
                         EmpireScanFinished = true;
                         empireVisibility.UpdateContactsAndBorders(deltaTime);
                         empireVisibility.UpdateMilitaryStrengths();
                     }
                     else if (empireVisibility == empire)
                     {
-                        if (++EmpireScanIncrement == EmpireManager.Empires.Count)
+                        if (++EmpireScanIncrement ==
+                            EmpireManager.Empires.Count)
                             EmpireScanIncrement = 0;
                         EmpireScanFinished = false;
                     }
