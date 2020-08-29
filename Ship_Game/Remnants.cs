@@ -107,17 +107,32 @@ namespace Ship_Game
             return numRaids < Level;
         }
 
-        public bool AssignShipInPortalSystem(Ship portal, out Ship ship)
+        public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
         {
             ship = null;
             var availableShips = portal.System.ShipList.Filter(s => s.fleet == null 
                                                                     && s.loyalty == Owner 
+                                                                    && s.IsGuardian
                                                                     && !s.IsPlatformOrStation
                                                                     && !s.InCombat);
             if (availableShips.Length > 0)
-                ship = availableShips.RandItem();
+                if (bombersNeeded > 0)
+                {
+                    var bombers = availableShips.Filter(s => s.Name == Owner.data.RemnantBomber);
+                    if (bombers.Length > 0)
+                        ship = bombers.First();
+                }
+                else
+                {
+                    ship = availableShips.RandItem();
+                }
 
             return ship != null;
+        }
+
+        public int NumBombersInFleet(Fleet fleet)
+        {
+           return fleet?.Ships.Count(s => s.Name == Owner.data.RemnantBomber) ?? 0;
         }
 
         public void ReleaseFleet(Fleet fleet)
@@ -181,7 +196,7 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            return RollDice(Level * 2) ? planet.Level * 2 : 0;
+            return RollDice((Level - 1) * 2) ? planet.Level * 2 : 0;
         }
 
         public bool CreatePortal(out Ship portal, out string systemName)
@@ -203,10 +218,10 @@ namespace Ship_Game
             return SpawnShip(RemnantShipType.Portal, pos, out portal);
         }
 
-        public bool CreateShip(Ship portal, out Ship ship)
+        public bool CreateShip(Ship portal, bool needBomber, out Ship ship)
         {
             ship = null;
-            RemnantShipType type = SelectShipForCreation();
+            RemnantShipType type = needBomber ? RemnantShipType.Bomber : SelectShipForCreation();
             if (!ShipCosts.TryGetValue(type, out float cost) || Production < cost)
                 return false;
 
@@ -274,7 +289,7 @@ namespace Ship_Game
                 if (remnantShip == null)
                     Log.Warning($"Could not spawn required Remnant ship named {shipName} for {Owner.Name}, check race xml");
                 else
-                    remnantShip.IsGuardian = true; // TODO maybe this should only apply to starting remnants
+                    remnantShip.IsGuardian = true; // All Remnant ships are Guardians, also used when filtering original remnant ships
             }
             else
             {

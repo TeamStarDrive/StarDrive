@@ -9,6 +9,7 @@ using System.Linq;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
+using Ship_Game.AI.CombatTactics;
 
 namespace Ship_Game.Fleets
 {
@@ -760,11 +761,17 @@ namespace Ship_Game.Fleets
                     if (FleetInAreaInCombat(task.AO, task.AORadius) == CombatStatus.InCombat)
                     {
                         AttackEnemyStrengthClumpsInAO(task);
-                        // todo bombard
                         break;
                     }
 
+                    OrderFleetOrbit(FleetTask.TargetPlanet);
                     TaskStep = 6;
+                    break;
+                case 6:
+                    if (BombPlanet(FleetTask))
+                        break;
+
+                    TaskStep = 7;
                     break;
             }
         }
@@ -940,6 +947,15 @@ namespace Ship_Game.Fleets
             FleetTask = null;
             TaskStep = 0;
             return true;
+        }
+
+        void OrderFleetOrbit(Planet planet)
+        {
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                ship.OrderToOrbit(planet);
+            }
         }
 
         void AddFleetProjectorGoal()

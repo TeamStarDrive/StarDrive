@@ -74,7 +74,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep DetermineNumBombers()
         {
-            BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
+            ShipLevel = BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
             return GoalStep.GoToNextStep;
         }
 
@@ -86,15 +86,16 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            if (!Remnants.AssignShipInPortalSystem(Portal, out Ship ship))
-                if (!Remnants.CreateShip(Portal, out ship))
+            int missingBombers = BombersLevel > 0 ? BombersLevel - Remnants.NumBombersInFleet(Fleet): 0;
+            if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, out Ship ship))
+                if (!Remnants.CreateShip(Portal, missingBombers > 0, out ship))
                     return GoalStep.TryAgain;
 
             if (Fleet == null)
             {
                 var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, empire);
                 empire.GetEmpireAI().AddPendingTask(task);
-                task.CreateRemnantFleet(empire, ship, "Ancient Balancers", out Fleet);
+                task.CreateRemnantFleet(empire, ship, "Ancient Fleet", out Fleet);
             }
             else
             {
@@ -103,7 +104,7 @@ namespace Ship_Game.Commands.Goals
 
             ship.EmergeFromPortal();
             ship.AI.AddEscortGoal(Portal);
-            if (Fleet.GetStrength() < TargetEmpire.CurrentMilitaryStrength / 2)
+            if (Fleet.GetStrength() < TargetEmpire.CurrentMilitaryStrength / 4)
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();
@@ -116,7 +117,7 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.Ships.Count == 0)
                 return GoalStep.GoalFailed; // fleet is dead
 
-            if (Fleet.TaskStep == 6 || TargetPlanet.Owner != TargetEmpire)
+            if (Fleet.TaskStep == 7) // Fleet is done attacking and bombing
             {
                 if (!StillStrongest)
                 {
