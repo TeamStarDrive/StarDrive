@@ -117,22 +117,22 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.Ships.Count == 0)
                 return GoalStep.GoalFailed; // fleet is dead
 
-            if (Fleet.TaskStep == 7) // Fleet is done attacking and bombing
+            if (!StillStrongest)
             {
-                if (!StillStrongest)
-                {
-                    Remnants.ReleaseFleet(Fleet);
-                    return GoalStep.GoalComplete;
-                }
-
-                // Select a new closest planet
-                if (!Remnants.SelectClosestNextPlanet(TargetEmpire, TargetPlanet, out Planet nextPlanet))
-                    return GoalStep.GoalComplete;
-
-                TargetPlanet = nextPlanet;
-                Fleet.FleetTask.ChangeTargetPlanet(TargetPlanet);
-                Fleet.TaskStep = 1;
+                Remnants.ReleaseFleet(Fleet);
+                return GoalStep.GoalComplete;
             }
+
+            if (Fleet.TaskStep != 7)
+                return GoalStep.TryAgain;
+
+            // Select a new closest planet
+            if (!Remnants.SelectClosestNextPlanet(TargetEmpire, TargetPlanet, out Planet nextPlanet))
+                return GoalStep.GoalComplete;
+
+            TargetPlanet = nextPlanet;
+            Fleet.FleetTask.ChangeTargetPlanet(TargetPlanet);
+            Fleet.TaskStep = 1;
 
             return GoalStep.TryAgain;
         }

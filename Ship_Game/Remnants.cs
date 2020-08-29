@@ -168,7 +168,7 @@ namespace Ship_Game
             if (potentialPlanets.Length == 0)
                 return false; // Could not find a target planet by planet level
 
-            targetPlanet = potentialPlanets.RandItem(); // Using TargetPlanet for better readability
+            targetPlanet = potentialPlanets.RandItem();
             return true;
         }
 
