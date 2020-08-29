@@ -39,6 +39,7 @@ namespace Ship_Game.Ships
             InitializeThrusters();
             DesignRole = GetDesignRole();
             KnownByEmpires = new DataPackets.KnownByEmpire(this);
+            HasSeenEmpires = new DataPackets.KnownByEmpire(this);
         }
 
         Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
@@ -66,6 +67,7 @@ namespace Ship_Game.Ships
             }
 
             KnownByEmpires = new DataPackets.KnownByEmpire(this);
+            HasSeenEmpires = new DataPackets.KnownByEmpire(this);
 
             ThrusterList.Capacity = template.ThrusterList.Count;
             foreach (Thruster t in template.ThrusterList)
