@@ -239,6 +239,31 @@ namespace Ship_Game
                     sys.Sun.DrawLowResSun(batch, sys, View, Projection);
                 }
             }
+            if (viewState > UnivScreenState.SectorView)
+            {
+                var currentEmpire = SelectedShip?.loyalty ?? player;
+                var enemies = EmpireManager.GetEnemies(currentEmpire);
+                var ssps    = EmpireManager.Player.GetProjectors().ToArray();
+                for (int i = 0; i < ssps.Length; i++)
+                {
+                    var ssp = ssps[i];
+                    int spacing = 1;
+                    for (int x = 0; x < enemies.Count; x++)
+                    {
+                        var empire = enemies[x];
+                        if (!ssp.HasSeenEmpires.KnownBy(empire)) continue;
+
+                        var screenPos = ProjectToScreenPosition(ssp.Center);
+                        var flag = empire.data.Traits.FlagIndex;
+                        int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
+                        Rectangle rectangle2 = new Rectangle(xPos, (int) screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
+                        ScreenManager.SpriteBatch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(empire.EmpireColor));
+                        spacing++;
+                        //DrawCircleProjected(ssp.Center, ssp.loyalty.GetProjectorRadius(), ApplyCurrentAlphaToColor(empire.EmpireColor), 4);
+                    }
+                }
+            }
+
         }
 
         void DrawSolarSystemSectorView(GameTime gameTime, SolarSystem solarSystem)
@@ -266,6 +291,10 @@ namespace Ship_Game
                     foreach (Planet planet in solarSystem.PlanetList)
                         planet.SetExploredBy(player);
                 }
+
+                
+                var groundAttack = ResourceManager.Texture("Ground_UI/Ground_Attack");
+                var enemyHere =ResourceManager.Texture("Ground_UI/EnemyHere");
 
                 Vector3 vector3_6 =
                     Viewport.Project(
@@ -344,11 +373,8 @@ namespace Ship_Game
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
-                        Rectangle rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y,
-                            ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
-                            ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle2, CurrentFlashColor);
+                        Rectangle rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y, enemyHere.Width, enemyHere.Height);
+                        ScreenManager.SpriteBatch.Draw(enemyHere, rectangle2, CurrentFlashColor);
                         if (rectangle2.HitTest(pos))
                             ToolTip.CreateTooltip(123);
                         ++num3;
@@ -357,11 +383,8 @@ namespace Ship_Game
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;
-                            Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y,
-                                ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
-                                ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                            ScreenManager.SpriteBatch.Draw(
-                                ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle3, CurrentFlashColor);
+                            Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y, groundAttack.Width,groundAttack.Height);
+                            ScreenManager.SpriteBatch.Draw(groundAttack, rectangle3, CurrentFlashColor);
                             if (rectangle3.HitTest(pos))
                                 ToolTip.CreateTooltip(122);
                         }
@@ -437,11 +460,8 @@ namespace Ship_Game
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
-                        Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y,
-                            ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
-                            ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                        ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle3, CurrentFlashColor);
+                        Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y, enemyHere.Width, enemyHere.Height);
+                        ScreenManager.SpriteBatch.Draw(enemyHere, rectangle3, CurrentFlashColor);
                         if (rectangle3.HitTest(pos))
                             ToolTip.CreateTooltip(123);
                         ++num3;
@@ -451,11 +471,8 @@ namespace Ship_Game
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;
-                            var rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y,
-                                ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
-                                ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                            ScreenManager.SpriteBatch.Draw(
-                                ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle2, CurrentFlashColor);
+                            var rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y, groundAttack.Width, groundAttack.Height);
+                            ScreenManager.SpriteBatch.Draw(groundAttack, rectangle2, CurrentFlashColor);
                             if (rectangle2.HitTest(pos))
                                 ToolTip.CreateTooltip(122);
                         }
