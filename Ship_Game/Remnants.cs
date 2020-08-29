@@ -168,6 +168,22 @@ namespace Ship_Game
             return targetPlanet != null;
         }
 
+        public bool SelectClosestNextPlanet(Empire targetEmpire, Planet currentPlanet, out Planet nextPlanet)
+        {
+            nextPlanet           = null;
+            var potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem);
+            if (potentialPlanets.Length == 0)
+                return false;
+
+            nextPlanet = potentialPlanets.FindMin(p => p.Center.Distance(currentPlanet.Center));
+            return nextPlanet != null;
+        }
+
+        public int GetNumBombersNeeded(Planet planet)
+        {
+            return RollDice(Level * 2) ? planet.Level * 2 : 0;
+        }
+
         public bool CreatePortal(out Ship portal, out string systemName)
         {
             portal             = null;

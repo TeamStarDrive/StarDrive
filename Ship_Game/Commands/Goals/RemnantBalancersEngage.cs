@@ -20,6 +20,7 @@ namespace Ship_Game.Commands.Goals
             {
                 SelectFirstTargetPlanet,
                 SelectPortalToSpawnFrom,
+                DetermineNumBombers,
                 GatherFleet,
                 WaitForCompletion
             };
@@ -56,17 +57,6 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        bool SelectClosestNextPlanet(out Planet planet)
-        {
-            planet = null;
-            var potentialPlanets = TargetEmpire.GetPlanets().Filter(p => p.ParentSystem != TargetPlanet.ParentSystem);
-            if (potentialPlanets.Length == 0)
-                return false;
-
-            planet = potentialPlanets.FindMin(p => p.Center.Distance(TargetPlanet.Center));
-            return planet != null;
-        }
-
         GoalStep SelectFirstTargetPlanet()
         {
             return SelectTargetPlanet() ? GoalStep.GoToNextStep : GoalStep.GoalComplete;
@@ -79,6 +69,12 @@ namespace Ship_Game.Commands.Goals
 
             Portal     = portals.FindMin(s => s.Center.Distance(TargetPlanet.Center));
             TargetShip = Portal; // Save compatibility
+            return GoalStep.GoToNextStep;
+        }
+
+        GoalStep DetermineNumBombers()
+        {
+            BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
             return GoalStep.GoToNextStep;
         }
 
@@ -129,7 +125,7 @@ namespace Ship_Game.Commands.Goals
                 }
 
                 // Select a new closest planet
-                if (!SelectClosestNextPlanet(out Planet nextPlanet))
+                if (!Remnants.SelectClosestNextPlanet(TargetEmpire, TargetPlanet, out Planet nextPlanet))
                     return GoalStep.GoalComplete;
 
                 TargetPlanet = nextPlanet;
