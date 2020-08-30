@@ -190,10 +190,13 @@ namespace Ship_Game
             return targetPlanet != null;
         }
 
-        public bool SelectClosestNextPlanet(Empire targetEmpire, Planet currentPlanet, out Planet nextPlanet)
+        public bool SelectClosestNextPlanet(Empire targetEmpire, Planet currentPlanet, int numBombers, out Planet nextPlanet)
         {
             nextPlanet           = null;
-            var potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem);
+            // pick another system if there are not bombers in the fleet
+            var potentialPlanets = numBombers == 0 ? targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem)
+                                                   : targetEmpire.GetPlanets().ToArray();
+
             if (potentialPlanets.Length == 0)
                 return false;
 
