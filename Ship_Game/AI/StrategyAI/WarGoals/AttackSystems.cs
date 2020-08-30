@@ -6,8 +6,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
     {
         protected Array<SolarSystem> SystemsWithThem()
         {
+            if (OwnerWar.WarType != WarType.EmpireDefense)
+                return new Array<SolarSystem>(OwnerTheater.GetSystems().Filter(s =>
+                    s.IsExploredBy(Owner) && s.OwnerList.Contains(Them)));
             return new Array<SolarSystem>(OwnerTheater.GetSystems().Filter(s =>
-                s.IsExploredBy(Owner) && s.OwnerList.Contains(Them)));
+                s.IsExploredBy(Owner) && s.OwnerList.Count > 1 && s.OwnerList.Contains(Owner)));
         }
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Capture"/> class.

@@ -16,6 +16,8 @@ namespace Ship_Game.Empires.ShipPools
         public bool Remove(Ship ship)         => ForcePool.RemoveRef(ship);
         public float InitialStrength = 0;
         public int InitialReadyFleets =0;
+        public float CurrentUseableStrength = 0;
+        public int CurrentUseableFleets = 0;
         float PoolCheckTimer = 0;
 
         public FleetShips EmpireReadyFleets { get; private set; }
@@ -39,9 +41,12 @@ namespace Ship_Game.Empires.ShipPools
             }
             var fleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
             EmpireReadyFleets = fleets;
-            InitialReadyFleets += EmpireReadyFleets.CountFleets(out float initialStrength);
+            CurrentUseableFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
+            InitialReadyFleets += CurrentUseableFleets;
             InitialReadyFleets /=2;
+            CurrentUseableStrength = initialStrength;
             InitialStrength = (initialStrength + InitialStrength) / 2;
+            
         }
 
         public void RemoveShipFromFleetAndPools(Ship ship)

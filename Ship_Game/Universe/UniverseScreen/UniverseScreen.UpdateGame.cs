@@ -14,6 +14,7 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         public readonly ActionPool AsyncDataCollector = new ActionPool();
+        public readonly object RandomLock = new object();
 
         void ProcessTurnsMonitored()
         {
@@ -149,17 +150,72 @@ namespace Ship_Game
                 // this will update all ship Center coordinates
                 ProcessTurnShipsAndSystems(elapsedTime);
 
+                MasterShipList.ApplyPendingRemovals();
                 CollisionTime.Start();
+                
+                // The lock assures that the asyncdatacollocter is finished before the quad manager updates.
+                // anything after this lock and before QueueActionForThreading should be thread safe.
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
                 lock(SpaceManager.LockSpaceManager)
-                {
                     SpaceManager.Update(elapsedTime);
 
-                    MasterShipList.ApplyPendingRemovals();
-                    // bulk remove all dead projectiles to prevent their update next frame
-                    RemoveDeadProjectiles();
-                }
+                MasterShipList.ApplyPendingRemovals();
+                Exception threadException = null;
+                Parallel.ForEach(EmpireManager.Empires, empire =>
+                {
+                    try
+                    {
+                        empire.Pool.UpdatePools();
+                    }
+                    catch (Exception ex)
+                    {
+                        threadException = ex;
+                    }
+                });
+
+                if (threadException != null) Log.Error(threadException, "update pools failed");
+                threadException = null;
+
+                MasterShipList.ApplyPendingRemovals();
+                RemoveDeadProjectiles();
+
+                Parallel.ForEach(EmpireManager.Empires, empire =>
+                {
+                    try
+                    {
+                        empire.PopulateKnownShips();
+
+                        foreach (var planet in empire.GetPlanets())
+                            planet.UpdateSpaceCombatBuildings(
+                                elapsedTime); // building weapon timers are in this method. 
+                    }
+                    catch (Exception ex)
+                    {
+                        threadException = ex;
+                    }
+                });
+
+                if (threadException != null) Log.Error(threadException, "update pools failed");
+                threadException = null;
+
+                Parallel.ForEach(MasterShipList, ship =>
+                {
+                    try
+                    {
+                        ship.AI.UpdateCombatStateAI(elapsedTime);
+                    }
+                    catch(Exception ex)
+                    {
+                        threadException = ex;
+                    }
+                });
+
+                if (threadException != null) Log.Error(threadException, "update pools failed");
+                threadException = null;
+                
+                // bulk remove all dead projectiles to prevent their update next frame
+
                 QueueActionsForThreading(0.01666667f);
                 AsyncDataCollector.MoveItemsToThread();
                 CollisionTime.Stop();
@@ -175,8 +231,8 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            // For some reason it takes about 90 frames to get the spacemanager initially updated
-            for (int x = 0; x < 90; x++)
+            // makes sure all empire vision is updated.
+            for (int x = 0; x < EmpireManager.NumEmpires * 2; x++)
             {
                 QueueActionsForThreading(0.016f);
                 AsyncDataCollector.MoveItemsToThread();
@@ -186,6 +242,7 @@ namespace Ship_Game
                 lock (SpaceManager.LockSpaceManager);
                     SpaceManager.Update(0.016f);
             }
+            EmpireManager.Player.PopulateKnownShips();
         }
 
         void RemoveDeadProjectiles()
@@ -292,13 +349,10 @@ namespace Ship_Game
                 for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
                     var empire = EmpireManager.Empires[i];
-                    foreach (KeyValuePair<int, Fleet> kv in
-                        empire.GetFleetsDict())
+                    foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
                     {
                         kv.Value.SetSpeed();
                     }
-
-                    empire.Pool.UpdatePools();
                     empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
                 }
 
@@ -345,16 +399,21 @@ namespace Ship_Game
 
             AsyncDataCollector.Add(() =>
             {
-                foreach (var empire in EmpireManager.Empires)
+                for (int i = 0; i < EmpireManager.Empires.Count; i++)
                 {
+                    var empire = EmpireManager.Empires[i];
                     if (empire.IsEmpireDead())
-                    {                        
+                    {
                         continue;
                     }
-                    Parallel.ForEach(empire.GetShipsAtomic(), ship =>
+
+                    var ships = empire.GetShipsAtomic();
+
+                    Parallel.ForEach(ships, ship =>
                     {
                         if (ship?.Active != true)
                         {
+                            // make sure dead and dying ships can be seen.
                             if (ship?.KnownByEmpires.KnownByPlayer == true)
                                 ship.KnownByEmpires.SetSeenByPlayer();
                             return;
@@ -362,6 +421,7 @@ namespace Ship_Game
 
                         ship.SetFleetCapableStatus();
                         ship.UpdateModulePositions(deltaTime);
+
                         // currently too much for 4 cores
                         //ship.AI.UpdateCombatStateAI(deltaTime);
                         if (ship.loyalty == empireVisibility && EmpireScanFinished)
@@ -371,32 +431,33 @@ namespace Ship_Game
                         }
 
                         if (empireVisibility == empire && !EmpireScanFinished)
+                        {
                             ship.UpdateInfluence(deltaTime);
+                        }
                     });
-
-                    IReadOnlyList<Planet> list = empire.GetPlanets();
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        var planet = list[i];
-                        planet.UpdateSpaceCombatBuildings(
-                            deltaTime); // building weapon timers are in this method. 
-                    }
 
                     if (empireVisibility == empire && !EmpireScanFinished)
                     {
+                        foreach (var ssp in empireVisibility.GetProjectors().AtomicCopy())
+                        {
+                            ssp.UpdateModulePositions(deltaTime);
+                            ssp.UpdateInfluence(deltaTime);
+                            ssp.AI.StartSensorScan(deltaTime);
+                            ssp.KnownByEmpires.Update(deltaTime);
+                            ssp.HasSeenEmpires.Update(deltaTime);
+                        }
+
                         EmpireScanFinished = true;
                         empireVisibility.UpdateContactsAndBorders(deltaTime);
                         empireVisibility.UpdateMilitaryStrengths();
                     }
                     else if (empireVisibility == empire)
                     {
-                        if (++EmpireScanIncrement == EmpireManager.Empires.Count)
+                        if (++EmpireScanIncrement ==
+                            EmpireManager.Empires.Count)
                             EmpireScanIncrement = 0;
                         EmpireScanFinished = false;
                     }
-                   
-
-                    empire.PopulateKnownShips();
                 }
             });
 
