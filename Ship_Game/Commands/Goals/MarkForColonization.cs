@@ -28,6 +28,7 @@ namespace Ship_Game.Commands.Goals
         {
             empire             = e;
             ColonizationTarget = toColonize;
+            StarDateAdded      = Empire.Universe.StarDate;
             if (PositiveEnemyPresence(out _)) 
                 return;
 
@@ -38,6 +39,16 @@ namespace Ship_Game.Commands.Goals
                 ChangeToStep(OrderShipToColonize);
                 Evaluate();
             }
+        }
+
+        // Player ordered an existing colony ship to colonize
+        public MarkForColonization(Ship colonyShip, Planet toColonize, Empire e) : this()
+        {
+            empire             = e;
+            ColonizationTarget = toColonize;
+            FinishedShip       = colonyShip;
+            StarDateAdded      = Empire.Universe.StarDate;
+            ChangeToStep(WaitForColonizationComplete);
         }
 
         GoalStep TargetPlanetStatus()
@@ -69,7 +80,7 @@ namespace Ship_Game.Commands.Goals
                 if (empire.isPlayer)
                     return GoalStep.GoalFailed;
 
-                var task       = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
+                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
                 empire.GetEmpireAI().AddPendingTask(task);
             }
 
@@ -177,10 +188,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (ColonizationTarget.Owner == null) 
-                return GoalStep.TryAgain;
-
-            return GoalStep.GoalComplete;
+            return ColonizationTarget.Owner == null ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }
 
         void ReleaseShipFromGoal()
