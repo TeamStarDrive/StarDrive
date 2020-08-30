@@ -481,7 +481,27 @@ namespace Ship_Game
                         Color color = (ship.loyalty == EmpireManager.Player)
                             ? new Color(0, 200, 0, 30)
                             : new Color(200, 0, 0, 30);
+                        byte edgeAlpha = 40;
+                        DrawCircleProjected(ship.Position, ship.WeaponsMaxRange, new Color(Color.Red, edgeAlpha));
+                        if (Empire.Universe.SelectedShip != ship) continue;
+
+                        edgeAlpha = 70;
                         DrawTextureProjected(shipRangeTex, ship.Position, ship.WeaponsMaxRange, color);
+                        DrawCircleProjected(ship.Position, ship.WeaponsAvgRange, new Color(Color.Orange, edgeAlpha));
+                        DrawCircleProjected(ship.Position, ship.WeaponsMinRange, new Color(Color.Yellow, edgeAlpha));
+                    }
+
+                    if ((ship?.SensorRange ?? 0) > 0)
+                    {
+                        if (Empire.Universe.SelectedShip == ship)
+                        {
+                            Color color = (ship.loyalty == EmpireManager.Player)
+                                ? new Color(0, 200, 0, 10)
+                                : new Color(200, 0, 0, 10);
+                            byte edgeAlpha = 70;
+                            DrawTextureProjected(shipRangeTex, ship.Position, ship.SensorRange, color);
+                            DrawCircleProjected(ship.Position, ship.SensorRange,  new Color(Color.Red, edgeAlpha));
+                        }
                     }
                 }
             }
