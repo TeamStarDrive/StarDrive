@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
+using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Universe
@@ -81,9 +82,14 @@ namespace Ship_Game.Universe
         void PlanetRightClickColonyShip(Ship ship, Planet planet)
         {
             if (planet.Owner == null && planet.Habitable)
+            {
                 ship.AI.OrderColonization(planet);
+                EmpireManager.Player.GetEmpireAI().Goals.Add(new MarkForColonization(ship, planet, EmpireManager.Player));
+            }
             else
+            {
                 ship.AI.OrderToOrbit(planet);
+            }
         }
 
         void PlanetRightClickTroopShip(Ship ship, Planet planet, bool offensiveMove = false)

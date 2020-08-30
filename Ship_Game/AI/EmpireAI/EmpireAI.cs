@@ -142,63 +142,53 @@ namespace Ship_Game.AI
                 area.InitFromSave(OwnerEmpire);
         }
 
-        public void RunEventChecker(KeyValuePair<Empire, Relationship> them)
+        public void CheckColonizationClaims(Empire them, Relationship usToThem)
         {
-            if (OwnerEmpire == Empire.Universe.PlayerEmpire || OwnerEmpire.isFaction || !them.Value.Known)
+            if (OwnerEmpire.isPlayer
+                || OwnerEmpire.isFaction
+                || !usToThem.Known
+                || usToThem.AtWar)
+            {
                 return;
-
-            var ourTargetPlanets = new Array<Planet>();
-            var theirTargetPlanets = new Array<Planet>();
-            foreach (Goal g in Goals)
-            {
-                if (g.type == GoalType.Colonize)
-                    ourTargetPlanets.Add(g.ColonizationTarget);
-            }
-            foreach (Goal g in them.Key.GetEmpireAI().Goals)
-            {
-                if (g.type == GoalType.Colonize)
-                    theirTargetPlanets.Add(g.ColonizationTarget);
-            }
-            SolarSystem sharedSystem = null;
-
-            foreach (Ship s in them.Key.GetShips())
-            {
-                if (s.AI.State == AIState.Colonize && s.AI.ColonizeTarget != null)
-                    theirTargetPlanets.Add(s.AI.ColonizeTarget);
             }
 
-            foreach (Planet p in ourTargetPlanets)
+            if (!GetColonizationGoalsList(OwnerEmpire, out Array<Goal> ourColonizationGoals)
+                || !GetColonizationGoalsList(them, out Array<Goal> theirColonizationGoals))
             {
-                bool matchFound = false;
-                foreach (Planet other in theirTargetPlanets)
+                return;
+            }
+
+            // Xenophobic empires and non friendly aggressive empires will warn about claims
+            // even if they decided to colonize a planet after another empire did so
+            bool warnAnyway = OwnerEmpire.IsXenophobic
+                              || OwnerEmpire.IsAggressive && (usToThem.Posture == Posture.Hostile || usToThem.Posture == Posture.Neutral);
+
+            foreach (Goal ourGoal in ourColonizationGoals)
+            {
+                var system = ourGoal.ColonizationTarget.ParentSystem;
+                if (usToThem.WarnedSystemsList.Contains(system.guid))
+                    continue;
+
+                // Non allied empires will always warn if the system is exclusively owned by them
+                // and someone wants to colonized planets in that system
+                bool warnExclusive = !usToThem.Treaty_Alliance && system.IsOnlyOwnedBy(OwnerEmpire);
+                if (theirColonizationGoals.Any(g => g.ColonizationTarget.ParentSystem == system
+                                                                     && (warnAnyway || warnExclusive || ourGoal.StarDateAdded < g.StarDateAdded)))
                 {
-                    if (p == null || other == null || p.ParentSystem != other.ParentSystem)
-                        continue;
+                    if (system.PlanetList.Any(p => p.Owner != null && p.Owner == them))
+                        continue; // They are already here
 
-                    sharedSystem = p.ParentSystem;
-                    matchFound = true;
-                    break;
+                    if (them.isPlayer)
+                        DiplomacyScreen.Show(OwnerEmpire, "Claim System", system);
+
+                    usToThem.WarnedSystemsList.Add(system.guid);
                 }
-                if (matchFound)
-                    break;
             }
 
-            if (sharedSystem != null && !them.Value.AtWar && !them.Value.WarnedSystemsList.Contains(sharedSystem.guid))
+            bool GetColonizationGoalsList(Empire empire, out Array<Goal> planetList)
             {
-                bool theyAreThereAlready = false;
-                foreach (Planet p in sharedSystem.PlanetList)
-                {
-                    if (p.Owner != null && p.Owner == Empire.Universe.PlayerEmpire)
-                        theyAreThereAlready = true;
-                }
-                if (!theyAreThereAlready)
-                {
-                    if (them.Key == Empire.Universe.PlayerEmpire)
-                    {
-                        DiplomacyScreen.Show(OwnerEmpire, "Claim System", sharedSystem);
-                    }
-                    them.Value.WarnedSystemsList.Add(sharedSystem.guid);
-                }
+                planetList = empire.GetEmpireAI().ExpansionAI.GetColonizationGoals();
+                return planetList.Count > 0;
             }
         }
 

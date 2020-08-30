@@ -193,8 +193,6 @@ namespace Ship_Game.Gameplay
             return lostSystems.ToArray();
         }
 
-        public bool WarnedSystemListContains(Planet claimedPlanet) => WarnedSystemsList.Any(guid => guid == claimedPlanet.ParentSystem.guid);
-
         public void StoleOurColonyClaim(Empire owner, Planet claimedPlanet)
         {
             NumberStolenClaims++;
