@@ -32,6 +32,18 @@ namespace Ship_Game.AI.ExpansionAI
             return list.ToArray();
         }
 
+        public Array<Goal> GetColonizationGoals()
+        {
+            var list = new Array<Goal>();
+            foreach (Goal g in Goals)
+            {
+                if (g.type == GoalType.Colonize)
+                    list.Add(g);
+            }
+
+            return list;
+        }
+
         SolarSystem[] OwnedPotentialSystems(float ownerStrength) => Owner.GetOwnedSystems().Filter(s => s.IsOnlyOwnedBy(Owner)
                                                                                             && s.PlanetList.Any(p => p.Habitable)
                                                                                             && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength));

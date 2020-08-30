@@ -31,7 +31,6 @@ namespace Ship_Game
 
         void SetupColonyType()
         {
-
             if (Owner.isPlayer && !Owner.AutoColonize)
                 colonyType = ColonyType.Colony;
             else
