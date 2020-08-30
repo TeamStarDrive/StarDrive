@@ -245,27 +245,35 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             var winnableTarget = new Array<SolarSystem>();
             
-            float strength = Owner.Pool.EmpireReadyFleets.AccumulatedStrength;
-
             foreach (var system in targets)
             {
                 if (HaveConqueredTarget(system)) continue;
 
-                float defense  = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, system.Radius, Owner);
 
-                if (defense  < strength)
+
+                float defense  = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, Owner);
+
+                if (defense  < Owner.Pool.CurrentUseableStrength)
                 {
                     winnableTarget.Add(system);
-                    strength -= defense;
+                    Owner.Pool.CurrentUseableStrength -= defense;
                 }
             }
 
-            var currentTarget = targets.Find(s=>Tasks.IsAlreadyAssaultingSystem(s));
+            //var currentTarget = targets.Find(s=>Tasks.IsAlreadyAssaultingSystem(s));
 
-            if (winnableTarget.NotEmpty && currentTarget == null)
-                AddTargetSystem(winnableTarget.First);
-            else if (currentTarget != null)
-                AddTargetSystem(currentTarget);
+            if (winnableTarget.NotEmpty) // && currentTarget == null)
+            {
+                TargetSystems = new Array<SolarSystem>();
+                SystemGuids = new Array<Guid>();
+                foreach (var target in winnableTarget)
+                {
+                    AddTargetSystem(target);    
+                }
+                
+            }
+            //else if (currentTarget != null)
+            //    AddTargetSystem(currentTarget);
 
             return GoalStep.GoToNextStep;
         }
@@ -274,6 +282,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected void AttackSystemsInList(Array<SolarSystem> currentTargets, int fleetsPerTarget = 1)
         {
+            if (currentTargets.Count == 0) return;
+
             int priority = OwnerTheater.Priority;
 
             foreach (var system in currentTargets)
