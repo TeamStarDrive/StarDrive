@@ -265,14 +265,13 @@ namespace Ship_Game
         }
 
         // Gets the current cursor blinking mask color [255,255,255,a]
-        public Color CurrentFlashColor
+        public Color CurrentFlashColor => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
+
+        public Color ApplyCurrentAlphaToColor(Color color)
         {
-            get
-            {
-                double totalGameTime = StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds;
-                float f = Math.Abs(RadMath.Sin(totalGameTime)) * 255f;
-                return new Color(255, 255, 255, (byte)f);
-            }
+            double totalGameTime = StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds;
+            float f = Math.Abs(RadMath.Sin(totalGameTime)) * 255f;
+            return new Color(color, (byte)f);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
