@@ -161,19 +161,60 @@ namespace Ship_Game
                     SpaceManager.Update(elapsedTime);
 
                 MasterShipList.ApplyPendingRemovals();
+                Exception threadException = null;
                 Parallel.ForEach(EmpireManager.Empires, empire =>
                 {
-                    empire.Pool.UpdatePools();
-                    MasterShipList.ApplyPendingRemovals();
-                    empire.PopulateKnownShips();
-                    foreach(var planet in empire.GetPlanets())
-                        planet.UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
+                    try
+                    {
+                        empire.Pool.UpdatePools();
+                    }
+                    catch (Exception ex)
+                    {
+                        threadException = ex;
+                    }
                 });
 
-                Parallel.ForEach(MasterShipList, ship => ship.AI.UpdateCombatStateAI(elapsedTime));
+                if (threadException != null) Log.Error(threadException, "update pools failed");
+                threadException = null;
+
+                MasterShipList.ApplyPendingRemovals();
+                RemoveDeadProjectiles();
+
+                Parallel.ForEach(EmpireManager.Empires, empire =>
+                {
+                    try
+                    {
+                        empire.PopulateKnownShips();
+
+                        foreach (var planet in empire.GetPlanets())
+                            planet.UpdateSpaceCombatBuildings(
+                                elapsedTime); // building weapon timers are in this method. 
+                    }
+                    catch (Exception ex)
+                    {
+                        threadException = ex;
+                    }
+                });
+
+                if (threadException != null) Log.Error(threadException, "update pools failed");
+                threadException = null;
+
+                Parallel.ForEach(MasterShipList, ship =>
+                {
+                    try
+                    {
+                        ship.AI.UpdateCombatStateAI(elapsedTime);
+                    }
+                    catch(Exception ex)
+                    {
+                        threadException = ex;
+                    }
+                });
+
+                if (threadException != null) Log.Error(threadException, "update pools failed");
+                threadException = null;
                 
                 // bulk remove all dead projectiles to prevent their update next frame
-                RemoveDeadProjectiles();
 
                 QueueActionsForThreading(0.01666667f);
                 AsyncDataCollector.MoveItemsToThread();

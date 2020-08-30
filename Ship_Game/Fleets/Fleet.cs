@@ -1223,7 +1223,7 @@ namespace Ship_Game.Fleets
         
         bool ReadyToInvade(MilitaryTask task)
         {
-            float invasionSafeZone = (task.TargetPlanet.GravityWellRadius /2);
+            float invasionSafeZone = (task.TargetPlanet.GravityWellRadius);
             return Ships.Any(ship => ship.Center.InRadius(task.TargetPlanet.Center, invasionSafeZone));
         }
 
