@@ -422,8 +422,6 @@ namespace Ship_Game
                         ship.SetFleetCapableStatus();
                         ship.UpdateModulePositions(deltaTime);
 
-                        // currently too much for 4 cores
-                        //ship.AI.UpdateCombatStateAI(deltaTime);
                         if (ship.loyalty == empireVisibility && EmpireScanFinished)
                         {
                             ship.KnownByEmpires.Update(deltaTime);
