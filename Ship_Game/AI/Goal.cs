@@ -72,6 +72,7 @@ namespace Ship_Game.AI
         public Ship OldShip;      // this is the ship which needs refit
         public Ship TargetShip;      // this is targeted by this goal (raids)
         public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
+        public float StarDateAdded;  
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
@@ -171,6 +172,7 @@ namespace Ship_Game.AI
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
+            g.StarDateAdded = gsave.StarDateAdded;
             g.TetherTarget  = gsave.TetherTarget;
             g.TetherOffset  = gsave.TetherOffset;
             if ((uint)g.Step >= g.Steps.Length)
