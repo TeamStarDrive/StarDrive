@@ -804,7 +804,8 @@ namespace Ship_Game.Ships
             Vector2 center    = source.Owner?.Center ?? source.Origin;
             int level         = source.Owner?.Level  ?? 0;
             float searchRange = source.BaseRange + 100;
-            return TargetRandomInternalModule(center, level, searchRange*searchRange);
+            lock (Empire.Universe.RandomLock)
+                return TargetRandomInternalModule(center, level, searchRange*searchRange);
         }
 
         // This is called for initial missile guidance ChooseTarget(), so range is not that important
@@ -813,7 +814,8 @@ namespace Ship_Game.Ships
             Vector2 projPos = source.Owner?.Center ?? source.Center;
             int level       = source.Owner?.Level  ?? 0;
             float searchRange = projPos.SqDist(Center) + 48*48; // only pick modules that are "visible" to the projectile
-            return TargetRandomInternalModule(projPos, level, searchRange);
+            lock (Empire.Universe.RandomLock)
+                return TargetRandomInternalModule(projPos, level, searchRange);
         }
 
     }
