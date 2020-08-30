@@ -129,6 +129,19 @@ namespace Ship_Game
             return allies;
         }
 
+        public static Array<Empire> GetEnemies(Empire e)
+        {
+            var enemies = new Array<Empire>();
+
+            for (int i = 0; i < Empires.Count; i++)
+            {
+                Empire empire = Empires[i];
+                if (e.IsEmpireHostile(empire))
+                    enemies.Add(empire);
+            }
+            return enemies;
+        }
+
         public static Array<Empire> GetTradePartners(Empire e)
         {
             var allies = new Array<Empire>();
