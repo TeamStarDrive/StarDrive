@@ -740,7 +740,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length()))
                         break;
 
                     TaskStep = 3;
@@ -751,7 +751,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length()))
                         break;
 
                     TaskStep = 5;
@@ -1414,6 +1414,9 @@ namespace Ship_Game.Fleets
 
         bool StartBombing(Planet planet)
         {
+            if (planet.Owner == null)
+                return false; // colony was destroyed
+
             bool anyShipsBombing = false;
             Ship[] ships = Ships.Filter(ship => ship.HasBombs 
                            && ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm) >= Status.Critical);
