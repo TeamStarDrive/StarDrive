@@ -622,6 +622,7 @@ namespace Ship_Game
             [Serialize(15)] public Vector2 TetherOffset;
             [Serialize(16)] public Guid TargetShipGuid;
             [Serialize(17)] public int TargetEmpireId;
+            [Serialize(18)] public float StarDateAdded;
         }
 
         public class GSAISAVE
