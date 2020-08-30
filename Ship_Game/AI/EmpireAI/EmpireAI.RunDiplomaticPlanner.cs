@@ -26,7 +26,7 @@ namespace Ship_Game.AI
             foreach (KeyValuePair<Empire, Relationship> relationship in OwnerEmpire.AllRelations)
             {
                 if (!relationship.Key.isFaction && !OwnerEmpire.isFaction && !relationship.Key.data.Defeated)
-                    RunEventChecker(relationship);
+                    CheckColonizationClaims(relationship.Key, relationship.Value);
             }
         }
 
