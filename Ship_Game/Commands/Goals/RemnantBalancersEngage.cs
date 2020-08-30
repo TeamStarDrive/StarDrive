@@ -106,14 +106,27 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.Ships.Count == 0)
                 return GoalStep.GoalFailed; // fleet is dead
 
-            if (!StillStrongest)
+            if (Fleet.TaskStep == 10) // Arrived back to portal
             {
                 Remnants.ReleaseFleet(Fleet);
                 return GoalStep.GoalComplete;
             }
 
-            if (Fleet.TaskStep != 7)
+            if (Fleet.TaskStep != 7) // cleared enemy at target planet
                 return GoalStep.TryAgain;
+
+            if (!StillStrongest)
+            {
+                if (!Remnants.GetClosestPortal(Fleet.AveragePosition(), out Ship closestPortal))
+                {
+                    Remnants.ReleaseFleet(Fleet);
+                    return GoalStep.GoalComplete;
+                }
+
+                Fleet.FleetTask.ChangeAO(closestPortal.Center);
+                Fleet.TaskStep = 8; // Order fleet to go back to portal
+                return GoalStep.TryAgain;
+            }
 
             // Select a new closest planet
             if (!Remnants.SelectClosestNextPlanet(TargetEmpire, TargetPlanet, out Planet nextPlanet))

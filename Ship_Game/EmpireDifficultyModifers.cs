@@ -22,7 +22,7 @@
         public readonly int MinStartingColonies; // Starting colonies what we want
         public readonly int ExpandSearchTurns; // For Expansion
         public readonly int RemnantTurnsLevelUp; // How many turns should pass before Remnants level up
-        public readonly float RemnantResourceMod; // Multiplier to Remnant Prod genetation
+        public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -68,7 +68,7 @@
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 150;
                     RemnantTurnsLevelUp  = 1000;
-                    RemnantResourceMod   = 0.25f;
+                    RemnantResourceMod   = 0.15f;
 
                     if (!empire.isPlayer)
                     {
@@ -97,7 +97,7 @@
                     MinStartingColonies  = 4;
                     ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 500;
-                    RemnantResourceMod   = 0.5f;
+                    RemnantResourceMod   = 0.2f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -116,7 +116,7 @@
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 75;
                     RemnantTurnsLevelUp  = 400;
-                    RemnantResourceMod   = 0.75f;
+                    RemnantResourceMod   = 0.3f;
 
                     if (!empire.isPlayer)
                     {
@@ -146,7 +146,7 @@
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 300;
-                    RemnantResourceMod   = 1f;
+                    RemnantResourceMod   = 0.5f;
 
                     if (!empire.isPlayer)
                     {

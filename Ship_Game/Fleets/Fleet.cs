@@ -773,6 +773,16 @@ namespace Ship_Game.Fleets
 
                     TaskStep = 7;
                     break;
+                case 8: // Go back to portal, this step is set from the remnant goal
+                    GatherAtAO(task, 20000);
+                    TaskStep = 9;
+                    break;
+                case 9:
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                        break;
+
+                    TaskStep = 10;
+                    break;
             }
         }
 
