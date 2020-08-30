@@ -45,8 +45,9 @@ namespace Ship_Game.Commands.Goals
             if (Portal == null || !Portal.Active)
                 return GoalStep.GoalFailed;
 
-            float production = (Empire.Universe.StarDate - 1000) * 0.1f; // Stardate 1100 yields 10, 1200 yields 20, etc.
-            production       = (production + 10) * empire.DifficultyModifiers.RemnantResourceMod;
+            Remnants.OrderEscortPortal(Portal);
+            float production = Empire.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
+            production      *= empire.DifficultyModifiers.RemnantResourceMod;
             Remnants.GenerateProduction(production);
 
             return GoalStep.TryAgain;

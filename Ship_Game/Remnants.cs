@@ -140,20 +140,27 @@ namespace Ship_Game
             if (fleet == null)
                 return;
 
-            Array<Ship> ships   = fleet.Ships;
-            Vector2 fleetCenter = fleet.AveragePosition();
             fleet.FleetTask?.DisbandFleet(fleet);
             fleet.FleetTask?.EndTask();
+        }
 
+        public bool GetClosestPortal(Vector2 position, out Ship portal)
+        {
+            portal = null;
             if (!GetPortals(out Ship[] portals))
-                return;
+                return false;
 
-            Ship closestPortal = portals.FindMin(s => s.Center.Distance(fleetCenter));
-            for (int i = 0; i < ships.Count; i++)
+            portal = portals.FindMin(s => s.Center.Distance(position));
+            return portal != null;
+        }
+
+        public void OrderEscortPortal(Ship portal)
+        {
+            for (int i = 0; i < portal.System.ShipList.Count; i++)
             {
-                Ship ship = ships[i];
-                if (ship.loyalty.WeAreRemnants)
-                    ship.AI.AddEscortGoal(closestPortal);
+                Ship ship = portal.System.ShipList[i];
+                if (!ship.IsPlatformOrStation && ship.IsGuardian && !ship.InCombat && ship.AI.EscortTarget == null && ship.fleet == null)
+                    ship.AI.AddEscortGoal(portal);
             }
         }
 
@@ -209,7 +216,7 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            return RollDice((Level - 1) * 2) ? planet.Level * 2 : 0;
+            return RollDice((Level - 1) * 10) ? planet.Level * 2 : 0;
         }
 
         public bool CreatePortal(out Ship portal, out string systemName)
@@ -267,16 +274,25 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation() // Note Bombers are created exclusively 
         {
-            int roll = RollDie(20) + Level;
-            if (roll == 1 + Level) return RemnantShipType.Fighter;
-            if (roll < 8)          return RemnantShipType.Fighter;
-            if (roll < 12)         return RemnantShipType.SmallSupport;
-            if (roll < 17)         return RemnantShipType.Corvette;
-            if (roll < 21)         return RemnantShipType.Assimilator;
-            if (roll < 25)         return RemnantShipType.Carrier;
-            if (roll < 30)         return RemnantShipType.Mothership;
-
-            return RemnantShipType.Exterminator;
+            int roll = RollDie(Level + 3, Level/2).LowerBound(1);
+            switch (roll)
+            {
+                case 1:
+                case 2:  return RemnantShipType.Fighter;
+                case 3:  return RemnantShipType.SmallSupport;
+                case 4:  return RemnantShipType.Corvette;
+                case 5:
+                case 6:  return RemnantShipType.Assimilator;
+                case 7:
+                case 8:  return RemnantShipType.Cruiser;
+                case 9:
+                case 10: return RemnantShipType.Carrier;
+                case 11:
+                case 12:
+                case 13:
+                case 14: return RemnantShipType.Mothership;
+                default: return RemnantShipType.Exterminator;
+            }
         }
 
         bool SpawnShip(RemnantShipType shipType, Vector2 where, out Ship remnantShip)

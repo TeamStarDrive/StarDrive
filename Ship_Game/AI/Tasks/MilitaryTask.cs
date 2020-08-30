@@ -185,6 +185,11 @@ namespace Ship_Game.AI.Tasks
             AO           = planet.Center;
         }
 
+        public void ChangeAO(Vector2 position)
+        {
+            AO = position;
+        }
+
         public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";
 
         void DeclareWar()

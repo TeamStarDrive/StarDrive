@@ -70,10 +70,10 @@ namespace Ship_Game
             return RandomBetween(0f, 100f) < percent;
         }
 
-        // returns a specific die size roll, like 1d20, 1d6, etc.
-        public static int RollDie(int dieSize)
+        // returns a specific die size roll, like 1d20, 1d6, etc. Minimum value can be changed
+        public static int RollDie(int dieSize, int minimum = 1)
         {
-            return IntBetween(1, dieSize);
+            return IntBetween(minimum, dieSize);
         }
 
         public static bool Roll3DiceAvg(float percent) => RollDiceAvg(3, 100) < percent;
