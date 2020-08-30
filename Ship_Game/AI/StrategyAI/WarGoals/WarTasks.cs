@@ -47,8 +47,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 else
                 {
                     task.RallyAO   = OwnerCampaign.RallyAO;
-                    task.Evaluate(Owner);
                 }
+            }
+
+            NewTasks.SortedDescending(t => t.Priority);
+                
+            for (var i = 0; i < NewTasks.Count; i++)
+            {
+                NewTasks[i].Evaluate(Owner);
             }
         }
 
@@ -72,7 +78,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             foreach (var planet in system.PlanetList.SortedDescending(p => p.ColonyBaseValue(Owner)))
             {
-                if (planet.Owner != Target || planet.Owner == Owner) continue;
+                if (OwnerCampaign.GetWarType() == WarType.EmpireDefense)
+                {
+                    if (!Owner.IsEmpireHostile(planet.Owner)) 
+                        continue;
+                }
+                else if (planet.Owner != Target || planet.Owner == Owner) 
+                    continue;
+
                 if (IsAlreadyAssaultingPlanet(planet))               continue;
                 
                 CreateTask(new MilitaryTask(planet, Owner)
@@ -131,7 +144,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             float radius   = system.Radius * 1.5f;
             CreateTask(new MilitaryTask(center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
-                Priority      = priority + 2
+                Priority      = priority
             });
         }
 
