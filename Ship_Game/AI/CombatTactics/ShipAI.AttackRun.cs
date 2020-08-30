@@ -190,10 +190,6 @@ namespace Ship_Game.AI.CombatTactics
 
         public void ExecuteDisengage(float elapsedTime)
         {
-            float timeBeforeFire = Owner.Weapons.Average(w => w.CooldownTimer);
-            float distanceTraveledBeforeReady = (Owner.CurrentVelocity * timeBeforeFire);
-
-
             Vector2 disengagePos = (State == RunState.Disengage1) ? DisengagePos1 : DisengagePos2;
             float disengageLimit = DesiredCombatRange * 0.25f + SpacerDistance;
             float distance = DisengageStart.Distance(Owner.Center).LowerBound(SpacerDistance);
@@ -220,7 +216,6 @@ namespace Ship_Game.AI.CombatTactics
             }
             else if (State == RunState.Disengage2)
             {
-                //Owner.MaxSTLSpeed* cooldownTime +SpacerDistanc
                 if (DistanceToTarget > Owner.DesiredCombatRange || DeltaDirectionToTargetAndOurFacing > 0.7f) // Disengage2 success
                 {
                     State = RunState.Strafing;
