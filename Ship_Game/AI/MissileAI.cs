@@ -38,7 +38,7 @@ namespace Ship_Game.AI
 
             if (Missile.Weapon.DelayedIgnition.Greater(0))
             {
-                lock (Empire.Universe.RandomLock)
+                lock (Empire.RandomLock)
                 {
                     float launchDir = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
                     float rotation = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
@@ -75,7 +75,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            lock (Empire.Universe.RandomLock)
+            lock (Empire.RandomLock)
                 InitialPhaseDirection = RandomMath.RollDice(50) ? -1f : +1f;
         }
 
