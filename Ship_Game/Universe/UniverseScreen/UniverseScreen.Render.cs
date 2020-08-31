@@ -243,8 +243,8 @@ namespace Ship_Game
             {
                 var currentEmpire = SelectedShip?.loyalty ?? player;
                 var enemies = EmpireManager.GetEnemies(currentEmpire);
-                var ssps    = EmpireManager.Player.GetProjectors().ToArray();
-                for (int i = 0; i < ssps.Length; i++)
+                var ssps    = EmpireManager.Player.GetProjectors();
+                for (int i = 0; i < ssps.Count; i++)
                 {
                     var ssp = ssps[i];
                     int spacing = 1;
