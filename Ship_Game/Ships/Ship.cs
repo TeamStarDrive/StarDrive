@@ -361,8 +361,11 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
         {
-            if (attacker.isPlayer)
+            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
+                && IsInBordersOf(attacker))
+            {
                 return true;
+            }
 
             if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
@@ -373,15 +376,8 @@ namespace Ship_Game.Ships
             if (System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
                 return true;
 
-            if ((DesignRole == ShipData.RoleName.troop || DesignRole == ShipData.RoleName.troop)
-                && System != null && attacker.GetOwnedSystems().ContainsRef(System))
+            if (DesignRole == ShipData.RoleName.troop && System != null && attacker.GetOwnedSystems().ContainsRef(System))
                 return true;
-
-            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
-                && IsInBordersOf(attacker))
-            {
-                    return true;
-            }
 
             return false;
         }
