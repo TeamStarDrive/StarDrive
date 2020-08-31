@@ -202,15 +202,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// </summary>
         protected void SetupRallyPoint()
         {
-            //if (TheaterAO.GetPlanets().Length == 0) return;
-
-            float closestRallyPoint          = float.MaxValue;
-            SolarSystem rallySystem          = null;
-            Planet rallyPlanet               = null;
             var aoManager = Us.GetEmpireAI().OffensiveForcePoolManager;
-
-            rallyPlanet = Us.FindNearestRallyPoint(TheaterAO.Center) ?? Us.Capital;
-            
+            Planet rallyPlanet = Us.FindNearestRallyPoint(TheaterAO.Center) ?? Us.Capital;
 
             // createEmpire AO
             if (rallyPlanet.Owner == Us)
