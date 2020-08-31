@@ -54,11 +54,9 @@ namespace Ship_Game
             QueryPerformanceCounter(out long end);
             float elapsed = (float)((double)(end - Time) / Frequency);
 
-            AvgTime = (AvgTime*NumSamples + elapsed) / (NumSamples + 1);
-
-            // Well... this is kinda complicated to do without a list indeed. Lol!
-            if (elapsed > MaxTime) MaxTime  = elapsed;
-            else                   MaxTime  = (MaxTime*NumSamples + elapsed) / (NumSamples + MaxTime / AvgTime -1);  // trickle down towards avg time
+            const float AVERAGE_RATIO = 0.025f;
+            AvgTime = AvgTime*(1f-AVERAGE_RATIO) + elapsed*AVERAGE_RATIO;
+            MaxTime = Math.Max(elapsed, MaxTime)*(1f-AVERAGE_RATIO) + MaxTime*AVERAGE_RATIO;
 
             ++NumSamples;
         }
