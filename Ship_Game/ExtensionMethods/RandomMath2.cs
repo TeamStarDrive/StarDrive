@@ -1,41 +1,58 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-	public static class RandomMath2
-	{
-		public static readonly Random Random = new Random();
+    public static class RandomMath2
+    {
+        static readonly ThreadSafeRandom Random = new ThreadSafeRandom();
 
         /// Generate random, inclusive [minimum, maximum]
-		public static float RandomBetween(float minimum, float maximum)
-		{
-			return minimum + (float)Random.NextDouble() * (maximum - minimum);
-		}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float RandomBetween(float minimum, float maximum)
+        {
+            return Random.Float(minimum, maximum);
+        }
         
         /// Generate random, inclusive [minimum, maximum]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IntBetween(int minimum, int maximum)
         {
-            return Random.Next(minimum, maximum+1);
+            return Random.Int(minimum, maximum);
         }
 
         /// Generate random index, upper bound excluded: [startIndex, arrayLength)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int InRange(int startIndex, int arrayLength)
         {
-            return Random.Next(startIndex, arrayLength);
+            return Random.InRange(startIndex, arrayLength);
         }
 
         /// Random index, in range [0, arrayLength), arrayLength can be negative
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int InRange(int arrayLength)
         {
-            if (arrayLength < 0)
-                return -Random.Next(0, -arrayLength);
-            return Random.Next(0, arrayLength);
+            return Random.InRange(0, arrayLength);
         }
-
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T RandItem<T>(IReadOnlyList<T> items)
+        {
+            return items[InRange(items.Count)];
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T RandItem<T>(Array<T> items)
         {
             return items[InRange(items.Count)];
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T RandItem<T>(T[] items)
+        {
+            return items[InRange(items.Length)];
         }
 
         // Generates a Vector2 with X Y in range [-radius, +radius]
@@ -43,5 +60,5 @@ namespace Ship_Game
         {
             return new Vector2(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius));
         }
-	}
+    }
 }

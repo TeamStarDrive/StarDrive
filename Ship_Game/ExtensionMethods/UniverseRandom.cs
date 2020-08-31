@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 
 namespace Ship_Game
@@ -6,32 +7,34 @@ namespace Ship_Game
     // @todo This is at least third copy of RandomMath, RandomMath2, ... what gives?
     public sealed class UniverseRandom
     {
-        public static readonly Random Random = new Random();
+        static readonly ThreadSafeRandom Random = new ThreadSafeRandom();
 
         /// Generate random, inclusive [minimum, maximum]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float RandomBetween(float minimum, float maximum)
         {
-            return minimum + (float)Random.NextDouble() * (maximum - minimum);
+            return Random.Float(minimum, maximum);
         }
 
         /// Generate random, inclusive [minimum, maximum]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int IntBetween(int minimum, int maximum)
         {
-            return Random.Next(minimum, maximum+1);
+            return Random.Int(minimum, maximum+1);
         }
 
         /// Generate random index, upper bound excluded: [startIndex, arrayLength)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int InRange(int startIndex, int arrayLength)
         {
-            return Random.Next(startIndex, arrayLength);
+            return Random.InRange(startIndex, arrayLength);
         }
 
-        /// Random index, in range [0, arrayLength), arrayLength can be negative
+        /// Random index, in range [0, arrayLength)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int InRange(int arrayLength)
         {
-            if (arrayLength < 0)
-                return -Random.Next(0, -arrayLength);
-            return Random.Next(0, arrayLength);
+            return Random.InRange(0, arrayLength);
         }
 
         // performs a dice-roll, where chance must be between [0..100]
@@ -44,7 +47,7 @@ namespace Ship_Game
 
         public static Vector2 RandomDirection()
         {
-            float angle = RandomBetween(0f, (float)Math.PI * 2f);
+            float angle = RandomBetween(0f, RadMath.TwoPI);
             return angle.RadiansToDirection();
         }
 
