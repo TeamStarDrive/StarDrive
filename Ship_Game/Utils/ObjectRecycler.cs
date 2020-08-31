@@ -6,7 +6,7 @@ namespace Ship_Game.Utils
     {
         Array<T> InActiveObjects = new Array<T>();
 
-        public new bool Remove(T item, Action<T> cleanItem)
+        public bool Remove(T item, Action<T> cleanItem)
         {
             bool found = base.Remove(item);
             if (found)
