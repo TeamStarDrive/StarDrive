@@ -217,7 +217,6 @@ namespace Ship_Game
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
-            AsyncDataCollector.Initialize();
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -239,7 +238,6 @@ namespace Ship_Game
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
-            AsyncDataCollector.Initialize();
         }
 
         public Planet GetPlanet(Guid guid)
