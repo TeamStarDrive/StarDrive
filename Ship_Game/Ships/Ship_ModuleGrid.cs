@@ -794,7 +794,7 @@ namespace Ship_Game.Ships
 
             // higher levels lower the limit, which causes a better random pick
             int limit = modules.Length / (level + 1);
-            lock (Empire.Universe.RandomLock)
+            lock (Empire.RandomLock)
                 return modules[RandomMath.InRange(limit)];
         }
 
@@ -804,8 +804,7 @@ namespace Ship_Game.Ships
             Vector2 center    = source.Owner?.Center ?? source.Origin;
             int level         = source.Owner?.Level  ?? 0;
             float searchRange = source.BaseRange + 100;
-            lock (Empire.Universe.RandomLock)
-                return TargetRandomInternalModule(center, level, searchRange*searchRange);
+            return TargetRandomInternalModule(center, level, searchRange*searchRange);
         }
 
         // This is called for initial missile guidance ChooseTarget(), so range is not that important
@@ -814,8 +813,7 @@ namespace Ship_Game.Ships
             Vector2 projPos = source.Owner?.Center ?? source.Center;
             int level       = source.Owner?.Level  ?? 0;
             float searchRange = projPos.SqDist(Center) + 48*48; // only pick modules that are "visible" to the projectile
-            lock (Empire.Universe.RandomLock)
-                return TargetRandomInternalModule(projPos, level, searchRange);
+            return TargetRandomInternalModule(projPos, level, searchRange);
         }
 
     }

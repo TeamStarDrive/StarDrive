@@ -109,8 +109,6 @@ namespace Ship_Game
         FloatSlider EffectsVolumeSlider;
 
         FloatSlider IconSize;
-        FloatSlider ShipLimiter;
-        FloatSlider FreighterLimiter;
         FloatSlider AutoSaveFreq;     // Added by Gretman
 
         public OptionsScreen(MainMenuScreen mainMenu) : base(mainMenu, 600, 600)
