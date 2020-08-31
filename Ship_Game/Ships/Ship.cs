@@ -174,7 +174,7 @@ namespace Ship_Game.Ships
         public bool CanTakeFleetMoveOrders() => 
             FleetCapableStatus == Status.Good && ShipEngines.EngineStatus >= Status.Poor;
 
-        public void SetFleetCapableStatus()
+        void SetFleetCapableStatus()
         {
             if (!EMPdisabled && !InhibitedByEnemy)
             {
@@ -1048,10 +1048,21 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
         }
 
+        public void UpdateSensorsAndInfluence(float deltaTime)
+        {
+            UpdateInfluence(deltaTime);
+            AI.StartSensorScan(deltaTime);
+
+            KnownByEmpires.Update(deltaTime);
+            HasSeenEmpires.Update(deltaTime);
+
+            SetFleetCapableStatus();
+        }
+
         public void UpdateModulePositions(float deltaTime)
         {
-             if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
-             {  
+            if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
+            {  
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
                 float tan = (float)Math.Tan(yRotation);
@@ -1060,7 +1071,7 @@ namespace Ship_Game.Ships
                     ModuleSlotList[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
                 }
                 GlobalStats.ModuleUpdates += ModuleSlotList.Length;
-             }
+            }
         }
 
         void UpdateModulesAndStatus()

@@ -277,7 +277,6 @@ namespace Ship_Game
             if (Empires.IsEmpty)
                 Log.Error($"must be called after empireList is populated.");
             
-            Empire.Universe.AsyncDataCollector.Initialize();
             Empire.Universe.WarmUpShipsForLoad();
             foreach(Empire empire in Empires)
             { 
