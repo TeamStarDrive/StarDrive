@@ -1052,6 +1052,15 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
         }
 
+        public void UpdatePositionSensorsAndInfluence(float deltaTime)
+        {
+            UpdateModulePositions(deltaTime);
+            UpdateInfluence(deltaTime);
+            AI.StartSensorScan(deltaTime);
+            KnownByEmpires.Update(deltaTime);
+            HasSeenEmpires.Update(deltaTime);
+        }
+
         public void UpdateModulePositions(float deltaTime)
         {
              if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
