@@ -3216,7 +3216,7 @@ namespace Ship_Game
 
             for (int i = 0; i < ships.Count; i++)
             {
-                var ship = ships[i];
+                Ship ship = ships[i];
 
                 bool shipKnown = ship.loyalty == this || ship.KnownByEmpires.KnownBy(this);
 

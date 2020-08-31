@@ -229,21 +229,35 @@ namespace Ship_Game
         /// </summary>
         public void WarmUpShipsForLoad()
         {
-            // makes sure all empire vision is updated.
-            for (int x = 0; x < EmpireManager.NumEmpires * 2; x++)
-            {
-                SubmitNextEmpireUpdate(0.016f);
-                UpdateShipsAndFleets(0.016f);
+            const float fixedUpdate = 0.01666667f;
 
-                foreach (var ship in MasterShipList)
-                {
-                    ship.AI.ApplySensorScanResults();
-                }
-                lock (SpaceManager.LockSpaceManager)
-                {
-                    SpaceManager.Update(0.016f);
-                }
+            // makes sure all empire vision is updated.
+            UpdateAllShipPositions(fixedUpdate);
+
+            lock (SpaceManager.LockSpaceManager)
+            {
+                SpaceManager.Update(fixedUpdate);
             }
+
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                UpdateShipSensorsAndInfluence(fixedUpdate, empire);
+            }
+
+            // TODO: some checks rely on previous frame information, this is a defect
+            //       so we run this a second time
+            foreach (Empire empire in EmpireManager.Empires)
+            {
+                UpdateShipSensorsAndInfluence(fixedUpdate, empire);
+            }
+
+            UpdateShipsAndFleets(fixedUpdate);
+
+            foreach (var ship in MasterShipList)
+            {
+                ship.AI.ApplySensorScanResults();
+            }
+
             EmpireManager.Player.PopulateKnownShips();
         }
 
@@ -392,6 +406,7 @@ namespace Ship_Game
         }
 
         int NextEmpireToUpdate = 0;
+        int MaxTaskCores = Parallel.NumPhysicalCores - 1;
 
         void SubmitNextEmpireUpdate(float deltaTime)
         {
@@ -399,61 +414,49 @@ namespace Ship_Game
             if (++NextEmpireToUpdate >= EmpireManager.Empires.Count)
                 NextEmpireToUpdate = 0;
 
-            if (empireToUpdate.IsEmpireDead())
-                return; // skip update this frame
-
-            AsyncDataCollector.Add(() => UpdateEmpireSensorsAsync(deltaTime, empireToUpdate));
-            AsyncDataCollector.MoveItemsToThread();
+            AsyncDataCollector.SubmitWork(() =>
+            {
+                UpdateAllShipPositions(deltaTime);
+                UpdateShipSensorsAndInfluence(deltaTime, empireToUpdate);
+            });
         }
 
-        void UpdateEmpireSensorsAsync(float deltaTime, Empire ourEmpire)
+        void UpdateAllShipPositions(float deltaTime)
         {
-            var projectors = ourEmpire.GetProjectors();
-            for (int i = 0; i < projectors.Count; ++i)
+
+            // Update all ships and projectors in the universe
+            Ship[] allShips = MasterShipList.GetInternalArrayItems();
+            Parallel.For(MasterShipList.Count, (start, end) =>
             {
-                projectors[i].UpdatePositionSensorsAndInfluence(deltaTime);
-            }
+                for (int i = start; i < end; ++i)
+                {
+                    Ship ship = allShips[i];
+                    ship.UpdateModulePositions(deltaTime);
+
+                    // make sure dead and dying ships can be seen.
+                    if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
+                        ship.KnownByEmpires.SetSeenByPlayer();
+                }
+            }, MaxTaskCores);
+        }
+
+        void UpdateShipSensorsAndInfluence(float deltaTime, Empire ourEmpire)
+        {
+            if (ourEmpire.IsEmpireDead())
+                return;
 
             var ourShips = ourEmpire.GetShips();
             Parallel.For(ourShips.Count, (start, end) =>
             {
                 for (int i = start; i < end; ++i)
                 {
-                    ourShips[i].UpdatePositionSensorsAndInfluence(deltaTime);
+                    Ship ourShip = ourShips[i];
+                    ourShip.UpdateSensorsAndInfluence(deltaTime);
                 }
-            });
+            }, MaxTaskCores);
 
             ourEmpire.UpdateContactsAndBorders(deltaTime);
             ourEmpire.UpdateMilitaryStrengths();
-
-            for (int i = 0; i < EmpireManager.Empires.Count; i++)
-            {
-                var theirEmpire = EmpireManager.Empires[i];
-                if (ourEmpire == theirEmpire || theirEmpire.IsEmpireDead())
-                {
-                    continue;
-                }
-
-                var theirShips = theirEmpire.GetShips();
-                Parallel.For(theirShips.Count, (start, end) =>
-                {
-                    for (int j = start; j < end; ++j)
-                    {
-                        Ship theirShip = theirShips[j];
-                        if (theirShip?.Active != true)
-                        {
-                            // make sure dead and dying ships can be seen.
-                            if (theirShip?.KnownByEmpires.KnownByPlayer == true)
-                                theirShip.KnownByEmpires.SetSeenByPlayer();
-                        }
-                        else
-                        {
-                            theirShip.SetFleetCapableStatus();
-                            theirShip.UpdateModulePositions(deltaTime);
-                        }
-                    }
-                });
-            }
         }
 
         void ProcessTurnShipsAndSystems(float elapsedTime)
