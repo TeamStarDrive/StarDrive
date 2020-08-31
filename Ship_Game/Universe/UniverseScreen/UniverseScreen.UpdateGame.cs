@@ -237,7 +237,9 @@ namespace Ship_Game
             {
                 QueueActionsForThreading(0.016f);
                 AsyncDataCollector.MoveItemsToThread();
+
                 UpdateShipsAndFleets(0.016f);
+
                 foreach (var ship in MasterShipList)
                 {
                     ship.AI.ApplySensorScanResults();
@@ -398,9 +400,14 @@ namespace Ship_Game
         bool EmpireScanFinished = false;
 
 
-        public void QueueActionsForThreading(float deltaTime)
+        void QueueActionsForThreading(float deltaTime)
         {
             Empire empireVisibility = EmpireManager.Empires[EmpireScanIncrement];
+            if (empireVisibility.IsEmpireDead())
+            {
+                if (++EmpireScanIncrement == EmpireManager.Empires.Count)
+                    EmpireScanIncrement = 0;
+            }
 
             AsyncDataCollector.Add(() =>
             {
@@ -463,12 +470,6 @@ namespace Ship_Game
                     }
                 }
             });
-
-            if (empireVisibility.IsEmpireDead())
-            {
-                if (++EmpireScanIncrement == EmpireManager.Empires.Count)
-                    EmpireScanIncrement = 0;
-            }
         }
 
         void ProcessTurnShipsAndSystems(float elapsedTime)

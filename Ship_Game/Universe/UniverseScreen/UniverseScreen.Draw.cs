@@ -725,9 +725,8 @@ namespace Ship_Game
                 "PreEmpire Time:  " ,
                 "Post Empire Time:  " ,
                 "Collision Time: " ,
+                "Action Q  Time:  ",
                 "---Total Time:  ",
-                "Action Q  Time:  " 
-
             };
             
             DebugGamePerf.Align = TextAlign.Default;
@@ -736,14 +735,14 @@ namespace Ship_Game
             DebugGamePerfValues.Show();
             DebugGamePerfValues.MultilineText = new Array<string>
             {
-                "" + MasterShipList.Count + "           Max \\/",
-                "" + Perfavg2,
-                "" + EmpireUpdatePerf,
-                "" + PreEmpirePerf,
-                "" + PostEmpirePerf,
-                "" + CollisionTime,
-                "" + perfavg5,
-                "" + Empire.Universe.AsyncDataCollector.ProcessTime,
+                MasterShipList.Count + "           Max \\/",
+                Perfavg2.ToString(),
+                EmpireUpdatePerf.ToString(),
+                PreEmpirePerf.ToString(),
+                PostEmpirePerf.ToString(),
+                CollisionTime.ToString(),
+                AsyncDataCollector.ProcessTime.ToString(),
+                perfavg5.ToString(),
             };
 
         }

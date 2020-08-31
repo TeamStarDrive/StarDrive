@@ -139,15 +139,20 @@ namespace Ship_Game.Threading
             while (true)
             {
                 // wait for ActionsBeingProcessed to be populated
-                ActionsAvailable.WaitOne();
+                if (!ActionsAvailable.WaitOne(1000/*ms*/))
+                    break; // TIMEOUT
 
-                if (ActionsBeingProcessed.Count == 0) continue;
+                if (ActionsBeingProcessed.Count == 0)
+                {
+                    continue;
+                }
 
                 ProcessTime.Start();
-                IsProcessing             = true;
-                int processedLastTurn    = ActionsProcessedThisTurn;
+                IsProcessing = true;
+
+                int processedLastTurn = ActionsProcessedThisTurn;
                 ActionsProcessedThisTurn = 0;
-                GlobalStats.MaxParallelism = (Parallel.PhysicalCoreCount -1).LowerBound(1);
+
                 lock (UniverseScreen.SpaceManager.LockSpaceManager)
                 {
                     for (int i = 0; i < ActionsBeingProcessed.Count; i++)
@@ -164,7 +169,7 @@ namespace Ship_Game.Threading
                         }
                     }
                 }
-                GlobalStats.MaxParallelism = -1;
+
                 ActionsBeingProcessed = EmptyArray;
                 AvgActionsProcessed   = (ActionsProcessedThisTurn + processedLastTurn) / 2f;
                 IsProcessing          = false;
