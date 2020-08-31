@@ -378,7 +378,7 @@ namespace Ship_Game.Gameplay
         {
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
-            lock (Empire.Universe.RandomLock)
+            lock (Empire.RandomLock)
                 CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
 
             Owner.InCombatTimer = 15f;

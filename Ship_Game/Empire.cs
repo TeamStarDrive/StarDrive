@@ -34,7 +34,7 @@ namespace Ship_Game
 
         public float GetProjectorRadius() => Universe?.SubSpaceProjectors.Radius * data.SensorModifier ?? 10000;
         public float GetProjectorRadius(Planet planet) => GetProjectorRadius() + 10000f * planet.PopulationBillion;
-
+        public static readonly object RandomLock = new object();
         readonly Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
 
 
