@@ -794,7 +794,7 @@ namespace Ship_Game.Ships
 
             // higher levels lower the limit, which causes a better random pick
             int limit = modules.Length / (level + 1);
-            lock (Empire.Universe.RandomLock)
+            lock (Empire.RandomLock)
                 return modules[RandomMath.InRange(limit)];
         }
 

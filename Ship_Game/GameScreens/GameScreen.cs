@@ -571,7 +571,10 @@ namespace Ship_Game
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, Color color)
-            => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, 0.0f, color);
+        {
+            ProjectToScreenCoords(posInWorld, textureScale*2, out Vector2 posOnScreen, out float sizeOnScreen);
+            DrawTextureSized(texture, posOnScreen, 0.0f, sizeOnScreen, sizeOnScreen, color);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, float rotation, Color color)

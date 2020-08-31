@@ -14,7 +14,6 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         public readonly ActionPool AsyncDataCollector = new ActionPool();
-        public readonly object RandomLock = new object();
 
         void ProcessTurnsMonitored()
         {
