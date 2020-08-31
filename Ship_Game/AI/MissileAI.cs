@@ -38,9 +38,12 @@ namespace Ship_Game.AI
 
             if (Missile.Weapon.DelayedIgnition.Greater(0))
             {
-                float launchDir   = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
-                float rotation    = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
-                Missile.Velocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(100));
+                lock (Empire.Universe.RandomLock)
+                {
+                    float launchDir = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
+                    float rotation = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
+                    Missile.Velocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(100));
+                }
             }
 
             if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)
@@ -72,7 +75,8 @@ namespace Ship_Game.AI
                 }
             }
 
-            InitialPhaseDirection = RandomMath.RollDice(50) ? -1f : +1f;
+            lock (Empire.Universe.RandomLock)
+                InitialPhaseDirection = RandomMath.RollDice(50) ? -1f : +1f;
         }
 
         //added by gremlin deveks ChooseTarget
