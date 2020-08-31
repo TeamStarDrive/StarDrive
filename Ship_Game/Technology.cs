@@ -236,9 +236,6 @@ namespace Ship_Game
                     continue;
                 }
 
-                if (building.Name == "Xeno Farm")
-                    Log.Info("lala");
-
                 if (building.AllowInfantry || building.isWeapon || building.IsSensor ||
                     building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0 || building.CanAttack)
                 {

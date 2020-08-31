@@ -20,48 +20,29 @@ namespace Ship_Game.Threading
     public class ActionPool 
     {
         Thread Worker;
-        static readonly Array<Action> EmptyArray   = new Array<Action>(0);
-        int DefaultAccumulatorSize                 = 10;
-        readonly AutoResetEvent ActionsAvailable   = new AutoResetEvent(false);
-        Array<Action> ActionsBeingProcessed        = EmptyArray;
-        Array<Action> ActionAccumulator;
-        public SafeQueue<Action> RunOnEmpireThread = new SafeQueue<Action>();
-        bool Initialized;
+        readonly AutoResetEvent ActionsAvailable = new AutoResetEvent(false);
+        readonly Array<Action> WorkingActions = new Array<Action>();
+        readonly Array<Action> PendingActions = new Array<Action>();
 
         public int ActionsProcessedThisTurn {get; private set;}
-        public float AvgActionsProcessed {get; private set;}
-        public bool IsProcessing {get; private set;}
 
         public PerfTimer ProcessTime = new PerfTimer();
 
         public void Kill()
         {
-            Thread dieing = Worker;
+            Thread dying = Worker;
             Worker = null;
-            dieing.Join(250);
-            ActionAccumulator = null;
+            PendingActions.Clear();
+            ActionsAvailable.Set(); // signal the thread
+            dying.Join(250); // wait for merge
         }
-        
-        public void Add(Action itemToThread) => ActionAccumulator.Add(itemToThread);
 
         Exception ThreadException  = null;
         int StillProcessingCounter = 0;
         
         public ActionPool()
         {
-            Worker            = new Thread(ProcessQueuedItems);
-            ActionAccumulator = new Array<Action>(DefaultAccumulatorSize);
         }
-
-        public void ExecutePendingEmpireThreadActions()
-        {
-            while (RunOnEmpireThread.NotEmpty)
-            {
-                RunOnEmpireThread.Dequeue().Invoke();
-            }
-        }
-
-        public void EnqueueItemForEmpireThread(Action item) => RunOnEmpireThread.Enqueue(item);
 
         /// <summary>
         /// Run On game thread
@@ -69,107 +50,100 @@ namespace Ship_Game.Threading
         /// </summary>
         public void ManualUpdate()
         {
-            for (int i = 0; i < ActionAccumulator.Count; i++)
-            {
-                var action = ActionAccumulator[i];
-                try
-                {
-                    action?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex);
-                }
-            }
+            ProcessActions(PendingActions);
 
-            ActionAccumulator = new Array<Action>(DefaultAccumulatorSize);
-            ExecutePendingEmpireThreadActions();
+            if (ThreadException != null)
+                Log.Error(ThreadException);
         }
 
         /// <summary>
-        /// Run after SpaceManager update is done. Run Only from thread generating actions adds
-        /// moves all queued actions to thread processing pool. 
+        /// Run after SpaceManager update is done.
         /// </summary>
-        public ThreadState MoveItemsToThread()
+        public void SubmitWork(Action work)
         {
-            ExecutePendingEmpireThreadActions();
+            PendingActions.Add(work);
+
             if (ThreadException != null)
             {
-                Log.Error(ThreadException, $"ActionProcessor Threw in parallel foreach");
+                Log.Error(ThreadException, $"ActionProcessor Exception: {ThreadException}");
                 ThreadException = null;
             }
 
-            if (ActionsBeingProcessed.NotEmpty)
+            if (WorkingActions.NotEmpty)
             {
                 StillProcessingCounter++;
                 if (Empire.Universe?.DebugWin != null && StillProcessingCounter > 0)
+                {
                     Log.Warning($"Action Pool Unable to process all items. Processed: " +
-                                $"{ActionsProcessedThisTurn} Waiting {ActionAccumulator.Count} " +
+                                $"{ActionsProcessedThisTurn} Waiting {PendingActions.Count} " +
                                 $"TurnsInProcess: {StillProcessingCounter} " +
                                 $" ThreadState {Worker?.ThreadState}");
-                return Worker?.ThreadState ?? ThreadState.Stopped;
+                }
+                return;
             }
 
-            if (ActionsBeingProcessed.IsEmpty && (ActionAccumulator.NotEmpty))
-            {
-                StillProcessingCounter = 0;
-                ActionsBeingProcessed  = new Array<Action>(ActionAccumulator);
-                ActionAccumulator      = new Array<Action>(10);
-                ActionsAvailable.Set();
-            }
-            return Worker?.ThreadState ?? ThreadState.Stopped;
-        }
-
-        public void Initialize() 
-        {
+            // restart the worker if needed
             if (Worker == null || Worker.ThreadState == ThreadState.Stopped)
             {
-                Log.Warning($"Async data collector lost its thread? what'd you do!?");
-                Worker      = new Thread(ProcessQueuedItems); 
+                Worker = new Thread(ActionPoolThread);
                 Worker.Name = "ActionPool";
-                Initialized = false;
-            }
-            if (!Initialized)
                 Worker.Start();
-            Initialized = true;
+            }
+
+            if (WorkingActions.IsEmpty && PendingActions.NotEmpty)
+            {
+                StillProcessingCounter = 0;
+
+                // move pending items to working
+                WorkingActions.AddRange(PendingActions);
+                PendingActions.Clear();
+
+                ActionsAvailable.Set(); // GO
+            }
         }
 
-        void ProcessQueuedItems()
+        void ActionPoolThread()
         {
-            while (true)
+            while (Worker != null)
             {
                 // wait for ActionsBeingProcessed to be populated
-                ActionsAvailable.WaitOne();
+                if (!ActionsAvailable.WaitOne(100/*ms*/))
+                    continue; // TIMEOUT
 
-                if (ActionsBeingProcessed.Count == 0) continue;
-
-                ProcessTime.Start();
-                IsProcessing             = true;
-                int processedLastTurn    = ActionsProcessedThisTurn;
-                ActionsProcessedThisTurn = 0;
-                GlobalStats.MaxParallelism = (Parallel.PhysicalCoreCount -1).LowerBound(1);
-                lock (UniverseScreen.SpaceManager.LockSpaceManager)
+                if (WorkingActions.NotEmpty)
                 {
-                    for (int i = 0; i < ActionsBeingProcessed.Count; i++)
+                    ProcessActions(WorkingActions);
+                }
+            }
+        }
+
+
+        // NOTE: actions will be cleared
+        void ProcessActions(Array<Action> actions)
+        {
+            ProcessTime.Start();
+
+            int processedLastTurn = ActionsProcessedThisTurn;
+            ActionsProcessedThisTurn = 0;
+
+            lock (UniverseScreen.SpaceManager.LockSpaceManager)
+            {
+                for (int i = 0; i < actions.Count; i++)
+                {
+                    try
                     {
-                        var action = ActionsBeingProcessed[i];
-                        try
-                        {
-                            action?.Invoke();
-                            ActionsProcessedThisTurn++;
-                        }
-                        catch (Exception ex)
-                        {
-                            ThreadException = ex;
-                        }
+                        actions[i].Invoke();
+                        ActionsProcessedThisTurn++;
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadException = ex;
                     }
                 }
-                GlobalStats.MaxParallelism = -1;
-                ActionsBeingProcessed = EmptyArray;
-                AvgActionsProcessed   = (ActionsProcessedThisTurn + processedLastTurn) / 2f;
-                IsProcessing          = false;
-                ProcessTime.Stop();
+                actions.Clear();
             }
+
+            ProcessTime.Stop();
         }
     }
 }
