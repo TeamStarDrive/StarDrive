@@ -54,9 +54,9 @@ namespace Ship_Game
             QueryPerformanceCounter(out long end);
             float elapsed = (float)((double)(end - Time) / Frequency);
 
-            const float AVERAGE_RATIO = 0.025f;
+            const float AVERAGE_RATIO = 0.005f;
             AvgTime = AvgTime*(1f-AVERAGE_RATIO) + elapsed*AVERAGE_RATIO;
-            MaxTime = Math.Max(elapsed, MaxTime)*(1f-AVERAGE_RATIO) + MaxTime*AVERAGE_RATIO;
+            MaxTime = Math.Max(elapsed, MaxTime)*(1f-AVERAGE_RATIO) + elapsed*AVERAGE_RATIO;
 
             ++NumSamples;
         }
