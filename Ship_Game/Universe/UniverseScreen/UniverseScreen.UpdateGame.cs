@@ -215,10 +215,7 @@ namespace Ship_Game
                 if (threadException != null) Log.Error(threadException, "update pools failed");
                 threadException = null;
                 
-                // bulk remove all dead projectiles to prevent their update next frame
-
-                QueueActionsForThreading(0.01666667f);
-                AsyncDataCollector.MoveItemsToThread();
+                SubmitNextEmpireUpdate(0.01666667f);
                 CollisionTime.Stop();
 
                 ProcessTurnUpdateMisc(elapsedTime);
@@ -235,9 +232,7 @@ namespace Ship_Game
             // makes sure all empire vision is updated.
             for (int x = 0; x < EmpireManager.NumEmpires * 2; x++)
             {
-                QueueActionsForThreading(0.016f);
-                AsyncDataCollector.MoveItemsToThread();
-
+                SubmitNextEmpireUpdate(0.016f);
                 UpdateShipsAndFleets(0.016f);
 
                 foreach (var ship in MasterShipList)
@@ -396,80 +391,69 @@ namespace Ship_Game
             PostEmpirePerf.Stop();
         }
 
-        int EmpireScanIncrement = 0;
-        bool EmpireScanFinished = false;
+        int NextEmpireToUpdate = 0;
 
-
-        void QueueActionsForThreading(float deltaTime)
+        void SubmitNextEmpireUpdate(float deltaTime)
         {
-            Empire empireVisibility = EmpireManager.Empires[EmpireScanIncrement];
-            if (empireVisibility.IsEmpireDead())
+            Empire empireToUpdate = EmpireManager.Empires[NextEmpireToUpdate];
+            if (++NextEmpireToUpdate >= EmpireManager.Empires.Count)
+                NextEmpireToUpdate = 0;
+
+            if (empireToUpdate.IsEmpireDead())
+                return; // skip update this frame
+
+            AsyncDataCollector.Add(() => UpdateEmpireSensorsAsync(deltaTime, empireToUpdate));
+            AsyncDataCollector.MoveItemsToThread();
+        }
+
+        void UpdateEmpireSensorsAsync(float deltaTime, Empire ourEmpire)
+        {
+            var projectors = ourEmpire.GetProjectors();
+            for (int i = 0; i < projectors.Count; ++i)
             {
-                if (++EmpireScanIncrement == EmpireManager.Empires.Count)
-                    EmpireScanIncrement = 0;
+                projectors[i].UpdatePositionSensorsAndInfluence(deltaTime);
             }
 
-            AsyncDataCollector.Add(() =>
+            var ourShips = ourEmpire.GetShips();
+            Parallel.For(ourShips.Count, (start, end) =>
             {
-                for (int i = 0; i < EmpireManager.Empires.Count; i++)
+                for (int i = start; i < end; ++i)
                 {
-                    var empire = EmpireManager.Empires[i];
-                    if (empire.IsEmpireDead())
-                    {
-                        continue;
-                    }
-
-                    var ships = empire.GetShipsAtomic();
-
-                    Parallel.ForEach(ships, ship =>
-                    {
-                        if (ship?.Active != true)
-                        {
-                            // make sure dead and dying ships can be seen.
-                            if (ship?.KnownByEmpires.KnownByPlayer == true)
-                                ship.KnownByEmpires.SetSeenByPlayer();
-                            return;
-                        }
-
-                        ship.SetFleetCapableStatus();
-                        ship.UpdateModulePositions(deltaTime);
-
-                        if (ship.loyalty == empireVisibility && EmpireScanFinished)
-                        {
-                            ship.KnownByEmpires.Update(deltaTime);
-                            ship.AI.StartSensorScan(deltaTime);
-                        }
-
-                        if (empireVisibility == empire && !EmpireScanFinished)
-                        {
-                            ship.UpdateInfluence(deltaTime);
-                        }
-                    });
-
-                    if (empireVisibility == empire && !EmpireScanFinished)
-                    {
-                        foreach (var ssp in empireVisibility.GetProjectors().AtomicCopy())
-                        {
-                            ssp.UpdateModulePositions(deltaTime);
-                            ssp.UpdateInfluence(deltaTime);
-                            ssp.AI.StartSensorScan(deltaTime);
-                            ssp.KnownByEmpires.Update(deltaTime);
-                            ssp.HasSeenEmpires.Update(deltaTime);
-                        }
-
-                        EmpireScanFinished = true;
-                        empireVisibility.UpdateContactsAndBorders(deltaTime);
-                        empireVisibility.UpdateMilitaryStrengths();
-                    }
-                    else if (empireVisibility == empire)
-                    {
-                        if (++EmpireScanIncrement ==
-                            EmpireManager.Empires.Count)
-                            EmpireScanIncrement = 0;
-                        EmpireScanFinished = false;
-                    }
+                    ourShips[i].UpdatePositionSensorsAndInfluence(deltaTime);
                 }
             });
+
+            ourEmpire.UpdateContactsAndBorders(deltaTime);
+            ourEmpire.UpdateMilitaryStrengths();
+
+            for (int i = 0; i < EmpireManager.Empires.Count; i++)
+            {
+                var theirEmpire = EmpireManager.Empires[i];
+                if (ourEmpire == theirEmpire || theirEmpire.IsEmpireDead())
+                {
+                    continue;
+                }
+
+                var theirShips = theirEmpire.GetShips();
+                Parallel.For(theirShips.Count, (start, end) =>
+                {
+                    for (int j = start; j < end; ++j)
+                    {
+                        Ship theirShip = theirShips[j];
+                        if (theirShip?.Active != true)
+                        {
+                            // make sure dead and dying ships can be seen.
+                            if (theirShip?.KnownByEmpires.KnownByPlayer == true)
+                                theirShip.KnownByEmpires.SetSeenByPlayer();
+                        }
+                        else
+                        {
+                            theirShip.SetFleetCapableStatus();
+                            theirShip.UpdateModulePositions(deltaTime);
+                        }
+                    }
+                });
+            }
         }
 
         void ProcessTurnShipsAndSystems(float elapsedTime)
