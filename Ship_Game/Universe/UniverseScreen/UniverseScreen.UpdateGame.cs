@@ -14,7 +14,6 @@ namespace Ship_Game
     public partial class UniverseScreen
     {
         public readonly ActionPool AsyncDataCollector = new ActionPool();
-        public readonly object RandomLock = new object();
 
         void ProcessTurnsMonitored()
         {
@@ -157,8 +156,10 @@ namespace Ship_Game
                 // anything after this lock and before QueueActionForThreading should be thread safe.
                 // update spatial manager after ships have moved.
                 // all the collisions will be triggered here:
-                lock(SpaceManager.LockSpaceManager)
+                lock (SpaceManager.LockSpaceManager)
+                {
                     SpaceManager.Update(elapsedTime);
+                }
 
                 MasterShipList.ApplyPendingRemovals();
                 Exception threadException = null;
@@ -238,9 +239,13 @@ namespace Ship_Game
                 AsyncDataCollector.MoveItemsToThread();
                 UpdateShipsAndFleets(0.016f);
                 foreach (var ship in MasterShipList)
+                {
                     ship.AI.ApplySensorScanResults();
-                lock (SpaceManager.LockSpaceManager);
+                }
+                lock (SpaceManager.LockSpaceManager)
+                {
                     SpaceManager.Update(0.016f);
+                }
             }
             EmpireManager.Player.PopulateKnownShips();
         }
@@ -422,8 +427,6 @@ namespace Ship_Game
                         ship.SetFleetCapableStatus();
                         ship.UpdateModulePositions(deltaTime);
 
-                        // currently too much for 4 cores
-                        //ship.AI.UpdateCombatStateAI(deltaTime);
                         if (ship.loyalty == empireVisibility && EmpireScanFinished)
                         {
                             ship.KnownByEmpires.Update(deltaTime);
