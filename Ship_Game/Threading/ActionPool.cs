@@ -136,16 +136,14 @@ namespace Ship_Game.Threading
 
         void ProcessQueuedItems()
         {
-            while (true)
+            while (Worker != null)
             {
                 // wait for ActionsBeingProcessed to be populated
-                if (!ActionsAvailable.WaitOne(1000/*ms*/))
-                    break; // TIMEOUT
+                if (!ActionsAvailable.WaitOne(100/*ms*/))
+                    continue; // TIMEOUT
 
                 if (ActionsBeingProcessed.Count == 0)
-                {
                     continue;
-                }
 
                 ProcessTime.Start();
                 IsProcessing = true;
