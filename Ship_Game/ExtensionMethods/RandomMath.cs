@@ -1,65 +1,80 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Ship_Game
 {
     public static class RandomMath
     {
-        public static readonly Random Random = new Random();
+        static readonly ThreadSafeRandom Random = new ThreadSafeRandom();
+
+        /// Generate random, inclusive [minimum, maximum]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float RandomBetween(float minimum, float maximum)
+        {
+            return Random.Float(minimum, maximum);
+        }
+
+        /// Generate random, inclusive [minimum, maximum]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int IntBetween(int minimum, int maximum)
+        {
+            return Random.Int(minimum, maximum);
+        }
+
+        /// Generate random index, upper bound excluded: [startIndex, arrayLength)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int InRange(int startIndex, int arrayLength)
+        {
+            return Random.InRange(startIndex, arrayLength);
+        }
+
+        /// Random index, in range [0, arrayLength)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int InRange(int arrayLength)
+        {
+            return Random.InRange(0, arrayLength);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T RandItem<T>(IReadOnlyList<T> items)
+        {
+            return items[InRange(items.Count)];
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T RandItem<T>(Array<T> items)
+        {
+            return items[InRange(items.Count)];
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T RandItem<T>(T[] items)
+        {
+            return items[InRange(items.Length)];
+        }
 
         public static float AvgRandomBetween(float minimum, float maximum)
         {
+            const int ITERATIONS = 3;
             float rand = 0;
-            int x = 0;
-            for(; x<3; x++)
+            for (int x = 0; x < ITERATIONS; ++x)
             {
                 rand += RandomBetween(minimum, maximum);
             }
-            rand /= x;
-            if (float.IsNaN(rand) || float.IsInfinity(rand))
-                rand = minimum;
-            return rand;
+            return (float.IsNaN(rand) || float.IsInfinity(rand)) ? minimum : (rand / ITERATIONS);
         }
 
         public static int AvgRandomBetween(int minimum, int maximum)
         {
+            const int ITERATIONS = 3;
             int rand = 0;
-            int x = 0;
-            for (; x < 3; x++)
+            for (int x = 0; x < ITERATIONS; ++x)
             {
-                rand += IntBetween(minimum, maximum);
+                rand += Random.Int(minimum, maximum);
             }
-            rand /= x;
-            if (float.IsNaN(rand) || float.IsInfinity(rand))
-                rand = minimum;
-            return rand;
-        }
-
-        /// Generate random, inclusive [minimum, maximum]
-        public static float RandomBetween(float minimum, float maximum)
-        {
-            return minimum + (float)Random.NextDouble() * (maximum - minimum);
-        }
-
-        /// Generate random, inclusive [minimum, maximum]
-        public static int IntBetween(int minimum, int maximum)
-        {
-            return Random.Next(minimum, maximum+1);
-        }
-
-        /// Generate random index, upper bound excluded: [startIndex, arrayLength)
-        public static int InRange(int startIndex, int arrayLength)
-        {
-            return Random.Next(startIndex, arrayLength);
-        }
-
-        /// Random index, in range [0, arrayLength), arrayLength can be negative
-        public static int InRange(int arrayLength)
-        {
-            if (arrayLength < 0)
-                return -Random.Next(0, -arrayLength);
-            return Random.Next(0, arrayLength);
+            return (rand == 0) ? minimum : (rand / ITERATIONS);
         }
 
         // performs a dice-roll, where chance must be between [0..100]
@@ -73,47 +88,36 @@ namespace Ship_Game
         // returns a specific die size roll, like 1d20, 1d6, etc.
         public static int RollDie(int dieSize)
         {
-            return IntBetween(1, dieSize);
+            return Random.Int(1, dieSize);
         }
 
-        public static bool Roll3DiceAvg(float percent) => RollDiceAvg(3, 100) < percent;
+        public static bool Roll3DiceAvg(float percent)
+        {
+            return RollDiceAvg(3, 100) < percent;
+        }
 
         public static int RollDiceAvg(int numberOfDice, int size)
         {
-            if (numberOfDice == 0) return 0;
+            if (numberOfDice == 0)
+                return 0;
 
             float result = 0;
-            for (int i =0; i< numberOfDice; i++)
+            for (int i = 0; i < numberOfDice; i++)
             {
                 result += RandomBetween(0f, size);
             }
-            return (int)result / numberOfDice;
+            return (int)(result / numberOfDice);
         }
 
         public static int RollAvgPercentVarianceFrom50()
         {
-            float result = RollDiceAvg(3, 100);
-            return Math.Abs((int)result - 50);
-        }
-
-        public static T RandItem<T>(IReadOnlyList<T> items)
-        {
-            return items[InRange(items.Count)];
-        }
-
-        public static T RandItem<T>(Array<T> items)
-        {
-            return items[InRange(items.Count)];
-        }
-
-        public static T RandItem<T>(T[] items)
-        {
-            return items[InRange(items.Length)];
+            int result = RollDiceAvg(3, 100);
+            return Math.Abs(result - 50);
         }
 
         public static Vector2 RandomDirection()
         {
-            float radians = RandomBetween(0f, 6.28318548f);
+            float radians = RandomBetween(0f, RadMath.TwoPI);
             return radians.RadiansToDirection();
         }
 

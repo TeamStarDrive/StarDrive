@@ -103,21 +103,21 @@ namespace Ship_Game
                 if (star.Position.X < StarFieldR.X)
                 {
                     star.Position.X = StarFieldR.Right;
-                    star.Position.Y = StarFieldR.Y + RandomMath.Random.Next(StarFieldR.Height);
+                    star.Position.Y = StarFieldR.Y + RandomMath.InRange(0, StarFieldR.Height);
                 }
                 else if (star.Position.X > StarFieldR.Right)
                 {
                     star.Position.X = StarFieldR.X;
-                    star.Position.Y = StarFieldR.Y + RandomMath.Random.Next(StarFieldR.Height);
+                    star.Position.Y = StarFieldR.Y + RandomMath.InRange(0, StarFieldR.Height);
                 }
                 if (star.Position.Y < StarFieldR.Y)
                 {
-                    star.Position.X = StarFieldR.X + RandomMath.Random.Next(StarFieldR.Width);
+                    star.Position.X = StarFieldR.X + RandomMath.InRange(0, StarFieldR.Width);
                     star.Position.Y = StarFieldR.Bottom;
                 }
                 else if (star.Position.Y > StarFieldR.Bottom)
                 {
-                    star.Position.X = StarFieldR.X + RandomMath.Random.Next(StarFieldR.Width);
+                    star.Position.X = StarFieldR.X + RandomMath.InRange(0, StarFieldR.Width);
                     star.Position.Y = StarFieldR.Y;
                 }
                 Color c = LayerColors[star.whichLayer];
@@ -142,8 +142,8 @@ namespace Ship_Game
             for (int i = 0; i < Stars.Length; i++)
             {
                 ref Star star = ref Stars[i];
-                star.Position = new Vector2(RandomMath.Random.Next(0, viewportWidth), 
-                                            RandomMath.Random.Next(0, viewportHeight));
+                star.Position = new Vector2(RandomMath.InRange(0, viewportWidth), 
+                                            RandomMath.InRange(0, viewportHeight));
                 int depth = i % MoveFactors.Length;
                 if (2 <= depth && depth <= 4)
                 {
