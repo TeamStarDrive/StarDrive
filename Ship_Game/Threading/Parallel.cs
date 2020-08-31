@@ -310,7 +310,8 @@ namespace Ship_Game
             return result;
         }
 
-        public static int PhysicalCoreCount {get; private set;}
+        static int PhysicalCoreCount;
+
         public static int NumPhysicalCores
         {
             get
@@ -374,6 +375,7 @@ namespace Ship_Game
         /// <param name="rangeStart">Start of the range (inclusive)</param>
         /// <param name="rangeEnd">End of the range (exclusive)</param>
         /// <param name="body">delegate void RangeAction(int start, int end)</param>
+        /// <param name="maxParallelism">maximum parallel tasks, -1: use MaxParallelism property</param>
         /// <example>
         /// Parallel.For(0, arr.Length, (start, end) =&gt;
         /// {
@@ -383,17 +385,19 @@ namespace Ship_Game
         ///     }
         /// });
         /// </example>
-        public static void For(int rangeStart, int rangeEnd, RangeAction body)
+        public static void For(int rangeStart, int rangeEnd, RangeAction body, int maxParallelism = -1)
         {
             if (rangeStart >= rangeEnd)
                 return; // no work done on empty ranges
 
+            maxParallelism = (maxParallelism <= 0) ? MaxParallelism : Math.Min(maxParallelism, MaxParallelism);
+
             int range = rangeEnd - rangeStart;
-            int cores = Math.Min(range, MaxParallelism);
+            int cores = Math.Min(range, maxParallelism);
             int len = range / cores;
 
             // this can happen if the target CPU only has 1 core, or if the list has 1 item
-            if (cores == 1)
+            if (cores <= 1)
             {
                 body(rangeStart, rangeEnd);
                 return;
@@ -427,9 +431,9 @@ namespace Ship_Game
                 throw ex;
         }
 
-        public static void For(int rangeLength, RangeAction body)
+        public static void For(int rangeLength, RangeAction body, int maxParallelism = -1)
         {
-            For(0, rangeLength, body);
+            For(0, rangeLength, body, maxParallelism);
         }
 
         public static void ForEach<T>(IReadOnlyList<T> list, Action<T> body)
