@@ -2315,10 +2315,10 @@ namespace Ship_Game
                 }
 
                 //loop over all ALLIED projectors
-                var projectors = empire.GetProjectors().AtomicCopy();
-                for (int z = 0; z < projectors.Length; z++)
+                var projectors = empire.GetProjectors();
+                for (int z = 0; z < projectors.Count; z++)
                 {
-                    Ship ship                   = projectors[z];
+                    Ship ship = projectors[z];
                     if (ship?.Active != true) continue;
                     
                     InfluenceNode influenceNode = SensorNodes.RecycleObject(n=> n.Wipe()) ?? new InfluenceNode();
@@ -3196,7 +3196,7 @@ namespace Ship_Game
             updateContactsTimer -= elapsedTime;
             if (!IsEmpireDead())
             {
-                MaxContactTimer =  elapsedTime;
+                MaxContactTimer = elapsedTime;
                 ResetBorders();
                 ScanFromAllInfluenceNodes();
             }
