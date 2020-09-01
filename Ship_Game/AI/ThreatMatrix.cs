@@ -418,13 +418,6 @@ namespace Ship_Game.AI
                 {
                     PendingThreadActions.Dequeue()?.Invoke();
                 }
-
-                for (int i = PendingGameThreadActions.Count - 1; i >= 0; i--)
-                {
-                    var action = PendingGameThreadActions[i];
-                    action.Invoke();
-                    PendingGameThreadActions.RemoveAtSwapLast(i);
-                }
             }
             catch
             {
