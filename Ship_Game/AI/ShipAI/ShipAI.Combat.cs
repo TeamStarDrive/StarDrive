@@ -58,7 +58,10 @@ namespace Ship_Game.AI
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
 
-            if (!ScanComplete)
+            // ScanDataProcessed check prevents the potential targets and projectile lists from being modified 
+            // while they could be being updated on the ship thread. when the ScanDataProcessed is true the lists have been been updated.
+            // while false it means there are results waiting to be processed. 
+            if (ScanDataProcessed)
             {
                 for (int x = PotentialTargets.Count - 1; x >= 0; x--)
                 {
