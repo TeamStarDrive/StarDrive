@@ -29,7 +29,7 @@ namespace UnitTests.Ships
         {
             ship.AI.CombatState = state;
             ship.shipStatusChanged = true;
-            ship.Update(1f);
+            ship.Update(new FixedSimTime(1f));
         }
 
         [TestMethod]
