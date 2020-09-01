@@ -52,19 +52,19 @@ namespace UnitTests.AITests.Ships
             // wait for ship to enter warp
             while (ship.engineState != Ship.MoveState.Warp)
             {
-                ship.Update(0.01666666f);
-                ship.AI.DoManualSensorScan(10);
+                ship.Update(FixedSimTime.Default);
+                ship.AI.DoManualSensorScan(new FixedSimTime(10f));
             }
             bool sawEnemyShip       = false;
 
             // wait for ship to exit warp
             while (ship.engineState == Ship.MoveState.Warp)
             {
-                UniverseScreen.SpaceManager.Update(0.0166666f);
-                ship.Update(0.01666666f);
-                enemy.Update(0.01666666f);
-                ship.AI.DoManualSensorScan(10);
-                enemy.AI.DoManualSensorScan(10);
+                UniverseScreen.SpaceManager.Update(FixedSimTime.Default);
+                ship.Update(FixedSimTime.Default);
+                enemy.Update(FixedSimTime.Default);
+                ship.AI.DoManualSensorScan(new FixedSimTime(10f));
+                enemy.AI.DoManualSensorScan(new FixedSimTime(10f));
                 sawEnemyShip |= ship.AI.BadGuysNear;
             }
             Assert.IsTrue(sawEnemyShip, "Did not see an enemy while at warp");
@@ -81,18 +81,18 @@ namespace UnitTests.AITests.Ships
             // wait for ship to enter warp
             while (ship.engineState != Ship.MoveState.Warp)
             {
-                ship.Update(0.01666666f);
+                ship.Update(FixedSimTime.Default);
             }
 
             // wait for ship to exit warp
             while (ship.engineState == Ship.MoveState.Warp)
             {
-                UniverseScreen.SpaceManager.Update(0.0166666f);
-                ship.Update(0.01666666f);
-                enemy.Update(0.01666666f);                
+                UniverseScreen.SpaceManager.Update(FixedSimTime.Default);
+                ship.Update(FixedSimTime.Default);
+                enemy.Update(FixedSimTime.Default);                
                 Universe.AsyncDataCollector.ManualUpdate();
-                ship.AI.StartSensorScan(10);
-                enemy.AI.StartSensorScan(10);
+                ship.AI.StartSensorScan(new FixedSimTime(10f));
+                enemy.AI.StartSensorScan(new FixedSimTime(10f));
                 sawEnemyShip |= ship.AI.BadGuysNear;
             }
 
