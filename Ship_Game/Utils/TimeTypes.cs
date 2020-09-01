@@ -57,9 +57,14 @@ namespace Ship_Game
     public class FrameTimes
     {
         /// <summary>
-        /// This is the fixed simulation step.
+        /// 
+        /// </summary>
+        public readonly int SimulationFPS;
+
+        /// <summary>
+        /// This is the fixed simulation step: 1.0/SimulationFPS
         ///
-        /// By default it should be 1 / 60, which is 0.01666667 seconds
+        /// By default it is 1 / 60, but players can configure it
         ///
         /// If the game is paused, this will be 0
         /// </summary>
@@ -82,14 +87,17 @@ namespace Ship_Game
         /// </summary>
         public readonly float TotalGameSeconds;
 
-        public FrameTimes(float fixedTimeStep, GameTime xnaTime)
+        public FrameTimes(int simulationFramesPerSecond, GameTime xnaTime)
         {
-            SimulationStep = new FixedSimTime(fixedTimeStep);
+            SimulationFPS = simulationFramesPerSecond;
+            float simulationFixedTimeStep = 1f / simulationFramesPerSecond;
+
+            SimulationStep = new FixedSimTime(simulationFixedTimeStep);
             XnaTime = xnaTime;
 
             float frameTime = (float)xnaTime.ElapsedGameTime.TotalSeconds;
             if (frameTime > 0.4f) // @note Probably we were loading something heavy
-                frameTime = fixedTimeStep;
+                frameTime = simulationFixedTimeStep;
 
             RealTime = new VariableFrameTime(frameTime);
 

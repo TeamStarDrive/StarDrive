@@ -26,16 +26,19 @@ namespace Ship_Game
         void ProcessTurns()
         {
             int failedLoops = 0; // for detecting cyclic crash loops
+            float simulationTimeSink = 0f;
+
             while (ProcessTurnsThread != null)
             {
                 try
                 {
-                    // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns in between
+                    // Wait for Draw() to finish.
+                    // While SwapBuffers is blocking, we process the turns in between
                     DrawCompletedEvt.WaitOne();
                     if (ProcessTurnsThread == null)
                         break; // this thread is aborting
 
-                    ProcessNextTurn(GameBase.Base.Elapsed);
+                    ProcessTurns(GameBase.Base.Elapsed, ref simulationTimeSink);
                     failedLoops = 0; // no exceptions this turn
                 }
                 catch (ThreadAbortException)
@@ -72,7 +75,7 @@ namespace Ship_Game
             }
         }
 
-        void ProcessNextTurn(FrameTimes elapsed)
+        void ProcessTurns(FrameTimes elapsed, ref float simulationTimeSink)
         {
             ScreenManager.ExecutePendingEmpireActions();
 
@@ -93,33 +96,31 @@ namespace Ship_Game
                     AutoSaveTimer = GlobalStats.AutoSaveFreq;
                     DoAutoSave();
                 }
+
                 if (IsActive)
                 {
-                    if (GameSpeed < 1f) //Speed <1.0
+                    float timeBetweenTurns = elapsed.SimulationStep.FixedTime / GameSpeed;
+
+                    // advance the simulation time sink by the real elapsed time
+                    simulationTimeSink += elapsed.RealTime.Seconds;
+
+                    // run the alloted number of game turns
+                    // if Simulation FPS is `10` and game speed is `0.5`, this will run 5x per second
+                    // if Simulation FPS is `60` and game speed is `4.0`, this will run 240x per second
+                    // if the game freezes due to rendering or some other issue,
+                    // the simulation time sink will record the missed time and process missed turns
+                    while (simulationTimeSink >= timeBetweenTurns)
                     {
-                        if (TurnFlipCounter >= 1)
-                        {
-                            TurnFlipCounter = 0;
-                            ++TurnId;
-                            ProcessTurnDelta(elapsed.SimulationStep);
-                        }
-                        TurnFlipCounter += GameSpeed;
+                        ++TurnId;
+                        ProcessTurnDelta(elapsed.SimulationStep);
+                        simulationTimeSink -= timeBetweenTurns;
                     }
-                    else
-                    {
-                        // With higher GameSpeed, we take more than 1 turn
-                        for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
-                        {
-                            ++TurnId;
-                            ProcessTurnDelta(elapsed.SimulationStep);
-                        }
-                    }
+
                     if (GlobalStats.RestrictAIPlayerInteraction)
                     {
                         if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
                             ++GameSpeed;
                         else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
-
                     }
                 }
             }
