@@ -164,8 +164,6 @@ namespace Ship_Game
 
                 CollisionTime.Stop();
 
-                RemoveDeadProjectiles();
-
                 ProcessTurnUpdateMisc(elapsedTime);
             }
 
@@ -509,6 +507,7 @@ namespace Ship_Game
             lock (ActionPool.LockShipPools)
             {
                 //clear out general object removal.
+                RemoveDeadProjectiles();
                 TotallyRemoveGameplayObjects();
                 MasterShipList.ApplyPendingRemovals();
 
