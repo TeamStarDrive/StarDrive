@@ -245,10 +245,10 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            UpdateMainMenuShips(FixedSimTime.Default);
+            UpdateMainMenuShips(elapsed.SimulationStep);
             GameAudio.Update3DSound(CamPos);
 
-            FTLManager.Update(this, FixedSimTime.Default);
+            FTLManager.Update(this, elapsed.SimulationStep);
 
             ScreenManager.UpdateSceneObjects();
             

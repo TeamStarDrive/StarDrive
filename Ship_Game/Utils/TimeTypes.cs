@@ -27,11 +27,6 @@ namespace Ship_Game
         /// </summary>
         public static readonly FixedSimTime One = new FixedSimTime(1f);
 
-        /// <summary>
-        /// This is the default game simulation time, 60 ticks per second
-        /// </summary>
-        public static readonly FixedSimTime Default = new FixedSimTime(1f / 60f);
-
         public FixedSimTime(float time)
         {
             FixedTime = time;
@@ -87,14 +82,14 @@ namespace Ship_Game
         /// </summary>
         public readonly float TotalGameSeconds;
 
-        public FrameTimes(FixedSimTime fixedTime, GameTime xnaTime)
+        public FrameTimes(float fixedTimeStep, GameTime xnaTime)
         {
-            SimulationStep = fixedTime;
+            SimulationStep = new FixedSimTime(fixedTimeStep);
             XnaTime = xnaTime;
 
             float frameTime = (float)xnaTime.ElapsedGameTime.TotalSeconds;
             if (frameTime > 0.4f) // @note Probably we were loading something heavy
-                frameTime = fixedTime.FixedTime;
+                frameTime = fixedTimeStep;
 
             RealTime = new VariableFrameTime(frameTime);
 

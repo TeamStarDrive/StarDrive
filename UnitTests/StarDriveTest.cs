@@ -21,6 +21,7 @@ namespace UnitTests
     public class StarDriveTest : IDisposable
     {
         public static string StarDriveAbsolutePath { get; private set; }
+
         static StarDriveTest()
         {
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
@@ -63,6 +64,8 @@ namespace UnitTests
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
         public Empire Faction { get; private set; }
+
+        public FixedSimTime TestSimStep { get; private set; } = new FixedSimTime(1f / 60f);
 
         public StarDriveTest()
         {
