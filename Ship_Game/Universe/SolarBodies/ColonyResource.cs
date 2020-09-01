@@ -75,23 +75,20 @@ namespace Ship_Game.Universe.SolarBodies
 
         // Nominal workers needed to neither gain nor lose storage
         // @param flat Extra flat bonus to use in calculation
-        // @param perCol Extra per colonist bonus to use in calculation
         public float WorkersNeededForEquilibrium(float addFlat = 0)
         {
-            if (Planet.Population <= 0)
+            if (Planet.Population <= 0 || NetYieldPerColonist.LessOrEqual(0))
                 return 0;
 
-            float netPlanetPerColo = NetYieldPerColonist * Planet.PopulationBillion;
-            float needed           = AvgResourceConsumption() - NetFlatBonus + addFlat;
-            float minWorkers       = netPlanetPerColo.AlmostZero() ? 0f : (needed / netPlanetPerColo);
+            float needed        = AvgResourceConsumption() - NetFlatBonus + addFlat;
+            float workersNeeded = needed / NetYieldPerColonist;
+            float minWorkers    = (workersNeeded / Planet.PopulationBillion).LowerBound(0);
 
             return minWorkers.NaNChecked(0f, "WorkersNeededForEquilibrium").Clamped(0.0f, 0.9f);
         }
 
         public float EstPercentForNetIncome(float targetNetIncome)
         {
-            // give negative flat bonus to shift the equilibrium point
-            // towards targetNetIncome
             float flat = (targetNetIncome) / (1f - Tax);
             return WorkersNeededForEquilibrium(flat);
         }
@@ -124,13 +121,7 @@ namespace Ship_Game.Universe.SolarBodies
         public void AutoBalanceWithZeroResearch(ColonyResource food, ColonyResource prod)
         {
             float remainder = 1 - (food.Percent + prod.Percent);
-            if (Planet.Owner.IsCybernetic)
-                prod.Percent += remainder;
-            else
-            {
-                food.Percent += remainder / 2;
-                prod.Percent += remainder / 2;
-            }
+            prod.Percent   += remainder;
         }
     }
 
