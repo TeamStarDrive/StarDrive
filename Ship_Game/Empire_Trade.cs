@@ -325,7 +325,7 @@ namespace Ship_Game
             }
 
             AverageFreighterCargoCap = (int)(cargoCap / numFreighters.LowerBound(1)).LowerBound(10);
-            AverageFreighterFTLSpeed = (int)(warpSpeed / numFreighters.LowerBound(1));
+            AverageFreighterFTLSpeed = ((int)(warpSpeed / numFreighters.LowerBound(1))).LowerBound(5000);
         }
 
         public void SetAverageFreighterCargoCap(int value)
