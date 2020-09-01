@@ -714,7 +714,7 @@ namespace Ship_Game
                     case TargetType.Shipyard         when ship.shipData.IsShipyard:
                     case TargetType.FreighterAtWarp  when (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) && ship.IsInWarp:
                     case TargetType.CombatShipAtWarp when !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp:
-                    case TargetType.Projector:       targets.Add(ship);                                                        break;
+                    case TargetType.Projector:       targets.Add(ship); break;
                 }
             }
 

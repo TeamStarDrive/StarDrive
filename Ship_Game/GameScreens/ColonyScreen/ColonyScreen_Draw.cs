@@ -338,8 +338,8 @@ namespace Ship_Game
         {
             FoodStorage.Max = P.Storage.Max;
             ProdStorage.Max = P.Storage.Max;
-            FoodStorage.Progress = P.FoodHere;
-            ProdStorage.Progress = P.ProdHere;
+            FoodStorage.Progress = P.FoodHere.RoundUpTo(1);
+            ProdStorage.Progress = P.ProdHere.RoundUpTo(1);
             if (P.FS == Planet.GoodState.STORE) foodDropDown.ActiveIndex = 0;
             else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
             else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
