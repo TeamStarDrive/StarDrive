@@ -34,7 +34,7 @@ namespace Ship_Game.Empires.ShipPools
             
                 if (PoolCheckTimer-- < 0)
                 {
-                    PoolCheckTimer = UniverseRandom.IntBetween(350000,360000);
+                    PoolCheckTimer = 60;
                     RemoveInvalidShipsFromForcePool();
                     ErrorCheckPools();
                 }
