@@ -37,7 +37,7 @@ namespace Ship_Game
 
         protected override void Draw(GameTime gameTime)
         {
-            ScreenManager.Draw();
+            ScreenManager.Draw(Elapsed);
         }
         
         /// <summary>

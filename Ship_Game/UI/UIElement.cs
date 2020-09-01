@@ -28,18 +28,18 @@ namespace Ship_Game
         public float TransitionPosition { get; protected set; } = 1f;
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-        public abstract void Draw(GameTime gameTime);
+        public abstract void Draw(FrameTimes elapsed);
 
         public virtual bool HandleInput(InputState input)
         {
             return false;
         }
 
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update(FrameTimes elapsed)
         {
             if (State == ElementState.TransitionOn)
             {
-                if (UpdateTransition(gameTime, TransitionOnTime, -1))
+                if (UpdateTransition(elapsed, TransitionOnTime, -1))
                 {
                     State = ElementState.TransitionOn;
                     return;
@@ -49,7 +49,7 @@ namespace Ship_Game
             }
             if (State == ElementState.TransitionOff)
             {
-                if (UpdateTransition(gameTime, TransitionOffTime, 1))
+                if (UpdateTransition(elapsed, TransitionOffTime, 1))
                 {
                     IsExiting = false;
                     return;
@@ -58,9 +58,9 @@ namespace Ship_Game
             }
         }
 
-        private bool UpdateTransition(GameTime gameTime, TimeSpan time, int direction)
+        bool UpdateTransition(FrameTimes elapsed, TimeSpan time, int direction)
         {
-            float transitionDelta = (time != TimeSpan.Zero ? (float)(gameTime.ElapsedGameTime.TotalMilliseconds / time.TotalMilliseconds) : 1f);
+            float transitionDelta = (time != TimeSpan.Zero ? (float)(elapsed.RealTime.Seconds / time.TotalSeconds) : 1f);
             TransitionPosition += transitionDelta * direction;
             if (TransitionPosition > 0f && TransitionPosition < 1f)
                 return true;

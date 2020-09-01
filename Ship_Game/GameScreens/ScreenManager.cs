@@ -26,10 +26,6 @@ namespace Ship_Game
 
         public LightRigIdentity LightRigIdentity = LightRigIdentity.Unknown;
 
-        // Time elapsed between 2 frames
-        // this can be used for rendering animations
-        public VariableFrameTime FrameTime { get; private set; }
-
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
         public SceneEnvironment Environment;
@@ -217,7 +213,7 @@ namespace Ship_Game
         public void UpdateSceneObjects()
         {
             lock (InterfaceLock)
-                SceneInter.Update(GameBase.Base.GameTime);
+                SceneInter.Update(GameBase.Base.Elapsed.XnaTime);
         }
 
         public void RenderSceneObjects()
@@ -226,11 +222,12 @@ namespace Ship_Game
                 SceneInter.RenderManager.Render();
         }
 
-        public void BeginFrameRendering(GameTime gameTime, ref Matrix view, ref Matrix projection)
+        public void BeginFrameRendering(ref Matrix view, ref Matrix projection)
         {
+            GameTime xnaTime = GameBase.Base.Elapsed.XnaTime;
             lock (InterfaceLock)
             {
-                GameSceneState.BeginFrameRendering(ref view, ref projection, gameTime, Environment, true);
+                GameSceneState.BeginFrameRendering(ref view, ref projection, xnaTime, Environment, true);
                 editor.BeginFrameRendering(GameSceneState);
                 SceneInter.BeginFrameRendering(GameSceneState);
             }
@@ -248,7 +245,7 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        public void Draw()
+        public void Draw(FrameTimes elapsed)
         {
             SpriteBatch batch = SpriteBatch;
             for (int i = 0; i < GameScreens.Count; ++i)
@@ -274,7 +271,7 @@ namespace Ship_Game
                 }
             }
             
-            ToolTip.Draw(batch, FrameTime);
+            ToolTip.Draw(batch, elapsed.RealTime);
         }
 
         public void ExitAll(bool clear3DObjects)
@@ -422,7 +419,7 @@ namespace Ship_Game
 
         void PerformHotLoadTasks(VariableFrameTime deltaTime)
         {
-            HotloadTimer += deltaTime.Elapsed;
+            HotloadTimer += deltaTime.Seconds;
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
@@ -440,16 +437,10 @@ namespace Ship_Game
             }
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(FrameTimes elapsed)
         {
-            float frameTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (frameTime > 0.4f) // @note Probably we were loading something heavy
-                frameTime = 1f/60f;
-
-            FrameTime = new VariableFrameTime(frameTime);
-
-            PerformHotLoadTasks(FrameTime);
-            input.Update(FrameTime); // analyze input state for this frame
+            PerformHotLoadTasks(elapsed.RealTime);
+            input.Update(elapsed.RealTime); // analyze input state for this frame
             AddPendingScreens();
 
             bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
@@ -472,7 +463,7 @@ namespace Ship_Game
                 }
 
                 // 2. Update the screen
-                screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+                screen.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
 
                 // update visibility flags
                 if (screen.ScreenState == ScreenState.TransitionOn ||
