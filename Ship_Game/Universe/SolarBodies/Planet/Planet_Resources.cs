@@ -190,7 +190,7 @@ namespace Ship_Game
             }
 
             float ratio               = Storage.FoodRatio;
-            bool belowImportThreshold = ratio < importThreshold && Food.NetIncome.Less(0);
+            bool belowImportThreshold = ratio < importThreshold && Food.NetIncome.Less(Storage.Max / 50);
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
             if      (ShortOnFood() || belowImportThreshold)                  FS = GoodState.IMPORT; 
