@@ -175,13 +175,18 @@ namespace Ship_Game.AI
                 PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
                 FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
                 NearByShips       = new Array<ShipWeight>(ScannedNearby);
-                Target            = ScannedTarget;
+                ScanTargetUpdated = true;
                 
-                ScannedTarget     = null;
                 ScannedProjectiles.Clear();
                 ScannedTargets.Clear();
                 ScannedFriendlies.Clear();
                 ScannedNearby.Clear();
+            }
+
+            if (ScanTargetUpdated)
+            {
+                Target            = ScannedTarget;
+                ScanTargetUpdated = false;
             }
         }
 

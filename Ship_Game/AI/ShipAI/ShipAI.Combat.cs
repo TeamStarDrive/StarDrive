@@ -35,6 +35,7 @@ namespace Ship_Game.AI
         
         bool ScanComplete = true;
         bool ScanDataProcessed = true;
+        bool ScanTargetUpdated = true;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType gameObjectType, float radius)
         {
@@ -71,14 +72,15 @@ namespace Ship_Game.AI
 
             if (Target?.Active == false || Target?.Health <= 0.0f || Target is Ship ship && ship.dying)
             {
-                Target = null;
+                ScannedTarget = null;
+                ScanTargetUpdated = true;
             }
 
             for (int i = 0; i < count; ++i)
             {
                 var weapon = weapons[i];
-                if (weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets) &&
-                    weapon.FireTarget.ParentIsThis(Target))
+                if (weapon.UpdateAndFireAtTarget(ScannedTarget, TrackProjectiles, PotentialTargets) &&
+                    weapon.FireTarget.ParentIsThis(ScannedTarget))
                 {
                     float weaponFireTime;
                     if (weapon.isBeam)
@@ -161,7 +163,7 @@ namespace Ship_Game.AI
                     if (TargetQueue.Count > 0)
                     {
                         HasPriorityTarget = true;
-                        Target = TargetQueue.First();
+                        ScannedTarget = TargetQueue.First();
                     }
                 }
             }
@@ -248,12 +250,12 @@ namespace Ship_Game.AI
             {
                 if (target.loyalty == Owner.loyalty)
                 {
-                    Target = null;
+                    ScannedTarget = null;
                     HasPriorityTarget = false;
                 }
                 else if (!Intercepting && target.engineState == Ship.MoveState.Warp)
                 {
-                    Target = null;
+                    ScannedTarget = null;
                     if (!HasPriorityOrder && Owner.loyalty != Empire.Universe.player)
                         State = AIState.AwaitingOrders;
                     return null;
@@ -286,7 +288,7 @@ namespace Ship_Game.AI
 
             if (Target?.Active != true)
             {
-                Target = null;
+                ScannedTarget = null;
                 HasPriorityTarget = false;
             }
             else if (Target?.Active == true && HasPriorityTarget && Target is Ship ship)

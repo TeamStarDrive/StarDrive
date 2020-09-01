@@ -24,6 +24,8 @@ namespace Ship_Game.Threading
         readonly Array<Action> WorkingActions = new Array<Action>();
         readonly Array<Action> PendingActions = new Array<Action>();
 
+        public static Object LockShipPools = new object();
+
         public int ActionsProcessedThisTurn {get; private set;}
 
         public PerfTimer ProcessTime = new PerfTimer();
@@ -34,7 +36,7 @@ namespace Ship_Game.Threading
             Worker = null;
             PendingActions.Clear();
             ActionsAvailable.Set(); // signal the thread
-            dying.Join(250); // wait for merge
+            dying?.Join(250); // wait for merge
         }
 
         Exception ThreadException  = null;
@@ -126,22 +128,20 @@ namespace Ship_Game.Threading
             int processedLastTurn = ActionsProcessedThisTurn;
             ActionsProcessedThisTurn = 0;
 
-            lock (UniverseScreen.SpaceManager.LockSpaceManager)
+            for (int i = 0; i < actions.Count; i++)
             {
-                for (int i = 0; i < actions.Count; i++)
+                try
                 {
-                    try
-                    {
-                        actions[i].Invoke();
-                        ActionsProcessedThisTurn++;
-                    }
-                    catch (Exception ex)
-                    {
-                        ThreadException = ex;
-                    }
+                    actions[i].Invoke();
+                    ActionsProcessedThisTurn++;
                 }
-                actions.Clear();
+                catch (Exception ex)
+                {
+                    ThreadException = ex;
+                }
             }
+
+            actions.Clear();
 
             ProcessTime.Stop();
         }
