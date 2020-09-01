@@ -62,7 +62,6 @@ namespace Ship_Game
         public Vector3 CamPos = Vector3.Zero;
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
-        float TurnFlipCounter;
         int Auto = 1;
         Array<Ship> DeepSpaceShips = new Array<Ship>();
         public bool ViewingShip             = false;

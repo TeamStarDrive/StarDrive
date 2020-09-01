@@ -203,8 +203,7 @@ namespace Ship_Game
             {
                 ++FrameId;
 
-                float simulationFixedTimeStep = 1f / GlobalStats.SimulationFramesPerSecond;
-                Elapsed = new FrameTimes(simulationFixedTimeStep, xnaTime);
+                Elapsed = new FrameTimes(GlobalStats.SimulationFramesPerSecond, xnaTime);
 
                 // 1. Handle Input and 2. Update for each game screen
                 ScreenManager.Update(Elapsed);
