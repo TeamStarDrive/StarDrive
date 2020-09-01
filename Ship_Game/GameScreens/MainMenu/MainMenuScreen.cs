@@ -243,7 +243,7 @@ namespace Ship_Game.GameScreens.MainMenu
             return false;
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             UpdateMainMenuShips(FixedSimTime.Default);
             GameAudio.Update3DSound(CamPos);
@@ -268,7 +268,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 ScreenManager.Music.Stop();
             }
 
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         public override void Draw(SpriteBatch batch)

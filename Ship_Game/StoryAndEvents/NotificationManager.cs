@@ -644,7 +644,7 @@ namespace Ship_Game
             {
                 foreach (Notification n in NotificationList)
                 {
-                    n.transitionElapsedTime += elapsedTime.Elapsed;
+                    n.transitionElapsedTime += elapsedTime.Seconds;
                     float amount = (float) Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
                     n.ClickRect.Y =
                         (int) Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));

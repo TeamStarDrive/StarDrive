@@ -33,7 +33,7 @@ namespace Ship_Game
                     return false; // no double click yet
                 }
                 // if too much time elapsed, reset everything
-                Timer += deltaTime.Elapsed;
+                Timer += deltaTime.Seconds;
                 if (Timer > TooSlowThreshold || wasClicked)
                 {
                     FirstClick = false;

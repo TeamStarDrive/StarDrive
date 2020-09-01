@@ -343,7 +343,7 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
             if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;
@@ -354,7 +354,7 @@ namespace Ship_Game
             
             CameraPosition.Z = OriginalZ / Camera.Zoom;
             UpdateViewMatrix(CameraPosition);
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         enum SlotModOperation
