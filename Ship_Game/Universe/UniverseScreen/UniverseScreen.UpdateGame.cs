@@ -1,12 +1,10 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Fleets;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Threading;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace Ship_Game
@@ -60,7 +58,7 @@ namespace Ship_Game
                     try
                     {
                         if (Debug)
-                            DebugWin?.Update(FrameDeltaTime);
+                            DebugWin?.Update(FrameTime.Elapsed);
                     }
                     catch
                     {
@@ -76,22 +74,21 @@ namespace Ship_Game
 
         void ProcessNextTurn()
         {
-            float deltaTime = FrameDeltaTime;
             ScreenManager.ExecutePendingEmpireActions();
 
             if (Paused)
             {
                 ++TurnId;
-                UpdateAllSystems(0.0f);
+                UpdateAllSystems(FixedSimTime.Zero/*paused*/);
                 DeepSpaceThread(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
             }
             else
             {
-                NotificationManager.Update(deltaTime);
-                AutoSaveTimer -= deltaTime;
+                NotificationManager.Update(FrameTime);
+                AutoSaveTimer -= FrameTime.Elapsed;
 
-                if (AutoSaveTimer <= 0.0f)
+                if (AutoSaveTimer <= 0f)
                 {
                     AutoSaveTimer = GlobalStats.AutoSaveFreq;
                     DoAutoSave();
@@ -104,7 +101,7 @@ namespace Ship_Game
                         {
                             TurnFlipCounter = 0;
                             ++TurnId;
-                            ProcessTurnDelta(deltaTime);
+                            ProcessTurnDelta(FixedSimTime.Default);
                         }
                         TurnFlipCounter += GameSpeed;
                     }
@@ -114,8 +111,7 @@ namespace Ship_Game
                         for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
                         {
                             ++TurnId;
-                            ProcessTurnDelta(deltaTime);
-                            deltaTime = FrameDeltaTime;
+                            ProcessTurnDelta(FixedSimTime.Default);
                         }
                     }
                     if (GlobalStats.RestrictAIPlayerInteraction)
@@ -140,7 +136,7 @@ namespace Ship_Game
 
             if (ProcessTurnEmpires(timeStep))
             {
-                SubmitNextEmpireUpdate(0.01666667f);
+                SubmitNextEmpireUpdate(timeStep);
 
                 PostEmpireUpdates(timeStep);
 
@@ -220,7 +216,7 @@ namespace Ship_Game
             }
         }
 
-        void ProcessTurnUpdateMisc(float elapsedTime)
+        void ProcessTurnUpdateMisc(FixedSimTime timeStep)
         {
             UpdateClickableItems();
 
@@ -270,34 +266,30 @@ namespace Ship_Game
                 ShowingSysTooltip = false;
 
             JunkList.ApplyPendingRemovals();
-
-            if (elapsedTime > 0)
-            {
-                ExplosionManager.Update(this, elapsedTime);
-                MuzzleFlashManager.Update(elapsedTime);
-            }
-
+            
             foreach (Anomaly anomaly in anomalyManager.AnomaliesList)
-                anomaly.Update(elapsedTime);
-            if (elapsedTime > 0)
+                anomaly.Update(timeStep);
+            anomalyManager.AnomaliesList.ApplyPendingRemovals();
+
+            if (timeStep.FixedTime > 0)
             {
+                ExplosionManager.Update(this, timeStep.FixedTime);
+                MuzzleFlashManager.Update(timeStep.FixedTime);
+
                 using (BombList.AcquireReadLock())
                 {
                     for (int i = 0; i < BombList.Count; ++i)
                     {
-                        BombList[i]?.Update(elapsedTime);
+                        BombList[i]?.Update(timeStep);
                     }
                 }
                 BombList.ApplyPendingRemovals();
-            }
-            anomalyManager.AnomaliesList.ApplyPendingRemovals();
-            if (elapsedTime > 0)
-            {
+
                 ShieldManager.Update();
-                FTLManager.Update(this, elapsedTime);
+                FTLManager.Update(this, timeStep);
 
                 for (int index = 0; index < JunkList.Count; ++index)
-                    JunkList[index].Update(elapsedTime);
+                    JunkList[index].Update(timeStep);
             }
             SelectedShipList.ApplyPendingRemovals();
         }
@@ -418,7 +410,7 @@ namespace Ship_Game
             ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
-        void AllPlanetsScanAndFire(float elapsedTime)
+        void AllPlanetsScanAndFire(FixedSimTime timeStep)
         {
             Parallel.For(EmpireManager.Empires.Count, (start, end) =>
             {
@@ -431,7 +423,7 @@ namespace Ship_Game
                     }
 
                     foreach (var planet in empire.GetPlanets())
-                        planet.UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
+                        planet.UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method. 
                 }
             }, MaxTaskCores);
         }
@@ -448,16 +440,14 @@ namespace Ship_Game
             }, MaxTaskCores);
         }
 
-        void ProcessTurnShipsAndSystems(float elapsedTime)
+        void ProcessTurnShipsAndSystems(FixedSimTime timeStep)
         {
             Perfavg2.Start();
-            float shipTime = !Paused ? 0.01666667f : 0;
-            DeepSpaceThread(shipTime);
-            var realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
+            DeepSpaceThread(timeStep);
 
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
-                SolarSystemList[i].Update(shipTime, this, realTime);
+                SolarSystemList[i].Update(timeStep, this);
             }
             Perfavg2.Stop();
         }
@@ -574,13 +564,13 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateAllSystems(float elapsedTime)
+        public void UpdateAllSystems(FixedSimTime timeStep)
         {
             if (IsExiting)
                 return;
-            var realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
+
             foreach (SolarSystem system in SolarSystemList)
-                system.Update(elapsedTime, this, realTime);
+                system.Update(timeStep, this);
         }
 
         void HandleGameSpeedChange(InputState input)

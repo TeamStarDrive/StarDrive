@@ -83,7 +83,7 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime)
         {
-            AssignLabor?.Update(Screen.FrameDeltaTime);
+            AssignLabor?.Update(Screen.FrameTime.Elapsed);
             base.Update(gameTime);
         }
 
