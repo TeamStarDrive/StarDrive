@@ -458,7 +458,7 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateSpaceCombatBuildings(float elapsedTime)
+        public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
         {
             if (Owner == null) 
                 return;
@@ -467,12 +467,12 @@ namespace Ship_Game
             if (NoSpaceCombatTargetsFoundDelay.Less(2) || enemyInRange)
             {
                 bool targetNear = false;
-                NoSpaceCombatTargetsFoundDelay -= elapsedTime;
+                NoSpaceCombatTargetsFoundDelay -= timeStep.FixedTime;
                 for (int i = 0; i < BuildingList.Count; ++i)
                 {
                     Building building = BuildingList[i];
                     bool targetFound  = false;
-                    building?.UpdateSpaceCombatActions(elapsedTime, this, out targetFound);
+                    building?.UpdateSpaceCombatActions(timeStep, this, out targetFound);
                     targetNear |= targetFound;
                 }
 

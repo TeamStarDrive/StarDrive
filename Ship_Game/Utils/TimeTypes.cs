@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -45,16 +41,17 @@ namespace Ship_Game
     /// Time type which contains variable frame delta time used for drawing.
     /// This elapsed time can have huge differences and is NOT suitable for simulations
     /// </summary>
-    public struct VariableFrameTime
+    public readonly struct VariableFrameTime
     {
         /// <summary>
         /// Delta time in seconds, eg 0.0015763
+        /// This is the REAL time that has elapsed since last frame
         /// </summary>
-        public float VariableTime;
+        public readonly float Elapsed;
 
         public VariableFrameTime(float time)
         {
-            VariableTime = time;
+            Elapsed = time;
         }
     }
 }

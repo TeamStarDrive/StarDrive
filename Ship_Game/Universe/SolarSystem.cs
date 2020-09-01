@@ -83,7 +83,7 @@ namespace Ship_Game
             return systems;
         }
 
-        public void Update(FixedSimTime timeStep, UniverseScreen universe, float realTime)
+        public void Update(FixedSimTime timeStep, UniverseScreen universe)
         {            
             var player = EmpireManager.Player;
 
@@ -96,7 +96,7 @@ namespace Ship_Game
             for (int i = 0; i < solarStatus.Length; i++)
             {
                 var status = solarStatus[i];
-                status.Update(realTime, timeStep);
+                status.Update(timeStep);
             }
 
             isVisible = universe.Frustum.Contains(Position, Radius)

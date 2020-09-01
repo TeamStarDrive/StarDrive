@@ -173,11 +173,11 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
         
-        void UpdateMainMenuShips(GameTime gameTime)
+        void UpdateMainMenuShips(FixedSimTime timeStep)
         {
             foreach (MenuFleet fleet in Fleets)
             {
-                fleet.Update(this);
+                fleet.Update(this, timeStep);
             }
         }
         
@@ -245,10 +245,10 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            UpdateMainMenuShips(gameTime);
-
+            UpdateMainMenuShips(FixedSimTime.Default);
             GameAudio.Update3DSound(CamPos);
-            FTLManager.Update(this, FrameDeltaTime);
+
+            FTLManager.Update(this, FixedSimTime.Default);
 
             ScreenManager.UpdateSceneObjects();
             

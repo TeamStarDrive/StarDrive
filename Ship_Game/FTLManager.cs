@@ -68,9 +68,9 @@ namespace Ship_Game
             }
 
             // @return TRUE if layer has finished
-            public bool Update(float deltaTime, in Vector3 position)
+            public bool Update(FixedSimTime timeStep, in Vector3 position)
             {
-                Time += deltaTime;
+                Time += timeStep.FixedTime;
                 if (Time >= FTL.Duration)
                     return true; // are we done?
 
@@ -139,7 +139,7 @@ namespace Ship_Game
             }
 
             // @return TRUE if all layers have finished
-            public bool Update(float deltaTime)
+            public bool Update(FixedSimTime timeStep)
             {
                 Position = GetPosition();
                 bool allFinished = true;
@@ -147,7 +147,7 @@ namespace Ship_Game
                 {
                     if (Layers[i] != null)
                     {
-                        if (Layers[i].Update(deltaTime, Position))
+                        if (Layers[i].Update(timeStep, Position))
                             Layers[i] = null; // layer finished
                         else
                             allFinished = false; // this layer was still ok
@@ -246,9 +246,9 @@ namespace Ship_Game
             return graph;
         }
 
-        public static void Update(GameScreen screen, float deltaTime)
+        public static void Update(GameScreen screen, FixedSimTime timeStep)
         {
-            if (deltaTime <= 0f)
+            if (timeStep.FixedTime <= 0f)
                 return;
 
             if (EnableDebugGraph)
@@ -260,7 +260,7 @@ namespace Ship_Game
             {
                 for (int i = 0; i < Effects.Count; ++i)
                 {
-                    if (Effects[i].Update(deltaTime))
+                    if (Effects[i].Update(timeStep))
                     {
                         Effects.RemoveAtSwapLast(i--);
                     }

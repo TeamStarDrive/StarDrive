@@ -108,7 +108,7 @@ namespace Ship_Game
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            SelectedShipsSL.Update(Screen.FrameDeltaTime);
+            SelectedShipsSL.Update(Screen.FrameTime.Elapsed);
         }
 
         public override void Draw(GameTime gameTime)

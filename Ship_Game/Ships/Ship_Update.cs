@@ -179,7 +179,7 @@ namespace Ship_Game.Ships
                     ShipSO.World = Matrix.CreateRotationY(yRotation)
                                  * Matrix.CreateRotationZ(Rotation)
                                  * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
-                    ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
+                    ShipSO.UpdateAnimation(timeStep.FixedTime);
                     UpdateThrusters();
                 }
                 else // auto-create scene objects if possible
@@ -318,7 +318,7 @@ namespace Ship_Game.Ships
                              * Matrix.CreateRotationX(xRotation)
                              * Matrix.CreateRotationZ(Rotation)
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
-                ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
+                ShipSO.UpdateAnimation(timeStep.FixedTime);
             }
 
             Projectiles.Update(timeStep);

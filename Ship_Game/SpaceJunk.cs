@@ -138,9 +138,9 @@ namespace Ship_Game
             UniverseScreen.JunkList.AddRange(junk);
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
-            Duration -= elapsedTime;
+            Duration -= timeStep.FixedTime;
             if (Duration <= 0f || !Empire.Universe.IsActive)
             {
                 RemoveFromScene();
@@ -151,15 +151,15 @@ namespace Ship_Game
                 || !Empire.Universe.Frustum.Contains(Position, 10f))
                 return;
 
-            Position        += Velocity * elapsedTime;
-            RotationRadians += Spin * elapsedTime;
+            Position        += Velocity * timeStep.FixedTime;
+            RotationRadians += Spin * timeStep.FixedTime;
             So.AffineTransform(Position, RotationRadians, Scale);
 
-            FlameTrail?.Update(elapsedTime, Position);
-            ProjTrail?.Update(elapsedTime, Position);
+            FlameTrail?.Update(timeStep.FixedTime, Position);
+            ProjTrail?.Update(timeStep.FixedTime, Position);
 
             if (UseStaticSmoke && (Duration / MaxDuration) > 0.9f)
-                StaticSmoke.Update(elapsedTime);
+                StaticSmoke.Update(timeStep.FixedTime);
 
         }
 
