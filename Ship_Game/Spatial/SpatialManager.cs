@@ -111,7 +111,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             // remove null values and remove inactive objects
             GameplayObject[] allObjects = AllObjects.GetInternalArrayItems();

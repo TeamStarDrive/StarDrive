@@ -36,7 +36,7 @@ namespace Ship_Game.Ships.DataPackets
         /// <summary>
         /// Updates visibility timers of all known empires
         /// </summary>
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             if (SeenByID.Length != EmpireManager.NumEmpires)
             {
@@ -47,7 +47,7 @@ namespace Ship_Game.Ships.DataPackets
 
             for (int i = 0; i < EmpireManager.NumEmpires; i++)
             {
-                SeenByID[i] -= elapsedTime;
+                SeenByID[i] -= timeStep.FixedTime;
             }
         }
 

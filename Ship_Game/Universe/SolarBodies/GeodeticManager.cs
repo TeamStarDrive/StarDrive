@@ -33,10 +33,10 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             //AllNearShips = new BasicSensors(this,P.Owner);
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             if (P.ParentSystem.DangerousForcesPresent(Owner))
-                SystemCombatTimer += elapsedTime;
+                SystemCombatTimer += timeStep.FixedTime;
             else
                 SystemCombatTimer = 0f;
         }

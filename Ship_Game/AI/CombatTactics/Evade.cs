@@ -7,7 +7,7 @@ namespace Ship_Game.AI.CombatTactics
         public Evade(ShipAI ai) : base(ai)
         {
         }
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
+        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
         {
             Vector2 avgDir = Vector2.Zero;
             int count = 0;
@@ -23,7 +23,7 @@ namespace Ship_Game.AI.CombatTactics
             {
                 avgDir /= count;
                 Vector2 evadeOffset = avgDir.Normalized() * -7500f;
-                AI.ThrustOrWarpToPos(Owner.Center + evadeOffset, elapsedTime);
+                AI.ThrustOrWarpToPos(Owner.Center + evadeOffset, timeStep);
 
             }
         }
