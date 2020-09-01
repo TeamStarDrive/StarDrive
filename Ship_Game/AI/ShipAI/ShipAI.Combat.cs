@@ -57,17 +57,22 @@ namespace Ship_Game.AI
 
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
-            for (int x = PotentialTargets.Count - 1; x >= 0; x--)
+
+            if (!ScanComplete)
             {
-                var target = PotentialTargets[x];
-                if (target == null || !target.Active || target.Health <= 0.0f || target.dying)
-                    PotentialTargets.RemoveAtSwapLast(x);
-            }
-            for (int x = TrackProjectiles.Count - 1; x >= 0; x--)
-            {
-                var target = TrackProjectiles[x];
-                if (target == null || !target.Active || target.Health <= 0.0f)
-                    TrackProjectiles.RemoveAtSwapLast(x);
+                for (int x = PotentialTargets.Count - 1; x >= 0; x--)
+                {
+                    var target = PotentialTargets[x];
+                    if (target == null || !target.Active || target.Health <= 0.0f || target.dying)
+                        PotentialTargets.RemoveAtSwapLast(x);
+                }
+
+                for (int x = TrackProjectiles.Count - 1; x >= 0; x--)
+                {
+                    var target = TrackProjectiles[x];
+                    if (target == null || !target.Active || target.Health <= 0.0f)
+                        TrackProjectiles.RemoveAtSwapLast(x);
+                }
             }
 
             if (Target?.Active == false || Target?.Health <= 0.0f || Target is Ship ship && ship.dying)
