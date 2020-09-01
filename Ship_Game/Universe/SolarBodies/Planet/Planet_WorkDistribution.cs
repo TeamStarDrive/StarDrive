@@ -35,24 +35,24 @@ namespace Ship_Game
         }
 
         // calculate farmers up to percent
-        float FarmToPercentage(float percent) // Production
+        float FarmToPercentage(float percent, float wantedIncome) // Production
         {
             if (percent <= 0f || Food.YieldPerColonist <= 0.1f || IsCybernetic)
                 return 0; // No farming here, so never mind
 
-            float farmers = Food.EstPercentForNetIncome(+1f);
+            float farmers = Food.EstPercentForNetIncome(wantedIncome);
 
             // modify nominal farmers by overage or underage
-            farmers += CalculateMod(percent, Storage.FoodRatio).Clamped(-0.35f, 0.5f);
+            farmers += CalculateMod(percent, Storage.FoodRatio).UpperBound(0.5f);
             return farmers.Clamped(0f, 0.9f);
         }
 
-        float WorkToPercentage(float percent) // Production
+        float WorkToPercentage(float percent, float wantedIncome) // Production
         {
             if (percent <= 0f || Prod.YieldPerColonist <= 0.1f) 
                 return 0;
 
-            float workers = Prod.EstPercentForNetIncome(+1f, IsCybernetic);
+            float workers = Prod.EstPercentForNetIncome(wantedIncome);
 
             workers += CalculateMod(percent, Storage.ProdRatio).Clamped(-0.35f, 0.5f);
             return workers.Clamped(0f, 1f);
@@ -86,11 +86,11 @@ namespace Ship_Game
         }
 
         // Work for Anything that is not a Core World or Trade Hub is dealt here
-        void AssignOtherWorldsWorkers(float percentFood, float percentProd)
+        void AssignOtherWorldsWorkers(float percentFood, float percentProd, float wantedFoodIncome, float wantedProdIncome)
         {
-            Food.Percent        = FarmToPercentage(percentFood);
+            Food.Percent        = FarmToPercentage(percentFood, wantedFoodIncome);
             float remainingWork = 1 - Food.Percent;
-            Prod.Percent        = WorkToPercentage(percentProd).UpperBound(remainingWork);
+            Prod.Percent        = WorkToPercentage(percentProd, wantedProdIncome).UpperBound(remainingWork);
             if (NonCybernetic)
             {
                 if (ConstructionQueue.Count > 0)
@@ -104,7 +104,7 @@ namespace Ship_Game
 
         float MinimumResearch(float availableWork)
         {
-            if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero() || IsCybernetic)
+            if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero() || IsCybernetic || Owner.Research.NoTopic)
                 return 0; // No need to use researchers
 
             if (Storage.ProdRatio.AlmostEqual(1) && ConstructionQueue.Count == 0)
@@ -133,15 +133,15 @@ namespace Ship_Game
 
             Res.Percent = 0;
             if (Owner.IsCybernetic)
-                AssignOtherWorldsWorkers(0, 1);
+                AssignOtherWorldsWorkers(0, 1, 0, 1);
             else
-                AssignOtherWorldsWorkers(0.5f, 0.5f);
+                AssignOtherWorldsWorkers(0.5f, 0.5f, 1 ,1);
         }
 
         float MinIncomePerTurn(float storage, ColonyResource res)
         {
             float ratio = storage / Storage.Max;
-            if (ratio.AlmostEqual(1))
+            if (ratio > 0.9999f)
                 return 0; // when idling, keep production low to leave room for others
 
             float minPerTurn     = res.NetMaxPotential * 0.1f;
@@ -156,7 +156,7 @@ namespace Ship_Game
         void AssignCoreWorldFarmers(float labor)
         {
             float minPerTurn = MinIncomePerTurn(Storage.Food, Food);
-            float farmers = Food.EstPercentForNetIncome(minPerTurn);
+            float farmers    = Food.EstPercentForNetIncome(minPerTurn);
 
             if (farmers > 0 && farmers < 0.1f)
                 farmers = 0.1f; // avoid crazy small percentage of labor
@@ -170,8 +170,8 @@ namespace Ship_Game
 
             float researchNeed = Level < 3 ? 1 : 1 - (0.25f + Owner.Research.Strategy.ResearchRatio);
 
-            float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod);
-            float workers = Prod.EstPercentForNetIncome(minPerTurn, IsCybernetic);
+            float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod); // Todo check this
+            float workers = Prod.EstPercentForNetIncome(minPerTurn);
 
             workers = workers.Clamped(0.1f, 1.0f);
             if (IsCybernetic & ConstructionQueue.Count > 0)
@@ -193,7 +193,7 @@ namespace Ship_Game
 
         float EvaluateProductionQueue()
         {
-            if (IsCybernetic)
+            if (IsCybernetic || Owner.Research.NoTopic)
                 return 1;
 
             var item = ConstructionQueue.FirstOrDefault();
