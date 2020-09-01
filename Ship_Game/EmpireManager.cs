@@ -275,9 +275,9 @@ namespace Ship_Game
         public static void RestoreUnserializableDataFromSave()
         {
             if (Empires.IsEmpty)
-                Log.Error($"must be called after empireList is populated.");
+                Log.Error("must be called after empireList is populated.");
             
-            Empire.Universe.WarmUpShipsForLoad();
+            Empire.Universe.WarmUpShipsForLoad(GameBase.Base.Elapsed);
             foreach(Empire empire in Empires)
             { 
                 empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
