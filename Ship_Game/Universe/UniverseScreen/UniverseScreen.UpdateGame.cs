@@ -111,7 +111,7 @@ namespace Ship_Game
                         for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
                         {
                             ++TurnId;
-                            ProcessTurnDelta(FixedSimTime.Default);
+                            ProcessTurnDelta(elapsed.SimulationStep);
                         }
                     }
                     if (GlobalStats.RestrictAIPlayerInteraction)
@@ -169,33 +169,31 @@ namespace Ship_Game
             /// <summary>
         /// Used to make ships alive at game load
         /// </summary>
-        public void WarmUpShipsForLoad()
+        public void WarmUpShipsForLoad(FrameTimes elapsed)
         {
-            FixedSimTime fixedUpdate = FixedSimTime.Default;
-
             // makes sure all empire vision is updated.
-            UpdateAllShipPositions(fixedUpdate);
+            UpdateAllShipPositions(elapsed.SimulationStep);
 
             lock (SpaceManager.LockSpaceManager)
             {
-                SpaceManager.Update(fixedUpdate);
+                SpaceManager.Update(elapsed.SimulationStep);
             }
 
             foreach (Empire empire in EmpireManager.Empires)
             {
-                UpdateShipSensorsAndInfluence(fixedUpdate, empire);
+                UpdateShipSensorsAndInfluence(elapsed.SimulationStep, empire);
             }
 
             // TODO: some checks rely on previous frame information, this is a defect
             //       so we run this a second time
             foreach (Empire empire in EmpireManager.Empires)
             {
-                UpdateShipSensorsAndInfluence(fixedUpdate, empire);
+                UpdateShipSensorsAndInfluence(elapsed.SimulationStep, empire);
             }
 
-            PostEmpireUpdates(fixedUpdate);
+            PostEmpireUpdates(elapsed.SimulationStep);
 
-            foreach (var ship in MasterShipList)
+            foreach (Ship ship in MasterShipList)
             {
                 ship.AI.ApplySensorScanResults();
             }
