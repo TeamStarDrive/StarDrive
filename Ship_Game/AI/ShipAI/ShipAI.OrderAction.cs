@@ -668,7 +668,7 @@ namespace Ship_Game.AI
                 || SetAwaitClosestForPlayer()
                 || SetAwaitClosestForAIEmpire() && AwaitClosest != null)
             {
-                Orbit.Orbit(AwaitClosest, (FixedSimTime) timeStep);
+                Orbit.Orbit(AwaitClosest, timeStep);
             }
             else
             {

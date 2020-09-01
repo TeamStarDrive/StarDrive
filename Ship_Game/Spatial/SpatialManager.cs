@@ -124,7 +124,7 @@ namespace Ship_Game.Gameplay
 
             InsertPending();
 
-            QuadTree.UpdateAll();
+            QuadTree.UpdateAll(timeStep);
             QuadTree.CollideAll();
         }
 
