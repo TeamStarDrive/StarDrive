@@ -683,6 +683,7 @@ namespace Ship_Game
                 return;
 
             AverageImportTurns = Center.Distance(Owner.WeightedCenter) * 2 / (Owner.AverageFreighterFTLSpeed * GlobalStats.TurnTimer);
+            AverageImportTurns = AverageImportTurns.LowerBound(1);
         }
 
         private void NotifyEmptyQueue()
