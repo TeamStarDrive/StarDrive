@@ -43,7 +43,7 @@ namespace Ship_Game
             float farmers = Food.EstPercentForNetIncome(wantedIncome);
 
             // modify nominal farmers by overage or underage
-            farmers += CalculateMod(percent, Storage.FoodRatio).Clamped(-0.35f, 0.5f);
+            farmers += CalculateMod(percent, Storage.FoodRatio).UpperBound(0.5f);
             return farmers.Clamped(0f, 0.9f);
         }
 
@@ -141,7 +141,7 @@ namespace Ship_Game
         float MinIncomePerTurn(float storage, ColonyResource res)
         {
             float ratio = storage / Storage.Max;
-            if (ratio.AlmostEqual(1))
+            if (ratio > 0.9999f)
                 return 0; // when idling, keep production low to leave room for others
 
             float minPerTurn     = res.NetMaxPotential * 0.1f;
@@ -156,7 +156,7 @@ namespace Ship_Game
         void AssignCoreWorldFarmers(float labor)
         {
             float minPerTurn = MinIncomePerTurn(Storage.Food, Food);
-            float farmers = Food.EstPercentForNetIncome(minPerTurn);
+            float farmers    = Food.EstPercentForNetIncome(minPerTurn);
 
             if (farmers > 0 && farmers < 0.1f)
                 farmers = 0.1f; // avoid crazy small percentage of labor
@@ -193,7 +193,7 @@ namespace Ship_Game
 
         float EvaluateProductionQueue()
         {
-            if (IsCybernetic)
+            if (IsCybernetic || Owner.Research.NoTopic)
                 return 1;
 
             var item = ConstructionQueue.FirstOrDefault();
