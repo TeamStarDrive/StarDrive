@@ -3198,6 +3198,7 @@ namespace Ship_Game
                 MaxContactTimer = elapsedTime;
                 ResetBorders();
                 ScanFromAllInfluenceNodes();
+                PopulateKnownShips();
             }
 
             if (--ResetBorderTicks < 0)
