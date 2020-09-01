@@ -53,7 +53,6 @@ namespace Ship_Game
         public static int BeamTests              = 0;
         public static int ModuleUpdates          = 0;
         public static int WeaponArcChecks        = 0;
-        public static int CombatScans            = 0;
         public static int DistanceCheckTotal     = 0;
         public static bool LimitSpeed            = true;
         public static float GravityWellRange;
@@ -95,11 +94,7 @@ namespace Ship_Game
         public static bool DisableAsteroids;
         public static bool FixedPlayerCreditCharge;
 
-        public static int ShipCountLimit; // FB - not used
-        public static int FreighterLimit = 50; // FB - not used
-
         public static int AutoSaveFreq = 300;   //Added by Gretman
-        public static bool CornersGame = false;     //Also added by Gretman
         public static ExtraRemnantPresence ExtraRemnantGS;
 
         public static int CameraPanSpeed    = 2;
@@ -302,12 +297,10 @@ namespace Ship_Game
             GetSetting("ShipMaintenanceMulti", ref ShipMaintenanceMulti);
             GetSetting("IconSize",             ref IconSize);
             GetSetting("preventFederations",   ref PreventFederations);
-            GetSetting("shipcountlimit",       ref ShipCountLimit);
             GetSetting("EliminationMode",      ref EliminationMode);
             GetSetting("ZoomTracking",         ref ZoomTracking);
             GetSetting("TurnTimer",            ref TurnTimer);
             GetSetting("AltArcControl",        ref AltArcControl);
-            GetSetting("FreighterLimit",       ref FreighterLimit);
             GetSetting("LimitSpeed",           ref LimitSpeed);
             GetSetting("DisableAsteroids",     ref DisableAsteroids);
             GetSetting("SimulationFramesPerSecond", ref SimulationFramesPerSecond);
@@ -343,11 +336,9 @@ namespace Ship_Game
             WriteSetting(config, "IconSize",            IconSize);
             WriteSetting(config, "PreventFederations",  PreventFederations);
             WriteSetting(config, "EliminationMode",     EliminationMode);
-            WriteSetting(config, "ShipCountLimit",      ShipCountLimit);
             WriteSetting(config, "ZoomTracking",        ZoomTracking);
             WriteSetting(config, "TurnTimer",           TurnTimer);
             WriteSetting(config, "AltArcControl",       AltArcControl);
-            WriteSetting(config, "FreighterLimit",      FreighterLimit);
             WriteSetting(config, "LimitSpeed",          LimitSpeed);
             WriteSetting(config, "DisableAsteroids",    DisableAsteroids);
             WriteSetting(config, "SimulationFramesPerSecond", SimulationFramesPerSecond);
