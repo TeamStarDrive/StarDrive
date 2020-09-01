@@ -9,12 +9,12 @@ namespace Ship_Game.AI.CombatTactics
         public HoldPosition(ShipAI ai) : base(ai)
         {
         }
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
+        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
         {
             Target = AI.Target;
-            AI.ReverseThrustUntilStopped(elapsedTime);
+            AI.ReverseThrustUntilStopped(timeStep);
             Vector2 interceptPoint = Owner.PredictImpact(Target);
-            AI.RotateTowardsPosition(interceptPoint, elapsedTime, 0.2f);
+            AI.RotateTowardsPosition(interceptPoint, timeStep, 0.2f);
 
         }
     }

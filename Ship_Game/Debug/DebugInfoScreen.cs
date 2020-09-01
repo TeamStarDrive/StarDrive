@@ -172,11 +172,11 @@ namespace Ship_Game.Debug
                 }
             }
 
-            UpdateDebugShips(deltaTime);
+            UpdateDebugShips();
             base.Update(deltaTime);
         }
 
-        void UpdateDebugShips(float deltaTime)
+        void UpdateDebugShips()
         {
             if (DebugPlatformSpeed == null) // platform is only enabled in sandbox universe
                 return;

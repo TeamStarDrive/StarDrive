@@ -410,24 +410,24 @@ namespace Ship_Game
                 WipeOutColony(attacker);
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             RefreshOrbitalStations();
-            UpdateHabitable(elapsedTime);
-            UpdatePosition(elapsedTime);
+            UpdateHabitable(timeStep);
+            UpdatePosition(timeStep);
         }
 
-        void UpdateHabitable(float elapsedTime)
+        void UpdateHabitable(FixedSimTime timeStep)
         {
             // none of the code below requires an owner.
 
             if (!Habitable)
                 return;
-            if (NonCriticalTimer-- < 0 ) NonCriticalTimer = elapsedTime *5;
+            if (NonCriticalTimer-- < 0 ) NonCriticalTimer = timeStep.FixedTime *5;
 
-            TroopManager.Update(elapsedTime);
-            GeodeticManager.Update(elapsedTime);
-            UpdatePlanetaryProjectiles(elapsedTime);
+            TroopManager.Update(timeStep);
+            GeodeticManager.Update(timeStep);
+            UpdatePlanetaryProjectiles(timeStep);
             // moved to action queue
             //UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
         }
@@ -560,13 +560,13 @@ namespace Ship_Game
         }
 
 
-        void UpdatePlanetaryProjectiles(float elapsedTime)
+        void UpdatePlanetaryProjectiles(FixedSimTime timeStep)
         {
-            if (elapsedTime <= 0f) return;
+            if (timeStep.FixedTime <= 0f) return;
             for (int i = Projectiles.Count - 1; i >= 0; --i)
             {
                 Projectile p = Projectiles[i];
-                if (p.Active) p.Update(elapsedTime);
+                if (p.Active) p.Update(timeStep);
             }
             Projectiles.RemoveInActiveObjects();
         }

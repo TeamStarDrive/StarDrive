@@ -16,13 +16,13 @@ namespace Ship_Game.AI.CombatTactics
         {
         }
 
-        protected override void OverrideCombatValues(float elapsedTime)
+        protected override void OverrideCombatValues(FixedSimTime timeStep)
         {
             DistanceToTarget = Owner.Center.Distance(OwnerTarget.Center) + 0.5f * OwnerTarget.Radius;
         }
 
         // @note We don't cache min/max distance, because combat state and target can change most of the dynamics
-        protected override CombatMoveState ExecuteAttack(float elapsedTime)
+        protected override CombatMoveState ExecuteAttack(FixedSimTime timeStep)
         {
             Ship target = AI.Target;
             
@@ -49,23 +49,23 @@ namespace Ship_Game.AI.CombatTactics
                     // This move will keep the ship aligned with the intercept point (for fastest closing of distance).
                     // You won't notice when charging head to head / chasing directly behind, but there are cases 
                     // where this is quite bad for weapons alignment. That is the reason for the buffer.                    
-                    AI.SubLightMoveTowardsPosition(target.Center, elapsedTime);
+                    AI.SubLightMoveTowardsPosition(target.Center, timeStep);
                 }
                 else 
                 {
                     // spend the last bit of the firing gap on a shot impact course, for optimal alignment.
-                    AI.SubLightMoveTowardsPosition(Owner.PredictImpact(target), elapsedTime);
+                    AI.SubLightMoveTowardsPosition(Owner.PredictImpact(target), timeStep);
                 }
                 return CombatMoveState.Approach;
             }
 
             // adjust to keep facing in intended firing direction.
-            AI.RotateTowardsPosition(Owner.PredictImpact(target), elapsedTime, 0.05f);
+            AI.RotateTowardsPosition(Owner.PredictImpact(target), timeStep, 0.05f);
 
             if (DistanceToTarget > minDistance)
             {
                 // stop, we are close enough.
-                AI.ReverseThrustUntilStopped(elapsedTime);
+                AI.ReverseThrustUntilStopped(timeStep);
                 return CombatMoveState.Hold;
             }
 
