@@ -109,7 +109,8 @@ namespace Ship_Game
                 }
 
                 // We have items in construction
-                float totalProdNeeded = TotalProdNeededInQueue() - ProdHere - IncomingProd;
+                float prodForStorage  = Storage.Max - ProdHere;
+                float totalProdNeeded = prodForStorage + TotalProdNeededInQueue() - ProdHere - IncomingProd;
                 float totalProdSlots  = (totalProdNeeded / Owner.AverageFreighterCargoCap).LowerBound(0);
 
                 if (IsCybernetic) // They need prod as food
