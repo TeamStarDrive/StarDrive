@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using System.Xml.Serialization;
 using SynapseGaming.LightingSystem.Core;
 
@@ -63,7 +62,7 @@ namespace Ship_Game
 
         // Option for keyboard hotkey based arc movement
         public static bool AltArcControl; // "Keyboard Fire Arc Locking"
-        public static int TimesPlayed                 = 0;
+        public static int TimesPlayed = 0;
         public static ModEntry ActiveMod;
         public static bool HasMod => ActiveMod != null;
         public static ModInformation ActiveModInfo;
@@ -92,7 +91,6 @@ namespace Ship_Game
         public static bool EliminationMode;
         public static bool ZoomTracking;
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
-        public static bool UnlimitedSpeed = false;
 
         public static bool DisableAsteroids;
         public static bool FixedPlayerCreditCharge;
@@ -107,7 +105,11 @@ namespace Ship_Game
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;
 
-        //Dev Options
+        // Simulation options
+        public static bool UnlimitedSpeed = false;
+        public static int SimulationFramesPerSecond = 60; // RedFox: physics simulation interval, bigger is slower
+
+        // Dev Options
         public static bool RestrictAIPlayerInteraction;
         public static bool DisableAIEmpires;
 
@@ -229,7 +231,7 @@ namespace Ship_Game
             GetSetting("DisableAIEmpires"      , ref DisableAIEmpires);
             
             // unsupported
-            GetSetting("Unsupported_ProjectorRadius"       , ref Unsupported_ProjectorRadius);
+            GetSetting("Unsupported_ProjectorRadius", ref Unsupported_ProjectorRadius);
             Statreset();
 
         #if DEBUG
@@ -308,6 +310,7 @@ namespace Ship_Game
             GetSetting("FreighterLimit",       ref FreighterLimit);
             GetSetting("LimitSpeed",           ref LimitSpeed);
             GetSetting("DisableAsteroids",     ref DisableAsteroids);
+            GetSetting("SimulationFramesPerSecond", ref SimulationFramesPerSecond);
         }
 
         public static void SaveSettings()
@@ -347,6 +350,7 @@ namespace Ship_Game
             WriteSetting(config, "FreighterLimit",      FreighterLimit);
             WriteSetting(config, "LimitSpeed",          LimitSpeed);
             WriteSetting(config, "DisableAsteroids",    DisableAsteroids);
+            WriteSetting(config, "SimulationFramesPerSecond", SimulationFramesPerSecond);
 
             WriteSetting(config, "MusicVolume",   (int)(MusicVolume * 100));
             WriteSetting(config, "EffectsVolume", (int)(EffectsVolume * 100));
@@ -376,38 +380,38 @@ namespace Ship_Game
 
 
         // Only assigns the ref parameter is parsing succeeds. This avoid overwriting default values
-        public static bool GetSetting(string name, ref float f)
+        static bool GetSetting(string name, ref float f)
         {
             if (!float.TryParse(ConfigurationManager.AppSettings[name], out float v)) return false;
             f = v;
             return true;
         }
-        public static bool GetSetting(string name, ref int i)
+        static bool GetSetting(string name, ref int i)
         {
             if (!int.TryParse(ConfigurationManager.AppSettings[name], out int v)) return false;
             i = v;
             return true;
         }
-        public static bool GetSetting(string name, ref bool b)
+        static bool GetSetting(string name, ref bool b)
         {
             if (!bool.TryParse(ConfigurationManager.AppSettings[name], out bool v)) return false;
             b = v;
             return true;
         }
-        public static bool GetSetting(string name, ref string s)
+        static bool GetSetting(string name, ref string s)
         {
             string v = ConfigurationManager.AppSettings[name];
             if (string.IsNullOrEmpty(v)) return false;
             s = v;
             return true;
         }
-        public static bool GetSetting<T>(string name, ref T e) where T : struct
+        static bool GetSetting<T>(string name, ref T e) where T : struct
         {
             if (!Enum.TryParse(ConfigurationManager.AppSettings[name], out T v)) return false;
             e = v;
             return true;
         }
-        public static string GetSetting(string name) => ConfigurationManager.AppSettings[name];
+        static string GetSetting(string name) => ConfigurationManager.AppSettings[name];
 
 
 
