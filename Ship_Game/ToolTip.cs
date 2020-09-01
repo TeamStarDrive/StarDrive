@@ -178,7 +178,7 @@ namespace Ship_Game
             batch.Begin();
             foreach (TipItem tipItem in tips)
             {
-                if (tipItem.Update(deltaTime.Elapsed))
+                if (tipItem.Update(deltaTime.Seconds))
                 {
                     tipItem.Draw(batch);
                 }

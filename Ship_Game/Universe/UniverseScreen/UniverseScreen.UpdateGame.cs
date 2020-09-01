@@ -35,7 +35,7 @@ namespace Ship_Game
                     if (ProcessTurnsThread == null)
                         break; // this thread is aborting
 
-                    ProcessNextTurn();
+                    ProcessNextTurn(GameBase.Base.Elapsed);
                     failedLoops = 0; // no exceptions this turn
                 }
                 catch (ThreadAbortException)
@@ -58,7 +58,7 @@ namespace Ship_Game
                     try
                     {
                         if (Debug)
-                            DebugWin?.Update(FrameTime.Elapsed);
+                            DebugWin?.Update(GameBase.Base.Elapsed.RealTime.Seconds);
                     }
                     catch
                     {
@@ -72,7 +72,7 @@ namespace Ship_Game
             }
         }
 
-        void ProcessNextTurn()
+        void ProcessNextTurn(FrameTimes elapsed)
         {
             ScreenManager.ExecutePendingEmpireActions();
 
@@ -85,8 +85,8 @@ namespace Ship_Game
             }
             else
             {
-                NotificationManager.Update(FrameTime);
-                AutoSaveTimer -= FrameTime.Elapsed;
+                NotificationManager.Update(elapsed.RealTime);
+                AutoSaveTimer -= elapsed.RealTime.Seconds;
 
                 if (AutoSaveTimer <= 0f)
                 {
@@ -101,7 +101,7 @@ namespace Ship_Game
                         {
                             TurnFlipCounter = 0;
                             ++TurnId;
-                            ProcessTurnDelta(FixedSimTime.Default);
+                            ProcessTurnDelta(elapsed.SimulationStep);
                         }
                         TurnFlipCounter += GameSpeed;
                     }

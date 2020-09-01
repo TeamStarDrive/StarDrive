@@ -31,7 +31,7 @@ namespace Ship_Game
 
                 if (WasHolding && IsHolding) // continuous holding
                 {
-                    Time += deltaTime.Elapsed;
+                    Time += deltaTime.Seconds;
                     EndPos = cursorPos;
                 }
                 else if (!WasHolding && IsHolding) // Hold started

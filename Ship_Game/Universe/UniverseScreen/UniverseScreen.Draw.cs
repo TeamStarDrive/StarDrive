@@ -290,9 +290,9 @@ namespace Ship_Game
             }
         }
 
-        void DrawMain(SpriteBatch batch, GameTime gameTime)
+        void DrawMain(SpriteBatch batch, FrameTimes elapsed)
         {
-            Render(batch, gameTime);
+            Render(batch, elapsed);
 
             batch.Begin(SpriteBlendMode.Additive);
             ExplosionManager.DrawExplosions(batch, View, Projection);
@@ -353,7 +353,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = StarDriveGame.Instance.GameTime;
+            FrameTimes elapsed = StarDriveGame.Instance.Elapsed;
 
             // Wait for ProcessTurns to finish before we start drawing
             if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
@@ -366,7 +366,7 @@ namespace Ship_Game
                 Beam.BeamEffect.Parameters["Projection"].SetValue(Projection);
             }
 
-            AdjustCamera((float) gameTime.ElapsedGameTime.TotalSeconds);
+            AdjustCamera(elapsed.RealTime.Seconds);
             CamPos.Z = CamHeight;
             View = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f)
                    * Matrix.CreateRotationY(180f.ToRadians())
@@ -377,7 +377,7 @@ namespace Ship_Game
 
             var graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
-            DrawMain(batch, gameTime);
+            DrawMain(batch, elapsed);
             graphics.SetRenderTarget(0, null);
             DrawLights(batch);
 
@@ -409,7 +409,7 @@ namespace Ship_Game
             View = matrix;
             if (GlobalStats.RenderBloom)
             {
-                bloomComponent?.Draw(gameTime);
+                bloomComponent?.Draw();
             }
 
             batch.Begin(SpriteBlendMode.AlphaBlend);
@@ -428,7 +428,7 @@ namespace Ship_Game
                         graphics.PresentationParameters.BackBufferHeight), color);
             }
 
-            RenderOverFog(batch, gameTime);
+            RenderOverFog(batch);
             batch.End();
 
             batch.Begin();
@@ -537,12 +537,12 @@ namespace Ship_Game
             batch.DrawRectangle(SelectionBox, Color.Green, 1f);
             EmpireUI.Draw(batch);
             if (!LookingAtPlanet)
-                DrawShipUI(batch);
+                DrawShipUI(batch, elapsed);
 
             minimap.Visible = !LookingAtPlanet || LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen;
 
-            DrawSelectedItems(gameTime);
+            DrawSelectedItems(elapsed);
 
             if (SelectedShip == null || LookingAtPlanet)
                 ShipInfoUIElement.ShipNameArea.HandlingInput = false;
@@ -551,7 +551,7 @@ namespace Ship_Game
                 NotificationManager.Draw(batch);
 
             if (Debug)
-                DebugWin?.Draw(gameTime);
+                DebugWin?.Draw(elapsed);
 
             if (Paused)
             {
@@ -592,23 +592,23 @@ namespace Ship_Game
             DrawCompletedEvt.Set();
         }
 
-        private void DrawSelectedItems(GameTime gameTime)
+        private void DrawSelectedItems(FrameTimes elapsed)
         {
             if (SelectedShipList.Count == 0)
                 shipListInfoUI.ClearShipList();
             if (SelectedSystem != null && !LookingAtPlanet)
             {
                 sInfoUI.SetSystem(SelectedSystem);
-                sInfoUI.Update(gameTime);
+                sInfoUI.Update(elapsed);
                 if (viewState == UnivScreenState.GalaxyView)
-                    sInfoUI.Draw(gameTime);
+                    sInfoUI.Draw(elapsed);
             }
 
             if (SelectedPlanet != null && !LookingAtPlanet)
             {
                 pInfoUI.SetPlanet(SelectedPlanet);
-                pInfoUI.Update(gameTime);
-                pInfoUI.Draw(gameTime);
+                pInfoUI.Update(elapsed);
+                pInfoUI.Draw(elapsed);
             }
             else if (SelectedShip != null && !LookingAtPlanet)
             {
@@ -626,13 +626,13 @@ namespace Ship_Game
 
                 ShipInfoUIElement.Ship = SelectedShip;
                 ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
-                ShipInfoUIElement.Update(gameTime);
-                ShipInfoUIElement.Draw(gameTime);
+                ShipInfoUIElement.Update(elapsed);
+                ShipInfoUIElement.Draw(elapsed);
             }
             else if (SelectedShipList.Count > 1 && SelectedFleet == null)
             {
-                shipListInfoUI.Update(gameTime);
-                shipListInfoUI.Draw(gameTime);
+                shipListInfoUI.Update(elapsed);
+                shipListInfoUI.Draw(elapsed);
             }
             else if (SelectedItem != null)
             {
@@ -656,7 +656,7 @@ namespace Ship_Game
                                            .Name + ")";
                     string bodyText = Localizer.Token(1410) +
                                       SelectedItem.AssociatedGoal.PlanetBuildingAt.Name;
-                    vuiElement.Draw(gameTime, titleText, bodyText);
+                    vuiElement.Draw(titleText, bodyText);
                     DrawItemInfoForUI();
                 }
                 else
@@ -664,8 +664,8 @@ namespace Ship_Game
             }
             else if (SelectedFleet != null && !LookingAtPlanet)
             {
-                shipListInfoUI.Update(gameTime);
-                shipListInfoUI.Draw(gameTime);
+                shipListInfoUI.Update(elapsed);
+                shipListInfoUI.Draw(elapsed);
             }
         }
 
@@ -864,7 +864,7 @@ namespace Ship_Game
                 DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);
         }
 
-        void DrawShipUI(SpriteBatch batch)
+        void DrawShipUI(SpriteBatch batch, FrameTimes elapsed)
         {
             if (DefiningAO || DefiningTradeRoutes)
                 return; // FB dont show fleet list when selected AOs and Trade Routes
@@ -889,7 +889,7 @@ namespace Ship_Game
                         catch { }
                     }
 
-                    byte buttonFlashTimer = (byte)(Math.Abs(RadMath.Sin(GameBase.Base.GameTime.TotalGameTime.TotalSeconds)) * 200f);
+                    byte buttonFlashTimer = (byte)(Math.Abs(RadMath.Sin(elapsed.RealTime.Seconds)) * 200f);
                     batch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
                         fleetButton.ClickRect,
                         inCombat ? new Color(255, 0,  0,  buttonFlashTimer)

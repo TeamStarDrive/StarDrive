@@ -1069,14 +1069,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             RacialVideo.Rect = Portrait;
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             RacialVideo.Update(this);
 
             if (Discuss != null) Discuss.ToggleOn = DState == DialogState.Discuss;
             Negotiate.ToggleOn = DState == DialogState.Negotiate;
 
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         protected override void Destroy()
