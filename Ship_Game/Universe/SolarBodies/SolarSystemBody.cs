@@ -280,21 +280,21 @@ namespace Ship_Game
             GravityWellRadius = (float)(GlobalStats.GravityWellRange * (1 + ((Math.Log(Scale)) / 1.5)));
         }
 
-        protected void UpdatePosition(float elapsedTime)
+        protected void UpdatePosition(FixedSimTime timeStep)
         {
-            PosUpdateTimer -= elapsedTime;
+            PosUpdateTimer -= timeStep.FixedTime;
             if (!Empire.Universe.Paused && (PosUpdateTimer <= 0.0f || ParentSystem.isVisible))
             {
                 PosUpdateTimer = 5f;
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
-                if (OrbitalAngle >= 360.0f)
+                if (OrbitalAngle >= 360f)
                     OrbitalAngle -= 360f;
                 Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
             }
 
             if (ParentSystem.isVisible)
             {
-                Zrotate += ZrotateAmount * elapsedTime;
+                Zrotate += ZrotateAmount * timeStep.FixedTime;
                 SO.World = Matrix.CreateScale(3f)
                          * Matrix.CreateScale(Scale)
                          * Matrix.CreateRotationZ(-Zrotate)

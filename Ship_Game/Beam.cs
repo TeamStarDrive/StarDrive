@@ -214,7 +214,7 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Update(float elapsedTime)
+        public override void Update(FixedSimTime timeStep)
         {
             if (Module == null)
             {
@@ -229,7 +229,7 @@ namespace Ship_Game
             //int thickness = (int)UniverseRandom.RandomBetween(Thickness*0.75f, Thickness*1.1f);
 
 
-            Owner.PowerCurrent -= PowerCost * elapsedTime;
+            Owner.PowerCurrent -= PowerCost * timeStep.FixedTime;
             if (Owner.PowerCurrent < 0f)
             {
                 Owner.PowerCurrent = 0f;
@@ -247,7 +247,7 @@ namespace Ship_Game
                 return;
             }
 
-            Duration -= elapsedTime;
+            Duration -= timeStep.FixedTime;
             Source = muzzleOrigin;
 
             // always update Destination to ensure beam stays in range
@@ -257,7 +257,7 @@ namespace Ship_Game
             // old destination adjusted to same distance as newDestination,
             // so we get two equal length lines \/
             Vector2 oldAdjusted = Source.OffsetTowards(Destination, Source.Distance(newDestination));
-            float sweepSpeed    = Module.WeaponRotationSpeed * 48 * elapsedTime;
+            float sweepSpeed    = Module.WeaponRotationSpeed * 48 * timeStep.FixedTime;
             Vector2 newPosition = oldAdjusted.OffsetTowards(newDestination, sweepSpeed);
 
             if (Owner.IsInsideFiringArc(Weapon, newPosition))
@@ -310,16 +310,16 @@ namespace Ship_Game
             Owner = ai.Drone.Owner;
         }
 
-        public override void Update(float elapsedTime)
+        public override void Update(FixedSimTime timeStep)
         {
-            Duration -= elapsedTime;
+            Duration -= timeStep.FixedTime;
             Source = AI.Drone.Center;
             ActualHitDestination = AI.DroneTarget.Center;
             // apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
                 float repairMultiplier = targetShip.InCombat ? 1 : 5;
-                targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * elapsedTime, Owner?.Level ?? 0);
+                targetShip.ApplyRepairOnce(-DamageAmount * repairMultiplier * timeStep.FixedTime, Owner?.Level ?? 0);
             }
 
             UpdateBeamMesh();

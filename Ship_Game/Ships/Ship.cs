@@ -258,9 +258,9 @@ namespace Ship_Game.Ships
                 ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
 
-        float GetYBankAmount(float elapsedTime)
+        float GetYBankAmount(FixedSimTime timeStep)
         {
-            float yBank = RotationRadiansPerSecond * elapsedTime;
+            float yBank = RotationRadiansPerSecond * timeStep.FixedTime;
             switch (shipData.Role)
             {
                 default:
@@ -987,7 +987,7 @@ namespace Ship_Game.Ships
         }
 
 
-        public void UpdateShipStatus(float deltaTime)
+        public void UpdateShipStatus(FixedSimTime timeStep)
         {
             if (!Empire.Universe.Paused && VelocityMaximum <= 0f
                 && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)
@@ -997,7 +997,7 @@ namespace Ship_Game.Ships
 
             ShipEngines.Update();
 
-            if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
+            if (timeStep.FixedTime > 0 && (EMPDamage > 0 || EMPdisabled))
                 CauseEmpDamage(-EmpRecovery);
 
             Rotation = Rotation.AsNormalizedRadians();
@@ -1008,21 +1008,21 @@ namespace Ship_Game.Ships
             {
                 for (int i = 0; i < Weapons.Count; i++)
                 {
-                    Weapons[i].Update(deltaTime);
+                    Weapons[i].Update(timeStep);
                 }
                 for (int i = 0; i < BombBays.Count; i++)
                 {
-                    BombBays[i].InstalledWeapon.Update(deltaTime);
+                    BombBays[i].InstalledWeapon.Update(timeStep);
                 }
             }
 
             AI.CombatAI.SetCombatTactics(AI.CombatState);
 
-            updateTimer -= deltaTime;
-            if (updateTimer <= 0)
+            updateTimer -= timeStep.FixedTime;
+            if (updateTimer <= 0f)
             {
-                updateTimer = 1f; // update the ship modules and status only once per second
-                UpdateModulesAndStatus();
+                updateTimer += 1f; // update the ship modules and status only once per second
+                UpdateModulesAndStatus(FixedSimTime.One);
                 SecondsAlive += 1;
             }
 
@@ -1034,9 +1034,9 @@ namespace Ship_Game.Ships
             if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
                 Die(LastDamagedBy, false);
 
-            PowerCurrent -= PowerDraw * deltaTime;
+            PowerCurrent -= PowerDraw * timeStep.FixedTime;
             if (PowerCurrent < PowerStoreMax)
-                PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * deltaTime;
+                PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * timeStep.FixedTime;
 
             if (PowerCurrent <= 0.0f)
             {
@@ -1048,18 +1048,18 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
         }
 
-        public void UpdateSensorsAndInfluence(float deltaTime)
+        public void UpdateSensorsAndInfluence(FixedSimTime timeStep)
         {
-            UpdateInfluence(deltaTime);
-            AI.StartSensorScan(deltaTime);
+            UpdateInfluence(timeStep);
+            AI.StartSensorScan(timeStep);
 
-            KnownByEmpires.Update(deltaTime);
-            HasSeenEmpires.Update(deltaTime);
+            KnownByEmpires.Update(timeStep);
+            HasSeenEmpires.Update(timeStep);
 
             SetFleetCapableStatus();
         }
 
-        public void UpdateModulePositions(float deltaTime)
+        public void UpdateModulePositions(FixedSimTime timeStep)
         {
             if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
             {  
@@ -1068,13 +1068,13 @@ namespace Ship_Game.Ships
                 float tan = (float)Math.Tan(yRotation);
                 for (int i = 0; i < ModuleSlotList.Length; ++i)
                 {
-                    ModuleSlotList[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
+                    ModuleSlotList[i].UpdateEveryFrame(timeStep, cos, sin, tan);
                 }
                 GlobalStats.ModuleUpdates += ModuleSlotList.Length;
             }
         }
 
-        void UpdateModulesAndStatus()
+        void UpdateModulesAndStatus(FixedSimTime timeSinceLastUpdate)
         {
             if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
             {
@@ -1102,7 +1102,7 @@ namespace Ship_Game.Ships
             }
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
-                ModuleSlotList[i].Update(1);
+                ModuleSlotList[i].Update(timeSinceLastUpdate);
 
             if (ShouldRecalculatePower) // must be before ShipStatusChange
                 RecalculatePower();
