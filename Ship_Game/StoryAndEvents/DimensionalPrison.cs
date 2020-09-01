@@ -91,12 +91,12 @@ namespace Ship_Game
             return new Vector3(RandomMath.RandomBetween(-radius, radius), RandomMath.RandomBetween(-radius, radius), RandomMath.RandomBetween(-radius, radius));
         }
 
-        public override void Update(float elapsedTime)
+        public override void Update(FixedSimTime timeStep)
         {
             // spawn a bunch of drones when the player has killed all platforms :)))
             if (!Platform1.Active && !Platform2.Active && !Platform3.Active)
             {
-                SpawnCountdown -= elapsedTime;
+                SpawnCountdown -= timeStep.FixedTime;
                 if (SpawnCountdown <= 0f)
                 {
                     Ship enemy = Ship.CreateShipAtPoint("Heavy Drone", EmpireManager.Remnants, PlaformCenter);

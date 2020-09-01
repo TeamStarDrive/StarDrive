@@ -69,7 +69,7 @@ namespace Ship_Game
         // This can vary greatly and should only be used for
         // drawing real-time visualization.
         // This should not be used for simulation!
-        public float FrameDeltaTime { get; private set; }
+        public VariableFrameTime FrameTime { get; private set; }
 
         public Matrix View, Projection;
 
@@ -214,15 +214,15 @@ namespace Ship_Game
 
             // @note If content was being loaded, we will force deltaTime to 1/60th
             //       This will prevent animations going nuts due to huge deltaTime
-            FrameDeltaTime = ScreenManager.FrameDeltaTime;
-            if (DidLoadContent && FrameDeltaTime > (1f/60f))
-                FrameDeltaTime = 1f/60f;
+            FrameTime = ScreenManager.FrameTime;
+            if (DidLoadContent && FrameTime.Elapsed > (1f/60f))
+                FrameTime = new VariableFrameTime(1f/60f);
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
 
             Visible = ScreenState != ScreenState.Hidden;
 
             // Update new UIElementV2
-            Update(FrameDeltaTime);
+            Update(FrameTime.Elapsed);
 
             OtherScreenHasFocus = otherScreenHasFocus;
             if (IsExiting)
@@ -255,7 +255,7 @@ namespace Ship_Game
 
         bool UpdateTransition(float time, int direction)
         {
-            float transitionDelta = (time.NotZero() ? (FrameDeltaTime / time) : 1f);
+            float transitionDelta = (time.NotZero() ? (FrameTime.Elapsed / time) : 1f);
             TransitionPosition += transitionDelta * direction;
             if (TransitionPosition > 0f && TransitionPosition < 1f)
                 return true;

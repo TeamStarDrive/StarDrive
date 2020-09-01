@@ -28,7 +28,7 @@ namespace Ship_Game
 
         // Time elapsed between 2 frames
         // this can be used for rendering animations
-        public float FrameDeltaTime { get; private set; }
+        public VariableFrameTime FrameTime { get; private set; }
 
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
@@ -274,7 +274,7 @@ namespace Ship_Game
                 }
             }
             
-            ToolTip.Draw(batch, FrameDeltaTime);
+            ToolTip.Draw(batch, FrameTime);
         }
 
         public void ExitAll(bool clear3DObjects)
@@ -420,9 +420,9 @@ namespace Ship_Game
             };
         }
 
-        void PerformHotLoadTasks()
+        void PerformHotLoadTasks(VariableFrameTime deltaTime)
         {
-            HotloadTimer += FrameDeltaTime;
+            HotloadTimer += deltaTime.Elapsed;
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
@@ -442,14 +442,14 @@ namespace Ship_Game
 
         public void Update(GameTime gameTime)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float frameTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (frameTime > 0.4f) // @note Probably we were loading something heavy
+                frameTime = 1f/60f;
 
-            FrameDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (FrameDeltaTime > 0.4f) // @note Probably we were loading something heavy
-                FrameDeltaTime = 1f/60f;
+            FrameTime = new VariableFrameTime(frameTime);
 
-            PerformHotLoadTasks();
-            input.Update(elapsedTime); // analyze input state for this frame
+            PerformHotLoadTasks(FrameTime);
+            input.Update(FrameTime); // analyze input state for this frame
             AddPendingScreens();
 
             bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
