@@ -357,23 +357,22 @@ namespace Ship_Game
 
             EmpireUpdateQueue.SubmitWork(() =>
             {
+                lock (ShipPoolLock)
+                {
+                    UpdateAllShipPositions(timeStep);
+                    FireAllShipWeapons(timeStep);
+                }
+
                 lock (SpaceManager.LockSpaceManager)
                 {
                     AllPlanetsScanAndFire(timeStep);
                     UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
-                }
-
-                lock (ShipPoolLock)
-                {
-                    FireAllShipWeapons(timeStep);
-                    UpdateAllShipPositions(timeStep);
                 }
             });
         }
 
         void UpdateAllShipPositions(FixedSimTime timeStep)
         {
-
             // Update all ships and projectors in the universe
             Ship[] allShips = MasterShipList.GetInternalArrayItems();
             Parallel.For(MasterShipList.Count, (start, end) =>
