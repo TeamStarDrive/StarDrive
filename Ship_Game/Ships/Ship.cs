@@ -1050,9 +1050,9 @@ namespace Ship_Game.Ships
 
         public void UpdateSensorsAndInfluence(float deltaTime)
         {
-            UpdateInfluence(deltaTime);
             AI.StartSensorScan(deltaTime);
 
+            UpdateInfluence(deltaTime);
             KnownByEmpires.Update(deltaTime);
             HasSeenEmpires.Update(deltaTime);
 
