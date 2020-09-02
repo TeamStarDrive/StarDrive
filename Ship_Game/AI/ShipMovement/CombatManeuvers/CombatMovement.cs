@@ -93,43 +93,43 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// <summary>
         /// Executes the attack from combat stance
         /// </summary>
-        protected abstract CombatMoveState ExecuteAttack(float elapsedTime);
+        protected abstract CombatMoveState ExecuteAttack(FixedSimTime timeStep);
 
         /// <summary>
         /// Allows the stance to change the default combat parameters in the Initialize method. 
         /// </summary>
-        protected abstract void OverrideCombatValues(float elapsedTime);
+        protected abstract void OverrideCombatValues(FixedSimTime timeStep);
 
         /// <summary>
         /// Executes combat movement.
         /// calls initialize/override, chase behavior, and combat stance movement. 
         /// </summary>
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal goal)
+        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal goal)
         {
             // Bail on invalid combat situations. 
             if (Owner.IsPlatformOrStation || OwnerTarget == null || (Owner.AI.HasPriorityOrder && !Owner.AI.HasPriorityTarget) 
                 || Owner.engineState == Ship.MoveState.Warp) 
                 return;
             // ThinkTimer delays the recalculation of angle differences. 
-            ThinkTimer -= elapsedTime;
+            ThinkTimer -= timeStep.FixedTime;
             Initialize(DesiredCombatRange);
-            OverrideCombatValues(elapsedTime);
+            OverrideCombatValues(timeStep);
 
             if (MoveState == CombatMoveState.Approach && ShouldDisengage())
             {
                 DisengageType = RandomDisengageType(DirectionToTarget);
-                ExecuteAntiChaseDisengage(elapsedTime);
+                ExecuteAntiChaseDisengage(timeStep);
             }
             else if (DisengageType != DisengageTypes.None)
             {
-                ExecuteAntiChaseDisengage(elapsedTime);
+                ExecuteAntiChaseDisengage(timeStep);
             }
             else
             {
                 DisengageType = DisengageTypes.None;
                 DisengageDirection = Vector2.Zero;
-                ErraticMovement(DistanceToTarget, elapsedTime);
-                MoveState = ExecuteAttack(elapsedTime);
+                ErraticMovement(DistanceToTarget, timeStep);
+                MoveState = ExecuteAttack(timeStep);
             }
 
             if (Empire.Universe.Debug && Empire.Universe.SelectedShip != null)
@@ -155,7 +155,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// <summary>
         /// Executes the anti chase disengage. ship will try to maintain a left or right facing to target.
         /// </summary>
-        protected virtual void ExecuteAntiChaseDisengage(float elapsedTime)
+        protected virtual void ExecuteAntiChaseDisengage(FixedSimTime timeStep)
         {
             switch(DisengageType)
             {
@@ -164,7 +164,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 default: DisengageDirection = Vector2.Zero; break;
             }
             
-            Owner.AI.SubLightContinuousMoveInDirection(DisengageDirection, elapsedTime);
+            Owner.AI.SubLightContinuousMoveInDirection(DisengageDirection, timeStep);
         }
 
         /// <summary>
@@ -312,9 +312,9 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// <summary>
         /// TO BE EXPANDED. be a harder target on approach. 
         /// </summary>
-        public void ErraticMovement(float distanceToTarget, float deltaTime)
+        public void ErraticMovement(float distanceToTarget, FixedSimTime timeStep)
         {
-            ErraticTimer -= deltaTime;
+            ErraticTimer -= timeStep.FixedTime;
             if (AI.IsFiringAtMainTarget || Owner.AI.HasPriorityOrder)
             {
                 ZigZag = Vector2.Zero;

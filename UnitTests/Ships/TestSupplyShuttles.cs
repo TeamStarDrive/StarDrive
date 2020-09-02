@@ -25,7 +25,7 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire(out empire);
             ship = CreateShip(empire, "Excalibur-Class Supercarrier", Vector2.Zero);
             target = CreateShip(empire, "Corsair", new Vector2(1000, 1000));
-            UniverseScreen.SpaceManager.Update(1f);
+            UniverseScreen.SpaceManager.Update(new FixedSimTime(1f));
         }
 
         Ship CreateShip(Empire empire, string shipName, Vector2 pos)
@@ -39,9 +39,9 @@ namespace UnitTests.Ships
         {
             ship.AI.CombatState = state;
             ship.shipStatusChanged = true;
-            ship.AI.StartSensorScan(0.0166666f);
+            ship.AI.StartSensorScan(TestSimStep);
             
-            ship.Update(1f);
+            ship.Update(new FixedSimTime(1f));
         }
 
         [TestMethod]

@@ -155,10 +155,10 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
-        public void Update(GameScreen screen)
+        public void Update(GameScreen screen, FixedSimTime timeStep)
         {
             foreach (var ship in FleetShips)
-                ship.Update(screen);
+                ship.Update(timeStep);
             
             // if all ship AI's have finished, create a new one
             FleetShips.RemoveAll(ship => ship.AI.Finished);

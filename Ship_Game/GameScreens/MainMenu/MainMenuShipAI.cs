@@ -23,7 +23,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             return new MainMenuShipAI(States);
         }
-        public void Update(MainMenuShip ship, float deltaTime)
+        public void Update(MainMenuShip ship, FixedSimTime timeStep)
         {
             if (Finished)
                 return;
@@ -34,7 +34,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 Current.Initialize(ship);
             }
 
-            if (Current.Update(deltaTime))
+            if (Current.Update(timeStep))
             {
                 if (Current is GoToState goTo)
                 {
@@ -75,9 +75,9 @@ namespace Ship_Game.GameScreens.MainMenu
         }
 
         // @return TRUE if lifetime transition is over
-        public virtual bool Update(float deltaTime)
+        public virtual bool Update(FixedSimTime timeStep)
         {
-            Time += deltaTime;
+            Time += timeStep.FixedTime;
             if (Time >= Duration)
             {
                 Time = Duration;
@@ -94,10 +94,10 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             State = state;
         }
-        public override bool Update(float deltaTime)
+        public override bool Update(FixedSimTime timeStep)
         {
-            Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
-            return base.Update(deltaTime);
+            Ship.Position += timeStep.FixedTime * Ship.Forward * Ship.Speed;
+            return base.Update(timeStep);
         }
     }
 
@@ -118,10 +118,10 @@ namespace Ship_Game.GameScreens.MainMenu
         public FreighterCoast(float duration) : base(duration)
         {
         }
-        public override bool Update(float deltaTime)
+        public override bool Update(FixedSimTime timeStep)
         {
-            Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
-            return base.Update(deltaTime);
+            Ship.Position += timeStep.FixedTime * Ship.Forward * Ship.Speed;
+            return base.Update(timeStep);
         }
     }
 
@@ -130,12 +130,12 @@ namespace Ship_Game.GameScreens.MainMenu
         public CoastWithRotate(float duration) : base(duration)
         {
         }
-        public override bool Update(float deltaTime)
+        public override bool Update(FixedSimTime timeStep)
         {
             // slow moves the ship across the screen
-            Ship.Rotation.Y += deltaTime * 0.24f;
-            Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
-            return base.Update(deltaTime);
+            Ship.Rotation.Y += timeStep.FixedTime * 0.24f;
+            Ship.Position += timeStep.FixedTime * Ship.Forward * Ship.Speed;
+            return base.Update(timeStep);
         }
     }
 
@@ -157,7 +157,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ship.Position = Start;
             base.Initialize(ship);
         }
-        public override bool Update(float deltaTime)
+        public override bool Update(FixedSimTime timeStep)
         {
             Ship.Position = Start.LerpTo(End, RelativeTime);
 
@@ -167,7 +167,7 @@ namespace Ship_Game.GameScreens.MainMenu
                 ExitingFTL = true;
             }
 
-            if (base.Update(deltaTime))
+            if (base.Update(timeStep))
             {
                 if (!Ship.Spawn.DisableJumpSfx)
                 {
@@ -204,12 +204,12 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             base.Initialize(ship);
         }
-        public override bool Update(float deltaTime)
+        public override bool Update(FixedSimTime timeStep)
         {
-            SpoolTimer += deltaTime;
+            SpoolTimer += timeStep.FixedTime;
             if (SpoolTimer < 3.2f)
             {
-                Ship.Position += deltaTime * Ship.Forward * Ship.Speed;
+                Ship.Position += timeStep.FixedTime * Ship.Forward * Ship.Speed;
 
                 float remaining = 3.2f - SpoolTimer;
                 if (!EnteringFTL && remaining < 0.5f)
@@ -223,7 +223,7 @@ namespace Ship_Game.GameScreens.MainMenu
             // spooling finished, begin warping and updating main timer:
             Ship.Position = Start.LerpTo(End, RelativeTime);
             Ship.Scale = WarpScale;
-            if (base.Update(deltaTime))
+            if (base.Update(timeStep))
             {
                 Ship.Scale = Vector3.One;
                 return true;

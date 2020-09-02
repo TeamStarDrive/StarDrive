@@ -19,24 +19,24 @@ namespace Ship_Game.Fleets.FleetGoals
             MovePosition   = movePosition;
         }
 
-        public void Evaluate(float elapsedTime)
+        public void Evaluate(FixedSimTime timeStep)
         {
             switch (Type)
             {
                 case Fleets.Fleet.FleetGoalType.AttackMoveTo:
-                    AttackMoveTo(elapsedTime);
+                    AttackMoveTo(timeStep);
                     break;
                 case Fleets.Fleet.FleetGoalType.MoveTo:
-                    MoveTo(elapsedTime);
+                    MoveTo(timeStep);
                     break;
             }
         }
 
-        void AttackMoveTo(float elapsedTime)
+        void AttackMoveTo(FixedSimTime timeStep)
         {
             Vector2 fleetPos = Fleet.AveragePosition();
             Vector2 towardsFleetGoal = fleetPos.DirectionToTarget(MovePosition);
-            Vector2 finalPos = fleetPos + towardsFleetGoal * Fleet.SpeedLimit * elapsedTime;
+            Vector2 finalPos = fleetPos + towardsFleetGoal * Fleet.SpeedLimit * timeStep.FixedTime;
 
             if (finalPos.InRadius(MovePosition, 100f))
             {
@@ -47,11 +47,11 @@ namespace Ship_Game.Fleets.FleetGoals
             Fleet.AssembleFleet(finalPos, FinalDirection);
         }
 
-        void MoveTo(float elapsedTime)
+        void MoveTo(FixedSimTime timeStep)
         {
             Vector2 fleetPos = Fleet.AveragePosition();
             Vector2 towardsFleetGoal = fleetPos.DirectionToTarget(MovePosition);
-            Vector2 finalPos = fleetPos + towardsFleetGoal * (Fleet.SpeedLimit + 75f) * elapsedTime;
+            Vector2 finalPos = fleetPos + towardsFleetGoal * (Fleet.SpeedLimit + 75f) * timeStep.FixedTime;
 
             if (finalPos.InRadius(MovePosition, 100f))
             {

@@ -128,7 +128,7 @@ namespace Ship_Game
         }
 
         // assumes THIS is a projectile
-        public bool HitTestProj(ref SpatialObj target, out ShipModule hitModule)
+        public bool HitTestProj(float simTimeStep, ref SpatialObj target, out ShipModule hitModule)
         {
             hitModule = null;
             float dx = Center.X - target.Center.X;
@@ -145,11 +145,14 @@ namespace Ship_Game
             var ship = (Ship)target.Obj;
             if (ship == null) { Log.Warning("HitTestProj had a null ship."); return false; }
 
-            // give a lot of leeway here; if we fall short, collisions wont work right
-            float maxDistPerFrame = proj.Velocity.Length() / 30.0f; // this actually depends on the framerate...
-            if (maxDistPerFrame > 15.0f) // ray collision
+            float velocity = proj.Velocity.Length();
+            float maxDistPerFrame = velocity * simTimeStep;
+
+            // if this projectile will move more than 15 units (1 module grid = 16x16) within one simulation step
+            // we have to use ray-casting to avoid projectiles clipping through objects
+            if (maxDistPerFrame > 15f)
             {
-                Vector2 dir     = proj.Velocity.Normalized();
+                Vector2 dir = proj.Velocity / velocity;
                 Vector2 prevPos = Center - (dir*maxDistPerFrame);
                 hitModule = ship.RayHitTestSingle(prevPos, Center, Radius, proj.IgnoresShields);
             }
@@ -183,6 +186,7 @@ namespace Ship_Game
         public const int CellThreshold = 4;
         Node Root;
         int FrameId;
+        FixedSimTime SimulationStep;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         class Node
@@ -453,11 +457,12 @@ namespace Ship_Game
             return node.Count + subItems;
         }
 
-        public void UpdateAll()
+        public void UpdateAll(FixedSimTime timeStep)
         {
             // we don't really care about int32 precision here... 
             // actually a single bit flip would work fine as well
             byte frameId = (byte)++FrameId;
+            SimulationStep = timeStep;
             UpdateNode(Root, Levels, frameId);
             RemoveEmptyChildNodes(Root);
         }
@@ -482,7 +487,7 @@ namespace Ship_Game
 
         // ship collision; this can collide with multiple projectiles..
         // beams are ignored because they may intersect multiple objects and thus require special CollideBeamAtNode
-        static void CollideShipAtNode(Node node, ref SpatialObj ship)
+        static void CollideShipAtNode(float simTimeStep, Node node, ref SpatialObj ship)
         {
             for (int i = 0; i < node.Count; ++i)
             {
@@ -490,7 +495,7 @@ namespace Ship_Game
                 if (proj.Loyalty != ship.Loyalty      && // friendlies don't collide
                     (proj.Type & GameObjectType.Proj) != 0 && // only collide with projectiles
                     (proj.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
-                    proj.HitTestProj(ref ship, out ShipModule hitModule))
+                    proj.HitTestProj(simTimeStep, ref ship, out ShipModule hitModule))
                 {
                     var projectile = proj.Obj as Projectile;
                     if (!HandleProjCollision(projectile, hitModule ?? ship.Obj))
@@ -500,10 +505,10 @@ namespace Ship_Game
                 }
             }
             if (node.NW == null) return;
-            CollideShipAtNode(node.NW, ref ship);
-            CollideShipAtNode(node.NE, ref ship);
-            CollideShipAtNode(node.SE, ref ship);
-            CollideShipAtNode(node.SW, ref ship);
+            CollideShipAtNode(simTimeStep, node.NW, ref ship);
+            CollideShipAtNode(simTimeStep, node.NE, ref ship);
+            CollideShipAtNode(simTimeStep, node.SE, ref ship);
+            CollideShipAtNode(simTimeStep, node.SW, ref ship);
         }
 
         //@HACK sometime Obj is null and crash the game. added if null mark dienextframe false. 
@@ -513,14 +518,14 @@ namespace Ship_Game
 
 
         // projectile collision, return the first match because the projectile destroys itself anyway
-        static bool CollideProjAtNode(Node node, ref SpatialObj proj)
+        static bool CollideProjAtNode(float simTimeStep, Node node, ref SpatialObj proj)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
                 if (item.Loyalty != proj.Loyalty &&           // friendlies don't collide, also ignores self
                     (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
-                    proj.HitTestProj(ref item, out ShipModule hitModule))
+                    proj.HitTestProj(simTimeStep, ref item, out ShipModule hitModule))
                 {
                     if (!HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj)) // module OR projectile
                         continue; // there was no collision
@@ -531,10 +536,10 @@ namespace Ship_Game
                 }
             }
             if (node.NW == null) return false;
-            return CollideProjAtNode(node.NW, ref proj)
-                || CollideProjAtNode(node.NE, ref proj)
-                || CollideProjAtNode(node.SE, ref proj)
-                || CollideProjAtNode(node.SW, ref proj);
+            return CollideProjAtNode(simTimeStep, node.NW, ref proj)
+                || CollideProjAtNode(simTimeStep, node.NE, ref proj)
+                || CollideProjAtNode(simTimeStep, node.SE, ref proj)
+                || CollideProjAtNode(simTimeStep, node.SW, ref proj);
         }
 
         struct BeamHitResult : IComparable<BeamHitResult>
@@ -600,17 +605,17 @@ namespace Ship_Game
 
         public void CollideAll()
         {
-            CollideAllAt(Root, BeamHitCache);
+            CollideAllAt(SimulationStep.FixedTime, Root, BeamHitCache);
         }
 
-        static void CollideAllAt(Node node, Array<BeamHitResult> beamHitCache)
+        static void CollideAllAt(float simTimeStep, Node node, Array<BeamHitResult> beamHitCache)
         {
             if (node.NW != null) // depth first approach, to early filter LastCollided
             {
-                CollideAllAt(node.NW, beamHitCache);
-                CollideAllAt(node.NE, beamHitCache);
-                CollideAllAt(node.SE, beamHitCache);
-                CollideAllAt(node.SW, beamHitCache);
+                CollideAllAt(simTimeStep, node.NW, beamHitCache);
+                CollideAllAt(simTimeStep, node.NE, beamHitCache);
+                CollideAllAt(simTimeStep, node.SE, beamHitCache);
+                CollideAllAt(simTimeStep, node.SW, beamHitCache);
             }
             for (int i = 0; i < node.Count; ++i)
             {
@@ -628,12 +633,12 @@ namespace Ship_Game
                 }
                 else if ((so.Type & GameObjectType.Proj) != 0)
                 {
-                    if (CollideProjAtNode(node, ref so) && ProjectileIsDying(ref so))
+                    if (CollideProjAtNode(simTimeStep, node, ref so) && ProjectileIsDying(ref so))
                         FastRemoval(go, node, ref i);
                 }
                 else if ((so.Type & GameObjectType.Ship) != 0)
                 {
-                    CollideShipAtNode(node, ref so);
+                    CollideShipAtNode(simTimeStep, node, ref so);
                 }
             }
         }

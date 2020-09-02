@@ -410,7 +410,7 @@ namespace Ship_Game.Gameplay
             Owner = null;
         }
 
-        public override void Update(float elapsedTime)
+        public override void Update(FixedSimTime timeStep)
         {
             if (!Active)
             {
@@ -424,19 +424,19 @@ namespace Ship_Game.Gameplay
                 return;
             }
             
-            Position += Velocity * elapsedTime;
+            Position += Velocity * timeStep.FixedTime;
             if (Weapon.Animated == 1 && InFrustum)
             {
-                Animation.Update(elapsedTime);
+                Animation.Update(timeStep.FixedTime);
             }
 
             if (InFlightSfx.IsStopped)
                 InFlightSfx.PlaySfxAsync(InFlightCue, Emitter);
 
-            ParticleDelay -= elapsedTime;
+            ParticleDelay -= timeStep.FixedTime;
             if (Duration > 0f)
             {
-                Duration -= elapsedTime;
+                Duration -= timeStep.FixedTime;
                 if (Duration < 0f)
                 {
                     Health = 0f;
@@ -444,8 +444,8 @@ namespace Ship_Game.Gameplay
                     return;
                 }
             }
-            MissileAI?.Think(elapsedTime);
-            DroneAI?.Think(elapsedTime);
+            MissileAI?.Think(timeStep);
+            DroneAI?.Think(timeStep);
             if (FirstRun && Module != null)
             {
                 Position = Module.Center;
@@ -457,7 +457,7 @@ namespace Ship_Game.Gameplay
             if (InFrustum)
             {
                 if (ZStart < -25.0)
-                    ZStart += VelocityMax * elapsedTime;
+                    ZStart += VelocityMax * timeStep.FixedTime;
                 else
                     ZStart = -25f;
 
@@ -483,14 +483,14 @@ namespace Ship_Game.Gameplay
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
-                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + VelocityDirection * Speed * 1.75f);
+                    FiretrailEmitter.UpdateProjectileTrail(timeStep.FixedTime, newPosition, Velocity + VelocityDirection * Speed * 1.75f);
                 }
             }
             if (TrailEmitter != null && InFrustum && TrailTurnedOn)
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
-                    TrailEmitter.Update(elapsedTime, newPosition);
+                    TrailEmitter.Update(timeStep.FixedTime, newPosition);
                 }
             }
 
@@ -528,7 +528,7 @@ namespace Ship_Game.Gameplay
                 MuzzleFlashAdded = true;
                 MuzzleFlashManager.AddFlash(this);
             }
-            base.Update(elapsedTime);
+            base.Update(timeStep);
         }
 
 
@@ -572,7 +572,8 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void GuidedMoveTowards(float elapsedTime, Vector2 targetPos, float thrustNozzleRotation, bool terminalPhase = false)
+        public void GuidedMoveTowards(FixedSimTime timeStep, Vector2 targetPos, float thrustNozzleRotation,
+                                      bool terminalPhase = false)
         {
             float distance = Center.Distance(targetPos);
             
@@ -596,7 +597,7 @@ namespace Ship_Game.Gameplay
                 if (rotationRadsPerSec <= 0f)
                     rotationRadsPerSec = Speed / 350f;
 
-                Rotation += rotationDir * Math.Min(angleDiff, elapsedTime*rotationRadsPerSec);
+                Rotation += rotationDir * Math.Min(angleDiff, timeStep.FixedTime*rotationRadsPerSec);
                 Rotation = Rotation.AsNormalizedRadians();
             }
 
@@ -613,12 +614,12 @@ namespace Ship_Game.Gameplay
                 nozzleRotation = nozzleRotation.Clamped(-0.52f, +0.52f);
 
                 Vector2 thrustDirection = (Rotation + nozzleRotation).RadiansToDirection();
-                Velocity += thrustDirection * (acceleration * elapsedTime);
+                Velocity += thrustDirection * (acceleration * timeStep.FixedTime);
             }
             else if (Velocity.Length() > 200) // apply magic braking effect, this helps avoid useless rocket spirals
             {
                 acceleration *= -0.2f;
-                Velocity += Velocity.Normalized() * (acceleration * elapsedTime * 0.5f);
+                Velocity += Velocity.Normalized() * (acceleration * timeStep.FixedTime * 0.5f);
             }
 
             float maxVel = VelocityMax * (terminalPhase ? Weapon.TerminalPhaseSpeedMod : 1f);

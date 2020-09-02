@@ -65,9 +65,9 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void UpdateVisibleMoon(float elapsedTime)
+        public void UpdateVisibleMoon(FixedSimTime timeStep)
         {
-            RotationRadians.Z -= 0.05f * elapsedTime;
+            RotationRadians.Z -= 0.05f * timeStep.FixedTime;
             if (!Empire.Universe.Paused)
             {
                 OrbitalAngle += (float)Math.Asin(15f / OrbitRadius);
