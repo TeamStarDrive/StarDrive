@@ -11,7 +11,8 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        public readonly ActionPool AsyncDataCollector = new ActionPool();
+        public readonly ActionQueue EmpireUpdateQueue = new ActionQueue();
+        readonly object ShipPoolLock = new object();
 
         void ProcessTurnsMonitored()
         {
@@ -138,7 +139,7 @@ namespace Ship_Game
 
             if (ProcessTurnEmpires(timeStep))
             {
-                SubmitNextEmpireUpdate(timeStep);
+                SubmitNextUpdateForASingleEmpire(timeStep);
 
                 PostEmpireUpdates(timeStep);
 
@@ -348,26 +349,25 @@ namespace Ship_Game
         int NextEmpireToUpdate = 0;
         int MaxTaskCores = Parallel.NumPhysicalCores - 1;
 
-        void SubmitNextEmpireUpdate(FixedSimTime timeStep)
+        void SubmitNextUpdateForASingleEmpire(FixedSimTime timeStep)
         {
             Empire empireToUpdate = EmpireManager.Empires[NextEmpireToUpdate];
             if (++NextEmpireToUpdate >= EmpireManager.Empires.Count)
                 NextEmpireToUpdate = 0;
 
-            AsyncDataCollector.SubmitWork(() =>
+            EmpireUpdateQueue.SubmitWork(() =>
             {
-                lock (UniverseScreen.SpaceManager.LockSpaceManager)
+                lock (SpaceManager.LockSpaceManager)
                 {
                     AllPlanetsScanAndFire(timeStep);
                     UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
                 }
 
-                lock (ActionPool.LockShipPools)
+                lock (ShipPoolLock)
                 {
                     FireAllShipWeapons(timeStep);
                     UpdateAllShipPositions(timeStep);
                 }
-
             });
         }
 
@@ -492,7 +492,7 @@ namespace Ship_Game
 
             // this block contains master ship list and empire pool updates. 
             // threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
-            lock (ActionPool.LockShipPools)
+            lock (ShipPoolLock)
             {
                 //clear out general object removal.
                 RemoveDeadProjectiles();
@@ -516,7 +516,7 @@ namespace Ship_Game
             if (!Paused && IsActive)
             {
                 EmpireUpdatePerf.Start();
-                lock (ActionPool.LockShipPools)
+                lock (ShipPoolLock)
                 {
                     for (var i = 0; i < EmpireManager.NumEmpires; i++)
                     {

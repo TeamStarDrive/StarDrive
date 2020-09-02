@@ -1,41 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
-using Ship_Game.Gameplay;
-using Ship_Game.Utils;
 
 namespace Ship_Game.Threading
 {
     /// <summary>
-    /// There are two sync points to the main game thread.
-    /// 1. the spacemanager quadtree. QuadTree Finds must not run during quadtree update.
-    ///     locked by public GameThreadLocker
-    /// 2. moving actions to be processed to the processing queue.
-    ///     locked by private ActionProcessorLock
-    ///     used by method MoveItemsToThread
-    /// To avoid locking on the SpaceManager update try to run MoveItemsToThread just after Universe_SpaceManager Update.
+    /// This is a generalized work queue.
+    ///
+    /// Any kind of work can be submitted to the queue and it will be processed in background
+    /// 
     /// </summary>
-    public class ActionPool 
+    public class ActionQueue 
     {
         Thread Worker;
+        int ActionsProcessedThisTurn;
         readonly AutoResetEvent ActionsAvailable = new AutoResetEvent(false);
         readonly Array<Action> WorkingActions = new Array<Action>();
         readonly Array<Action> PendingActions = new Array<Action>();
+        public readonly AggregatePerfTimer Perf = new AggregatePerfTimer();
 
-        /// <summary>
-        /// lock on ship pool updates.
-        /// things that iterate the master ship list should be locked from running where this lock exists.
-        /// maybe it would be better to use a waitone and set?
-        /// </summary>
-        public static Object LockShipPools = new object();
-
-        public int ActionsProcessedThisTurn {get; private set;}
-
-        public AggregatePerfTimer ProcessTime = new AggregatePerfTimer();
-
-        public void Kill()
+        public void Stop()
         {
             Thread dying = Worker;
             Worker = null;
@@ -44,10 +27,10 @@ namespace Ship_Game.Threading
             dying?.Join(250); // wait for merge
         }
 
-        Exception ThreadException  = null;
-        int StillProcessingCounter = 0;
+        Exception ThreadException;
+        int StillProcessingCounter;
         
-        public ActionPool()
+        public ActionQueue()
         {
         }
 
@@ -124,13 +107,11 @@ namespace Ship_Game.Threading
             }
         }
 
-
         // NOTE: actions will be cleared
         void ProcessActions(Array<Action> actions)
         {
-            ProcessTime.Start();
+            Perf.Start();
 
-            int processedLastTurn = ActionsProcessedThisTurn;
             ActionsProcessedThisTurn = 0;
 
             for (int i = 0; i < actions.Count; i++)
@@ -148,7 +129,7 @@ namespace Ship_Game.Threading
 
             actions.Clear();
 
-            ProcessTime.Stop();
+            Perf.Stop();
         }
     }
 }
