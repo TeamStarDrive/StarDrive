@@ -23,12 +23,12 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
-        readonly PerfTimer Perfavg2          = new PerfTimer();
-        readonly PerfTimer PreEmpirePerf     = new PerfTimer();
-        readonly PerfTimer PostEmpirePerf    = new PerfTimer();
-        readonly PerfTimer perfavg5          = new PerfTimer();
-        readonly PerfTimer CollisionTime     = new PerfTimer();
+        readonly AggregatePerfTimer EmpireUpdatePerf  = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PerfShipsAndSystems = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PreEmpirePerf     = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PostEmpirePerf    = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PerfTotalTurnTime = new AggregatePerfTimer();
+        readonly AggregatePerfTimer CollisionTime     = new AggregatePerfTimer();
 
         public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
@@ -62,7 +62,6 @@ namespace Ship_Game
         public Vector3 CamPos = Vector3.Zero;
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
-        float TurnFlipCounter;
         int Auto = 1;
         Array<Ship> DeepSpaceShips = new Array<Ship>();
         public bool ViewingShip             = false;
@@ -164,7 +163,6 @@ namespace Ship_Game
         public DeepSpaceBuildingWindow dsbw;
         public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
-        float Memory;
         public bool Paused = true; // always start paused
         public bool NoEliminationVictory;
         bool UseRealLights = true;
@@ -785,7 +783,7 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            AsyncDataCollector.Kill();
+            EmpireUpdateQueue.Stop();
 
             RemoveLighting();
             ScreenManager.Music.Stop();

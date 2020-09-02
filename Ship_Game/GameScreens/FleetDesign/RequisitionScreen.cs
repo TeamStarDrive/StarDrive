@@ -218,11 +218,6 @@ namespace Ship_Game
             UpdateRequisitionStatus();
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
-
         private void UpdateRequisitionStatus()
         {
             NumThatFit = 0;

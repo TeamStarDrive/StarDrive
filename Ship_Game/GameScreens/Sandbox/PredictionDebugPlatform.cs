@@ -33,12 +33,12 @@ namespace Ship_Game.GameScreens.Sandbox
         public float AccuracyPercent => NumHitsScored / (float)NumShotsFired;
         public bool CanFire { get; set; } = false;
 
-        public override void Update(float elapsedTime)
+        public override void Update(FixedSimTime timeStep)
         {
-            ApplyAllRepair(1000f*elapsedTime, 1, true); // +1000HP/s
+            ApplyAllRepair(1000f*timeStep.FixedTime, 1, true); // +1000HP/s
             AddPower(25f);
 
-            ShotTimer += elapsedTime;
+            ShotTimer += timeStep.FixedTime;
             if (ShotTimer > 5f) // cull shots to have a fresh accuracy
             {
                 ShotTimer = 0f;
@@ -90,7 +90,7 @@ namespace Ship_Game.GameScreens.Sandbox
                     weapon.CooldownTimer = 1f;
                 }
             }
-            base.Update(elapsedTime);
+            base.Update(timeStep);
         }
 
         public override void OnDamageInflicted(ShipModule victim, float damage)

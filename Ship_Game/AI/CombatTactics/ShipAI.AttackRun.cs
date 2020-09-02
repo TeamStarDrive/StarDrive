@@ -29,18 +29,18 @@ namespace Ship_Game.AI.CombatTactics
         
         // CombatState.AttackRuns: fighters / corvettes / frigates performing attack run to target
         // @note We are guaranteed to be within 2~3x maxWeaponsRange by DoCombat
-        protected override void OverrideCombatValues(float elapsedTime)
+        protected override void OverrideCombatValues(FixedSimTime timeStep)
         {
             DesiredCombatRange = Owner.WeaponsMaxRange * 0.8f; // maybe change to desiredCombatRange.
             if (SpacerDistance > DesiredCombatRange)
                 SpacerDistance = DesiredCombatRange;
         }
 
-        protected override CombatMoveState ExecuteAttack(float elapsedTime)
+        protected override CombatMoveState ExecuteAttack(FixedSimTime timeStep)
         {
             if (State == RunState.Disengage1 || State == RunState.Disengage2)
             {
-                ExecuteDisengage(elapsedTime);
+                ExecuteDisengage(timeStep);
                 return CombatMoveState.Disengage;
             }
 
@@ -55,7 +55,7 @@ namespace Ship_Game.AI.CombatTactics
             if (DistanceToTarget < 500f) 
             {
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
-                AI.RotateTowardsPosition(AI.Target.Center, elapsedTime, 0.05f);
+                AI.RotateTowardsPosition(AI.Target.Center, timeStep, 0.05f);
                 DrawDebugTarget(AI.Target.Center, Owner.Radius);
                 return CombatMoveState.Face;
             }
@@ -64,12 +64,12 @@ namespace Ship_Game.AI.CombatTactics
             Vector2 localQuadrant = AI.Target.Direction.RotateDirection(TargetQuadrant);
             attackPos += localQuadrant * OwnerTarget.Radius;
 
-            StrafeTowardsTarget(elapsedTime, DistanceToTarget, attackPos);
+            StrafeTowardsTarget(timeStep, DistanceToTarget, attackPos);
             return CombatMoveState.Approach;
         }
 
         // Strafe: repeatedly with weapons within weapons range
-        void StrafeTowardsTarget(float elapsedTime, float distanceToAttack, Vector2 attackPos)
+        void StrafeTowardsTarget(FixedSimTime timeStep, float distanceToAttack, Vector2 attackPos)
         {
             float speed = GetStrafeSpeed(distanceToAttack, out string debugStatus);
 
@@ -78,7 +78,7 @@ namespace Ship_Game.AI.CombatTactics
                 // we can't catch these bastards! use warp
                 Vector2 pip = Owner.FastestWeapon?.ProjectedImpactPointNoError(AI.Target)?? AI.Target.Center;
                 DrawDebugTarget(pip, Owner.Radius);
-                AI.ThrustOrWarpToPos(pip, elapsedTime);
+                AI.ThrustOrWarpToPos(pip, timeStep);
                 return;
             }
 
@@ -86,14 +86,14 @@ namespace Ship_Game.AI.CombatTactics
             {
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
                 DrawDebugTarget(AI.Target.Center, Owner.Radius);
-                AI.RotateTowardsPosition(AI.Target.Center, elapsedTime, 0.05f);
+                AI.RotateTowardsPosition(AI.Target.Center, timeStep, 0.05f);
                 DrawDebugText("TerminalStrafe");
             }
             else
             {
                 // fly simply towards the offset attack position
                 DrawDebugTarget(attackPos, Owner.Radius);
-                AI.SubLightMoveTowardsPosition(attackPos + ZigZag, elapsedTime, speed, predictPos: true, autoSlowDown: false);
+                AI.SubLightMoveTowardsPosition(attackPos + ZigZag, timeStep, speed, predictPos: true, autoSlowDown: false);
                 DrawDebugText($"{debugStatus} {(int)speed}");
             }
         }
@@ -188,7 +188,7 @@ namespace Ship_Game.AI.CombatTactics
             DisengagePos2 = DisengagePos1 + (Owner.MaxSTLSpeed * cooldownTime + SpacerDistance) * (direction + leftOrRight);
         }
 
-        public void ExecuteDisengage(float elapsedTime)
+        public void ExecuteDisengage(FixedSimTime timeStep)
         {
             Vector2 disengagePos = (State == RunState.Disengage1) ? DisengagePos1 : DisengagePos2;
             float disengageLimit = DesiredCombatRange * 0.25f + SpacerDistance;
@@ -210,7 +210,7 @@ namespace Ship_Game.AI.CombatTactics
                 else
                 {
                     AI.SubLightContinuousMoveInDirection(Owner.Center.DirectionToTarget(DisengagePos1),
-                    elapsedTime, disengageSpeed);
+                    timeStep, disengageSpeed);
 
                 }
             }
@@ -223,7 +223,7 @@ namespace Ship_Game.AI.CombatTactics
                 else
                 {
                     AI.SubLightContinuousMoveInDirection(Owner.Center.DirectionToTarget(DisengagePos2),
-                    elapsedTime, disengageSpeed);
+                    timeStep, disengageSpeed);
                 }
             }
 

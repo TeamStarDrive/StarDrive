@@ -632,7 +632,7 @@ namespace Ship_Game
             Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
         }
 
-        public void Update(float elapsedTime)
+        public void Update(VariableFrameTime elapsedTime)
         {
             if (LastStarDate < Screen.StarDate)
             {
@@ -644,7 +644,7 @@ namespace Ship_Game
             {
                 foreach (Notification n in NotificationList)
                 {
-                    n.transitionElapsedTime = n.transitionElapsedTime + elapsedTime;
+                    n.transitionElapsedTime += elapsedTime.Seconds;
                     float amount = (float) Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
                     n.ClickRect.Y =
                         (int) Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));

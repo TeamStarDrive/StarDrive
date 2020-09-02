@@ -23,7 +23,7 @@ namespace Ship_Game
             public Vector2 StartPos{ get; private set; }
             public Vector2 EndPos  { get; private set; }
 
-            public void Update(float elapsedTime, ButtonState current, Vector2 cursorPos)
+            public void Update(VariableFrameTime deltaTime, ButtonState current, Vector2 cursorPos)
             {
                 WasHolding = IsHolding;
                 IsHolding = current == ButtonState.Pressed && Previous == ButtonState.Pressed;
@@ -31,7 +31,7 @@ namespace Ship_Game
 
                 if (WasHolding && IsHolding) // continuous holding
                 {
-                    Time += elapsedTime;
+                    Time += deltaTime.Seconds;
                     EndPos = cursorPos;
                 }
                 else if (!WasHolding && IsHolding) // Hold started
@@ -79,10 +79,10 @@ namespace Ship_Game
         public Vector2 EndRightHold   => RightHold.EndPos;
 
 
-        void UpdateHolding(float elapsedTime)
+        void UpdateHolding(VariableFrameTime deltaTime)
         {
-            LeftHold.Update(elapsedTime, MouseCurr.LeftButton, CursorPosition);
-            RightHold.Update(elapsedTime, MouseCurr.RightButton, CursorPosition);
+            LeftHold.Update(deltaTime, MouseCurr.LeftButton, CursorPosition);
+            RightHold.Update(deltaTime, MouseCurr.RightButton, CursorPosition);
         }
     }
 }

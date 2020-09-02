@@ -9,7 +9,7 @@ namespace Ship_Game.AI
         {
         }
 
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
+        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
         {
             Planet exportPlanet = g.Trade.ExportFrom;
             Planet importPlanet = g.Trade.ImportTo;
@@ -19,10 +19,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (AI.WaitForBlockadeRemoval(g, exportPlanet, elapsedTime))
+            if (AI.WaitForBlockadeRemoval(g, exportPlanet, timeStep))
                 return;
 
-            AI.ThrustOrWarpToPos(exportPlanet.Center, elapsedTime);
+            AI.ThrustOrWarpToPos(exportPlanet.Center, timeStep);
             if (!Owner.Center.InRadius(exportPlanet.Center, exportPlanet.ObjectRadius + 300f))
                 return;
 
@@ -95,7 +95,7 @@ namespace Ship_Game.AI
         {
         }
 
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
+        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
         {
             Planet importPlanet = g.Trade.ImportTo;
             Planet exportPlanet = g.Trade.ExportFrom;
@@ -106,10 +106,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (AI.WaitForBlockadeRemoval(g, importPlanet, elapsedTime))
+            if (AI.WaitForBlockadeRemoval(g, importPlanet, timeStep))
                 return;
 
-            AI.ThrustOrWarpToPos(importPlanet.Center, elapsedTime);
+            AI.ThrustOrWarpToPos(importPlanet.Center, timeStep);
             if (!Owner.Center.InRadius(importPlanet.Center, importPlanet.ObjectRadius + 300f))
                 return;
 

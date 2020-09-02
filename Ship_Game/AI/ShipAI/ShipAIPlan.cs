@@ -18,6 +18,6 @@ namespace Ship_Game.AI
             Owner = ai.Owner;
         }
 
-        public abstract void Execute(float elapsedTime, ShipAI.ShipGoal g);
+        public abstract void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g);
     }
 }

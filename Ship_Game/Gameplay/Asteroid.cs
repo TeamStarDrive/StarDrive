@@ -57,12 +57,12 @@ namespace Ship_Game.Gameplay
 
         // NOTE: Asteroids are updated ONLY if they are visible!
         //       so we do NOT need additional visibility checks
-        public void UpdateVisibleAsteroid(float elapsedTime)
+        public void UpdateVisibleAsteroid(FixedSimTime timeStep)
         {
             if (So != null)
             {
                 Center = Position; // TODO: why do we have Center and Position both...
-                RotationRadians += Spin * elapsedTime;
+                RotationRadians += Spin * timeStep.FixedTime;
                 So.AffineTransform(new Vector3(Position, -500f), RotationRadians, Scale);
             }
             else

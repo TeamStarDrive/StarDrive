@@ -383,7 +383,7 @@ namespace Ship_Game
             SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             CamPos.X += CamVelocity.X;
             CamPos.Y += CamVelocity.Y;
@@ -394,7 +394,7 @@ namespace Ship_Game
             ClickableSquads.Clear();
             UpdateSelectedFleet();
 
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         public struct ClickableNode
