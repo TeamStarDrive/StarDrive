@@ -28,7 +28,7 @@ namespace Ship_Game.Threading
 
         public int ActionsProcessedThisTurn {get; private set;}
 
-        public PerfTimer ProcessTime = new PerfTimer();
+        public AggregatePerfTimer ProcessTime = new AggregatePerfTimer();
 
         public void Kill()
         {
