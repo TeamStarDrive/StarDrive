@@ -12,14 +12,14 @@ namespace Ship_Game.AI.CombatTactics
             Artillery = new Artillery(ai);
         }
 
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
+        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
         {
             if (Owner.IsSpoolingOrInWarp)
                 return;
 
             Target = AI.Target;
 
-            Artillery.Execute(elapsedTime, null);
+            Artillery.Execute(timeStep, null);
             if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)
                 return;
             if (!Owner.loyalty.isFaction && Target?.shipData.Role <= ShipData.RoleName.drone)

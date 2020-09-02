@@ -153,7 +153,7 @@ namespace Ship_Game
             pos.X += Font.MeasureString(Text).X;
             if (HandlingInput)
             {
-                float f = 255f * Math.Abs(RadMath.Sin(GameBase.Base.GameTime.TotalGameTime.TotalSeconds));
+                float f = 255f * Math.Abs(RadMath.Sin(StarDriveGame.Instance.Elapsed.TotalGameSeconds));
                 var flashColor = new Color(255, 255, 255, (byte)f);
                 batch.DrawString(Font, "|", pos, flashColor);
             }

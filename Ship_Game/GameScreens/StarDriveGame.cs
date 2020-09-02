@@ -133,7 +133,7 @@ namespace Ship_Game
                 return;
 
             GraphicsDevice.Clear(Color.Black);
-            ScreenManager.Draw();
+            ScreenManager.Draw(Elapsed);
             base.Draw(gameTime);
         }
 

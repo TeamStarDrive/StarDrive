@@ -21,6 +21,7 @@ namespace UnitTests
     public class StarDriveTest : IDisposable
     {
         public static string StarDriveAbsolutePath { get; private set; }
+
         static StarDriveTest()
         {
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
@@ -63,6 +64,8 @@ namespace UnitTests
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
         public Empire Faction { get; private set; }
+
+        public FixedSimTime TestSimStep { get; private set; } = new FixedSimTime(1f / 60f);
 
         public StarDriveTest()
         {
@@ -133,8 +136,8 @@ namespace UnitTests
             var target = Ship.CreateShipAtPoint(shipName, empire, position);
             target.Rotation = shipDirection.Normalized().ToRadians();
             target.InFrustum = true; // force module pos update
-            target.UpdateShipStatus(0.01f); // update module pos
-            target.UpdateModulePositions(0.01f);
+            target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
+            target.UpdateModulePositions(new FixedSimTime(0.01f));
             return target;
         }
 
