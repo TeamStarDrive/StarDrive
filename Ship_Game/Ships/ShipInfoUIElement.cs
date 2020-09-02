@@ -180,7 +180,7 @@ namespace Ship_Game.Ships
             return inputCaptured;
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(FrameTimes elapsed)
         {
             if (Screen.SelectedShip == null) return;  //fbedard
 

@@ -18,7 +18,7 @@ namespace Ship_Game
             float Timer;
 
             // @return TRUE if double click happened this frame
-            public bool Update(float deltaTime, bool wasClicked, bool mouseMoved)
+            public bool Update(VariableFrameTime deltaTime, bool wasClicked, bool mouseMoved)
             {
                 if (mouseMoved)
                 {
@@ -33,7 +33,7 @@ namespace Ship_Game
                     return false; // no double click yet
                 }
                 // if too much time elapsed, reset everything
-                Timer += deltaTime;
+                Timer += deltaTime.Seconds;
                 if (Timer > TooSlowThreshold || wasClicked)
                 {
                     FirstClick = false;
@@ -46,10 +46,10 @@ namespace Ship_Game
         DoubleClickTimer LeftDoubleClicker  = new DoubleClickTimer();
         DoubleClickTimer RightDoubleClicker = new DoubleClickTimer();
 
-        void UpdateDoubleClick(float elapsedTime)
+        void UpdateDoubleClick(VariableFrameTime deltaTime)
         {
-            LeftMouseDoubleClick  = LeftDoubleClicker.Update(elapsedTime, LeftMouseClick, MouseMoved);
-            RightMouseDoubleClick = RightDoubleClicker.Update(elapsedTime, RightMouseClick, MouseMoved);
+            LeftMouseDoubleClick  = LeftDoubleClicker.Update(deltaTime, LeftMouseClick, MouseMoved);
+            RightMouseDoubleClick = RightDoubleClicker.Update(deltaTime, RightMouseClick, MouseMoved);
         }
     }
 }

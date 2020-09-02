@@ -209,7 +209,6 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = StarDriveGame.Instance.GameTime;
             batch.Draw(ResourceManager.Texture($"PlanetTiles/{p.PlanetTileId}_tilt"), GridRect, Color.White);
             batch.Draw(ResourceManager.Texture("Ground_UI/grid"), GridRect, Color.White);
             batch.DrawString(Fonts.Arial20Bold, p.Name, TitlePos, OwnerColor);
@@ -232,10 +231,10 @@ namespace Ship_Game
             }
             if (ActiveTile != null)
             {
-                tInfo.Draw(gameTime);
+                tInfo.Draw(GameBase.Base.Elapsed);
             }
 
-            assetsUI.Draw(gameTime);
+            assetsUI.Draw(GameBase.Base.Elapsed);
 
             DrawTroopDragDestinations();
             

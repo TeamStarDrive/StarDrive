@@ -154,9 +154,9 @@ namespace Ship_Game
             WeaponTimer = TheWeapon.fireDelay;
         }
 
-        void UpdateSpaceWeaponTimer(float elapsedTime)
+        void UpdateSpaceWeaponTimer(FixedSimTime timeStep)
         {
-            WeaponTimer -= elapsedTime;
+            WeaponTimer -= timeStep.FixedTime;
         }
 
         void FireOnSpaceTarget(Planet planet, Ship target)
@@ -225,13 +225,13 @@ namespace Ship_Game
                 CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0, DefenseShipsCapacity);
         }
 
-        public void UpdateSpaceCombatActions(float elapsedTime, Planet p, out bool targetFound)
+        public void UpdateSpaceCombatActions(FixedSimTime timeStep, Planet p, out bool targetFound)
         {
             targetFound = false;
             if (!isWeapon && DefenseShipsCapacity == 0)
                 return;
 
-            UpdateSpaceWeaponTimer(elapsedTime);
+            UpdateSpaceWeaponTimer(timeStep);
             if (ReadyToFireOnSpaceTargets || CanLaunchDefenseShips(p.Owner))
             {
                 Ship target = p.ScanForSpaceCombatTargets(SpaceRange);

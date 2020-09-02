@@ -146,7 +146,7 @@ namespace Ship_Game
 			base.LoadContent();
 		}
 
-		public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+		public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
             PlayWinTheme();
 
@@ -155,7 +155,7 @@ namespace Ship_Game
             width = (int)MathHelper.Lerp(width, (int)(960f + 960f * (1f - TransitionPosition)), 0.3f);
             height = (int)MathHelper.Lerp(height, 540f + 540f * (1f - TransitionPosition), 0.3f);
             SourceRect = new Rectangle((int)MathHelper.Lerp(SourceRect.X, 960 - width / 2, 0.3f), (int)MathHelper.Lerp(SourceRect.Y, 540 - height / 2, 0.3f), width, height);
-			base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+			base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
 		}
 	}
 }

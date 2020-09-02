@@ -1369,7 +1369,7 @@ namespace Ship_Game
             }
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             #if PLAYERONLY
                 if(!this.isPlayer && !this.isFaction)
@@ -1379,7 +1379,7 @@ namespace Ship_Game
                     return;
             #endif
 
-            UpdateTimer -= elapsedTime;
+            UpdateTimer -= timeStep.FixedTime;
 
             if (UpdateTimer <= 0f && !data.Defeated)
             {
@@ -1482,7 +1482,7 @@ namespace Ship_Game
                     empireShipTotal++;
                 }
 
-                UpdateTimer = GlobalStats.TurnTimer + (Id -1) * elapsedTime;
+                UpdateTimer = GlobalStats.TurnTimer + (Id -1) * timeStep.FixedTime;
                 UpdateEmpirePlanets();
                 UpdateAI(); // Must be done before DoMoney
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
@@ -1490,7 +1490,7 @@ namespace Ship_Game
                 TakeTurn();
             }
             SetRallyPoints();
-            UpdateFleets(elapsedTime);
+            UpdateFleets(timeStep);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
@@ -1626,15 +1626,15 @@ namespace Ship_Game
             return debug;
         }
 
-        public void UpdateFleets(float elapsedTime)
+        void UpdateFleets(FixedSimTime timeStep)
         {
-            FleetUpdateTimer -= elapsedTime;
+            FleetUpdateTimer -= timeStep.FixedTime;
             foreach (var kv in FleetsDict)
             {
                 Fleet fleet = kv.Value;
-                fleet.Update(elapsedTime);
+                fleet.Update(timeStep);
                 if (FleetUpdateTimer <= 0f)
-                    fleet.UpdateAI(elapsedTime, kv.Key);
+                    fleet.UpdateAI(timeStep, kv.Key);
             }
             if (FleetUpdateTimer < 0.0)
                 FleetUpdateTimer = 5f;
@@ -3190,12 +3190,12 @@ namespace Ship_Game
         int ResetBorderTicks = 0;
         int ResetBorderTicksReset =5;
         
-        public void UpdateContactsAndBorders(float elapsedTime)
+        public void UpdateContactsAndBorders(FixedSimTime timeStep)
         {
-            updateContactsTimer -= elapsedTime;
+            updateContactsTimer -= timeStep.FixedTime;
             if (!IsEmpireDead())
             {
-                MaxContactTimer = elapsedTime;
+                MaxContactTimer = timeStep.FixedTime;
                 ResetBorders();
                 ScanFromAllInfluenceNodes();
                 PopulateKnownShips();

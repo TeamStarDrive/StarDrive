@@ -64,20 +64,17 @@ namespace Ship_Game
             RightRect = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(FrameTimes elapsed)
         {
-            DrawInPosition(gameTime);
+            DrawInPosition(elapsed);
         }
 
-        public void DrawInPosition(GameTime gameTime)
+        void DrawInPosition(FrameTimes elapsed)
         {
             SpriteBatch batch = ScreenManager.SpriteBatch;
 
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            SystemInfoUIElement clickTimer = this;
-            clickTimer.ClickTimer = clickTimer.ClickTimer + elapsedTime;
-            SystemInfoUIElement selectionTimer = this;
-            selectionTimer.SelectionTimer = selectionTimer.SelectionTimer + elapsedTime;
+            ClickTimer += elapsed.RealTime.Seconds;
+            SelectionTimer += elapsed.RealTime.Seconds;
             Vector2 pPos = screen.ProjectTo2D(s.Position.ToVec3());
             Vector2 radialPos = new Vector2(s.Position.X + 4500f, s.Position.Y);
             Vector2 insetRadialSS = screen.ProjectTo2D(radialPos.ToVec3());
@@ -313,8 +310,7 @@ namespace Ship_Game
             }
             else
             {
-                SystemInfoUIElement hoverTimer = this;
-                hoverTimer.HoverTimer = hoverTimer.HoverTimer + elapsedTime;
+                HoverTimer += elapsed.RealTime.Seconds;
                 if (HoverTimer > 0.1f)
                 {
                     HoverTimer = 0.1f;

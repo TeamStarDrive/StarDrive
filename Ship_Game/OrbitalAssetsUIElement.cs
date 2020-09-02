@@ -57,7 +57,7 @@ namespace Ship_Game
 			ToolTipItems.Add(bomb);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(FrameTimes elapsed)
 		{
 			MathHelper.SmoothStep(0f, 1f, TransitionPosition);
 			ScreenManager.SpriteBatch.FillRectangle(sel.Rect, Color.Black);
