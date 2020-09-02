@@ -1050,13 +1050,14 @@ namespace Ship_Game.Ships
 
         public void UpdateSensorsAndInfluence(FixedSimTime timeStep)
         {
+            // update our knowledge of the surrounding universe
             UpdateInfluence(timeStep);
-            AI.StartSensorScan(timeStep);
-
             KnownByEmpires.Update(timeStep);
             HasSeenEmpires.Update(timeStep);
-
             SetFleetCapableStatus();
+            
+            // scan universe and make decisions for combat
+            AI.StartSensorScan(timeStep);
         }
 
         public void UpdateModulePositions(FixedSimTime timeStep)

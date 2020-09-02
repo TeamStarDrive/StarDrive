@@ -158,8 +158,6 @@ namespace Ship_Game
 
                 CollisionTime.Stop();
 
-                RemoveDeadProjectiles();
-
                 ProcessTurnUpdateMisc(timeStep);
             }
 
@@ -492,9 +490,12 @@ namespace Ship_Game
                 }
             }
 
+            // this block contains master ship list and empire pool updates. 
+            // threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
             lock (ActionPool.LockShipPools)
             {
                 //clear out general object removal.
+                RemoveDeadProjectiles();
                 TotallyRemoveGameplayObjects();
                 MasterShipList.ApplyPendingRemovals();
 

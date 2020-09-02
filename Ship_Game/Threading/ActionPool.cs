@@ -24,6 +24,11 @@ namespace Ship_Game.Threading
         readonly Array<Action> WorkingActions = new Array<Action>();
         readonly Array<Action> PendingActions = new Array<Action>();
 
+        /// <summary>
+        /// lock on ship pool updates.
+        /// things that iterate the master ship list should be locked from running where this lock exists.
+        /// maybe it would be better to use a waitone and set?
+        /// </summary>
         public static Object LockShipPools = new object();
 
         public int ActionsProcessedThisTurn {get; private set;}

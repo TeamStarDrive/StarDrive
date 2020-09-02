@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
         // This is an optimized lookup system, because these properties are queried every frame
         bool InOwnerInfluence;
         float OwnerInfluenceTimer = -100;
-        const float InfluenceTimerBuffer = 0.035f;
+        const float InfluenceTimerBuffer = 0.017f;
         
         struct ForeignInfluence
         {
@@ -63,7 +63,7 @@ namespace Ship_Game.Ships
             if (empire == loyalty)
             {
                 InOwnerInfluence    = isInsideInfluence;
-                OwnerInfluenceTimer = loyalty.updateContactsTimer;
+                OwnerInfluenceTimer = loyalty.MaxContactTimer;
             }
             else if (isInsideInfluence) // set foreign influence (may already exist)
             {

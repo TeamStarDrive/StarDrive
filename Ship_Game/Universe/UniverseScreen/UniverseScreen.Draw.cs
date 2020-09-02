@@ -1164,10 +1164,12 @@ namespace Ship_Game
             DrawTextureProjected(symbol, position, scale, direction.ToRadians(), color);
         }
 
+        // if we check for a missing model here we can show the ship modules instead. 
+        // that will solve invisible ships when the ship model load hits an OOM.
         void DrawOverlay(Ship ship)
         {
-            if (ship.InFrustum && !ship.dying && !LookingAtPlanet && ShowShipNames &&
-                viewState <= UnivScreenState.DetailView)
+            if (ship.InFrustum && !ship.dying && !LookingAtPlanet && (ShowShipNames || ship.GetSO()?.ModelMeshesAreLoaded != true) 
+                && viewState <= UnivScreenState.DetailView)
                 ship.DrawModulesOverlay(this);
         }
 
