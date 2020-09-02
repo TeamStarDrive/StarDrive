@@ -23,12 +23,12 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        readonly PerfTimer EmpireUpdatePerf  = new PerfTimer();
-        readonly PerfTimer Perfavg2          = new PerfTimer();
-        readonly PerfTimer PreEmpirePerf     = new PerfTimer();
-        readonly PerfTimer PostEmpirePerf    = new PerfTimer();
-        readonly PerfTimer perfavg5          = new PerfTimer();
-        readonly PerfTimer CollisionTime     = new PerfTimer();
+        readonly AggregatePerfTimer EmpireUpdatePerf  = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PerfShipsAndSystems = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PreEmpirePerf     = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PostEmpirePerf    = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PerfTotalTurnTime = new AggregatePerfTimer();
+        readonly AggregatePerfTimer CollisionTime     = new AggregatePerfTimer();
 
         public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
@@ -163,7 +163,6 @@ namespace Ship_Game
         public DeepSpaceBuildingWindow dsbw;
         public DebugInfoScreen DebugWin;
         public bool ShowShipNames;
-        float Memory;
         public bool Paused = true; // always start paused
         public bool NoEliminationVictory;
         bool UseRealLights = true;

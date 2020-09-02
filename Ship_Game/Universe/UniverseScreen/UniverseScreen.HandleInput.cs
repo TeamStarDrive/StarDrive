@@ -236,7 +236,7 @@ namespace Ship_Game
                     return true;
                 if (input.GetMemory)
                 {
-                    Memory = GC.GetTotalMemory(false) / 1024f;
+                    GC.GetTotalMemory(false);
                 }
             }
 

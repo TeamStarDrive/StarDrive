@@ -104,23 +104,24 @@ namespace Ship_Game
                     // advance the simulation time sink by the real elapsed time
                     simulationTimeSink += elapsed.RealTime.Seconds;
 
-                    // run the alloted number of game turns
+                    // run the allotted number of game turns
                     // if Simulation FPS is `10` and game speed is `0.5`, this will run 5x per second
                     // if Simulation FPS is `60` and game speed is `4.0`, this will run 240x per second
                     // if the game freezes due to rendering or some other issue,
                     // the simulation time sink will record the missed time and process missed turns
                     while (simulationTimeSink >= timeBetweenTurns)
                     {
+                        simulationTimeSink -= timeBetweenTurns;
                         ++TurnId;
                         ProcessTurnDelta(elapsed.SimulationStep);
-                        simulationTimeSink -= timeBetweenTurns;
                     }
 
                     if (GlobalStats.RestrictAIPlayerInteraction)
                     {
-                        if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
+                        if (PerfTotalTurnTime.MeasuredSamples > 0 && PerfTotalTurnTime.AvgTime * GameSpeed < 0.05f)
                             ++GameSpeed;
-                        else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
+                        else if (--GameSpeed < 1.0f)
+                            GameSpeed = 1.0f;
                     }
                 }
             }
@@ -128,7 +129,7 @@ namespace Ship_Game
 
         void ProcessTurnDelta(FixedSimTime timeStep)
         {
-            perfavg5.Start(); // total do work perf counter
+            PerfTotalTurnTime.Start(); // total do work perf counter
 
             GlobalStats.BeamTests = 0;
             GlobalStats.Comparisons = 0;
@@ -162,7 +163,7 @@ namespace Ship_Game
                 ProcessTurnUpdateMisc(timeStep);
             }
 
-            perfavg5.Stop();
+            PerfTotalTurnTime.Stop();
         }
 
 
@@ -441,14 +442,14 @@ namespace Ship_Game
 
         void ProcessTurnShipsAndSystems(FixedSimTime timeStep)
         {
-            Perfavg2.Start();
+            PerfShipsAndSystems.Start();
             DeepSpaceThread(timeStep);
 
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
                 SolarSystemList[i].Update(timeStep, this);
             }
-            Perfavg2.Stop();
+            PerfShipsAndSystems.Stop();
         }
 
         bool ProcessTurnEmpires(FixedSimTime timeStep)
