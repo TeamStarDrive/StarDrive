@@ -23,6 +23,10 @@ namespace SynapseGaming.LightingSystem.Rendering
         readonly List<RenderableMesh> Meshes = new List<RenderableMesh>(16);
         Matrix WorldMatrix = Matrix.Identity;
 
+        // it is possible that an XNA error or memory issue can cause the model not to load. 
+        // bool to check that it is loaded.
+        public bool ModelMeshesAreLoaded { get; private set; } = false;
+
         /// <summary>World space transform of the object.</summary>
         public Matrix World
         {
@@ -326,6 +330,8 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             RenderableMeshes = new RenderableMeshCollection(Meshes);
             Name = string.IsNullOrEmpty(name) ? string.Empty : name;
+            if (Meshes != null && Meshes.Count > 0) 
+                ModelMeshesAreLoaded = true;
         }
 
         /// <summary>
@@ -336,6 +342,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             Meshes.Add(mesh);
             CalculateBoundingSphere();
+            if (Meshes != null && Meshes.Count > 0) ModelMeshesAreLoaded = true;
         }
 
         /// <summary>
