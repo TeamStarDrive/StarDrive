@@ -170,7 +170,6 @@ namespace Ship_Game.AI
             // scancomplete means the scan is done.
             if (ScanComplete && !ScanDataProcessed)
             {
-                ScanDataProcessed = true;
                 TrackProjectiles  = new Array<Projectile>(ScannedProjectiles);
                 PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
                 FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
@@ -181,6 +180,7 @@ namespace Ship_Game.AI
                 ScannedTargets.Clear();
                 ScannedFriendlies.Clear();
                 ScannedNearby.Clear();
+                ScanDataProcessed = true;
             }
 
             if (ScanTargetUpdated)
