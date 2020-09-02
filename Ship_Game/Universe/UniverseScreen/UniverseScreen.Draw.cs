@@ -7,7 +7,6 @@ using Ship_Game.Ships;
 using System;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
-using Ship_Game.Debug;
 
 namespace Ship_Game
 {
@@ -578,6 +577,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen16, speed, textPos, Color.White);
             }
 
+            RefreshPerfTimers(elapsed);
             if (Debug) ShowDebugGameInfo();
             else       HideDebugGameInfo();
 
@@ -700,19 +700,17 @@ namespace Ship_Game
                 "Dis Check Avg:    " ,
                 "Modules Updated:  " ,
                 "Arc Checks:       " ,
-                "Beam Tests:       " ,
-                "Memory:           "
+                "Beam Tests:       "
             };
             DebugGameStatValues.SetAbsPos(DebugGameStats.TopLeft.X + DebugGameStats.Size.X , DebugGameStats.Y);
             DebugGameStatValues.Show();
             DebugGameStatValues.MultilineText = new Array<string>
             {
-                "" + GlobalStats.Comparisons,
-                "" + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter,
-                "" + GlobalStats.ModuleUpdates,
-                "" + GlobalStats.WeaponArcChecks,
-                "" + GlobalStats.BeamTests,
-                "" + Memory
+                GlobalStats.Comparisons.ToString(),
+                (GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter).ToString(),
+                GlobalStats.ModuleUpdates.ToString(),
+                GlobalStats.WeaponArcChecks.ToString(),
+                GlobalStats.BeamTests.ToString(),
             };
 
             DebugGamePerf.SetAbsPos(DebugGameStatValues.TopLeft.X + DebugGameStatValues.Size.X + 50, DebugGameStatValues.Y);
@@ -720,7 +718,8 @@ namespace Ship_Game
             DebugGamePerf.MultilineText = new Array<string>
             {
                 "Ship Count:  " ,
-                "Ship Time:  " ,
+                "Turns Per Second:  ",
+                "Ship&Sys Time:  " ,
                 "Empire Time:  " ,
                 "PreEmpire Time:  " ,
                 "Post Empire Time:  " ,
@@ -735,16 +734,38 @@ namespace Ship_Game
             DebugGamePerfValues.Show();
             DebugGamePerfValues.MultilineText = new Array<string>
             {
-                MasterShipList.Count + "           Max \\/",
-                Perfavg2.ToString(),
-                EmpireUpdatePerf.ToString(),
-                PreEmpirePerf.ToString(),
-                PostEmpirePerf.ToString(),
-                CollisionTime.ToString(),
-                AsyncDataCollector.ProcessTime.ToString(),
-                perfavg5.ToString(),
+                MasterShipList.Count.ToString(),
+                PerfTotalTurnTime.MeasuredSamples.ToString(),
+                PerfShipsAndSystems.String(PerfTotalTurnTime),
+                EmpireUpdatePerf.String(PerfTotalTurnTime),
+                PreEmpirePerf.String(PerfTotalTurnTime),
+                PostEmpirePerf.String(PerfTotalTurnTime),
+                CollisionTime.String(PerfTotalTurnTime),
+                AsyncDataCollector.ProcessTime.String(PerfTotalTurnTime),
+                PerfTotalTurnTime.ToString(),
             };
+        }
 
+        float StatsTimer;
+
+        void RefreshPerfTimers(FrameTimes elapsed)
+        {
+            if (Paused)
+                return;
+
+            StatsTimer += elapsed.RealTime.Seconds;
+            if (StatsTimer >= 1f)
+            {
+                StatsTimer -= 1f;
+                
+                PerfShipsAndSystems.Refresh();
+                EmpireUpdatePerf.Refresh();
+                PreEmpirePerf.Refresh();
+                PostEmpirePerf.Refresh();
+                CollisionTime.Refresh();
+                AsyncDataCollector.ProcessTime.Refresh();
+                PerfTotalTurnTime.Refresh();
+            }
         }
 
         void DrawFleetIcons()
