@@ -1147,7 +1147,8 @@ namespace Ship_Game
         // that will solve invisible ships when the ship model load hits an OOM.
         void DrawOverlay(Ship ship)
         {
-            if (ship.InFrustum && !ship.dying && !LookingAtPlanet && ShowShipNames && viewState <= UnivScreenState.DetailView)
+            if (ship.InFrustum && !ship.dying && !LookingAtPlanet && (ShowShipNames || ship.GetSO()?.ModelMeshesAreLoaded != true) 
+                && viewState <= UnivScreenState.DetailView)
                 ship.DrawModulesOverlay(this);
         }
 
