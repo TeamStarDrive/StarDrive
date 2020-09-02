@@ -57,17 +57,25 @@ namespace Ship_Game.AI
 
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
-            for (int x = PotentialTargets.Count - 1; x >= 0; x--)
+
+            // ScanDataProcessed check prevents the potential targets and projectile lists from being modified 
+            // while they could be being updated on the ship thread. when the ScanDataProcessed is true the lists have been been updated.
+            // while false it means there are results waiting to be processed. 
+            if (ScanDataProcessed)
             {
-                var target = PotentialTargets[x];
-                if (target == null || !target.Active || target.Health <= 0.0f || target.dying)
-                    PotentialTargets.RemoveAtSwapLast(x);
-            }
-            for (int x = TrackProjectiles.Count - 1; x >= 0; x--)
-            {
-                var target = TrackProjectiles[x];
-                if (target == null || !target.Active || target.Health <= 0.0f)
-                    TrackProjectiles.RemoveAtSwapLast(x);
+                for (int x = PotentialTargets.Count - 1; x >= 0; x--)
+                {
+                    var target = PotentialTargets[x];
+                    if (target == null || !target.Active || target.Health <= 0.0f || target.dying)
+                        PotentialTargets.RemoveAtSwapLast(x);
+                }
+
+                for (int x = TrackProjectiles.Count - 1; x >= 0; x--)
+                {
+                    var target = TrackProjectiles[x];
+                    if (target == null || !target.Active || target.Health <= 0.0f)
+                        TrackProjectiles.RemoveAtSwapLast(x);
+                }
             }
 
             if (Target?.Active == false || Target?.Health <= 0.0f || Target is Ship ship && ship.dying)
