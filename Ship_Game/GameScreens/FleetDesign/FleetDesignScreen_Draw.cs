@@ -16,7 +16,7 @@ namespace Ship_Game
         {
             Viewport viewport;
             SubTexture nodeTexture = ResourceManager.Texture("UI/node");
-            ScreenManager.BeginFrameRendering(StarDriveGame.Instance.GameTime, ref View, ref Projection);
+            ScreenManager.BeginFrameRendering(ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             UniverseScreen us = Empire.Universe;

@@ -199,7 +199,7 @@ namespace Ship_Game
             return false;
         }
 
-        public virtual void Update(float elapsedTime)
+        public virtual void Update(FixedSimTime timeStep)
         {
         }
 

@@ -111,10 +111,9 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            Timer -= elapsedTime;
+            Timer -= elapsed.RealTime.Seconds;
             if (Timed && !IsExiting)
             {
                 ToAppend = string.Concat(" ", Timer.String(0), " ", Localizer.Token(17));
@@ -124,7 +123,7 @@ namespace Ship_Game
                     ExitScreen();
                 }
             }
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
     }
 }

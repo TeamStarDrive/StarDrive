@@ -841,17 +841,17 @@ namespace Ship_Game.Gameplay
                 ToggleCue.Stop();
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             if (CooldownTimer > 0f)
             {
                 if (WeaponType != "Drone")
-                    CooldownTimer = MathHelper.Max(CooldownTimer - elapsedTime, 0f);
+                    CooldownTimer = MathHelper.Max(CooldownTimer - timeStep.FixedTime, 0f);
             }
 
             if (SalvosToFire > 0)
             {
-                SalvoFireTimer += elapsedTime;
+                SalvoFireTimer += timeStep.FixedTime;
                 ContinueSalvo();
             }
             else

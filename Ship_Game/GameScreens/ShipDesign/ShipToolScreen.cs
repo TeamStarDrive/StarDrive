@@ -108,8 +108,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = StarDriveGame.Instance.GameTime;
-            ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
+            ScreenManager.BeginFrameRendering(ref view, ref projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             if (applyThruster) thruster.Draw(ref view, ref projection);
@@ -504,9 +503,9 @@ namespace Ship_Game
                 ser.Serialize(wfs, data);
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            ScreenManager.editor.Update(gameTime);
+            ScreenManager.editor.Update(elapsed.XnaTime);
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
             view = Matrix.CreateTranslation(0f, 0f, 0f)
                  * Matrix.CreateRotationY(RadMath.PI)
@@ -515,7 +514,7 @@ namespace Ship_Game
             thruster.tscale = tscale;
             thruster.WorldPos = new Vector3(tPos.X, tPos.Y, 30f);
             thruster.Update(new Vector3(0f, -1f, 0f), heat, 0.002f, camPos, Color.LightBlue, Color.OrangeRed);
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         public struct ThrusterZone

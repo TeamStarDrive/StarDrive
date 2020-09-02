@@ -156,7 +156,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ScreenManager.Instance.AddObject(ShipObj);
             // Do a first dummy update with deltaTime 0
             // to make sure we have correct position at first frame
-            AI.Update(this, 0f);
+            AI.Update(this, FixedSimTime.Zero/*paused during load*/);
             UpdateTransform();
         }
 
@@ -198,7 +198,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ShipObj.AffineTransform(Position, Rotation.DegsToRad(), Scale*BaseScale);
         }
 
-        public void Update(GameScreen screen)
+        public void Update(FixedSimTime timeStep)
         {
             if (DebugMeshInspect)
             {
@@ -206,7 +206,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             else
             {
-                AI.Update(this, screen.FrameDeltaTime);
+                AI.Update(this, timeStep);
             }
 
             SoundEmitter.Position = Position;
@@ -215,7 +215,7 @@ namespace Ship_Game.GameScreens.MainMenu
             if (ShipObj != null)
             {
                 UpdateTransform();
-                ShipObj.UpdateAnimation(screen.FrameDeltaTime);
+                ShipObj.UpdateAnimation(timeStep.FixedTime);
             }
         }
 

@@ -15,12 +15,12 @@ namespace Ship_Game.Ships
                         RemoveAtSwapLast(i);
             }
 
-            public void Update(float elapsedTime)
+            public void Update(FixedSimTime timeStep)
             {
                 for (int i = 0; i < Count; ++i)
                 {
                     Projectile p = Items[i];
-                    if (p.Active) p.Update(elapsedTime);
+                    if (p.Active) p.Update(timeStep);
                 }
                 RemoveDeadProjectiles();
             }

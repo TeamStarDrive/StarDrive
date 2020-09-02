@@ -95,7 +95,7 @@ namespace Ship_Game
 			return new RenderTarget2D(device, width, height, numberLevels, surface, type, 0);
 		}
 
-		public void Draw(GameTime gameTime)
+		public void Draw()
 		{
 			GraphicsDevice.ResolveBackBuffer(resolveTarget);
 			bloomExtractEffect.Parameters["BloomThreshold"].SetValue(Settings.BloomThreshold);

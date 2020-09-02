@@ -83,20 +83,20 @@ namespace Ship_Game
             return systems;
         }
 
-        public void Update(float elapsedTime, UniverseScreen universe, float realTime)
+        public void Update(FixedSimTime timeStep, UniverseScreen universe)
         {            
             var player = EmpireManager.Player;
 
             for (int i = 0; i < SunLayers.Length; i++)
             {
                 SunLayerState layer = SunLayers[i];
-                layer.Update(elapsedTime);
+                layer.Update(timeStep);
             }
             var solarStatus = Status.Values.ToArray();
             for (int i = 0; i < solarStatus.Length; i++)
             {
                 var status = solarStatus[i];
-                status.Update(realTime, elapsedTime);
+                status.Update(timeStep);
             }
 
             isVisible = universe.Frustum.Contains(Position, Radius)
@@ -108,11 +108,11 @@ namespace Ship_Game
                 WasVisibleLastFrame = true;
                 for (int i = 0; i < AsteroidsList.Count; i++)
                 {
-                    AsteroidsList[i].UpdateVisibleAsteroid(elapsedTime);
+                    AsteroidsList[i].UpdateVisibleAsteroid(timeStep);
                 }
                 for (int i = 0; i < MoonList.Count; i++)
                 {
-                    MoonList[i].UpdateVisibleMoon(elapsedTime);
+                    MoonList[i].UpdateVisibleMoon(timeStep);
                 }
             }
             else if (WasVisibleLastFrame)
@@ -132,14 +132,14 @@ namespace Ship_Game
             for (int i = 0; i < PlanetList.Count; i++)
             {
                 Planet planet = PlanetList[i];
-                planet.Update(elapsedTime);
+                planet.Update(timeStep);
                 if (planet.HasSpacePort && isVisible)
-                    planet.Station.Update(elapsedTime);
+                    planet.Station.Update(timeStep);
             }
 
-            bool radiation = ShouldApplyRadiationDamage(elapsedTime);
+            bool radiation = ShouldApplyRadiationDamage(timeStep);
             if (Sun.RadiationDamage > 0f)
-                UpdateSolarRadiationDebug(elapsedTime);
+                UpdateSolarRadiationDebug();
 
             for (int i = 0; i < ShipList.Count; ++i)
             {
@@ -148,7 +148,7 @@ namespace Ship_Game
                 {
                     ApplySolarRadiationDamage(ship);
                 }
-                ship.Update(elapsedTime);
+                ship.Update(timeStep);
             }
         }
 
@@ -170,11 +170,11 @@ namespace Ship_Game
         float RadiationTimer;
         const float RadiationInterval = 0.5f;
 
-        bool ShouldApplyRadiationDamage(float elapsedTime)
+        bool ShouldApplyRadiationDamage(FixedSimTime timeStep)
         {
             if (Sun.RadiationDamage > 0f)
             {
-                RadiationTimer += elapsedTime;
+                RadiationTimer += timeStep.FixedTime;
                 if (RadiationTimer >= RadiationInterval)
                 {
                     RadiationTimer -= RadiationInterval;
@@ -184,7 +184,7 @@ namespace Ship_Game
             return false;
         }
 
-        void UpdateSolarRadiationDebug(float elapsedTime)
+        void UpdateSolarRadiationDebug()
         {
             // some debugging for us developers
             if (Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.Solar)

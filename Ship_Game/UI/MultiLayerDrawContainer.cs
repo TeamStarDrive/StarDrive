@@ -53,11 +53,11 @@ namespace Ship_Game.UI
         }
 
         public void DrawMulti(ScreenManager manager, UIElementContainer root, bool draw3D,
-                              GameTime time, ref Matrix view, ref Matrix projection)
+                              ref Matrix view, ref Matrix projection)
         {
             GatherDrawLayers(root);
 
-            if (draw3D) manager.BeginFrameRendering(time, ref view, ref projection);
+            if (draw3D) manager.BeginFrameRendering(ref view, ref projection);
 
             SpriteBatch batch = manager.SpriteBatch;
 

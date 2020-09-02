@@ -81,13 +81,13 @@ namespace Ship_Game
             TerraformedPopRect = ShieldRect;
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(FrameTimes elapsed)
         {
-            AssignLabor?.Update(Screen.FrameDeltaTime);
-            base.Update(gameTime);
+            AssignLabor?.Update(elapsed.RealTime.Seconds);
+            base.Update(elapsed);
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(FrameTimes elapsed)
         {
             if (P == null)
                 return;
