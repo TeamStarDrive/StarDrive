@@ -90,7 +90,7 @@ namespace UnitTests.AITests.Ships
                 UniverseScreen.SpaceManager.Update(TestSimStep);
                 ship.Update(TestSimStep);
                 enemy.Update(TestSimStep);                
-                Universe.AsyncDataCollector.ManualUpdate();
+                Universe.EmpireUpdateQueue.ManualUpdate();
                 ship.AI.StartSensorScan(new FixedSimTime(10f));
                 enemy.AI.StartSensorScan(new FixedSimTime(10f));
                 sawEnemyShip |= ship.AI.BadGuysNear;

@@ -783,7 +783,7 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            AsyncDataCollector.Kill();
+            EmpireUpdateQueue.Stop();
 
             RemoveLighting();
             ScreenManager.Music.Stop();
