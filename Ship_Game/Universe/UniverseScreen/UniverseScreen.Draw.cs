@@ -741,7 +741,7 @@ namespace Ship_Game
                 PreEmpirePerf.String(PerfTotalTurnTime),
                 PostEmpirePerf.String(PerfTotalTurnTime),
                 CollisionTime.String(PerfTotalTurnTime),
-                AsyncDataCollector.ProcessTime.String(PerfTotalTurnTime),
+                EmpireUpdateQueue.Perf.String(PerfTotalTurnTime),
                 PerfTotalTurnTime.ToString(),
             };
         }
@@ -763,7 +763,7 @@ namespace Ship_Game
                 PreEmpirePerf.Refresh();
                 PostEmpirePerf.Refresh();
                 CollisionTime.Refresh();
-                AsyncDataCollector.ProcessTime.Refresh();
+                EmpireUpdateQueue.Perf.Refresh();
                 PerfTotalTurnTime.Refresh();
             }
         }
