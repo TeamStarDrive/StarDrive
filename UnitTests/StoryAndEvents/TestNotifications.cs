@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
 using Ship_Game;
-using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace UnitTests.NotificationTests
 {
@@ -53,16 +49,18 @@ namespace UnitTests.NotificationTests
         [TestMethod]
         public void TestRemoveTooManyNotifications()
         {
+            var TEN_SECONDS = new VariableFrameTime(10f);
+
             CreateTestEnv(out Empire empire);
             AddNotifications(empire);
             Assert.AreEqual(12, NotificationManager.NumberOfNotifications);
-            NotificationManager.Update(10);
+            NotificationManager.Update(TEN_SECONDS);
             Assert.AreEqual(11, NotificationManager.NumberOfNotifications);
-            NotificationManager.Update(10);
+            NotificationManager.Update(TEN_SECONDS);
             Assert.AreEqual(10, NotificationManager.NumberOfNotifications);
-            NotificationManager.Update(10);
-            NotificationManager.Update(10);
-            NotificationManager.Update(10);
+            NotificationManager.Update(TEN_SECONDS);
+            NotificationManager.Update(TEN_SECONDS);
+            NotificationManager.Update(TEN_SECONDS);
             Assert.AreEqual(7, NotificationManager.NumberOfNotifications);
         }
     }

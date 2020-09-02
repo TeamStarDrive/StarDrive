@@ -105,13 +105,13 @@ namespace Ship_Game
             SelectedShipsSL.Reset();
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(FrameTimes elapsed)
         {
-            base.Update(gameTime);
-            SelectedShipsSL.Update(Screen.FrameDeltaTime);
+            base.Update(elapsed);
+            SelectedShipsSL.Update(elapsed.RealTime.Seconds);
         }
 
-        public override void Draw(GameTime gameTime)
+        public override void Draw(FrameTimes elapsed)
         {
             if (Screen.SelectedShipList == null)
                 return;  //fbedard
@@ -137,7 +137,7 @@ namespace Ship_Game
             string text;
             if (HoveredShip == null)
             {
-                HoverOff += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                HoverOff += elapsed.RealTime.Seconds;
                 if (HoverOff > 0.5f)
                 {
                     text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.fleet == null ? "Multiple Ships" : ShipList.First.fleet.Name);

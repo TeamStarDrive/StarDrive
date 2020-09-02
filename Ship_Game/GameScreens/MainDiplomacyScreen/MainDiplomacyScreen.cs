@@ -887,10 +887,5 @@ namespace Ship_Game
             }
             GameAudio.MuteRacialMusic();
         }
-
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
     }
 }

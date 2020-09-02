@@ -46,11 +46,11 @@ namespace Ship_Game
 			RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public override void Draw(FrameTimes elapsed)
 		{
 		}
 
-		public void Draw(GameTime gameTime, string TitleText, string BodyText)
+		public void Draw(string TitleText, string BodyText)
 		{
 			MathHelper.SmoothStep(0f, 1f, TransitionPosition);
 			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);

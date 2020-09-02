@@ -12,7 +12,7 @@ namespace Ship_Game
 		{
 		}
 
-		public virtual void Update(float elapsedTime)
+		public virtual void Update(FixedSimTime timeStep)
 		{
 		}
 	}
