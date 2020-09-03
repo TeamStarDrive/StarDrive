@@ -1172,7 +1172,9 @@ namespace Ship_Game
                 // that will solve invisible ships when the ship model load hits an OOM.
                 if (ShowShipNames || ship.GetSO()?.HasMeshes == false)
                 {
-                    ship.DrawModulesOverlay(this);
+                    ship.DrawModulesOverlay(this, CamHeight,
+                        showDebugSelect:Debug && ship == SelectedShip,
+                        showDebugStats: Debug && DebugWin?.IsOpen == true);
                 }
             }
         }
