@@ -1060,9 +1060,11 @@ namespace Ship_Game.Ships
             AI.StartSensorScan(timeStep);
         }
 
-        public void UpdateModulePositions(FixedSimTime timeStep)
+        public void UpdateModulePositions(FixedSimTime timeStep, bool forceUpdate = false)
         {
-            if (Active && AI.BadGuysNear || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
+            if (Active && AI.BadGuysNear
+                || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                || forceUpdate)
             {  
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
