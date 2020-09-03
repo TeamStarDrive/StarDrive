@@ -55,7 +55,7 @@ namespace UnitTests
         {
             // Always Draw, even if game is not visible
             // Because we want our unit tests to go through the entire system
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(new Color(40,40,40));
             ScreenManager.UpdateGraphicsDevice();
 
             try

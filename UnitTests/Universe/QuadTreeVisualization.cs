@@ -16,6 +16,7 @@ namespace UnitTests.Universe
 
         Vector2 SearchStart;
         float SearchRadius;
+        float SearchTime;
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
 
@@ -39,30 +40,41 @@ namespace UnitTests.Universe
 
         public override void Draw(SpriteBatch batch)
         {
-            DrawString(new Vector2(20, 20), Color.White, "Press ESC to quit", Fonts.Arial11Bold);
-            DrawString(new Vector2(20, 40), Color.White, $"Camera: {Camera}", Fonts.Arial11Bold);
-            DrawString(new Vector2(20, 60), Color.White, $"FindNearby: {Found.Length}", Fonts.Arial11Bold);
-            DrawString(new Vector2(20, 80), Color.White, $"SearchRadius: {SearchRadius}", Fonts.Arial11Bold);
             Tree.DebugVisualize(this);
             DrawRectangleProjected(Vector2.Zero, new Vector2(Test.UniverseSize), 0f, Color.Red);
 
             foreach (Ship ship in Test.AllShips)
             {
+                ProjectToScreenCoords(ship.Position, ship.Radius,
+                                      out Vector2 screenPos, out float screenRadius);
+                if (!HitTest(screenPos))
+                    continue;
+
                 bool found = Found.Contains(ship);
                 if (found)
                 {
-                    // as the camera zooms in, make the radius smaller
-                    float radius = (CamHeight / ship.Radius) * 0.5f;
-                    radius = radius.Clamped(ship.Radius*1.5f, CamHeight*0.25f);
-                    DrawCircleProjected(ship.Position, radius, Color.Yellow, 3);
+                    float size = screenRadius*1.5f*2f;
+                    if (size < 1)
+                        size = 1;
+                    DrawRectangle(screenPos, new Vector2(size), 0, Color.Yellow);
                 }
-                ship.DrawModulesOverlay(this, CamHeight, showDebugSelect: found, showDebugStats: false);
+
+                if (CamHeight <= 7000f)
+                {
+                    ship.DrawModulesOverlay(this, CamHeight, showDebugSelect: found, showDebugStats: false);
+                }
             }
 
             if (SearchStart != Vector2.Zero && SearchRadius != 0f)
             {
                 DrawCircleProjected(SearchStart, SearchRadius, Color.GreenYellow, 2);
             }
+
+            DrawString(new Vector2(20, 20), Color.White, "Press ESC to quit", Fonts.Arial11Bold);
+            DrawString(new Vector2(20, 40), Color.White, $"Camera: {Camera}", Fonts.Arial11Bold);
+            DrawString(new Vector2(20, 60), Color.White, $"FindNearby: {Found.Length}", Fonts.Arial11Bold);
+            DrawString(new Vector2(20, 80), Color.White, $"SearchRadius: {SearchRadius}", Fonts.Arial11Bold);
+            DrawString(new Vector2(20,100), Color.White, $"SearchTime:   {(SearchTime*1000).String(2)}ms", Fonts.Arial11Bold);
 
             base.Draw(batch);
         }
@@ -80,9 +92,13 @@ namespace UnitTests.Universe
 
             if (input.LeftMouseHeldDown)
             {
+                var timer = new PerfTimer();
+
                 SearchStart = UnprojectToWorldPosition(input.StartLeftHold);
                 SearchRadius = SearchStart.Distance(UnprojectToWorldPosition(input.EndLeftHold));
                 Found = Tree.FindNearby(SearchStart, SearchRadius);
+
+                SearchTime = timer.Elapsed;
             }
 
             return base.HandleInput(input);
