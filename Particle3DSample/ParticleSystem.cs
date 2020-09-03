@@ -107,7 +107,9 @@ namespace Particle3DSample
         private void AddParticleThread(Random random, Vector3 position, Vector3 velocity)
         {
             int nextFreeParticle = FirstFreeParticle + 1;
-            if (nextFreeParticle >= Particles.Length)
+            // when leaving options page sometimes this will crash on a null 
+            // Particles list. 
+            if (nextFreeParticle >= (Particles?.Length ?? 0))
                 nextFreeParticle = 0;
 
             if (nextFreeParticle == FirstRetiredParticle)
