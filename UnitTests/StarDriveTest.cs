@@ -110,6 +110,9 @@ namespace UnitTests
 
         public void CreateUniverseAndPlayerEmpire(out Empire player)
         {
+            if (Game == null)
+                throw new Exception("CreateGameInstance() must be called BEFORE CreateUniverseAndPlayerEmpire() !");
+
             var data = new UniverseData();
             Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0]);
             Empire.Universe = Universe = new UniverseScreen(data, player);
@@ -120,8 +123,7 @@ namespace UnitTests
 
         public void LoadStarterShips(params string[] shipList)
         {
-            ResourceManager.LoadStarterShipsForTesting(
-                shipList.Length == 0 ? null : shipList);
+            ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
         }
 
         public void LoadStarterShipVulcan()
