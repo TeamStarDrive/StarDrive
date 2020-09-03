@@ -16,7 +16,7 @@ namespace Ship_Game
         public byte OverlapsQuads;  // does it overlap multiple quads?
         public byte LastUpdate;
 
-        public Vector2 Center;
+        public float CX, CY; // Center x y
         public float Radius;
         public float X, Y, LastX, LastY;
 
@@ -38,17 +38,19 @@ namespace Ship_Game
                 Y     = Math.Min(source.Y, target.Y);
                 LastX = Math.Max(source.X, target.X);
                 LastY = Math.Max(source.Y, target.Y);
-                Center = default;
+                CX = 0f;
+                CY = 0f;
                 Radius = 0f;
             }
             else
             {
-                Center   = Obj.Center;
+                CX       = Obj.Center.X;
+                CY       = Obj.Center.Y;
                 Radius   = Obj.Radius;
-                X        = Center.X - Radius;
-                Y        = Center.Y - Radius;
-                LastX    = Center.X + Radius;
-                LastY    = Center.Y + Radius;
+                X        = CX - Radius;
+                Y        = CY - Radius;
+                LastX    = CX + Radius;
+                LastY    = CY + Radius;
             }
         }
 
@@ -59,12 +61,13 @@ namespace Ship_Game
             Loyalty       = 0;
             OverlapsQuads = 0;
             LastUpdate    = 0;
-            Center        = center;
+            CX            = center.X;
+            CY            = center.Y;
             Radius        = radius;
-            X             = Center.X - radius;
-            Y             = Center.Y - radius;
-            LastX         = Center.X + radius;
-            LastY         = Center.Y + radius;
+            X             = CX - radius;
+            Y             = CY - radius;
+            LastX         = CX + radius;
+            LastY         = CY + radius;
         }
 
         public void UpdateBounds() // Update SpatialObj bounding box
@@ -81,12 +84,13 @@ namespace Ship_Game
             }
             else
             {
-                Center   = Obj.Center;
+                CX   = Obj.Center.X;
+                CY   = Obj.Center.Y;
                 Radius   = Obj.Radius;
-                X        = Center.X - Radius;
-                Y        = Center.Y - Radius;
-                LastX    = Center.X + Radius;
-                LastY    = Center.Y + Radius;
+                X        = CX - Radius;
+                Y        = CY - Radius;
+                LastX    = CX + Radius;
+                LastY    = CY + Radius;
             }
         }
 
@@ -122,15 +126,16 @@ namespace Ship_Game
             }
 
             // intersect projectiles or anything else that can collide
-            return target.Center.RayCircleIntersect(target.Radius, beamStart, beamEnd, out distanceToHit);
+            var center = new Vector2(target.CX, target.CY);
+            return center.RayCircleIntersect(target.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
         // assumes THIS is a projectile
         public bool HitTestProj(float simTimeStep, ref SpatialObj target, out ShipModule hitModule)
         {
             hitModule = null;
-            float dx = Center.X - target.Center.X;
-            float dy = Center.Y - target.Center.Y;
+            float dx = CX - target.CX;
+            float dy = CY - target.CY;
             float r2 = Radius + target.Radius;
             if ((dx*dx + dy*dy) > (r2*r2)) // filter out by target Ship or target Projectile radius
                 return false;
@@ -151,8 +156,9 @@ namespace Ship_Game
             if (maxDistPerFrame > 15f)
             {
                 Vector2 dir = proj.Velocity / velocity;
-                Vector2 prevPos = Center - (dir*maxDistPerFrame);
-                hitModule = ship.RayHitTestSingle(prevPos, Center, Radius, proj.IgnoresShields);
+                var prevPos = new Vector2(CX - dir.X*maxDistPerFrame, CY - dir.Y*maxDistPerFrame);
+                var center = new Vector2(CX, CY);
+                hitModule = ship.RayHitTestSingle(prevPos, center, Radius, proj.IgnoresShields);
             }
             else
             {
