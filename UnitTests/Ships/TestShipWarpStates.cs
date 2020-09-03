@@ -11,8 +11,8 @@ namespace UnitTests.Ships
     {
         public TestShipWarpStates()
         {
-            LoadStarterShipVulcan();
             CreateGameInstance();
+            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire(out _);
         }
 

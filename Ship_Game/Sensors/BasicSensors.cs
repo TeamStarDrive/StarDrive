@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System.Threading;
 
 namespace Ship_Game.Sensors
 {
@@ -17,7 +16,7 @@ namespace Ship_Game.Sensors
         public BasicSensors(float timeInterval, Empire empire) : base(timeInterval)
         {
             Owner = empire;
-            ScanFilter = GameObjectType.None;
+            ScanFilter = GameObjectType.Any;
         }
 
         public override GameplayObject[] Scan(float elapsedTime, Vector2 position, Empire empireToFind = null)

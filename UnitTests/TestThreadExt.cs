@@ -19,7 +19,7 @@ namespace UnitTests
                     numbers[i] = i;
             });
 
-            PerfTimer timer = PerfTimer.StartNew();
+            var timer = new PerfTimer();
             long sum = 0;
             numbers.ParallelRange(range =>
             {
@@ -68,7 +68,7 @@ namespace UnitTests
                     numbers[i] = i;
             });
 
-            PerfTimer timer = PerfTimer.StartNew();
+            var timer = new PerfTimer();
             long sum = 0;
             Parallel.For(0, numbers.Length, (start, end) =>
             {

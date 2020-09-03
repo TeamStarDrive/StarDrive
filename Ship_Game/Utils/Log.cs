@@ -198,7 +198,7 @@ namespace Ship_Game
 
             if (log.Target.HasFlag(LogTarget.LogFile))
             {
-                LogFile.Write(sb.Characters, 0, sb.Length);
+                LogFile?.Write(sb.Characters, 0, sb.Length);
             }
 
             if (log.Target.HasFlag(LogTarget.Console))
@@ -216,7 +216,7 @@ namespace Ship_Game
             {
                 foreach (LogEntry log in LogQueue.TakeAll())
                     WriteLogEntry(LogBuffer, log);
-                LogFile.Flush();
+                LogFile?.Flush();
                 SetConsoleColor(DefaultColor, force: true);
             }
         }

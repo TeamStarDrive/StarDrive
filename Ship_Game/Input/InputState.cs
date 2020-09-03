@@ -214,7 +214,7 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
-        public void Update(VariableFrameTime deltaTime)
+        public void Update(FrameTimes elapsed)
         {
             KeysPrev    = KeysCurr;
             GamepadPrev = GamepadCurr;
@@ -230,8 +230,8 @@ namespace Ship_Game
             MouseY = MouseCurr.Y;
             MouseMoved = CursorPosition.Distance(MousePrev.Pos()) > 1;
 
-            UpdateDoubleClick(deltaTime);
-            UpdateHolding(deltaTime);
+            UpdateDoubleClick(elapsed);
+            UpdateHolding(elapsed);
         }
     }
 }
