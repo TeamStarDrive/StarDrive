@@ -460,6 +460,7 @@
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.Debug.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.FindNearby.cs" />
+    <Compile Include="Ship_Game\Spatial\Quadtree.PerfTests.cs" />
     <Compile Include="Ship_Game\Spatial\SpatialObj.cs" />
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />

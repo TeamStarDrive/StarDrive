@@ -11,7 +11,7 @@ namespace UnitTests.Universe
     {
         static bool EnableVisualization = false;
 
-        public readonly Array<Ship> AllShips = new Array<Ship>();
+        public Array<Ship> AllShips = new Array<Ship>();
         public float UniverseSize;
 
         public TestQuadTree()
@@ -23,34 +23,11 @@ namespace UnitTests.Universe
 
         Quadtree CreateQuadTree(int numShips, float universeSize)
         {
+            var test = QuadtreePerfTests.CreateTestSpace(numShips, universeSize,
+                                                         Player, Enemy, SpawnShip);
             UniverseSize = universeSize;
-            float spacing = universeSize / (float)Math.Sqrt(numShips);
-
-            // universe is centered at [0,0], so Root node goes from [-half, +half)
-            float half = universeSize / 2;
-            float start = -half + spacing/2;
-            float x = start;
-            float y = start;
-
-            for (int i = 0; i < numShips; ++i)
-            {
-                bool player = (i % 2) == 0;
-
-                Ship ship = SpawnShip("Vulcan Scout", player ? Player : Enemy, new Vector2(x, y));
-                AllShips.Add(ship);
-
-                x += spacing;
-                if (x >= half)
-                {
-                    x = start;
-                    y += spacing;
-                }
-            }
-
-            var tree = new Quadtree(universeSize);
-            foreach (Ship ship in AllShips)
-                tree.Insert(ship);
-            return tree;
+            AllShips = test.Ships;
+            return test.Tree;
         }
 
         void DebugVisualize(Quadtree tree)
@@ -111,33 +88,6 @@ namespace UnitTests.Universe
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
         }
 
-        // optimized comparison alternative for quadtree search
-        public Array<GameplayObject> FindLinearOpt(Ship us, Vector2 center, float radius,
-                                                   Empire loyaltyFilter = null)
-        {
-            float cx = center.X;
-            float cy = center.Y;
-            float r  = radius;
-
-            var list = new Array<GameplayObject>();
-            for (int i = 0; i < AllShips.Count; ++i)
-            {
-                Ship ship = AllShips[i];
-                if (ship == us || (loyaltyFilter != null && ship.loyalty != loyaltyFilter))
-                    continue;
-
-                // check if inside radius, inlined for perf
-                float dx = cx - ship.Center.X;
-                float dy = cy - ship.Center.Y;
-                float r2 = r + ship.Radius;
-                if ((dx*dx + dy*dy) <= (r2*r2))
-                {
-                    list.Add(ship);
-                }
-            }
-            return list;
-        }
-
         [TestMethod]
         public void TreeUpdatePerformance()
         {
@@ -150,7 +100,7 @@ namespace UnitTests.Universe
                 {
                     ship.Center.X += 10f;
                     ship.Position = ship.Center;
-                    ship.UpdateModulePositions(TestSimStep, forceUpdate: true);
+                    ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
                 }
                 tree.UpdateAll(TestSimStep);
             }
@@ -170,7 +120,7 @@ namespace UnitTests.Universe
             for (int i = 0; i < AllShips.Count; ++i)
             {
                 Ship ship = AllShips[i];
-                FindLinearOpt(ship, ship.Center, defaultSensorRange);
+                QuadtreePerfTests.FindLinearOpt(AllShips, ship, ship.Center, defaultSensorRange);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {e1.String(2)}s");

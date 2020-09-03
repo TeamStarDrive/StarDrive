@@ -37,8 +37,8 @@ namespace Ship_Game
             int loyaltyMask = (loyalty == 0) ? 0xff : loyalty;
             int filterMask = (int) filter;
 
-            float cx = searchAreaRect.Center.X;
-            float cy = searchAreaRect.Center.Y;
+            float cx = searchAreaRect.CX;
+            float cy = searchAreaRect.CY;
             float r = searchAreaRect.Radius;
             GameplayObject sourceObject = searchAreaRect.Obj;
             do
@@ -64,18 +64,18 @@ namespace Ship_Game
                         continue;
 
                     // check if inside radius, inlined for perf
-                    float dx = cx - so.Center.X;
-                    float dy = cy - so.Center.Y;
+                    float dx = cx - so.CX;
+                    float dy = cy - so.CY;
                     float r2 = r + so.Radius;
                     if ((dx * dx + dy * dy) <= (r2 * r2))
                     {
                         // inline array expand
-                        if (nearby.Count == nearby.Items.Length)
-                        {
-                            var arr = new GameplayObject[nearby.Items.Length * 2];
-                            Array.Copy(nearby.Items, arr, nearby.Count);
-                            nearby.Items = arr;
-                        }
+                        //if (nearby.Count == nearby.Items.Length)
+                        //{
+                        //    var arr = new GameplayObject[nearby.Items.Length * 2];
+                        //    Array.Copy(nearby.Items, arr, nearby.Count);
+                        //    nearby.Items = arr;
+                        //}
 
                         nearby.Items[nearby.Count++] = so.Obj;
                     }
