@@ -129,7 +129,7 @@ namespace UnitTests
 
         void WaitingToExit(GameTime time)
         {
-            if (!Sim.EnablePauses || Owner.Keys.IsKeyDown(Keys.Space))
+            if (!Sim.EnablePauses || Owner.Input.IsKeyDown(Keys.Space))
                 ExitCounter = 0f;
 
             ExitCounter -= (float) time.ElapsedRealTime.TotalSeconds;
@@ -139,7 +139,7 @@ namespace UnitTests
 
         void WaitingToStart(GameTime time)
         {
-            if (!Sim.EnablePauses || Owner.Keys.IsKeyDown(Keys.Space))
+            if (!Sim.EnablePauses || Owner.Input.IsKeyDown(Keys.Space))
                 State = SimState.Running;
 
             if (State == SimState.Running)

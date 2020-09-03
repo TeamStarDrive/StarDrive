@@ -52,7 +52,7 @@ namespace UnitTests.UI
         {
             var screen = new MockGameScreen();
             Game.Manager.AddScreen(screen);
-            InputProvider.MousePos = new Vector2(512, 512);
+            MockInput.MousePos = new Vector2(512, 512);
 
             var element = new SimpleElement(Vector2.Zero, new Vector2(100, 100));
             screen.Add(element);
@@ -66,7 +66,7 @@ namespace UnitTests.UI
             Assert.AreEqual(2, element.UpdateEventId, "Update Events must be before Draw Events");
             Assert.AreEqual(3, element.DrawEventId, "Draw Events must be after Update Events");
             
-            InputProvider.MousePos = new Vector2(50, 50);
+            MockInput.MousePos = new Vector2(50, 50);
             Game.Tick();
             Assert.AreEqual(2, element.InputEvents);
             Assert.AreEqual(1, element.MouseOverEvents);

@@ -341,7 +341,7 @@ namespace Ship_Game
         public void CheckToolTip(int toolTipId, Rectangle rectangle, Vector2 mousePos)
         {
             if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(toolTipId);                
+                ToolTip.CreateTooltip(toolTipId);
         }
         public void CheckToolTip(int toolTipId, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
         {
@@ -354,11 +354,13 @@ namespace Ship_Game
             cursor.X += (spacing - font.MeasureString(drawnString).X);
             return cursor;
         }
-        public void DrawString(Vector2 posOnScreen, float rotation, float textScale, Color textColor, string text)
+        // Draw string in screen coordinates. Text will be centered
+        public void DrawString(Vector2 centerOnScreen, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, posOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, centerOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
         }
+        // Draw string in screen coordinates. No centering.
         public void DrawString(Vector2 posOnScreen, Color textColor, string text, SpriteFont font, float rotation = 0f, float textScale = 1f)
         {
             ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale, SpriteEffects.None, 1f);
