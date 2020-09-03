@@ -21,16 +21,10 @@ namespace Ship_Game
         public PerfTimer()
         {
             QueryPerformanceFrequency(out Frequency);
+            QueryPerformanceCounter(out Time);
         }
 
-        public static PerfTimer StartNew()
-        {
-            var t = new PerfTimer();
-            t.Start();
-            return t;
-        }
-
-        // start perf timer
+        // restart perf timer
         public void Start()
         {
             QueryPerformanceCounter(out Time);

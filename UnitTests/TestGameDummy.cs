@@ -11,7 +11,7 @@ namespace UnitTests
     public class TestGameDummy : GameDummy
     {
         readonly AutoResetEvent Started;
-        public KeyboardState Keys;
+        public InputState Input => ScreenManager.input;
         bool CachedVisibility;
         public bool Visible;
 
@@ -45,10 +45,9 @@ namespace UnitTests
 
             // Always Update, even if game is not visible
             // Let the ScreenManager/GameScreen system figure out what to do
-            Keys = Keyboard.GetState();
             base.Update(time);
 
-            if (Keys.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
+            if (Input.IsKeyDown(Keys.Escape))
                 Visible = false;
         }
 
@@ -56,7 +55,7 @@ namespace UnitTests
         {
             // Always Draw, even if game is not visible
             // Because we want our unit tests to go through the entire system
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(new Color(40,40,40));
             ScreenManager.UpdateGraphicsDevice();
 
             try
@@ -91,16 +90,26 @@ namespace UnitTests
             Batch.DrawString(Fonts.Arial14Bold, text, new Vector2(x,y), color);
         }
 
-        public void ShowAndRun(TestGameComponent component)
+        public void ShowAndRun(TestGameComponent component = null,
+                               GameScreen screen = null)
         {
-            AddComponent(component);
+            if (component != null)
+                AddComponent(component);
+            if (screen != null)
+                ScreenManager.AddScreen(screen);
+
             Visible = true;
             while (Visible)
             {
                 RunOne();
                 Tick();
             }
-            RemoveComponent(component);
+            
+            if (component != null)
+                RemoveComponent(component);
+            if (screen != null)
+                ScreenManager.RemoveScreen(screen);
+
             Thread.Sleep(100); // ughh, some weird window related bug
         }
 

@@ -373,6 +373,7 @@ namespace Ship_Game
 
         void UpdateAllShipPositions(FixedSimTime timeStep)
         {
+            bool isSystemView = (viewState <= UnivScreenState.SystemView);
             // Update all ships and projectors in the universe
             Ship[] allShips = MasterShipList.GetInternalArrayItems();
             Parallel.For(MasterShipList.Count, (start, end) =>
@@ -380,7 +381,7 @@ namespace Ship_Game
                 for (int i = start; i < end; ++i)
                 {
                     Ship ship = allShips[i];
-                    ship.UpdateModulePositions(timeStep);
+                    ship.UpdateModulePositions(timeStep, isSystemView);
 
                     // make sure dead and dying ships can be seen.
                     if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
