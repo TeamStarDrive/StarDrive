@@ -165,6 +165,7 @@ namespace Ship_Game.Ships
             }
         }
 
+        // todo: Move to action queue
         void UpdateInhibitedFromEnemyShips()
         {
             InhibitedByEnemy = false;
