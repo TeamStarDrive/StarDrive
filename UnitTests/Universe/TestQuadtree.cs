@@ -111,16 +111,31 @@ namespace UnitTests.Universe
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
         }
 
-        public GameplayObject[] FindLinear(Vector2 center, float radius)
+        // optimized comparison alternative for quadtree search
+        public Array<GameplayObject> FindLinearOpt(Ship us, Vector2 center, float radius,
+                                                   Empire loyaltyFilter = null)
         {
+            float cx = center.X;
+            float cy = center.Y;
+            float r  = radius;
+
             var list = new Array<GameplayObject>();
             for (int i = 0; i < AllShips.Count; ++i)
             {
                 Ship ship = AllShips[i];
-                if (ship.Center.InRadius(center, radius))
+                if (ship == us || (loyaltyFilter != null && ship.loyalty != loyaltyFilter))
+                    continue;
+
+                // check if inside radius, inlined for perf
+                float dx = cx - ship.Center.X;
+                float dy = cy - ship.Center.Y;
+                float r2 = r + ship.Radius;
+                if ((dx*dx + dy*dy) <= (r2*r2))
+                {
                     list.Add(ship);
+                }
             }
-            return list.ToArray();
+            return list;
         }
 
         [TestMethod]
@@ -154,7 +169,8 @@ namespace UnitTests.Universe
             var t1 = new PerfTimer();
             for (int i = 0; i < AllShips.Count; ++i)
             {
-                FindLinear(AllShips[i].Center, defaultSensorRange);
+                Ship ship = AllShips[i];
+                FindLinearOpt(ship, ship.Center, defaultSensorRange);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {e1.String(2)}s");
