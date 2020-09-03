@@ -82,7 +82,7 @@ namespace UnitTests.Universe
             GameplayObject[] found1 = tree.FindNearby(s.Position+offset, 256);
             Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
 
-            GameplayObject[] found2 = tree.FindNearby(s.Position+offset, 256-s.Radius);
+            GameplayObject[] found2 = tree.FindNearby(s.Position+offset, (256-s.Radius)+0.001f);
             Assert.AreEqual(1, found2.Length, "FindNearby touching radius must return match");
             
             GameplayObject[] found3 = tree.FindNearby(s.Position+offset, 255-s.Radius);
