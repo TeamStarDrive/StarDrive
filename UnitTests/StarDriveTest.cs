@@ -58,7 +58,7 @@ namespace UnitTests
 
         public TestGameDummy Game { get; private set; }
         public GameContentManager Content { get; private set; }
-        public MockInputProvider InputProvider { get; private set; }
+        public MockInputProvider MockInput { get; private set; }
 
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
@@ -87,13 +87,15 @@ namespace UnitTests
         //  -- You need to load textures
         //  -- You need to test any kind of GameScreen instance
         //  -- You want to test a Ship
-        public void CreateGameInstance(int width=800, int height=600, bool show=false)
+        public void CreateGameInstance(int width=800, int height=600,
+                                       bool show=false, bool mockInput=true)
         {
             var sw = Stopwatch.StartNew();
             Game = new TestGameDummy(new AutoResetEvent(false), width, height, show);
             Game.Create();
             Content = Game.Content;
-            Game.Manager.input.Provider = InputProvider = new MockInputProvider();
+            if (mockInput)
+                Game.Manager.input.Provider = MockInput = new MockInputProvider();
             Log.Info($"CreateGameInstance elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
 

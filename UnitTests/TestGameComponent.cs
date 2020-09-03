@@ -24,7 +24,6 @@ namespace UnitTests
         {
             Draw(Game.Batch);
         }
-
         public abstract void Draw(SpriteBatch batch);
     }
 }
