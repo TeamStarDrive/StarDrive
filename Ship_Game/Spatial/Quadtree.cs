@@ -40,7 +40,7 @@ namespace Ship_Game
                 Y     = Math.Min(source.Y, target.Y);
                 LastX = Math.Max(source.X, target.X);
                 LastY = Math.Max(source.Y, target.Y);
-                Center = default(Vector2);
+                Center = default;
                 Radius = 0f;
             }
             else
@@ -133,8 +133,8 @@ namespace Ship_Game
             hitModule = null;
             float dx = Center.X - target.Center.X;
             float dy = Center.Y - target.Center.Y;
-            float ra = Radius, rb = target.Radius;
-            if ((dx*dx + dy*dy) >= (ra*ra + rb*rb)) // filter out by target Ship or target Projectile radius
+            float r2 = Radius + target.Radius;
+            if ((dx*dx + dy*dy) > (r2*r2)) // filter out by target Ship or target Projectile radius
                 return false;
             // NOTE: this is for Projectile<->Projectile collision!
             if ((target.Type & GameObjectType.Ship) == 0) // target not a ship, collision success
@@ -167,8 +167,8 @@ namespace Ship_Game
         {
             float dx = Center.X - b.Center.X;
             float dy = Center.Y - b.Center.Y;
-            float rr = Radius + b.Radius;
-            return (dx*dx + dy*dy) <= (rr*rr);
+            float r2 = Radius + b.Radius;
+            return (dx*dx + dy*dy) <= (r2*r2);
         }
     }
 

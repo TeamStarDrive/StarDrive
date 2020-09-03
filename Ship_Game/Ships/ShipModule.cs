@@ -500,7 +500,7 @@ namespace Ship_Game.Ships
             float r2 = radius + Radius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
-            if (dx * dx + dy * dy > r2 * r2)
+            if ((dx*dx + dy*dy) > (r2*r2))
                 return false; // definitely out of radius for SQUARE and non-square modules
 
             // we are a Square module? since we're already inside radius, collision happened
@@ -539,7 +539,7 @@ namespace Ship_Game.Ships
             float r2 = radius + ShieldHitRadius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
-            return dx * dx + dy * dy <= r2 * r2;
+            return (dx*dx + dy*dy) <= (r2*r2);
         }
 
         public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
