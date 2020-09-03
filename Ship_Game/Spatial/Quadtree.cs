@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -57,7 +58,7 @@ namespace Ship_Game
         public SpatialObj(Vector2 center, float radius)
         {
             Obj           = null;
-            Type          = GameObjectType.None;
+            Type          = GameObjectType.Any;
             Loyalty       = 0;
             OverlapsQuads = 0;
             LastUpdate    = 0;
@@ -162,14 +163,6 @@ namespace Ship_Game
             }
             return hitModule != null;
         }
-
-        public bool HitTestNearby(ref SpatialObj b)
-        {
-            float dx = Center.X - b.Center.X;
-            float dy = Center.Y - b.Center.Y;
-            float r2 = Radius + b.Radius;
-            return (dx*dx + dy*dy) <= (r2*r2);
-        }
     }
 
 
@@ -183,7 +176,19 @@ namespace Ship_Game
         public readonly int   Levels;
         public readonly float FullSize;
 
-        public const int CellThreshold = 4;
+        /// <summary>
+        /// New: Instead of the complex update-reinsert routine,
+        ///      rebuild the entire tree from scratch during every update
+        ///
+        ///      This will grant thread safety for the entire tree
+        /// </summary>
+        public bool RebuildFullTree = true;
+
+        /// <summary>
+        /// How many objects to store per cell before subdividing
+        /// </summary>
+        public const int CellThreshold = 64;
+
         Node Root;
         int FrameId;
         FixedSimTime SimulationStep;
@@ -251,10 +256,11 @@ namespace Ship_Game
                 last.Obj = null; // prevent zombie objects
                 if (newCount == 0) Items = NoObjects;
             }
-            public bool Overlaps(ref Vector2 topleft, ref Vector2 topright)
+
+            public bool Overlaps(ref Vector2 topLeft, ref Vector2 topRight)
             {
-                return X <= topright.X && LastX > topleft.X
-                    && Y <= topright.Y && LastY > topleft.Y;
+                return X <= topRight.X && LastX > topLeft.X
+                    && Y <= topRight.Y && LastY > topLeft.Y;
             }
         }
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -685,43 +691,100 @@ namespace Ship_Game
             return projectile.Touch(victim);
         }
 
-        static void FindNearbyAtNode(Node node, ref SpatialObj searchAreaRect,
-                                     GameObjectType filter, ref int numNearby, ref GameplayObject[] nearby)
+        /// <summary>
+        /// Optimized temporary search buffer for FindNearby
+        /// </summary>
+        class FindResultBuffer
         {
-            if (node == null) return;
-            byte loyalty = searchAreaRect.Loyalty;
-            int count = node.Count; 
-            SpatialObj[] items = node.Items;
-            for (int i = 0; i < count; ++i)
+            public int Count = 0;
+            public GameplayObject[] Items = new GameplayObject[128];
+            public int NextNode = 0; // next node to pop
+            public Node[] NodeStack = new Node[512];
+            public GameplayObject[] GetArrayAndClearBuffer()
             {
-                ref SpatialObj so = ref items[i];
-                GameplayObject go = so.Obj;
-                if (go == null)
-                    continue; // bah!
+                int count = Count;
+                if (count == 0)
+                    return Empty<GameplayObject>.Array;
 
-                if (filter != GameObjectType.None && (go.Type & filter) == 0)
-                    continue; // no filter match
-
-                // filter by loyalty?
-                if (loyalty != 0 && loyalty != so.Loyalty)
-                    continue;
-
-                // ignore self  and  ensure in radius
-                if (go == searchAreaRect.Obj || !searchAreaRect.HitTestNearby(ref so))
-                    continue;
-
-                if (numNearby >= nearby.Length) // "clever" resize
-                    Array.Resize(ref nearby, numNearby + count);
-
-                nearby[numNearby++] = go;
+                Count = 0;
+                var arr = new GameplayObject[count];
+                Memory.HybridCopy(arr, 0, Items, count);
+                //Array.Clear(Items, 0, count);
+                return arr;
             }
-            if (node.NW != null)
+        }
+
+        static void FindNearbyAtNode(FindResultBuffer nearby, ref SpatialObj searchAreaRect, GameObjectType filter)
+        {
+            // NOTE: to avoid a few branches, we used pre-calculated bitmasks
+            int loyalty = searchAreaRect.Loyalty;
+            int loyaltyMask = (loyalty == 0) ? 0xff : loyalty;
+            int filterMask = (int)filter;
+
+            float cx = searchAreaRect.Center.X;
+            float cy = searchAreaRect.Center.Y;
+            float r  = searchAreaRect.Radius;
+            GameplayObject sourceObject = searchAreaRect.Obj;
+            do
             {
-                FindNearbyAtNode(node.NW, ref searchAreaRect, filter, ref numNearby, ref nearby);
-                FindNearbyAtNode(node.NE, ref searchAreaRect, filter, ref numNearby, ref nearby);
-                FindNearbyAtNode(node.SE, ref searchAreaRect, filter, ref numNearby, ref nearby);
-                FindNearbyAtNode(node.SW, ref searchAreaRect, filter, ref numNearby, ref nearby);
+                // inlined POP
+                Node node = nearby.NodeStack[nearby.NextNode];
+                nearby.NodeStack[nearby.NextNode] = default; // don't leak refs
+                --nearby.NextNode;
+
+                int count = node.Count; 
+                SpatialObj[] items = node.Items;
+                for (int i = 0; i < count; ++i)
+                {
+                    ref SpatialObj so = ref items[i];
+
+                    // either 0x00 (failed) or some bits 0100 (success)
+                    int typeFlags = ((int)so.Type & filterMask);
+
+                    // either 0x00 (failed) or some bits 0011 (success)
+                    int loyaltyFlags = (so.Loyalty & loyaltyMask);
+                    
+                    if (typeFlags == 0 || loyaltyFlags == 0 || so.Obj == sourceObject)
+                        continue;
+
+                    // check if inside radius, inlined for perf
+                    float dx = cx - so.Center.X;
+                    float dy = cy - so.Center.Y;
+                    float r2 = r + so.Radius;
+                    if ((dx*dx + dy*dy) <= (r2*r2))
+                    {
+                        // inline array expand
+                        if (nearby.Count == nearby.Items.Length)
+                        {
+                            var arr = new GameplayObject[nearby.Items.Length * 2];
+                            Array.Copy(nearby.Items, arr, nearby.Count);
+                            nearby.Items = arr;
+                        }
+                        nearby.Items[nearby.Count++] = so.Obj;
+                    }
+                }
+                if (node.NW != null)
+                {
+                    nearby.NodeStack[++nearby.NextNode] = node.NW;
+                    nearby.NodeStack[++nearby.NextNode] = node.NE;
+                    nearby.NodeStack[++nearby.NextNode] = node.SE;
+                    nearby.NodeStack[++nearby.NextNode] = node.SW;
+                }
             }
+            while (nearby.NextNode >= 0);
+        }
+
+        readonly Map<int, FindResultBuffer> ThreadLocalFindBuffers = new Map<int, FindResultBuffer>();
+
+        FindResultBuffer GetThreadLocalBuffer()
+        {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            if (!ThreadLocalFindBuffers.TryGetValue(threadId, out FindResultBuffer buffer))
+            {
+                buffer = new FindResultBuffer();
+                ThreadLocalFindBuffers.Add(threadId, buffer);
+            }
+            return buffer;
         }
 
         /// <summary>
@@ -733,29 +796,28 @@ namespace Ship_Game
         /// <param name="toIgnore">Single game object to ignore (usually our own ship), null (default): no ignore</param>
         /// <param name="loyaltyFilter">Filter results by loyalty, usually friendly, null (default): no filtering</param>
         /// <returns></returns>
-        public GameplayObject[] FindNearby(Vector2 worldPos, float radius, GameObjectType filter = GameObjectType.None,
+        public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
+                                           GameObjectType filter = GameObjectType.Any,
                                            GameplayObject toIgnore = null, // null: accept all results
                                            Empire loyaltyFilter = null)
         {
-            // assume most results will be either empty, or only from a single quadrant
-            // this means using a dynamic Array will be way more wasteful
-            int numNearby = 0;
-            GameplayObject[] nearby = Empty<GameplayObject>.Array;
-
             // we create a dummy object which covers our search radius
             var enclosingRectangle = new SpatialObj(worldPos, radius);
             enclosingRectangle.Obj = toIgnore; // This object will be excluded from the search
             enclosingRectangle.Loyalty = (byte)(loyaltyFilter?.Id ?? 0); // filter by loyalty?
 
+            FindResultBuffer nearby = GetThreadLocalBuffer();
+
             // find the deepest enclosing node
             Node node = FindEnclosingNode(ref enclosingRectangle);
             if (node != null)
-                FindNearbyAtNode(node, ref enclosingRectangle, filter, ref numNearby, ref nearby);
+            {
+                nearby.NextNode = 0;
+                nearby.NodeStack[0] = node;
+                FindNearbyAtNode(nearby, ref enclosingRectangle, filter);
+            }
 
-            if (numNearby != nearby.Length)
-                Array.Resize(ref nearby, numNearby);
-
-            return nearby;
+            return nearby.GetArrayAndClearBuffer();
         }
 
         static bool ShouldStoreDebugInfo => Empire.Universe.Debug
