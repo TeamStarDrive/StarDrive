@@ -18,7 +18,9 @@ namespace Ship_Game
         Proj       = 4,
         Beam       = 8,
         Asteroid   = 16,
-        Moon       = 32
+        Moon       = 32,
+        // Can be used as a search filter to match all object types
+        Any = 255,
     }
 
     public abstract class GameplayObject

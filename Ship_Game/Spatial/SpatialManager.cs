@@ -129,12 +129,12 @@ namespace Ship_Game.Gameplay
         }
 
         public GameplayObject[] FindNearby(GameplayObject obj, float radius,
-                                           GameObjectType filter = GameObjectType.None,
+                                           GameObjectType filter = GameObjectType.Any,
                                            Empire loyaltyFilter = null)
             => QuadTree.FindNearby(obj.Center, radius, filter, toIgnore:obj, loyaltyFilter);
 
         public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
-                                           GameObjectType filter = GameObjectType.None,
+                                           GameObjectType filter = GameObjectType.Any,
                                            Empire loyaltyFilter = null)
             => QuadTree.FindNearby(worldPos, radius, filter, toIgnore:null, loyaltyFilter);
 

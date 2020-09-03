@@ -417,9 +417,9 @@ namespace Ship_Game
             };
         }
 
-        void PerformHotLoadTasks(VariableFrameTime deltaTime)
+        void PerformHotLoadTasks(FrameTimes elapsed)
         {
-            HotloadTimer += deltaTime.Seconds;
+            HotloadTimer += elapsed.RealTime.Seconds;
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
@@ -439,8 +439,8 @@ namespace Ship_Game
 
         public void Update(FrameTimes elapsed)
         {
-            PerformHotLoadTasks(elapsed.RealTime);
-            input.Update(elapsed.RealTime); // analyze input state for this frame
+            PerformHotLoadTasks(elapsed);
+            input.Update(elapsed); // analyze input state for this frame
             AddPendingScreens();
 
             bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
