@@ -167,8 +167,8 @@ namespace Ship_Game
         {
             float dx = Center.X - b.Center.X;
             float dy = Center.Y - b.Center.Y;
-            float ra = Radius, rb = b.Radius;
-            return (dx*dx + dy*dy) < (ra*ra + rb*rb);
+            float rr = Radius + b.Radius;
+            return (dx*dx + dy*dy) <= (rr*rr);
         }
     }
 
@@ -262,8 +262,8 @@ namespace Ship_Game
         // Create a quadtree to fit the universe
         public Quadtree(float universeSize, float smallestCell = 512f)
         {
-            Levels       = 1;
-            FullSize     = smallestCell;
+            Levels = 1;
+            FullSize = smallestCell;
             while (FullSize < universeSize)
             {
                 ++Levels;
@@ -644,6 +644,10 @@ namespace Ship_Game
         }
 
 
+        // Traverse the entire tree to get the # of items
+        // NOTE: This is SLOW
+        public int CountItemsSlow() => CountItemsRecursive(Root);
+
         static int CountItemsRecursive(Node node)
         {
             int count = node.Count;
@@ -788,7 +792,7 @@ namespace Ship_Game
         static readonly Color Red    = new Color(Color.OrangeRed, 100);
         static readonly Color Yellow = new Color(Color.Yellow, 100);
 
-        static void DebugVisualize(UniverseScreen screen, ref Vector2 topleft, ref Vector2 botright, Node node)
+        static void DebugVisualize(GameScreen screen, ref Vector2 topleft, ref Vector2 botright, Node node)
         {
             var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
             var size   = new Vector2(node.LastX - node.X, node.LastY - node.Y);
@@ -819,23 +823,7 @@ namespace Ship_Game
             }
         }
 
-        static Color GetRelationColor(GameplayObject a, GameplayObject b)
-        {
-            Empire e1 = EmpireManager.GetEmpireById(a.GetLoyaltyId());
-            Empire e2 = EmpireManager.GetEmpireById(b.GetLoyaltyId());
-            if (e1 != null && e2 != null)
-            {
-                if (e1 == e2)
-                    return Blue;
-                if (e1.IsEmpireAttackable(e2)) // hostile?
-                    return Red;
-                if (e1.TryGetRelations(e2, out Relationship relations) && relations.Treaty_Alliance)
-                    return Blue;
-            }
-            return Yellow; // neutral relation
-        }
-
-        public void DebugVisualize(UniverseScreen screen)
+        public void DebugVisualize(GameScreen screen)
         {
             var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
             Vector2 topLeft  = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
@@ -862,5 +850,22 @@ namespace Ship_Game
             //        DebugFindNearby.RemoveAtSwapLast(i--);
             //}
         }
+
+        static Color GetRelationColor(GameplayObject a, GameplayObject b)
+        {
+            Empire e1 = EmpireManager.GetEmpireById(a.GetLoyaltyId());
+            Empire e2 = EmpireManager.GetEmpireById(b.GetLoyaltyId());
+            if (e1 != null && e2 != null)
+            {
+                if (e1 == e2)
+                    return Blue;
+                if (e1.IsEmpireAttackable(e2)) // hostile?
+                    return Red;
+                if (e1.TryGetRelations(e2, out Relationship relations) && relations.Treaty_Alliance)
+                    return Blue;
+            }
+            return Yellow; // neutral relation
+        }
+
     }
 }
