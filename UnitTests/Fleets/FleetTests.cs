@@ -18,9 +18,10 @@ namespace UnitTests.Fleets
         Array<Fleet> PlayerFleets = new Array<Fleet>();
         public FleetTests()
         {
+            CreateGameInstance();
+
             // Excalibur class has all the bells and whistles
             LoadStarterShips(new[] { "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
-            CreateGameInstance();
             CreateUniverseAndPlayerEmpire(out Empire empire);
         }
 
