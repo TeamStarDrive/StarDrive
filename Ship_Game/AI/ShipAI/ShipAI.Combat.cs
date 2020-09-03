@@ -435,7 +435,7 @@ namespace Ship_Game.AI
 
                 // in radius of the motherships sensors then use that.
                 if (Owner.Center.InRadius(sensorShip.Center, motherRange - Owner.SensorRange))
-                    return motherRange;               
+                    return motherRange;
             }
             sensorShip = Owner;
             float sensorRange = Owner.SensorRange + (Owner.IsInFriendlyProjectorRange ? 10000 : 0);

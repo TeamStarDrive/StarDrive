@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -112,10 +111,71 @@ namespace UnitTests.Universe
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
         }
 
+        public GameplayObject[] FindLinear(Vector2 center, float radius)
+        {
+            var list = new Array<GameplayObject>();
+            for (int i = 0; i < AllShips.Count; ++i)
+            {
+                Ship ship = AllShips[i];
+                if (ship.Center.InRadius(center, radius))
+                    list.Add(ship);
+            }
+            return list.ToArray();
+        }
+
+        [TestMethod]
+        public void TreeUpdatePerformance()
+        {
+            Quadtree tree = CreateQuadTree(10000, universeSize:100_000f);
+            
+            var timer = new PerfTimer();
+            for (int i = 0; i < 1000; ++i)
+            {
+                foreach (Ship ship in AllShips)
+                {
+                    ship.Center.X += 10f;
+                    ship.Position = ship.Center;
+                    ship.UpdateModulePositions(TestSimStep, forceUpdate: true);
+                }
+                tree.UpdateAll(TestSimStep);
+            }
+
+            Console.WriteLine($"-- TreeUpdatePerf elapsed: {timer.Elapsed}s");
+
+            //DebugVisualize(tree);
+        }
+
+        [TestMethod]
+        public void TreeSearchPerformance()
+        {
+            Quadtree tree = CreateQuadTree(10000, universeSize:500_000f);
+            const float defaultSensorRange = 30000f;
+
+            var t1 = new PerfTimer();
+            for (int i = 0; i < AllShips.Count; ++i)
+            {
+                FindLinear(AllShips[i].Center, defaultSensorRange);
+            }
+            float e1 = t1.Elapsed;
+            Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {e1.String(2)}s");
+
+            var t2 = new PerfTimer();
+            for (int i = 0; i < AllShips.Count; ++i)
+            {
+                tree.FindNearby(AllShips[i].Center, defaultSensorRange);
+            }
+            float e2 = t2.Elapsed;
+            Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {e2.String(2)}s");
+
+            float speedup = e1 / e2;
+            Assert.IsTrue(speedup > 1.2f, "TreeSearch must be significantly faster than linear search!");
+            Console.WriteLine($"-- TreeSearch is {speedup.String(2)}x faster than LinearSearch");
+        }
+
         [TestMethod]
         public void ConcurrentUpdateAndSearch()
         {
-            var timer = PerfTimer.StartNew();
+            var timer = new PerfTimer();
 
             // update
             Parallel.Run(() =>
