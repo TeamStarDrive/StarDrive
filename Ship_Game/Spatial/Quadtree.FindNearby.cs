@@ -90,21 +90,10 @@ namespace Ship_Game
                 }
             } while (nearby.NextNode >= 0);
         }
-
-        readonly Map<int, FindResultBuffer> ThreadLocalFindBuffers = new Map<int, FindResultBuffer>();
-
-        FindResultBuffer GetThreadLocalBuffer()
-        {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-            if (!ThreadLocalFindBuffers.TryGetValue(threadId, out FindResultBuffer buffer))
-            {
-                buffer = new FindResultBuffer();
-                lock (ThreadLocalFindBuffers)
-                    ThreadLocalFindBuffers.Add(threadId, buffer);
-            }
-
-            return buffer;
-        }
+        
+        // NOTE: This is really fast
+        readonly ThreadLocal<FindResultBuffer> FindBuffer
+           = new ThreadLocal<FindResultBuffer>(() => new FindResultBuffer());
 
         /// <summary>
         /// Finds nearby GameplayObjects using multiple filters
@@ -125,7 +114,7 @@ namespace Ship_Game
             enclosingRectangle.Obj = toIgnore; // This object will be excluded from the search
             enclosingRectangle.Loyalty = (byte) (loyaltyFilter?.Id ?? 0); // filter by loyalty?
 
-            FindResultBuffer nearby = GetThreadLocalBuffer();
+            FindResultBuffer nearby = FindBuffer.Value;
 
             // find the deepest enclosing node
             QtreeNode node = FindEnclosingNode(ref enclosingRectangle);
