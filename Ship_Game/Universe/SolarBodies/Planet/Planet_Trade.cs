@@ -236,16 +236,16 @@ namespace Ship_Game
             if (!ExportProd)
                 return 0;
 
-            float maxProdLoad   = importPlanet.Storage.Max - importPlanet.ProdHere;
+            float maxProdLoad   = importPlanet.Storage.Max - importPlanet.ProdHere - importPlanet.IncomingProd;
             float prodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Production);
             if (importPlanet.Prod.NetIncome < 0) // Cybernetics can have negative production
             {
-                maxProdLoad -= importPlanet.Food.NetIncome * eta;
+                maxProdLoad -= importPlanet.Prod.NetIncome * eta;
             }
             else
             {
                 if (importPlanet.ConstructionQueue.Count > 0)
-                    maxProdLoad += importPlanet.InfraStructure * eta.UpperBound(importPlanet.TurnsUntilQueueCompleted);
+                    maxProdLoad += importPlanet.Prod.NetIncome * eta.UpperBound(importPlanet.TurnsUntilQueueCompleted);
                 else
                     maxProdLoad = ProdHere.UpperBound(maxProdLoad);
             }
