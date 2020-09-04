@@ -74,7 +74,7 @@ namespace Microsoft.Xna.Framework
             }
         }
 
-        public bool IsFixedTimeStep { get; set; } = false;
+        public bool IsFixedTimeStep { get; set; } = true;
 
         public GameWindow Window => Host?.Window;
 
