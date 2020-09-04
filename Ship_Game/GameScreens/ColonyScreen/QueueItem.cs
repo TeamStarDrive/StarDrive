@@ -86,16 +86,6 @@ namespace Ship_Game
             }
         }
 
-        public int TurnsUntilComplete
-        {
-            get
-            {
-                float production = Planet.EstimatedAverageProduction + Planet.InfraStructure;
-                float turns      = ProductionNeeded / production;
-                return (int)Math.Ceiling(turns);
-            }
-        }
-
         public float ActualCost
         {
             get
