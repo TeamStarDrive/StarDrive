@@ -11,7 +11,7 @@ namespace Ship_Game
         [DllImport("Kernel32.dll")]
         static extern bool QueryPerformanceFrequency(out long freq);
 
-        readonly long Frequency;
+        static long Frequency;
         long Time;
 
         public float AvgTime  { get; private set; }
@@ -20,7 +20,11 @@ namespace Ship_Game
 
         public PerfTimer()
         {
-            QueryPerformanceFrequency(out Frequency);
+            if (Frequency == 0)
+            {
+                QueryPerformanceFrequency(out long frequency);
+                Frequency = frequency;
+            }
             QueryPerformanceCounter(out Time);
         }
 
