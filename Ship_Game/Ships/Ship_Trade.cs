@@ -20,7 +20,7 @@ namespace Ship_Game.Ships
 
         public bool IsIdleFreighter => IsFreighter
                                        && AI != null
-                                       && !AI.HasPriorityOrder
+                                       && (!AI.HasPriorityOrder || !AI.HasWayPoints)
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
                                        && AI.State != AIState.Refit;
