@@ -69,13 +69,13 @@ namespace Ship_Game
                     float r2 = r + so.Radius;
                     if ((dx * dx + dy * dy) <= (r2 * r2))
                     {
-                        // inline array expand
-                        //if (nearby.Count == nearby.Items.Length)
-                        //{
-                        //    var arr = new GameplayObject[nearby.Items.Length * 2];
-                        //    Array.Copy(nearby.Items, arr, nearby.Count);
-                        //    nearby.Items = arr;
-                        //}
+                        //inline array expand
+                        if (nearby.Count == nearby.Items.Length)
+                        {
+                            var arr = new GameplayObject[nearby.Items.Length * 2];
+                            Array.Copy(nearby.Items, arr, nearby.Count);
+                            nearby.Items = arr;
+                        }
 
                         nearby.Items[nearby.Count++] = so.Obj;
                     }
@@ -99,7 +99,8 @@ namespace Ship_Game
             if (!ThreadLocalFindBuffers.TryGetValue(threadId, out FindResultBuffer buffer))
             {
                 buffer = new FindResultBuffer();
-                ThreadLocalFindBuffers.Add(threadId, buffer);
+                lock (ThreadLocalFindBuffers)
+                    ThreadLocalFindBuffers.Add(threadId, buffer);
             }
 
             return buffer;
