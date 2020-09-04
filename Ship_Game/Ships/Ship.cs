@@ -1053,7 +1053,6 @@ namespace Ship_Game.Ships
             // update our knowledge of the surrounding universe
             UpdateInfluence(timeStep);
             KnownByEmpires.Update(timeStep);
-            HasSeenEmpires.Update(timeStep);
             SetFleetCapableStatus();
             
             // scan universe and make decisions for combat

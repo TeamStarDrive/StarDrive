@@ -1221,12 +1221,12 @@ namespace Ship_Game
             }
         }
 
-        void ScanFromAllInfluenceNodes()
+        void ScanFromAllInfluenceNodes(FixedSimTime timeStep)
         {
             for (int i = 0; i < BorderNodes.Count; i++)
             {
                 var node = BorderNodes[i];
-                ScanForInfluence(node);
+                ScanForInfluence(node, timeStep);
             }
 
             for (int i = 0; i < SensorNodes.Count; i++)
@@ -1257,7 +1257,7 @@ namespace Ship_Game
             }
         }	
 
-        void ScanForInfluence(InfluenceNode node)
+        void ScanForInfluence(InfluenceNode node, FixedSimTime timeStep)
         {
             var targets = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
             for (int i = 0; i < targets.Length; i++)
@@ -1265,14 +1265,20 @@ namespace Ship_Game
                 var target = targets[i];
                 var ship = (Ship)target;
                 ship.SetProjectorInfluence(this, true);
-                if (ship.DesignRoleType == ShipData.RoleType.Warship)
+                
+                // Civilian infrastructure spotting enemy fleets
+                if (node.SourceObject is Ship ssp)
                 {
-                    if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
-                        if (node.SourceObject is Ship ssp)
+                    ssp.HasSeenEmpires.Update(timeStep);
+                    if (ship.fleet != null)
+                    {
+                        if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
+
                         {
                             if (IsEmpireHostile(ship.loyalty))
-                                ssp.HasSeenEmpires.SetSeen(target.GetLoyalty());
+                                ssp.HasSeenEmpires.SetSeen(ship.loyalty);
                         }
+                    }
                 }
             }
         }
@@ -3197,7 +3203,7 @@ namespace Ship_Game
             {
                 MaxContactTimer = timeStep.FixedTime;
                 ResetBorders();
-                ScanFromAllInfluenceNodes();
+                ScanFromAllInfluenceNodes(timeStep);
                 PopulateKnownShips();
             }
 
