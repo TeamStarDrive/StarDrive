@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Ship_Game
@@ -274,12 +275,16 @@ namespace Ship_Game
         }
 
         static readonly Array<ParallelTask> Pool = new Array<ParallelTask>(32);
-        static readonly bool Initialized = InitThreadPool();
+        public static readonly int NumPhysicalCores = InitThreadPool();
+        
+        [DllImport("SDNative.dll")]
+        static extern int GetPhysicalCPUCoreCount();
 
-        static bool InitThreadPool()
+        static int InitThreadPool()
         {
             AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
-            return true;
+            int cores = GetPhysicalCPUCoreCount();
+            return cores;
         }
 
         public static int PoolSize { get { lock (Pool) { return Pool.Count; } } }
@@ -308,42 +313,6 @@ namespace Ship_Game
                 task.Start(start, end, body, result);
             }
             return result;
-        }
-
-        static int PhysicalCoreCount;
-
-        public static int NumPhysicalCores
-        {
-            get
-            {
-                if (PhysicalCoreCount == 0)
-                {
-                    try
-                    {
-                        var query = new ManagementObjectSearcher("Select NumberOfCores from Win32_Processor");
-                        var results = query.Get();
-                        if (results.Count > 0)
-                        {
-                            foreach (var item in results)
-                            {
-                                PhysicalCoreCount = (int)(uint)item["NumberOfCores"];
-                                break;
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error($"Query NumPhysicalCores failed: {e.Message}");
-                    }
-
-                    if (PhysicalCoreCount == 0)
-                    {
-                        // Query failed, so assume HT or SMT is enabled
-                        PhysicalCoreCount = Environment.ProcessorCount / 2;
-                    }
-                }
-                return PhysicalCoreCount;
-            }
         }
 
         // Maximum parallelism allowed by System settings
