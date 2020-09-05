@@ -58,6 +58,7 @@ namespace Ship_Game
             System.Drawing.Graphics.FromImage(cursor);
             Control.FromHandle(Window.Handle).Cursor = new Cursor(cursor.GetHicon());
             IsMouseVisible = true;
+            IsFixedTimeStep = true;
         }
 
         public void SetSteamAchievement(string name)

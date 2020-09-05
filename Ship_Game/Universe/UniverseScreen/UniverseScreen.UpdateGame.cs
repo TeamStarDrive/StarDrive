@@ -147,16 +147,7 @@ namespace Ship_Game
                 ProcessTurnShipsAndSystems(timeStep);
 
                 CollisionTime.Start();
-
-                // The lock assures that the asyncdatacollocter is finished before the quad manager updates.
-                // anything after this lock and before QueueActionForThreading should be thread safe.
-                // update spatial manager after ships have moved.
-                // all the collisions will be triggered here:
-                lock (SpaceManager.LockSpaceManager)
-                {
-                    SpaceManager.Update(timeStep);
-                }
-
+                SpaceManager.Update(timeStep);
                 CollisionTime.Stop();
 
                 ProcessTurnUpdateMisc(timeStep);
@@ -175,10 +166,7 @@ namespace Ship_Game
             // makes sure all empire vision is updated.
             UpdateAllShipPositions(elapsed.SimulationStep);
 
-            lock (SpaceManager.LockSpaceManager)
-            {
-                SpaceManager.Update(elapsed.SimulationStep);
-            }
+            SpaceManager.Update(elapsed.SimulationStep);
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -357,12 +345,9 @@ namespace Ship_Game
 
             EmpireUpdateQueue.SubmitWork(() =>
             {
-                lock (SpaceManager.LockSpaceManager)
-                {
-                    UpdateAllShipPositions(timeStep);
-                    AllPlanetsScanAndFire(timeStep);
-                    UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
-                }
+                UpdateAllShipPositions(timeStep);
+                AllPlanetsScanAndFire(timeStep);
+                UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
 
                 lock (ShipPoolLock)
                     FireAllShipWeapons(timeStep);
@@ -534,28 +519,16 @@ namespace Ship_Game
             return !Paused;
         }
 
-        public Vector2 PathMapPointToWorld(int x, int y, int universeOffSet)
+        void DeepSpaceThread(FixedSimTime timeStep)
         {
-            return new Vector2((x - universeOffSet) * PathMapReducer,
-                (y - universeOffSet) * PathMapReducer);
-        }
+            DeepSpaceShips.Clear();
 
-        public Point WorldToPathMap(Vector2 worldPostion, int universeOffSet)
-        {
-            int x = universeOffSet;
-            int y = universeOffSet;
-            float xround = worldPostion.X > 0 ? .5f : -.5f;
-            float yround = worldPostion.Y > 0 ? .5f : -.5f;
-            x += (int)(worldPostion.X / PathMapReducer + xround);
-            y += (int)(worldPostion.Y / PathMapReducer + yround);
-            y = y.Clamped(0, universeOffSet * 2);
-            x = x.Clamped(0, universeOffSet * 2);
-            return new Point(x, y);
-        }
-
-        public void DeepSpaceThread(FixedSimTime timeStep)
-        {
-            SpaceManager.GetDeepSpaceShips(DeepSpaceShips);
+            for (int i = 0; i < MasterShipList.Count; ++i)
+            {
+                Ship ship = MasterShipList[i];
+                if (ship != null && ship.Active && ship.InDeepSpace)
+                    DeepSpaceShips.Add(ship);
+            }
 
             for (int i = 0; i < DeepSpaceShips.Count; i++)
             {
