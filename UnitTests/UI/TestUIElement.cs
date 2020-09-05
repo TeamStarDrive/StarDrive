@@ -29,7 +29,7 @@ namespace UnitTests.UI
                 return false;
             }
 
-            public override void Update(float deltaTime)
+            public override void Update(float fixedDeltaTime)
             {
                 UpdateEventId = ++EventId;
                 ++UpdateEvents;
