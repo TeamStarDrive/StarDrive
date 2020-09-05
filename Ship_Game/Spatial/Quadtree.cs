@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -140,12 +141,27 @@ namespace Ship_Game
             }
         }
 
+        static bool IsObjectDead(GameplayObject go)
+        {
+            // this is related to QuadTree fast-removal
+            return !go.Active
+                || ((go.Type & GameObjectType.Proj) != 0 && ((Projectile)go).DieNextFrame);
+        }
+
+        static bool IsObjectDead(Projectile proj)
+        {
+            return !proj.Active || proj.DieNextFrame;
+        }
+
         /// <summary>
         /// Insert the item as Pending.
         /// This means it will be visible in the Quadtree after next update
         /// </summary>
-        public void InsertPending(GameplayObject go)
+        public void Insert(GameplayObject go)
         {
+            if (IsObjectDead(go))
+                return;
+
             // this can be called from UI Thread, so we'll insert it later during Update()
             lock (Pending)
             {
@@ -215,9 +231,17 @@ namespace Ship_Game
             {
                 for (int i = 0; i < Pending.Count; ++i)
                 {
-                    GameplayObject obj = Pending[i];
-                    obj.SpatialIndex = Objects.Count;
-                    Objects.Add(obj);
+                    GameplayObject go = Pending[i];
+                    // NOTE: This happens sometimes with beam weapons. Seems like a bug
+                    if (IsObjectDead(go))
+                    {
+                        Log.Warning($"Quadtree.InsertPending object has died while pending: {go}");
+                    }
+                    else
+                    {
+                        go.SpatialIndex = Objects.Count;
+                        Objects.Add(go);
+                    }
                 }
                 Pending.Clear();
             }
@@ -227,13 +251,28 @@ namespace Ship_Game
         void RemoveEmptySpots()
         {
             GameplayObject[] objects = Objects.GetInternalArrayItems();
+
             for (int i = 0; i < Objects.Count; ++i)
             {
-                GameplayObject obj = objects[i];
-                if (obj != null)
-                    obj.SpatialIndex = i;
-                else
+                GameplayObject go = objects[i];
+                if (go != null)
+                {
+                    // NOTE: this is very common, we have dead projectiles still in the objects list
+                    //       (which died last frame)
+                    if (IsObjectDead(go))
+                    {
+                        go.SpatialIndex = -1;
+                        Objects.RemoveAtSwapLast(i--);
+                    }
+                    else
+                    {
+                        go.SpatialIndex = i;
+                    }
+                }
+                else // empty slot
+                {
                     Objects.RemoveAtSwapLast(i--);
+                }
             }
         }
 

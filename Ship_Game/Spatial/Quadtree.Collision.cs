@@ -20,8 +20,15 @@ namespace Ship_Game
                     (proj.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(simTimeStep, ref ship, out ShipModule hitModule))
                 {
+                    GameplayObject victim = hitModule ?? ship.Obj;
                     var projectile = (Projectile)proj.Obj;
-                    if (projectile.Touch(hitModule ?? ship.Obj) && projectile.DieNextFrame)
+
+                    if (IsObjectDead(victim))
+                    {
+                        Log.Warning($"Ship dead but still in Quadtree: {ship.Obj}");
+                        MarkForRemoval(ship.Obj, ref ship);
+                    }
+                    else if (projectile.Touch(victim) && IsObjectDead(projectile))
                     {
                         MarkForRemoval(projectile, ref proj);
                     }
@@ -45,9 +52,16 @@ namespace Ship_Game
                     (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(simTimeStep, ref item, out ShipModule hitModule))
                 {
-                    if (theProj.Touch(hitModule ?? item.Obj)) // module OR projectile
+                    // module OR projectile
+                    GameplayObject victim = hitModule ?? item.Obj;
+                    if (IsObjectDead(victim))
                     {
-                        if ((item.Type & GameObjectType.Proj) != 0 && ((Projectile)item.Obj).DieNextFrame)
+                        Log.Warning("Victim dead but still in Quadtree");
+                        MarkForRemoval(item.Obj, ref item);
+                    }
+                    else if (theProj.Touch(victim))
+                    {
+                        if (IsObjectDead(item.Obj))
                         {
                             MarkForRemoval(item.Obj, ref item);
                         }
