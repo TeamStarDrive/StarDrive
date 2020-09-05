@@ -1391,8 +1391,8 @@ namespace Ship_Game
             {
                 if (this == Universe.PlayerEmpire)
                 {
-                    Universe.StarDate += 0.1f;
-                    Universe.StarDate = (float)Math.Round(Universe.StarDate, 1);
+                    Universe.UpdateStarDateAndTriggerEvents(Universe.StarDate + 0.1f);
+                    
 
                     StatTracker.StatUpdateStarDate(Universe.StarDate);
                     if (Universe.StarDate.AlmostEqual(1000.09f))
@@ -1406,6 +1406,7 @@ namespace Ship_Game
                             }
                         }
                     }
+
                     if (!InitializedHostilesDict)
                     {
                         InitializedHostilesDict = true;
