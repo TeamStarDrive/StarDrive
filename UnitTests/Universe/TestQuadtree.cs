@@ -141,6 +141,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void ConcurrentUpdateAndSearch()
         {
+            Quadtree tree = CreateQuadTree(10_000, universeSize:500_000f);
             var timer = new PerfTimer();
 
             // update
@@ -148,16 +149,26 @@ namespace UnitTests.Universe
             {
                 while (timer.Elapsed < 1.0)
                 {
-
+                    foreach (Ship ship in AllShips)
+                    {
+                        ship.Center.X += 10f;
+                        ship.Position = ship.Center;
+                        ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
+                    }
+                    tree.UpdateAll(TestSimStep);
                 }
             });
 
             // search
             Parallel.Run(() =>
             {
+                const float defaultSensorRange = 30000f;
                 while (timer.Elapsed < 1.0)
                 {
-
+                    for (int i = 0; i < AllShips.Count; ++i)
+                    {
+                        tree.FindNearby(AllShips[i].Center, defaultSensorRange);
+                    }
                 }
             });
         }
