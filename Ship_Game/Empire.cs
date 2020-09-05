@@ -2727,6 +2727,15 @@ namespace Ship_Game
             Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, ship.loyalty);
         }
 
+        public void AddMutinyNotification(Ship ship, GameText text)
+        {
+            if (!isPlayer)
+                return;
+
+            string message = $"{new LocalizedText(text).Text} {ship.loyalty.Name}!";
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, ship.loyalty);
+        }
+
         private void CalculateScore()
         {
             TotalScore = 0;
