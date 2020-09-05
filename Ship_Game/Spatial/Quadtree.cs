@@ -12,11 +12,18 @@ namespace Ship_Game
 
         public readonly int   Levels;
         public readonly float FullSize;
+        public readonly float QuadToLinearSearchThreshold;
 
         /// <summary>
         /// How many objects to store per cell before subdividing
         /// </summary>
         public const int CellThreshold = 64;
+
+        /// <summary>
+        /// Ratio of search radius where we switch to Linear search
+        /// because Quad search would traverse entire tree
+        /// </summary>
+        public const float QuadToLinearRatio = 0.75f;
 
         QtreeNode Root;
         FixedSimTime SimulationStep;
@@ -24,8 +31,8 @@ namespace Ship_Game
         readonly Array<GameplayObject> Pending = new Array<GameplayObject>();
         readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
 
-        QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer();
-        QtreeRecycleBuffer BackBuffer  = new QtreeRecycleBuffer();
+        QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer(10000);
+        QtreeRecycleBuffer BackBuffer  = new QtreeRecycleBuffer(20000);
 
         /// <summary>
         /// Number of pending and active objects in the Quadtree
@@ -45,6 +52,7 @@ namespace Ship_Game
                 ++Levels;
                 FullSize *= 2;
             }
+            QuadToLinearSearchThreshold = FullSize * QuadToLinearRatio;
             Reset();
         }
 
@@ -52,7 +60,7 @@ namespace Ship_Game
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            Root = new QtreeNode(-half, -half, +half, +half);
+            Root = FrontBuffer.Create(-half, -half, +half, +half);
             lock (Pending)
             {
                 Pending.Clear();
@@ -71,13 +79,16 @@ namespace Ship_Game
             node.SW = FrontBuffer.Create(node.X, midY,   midX,       node.LastY);
 
             int count = node.Count;
-            SpatialObj[] arr = node.Items;
-            node.Items = NoObjects;
-            node.Count = 0;
+            if (count != 0)
+            {
+                SpatialObj[] arr = node.Items;
+                node.Items = NoObjects;
+                node.Count = 0;
 
-            // reinsert all items:
-            for (int i = 0; i < count; ++i)
-                InsertAt(node, level, ref arr[i]);
+                // reinsert all items:
+                for (int i = 0; i < count; ++i)
+                    InsertAt(node, level, ref arr[i]);
+            }
         }
 
         static QtreeNode PickSubQuadrant(QtreeNode node, ref SpatialObj obj)
@@ -164,15 +175,10 @@ namespace Ship_Game
 
         void RemoveAt(QtreeNode root, GameplayObject go)
         {
-            FindResultBuffer buffer = FindBuffer.Value;
-            buffer.NextNode = 0;
-            buffer.NodeStack[0] = root;
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
             do
             {
-                // inlined POP
-                QtreeNode node = buffer.NodeStack[buffer.NextNode];
-                buffer.NodeStack[buffer.NextNode] = default; // don't leak refs
-                --buffer.NextNode;
+                QtreeNode node = buffer.Pop();
 
                 int count = node.Count;
                 SpatialObj[] items = node.Items;
@@ -235,11 +241,10 @@ namespace Ship_Game
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            var newRoot = new QtreeNode(-half, -half, +half, +half);;
+            QtreeNode newRoot = FrontBuffer.Create(-half, -half, +half, +half);;
             for (int i = 0; i < Objects.Count; ++i)
             {
-                GameplayObject go = Objects[i];
-                var obj = new SpatialObj(go);
+                var obj = new SpatialObj(Objects[i]);
                 InsertAt(newRoot, Levels, ref obj);
             }
             return newRoot;
