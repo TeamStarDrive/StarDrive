@@ -43,18 +43,22 @@ namespace Ship_Game.Commands.Goals
 
             if (Pirates.GetTarget(TargetEmpire, Pirates.TargetType.CombatShipAtWarp, out Ship combatShip))
             {
-                Vector2 where = combatShip.Center.GenerateRandomPointOnCircle(1500);
                 combatShip.HyperspaceReturn();
-                if (Pirates.SpawnBoardingShip(combatShip, where, out Ship boardingShip))
+                TargetShip = combatShip;
+                if (Pirates.Level > TargetShip.TroopCount * 3 / ((int)CurrentGame.Difficulty).LowerBound(1))
                 {
-                    TargetShip = combatShip;
-                    if (Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force))
-                        Pirates.OrderEscortShip(boardingShip, force);
-
+                    TargetShip.loyalty.AddMutinyNotification(TargetShip, GameText.MutinySucceeded, Pirates.Owner);
+                    TargetShip.ChangeLoyalty(Pirates.Owner, notification: false);
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
-                    Pirates.ExecuteVictimRetaliation(TargetEmpire);
-                    return GoalStep.GoToNextStep;
                 }
+                else
+                {
+                    TargetShip.loyalty.AddMutinyNotification(TargetShip, GameText.MutinyAverted, Pirates.Owner);
+                }
+
+                Pirates.ExecuteVictimRetaliation(TargetEmpire);
+                KillMutinyDefenseTroops(Pirates.Level / 2);
+                return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.GoalFailed;
             }
 
             // Try locating viable combat ships for maximum of 1 year (10 turns), else just give up
@@ -65,7 +69,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
+                || TargetShip.loyalty != Pirates.Owner)
             {
                 return GoalStep.GoalFailed; // Target destroyed or escaped
             }
@@ -77,6 +81,12 @@ namespace Ship_Game.Commands.Goals
             }
 
             return GoalStep.TryAgain;
+        }
+
+        void KillMutinyDefenseTroops(int numToKill)
+        {
+            for (int i = 0; i < numToKill; i++)
+                TargetShip.KillOneOfOurTroops();
         }
     }
 }

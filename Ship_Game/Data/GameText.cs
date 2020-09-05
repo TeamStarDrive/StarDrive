@@ -2231,6 +2231,10 @@ namespace Ship_Game
         HorrorsOfTheAncients = 1816,
         /// <summary>Your forces enter the mysterious tomb and find evidence of</summary>
         YourForcesEnterTheMysterious3 = 1817,
+        /// <summary>Mutiny On a ship was averted\n The mutiny was incited by</summary>
+        MutinyAverted = 1821,
+        /// <summary>One of your ship was lost in a Mutiny\n The mutiny was incited by</summary>
+        MutinySucceeded = 1822,
         /// <summary>Ruthless</summary>
         Ruthless = 1850,
         /// <summary>Pacifist</summary>
