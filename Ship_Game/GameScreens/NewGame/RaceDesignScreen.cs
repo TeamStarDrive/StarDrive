@@ -483,11 +483,11 @@ namespace Ship_Game
             ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             CreateRaceSummary();
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

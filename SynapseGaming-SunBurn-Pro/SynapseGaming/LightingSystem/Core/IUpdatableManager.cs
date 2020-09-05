@@ -14,7 +14,7 @@ namespace SynapseGaming.LightingSystem.Core
   public interface IUpdatableManager : IUnloadable, IManager
   {
     /// <summary>Updates the object and its contained resources.</summary>
-    /// <param name="gameTime"></param>
-    void Update(GameTime gameTime);
+    /// <param name="deltaTime"></param>
+    void Update(float deltaTime);
   }
 }

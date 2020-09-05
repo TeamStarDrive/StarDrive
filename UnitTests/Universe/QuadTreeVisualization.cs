@@ -27,7 +27,7 @@ namespace UnitTests.Universe
             CamHeight = tree.FullSize * (float)Math.Sqrt(2);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             CamHeight = CamHeight.Clamped(80f, Tree.FullSize*2f);
             Camera.Z = -Math.Abs(CamHeight);
@@ -35,7 +35,7 @@ namespace UnitTests.Universe
             View = Matrix.CreateLookAt(Camera, down, Vector3.Down);
             Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

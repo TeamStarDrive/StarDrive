@@ -250,7 +250,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
             FTLManager.Update(this, elapsed.SimulationStep);
 
-            ScreenManager.UpdateSceneObjects();
+            ScreenManager.UpdateSceneObjects(elapsed.RealTime.Seconds);
             
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {

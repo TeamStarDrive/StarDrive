@@ -79,35 +79,24 @@ namespace Ship_Game
         public readonly VariableFrameTime RealTime;
 
         /// <summary>
-        /// XNA game time for compatibility
-        /// </summary>
-        public readonly GameTime XnaTime;
-
-        /// <summary>
         /// Total elapsed game time, from the start of the game engine, until this time point
         /// </summary>
         public readonly float TotalGameSeconds;
 
-        public UpdateTimes(int simulationFramesPerSecond, GameTime xnaTime)
+        public UpdateTimes(int simulationFramesPerSecond, float deltaTime, float totalGameSeconds)
         {
             SimulationFPS = simulationFramesPerSecond;
             float simulationFixedTimeStep = 1f / simulationFramesPerSecond;
 
             SimulationStep = new FixedSimTime(simulationFixedTimeStep);
-            XnaTime = xnaTime;
+            RealTime = new VariableFrameTime(deltaTime);
 
-            float frameTime = (float)xnaTime.ElapsedGameTime.TotalSeconds;
-            if (frameTime > 0.4f) // @note Probably we were loading something heavy
-                frameTime = simulationFixedTimeStep;
-
-            RealTime = new VariableFrameTime(frameTime);
-
-            TotalGameSeconds = (float)xnaTime.TotalGameTime.TotalSeconds;
+            TotalGameSeconds = totalGameSeconds;
         }
 
         public override string ToString()
         {
-            return $"UpdateTimes  sim:{SimulationStep.FixedTime*1000,2:0.0}ms  real:{RealTime.Seconds*1000,2:0.0}ms  xna:{XnaTime.ElapsedGameTime.Seconds*1000,2:0.0}ms  total:{TotalGameSeconds,2:0.0}s";
+            return $"UpdateTimes  sim:{SimulationStep.FixedTime*1000,2:0.0}ms  real:{RealTime.Seconds*1000,2:0.0}ms  total:{TotalGameSeconds,2:0.0}s";
         }
     }
 
@@ -116,11 +105,6 @@ namespace Ship_Game
     /// </summary>
     public class DrawTimes
     {
-        /// <summary>
-        /// XNA game time for compatibility
-        /// </summary>
-        public GameTime XnaTime { get; private set; }
-
         /// <summary>
         /// TimeSinceLastDrawEvent
         /// 
@@ -137,10 +121,8 @@ namespace Ship_Game
         /// <summary>
         /// Update the internal timer before rendering
         /// </summary>
-        public void UpdateBeforeRendering(GameTime xnaTime)
+        public void UpdateBeforeRendering()
         {
-            XnaTime = xnaTime;
-
             if (Timer == null)
             {
                 Timer = new PerfTimer();
@@ -152,7 +134,7 @@ namespace Ship_Game
 
         public override string ToString()
         {
-            return $"DrawTimes  real:{RealTime.Seconds*1000,2:0.0}ms  xna:{XnaTime.ElapsedGameTime.Seconds*1000,2:0.0}ms";
+            return $"DrawTimes  real:{RealTime.Seconds*1000,2:0.0}ms";
         }
     }
 }

@@ -477,16 +477,16 @@ namespace Ship_Game
         // move the scrollbar by requested amount of pixels up (-) or down (+)
         void ScrollByScrollBar(int deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (!Visible)
                 return;
             
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
 
             for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
             {
-                FlatEntries[i].Update(deltaTime);
+                FlatEntries[i].Update(fixedDeltaTime);
             }
         }
 

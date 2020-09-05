@@ -55,7 +55,6 @@ namespace Ship_Game
         public Vector2 MousePos     => Input.CursorPosition;
         public Vector2 ScreenArea   => GameBase.ScreenSize;
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
-        public GameTime GameTime    => StarDriveGame.Instance.Elapsed.XnaTime;
         bool Pauses = true;
 
         // multi cast exit delegate, called when a game screen is exiting

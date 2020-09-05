@@ -44,7 +44,7 @@ namespace Ship_Game.Debug.Page
             TextColumns[0].Color = EmpireAtWar.EmpireColor;
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             var text = new Array<DebugTextBlock>();
             if (EmpireAtWar.data.Defeated) return;
@@ -57,7 +57,7 @@ namespace Ship_Game.Debug.Page
                 }
             }
             SetTextColumns(text);
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         void DrawWarAOs()

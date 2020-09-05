@@ -210,10 +210,10 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        public void UpdateSceneObjects()
+        public void UpdateSceneObjects(float deltaTime)
         {
             lock (InterfaceLock)
-                SceneInter.Update(GameBase.Base.Elapsed.XnaTime);
+                SceneInter.Update(deltaTime);
         }
 
         public void RenderSceneObjects()
@@ -226,7 +226,8 @@ namespace Ship_Game
         {
             lock (InterfaceLock)
             {
-                GameSceneState.BeginFrameRendering(ref view, ref projection, elapsed.XnaTime, Environment, true);
+                GameSceneState.BeginFrameRendering(ref view, ref projection,
+                                                   elapsed.RealTime.Seconds, Environment, true);
                 editor.BeginFrameRendering(GameSceneState);
                 SceneInter.BeginFrameRendering(GameSceneState);
             }
@@ -244,11 +245,15 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        readonly DrawTimes RenderTime = new DrawTimes();
+        /// <summary>
+        /// The Draw loop works on visible real time between frames,
+        /// since the delta time varies greatly between threads
+        /// </summary>
+        readonly DrawTimes DrawLoopTime = new DrawTimes();
 
-        public void Draw(GameTime xnaTime)
+        public void Draw()
         {
-            RenderTime.UpdateBeforeRendering(xnaTime);
+            DrawLoopTime.UpdateBeforeRendering();
 
             SpriteBatch batch = SpriteBatch;
             for (int i = 0; i < GameScreens.Count; ++i)
@@ -258,7 +263,7 @@ namespace Ship_Game
                 {
                     try
                     {
-                        screen.Draw(batch, RenderTime);
+                        screen.Draw(batch, DrawLoopTime);
                     }
                     catch (Exception e)
                     {
@@ -274,7 +279,7 @@ namespace Ship_Game
                 }
             }
             
-            ToolTip.Draw(batch, RenderTime);
+            ToolTip.Draw(batch, DrawLoopTime);
         }
 
         public void ExitAll(bool clear3DObjects)
