@@ -16,14 +16,12 @@ namespace Ship_Game
             public int NextNode = 0; // next node to pop
             public QtreeNode[] NodeStack = new QtreeNode[512];
 
-            public void Clear()
+            public QtreeNode Pop()
             {
-                int count = Count;
-                if (count != 0)
-                {
-                    Count = 0;
-                    Array.Clear(Items, 0, count);
-                }
+                QtreeNode node = NodeStack[NextNode];
+                NodeStack[NextNode] = default; // don't leak refs
+                --NextNode;
+                return node;
             }
 
             public GameplayObject[] GetArrayAndClearBuffer()
@@ -44,6 +42,16 @@ namespace Ship_Game
         readonly ThreadLocal<FindResultBuffer> FindBuffer
            = new ThreadLocal<FindResultBuffer>(() => new FindResultBuffer());
 
+        FindResultBuffer GetThreadLocalTraversalBuffer(QtreeNode root)
+        {
+            FindResultBuffer buffer = FindBuffer.Value;
+            buffer.NextNode = 0;
+            buffer.NodeStack[0] = root;
+            return buffer;
+        }
+
+        public bool WasLinearSearch;
+
         /// <summary>
         /// Finds nearby GameplayObjects using multiple filters
         /// </summary>
@@ -63,6 +71,8 @@ namespace Ship_Game
             enclosingRectangle.Obj = toIgnore; // This object will be excluded from the search
             enclosingRectangle.Loyalty = (byte) (loyaltyFilter?.Id ?? 0); // filter by loyalty?
 
+            WasLinearSearch = false;
+
             // find the deepest enclosing node
             QtreeNode root = Root;
             QtreeNode enclosing = FindEnclosingNode(root, ref enclosingRectangle);
@@ -71,12 +81,13 @@ namespace Ship_Game
 
             // If enclosing object is the Root object and radius is huge,
             // switch to linear search because we need to traverse the ENTIRE universe anyway
-            if (enclosing == root && radius > FullSize/3f)
+            if (enclosing == root && radius > QuadToLinearSearchThreshold)
+            {
+                WasLinearSearch = true;
                 return FindLinear(worldPos, radius, filter, toIgnore, loyaltyFilter);
+            }
 
-            FindResultBuffer nearby = FindBuffer.Value;
-            nearby.NextNode = 0;
-            nearby.NodeStack[0] = enclosing;
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
 
             // NOTE: to avoid a few branches, we used pre-calculated bitmasks
             int loyalty = enclosingRectangle.Loyalty;
@@ -89,10 +100,7 @@ namespace Ship_Game
             GameplayObject sourceObject = enclosingRectangle.Obj;
             do
             {
-                // inlined POP
-                QtreeNode node = nearby.NodeStack[nearby.NextNode];
-                nearby.NodeStack[nearby.NextNode] = default; // don't leak refs
-                --nearby.NextNode;
+                QtreeNode node = buffer.Pop();
 
                 int count = node.Count;
                 SpatialObj[] items = node.Items;
@@ -117,26 +125,33 @@ namespace Ship_Game
                     if ((dx * dx + dy * dy) <= (r2 * r2))
                     {
                         // inline array expand
-                        if (nearby.Count == nearby.Items.Length)
+                        if (buffer.Count == buffer.Items.Length)
                         {
-                            var arr = new GameplayObject[nearby.Items.Length * 2];
-                            Array.Copy(nearby.Items, arr, nearby.Count);
-                            nearby.Items = arr;
+                            var arr = new GameplayObject[buffer.Items.Length * 2];
+                            Array.Copy(buffer.Items, arr, buffer.Count);
+                            buffer.Items = arr;
                         }
-                        nearby.Items[nearby.Count++] = so.Obj;
+                        buffer.Items[buffer.Count++] = so.Obj;
                     }
                 }
 
                 if (node.NW != null)
                 {
-                    nearby.NodeStack[++nearby.NextNode] = node.NW;
-                    nearby.NodeStack[++nearby.NextNode] = node.NE;
-                    nearby.NodeStack[++nearby.NextNode] = node.SE;
-                    nearby.NodeStack[++nearby.NextNode] = node.SW;
+                    if (node.NW.Overlaps(enclosingRectangle))
+                        buffer.NodeStack[++buffer.NextNode] = node.NW;
+
+                    if (node.NE.Overlaps(enclosingRectangle))
+                        buffer.NodeStack[++buffer.NextNode] = node.NE;
+
+                    if (node.SE.Overlaps(enclosingRectangle))
+                        buffer.NodeStack[++buffer.NextNode] = node.SE;
+
+                    if (node.SW.Overlaps(enclosingRectangle))
+                        buffer.NodeStack[++buffer.NextNode] = node.SW;
                 }
-            } while (nearby.NextNode >= 0);
+            } while (buffer.NextNode >= 0);
             
-            return nearby.GetArrayAndClearBuffer();
+            return buffer.GetArrayAndClearBuffer();
         }
 
         // Performs a linear search instead of using the Quadtree

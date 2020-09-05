@@ -40,7 +40,7 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (proj.PendingRemove == 0 &&                // not pending remove
+                if (item.PendingRemove == 0 &&                // not pending remove
                     item.Loyalty != proj.Loyalty &&           // friendlies don't collide, also ignores self
                     (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(simTimeStep, ref item, out ShipModule hitModule))

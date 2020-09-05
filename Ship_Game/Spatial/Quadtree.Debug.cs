@@ -42,40 +42,51 @@ namespace Ship_Game
         static readonly Color Red = new Color(Color.OrangeRed, 100);
         static readonly Color Yellow = new Color(Color.Yellow, 100);
 
-        static void DebugVisualize(GameScreen screen, ref Vector2 topleft, ref Vector2 botright, QtreeNode node)
+        void DebugVisualize(GameScreen screen, in Vector2 topLeft, in Vector2 botRight, QtreeNode root)
         {
-            var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
-            var size = new Vector2(node.LastX - node.X, node.LastY - node.Y);
-            screen.DrawRectangleProjected(center, size, 0f, Brown);
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
 
-            // @todo This is a hack to reduce concurrency related bugs.
-            //       once the main drawing and simulation loops are stable enough, this copying can be removed
-            //       In most cases it doesn't matter, because this is only used during DEBUG display...
-            int count = node.Count;
-            if (DebugDrawBuffer.Length < count) DebugDrawBuffer = new SpatialObj[count];
-            Array.Copy(node.Items, DebugDrawBuffer, count);
-
-            for (int i = 0; i < count; ++i)
+            do
             {
-                ref SpatialObj so = ref DebugDrawBuffer[i];
-                var soCenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
-                var soSize = new Vector2(so.LastX - so.X, so.LastY - so.Y);
-                screen.DrawRectangleProjected(soCenter, soSize, 0f, Violet);
-                screen.DrawCircleProjected(soCenter, so.Radius, Violet);
-                screen.DrawLineProjected(center, soCenter, Violet);
-            }
+                QtreeNode node = buffer.Pop();
+                
+                var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
+                var size = new Vector2(node.LastX - node.X, node.LastY - node.Y);
+                screen.DrawRectangleProjected(center, size, 0f, Brown);
 
-            if (node.NW != null)
-            {
-                if (node.NW.Overlaps(ref topleft, ref botright))
-                    DebugVisualize(screen, ref topleft, ref botright, node.NW);
-                if (node.NE.Overlaps(ref topleft, ref botright))
-                    DebugVisualize(screen, ref topleft, ref botright, node.NE);
-                if (node.SE.Overlaps(ref topleft, ref botright))
-                    DebugVisualize(screen, ref topleft, ref botright, node.SE);
-                if (node.SW.Overlaps(ref topleft, ref botright))
-                    DebugVisualize(screen, ref topleft, ref botright, node.SW);
-            }
+                // @todo This is a hack to reduce concurrency related bugs.
+                //       once the main drawing and simulation loops are stable enough, this copying can be removed
+                //       In most cases it doesn't matter, because this is only used during DEBUG display...
+                int count = node.Count;
+                if (DebugDrawBuffer.Length < count) DebugDrawBuffer = new SpatialObj[count];
+                Array.Copy(node.Items, DebugDrawBuffer, count);
+
+                for (int i = 0; i < count; ++i)
+                {
+                    ref SpatialObj so = ref DebugDrawBuffer[i];
+                    var soCenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
+                    var soSize = new Vector2(so.LastX - so.X, so.LastY - so.Y);
+                    screen.DrawRectangleProjected(soCenter, soSize, 0f, Violet);
+                    screen.DrawCircleProjected(soCenter, so.Radius, Violet);
+                    screen.DrawLineProjected(center, soCenter, Violet);
+                }
+
+                if (node.NW != null)
+                {
+                    if (node.NW.Overlaps(topLeft, botRight))
+                        buffer.NodeStack[++buffer.NextNode] = node.NW;
+
+                    if (node.NE.Overlaps(topLeft, botRight))
+                        buffer.NodeStack[++buffer.NextNode] = node.NE;
+
+                    if (node.SE.Overlaps(topLeft, botRight))
+                        buffer.NodeStack[++buffer.NextNode] = node.SE;
+
+                    if (node.SW.Overlaps(topLeft, botRight))
+                        buffer.NodeStack[++buffer.NextNode] = node.SW;
+                }
+            } while (buffer.NextNode >= 0);
+
         }
 
         public void DebugVisualize(GameScreen screen)
@@ -83,7 +94,7 @@ namespace Ship_Game
             var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
             Vector2 topLeft = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
             Vector2 botRight = screen.UnprojectToWorldPosition(screenSize);
-            DebugVisualize(screen, ref topLeft, ref botRight, Root);
+            DebugVisualize(screen, topLeft, botRight, Root);
 
             Array.Clear(DebugDrawBuffer, 0, DebugDrawBuffer.Length); // prevent zombie objects
 

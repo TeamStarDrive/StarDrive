@@ -17,10 +17,15 @@ namespace Ship_Game
         // Inactive nodes are ready to be reused
         readonly Array<QtreeNode> Inactive  = new Array<QtreeNode>();
 
+        int NodeIds;
+
+        public QtreeRecycleBuffer(int idStart)
+        {
+            NodeIds = idStart;
+        }
+
         public QtreeNode Create(float x, float y, float lastX, float lastY)
         {
-            return new QtreeNode(x, y, lastX, lastY);
-
             // Reuse existing node from front buffer
             if (Inactive.TryPopLast(out QtreeNode node))
             {
@@ -29,6 +34,7 @@ namespace Ship_Game
             else // create a new node
             {
                 node = new QtreeNode(x, y, lastX, lastY);
+                node.Id = ++NodeIds;
             }
 
             // always add this frame's node to the back buffer
