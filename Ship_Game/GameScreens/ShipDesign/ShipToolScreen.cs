@@ -108,7 +108,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            ScreenManager.BeginFrameRendering(ref view, ref projection);
+            ScreenManager.BeginFrameRendering(elapsed, ref view, ref projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             if (applyThruster) thruster.Draw(ref view, ref projection);

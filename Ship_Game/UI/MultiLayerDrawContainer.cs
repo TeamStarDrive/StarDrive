@@ -58,7 +58,7 @@ namespace Ship_Game.UI
         {
             GatherDrawLayers(root);
 
-            if (draw3D) manager.BeginFrameRendering(ref view, ref projection);
+            if (draw3D) manager.BeginFrameRendering(elapsed, ref view, ref projection);
 
             if (BackElements.NotEmpty) BatchDrawSimple(batch, elapsed, BackElements);
             if (BackAdditive.NotEmpty) BatchDrawAdditive(batch, elapsed, BackAdditive);
