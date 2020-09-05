@@ -63,10 +63,10 @@ namespace Ship_Game.UI
             RequiresLayout |= First.RequiresLayout | Second.RequiresLayout;
             base.Update(deltaTime);
         }
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            First.Draw(batch);
-            Second.Draw(batch);
+            First.Draw(batch, elapsed);
+            Second.Draw(batch, elapsed);
         }
     }
 }

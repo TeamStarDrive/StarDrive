@@ -29,7 +29,7 @@ namespace Ship_Game
         
         bool ShowSplashVideo => ShowSplash && !Debugger.IsAttached;
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             // NOTE: by throttling LoadingScreen rendering, we get ~4x faster loading
             // this is because video player Decode+Draw is very expensive.

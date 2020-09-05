@@ -49,7 +49,7 @@ namespace Ship_Game
             IsPopup = true;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Close.Visible = CanEscapeFromScreen;
             batch.Begin();
@@ -83,7 +83,7 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("Popup/popup_corner_BL_stroke"), BLc, Color.White);
             batch.Draw(ResourceManager.Texture("Popup/popup_corner_BR_stroke"), BRc, Color.White);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             batch.End();
         }        

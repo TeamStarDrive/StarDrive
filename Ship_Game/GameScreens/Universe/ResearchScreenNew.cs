@@ -85,18 +85,18 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 
             batch.Begin();
             batch.FillRectangle(new Rectangle(0, 0, ScreenWidth, ScreenHeight), Color.Black);
-            MainMenu.Draw(batch);
+            MainMenu.Draw(batch, elapsed);
             batch.End();
 
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
@@ -116,8 +116,8 @@ namespace Ship_Game
             batch.End();
 
             batch.Begin();
-            close.Draw(batch);
-            Queue.Draw(batch);
+            close.Draw(batch, elapsed);
+            Queue.Draw(batch, elapsed);
             batch.End();
         }
 

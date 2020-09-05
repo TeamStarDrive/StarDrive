@@ -159,13 +159,13 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
             
-            Background?.Draw(batch);
-            base.Draw(batch);
+            Background?.Draw(batch, elapsed);
+            base.Draw(batch, elapsed);
 
             StyleTextures s = GetStyle();
 

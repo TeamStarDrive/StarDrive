@@ -76,9 +76,9 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             if (ActiveModSubMenu.Visible)
             {
                 DrawActiveModuleData(batch);

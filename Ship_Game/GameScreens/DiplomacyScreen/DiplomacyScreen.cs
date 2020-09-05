@@ -261,13 +261,13 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             return new Vector2(r.CenterTextX(text, font), r.CenterY());
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 4 / 5);
             batch.Begin();
 
             DrawBackground(batch);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             foreach (GenericButton taf in TAFButtons)
             {
                 taf.DrawWithShadowCaps(batch);
@@ -304,7 +304,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     OfferTextSL.ResetWithParseText(Fonts.Consolas18, txt, DialogRect.Width - 30);
                     OfferTextSL.Visible = true;
 
-                    base.Draw(batch);
+                    base.Draw(batch, elapsed);
                     
                     if (!TheirOffer.IsBlank() || !OurOffer.IsBlank() || OurOffer.Alliance)
                     {
@@ -369,7 +369,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             pos.X  -= 8f;
             pos.Y  += (Fonts.Pirulen16.LineSpacing + 15);
             pos.X  -= 8f;
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 
@@ -1069,7 +1069,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             RacialVideo.Rect = Portrait;
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             RacialVideo.Update(this);
 

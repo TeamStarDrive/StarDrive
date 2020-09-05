@@ -513,12 +513,12 @@ namespace Ship_Game
             s.ScrollBarArrowDown.Draw(batch, ScrollDown, parentHovered, ScrollDownHover);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             //if (!FirstUpdateDone)
             //    Log.Error($"{TypeName}.Update() has not been called. This is a bug!"
             //              +" Make sure the ScrollList is being updated in GameScreen.Update() or screen.Add(list) for automatic update.");
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             if (ShouldDrawScrollBar)
                 DrawScrollBar(batch);
@@ -532,7 +532,7 @@ namespace Ship_Game
                 var e = FlatEntries[i];
                 if (e != DraggedEntry)
                 {
-                    e.Draw(batch);
+                    e.Draw(batch, elapsed);
                 }
                 if (DebugDrawScrollList)
                 {
@@ -547,7 +547,7 @@ namespace Ship_Game
             }
 
             if (EnableItemHighlight)
-                Highlight?.Draw(batch);
+                Highlight?.Draw(batch, elapsed);
 
             batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
             batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsHousing.X - 10, ItemsHousing.Y - 5, ItemsHousing.Width + 20, ItemsHousing.Height + 5);
@@ -559,7 +559,7 @@ namespace Ship_Game
             if (DraggedEntry != null)
             {
                 batch.FillRectangle(DraggedEntry.Rect, new Color(0, 0, 0, 150));
-                DraggedEntry.Draw(batch);
+                DraggedEntry.Draw(batch, elapsed);
             }
         }
 

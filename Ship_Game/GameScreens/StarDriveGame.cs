@@ -127,14 +127,14 @@ namespace Ship_Game
                 Instance.Exit();
         }
 
-        protected override void Draw(GameTime gameTime)
+        protected override void Draw(GameTime xnaTime)
         {
             if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
                 return;
 
             GraphicsDevice.Clear(Color.Black);
-            ScreenManager.Draw(Elapsed);
-            base.Draw(gameTime);
+            ScreenManager.Draw(xnaTime);
+            base.Draw(xnaTime);
         }
 
         protected override void Dispose(bool disposing)

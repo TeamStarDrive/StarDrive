@@ -89,9 +89,9 @@ namespace Ship_Game
         float TextWidth => Width - IconSize - ProdWidth;
         float TextX     => X + IconSize;
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             if   (Building != null)  DrawBuilding(batch, Building);
             else if (Troop != null)  DrawTroop(batch, Troop);
             else if (Ship != null)   DrawShip(batch, Ship);

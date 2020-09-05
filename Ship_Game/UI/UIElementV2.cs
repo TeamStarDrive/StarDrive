@@ -202,7 +202,7 @@ namespace Ship_Game
         }
 
         // 3. finally we draw
-        public abstract void Draw(SpriteBatch batch);
+        public abstract void Draw(SpriteBatch batch, DrawTimes elapsed);
 
         public void RunOnEmpireThread(Action action) => ScreenManager.Instance.RunOnEmpireThread(action);
 
