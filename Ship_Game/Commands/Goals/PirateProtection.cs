@@ -30,6 +30,7 @@ namespace Ship_Game.Commands.Goals
             TargetShip   = targetShip;
 
             PostInit();
+            Evaluate();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Protection for {targetEmpire.Name} ----");
         }
 
