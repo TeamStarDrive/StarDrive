@@ -52,9 +52,10 @@ namespace Ship_Game
     }
 
     /// <summary>
-    /// Aggregate for passing game times around the engine
+    /// Aggregate for passing game UPDATE times around the engine.
+    /// WARNING: UPDATE time should note be used for RENDERING, use RenderTime for that!
     /// </summary>
-    public class FrameTimes
+    public class UpdateTimes
     {
         /// <summary>
         /// 
@@ -87,7 +88,7 @@ namespace Ship_Game
         /// </summary>
         public readonly float TotalGameSeconds;
 
-        public FrameTimes(int simulationFramesPerSecond, GameTime xnaTime)
+        public UpdateTimes(int simulationFramesPerSecond, GameTime xnaTime)
         {
             SimulationFPS = simulationFramesPerSecond;
             float simulationFixedTimeStep = 1f / simulationFramesPerSecond;
@@ -102,6 +103,45 @@ namespace Ship_Game
             RealTime = new VariableFrameTime(frameTime);
 
             TotalGameSeconds = (float)xnaTime.TotalGameTime.TotalSeconds;
+        }
+    }
+
+    /// <summary>
+    /// This time type is used purely for rendering
+    /// </summary>
+    public class DrawTimes
+    {
+        /// <summary>
+        /// XNA game time for compatibility
+        /// </summary>
+        public GameTime XnaTime { get; private set; }
+
+        /// <summary>
+        /// TimeSinceLastDrawEvent
+        /// 
+        /// Variable real time that has passed since last draw event
+        /// </summary>
+        public VariableFrameTime RealTime { get; private set; }
+
+        PerfTimer Timer;
+
+        public DrawTimes()
+        {
+        }
+
+        /// <summary>
+        /// Update the internal timer before rendering
+        /// </summary>
+        public void UpdateBeforeRendering(GameTime xnaTime)
+        {
+            XnaTime = xnaTime;
+
+            if (Timer == null)
+            {
+                Timer = new PerfTimer();
+            }
+
+            RealTime = new VariableFrameTime(Timer.Elapsed);
         }
     }
 }

@@ -245,8 +245,12 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        public void Draw(FrameTimes elapsed)
+        readonly DrawTimes RenderTime = new DrawTimes();
+
+        public void Draw(GameTime xnaTime)
         {
+            RenderTime.UpdateBeforeRendering(xnaTime);
+
             SpriteBatch batch = SpriteBatch;
             for (int i = 0; i < GameScreens.Count; ++i)
             {
@@ -255,7 +259,7 @@ namespace Ship_Game
                 {
                     try
                     {
-                        screen.Draw(batch);
+                        screen.Draw(batch, RenderTime);
                     }
                     catch (Exception e)
                     {
@@ -271,7 +275,7 @@ namespace Ship_Game
                 }
             }
             
-            ToolTip.Draw(batch, elapsed.RealTime);
+            ToolTip.Draw(batch, RenderTime);
         }
 
         public void ExitAll(bool clear3DObjects)
@@ -417,7 +421,7 @@ namespace Ship_Game
             };
         }
 
-        void PerformHotLoadTasks(FrameTimes elapsed)
+        void PerformHotLoadTasks(UpdateTimes elapsed)
         {
             HotloadTimer += elapsed.RealTime.Seconds;
             if (HotloadTimer < HotloadInterval) return;
@@ -437,7 +441,7 @@ namespace Ship_Game
             }
         }
 
-        public void Update(FrameTimes elapsed)
+        public void Update(UpdateTimes elapsed)
         {
             PerformHotLoadTasks(elapsed);
             input.Update(elapsed); // analyze input state for this frame

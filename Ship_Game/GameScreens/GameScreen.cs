@@ -198,7 +198,7 @@ namespace Ship_Game
             return false;
         }
 
-        public virtual void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public virtual void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             if (IsDisposed)
             {
@@ -242,7 +242,7 @@ namespace Ship_Game
             DidLoadContent = false;
         }
 
-        bool UpdateTransition(FrameTimes elapsed, float transitionTime, int direction)
+        bool UpdateTransition(UpdateTimes elapsed, float transitionTime, int direction)
         {
             float transitionDelta = (transitionTime.NotZero()
                                   ? (elapsed.RealTime.Seconds / transitionTime) : 1f);
@@ -266,11 +266,12 @@ namespace Ship_Game
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void DrawMultiLayeredExperimental(ScreenManager manager, bool draw3D = false)
+        public void DrawMultiLayeredExperimental(ScreenManager manager, SpriteBatch batch,
+                                                 DrawTimes elapsed, bool draw3D = false)
         {
             if (!Visible)
                 return;
-            DrawMulti(manager, this, draw3D, ref View, ref Projection);
+            DrawMulti(manager, batch, elapsed, this, draw3D, ref View, ref Projection);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

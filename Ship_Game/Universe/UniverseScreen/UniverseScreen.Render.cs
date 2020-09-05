@@ -591,7 +591,7 @@ namespace Ship_Game
             }
         }
 
-        void Render(SpriteBatch batch, FrameTimes elapsed)
+        void Render(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Frustum == null)
                 Frustum = new BoundingFrustum(View * Projection);
@@ -665,23 +665,22 @@ namespace Ship_Game
             }
             if (!Paused) // Particle pools need to be updated
             {
-                float deltaTime = elapsed.RealTime.Seconds;
-                beamflashes.Update(deltaTime);
-                explosionParticles.Update(deltaTime);
-                photonExplosionParticles.Update(deltaTime);
-                explosionSmokeParticles.Update(deltaTime);
-                projectileTrailParticles.Update(deltaTime);
-                fireTrailParticles.Update(deltaTime);
-                smokePlumeParticles.Update(deltaTime);
-                fireParticles.Update(deltaTime);
-                engineTrailParticles.Update(deltaTime);
-                star_particles.Update(deltaTime);
-                neb_particles.Update(deltaTime);
-                flameParticles.Update(deltaTime);
-                SmallflameParticles.Update(deltaTime);
-                sparks.Update(deltaTime);
-                lightning.Update(deltaTime);
-                flash.Update(deltaTime);
+                beamflashes.Update(elapsed);
+                explosionParticles.Update(elapsed);
+                photonExplosionParticles.Update(elapsed);
+                explosionSmokeParticles.Update(elapsed);
+                projectileTrailParticles.Update(elapsed);
+                fireTrailParticles.Update(elapsed);
+                smokePlumeParticles.Update(elapsed);
+                fireParticles.Update(elapsed);
+                engineTrailParticles.Update(elapsed);
+                star_particles.Update(elapsed);
+                neb_particles.Update(elapsed);
+                flameParticles.Update(elapsed);
+                SmallflameParticles.Update(elapsed);
+                sparks.Update(elapsed);
+                lightning.Update(elapsed);
+                flash.Update(elapsed);
             }
             ScreenManager.EndFrameRendering();
             if (viewState < UnivScreenState.SectorView)

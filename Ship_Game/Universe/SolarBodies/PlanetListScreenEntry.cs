@@ -65,7 +65,7 @@ namespace Ship_Game
             SendTroops = Button(ButtonStyle.BigDip, OrdersRect.X + Colonize.Rect.Width + 10, 0f, "", OnSendTroopsClicked);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             string singular;
             Color textColor   = new Color(255, 239, 208);
@@ -197,7 +197,7 @@ namespace Ship_Game
             DrawPlanetDistance(Distance, batch, rpos, spriteFont);
 
             if (planet.Habitable && planet.Owner == null)
-                Colonize.Draw(batch);
+                Colonize.Draw(batch, elapsed);
 
             if (planet.Owner == null && planet.Habitable)  //fbedard: can send troop anywhere
             {
@@ -223,7 +223,7 @@ namespace Ship_Game
                     SendTroops.Text  = "Send Troops";
                     SendTroops.Style = ButtonStyle.BigDip;
                 }
-                SendTroops.Draw(batch);
+                SendTroops.Draw(batch, elapsed);
             }
 
             //fbedard : Add Send Button for your planets
@@ -242,7 +242,7 @@ namespace Ship_Game
                     SendTroops.Text  = "Send Troops";
                     SendTroops.Style = ButtonStyle.BigDip;
                 }
-                SendTroops.Draw(batch);
+                SendTroops.Draw(batch, elapsed);
             }
         }
 

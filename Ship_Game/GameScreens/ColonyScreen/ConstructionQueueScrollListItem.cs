@@ -148,10 +148,10 @@ namespace Ship_Game
             GameAudio.AcceptClick();
         }
         
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Item.DrawAt(batch, Pos);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
     }
 }

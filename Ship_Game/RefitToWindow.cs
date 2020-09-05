@@ -47,7 +47,7 @@ namespace Ship_Game
                 Screen = screen;
                 Ship = template;
             }
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
 
@@ -106,11 +106,11 @@ namespace Ship_Game
             RefitAll.Enabled = RefitTo != null;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             if (RefitTo != null)
             {
                 var cursor = new Vector2(ConfirmRefit.r.X, (ConfirmRefit.r.Y + 30));

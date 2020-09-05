@@ -223,11 +223,11 @@ namespace Ship_Game.GameScreens
             };
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 

@@ -17,13 +17,13 @@ namespace Ship_Game.Debug.Page
             EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
 
             DrawWarAOs();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public override bool HandleInput(InputState input)

@@ -121,9 +121,9 @@ namespace Ship_Game
                                rect.RelativeY(1f - relY));
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             Rectangle inner = Rect.Bevel(-15);
 

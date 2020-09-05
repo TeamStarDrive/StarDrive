@@ -80,14 +80,14 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             string text;
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
             Color c = Colors.Cream;
             Selector fleetStats = new Selector(FleetStatsRect, new Color(0, 0, 0, 180));
-            fleetStats.Draw(ScreenManager.SpriteBatch);
+            fleetStats.Draw(ScreenManager.SpriteBatch, elapsed);
             Cursor = new Vector2(FleetStatsRect.X + 25, FleetStatsRect.Y + 25);
             ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", Cursor, c);
             Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);

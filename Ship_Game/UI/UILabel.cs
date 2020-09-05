@@ -233,7 +233,7 @@ namespace Ship_Game
 
         Color CurrentColor => IsMouseOver ? Highlight : Color;
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Lines != null && Lines.NotEmpty)
             {

@@ -63,12 +63,12 @@ namespace Ship_Game
             ResetColoniesList(planets);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             
             var PlanetInfoRect = new Rectangle(eRect.X + 22, eRect.Y + eRect.Height, (int)(ScreenWidth * 0.3f), ScreenHeight - eRect.Y - eRect.Height - 22);
             int iconSize = PlanetInfoRect.X + PlanetInfoRect.Height - (int)((PlanetInfoRect.X + PlanetInfoRect.Height) * 0.4f);
