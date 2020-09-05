@@ -136,7 +136,7 @@ namespace Ship_Game
             System = system;
         }
 
-        public void ChangeLoyalty(Empire changeTo)
+        public void ChangeLoyalty(Empire changeTo, bool notification = true)
         {
             // spatial collisions are filtered by loyalty,
             // so we need to remove and re-insert after the loyalty change
@@ -166,11 +166,14 @@ namespace Ship_Game
 
                 ship.SwitchTroopLoyalty(ship.loyalty);
                 ship.ReCalculateTroopsAfterBoard();
-                changeTo.AddBoardSuccessNotification(ship);
                 ship.ScuttleTimer = -1f; // Cancel any active self destruct 
                 changeTo.AddShip(ship);
-                oldLoyalty.AddBoardedNotification(ship);
                 ship.PiratePostChangeLoyalty();
+                if (notification)
+                {
+                    changeTo.AddBoardSuccessNotification(ship);
+                    oldLoyalty.AddBoardedNotification(ship);
+                }
             }
 
             // this resets the spatial management

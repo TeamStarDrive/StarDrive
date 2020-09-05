@@ -251,11 +251,11 @@ namespace Ship_Game
                 batch.DrawString(Font12, "Incoming Freighters:", incomingTitle, Color.White);
 
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingFoodFreighters,
-                    IncomingFood.String(), 161);
+                    IncomingFood.String(), GameText.Food);
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingProdFreighters,
-                    IncomingProd.String(), 162);
+                    IncomingProd.String(), GameText.Production);
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingColoFreighters,
-                    IncomingPop.String(2), 1962);
+                    IncomingPop.String(2), GameText.Colonists);
 
             }
 
@@ -264,9 +264,9 @@ namespace Ship_Game
                 Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
                 Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
                 batch.DrawString(Font12, "Outgoing Freighters:", outgoingTitle, Color.White);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingFoodFreighters, 161);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, 162);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, 1962);
+                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingFoodFreighters, GameText.Food);
+                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Production);
+                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Colonists);
             }
 
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
@@ -325,7 +325,7 @@ namespace Ship_Game
         }
 
         void DrawIncomingFreighters(SpriteBatch batch, ref Vector2 incomingTitle, ref Vector2 incomingData, 
-            int numFreighters, string incomingCargo, int locToken)
+            int numFreighters, string incomingCargo, GameText text)
         {
             if (numFreighters == 0)
                 return;
@@ -335,7 +335,7 @@ namespace Ship_Game
             incomingTitle.Y  += lineDown;
             incomingData.Y   += lineDown;
 
-            batch.DrawString(Font12, $"{Localizer.Token(locToken)}:", incomingTitle, Color.Gray);
+            batch.DrawString(Font12, $"{new LocalizedText(text).Text}:", incomingTitle, Color.Gray);
             batch.DrawString(Font12, freighters, incomingData, Color.LightGreen);
             if (incomingCargo == "0" || incomingCargo == "0.00")
                 return;
@@ -345,7 +345,7 @@ namespace Ship_Game
         }
 
         void DrawOutgoingFreighters(SpriteBatch batch, ref Vector2 outgoingTitle, ref Vector2 outgoingData, 
-            int numFreighters, int locToken)
+            int numFreighters, GameText text)
         {
             if (numFreighters == 0)
                 return;
@@ -353,7 +353,7 @@ namespace Ship_Game
             int lineDown     = Font12.LineSpacing + 2;
             outgoingTitle.Y += lineDown;
             outgoingData.Y  += lineDown;
-            batch.DrawString(Font12, $"{Localizer.Token(locToken)}:", outgoingTitle, Color.Gray);
+            batch.DrawString(Font12, $"{new LocalizedText(text).Text}:", outgoingTitle, Color.Gray);
             batch.DrawString(Font12, numFreighters.String(), outgoingData, Color.Gold);
         }
 
