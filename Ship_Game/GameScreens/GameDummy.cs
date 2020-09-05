@@ -20,6 +20,7 @@ namespace Ship_Game
             ApplyGraphics(settings);
             InitializeAudio();
             if (show) Form.Visible = true;
+            IsMouseVisible = true;
         }
 
         public void Create()
@@ -37,21 +38,7 @@ namespace Ship_Game
 
         protected override void Draw(GameTime gameTime)
         {
-            ScreenManager.Draw();
-        }
-        
-        /// <summary>
-        /// Currently broken Due to sun resource loading. 
-        /// </summary>
-        /// <param name="empire"></param>
-        /// <param name="data"></param>
-        public void CreateSystemAtCenter(Empire empire, UniverseData data)
-        {
-            var system = new SolarSystem();
-            system.Position = new Vector2(0, 0);
-            system.GenerateStartingSystem(empire.data.Traits.HomeSystemName, 1f, empire);
-            system.OwnerList.Add(empire);
-            data.SolarSystemsList.Add(system);
+            ScreenManager.Draw(Elapsed);
         }
     }
 }

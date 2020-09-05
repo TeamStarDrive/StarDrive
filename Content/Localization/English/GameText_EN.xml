@@ -4651,6 +4651,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1820</Index>
       <Text>Waiting for Refit Ship</Text>
     </Token>
+    <Token>
+      <Index>1821</Index>
+      <Text>Mutiny On a ship was averted\n The mutiny was incited by</Text>
+    </Token>
+    <Token>
+      <Index>1822</Index>
+      <Text>One of your ships was lost during a mutiny\n The mutiny was incited by</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>

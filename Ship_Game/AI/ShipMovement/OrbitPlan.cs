@@ -26,24 +26,24 @@ namespace Ship_Game.AI.ShipMovement
             Direction = direction;
         }
 
-        protected override CombatMoveState ExecuteAttack(float elapsedTime)
+        protected override CombatMoveState ExecuteAttack(FixedSimTime timeStep)
         {
             return CombatMoveState.Error;
         }
 
-        protected override void OverrideCombatValues(float elapsedTime)
+        protected override void OverrideCombatValues(FixedSimTime timeStep)
         {
         }
 
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
+        public override void Execute(FixedSimTime timeStep, ShipAI.ShipGoal g)
         {
         }
 
-        protected void UpdateOrbitPos(Vector2 orbitAround, float orbitRadius, float elapsedTime)
+        protected void UpdateOrbitPos(Vector2 orbitAround, float orbitRadius, FixedSimTime timeStep)
         {
             // we use a timer here, because proximity update was surprisingly much worse
             // this approach is very fast and simple
-            OrbitUpdateTimer -= elapsedTime;
+            OrbitUpdateTimer -= timeStep.FixedTime;
             if (OrbitUpdateTimer <= 0f || Owner.Center.InRadius(OrbitPos, WayPointProximity))
             {
                 OrbitUpdateTimer = OrbitUpdateInterval;
@@ -63,7 +63,7 @@ namespace Ship_Game.AI.ShipMovement
         }
 
         // orbit around a planet
-        public void Orbit(Planet orbitTarget, float elapsedTime)
+        public void Orbit(Planet orbitTarget, FixedSimTime timeStep)
         {
             if (Owner.VelocityMaximum < 1 || Owner.EnginesKnockedOut)
                 return;
@@ -78,7 +78,7 @@ namespace Ship_Game.AI.ShipMovement
 
             if (distance > 15000f) // we are still far away, thrust towards the planet
             {
-                AI.ThrustOrWarpToPos(orbitTarget.Center, elapsedTime);
+                AI.ThrustOrWarpToPos(orbitTarget.Center, timeStep);
                 OrbitPos = orbitTarget.Center + OrbitOffset;
                 OrbitUpdateTimer = 0f;
                 return;
@@ -86,7 +86,10 @@ namespace Ship_Game.AI.ShipMovement
 
             // we are getting close, exit hyperspace
             if (Owner.engineState == Ship.MoveState.Warp && distance < 7500f)
+            {
                 Owner.HyperspaceReturn();
+                Owner.AI.ClearWayPoints(); // Especially needed for player freighters (check `IsIdleFreighter`)
+            }
 
             // if no enemies near us, then consider the following MAGIC STOP optimization:
             if (!AI.BadGuysNear)
@@ -102,7 +105,7 @@ namespace Ship_Game.AI.ShipMovement
                 }
             }
 
-            UpdateOrbitPos(orbitTarget.Center, radius, elapsedTime);
+            UpdateOrbitPos(orbitTarget.Center, radius, timeStep);
 
             // precision move, this fixes uneven thrusting while orbiting
             float maxVel = (float)Math.Floor(Owner.VelocityMaximum*0.95f);
@@ -111,9 +114,9 @@ namespace Ship_Game.AI.ShipMovement
             // We are within orbit radius, so do actual orbiting:
             if (Owner.Center.InRadius(OrbitPos, radius * 1.2f))
             {
-                AI.RotateTowardsPosition(OrbitPos, elapsedTime, 0.01f);
+                AI.RotateTowardsPosition(OrbitPos, timeStep, 0.01f);
                 Owner.SubLightAccelerate(speedLimit: precisionSpeed);
-                Owner.RestoreYBankRotation(elapsedTime);
+                Owner.RestoreYBankRotation(timeStep);
             }
             else // we are still not there yet, so find a meaningful orbit position
             {
@@ -123,14 +126,14 @@ namespace Ship_Game.AI.ShipMovement
                     precisionSpeed = Math.Max(precisionSpeed, 100);
                 }
 
-                AI.ThrustOrWarpToPos(OrbitPos, elapsedTime, precisionSpeed);
+                AI.ThrustOrWarpToPos(OrbitPos, timeStep, precisionSpeed);
             }
         }
 
-        public void Orbit(Ship ship, float elapsedTime)
+        public void Orbit(Ship ship, FixedSimTime timeStep)
         {
-            UpdateOrbitPos(ship.Center, 1500f, elapsedTime);
-            AI.ThrustOrWarpToPos(OrbitPos, elapsedTime, OrbitalSpeedLimit);
+            UpdateOrbitPos(ship.Center, 1500f, timeStep);
+            AI.ThrustOrWarpToPos(OrbitPos, timeStep, OrbitalSpeedLimit);
         }
     }
 }

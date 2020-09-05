@@ -111,7 +111,7 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             // remove null values and remove inactive objects
             GameplayObject[] allObjects = AllObjects.GetInternalArrayItems();
@@ -124,17 +124,17 @@ namespace Ship_Game.Gameplay
 
             InsertPending();
 
-            QuadTree.UpdateAll();
+            QuadTree.UpdateAll(timeStep);
             QuadTree.CollideAll();
         }
 
         public GameplayObject[] FindNearby(GameplayObject obj, float radius,
-                                           GameObjectType filter = GameObjectType.None,
+                                           GameObjectType filter = GameObjectType.Any,
                                            Empire loyaltyFilter = null)
             => QuadTree.FindNearby(obj.Center, radius, filter, toIgnore:obj, loyaltyFilter);
 
         public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
-                                           GameObjectType filter = GameObjectType.None,
+                                           GameObjectType filter = GameObjectType.Any,
                                            Empire loyaltyFilter = null)
             => QuadTree.FindNearby(worldPos, radius, filter, toIgnore:null, loyaltyFilter);
 

@@ -669,5 +669,10 @@ namespace Ship_Game
         {
             return (float)Round(value, 1);
         }
+
+        public static float RoundToFractionOf100(this float value)
+        {
+            return (float)Round(value, 2);
+        }
     }
 }

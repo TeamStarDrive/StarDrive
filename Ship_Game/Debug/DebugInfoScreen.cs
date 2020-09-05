@@ -172,11 +172,11 @@ namespace Ship_Game.Debug
                 }
             }
 
-            UpdateDebugShips(deltaTime);
+            UpdateDebugShips();
             base.Update(deltaTime);
         }
 
-        void UpdateDebugShips(float deltaTime)
+        void UpdateDebugShips()
         {
             if (DebugPlatformSpeed == null) // platform is only enabled in sandbox universe
                 return;
@@ -199,7 +199,7 @@ namespace Ship_Game.Debug
             }
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(FrameTimes elapsed)
         {
             Page?.Draw(Screen.ScreenManager.SpriteBatch);
 
@@ -225,7 +225,7 @@ namespace Ship_Game.Debug
                 //DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
 
                 //DrawString($"Ships not in Any Pool: {ShipsNotInForcePool} In Defenspool: {ShipsInDefForcePool} InAoPools: {ShipsInAoPool} ");
-                DrawDebugPrimitives((float)gameTime.ElapsedGameTime.TotalSeconds);
+                DrawDebugPrimitives(elapsed.RealTime.Seconds);
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
                 {

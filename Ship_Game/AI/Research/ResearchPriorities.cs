@@ -211,7 +211,7 @@ namespace Ship_Game.AI.Research
 
         float CalcPlanetProdNeeds(Planet p)
         {
-            float productionNeedToComplete = p.TurnsUntilQueueCompleted * p.Prod.NetIncome;
+            float productionNeedToComplete = p.TotalProdNeededInQueue();
             float needs = 1 - p.EstimatedAverageProduction / (productionNeedToComplete.LowerBound(1));
 
             return (needs * p.Level / 2).LowerBound(0);

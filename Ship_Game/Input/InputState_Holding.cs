@@ -23,7 +23,7 @@ namespace Ship_Game
             public Vector2 StartPos{ get; private set; }
             public Vector2 EndPos  { get; private set; }
 
-            public void Update(float elapsedTime, ButtonState current, Vector2 cursorPos)
+            public void Update(FrameTimes elapsed, ButtonState current, Vector2 cursorPos)
             {
                 WasHolding = IsHolding;
                 IsHolding = current == ButtonState.Pressed && Previous == ButtonState.Pressed;
@@ -31,7 +31,7 @@ namespace Ship_Game
 
                 if (WasHolding && IsHolding) // continuous holding
                 {
-                    Time += elapsedTime;
+                    Time += elapsed.RealTime.Seconds;
                     EndPos = cursorPos;
                 }
                 else if (!WasHolding && IsHolding) // Hold started
@@ -39,13 +39,13 @@ namespace Ship_Game
                     StartPos = cursorPos;
                     EndPos   = cursorPos;
                     Time = 0f;
-                    TimeStart = StarDriveGame.Instance.TotalElapsed;
+                    TimeStart = elapsed.TotalGameSeconds;
                 }
                 else if (WasHolding && !IsHolding) // Hold finished
                 {
                     EndPos = cursorPos;
                     Time = 0f;
-                    TimeEnd = StarDriveGame.Instance.TotalElapsed;
+                    TimeEnd = elapsed.TotalGameSeconds;
                 }
             }
         }
@@ -79,10 +79,10 @@ namespace Ship_Game
         public Vector2 EndRightHold   => RightHold.EndPos;
 
 
-        void UpdateHolding(float elapsedTime)
+        void UpdateHolding(FrameTimes elapsed)
         {
-            LeftHold.Update(elapsedTime, MouseCurr.LeftButton, CursorPosition);
-            RightHold.Update(elapsedTime, MouseCurr.RightButton, CursorPosition);
+            LeftHold.Update(elapsed, MouseCurr.LeftButton, CursorPosition);
+            RightHold.Update(elapsed, MouseCurr.RightButton, CursorPosition);
         }
     }
 }

@@ -109,9 +109,9 @@ namespace Ship_Game
         FloatSlider EffectsVolumeSlider;
 
         FloatSlider IconSize;
-        FloatSlider ShipLimiter;
-        FloatSlider FreighterLimiter;
-        FloatSlider AutoSaveFreq;     // Added by Gretman
+        FloatSlider AutoSaveFreq;
+
+        FloatSlider SimulationFps;
 
         public OptionsScreen(MainMenuScreen mainMenu) : base(mainMenu, 600, 600)
         {
@@ -217,8 +217,8 @@ namespace Ship_Game
 
         void InitScreen()
         {
-            LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 150, 300, 375);
-            RightArea = new Rectangle(LeftArea.Right + 10, LeftArea.Y, 210, 330);
+            LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 150, 290, 375);
+            RightArea = new Rectangle(LeftArea.Right + 40, LeftArea.Y, 210, 330);
 
             UIList graphics = AddList(LeftArea.PosVec(), LeftArea.Size());
             graphics.Padding = new Vector2(2f, 4f);
@@ -239,23 +239,23 @@ namespace Ship_Game
 
             UIList botLeft = AddList(new Vector2(LeftArea.X, LeftArea.Y + 180), LeftArea.Size());
             botLeft.Padding = new Vector2(2f, 8f);
+            botLeft.LayoutStyle = ListLayoutStyle.Clip;
             SoundDevices = new DropOptions<MMDevice>(180, 18);
             botLeft.AddSplit(new UILabel("Sound Device:  "), SoundDevices);
-            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Music Volume",   0f, 1f, GlobalStats.MusicVolume));
-            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume));
-            IconSize            = botLeft.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "Icon Sizes",     0f,30f, GlobalStats.IconSize));
-            AutoSaveFreq        = botLeft.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "AutoSave Frequency", 60, 540, GlobalStats.AutoSaveFreq));
-            AutoSaveFreq.Tip = 4100;
+            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, "Music Volume",   0f, 1f, GlobalStats.MusicVolume));
+            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume));
 
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
 
             UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
             botRight.Padding = new Vector2(2f, 8f);
-            /* Hide these since they are not used
-            FreighterLimiter = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit));
-            ShipLimiter      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
-                                          500, 3500, GlobalStats.ShipCountLimit));
-            */
+            botRight.LayoutStyle = ListLayoutStyle.Clip;
+            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, "Icon Sizes",         0,   30, GlobalStats.IconSize));
+            AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, "AutoSave Frequency", 60, 540, GlobalStats.AutoSaveFreq));
+            SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, "Simulation FPS",     10, 120, GlobalStats.SimulationFramesPerSecond));
+            AutoSaveFreq.Tip = GameText.TheDelayBetweenAutoSaves;
+            SimulationFps.Tip = "Changes the simulation frequency. Lower values are faster, but inaccurate. Higher values are accurate, but slower. "+
+                                "If your game is lagging due to high number of ships, try lowering this to 30 or 20";
 
             UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
@@ -417,13 +417,11 @@ namespace Ship_Game
         {
             if (base.HandleInput(input))
             {
-                GlobalStats.IconSize       = (int)IconSize.AbsoluteValue;
-                //GlobalStats.ShipCountLimit = (int)ShipLimiter.AbsoluteValue;
-                //GlobalStats.FreighterLimit = (int)FreighterLimiter.AbsoluteValue;
-                GlobalStats.AutoSaveFreq   = (int)AutoSaveFreq.AbsoluteValue;
-
+                GlobalStats.IconSize      = (int)IconSize.AbsoluteValue;
+                GlobalStats.AutoSaveFreq  = (int)AutoSaveFreq.AbsoluteValue;
                 GlobalStats.MusicVolume   = MusicVolumeSlider.RelativeValue;
                 GlobalStats.EffectsVolume = EffectsVolumeSlider.RelativeValue;
+                GlobalStats.SimulationFramesPerSecond = (int)SimulationFps.AbsoluteValue;
                 GameAudio.ConfigureAudioSettings();
                 return true;
             }

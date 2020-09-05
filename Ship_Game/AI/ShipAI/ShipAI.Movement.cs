@@ -24,7 +24,7 @@ namespace Ship_Game.AI
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
         public Vector2 DebugDrawPosition => Owner.Center + Owner.Velocity.Normalized() * Owner.Radius;
-        void ClearWayPoints()
+        public void ClearWayPoints()
         {
             WayPoints.Clear();
         }
@@ -54,20 +54,20 @@ namespace Ship_Game.AI
             }
         }
 
-        internal bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
+        bool RotateToDirection(Vector2 wantedForward, FixedSimTime timeStep, float minDiff)
         {
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
             float angleDiff = AngleDifferenceToDirection(wantedForward, currentForward);
             if (angleDiff > minDiff)
             {
                 float rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
-                Owner.RotateToFacing(elapsedTime, angleDiff, rotationDir);
+                Owner.RotateToFacing(timeStep, angleDiff, rotationDir);
                 return true;
             }
             return false;
         }
 
-        public float AngleDifferenceToDirection(Vector2 wantedForward, Vector2 currentForward)
+        static float AngleDifferenceToDirection(Vector2 wantedForward, Vector2 currentForward)
         {
             if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
                 Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
@@ -75,23 +75,23 @@ namespace Ship_Game.AI
             return (float)Math.Acos(wantedForward.Dot(currentForward));
         }
         
-        internal bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
+        internal bool RotateTowardsPosition(Vector2 lookAt, FixedSimTime timeStep, float minDiff)
         {
             if (lookAt.AlmostZero())
                 Log.Error($"RotateTowardsPosition {lookAt} was zero, is this a bug?");
 
             Vector2 wantedForward = Owner.Position.DirectionToTarget(lookAt);
-            return RotateToDirection(wantedForward, elapsedTime, minDiff);
+            return RotateToDirection(wantedForward, timeStep, minDiff);
         }
 
         // @note This will constantly accelerate by design and
         //       will only slow down a little while turning too much
-        internal void SubLightContinuousMoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
+        internal void SubLightContinuousMoveInDirection(Vector2 direction, FixedSimTime timeStep, float speedLimit = 0f)
         {
             if (Owner.EnginesKnockedOut)
                 return;
 
-            if (RotateToDirection(direction, elapsedTime, 0.15f))
+            if (RotateToDirection(direction, timeStep, 0.15f))
             {
                 if (speedLimit <= 0) speedLimit = Owner.SpeedLimit;
                 speedLimit *= 0.75f; // uh-oh we're going too fast
@@ -99,7 +99,7 @@ namespace Ship_Game.AI
             Owner.SubLightAccelerate(speedLimit);
         }
 
-        internal void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
+        internal void SubLightMoveTowardsPosition(Vector2 position, FixedSimTime timeStep, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
         {
             if (Owner.EnginesKnockedOut)
                 return;
@@ -115,7 +115,7 @@ namespace Ship_Game.AI
                 float distance = position.Distance(Owner.Center);
                 if (distance < 50f)
                 {
-                    ReverseThrustUntilStopped(elapsedTime);
+                    ReverseThrustUntilStopped(timeStep);
                     return;
                 }
                 if (distance < speedLimit)
@@ -133,12 +133,12 @@ namespace Ship_Game.AI
                 ThrustTarget = position;
             }
 
-            if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
+            if (!RotateTowardsPosition(predictedPoint, timeStep, 0.02f))
                 Owner.SubLightAccelerate(speedLimit);
         }
 
         // WayPoint move system
-        void MoveToWithin1000(float elapsedTime, ShipGoal goal)
+        void MoveToWithin1000(FixedSimTime timeStep, ShipGoal goal)
         {
             // we cannot give a speed limit here, because thrust will
             // engage warp drive and we would be limiting warp speed (baaaad)
@@ -147,7 +147,7 @@ namespace Ship_Game.AI
             // ships are recalled, so no issue with Warp
             float speedLimit = Owner.Carrier.RecallingShipsBeforeWarp ? Owner.SpeedLimit : 0;
             Vector2 movePos  = goal.MovePosition; // dynamic move position
-            ThrustOrWarpToPos(movePos, elapsedTime, speedLimit);
+            ThrustOrWarpToPos(movePos, timeStep, speedLimit);
 
             float distance = Owner.Center.Distance(movePos);
 
@@ -201,7 +201,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void MakeFinalApproach(float elapsedTime, ShipGoal goal)
+        void MakeFinalApproach(FixedSimTime timeStep, ShipGoal goal)
         {
             Owner.HyperspaceReturn();
 
@@ -229,7 +229,7 @@ namespace Ship_Game.AI
             if (distance <= 75) // final stop, by this point our speed should be sufficiently
             {
                 if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
-                if (ReverseThrustUntilStopped(elapsedTime))
+                if (ReverseThrustUntilStopped(timeStep))
                 {
                     DequeueCurrentOrder();
                 }
@@ -247,14 +247,14 @@ namespace Ship_Game.AI
                 direction = Owner.Center.DirectionToTarget(targetPos);
             }
 
-            bool isFacingTarget = !RotateToDirection(direction, elapsedTime, 0.05f);
+            bool isFacingTarget = !RotateToDirection(direction, timeStep, 0.05f);
 
             float vel = Owner.CurrentVelocity;
             float stoppingDistance = Owner.GetMinDecelerationDistance(vel);
 
             if (distance <= stoppingDistance)
             {
-                ReverseThrustUntilStopped(elapsedTime);
+                ReverseThrustUntilStopped(timeStep);
                 if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
             }
             else if (isFacingTarget)
@@ -275,7 +275,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void RotateInLineWithVelocity(float elapsedTime)
+        void RotateInLineWithVelocity(FixedSimTime timeStep)
         {
             if (Owner.Velocity.AlmostZero())
             {
@@ -283,27 +283,27 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (!RotateToDirection(Owner.VelocityDirection, elapsedTime, 0.1f))
+            if (!RotateToDirection(Owner.VelocityDirection, timeStep, 0.1f))
             {
                 DequeueCurrentOrder(); // rotation complete
             }
         }
 
         // this is used when we arrive at final position
-        void RotateToDesiredFacing(float elapsedTime, ShipGoal goal)
+        void RotateToDesiredFacing(FixedSimTime timeStep, ShipGoal goal)
         {
-            if (!RotateToDirection(goal.Direction, elapsedTime, 0.02f))
+            if (!RotateToDirection(goal.Direction, timeStep, 0.02f))
             {
                 DequeueCurrentOrder(); // rotation complete
             }
         }
 
         // @note This is done just before thrusting and warping to targets
-        void RotateToFaceMovePosition(float elapsedTime, ShipGoal goal)
+        void RotateToFaceMovePosition(FixedSimTime timeStep, ShipGoal goal)
         {
             Vector2 dir = Owner.Position.DirectionToTarget(goal.MovePosition);
             // we need high precision here, otherwise our jumps are inaccurate
-            if (RotateToDirection(dir, elapsedTime, 0.05f))
+            if (RotateToDirection(dir, timeStep, 0.05f))
             {
                 Owner.HyperspaceReturn();
             }
@@ -314,7 +314,7 @@ namespace Ship_Game.AI
         }
 
         // @return TRUE if fully stopped
-        internal bool ReverseThrustUntilStopped(float elapsedTime)
+        internal bool ReverseThrustUntilStopped(FixedSimTime timeStep)
         {
             Owner.HyperspaceReturn();
             if (Owner.Velocity.AlmostZero())
@@ -323,7 +323,7 @@ namespace Ship_Game.AI
                 return true;
             }
             
-            float deceleration = (Owner.VelocityMaximum * elapsedTime);
+            float deceleration = (Owner.VelocityMaximum * timeStep.FixedTime);
             if (Owner.CurrentVelocity.LessOrEqual(deceleration)) // we are almost at zero, lets stop.
             {
                 Owner.Velocity = Vector2.Zero;
@@ -356,14 +356,14 @@ namespace Ship_Game.AI
          * Thrust direction will be adjusted according to current velocity,
          * towards predicted interception point
          * @param pos Target position where we want to arrive at
-         * @param deltaTime Time elapsed since last frame for Velocity change calculation
+         * @param timeStep Fixed time step for physics simulation
          * @param speedLimit Can control the max movement speed (it even caps FTL speed)
          *                   if speedLimit == 0f, then Ship.velocityMaximum is used
          *                   during Warp, velocityMaximum is set to FTLMax
          * @param warpExitDistance [0] If set to nonzero, ships will exit warp at this distance
          *                   but only if this is the last WayPoint
          */
-        internal void ThrustOrWarpToPos(Vector2 pos, float deltaTime, float speedLimit = 0f, float warpExitDistance = 0f)
+        internal void ThrustOrWarpToPos(Vector2 pos, FixedSimTime timeStep, float speedLimit = 0f, float warpExitDistance = 0f)
         {
             if (Owner.EnginesKnockedOut)
                 return;
@@ -373,7 +373,7 @@ namespace Ship_Game.AI
             // and prediction errors can cause warp to disengage due to sharp angle
             float actualDiff = Owner.AngleDifferenceToPosition(pos);
             float distance = pos.Distance(Owner.Center);
-            if (UpdateWarpThrust(deltaTime, actualDiff, distance))
+            if (UpdateWarpThrust(timeStep, actualDiff, distance))
             {
                 //SubLightMoveTowardsPosition(pos, deltaTime, 0);
                 return; // WayPoint short-cut
@@ -405,7 +405,7 @@ namespace Ship_Game.AI
 
             if (predictionDiff > 0.02f) // do we need to rotate ourselves before thrusting?
             {
-                Owner.RotateToFacing(deltaTime, predictionDiff, rotationDir);
+                Owner.RotateToFacing(timeStep, predictionDiff, rotationDir);
                 return; // don't accelerate until we're faced correctly
             }
 
@@ -450,19 +450,19 @@ namespace Ship_Game.AI
             return maxTurn.Clamped(minAngle, maxAngle);
         }
 
-        bool UpdateWarpThrust(float elapsedTime, float angleDiff, float distance)
+        bool UpdateWarpThrust(FixedSimTime timeStep, float angleDiff, float distance)
         {
             if (Owner.engineState != Ship.MoveState.Warp)
             {
                 if (Owner.WarpPercent < 1f)
-                    Owner.SetWarpPercent(elapsedTime, 1f); // back to normal
+                    Owner.SetWarpPercent(timeStep, 1f); // back to normal
                 return false;
             }
 
             if (angleDiff > 0.04f)
-                Owner.SetWarpPercent(elapsedTime, 0.05f); // SLOW DOWN to % warp speed
+                Owner.SetWarpPercent(timeStep, 0.05f); // SLOW DOWN to % warp speed
             else if (Owner.WarpPercent < 1f)
-                Owner.SetWarpPercent(elapsedTime, 1f); // back to normal
+                Owner.SetWarpPercent(timeStep, 1f); // back to normal
 
             float maxTurn = EstimateMaxTurn(distance);
             if (angleDiff > maxTurn) // we can't make the turn

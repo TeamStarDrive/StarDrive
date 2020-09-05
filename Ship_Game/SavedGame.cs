@@ -450,7 +450,7 @@ namespace Ship_Game
                 var info = new FileInfo($"{data.path}/Saved Games/{data.SaveAs}{ext}");
                 using (FileStream writeStream = info.OpenWrite())
                 {
-                    PerfTimer t = PerfTimer.StartNew();
+                    PerfTimer t = new PerfTimer();
                     if (NewFormat)
                     {
                         using (var textWriter = new StreamWriter(writeStream))
@@ -504,7 +504,7 @@ namespace Ship_Game
             UniverseSaveData usData;
             var decompressed = new FileInfo(HelperFunctions.Decompress(compressedSave));
 
-            PerfTimer t = PerfTimer.StartNew();
+            PerfTimer t = new PerfTimer();
             if (decompressed.Extension == NewExt) // new save format
             {
                 using (FileStream stream = decompressed.OpenRead())

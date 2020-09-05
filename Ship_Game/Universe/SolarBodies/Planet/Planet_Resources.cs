@@ -189,11 +189,12 @@ namespace Ship_Game
                 exportThreshold    = (exportThreshold - offsetAmount).Clamped(0.1f, 1f);
             }
 
-            float ratio = Storage.FoodRatio;
+            float ratio               = Storage.FoodRatio;
+            bool belowImportThreshold = ratio < importThreshold && Food.NetIncome.Less(Storage.Max / 50);
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
-            if      (ShortOnFood() || Food.Percent > 0.75f)                  FS = GoodState.IMPORT; 
-            else if (Food.NetMaxPotential < 0)                               FS = GoodState.STORE; // We are struggling to produce food
+            if      (ShortOnFood() || belowImportThreshold)                  FS = GoodState.IMPORT; 
+            else if (Food.NetMaxPotential < 0)                               FS = GoodState.STORE; // We are struggling to produce food but not short on food
             else if (FS == GoodState.IMPORT && ratio >= importThreshold * 2) FS = GoodState.STORE;  // Until you reach 2x importThreshold, then switch to Store
             else if (FS == GoodState.EXPORT && ratio <= exportThreshold / 2) FS = GoodState.STORE;  // If we were exporting, and drop below half exportThreshold, stop exporting
             else if (ratio > exportThreshold)                                FS = GoodState.EXPORT; // Until we get back to the Threshold, then export

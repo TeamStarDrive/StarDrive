@@ -10,17 +10,17 @@ namespace Ship_Game.AI.CombatTactics
         {
         }
 
-        protected override void OverrideCombatValues(float elapsedTime)
+        protected override void OverrideCombatValues(FixedSimTime timeStep)
         {
             DesiredCombatRange = AI.Owner.DesiredCombatRange * 0.8f - AI.Owner.Radius - AI.Target.Radius;
         }
 
-        protected override CombatMoveState ExecuteAttack(float elapsedTime)
+        protected override CombatMoveState ExecuteAttack(FixedSimTime timeStep)
         {
             Vector2 predictedTarget = AI.Owner.PredictImpact(AI.Target);
             
-            UpdateOrbitPos(predictedTarget, DesiredCombatRange, elapsedTime);
-            AI.ThrustOrWarpToPos(OrbitPos, elapsedTime);
+            UpdateOrbitPos(predictedTarget, DesiredCombatRange, timeStep);
+            AI.ThrustOrWarpToPos(OrbitPos, timeStep);
             return CombatMoveState.OrbitInjection;
         }
     }

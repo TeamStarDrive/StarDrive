@@ -14,9 +14,9 @@ namespace UnitTests.Ships
     {
         public TestShipRanges()
         {
+            CreateGameInstance();
             // Excalibur class has all the bells and whistles
             LoadStarterShips(new[]{ "Excalibur-Class Supercarrier" });
-            CreateGameInstance();
         }
 
         void CreateTestEnv(out Empire empire, out Ship ship)
@@ -29,7 +29,7 @@ namespace UnitTests.Ships
         {
             ship.AI.CombatState = state;
             ship.shipStatusChanged = true;
-            ship.Update(1f);
+            ship.Update(new FixedSimTime(1f));
         }
 
         [TestMethod]
