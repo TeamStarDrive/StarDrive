@@ -48,7 +48,7 @@ namespace Ship_Game.AI
 
                     // food amount estimated the import planet needs
                     float maxFoodLoad = exportPlanet.ExportableFood(exportPlanet, importPlanet, eta);
-                    if (maxFoodLoad.AlmostZero())
+                    if (maxFoodLoad.Less(3f.UpperBound(Owner.CargoSpaceMax)))
                     {
                         AI.CancelTradePlan(exportPlanet); // import planet food is good by now
                         return;
@@ -61,7 +61,7 @@ namespace Ship_Game.AI
                     exportPlanet.FoodHere   += Owner.UnloadFood();
                     exportPlanet.Population += Owner.UnloadColonists();
                     float maxProdLoad        = exportPlanet.ExportableProd(exportPlanet, importPlanet, eta);
-                    if (maxProdLoad.AlmostZero())
+                    if (maxProdLoad.Less(3f.UpperBound(Owner.CargoSpaceMax)))
                     {
                         AI.CancelTradePlan(exportPlanet); // there is nothing to load, wft?
                         return;

@@ -86,7 +86,10 @@ namespace Ship_Game.AI.ShipMovement
 
             // we are getting close, exit hyperspace
             if (Owner.engineState == Ship.MoveState.Warp && distance < 7500f)
+            {
                 Owner.HyperspaceReturn();
+                Owner.AI.ClearWayPoints(); // Especially needed for player freighters (check `IsIdleFreighter`)
+            }
 
             // if no enemies near us, then consider the following MAGIC STOP optimization:
             if (!AI.BadGuysNear)
