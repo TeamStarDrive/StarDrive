@@ -105,8 +105,9 @@ namespace UnitTests.Universe
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- TreeUpdatePerf ComplexReinsert elapsed: {(e1*1000).String(2)}ms");
-
-            DebugVisualize(tree1);
+            
+            if (EnableVisualization)
+                DebugVisualize(tree1);
         }
 
         [TestMethod]
