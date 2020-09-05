@@ -152,7 +152,7 @@ namespace Ship_Game.Debug
             return base.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (Page != null && Page.Mode != Mode) // destroy page if it's no longer needed
             {
@@ -173,7 +173,7 @@ namespace Ship_Game.Debug
             }
 
             UpdateDebugShips();
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         void UpdateDebugShips()

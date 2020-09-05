@@ -75,10 +75,10 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
-            Troop?.Update(deltaTime);
-            base.Update(deltaTime);
+            Troop?.Update(fixedDeltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         // Give a custom height for this scroll list item

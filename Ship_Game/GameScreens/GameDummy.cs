@@ -31,14 +31,14 @@ namespace Ship_Game
             base.Initialize();
         }
 
-        protected override void Update(GameTime xnaTime)
+        protected override void Update(float deltaTime)
         {
-            UpdateGame(xnaTime);
+            UpdateGame(deltaTime);
         }
 
-        protected override void Draw(GameTime xnaTime)
+        protected override void Draw(float deltaTime)
         {
-            ScreenManager.Draw(xnaTime);
+            ScreenManager.Draw();
         }
     }
 }

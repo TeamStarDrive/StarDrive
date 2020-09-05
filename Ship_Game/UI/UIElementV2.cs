@@ -194,9 +194,9 @@ namespace Ship_Game
         public abstract bool HandleInput(InputState input);
 
         // 2. then we update
-        public virtual void Update(float deltaTime)
+        public virtual void Update(float fixedDeltaTime)
         {
-            UpdateEffects(deltaTime);
+            UpdateEffects(fixedDeltaTime);
             if (RequiresLayout)
                 PerformLayout();
         }

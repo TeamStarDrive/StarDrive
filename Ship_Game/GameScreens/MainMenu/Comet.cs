@@ -37,15 +37,15 @@ namespace Ship_Game.GameScreens.MainMenu
             return false;
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
-            Pos += Direction * 2400f * deltaTime;
+            Pos += Direction * 2400f * fixedDeltaTime;
 
             if (Pos.X < -200f || Pos.X > Screen.ScreenWidth+200f ||
                 Pos.Y < -200  || Pos.Y > Screen.ScreenHeight+200f)
                 RemoveFromParent(deferred: true);
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

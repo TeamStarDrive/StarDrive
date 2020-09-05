@@ -505,7 +505,7 @@ namespace Ship_Game
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            ScreenManager.editor.Update(elapsed.XnaTime);
+            ScreenManager.editor.Update(elapsed.RealTime.Seconds);
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
             view = Matrix.CreateTranslation(0f, 0f, 0f)
                  * Matrix.CreateRotationY(RadMath.PI)

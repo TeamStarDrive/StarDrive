@@ -691,17 +691,17 @@ namespace Ship_Game
             base.UnloadContent();
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
-            if (LookingAtPlanet) workersPanel.Update(deltaTime);
-            if (showingDSBW) dsbw.Update(deltaTime);
-            pieMenu.Update(deltaTime);
-            SelectedSomethingTimer -= deltaTime;
+            if (LookingAtPlanet) workersPanel.Update(fixedDeltaTime);
+            if (showingDSBW) dsbw.Update(fixedDeltaTime);
+            pieMenu.Update(fixedDeltaTime);
+            SelectedSomethingTimer -= fixedDeltaTime;
 
             if (++SelectorFrame > 299)
                 SelectorFrame = 0;
 
-            MusicCheckTimer -= deltaTime;
+            MusicCheckTimer -= fixedDeltaTime;
             if (MusicCheckTimer <= 0f)
             {
                 MusicCheckTimer = 2f;
@@ -709,14 +709,14 @@ namespace Ship_Game
                     ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
             }
 
-            NotificationManager.Update(deltaTime);
+            NotificationManager.Update(fixedDeltaTime);
 
             GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
 
-            ScreenManager.UpdateSceneObjects();
-            EmpireUI.Update(deltaTime);
+            ScreenManager.UpdateSceneObjects(fixedDeltaTime);
+            EmpireUI.Update(fixedDeltaTime);
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         void AutoSaveCurrentGame()

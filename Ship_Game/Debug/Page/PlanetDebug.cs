@@ -12,7 +12,7 @@ namespace Ship_Game.Debug.Page
             Screen = screen;
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             Planet planet = Screen.SelectedPlanet;
             if (planet == null)
@@ -29,7 +29,7 @@ namespace Ship_Game.Debug.Page
             {
                 SetTextColumns(new Array<DebugTextBlock>{ planet.DebugPlanetInfo() });
             }
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)

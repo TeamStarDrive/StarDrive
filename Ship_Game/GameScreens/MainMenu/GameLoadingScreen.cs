@@ -66,11 +66,11 @@ namespace Ship_Game
             }
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             LoadingPlayer.Update(this);
             SplashPlayer.Update(this);
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         public override bool HandleInput(InputState input)

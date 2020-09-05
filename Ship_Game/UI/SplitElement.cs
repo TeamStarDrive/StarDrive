@@ -56,12 +56,12 @@ namespace Ship_Game.UI
             return First.HandleInput(input) || Second.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
-            First.Update(deltaTime);
-            Second.Update(deltaTime);
+            First.Update(fixedDeltaTime);
+            Second.Update(fixedDeltaTime);
             RequiresLayout |= First.RequiresLayout | Second.RequiresLayout;
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
