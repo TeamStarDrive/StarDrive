@@ -14,6 +14,5 @@ namespace Microsoft.Xna.Framework
         public TimeSpan TotalGameTime;
         public TimeSpan ElapsedRealTime;
         public TimeSpan ElapsedGameTime;
-        public bool IsRunningSlowly;
     }
 }
