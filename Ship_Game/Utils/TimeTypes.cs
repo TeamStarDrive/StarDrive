@@ -104,6 +104,11 @@ namespace Ship_Game
 
             TotalGameSeconds = (float)xnaTime.TotalGameTime.TotalSeconds;
         }
+
+        public override string ToString()
+        {
+            return $"UpdateTimes  sim:{SimulationStep.FixedTime*1000,2:0.0}ms  real:{RealTime.Seconds*1000,2:0.0}ms  xna:{XnaTime.ElapsedGameTime.Seconds*1000,2:0.0}ms  total:{TotalGameSeconds,2:0.0}s";
+        }
     }
 
     /// <summary>
@@ -142,6 +147,12 @@ namespace Ship_Game
             }
 
             RealTime = new VariableFrameTime(Timer.Elapsed);
+            Timer.Start(); // reset timer for next Draw
+        }
+
+        public override string ToString()
+        {
+            return $"DrawTimes  real:{RealTime.Seconds*1000,2:0.0}ms  xna:{XnaTime.ElapsedGameTime.Seconds*1000,2:0.0}ms";
         }
     }
 }
