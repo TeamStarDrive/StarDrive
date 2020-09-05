@@ -44,7 +44,7 @@ namespace Ship_Game
 
             test.Tree = new Quadtree(universeSize);
             foreach (Ship ship in test.Ships)
-                test.Tree.InsertPending(ship);
+                test.Tree.Insert(ship);
 
             test.Tree.UpdateAll(new FixedSimTime(1f / 60f));
             return test;

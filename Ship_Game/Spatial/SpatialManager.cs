@@ -33,11 +33,7 @@ namespace Ship_Game.Gameplay
             if (!IsSpatialType(obj) || QuadTree == null)
                 return; // not a supported spatial manager type. just ignore it
 
-            // this is related to QuadTree fast-removal
-            if (!obj.Active || (obj is Projectile proj && proj.DieNextFrame))
-                return;
-
-            QuadTree.InsertPending(obj);
+            QuadTree.Insert(obj);
         }
 
         public void Remove(GameplayObject obj)
