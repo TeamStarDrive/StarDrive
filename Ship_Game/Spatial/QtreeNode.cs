@@ -9,6 +9,7 @@ namespace Ship_Game
         public QtreeNode NW, NE, SE, SW;
         public int Count;
         public SpatialObj[] Items;
+        public int Id;
 
         public QtreeNode(float x, float y, float lastX, float lastY)
         {
@@ -17,10 +18,16 @@ namespace Ship_Game
             Items = Quadtree.NoObjects;
         }
 
+        public override string ToString()
+        {
+            return $"Id:{Id} Count:{Count} X:{X} LX:{LastX} Y:{Y} LastY:{LastY}";
+        }
+
         public void InitializeForReuse(float x, float y, float lastX, float lastY)
         {
             X = x; Y = y;
             LastX = lastX; LastY = lastY;
+            NW = NE = SE = SW = null;
 
             if (Count != 0)
             {
@@ -61,10 +68,16 @@ namespace Ship_Game
             }
         }
 
-        public bool Overlaps(ref Vector2 topLeft, ref Vector2 topRight)
+        public bool Overlaps(in Vector2 topLeft, in Vector2 botRight)
         {
-            return X <= topRight.X && LastX > topLeft.X
-                                   && Y <= topRight.Y && LastY > topLeft.Y;
+            return X <= botRight.X && LastX > topLeft.X
+                && Y <= botRight.Y && LastY > topLeft.Y;
+        }
+
+        public bool Overlaps(in SpatialObj o)
+        {
+            return X <= o.LastX && LastX > o.X
+                && Y <= o.LastY && LastY > o.Y;
         }
     }
 }

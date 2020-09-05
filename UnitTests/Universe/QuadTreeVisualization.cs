@@ -75,7 +75,7 @@ namespace UnitTests.Universe
             DrawString(new Vector2(20, 40), Color.White, $"Camera: {Camera}", Fonts.Arial11Bold);
             DrawString(new Vector2(20, 60), Color.White, $"FindNearby: {Found.Length}", Fonts.Arial11Bold);
             DrawString(new Vector2(20, 80), Color.White, $"SearchRadius: {SearchRadius}", Fonts.Arial11Bold);
-            DrawString(new Vector2(20,100), Color.White, $"SearchTime:   {(SearchTime*1000).String(4)}ms", Fonts.Arial11Bold);
+            DrawString(new Vector2(20,100), Color.White, $"SearchTime:   {(SearchTime*1000).String(4)}ms  Linear:{Tree.WasLinearSearch}", Fonts.Arial11Bold);
             DrawString(new Vector2(20,120), Color.White, $"LinearTime:   {(LinearTime*1000).String(4)}ms", Fonts.Arial11Bold);
 
             base.Draw(batch);
@@ -94,6 +94,12 @@ namespace UnitTests.Universe
 
             if (input.LeftMouseHeldDown)
             {
+                var timer2 = new PerfTimer();
+                {
+                    QuadtreePerfTests.FindLinearOpt(Test.AllShips, null, SearchStart, SearchRadius);
+                }
+                LinearTime = timer2.Elapsed;
+
                 var timer = new PerfTimer();
                 {
                     SearchStart = UnprojectToWorldPosition(input.StartLeftHold);
@@ -101,12 +107,6 @@ namespace UnitTests.Universe
                     Found = Tree.FindNearby(SearchStart, SearchRadius);
                 }
                 SearchTime = timer.Elapsed;
-
-                var timer2 = new PerfTimer();
-                {
-                    QuadtreePerfTests.FindLinearOpt(Test.AllShips, null, SearchStart, SearchRadius);
-                }
-                LinearTime = timer2.Elapsed;
             }
 
             return base.HandleInput(input);
