@@ -222,12 +222,11 @@ namespace Ship_Game
                 SceneInter.RenderManager.Render();
         }
 
-        public void BeginFrameRendering(ref Matrix view, ref Matrix projection)
+        public void BeginFrameRendering(DrawTimes elapsed, ref Matrix view, ref Matrix projection)
         {
-            GameTime xnaTime = GameBase.Base.Elapsed.XnaTime;
             lock (InterfaceLock)
             {
-                GameSceneState.BeginFrameRendering(ref view, ref projection, xnaTime, Environment, true);
+                GameSceneState.BeginFrameRendering(ref view, ref projection, elapsed.XnaTime, Environment, true);
                 editor.BeginFrameRendering(GameSceneState);
                 SceneInter.BeginFrameRendering(GameSceneState);
             }
@@ -482,16 +481,16 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Runs Pending actions for empireThread.
+        /// Invokes all Pending actions. This should only be called from ProcessTurns !!!
         /// </summary>
-        public void ExecutePendingEmpireActions()
+        public void InvokePendingEmpireThreadActions()
         {
-            while(PendingEmpireThreadActions.NotEmpty) 
-                PendingEmpireThreadActions.Dequeue().Invoke();
+            while (PendingEmpireThreadActions.TryDequeue(out Action action))
+                action();
         }
 
         /// <summary>
-        /// Queues action to run on empire thread. Please add logging to the action
+        /// Queues action to run on the Empire / Simulation thread, aka ProcessTurns thread.
         /// </summary>
         public void RunOnEmpireThread(Action action)
         {
@@ -501,7 +500,7 @@ namespace Ship_Game
             }
             else
             {
-                Log.WarningWithCallStack($"Null Action passed to RunOnEmpireThread method");
+                Log.WarningWithCallStack("Null Action passed to RunOnEmpireThread method");
             }
         }
 

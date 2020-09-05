@@ -78,7 +78,9 @@ namespace Ship_Game
 
         void ProcessTurns(UpdateTimes elapsed, ref float simulationTimeSink)
         {
-            ScreenManager.ExecutePendingEmpireActions();
+            // Execute all the actions submitted from UI thread
+            // into this Simulation / Empire thread
+            ScreenManager.InvokePendingEmpireThreadActions();
 
             if (Paused)
             {
@@ -89,13 +91,12 @@ namespace Ship_Game
             }
             else
             {
-                NotificationManager.Update(elapsed.RealTime);
                 AutoSaveTimer -= elapsed.RealTime.Seconds;
 
                 if (AutoSaveTimer <= 0f)
                 {
                     AutoSaveTimer = GlobalStats.AutoSaveFreq;
-                    DoAutoSave();
+                    AutoSaveCurrentGame();
                 }
 
                 if (IsActive)
@@ -212,6 +213,18 @@ namespace Ship_Game
                 SolarSystem system = SolarSystemList[i];
                 for (int j = 0; j < system.ShipList.Count; ++j)
                     system.ShipList[j].RemoveDyingProjectiles();
+            }
+        }
+
+        public void UpdateStarDateAndTriggerEvents(float newStarDate)
+        {
+            StarDate = (float)Math.Round(newStarDate, 1);
+
+            ExplorationEvent evt = ResourceManager.EventByDate(StarDate);
+            if (evt != null)
+            {
+                Log.Info($"Trigger Timed Exploration Event  StarDate:{StarDate}");
+                evt.TriggerExplorationEvent(this);
             }
         }
 

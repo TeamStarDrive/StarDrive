@@ -709,6 +709,8 @@ namespace Ship_Game
                     ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
             }
 
+            NotificationManager.Update(deltaTime);
+
             GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
 
             ScreenManager.UpdateSceneObjects();
@@ -717,9 +719,9 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
-        public void DoAutoSave()
+        void AutoSaveCurrentGame()
         {
-            SavedGame savedGame = new SavedGame(this, "Autosave " + Auto);
+            SavedGame savedGame = new SavedGame(this, "Autosave" + Auto);
             if (++Auto > 3) Auto = 1;
         }
 

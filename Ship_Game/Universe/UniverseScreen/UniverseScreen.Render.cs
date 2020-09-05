@@ -599,7 +599,7 @@ namespace Ship_Game
                 Frustum.Matrix = View * Projection;
 
             CreateShipSceneObjects();
-            ScreenManager.BeginFrameRendering(ref View, ref Projection);
+            ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
 
             RenderBackdrop(batch);
 
