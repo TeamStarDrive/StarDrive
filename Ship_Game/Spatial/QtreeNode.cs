@@ -1,19 +1,34 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
     public class QtreeNode
     {
-        public readonly float X, Y, LastX, LastY;
+        public float X, Y, LastX, LastY;
         public QtreeNode NW, NE, SE, SW;
         public int Count;
         public SpatialObj[] Items;
+
         public QtreeNode(float x, float y, float lastX, float lastY)
         {
             X = x; Y = y;
             LastX = lastX; LastY = lastY;
             Items = Quadtree.NoObjects;
         }
+
+        public void InitializeForReuse(float x, float y, float lastX, float lastY)
+        {
+            X = x; Y = y;
+            LastX = lastX; LastY = lastY;
+
+            if (Count != 0)
+            {
+                Array.Clear(Items, 0, Count);
+                Count = 0;
+            }
+        }
+
         public void Add(ref SpatialObj obj)
         {
             int count = Count;
@@ -44,25 +59,6 @@ namespace Ship_Game
                 oldItems[count] = obj;
                 ++Count;
             }
-        }
-
-        // Because SwapLast reorders elements, we decrement the ref index to allow loops to continue
-        // naturally. Index is not decremented if it is the last element
-        public void RemoveAtSwapLast(ref int index)
-        {
-            int newCount = Count-1;
-            if (newCount < 0) // FIX: this is a threading issue, the item was already removed
-                return; 
-
-            Count = newCount;
-            ref SpatialObj last = ref Items[newCount];
-            if (index != newCount) // only swap and change ref index if it wasn't the last element
-            {
-                Items[index] = last;
-                --index;
-            }
-            last.Obj = null; // prevent zombie objects
-            if (newCount == 0) Items = Quadtree.NoObjects;
         }
 
         public bool Overlaps(ref Vector2 topLeft, ref Vector2 topRight)
