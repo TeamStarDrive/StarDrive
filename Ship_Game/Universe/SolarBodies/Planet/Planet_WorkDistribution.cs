@@ -80,7 +80,7 @@ namespace Ship_Game
                 if (ConstructionQueue.Count > 0)
                     Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
                 else
-                    AssignCoreWorldProduction(remainingWork - MinimumResearchNoQueue(remainingWork));
+                    AssignCoreWorldProduction(remainingWork - MinimumResearchNoQueue(remainingWork, 0.5f));
             }
             Res.AutoBalanceWorkers(); // rest goes to research
         }
@@ -96,13 +96,13 @@ namespace Ship_Game
                 if (ConstructionQueue.Count > 0)
                     Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
                 else
-                    Prod.Percent = remainingWork - MinimumResearchNoQueue(remainingWork);
+                    Prod.Percent = remainingWork - MinimumResearchNoQueue(remainingWork, percentProd);
             }
 
             Res.AutoBalanceWorkers(); // rest goes to research
         }
         
-        float MinimumResearchNoQueue(float availableWork)
+        float MinimumResearchNoQueue(float availableWork, float wantedStoragePercent)
         {
             if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero() || IsCybernetic || Owner.Research.NoTopic)
                 return 0; // No need to use researchers
@@ -122,7 +122,7 @@ namespace Ship_Game
                 case ColonyType.Industrial:   minCut = 0f;    maxCut = 0.1f; break;
             }
 
-            return Storage.ProdRatio.Clamped(minCut, maxCut) * availableWork;
+            return (Storage.ProdRatio / wantedStoragePercent).Clamped(minCut, maxCut) * availableWork;
             
         }
 
