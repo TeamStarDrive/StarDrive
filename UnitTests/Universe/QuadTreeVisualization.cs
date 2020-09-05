@@ -38,7 +38,7 @@ namespace UnitTests.Universe
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Tree.DebugVisualize(this);
             DrawRectangleProjected(Vector2.Zero, new Vector2(Test.UniverseSize), 0f, Color.Red);
@@ -76,7 +76,7 @@ namespace UnitTests.Universe
             DrawString(new Vector2(20, 80), Color.White, $"SearchRadius: {SearchRadius}", Fonts.Arial11Bold);
             DrawString(new Vector2(20,100), Color.White, $"SearchTime:   {(SearchTime*1000).String(2)}ms", Fonts.Arial11Bold);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         float MoveStep(float multiplier) => multiplier * Camera.Z * -0.1f; 

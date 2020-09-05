@@ -131,7 +131,7 @@ namespace Ship_Game
         }
 
         // TODO: This is only here for legacy compat
-        public void Draw(SpriteBatch batch, SpriteFont font, Vector2 pos, Color c)
+        public void Draw(SpriteBatch batch, DrawTimes elapsed, SpriteFont font, Vector2 pos, Color c)
         {
             Font = font;
             Pos = pos;
@@ -139,10 +139,10 @@ namespace Ship_Game
                 HoverColor = c;
             else 
                 Color = c;
-            Draw(batch);
+            Draw(batch, elapsed);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Vector2 pos = Pos;
             Color color = Color;

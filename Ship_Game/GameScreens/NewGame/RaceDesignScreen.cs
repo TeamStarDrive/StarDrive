@@ -490,12 +490,12 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             batch.Draw(ResourceManager.Flag(FlagIndex), FlagRect, Picker.CurrentColor);
             FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
@@ -521,7 +521,7 @@ namespace Ship_Game
                 return false;
             }
 
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 float start = Screen.DescriptionTextList.NumEntries > 0
                             ? Screen.DescriptionTextList.ItemAtBottom.Bottom

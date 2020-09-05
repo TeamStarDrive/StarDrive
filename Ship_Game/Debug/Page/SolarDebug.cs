@@ -31,12 +31,12 @@ namespace Ship_Game.Debug.Page
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
 
-            base.Draw(spriteBatch);
+            base.Draw(spriteBatch, elapsed);
         }
     }
 }

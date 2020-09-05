@@ -148,16 +148,16 @@ namespace Ship_Game
             
             return intelligence;
         }
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             if (ScreenHeight > 766)
             {
-                TitleBar.Draw(batch);
+                TitleBar.Draw(batch, elapsed);
                 batch.DrawString(Fonts.Laserian14, Localizer.Token(1600), TitlePos, Colors.Cream);
             }
-            DMenu.Draw(batch);
+            DMenu.Draw(batch, elapsed);
             foreach (RaceEntry race in Races)
             {
                 if (race.e.isFaction)
@@ -641,7 +641,7 @@ namespace Ship_Game
                 if (SelectedEmpire.data.MissileDodgeChance != 0)
                     DrawStat(Localizer.Token(4035), SelectedEmpire.data.MissileDodgeChance, ref textCursor, false); 
             }
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 
@@ -687,22 +687,15 @@ namespace Ship_Game
                 color = (value == 0f ? Color.White : Color.LightPink);
             }
             HelperFunctions.ClampVectorToInt(ref Position);
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-            SpriteFont arial12 = Fonts.Arial12;
-            string str = text;
-            Vector2 position = Position;
-            spriteBatch.DrawString(arial12, str, position, color);
-            Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
-            //{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(value.ToString("#.##")+"%").X;
-            //};
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, text, Position, color);
+
+            string valuePercent = value.ToString("#.##")+"%";
+            var nPos = new Vector2(Position.X + 310f, Position.Y);
+            nPos.X -= Fonts.Arial12Bold.MeasureString(valuePercent).X;
+
             HelperFunctions.ClampVectorToInt(ref nPos);
-            SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
-            SpriteFont arial12Bold = Fonts.Arial12Bold;
-            string str1 = value.ToString("#.##")+"%";
-            Vector2 vector2 = nPos;
-            spriteBatch1.DrawString(arial12Bold, str1, vector2, color);
-            Position.Y = Position.Y + Fonts.Arial12Bold.LineSpacing;
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, valuePercent, nPos, color);
+            Position.Y += Fonts.Arial12Bold.LineSpacing;
         }
 
         private void DrawStat(string text, string text2, ref Vector2 Position)

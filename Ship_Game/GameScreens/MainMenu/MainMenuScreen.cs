@@ -243,7 +243,7 @@ namespace Ship_Game.GameScreens.MainMenu
             return false;
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             UpdateMainMenuShips(elapsed.SimulationStep);
             GameAudio.Update3DSound(CamPos);
@@ -271,9 +271,9 @@ namespace Ship_Game.GameScreens.MainMenu
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
+            DrawMultiLayeredExperimental(ScreenManager, batch, elapsed, draw3D:true);
 
             foreach (var fleet in Fleets)
                 fleet.Draw(batch, this);

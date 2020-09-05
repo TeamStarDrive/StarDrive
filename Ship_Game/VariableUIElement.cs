@@ -46,7 +46,7 @@ namespace Ship_Game
 			RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
 		}
 
-		public override void Draw(FrameTimes elapsed)
+		public override void Draw(SpriteBatch batch, DrawTimes elapsed)
 		{
 		}
 

@@ -48,7 +48,7 @@ namespace Ship_Game.GameScreens.MainMenu
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             float alpha = 255f;
             if (Pos.Y > 100f)

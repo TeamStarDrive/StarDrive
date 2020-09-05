@@ -33,7 +33,7 @@ namespace Ship_Game
         public static GameContentManager GameContent => Base?.Content;
 
         public int FrameId { get; protected set; }
-        public FrameTimes Elapsed;
+        public UpdateTimes Elapsed;
         public float TotalElapsed => Elapsed.TotalGameSeconds;
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);
@@ -203,7 +203,7 @@ namespace Ship_Game
             {
                 ++FrameId;
 
-                Elapsed = new FrameTimes(GlobalStats.SimulationFramesPerSecond, xnaTime);
+                Elapsed = new UpdateTimes(GlobalStats.SimulationFramesPerSecond, xnaTime);
 
                 // 1. Handle Input and 2. Update for each game screen
                 ScreenManager.Update(Elapsed);

@@ -127,15 +127,15 @@ namespace Ship_Game
                                eRect.Y - Fonts.Arial20Bold.LineSpacing + 16);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            TitleBar.Draw(batch);
+            TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, Colors.Cream);
-            EMenu.Draw(batch);
+            EMenu.Draw(batch, elapsed);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             if (PlanetSL.NumEntries > 0)
             {

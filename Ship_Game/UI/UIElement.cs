@@ -28,14 +28,14 @@ namespace Ship_Game
         public float TransitionPosition { get; protected set; } = 1f;
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
-        public abstract void Draw(FrameTimes elapsed);
+        public abstract void Draw(SpriteBatch batch, DrawTimes elapsed);
 
         public virtual bool HandleInput(InputState input)
         {
             return false;
         }
 
-        public virtual void Update(FrameTimes elapsed)
+        public virtual void Update(UpdateTimes elapsed)
         {
             if (State == ElementState.TransitionOn)
             {
@@ -58,7 +58,7 @@ namespace Ship_Game
             }
         }
 
-        bool UpdateTransition(FrameTimes elapsed, TimeSpan time, int direction)
+        bool UpdateTransition(UpdateTimes elapsed, TimeSpan time, int direction)
         {
             float transitionDelta = (time != TimeSpan.Zero ? (float)(elapsed.RealTime.Seconds / time.TotalSeconds) : 1f);
             TransitionPosition += transitionDelta * direction;

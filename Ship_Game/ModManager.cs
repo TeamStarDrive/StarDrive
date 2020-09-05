@@ -41,7 +41,7 @@ namespace Ship_Game
             {
                 Mod = mod;
             }
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 Mod.DrawListElement(batch, Rect);
             }
@@ -119,17 +119,18 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (IsExiting)
                 return;
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            SaveMenu.Draw(batch);
-            NameSave.Draw(batch);
-            AllSaves.Draw(batch);
-            EnterNameArea.Draw(batch, Fonts.Arial12Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Color.Orange));
-            base.Draw(batch);
+            SaveMenu.Draw(batch, elapsed);
+            NameSave.Draw(batch, elapsed);
+            AllSaves.Draw(batch, elapsed);
+            EnterNameArea.Draw(batch, elapsed, Fonts.Arial12Bold, EnternamePos,
+                               (EnterNameArea.Hover ? Color.White : Color.Orange));
+            base.Draw(batch, elapsed);
             batch.End();
         }
 

@@ -103,7 +103,7 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Sprite != null)
             {
@@ -119,7 +119,7 @@ namespace Ship_Game
                 batch.DrawRectangle(Rect, Border);
             }
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
     }
 }

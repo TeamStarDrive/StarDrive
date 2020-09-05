@@ -289,7 +289,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawMain(SpriteBatch batch, FrameTimes elapsed)
+        void DrawMain(SpriteBatch batch, DrawTimes elapsed)
         {
             Render(batch, elapsed);
 
@@ -350,10 +350,8 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            FrameTimes elapsed = StarDriveGame.Instance.Elapsed;
-
             // Wait for ProcessTurns to finish before we start drawing
             if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
                 if (!ProcessTurnsCompletedEvt.WaitOne(100))
@@ -432,7 +430,7 @@ namespace Ship_Game
 
             batch.Begin();
             DrawPlanetInfo();
-            if (LookingAtPlanet) workersPanel?.Draw(batch);
+            if (LookingAtPlanet) workersPanel?.Draw(batch, elapsed);
 
             DrawShipsInRange(batch);
             DrawPlanetProjectiles(batch);
@@ -517,18 +515,18 @@ namespace Ship_Game
                             nodeTex, new Color(0, 0, 255, 50));
                     }
                 }
-                dsbw.Draw(batch);
+                dsbw.Draw(batch, elapsed);
             }
             DrawFleetIcons();
 
             //fbedard: display values in new buttons
             ShipsInCombat.Text = "Ships: " + player.empireShipCombat;
             ShipsInCombat.Style = player.empireShipCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
-            ShipsInCombat.Draw(batch);
+            ShipsInCombat.Draw(batch, elapsed);
 
             PlanetsInCombat.Text = "Planets: " + player.empirePlanetCombat;
             PlanetsInCombat.Style = player.empirePlanetCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
-            PlanetsInCombat.Draw(batch);
+            PlanetsInCombat.Draw(batch, elapsed);
 
             if (!LookingAtPlanet)
                 pieMenu.Draw(batch, Fonts.Arial12Bold);
@@ -541,7 +539,7 @@ namespace Ship_Game
             minimap.Visible = !LookingAtPlanet || LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen;
 
-            DrawSelectedItems(elapsed);
+            DrawSelectedItems(batch, elapsed);
 
             if (SelectedShip == null || LookingAtPlanet)
                 ShipInfoUIElement.ShipNameArea.HandlingInput = false;
@@ -550,7 +548,7 @@ namespace Ship_Game
                 NotificationManager.Draw(batch);
 
             if (Debug)
-                DebugWin?.Draw(elapsed);
+                DebugWin?.Draw(batch, elapsed);
 
             if (Paused)
             {
@@ -583,7 +581,7 @@ namespace Ship_Game
 
             aw.Visible = aw.IsOpen && !LookingAtPlanet;
 
-            base.Draw(batch);  // UIElementV2 Draw
+            base.Draw(batch, elapsed);  // UIElementV2 Draw
 
             batch.End();
 
@@ -592,23 +590,24 @@ namespace Ship_Game
             DrawCompletedEvt.Set();
         }
 
-        private void DrawSelectedItems(FrameTimes elapsed)
+        private void DrawSelectedItems(SpriteBatch batch, DrawTimes elapsed)
         {
             if (SelectedShipList.Count == 0)
                 shipListInfoUI.ClearShipList();
             if (SelectedSystem != null && !LookingAtPlanet)
             {
                 sInfoUI.SetSystem(SelectedSystem);
-                sInfoUI.Update(elapsed);
+                // BUG: sInfoUI should be updated in the UPDATE loop !
+                sInfoUI.Update(GameBase.Base.Elapsed);
                 if (viewState == UnivScreenState.GalaxyView)
-                    sInfoUI.Draw(elapsed);
+                    sInfoUI.Draw(batch, elapsed);
             }
 
             if (SelectedPlanet != null && !LookingAtPlanet)
             {
                 pInfoUI.SetPlanet(SelectedPlanet);
-                pInfoUI.Update(elapsed);
-                pInfoUI.Draw(elapsed);
+                pInfoUI.Update(GameBase.Base.Elapsed);
+                pInfoUI.Draw(batch, elapsed);
             }
             else if (SelectedShip != null && !LookingAtPlanet)
             {
@@ -626,13 +625,13 @@ namespace Ship_Game
 
                 ShipInfoUIElement.Ship = SelectedShip;
                 ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
-                ShipInfoUIElement.Update(elapsed);
-                ShipInfoUIElement.Draw(elapsed);
+                ShipInfoUIElement.Update(GameBase.Base.Elapsed);
+                ShipInfoUIElement.Draw(batch, elapsed);
             }
             else if (SelectedShipList.Count > 1 && SelectedFleet == null)
             {
-                shipListInfoUI.Update(elapsed);
-                shipListInfoUI.Draw(elapsed);
+                shipListInfoUI.Update(GameBase.Base.Elapsed);
+                shipListInfoUI.Draw(batch, elapsed);
             }
             else if (SelectedItem != null)
             {
@@ -664,8 +663,8 @@ namespace Ship_Game
             }
             else if (SelectedFleet != null && !LookingAtPlanet)
             {
-                shipListInfoUI.Update(elapsed);
-                shipListInfoUI.Draw(elapsed);
+                shipListInfoUI.Update(GameBase.Base.Elapsed);
+                shipListInfoUI.Draw(batch, elapsed);
             }
         }
 
@@ -748,7 +747,7 @@ namespace Ship_Game
 
         float StatsTimer;
 
-        void RefreshPerfTimers(FrameTimes elapsed)
+        void RefreshPerfTimers(DrawTimes elapsed)
         {
             if (Paused)
                 return;
@@ -885,7 +884,7 @@ namespace Ship_Game
                 DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);
         }
 
-        void DrawShipUI(SpriteBatch batch, FrameTimes elapsed)
+        void DrawShipUI(SpriteBatch batch, DrawTimes elapsed)
         {
             if (DefiningAO || DefiningTradeRoutes)
                 return; // FB dont show fleet list when selected AOs and Trade Routes
@@ -916,7 +915,7 @@ namespace Ship_Game
                         inCombat ? new Color(255, 0,  0,  buttonFlashTimer)
                                  : new Color( 0,  0,  0,  80));
 
-                    buttonSelector.Draw(batch);
+                    buttonSelector.Draw(batch, elapsed);
                     batch.Draw(fleetButton.Fleet.Icon, housing,
                         EmpireManager.Player.EmpireColor);
                     batch.DrawString(Fonts.Pirulen12, fleetButton.Key.ToString(),

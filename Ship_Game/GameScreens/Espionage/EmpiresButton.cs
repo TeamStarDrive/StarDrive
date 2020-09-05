@@ -30,7 +30,7 @@ namespace Ship_Game.GameScreens.Espionage
             return false;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             // red background:
             if (EmpireManager.Player != Empire && EmpireManager.Player.GetRelations(Empire).AtWar && !Empire.data.Defeated)

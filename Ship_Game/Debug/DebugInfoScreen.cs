@@ -199,9 +199,9 @@ namespace Ship_Game.Debug
             }
         }
 
-        public void Draw(FrameTimes elapsed)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Page?.Draw(Screen.ScreenManager.SpriteBatch);
+            Page?.Draw(batch, elapsed);
 
             try
             {
@@ -237,7 +237,7 @@ namespace Ship_Game.Debug
                     case DebugModes.input         : InputDebug(); break;
                     case DebugModes.Tech          : Tech(); break;
                 }
-                base.Draw(ScreenManager.SpriteBatch);
+                base.Draw(batch, elapsed);
                 ShipInfo();
             }
             catch { }

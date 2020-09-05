@@ -81,15 +81,15 @@ namespace Ship_Game
             SavesSL.RemoveFirstIf(item => item.Data == FileToDelete);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            SaveMenu.Draw(batch);
-            NameSave.Draw(batch);
-            AllSaves.Draw(batch);
+            SaveMenu.Draw(batch, elapsed);
+            NameSave.Draw(batch, elapsed);
+            AllSaves.Draw(batch, elapsed);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             batch.End();
         }
@@ -212,7 +212,7 @@ namespace Ship_Game
                     Accepted = Screen.DeleteFile
                 });
             }
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 float iconHeight = (int)(Height * 0.89f);
                 batch.Draw(Data.Icon, Pos, new Vector2(iconHeight*Data.Icon.AspectRatio, iconHeight), Data.IconColor);

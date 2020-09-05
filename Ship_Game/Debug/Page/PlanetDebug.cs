@@ -32,7 +32,7 @@ namespace Ship_Game.Debug.Page
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
@@ -62,7 +62,7 @@ namespace Ship_Game.Debug.Page
                     }
                 }
             }
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
     }
 }

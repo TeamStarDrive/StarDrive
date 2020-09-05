@@ -58,10 +58,10 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             batch.Begin();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 

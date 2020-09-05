@@ -76,7 +76,7 @@ namespace Ship_Game
             }
         }
 
-        void ProcessTurns(FrameTimes elapsed, ref float simulationTimeSink)
+        void ProcessTurns(UpdateTimes elapsed, ref float simulationTimeSink)
         {
             ScreenManager.ExecutePendingEmpireActions();
 
@@ -170,7 +170,7 @@ namespace Ship_Game
             /// <summary>
         /// Used to make ships alive at game load
         /// </summary>
-        public void WarmUpShipsForLoad(FrameTimes elapsed)
+        public void WarmUpShipsForLoad(UpdateTimes elapsed)
         {
             // makes sure all empire vision is updated.
             UpdateAllShipPositions(elapsed.SimulationStep);

@@ -61,7 +61,7 @@ namespace Ship_Game
             return Rect.HitTest(input.CursorPosition);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Ship ship = SelectedShip;
             if (!Visible || ship == null)
@@ -69,7 +69,7 @@ namespace Ship_Game
 
             int size = (int)(Height - 56);
             var shipOverlay = new Rectangle((int)X + TextWidth, (int)Y + 40, size, size);
-            new Menu2(Rect).Draw(batch);
+            new Menu2(Rect).Draw(batch, elapsed);
 
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
             float mass          = ShipStats.GetMass(ship.Mass, EmpireManager.Player);

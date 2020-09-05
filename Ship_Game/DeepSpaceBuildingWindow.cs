@@ -60,9 +60,9 @@ namespace Ship_Game
         {
             public Ship Ship;
 
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                base.Draw(batch);
+                base.Draw(batch, elapsed);
                 
                 SubTexture projector = ResourceManager.Texture("ShipIcons/subspace_projector");
                 SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
@@ -163,9 +163,9 @@ namespace Ship_Game
             Screen.UpdateClickableItems();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             if (itemToBuild != null)
             {

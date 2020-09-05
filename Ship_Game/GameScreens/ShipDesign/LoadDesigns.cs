@@ -72,9 +72,9 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 });
             }
             
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                base.Draw(batch);
+                base.Draw(batch, elapsed);
                 if (Ship != null)
                 {
                     var bCursor = new Vector2(X + 35f, Y);
@@ -99,7 +99,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(WipHull.Role, EmpireManager.Player), tCursor, Color.Orange);
                 }
                 
-                base.Draw(batch);
+                base.Draw(batch, elapsed);
             }
         }
 
@@ -171,12 +171,12 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             LoadContent();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();            
-            base.Draw(batch);
-            PlayerDesignsToggle.Draw(ScreenManager);
+            base.Draw(batch, elapsed);
+            PlayerDesignsToggle.Draw(batch, elapsed);
             batch.End();
         }
 

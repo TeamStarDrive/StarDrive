@@ -66,7 +66,7 @@ namespace Ship_Game
             return Elements.Count;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
@@ -78,17 +78,17 @@ namespace Ship_Game
                     for (int i = 0; i < Elements.Count; ++i)
                     {
                         UIElementV2 child = Elements[i];
-                        if (child.Visible) child.Draw(batch);
+                        if (child.Visible) child.Draw(batch, elapsed);
                     }
                 }
             }
             else
             {
-                DrawWithDebugOverlay(batch);
+                DrawWithDebugOverlay(batch, elapsed);
             }
         }
 
-        void DrawWithDebugOverlay(SpriteBatch batch)
+        void DrawWithDebugOverlay(SpriteBatch batch, DrawTimes elapsed)
         {
             for (int i = 0; i <= DebugDrawIndex && i < Elements.Count; ++i)
             {
@@ -96,7 +96,7 @@ namespace Ship_Game
                 if (child.Visible)
                 {
                     if (!NewMultiLayeredDrawMode) // DON'T DRAW CHILD ELEMENTS IN MULTI-LAYER MODE
-                        child.Draw(batch);
+                        child.Draw(batch, elapsed);
 
                     if (i == DebugDrawIndex)
                         batch.DrawRectangle(child.Rect, Color.Orange);

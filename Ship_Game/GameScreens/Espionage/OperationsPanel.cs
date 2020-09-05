@@ -16,7 +16,7 @@ namespace Ship_Game.GameScreens.Espionage
             AgentName.DropShadow = true;
             AgentLevel.Color = Color.Gray;
         }
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Agent agent = Screen.Agents.SelectedAgent;
             AgentName.Visible = agent != null;
@@ -26,7 +26,7 @@ namespace Ship_Game.GameScreens.Espionage
                 AgentName.Text = agent.Name;
                 AgentLevel.Text = $"Level {agent.Level} Agent";
             }
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
     }
 }

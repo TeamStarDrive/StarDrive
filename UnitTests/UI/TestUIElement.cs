@@ -35,7 +35,7 @@ namespace UnitTests.UI
                 ++UpdateEvents;
             }
 
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 DrawEventId = ++EventId;
                 ++DrawEvents;
