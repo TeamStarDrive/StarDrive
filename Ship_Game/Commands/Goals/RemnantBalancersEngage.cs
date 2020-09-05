@@ -129,7 +129,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Select a new closest planet
-            if (!Remnants.SelectClosestNextPlanet(TargetEmpire, TargetPlanet, out Planet nextPlanet))
+            if (!Remnants.SelectClosestNextPlanet(TargetEmpire, TargetPlanet, Remnants.NumBombersInFleet(Fleet), out Planet nextPlanet))
                 return GoalStep.GoalComplete;
 
             TargetPlanet = nextPlanet;
