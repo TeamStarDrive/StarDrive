@@ -117,17 +117,17 @@ namespace Ship_Game.AI
             return PatrolRoute.Count > 0;
         }
 
-        void ScrapShip(float elapsedTime, ShipGoal goal)
+        void ScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius * 3)
             {
-                Orbit.Orbit(goal.TargetPlanet, elapsedTime);
+                Orbit.Orbit(goal.TargetPlanet, timeStep);
                 return;
             }
 
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
             {
-                ThrustOrWarpToPos(goal.TargetPlanet.Center, elapsedTime, 200f);
+                ThrustOrWarpToPos(goal.TargetPlanet.Center, timeStep, 200f);
                 return;
             }
             ClearOrders(State);
@@ -138,7 +138,7 @@ namespace Ship_Game.AI
             Owner.loyalty.GetEmpireAI().Recyclepool++;
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate )
                 State = AIState.Exterminate;
@@ -153,12 +153,12 @@ namespace Ship_Game.AI
 
             ApplySensorScanResults();
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
-            UpdateUtilityModuleAI(elapsedTime);
+            UpdateUtilityModuleAI(timeStep);
             ThrustTarget = Vector2.Zero;
 
             //UpdateCombatStateAI(elapsedTime);
 
-            if (UpdateOrderQueueAI(elapsedTime))
+            if (UpdateOrderQueueAI(timeStep))
                 return;
 
             AIStateRebase();
@@ -170,18 +170,23 @@ namespace Ship_Game.AI
             // scancomplete means the scan is done.
             if (ScanComplete && !ScanDataProcessed)
             {
-                ScanDataProcessed = true;
                 TrackProjectiles  = new Array<Projectile>(ScannedProjectiles);
                 PotentialTargets  = new BatchRemovalCollection<Ship>(ScannedTargets);
                 FriendliesNearby  = new BatchRemovalCollection<Ship>(ScannedFriendlies);
                 NearByShips       = new Array<ShipWeight>(ScannedNearby);
-                Target            = ScannedTarget;
+                ScanTargetUpdated = true;
                 
-                ScannedTarget     = null;
                 ScannedProjectiles.Clear();
                 ScannedTargets.Clear();
                 ScannedFriendlies.Clear();
                 ScannedNearby.Clear();
+                ScanDataProcessed = true;
+            }
+
+            if (ScanTargetUpdated)
+            {
+                Target            = ScannedTarget;
+                ScanTargetUpdated = false;
             }
         }
 
@@ -296,13 +301,13 @@ namespace Ship_Game.AI
                     Owner.fleet.FinalDirection, true, State);
         }
 
-        public void UpdateCombatStateAI(float elapsedTime)
+        public void UpdateCombatStateAI(FixedSimTime timeStep)
         {
-            TriggerDelay -= elapsedTime;
-            FireOnMainTargetTime -= elapsedTime;
+            TriggerDelay -= timeStep.FixedTime;
+            FireOnMainTargetTime -= timeStep.FixedTime;
             if (TriggerDelay < 0)
             {
-                TriggerDelay = elapsedTime * 2;
+                TriggerDelay = timeStep.FixedTime * 2;
                 FireOnTarget();
             }
             if (BadGuysNear && !IgnoreCombat && !HasPriorityOrder)
@@ -384,78 +389,78 @@ namespace Ship_Game.AI
             }
         }
 
-        bool UpdateOrderQueueAI(float elapsedTime)
+        bool UpdateOrderQueueAI(FixedSimTime timeStep)
         {
             if (OrderQueue.IsEmpty)
             {
-                UpdateFromAIState(elapsedTime);
+                UpdateFromAIState(timeStep);
                 return false;
             }
-            return EvaluateNextOrderQueueItem(elapsedTime);
+            return EvaluateNextOrderQueueItem(timeStep);
         }
 
-        bool EvaluateNextOrderQueueItem(float elapsedTime)
+        bool EvaluateNextOrderQueueItem(FixedSimTime timeStep)
         {
             ShipGoal goal = OrderQueue.PeekFirst;
             switch (goal?.Plan)
             {
                 case Plan.Stop:
-                    if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }       break;
-                case Plan.Bombard:                  return DoBombard(elapsedTime, goal);
-                case Plan.Exterminate:              return DoExterminate(elapsedTime, goal);
-                case Plan.Scrap:                    ScrapShip(elapsedTime, goal);                break;
-                case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, goal); break;
-                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, goal);    break;
-                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, goal);         break;
-                case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, goal);        break;
-                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);       break;
-                case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, elapsedTime); break;
+                    if (ReverseThrustUntilStopped(timeStep)) { DequeueCurrentOrder(); }       break;
+                case Plan.Bombard:                  return DoBombard(timeStep, goal);
+                case Plan.Exterminate:              return DoExterminate(timeStep, goal);
+                case Plan.Scrap:                    ScrapShip(timeStep, goal);                break;
+                case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(timeStep, goal); break;
+                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(timeStep, goal);    break;
+                case Plan.MoveToWithin1000:         MoveToWithin1000(timeStep, goal);         break;
+                case Plan.MakeFinalApproach:        MakeFinalApproach(timeStep, goal);        break;
+                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
+                case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
                 case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);           break;
-                case Plan.Explore:                  DoExplore(elapsedTime);                      break;
-                case Plan.Rebase:                   DoLandTroop(elapsedTime, goal);              break;
-                case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                break;
-                case Plan.DoCombat:                 DoCombat(elapsedTime);                       break;
+                case Plan.Explore:                  DoExplore(timeStep);                      break;
+                case Plan.Rebase:                   DoLandTroop(timeStep, goal);              break;
+                case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
+                case Plan.DoCombat:                 DoCombat(timeStep);                       break;
                 case Plan.DeployStructure:          DoDeploy(goal);                              break;
                 case Plan.DeployOrbital:            DoDeployOrbital(goal);                       break;
-                case Plan.PickupGoods:              PickupGoods.Execute(elapsedTime, goal);      break;
-                case Plan.DropOffGoods:             DropOffGoods.Execute(elapsedTime, goal);     break;
-                case Plan.ReturnToHangar:           DoReturnToHangar(elapsedTime);               break;
-                case Plan.TroopToShip:              DoTroopToShip(elapsedTime, goal);            break;
-                case Plan.BoardShip:                DoBoardShip(elapsedTime);                    break;
-                case Plan.SupplyShip:               DoSupplyShip(elapsedTime);                   break;
+                case Plan.PickupGoods:              PickupGoods.Execute(timeStep, goal);      break;
+                case Plan.DropOffGoods:             DropOffGoods.Execute(timeStep, goal);     break;
+                case Plan.ReturnToHangar:           DoReturnToHangar(timeStep);               break;
+                case Plan.TroopToShip:              DoTroopToShip(timeStep, goal);            break;
+                case Plan.BoardShip:                DoBoardShip(timeStep);                    break;
+                case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
                 case Plan.Refit:                    DoRefit(goal);                               break;
-                case Plan.LandTroop:                DoLandTroop(elapsedTime, goal);              break;
-                case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, goal);         break;
-                case Plan.ReturnHome:               DoReturnHome(elapsedTime);                   break;
-                case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                 break;
+                case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
+                case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
+                case Plan.ReturnHome:               DoReturnHome(timeStep);                   break;
+                case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
                 case Plan.HoldPosition:             HoldPosition();                              break;
                 case Plan.HoldPositionOffensive:    HoldPositionOffensive();                     break;
-                case Plan.Escort:                   AIStateEscort(elapsedTime);                  break;
+                case Plan.Escort:                   AIStateEscort(timeStep);                  break;
             }
 
             return false;
         }
 
-        void UpdateFromAIState(float elapsedTime)
+        void UpdateFromAIState(FixedSimTime timeStep)
         {
             if (Owner.fleet == null)
             {
                 ClearWayPoints();
                 switch (State)
                 {
-                    case AIState.DoNothing:      AwaitOrders(elapsedTime);           break;
-                    case AIState.AwaitingOrders: AIStateAwaitingOrders(elapsedTime); break;
-                    case AIState.Escort:         AIStateEscort(elapsedTime);         break;
-                    case AIState.SystemDefender: AwaitOrders(elapsedTime); break;
-                    case AIState.Resupply:       AwaitOrders(elapsedTime); break;
-                    case AIState.ReturnToHangar: DoReturnToHangar(elapsedTime); break;
+                    case AIState.DoNothing:      AwaitOrders(timeStep);           break;
+                    case AIState.AwaitingOrders: AIStateAwaitingOrders(timeStep); break;
+                    case AIState.Escort:         AIStateEscort(timeStep);         break;
+                    case AIState.SystemDefender: AwaitOrders(timeStep); break;
+                    case AIState.Resupply:       AwaitOrders(timeStep); break;
+                    case AIState.ReturnToHangar: DoReturnToHangar(timeStep); break;
                     case AIState.AwaitingOffenseOrders: break;
                     case AIState.Exterminate:
                         OrderFindExterminationTarget(); break;
                     default:
                         if (Target != null)
                         {
-                            Orbit.Orbit(Target, elapsedTime);
+                            Orbit.Orbit(Target, timeStep);
                         }
                         break;
                 }
@@ -463,16 +468,16 @@ namespace Ship_Game.AI
             else
             {
                 SetPriorityOrder(false);
-                IdleFleetAI(elapsedTime);
+                IdleFleetAI(timeStep);
             }
         }
 
-        bool DoNearFleetOffset(float elapsedTime)
+        bool DoNearFleetOffset(FixedSimTime timeStep)
         {
             if (NearFleetPosition())
             {
-                ReverseThrustUntilStopped(elapsedTime);
-                RotateToDirection(Owner.fleet.FinalDirection, elapsedTime, 0.02f);
+                ReverseThrustUntilStopped(timeStep);
+                RotateToDirection(Owner.fleet.FinalDirection, timeStep, 0.02f);
                 return true;
             }
             return false;
@@ -498,9 +503,9 @@ namespace Ship_Game.AI
             return false;
         }
 
-        void IdleFleetAI(float elapsedTime)
+        void IdleFleetAI(FixedSimTime timeStep)
         {
-            if (DoNearFleetOffset(elapsedTime))
+            if (DoNearFleetOffset(timeStep))
             {
                 if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
                     State = AIState.AwaitingOrders;
@@ -550,14 +555,14 @@ namespace Ship_Game.AI
             return OrderQueue.Any(g => g.Trade?.Goods == goods);
         }
 
-        public bool WaitForBlockadeRemoval(ShipGoal g, Planet planet, float elapsedTime)
+        public bool WaitForBlockadeRemoval(ShipGoal g, Planet planet, FixedSimTime timeStep)
         {
             if (planet.TradeBlocked && Owner.System != planet.ParentSystem)
             {
-                g.Trade.BlockadeTimer -= elapsedTime;
+                g.Trade.BlockadeTimer -= timeStep.FixedTime;
                 if (g.Trade.BlockadeTimer > 0f)
                 {
-                    ReverseThrustUntilStopped(elapsedTime);
+                    ReverseThrustUntilStopped(timeStep);
                     return true;
                 }
 
@@ -593,9 +598,9 @@ namespace Ship_Game.AI
                 State = AIState.AwaitingOrders;
         }
 
-        void UpdateUtilityModuleAI(float elapsedTime)
+        void UpdateUtilityModuleAI(FixedSimTime timeStep)
         {
-            UtilityModuleCheckTimer -= elapsedTime;
+            UtilityModuleCheckTimer -= timeStep.FixedTime;
             if (Owner.engineState != Ship.MoveState.Warp && UtilityModuleCheckTimer <= 0f)
             {
                 UtilityModuleCheckTimer = 1f;
@@ -660,18 +665,18 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.TroopToShip, State);
         }
         
-        public void StartSensorScan(float elapsedTime)
+        public void StartSensorScan(FixedSimTime timeStep)
         {
             ScanDataProcessed = false;
             ScanComplete = false;
-            float maxContactTimer = elapsedTime;
+            float maxContactTimer = timeStep.FixedTime;
             ScanForThreatTimer = maxContactTimer;
             ScanForTargets();
         }
 
-        public void DoManualSensorScan(float elapsedTime = 0.01666667f)
+        public void DoManualSensorScan(FixedSimTime timeStep)
         {
-            StartSensorScan(elapsedTime);
+            StartSensorScan(timeStep);
             ApplySensorScanResults();
         }
         
@@ -713,7 +718,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void AIStateEscort(float elapsedTime)
+        void AIStateEscort(FixedSimTime timeStep)
         {
             Owner.AI.SetPriorityOrder(false);
             if (EscortTarget == null || !EscortTarget.Active)
@@ -738,7 +743,7 @@ namespace Ship_Game.AI
                 || !Owner.Mothership.AI.BadGuysNear 
                 || EscortTarget != Owner.Mothership)
             {
-                Orbit.Orbit(EscortTarget, elapsedTime);
+                Orbit.Orbit(EscortTarget, timeStep);
                 return;
             }
             // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
@@ -748,23 +753,23 @@ namespace Ship_Game.AI
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own.
             if(!Owner.InCombat )
             {
-                Orbit.Orbit(EscortTarget, elapsedTime);
+                Orbit.Orbit(EscortTarget, timeStep);
                 return;
             }
 
             if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
             {
                 Owner.AI.SetPriorityOrder(true);
-                Orbit.Orbit(EscortTarget, elapsedTime);
+                Orbit.Orbit(EscortTarget, timeStep);
             }
         }
 
-        void AIStateAwaitingOrders(float elapsedTime)
+        void AIStateAwaitingOrders(FixedSimTime timeStep)
         {
             if (Owner.loyalty != Empire.Universe.player)
-                AwaitOrders(elapsedTime);
+                AwaitOrders(timeStep);
             else
-                AwaitOrdersPlayer(elapsedTime);
+                AwaitOrdersPlayer(timeStep);
         }
 
         public void Dispose()

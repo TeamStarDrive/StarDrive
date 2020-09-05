@@ -48,23 +48,23 @@ namespace Ship_Game
             Ground = planet;
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             if (Empire.Universe.Paused) 
                 return;
 
-            DecisionTimer -= elapsedTime;
-            InCombatTimer -= elapsedTime;
+            DecisionTimer -= timeStep.FixedTime;
+            InCombatTimer -= timeStep.FixedTime;
             if (RecentCombat || TroopsAreOnPlanet)
             {
-                ResolvePlanetaryBattle(elapsedTime);
+                ResolvePlanetaryBattle(timeStep);
                 if (DecisionTimer <= 0)
                 {
                     MakeCombatDecisions();
                     DecisionTimer = 0.5f;
                 }
-                DoBuildingTimers(elapsedTime);
-                DoTroopTimers(elapsedTime);
+                DoBuildingTimers(timeStep);
+                DoTroopTimers(timeStep);
             }
         }
 
@@ -245,7 +245,7 @@ namespace Ship_Game
             return targetTile != null;
         }
 
-        private void DoBuildingTimers(float elapsedTime)
+        private void DoBuildingTimers(FixedSimTime timeStep)
         {
             if (BuildingList.Count <= 0)
                 return;
@@ -256,7 +256,7 @@ namespace Ship_Game
                 if (building == null || !building.IsAttackable)
                     continue;
 
-                building.UpdateAttackTimer(-elapsedTime);
+                building.UpdateAttackTimer(-timeStep.FixedTime);
                 if (building.AttackTimer < 0.0)
                 {
                     building.UpdateAttackActions(1);
@@ -265,7 +265,7 @@ namespace Ship_Game
             }
         }
 
-        private void DoTroopTimers(float elapsedTime)
+        private void DoTroopTimers(FixedSimTime timeStep)
         {
             if (NoTroopsOnPlanet)
                 return;
@@ -276,7 +276,7 @@ namespace Ship_Game
                 if (troop == null)
                     continue;
 
-                if (troop.Strength <= 0)
+                if (troop.Strength <= 0f)
                 {
                     for (int i = TilesList.Count - 1; i >= 0; i--)
                     {
@@ -286,17 +286,17 @@ namespace Ship_Game
                     continue;
                 }
 
-                troop.UpdateLaunchTimer(-elapsedTime);
-                troop.UpdateMoveTimer(-elapsedTime);
-                troop.MovingTimer -= elapsedTime;
-                if (troop.MoveTimer < 0.0)
+                troop.UpdateLaunchTimer(-timeStep.FixedTime);
+                troop.UpdateMoveTimer(-timeStep.FixedTime);
+                troop.MovingTimer -= timeStep.FixedTime;
+                if (troop.MoveTimer < 0f)
                 {
                     troop.UpdateMoveActions(troop.MaxStoredActions);
                     troop.ResetMoveTimer();
                 }
 
-                troop.UpdateAttackTimer(-elapsedTime);
-                if (troop.AttackTimer < 0.0)
+                troop.UpdateAttackTimer(-timeStep.FixedTime);
+                if (troop.AttackTimer < 0f)
                 {
                     troop.UpdateAttackActions(troop.MaxStoredActions);
                     troop.ResetAttackTimer();
@@ -304,7 +304,7 @@ namespace Ship_Game
             }
         }
 
-        private void ResolveTacticalCombats(float elapsedTime, bool isViewing = false)
+        private void ResolveTacticalCombats(FixedSimTime timeStep, bool isViewing = false)
         {
             using (ActiveCombats.AcquireReadLock())
                 for (int i = ActiveCombats.Count - 1; i >= 0; i--)
@@ -316,7 +316,7 @@ namespace Ship_Game
                         break;
                     }
 
-                    combat.Timer -= elapsedTime;
+                    combat.Timer -= timeStep.FixedTime;
                     if (combat.Timer < 3.0 && combat.Phase == 1)
                         combat.ResolveDamage(isViewing);
                     else if (combat.Phase == 2)
@@ -350,17 +350,17 @@ namespace Ship_Game
             }
         }
 
-        private void ResolvePlanetaryBattle(float elapsedTime)
+        private void ResolvePlanetaryBattle(FixedSimTime timeStep)
         {
             if (Empire.Universe.LookingAtPlanet 
                 && Empire.Universe.workersPanel is CombatScreen screen 
                 && screen.p == Ground)
             {
-                ResolveTacticalCombats(elapsedTime, isViewing: true);
+                ResolveTacticalCombats(timeStep, isViewing: true);
             }
             else
             {
-                ResolveTacticalCombats(elapsedTime);
+                ResolveTacticalCombats(timeStep);
             }
 
             if (ActiveCombats.Count > 0)

@@ -226,13 +226,13 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-        void RenderOverFog(SpriteBatch batch, GameTime gameTime)
+        void RenderOverFog(SpriteBatch batch)
         {
             foreach (SolarSystem sys in SolarSystemList)
             {
                 if (viewState >= UnivScreenState.SectorView)
                 {
-                    DrawSolarSystemSectorView(gameTime, sys);
+                    DrawSolarSystemSectorView(sys);
                 }
                 if (viewState >= UnivScreenState.GalaxyView) // super zoomed out
                 {
@@ -243,8 +243,8 @@ namespace Ship_Game
             {
                 var currentEmpire = SelectedShip?.loyalty ?? player;
                 var enemies = EmpireManager.GetEnemies(currentEmpire);
-                var ssps    = EmpireManager.Player.GetProjectors().ToArray();
-                for (int i = 0; i < ssps.Length; i++)
+                var ssps    = EmpireManager.Player.GetProjectors();
+                for (int i = 0; i < ssps.Count; i++)
                 {
                     var ssp = ssps[i];
                     int spacing = 1;
@@ -265,7 +265,7 @@ namespace Ship_Game
 
         }
 
-        void DrawSolarSystemSectorView(GameTime gameTime, SolarSystem solarSystem)
+        void DrawSolarSystemSectorView(SolarSystem solarSystem)
         {
             if (!Frustum.Contains(solarSystem.Position, 10f))
                 return;
@@ -591,7 +591,7 @@ namespace Ship_Game
             }
         }
 
-        void Render(SpriteBatch batch, GameTime gameTime)
+        void Render(SpriteBatch batch, FrameTimes elapsed)
         {
             if (Frustum == null)
                 Frustum = new BoundingFrustum(View * Projection);
@@ -599,7 +599,7 @@ namespace Ship_Game
                 Frustum.Matrix = View * Projection;
 
             CreateShipSceneObjects();
-            ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
+            ScreenManager.BeginFrameRendering(ref View, ref Projection);
 
             RenderBackdrop(batch);
 
@@ -665,7 +665,7 @@ namespace Ship_Game
             }
             if (!Paused) // Particle pools need to be updated
             {
-                float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+                float deltaTime = elapsed.RealTime.Seconds;
                 beamflashes.Update(deltaTime);
                 explosionParticles.Update(deltaTime);
                 photonExplosionParticles.Update(deltaTime);

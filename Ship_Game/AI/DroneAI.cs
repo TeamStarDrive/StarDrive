@@ -39,7 +39,7 @@ namespace Ship_Game.AI
         }
 
         // the drone will orbit around the ship it's healing
-        void OrbitShip(Ship ship, float elapsedTime)
+        void OrbitShip(Ship ship, FixedSimTime timeStep)
         {
             Vector2 orbitalPos = ship.Center.PointFromAngle(OrbitalAngle, 1500f);
             if (orbitalPos.InRadius(Drone.Center, 1500f))
@@ -49,15 +49,15 @@ namespace Ship_Game.AI
                     OrbitalAngle -= 360f;
                 orbitalPos = ship.Center.PointFromAngle(OrbitalAngle, 2500f);
             }
-            if (elapsedTime > 0f)
-                Drone.GuidedMoveTowards(elapsedTime, DroneTarget?.Center ?? orbitalPos, 0f);
+            if (timeStep.FixedTime > 0f)
+                Drone.GuidedMoveTowards(timeStep, DroneTarget?.Center ?? orbitalPos, 0f);
         }
 
-        public void Think(float elapsedTime)
+        public void Think(FixedSimTime timeStep)
         {
-            DroneWeapon.CooldownTimer -= elapsedTime;
+            DroneWeapon.CooldownTimer -= timeStep.FixedTime;
+            ThinkTimer -= timeStep.FixedTime;
 
-            ThinkTimer -= elapsedTime;
             if (ThinkTimer <= 0f && (DroneTarget == null || !DroneTarget.Active 
                                                          || DroneTarget.HealthStatus >= Status.Maximum))
             {
@@ -69,14 +69,14 @@ namespace Ship_Game.AI
             {
                 Beams.KillActive(true, true);
                 if (Drone.Owner != null)
-                    OrbitShip(Drone.Owner, elapsedTime);
+                    OrbitShip(Drone.Owner, timeStep);
             }
             else
             {
                 TryFireDroneBeam();
                 if (Beams.NotEmpty) 
-                    Beams.Update(elapsedTime);
-                OrbitShip(DroneTarget, elapsedTime);
+                    Beams.Update(timeStep);
+                OrbitShip(DroneTarget, timeStep);
             }
         }
 

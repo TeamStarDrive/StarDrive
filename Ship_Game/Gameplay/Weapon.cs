@@ -378,8 +378,7 @@ namespace Ship_Game.Gameplay
         {
             // cooldown should start after all salvos have finished, so
             // increase the cooldown by SalvoTimer
-            lock (Empire.Universe.RandomLock)
-                CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
+            CooldownTimer = NetFireDelay + RandomMath.RandomBetween(-10f, +10f) * 0.008f;
 
             Owner.InCombatTimer = 15f;
             Owner.ChangeOrdnance(-OrdinanceRequiredToFire);
@@ -842,17 +841,17 @@ namespace Ship_Game.Gameplay
                 ToggleCue.Stop();
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             if (CooldownTimer > 0f)
             {
                 if (WeaponType != "Drone")
-                    CooldownTimer = MathHelper.Max(CooldownTimer - elapsedTime, 0f);
+                    CooldownTimer = MathHelper.Max(CooldownTimer - timeStep.FixedTime, 0f);
             }
 
             if (SalvosToFire > 0)
             {
-                SalvoFireTimer += elapsedTime;
+                SalvoFireTimer += timeStep.FixedTime;
                 ContinueSalvo();
             }
             else

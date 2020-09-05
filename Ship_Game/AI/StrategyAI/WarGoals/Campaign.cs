@@ -151,7 +151,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     break;
                 case CampaignType.SystemDefense:
                     return new SystemDefense(campaign, theater);
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

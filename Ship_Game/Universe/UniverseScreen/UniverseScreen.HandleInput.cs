@@ -236,7 +236,7 @@ namespace Ship_Game
                     return true;
                 if (input.GetMemory)
                 {
-                    Memory = GC.GetTotalMemory(false) / 1024f;
+                    GC.GetTotalMemory(false);
                 }
             }
 
@@ -1230,7 +1230,7 @@ namespace Ship_Game
                 }
             }
             fleet.SetCommandShip(null);
-            fleet.Update(0);
+            fleet.Update(FixedSimTime.Zero/*paused during init*/);
             fleet.AutoArrange();
             InputCheckPreviousShip();
 

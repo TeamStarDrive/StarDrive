@@ -109,9 +109,9 @@ namespace Ship_Game
             Velocity = vtt * 1350f;
         }
 
-        public void Update(float deltaTime)
+        public void Update(FixedSimTime timeStep)
         {
-            Position += Velocity*deltaTime;
+            Position += Velocity * timeStep.FixedTime;
             World    = Matrix.CreateTranslation(Position);
                         //* Matrix.CreateRotationZ(Facing);
 
@@ -132,8 +132,8 @@ namespace Ship_Game
                 TrailEmitter     = Empire.Universe.projectileTrailParticles.NewEmitter(500f, Position);
                 FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, Position);
             }
-            TrailEmitter.Update(deltaTime, Position);
-            FireTrailEmitter.Update(deltaTime, Position);
+            TrailEmitter.Update(timeStep.FixedTime, Position);
+            FireTrailEmitter.Update(timeStep.FixedTime, Position);
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Ship_Game
 
         public float IncomingFood { get; protected set; }
         public float IncomingProd { get; protected set; }
+        public float IncomingPop { get; protected set; }
 
         public int NumIncomingFreighters   => IncomingFreighters.Count;
         public int NumOutgoingFreighters   => OutgoingFreighters.Count;
@@ -85,9 +86,10 @@ namespace Ship_Game
                         return 0;  
                 }
 
-                int foodIncomeSlots  = (int)(1 - Food.NetIncome);
-                int foodStorageRatio = (int)((1 - Storage.FoodRatio) * 3);
-                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 5 + Owner.NumTradeTreaties);
+                float foodMissing = Storage.Max - FoodHere - IncomingFood;
+                foodMissing      += (-Food.NetIncome * AverageImportTurns).LowerBound(0);
+                int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5) + Owner.NumTradeTreaties;
+                return (int)(foodMissing / Owner.AverageFreighterCargoCap).Clamped(0, maxSlots);
             }
         }
 
@@ -98,25 +100,27 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportProd)
                     return 0;
 
+                float averageFreighterCargoCap = Owner.AverageFreighterCargoCap;
                 if (NonCybernetic)
                 {
                     switch (ConstructionQueue.Count)
                     {
                         // No construction queue cases for non cybernetics
                         case 0 when Storage.ProdRatio.AlmostEqual(1): return 0;
-                        case 0: return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0, 6);
+                        case 0: return ((int)((Storage.Max - ProdHere - IncomingProd) / averageFreighterCargoCap) + 1).Clamped(0, 6);
                     }
                 }
 
                 // We have items in construction
-                float totalProdNeeded = TotalProdNeededInQueue() - ProdHere - IncomingProd;
-                float totalProdSlots  = (totalProdNeeded / Owner.AverageFreighterCargoCap).LowerBound(0);
+                float prodForStorage  = Storage.Max - ProdHere;
+                float totalProdNeeded = prodForStorage + TotalProdNeededInQueue() - IncomingProd;
+                float totalProdSlots  = (totalProdNeeded / averageFreighterCargoCap).LowerBound(0);
 
                 if (IsCybernetic) // They need prod as food
-                    totalProdSlots += (int)((1 - Storage.ProdRatio) * 3);
+                    totalProdSlots += ((int)(-Prod.NetIncome * AverageImportTurns / averageFreighterCargoCap)).LowerBound(0);
 
-                int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5);
-                return (int)(totalProdSlots).Clamped(0, maxSlots + Owner.NumTradeTreaties);
+                int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5) + Owner.NumTradeTreaties;
+                return (int)(totalProdSlots).Clamped(0, maxSlots);
             }
         }
 
@@ -235,16 +239,16 @@ namespace Ship_Game
             if (!ExportProd)
                 return 0;
 
-            float maxProdLoad   = importPlanet.Storage.Max - importPlanet.ProdHere;
+            float maxProdLoad   = importPlanet.Storage.Max - importPlanet.ProdHere - importPlanet.IncomingProd;
             float prodLoadLimit = exportPlanet.ExportGoodsLimit(Goods.Production);
             if (importPlanet.Prod.NetIncome < 0) // Cybernetics can have negative production
             {
-                maxProdLoad -= importPlanet.Food.NetIncome * eta;
+                maxProdLoad -= importPlanet.Prod.NetIncome * eta;
             }
             else
             {
                 if (importPlanet.ConstructionQueue.Count > 0)
-                    maxProdLoad += importPlanet.InfraStructure * eta.UpperBound(importPlanet.TurnsUntilQueueCompleted);
+                    maxProdLoad += importPlanet.Prod.NetIncome * eta.UpperBound(importPlanet.TurnsUntilQueueCompleted);
                 else
                     maxProdLoad = ProdHere.UpperBound(maxProdLoad);
             }
@@ -256,6 +260,7 @@ namespace Ship_Game
         {
             IncomingFood = CalcIncomingGoods(Goods.Food);
             IncomingProd = CalcIncomingGoods(Goods.Production);
+            IncomingPop  = CalcIncomingGoods(Goods.Colonists);
         }
 
         float CalcIncomingGoods(Goods goods)

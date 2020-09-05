@@ -23,9 +23,9 @@ namespace Ship_Game.Universe
             Owner = empire;
         }
 
-        public void Update(float reaTime, float gameTime)
+        public void Update(FixedSimTime timeStep)
         {
-            CombatTimer -= Owner.isPlayer ? reaTime : gameTime;
+            CombatTimer -= timeStep.FixedTime;
             if (CombatTimer <= 0f)
                 HostileForcesPresent = false;
 

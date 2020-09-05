@@ -465,7 +465,7 @@ namespace Ship_Game.Ships
         }
 
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
-        public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
+        public void UpdateEveryFrame(FixedSimTime timeStep, float cos, float sin, float tan)
         {
             Vector2 offset = LocalCenter;
             Vector2 pcenter = Parent.Center;
@@ -477,7 +477,7 @@ namespace Ship_Game.Ships
             Center3D.Y = cy;
             Center3D.Z = tan * (256f - XMLPosition.X);
 
-            UpdateDamageVisualization(elapsedTime);
+            UpdateDamageVisualization(timeStep);
             Rotation = Parent.Rotation; // assume parent rotation is already normalized
         }
 
@@ -500,7 +500,7 @@ namespace Ship_Game.Ships
             float r2 = radius + Radius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
-            if (dx * dx + dy * dy > r2 * r2)
+            if ((dx*dx + dy*dy) > (r2*r2))
                 return false; // definitely out of radius for SQUARE and non-square modules
 
             // we are a Square module? since we're already inside radius, collision happened
@@ -539,7 +539,7 @@ namespace Ship_Game.Ships
             float r2 = radius + ShieldHitRadius;
             float dx = Center.X - worldPos.X;
             float dy = Center.Y - worldPos.Y;
-            return dx * dx + dy * dy <= r2 * r2;
+            return (dx*dx + dy*dy) <= (r2*r2);
         }
 
         public bool RayHitTestShield(Vector2 startPos, Vector2 endPos, float rayRadius, out float distanceFromStart)
@@ -1013,7 +1013,7 @@ namespace Ship_Game.Ships
             Parent.UpdateExternalSlots(this, becameActive: true);
         }
 
-        public override void Update(float elapsedTime)
+        public override void Update(FixedSimTime timeStep)
         {
             if (Active && Health < 1f)
             {
@@ -1025,30 +1025,30 @@ namespace Ship_Game.Ships
             }
 
             if (Active && ModuleType == ShipModuleType.Hangar)
-                hangarTimer -= elapsedTime;
+                hangarTimer -= timeStep.FixedTime;
 
             // Shield Recharge / Discharge
             if (Is(ShipModuleType.Shield))
             {
                 float shieldMax = ActualShieldPowerMax;
-                ShieldPower = RechargeShields(ShieldPower, shieldMax, elapsedTime); // use regular recharge
+                ShieldPower = RechargeShields(ShieldPower, shieldMax, timeStep); // use regular recharge
             }
 
             if (TransporterTimer > 0)
-                TransporterTimer -= elapsedTime;
+                TransporterTimer -= timeStep.FixedTime;
 
-            base.Update(elapsedTime);
+            base.Update(timeStep);
         }
 
-        float RechargeShields(float shieldPower, float shieldMax, float elapsedTime)
+        float RechargeShields(float shieldPower, float shieldMax, FixedSimTime timeStep)
         {
             if (!Active || !Powered || shieldPower >= shieldMax)
                 return shieldPower;
 
             if (Parent.ShieldRechargeTimer > shield_recharge_delay)
-                shieldPower += shield_recharge_rate * elapsedTime;
+                shieldPower += shield_recharge_rate * timeStep.FixedTime;
             else if (ShieldPower > 0)
-                shieldPower += shield_recharge_combat_rate * elapsedTime;
+                shieldPower += shield_recharge_combat_rate * timeStep.FixedTime;
             return shieldPower.Clamped(0, shieldMax);
         }
 
@@ -1071,7 +1071,7 @@ namespace Ship_Game.Ships
         }
 
         // @note This is called every frame for every module for every ship in the universe
-        void UpdateDamageVisualization(float elapsedTime)
+        void UpdateDamageVisualization(FixedSimTime timeStep)
         {
             if (!CanVisualizeDamage)
                 return; // bail out for modules that are never visualized
@@ -1082,7 +1082,7 @@ namespace Ship_Game.Ships
                 if (DamageVisualizer == null)
                     DamageVisualizer = new ShipModuleDamageVisualization(this);
 
-                DamageVisualizer.Update(elapsedTime, Center3D, Active);
+                DamageVisualizer.Update(timeStep, Center3D, Active);
             }
             else // destroy immediately when out of vision range or if module is no longer OnFire
             {
@@ -1090,10 +1090,10 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void UpdateWhileDying(float elapsedTime)
+        public void UpdateWhileDying(FixedSimTime timeStep)
         {
             Center3D = Parent.Center.ToVec3(UniverseRandom.RandomBetween(-25f, 25f));
-            UpdateDamageVisualization(elapsedTime);
+            UpdateDamageVisualization(timeStep);
         }
 
         public float Repair(float repairAmount)

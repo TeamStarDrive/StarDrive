@@ -38,8 +38,8 @@ namespace Ship_Game.AI
 
             if (Missile.Weapon.DelayedIgnition.Greater(0))
             {
-                float launchDir   = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
-                float rotation    = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
+                float launchDir = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
+                float rotation = Missile.Weapon.Owner?.Rotation ?? Missile.Rotation;
                 Missile.Velocity += (rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(100));
             }
 
@@ -127,7 +127,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void MoveTowardsTargetJammed(float elapsedTime)
+        void MoveTowardsTargetJammed(FixedSimTime timeStep)
         {
             if (Target == null)
             {
@@ -151,7 +151,7 @@ namespace Ship_Game.AI
                 targetPos = Missile.FixedError;
             }
 
-            Missile.GuidedMoveTowards(elapsedTime, targetPos, 0f);
+            Missile.GuidedMoveTowards(timeStep, targetPos, 0f);
 
             float distanceToEnd = Missile.Center.Distance(targetPos);
             if (distanceToEnd <= 300f)
@@ -160,7 +160,7 @@ namespace Ship_Game.AI
         }
 
         // added by gremlin Deveksmod Missilethink.
-        public void Think(float elapsedTime)
+        public void Think(FixedSimTime timeStep)
         {
             Vector2 targetIntercept = Vector2.Zero;
             if (Target != null)
@@ -178,7 +178,7 @@ namespace Ship_Game.AI
 
                 if (DelayedIgnitionTimer > 0) // ignition phase for some missiles
                 {
-                    DelayedIgnitionTimer -= elapsedTime;
+                    DelayedIgnitionTimer -= timeStep.FixedTime;
                     if (DelayedIgnitionTimer.LessOrEqual(0))
                         Missile.IgniteEngine();
 
@@ -187,7 +187,7 @@ namespace Ship_Game.AI
 
                 if (Jammed)
                 {
-                    MoveTowardsTargetJammed(elapsedTime);
+                    MoveTowardsTargetJammed(timeStep);
                     return;
                 }
 
@@ -199,16 +199,15 @@ namespace Ship_Game.AI
 
                 if (Missile.Weapon.TerminalPhaseAttack && distanceToTarget <= Missile.Weapon.TerminalPhaseDistance)
                 {
-                    Missile.GuidedMoveTowards(elapsedTime, targetIntercept, 0f, terminalPhase: true);
+                    Missile.GuidedMoveTowards(timeStep, targetIntercept, 0f, terminalPhase: true);
                     return;
                 }
             }
 
-            TargetUpdateTimer    -= elapsedTime;
-            ErrorAdjustTimer     -= elapsedTime;
-            RandomDirectionTimer -= elapsedTime;
-            InitialPhaseTimer    -= elapsedTime;
-            
+            TargetUpdateTimer    -= timeStep.FixedTime;
+            ErrorAdjustTimer     -= timeStep.FixedTime;
+            RandomDirectionTimer -= timeStep.FixedTime;
+            InitialPhaseTimer    -= timeStep.FixedTime;
 
             if (TargetUpdateTimer <= 0f)
             {
@@ -247,7 +246,7 @@ namespace Ship_Game.AI
             if (Target != null)
             {
                 Vector2 target = targetIntercept + TargetError;
-                Missile.GuidedMoveTowards(elapsedTime, target, nozzleDirection);
+                Missile.GuidedMoveTowards(timeStep, target, nozzleDirection);
             }
             else
             {

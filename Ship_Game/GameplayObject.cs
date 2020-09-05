@@ -18,7 +18,9 @@ namespace Ship_Game
         Proj       = 4,
         Beam       = 8,
         Asteroid   = 16,
-        Moon       = 32
+        Moon       = 32,
+        // Can be used as a search filter to match all object types
+        Any = 255,
     }
 
     public abstract class GameplayObject
@@ -134,7 +136,7 @@ namespace Ship_Game
             System = system;
         }
 
-        public void ChangeLoyalty(Empire changeTo)
+        public void ChangeLoyalty(Empire changeTo, bool notification = true)
         {
             // spatial collisions are filtered by loyalty,
             // so we need to remove and re-insert after the loyalty change
@@ -164,12 +166,15 @@ namespace Ship_Game
 
                 ship.SwitchTroopLoyalty(ship.loyalty);
                 ship.ReCalculateTroopsAfterBoard();
-                changeTo.AddBoardSuccessNotification(ship);
                 ship.ScuttleTimer = -1f; // Cancel any active self destruct 
                 changeTo.AddShip(ship);
-                oldLoyalty.AddBoardedNotification(ship);
                 ship.PiratePostChangeLoyalty();
                 ship.IsGuardian = changeTo.WeAreRemnants;
+                if (notification)
+                {
+                    changeTo.AddBoardSuccessNotification(ship);
+                    oldLoyalty.AddBoardedNotification(ship);
+                }
             }
 
             // this resets the spatial management
@@ -200,7 +205,7 @@ namespace Ship_Game
             return false;
         }
 
-        public virtual void Update(float elapsedTime)
+        public virtual void Update(FixedSimTime timeStep)
         {
         }
 

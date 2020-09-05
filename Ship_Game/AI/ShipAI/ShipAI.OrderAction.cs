@@ -641,7 +641,7 @@ namespace Ship_Game.AI
             return true;
         }
 
-        void AwaitOrders(float elapsedTime)
+        void AwaitOrders(FixedSimTime timeStep)
         {
             if (Owner.IsPlatformOrStation) 
                 return;
@@ -656,7 +656,7 @@ namespace Ship_Game.AI
             {
                 if (SystemToDefend != null || Owner.loyalty.isPlayer)
                 {
-                    Orbit.Orbit(AwaitClosest, elapsedTime);
+                    Orbit.Orbit(AwaitClosest, timeStep);
                     return;
                 }
                 if (AwaitClosest.ParentSystem.OwnerList.Count > 0)
@@ -668,7 +668,7 @@ namespace Ship_Game.AI
                 || SetAwaitClosestForPlayer()
                 || SetAwaitClosestForAIEmpire() && AwaitClosest != null)
             {
-                Orbit.Orbit(AwaitClosest, elapsedTime);
+                Orbit.Orbit(AwaitClosest, timeStep);
             }
             else
             {
@@ -676,10 +676,10 @@ namespace Ship_Game.AI
             }
         }
 
-        void AwaitOrdersPlayer(float elapsedTime)
+        void AwaitOrdersPlayer(FixedSimTime timeStep)
         {
             SetPriorityOrder(false);
-            if (Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
+            if (Owner.InCombatTimer > timeStep.FixedTime * -5 && ScanForThreatTimer < 2 - timeStep.FixedTime * 5)
                 ScanForThreatTimer = 0;
             if (EscortTarget != null)
             {
@@ -693,7 +693,7 @@ namespace Ship_Game.AI
                     Planet p = Owner.loyalty.GetEmpireAI().DefensiveCoordinator.AssignIdleShips(Owner);
                     if (p != null)
                     {
-                        Orbit.Orbit(p, elapsedTime);
+                        Orbit.Orbit(p, timeStep);
                         AwaitClosest = p;
                     }
                     return;
@@ -701,7 +701,7 @@ namespace Ship_Game.AI
 
                 if (AwaitClosest != null)
                 {
-                    Orbit.Orbit(AwaitClosest, elapsedTime);
+                    Orbit.Orbit(AwaitClosest, timeStep);
                     return;
                 }
                 AwaitClosest = Owner.loyalty.GetEmpireAI().GetKnownPlanets()
@@ -713,7 +713,7 @@ namespace Ship_Game.AI
                 HadPO = false;
                 return;
             }
-            ReverseThrustUntilStopped(elapsedTime);
+            ReverseThrustUntilStopped(timeStep);
         }
     }
 }

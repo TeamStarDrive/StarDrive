@@ -35,6 +35,7 @@ namespace Ship_Game.AI
         
         bool ScanComplete = true;
         bool ScanDataProcessed = true;
+        bool ScanTargetUpdated = true;
 
         public GameplayObject[] GetObjectsInSensors(GameObjectType gameObjectType, float radius)
         {
@@ -56,29 +57,38 @@ namespace Ship_Game.AI
 
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
-            for (int x = PotentialTargets.Count - 1; x >= 0; x--)
+
+            // ScanDataProcessed check prevents the potential targets and projectile lists from being modified 
+            // while they could be being updated on the ship thread. when the ScanDataProcessed is true the lists have been been updated.
+            // while false it means there are results waiting to be processed. 
+            if (ScanDataProcessed)
             {
-                var target = PotentialTargets[x];
-                if (target == null || !target.Active || target.Health <= 0.0f || target.dying)
-                    PotentialTargets.RemoveAtSwapLast(x);
-            }
-            for (int x = TrackProjectiles.Count - 1; x >= 0; x--)
-            {
-                var target = TrackProjectiles[x];
-                if (target == null || !target.Active || target.Health <= 0.0f)
-                    TrackProjectiles.RemoveAtSwapLast(x);
+                for (int x = PotentialTargets.Count - 1; x >= 0; x--)
+                {
+                    var target = PotentialTargets[x];
+                    if (target == null || !target.Active || target.Health <= 0.0f || target.dying)
+                        PotentialTargets.RemoveAtSwapLast(x);
+                }
+
+                for (int x = TrackProjectiles.Count - 1; x >= 0; x--)
+                {
+                    var target = TrackProjectiles[x];
+                    if (target == null || !target.Active || target.Health <= 0.0f)
+                        TrackProjectiles.RemoveAtSwapLast(x);
+                }
             }
 
             if (Target?.Active == false || Target?.Health <= 0.0f || Target is Ship ship && ship.dying)
             {
-                Target = null;
+                ScannedTarget = null;
+                ScanTargetUpdated = true;
             }
 
             for (int i = 0; i < count; ++i)
             {
                 var weapon = weapons[i];
-                if (weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets) &&
-                    weapon.FireTarget.ParentIsThis(Target))
+                if (weapon.UpdateAndFireAtTarget(ScannedTarget, TrackProjectiles, PotentialTargets) &&
+                    weapon.FireTarget.ParentIsThis(ScannedTarget))
                 {
                     float weaponFireTime;
                     if (weapon.isBeam)
@@ -161,7 +171,7 @@ namespace Ship_Game.AI
                     if (TargetQueue.Count > 0)
                     {
                         HasPriorityTarget = true;
-                        Target = TargetQueue.First();
+                        ScannedTarget = TargetQueue.First();
                     }
                 }
             }
@@ -248,12 +258,12 @@ namespace Ship_Game.AI
             {
                 if (target.loyalty == Owner.loyalty)
                 {
-                    Target = null;
+                    ScannedTarget = null;
                     HasPriorityTarget = false;
                 }
                 else if (!Intercepting && target.engineState == Ship.MoveState.Warp)
                 {
-                    Target = null;
+                    ScannedTarget = null;
                     if (!HasPriorityOrder && Owner.loyalty != Empire.Universe.player)
                         State = AIState.AwaitingOrders;
                     return null;
@@ -286,7 +296,7 @@ namespace Ship_Game.AI
 
             if (Target?.Active != true)
             {
-                Target = null;
+                ScannedTarget = null;
                 HasPriorityTarget = false;
             }
             else if (Target?.Active == true && HasPriorityTarget && Target is Ship ship)
@@ -425,7 +435,7 @@ namespace Ship_Game.AI
 
                 // in radius of the motherships sensors then use that.
                 if (Owner.Center.InRadius(sensorShip.Center, motherRange - Owner.SensorRange))
-                    return motherRange;               
+                    return motherRange;
             }
             sensorShip = Owner;
             float sensorRange = Owner.SensorRange + (Owner.IsInFriendlyProjectorRange ? 10000 : 0);

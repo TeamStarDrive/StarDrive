@@ -117,10 +117,9 @@ namespace Ship_Game.Ships
             MaxSTLSpeed = ShipStats.GetSTLSpeed(Thrust, Mass, loyalty);
         }
 
-        public void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
+        public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir)
         {
-            
-            float rotAmount = rotationDir * elapsedTime * RotationRadiansPerSecond;
+            float rotAmount = rotationDir * timeStep.FixedTime * RotationRadiansPerSecond;
             if (Math.Abs(rotAmount) > angleDiff)
             {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
@@ -134,29 +133,29 @@ namespace Ship_Game.Ships
             if (rotAmount > 0f) // Y-bank:
             {
                 if (yRotation > -MaxBank)
-                    yRotation -= GetYBankAmount(elapsedTime);
+                    yRotation -= GetYBankAmount(timeStep);
             }
             else if (rotAmount < 0f)
             {
                 if (yRotation <  MaxBank)
-                    yRotation += GetYBankAmount(elapsedTime);
+                    yRotation += GetYBankAmount(timeStep);
             }
 
             Rotation += rotAmount;
             Rotation = Rotation.AsNormalizedRadians();
         }
 
-        public void RestoreYBankRotation(float elapsedTime)
+        public void RestoreYBankRotation(FixedSimTime timeStep)
         {
             if (yRotation > 0f)
             {
-                yRotation -= GetYBankAmount(elapsedTime);
+                yRotation -= GetYBankAmount(timeStep);
                 if (yRotation < 0f)
                     yRotation = 0f;
             }
             else if (yRotation < 0f)
             {
-                yRotation += GetYBankAmount(elapsedTime);
+                yRotation += GetYBankAmount(timeStep);
                 if (yRotation > 0f)
                     yRotation = 0f;
             }
@@ -191,13 +190,13 @@ namespace Ship_Game.Ships
             ThrustThisFrame = Ships.Thrust.AllStop;
         }
 
-        void UpdateVelocityAndPosition(float elapsedTime)
+        void UpdateVelocityAndPosition(FixedSimTime timeStep)
         {
             Vector2 newAcc = GetNewAccelerationForThisFrame();
             if (newAcc.AlmostZero())
                 newAcc = default;
 
-            IntegratePosVelocityVerlet(elapsedTime, newAcc);
+            IntegratePosVelocityVerlet(timeStep.FixedTime, newAcc);
         }
 
         // Velocity Verlet integration method
@@ -421,7 +420,7 @@ namespace Ship_Game.Ships
         }
 
         // called from Ship.Update
-        void UpdateEnginesAndVelocity(float elapsedTime)
+        void UpdateEnginesAndVelocity(FixedSimTime timeStep)
         {
             if (engineState == MoveState.Sublight && CurrentVelocity > MaxSTLSpeed)
             {
@@ -429,7 +428,7 @@ namespace Ship_Game.Ships
                 Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
             }
 
-            UpdateHyperspaceInhibited(elapsedTime);
+            UpdateHyperspaceInhibited(timeStep);
             SetMaxFTLSpeed();
 
             switch (engineState)
@@ -440,7 +439,7 @@ namespace Ship_Game.Ships
 
             if (!IsTurning)
             {
-                RestoreYBankRotation(elapsedTime);
+                RestoreYBankRotation(timeStep);
             }
 
             if (engineState == MoveState.Warp && Velocity.Length() < SpeedLimit)
@@ -450,10 +449,10 @@ namespace Ship_Game.Ships
                 ThrustThisFrame = Ships.Thrust.Forward;
             }
 
-            UpdateVelocityAndPosition(elapsedTime);
+            UpdateVelocityAndPosition(timeStep);
 
             if (IsSpooling && !Inhibited && MaxFTLSpeed >= LightSpeedConstant)
-                UpdateWarpSpooling(elapsedTime);
+                UpdateWarpSpooling(timeStep);
         }
 
         public bool GetEscapeVector(out Vector2 escapePos)

@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -15,6 +17,9 @@ namespace Ship_Game
         int OutgoingFoodFreighters;
         int OutgoingProdFreighters;
         int OutgoingColoFreighters;
+        int IncomingFood;
+        int IncomingProd;
+        float IncomingPop;
         int UpdateTimer;
         bool TerraformResearched;
 
@@ -243,40 +248,25 @@ namespace Ship_Game
             {
                 Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
                 Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
-                int lineDown = Font12.LineSpacing + 2;
                 batch.DrawString(Font12, "Incoming Freighters:", incomingTitle, Color.White);
-                incomingTitle.Y += lineDown;
-                incomingData.Y  += lineDown;
-                batch.DrawString(Font12, $"{Localizer.Token(161)}:", incomingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{IncomingFoodFreighters}", incomingData, Color.White);
-                incomingTitle.Y += lineDown;
-                incomingData.Y  += lineDown;
-                batch.DrawString(Font12, $"{Localizer.Token(162)}:", incomingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{IncomingProdFreighters}", incomingData, Color.White);
-                incomingTitle.Y += lineDown;
-                incomingData.Y  += lineDown;
-                batch.DrawString(Font12, $"{Localizer.Token(1962)}:", incomingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{IncomingColoFreighters}", incomingData, Color.White);
+
+                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingFoodFreighters,
+                    IncomingFood.String(), GameText.Food);
+                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingProdFreighters,
+                    IncomingProd.String(), GameText.Production);
+                DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingColoFreighters,
+                    IncomingPop.String(2), GameText.Colonists);
+
             }
 
             if (OutgoingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
             {
                 Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
                 Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
-                int lineDown = Font12.LineSpacing + 2;
                 batch.DrawString(Font12, "Outgoing Freighters:", outgoingTitle, Color.White);
-                outgoingTitle.Y += lineDown;
-                outgoingData.Y  += lineDown;
-                batch.DrawString(Font12, $"{Localizer.Token(161)}:", outgoingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{OutgoingFoodFreighters}", outgoingData, Color.White);
-                outgoingTitle.Y += lineDown;
-                outgoingData.Y  += lineDown;
-                batch.DrawString(Font12, $"{Localizer.Token(162)}:", outgoingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{OutgoingProdFreighters}", outgoingData, Color.White);
-                outgoingTitle.Y += lineDown;
-                outgoingData.Y  += lineDown;
-                batch.DrawString(Font12, $"{Localizer.Token(1962)}:", outgoingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{OutgoingColoFreighters}", outgoingData, Color.White);
+                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingFoodFreighters, GameText.Food);
+                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Production);
+                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Colonists);
             }
 
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
@@ -334,12 +324,45 @@ namespace Ship_Game
             base.Draw(batch);
         }
 
+        void DrawIncomingFreighters(SpriteBatch batch, ref Vector2 incomingTitle, ref Vector2 incomingData, 
+            int numFreighters, string incomingCargo, GameText text)
+        {
+            if (numFreighters == 0)
+                return;
+
+            int lineDown      = Font12.LineSpacing + 2;
+            string freighters = $"{numFreighters} ";
+            incomingTitle.Y  += lineDown;
+            incomingData.Y   += lineDown;
+
+            batch.DrawString(Font12, $"{new LocalizedText(text).Text}:", incomingTitle, Color.Gray);
+            batch.DrawString(Font12, freighters, incomingData, Color.LightGreen);
+            if (incomingCargo == "0" || incomingCargo == "0.00")
+                return;
+
+            Vector2 numCargo = new Vector2(incomingData.X + Font12.MeasureString(freighters).X, incomingData.Y + 1);
+            batch.DrawString(Font8, $"({incomingCargo})", numCargo, Color.DarkKhaki);
+        }
+
+        void DrawOutgoingFreighters(SpriteBatch batch, ref Vector2 outgoingTitle, ref Vector2 outgoingData, 
+            int numFreighters, GameText text)
+        {
+            if (numFreighters == 0)
+                return;
+
+            int lineDown     = Font12.LineSpacing + 2;
+            outgoingTitle.Y += lineDown;
+            outgoingData.Y  += lineDown;
+            batch.DrawString(Font12, $"{new LocalizedText(text).Text}:", outgoingTitle, Color.Gray);
+            batch.DrawString(Font12, numFreighters.String(), outgoingData, Color.Gold);
+        }
+
         void DrawFoodAndStorage(SpriteBatch batch)
         {
             FoodStorage.Max = P.Storage.Max;
             ProdStorage.Max = P.Storage.Max;
-            FoodStorage.Progress = P.FoodHere;
-            ProdStorage.Progress = P.ProdHere;
+            FoodStorage.Progress = P.FoodHere.RoundUpTo(1);
+            ProdStorage.Progress = P.ProdHere.RoundUpTo(1);
             if (P.FS == Planet.GoodState.STORE) foodDropDown.ActiveIndex = 0;
             else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
             else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
@@ -632,7 +655,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", Localizer.Token(1879), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", Localizer.Token(1880), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", Localizer.Token(1881), digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.MaxProduction, "NewUI/icon_queue_rushconstruction", Localizer.Token(1873), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.MaxProductionToQueue, "NewUI/icon_queue_rushconstruction", Localizer.Token(1873), digits: 1);
         }
 
         void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b)
@@ -716,12 +739,21 @@ namespace Ship_Game
                 OutgoingProdFreighters = P.OutgoingProdFreighters;
                 OutgoingColoFreighters = P.OutGoingColonistsFreighters;
                 TerraformResearched    = Player.IsBuildingUnlocked(Building.TerraformerId);
-                UpdateTimer            = 60;
+                IncomingFood           = TotalIncomingCargo(Goods.Food).RoundUpTo(1);
+                IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
+                IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
+                UpdateTimer            = 300;
             }
             else if (!Empire.Universe.Paused)
             {
                 UpdateTimer -= 1;
             }
+        }
+
+        float TotalIncomingCargo(Goods goods)
+        {
+            var freighterList = P.IncomingFreighters.Filter(s => s.AI.HasTradeGoal(goods));
+            return freighterList.Sum(s => s.GetCargo(goods));
         }
     }
 }

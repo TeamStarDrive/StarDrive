@@ -90,15 +90,13 @@ namespace Ship_Game
         {
             get
             {
-                int turns = 0;
-                for (int i = 0; i < ConstructionQueue.Count; ++i)
-                   turns += ConstructionQueue[i].TurnsUntilComplete;
-
-
-                float netPerTurn      = EstimatedAverageProduction + InfraStructure;
-                float totalProd       = turns * netPerTurn;
-                float effectiveProd   = (totalProd - ProdHere).LowerBound(0);
-                return (int)(effectiveProd / netPerTurn);
+                float totalProdNeeded        = TotalProdNeededInQueue();
+                float maxProductionWithInfra = MaxProductionToQueue.LowerBound(0.01f);
+                float turnsWithInfra         = ProdHere / InfraStructure.LowerBound(0.01f);
+                float totalProdWithInfra     = turnsWithInfra * maxProductionWithInfra;
+                float currentProduction      = Prod.NetIncome.LowerBound(0.01f);
+                float turnsWithoutInfra      = (totalProdNeeded - totalProdWithInfra / currentProduction).LowerBound(0);
+                return (int)(turnsWithInfra + turnsWithoutInfra);
             }
         }
 
@@ -110,8 +108,8 @@ namespace Ship_Game
                 return 9999; // impossible
 
             float effectiveCost = forTroop ? cost : (cost * ShipBuildingModifier).LowerBound(0);
-            int itemTurns       = (int)Math.Ceiling(effectiveCost.LowerBound(0) / MaxProduction);
-            int total           = itemTurns + TurnsUntilQueueCompleted;
+            int itemTurns       = (int)Math.Ceiling(effectiveCost.LowerBound(0) / Prod.NetIncome.Clamped(0.1f, MaxProductionToQueue));
+            int total           = itemTurns + TurnsUntilQueueCompleted; // FB - this is just an estimation
             return total.UpperBound(9999);
         }
 

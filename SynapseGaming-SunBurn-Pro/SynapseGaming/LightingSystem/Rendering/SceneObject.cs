@@ -23,6 +23,10 @@ namespace SynapseGaming.LightingSystem.Rendering
         readonly List<RenderableMesh> Meshes = new List<RenderableMesh>(16);
         Matrix WorldMatrix = Matrix.Identity;
 
+        // it is possible that an XNA error or memory issue can cause the model not to load. 
+        // bool to check that it is loaded.
+        public bool HasMeshes { get; private set; } = false;
+
         /// <summary>World space transform of the object.</summary>
         public Matrix World
         {
@@ -115,12 +119,12 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// </summary>
         public SceneObject()
         {
-            SetName("");
+            Initialize("");
         }
 
         public SceneObject(string name)
         {
-            SetName(name);
+            Initialize(name);
         }
 
         /// <summary>Creates a new SceneObject from mesh data.</summary>
@@ -322,7 +326,7 @@ namespace SynapseGaming.LightingSystem.Rendering
             Add(mesh, overrideeffect);
         }
 
-        void SetName(string name)
+        void Initialize(string name)
         {
             RenderableMeshes = new RenderableMeshCollection(Meshes);
             Name = string.IsNullOrEmpty(name) ? string.Empty : name;
@@ -336,6 +340,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             Meshes.Add(mesh);
             CalculateBoundingSphere();
+            HasMeshes = Meshes.Count > 0;
         }
 
         /// <summary>
@@ -346,6 +351,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             Meshes.Remove(mesh);
             CalculateBoundingSphere();
+            HasMeshes = Meshes.Count > 0;
         }
 
         /// <summary>Removes all meshes from this object.</summary>
@@ -353,6 +359,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         {
             Meshes.Clear();
             CalculateBoundingSphere();
+            HasMeshes = false;
         }
 
         /// <summary>
@@ -361,12 +368,7 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// Calling this method may become necessary if a mesh bounding area is
         /// altered after being added to the object.
         /// </summary>
-        public void CalculateBounds()
-        {
-            CalculateBoundingSphere();
-        }
-
-        void CalculateBoundingSphere()
+        public void CalculateBoundingSphere()
         {
             if (InfiniteBounds)
                 ObjectBoundingSphere = new BoundingSphere(Vector3.Zero, 3.402823E+37f);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Ship_Game
@@ -274,12 +275,16 @@ namespace Ship_Game
         }
 
         static readonly Array<ParallelTask> Pool = new Array<ParallelTask>(32);
-        static readonly bool Initialized = InitThreadPool();
+        public static readonly int NumPhysicalCores = InitThreadPool();
+        
+        [DllImport("SDNative.dll")]
+        static extern int GetPhysicalCPUCoreCount();
 
-        static bool InitThreadPool()
+        static int InitThreadPool()
         {
             AppDomain.CurrentDomain.ProcessExit += (sender, e) => ClearPool();
-            return true;
+            int cores = GetPhysicalCPUCoreCount();
+            return cores;
         }
 
         public static int PoolSize { get { lock (Pool) { return Pool.Count; } } }
@@ -308,41 +313,6 @@ namespace Ship_Game
                 task.Start(start, end, body, result);
             }
             return result;
-        }
-
-        public static int PhysicalCoreCount {get; private set;}
-        public static int NumPhysicalCores
-        {
-            get
-            {
-                if (PhysicalCoreCount == 0)
-                {
-                    try
-                    {
-                        var query = new ManagementObjectSearcher("Select NumberOfCores from Win32_Processor");
-                        var results = query.Get();
-                        if (results.Count > 0)
-                        {
-                            foreach (var item in results)
-                            {
-                                PhysicalCoreCount = (int)(uint)item["NumberOfCores"];
-                                break;
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error($"Query NumPhysicalCores failed: {e.Message}");
-                    }
-
-                    if (PhysicalCoreCount == 0)
-                    {
-                        // Query failed, so assume HT or SMT is enabled
-                        PhysicalCoreCount = Environment.ProcessorCount / 2;
-                    }
-                }
-                return PhysicalCoreCount;
-            }
         }
 
         // Maximum parallelism allowed by System settings
@@ -374,6 +344,7 @@ namespace Ship_Game
         /// <param name="rangeStart">Start of the range (inclusive)</param>
         /// <param name="rangeEnd">End of the range (exclusive)</param>
         /// <param name="body">delegate void RangeAction(int start, int end)</param>
+        /// <param name="maxParallelism">maximum parallel tasks, -1: use MaxParallelism property</param>
         /// <example>
         /// Parallel.For(0, arr.Length, (start, end) =&gt;
         /// {
@@ -383,17 +354,19 @@ namespace Ship_Game
         ///     }
         /// });
         /// </example>
-        public static void For(int rangeStart, int rangeEnd, RangeAction body)
+        public static void For(int rangeStart, int rangeEnd, RangeAction body, int maxParallelism = -1)
         {
             if (rangeStart >= rangeEnd)
                 return; // no work done on empty ranges
 
+            maxParallelism = (maxParallelism <= 0) ? MaxParallelism : Math.Min(maxParallelism, MaxParallelism);
+
             int range = rangeEnd - rangeStart;
-            int cores = Math.Min(range, MaxParallelism);
+            int cores = Math.Min(range, maxParallelism);
             int len = range / cores;
 
             // this can happen if the target CPU only has 1 core, or if the list has 1 item
-            if (cores == 1)
+            if (cores <= 1)
             {
                 body(rangeStart, rangeEnd);
                 return;
@@ -427,9 +400,9 @@ namespace Ship_Game
                 throw ex;
         }
 
-        public static void For(int rangeLength, RangeAction body)
+        public static void For(int rangeLength, RangeAction body, int maxParallelism = -1)
         {
-            For(0, rangeLength, body);
+            For(0, rangeLength, body, maxParallelism);
         }
 
         public static void ForEach<T>(IReadOnlyList<T> list, Action<T> body)

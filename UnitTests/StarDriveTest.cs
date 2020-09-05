@@ -21,6 +21,7 @@ namespace UnitTests
     public class StarDriveTest : IDisposable
     {
         public static string StarDriveAbsolutePath { get; private set; }
+
         static StarDriveTest()
         {
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
@@ -57,12 +58,14 @@ namespace UnitTests
 
         public TestGameDummy Game { get; private set; }
         public GameContentManager Content { get; private set; }
-        public MockInputProvider InputProvider { get; private set; }
+        public MockInputProvider MockInput { get; private set; }
 
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
         public Empire Faction { get; private set; }
+
+        public FixedSimTime TestSimStep { get; private set; } = new FixedSimTime(1f / 60f);
 
         public StarDriveTest()
         {
@@ -84,13 +87,15 @@ namespace UnitTests
         //  -- You need to load textures
         //  -- You need to test any kind of GameScreen instance
         //  -- You want to test a Ship
-        public void CreateGameInstance(int width=800, int height=600, bool show=false)
+        public void CreateGameInstance(int width=800, int height=600,
+                                       bool show=false, bool mockInput=true)
         {
             var sw = Stopwatch.StartNew();
             Game = new TestGameDummy(new AutoResetEvent(false), width, height, show);
             Game.Create();
             Content = Game.Content;
-            Game.Manager.input.Provider = InputProvider = new MockInputProvider();
+            if (mockInput)
+                Game.Manager.input.Provider = MockInput = new MockInputProvider();
             Log.Info($"CreateGameInstance elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
 
@@ -105,6 +110,9 @@ namespace UnitTests
 
         public void CreateUniverseAndPlayerEmpire(out Empire player)
         {
+            if (Game == null)
+                throw new Exception("CreateGameInstance() must be called BEFORE CreateUniverseAndPlayerEmpire() !");
+
             var data = new UniverseData();
             Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0]);
             Empire.Universe = Universe = new UniverseScreen(data, player);
@@ -115,8 +123,7 @@ namespace UnitTests
 
         public void LoadStarterShips(params string[] shipList)
         {
-            ResourceManager.LoadStarterShipsForTesting(
-                shipList.Length == 0 ? null : shipList);
+            ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
         }
 
         public void LoadStarterShipVulcan()
@@ -133,8 +140,8 @@ namespace UnitTests
             var target = Ship.CreateShipAtPoint(shipName, empire, position);
             target.Rotation = shipDirection.Normalized().ToRadians();
             target.InFrustum = true; // force module pos update
-            target.UpdateShipStatus(0.01f); // update module pos
-            target.UpdateModulePositions(0.01f);
+            target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
+            target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
             return target;
         }
 

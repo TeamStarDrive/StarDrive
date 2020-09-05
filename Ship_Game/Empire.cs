@@ -34,7 +34,6 @@ namespace Ship_Game
 
         public float GetProjectorRadius() => Universe?.SubSpaceProjectors.Radius * data.SensorModifier ?? 10000;
         public float GetProjectorRadius(Planet planet) => GetProjectorRadius() + 10000f * planet.PopulationBillion;
-
         readonly Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
 
 
@@ -1231,12 +1230,12 @@ namespace Ship_Game
             }
         }
 
-        void ScanFromAllInfluenceNodes()
+        void ScanFromAllInfluenceNodes(FixedSimTime timeStep)
         {
             for (int i = 0; i < BorderNodes.Count; i++)
             {
                 var node = BorderNodes[i];
-                ScanForInfluence(node);
+                ScanForInfluence(node, timeStep);
             }
 
             for (int i = 0; i < SensorNodes.Count; i++)
@@ -1267,7 +1266,7 @@ namespace Ship_Game
             }
         }	
 
-        void ScanForInfluence(InfluenceNode node)
+        void ScanForInfluence(InfluenceNode node, FixedSimTime timeStep)
         {
             var targets = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
             for (int i = 0; i < targets.Length; i++)
@@ -1275,14 +1274,20 @@ namespace Ship_Game
                 var target = targets[i];
                 var ship = (Ship)target;
                 ship.SetProjectorInfluence(this, true);
-                if (ship.DesignRoleType == ShipData.RoleType.Warship)
+                
+                // Civilian infrastructure spotting enemy fleets
+                if (node.SourceObject is Ship ssp)
                 {
-                    if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
-                        if (node.SourceObject is Ship ssp)
+                    ssp.HasSeenEmpires.Update(timeStep);
+                    if (ship.fleet != null)
+                    {
+                        if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
+
                         {
                             if (IsEmpireHostile(ship.loyalty))
-                                ssp.HasSeenEmpires.SetSeen(target.GetLoyalty());
+                                ssp.HasSeenEmpires.SetSeen(ship.loyalty);
                         }
+                    }
                 }
             }
         }
@@ -1379,7 +1384,7 @@ namespace Ship_Game
             }
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             #if PLAYERONLY
                 if(!this.isPlayer && !this.isFaction)
@@ -1389,7 +1394,7 @@ namespace Ship_Game
                     return;
             #endif
 
-            UpdateTimer -= elapsedTime;
+            UpdateTimer -= timeStep.FixedTime;
 
             if (UpdateTimer <= 0f && !data.Defeated)
             {
@@ -1492,7 +1497,7 @@ namespace Ship_Game
                     empireShipTotal++;
                 }
 
-                UpdateTimer = GlobalStats.TurnTimer + (Id -1) * elapsedTime;
+                UpdateTimer = GlobalStats.TurnTimer + (Id -1) * timeStep.FixedTime;
                 UpdateEmpirePlanets();
                 UpdateAI(); // Must be done before DoMoney
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
@@ -1500,7 +1505,7 @@ namespace Ship_Game
                 TakeTurn();
             }
             SetRallyPoints();
-            UpdateFleets(elapsedTime);
+            UpdateFleets(timeStep);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
@@ -1636,15 +1641,15 @@ namespace Ship_Game
             return debug;
         }
 
-        public void UpdateFleets(float elapsedTime)
+        void UpdateFleets(FixedSimTime timeStep)
         {
-            FleetUpdateTimer -= elapsedTime;
+            FleetUpdateTimer -= timeStep.FixedTime;
             foreach (var kv in FleetsDict)
             {
                 Fleet fleet = kv.Value;
-                fleet.Update(elapsedTime);
+                fleet.Update(timeStep);
                 if (FleetUpdateTimer <= 0f)
-                    fleet.UpdateAI(elapsedTime, kv.Key);
+                    fleet.UpdateAI(timeStep, kv.Key);
             }
             if (FleetUpdateTimer < 0.0)
                 FleetUpdateTimer = 5f;
@@ -2343,10 +2348,10 @@ namespace Ship_Game
                 }
 
                 //loop over all ALLIED projectors
-                var projectors = empire.GetProjectors().AtomicCopy();
-                for (int z = 0; z < projectors.Length; z++)
+                var projectors = empire.GetProjectors();
+                for (int z = 0; z < projectors.Count; z++)
                 {
-                    Ship ship                   = projectors[z];
+                    Ship ship = projectors[z];
                     if (ship?.Active != true) continue;
                     
                     InfluenceNode influenceNode = SensorNodes.RecycleObject(n=> n.Wipe()) ?? new InfluenceNode();
@@ -2748,6 +2753,15 @@ namespace Ship_Game
 
             string message = $"{new LocalizedText(GameText.YourShipWasCaptured).Text} {ship.loyalty.Name}!";
             Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, ship.loyalty);
+        }
+
+        public void AddMutinyNotification(Ship ship, GameText text, Empire initiator)
+        {
+            if (!isPlayer)
+                return;
+
+            string message = $"{new LocalizedText(text).Text} {initiator.Name}!";
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, initiator);
         }
 
         private void CalculateScore()
@@ -3223,14 +3237,15 @@ namespace Ship_Game
         int ResetBorderTicks = 0;
         int ResetBorderTicksReset =5;
         
-        public void UpdateContactsAndBorders(float elapsedTime)
+        public void UpdateContactsAndBorders(FixedSimTime timeStep)
         {
-            updateContactsTimer -= elapsedTime;
+            updateContactsTimer -= timeStep.FixedTime;
             if (!IsEmpireDead())
             {
-                MaxContactTimer =  elapsedTime;
+                MaxContactTimer = timeStep.FixedTime;
                 ResetBorders();
-                ScanFromAllInfluenceNodes();
+                ScanFromAllInfluenceNodes(timeStep);
+                PopulateKnownShips();
             }
 
             if (--ResetBorderTicks < 0)
@@ -3248,7 +3263,7 @@ namespace Ship_Game
 
             for (int i = 0; i < ships.Count; i++)
             {
-                var ship = ships[i];
+                Ship ship = ships[i];
 
                 bool shipKnown = ship.loyalty == this || ship.KnownByEmpires.KnownBy(this);
 

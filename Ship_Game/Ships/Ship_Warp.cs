@@ -126,9 +126,9 @@ namespace Ship_Game.Ships
 
         Vector3 GetWarpEffectPosition() => Center.ToVec3();
 
-        void UpdateHyperspaceInhibited(float elapsedTime)
+        void UpdateHyperspaceInhibited(FixedSimTime timeStep)
         {
-            InhibitedTimer -= elapsedTime;
+            InhibitedTimer -= timeStep.FixedTime;
             if (InhibitedTimer <= 0f) // timer has run out, lets do the expensive inhibit check
             {
                 // if we're inside a system, check every frame
@@ -150,9 +150,9 @@ namespace Ship_Game.Ships
                 HyperspaceReturn();
         }
 
-        void UpdateWarpSpooling(float elapsedTime)
+        void UpdateWarpSpooling(FixedSimTime timeStep)
         {
-            JumpTimer -= elapsedTime;
+            JumpTimer -= timeStep.FixedTime;
 
             if (JumpTimer <= 4.0f)
             {
@@ -175,6 +175,7 @@ namespace Ship_Game.Ships
             }
         }
 
+        // todo: Move to action queue
         void UpdateInhibitedFromEnemyShips()
         {
             InhibitedByEnemy = false;
@@ -207,10 +208,10 @@ namespace Ship_Game.Ships
             return Status.Good;
         }
 
-        public void SetWarpPercent(float elapsedTime, float warpPercent)
+        public void SetWarpPercent(FixedSimTime timeStep, float warpPercent)
         {
-            if      (WarpPercent < warpPercent) WarpPercent += elapsedTime;
-            else if (WarpPercent > warpPercent) WarpPercent -= elapsedTime;
+            if      (WarpPercent < warpPercent) WarpPercent += timeStep.FixedTime;
+            else if (WarpPercent > warpPercent) WarpPercent -= timeStep.FixedTime;
             WarpPercent = WarpPercent.Clamped(0.05f, 1f);
         }
     }
