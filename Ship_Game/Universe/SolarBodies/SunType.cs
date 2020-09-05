@@ -212,15 +212,15 @@ namespace Ship_Game.Universe.SolarBodies
             Sprite.Rotation = info.RotationStart.Generate();
         }
 
-        public void Update(float deltaTime)
+        public void Update(FixedSimTime timeStep)
         {
-            Sprite.Rotation += Info.RotationSpeed * deltaTime;
-            Sprite.Update(Info.AnimationSpeed * deltaTime);
+            Sprite.Rotation += Info.RotationSpeed * timeStep.FixedTime;
+            Sprite.Update(Info.AnimationSpeed * timeStep.FixedTime);
 
             if (Info.PulsePeriod > 0f)
             {
                 // this is a nice sine-wave pulse effect that varies our intensity
-                PulseTimer += deltaTime;
+                PulseTimer += timeStep.FixedTime;
 
                 // sine-wave pattern
                 float progress = (PulseTimer/Info.PulsePeriod)*RadMath.TwoPI; // tick every second

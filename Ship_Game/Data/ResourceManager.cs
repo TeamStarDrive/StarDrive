@@ -79,8 +79,19 @@ namespace Ship_Game
 
         public static SubTexture Blank;
 
+        /// <summary>
+        /// This is where core game content is found. NOT Mod content.
+        /// Ex: "C:/Projects/BlackBox/stardrive/Content/"
+        /// </summary>
+        static string ContentDirectory;
+
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => GameBase.Base.Content;
+
+        static void InitContentDir()
+        {
+            ContentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Content/").Replace('\\', '/');
+        }
 
         public static Technology Tech(string techUid)
         {
@@ -151,6 +162,7 @@ namespace Ship_Game
                 GlobalStats.ClearActiveMod();
 
             Log.Write($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
+            InitContentDir();
             LoadLanguage(GlobalStats.Language); // @todo Slower than expected [0.36]
             LoadToolTips();
             LoadHullBonuses();
@@ -285,8 +297,8 @@ namespace Ship_Game
                 Log.HideConsoleWindow();
         }
 
-        static FileInfo ModInfo(string file)     => new FileInfo( Path.Combine(GlobalStats.ModPath, file) );
-        static FileInfo ContentInfo(string file) => new FileInfo( Path.Combine(RootContent.RootDirectory, file) );
+        static FileInfo ModInfo(string file)     => new FileInfo( GlobalStats.ModPath + file );
+        static FileInfo ContentInfo(string file) => new FileInfo( ContentDirectory + file );
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
         // Example relativePath: "Textures/myAtlas.xml"
@@ -1362,6 +1374,7 @@ namespace Ship_Game
 
         public static void LoadBasicContentForTesting()
         {
+            InitContentDir();
             LoadWeapons();
             LoadHullData();
             LoadShipRoles();

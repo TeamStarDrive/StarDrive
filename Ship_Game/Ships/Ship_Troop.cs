@@ -45,6 +45,15 @@ namespace Ship_Game.Ships
                 HostileTroops.RemoveRef(troop);
         }
 
+        public void KillOneOfOurTroops()
+        {
+            if (OurTroops.Count == 0)
+                return;
+
+            Troop troop = OurTroops.RandItem();
+            RemoveAnyTroop(troop);
+        }
+
         public float GetOurTroopStrength(int maxTroops)
         {
             float strength = 0;

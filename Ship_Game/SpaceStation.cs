@@ -77,9 +77,9 @@ namespace Ship_Game
             OuterSO.Visibility = ObjectVisibility.None;
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
-            ZRotation += RadiansPerSecond * elapsedTime;
+            ZRotation += RadiansPerSecond * timeStep.FixedTime;
 
             if (InnerSO != null && OuterSO != null && Planet.SO.Visibility == ObjectVisibility.Rendered)
             {

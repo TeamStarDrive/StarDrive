@@ -55,7 +55,7 @@ namespace Ship_Game
         public Vector2 MousePos     => Input.CursorPosition;
         public Vector2 ScreenArea   => GameBase.ScreenSize;
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
-        public GameTime GameTime    => StarDriveGame.Instance.GameTime;
+        public GameTime GameTime    => StarDriveGame.Instance.Elapsed.XnaTime;
         bool Pauses = true;
 
         // multi cast exit delegate, called when a game screen is exiting
@@ -64,12 +64,6 @@ namespace Ship_Game
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
-
-        // Current delta time between this and last game frame
-        // This can vary greatly and should only be used for
-        // drawing real-time visualization.
-        // This should not be used for simulation!
-        public float FrameDeltaTime { get; private set; }
 
         public Matrix View, Projection;
 
@@ -204,7 +198,7 @@ namespace Ship_Game
             return false;
         }
 
-        public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public virtual void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             if (IsDisposed)
             {
@@ -212,23 +206,18 @@ namespace Ship_Game
                 return;
             }
 
-            // @note If content was being loaded, we will force deltaTime to 1/60th
-            //       This will prevent animations going nuts due to huge deltaTime
-            FrameDeltaTime = ScreenManager.FrameDeltaTime;
-            if (DidLoadContent && FrameDeltaTime > (1f/60f))
-                FrameDeltaTime = 1f/60f;
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
 
             Visible = ScreenState != ScreenState.Hidden;
 
             // Update new UIElementV2
-            Update(FrameDeltaTime);
+            Update(elapsed.RealTime.Seconds);
 
             OtherScreenHasFocus = otherScreenHasFocus;
             if (IsExiting)
             {
                 ScreenState = ScreenState.TransitionOff;
-                if (!UpdateTransition(TransitionOffTime, 1))
+                if (!UpdateTransition(elapsed, TransitionOffTime, 1))
                 {
                     ScreenManager.RemoveScreen(this);
                     IsExiting = false;
@@ -238,13 +227,13 @@ namespace Ship_Game
             {
                 if (coveredByOtherScreen)
                 {
-                    ScreenState = UpdateTransition(TransitionOffTime, 1)
+                    ScreenState = UpdateTransition(elapsed, TransitionOffTime, 1)
                         ? ScreenState.TransitionOff
                         : ScreenState.Hidden;
                 }
                 else
                 {
-                    ScreenState = UpdateTransition(TransitionOnTime, -1)
+                    ScreenState = UpdateTransition(elapsed, TransitionOnTime, -1)
                         ? ScreenState.TransitionOn
                         : ScreenState.Active;
                 }
@@ -253,9 +242,11 @@ namespace Ship_Game
             DidLoadContent = false;
         }
 
-        bool UpdateTransition(float time, int direction)
+        bool UpdateTransition(FrameTimes elapsed, float transitionTime, int direction)
         {
-            float transitionDelta = (time.NotZero() ? (FrameDeltaTime / time) : 1f);
+            float transitionDelta = (transitionTime.NotZero()
+                                  ? (elapsed.RealTime.Seconds / transitionTime) : 1f);
+
             TransitionPosition += transitionDelta * direction;
             if (TransitionPosition > 0f && TransitionPosition < 1f)
                 return true;
@@ -267,10 +258,9 @@ namespace Ship_Game
         // Gets the current cursor blinking mask color [255,255,255,a]
         public Color CurrentFlashColor => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
 
-        public Color ApplyCurrentAlphaToColor(Color color)
+        protected Color ApplyCurrentAlphaToColor(Color color)
         {
-            double totalGameTime = StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds;
-            float f = Math.Abs(RadMath.Sin(totalGameTime)) * 255f;
+            float f = Math.Abs(RadMath.Sin(StarDriveGame.Instance.Elapsed.TotalGameSeconds)) * 255f;
             return new Color(color, (byte)f);
         }
 
@@ -280,7 +270,7 @@ namespace Ship_Game
         {
             if (!Visible)
                 return;
-            DrawMulti(manager, this, draw3D, GameTime, ref View, ref Projection);
+            DrawMulti(manager, this, draw3D, ref View, ref Projection);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -351,7 +341,7 @@ namespace Ship_Game
         public void CheckToolTip(int toolTipId, Rectangle rectangle, Vector2 mousePos)
         {
             if (rectangle.HitTest(mousePos))
-                ToolTip.CreateTooltip(toolTipId);                
+                ToolTip.CreateTooltip(toolTipId);
         }
         public void CheckToolTip(int toolTipId, Vector2 cursor, string words, string numbers, SpriteFont font, Vector2 mousePos)
         {
@@ -364,11 +354,13 @@ namespace Ship_Game
             cursor.X += (spacing - font.MeasureString(drawnString).X);
             return cursor;
         }
-        public void DrawString(Vector2 posOnScreen, float rotation, float textScale, Color textColor, string text)
+        // Draw string in screen coordinates. Text will be centered
+        public void DrawString(Vector2 centerOnScreen, float rotation, float textScale, Color textColor, string text)
         {
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, posOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, centerOnScreen, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
         }
+        // Draw string in screen coordinates. No centering.
         public void DrawString(Vector2 posOnScreen, Color textColor, string text, SpriteFont font, float rotation = 0f, float textScale = 1f)
         {
             ScreenManager.SpriteBatch.DrawString(font, text, posOnScreen, textColor, rotation, Vector2.Zero, textScale, SpriteEffects.None, 1f);
@@ -571,7 +563,10 @@ namespace Ship_Game
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, Color color)
-            => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, 0.0f, color);
+        {
+            ProjectToScreenCoords(posInWorld, textureScale*2, out Vector2 posOnScreen, out float sizeOnScreen);
+            DrawTextureSized(texture, posOnScreen, 0.0f, sizeOnScreen, sizeOnScreen, color);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, float rotation, Color color)

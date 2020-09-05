@@ -1,4 +1,5 @@
-﻿using System.Web.UI;
+﻿using System;
+using System.Web.UI;
 
 namespace Ship_Game.Ships.DataPackets
 {
@@ -7,6 +8,9 @@ namespace Ship_Game.Ships.DataPackets
     /// </summary>
     public class KnownByEmpire
     {
+        Ship Owner;
+        float[] SeenByID;
+
         /// <summary>
         /// Gets a value indicating whether ship is [known by player]. Used for ui stuff.
         /// use KnownBy(empire) for everything but UI
@@ -15,36 +19,35 @@ namespace Ship_Game.Ships.DataPackets
         ///   <c>true</c> if [known by player]; otherwise, <c>false</c>.
         /// </value>
         public bool KnownByPlayer => SeenByID[EmpireManager.Player.Id-1] + KnownDuration > 0;
-        float[] SeenByID;
+
         /// <summary>
-        /// The known duration. how long the object will be known for. .5 = roughly half a second. 
+        /// The known duration. how long the object will be known for. 0.5 = roughly half a second.
         /// </summary>
         public float KnownDuration => Owner.loyalty.MaxContactTimer;
 
-        Ship Owner;
         public KnownByEmpire(Ship ship)
         {
             SeenByID = new float[EmpireManager.NumEmpires];
-            for (int i = 0; i < SeenByID.Length; i++) SeenByID[i] = -100;
+            for (int i = 0; i < SeenByID.Length; i++)
+                SeenByID[i] = -100;
             Owner = ship;
         }
 
         /// <summary>
-        /// Updates the specified elapsed time.
+        /// Updates visibility timers of all known empires
         /// </summary>
-        /// <param name="elapsedTime">The elapsed time.</param>
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             if (SeenByID.Length != EmpireManager.NumEmpires)
             {
-                var newArray = new Array<float>(SeenByID);
-                newArray.Resize(EmpireManager.NumEmpires);
-                SeenByID = newArray.ToArray();
+                var newArray = new float[EmpireManager.NumEmpires];
+                Array.Copy(SeenByID, newArray, SeenByID.Length);
+                SeenByID = newArray;
             }
 
             for (int i = 0; i < EmpireManager.NumEmpires; i++)
             {
-                SeenByID[i] -= elapsedTime;
+                SeenByID[i] -= timeStep.FixedTime;
             }
         }
 
@@ -57,14 +60,13 @@ namespace Ship_Game.Ships.DataPackets
         public void SetSeen(Empire empire)
         {
             SeenByID[empire.Id - 1] = KnownDuration;
- 
         }
 
-        public bool KnownBy(Empire empire)             => SeenByID[empire.Id-1] + KnownDuration > 0;
+        public bool KnownBy(Empire empire) => SeenByID[empire.Id-1] + KnownDuration > 0;
 
         /// <summary>
         /// Sets the ship as seen by player. Unlike "knownByPlayer" this can be used anywhere. 
         /// </summary>
-        public void SetSeenByPlayer()                  => SetSeen(EmpireManager.Player);
+        public void SetSeenByPlayer() => SetSeen(EmpireManager.Player);
     }
 }

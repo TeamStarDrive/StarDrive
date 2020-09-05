@@ -62,7 +62,7 @@ namespace Ship_Game
             });
         }
 
-        public override void Draw(GameTime gameTime) // refactored by  Fat Bastard Aug 6, 2018
+        public override void Draw(FrameTimes elapsed) // refactored by  Fat Bastard Aug 6, 2018
         {
             if (Tile == null || Tile.NothingOnTile)
                 return;

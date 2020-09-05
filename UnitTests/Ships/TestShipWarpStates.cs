@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
+using Ship_Game;
 using Ship_Game.Ships;
 
 namespace UnitTests.Ships
@@ -10,8 +11,8 @@ namespace UnitTests.Ships
     {
         public TestShipWarpStates()
         {
-            LoadStarterShipVulcan();
             CreateGameInstance();
+            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire(out _);
         }
 
@@ -32,15 +33,15 @@ namespace UnitTests.Ships
             Assert.IsTrue(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
 
-            ship.Update(2f); // spooling not over yet
+            ship.Update(new FixedSimTime(2f)); // spooling not over yet
             Assert.IsTrue(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
 
-            ship.Update(2f); // now it should enter warp
+            ship.Update(new FixedSimTime(2f)); // now it should enter warp
             Assert.IsTrue(ship.IsSpoolingOrInWarp);
             Assert.IsTrue(ship.IsInWarp);
 
-            ship.Update(10f); // should still be in warp
+            ship.Update(new FixedSimTime(10f)); // should still be in warp
             Assert.IsTrue(ship.IsSpoolingOrInWarp);
             Assert.IsTrue(ship.IsInWarp);
 
@@ -57,7 +58,7 @@ namespace UnitTests.Ships
             // inhibit while spooling
             ship.InhibitedTimer = 3f;
             ship.EngageStarDrive();
-            ship.Update(2f);
+            ship.Update(new FixedSimTime(2f));
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
         }
@@ -67,10 +68,10 @@ namespace UnitTests.Ships
         {
             Ship ship = CreateWarpTestShip();
             ship.EngageStarDrive();
-            ship.Update(2f);
+            ship.Update(new FixedSimTime(2f));
             // inhibit while spooling
             ship.InhibitedTimer = 4f;
-            ship.Update(2f);
+            ship.Update(new FixedSimTime(2f));
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
         }

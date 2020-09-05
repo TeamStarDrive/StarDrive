@@ -441,7 +441,6 @@ namespace Ship_Game
         void OnEngageClicked(UIButton b)
         {
             if (Mode == GameMode.Elimination) GlobalStats.EliminationMode = true;
-            if (Mode == GameMode.Corners) GlobalStats.CornersGame = true;
 
             GlobalStats.ExtraRemnantGS = ExtraRemnant;
             RaceSummary.Color          = Picker.CurrentColor;

@@ -169,7 +169,7 @@ namespace Ship_Game
             }
         }
 
-        public static void Draw(SpriteBatch batch, float deltaTime)
+        public static void Draw(SpriteBatch batch, VariableFrameTime deltaTime)
         {
             TipItem[] tips = ActiveTips.ToArray();
             if (tips.Length == 0)
@@ -178,7 +178,7 @@ namespace Ship_Game
             batch.Begin();
             foreach (TipItem tipItem in tips)
             {
-                if (tipItem.Update(deltaTime))
+                if (tipItem.Update(deltaTime.Seconds))
                 {
                     tipItem.Draw(batch);
                 }

@@ -68,7 +68,7 @@ namespace Ship_Game.Ships
         //}
     #endif
 
-        void DrawSparseModuleGrid(UniverseScreen us)
+        void DrawSparseModuleGrid(GameScreen us)
         {
             if (SparseModuleGrid.Length != 0)
             {
@@ -128,7 +128,8 @@ namespace Ship_Game.Ships
         }
 
 
-        public void DrawModulesOverlay(UniverseScreen us)
+        public void DrawModulesOverlay(GameScreen sc, float camHeight,
+                                       bool showDebugSelect, bool showDebugStats)
         {
             SubTexture symbolFighter = ResourceManager.Texture("TacticalIcons/symbol_fighter");
             SubTexture concreteGlass = ResourceManager.Texture("Modules/tile_concreteglass_1x1"); // 1x1 gray ship module background tile, 16x16px in size
@@ -144,9 +145,9 @@ namespace Ship_Game.Ships
                 float moduleWidth  = slot.XSIZE * 16.5f; // using 16.5f instead of 16 to reduce pixel error flickering
                 float moduleHeight = slot.YSIZE * 16.5f;
 
-                float w = us.ProjectToScreenSize(moduleWidth);
-                float h = us.ProjectToScreenSize(moduleHeight);
-                Vector2 posOnScreen = us.ProjectToScreenPosition(slot.Center);
+                float w = sc.ProjectToScreenSize(moduleWidth);
+                float h = sc.ProjectToScreenSize(moduleHeight);
+                Vector2 posOnScreen = sc.ProjectToScreenPosition(slot.Center);
 
                 // round all the values to TRY prevent module flickering on screen
                 // it helps by a noticeable amount
@@ -157,20 +158,20 @@ namespace Ship_Game.Ships
                 float slotFacing = (int)((slot.FacingDegrees + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
 
-                us.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, Color.White);
+                sc.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, Color.White);
 
-                if (us.CamHeight > 6000.0f) // long distance view, draw the modules as colored icons
+                if (camHeight > 6000.0f) // long distance view, draw the modules as colored icons
                 {
-                    us.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, w, h, slot.GetHealthStatusColor());
+                    sc.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, w, h, slot.GetHealthStatusColor());
                 }
                 else
                 {
                     Color healthColor = slot.GetHealthStatusColorWhite();
                     if (slot.XSIZE == slot.YSIZE)
                     {
-                        us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        if (us.Debug && this == us.SelectedShip)
-                            us.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
+                        sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
+                        if (showDebugSelect)
+                            sc.DrawCircleProjected(slot.Center, slot.Radius, Color.Orange, 2f);
                     }
                     else
                     {
@@ -181,9 +182,9 @@ namespace Ship_Game.Ships
                             float oldW = w; w = h; h = oldW; // swap(w, h)
                         }
 
-                        us.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
-                        if (us.Debug && this == us.SelectedShip)
-                            us.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
+                        sc.DrawTextureSized(slot.ModuleTexture, posOnScreen, slotRotation, w, h, healthColor);
+                        if (showDebugSelect)
+                            sc.DrawCapsuleProjected(slot.GetModuleCollisionCapsule(), Color.Orange, 2f);
                     }
 
                     if (slot.ModuleType == ShipModuleType.PowerConduit)
@@ -191,33 +192,33 @@ namespace Ship_Game.Ships
                         if (slot.Powered)
                         {
                             SubTexture poweredTex = ResourceManager.Texture(slot.IconTexturePath + "_power");
-                            us.DrawTextureSized(poweredTex, posOnScreen, slotRotation, w, h, Color.White);
+                            sc.DrawTextureSized(poweredTex, posOnScreen, slotRotation, w, h, Color.White);
                         }
                     }
                     else if (slot.Active && !slot.Powered && slot.PowerDraw > 0.0f)
                     {
                         float smallerSize = Math.Min(w, h);
-                        us.DrawTextureSized(lightningBolt, posOnScreen, slotRotation, smallerSize, smallerSize, Color.White);
+                        sc.DrawTextureSized(lightningBolt, posOnScreen, slotRotation, smallerSize, smallerSize, Color.White);
                     }
 
-                    if (us.Debug && (us.DebugWin?.IsOpen ?? false))
+                    if (showDebugStats)
                     {
                         // draw blue marker on all active external modules
                         if (slot.isExternal && slot.Active)
                         {
                             float smallerSize = Math.Min(w, h);
-                            us.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
+                            sc.DrawTextureSized(symbolFighter, posOnScreen, slotRotation, smallerSize, smallerSize, new Color(0, 0, 255, 120));
                         }
 
                         // draw the debug x/y pos
                         ModulePosToGridPoint(slot.Position, out int x, out int y);
-                        us.DrawString(posOnScreen, shipRotation, 600f / us.CamHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
+                        sc.DrawString(posOnScreen, shipRotation, 600f / camHeight, Color.Red, $"X{x} Y{y}\nF{slotFacing}");
                     }
                 }
             }
 
-            if (false && us.Debug)
-                DrawSparseModuleGrid(us);
+            if (false && showDebugSelect)
+                DrawSparseModuleGrid(sc);
         }
 
 

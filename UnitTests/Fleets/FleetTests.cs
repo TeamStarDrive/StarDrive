@@ -18,9 +18,10 @@ namespace UnitTests.Fleets
         Array<Fleet> PlayerFleets = new Array<Fleet>();
         public FleetTests()
         {
+            CreateGameInstance();
+
             // Excalibur class has all the bells and whistles
             LoadStarterShips(new[] { "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
-            CreateGameInstance();
             CreateUniverseAndPlayerEmpire(out Empire empire);
         }
 
@@ -41,21 +42,6 @@ namespace UnitTests.Fleets
             return ship;
         }
 
-        Ship CreateEnemyShip(string shipName, Vector2 pos)
-        {
-            var ship = Ship.CreateShipAtPoint(shipName, Enemy, pos);
-            ship.SetSystem(null);
-            return ship;
-        }
-
-        void UpdateStatus(Ship ship, CombatState state)
-        {
-            ship.AI.CombatState = state;
-            ship.shipStatusChanged = true;
-            ship.Update(1f);
-            UniverseScreen.SpaceManager.Update(1f);
-        }
-
         void CreateWantedShipsAndAddThemToList(int numberWanted, string shipName, Array<Ship> shipList)
         {
             for (int i =0; i < numberWanted; i++)
@@ -71,7 +57,7 @@ namespace UnitTests.Fleets
             {
                 fleet.AddShip(ship);
             }
-            fleet.Update(2f);
+            fleet.Update(new FixedSimTime(2f));
             fleets.Add(fleet);
         }
 

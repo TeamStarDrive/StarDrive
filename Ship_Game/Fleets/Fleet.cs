@@ -390,7 +390,7 @@ namespace Ship_Game.Fleets
             ClearFleetGoals();
         }
 
-        void EvaluateTask(float elapsedTime)
+        void EvaluateTask(FixedSimTime timeStep)
         {
             if (Ships.Count == 0)
                 FleetTask.EndTask();
@@ -1524,11 +1524,11 @@ namespace Ship_Game.Fleets
         bool PostInvasionAnyShipsOutOfAO(MilitaryTask task) =>
             Ships.Any(ship => task.AO.OutsideRadius(ship.Center, ship.AI.FleetNode.OrdersRadius));
 
-        public void UpdateAI(float elapsedTime, int which)
+        public void UpdateAI(FixedSimTime timeStep, int which)
         {
             if (FleetTask != null)
             {
-                EvaluateTask(elapsedTime);
+                EvaluateTask(timeStep);
             }
             else // no fleet task
             {
@@ -1725,7 +1725,7 @@ namespace Ship_Game.Fleets
             node.ShipName = name;
         }
 
-        public void Update(float elapsedTime)
+        public void Update(FixedSimTime timeStep)
         {
             InFormationWarp   = false;
             HasRepair         = false;
@@ -1783,7 +1783,7 @@ namespace Ship_Game.Fleets
             }
 
             if (Ships.Count > 0 && HasFleetGoal)
-                GoalStack.Peek().Evaluate(elapsedTime);
+                GoalStack.Peek().Evaluate(timeStep);
 
             if (commandShip != null)
                 SetCommandShip(commandShip);

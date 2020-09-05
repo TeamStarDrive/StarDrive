@@ -39,7 +39,7 @@ namespace Ship_Game.Ships
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
             // Since we just created the object, it must be visible
-            UpdateVisibilityToPlayer(0f, forceVisible: true);
+            UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
 
             ScreenManager.Instance.AddObject(ShipSO);
         }
@@ -56,7 +56,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdateVisibilityToPlayer(float elapsedTime, bool forceVisible)
+        void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
             bool inFrustum = forceVisible || inSensorRange && (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
@@ -66,7 +66,7 @@ namespace Ship_Game.Ships
 
             InFrustum = inFrustum;
             if (inFrustum) OutsideFrustumTimer = 0f;
-            else           OutsideFrustumTimer += elapsedTime;
+            else           OutsideFrustumTimer += timeStep.FixedTime;
 
             if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
             {
@@ -81,7 +81,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override void Update(float elapsedTime)
+        public override void Update(FixedSimTime timeStep)
         {
             if (!ShipInitialized)
                 return;
@@ -95,7 +95,7 @@ namespace Ship_Game.Ships
                 Die(null, true);
             }
             
-            UpdateVisibilityToPlayer(elapsedTime, forceVisible: false);
+            UpdateVisibilityToPlayer(timeStep, forceVisible: false);
 
             if (!Active)
                 return;
@@ -108,11 +108,11 @@ namespace Ship_Game.Ships
 
             if (ScuttleTimer > -1f || ScuttleTimer < -1f)
             {
-                ScuttleTimer -= elapsedTime;
+                ScuttleTimer -= timeStep.FixedTime;
                 if (ScuttleTimer <= 0f) Die(null, true);
             }
 
-            ShieldRechargeTimer += elapsedTime;
+            ShieldRechargeTimer += timeStep.FixedTime;
 
             if (TetheredTo != null)
             {
@@ -123,13 +123,13 @@ namespace Ship_Game.Ships
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
-            if (!dying) UpdateAlive(elapsedTime);
-            else        UpdateDying(elapsedTime);
+            if (!dying) UpdateAlive(timeStep);
+            else        UpdateDying(timeStep);
         }
 
-        void UpdateAlive(float elapsedTime)
+        void UpdateAlive(FixedSimTime timeStep)
         {
-            ExploreCurrentSystem(elapsedTime);
+            ExploreCurrentSystem(timeStep);
 
             if (EMPdisabled)
             {
@@ -141,18 +141,18 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (elapsedTime > 0f)
+            if (timeStep.FixedTime > 0f)
             {
-                Projectiles.Update(elapsedTime);
-                Beams.Update(elapsedTime);
+                Projectiles.Update(timeStep);
+                Beams.Update(timeStep);
                 if (!EMPdisabled && Active)
-                    AI.Update(elapsedTime);
+                    AI.Update(timeStep);
             }
 
             if (!Active)
                 return;
 
-            InCombatTimer -= elapsedTime;
+            InCombatTimer -= timeStep.FixedTime;
             if (InCombatTimer > 0.0f)
             {
                 InCombat = true;
@@ -166,10 +166,10 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (elapsedTime > 0f)
+            if (timeStep.FixedTime > 0f)
             {
-                UpdateShipStatus(elapsedTime);
-                UpdateEnginesAndVelocity(elapsedTime);
+                UpdateShipStatus(timeStep);
+                UpdateEnginesAndVelocity(timeStep);
             }
 
             if (InFrustum)
@@ -179,7 +179,7 @@ namespace Ship_Game.Ships
                     ShipSO.World = Matrix.CreateRotationY(yRotation)
                                  * Matrix.CreateRotationZ(Rotation)
                                  * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
-                    ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
+                    ShipSO.UpdateAnimation(timeStep.FixedTime);
                     UpdateThrusters();
                 }
                 else // auto-create scene objects if possible
@@ -193,9 +193,9 @@ namespace Ship_Game.Ships
             ResetFrameThrustState();
         }
 
-        void ExploreCurrentSystem(float elapsedTime)
+        void ExploreCurrentSystem(FixedSimTime timeStep)
         {
-            if (System != null && elapsedTime > 0f && loyalty?.isFaction == false
+            if (System != null && timeStep.FixedTime > 0f && loyalty?.isFaction == false
                 && !System.IsFullyExploredBy(loyalty)
                 && System.PlanetList != null) // Added easy out for fully explored systems
             {
@@ -266,10 +266,10 @@ namespace Ship_Game.Ships
 
         AudioHandle DeathSfx;
 
-        void UpdateDying(float elapsedTime)
+        void UpdateDying(FixedSimTime timeStep)
         {
             ThrusterList.Clear();
-            dietimer -= elapsedTime;
+            dietimer -= timeStep.FixedTime;
             if (dietimer <= 1.9f && InFrustum && (DeathSfx == null || DeathSfx.IsStopped))
             {
                 string cueName;
@@ -293,7 +293,7 @@ namespace Ship_Game.Ships
 
             // for a cool death effect, make the ship accelerate out of control:
             ApplyThrust(200f, Ships.Thrust.Forward);
-            UpdateVelocityAndPosition(elapsedTime);
+            UpdateVelocityAndPosition(timeStep);
 
             int num1 = UniverseRandom.IntBetween(0, 60);
             if (num1 >= 57 && InFrustum)
@@ -307,9 +307,9 @@ namespace Ship_Game.Ships
                 Vector3 position = UniverseRandom.Vector3D(0f, Radius);
                 Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero);
             }
-            yRotation += DieRotation.X * elapsedTime;
-            xRotation += DieRotation.Y * elapsedTime;
-            Rotation  += DieRotation.Z * elapsedTime;
+            yRotation += DieRotation.X * timeStep.FixedTime;
+            xRotation += DieRotation.Y * timeStep.FixedTime;
+            Rotation  += DieRotation.Z * timeStep.FixedTime;
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
             if (inSensorRange && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
@@ -318,16 +318,16 @@ namespace Ship_Game.Ships
                              * Matrix.CreateRotationX(xRotation)
                              * Matrix.CreateRotationZ(Rotation)
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
-                ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
+                ShipSO.UpdateAnimation(timeStep.FixedTime);
             }
 
-            Projectiles.Update(elapsedTime);
+            Projectiles.Update(timeStep);
 
             SoundEmitter.Position = new Vector3(Center, 0);
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
-                ModuleSlotList[i].UpdateWhileDying(elapsedTime);
+                ModuleSlotList[i].UpdateWhileDying(timeStep);
             }
         }
 

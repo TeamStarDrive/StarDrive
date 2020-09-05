@@ -12,8 +12,8 @@ namespace UnitTests.Ships
     {
         public TestWeaponArcs()
         {
-            LoadStarterShipVulcan();
             CreateGameInstance();
+            LoadStarterShipVulcan();
             CreateUniverseAndPlayerEmpire(out _);
         }
 
@@ -77,7 +77,7 @@ namespace UnitTests.Ships
             Weapon rockets = enemy.Weapons.Find(w => w.UID == "Rocket");
             Assert.IsTrue(rockets.UpdateAndFireAtTarget(us, NoProjectiles, NoShips), "Fire at target must succeed");
             enemy.AI.OrderHoldPosition(enemy.Center, enemy.Direction);
-            enemy.Update(0.01f); // update weapons & projectiles
+            enemy.Update(new FixedSimTime(0.01f)); // update weapons & projectiles
 
             var projectiles = new Array<Projectile>(enemy.CopyProjectiles);
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips), "Fire PD at a projectile must succeed");
