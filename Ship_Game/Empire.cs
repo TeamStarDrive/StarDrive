@@ -193,7 +193,6 @@ namespace Ship_Game
         public HashSet<string> ShipTechs = new HashSet<string>();
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
-        public float TotalPotentialResearchPerColonist { get; private set; }
         public Vector2 WeightedCenter;
 
         public int AtWarCount;
@@ -1682,14 +1681,12 @@ namespace Ship_Game
         public void UpdateEmpirePlanets()
         {
             ResetMoneySpentOnProduction();
-            TotalPotentialResearchPerColonist = 0;
             using (OwnedPlanets.AcquireReadLock())
             {
                 TotalProdExportSlots = OwnedPlanets.Sum(p => p.FreeProdExportSlots); // Done before UpdateOwnedPlanet
                 for (int i = 0; i < OwnedPlanets.Count; i++)
                 {
                     Planet planet = OwnedPlanets[i];
-                    TotalPotentialResearchPerColonist += planet.TotalPotentialResearchersYield; // Done before DoGoverning
                     planet.UpdateOwnedPlanet();
                 }
             }

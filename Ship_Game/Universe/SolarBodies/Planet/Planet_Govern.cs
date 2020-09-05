@@ -8,8 +8,6 @@ namespace Ship_Game
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / (Owner.IsCybernetic ? 2 : 3)).LowerBound(0.1f);
         float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
-        public float TotalPotentialResearchersYield    => Res.YieldPerColonist * PopulationBillion;
-
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
@@ -61,7 +59,7 @@ namespace Ship_Game
                     AssignOtherWorldsWorkers(0.15f, 0.15f, 0, 0);
                     BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.75f, 1f); // Import if either drops below 50%, and stop importing once stores reach 100%.
-                    DetermineProdState(0.2f, 0.6f); // This planet will export when stores reach 60%
+                    DetermineProdState(0.25f, 1f); // This planet will export when stores reach 100%
                     break;
                 case ColonyType.Agricultural:
                     AssignOtherWorldsWorkers(1, 0.333f, 2, 1);
@@ -72,8 +70,8 @@ namespace Ship_Game
                 case ColonyType.Military:
                     AssignOtherWorldsWorkers(0.3f, 0.7f, 0, 1.5f);
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.75f, 0.95f); // Import if either drops below 75%, and stop importing once stores reach 95%.
-                    DetermineProdState(0.75f, 1); // This planet will only export Food or Prod due to excess FlatFood or FlatProd
+                    DetermineFoodState(0.75f, 1f); // Import if either drops below 75%, and stop importing once stores reach 95%.
+                    DetermineProdState(0.75f, 1f); // This planet will only export Food or Prod due to excess FlatFood or FlatProd
                     break;
             }
 
