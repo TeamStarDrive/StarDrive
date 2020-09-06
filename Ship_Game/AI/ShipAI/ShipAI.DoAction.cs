@@ -57,11 +57,8 @@ namespace Ship_Game.AI
         {
             if (IsTargetValid(Target)) return Target;
 
-            Target = PotentialTargets.FirstOrDefault(t =>
-            {
-                bool goodTarget = t?.Active == true && t.engineState != Ship.MoveState.Warp;
-                return goodTarget && t.Center.InRadius(Owner.Center, Owner.SensorRange);
-            });
+            Target = PotentialTargets.FirstOrDefault(t => IsTargetValid(t) 
+                                                          && t.Center.InRadius(Owner.Center, Owner.SensorRange));
             return Target;
         }
 
