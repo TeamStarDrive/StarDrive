@@ -7,24 +7,31 @@ namespace Ship_Game
 {
     public sealed partial class Quadtree
     {
-
         // ship collision; this can collide with multiple projectiles..
         // beams are ignored because they may intersect multiple objects and thus require special CollideBeamAtNode
-        static void CollideShipAtNode(float simTimeStep, QtreeNode node, ref SpatialObj ship)
+        void CollideShipAtNode(float simTimeStep, QtreeNode node, ref SpatialObj ship)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj proj = ref node.Items[i]; // potential projectile ?
-                if (proj.Loyalty != ship.Loyalty      && // friendlies don't collide
+                if (proj.PendingRemove == 0 &&                // not pending remove
+                    proj.Loyalty != ship.Loyalty &&           // friendlies don't collide
                     (proj.Type & GameObjectType.Proj) != 0 && // only collide with projectiles
                     (proj.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(simTimeStep, ref ship, out ShipModule hitModule))
                 {
-                    var projectile = proj.Obj as Projectile;
-                    if (!HandleProjCollision(projectile, hitModule ?? ship.Obj))
-                        continue; // there was no collision
+                    GameplayObject victim = hitModule ?? ship.Obj;
+                    var projectile = (Projectile)proj.Obj;
 
-                    if (projectile.DieNextFrame) FastRemoval(projectile, node, ref i);
+                    if (IsObjectDead(victim))
+                    {
+                        Log.Warning($"Ship dead but still in Quadtree: {ship.Obj}");
+                        MarkForRemoval(ship.Obj, ref ship);
+                    }
+                    else if (projectile.Touch(victim) && IsObjectDead(projectile))
+                    {
+                        MarkForRemoval(projectile, ref proj);
+                    }
                 }
             }
             if (node.NW == null) return;
@@ -34,42 +41,45 @@ namespace Ship_Game
             CollideShipAtNode(simTimeStep, node.SW, ref ship);
         }
 
-        //@HACK sometime Obj is null and crash the game. added if null mark dienextframe false. 
-        //This is surely a bug but the hack might need to be true?
-        static bool ProjectileIsDying(ref SpatialObj obj)
-            => (obj.Type & GameObjectType.Proj) != 0 && ((obj.Obj as Projectile)?.DieNextFrame ?? false);
-
-
         // projectile collision, return the first match because the projectile destroys itself anyway
-        static bool CollideProjAtNode(float simTimeStep, QtreeNode node, ref SpatialObj proj)
+        bool CollideProjAtNode(float simTimeStep, QtreeNode node, Projectile theProj, ref SpatialObj proj)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (item.Loyalty != proj.Loyalty &&           // friendlies don't collide, also ignores self
+                if (item.PendingRemove == 0 &&                // not pending remove
+                    item.Loyalty != proj.Loyalty &&           // friendlies don't collide, also ignores self
                     (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(simTimeStep, ref item, out ShipModule hitModule))
                 {
-                    if (!HandleProjCollision(proj.Obj as Projectile, hitModule ?? item.Obj)) // module OR projectile
-                        continue; // there was no collision
-
-                    if ((item.Type & GameObjectType.Proj) != 0 && (item.Obj as Projectile).DieNextFrame)
-                        FastRemoval(item.Obj, node, ref i);
-                    return true;
+                    // module OR projectile
+                    GameplayObject victim = hitModule ?? item.Obj;
+                    if (IsObjectDead(victim))
+                    {
+                        Log.Warning("Victim dead but still in Quadtree");
+                        MarkForRemoval(item.Obj, ref item);
+                    }
+                    else if (theProj.Touch(victim))
+                    {
+                        if (IsObjectDead(item.Obj))
+                        {
+                            MarkForRemoval(item.Obj, ref item);
+                        }
+                        return true;
+                    }
                 }
             }
             if (node.NW == null) return false;
-            return CollideProjAtNode(simTimeStep, node.NW, ref proj)
-                || CollideProjAtNode(simTimeStep, node.NE, ref proj)
-                || CollideProjAtNode(simTimeStep, node.SE, ref proj)
-                || CollideProjAtNode(simTimeStep, node.SW, ref proj);
+            return CollideProjAtNode(simTimeStep, node.NW, theProj, ref proj)
+                || CollideProjAtNode(simTimeStep, node.NE, theProj, ref proj)
+                || CollideProjAtNode(simTimeStep, node.SE, theProj, ref proj)
+                || CollideProjAtNode(simTimeStep, node.SW, theProj, ref proj);
         }
 
         struct BeamHitResult : IComparable<BeamHitResult>
         {
             public GameplayObject Collided;
             public float Distance;
-
             public int CompareTo(BeamHitResult other)
             {
                 return Distance.CompareTo(other.Distance);
@@ -84,7 +94,8 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (item.Loyalty != beam.Loyalty &&        // friendlies don't collide
+                if (item.PendingRemove == 0 &&             // not pending remove
+                    item.Loyalty != beam.Loyalty &&        // friendlies don't collide
                    (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
                 {
                     if (beam.HitTestBeam(ref item, out ShipModule hitModule, out float dist))
@@ -107,6 +118,7 @@ namespace Ship_Game
         static void CollideBeamAtNode(QtreeNode node, ref SpatialObj beam, Array<BeamHitResult> beamHitCache)
         {
             CollideBeamRecursive(node, ref beam, beamHitCache);
+
             if (beamHitCache.Count > 0)
             {
                 // for beams it's important to only collide the CLOSEST object
@@ -116,6 +128,7 @@ namespace Ship_Game
                 // Some missiles/projectiles have special dodge features, so we need to check all touches.
                 if (beamHitCache.Count > 1)
                     beamHitCache.Sort();
+
                 for (int i = 0; i < beamHitCache.Count; ++i)
                 {
                     BeamHitResult hit = beamHitCache[i];
@@ -131,7 +144,7 @@ namespace Ship_Game
             CollideAllAt(SimulationStep.FixedTime, Root, BeamHitCache);
         }
 
-        static void CollideAllAt(float simTimeStep, QtreeNode node, Array<BeamHitResult> beamHitCache)
+        void CollideAllAt(float simTimeStep, QtreeNode node, Array<BeamHitResult> beamHitCache)
         {
             if (node.NW != null) // depth first approach, to early filter LastCollided
             {
@@ -143,10 +156,7 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj so = ref node.Items[i];
-                GameplayObject go = so.Obj;
-                if (go == null) // FIX: concurrency issue, someone already removed this item
-                    continue;
-                if (go.Active == false)
+                if (so.PendingRemove != 0)
                     continue; // already collided inside this loop
 
                 // each collision instigator type has a very specific recursive handler
@@ -156,8 +166,9 @@ namespace Ship_Game
                 }
                 else if ((so.Type & GameObjectType.Proj) != 0)
                 {
-                    if (CollideProjAtNode(simTimeStep, node, ref so) && ProjectileIsDying(ref so))
-                        FastRemoval(go, node, ref i);
+                    var projectile = (Projectile)so.Obj;
+                    if (CollideProjAtNode(simTimeStep, node, projectile, ref so) && projectile.DieNextFrame)
+                        MarkForRemoval(so.Obj, ref so);
                 }
                 else if ((so.Type & GameObjectType.Ship) != 0)
                 {
@@ -182,11 +193,6 @@ namespace Ship_Game
             beam.BeamCollidedThisFrame = true;
             beam.ActualHitDestination = hitPos;
             return true;
-        }
-
-        static bool HandleProjCollision(Projectile projectile, GameplayObject victim)
-        {
-            return projectile.Touch(victim);
         }
     }
 }
