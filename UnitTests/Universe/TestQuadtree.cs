@@ -40,7 +40,7 @@ namespace UnitTests.Universe
         public void BasicInsert()
         {
             Quadtree tree = CreateQuadTree(100, universeSize:100_000f);
-            Assert.AreEqual(AllShips.Count, tree.CountItemsSlow());
+            Assert.AreEqual(AllShips.Count, tree.Count);
 
             foreach (Ship ship in AllShips)
             {
@@ -91,10 +91,9 @@ namespace UnitTests.Universe
         [TestMethod]
         public void TreeUpdatePerformance()
         {
-            Quadtree tree = CreateQuadTree(10000, universeSize:100_000f);
-            
-            var timer = new PerfTimer();
-            for (int i = 0; i < 1000; ++i)
+            Quadtree tree1 = CreateQuadTree(10_000, universeSize:1_000_000f);
+            var t1 = new PerfTimer();
+            for (int i = 0; i < 60; ++i)
             {
                 foreach (Ship ship in AllShips)
                 {
@@ -102,28 +101,29 @@ namespace UnitTests.Universe
                     ship.Position = ship.Center;
                     ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
                 }
-                tree.UpdateAll(TestSimStep);
+                tree1.UpdateAll(TestSimStep);
             }
-
-            Console.WriteLine($"-- TreeUpdatePerf elapsed: {timer.Elapsed}s");
-
-            //DebugVisualize(tree);
+            float e1 = t1.Elapsed;
+            Console.WriteLine($"-- TreeUpdatePerf ComplexReinsert elapsed: {(e1*1000).String(2)}ms");
+            
+            if (EnableVisualization)
+                DebugVisualize(tree1);
         }
 
         [TestMethod]
         public void TreeSearchPerformance()
         {
-            Quadtree tree = CreateQuadTree(10000, universeSize:500_000f);
+            Quadtree tree = CreateQuadTree(10_000, universeSize:500_000f);
             const float defaultSensorRange = 30000f;
 
             var t1 = new PerfTimer();
             for (int i = 0; i < AllShips.Count; ++i)
             {
                 Ship ship = AllShips[i];
-                QuadtreePerfTests.FindLinearOpt(AllShips, ship, ship.Center, defaultSensorRange);
+                tree.FindLinear(ship.Center, defaultSensorRange);
             }
             float e1 = t1.Elapsed;
-            Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {e1.String(2)}s");
+            Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
 
             var t2 = new PerfTimer();
             for (int i = 0; i < AllShips.Count; ++i)
@@ -131,7 +131,7 @@ namespace UnitTests.Universe
                 tree.FindNearby(AllShips[i].Center, defaultSensorRange);
             }
             float e2 = t2.Elapsed;
-            Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {e2.String(2)}s");
+            Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
 
             float speedup = e1 / e2;
             Assert.IsTrue(speedup > 1.2f, "TreeSearch must be significantly faster than linear search!");
@@ -141,6 +141,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void ConcurrentUpdateAndSearch()
         {
+            Quadtree tree = CreateQuadTree(10_000, universeSize:500_000f);
             var timer = new PerfTimer();
 
             // update
@@ -148,16 +149,26 @@ namespace UnitTests.Universe
             {
                 while (timer.Elapsed < 1.0)
                 {
-
+                    foreach (Ship ship in AllShips)
+                    {
+                        ship.Center.X += 10f;
+                        ship.Position = ship.Center;
+                        ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
+                    }
+                    tree.UpdateAll(TestSimStep);
                 }
             });
 
             // search
             Parallel.Run(() =>
             {
+                const float defaultSensorRange = 30000f;
                 while (timer.Elapsed < 1.0)
                 {
-
+                    for (int i = 0; i < AllShips.Count; ++i)
+                    {
+                        tree.FindNearby(AllShips[i].Center, defaultSensorRange);
+                    }
                 }
             });
         }
