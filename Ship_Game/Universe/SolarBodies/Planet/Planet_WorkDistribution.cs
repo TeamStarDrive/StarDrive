@@ -80,7 +80,7 @@ namespace Ship_Game
                 if (ConstructionQueue.Count > 0)
                     Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
                 else
-                    AssignCoreWorldProduction(remainingWork - MinimumResearch(remainingWork));
+                    AssignCoreWorldProduction(remainingWork - MinimumResearchNoQueue(remainingWork, 0.5f));
             }
             Res.AutoBalanceWorkers(); // rest goes to research
         }
@@ -96,33 +96,33 @@ namespace Ship_Game
                 if (ConstructionQueue.Count > 0)
                     Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
                 else
-                    Prod.Percent = remainingWork - MinimumResearch(remainingWork);
+                    Prod.Percent = remainingWork - MinimumResearchNoQueue(remainingWork, percentProd);
             }
 
             Res.AutoBalanceWorkers(); // rest goes to research
         }
-
-        float MinimumResearch(float availableWork)
+        
+        float MinimumResearchNoQueue(float availableWork, float wantedStoragePercent)
         {
             if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero() || IsCybernetic || Owner.Research.NoTopic)
                 return 0; // No need to use researchers
 
-            if (Storage.ProdRatio.AlmostEqual(1) && ConstructionQueue.Count == 0)
-                return availableWork;
+            if (Storage.ProdRatio.AlmostEqual(1))
+                return availableWork; // Use all research possible
 
-            float maximumCut; // Maximum cut the research can take from remaining work
+            float minCut; // Minimum cut the research can take from remaining work
+            float maxCut; // Maximum cut the research can take from remaining work
             switch (colonyType)
             {
                 default:
-                case ColonyType.Core:         maximumCut = 0.3f;  break;
-                case ColonyType.Research:     maximumCut = 0.75f; break;
-                case ColonyType.Agricultural: maximumCut = 0.2f; break;
+                case ColonyType.Core:         minCut = 0.25f; maxCut = 0.75f; break;
+                case ColonyType.Research:     minCut = 0.5f;  maxCut = 1f;   break;
+                case ColonyType.Agricultural: minCut = 0f;    maxCut = 0.4f; break;
                 case ColonyType.Military:
-                case ColonyType.Industrial:   maximumCut = 0.1f; break;
+                case ColonyType.Industrial:   minCut = 0f;    maxCut = 0.1f; break;
             }
 
-            float researchRatio = TotalPotentialResearchersYield / Owner.TotalPotentialResearchPerColonist;
-            return researchRatio.UpperBound(maximumCut) * availableWork;
+            return (Storage.ProdRatio / wantedStoragePercent).Clamped(minCut, maxCut) * availableWork;
             
         }
 
@@ -166,12 +166,11 @@ namespace Ship_Game
 
         void AssignCoreWorldProduction(float labor)
         {
-            if (labor <= 0f) return;
-
-            float researchNeed = Level < 3 ? 1 : 1 - (0.25f + Owner.Research.Strategy.ResearchRatio);
+            if (labor <= 0f) 
+                return;
 
             float minPerTurn = MinIncomePerTurn(Storage.Prod, Prod); // Todo check this
-            float workers = Prod.EstPercentForNetIncome(minPerTurn);
+            float workers    = Prod.EstPercentForNetIncome(minPerTurn);
 
             workers = workers.Clamped(0.1f, 1.0f);
             if (IsCybernetic & ConstructionQueue.Count > 0)
@@ -213,8 +212,8 @@ namespace Ship_Game
             float colonyTypeBonus        = 0;
             switch (colonyType)
             {
-                case ColonyType.Industrial: colonyTypeBonus = 0.2f; break;
-                case ColonyType.Military:   colonyTypeBonus = 0.05f; break;
+                case ColonyType.Industrial: colonyTypeBonus = 0.4f; break;
+                case ColonyType.Military:   colonyTypeBonus = 0.1f; break;
             }
 
             float workerPercentage = colonyDevelopmentBonus + colonyTypeBonus;
