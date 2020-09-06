@@ -55,7 +55,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 items.Remove(SpecialInquiry);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Hovered)
                 batch.FillRectangle(Rect, Color.Black.AddRgb(0.05f).Alpha(0.33f));
@@ -63,7 +63,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Text.Color = Selected ? Color.Orange
                        : Hovered ? Color.LightYellow
                        : Color.White.Alpha(0.8f);
-            Text.Draw(batch);
+            Text.Draw(batch, elapsed);
         }
 
         Vector2 TipPos => X < (GlobalStats.XRES*0.25f)

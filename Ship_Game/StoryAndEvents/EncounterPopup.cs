@@ -44,21 +44,21 @@ namespace Ship_Game
             ScreenManager.Instance.AddScreenDeferred(screen);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (fade)
             {
                 ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             }
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             batch.Begin();
-            DrawEncounter(batch);
+            DrawEncounter(batch, elapsed);
             batch.End();
         }
 
-        void DrawEncounter(SpriteBatch batch)
+        void DrawEncounter(SpriteBatch batch, DrawTimes elapsed)
         {
             batch.FillRectangle(BlackRect, Color.Black);
             batch.FillRectangle(ResponseRect, Color.Black);
@@ -76,7 +76,7 @@ namespace Ship_Game
             {
                 var drawCurs = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 5);
                 batch.DrawString(Fonts.Arial12Bold, "Your Response:", drawCurs, Color.White);
-                ResponseSL.Draw(batch);
+                ResponseSL.Draw(batch, elapsed);
             }
 
             if (EmpireTex != null)

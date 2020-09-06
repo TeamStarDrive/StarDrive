@@ -17,13 +17,13 @@ namespace Ship_Game.Debug.Page
             EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
 
             DrawWarAOs();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public override bool HandleInput(InputState input)
@@ -44,7 +44,7 @@ namespace Ship_Game.Debug.Page
             TextColumns[0].Color = EmpireAtWar.EmpireColor;
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             var text = new Array<DebugTextBlock>();
             if (EmpireAtWar.data.Defeated) return;
@@ -57,7 +57,7 @@ namespace Ship_Game.Debug.Page
                 }
             }
             SetTextColumns(text);
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         void DrawWarAOs()

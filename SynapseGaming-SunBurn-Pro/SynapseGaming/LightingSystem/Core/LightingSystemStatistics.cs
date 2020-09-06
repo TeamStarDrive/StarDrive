@@ -62,15 +62,16 @@ namespace SynapseGaming.LightingSystem.Core
         /// <param name="screenposition">Upper left corner to begin rendering.</param>
         /// <param name="scale">Text scale.</param>
         /// <param name="color">Text color.</param>
-        /// <param name="gametime"></param>
-        public static void Render(GraphicsDevice device, LightingSystemStatisticCategory categories, Vector2 screenposition, Vector2 scale, Color color, GameTime gametime)
+        /// <param name="totalGameSeconds"></param>
+        public static void Render(GraphicsDevice device, LightingSystemStatisticCategory categories, 
+            Vector2 screenposition, Vector2 scale, Color color, double totalGameSeconds)
         {
             Vector2 vector2_1 = screenposition;
             SpriteBatch spriteBatch_0 = LightingSystemManager.Instance.method_9(device);
             SpriteFont spriteFont_0 = LightingSystemManager.Instance.ConsoleFont();
             spriteBatch_0.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred, SaveStateMode.SaveState);
             spriteBatch_0.Draw(LightingSystemManager.Instance.EmbeddedTexture("White"), new Rectangle((int)screenposition.X - 10, (int)screenposition.Y - 10, (int)vector2_0.X + 20, (int)vector2_0.Y + 20), color_0);
-            class16_0.method_4("FrameRate", gametime, !bool_1);
+            class16_0.method_4("FrameRate", totalGameSeconds, !bool_1);
             vector2_0 = class16_0.method_1(spriteBatch_0, spriteFont_0, ref screenposition, scale, color);
             bool_0 = true;
             bool_1 = true;
@@ -91,11 +92,11 @@ namespace SynapseGaming.LightingSystem.Core
         /// Returns a string containing the names and values of all requested statistics.
         /// </summary>
         /// <param name="categories">Statistic categories to include.</param>
-        /// <param name="gametime">Current game time used in frame rate calculation.</param>
-        public static string ToString(LightingSystemStatisticCategory categories, GameTime gametime)
+        /// <param name="totalGameSeconds">Current game time used in frame rate calculation.</param>
+        public static string ToString(LightingSystemStatisticCategory categories, double totalGameSeconds)
         {
             string empty = string.Empty;
-            class16_0.method_4("FrameRate", gametime, !bool_1);
+            class16_0.method_4("FrameRate", totalGameSeconds, !bool_1);
             string str = empty + class16_0 + "\r\n";
             bool_0 = true;
             bool_1 = true;
@@ -118,16 +119,16 @@ namespace SynapseGaming.LightingSystem.Core
         public override string ToString()
         {
             bool_0 = true;
-            return ToString(LightingSystemStatisticCategory.All, new GameTime());
+            return ToString(LightingSystemStatisticCategory.All, 0.0);
         }
 
         /// <summary>Writes the requested statistics to a file.</summary>
         /// <param name="filename">Full path including filename of the file to write statistics to.</param>
         /// <param name="categories">Statistic categories to write to the file.</param>
-        /// <param name="gametime">Current game time used in frame rate calculation.</param>
-        public static void SaveToFile(string filename, LightingSystemStatisticCategory categories, GameTime gametime)
+        /// <param name="totalGameSeconds">Current game time used in frame rate calculation.</param>
+        public static void SaveToFile(string filename, LightingSystemStatisticCategory categories, double totalGameSeconds)
         {
-            File.WriteAllText(filename, ToString(categories, gametime));
+            File.WriteAllText(filename, ToString(categories, totalGameSeconds));
         }
     }
 }

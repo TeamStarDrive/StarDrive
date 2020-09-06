@@ -25,9 +25,9 @@ namespace Ship_Game
 
         public override int ItemHeight => TitleFont.LineSpacing * 2 + DescrFont.LineSpacing;
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             float textAreaWidth = Width - 40;
             string name = PaddedWithDots(TitleFont, Trait.trait.TraitName, textAreaWidth);

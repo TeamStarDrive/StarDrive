@@ -766,7 +766,7 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
 

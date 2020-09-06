@@ -132,30 +132,30 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
         /// Called when the GameComponent needs to be updated. Override this
         /// method with component-specific update code.
         /// </summary>
-        /// <param name="gameTime"></param>
-        public override void Update(GameTime gameTime)
+        /// <param name="deltaTime"></param>
+        public override void Update(float deltaTime)
         {
-            Interface.Update(gameTime);
-            base.Update(gameTime);
+            Interface.Update(deltaTime);
+            base.Update(deltaTime);
         }
 
         /// <summary>
         /// Called when the DrawableGameComponent needs to be drawn. Override
         /// this method with component-specific drawing code.
         /// </summary>
-        /// <param name="gameTime"></param>
-        public override void Draw(GameTime gameTime)
+        /// <param name="deltaTime"></param>
+        public override void Draw(float deltaTime)
         {
             if (SplashScreenGameComponent.DisplayComplete)
             {
                 Matrix projection = Projection;
-                Scene.BeginFrameRendering(ref view, ref projection, gameTime, Environment, true);
+                Scene.BeginFrameRendering(ref view, ref projection, deltaTime, Environment, true);
                 Interface.BeginFrameRendering(Scene);
                 RenderManager.Render();
                 Interface.EndFrameRendering();
                 Scene.EndFrameRendering();
             }
-            base.Draw(gameTime);
+            base.Draw(deltaTime);
         }
     }
 }

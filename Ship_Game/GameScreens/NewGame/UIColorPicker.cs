@@ -70,12 +70,12 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
 
-            ColorSelectMenu.Draw(batch);
+            ColorSelectMenu.Draw(batch, elapsed);
 
             SubTexture spark = ResourceManager.Texture("Particles/spark");
 

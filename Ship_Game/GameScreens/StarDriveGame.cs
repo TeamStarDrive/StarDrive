@@ -118,24 +118,24 @@ namespace Ship_Game
             GraphicsDeviceWasReset = true;
         }
 
-        protected override void Update(GameTime gameTime)
+        protected override void Update(float deltaTime)
         {
             GameAudio.Update();
 
-            UpdateGame(gameTime);
+            UpdateGame(deltaTime);
 
             if (ScreenManager.NumScreens == 0)
                 Instance.Exit();
         }
 
-        protected override void Draw(GameTime gameTime)
+        protected override void Draw(float deltaTime)
         {
             if (GraphicsDevice.GraphicsDeviceStatus != GraphicsDeviceStatus.Normal)
                 return;
 
             GraphicsDevice.Clear(Color.Black);
-            ScreenManager.Draw(Elapsed);
-            base.Draw(gameTime);
+            ScreenManager.Draw();
+            base.Draw(deltaTime);
         }
 
         protected override void Dispose(bool disposing)

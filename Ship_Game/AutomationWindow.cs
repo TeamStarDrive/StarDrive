@@ -51,10 +51,10 @@ namespace Ship_Game
             {
                 return Check.HandleInput(input) || Options.HandleInput(input);
             }
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                Check.Draw(batch);
-                Options.Draw(batch);
+                Check.Draw(batch, elapsed);
+                Options.Draw(batch, elapsed);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Ship_Game
                 LoadContent();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
@@ -112,10 +112,10 @@ namespace Ship_Game
             r.Y += 25;
             r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(batch);
-            ConstructionSubMenu.Draw(batch);
+            sel.Draw(batch, elapsed);
+            ConstructionSubMenu.Draw(batch, elapsed);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public override bool HandleInput(InputState input)
