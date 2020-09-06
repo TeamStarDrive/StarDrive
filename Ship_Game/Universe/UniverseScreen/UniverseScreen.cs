@@ -711,12 +711,55 @@ namespace Ship_Game
 
             NotificationManager.Update(fixedDeltaTime);
 
+            // if the debug window hits a cyclic crash it can be turned off in game.
+            // i don't see a point in crashing the game because of a debug window error.
+            try
+            {
+                if (Debug)
+                    DebugWin?.Update(fixedDeltaTime);
+            }
+            catch
+            {
+                Debug = false;
+                Log.Warning("DebugWindowCrashed");
+            }
+
             GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
 
             ScreenManager.UpdateSceneObjects(fixedDeltaTime);
             EmpireUI.Update(fixedDeltaTime);
+            UpdateSelectedItems(GameBase.Base.Elapsed);
 
             base.Update(fixedDeltaTime);
+        }
+
+        void UpdateSelectedItems(UpdateTimes elapsed)
+        {
+            if (ShowSystemInfo)
+            {
+                sInfoUI.SetSystem(SelectedSystem);
+                sInfoUI.Update(elapsed);
+            }
+
+            if (ShowPlanetInfo)
+            {
+                pInfoUI.SetPlanet(SelectedPlanet);
+                pInfoUI.Update(elapsed);
+            }
+            else if (ShowShipInfo)
+            {
+                ShipInfoUIElement.Ship = SelectedShip;
+                ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
+                ShipInfoUIElement.Update(elapsed);
+            }
+            else if (ShowShipList)
+            {
+                shipListInfoUI.Update(elapsed);
+            }
+            else if (ShowFleetInfo)
+            {
+                shipListInfoUI.Update(elapsed);
+            }
         }
 
         void AutoSaveCurrentGame()
