@@ -71,6 +71,8 @@ namespace Microsoft.Xna.Framework
             }
         }
 
+        public float TotalRealTimeSeconds => (float)Time.TotalRealTime.TotalSeconds;
+
         public bool IsFixedTimeStep { get; set; } = true;
 
         public GameWindow Window => Host?.Window;

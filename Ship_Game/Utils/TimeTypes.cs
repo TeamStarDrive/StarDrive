@@ -58,11 +58,6 @@ namespace Ship_Game
     public class UpdateTimes
     {
         /// <summary>
-        /// 
-        /// </summary>
-        public readonly int SimulationFPS;
-
-        /// <summary>
         /// This is the fixed simulation step: 1.0/SimulationFPS
         ///
         /// By default it is 1 / 60, but players can configure it
@@ -72,9 +67,7 @@ namespace Ship_Game
         public readonly FixedSimTime SimulationStep;
 
         /// <summary>
-        /// This is the real time elapsed between frames
-        ///
-        /// It can vary greatly depending on how many things are being drawn
+        /// This is the time elapsed between Update calls
         /// </summary>
         public readonly VariableFrameTime RealTime;
 
@@ -83,14 +76,10 @@ namespace Ship_Game
         /// </summary>
         public readonly float TotalGameSeconds;
 
-        public UpdateTimes(int simulationFramesPerSecond, float deltaTime, float totalGameSeconds)
+        public UpdateTimes(FixedSimTime simTime, float deltaTime, float totalGameSeconds)
         {
-            SimulationFPS = simulationFramesPerSecond;
-            float simulationFixedTimeStep = 1f / simulationFramesPerSecond;
-
-            SimulationStep = new FixedSimTime(simulationFixedTimeStep);
+            SimulationStep = simTime;
             RealTime = new VariableFrameTime(deltaTime);
-
             TotalGameSeconds = totalGameSeconds;
         }
 
@@ -111,6 +100,11 @@ namespace Ship_Game
         /// Variable real time that has passed since last draw event
         /// </summary>
         public VariableFrameTime RealTime { get; private set; }
+        
+        /// <summary>
+        /// Total elapsed game time, from the start of the game engine, until this time point
+        /// </summary>
+        public float TotalGameSeconds { get; private set; }
 
         PerfTimer Timer;
 
@@ -128,7 +122,9 @@ namespace Ship_Game
                 Timer = new PerfTimer();
             }
 
-            RealTime = new VariableFrameTime(Timer.Elapsed);
+            float elapsed = Timer.Elapsed;
+            TotalGameSeconds += elapsed;
+            RealTime = new VariableFrameTime(elapsed);
             Timer.Start(); // reset timer for next Draw
         }
 
