@@ -13,8 +13,7 @@ namespace Ship_Game
 
         public GameObjectType Type; // GameObjectType : byte
         public byte Loyalty;        // if loyalty == 0, then this is a STATIC world object !!!
-        public byte OverlapsQuads;  // does it overlap multiple quads?
-        public byte LastUpdate;
+        public byte PendingRemove;  // 1 if this item is pending removal
 
         public float CX, CY; // Center x y
         public float Radius;
@@ -27,8 +26,7 @@ namespace Ship_Game
             Obj           = go;
             Type          = go.Type;
             Loyalty       = (byte)go.GetLoyaltyId();
-            OverlapsQuads = 0;
-            LastUpdate    = 0;
+            PendingRemove = 0;
             if ((Type & GameObjectType.Beam) != 0)
             {
                 var beam = (Beam)go;
@@ -59,8 +57,7 @@ namespace Ship_Game
             Obj           = null;
             Type          = GameObjectType.Any;
             Loyalty       = 0;
-            OverlapsQuads = 0;
-            LastUpdate    = 0;
+            PendingRemove = 0;
             CX            = center.X;
             CY            = center.Y;
             Radius        = radius;
