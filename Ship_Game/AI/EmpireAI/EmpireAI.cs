@@ -243,11 +243,19 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public bool HasGoal(in Guid guid)
+        {
+            for (int i = 0; i < Goals.Count; ++i)
+                if (Goals[i].guid == guid) return true;
+            return false;
+        }
+
         public void AddGoal(Goal goal)
         {
             Goals.Add(goal);
         }
 
+        
         public void FindAndRemoveGoal(GoalType type, Predicate<Goal> removeIf)
         {
             for (int i = 0; i < Goals.Count; ++i)

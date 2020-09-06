@@ -590,26 +590,32 @@ namespace Ship_Game
             DrawCompletedEvt.Set();
         }
 
+        bool ShowSystemInfo => SelectedSystem != null && !LookingAtPlanet
+                            && viewState == UnivScreenState.GalaxyView;
+
+        bool ShowPlanetInfo => SelectedPlanet != null && !LookingAtPlanet;
+
+        bool ShowShipInfo => SelectedShip != null && !LookingAtPlanet;
+
+        bool ShowShipList => SelectedShipList.Count > 1 && SelectedFleet == null;
+
+        bool ShowFleetInfo => SelectedFleet != null && !LookingAtPlanet;
+
         private void DrawSelectedItems(SpriteBatch batch, DrawTimes elapsed)
         {
             if (SelectedShipList.Count == 0)
                 shipListInfoUI.ClearShipList();
-            if (SelectedSystem != null && !LookingAtPlanet)
+
+            if (ShowSystemInfo)
             {
-                sInfoUI.SetSystem(SelectedSystem);
-                // BUG: sInfoUI should be updated in the UPDATE loop !
-                sInfoUI.Update(GameBase.Base.Elapsed);
-                if (viewState == UnivScreenState.GalaxyView)
-                    sInfoUI.Draw(batch, elapsed);
+                sInfoUI.Draw(batch, elapsed);
             }
 
-            if (SelectedPlanet != null && !LookingAtPlanet)
+            if (ShowPlanetInfo)
             {
-                pInfoUI.SetPlanet(SelectedPlanet);
-                pInfoUI.Update(GameBase.Base.Elapsed);
                 pInfoUI.Draw(batch, elapsed);
             }
-            else if (SelectedShip != null && !LookingAtPlanet)
+            else if (ShowShipInfo)
             {
                 if (Debug && DebugWin != null)
                 {
@@ -623,47 +629,28 @@ namespace Ship_Game
                     }
                 }
 
-                ShipInfoUIElement.Ship = SelectedShip;
-                ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
-                ShipInfoUIElement.Update(GameBase.Base.Elapsed);
                 ShipInfoUIElement.Draw(batch, elapsed);
             }
-            else if (SelectedShipList.Count > 1 && SelectedFleet == null)
+            else if (ShowShipList)
             {
-                shipListInfoUI.Update(GameBase.Base.Elapsed);
                 shipListInfoUI.Draw(batch, elapsed);
             }
             else if (SelectedItem != null)
             {
-                bool flag = false;
-                for (int index = 0;
-                    index < SelectedItem.AssociatedGoal.empire.GetEmpireAI().Goals
-                        .Count;
-                    ++index)
+                Goal goal = SelectedItem.AssociatedGoal;
+                EmpireAI ai = goal.empire.GetEmpireAI();
+                if (ai.HasGoal(goal.guid))
                 {
-                    if (SelectedItem.AssociatedGoal.empire.GetEmpireAI().Goals[index]
-                            .guid !=
-                        SelectedItem.AssociatedGoal.guid) continue;
-                    flag = true;
-                    break;
-                }
-
-                if (flag)
-                {
-                    string titleText = "(" +
-                                       ResourceManager.ShipsDict[SelectedItem.UID]
-                                           .Name + ")";
-                    string bodyText = Localizer.Token(1410) +
-                                      SelectedItem.AssociatedGoal.PlanetBuildingAt.Name;
+                    string titleText = $"({ResourceManager.GetShipTemplate(SelectedItem.UID).Name})";
+                    string bodyText = Localizer.Token(1410) + goal.PlanetBuildingAt.Name;
                     vuiElement.Draw(titleText, bodyText);
                     DrawItemInfoForUI();
                 }
                 else
                     SelectedItem = null;
             }
-            else if (SelectedFleet != null && !LookingAtPlanet)
+            else if (ShowFleetInfo)
             {
-                shipListInfoUI.Update(GameBase.Base.Elapsed);
                 shipListInfoUI.Draw(batch, elapsed);
             }
         }

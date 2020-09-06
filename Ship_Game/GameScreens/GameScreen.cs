@@ -259,7 +259,7 @@ namespace Ship_Game
 
         protected Color ApplyCurrentAlphaToColor(Color color)
         {
-            float f = Math.Abs(RadMath.Sin(StarDriveGame.Instance.Elapsed.TotalGameSeconds)) * 255f;
+            float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed)) * 255f;
             return new Color(color, (byte)f);
         }
 
