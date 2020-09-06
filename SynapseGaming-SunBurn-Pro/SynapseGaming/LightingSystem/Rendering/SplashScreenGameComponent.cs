@@ -44,22 +44,22 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// Called when the GameComponent needs to be updated. Override this method with
         /// component-specific update code.
         /// </summary>
-        /// <param name="gameTime"></param>
-        public override void Update(GameTime gameTime)
+        /// <param name="deltaTime"></param>
+        public override void Update(float deltaTime)
         {
-            Splash.Update(gameTime);
-            base.Update(gameTime);
+            Splash.Update(deltaTime);
+            base.Update(deltaTime);
         }
 
         /// <summary>
         /// Called when the DrawableGameComponent needs to be drawn. Override this method
         /// with component-specific drawing code.
         /// </summary>
-        /// <param name="gameTime"></param>
-        public override void Draw(GameTime gameTime)
+        /// <param name="deltaTime"></param>
+        public override void Draw(float deltaTime)
         {
-            Splash.Render(gameTime);
-            base.Draw(gameTime);
+            Splash.Render(deltaTime);
+            base.Draw(deltaTime);
         }
     }
 }

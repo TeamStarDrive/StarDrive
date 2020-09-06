@@ -12,11 +12,11 @@ namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Viewport viewport;
             SubTexture nodeTexture = ResourceManager.Texture("UI/node");
-            ScreenManager.BeginFrameRendering(ref View, ref Projection);
+            ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             UniverseScreen us = Empire.Universe;
@@ -217,7 +217,7 @@ namespace Ship_Game
             ScreenManager.RenderSceneObjects();
 
             batch.Begin();
-            TitleBar.Draw(batch);
+            TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, Colors.Cream);
             const int numEntries = 9;
             int k = 9;
@@ -248,7 +248,7 @@ namespace Ship_Game
                 var sel = new Selector(r, Color.TransparentBlack);
                 batch.Draw(ResourceManager.Texture("NewUI/rounded_square"), r,
                     rect.Key != FleetToEdit ? Color.Black : new Color(0, 0, 255, 80));
-                sel.Draw(batch);
+                sel.Draw(batch, elapsed);
 
                 Fleet f = EmpireManager.Player.GetFleetsDict()[rect.Key];
                 if (f.DataNodes.Count > 0)
@@ -270,7 +270,7 @@ namespace Ship_Game
 
             if (FleetToEdit != -1)
             {
-                ShipDesigns.Draw(batch);
+                ShipDesigns.Draw(batch, elapsed);
                 batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, Colors.Cream);
             }
 
@@ -381,9 +381,9 @@ namespace Ship_Game
                     SpriteEffects.None, 1f);
             }
 
-            DrawSelectedData(batch);
+            DrawSelectedData(batch, elapsed);
             
-            base.Draw(batch); // draw automatic elements on top of everything else
+            base.Draw(batch, elapsed); // draw automatic elements on top of everything else
             batch.End();
 
             ScreenManager.EndFrameRendering();
@@ -449,12 +449,12 @@ namespace Ship_Game
             }
         }
 
-        void DrawSelectedData(SpriteBatch batch)
+        void DrawSelectedData(SpriteBatch batch, DrawTimes elapsed)
         {
             if (SelectedNodeList.Count == 1)
             {
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
-                StuffSelector.Draw(batch);
+                StuffSelector.Draw(batch, elapsed);
                 Vector2 cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
                 if (SelectedNodeList[0].Ship == null)
                 {
@@ -474,7 +474,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen12, "Movement Orders", cursor, Colors.Cream);
 
                 OperationsSelector = new Selector(OperationsRect, new Color(0, 0, 0, 180));
-                OperationsSelector.Draw(batch);
+                OperationsSelector.Draw(batch, elapsed);
                 cursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
                 batch.DrawString(Fonts.Pirulen12, "Target Selection", cursor, Colors.Cream);
                 SliderArmor.Draw(batch);
@@ -484,10 +484,10 @@ namespace Ship_Game
                 SliderShield.Draw(batch);
                 SliderVulture.Draw(batch);
                 Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-                Priorityselector.Draw(batch);
+                Priorityselector.Draw(batch, elapsed);
                 cursor = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
                 batch.DrawString(Fonts.Pirulen12, "Priorities", cursor, Colors.Cream);
-                OperationalRadius.Draw(batch);
+                OperationalRadius.Draw(batch, elapsed);
                 SliderSize.Draw(ScreenManager);
                 return;
             }
@@ -495,7 +495,7 @@ namespace Ship_Game
             if (SelectedNodeList.Count > 1)
             {
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
-                StuffSelector.Draw(batch);
+                StuffSelector.Draw(batch, elapsed);
                 Vector2 cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
                 if (SelectedNodeList[0].Ship == null)
                 {
@@ -516,7 +516,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen12, "Group Movement Orders", cursor, Colors.Cream);
 
                 OperationsSelector = new Selector(OperationsRect, new Color(0, 0, 0, 180));
-                OperationsSelector.Draw(batch);
+                OperationsSelector.Draw(batch, elapsed);
                 cursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
                 batch.DrawString(Fonts.Pirulen12, "Group Target Selection", cursor, Colors.Cream);
                 SliderArmor.Draw(batch);
@@ -526,10 +526,10 @@ namespace Ship_Game
                 SliderShield.Draw(batch);
                 SliderVulture.Draw(batch);
                 Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-                Priorityselector.Draw(batch);
+                Priorityselector.Draw(batch, elapsed);
                 cursor = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
                 batch.DrawString(Fonts.Pirulen12, "Group Priorities", cursor, Colors.Cream);
-                OperationalRadius.Draw(batch);
+                OperationalRadius.Draw(batch, elapsed);
                 SliderSize.Draw(ScreenManager);
                 return;
             }
@@ -544,7 +544,7 @@ namespace Ship_Game
                 }
 
                 StuffSelector = new Selector(r, new Color(0, 0, 0, 180));
-                StuffSelector.Draw(batch);
+                StuffSelector.Draw(batch, elapsed);
                 Vector2 cursor = new Vector2(r.X + 20, r.Y + 10);
                 batch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", cursor, Colors.Cream);
                 cursor.Y = cursor.Y + (Fonts.Arial20Bold.LineSpacing + 2);
@@ -556,13 +556,13 @@ namespace Ship_Game
             }
 
             StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
-            StuffSelector.Draw(batch);
+            StuffSelector.Draw(batch, elapsed);
             Fleet f = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
             Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
             FleetNameEntry.Text = f.Name;
             FleetNameEntry.ClickableArea = new Rectangle((int) cursor1.X, (int) cursor1.Y,
                 (int) Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
-            FleetNameEntry.Draw(batch, Fonts.Arial20Bold, cursor1,
+            FleetNameEntry.Draw(batch, elapsed, Fonts.Arial20Bold, cursor1,
                 (FleetNameEntry.Hover ? Color.Orange : Colors.Cream));
             cursor1.Y = cursor1.Y + (Fonts.Arial20Bold.LineSpacing + 10);
             cursor1 = cursor1 + new Vector2(50f, 30f);
@@ -574,7 +574,7 @@ namespace Ship_Game
             SaveDesign.Draw(ScreenManager);
             LoadDesign.Draw(ScreenManager);
             Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-            Priorityselector.Draw(batch);
+            Priorityselector.Draw(batch, elapsed);
             cursor1 = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
             batch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, Colors.Cream);
             cursor1.Y = cursor1.Y + (Fonts.Pirulen12.LineSpacing + 2);

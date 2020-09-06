@@ -201,7 +201,7 @@ namespace SynapseGaming.LightingSystem.Core
             {
                 Matrix view = state.View;
                 Matrix projection = SceneState.Projection;
-                this.sceneState_0.BeginFrameRendering(ref view, ref projection, state.GameTime, state.Environment, state.RenderingToScreen);
+                this.sceneState_0.BeginFrameRendering(ref view, ref projection, state.ElapsedTime, state.Environment, state.RenderingToScreen);
             }
             else
             {
@@ -212,7 +212,7 @@ namespace SynapseGaming.LightingSystem.Core
                 }
                 Matrix view = Matrix.CreateReflection(worldreflectionplane) * state.View;
                 Matrix projection = SceneState.Projection;
-                this.sceneState_0.BeginFrameRendering(ref view, ref projection, state.GameTime, state.Environment, state.RenderingToScreen);
+                this.sceneState_0.BeginFrameRendering(ref view, ref projection, state.ElapsedTime, state.Environment, state.RenderingToScreen);
             }
         }
 

@@ -57,16 +57,16 @@ namespace Ship_Game
 			ToolTipItems.Add(bomb);
 		}
 
-		public override void Draw(FrameTimes elapsed)
+		public override void Draw(SpriteBatch batch, DrawTimes elapsed)
 		{
 			MathHelper.SmoothStep(0f, 1f, TransitionPosition);
-			ScreenManager.SpriteBatch.FillRectangle(sel.Rect, Color.Black);
-			Header slant = new Header(new Rectangle(sel.Rect.X, sel.Rect.Y, sel.Rect.Width, 41), "Orbital Assets");
-			Body body = new Body(new Rectangle(slant.leftRect.X, sel.Rect.Y + 44, sel.Rect.Width, sel.Rect.Height - 44));
-			slant.Draw(ScreenManager);
-			body.Draw(ScreenManager);
-			BombardButton.DrawBlue(ScreenManager.SpriteBatch);
-			LandTroops.DrawBlue(ScreenManager.SpriteBatch);
+			batch.FillRectangle(sel.Rect, Color.Black);
+			var slant = new Header(new Rectangle(sel.Rect.X, sel.Rect.Y, sel.Rect.Width, 41), "Orbital Assets");
+			var body = new Body(new Rectangle(slant.leftRect.X, sel.Rect.Y + 44, sel.Rect.Width, sel.Rect.Height - 44));
+			slant.Draw(batch, elapsed);
+			body.Draw(batch, elapsed);
+			BombardButton.DrawBlue(batch);
+			LandTroops.DrawBlue(batch);
 		}
 
 		public override bool HandleInput(InputState input)

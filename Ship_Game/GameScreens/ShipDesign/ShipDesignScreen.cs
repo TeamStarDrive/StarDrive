@@ -343,7 +343,7 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
             if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;

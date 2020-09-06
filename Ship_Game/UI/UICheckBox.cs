@@ -62,7 +62,7 @@ namespace Ship_Game
             Binding = new Ref<bool>(binding);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             var checkRect = new Rectangle((int)CheckPos.X, (int)CenterY - 6, 10, 12);
             batch.DrawRectangle(checkRect, new Color(96, 81, 49));

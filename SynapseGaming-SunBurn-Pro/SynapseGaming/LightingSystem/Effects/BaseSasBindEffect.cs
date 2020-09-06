@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: SynapseGaming.LightingSystem.Effects.BaseSasBindEffect
-// Assembly: SynapseGaming-SunBurn-Pro, Version=1.3.2.8, Culture=neutral, PublicKeyToken=c23c60523565dbfd
-// MVID: A5F03349-72AC-4BAA-AEEE-9AB9B77E0A39
-// Assembly location: C:\Projects\BlackBox\StarDrive\SynapseGaming-SunBurn-Pro.dll
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -27,8 +21,8 @@ namespace SynapseGaming.LightingSystem.Effects
     public static readonly string[] SASAddress_PointLight_Position = new string[4]{ "Sas.PointLight[0].Position", "Sas.PointLight[1].Position", "Sas.PointLight[2].Position", "Sas.PointLight[3].Position" };
     /// <summary />
     public static readonly string[] SASAddress_PointLight_Range = new string[4]{ "Sas.PointLight[0].Range", "Sas.PointLight[1].Range", "Sas.PointLight[2].Range", "Sas.PointLight[3].Range" };
-    private GameTime gameTime_0 = new GameTime();
-    private GameTime gameTime_1 = new GameTime();
+    private float Now;
+    private float Last;
 
       /// <summary />
     public const string SASAddress_World_Matrix = "Sas.Camera.World";
@@ -86,19 +80,14 @@ namespace SynapseGaming.LightingSystem.Effects
     public const string SASAddress_Time_Last = "Sas.Time.Last";
     /// <summary />
     public const string SASAddress_Time_FrameNumber = "Sas.Time.FrameNumber";
-    private int int_0;
+    private int FrameNumber;
 
-    /// <summary>The current game time used by animated materials.</summary>
-    public GameTime GameTime
+    public void UpdateTime(float deltaTime)
     {
-      get => this.gameTime_0;
-        set
-      {
-        this.gameTime_1 = this.gameTime_0;
-        this.gameTime_0 = value;
-        ++this.int_0;
-        this.SyncTimeEffectData();
-      }
+        Last = Now;
+        Now += deltaTime;
+        ++FrameNumber;
+        SyncTimeEffectData();
     }
 
     /// <summary>
@@ -276,9 +265,9 @@ namespace SynapseGaming.LightingSystem.Effects
     /// </summary>
     protected void SyncTimeEffectData()
     {
-      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.Now"), new Vector4((float) this.gameTime_0.TotalRealTime.TotalMilliseconds));
-      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.Last"), new Vector4((float) this.gameTime_1.TotalRealTime.TotalMilliseconds));
-      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.FrameNumber"), new Vector4(this.int_0));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.Now"), new Vector4(Now*1000));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.Last"), new Vector4(Last*1000));
+      EffectHelper.Update(this.SasAutoBindTable.method_1("Sas.Time.FrameNumber"), new Vector4(FrameNumber));
     }
 
     protected class GClass0

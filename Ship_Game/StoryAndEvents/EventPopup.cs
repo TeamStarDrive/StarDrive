@@ -38,13 +38,13 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Fade)
             {
                 ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             }
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             ScreenManager.SpriteBatch.Begin();
             Vector2 theirTextPos = new Vector2(_blackRect.X + 10, _blackRect.Y + 10);

@@ -17,10 +17,10 @@ namespace UnitTests
         public virtual void Initialize()
         {
         }
-        public virtual void Update(GameTime time)
+        public virtual void Update(float deltaTime)
         {
         }
-        public virtual void Draw(GameTime time)
+        public virtual void Draw(float deltaTime)
         {
             Draw(Game.Batch);
         }

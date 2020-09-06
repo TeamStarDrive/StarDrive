@@ -150,22 +150,22 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (SelectedIndex == -1 && Tabs.NotEmpty)
                 SelectedIndex = 0;
 
-            Background?.Update(deltaTime);
-            base.Update(deltaTime);
+            Background?.Update(fixedDeltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
             
-            Background?.Draw(batch);
-            base.Draw(batch);
+            Background?.Draw(batch, elapsed);
+            base.Draw(batch, elapsed);
 
             StyleTextures s = GetStyle();
 

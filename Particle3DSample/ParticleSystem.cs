@@ -275,9 +275,9 @@ namespace Particle3DSample
             rs.DepthBufferWriteEnable = false;
         }
 
-        public void Update(float deltaTime)
+        public void Update(DrawTimes elapsed)
         {
-            CurrentTime += deltaTime;
+            CurrentTime += elapsed.RealTime.Seconds;
             RetireActiveParticles();
             FreeRetiredParticles();
 
