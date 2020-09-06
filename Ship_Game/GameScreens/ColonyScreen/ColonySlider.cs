@@ -173,7 +173,7 @@ namespace Ship_Game
             return new Rectangle(Rect.X-40, Rect.Center.Y - Icon.CenterY, Icon.Width, Icon.Height);
         }
         
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Color sliderTint = IsDisabled ? Color.DarkGray : Color.White;
 

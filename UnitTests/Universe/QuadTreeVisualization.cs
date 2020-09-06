@@ -28,7 +28,7 @@ namespace UnitTests.Universe
             CamHeight = tree.FullSize * (float)Math.Sqrt(2);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             CamHeight = CamHeight.Clamped(80f, Tree.FullSize*2f);
             Camera.Z = -Math.Abs(CamHeight);
@@ -36,10 +36,10 @@ namespace UnitTests.Universe
             View = Matrix.CreateLookAt(Camera, down, Vector3.Down);
             Projection = Matrix.CreatePerspectiveFieldOfView(0.785f, Viewport.AspectRatio, 10f, 35000f);
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Tree.DebugVisualize(this);
             DrawRectangleProjected(Vector2.Zero, new Vector2(Test.UniverseSize), 0f, Color.Red);
@@ -78,7 +78,7 @@ namespace UnitTests.Universe
             DrawString(new Vector2(20,100), Color.White, $"SearchTime:   {(SearchTime*1000).String(4)}ms  Linear:{Tree.WasLinearSearch}", Fonts.Arial11Bold);
             DrawString(new Vector2(20,120), Color.White, $"LinearTime:   {(LinearTime*1000).String(4)}ms", Fonts.Arial11Bold);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         float MoveStep(float multiplier) => multiplier * Camera.Z * -0.1f; 

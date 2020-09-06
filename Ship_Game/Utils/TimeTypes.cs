@@ -52,15 +52,11 @@ namespace Ship_Game
     }
 
     /// <summary>
-    /// Aggregate for passing game times around the engine
+    /// Aggregate for passing game UPDATE times around the engine.
+    /// WARNING: UPDATE time should note be used for RENDERING, use RenderTime for that!
     /// </summary>
-    public class FrameTimes
+    public class UpdateTimes
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public readonly int SimulationFPS;
-
         /// <summary>
         /// This is the fixed simulation step: 1.0/SimulationFPS
         ///
@@ -71,37 +67,70 @@ namespace Ship_Game
         public readonly FixedSimTime SimulationStep;
 
         /// <summary>
-        /// This is the real time elapsed between frames
-        ///
-        /// It can vary greatly depending on how many things are being drawn
+        /// This is the time elapsed between Update calls
         /// </summary>
         public readonly VariableFrameTime RealTime;
-
-        /// <summary>
-        /// XNA game time for compatibility
-        /// </summary>
-        public readonly GameTime XnaTime;
 
         /// <summary>
         /// Total elapsed game time, from the start of the game engine, until this time point
         /// </summary>
         public readonly float TotalGameSeconds;
 
-        public FrameTimes(int simulationFramesPerSecond, GameTime xnaTime)
+        public UpdateTimes(FixedSimTime simTime, float deltaTime, float totalGameSeconds)
         {
-            SimulationFPS = simulationFramesPerSecond;
-            float simulationFixedTimeStep = 1f / simulationFramesPerSecond;
+            SimulationStep = simTime;
+            RealTime = new VariableFrameTime(deltaTime);
+            TotalGameSeconds = totalGameSeconds;
+        }
 
-            SimulationStep = new FixedSimTime(simulationFixedTimeStep);
-            XnaTime = xnaTime;
+        public override string ToString()
+        {
+            return $"UpdateTimes  sim:{SimulationStep.FixedTime*1000,2:0.0}ms  real:{RealTime.Seconds*1000,2:0.0}ms  total:{TotalGameSeconds,2:0.0}s";
+        }
+    }
 
-            float frameTime = (float)xnaTime.ElapsedGameTime.TotalSeconds;
-            if (frameTime > 0.4f) // @note Probably we were loading something heavy
-                frameTime = simulationFixedTimeStep;
+    /// <summary>
+    /// This time type is used purely for rendering
+    /// </summary>
+    public class DrawTimes
+    {
+        /// <summary>
+        /// TimeSinceLastDrawEvent
+        /// 
+        /// Variable real time that has passed since last draw event
+        /// </summary>
+        public VariableFrameTime RealTime { get; private set; }
+        
+        /// <summary>
+        /// Total elapsed game time, from the start of the game engine, until this time point
+        /// </summary>
+        public float TotalGameSeconds { get; private set; }
 
-            RealTime = new VariableFrameTime(frameTime);
+        PerfTimer Timer;
 
-            TotalGameSeconds = (float)xnaTime.TotalGameTime.TotalSeconds;
+        public DrawTimes()
+        {
+        }
+
+        /// <summary>
+        /// Update the internal timer before rendering
+        /// </summary>
+        public void UpdateBeforeRendering()
+        {
+            if (Timer == null)
+            {
+                Timer = new PerfTimer();
+            }
+
+            float elapsed = Timer.Elapsed;
+            TotalGameSeconds += elapsed;
+            RealTime = new VariableFrameTime(elapsed);
+            Timer.Start(); // reset timer for next Draw
+        }
+
+        public override string ToString()
+        {
+            return $"DrawTimes  real:{RealTime.Seconds*1000,2:0.0}ms";
         }
     }
 }

@@ -127,7 +127,7 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;

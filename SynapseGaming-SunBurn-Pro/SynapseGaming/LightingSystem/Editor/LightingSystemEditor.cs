@@ -84,8 +84,8 @@ namespace SynapseGaming.LightingSystem.Editor
         /// <summary>
         /// Processes in editor input control, object selection, and camera movement.
         /// </summary>
-        /// <param name="gametime"></param>
-        public void Update(GameTime gametime)
+        /// <param name="deltaTime"></param>
+        public void Update(float deltaTime)
         {
         }
 

@@ -6,7 +6,7 @@ namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen
     {
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             CamPos.X += CamVelocity.X;
             CamPos.Y += CamVelocity.Y;
@@ -21,7 +21,7 @@ namespace Ship_Game
                 UpdateClickableSquads();
                 SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
             }
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         void UpdateClickableSquads()

@@ -41,7 +41,7 @@ namespace Ship_Game
 		}
 
 
-		public override void Draw(SpriteBatch batch)
+		public override void Draw(SpriteBatch batch, DrawTimes elapsed)
 		{
 			ScreenManager.GraphicsDevice.Clear(Color.Black);
 
@@ -146,7 +146,7 @@ namespace Ship_Game
 			base.LoadContent();
 		}
 
-		public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+		public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
             PlayWinTheme();
 

@@ -152,26 +152,26 @@ namespace Ship_Game
             DrawIcons(scienceIcon, numRes);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (P.Owner == null || !Visible)
                 return;
 
             P.UpdateIncomes(false);
-            LeftMenu.Draw(batch);
-            RightMenu.Draw(batch);
-            TitleBar.Draw(batch);
-            LeftColony.Draw(batch);
-            RightColony.Draw(batch);
+            LeftMenu.Draw(batch, elapsed);
+            RightMenu.Draw(batch, elapsed);
+            TitleBar.Draw(batch, elapsed);
+            LeftColony.Draw(batch, elapsed);
+            RightColony.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, Colors.Cream);
 
-            PlanetInfo.Draw(batch);
-            pDescription.Draw(batch);
-            pStorage.Draw(batch);
-            subColonyGrid.Draw(batch);
+            PlanetInfo.Draw(batch, elapsed);
+            pDescription.Draw(batch, elapsed);
+            pStorage.Draw(batch, elapsed);
+            subColonyGrid.Draw(batch, elapsed);
 
             DrawPlanetSurfaceGrid(batch);
-            pFacilities.Draw(batch);
+            pFacilities.Draw(batch, elapsed);
             DrawDetailInfo(batch, new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
 
@@ -180,7 +180,7 @@ namespace Ship_Game
                 num5 += 20f;
             var vector2_2 = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
             P.Name = PlanetName.Text;
-            PlanetName.Draw(batch, Font20, vector2_2, Colors.Cream);
+            PlanetName.Draw(batch, elapsed, Font20, vector2_2, Colors.Cream);
             EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(P.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
             if (EditHoverState == 0 && !PlanetName.HandlingInput)
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);
@@ -321,7 +321,7 @@ namespace Ship_Game
             DrawFoodAndStorage(batch);
             DrawOrbitalStats(batch);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         void DrawIncomingFreighters(SpriteBatch batch, ref Vector2 incomingTitle, ref Vector2 incomingData, 

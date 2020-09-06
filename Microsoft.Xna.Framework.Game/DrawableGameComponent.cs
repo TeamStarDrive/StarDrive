@@ -87,7 +87,7 @@ namespace Microsoft.Xna.Framework
             UnloadContent();
         }
 
-        public virtual void Draw(GameTime gameTime)
+        public virtual void Draw(float deltaTime)
         {
         }
 

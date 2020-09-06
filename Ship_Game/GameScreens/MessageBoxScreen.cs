@@ -59,7 +59,7 @@ namespace Ship_Game
                 Cancel = ButtonSmall(0f, 0f, cancelText, click: OnCancelClicked);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 
@@ -77,7 +77,7 @@ namespace Ship_Game
             batch.FillRectangle(r, Color.Black);
             batch.DrawRectangle(r, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, Message, textPosition, Color.White);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 
@@ -111,7 +111,7 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             Timer -= elapsed.RealTime.Seconds;
             if (Timed && !IsExiting)

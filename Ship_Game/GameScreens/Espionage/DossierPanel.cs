@@ -11,9 +11,9 @@ namespace Ship_Game.GameScreens.Espionage
             Screen = screen;
             Label(rect.X + 20, rect.Y + 10, 6092, Fonts.Arial20Bold);
         }
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             Agent agent = Screen.Agents.SelectedAgent;
             if (agent == null)

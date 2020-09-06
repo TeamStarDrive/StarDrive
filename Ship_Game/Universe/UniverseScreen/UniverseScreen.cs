@@ -691,17 +691,17 @@ namespace Ship_Game
             base.UnloadContent();
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
-            if (LookingAtPlanet) workersPanel.Update(deltaTime);
-            if (showingDSBW) dsbw.Update(deltaTime);
-            pieMenu.Update(deltaTime);
-            SelectedSomethingTimer -= deltaTime;
+            if (LookingAtPlanet) workersPanel.Update(fixedDeltaTime);
+            if (showingDSBW) dsbw.Update(fixedDeltaTime);
+            pieMenu.Update(fixedDeltaTime);
+            SelectedSomethingTimer -= fixedDeltaTime;
 
             if (++SelectorFrame > 299)
                 SelectorFrame = 0;
 
-            MusicCheckTimer -= deltaTime;
+            MusicCheckTimer -= fixedDeltaTime;
             if (MusicCheckTimer <= 0f)
             {
                 MusicCheckTimer = 2f;
@@ -709,17 +709,62 @@ namespace Ship_Game
                     ScreenManager.Music = GameAudio.PlayMusic("AmbientMusic");
             }
 
+            NotificationManager.Update(fixedDeltaTime);
+
+            // if the debug window hits a cyclic crash it can be turned off in game.
+            // i don't see a point in crashing the game because of a debug window error.
+            try
+            {
+                if (Debug)
+                    DebugWin?.Update(fixedDeltaTime);
+            }
+            catch
+            {
+                Debug = false;
+                Log.Warning("DebugWindowCrashed");
+            }
+
             GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
 
-            ScreenManager.UpdateSceneObjects();
-            EmpireUI.Update(deltaTime);
+            ScreenManager.UpdateSceneObjects(fixedDeltaTime);
+            EmpireUI.Update(fixedDeltaTime);
+            UpdateSelectedItems(GameBase.Base.Elapsed);
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public void DoAutoSave()
+        void UpdateSelectedItems(UpdateTimes elapsed)
         {
-            SavedGame savedGame = new SavedGame(this, "Autosave " + Auto);
+            if (ShowSystemInfo)
+            {
+                sInfoUI.SetSystem(SelectedSystem);
+                sInfoUI.Update(elapsed);
+            }
+
+            if (ShowPlanetInfo)
+            {
+                pInfoUI.SetPlanet(SelectedPlanet);
+                pInfoUI.Update(elapsed);
+            }
+            else if (ShowShipInfo)
+            {
+                ShipInfoUIElement.Ship = SelectedShip;
+                ShipInfoUIElement.ShipNameArea.Text = SelectedShip.VanityName;
+                ShipInfoUIElement.Update(elapsed);
+            }
+            else if (ShowShipList)
+            {
+                shipListInfoUI.Update(elapsed);
+            }
+            else if (ShowFleetInfo)
+            {
+                shipListInfoUI.Update(elapsed);
+            }
+        }
+
+        void AutoSaveCurrentGame()
+        {
+            SavedGame savedGame = new SavedGame(this, "Autosave" + Auto);
             if (++Auto > 3) Auto = 1;
         }
 

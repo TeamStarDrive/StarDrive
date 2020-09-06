@@ -105,89 +105,71 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(ScreenManager ScreenManager, GameTime gameTime)
+        public void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Color TextColor = new Color(255, 239, 208);
             string sysname = (ship.System!= null ? ship.System.Name : Localizer.Token(150));
             if (Fonts.Arial20Bold.MeasureString(sysname).X <= SysNameRect.Width)
             {
-                Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
+                var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+                batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
             }
             else
             {
-                Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
+                var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+                batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
             }
-            ScreenManager.SpriteBatch.Draw(ship.shipData.Icon, ShipIconRect, Color.White);
-            Vector2 rpos = new Vector2
-            {
-                X = ShipNameEntry.ClickableArea.X,
-                Y = ShipNameEntry.ClickableArea.Y
-            };
-            ShipNameEntry.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold, rpos, TextColor);
+            batch.Draw(ship.shipData.Icon, ShipIconRect, Color.White);
+            Vector2 rpos = ShipNameEntry.ClickableArea.PosVec();
+
+            ShipNameEntry.Draw(batch, elapsed, Fonts.Arial12Bold, rpos, TextColor);
             Vector2 rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, TextColor);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, TextColor);
             
-            Vector2 StatusPos = new Vector2(OrdersRect.X + OrdersRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Status_Text).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.MeasureString(Status_Text).Y / 2f);
+            var StatusPos = new Vector2(OrdersRect.X + OrdersRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Status_Text).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.MeasureString(Status_Text).Y / 2f);
             HelperFunctions.ClampVectorToInt(ref StatusPos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Status_Text, StatusPos, TextColor);
+            batch.DrawString(Fonts.Arial12, Status_Text, StatusPos, TextColor);
 
-            Vector2 MainPos = new Vector2(MaintRect.X + MaintRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            Empire e = EmpireManager.Player;
+            var MainPos = new Vector2(MaintRect.X + MaintRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float Maint = ship.GetMaintCost();
             MainPos.X = MainPos.X - Fonts.Arial12.MeasureString(Maint.ToString("F2")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref MainPos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, Maint.ToString("F2"), MainPos, Maint > 0.00 ? Color.Salmon : Color.White);
-            Vector2 StrPos = new Vector2(STRRect.X + STRRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            batch.DrawString(Fonts.Arial12, Maint.ToString("F2"), MainPos, Maint > 0.00 ? Color.Salmon : Color.White);
+            var StrPos = new Vector2(STRRect.X + STRRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float x = StrPos.X;
-            SpriteFont arial12Bold = Fonts.Arial12;
             float strength = ship.GetStrength();
             StrPos.X = x - Fonts.Arial12.MeasureString(strength.ToString("0")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref StrPos);
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             SpriteFont arial12 = Fonts.Arial12;
             float single = ship.GetStrength();
-            spriteBatch.DrawString(arial12, single.ToString("0"), StrPos, Color.White);
-            Vector2 TroopPos = new Vector2(TroopRect.X + TroopRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            batch.DrawString(arial12, single.ToString("0"), StrPos, Color.White);
+            var TroopPos = new Vector2(TroopRect.X + TroopRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             string troopCount = ship.TroopCount+"/"+ship.TroopCapacity;
             TroopPos.X = TroopPos.X - Fonts.Arial12.MeasureString(troopCount).X / 2f + 6;
-            //};
+            
             HelperFunctions.ClampVectorToInt(ref TroopPos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, troopCount, TroopPos, Color.White);
-            Vector2 FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            batch.DrawString(Fonts.Arial12, troopCount, TroopPos, Color.White);
+            var FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float x1 = FTLPos.X;
-            SpriteFont spriteFont = Fonts.Arial12;
             float fTLSpeed = ship.MaxFTLSpeed / 1000f;
-            FTLPos.X = x1 - spriteFont.MeasureString(string.Concat(fTLSpeed.ToString("0"), "k")).X / 2f + 6;
+            FTLPos.X = x1 - Fonts.Arial12.MeasureString(string.Concat(fTLSpeed.ToString("0"), "k")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref FTLPos);
-            SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
-            SpriteFont arial121 = Fonts.Arial12;
             float fTLSpeed1 = ship.MaxFTLSpeed / 1000f;
-            spriteBatch1.DrawString(arial121, string.Concat(fTLSpeed1.ToString("0"), "k"), FTLPos, Color.White);
-            Vector2 STLPos = new Vector2(STLRect.X + STLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            batch.DrawString(Fonts.Arial12, string.Concat(fTLSpeed1.ToString("0"), "k"), FTLPos, Color.White);
+            var STLPos = new Vector2(STLRect.X + STLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float single1 = STLPos.X;
-            SpriteFont arial12Bold1 = Fonts.Arial12;
-            float sTLSpeed = ship.MaxSTLSpeed;
-            STLPos.X = single1 - arial12Bold1.MeasureString(sTLSpeed.ToString("0")).X / 2f + 6;
+            STLPos.X = single1 - Fonts.Arial12.MeasureString(ship.MaxSTLSpeed.ToString("0")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref STLPos);
-            SpriteBatch spriteBatch2 = ScreenManager.SpriteBatch;
-            SpriteFont spriteFont1 = Fonts.Arial12;
-            float sTLSpeed1 = ship.MaxSTLSpeed;
-            spriteBatch2.DrawString(spriteFont1, sTLSpeed1.ToString("0"), STLPos, Color.White);
-            if (isScuttle)
-            {
-                float scuttleTimer = ship.ScuttleTimer;
-            }
+            batch.DrawString(Fonts.Arial12, ship.MaxSTLSpeed.ToString("0"), STLPos, Color.White);
 
             if (isCombat)
             {
-                ExploreButton.Draw(spriteBatch2);
-                PatrolButton.Draw(spriteBatch2);
+                ExploreButton.Draw(batch);
+                PatrolButton.Draw(batch);
             }
-            RefitButton.Draw(spriteBatch2);
-            ScrapButton.Draw(spriteBatch2);
+            RefitButton.Draw(batch);
+            ScrapButton.Draw(batch);
             
         }
 
