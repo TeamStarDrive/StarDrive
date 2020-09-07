@@ -23,13 +23,6 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        readonly AggregatePerfTimer EmpireUpdatePerf  = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PerfShipsAndSystems = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PreEmpirePerf     = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PostEmpirePerf    = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PerfTotalTurnTime = new AggregatePerfTimer();
-        readonly AggregatePerfTimer CollisionTime     = new AggregatePerfTimer();
-
         public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
