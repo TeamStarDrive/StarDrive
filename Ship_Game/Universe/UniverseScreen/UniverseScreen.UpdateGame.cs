@@ -15,7 +15,8 @@ namespace Ship_Game
         readonly object ShipPoolLock = new object();
 
         readonly AggregatePerfTimer EmpireUpdatePerf = new AggregatePerfTimer();
-        readonly AggregatePerfTimer ShipAndSysPerf   = new AggregatePerfTimer();
+        readonly AggregatePerfTimer UpdateSysPerf    = new AggregatePerfTimer();
+        readonly AggregatePerfTimer UpdateShipsPerf  = new AggregatePerfTimer();
         readonly AggregatePerfTimer PreEmpirePerf    = new AggregatePerfTimer();
         readonly AggregatePerfTimer PostEmpirePerf   = new AggregatePerfTimer();
         readonly AggregatePerfTimer CollisionTime    = new AggregatePerfTimer();
@@ -99,7 +100,7 @@ namespace Ship_Game
             {
                 ++TurnId;
                 UpdateAllSystems(FixedSimTime.Zero/*paused*/);
-                DeepSpaceThread(FixedSimTime.Zero/*paused*/);
+                UpdateAllShips(FixedSimTime.Zero/*paused*/);
                 RecomputeFleetButtons(true);
             }
             else
@@ -157,8 +158,8 @@ namespace Ship_Game
 
                 PostEmpireUpdates(timeStep);
 
-                // this will update all ship Center coordinates
-                ProcessTurnShipsAndSystems(timeStep);
+                UpdateAllSystems(timeStep);
+                UpdateAllShips(timeStep);
 
                 CollisionTime.Start();
                 SpaceManager.Update(timeStep);
@@ -169,8 +170,6 @@ namespace Ship_Game
 
             TurnTimePerf.Stop();
         }
-
-
 
             /// <summary>
         /// Used to make ships alive at game load
@@ -206,14 +205,10 @@ namespace Ship_Game
 
         void RemoveDeadProjectiles()
         {
-            for (int i = 0; i < DeepSpaceShips.Count; i++)
-                DeepSpaceShips[i].RemoveDyingProjectiles();
-
-            for (int i = 0; i < SolarSystemList.Count; i++)
+            for (int i = 0; i < MasterShipList.Count; i++)
             {
-                SolarSystem system = SolarSystemList[i];
-                for (int j = 0; j < system.ShipList.Count; ++j)
-                    system.ShipList[j].RemoveDyingProjectiles();
+                Ship ship = MasterShipList[i];
+                ship.RemoveDyingProjectiles();
             }
         }
 
@@ -232,51 +227,6 @@ namespace Ship_Game
         void ProcessTurnUpdateMisc(FixedSimTime timeStep)
         {
             UpdateClickableItems();
-
-            bool flag1 = false;
-            lock (GlobalStats.ClickableSystemsLock)
-            {
-                for (int i = 0; i < ClickPlanetList.Count; ++i)
-                {
-                    ClickablePlanets planet = ClickPlanetList[i];
-                    if (Input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius))
-                    {
-                        flag1 = true;
-                        TooltipTimer -= 0.01666667f;
-                        tippedPlanet = planet;
-                    }
-                }
-            }
-            if (TooltipTimer <= 0f && !LookingAtPlanet)
-                TooltipTimer = 0.5f;
-            if (!flag1)
-            {
-                ShowingPlanetToolTip = false;
-                TooltipTimer = 0.5f;
-            }
-
-            bool clickedOnSystem = false;
-            if (viewState > UnivScreenState.SectorView)
-            {
-                lock (GlobalStats.ClickableSystemsLock)
-                {
-                    for (int i = 0; i < ClickableSystems.Count; ++i)
-                    {
-                        ClickableSystem system = ClickableSystems[i];
-                        if (Input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
-                        {
-                            sTooltipTimer -= 0.01666667f;
-                            tippedSystem = system;
-                            clickedOnSystem = true;
-                        }
-                    }
-                }
-                if (sTooltipTimer <= 0f)
-                    sTooltipTimer = 0.5f;
-            }
-
-            if (!clickedOnSystem)
-                ShowingSysTooltip = false;
 
             JunkList.ApplyPendingRemovals();
             
@@ -448,18 +398,6 @@ namespace Ship_Game
             }, MaxTaskCores);
         }
 
-        void ProcessTurnShipsAndSystems(FixedSimTime timeStep)
-        {
-            ShipAndSysPerf.Start();
-            DeepSpaceThread(timeStep);
-
-            for (int i = 0; i < SolarSystemList.Count; i++)
-            {
-                SolarSystemList[i].Update(timeStep, this);
-            }
-            ShipAndSysPerf.Stop();
-        }
-
         bool ProcessTurnEmpires(FixedSimTime timeStep)
         {
             PreEmpirePerf.Start();
@@ -546,30 +484,35 @@ namespace Ship_Game
             return !Paused;
         }
 
-        void DeepSpaceThread(FixedSimTime timeStep)
-        {
-            DeepSpaceShips.Clear();
-
-            for (int i = 0; i < MasterShipList.Count; ++i)
-            {
-                Ship ship = MasterShipList[i];
-                if (ship != null && ship.Active && ship.InDeepSpace)
-                    DeepSpaceShips.Add(ship);
-            }
-
-            for (int i = 0; i < DeepSpaceShips.Count; i++)
-            {
-                DeepSpaceShips[i].Update(timeStep);
-            }
-        }
-
         public void UpdateAllSystems(FixedSimTime timeStep)
         {
             if (IsExiting)
                 return;
-
-            foreach (SolarSystem system in SolarSystemList)
+            
+            UpdateSysPerf.Start();
+            for (int i = 0; i < SolarSystemList.Count; ++i)
+            {
+                SolarSystem system = SolarSystemList[i];
                 system.Update(timeStep, this);
+            }
+            UpdateSysPerf.Stop();
+        }
+
+        public void UpdateAllShips(FixedSimTime timeStep)
+        {
+            if (IsExiting)
+                return;
+
+            UpdateShipsPerf.Start();
+            for (int i = 0; i < MasterShipList.Count; ++i)
+            {
+                Ship ship = MasterShipList[i];
+                if (ship != null && ship.Active)
+                {
+                    ship.Update(timeStep);
+                }
+            }
+            UpdateShipsPerf.Stop();
         }
 
         void HandleGameSpeedChange(InputState input)

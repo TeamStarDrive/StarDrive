@@ -56,11 +56,10 @@ namespace Ship_Game
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
         int Auto = 1;
-        Array<Ship> DeepSpaceShips = new Array<Ship>();
         public bool ViewingShip             = false;
         public float transDuration          = 3f;
-        public Vector2 mouseWorldPos;
         public float SelectedSomethingTimer = 3f;
+        public Vector2 mouseWorldPos;
         Array<FleetButton> FleetButtons = new Array<FleetButton>();
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
