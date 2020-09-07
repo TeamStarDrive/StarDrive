@@ -8,7 +8,7 @@ namespace Ship_Game
     public class EmpireManager
     {
         public static readonly Array<Empire> Empires = new Array<Empire>();
-        public static int NumEmpires => Empires.Count;
+        public static int NumEmpires { get; private set; }
         static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>();
 
         static Empire PlayerEmpire;
@@ -53,11 +53,12 @@ namespace Ship_Game
                 return;
 
             Empires.Add(e);
-            e.Id = NumEmpires;
+            e.Id = ++NumEmpires;
         }
 
         public static void Clear()
         {
+            NumEmpires = 0;
             Empires.Clear();
             EmpireDict.Clear();
             PlayerEmpire     = null;
@@ -278,7 +279,7 @@ namespace Ship_Game
                 Log.Error("must be called after empireList is populated.");
             
             Empire.Universe.WarmUpShipsForLoad(GameBase.Base.SimulationTime);
-            foreach(Empire empire in Empires)
+            foreach (Empire empire in Empires)
             { 
                 empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
                 empire.RestoreUnserializableDataFromSave();
