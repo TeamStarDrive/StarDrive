@@ -25,8 +25,7 @@ namespace Ship_Game
         {
             if (Frequency == 0)
             {
-                QueryPerformanceFrequency(out long frequency);
-                Frequency = frequency;
+                QueryPerformanceFrequency(out Frequency);
             }
             QueryPerformanceCounter(out Time);
         }
@@ -68,7 +67,7 @@ namespace Ship_Game
         [DllImport("Kernel32.dll")]
         static extern bool QueryPerformanceFrequency(out long freq);
 
-        readonly long Frequency;
+        static long Frequency;
         long Time;
 
         float CurrentTotal;
@@ -80,38 +79,49 @@ namespace Ship_Game
         public int MeasuredSamples { get; private set; }
         public float AvgTime { get; private set; }
 
-        public AggregatePerfTimer()
+        float StatRefreshInterval;
+        long LastRefreshTime;
+
+        public AggregatePerfTimer(float statRefreshInterval = 1f/*refresh once per second*/)
         {
-            QueryPerformanceFrequency(out Frequency);
+            if (Frequency == 0)
+            {
+                QueryPerformanceFrequency(out Frequency);
+            }
+            StatRefreshInterval = statRefreshInterval;
         }
 
         // start new sampling
         public void Start()
         {
             QueryPerformanceCounter(out Time);
+            if (LastRefreshTime == 0)
+                LastRefreshTime = Time;
         }
 
         // stop and accumulate performance sample
         public void Stop()
         {
-            QueryPerformanceCounter(out long end);
-            float elapsed = (float)((double)(end - Time) / Frequency);
+            QueryPerformanceCounter(out long now);
+            float elapsed = (float)((double)(now - Time) / Frequency);
             CurrentMax = Math.Max(CurrentMax, elapsed);
             CurrentTotal += elapsed;
             ++CurrentSamples;
-        }
 
-        // refresh Total, Max and N of samples
-        public void Refresh()
-        {
-            MeasuredTotal = CurrentTotal;
-            MeasuredMax = CurrentMax;
-            MeasuredSamples = CurrentSamples;
-            AvgTime = MeasuredTotal / MeasuredSamples;
+            float fromLastRefresh = (float)((double)(now - LastRefreshTime) / Frequency);
+            if (fromLastRefresh >= StatRefreshInterval)
+            {
+                LastRefreshTime = now;
 
-            CurrentTotal = 0f;
-            CurrentMax = 0f;
-            CurrentSamples = 0;
+                MeasuredTotal = CurrentTotal;
+                MeasuredMax = CurrentMax;
+                MeasuredSamples = CurrentSamples;
+                AvgTime = MeasuredTotal / MeasuredSamples;
+
+                CurrentTotal = 0f;
+                CurrentMax = 0f;
+                CurrentSamples = 0;
+            }
         }
 
         public override string ToString()
