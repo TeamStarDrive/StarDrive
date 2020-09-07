@@ -703,15 +703,21 @@ namespace Ship_Game
             DebugGamePerf.Show();
             DebugGamePerf.MultilineText = new Array<string>
             {
-                "Ship Count:  " ,
-                "Turns Per Second:  ",
-                "Ship&Sys Time:  " ,
-                "Empire Time:  " ,
-                "PreEmpire Time:  " ,
-                "Post Empire Time:  " ,
-                "Collision Time: " ,
-                "Action Q  Time:  ",
-                "---Total Time:  ",
+                "ShipCount:        ",
+
+                "Turn.Ship&Sys:    ",
+                "Turn.PreEmpire:   ",
+                "Turn.Empire:      ",
+                "Turn.PostEmpire:  ",
+                "Turn.Collision:   ",
+                "Turn.ActionQ:     ",
+
+                " Sim.TurnTime:    ",
+                " Sim.TurnPerSec:  ",
+                " Sim.TimeSink:    ",
+
+                "  UpdateSim.Time:  ",
+                "  UpdateSim.NTurns: "
             };
             
             DebugGamePerf.Align = TextAlign.Default;
@@ -721,14 +727,20 @@ namespace Ship_Game
             DebugGamePerfValues.MultilineText = new Array<string>
             {
                 MasterShipList.Count.ToString(),
-                PerfTotalTurnTime.MeasuredSamples.ToString(),
-                PerfShipsAndSystems.String(PerfTotalTurnTime),
-                EmpireUpdatePerf.String(PerfTotalTurnTime),
-                PreEmpirePerf.String(PerfTotalTurnTime),
-                PostEmpirePerf.String(PerfTotalTurnTime),
-                CollisionTime.String(PerfTotalTurnTime),
-                EmpireUpdateQueue.Perf.String(PerfTotalTurnTime),
-                PerfTotalTurnTime.ToString(),
+
+                ShipAndSysPerf.String(TurnTimePerf),
+                PreEmpirePerf.String(TurnTimePerf),
+                EmpireUpdatePerf.String(TurnTimePerf),
+                PostEmpirePerf.String(TurnTimePerf),
+                CollisionTime.String(TurnTimePerf),
+                EmpireUpdateQueue.Perf.String(TurnTimePerf),
+
+                TurnTimePerf.ToString(),
+                TurnTimePerf.MeasuredSamples.ToString(),
+                SimulationTimeSink.String(3)+"s",
+
+                ProcessSimTurnsPerf.ToString(),
+                ProcessSimTurnsPerf.MeasuredSamples.ToString(),
             };
         }
 
@@ -744,13 +756,14 @@ namespace Ship_Game
             {
                 StatsTimer -= 1f;
                 
-                PerfShipsAndSystems.Refresh();
+                ShipAndSysPerf.Refresh();
                 EmpireUpdatePerf.Refresh();
                 PreEmpirePerf.Refresh();
                 PostEmpirePerf.Refresh();
                 CollisionTime.Refresh();
                 EmpireUpdateQueue.Perf.Refresh();
-                PerfTotalTurnTime.Refresh();
+                TurnTimePerf.Refresh();
+                ProcessSimTurnsPerf.Refresh();
             }
         }
 
