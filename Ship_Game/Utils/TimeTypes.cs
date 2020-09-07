@@ -31,6 +31,11 @@ namespace Ship_Game
         {
             FixedTime = time;
         }
+
+        public FixedSimTime(int simulationFramesPerSecond)
+        {
+            FixedTime = 1f / simulationFramesPerSecond;
+        }
     }
 
     /// <summary>
@@ -58,15 +63,6 @@ namespace Ship_Game
     public class UpdateTimes
     {
         /// <summary>
-        /// This is the fixed simulation step: 1.0/SimulationFPS
-        ///
-        /// By default it is 1 / 60, but players can configure it
-        ///
-        /// If the game is paused, this will be 0
-        /// </summary>
-        public readonly FixedSimTime SimulationStep;
-
-        /// <summary>
         /// This is the time elapsed between Update calls
         /// </summary>
         public readonly VariableFrameTime RealTime;
@@ -76,16 +72,15 @@ namespace Ship_Game
         /// </summary>
         public readonly float TotalGameSeconds;
 
-        public UpdateTimes(FixedSimTime simTime, float deltaTime, float totalGameSeconds)
+        public UpdateTimes(float deltaTime, float totalGameSeconds)
         {
-            SimulationStep = simTime;
             RealTime = new VariableFrameTime(deltaTime);
             TotalGameSeconds = totalGameSeconds;
         }
 
         public override string ToString()
         {
-            return $"UpdateTimes  sim:{SimulationStep.FixedTime*1000,2:0.0}ms  real:{RealTime.Seconds*1000,2:0.0}ms  total:{TotalGameSeconds,2:0.0}s";
+            return $"UpdateTimes  real:{RealTime.Seconds*1000,2:0.0}ms  total:{TotalGameSeconds,2:0.0}s";
         }
     }
 
