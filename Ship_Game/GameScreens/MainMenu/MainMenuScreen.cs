@@ -250,12 +250,14 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             GameAudio.Update3DSound(CamPos);
 
+            var simTime = new FixedSimTime(GlobalStats.SimulationFramesPerSecond);
+
             SimTimeSink += elapsed.RealTime.Seconds;
-            while (SimTimeSink >= elapsed.SimulationStep.FixedTime)
+            while (SimTimeSink >= simTime.FixedTime)
             {
-                SimTimeSink -= elapsed.SimulationStep.FixedTime;
-                UpdateMainMenuShips(elapsed.SimulationStep);
-                FTLManager.Update(this, elapsed.SimulationStep);
+                SimTimeSink -= simTime.FixedTime;
+                UpdateMainMenuShips(simTime);
+                FTLManager.Update(this, simTime);
             }
 
             ScreenManager.UpdateSceneObjects(elapsed.RealTime.Seconds);

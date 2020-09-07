@@ -702,6 +702,7 @@ namespace Ship_Game
             DebugGamePerf.Show();
             DebugGamePerf.MultilineText = new Array<string>
             {
+                "Time:             ",
                 "ShipCount:        ",
                 
                 "Turn.Systems:     ",
@@ -714,7 +715,6 @@ namespace Ship_Game
 
                 " Sim.TurnTime:    ",
                 " Sim.TurnPerSec:  ",
-                " Sim.TimeSink:    ",
 
                 "  UpdateSim.Time:  ",
                 "  UpdateSim.NTurns: "
@@ -726,6 +726,7 @@ namespace Ship_Game
             DebugGamePerfValues.Show();
             DebugGamePerfValues.MultilineText = new Array<string>
             {
+                $"real {GameBase.Base.TotalElapsed:0.00}s   sim.current {CurrentSimTime:0.00}s   sim.target {TargetSimTime:0.00}s",
                 MasterShipList.Count.ToString(),
 
                 UpdateSysPerf.String(TurnTimePerf),
@@ -737,8 +738,7 @@ namespace Ship_Game
                 EmpireUpdateQueue.Perf.String(TurnTimePerf),
 
                 TurnTimePerf.ToString(),
-                TurnTimePerf.MeasuredSamples.ToString(),
-                SimulationTimeSink.String(3)+"s",
+                $"actual:{TurnTimePerf.MeasuredSamples}  target:{CurrentSimFPS}",
 
                 ProcessSimTurnsPerf.ToString(),
                 ProcessSimTurnsPerf.MeasuredSamples.ToString(),

@@ -278,7 +278,7 @@ namespace Ship_Game
             if (Empires.IsEmpty)
                 Log.Error("must be called after empireList is populated.");
             
-            Empire.Universe.WarmUpShipsForLoad(GameBase.Base.SimulationTime);
+            Empire.Universe.WarmUpShipsForLoad();
             foreach (Empire empire in Empires)
             { 
                 empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);

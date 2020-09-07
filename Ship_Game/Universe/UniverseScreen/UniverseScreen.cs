@@ -30,7 +30,7 @@ namespace Ship_Game
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
         public string StarDateString => StarDate.StarDateString();
-        public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
+        public float LastAutosaveTime = 0;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
         Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
@@ -721,6 +721,11 @@ namespace Ship_Game
             ScreenManager.UpdateSceneObjects(fixedDeltaTime);
             EmpireUI.Update(fixedDeltaTime);
             UpdateSelectedItems(GameBase.Base.Elapsed);
+
+            if (!Paused)
+            {
+                AdvanceSimulationTargetTime(fixedDeltaTime);
+            }
 
             base.Update(fixedDeltaTime);
         }
