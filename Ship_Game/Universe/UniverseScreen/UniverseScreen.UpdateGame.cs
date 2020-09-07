@@ -14,8 +14,17 @@ namespace Ship_Game
         public readonly ActionQueue EmpireUpdateQueue = new ActionQueue();
         readonly object ShipPoolLock = new object();
 
+        readonly AggregatePerfTimer EmpireUpdatePerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer ShipAndSysPerf   = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PreEmpirePerf    = new AggregatePerfTimer();
+        readonly AggregatePerfTimer PostEmpirePerf   = new AggregatePerfTimer();
+        readonly AggregatePerfTimer CollisionTime    = new AggregatePerfTimer();
+        readonly AggregatePerfTimer TurnTimePerf     = new AggregatePerfTimer();
+        readonly AggregatePerfTimer ProcessSimTurnsPerf    = new AggregatePerfTimer();
+
         float SimulationTimeSink;
         float LastTurnTime;
+
         void ProcessTurnsMonitored()
         {
             int threadId = Thread.CurrentThread.ManagedThreadId;
@@ -40,6 +49,7 @@ namespace Ship_Game
                     if (ProcessTurnsThread == null)
                         break; // this thread is aborting
 
+                    ProcessSimTurnsPerf.Start();
                     ProcessSimulationTurns();
                     failedLoops = 0; // no exceptions this turn
                 }
@@ -58,6 +68,8 @@ namespace Ship_Game
                 }
                 finally
                 {
+                    ProcessSimTurnsPerf.Stop();
+
                     // Notify Draw() that taketurns has finished and another frame can be drawn now
                     ProcessTurnsCompletedEvt.Set();
                 }
@@ -121,7 +133,7 @@ namespace Ship_Game
 
                     if (GlobalStats.RestrictAIPlayerInteraction)
                     {
-                        if (PerfTotalTurnTime.MeasuredSamples > 0 && PerfTotalTurnTime.AvgTime * GameSpeed < 0.05f)
+                        if (TurnTimePerf.MeasuredSamples > 0 && TurnTimePerf.AvgTime * GameSpeed < 0.05f)
                             ++GameSpeed;
                         else if (--GameSpeed < 1.0f)
                             GameSpeed = 1.0f;
@@ -132,7 +144,7 @@ namespace Ship_Game
 
         void ProcessTurnDelta(FixedSimTime timeStep)
         {
-            PerfTotalTurnTime.Start(); // total do work perf counter
+            TurnTimePerf.Start(); // total do work perf counter
 
             GlobalStats.BeamTests = 0;
             GlobalStats.Comparisons = 0;
@@ -155,7 +167,7 @@ namespace Ship_Game
                 ProcessTurnUpdateMisc(timeStep);
             }
 
-            PerfTotalTurnTime.Stop();
+            TurnTimePerf.Stop();
         }
 
 
@@ -437,14 +449,14 @@ namespace Ship_Game
 
         void ProcessTurnShipsAndSystems(FixedSimTime timeStep)
         {
-            PerfShipsAndSystems.Start();
+            ShipAndSysPerf.Start();
             DeepSpaceThread(timeStep);
 
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
                 SolarSystemList[i].Update(timeStep, this);
             }
-            PerfShipsAndSystems.Stop();
+            ShipAndSysPerf.Stop();
         }
 
         bool ProcessTurnEmpires(FixedSimTime timeStep)

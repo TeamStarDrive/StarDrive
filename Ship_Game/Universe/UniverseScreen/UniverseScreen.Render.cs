@@ -257,12 +257,11 @@ namespace Ship_Game
                         var flag = empire.data.Traits.FlagIndex;
                         int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
                         Rectangle rectangle2 = new Rectangle(xPos, (int) screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(empire.EmpireColor));
+                        batch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(empire.EmpireColor));
                         spacing++;
                     }
                 }
             }
-
         }
 
         void DrawSolarSystemSectorView(SolarSystem solarSystem)
