@@ -404,8 +404,9 @@ namespace Ship_Game
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            var ourShips = ourEmpire.GetShips();
-            Parallel.For(ourShips.Count, (start, end) =>
+            Ship[] ourShips = ourEmpire.GetShips().AtomicCopy();
+
+            Parallel.For(ourShips.Length, (start, end) =>
             {
                 for (int i = start; i < end; i++)
                 {
