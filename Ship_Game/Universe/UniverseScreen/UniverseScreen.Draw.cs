@@ -575,7 +575,6 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen16, speed, textPos, Color.White);
             }
 
-            RefreshPerfTimers(elapsed);
             if (Debug) ShowDebugGameInfo();
             else       HideDebugGameInfo();
 
@@ -704,13 +703,14 @@ namespace Ship_Game
             DebugGamePerf.MultilineText = new Array<string>
             {
                 "ShipCount:        ",
-
-                "Turn.Ship&Sys:    ",
+                
+                "Turn.Systems:     ",
+                "Turn.Ships:       ",
                 "Turn.PreEmpire:   ",
                 "Turn.Empire:      ",
                 "Turn.PostEmpire:  ",
                 "Turn.Collision:   ",
-                "Turn.ActionQ:     ",
+                "Turn.EmpireQue:   ",
 
                 " Sim.TurnTime:    ",
                 " Sim.TurnPerSec:  ",
@@ -728,7 +728,8 @@ namespace Ship_Game
             {
                 MasterShipList.Count.ToString(),
 
-                ShipAndSysPerf.String(TurnTimePerf),
+                UpdateSysPerf.String(TurnTimePerf),
+                UpdateShipsPerf.String(TurnTimePerf),
                 PreEmpirePerf.String(TurnTimePerf),
                 EmpireUpdatePerf.String(TurnTimePerf),
                 PostEmpirePerf.String(TurnTimePerf),
@@ -742,29 +743,6 @@ namespace Ship_Game
                 ProcessSimTurnsPerf.ToString(),
                 ProcessSimTurnsPerf.MeasuredSamples.ToString(),
             };
-        }
-
-        float StatsTimer;
-
-        void RefreshPerfTimers(DrawTimes elapsed)
-        {
-            if (Paused)
-                return;
-
-            StatsTimer += elapsed.RealTime.Seconds;
-            if (StatsTimer >= 1f)
-            {
-                StatsTimer -= 1f;
-                
-                ShipAndSysPerf.Refresh();
-                EmpireUpdatePerf.Refresh();
-                PreEmpirePerf.Refresh();
-                PostEmpirePerf.Refresh();
-                CollisionTime.Refresh();
-                EmpireUpdateQueue.Perf.Refresh();
-                TurnTimePerf.Refresh();
-                ProcessSimTurnsPerf.Refresh();
-            }
         }
 
         void DrawFleetIcons()
