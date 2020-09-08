@@ -730,7 +730,7 @@ namespace Ship_Game
             DebugGamePerfValues.Show();
             DebugGamePerfValues.MultilineText = new Array<string>
             {
-                $"real {GameBase.Base.TotalElapsed:0.00}s   sim.current {CurrentSimTime:0.00}s   sim.target {TargetSimTime:0.00}s",
+                $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime-CurrentSimTime)*1000:0.0}ms",
                 MasterShipList.Count.ToString(),
 
                 UpdateSysPerf.String(TurnTimePerf),
@@ -742,7 +742,7 @@ namespace Ship_Game
                 EmpireUpdateQueue.Perf.String(TurnTimePerf),
 
                 TurnTimePerf.ToString(),
-                $"actual:{TurnTimePerf.MeasuredSamples}  target:{CurrentSimFPS}",
+                $"actual:{ActualSimFPS}  target:{CurrentSimFPS}",
 
                 ProcessSimTurnsPerf.ToString(),
                 ProcessSimTurnsPerf.MeasuredSamples.ToString(),
@@ -1103,10 +1103,10 @@ namespace Ship_Game
                     Planet planet = planets[i];
                     using (planet.Projectiles.AcquireReadLock())
                     {
-                        for (int x = 0; x < planets[i].Projectiles.Count; x++)
+                        for (int x = 0; x < planet.Projectiles.Count; x++)
                         {
-                            Projectile p = planets[i].Projectiles[x];
-                            if (p?.Active ?? false) p.Draw(batch, this);
+                            Projectile p = planet.Projectiles[x];
+                            if (p?.Active == true) p.Draw(batch, this);
                         }
                     }
                 }
