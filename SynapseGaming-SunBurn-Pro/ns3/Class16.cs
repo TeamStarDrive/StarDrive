@@ -99,14 +99,13 @@ namespace ns3
       this.method_0(stringBuilder_0, (int) (float_1 * 100.0), 2);
     }
 
-    public void method_4(string string_0, GameTime gameTime_0, bool bool_0)
+    public void method_4(string string_0, double totalGameSeconds, bool bool_0)
     {
-      double totalSeconds = gameTime_0.TotalRealTime.TotalSeconds;
-      if (totalSeconds - double_0 >= 0.5)
+      if (totalGameSeconds - double_0 >= 0.5)
       {
-        float_0 = int_0 / (float) (totalSeconds - double_0);
+        float_0 = int_0 / (float) (totalGameSeconds - double_0);
         int_0 = 0;
-        double_0 = totalSeconds;
+        double_0 = totalGameSeconds;
       }
       this.method_3(string_0, float_0);
       if (!bool_0)

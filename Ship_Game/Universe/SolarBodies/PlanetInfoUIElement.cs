@@ -81,18 +81,16 @@ namespace Ship_Game
             TerraformedPopRect = ShieldRect;
         }
 
-        public override void Update(FrameTimes elapsed)
+        public override void Update(UpdateTimes elapsed)
         {
             AssignLabor?.Update(elapsed.RealTime.Seconds);
             base.Update(elapsed);
         }
 
-        public override void Draw(FrameTimes elapsed)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (P == null)
                 return;
-
-            SpriteBatch batch = ScreenManager.SpriteBatch;
 
             MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             ToolTipItems.Clear();
@@ -172,7 +170,7 @@ namespace Ship_Game
             Inspect.Draw(batch);
             Invade.Draw(batch);
 
-            AssignLabor?.Draw(batch);
+            AssignLabor?.Draw(batch, elapsed);
         }
 
         bool DrawUnexploredUninhabited(Vector2 namePos, Vector2 mousePos)

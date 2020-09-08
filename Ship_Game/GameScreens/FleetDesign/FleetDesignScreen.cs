@@ -383,7 +383,7 @@ namespace Ship_Game
             SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             CamPos.X += CamVelocity.X;
             CamPos.Y += CamVelocity.Y;

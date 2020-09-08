@@ -97,13 +97,13 @@ namespace Ship_Game
             return CaptureInput && hovering;
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
-            Sprite?.Update(deltaTime);
-            base.Update(deltaTime);
+            Sprite?.Update(fixedDeltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Sprite != null)
             {
@@ -119,7 +119,7 @@ namespace Ship_Game
                 batch.DrawRectangle(Rect, Border);
             }
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
     }
 }

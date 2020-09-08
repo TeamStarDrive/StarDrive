@@ -63,7 +63,7 @@ namespace Ship_Game
             return rscale;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
@@ -126,7 +126,7 @@ namespace Ship_Game
             DeepSpaceBuild.IsToggled = screen.showingDSBW;
             AIScreen.IsToggled       = screen.aw.IsOpen;
             Fleets.IsToggled         = screen.showingRangeOverlay;            
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         void DrawNode(Empire empire, IList<Empire.InfluenceNode> list, SpriteBatch batch)

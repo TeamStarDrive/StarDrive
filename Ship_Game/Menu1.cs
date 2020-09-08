@@ -75,7 +75,7 @@ namespace Ship_Game
             return false;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             StyleTextures s = GetStyle();
             batch.FillRectangle(fillRect, new Color(0, 0, 0, 220));
@@ -87,7 +87,7 @@ namespace Ship_Game
             batch.Draw(s.HT, horizTop, Color.White);
             batch.Draw(s.VL, vertLeft, Color.White);
             batch.Draw(s.VR, vertRight, Color.White);
-            subMenu?.Draw(batch);
+            subMenu?.Draw(batch, elapsed);
         }
 
         

@@ -105,18 +105,16 @@ namespace Ship_Game
             SelectedShipsSL.Reset();
         }
 
-        public override void Update(FrameTimes elapsed)
+        public override void Update(UpdateTimes elapsed)
         {
             base.Update(elapsed);
             SelectedShipsSL.Update(elapsed.RealTime.Seconds);
         }
 
-        public override void Draw(FrameTimes elapsed)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Screen.SelectedShipList == null)
                 return;  //fbedard
-
-            SpriteBatch batch = ScreenManager.SpriteBatch;
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
@@ -132,7 +130,7 @@ namespace Ship_Game
             }
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             var namePos = new Vector2(Housing.X + 41, Housing.Y + 64);
-            SelectedShipsSL.Draw(batch);
+            SelectedShipsSL.Draw(batch, elapsed);
 
             string text;
             if (HoveredShip == null)
@@ -200,10 +198,10 @@ namespace Ship_Game
 
             foreach (ToggleButton button in CombatStatusButtons)
             {
-                button.Draw(ScreenManager);
+                button.Draw(batch, elapsed);
             }
 
-            GridButton.Draw(ScreenManager);
+            GridButton.Draw(batch, elapsed);
         }
 
         public void CalcAndDrawProgressBars(SpriteBatch batch)

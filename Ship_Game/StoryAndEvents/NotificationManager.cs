@@ -17,7 +17,6 @@ namespace Ship_Game
         BatchRemovalCollection<Notification> NotificationList;
         public int NumberOfNotifications => NotificationList.Count;
 
-        float LastStarDate;
         public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
 
         public bool IsNotificationPresent(string message)
@@ -632,19 +631,13 @@ namespace Ship_Game
             Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
         }
 
-        public void Update(VariableFrameTime elapsedTime)
+        public void Update(float elapsedRealTime)
         {
-            if (LastStarDate < Screen.StarDate)
-            {
-                LastStarDate = Screen.StarDate;
-                ResourceManager.EventByDate(Screen.StarDate)?.TriggerExplorationEvent(Screen);
-            }
-            
             lock (NotificationLocker)
             {
                 foreach (Notification n in NotificationList)
                 {
-                    n.transitionElapsedTime += elapsedTime.Seconds;
+                    n.transitionElapsedTime += elapsedRealTime;
                     float amount = (float) Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
                     n.ClickRect.Y =
                         (int) Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));
@@ -652,7 +645,6 @@ namespace Ship_Game
                     //fbedard : Add filter to pause
                     if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
                         Screen.Paused = true;
-
                 }
                 if (NotificationList.Count > MaxEntriesToDisplay)  //fbedard: remove excess notifications
                 {

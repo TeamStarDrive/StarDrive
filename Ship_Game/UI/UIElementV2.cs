@@ -194,15 +194,15 @@ namespace Ship_Game
         public abstract bool HandleInput(InputState input);
 
         // 2. then we update
-        public virtual void Update(float deltaTime)
+        public virtual void Update(float fixedDeltaTime)
         {
-            UpdateEffects(deltaTime);
+            UpdateEffects(fixedDeltaTime);
             if (RequiresLayout)
                 PerformLayout();
         }
 
         // 3. finally we draw
-        public abstract void Draw(SpriteBatch batch);
+        public abstract void Draw(SpriteBatch batch, DrawTimes elapsed);
 
         public void RunOnEmpireThread(Action action) => ScreenManager.Instance.RunOnEmpireThread(action);
 

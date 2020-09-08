@@ -401,10 +401,10 @@ namespace Ship_Game
             New.ApplyChanges();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Fade) ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public override void ExitScreen()

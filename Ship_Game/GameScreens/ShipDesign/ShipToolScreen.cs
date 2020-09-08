@@ -106,9 +106,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            ScreenManager.BeginFrameRendering(ref view, ref projection);
+            ScreenManager.BeginFrameRendering(elapsed, ref view, ref projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             if (applyThruster) thruster.Draw(ref view, ref projection);
@@ -179,11 +179,11 @@ namespace Ship_Game
 
             var InfoPos = new Vector2(SaveHullButton.r.X - 50, SaveHullButton.r.Y - 20);
             batch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
-            ShipNameBox.Draw(batch, Fonts.Arial20Bold, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), Color.Orange);
+            ShipNameBox.Draw(batch, elapsed, Fonts.Arial20Bold, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), Color.Orange);
             SaveHullButton.Draw(ScreenManager);
             LoadModelButton.Draw(ScreenManager);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
             ScreenManager.EndFrameRendering();
         }
@@ -503,9 +503,9 @@ namespace Ship_Game
                 ser.Serialize(wfs, data);
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            ScreenManager.editor.Update(elapsed.XnaTime);
+            ScreenManager.editor.Update(elapsed.RealTime.Seconds);
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
             view = Matrix.CreateTranslation(0f, 0f, 0f)
                  * Matrix.CreateRotationY(RadMath.PI)
