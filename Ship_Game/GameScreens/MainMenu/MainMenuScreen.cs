@@ -243,12 +243,22 @@ namespace Ship_Game.GameScreens.MainMenu
             return false;
         }
 
+        // We need a simulation time accumulator in order to run sim at arbitrary X fps while UI runs at smooth 60 fps
+        float SimTimeSink;
+
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            UpdateMainMenuShips(elapsed.SimulationStep);
             GameAudio.Update3DSound(CamPos);
 
-            FTLManager.Update(this, elapsed.SimulationStep);
+            var simTime = new FixedSimTime(GlobalStats.SimulationFramesPerSecond);
+
+            SimTimeSink += elapsed.RealTime.Seconds;
+            while (SimTimeSink >= simTime.FixedTime)
+            {
+                SimTimeSink -= simTime.FixedTime;
+                UpdateMainMenuShips(simTime);
+                FTLManager.Update(this, simTime);
+            }
 
             ScreenManager.UpdateSceneObjects(elapsed.RealTime.Seconds);
             

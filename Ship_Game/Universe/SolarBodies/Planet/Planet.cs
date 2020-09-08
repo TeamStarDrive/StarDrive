@@ -562,13 +562,21 @@ namespace Ship_Game
 
         void UpdatePlanetaryProjectiles(FixedSimTime timeStep)
         {
-            if (timeStep.FixedTime <= 0f) return;
-            for (int i = Projectiles.Count - 1; i >= 0; --i)
+            if (timeStep.FixedTime <= 0f)
+                return;
+            
+            using (Projectiles.AcquireReadLock())
             {
-                Projectile p = Projectiles[i];
-                if (p.Active) p.Update(timeStep);
+                for (int i = Projectiles.Count - 1; i >= 0; --i)
+                {
+                    Projectile p = Projectiles[i];
+                    if (p.Active) p.Update(timeStep);
+                }
             }
-            Projectiles.RemoveInActiveObjects();
+            using (Projectiles.AcquireWriteLock())
+            {
+                Projectiles.RemoveInActiveObjects();
+            }
         }
 
         public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres

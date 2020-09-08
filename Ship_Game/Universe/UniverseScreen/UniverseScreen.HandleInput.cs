@@ -817,32 +817,83 @@ namespace Ship_Game
             purgeType    = nonCombatShips != 0 && nonCombatShips != ships.Count && !isFleet;
 
             return ships.Count > 0;
-
         }
+
+        bool IsMouseHoveringOverPlanet;
+        bool IsMouseHoveringOverSystem;
 
         public void UpdateClickableItems()
         {
             lock (GlobalStats.ClickableItemLocker)
                 ItemsToBuild.Clear();
-            for (int index = 0; index < EmpireManager.Player.GetEmpireAI().Goals.Count; ++index)
+
+            EmpireAI playerAI = player.GetEmpireAI();
+            for (int index = 0; index < playerAI.Goals.Count; ++index)
             {
-                Goal goal = player.GetEmpireAI().Goals[index];
-                if (!goal.IsDeploymentGoal)
-                    continue;
-                const float radius = 100f;
-                Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), Projection, View, Matrix.Identity).ToVec2();
-                Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointFromAngle(90f, radius), 0.0f), Projection, View, Matrix.Identity);
-                float num = Vector2.Distance(new Vector2(buildOffSet.X, buildOffSet.Y), buildPos) + 10f;
-                var underConstruction = new ClickableItemUnderConstruction
+                Goal goal = playerAI.Goals[index];
+                if (goal.IsDeploymentGoal)
                 {
-                    Radius         = num,
-                    BuildPos       = goal.BuildPosition,
-                    ScreenPos      = buildPos,
-                    UID            = goal.ToBuildUID,
-                    AssociatedGoal = goal
-                };
-                lock (GlobalStats.ClickableItemLocker)
-                    ItemsToBuild.Add(underConstruction);
+                    const float radius = 100f;
+                    Vector2 buildPos    = ProjectToScreenPosition(goal.BuildPosition);
+                    Vector2 buildOffSet = ProjectToScreenPosition(goal.BuildPosition.PointFromAngle(90f, radius));
+                    float clickableRadius = buildOffSet.Distance(buildPos) + 10f;
+                    var underConstruction = new ClickableItemUnderConstruction
+                    {
+                        Radius = clickableRadius, BuildPos = goal.BuildPosition, ScreenPos = buildPos,
+                        UID = goal.ToBuildUID, AssociatedGoal = goal
+                    };
+
+                    lock (GlobalStats.ClickableItemLocker)
+                        ItemsToBuild.Add(underConstruction);
+                }
+            }
+
+            IsMouseHoveringOverPlanet = false;
+            lock (GlobalStats.ClickableSystemsLock)
+            {
+                for (int i = 0; i < ClickPlanetList.Count; ++i)
+                {
+                    ClickablePlanets planet = ClickPlanetList[i];
+                    if (Input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius))
+                    {
+                        IsMouseHoveringOverPlanet = true;
+                        TooltipTimer -= 0.01666667f;
+                        tippedPlanet = planet;
+                    }
+                }
+            }
+
+            IsMouseHoveringOverSystem = false;
+            if (viewState > UnivScreenState.SectorView)
+            {
+                lock (GlobalStats.ClickableSystemsLock)
+                {
+                    for (int i = 0; i < ClickableSystems.Count; ++i)
+                    {
+                        ClickableSystem system = ClickableSystems[i];
+                        if (Input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
+                        {
+                            sTooltipTimer -= 0.01666667f;
+                            tippedSystem = system;
+                            IsMouseHoveringOverSystem = true;
+                        }
+                    }
+                }
+                if (sTooltipTimer <= 0f)
+                    sTooltipTimer = 0.5f;
+            }
+
+            ShowingSysTooltip = IsMouseHoveringOverSystem;
+
+            if (TooltipTimer <= 0f && !LookingAtPlanet)
+            {
+                TooltipTimer = 0.5f;
+            }
+
+            if (!IsMouseHoveringOverPlanet)
+            {
+                ShowingPlanetToolTip = false;
+                TooltipTimer = 0.5f;
             }
         }
 

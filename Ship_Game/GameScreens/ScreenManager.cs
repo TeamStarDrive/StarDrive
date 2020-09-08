@@ -253,7 +253,7 @@ namespace Ship_Game
 
         public void Draw()
         {
-            DrawLoopTime.UpdateBeforeRendering();
+            DrawLoopTime.UpdateBeforeRendering(GameBase.Base.TotalGameTimeSeconds);
 
             SpriteBatch batch = SpriteBatch;
             for (int i = 0; i < GameScreens.Count; ++i)

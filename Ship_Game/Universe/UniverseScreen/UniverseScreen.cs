@@ -23,13 +23,6 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        readonly AggregatePerfTimer EmpireUpdatePerf  = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PerfShipsAndSystems = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PreEmpirePerf     = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PostEmpirePerf    = new AggregatePerfTimer();
-        readonly AggregatePerfTimer PerfTotalTurnTime = new AggregatePerfTimer();
-        readonly AggregatePerfTimer CollisionTime     = new AggregatePerfTimer();
-
         public static readonly SpatialManager SpaceManager = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
@@ -37,7 +30,7 @@ namespace Ship_Game
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
         public string StarDateString => StarDate.StarDateString();
-        public float AutoSaveTimer = GlobalStats.AutoSaveFreq;
+        public float LastAutosaveTime = 0;
         public Array<ClickablePlanets> ClickPlanetList = new Array<ClickablePlanets>();
         public BatchRemovalCollection<ClickableItemUnderConstruction> ItemsToBuild = new BatchRemovalCollection<ClickableItemUnderConstruction>();
         Array<ClickableSystem> ClickableSystems    = new Array<ClickableSystem>();
@@ -63,11 +56,10 @@ namespace Ship_Game
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
         int Auto = 1;
-        Array<Ship> DeepSpaceShips = new Array<Ship>();
         public bool ViewingShip             = false;
         public float transDuration          = 3f;
-        public Vector2 mouseWorldPos;
         public float SelectedSomethingTimer = 3f;
+        public Vector2 mouseWorldPos;
         Array<FleetButton> FleetButtons = new Array<FleetButton>();
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
