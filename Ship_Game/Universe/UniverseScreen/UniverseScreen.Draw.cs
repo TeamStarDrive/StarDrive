@@ -392,12 +392,10 @@ namespace Ship_Game
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
-                SaveStateMode.SaveState);
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,  SaveStateMode.SaveState);
             basicFogOfWarEffect.Begin();
             basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
-            batch.Draw(texture1,
-                new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
+            batch.Draw(texture1, new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
                     graphics.PresentationParameters.BackBufferHeight), Color.White);
             basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
             basicFogOfWarEffect.End();
@@ -575,7 +573,6 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Pirulen16, speed, textPos, Color.White);
             }
 
-            RefreshPerfTimers(elapsed);
             if (Debug) ShowDebugGameInfo();
             else       HideDebugGameInfo();
 
@@ -584,6 +581,12 @@ namespace Ship_Game
             base.Draw(batch, elapsed);  // UIElementV2 Draw
 
             batch.End();
+
+            // Advance the simulation time just before we Notify
+            if (!Paused)
+            {
+                AdvanceSimulationTargetTime(elapsed.RealTime.Seconds);
+            }
 
             // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
             // the game logic can be updated
@@ -703,15 +706,22 @@ namespace Ship_Game
             DebugGamePerf.Show();
             DebugGamePerf.MultilineText = new Array<string>
             {
-                "Ship Count:  " ,
-                "Turns Per Second:  ",
-                "Ship&Sys Time:  " ,
-                "Empire Time:  " ,
-                "PreEmpire Time:  " ,
-                "Post Empire Time:  " ,
-                "Collision Time: " ,
-                "Action Q  Time:  ",
-                "---Total Time:  ",
+                "Time:             ",
+                "ShipCount:        ",
+                
+                "Turn.Systems:     ",
+                "Turn.Ships:       ",
+                "Turn.PreEmpire:   ",
+                "Turn.Empire:      ",
+                "Turn.PostEmpire:  ",
+                "Turn.Collision:   ",
+                "Turn.EmpireQue:   ",
+
+                " Sim.TurnTime:    ",
+                " Sim.TurnPerSec:  ",
+
+                "  UpdateSim.Time:  ",
+                "  UpdateSim.NTurns: "
             };
             
             DebugGamePerf.Align = TextAlign.Default;
@@ -720,38 +730,23 @@ namespace Ship_Game
             DebugGamePerfValues.Show();
             DebugGamePerfValues.MultilineText = new Array<string>
             {
+                $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime-CurrentSimTime)*1000:0.0}ms",
                 MasterShipList.Count.ToString(),
-                PerfTotalTurnTime.MeasuredSamples.ToString(),
-                PerfShipsAndSystems.String(PerfTotalTurnTime),
-                EmpireUpdatePerf.String(PerfTotalTurnTime),
-                PreEmpirePerf.String(PerfTotalTurnTime),
-                PostEmpirePerf.String(PerfTotalTurnTime),
-                CollisionTime.String(PerfTotalTurnTime),
-                EmpireUpdateQueue.Perf.String(PerfTotalTurnTime),
-                PerfTotalTurnTime.ToString(),
+
+                UpdateSysPerf.String(TurnTimePerf),
+                UpdateShipsPerf.String(TurnTimePerf),
+                PreEmpirePerf.String(TurnTimePerf),
+                EmpireUpdatePerf.String(TurnTimePerf),
+                PostEmpirePerf.String(TurnTimePerf),
+                CollisionTime.String(TurnTimePerf),
+                EmpireUpdateQueue.Perf.String(TurnTimePerf),
+
+                TurnTimePerf.ToString(),
+                $"actual:{ActualSimFPS}  target:{CurrentSimFPS}",
+
+                ProcessSimTurnsPerf.ToString(),
+                ProcessSimTurnsPerf.MeasuredSamples.ToString(),
             };
-        }
-
-        float StatsTimer;
-
-        void RefreshPerfTimers(DrawTimes elapsed)
-        {
-            if (Paused)
-                return;
-
-            StatsTimer += elapsed.RealTime.Seconds;
-            if (StatsTimer >= 1f)
-            {
-                StatsTimer -= 1f;
-                
-                PerfShipsAndSystems.Refresh();
-                EmpireUpdatePerf.Refresh();
-                PreEmpirePerf.Refresh();
-                PostEmpirePerf.Refresh();
-                CollisionTime.Refresh();
-                EmpireUpdateQueue.Perf.Refresh();
-                PerfTotalTurnTime.Refresh();
-            }
         }
 
         void DrawFleetIcons()
@@ -1108,10 +1103,10 @@ namespace Ship_Game
                     Planet planet = planets[i];
                     using (planet.Projectiles.AcquireReadLock())
                     {
-                        for (int x = 0; x < planets[i].Projectiles.Count; x++)
+                        for (int x = 0; x < planet.Projectiles.Count; x++)
                         {
-                            Projectile p = planets[i].Projectiles[x];
-                            if (p?.Active ?? false) p.Draw(batch, this);
+                            Projectile p = planet.Projectiles[x];
+                            if (p?.Active == true) p.Draw(batch, this);
                         }
                     }
                 }

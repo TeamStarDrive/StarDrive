@@ -25,8 +25,7 @@ namespace Ship_Game
         {
             if (Frequency == 0)
             {
-                QueryPerformanceFrequency(out long frequency);
-                Frequency = frequency;
+                QueryPerformanceFrequency(out Frequency);
             }
             QueryPerformanceCounter(out Time);
         }
@@ -68,50 +67,61 @@ namespace Ship_Game
         [DllImport("Kernel32.dll")]
         static extern bool QueryPerformanceFrequency(out long freq);
 
-        readonly long Frequency;
+        static long Frequency;
         long Time;
 
         float CurrentTotal;
         float CurrentMax;
         int CurrentSamples;
 
-        float MeasuredTotal;
+        public float MeasuredTotal { get; private set; }
         float MeasuredMax;
         public int MeasuredSamples { get; private set; }
         public float AvgTime { get; private set; }
 
-        public AggregatePerfTimer()
+        readonly long StatRefreshInterval;
+        long NextRefreshTime;
+
+        public AggregatePerfTimer(float statRefreshInterval = 1f/*refresh once per second*/)
         {
-            QueryPerformanceFrequency(out Frequency);
+            if (Frequency == 0)
+            {
+                QueryPerformanceFrequency(out Frequency);
+            }
+            StatRefreshInterval = (long)(statRefreshInterval * Frequency);
         }
 
         // start new sampling
         public void Start()
         {
             QueryPerformanceCounter(out Time);
+            if (NextRefreshTime == 0)
+                NextRefreshTime = Time + StatRefreshInterval;
         }
 
         // stop and accumulate performance sample
         public void Stop()
         {
-            QueryPerformanceCounter(out long end);
-            float elapsed = (float)((double)(end - Time) / Frequency);
+            QueryPerformanceCounter(out long now);
+            float elapsed = (float)((double)(now - Time) / Frequency);
             CurrentMax = Math.Max(CurrentMax, elapsed);
             CurrentTotal += elapsed;
             ++CurrentSamples;
-        }
 
-        // refresh Total, Max and N of samples
-        public void Refresh()
-        {
-            MeasuredTotal = CurrentTotal;
-            MeasuredMax = CurrentMax;
-            MeasuredSamples = CurrentSamples;
-            AvgTime = MeasuredTotal / MeasuredSamples;
+            if (now >= NextRefreshTime)
+            {
+                while (now >= NextRefreshTime)
+                    NextRefreshTime += StatRefreshInterval;
 
-            CurrentTotal = 0f;
-            CurrentMax = 0f;
-            CurrentSamples = 0;
+                MeasuredTotal = CurrentTotal;
+                MeasuredMax = CurrentMax;
+                MeasuredSamples = CurrentSamples;
+                AvgTime = MeasuredTotal / MeasuredSamples;
+
+                CurrentTotal = 0f;
+                CurrentMax = 0f;
+                CurrentSamples = 0;
+            }
         }
 
         public override string ToString()
