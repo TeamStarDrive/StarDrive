@@ -75,10 +75,10 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
-            Troop?.Update(deltaTime);
-            base.Update(deltaTime);
+            Troop?.Update(fixedDeltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         // Give a custom height for this scroll list item
@@ -89,9 +89,9 @@ namespace Ship_Game
         float TextWidth => Width - IconSize - ProdWidth;
         float TextX     => X + IconSize;
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             if   (Building != null)  DrawBuilding(batch, Building);
             else if (Troop != null)  DrawTroop(batch, Troop);
             else if (Ship != null)   DrawShip(batch, Ship);

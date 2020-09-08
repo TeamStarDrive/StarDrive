@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    [Obsolete("Use UIButton for showing buttons")]
+    //[Obsolete("Use UIButton for showing buttons")]
 	public sealed class TexturedButton
 	{
 		public Rectangle r;

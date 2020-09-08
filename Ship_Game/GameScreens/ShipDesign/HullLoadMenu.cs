@@ -50,9 +50,9 @@ namespace Ship_Game.GameScreens.ShipDesign
             public ShipData Hull;
             public HullListItem(string headerText) : base(headerText) {}
             public HullListItem(ShipData hull) { Hull = hull; }
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                base.Draw(batch);
+                base.Draw(batch, elapsed);
                 if (Hull != null)
                 {
                     float iconSize = Height;

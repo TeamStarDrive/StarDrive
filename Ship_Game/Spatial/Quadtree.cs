@@ -1,34 +1,44 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-    public sealed partial class Quadtree : IDisposable
+    public sealed partial class Quadtree
     {
         public static readonly SpatialObj[] NoObjects = new SpatialObj[0];
 
         public readonly int   Levels;
         public readonly float FullSize;
-
-        /// <summary>
-        /// New: Instead of the complex update-reinsert routine,
-        ///      rebuild the entire tree from scratch during every update
-        ///
-        ///      This will grant thread safety for the entire tree
-        /// </summary>
-        public bool RebuildFullTree = true;
+        public readonly float QuadToLinearSearchThreshold;
 
         /// <summary>
         /// How many objects to store per cell before subdividing
         /// </summary>
         public const int CellThreshold = 64;
 
+        /// <summary>
+        /// Ratio of search radius where we switch to Linear search
+        /// because Quad search would traverse entire tree
+        /// </summary>
+        public const float QuadToLinearRatio = 0.75f;
+
         QtreeNode Root;
-        int FrameId;
         FixedSimTime SimulationStep;
+
+        readonly Array<GameplayObject> Pending = new Array<GameplayObject>();
+        readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
+
+        QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer(10000);
+        QtreeRecycleBuffer BackBuffer  = new QtreeRecycleBuffer(20000);
+
+        /// <summary>
+        /// Number of pending and active objects in the Quadtree
+        /// </summary>
+        public int Count => Pending.Count + Objects.Count;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -43,41 +53,43 @@ namespace Ship_Game
                 ++Levels;
                 FullSize *= 2;
             }
+            QuadToLinearSearchThreshold = FullSize * QuadToLinearRatio;
             Reset();
-        }
-        ~Quadtree() { Dispose(); }
-
-        public void Dispose()
-        {
-            Root = null;
-            GC.SuppressFinalize(this);
         }
 
         public void Reset()
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            Root = new QtreeNode(-half, -half, +half, +half);
+            Root = FrontBuffer.Create(-half, -half, +half, +half);
+            lock (Pending)
+            {
+                Pending.Clear();
+                Objects.Clear();
+            }
         }
 
-        static void SplitNode(QtreeNode node, int level)
+        void SplitNode(QtreeNode node, int level)
         {
             float midX = (node.X + node.LastX) / 2;
             float midY = (node.Y + node.LastY) / 2;
 
-            node.NW = new QtreeNode(node.X, node.Y, midX,       midY);
-            node.NE = new QtreeNode(midX,   node.Y, node.LastX, midY);
-            node.SE = new QtreeNode(midX,   midY,   node.LastX, node.LastY);
-            node.SW = new QtreeNode(node.X, midY,   midX,       node.LastY);
+            node.NW = FrontBuffer.Create(node.X, node.Y, midX,       midY);
+            node.NE = FrontBuffer.Create(midX,   node.Y, node.LastX, midY);
+            node.SE = FrontBuffer.Create(midX,   midY,   node.LastX, node.LastY);
+            node.SW = FrontBuffer.Create(node.X, midY,   midX,       node.LastY);
 
             int count = node.Count;
-            SpatialObj[] arr = node.Items;
-            node.Items = NoObjects;
-            node.Count = 0;
+            if (count != 0)
+            {
+                SpatialObj[] arr = node.Items;
+                node.Items = NoObjects;
+                node.Count = 0;
 
-            // reinsert all items:
-            for (int i = 0; i < count; ++i)
-                InsertAt(node, level, ref arr[i]);
+                // reinsert all items:
+                for (int i = 0; i < count; ++i)
+                    InsertAt(node, level, ref arr[i]);
+            }
         }
 
         static QtreeNode PickSubQuadrant(QtreeNode node, ref SpatialObj obj)
@@ -85,7 +97,6 @@ namespace Ship_Game
             float midX = (node.X + node.LastX) / 2;
             float midY = (node.Y + node.LastY) / 2;
 
-            obj.OverlapsQuads = 0;
             if (obj.X < midX && obj.LastX < midX) // left
             {
                 if (obj.Y <  midY && obj.LastY < midY) return node.NW; // top left
@@ -96,11 +107,10 @@ namespace Ship_Game
                 if (obj.Y <  midY && obj.LastY < midY) return node.NE; // top right
                 if (obj.Y >= midY)                     return node.SE; // bot right
             }
-            obj.OverlapsQuads = 1;
             return null; // obj does not perfectly fit inside a quadrant
         }
 
-        static void InsertAt(QtreeNode node, int level, ref SpatialObj obj)
+        void InsertAt(QtreeNode node, int level, ref SpatialObj obj)
         {
             for (;;)
             {
@@ -131,121 +141,184 @@ namespace Ship_Game
             }
         }
 
+        static bool IsObjectDead(GameplayObject go)
+        {
+            // this is related to QuadTree fast-removal
+            return !go.Active
+                || ((go.Type & GameObjectType.Proj) != 0 && ((Projectile)go).DieNextFrame);
+        }
+
+        static bool IsObjectDead(Projectile proj)
+        {
+            return !proj.Active || proj.DieNextFrame;
+        }
+
+        /// <summary>
+        /// Insert the item as Pending.
+        /// This means it will be visible in the Quadtree after next update
+        /// </summary>
         public void Insert(GameplayObject go)
         {
-            var obj = new SpatialObj(go);
-            InsertAt(Root, Levels, ref obj);
-        }
+            if (IsObjectDead(go))
+                return;
 
-        static bool RemoveAt(QtreeNode node, GameplayObject go)
-        {
-            for (int i = 0; i < node.Count; ++i)
+            // this can be called from UI Thread, so we'll insert it later during Update()
+            lock (Pending)
             {
-                if (node.Items[i].Obj != go) continue;
-                node.RemoveAtSwapLast(ref i);
-                return true;
+                Pending.Add(go);
+                go.SpatialIndex = -2;
             }
-            return node.NW != null
-                && (RemoveAt(node.NW, go) || RemoveAt(node.NE, go)
-                ||  RemoveAt(node.SE, go) || RemoveAt(node.SW, go));
         }
 
-        public void Remove(GameplayObject go) => RemoveAt(Root, go);
-
-        static void FastRemoval(GameplayObject obj, QtreeNode node, ref int index)
+        /// <summary>
+        /// Object will be marked as PendingRemove and will be removed next frame
+        /// </summary>
+        public void Remove(GameplayObject go)
         {
-            UniverseScreen.SpaceManager.FastNonTreeRemoval(obj);
-            node.RemoveAtSwapLast(ref index);
-        }
-
-        void UpdateNode(QtreeNode node, int level, byte frameId)
-        {
-            if (node.Count > 0)
+            if (go.SpatialPending)
             {
-                float nx = node.X, ny = node.Y; // L1 cache warm node bounds
-                float nlastX = node.LastX, nlastY = node.LastY;
-
-                for (int i = 0; i < node.Count; ++i)
+                lock (Pending)
                 {
-                    ref SpatialObj obj = ref node.Items[i]; // .Items may be modified by InsertAt and RemoveAtSwapLast
-                    if (obj.LastUpdate == frameId) continue; // we reinserted this node so it doesn't require updating
-                    if (obj.Loyalty == 0)          continue; // loyalty 0: static world object, so don't bother updating
-
-                    GameplayObject go = obj.Obj;
-                    if (go == null) // FIX: this is a threading issue, this node already removed
-                        continue;
-
-                    if (go.Active == false)
-                    {
-                        FastRemoval(go, node, ref i);
-                        continue;
-                    }
-
-                    obj.UpdateBounds();
-                    obj.LastUpdate = frameId;
-
-                    if (obj.X < nx || obj.Y < ny || obj.LastX > nlastX || obj.LastY > nlastY) // out of Node bounds??
-                    {
-                        SpatialObj reinsert = obj;
-                        node.RemoveAtSwapLast(ref i);
-                        InsertAt(Root, Levels, ref reinsert); // warning: this call can modify our node.Items
-                    }
-                    // we previously overlapped the boundary, so insertion was at parent node;
-                    // ... so now check if we're completely inside a subquadrant and reinsert into it
-                    else if (obj.OverlapsQuads != 0)
-                    {
-                        QtreeNode quad = PickSubQuadrant(node, ref obj);
-                        if (quad != null)
-                        {
-                            SpatialObj reinsert = obj;
-                            node.RemoveAtSwapLast(ref i);
-                            InsertAt(quad, level-1, ref reinsert); // warning: this call can modify our node.Items
-                        }
-                    }
+                    Pending.RemoveRef(go);
+                    go.SpatialIndex = -1;
                 }
             }
-            if (node.NW != null)
+            else if (go.InSpatial)
             {
-                int sublevel = level - 1;
-                UpdateNode(node.NW, sublevel, frameId);
-                UpdateNode(node.NE, sublevel, frameId);
-                UpdateNode(node.SE, sublevel, frameId);
-                UpdateNode(node.SW, sublevel, frameId);
+                RemoveAt(Root, go);
             }
         }
 
-        static int RemoveEmptyChildNodes(QtreeNode node)
+        void RemoveAt(QtreeNode root, GameplayObject go)
         {
-            if (node.NW == null)
-                return node.Count;
-
-            int subItems = 0;
-            subItems += RemoveEmptyChildNodes(node.NW);
-            subItems += RemoveEmptyChildNodes(node.NE);
-            subItems += RemoveEmptyChildNodes(node.SE);
-            subItems += RemoveEmptyChildNodes(node.SW);
-            if (subItems == 0) // discard these empty quads:
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
+            do
             {
-                node.NW = node.NE = node.SE = node.SW = null;
+                QtreeNode node = buffer.Pop();
+
+                int count = node.Count;
+                SpatialObj[] items = node.Items;
+                for (int i = 0; i < count; ++i)
+                {
+                    ref SpatialObj so = ref items[i];
+                    if (so.Obj == go)
+                    {
+                        MarkForRemoval(go, ref so);
+                        return;
+                    }
+                }
+                if (node.NW != null)
+                {
+                    buffer.NodeStack[++buffer.NextNode] = node.NW;
+                    buffer.NodeStack[++buffer.NextNode] = node.NE;
+                    buffer.NodeStack[++buffer.NextNode] = node.SE;
+                    buffer.NodeStack[++buffer.NextNode] = node.SW;
+                }
+            } while (buffer.NextNode >= 0);
+        }
+
+        void MarkForRemoval(GameplayObject go, ref SpatialObj obj)
+        {
+            Objects[go.SpatialIndex] = null;
+            go.SpatialIndex = -1;
+            obj.PendingRemove = 1;
+            obj.Obj = null; // don't leak refs
+        }
+
+        void InsertPending()
+        {
+            lock (Pending)
+            {
+                for (int i = 0; i < Pending.Count; ++i)
+                {
+                    GameplayObject go = Pending[i];
+                    // NOTE: This happens sometimes with beam weapons. Seems like a bug
+                    if (IsObjectDead(go))
+                    {
+                        Log.Warning($"Quadtree.InsertPending object has died while pending: {go}");
+                    }
+                    else
+                    {
+                        go.SpatialIndex = Objects.Count;
+                        Objects.Add(go);
+                    }
+                }
+                Pending.Clear();
             }
-            return node.Count + subItems;
+        }
+
+        // remove inactive objects which are designated by null
+        void RemoveEmptySpots()
+        {
+            GameplayObject[] objects = Objects.GetInternalArrayItems();
+
+            for (int i = 0; i < Objects.Count; ++i)
+            {
+                GameplayObject go = objects[i];
+                if (go != null)
+                {
+                    // NOTE: this is very common, we have dead projectiles still in the objects list
+                    //       (which died last frame)
+                    if (IsObjectDead(go))
+                    {
+                        go.SpatialIndex = -1;
+                        Objects.RemoveAtSwapLast(i--);
+                    }
+                    else
+                    {
+                        go.SpatialIndex = i;
+                    }
+                }
+                else // empty slot
+                {
+                    Objects.RemoveAtSwapLast(i--);
+                }
+            }
+        }
+
+        QtreeNode CreateFullTree()
+        {
+            // universe is centered at [0,0], so Root node goes from [-half, +half)
+            float half = FullSize / 2;
+            QtreeNode newRoot = FrontBuffer.Create(-half, -half, +half, +half);;
+            for (int i = 0; i < Objects.Count; ++i)
+            {
+                var obj = new SpatialObj(Objects[i]);
+                InsertAt(newRoot, Levels, ref obj);
+            }
+            return newRoot;
         }
 
         public void UpdateAll(FixedSimTime timeStep)
         {
-            // we don't really care about int32 precision here... 
-            // actually a single bit flip would work fine as well
-            byte frameId = (byte)++FrameId;
             SimulationStep = timeStep;
-            UpdateNode(Root, Levels, frameId);
-            RemoveEmptyChildNodes(Root);
+            
+            RemoveEmptySpots();
+            InsertPending();
+
+            // prepare our node buffer for allocation
+            FrontBuffer.MarkAllNodesInactive();
+
+            // atomic exchange of old root and new root
+            Root = CreateFullTree();
+            SwapRecycleLists();
+        }
+
+        void SwapRecycleLists()
+        {
+            // Swap recycle lists
+            // 
+            // We move last frame's nodes to front and start overwriting them
+            QtreeRecycleBuffer newBackBuffer = FrontBuffer;
+            FrontBuffer = BackBuffer; // move backbuffer to front
+            BackBuffer = newBackBuffer;
+
         }
 
         // finds the node that fully encloses this spatial object
-        QtreeNode FindEnclosingNode(ref SpatialObj obj)
+        QtreeNode FindEnclosingNode(QtreeNode node, ref SpatialObj obj)
         {
             int level = Levels;
-            QtreeNode node = Root;
             for (;;)
             {
                 if (level <= 1) // no more subdivisions possible
@@ -257,23 +330,6 @@ namespace Ship_Game
                 --level;
             }
             return node;
-        }
-
-        // Traverse the entire tree to get the # of items
-        // NOTE: This is SLOW
-        public int CountItemsSlow() => CountItemsRecursive(Root);
-
-        static int CountItemsRecursive(QtreeNode node)
-        {
-            int count = node.Count;
-            if (node.NW != null)
-            {
-                count += CountItemsRecursive(node.NW);
-                count += CountItemsRecursive(node.NE);
-                count += CountItemsRecursive(node.SE);
-                count += CountItemsRecursive(node.SW);
-            }
-            return count;
         }
     }
 }

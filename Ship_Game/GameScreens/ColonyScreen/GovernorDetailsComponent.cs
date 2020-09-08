@@ -101,7 +101,7 @@ namespace Ship_Game
             WorldDescription.Text = GetParsedDescription();
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (Planet.Owner != null)
             {
@@ -115,12 +115,12 @@ namespace Ship_Game
                 GovNoScrap.Visible    = GovOrbitals.Visible && Planet.colonyType != Planet.ColonyType.TradeHub;
             }
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             // Governor portrait overlay stuff
             batch.Draw(PortraitShine, Portrait.Rect);

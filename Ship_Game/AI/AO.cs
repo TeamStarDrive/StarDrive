@@ -192,7 +192,7 @@ namespace Ship_Game.AI
             if (ship.fleet?.IsCoreFleet ?? false)
             {
                 CoreFleet.RemoveShip(ship);
-                Log.Error("Ship was in core fleet");
+                Log.Warning(ConsoleColor.Red, "Ship was in core fleet");
             }
             ShipsWaitingForCoreFleet.RemoveRef(ship);            
             return OffensiveForcePool.RemoveRef(ship);

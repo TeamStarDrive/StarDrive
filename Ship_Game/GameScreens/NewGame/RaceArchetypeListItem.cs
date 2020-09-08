@@ -27,9 +27,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             int height = (int)Height;
             int width = (int)(height * Portrait.AspectRatio);

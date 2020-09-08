@@ -4,12 +4,9 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Gameplay
 {
-    public sealed class SpatialManager : IDisposable
+    public sealed class SpatialManager
     {
-        readonly Array<GameplayObject> AllObjects = new Array<GameplayObject>();
-        readonly Array<GameplayObject> Pending    = new Array<GameplayObject>();
         Quadtree QuadTree;
-        public readonly object LockSpaceManager     = new object();
 
         public void Setup(float universeRadius)
         {
@@ -20,17 +17,13 @@ namespace Ship_Game.Gameplay
 
         public void Destroy()
         {
-            QuadTree?.Dispose(ref QuadTree);
-            AllObjects.Clear();
+            QuadTree = null;
         }
 
-        public void Dispose()
+        public void DebugVisualize(UniverseScreen screen)
         {
-            Destroy(); GC.SuppressFinalize(this);
+            QuadTree.DebugVisualize(screen);
         }
-        ~SpatialManager() { Destroy(); }
-
-        public void DebugVisualize(UniverseScreen screen) => QuadTree.DebugVisualize(screen);
 
         static bool IsSpatialType(GameplayObject obj)
             => obj.Is(GameObjectType.Ship) || obj.Is(GameObjectType.Proj)/*also Beam*/;
@@ -40,90 +33,16 @@ namespace Ship_Game.Gameplay
             if (!IsSpatialType(obj) || QuadTree == null)
                 return; // not a supported spatial manager type. just ignore it
 
-            // this is related to QuadTree fast-removal
-            if (obj is Projectile proj && proj.DieNextFrame)
-                return;
-
-            // this can be called from UI Thread, so we'll insert it later during Update()
-            lock (Pending)
-            {
-                Pending.Add(obj);
-                obj.SpatialIndex = -2;
-            }
-        }
-
-        void InsertPending()
-        {
-            lock (Pending)
-            {
-                for (int i = 0; i < Pending.Count; ++i)
-                {
-                    GameplayObject obj = Pending[i];
-                    obj.SpatialIndex = AllObjects.Count;
-                    AllObjects.Add(obj);
-                    QuadTree.Insert(obj);
-                }
-                Pending.Clear();
-            }
+            QuadTree.Insert(obj);
         }
 
         public void Remove(GameplayObject obj)
         {
-            if (obj.SpatialPending)
-            {
-                lock (Pending)
-                {
-                    Pending.RemoveSwapLast(obj);
-                    obj.SpatialIndex = -1;
-                }
-            }
-            else if (obj.InSpatial)
-            {
-                QuadTree?.Remove(obj);
-                if (AllObjects.NotEmpty)
-                    AllObjects[obj.SpatialIndex] = null;
-                obj.SpatialIndex = -1;
-            }
-        }
-
-        // this should only be called from Quadtree
-        public void FastNonTreeRemoval(GameplayObject obj)
-        {
-            int idx = obj.SpatialIndex;
-            if (idx == -1)
-            {
-                Log.Error($"SpatialManager attempted double remove of object: {obj}");
-                return; // not in any SpatialManagers, so Remove is no-op
-            }
-            AllObjects[idx] = null;
-            obj.SpatialIndex = -1;
-        }
-
-        // @todo OPTIMIZE THIS CLUSTERFCK
-        public void GetDeepSpaceShips(Array<Ship> copyTo)
-        {
-            copyTo.Clear();
-            for (int i = 0; i < AllObjects.Count; ++i)
-            {
-                GameplayObject go = AllObjects[i];
-                if (go != null && go.Active && go.InDeepSpace && go.Is(GameObjectType.Ship))
-                    copyTo.Add(go as Ship);
-            }
+            QuadTree.Remove(obj);
         }
 
         public void Update(FixedSimTime timeStep)
         {
-            // remove null values and remove inactive objects
-            GameplayObject[] allObjects = AllObjects.GetInternalArrayItems();
-            for (int i = 0; i < AllObjects.Count; ++i)
-            {
-                GameplayObject obj = allObjects[i];
-                if (obj != null) obj.SpatialIndex = i;
-                else AllObjects.RemoveAtSwapLast(i--);
-            }
-
-            InsertPending();
-
             QuadTree.UpdateAll(timeStep);
             QuadTree.CollideAll();
         }
@@ -131,12 +50,16 @@ namespace Ship_Game.Gameplay
         public GameplayObject[] FindNearby(GameplayObject obj, float radius,
                                            GameObjectType filter = GameObjectType.Any,
                                            Empire loyaltyFilter = null)
-            => QuadTree.FindNearby(obj.Center, radius, filter, toIgnore:obj, loyaltyFilter);
+        {
+            return QuadTree.FindNearby(obj.Center, radius, filter, toIgnore:obj, loyaltyFilter);
+        }
 
         public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
                                            GameObjectType filter = GameObjectType.Any,
                                            Empire loyaltyFilter = null)
-            => QuadTree.FindNearby(worldPos, radius, filter, toIgnore:null, loyaltyFilter);
+        {
+            return QuadTree.FindNearby(worldPos, radius, filter, toIgnore:null, loyaltyFilter);
+        }
 
 
         // @note This is called every time an exploding projectile hits a target and dies

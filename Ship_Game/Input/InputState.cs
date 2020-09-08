@@ -214,7 +214,7 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
-        public void Update(FrameTimes elapsed)
+        public void Update(UpdateTimes elapsed)
         {
             KeysPrev    = KeysCurr;
             GamepadPrev = GamepadCurr;

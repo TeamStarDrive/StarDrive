@@ -30,7 +30,7 @@ namespace Ship_Game
             return false;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Vector2 cursor = Pos;
 			foreach (SkinnableButton button in Artifact.ArtifactButtons)

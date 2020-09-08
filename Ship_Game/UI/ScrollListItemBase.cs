@@ -202,9 +202,9 @@ namespace Ship_Game
             return false;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             if (IsHeader)
             {
@@ -216,7 +216,7 @@ namespace Ship_Game
                     Color bkgColor = !Enabled ? Color.Gray
                                     : Hovered ? new Color(95, 82, 47)
                                     : new Color(32, 30, 18);
-                    new Selector(r, bkgColor).Draw(batch);
+                    new Selector(r, bkgColor).Draw(batch, elapsed);
 
                     var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
                     batch.DrawString(Fonts.Pirulen12, HeaderText, textPos, Color.White);

@@ -18,7 +18,7 @@ namespace Ship_Game.Debug.Page
             Screen = screen;
         }
         
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             foreach (SolarSystem system in Empire.Universe.SolarSystemDict.Values)
             {
@@ -28,15 +28,15 @@ namespace Ship_Game.Debug.Page
                     break;
                 }
             }
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
 
-            base.Draw(spriteBatch);
+            base.Draw(spriteBatch, elapsed);
         }
     }
 }
