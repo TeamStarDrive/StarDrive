@@ -387,11 +387,12 @@ namespace Ship_Game
 
             EmpireUpdateQueue.SubmitWork(() =>
             {
-                AllPlanetsScanAndFire(timeStep);
-                UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
-
                 lock (ShipPoolLock)
+                {
+                    AllPlanetsScanAndFire(timeStep);
+                    UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
                     FireAllShipWeapons(timeStep);
+                }
             });
         }
 
