@@ -39,13 +39,13 @@ namespace Ship_Game
                     StartPos = cursorPos;
                     EndPos   = cursorPos;
                     Time = 0f;
-                    TimeStart = elapsed.TotalGameSeconds;
+                    TimeStart = elapsed.CurrentGameTime;
                 }
                 else if (WasHolding && !IsHolding) // Hold finished
                 {
                     EndPos = cursorPos;
                     Time = 0f;
-                    TimeEnd = elapsed.TotalGameSeconds;
+                    TimeEnd = elapsed.CurrentGameTime;
                 }
             }
         }

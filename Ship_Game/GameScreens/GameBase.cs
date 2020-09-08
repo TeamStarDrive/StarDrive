@@ -201,7 +201,7 @@ namespace Ship_Game
             try
             {
                 ++FrameId;
-                TotalElapsed = base.TotalRealTimeSeconds;
+                TotalElapsed = base.TotalGameTimeSeconds;
                 Elapsed = new UpdateTimes(deltaTime, TotalElapsed);
 
                 // 1. Handle Input and 2. Update for each game screen

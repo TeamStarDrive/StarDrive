@@ -392,12 +392,10 @@ namespace Ship_Game
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
-                SaveStateMode.SaveState);
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,  SaveStateMode.SaveState);
             basicFogOfWarEffect.Begin();
             basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
-            batch.Draw(texture1,
-                new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
+            batch.Draw(texture1, new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
                     graphics.PresentationParameters.BackBufferHeight), Color.White);
             basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
             basicFogOfWarEffect.End();
@@ -583,6 +581,12 @@ namespace Ship_Game
             base.Draw(batch, elapsed);  // UIElementV2 Draw
 
             batch.End();
+
+            // Advance the simulation time just before we Notify
+            if (!Paused)
+            {
+                AdvanceSimulationTargetTime(elapsed.RealTime.Seconds);
+            }
 
             // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
             // the game logic can be updated

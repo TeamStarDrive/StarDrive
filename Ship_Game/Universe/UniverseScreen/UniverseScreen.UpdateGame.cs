@@ -200,6 +200,7 @@ namespace Ship_Game
 
                 UpdateAllSystems(timeStep);
                 UpdateAllShips(timeStep);
+                UpdateAllModulePositions(timeStep);
 
                 CollisionTime.Start();
                 SpaceManager.Update(timeStep);
@@ -377,7 +378,6 @@ namespace Ship_Game
 
             EmpireUpdateQueue.SubmitWork(() =>
             {
-                UpdateAllModulePositions(timeStep);
                 AllPlanetsScanAndFire(timeStep);
                 UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
 
@@ -516,7 +516,7 @@ namespace Ship_Game
             }
 
             PreEmpirePerf.Stop();
-
+            
             if (!Paused && IsActive)
             {
                 EmpireUpdatePerf.Start();
