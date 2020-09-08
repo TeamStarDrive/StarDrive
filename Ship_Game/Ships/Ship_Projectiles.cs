@@ -15,6 +15,7 @@ namespace Ship_Game.Ships
                         RemoveAtSwapLast(i);
             }
 
+            // Todo: Profile projectile update
             public void Update(FixedSimTime timeStep)
             {
                 for (int i = 0; i < Count; ++i)
