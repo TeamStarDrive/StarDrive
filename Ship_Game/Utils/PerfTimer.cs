@@ -74,13 +74,13 @@ namespace Ship_Game
         float CurrentMax;
         int CurrentSamples;
 
-        float MeasuredTotal;
+        public float MeasuredTotal { get; private set; }
         float MeasuredMax;
         public int MeasuredSamples { get; private set; }
         public float AvgTime { get; private set; }
 
-        float StatRefreshInterval;
-        long LastRefreshTime;
+        readonly long StatRefreshInterval;
+        long NextRefreshTime;
 
         public AggregatePerfTimer(float statRefreshInterval = 1f/*refresh once per second*/)
         {
@@ -88,15 +88,15 @@ namespace Ship_Game
             {
                 QueryPerformanceFrequency(out Frequency);
             }
-            StatRefreshInterval = statRefreshInterval;
+            StatRefreshInterval = (long)(statRefreshInterval * Frequency);
         }
 
         // start new sampling
         public void Start()
         {
             QueryPerformanceCounter(out Time);
-            if (LastRefreshTime == 0)
-                LastRefreshTime = Time;
+            if (NextRefreshTime == 0)
+                NextRefreshTime = Time + StatRefreshInterval;
         }
 
         // stop and accumulate performance sample
@@ -108,10 +108,10 @@ namespace Ship_Game
             CurrentTotal += elapsed;
             ++CurrentSamples;
 
-            float fromLastRefresh = (float)((double)(now - LastRefreshTime) / Frequency);
-            if (fromLastRefresh >= StatRefreshInterval)
+            if (now >= NextRefreshTime)
             {
-                LastRefreshTime = now;
+                while (now >= NextRefreshTime)
+                    NextRefreshTime += StatRefreshInterval;
 
                 MeasuredTotal = CurrentTotal;
                 MeasuredMax = CurrentMax;

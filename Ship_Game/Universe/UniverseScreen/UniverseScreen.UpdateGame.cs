@@ -33,16 +33,21 @@ namespace Ship_Game
         // Modifier to increase or reduce simulation fidelity
         int SimFPSModifier;
 
+        PerfTimer TimeSinceLastAutoFPS = new PerfTimer();
+
         int CurrentSimFPS => GlobalStats.SimulationFramesPerSecond + SimFPSModifier;
+        int ActualSimFPS => (int)(TurnTimePerf.MeasuredSamples / GameSpeed);
 
         /// <summary>
         /// NOTE: This must be called from UI Update thread to advance the simulation time forward
+        /// GameSpeed modifies the target simulation time advancement
+        /// Simulation time can be advanced by any arbitrary amount
         /// </summary>
         void AdvanceSimulationTargetTime(float deltaTimeFromUI)
         {
             lock (SimTimeLock)
             {
-                TargetSimTime += deltaTimeFromUI;
+                TargetSimTime += deltaTimeFromUI * GameSpeed;
             }
         }
 
@@ -120,13 +125,16 @@ namespace Ship_Game
                     while (SimFPSModifier < 0 && CurrentSimFPS < 10)
                         SimFPSModifier += 5;
 
-                    var simTime = new FixedSimTime(CurrentSimFPS);
-
-                    float timeBetweenTurns = simTime.FixedTime / GameSpeed;
+                    // If we increase GameSpeed, also do less simulation steps to speed things up
+                    // And at 0.5x speed, do twice as many steps.
+                    // Note: beyond 2x step we suffer major precision issues, so we use clamp
+                    float gameSpeed = GameSpeed.UpperBound(2);
+                    float fixedTimeStep = (1f / CurrentSimFPS) * gameSpeed;
+                    var fixedSimStep = new FixedSimTime(fixedTimeStep);
 
                     // put a limit to simulation iterations
                     // because sometimes we cannot catch up
-                    int MAX_ITERATIONS = 10;
+                    int MAX_ITERATIONS = (int)(30 * GameSpeed);
 
                     // run the allotted number of game turns
                     // if Simulation FPS is `10` and game speed is `0.5`, this will run 5x per second
@@ -138,35 +146,20 @@ namespace Ship_Game
                     {
                         lock (SimTimeLock)
                         {
-                            if (CurrentSimTime >= TargetSimTime)
+                            float newSimTime = CurrentSimTime + fixedSimStep.FixedTime;
+                            if (newSimTime > TargetSimTime)
                                 break;
-                            CurrentSimTime += timeBetweenTurns;
+                            CurrentSimTime = newSimTime;
                         }
 
                         ++TurnId;
-                        ProcessTurnDelta(simTime);
+                        
+                        TurnTimePerf.Start();
+                        ProcessTurnDelta(fixedSimStep);
+                        TurnTimePerf.Stop();
                     }
 
-                    // Automatic Simulation FPS adjustment
-                    int actualFPS = TurnTimePerf.MeasuredSamples;
-                    if (actualFPS > 0)
-                    {
-                        // Are we running slowly?
-                        int fpsDifference = (actualFPS - CurrentSimFPS);
-                        if (fpsDifference < 0)
-                        {
-                            if (CurrentSimFPS > 20)
-                            {
-                                SimFPSModifier -= 5;
-                                Log.Warning($"GAME RUNNING SLOW, REDUCING SIM FPS to: {CurrentSimFPS}");
-                            }
-                        }
-                        else if (SimFPSModifier < 0 && fpsDifference > 5)
-                        {
-                            SimFPSModifier += 5;
-                            Log.Warning($"GAME RUNNING FAST AGAIN, INCREASING FPS to: {CurrentSimFPS}");
-                        }
-                    }
+                    AutoAdjustSimulationFrameRate();
 
                     if (GlobalStats.RestrictAIPlayerInteraction)
                     {
@@ -183,10 +176,28 @@ namespace Ship_Game
             }
         }
 
+        void AutoAdjustSimulationFrameRate()
+        {
+            if (TimeSinceLastAutoFPS.Elapsed > 1f)
+            {
+                TimeSinceLastAutoFPS.Start();
+
+                // Are we running slowly?
+                if (CurrentSimFPS > 10 && TurnTimePerf.MeasuredTotal > 0.7f)
+                {
+                    SimFPSModifier -= 5;
+                    Log.Warning($"GAME RUNNING SLOW, REDUCING SIM FPS to: {CurrentSimFPS}");
+                }
+                else if (SimFPSModifier < 0 && TurnTimePerf.MeasuredTotal < 0.4f)
+                {
+                    SimFPSModifier += 5;
+                    Log.Warning($"GAME RUNNING FAST AGAIN, INCREASING FPS to: {CurrentSimFPS}");
+                }
+            }
+        }
+
         void ProcessTurnDelta(FixedSimTime timeStep)
         {
-            TurnTimePerf.Start(); // total do work perf counter
-
             GlobalStats.BeamTests = 0;
             GlobalStats.Comparisons = 0;
             GlobalStats.ComparisonCounter += 1;
@@ -208,8 +219,6 @@ namespace Ship_Game
 
                 ProcessTurnUpdateMisc(timeStep);
             }
-
-            TurnTimePerf.Stop();
         }
 
         void CheckAutoSaveTimer()
