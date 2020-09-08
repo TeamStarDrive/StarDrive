@@ -8,8 +8,8 @@ namespace Ship_Game
 {
     public sealed class BatchRemovalCollection<T> : Array<T>, IDisposable
     {
-        private ConcurrentStack<T> PendingRemovals;
-        private ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        ConcurrentStack<T> PendingRemovals;
+        ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         public BatchRemovalCollection()
         {
@@ -119,10 +119,14 @@ namespace Ship_Game
         // ReadLock is acquired and base.ToArray() called
         public T[] AtomicCopy()
         {
-            ThisLock.EnterReadLock();
-            var arr = ToArray();
-            ThisLock.ExitReadLock();
-            return arr;
+            using (new ScopedReadLock(ThisLock))
+                return base.ToArray();
+        }
+
+        public new T[] ToArray()
+        {
+            using (new ScopedReadLock(ThisLock))
+                return base.ToArray();
         }
 
         public T RecycleObject(Action<T> action)
@@ -144,7 +148,7 @@ namespace Ship_Game
         }
         ~BatchRemovalCollection() { Destroy(); }
 
-        private void Destroy()
+        void Destroy()
         {
             PendingRemovals?.Clear();
             PendingRemovals = null;
