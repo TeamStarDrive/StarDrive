@@ -722,11 +722,6 @@ namespace Ship_Game
             EmpireUI.Update(fixedDeltaTime);
             UpdateSelectedItems(GameBase.Base.Elapsed);
 
-            if (!Paused)
-            {
-                AdvanceSimulationTargetTime(fixedDeltaTime);
-            }
-
             base.Update(fixedDeltaTime);
         }
 
