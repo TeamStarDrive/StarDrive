@@ -18,7 +18,7 @@ namespace Ship_Game
             Troop = troop;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Color nameColor = Color.LightGray;
             Color statsColor = nameColor;

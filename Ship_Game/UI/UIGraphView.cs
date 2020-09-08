@@ -81,11 +81,11 @@ namespace Ship_Game
             g.Samples.Add(new Sample{ Time = CurrentTime, Value = value, });
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (ActiveTimeLine)
             {
-                CurrentTime += deltaTime;
+                CurrentTime += fixedDeltaTime;
                 float tooOld = CurrentTime - TimeRange;
 
                 foreach (Graph g in Graphs.Values)
@@ -107,7 +107,7 @@ namespace Ship_Game
                     g.AddedThisFrame = false;
                 }
             }
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         Vector2 AbsolutePos(float start, in Sample p, in Rectangle rect)
@@ -121,9 +121,9 @@ namespace Ship_Game
                                rect.RelativeY(1f - relY));
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             Rectangle inner = Rect.Bevel(-15);
 

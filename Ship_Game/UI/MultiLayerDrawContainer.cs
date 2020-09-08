@@ -52,30 +52,29 @@ namespace Ship_Game.UI
             }
         }
 
-        public void DrawMulti(ScreenManager manager, UIElementContainer root, bool draw3D,
+        public void DrawMulti(ScreenManager manager, SpriteBatch batch, DrawTimes elapsed,
+                              UIElementContainer root, bool draw3D,
                               ref Matrix view, ref Matrix projection)
         {
             GatherDrawLayers(root);
 
-            if (draw3D) manager.BeginFrameRendering(ref view, ref projection);
+            if (draw3D) manager.BeginFrameRendering(elapsed, ref view, ref projection);
 
-            SpriteBatch batch = manager.SpriteBatch;
-
-            if (BackElements.NotEmpty) BatchDrawSimple(batch, BackElements);
-            if (BackAdditive.NotEmpty) BatchDrawAdditive(batch, BackAdditive);
+            if (BackElements.NotEmpty) BatchDrawSimple(batch, elapsed, BackElements);
+            if (BackAdditive.NotEmpty) BatchDrawAdditive(batch, elapsed, BackAdditive);
 
             if (draw3D) manager.RenderSceneObjects();
 
             // @note Foreground is the default layer
-            if (ForeElements.NotEmpty) BatchDrawSimple(batch, ForeElements);
-            if (ForeAdditive.NotEmpty) BatchDrawAdditive(batch, ForeAdditive);
+            if (ForeElements.NotEmpty) BatchDrawSimple(batch, elapsed, ForeElements);
+            if (ForeAdditive.NotEmpty) BatchDrawAdditive(batch, elapsed, ForeAdditive);
 
             if (draw3D) manager.EndFrameRendering();
 
             ClearLayers();
         }
 
-        static void BatchDrawSimple(SpriteBatch batch, Array<UIElementV2> elements)
+        static void BatchDrawSimple(SpriteBatch batch, DrawTimes elapsed, Array<UIElementV2> elements)
         {
             batch.Begin();
 
@@ -83,7 +82,7 @@ namespace Ship_Game.UI
             UIElementV2[] items = elements.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
-                items[i].Draw(batch);
+                items[i].Draw(batch, elapsed);
             }
 
             batch.End();
@@ -101,7 +100,7 @@ namespace Ship_Game.UI
             batch.GraphicsDevice.RenderState.BlendFunction    = BlendFunction.Add;
         }
         
-        static void BatchDrawAdditive(SpriteBatch batch, Array<UIElementV2> elements)
+        static void BatchDrawAdditive(SpriteBatch batch, DrawTimes elapsed, Array<UIElementV2> elements)
         {
             BeginAdditive(batch);
 
@@ -109,7 +108,7 @@ namespace Ship_Game.UI
             UIElementV2[] items = elements.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
-                items[i].Draw(batch);
+                items[i].Draw(batch, elapsed);
             }
 
             batch.End();

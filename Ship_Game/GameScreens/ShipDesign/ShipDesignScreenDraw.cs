@@ -16,9 +16,9 @@ namespace Ship_Game
 
     public sealed partial class ShipDesignScreen // refactored by Fat Bastard
     {
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            ScreenManager.BeginFrameRendering(ref View, ref Projection);
+            ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
 
             Empire.Universe.bg.Draw(Empire.Universe, Empire.Universe.StarField);
             ScreenManager.RenderSceneObjects();
@@ -38,7 +38,7 @@ namespace Ship_Game
             if (ActiveModule != null && !ModuleSelectComponent.HitTest(Input))
                 DrawActiveModule(batch);
 
-            DrawUi(batch);
+            DrawUi(batch, elapsed);
             ArcsButton.DrawWithShadowCaps(batch);
             switch (DesignIssues.CurrentWarningLevel)
             {
@@ -50,7 +50,7 @@ namespace Ship_Game
             if (Debug)
                 DrawDebug();
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
             ScreenManager.EndFrameRendering();
         }
@@ -926,16 +926,16 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
         }
 
-        void DrawUi(SpriteBatch batch)
+        void DrawUi(SpriteBatch batch, DrawTimes elapsed)
         {
             EmpireUI.Draw(batch);
             DrawShipInfoPanel();
 
-            CategoryList.Draw(batch);
+            CategoryList.Draw(batch, elapsed);
 
             DrawTitle(batch, ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(batch, ScreenWidth * 0.65f, "Hangar Designation");
-            HangarOptionsList.Draw(batch);
+            HangarOptionsList.Draw(batch, elapsed);
 
             float transitionOffset = (float) Math.Pow(TransitionPosition, 2);
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -141,7 +140,7 @@ namespace Ship_Game
                 return true;
             }
 
-            public void Draw(SpriteBatch batch)
+            public void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 if (!Visible)
                     return;
@@ -149,7 +148,7 @@ namespace Ship_Game
                 float alpha = (255 * LifeTime / TipFadeInOutTime).Clamped(0, 255);
                 var textPos = new Vector2(Rect.X + 10, Rect.Y + 5);
                 var sel = new Selector(Rect, new Color(Color.Black, (byte)alpha),  alpha);
-                sel.Draw(batch);
+                sel.Draw(batch, elapsed);
 
                 var textColor = new Color(255, 239, 208, (byte) alpha);
                 if (HotKey.NotEmpty())
@@ -169,7 +168,7 @@ namespace Ship_Game
             }
         }
 
-        public static void Draw(SpriteBatch batch, VariableFrameTime deltaTime)
+        public static void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             TipItem[] tips = ActiveTips.ToArray();
             if (tips.Length == 0)
@@ -178,9 +177,9 @@ namespace Ship_Game
             batch.Begin();
             foreach (TipItem tipItem in tips)
             {
-                if (tipItem.Update(deltaTime.Seconds))
+                if (tipItem.Update(elapsed.RealTime.Seconds))
                 {
-                    tipItem.Draw(batch);
+                    tipItem.Draw(batch, elapsed);
                 }
                 else // tip died
                 {

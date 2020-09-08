@@ -3,6 +3,10 @@ using System.Runtime.InteropServices;
 
 namespace Ship_Game
 {
+    /// <summary>
+    /// Lean and Mean high performance timer
+    /// Start() and measure .Elapsed time in fractional seconds
+    /// </summary>
     public class PerfTimer
     {
         [DllImport("Kernel32.dll")]
@@ -14,10 +18,9 @@ namespace Ship_Game
         static long Frequency;
         long Time;
 
-        public float AvgTime  { get; private set; }
-        public float MaxTime  { get; private set; }
-        public int NumSamples { get; private set; }
-
+        /// <summary>
+        /// Create new instance and Start the timer
+        /// </summary>
         public PerfTimer()
         {
             if (Frequency == 0)
@@ -28,13 +31,17 @@ namespace Ship_Game
             QueryPerformanceCounter(out Time);
         }
 
-        // restart perf timer
+        /// <summary>
+        /// Reset and Restart the perf timer
+        /// </summary>
         public void Start()
         {
             QueryPerformanceCounter(out Time);
         }
 
-        // Get intermediate sampling value (in seconds)
+        /// <summary>
+        /// Get intermediate sampling value (in seconds)
+        /// </summary>
         public float Elapsed
         {
             get
@@ -44,27 +51,9 @@ namespace Ship_Game
             }
         }
 
-        // stop and gather performance sample
-        public void Stop()
-        {
-            float elapsed = Elapsed;
-            const float AVG_RATIO = 0.010f;
-            const float MAX_RATIO = 0.005f;
-            AvgTime = AvgTime*(1f-AVG_RATIO) + elapsed*AVG_RATIO;
-            MaxTime = Math.Max(elapsed, MaxTime)*(1f-MAX_RATIO) + elapsed*MAX_RATIO;
-
-            ++NumSamples;
-        }
-
         public override string ToString()
         {
-            return $"{AvgTime*1000f,5:0.0}ms  ( {MaxTime*1000f,5:0.0}ms )";
-        }
-
-        public string DebugString(PerfTimer total)
-        {
-            int percent = (int)((AvgTime / total.AvgTime) * 100f);
-            return $"{this}  {percent,3}%";
+            return $"{Elapsed*1000f,5:0.0}ms";
         }
     }
 
