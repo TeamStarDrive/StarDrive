@@ -330,7 +330,7 @@ namespace Ship_Game
         {
             //im confused on this setsystem. why are we doing this?
             //pretty sure its going to be set to null later int he die process.
-            SetSystem(AI.Drone.Owner.System);
+            SetSystem(AI.Drone.Owner?.System);
             base.Die(source, cleanupOnly);
         }
     }

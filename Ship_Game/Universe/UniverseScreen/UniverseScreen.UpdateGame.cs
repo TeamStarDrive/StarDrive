@@ -104,12 +104,13 @@ namespace Ship_Game
 
         void ProcessSimulationTurns()
         {
-            // Execute all the actions submitted from UI thread
-            // into this Simulation / Empire thread
-            ScreenManager.InvokePendingEmpireThreadActions();
+
 
             if (Paused)
             {
+                // Execute all the actions submitted from UI thread
+                // into this Simulation / Empire thread
+                ScreenManager.InvokePendingEmpireThreadActions();
                 ++TurnId;
                 UpdateAllSystems(FixedSimTime.Zero/*paused*/);
                 UpdateAllShips(FixedSimTime.Zero/*paused*/);
@@ -508,6 +509,9 @@ namespace Ship_Game
             // threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
             lock (ShipPoolLock)
             {
+                // Execute all the actions submitted from UI thread
+                // into this Simulation / Empire thread
+                ScreenManager.InvokePendingEmpireThreadActions();
                 //clear out general object removal.
                 RemoveDeadProjectiles();
                 TotallyRemoveGameplayObjects();
