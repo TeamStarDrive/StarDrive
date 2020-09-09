@@ -385,29 +385,31 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-            ++DebugInfoScreen.ProjDied;
-            if (Active)
+            Empire.Universe.RunOnEmpireThread(() =>
             {
-                if (Light != null)
-                    Empire.Universe.RemoveLight(Light);
-
-                if (InFlightSfx.IsPlaying)
-                    InFlightSfx.Stop();
-
-                ExplodeProjectile(cleanupOnly);
-
-                if (ProjSO != null)
+                ++DebugInfoScreen.ProjDied;
+                if (Active)
                 {
-                    Empire.Universe.RemoveObject(ProjSO);
-                    ProjSO.Clear();
+                    if (Light != null)
+                        Empire.Universe.RemoveLight(Light);
+
+                    if (InFlightSfx.IsPlaying)
+                        InFlightSfx.Stop();
+
+                    ExplodeProjectile(cleanupOnly);
+
+                    if (ProjSO != null)
+                    {
+                        Empire.Universe.RemoveObject(ProjSO);
+                        ProjSO.Clear();
+                    }
                 }
-            }
-
-            DroneAI?.KillAllBeams();
-
+                DroneAI?.KillAllBeams();
+            
             SetSystem(null);
             base.Die(source, cleanupOnly);
             Owner = null;
+            });
         }
 
         public override void Update(FixedSimTime timeStep)
