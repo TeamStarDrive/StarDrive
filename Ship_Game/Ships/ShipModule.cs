@@ -877,16 +877,20 @@ namespace Ship_Game.Ships
 
             if (hangarTimer <= 0f && hangarShip == null) // launch the troopship
             {
-                hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
-                hangarShip.Mothership = Parent;
-                hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
+                Empire.Universe.RunOnEmpireThread(() =>
+                {
+                    hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty,
+                        Center, troop);
+                    hangarShip.Mothership = Parent;
+                    hangarShip.DoEscort(Parent);
+                    hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
 
-                HangarShipGuid = hangarShip.guid;
-                hangarTimer = hangarTimerConstant;
+                    HangarShipGuid = hangarShip.guid;
+                    hangarTimer = hangarTimerConstant;
 
-                // transfer our troop onto the shuttle we just spawned
-                troop.LandOnShip(hangarShip);
+                    // transfer our troop onto the shuttle we just spawned
+                    troop.LandOnShip(hangarShip);
+                });
                 return true;
             }
             return false;
@@ -903,28 +907,29 @@ namespace Ship_Game.Ships
                     || hangarShip.AI.IgnoreCombat
                     || hangarShip.AI.Target != null
                     || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar))
-                        return;
+                    return;
                 hangarShip.DoEscort(Parent);
                 return;
             }
-            if (hangarTimer > 0f || (hangarShip != null && (hangarShip == null || hangarShip.Active)))
-                return;
+            if (hangarTimer <= 0f && (hangarShip == null || hangarShip != null && !hangarShip.Active))
+                Empire.Universe.RunOnEmpireThread(() =>
+                {
+                    SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
+                    if (hangarShip == null)
+                    {
+                        Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
+                        return;
+                    }
 
-            SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
-            if (hangarShip == null)
-            {
-                Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
-                return;
-            }
+                    hangarShip.DoEscort(Parent);
+                    hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * GetHangarShip().SpeedLimit;
 
-            hangarShip.DoEscort(Parent);
-            hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * GetHangarShip().SpeedLimit;
+                    hangarShip.Mothership = Parent;
+                    HangarShipGuid = GetHangarShip().guid;
 
-            hangarShip.Mothership = Parent;
-            HangarShipGuid = GetHangarShip().guid;
-
-            hangarTimer = hangarTimerConstant;
-            Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
+                    hangarTimer = hangarTimerConstant;
+                    Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
+                });
         }
 
         public void SetAttributes()
