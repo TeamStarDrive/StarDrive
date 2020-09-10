@@ -390,7 +390,7 @@ namespace Ship_Game.Ships
             if (!loadingFromSaveGame)
                 InitializeStatus(false);
 
-            SetSystem(System);
+            //SetSystem(System);
             InitExternalSlots();
             Initialize();
 
