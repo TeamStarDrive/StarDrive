@@ -335,43 +335,6 @@ namespace Ship_Game
                     var empire = EmpireManager.Empires[i];
                     empire.GetEmpireAI().ThreatMatrix.ProcessPendingActions();
                 }
-
-                if (timeStep.FixedTime > 0f && --shiptimer <= 0.0f)
-                {
-                    shiptimer = 2f;
-                    Parallel.For(MasterShipList.Count, (start, end) =>
-                    {
-                        for (int i = start; i < end; ++i)
-                        {
-                            var ship = MasterShipList[i];
-                            {
-                                if (ship.NotInSpatial == false && (ship.IsSubspaceProjector || ship.IsPlatformOrStation && ship.System != null))
-                                    continue;
-                                
-                                if (!ship.InRadiusOfCurrentSystem)
-                                {
-                                    //lock (UniverseScreen.SpaceManager.LockSpaceManager)
-                                        ship.SetSystem(null);
-
-                                    for (int x = 0; x < SolarSystemList.Count; x++)
-                                    {
-                                        SolarSystem system = SolarSystemList[x];
-
-                                        if (ship.InRadiusOfSystem(system))
-                                        {
-                                           system.SetExploredBy(ship.loyalty);
-                                           ship.SetSystem(system);
-
-                                           // No need to keep looping through all other systems
-                                            // if one is found -Gretman
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }, MaxTaskCores);
-                }
             }
 
             PostEmpirePerf.Stop();
@@ -396,6 +359,47 @@ namespace Ship_Game
                 }
             });
         }
+
+        void AssignSystemsToShips(FixedSimTime timeStep)
+        {
+            if (timeStep.FixedTime > 0f && --shiptimer <= 0.0f)
+            {
+                shiptimer = 2f;
+                Parallel.For(MasterShipList.Count, (start, end) =>
+                {
+                    for (int i = start; i < end; ++i)
+                    {
+                        var ship = MasterShipList[i];
+                        {
+                            if (ship.NotInSpatial == false && (ship.IsSubspaceProjector ||
+                                                               ship.IsPlatformOrStation && ship.System != null))
+                                continue;
+
+                            if (!ship.InRadiusOfCurrentSystem)
+                            {
+                                ship.SetSystem(null);
+
+                                for (int x = 0; x < SolarSystemList.Count; x++)
+                                {
+                                    SolarSystem system = SolarSystemList[x];
+
+                                    if (ship.InRadiusOfSystem(system))
+                                    {
+                                        system.SetExploredBy(ship.loyalty);
+                                        ship.SetSystem(system);
+
+                                        // No need to keep looping through all other systems
+                                        // if one is found -Gretman
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }, MaxTaskCores);
+            }
+        }
+
 
         void UpdateAllModulePositions(FixedSimTime timeStep)
         {
@@ -527,6 +531,7 @@ namespace Ship_Game
                     }
                 }, MaxTaskCores);
                 MasterShipList.ApplyPendingRemovals();
+                AssignSystemsToShips(timeStep);
             }
 
             PreEmpirePerf.Stop();
@@ -551,6 +556,7 @@ namespace Ship_Game
                 EmpireUpdatePerf.Stop();
                 return true;
             }
+            
             return !Paused;
         }
 
