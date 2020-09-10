@@ -46,7 +46,7 @@ namespace Ship_Game
             foreach (Ship ship in test.Ships)
                 test.Tree.Insert(ship);
 
-            test.Tree.UpdateAll(new FixedSimTime(1f / 60f));
+            test.Tree.UpdateAll();
             return test;
         }
 
@@ -81,22 +81,19 @@ namespace Ship_Game
             return list;
         }
 
+        static Ship SpawnShip(string name, Empire loyalty, Vector2 pos, Vector2 dir)
+        {
+            var target = Ship.CreateShipAtPoint(name, loyalty, pos);
+            target.Rotation = dir.Normalized().ToRadians();
+            target.InFrustum = true; // force module pos update
+            //target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
+            target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
+            return target;
+        }
 
         public static void RunSearchPerfTest()
         {
-            Ship SpawnShip(string name, Empire loyalty, Vector2 pos, Vector2 dir)
-            {
-                var target = Ship.CreateShipAtPoint(name, loyalty, pos);
-                target.Rotation = dir.Normalized().ToRadians();
-                target.InFrustum = true; // force module pos update
-                //target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
-                target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
-                return target;
-            }
-
-            TestContext test = CreateTestSpace(10000, 500_000f,
-                                               EmpireManager.Void, EmpireManager.Void,
-                                               SpawnShip);
+            TestContext test = CreateTestSpace(10000, 500_000f, EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
             const float defaultSensorRange = 30000f;
             const int iterations = 10;
@@ -126,6 +123,30 @@ namespace Ship_Game
 
             float speedup = e1 / e2;
             Log.Write($"-- TreeSearch is {speedup.String(2)}x faster than LinearSearch");
+        }
+
+        public static void RunCollisionPerfTest()
+        {
+            TestContext test = CreateTestSpace(10000, 500_000f, EmpireManager.Void, EmpireManager.Void, SpawnShip);
+            const int iterations = 1000;
+            var timeStep = new FixedSimTime(1f / 60f);
+
+            var t1 = new PerfTimer();
+            for (int i = 0; i < iterations; ++i)
+            {
+                test.Tree.CollideAll(timeStep);
+            }
+            float e1 = t1.Elapsed;
+            Console.WriteLine($"-- CollideAllIterative 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
+
+            var t2 = new PerfTimer();
+            for (int i = 0; i < iterations; ++i)
+            {
+                test.Tree.CollideAllRecursive(timeStep);
+            }
+            float e2 = t2.Elapsed;
+            Console.WriteLine($"-- CollideAllRecursive 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
+
         }
     }
 }

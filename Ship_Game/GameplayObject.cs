@@ -1,26 +1,21 @@
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System;
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    [Flags]
     public enum GameObjectType : byte
     {
-        None       = 0,
+        // Can be used as a search filter to match all object types
+        Any        = 0,
         Ship       = 1,
         ShipModule = 2,
-        Proj       = 4,
-        Beam       = 8,
-        Asteroid   = 16,
-        Moon       = 32,
-        // Can be used as a search filter to match all object types
-        Any = 255,
+        Proj       = 3, // this is a projectile, NOT a beam
+        Beam       = 4, // this is a BEAM, not a projectile
+        Asteroid   = 5,
+        Moon       = 6,
     }
 
     public abstract class GameplayObject
@@ -56,7 +51,6 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool InSpatial      => SpatialIndex != -1;
         [XmlIgnore][JsonIgnore] public bool SpatialPending => SpatialIndex == -2;
 
-        [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
         // current rotation converted into a direction vector
@@ -78,13 +72,10 @@ namespace Ship_Game
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
-        protected GameplayObject(GameObjectType typeFlags)
+        protected GameplayObject(GameObjectType type)
         {
-            Type = typeFlags;
+            Type = type;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
         [XmlIgnore][JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
 
@@ -145,11 +136,15 @@ namespace Ship_Game
                 UniverseScreen.SpaceManager.Remove(this);
             }
 
-            if ((Type & GameObjectType.Proj) != 0)
+            if (Type == GameObjectType.Proj)
             {
                 ((Projectile)this).Loyalty = changeTo;
             }
-            else if ((Type & GameObjectType.Ship) != 0)
+            else if (Type == GameObjectType.Beam)
+            {
+                ((Beam)this).Loyalty = changeTo;
+            }
+            else if (Type == GameObjectType.Ship)
             {
                 var ship = (Ship)this;
                 Empire oldLoyalty = ship.loyalty;
@@ -182,16 +177,18 @@ namespace Ship_Game
 
         public int GetLoyaltyId()
         {
-            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty?.Id ?? 0;
-            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty.Id;
+            if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty?.Id ?? 0;
+            if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty?.Id ?? 0;
+            if (Type == GameObjectType.Ship) return ((Ship)this).loyalty.Id;
             return 0;
         }
 
         public Empire GetLoyalty()
         {
-            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty;
-            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty;
-            if ((Type & GameObjectType.ShipModule) != 0) return ((ShipModule)this).GetParent().loyalty;
+            if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty;
+            if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty;
+            if (Type == GameObjectType.Ship) return ((Ship)this).loyalty;
+            if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().loyalty;
             return null;
         }
 

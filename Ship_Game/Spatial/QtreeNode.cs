@@ -10,24 +10,29 @@ namespace Ship_Game
         public int Count;
         public SpatialObj[] Items;
         public int Id;
+        public int Level;
 
-        public QtreeNode(float x, float y, float lastX, float lastY)
+        public int TotalTreeDepthCount;
+
+        public QtreeNode(int level, float x, float y, float lastX, float lastY)
         {
             X = x; Y = y;
             LastX = lastX; LastY = lastY;
             Items = Quadtree.NoObjects;
+            Level = level;
         }
 
         public override string ToString()
         {
-            return $"Id:{Id} Count:{Count} X:{X} LX:{LastX} Y:{Y} LastY:{LastY}";
+            return $"ID={Id} L{Level} N={Count} TN={TotalTreeDepthCount} X={X} LX={LastX} Y={Y} LY={LastY}";
         }
 
-        public void InitializeForReuse(float x, float y, float lastX, float lastY)
+        public void InitializeForReuse(int level, float x, float y, float lastX, float lastY)
         {
             X = x; Y = y;
             LastX = lastX; LastY = lastY;
             NW = NE = SE = SW = null;
+            Level = level;
 
             if (Count != 0)
             {
@@ -66,6 +71,7 @@ namespace Ship_Game
                 oldItems[count] = obj;
                 ++Count;
             }
+            ++TotalTreeDepthCount;
         }
 
         public bool Overlaps(in Vector2 topLeft, in Vector2 botRight)

@@ -2,7 +2,9 @@
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Linq;
 
 namespace UnitTests.Universe
 {
@@ -101,7 +103,7 @@ namespace UnitTests.Universe
                     ship.Position = ship.Center;
                     ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
                 }
-                tree1.UpdateAll(TestSimStep);
+                tree1.UpdateAll();
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- TreeUpdatePerf ComplexReinsert elapsed: {(e1*1000).String(2)}ms");
@@ -155,7 +157,7 @@ namespace UnitTests.Universe
                         ship.Position = ship.Center;
                         ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
                     }
-                    tree.UpdateAll(TestSimStep);
+                    tree.UpdateAll();
                 }
             });
 
@@ -171,6 +173,29 @@ namespace UnitTests.Universe
                     }
                 }
             });
+        }
+
+        [TestMethod]
+        public void TreeCollisionPerformance()
+        {
+            Quadtree tree = CreateQuadTree(10_000, universeSize:50_000f);
+            const int iterations = 1000;
+
+            var t1 = new PerfTimer();
+            for (int i = 0; i < iterations; ++i)
+            {
+                tree.CollideAll(TestSimStep);
+            }
+            float e1 = t1.Elapsed;
+            Console.WriteLine($"-- CollideAllIterative 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
+
+            var t2 = new PerfTimer();
+            for (int i = 0; i < iterations; ++i)
+            {
+                tree.CollideAllRecursive(TestSimStep);
+            }
+            float e2 = t2.Elapsed;
+            Console.WriteLine($"-- CollideAllRecursive 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
         }
     }
 }

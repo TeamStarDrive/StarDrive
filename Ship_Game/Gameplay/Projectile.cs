@@ -74,7 +74,7 @@ namespace Ship_Game.Gameplay
 
         public override IDamageModifier DamageMod => Weapon;
 
-        public Projectile(Empire loyalty, GameObjectType typeFlags) : base(typeFlags | GameObjectType.Proj)
+        public Projectile(Empire loyalty, GameObjectType type = GameObjectType.Proj) : base(type)
         {
             Loyalty = loyalty;
         }

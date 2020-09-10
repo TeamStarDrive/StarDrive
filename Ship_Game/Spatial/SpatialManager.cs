@@ -26,7 +26,9 @@ namespace Ship_Game.Gameplay
         }
 
         static bool IsSpatialType(GameplayObject obj)
-            => obj.Is(GameObjectType.Ship) || obj.Is(GameObjectType.Proj)/*also Beam*/;
+            => obj.Type == GameObjectType.Ship
+            || obj.Type == GameObjectType.Proj
+            || obj.Type == GameObjectType.Beam;
         
         public void Add(GameplayObject obj)
         {
@@ -43,8 +45,8 @@ namespace Ship_Game.Gameplay
 
         public void Update(FixedSimTime timeStep)
         {
-            QuadTree.UpdateAll(timeStep);
-            QuadTree.CollideAll();
+            QuadTree.UpdateAll();
+            QuadTree.CollideAll(timeStep);
         }
 
         public GameplayObject[] FindNearby(GameplayObject obj, float radius,

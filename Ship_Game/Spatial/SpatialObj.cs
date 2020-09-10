@@ -9,11 +9,12 @@ namespace Ship_Game
     [StructLayout(LayoutKind.Sequential, Pack=4)]
     public struct SpatialObj // sizeof: 36 bytes, neatly fits in one cache line
     {
-        public GameplayObject Obj;
-
-        public GameObjectType Type; // GameObjectType : byte
-        public byte Loyalty;        // if loyalty == 0, then this is a STATIC world object !!!
+        // NOTE: These are ordered by the order of access pattern
         public byte PendingRemove;  // 1 if this item is pending removal
+        public byte Loyalty;        // if loyalty == 0, then this is a STATIC world object !!!
+        public GameObjectType Type; // GameObjectType : byte
+
+        public GameplayObject Obj;
 
         public float CX, CY; // Center x y
         public float Radius;
@@ -23,11 +24,11 @@ namespace Ship_Game
 
         public SpatialObj(GameplayObject go)
         {
-            Obj           = go;
-            Type          = go.Type;
-            Loyalty       = (byte)go.GetLoyaltyId();
             PendingRemove = 0;
-            if ((Type & GameObjectType.Beam) != 0)
+            Loyalty = (byte)go.GetLoyaltyId();
+            Type    = go.Type;
+            Obj     = go;
+            if (Type == GameObjectType.Beam)
             {
                 var beam = (Beam)go;
                 Vector2 source = beam.Source;
@@ -54,10 +55,10 @@ namespace Ship_Game
 
         public SpatialObj(Vector2 center, float radius)
         {
-            Obj           = null;
-            Type          = GameObjectType.Any;
-            Loyalty       = 0;
             PendingRemove = 0;
+            Loyalty       = 0;
+            Type          = GameObjectType.Any;
+            Obj           = null;
             CX            = center.X;
             CY            = center.Y;
             Radius        = radius;
@@ -67,39 +68,14 @@ namespace Ship_Game
             LastY         = CY + radius;
         }
 
-        public void UpdateBounds() // Update SpatialObj bounding box
+        public static bool HitTestBeam(Beam beam, ref SpatialObj target, out ShipModule hitModule, out float distanceToHit)
         {
-            if ((Type & GameObjectType.Beam) != 0)
-            {
-                var beam = (Beam)Obj;
-                Vector2 source = beam.Source;
-                Vector2 target = beam.Destination;
-                X     = Math.Min(source.X, target.X);
-                Y     = Math.Min(source.Y, target.Y);
-                LastX = Math.Max(source.X, target.X);
-                LastY = Math.Max(source.Y, target.Y);
-            }
-            else
-            {
-                CX   = Obj.Center.X;
-                CY   = Obj.Center.Y;
-                Radius   = Obj.Radius;
-                X        = CX - Radius;
-                Y        = CY - Radius;
-                LastX    = CX + Radius;
-                LastY    = CY + Radius;
-            }
-        }
-
-        public bool HitTestBeam(ref SpatialObj target, out ShipModule hitModule, out float distanceToHit)
-        {
-            var beam = (Beam)Obj;
             ++GlobalStats.BeamTests;
 
             Vector2 beamStart = beam.Source;
             Vector2 beamEnd   = beam.Destination;
 
-            if ((target.Type & GameObjectType.Ship) != 0) // beam-ship is special collision
+            if (target.Type == GameObjectType.Ship) // beam-ship is special collision
             {
                 var ship = (Ship)target.Obj;
                 hitModule = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
@@ -112,7 +88,7 @@ namespace Ship_Game
             }
 
             hitModule = null;
-            if ((target.Type & GameObjectType.Proj) != 0)
+            if (target.Type == GameObjectType.Proj)
             {
                 var proj = (Projectile)target.Obj;
                 if (!proj.Weapon.Tag_Intercept) // for projectiles, make sure they are physical and can be killed
@@ -137,7 +113,7 @@ namespace Ship_Game
             if ((dx*dx + dy*dy) > (r2*r2)) // filter out by target Ship or target Projectile radius
                 return false;
             // NOTE: this is for Projectile<->Projectile collision!
-            if ((target.Type & GameObjectType.Ship) == 0) // target not a ship, collision success
+            if (target.Type != GameObjectType.Ship) // target not a ship, collision success
                 return true;
 
             // ship collision, target modules instead
