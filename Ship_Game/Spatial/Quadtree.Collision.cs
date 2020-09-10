@@ -9,15 +9,14 @@ namespace Ship_Game
     {
         // ship collision; this can collide with multiple projectiles..
         // beams are ignored because they may intersect multiple objects and thus require special CollideBeamAtNode
-        void CollideShipAtNode(float simTimeStep, QtreeNode node, ref SpatialObj ship)
+        void CollideShipAtNodeRecursive(float simTimeStep, QtreeNode node, ref SpatialObj ship)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj proj = ref node.Items[i]; // potential projectile ?
-                if (proj.PendingRemove == 0 &&                // not pending remove
-                    proj.Loyalty != ship.Loyalty &&           // friendlies don't collide
-                    (proj.Type & GameObjectType.Proj) != 0 && // only collide with projectiles
-                    (proj.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
+                if (proj.PendingRemove == 0 &&           // not pending remove
+                    proj.Loyalty != ship.Loyalty &&      // friendlies don't collide
+                    proj.Type == GameObjectType.Proj &&  // only collide with projectiles
                     proj.HitTestProj(simTimeStep, ref ship, out ShipModule hitModule))
                 {
                     GameplayObject victim = hitModule ?? ship.Obj;
@@ -35,10 +34,10 @@ namespace Ship_Game
                 }
             }
             if (node.NW == null) return;
-            CollideShipAtNode(simTimeStep, node.NW, ref ship);
-            CollideShipAtNode(simTimeStep, node.NE, ref ship);
-            CollideShipAtNode(simTimeStep, node.SE, ref ship);
-            CollideShipAtNode(simTimeStep, node.SW, ref ship);
+            CollideShipAtNodeRecursive(simTimeStep, node.NW, ref ship);
+            CollideShipAtNodeRecursive(simTimeStep, node.NE, ref ship);
+            CollideShipAtNodeRecursive(simTimeStep, node.SE, ref ship);
+            CollideShipAtNodeRecursive(simTimeStep, node.SW, ref ship);
         }
 
         // projectile collision, return the first match because the projectile destroys itself anyway
@@ -47,9 +46,9 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (item.PendingRemove == 0 &&                // not pending remove
-                    item.Loyalty != proj.Loyalty &&           // friendlies don't collide, also ignores self
-                    (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
+                if (item.PendingRemove == 0 &&            // not pending remove
+                    item.Loyalty != proj.Loyalty &&       // friendlies don't collide, also ignores self
+                    item.Type == GameObjectType.Beam &&   // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(simTimeStep, ref item, out ShipModule hitModule))
                 {
                     // module OR projectile
@@ -89,16 +88,16 @@ namespace Ship_Game
         // we keep this list as a cache to reduce memory pressure
         readonly Array<BeamHitResult> BeamHitCache = new Array<BeamHitResult>();
 
-        static void CollideBeamRecursive(QtreeNode node, ref SpatialObj beam, Array<BeamHitResult> outHitResults)
+        static void CollideBeamRecursive(QtreeNode node, Beam theBeam, ref SpatialObj beam, Array<BeamHitResult> outHitResults)
         {
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (item.PendingRemove == 0 &&             // not pending remove
-                    item.Loyalty != beam.Loyalty &&        // friendlies don't collide
-                   (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
+                if (item.PendingRemove == 0 &&        // not pending remove
+                    item.Loyalty != beam.Loyalty &&   // friendlies don't collide
+                    item.Type == GameObjectType.Beam) // forbid beam-beam collision            
                 {
-                    if (beam.HitTestBeam(ref item, out ShipModule hitModule, out float dist))
+                    if (SpatialObj.HitTestBeam(theBeam, ref item, out ShipModule hitModule, out float dist))
                     {
                         outHitResults.Add(new BeamHitResult
                         {
@@ -109,15 +108,15 @@ namespace Ship_Game
                 }
             }
             if (node.NW == null) return;
-            CollideBeamRecursive(node.NW, ref beam, outHitResults);
-            CollideBeamRecursive(node.NE, ref beam, outHitResults);
-            CollideBeamRecursive(node.SE, ref beam, outHitResults);
-            CollideBeamRecursive(node.SW, ref beam, outHitResults);
+            CollideBeamRecursive(node.NW, theBeam, ref beam, outHitResults);
+            CollideBeamRecursive(node.NE, theBeam, ref beam, outHitResults);
+            CollideBeamRecursive(node.SE, theBeam, ref beam, outHitResults);
+            CollideBeamRecursive(node.SW, theBeam, ref beam, outHitResults);
         }
 
-        static void CollideBeamAtNode(QtreeNode node, ref SpatialObj beam, Array<BeamHitResult> beamHitCache)
+        static void CollideBeamAtNode(QtreeNode node, Beam theBeam, ref SpatialObj beam, Array<BeamHitResult> beamHitCache)
         {
-            CollideBeamRecursive(node, ref beam, beamHitCache);
+            CollideBeamRecursive(node, theBeam, ref beam, beamHitCache);
 
             if (beamHitCache.Count > 0)
             {
@@ -139,9 +138,27 @@ namespace Ship_Game
             }
         }
 
-        public void CollideAll()
+        static bool HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
         {
-            CollideAllAt(SimulationStep.FixedTime, Root, BeamHitCache);
+            if (!beam.Touch(victim))
+                return false;
+
+            Vector2 beamStart = beam.Source;
+            Vector2 beamEnd   = beam.Destination;
+            Vector2 hitPos;
+            if (hitDistance > 0f)
+                hitPos = beamStart + (beamEnd - beamStart).Normalized()*hitDistance;
+            else // the beam probably glanced the module from side, so just get the closest point:
+                hitPos = victim.Center.FindClosestPointOnLine(beamStart, beamEnd);
+
+            beam.BeamCollidedThisFrame = true;
+            beam.ActualHitDestination = hitPos;
+            return true;
+        }
+
+        public void CollideAllRecursive(FixedSimTime timeStep)
+        {
+            CollideAllAt(timeStep.FixedTime, Root, BeamHitCache);
         }
 
         void CollideAllAt(float simTimeStep, QtreeNode node, Array<BeamHitResult> beamHitCache)
@@ -160,39 +177,23 @@ namespace Ship_Game
                     continue; // already collided inside this loop
 
                 // each collision instigator type has a very specific recursive handler
-                if ((so.Type & GameObjectType.Beam) != 0)
+                if (so.Type == GameObjectType.Beam)
                 {
-                    CollideBeamAtNode(node, ref so, beamHitCache);
+                    var beam = (Beam)so.Obj;
+                    if (!beam.BeamCollidedThisFrame)
+                        CollideBeamAtNode(node, beam, ref so, beamHitCache);
                 }
-                else if ((so.Type & GameObjectType.Proj) != 0)
+                else if (so.Type == GameObjectType.Proj)
                 {
                     var projectile = (Projectile)so.Obj;
                     if (CollideProjAtNode(simTimeStep, node, projectile, ref so) && projectile.DieNextFrame)
                         MarkForRemoval(so.Obj, ref so);
                 }
-                else if ((so.Type & GameObjectType.Ship) != 0)
+                else if (so.Type == GameObjectType.Ship)
                 {
-                    CollideShipAtNode(simTimeStep, node, ref so);
+                    CollideShipAtNodeRecursive(simTimeStep, node, ref so);
                 }
             }
-        }
-
-        static bool HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
-        {
-            if (!beam.Touch(victim))
-                return false;
-
-            Vector2 beamStart = beam.Source;
-            Vector2 beamEnd   = beam.Destination;
-            Vector2 hitPos;
-            if (hitDistance > 0f)
-                hitPos = beamStart + (beamEnd - beamStart).Normalized()*hitDistance;
-            else // the beam probably glanced the module from side, so just get the closest point:
-                hitPos = victim.Center.FindClosestPointOnLine(beamStart, beamEnd);
-
-            beam.BeamCollidedThisFrame = true;
-            beam.ActualHitDestination = hitPos;
-            return true;
         }
     }
 }

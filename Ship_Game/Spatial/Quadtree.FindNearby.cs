@@ -24,6 +24,12 @@ namespace Ship_Game
                 return node;
             }
 
+            public void ResetAndPush(QtreeNode pushFirst)
+            {
+                NextNode = 0;
+                NodeStack[0] = pushFirst;
+            }
+
             public GameplayObject[] GetArrayAndClearBuffer()
             {
                 int count = Count;
@@ -89,10 +95,10 @@ namespace Ship_Game
 
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
 
-            // NOTE: to avoid a few branches, we used pre-calculated bitmasks
+            // NOTE: to avoid a few branches, we used pre-calculated masks
             int loyalty = enclosingRectangle.Loyalty;
             int loyaltyMask = (loyalty == 0) ? 0xff : loyalty;
-            int filterMask = (int) filter;
+            int filterMask = filter == GameObjectType.Any ? 0xff : (int)filter;
 
             float cx = enclosingRectangle.CX;
             float cy = enclosingRectangle.CY;
@@ -108,8 +114,8 @@ namespace Ship_Game
                 {
                     ref SpatialObj so = ref items[i];
 
-                    // either 0x00 (failed) or some bits 0100 (success)
-                    int typeFlags = ((int) so.Type & filterMask);
+                    // either 0x00 (failed) or some 0100 (success)
+                    int typeFlags = ((int)so.Type & filterMask);
 
                     // either 0x00 (failed) or some bits 0011 (success)
                     int loyaltyFlags = (so.Loyalty & loyaltyMask);
@@ -172,7 +178,7 @@ namespace Ship_Game
             {
                 GameplayObject obj = objects[i];
                 if (obj == null || (toIgnore != null && obj == toIgnore)
-                    || (obj.Type & filter) == 0
+                    || (filter != GameObjectType.Any && obj.Type != filter)
                     || (loyaltyFilter != null && obj.GetLoyalty() != loyaltyFilter))
                     continue;
 

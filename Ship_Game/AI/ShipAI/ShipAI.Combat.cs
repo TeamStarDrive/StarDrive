@@ -37,9 +37,9 @@ namespace Ship_Game.AI
         bool ScanDataProcessed = true;
         bool ScanTargetUpdated = true;
 
-        public GameplayObject[] GetObjectsInSensors(GameObjectType gameObjectType, float radius)
+        public GameplayObject[] GetObjectsInSensors(GameObjectType type, float radius)
         {
-            return UniverseScreen.SpaceManager.FindNearby(Owner, radius, gameObjectType);
+            return UniverseScreen.SpaceManager.FindNearby(Owner, radius, type);
         }
 
         public void CancelIntercept()
