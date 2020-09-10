@@ -458,6 +458,7 @@
     <Compile Include="Ship_Game\Spatial\QtreeNode.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeRecycleBuffer.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.Collision.cs" />
+    <Compile Include="Ship_Game\Spatial\Quadtree.CollisionIterative.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.Debug.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.FindNearby.cs" />

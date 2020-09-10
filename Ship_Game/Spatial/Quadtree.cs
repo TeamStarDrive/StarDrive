@@ -27,7 +27,6 @@ namespace Ship_Game
         public const float QuadToLinearRatio = 0.75f;
 
         QtreeNode Root;
-        FixedSimTime SimulationStep;
 
         readonly Array<GameplayObject> Pending = new Array<GameplayObject>();
         readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
@@ -35,10 +34,17 @@ namespace Ship_Game
         QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer(10000);
         QtreeRecycleBuffer BackBuffer  = new QtreeRecycleBuffer(20000);
 
+        Array<QtreeNode> DeepestNodesFirstTraversal;
+
         /// <summary>
         /// Number of pending and active objects in the Quadtree
         /// </summary>
         public int Count => Pending.Count + Objects.Count;
+
+        /// <summary>
+        /// Current number of active QtreeNodes in the tree
+        /// </summary>
+        public int NumActiveNodes { get; private set; }
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +67,7 @@ namespace Ship_Game
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            Root = FrontBuffer.Create(-half, -half, +half, +half);
+            Root = FrontBuffer.Create(Levels, -half, -half, +half, +half);
             lock (Pending)
             {
                 Pending.Clear();
@@ -69,15 +75,17 @@ namespace Ship_Game
             }
         }
 
-        void SplitNode(QtreeNode node, int level)
+        // Takes an existing undivided node and subdivides it into quadrants
+        void SubdivideNode(QtreeNode node, int level)
         {
             float midX = (node.X + node.LastX) / 2;
             float midY = (node.Y + node.LastY) / 2;
 
-            node.NW = FrontBuffer.Create(node.X, node.Y, midX,       midY);
-            node.NE = FrontBuffer.Create(midX,   node.Y, node.LastX, midY);
-            node.SE = FrontBuffer.Create(midX,   midY,   node.LastX, node.LastY);
-            node.SW = FrontBuffer.Create(node.X, midY,   midX,       node.LastY);
+            int nextLevel = level - 1;
+            node.NW = FrontBuffer.Create(nextLevel, node.X, node.Y, midX,       midY);
+            node.NE = FrontBuffer.Create(nextLevel, midX,   node.Y, node.LastX, midY);
+            node.SE = FrontBuffer.Create(nextLevel, midX,   midY,   node.LastX, node.LastY);
+            node.SW = FrontBuffer.Create(nextLevel, node.X, midY,   midX,       node.LastY);
 
             int count = node.Count;
             if (count != 0)
@@ -85,8 +93,9 @@ namespace Ship_Game
                 SpatialObj[] arr = node.Items;
                 node.Items = NoObjects;
                 node.Count = 0;
+                node.TotalTreeDepthCount -= count;
 
-                // reinsert all items:
+                // and now reinsert all items one by one
                 for (int i = 0; i < count; ++i)
                     InsertAt(node, level, ref arr[i]);
             }
@@ -125,6 +134,7 @@ namespace Ship_Game
                     QtreeNode quad = PickSubQuadrant(node, ref obj);
                     if (quad != null)
                     {
+                        ++node.TotalTreeDepthCount;
                         node = quad; // go deeper!
                         --level;
                         continue;
@@ -134,9 +144,11 @@ namespace Ship_Game
                 // item belongs to this node
                 node.Add(ref obj);
 
-                // actually, are we maybe over Threshold and should Divide ?
+                // actually, are we maybe over Threshold and should Subdivide ?
                 if (node.NW == null && node.Count >= CellThreshold)
-                    SplitNode(node, level);
+                {
+                    SubdivideNode(node, level);
+                }
                 return;
             }
         }
@@ -144,8 +156,7 @@ namespace Ship_Game
         static bool IsObjectDead(GameplayObject go)
         {
             // this is related to QuadTree fast-removal
-            return !go.Active
-                || ((go.Type & GameObjectType.Proj) != 0 && ((Projectile)go).DieNextFrame);
+            return !go.Active || (go.Type == GameObjectType.Proj && ((Projectile)go).DieNextFrame);
         }
 
         static bool IsObjectDead(Projectile proj)
@@ -280,7 +291,7 @@ namespace Ship_Game
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            QtreeNode newRoot = FrontBuffer.Create(-half, -half, +half, +half);;
+            QtreeNode newRoot = FrontBuffer.Create(Levels, -half, -half, +half, +half);;
             for (int i = 0; i < Objects.Count; ++i)
             {
                 var obj = new SpatialObj(Objects[i]);
@@ -289,30 +300,26 @@ namespace Ship_Game
             return newRoot;
         }
 
-        public void UpdateAll(FixedSimTime timeStep)
+        public void UpdateAll()
         {
-            SimulationStep = timeStep;
-            
             RemoveEmptySpots();
             InsertPending();
 
             // prepare our node buffer for allocation
             FrontBuffer.MarkAllNodesInactive();
 
-            // atomic exchange of old root and new root
-            Root = CreateFullTree();
-            SwapRecycleLists();
-        }
-
-        void SwapRecycleLists()
-        {
+            // create the new tree from current world state
+            QtreeNode newRoot = CreateFullTree();
             // Swap recycle lists
-            // 
             // We move last frame's nodes to front and start overwriting them
             QtreeRecycleBuffer newBackBuffer = FrontBuffer;
+
+            DeepestNodesFirstTraversal = newBackBuffer.GetDeepestNodesFirst();
+
+            Root = newRoot;
+            NumActiveNodes = newBackBuffer.NumActiveNodes;
             FrontBuffer = BackBuffer; // move backbuffer to front
             BackBuffer = newBackBuffer;
-
         }
 
         // finds the node that fully encloses this spatial object
