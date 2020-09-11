@@ -1,3 +1,4 @@
+using System.Diagnostics.Contracts;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Gameplay;
@@ -183,6 +184,7 @@ namespace Ship_Game
             return 0;
         }
 
+        [Pure]
         public Empire GetLoyalty()
         {
             if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty;

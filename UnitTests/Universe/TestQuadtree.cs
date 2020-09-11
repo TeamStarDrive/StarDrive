@@ -42,7 +42,7 @@ namespace UnitTests.Universe
 
             foreach (Ship ship in AllShips)
             {
-                GameplayObject[] ships = tree.FindNearby(ship.Position, ship.Radius,
+                GameplayObject[] ships = tree.FindNearby(ship.Position, ship.Radius, 128,
                                                          GameObjectType.Ship, null, null);
                 Assert.AreEqual(1, ships.Length);
                 Assert.AreEqual(ship, ships[0]);
@@ -55,13 +55,13 @@ namespace UnitTests.Universe
         void CheckSingleFindNearBy(IQuadtree tree, Ship s)
         {
             var offset = new Vector2(0, 256);
-            GameplayObject[] found1 = tree.FindNearby(s.Position+offset, 256, GameObjectType.Any, null, null);
+            GameplayObject[] found1 = tree.FindNearby(s.Position+offset, 256, 128, GameObjectType.Any, null, null);
             Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
 
-            GameplayObject[] found2 = tree.FindNearby(s.Position+offset, (256-s.Radius)+0.001f, GameObjectType.Any, null, null);
+            GameplayObject[] found2 = tree.FindNearby(s.Position+offset, (256-s.Radius)+0.001f, 128, GameObjectType.Any, null, null);
             Assert.AreEqual(1, found2.Length, "FindNearby touching radius must return match");
             
-            GameplayObject[] found3 = tree.FindNearby(s.Position+offset, 255-s.Radius, GameObjectType.Any, null, null);
+            GameplayObject[] found3 = tree.FindNearby(s.Position+offset, 255-s.Radius, 128, GameObjectType.Any, null, null);
             Assert.AreEqual(0, found3.Length, "FindNearby outside radius must not match");
         }
 
@@ -77,13 +77,13 @@ namespace UnitTests.Universe
         {
             IQuadtree tree = CreateQuadTree(100, new Quadtree(10_000f));
             
-            GameplayObject[] f1 = tree.FindNearby(Vector2.Zero, 1000, GameObjectType.Any, null, null);
+            GameplayObject[] f1 = tree.FindNearby(Vector2.Zero, 1000, 128, GameObjectType.Any, null, null);
             Assert.AreEqual(4, f1.Length, "FindNearby center 1000 must match 4");
 
-            GameplayObject[] f2 = tree.FindNearby(Vector2.Zero, 2000, GameObjectType.Any, null, null);
+            GameplayObject[] f2 = tree.FindNearby(Vector2.Zero, 2000, 128, GameObjectType.Any, null, null);
             Assert.AreEqual(12, f2.Length, "FindNearby center 2000 must match 12");
 
-            GameplayObject[] f3 = tree.FindNearby(Vector2.Zero, 3000, GameObjectType.Any, null, null);
+            GameplayObject[] f3 = tree.FindNearby(Vector2.Zero, 3000, 128, GameObjectType.Any, null, null);
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
         }
 
@@ -120,7 +120,7 @@ namespace UnitTests.Universe
             for (int i = 0; i < AllShips.Count; ++i)
             {
                 Ship ship = AllShips[i];
-                tree.FindLinear(ship.Center, defaultSensorRange, GameObjectType.Any, null, null);
+                tree.FindLinear(ship.Center, defaultSensorRange, 128, GameObjectType.Any, null, null);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
@@ -128,7 +128,7 @@ namespace UnitTests.Universe
             var t2 = new PerfTimer();
             for (int i = 0; i < AllShips.Count; ++i)
             {
-                tree.FindNearby(AllShips[i].Center, defaultSensorRange, GameObjectType.Any, null, null);
+                tree.FindNearby(AllShips[i].Center, defaultSensorRange, 128, GameObjectType.Any, null, null);
             }
             float e2 = t2.Elapsed;
             Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
@@ -167,7 +167,8 @@ namespace UnitTests.Universe
                 {
                     for (int i = 0; i < AllShips.Count; ++i)
                     {
-                        tree.FindNearby(AllShips[i].Center, defaultSensorRange, GameObjectType.Any, null, null);
+                        tree.FindNearby(AllShips[i].Center, defaultSensorRange,
+                                        128, GameObjectType.Any, null, null);
                     }
                 }
             });
