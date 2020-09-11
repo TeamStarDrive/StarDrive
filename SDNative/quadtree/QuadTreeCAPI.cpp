@@ -39,9 +39,10 @@ DLLEXPORT void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep,
 DLLEXPORT int __stdcall QtreeFindNearby(QuadTree* tree,
                                         int* outResults, int maxResults,
                                         float x, float y, float radius,
-                                        int typeFilter, int objectToIgnoreId, int loyaltyFilter)
+                                        int typeFilter, int objectToIgnoreId,
+                                        int excludeLoyalty, int onlyLoyalty)
 {
     return tree->findNearby(outResults, maxResults, x, y, radius,
-                            typeFilter, objectToIgnoreId, loyaltyFilter);
+                            typeFilter, objectToIgnoreId, excludeLoyalty, onlyLoyalty);
 }
 

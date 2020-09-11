@@ -50,37 +50,6 @@ namespace Ship_Game
             return test;
         }
 
-        
-        // optimized comparison alternative for quadtree search
-        public static Array<GameplayObject> FindLinearOpt(Array<Ship> ships, Ship us,
-                                                          Vector2 center, float radius,
-                                                          Empire loyaltyFilter = null)
-        {
-            float cx = center.X;
-            float cy = center.Y;
-            float r  = radius;
-
-            var list = new Array<GameplayObject>();
-            Ship[] items = ships.GetInternalArrayItems();
-            int count = ships.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                Ship ship = items[i];
-                if (ship == us || (loyaltyFilter != null && ship.loyalty != loyaltyFilter))
-                    continue;
-
-                // check if inside radius, inlined for perf
-                float dx = cx - ship.Center.X;
-                float dy = cy - ship.Center.Y;
-                float r2 = r + ship.Radius;
-                if ((dx*dx + dy*dy) <= (r2*r2))
-                {
-                    list.Add(ship);
-                }
-            }
-            return list;
-        }
-
         static Ship SpawnShip(string name, Empire loyalty, Vector2 pos, Vector2 dir)
         {
             var target = Ship.CreateShipAtPoint(name, loyalty, pos);
@@ -105,7 +74,8 @@ namespace Ship_Game
                 for (int i = 0; i < test.Ships.Count; ++i)
                 {
                     Ship ship = test.Ships[i];
-                    FindLinearOpt(test.Ships, ship, ship.Center, defaultSensorRange);
+                    test.Tree.FindLinear(GameObjectType.Any, ship.Center, defaultSensorRange,
+                                         maxResults:256, null, null, null);
                 }
             }
             float e1 = t1.Elapsed;
@@ -116,8 +86,8 @@ namespace Ship_Game
             {
                 for (int i = 0; i < test.Ships.Count; ++i)
                 {
-                    test.Tree.FindNearby(test.Ships[i].Center, defaultSensorRange,
-                                         GameObjectType.Any, null, null);
+                    test.Tree.FindNearby(GameObjectType.Any, test.Ships[i].Center, defaultSensorRange,
+                                         maxResults:256, null, null, null);
                 }
             }
             float e2 = t2.Elapsed;

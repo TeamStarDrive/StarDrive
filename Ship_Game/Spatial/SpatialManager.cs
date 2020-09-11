@@ -49,18 +49,22 @@ namespace Ship_Game.Gameplay
             QuadTree.CollideAll(timeStep);
         }
 
-        public GameplayObject[] FindNearby(GameplayObject obj, float radius,
-                                           GameObjectType filter = GameObjectType.Any,
-                                           Empire loyaltyFilter = null)
+        public GameplayObject[] FindNearby(GameObjectType type, GameplayObject obj, float radius,
+                                           int maxResults,
+                                           Empire excludeLoyalty = null,
+                                           Empire onlyLoyalty = null)
         {
-            return QuadTree.FindNearby(obj.Center, radius, filter, toIgnore:obj, loyaltyFilter);
+            return QuadTree.FindNearby(type, obj.Center, radius, maxResults,
+                                       toIgnore:obj, excludeLoyalty, onlyLoyalty);
         }
 
-        public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
-                                           GameObjectType filter = GameObjectType.Any,
-                                           Empire loyaltyFilter = null)
+        public GameplayObject[] FindNearby(GameObjectType type, Vector2 worldPos, float radius,
+                                           int maxResults,
+                                           Empire excludeLoyalty = null,
+                                           Empire onlyLoyalty = null)
         {
-            return QuadTree.FindNearby(worldPos, radius, filter, toIgnore:null, loyaltyFilter);
+            return QuadTree.FindNearby(type, worldPos, radius, maxResults,
+                                       toIgnore:null, excludeLoyalty, onlyLoyalty);
         }
 
 
@@ -74,19 +78,19 @@ namespace Ship_Game.Gameplay
 
             // min search radius of 512. problem was that at very small search radius neighbors would not be found.
             // I tried to make the min to a the smallest cell size. 
-            GameplayObject[] ships = FindNearby(source, Math.Max(damageRadius, 512), GameObjectType.Ship);
+            GameplayObject[] ships = FindNearby(GameObjectType.Ship, source, Math.Max(damageRadius, 512),
+                                                    maxResults:32, excludeLoyalty:source.Owner?.loyalty);
             ships.SortByDistance(source.Center);
 
             foreach (GameplayObject go in ships)
             {
                 var ship = (Ship)go;
+                if (!ship.Active)
+                    continue;
+
                 // Doctor: Up until now, the 'Reactive Armour' bonus used in the vanilla tech tree did exactly nothing. Trying to fix - is meant to reduce effective explosion radius.
                 // Doctor: Reset the radius on every foreach loop in case ships of different loyalty are to be affected:
                 float modifiedRadius = damageRadius;
-                
-                // Check if valid target
-                if (source.Owner?.loyalty == ship.loyalty || !ship.Active)
-                    continue;
 
                 // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.
                 if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
@@ -115,18 +119,16 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
 
-            Vector2 explosionCenter = thisShip.Center;
-            GameplayObject[] nearby = FindNearby(thisShip, thisShip.Radius);
+            Vector2 explosionCenter = position;
+
+            // find any nearby ship -- even allies
+            GameplayObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64,
+                                                 maxResults:32);
 
             for (int i = 0; i < nearby.Length; ++i)
             {
-                GameplayObject otherObj = nearby[i];
-                if (otherObj == thisShip || !otherObj.Active) continue;
-                if (otherObj is Projectile) continue;
-                if (!otherObj.Center.InRadius(thisShip.Center, damageRadius + otherObj.Radius))
-                    continue;
-
-                if (otherObj is Ship otherShip && RandomMath.RollDice(12 - otherShip.Level))
+                var otherShip = (Ship)nearby[i];
+                if (RandomMath.RollDice(12 - otherShip.Level))
                 {
                     // FB: Ships will be lucky to not get caught in the explosion, based on their level as well
                     ShipModule nearest = otherShip.FindClosestUnshieldedModule(explosionCenter);
@@ -151,13 +153,14 @@ namespace Ship_Game.Gameplay
                     Vector2 impulse = 3f * (otherShip.Center - explosionCenter);
                     if (impulse.Length() > 200f)
                         impulse = impulse.Normalized() * 200f;
+
                     if (!float.IsNaN(impulse.X))
                         otherShip.ApplyForce(impulse);
                 }
                 else
                 {
-                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherObj.Center, damageRadius, otherObj.Radius, 0.25f);
-                    otherObj.Damage(thisShip, damageAmount * damageFalloff);
+                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherShip.Center, damageRadius, otherShip.Radius, 0.25f);
+                    otherShip.Damage(thisShip, damageAmount * damageFalloff);
                 }
             }
         }

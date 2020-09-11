@@ -1237,20 +1237,23 @@ namespace Ship_Game
 
         void ScanForShips(InfluenceNode node)
         {
-            bool debug = Empire.Universe?.Debug == true;
-            if (node.SourceObject is Ship) return;
+            if (node.SourceObject is Ship)
+                return;
+
+            bool debug = Universe?.Debug == true;
 
             // find ships in radius of node. 
-            var targets = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
+            GameplayObject[] targets = UniverseScreen.SpaceManager.FindNearby(GameObjectType.Ship,
+                                                        node.Position, node.Radius, maxResults:1024);
             for (int i = 0; i < targets.Length; i++)
             {
-                var target = targets[i];
-                ((Ship) target).KnownByEmpires.SetSeen(this);
-                if (Empire.Universe?.Debug == true)
+                var target = (Ship)targets[i];
+                target.KnownByEmpires.SetSeen(this);
+                if (debug)
                 {
                     if (Universe?.SelectedPlanet != null || Universe?.SelectedPlanet == node.SourceObject)
                     {
-                        ((Ship) target).KnownByEmpires.SetSeen(EmpireManager.Player);
+                        target.KnownByEmpires.SetSeen(EmpireManager.Player);
                     }
                 }
             }
@@ -1258,11 +1261,12 @@ namespace Ship_Game
 
         void ScanForInfluence(InfluenceNode node, FixedSimTime timeStep)
         {
-            var targets = UniverseScreen.SpaceManager.FindNearby(node.Position, node.Radius, GameObjectType.Ship);
+            // find anyone within this influence node
+            GameplayObject[] targets = UniverseScreen.SpaceManager.FindNearby(GameObjectType.Ship,
+                                                       node.Position, node.Radius, maxResults:1024);
             for (int i = 0; i < targets.Length; i++)
             {
-                var target = targets[i];
-                var ship = (Ship)target;
+                var ship = (Ship)targets[i];
                 ship.SetProjectorInfluence(this, true);
                 
                 // Civilian infrastructure spotting enemy fleets
@@ -1284,7 +1288,6 @@ namespace Ship_Game
 
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
-        public War[] AllActiveWars() => Relationships.FilterValues(r=> r.AtWar).Select(r=> r.ActiveWar);
         public Relationship GetRelations(Empire withEmpire)
         {
             Relationships.TryGetValue(withEmpire, out Relationship rel);

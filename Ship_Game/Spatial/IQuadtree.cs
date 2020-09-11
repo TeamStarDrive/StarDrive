@@ -37,15 +37,36 @@ namespace Ship_Game
         void CollideAll(FixedSimTime timeStep);
         void CollideAllRecursive(FixedSimTime timeStep);
 
-        GameplayObject[] FindNearby(Vector2 worldPos, float radius,
-                                    GameObjectType filter,
+        
+        /// <summary>
+        /// Finds nearby GameplayObjects using multiple filters
+        /// </summary>
+        /// <param name="type">Type of game objects to find, eg Ships or Projectiles</param>
+        /// <param name="worldPos">Origin of the search</param>
+        /// <param name="radius">Radius of the search area</param>
+        /// <param name="maxResults">Limit the number of results for performance consideration</param>
+        /// <param name="toIgnore">Single game object to ignore (usually our own ship), null (default): no ignore</param>
+        /// <param name="excludeLoyalty">Exclude results by loyalty, when searching enemies exclude allies, null (default): no filtering</param>
+        /// <param name="onlyLoyalty">Filter results by loyalty, when searching friends include allies, null (default): no filtering</param>
+        /// <returns>GameObjects that match the search criteria</returns>
+        GameplayObject[] FindNearby(GameObjectType type,
+                                    Vector2 worldPos,
+                                    float radius,
+                                    int maxResults,
                                     GameplayObject toIgnore,
-                                    Empire loyaltyFilter);
+                                    Empire excludeLoyalty,
+                                    Empire onlyLoyalty);
 
-        GameplayObject[] FindLinear(Vector2 worldPos, float radius,
-                                    GameObjectType filter,
+        /// <summary>
+        /// Performs a linear search instead of using the Quadtree
+        /// </summary>
+        GameplayObject[] FindLinear(GameObjectType type,
+                                    Vector2 worldPos,
+                                    float radius,
+                                    int maxResults,
                                     GameplayObject toIgnore,
-                                    Empire loyaltyFilter);
+                                    Empire excludeLoyalty,
+                                    Empire onlyLoyalty);
 
         void DebugVisualize(GameScreen screen);
     }
