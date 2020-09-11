@@ -10,7 +10,7 @@ namespace UnitTests.Universe
     class QuadTreeVisualization : GameScreen
     {
         TestQuadTree Test;
-        Quadtree Tree;
+        IQuadtree Tree;
         Vector3 Camera;
         float CamHeight;
 
@@ -21,7 +21,7 @@ namespace UnitTests.Universe
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
 
-        public QuadTreeVisualization(TestQuadTree test, Quadtree tree) : base(null)
+        public QuadTreeVisualization(TestQuadTree test, IQuadtree tree) : base(null)
         {
             Tree = tree;
             Test = test;
@@ -75,7 +75,7 @@ namespace UnitTests.Universe
             DrawString(new Vector2(20, 40), Color.White, $"Camera: {Camera}", Fonts.Arial11Bold);
             DrawString(new Vector2(20, 60), Color.White, $"FindNearby: {Found.Length}", Fonts.Arial11Bold);
             DrawString(new Vector2(20, 80), Color.White, $"SearchRadius: {SearchRadius}", Fonts.Arial11Bold);
-            DrawString(new Vector2(20,100), Color.White, $"SearchTime:   {(SearchTime*1000).String(4)}ms  Linear:{Tree.WasLinearSearch}", Fonts.Arial11Bold);
+            DrawString(new Vector2(20,100), Color.White, $"SearchTime:   {(SearchTime*1000).String(4)}ms", Fonts.Arial11Bold);
             DrawString(new Vector2(20,120), Color.White, $"LinearTime:   {(LinearTime*1000).String(4)}ms", Fonts.Arial11Bold);
 
             base.Draw(batch, elapsed);
@@ -104,7 +104,7 @@ namespace UnitTests.Universe
                 {
                     SearchStart = UnprojectToWorldPosition(input.StartLeftHold);
                     SearchRadius = SearchStart.Distance(UnprojectToWorldPosition(input.EndLeftHold));
-                    Found = Tree.FindNearby(SearchStart, SearchRadius);
+                    Found = Tree.FindNearby(SearchStart, SearchRadius, GameObjectType.Any, null, null);
                 }
                 SearchTime = timer.Elapsed;
             }

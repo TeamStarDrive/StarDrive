@@ -56,8 +56,6 @@ namespace Ship_Game
             return buffer;
         }
 
-        public bool WasLinearSearch;
-
         /// <summary>
         /// Finds nearby GameplayObjects using multiple filters
         /// </summary>
@@ -77,8 +75,6 @@ namespace Ship_Game
             enclosingRectangle.Obj = toIgnore; // This object will be excluded from the search
             enclosingRectangle.Loyalty = (byte) (loyaltyFilter?.Id ?? 0); // filter by loyalty?
 
-            WasLinearSearch = false;
-
             // find the deepest enclosing node
             QtreeNode root = Root;
             QtreeNode enclosing = FindEnclosingNode(root, ref enclosingRectangle);
@@ -89,7 +85,6 @@ namespace Ship_Game
             // switch to linear search because we need to traverse the ENTIRE universe anyway
             if (enclosing == root && radius > QuadToLinearSearchThreshold)
             {
-                WasLinearSearch = true;
                 return FindLinear(worldPos, radius, filter, toIgnore, loyaltyFilter);
             }
 
