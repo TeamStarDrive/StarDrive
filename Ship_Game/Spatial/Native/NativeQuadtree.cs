@@ -44,7 +44,8 @@ namespace Ship_Game.Spatial.Native
         [DllImport("SDNative.dll")]
         static extern int QtreeFindNearby(NativeQtree* tree, int* outResults, int maxResults,
                                           float x, float y, float radius,
-                                          int typeFilter, int objectToIgnoreId, int loyaltyFilter);
+                                          int typeFilter, int objectToIgnoreId,
+                                          int excludeLoyalty, int onlyLoyalty);
 
         NativeQtree* Tree;
         readonly Array<GameplayObject> Pending = new Array<GameplayObject>();
@@ -224,7 +225,7 @@ namespace Ship_Game.Spatial.Native
             QtreeCollideAllRecursive(Tree, timeStep.FixedTime, OnCollisionFunc);
         }
 
-        static GameplayObject[] CopyOutput(Array<GameplayObject> objects, int* objectIds, int count)
+        static GameplayObject[] CopyOutput(GameplayObject[] objects, int* objectIds, int count)
         {
             var found = new GameplayObject[count];
             for (int i = 0; i < found.Length; ++i)
@@ -238,27 +239,33 @@ namespace Ship_Game.Spatial.Native
                 else
                 {
                     Log.Error($"FindNearby returned invalid ObjectId:{spatialIndex}\n"
-                              +"Does not match expected:{go.SpatialIndex}\nFor {go}");
+                              +$"Does not match expected:{go.SpatialIndex}\nFor {go}");
                 }
             }
             return found;
         }
 
-        public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
-            GameObjectType filter, GameplayObject toIgnore, Empire loyaltyFilter)
+        public GameplayObject[] FindNearby(GameObjectType type,
+                                           Vector2 worldPos,
+                                           float radius,
+                                           int maxResults,
+                                           GameplayObject toIgnore,
+                                           Empire excludeLoyalty,
+                                           Empire onlyLoyalty)
         {
             int ignoreId = -1;
             if (toIgnore != null && toIgnore.SpatialIndex < 0)
                 ignoreId = toIgnore.SpatialIndex;
 
-            int loyaltyF = loyaltyFilter?.Id ?? 0;
+            int exLoyalty = excludeLoyalty?.Id ?? 0;
+            int onLoyalty = onlyLoyalty?.Id ?? 0;
 
-            int* objectIds = stackalloc int[10000];
-            int count = QtreeFindNearby(Tree, objectIds, 10000,
+            int* objectIds = stackalloc int[maxResults];
+            int count = QtreeFindNearby(Tree, objectIds, maxResults,
                                         worldPos.X, worldPos.Y, radius,
-                                        (int)filter, ignoreId, loyaltyF);
+                                        (int)type, ignoreId, exLoyalty, onLoyalty);
             if (count != 0)
-                return CopyOutput(Objects, objectIds, count);
+                return CopyOutput(Objects.GetInternalArrayItems(), objectIds, count);
             return Empty<GameplayObject>.Array;
         }
 
@@ -307,15 +314,23 @@ namespace Ship_Game.Spatial.Native
             return buffer;
         }
 
-        public GameplayObject[] FindLinear(Vector2 worldPos, float radius,
-                                           GameObjectType filter,
+        public GameplayObject[] FindLinear(GameObjectType type,
+                                           Vector2 worldPos,
+                                           float radius,
+                                           int maxResults,
                                            GameplayObject toIgnore,
-                                           Empire loyaltyFilter)
+                                           Empire excludeLoyalty,
+                                           Empire onlyLoyalty)
         {
+            FindResultBuffer nearby = FindBuffer.Value;
+            if (nearby.Items.Length < maxResults)
+            {
+                nearby.Items = new GameplayObject[maxResults];
+            }
+            
             float cx = worldPos.X;
             float cy = worldPos.Y;
-            float r  = radius;
-            FindResultBuffer nearby = FindBuffer.Value;
+            bool filterByLoyalty = (excludeLoyalty != null) || (onlyLoyalty != null);
 
             GameplayObject[] objects = Objects.GetInternalArrayItems();
             int count = Objects.Count;
@@ -323,24 +338,26 @@ namespace Ship_Game.Spatial.Native
             {
                 GameplayObject obj = objects[i];
                 if (obj == null || (toIgnore != null && obj == toIgnore)
-                    || (filter != GameObjectType.Any && obj.Type != filter)
-                    || (loyaltyFilter != null && obj.GetLoyalty() != loyaltyFilter))
+                    || (type != GameObjectType.Any && obj.Type != type))
                     continue;
+                
+                if (filterByLoyalty)
+                {
+                    Empire loyalty = obj.GetLoyalty();
+                    if ((excludeLoyalty != null && loyalty == excludeLoyalty)
+                        || (onlyLoyalty != null && loyalty != onlyLoyalty))
+                        continue;
+                }
 
                 // check if inside radius, inlined for perf
                 float dx = cx - obj.Center.X;
                 float dy = cy - obj.Center.Y;
-                float r2 = r + obj.Radius;
+                float r2 = radius + obj.Radius;
                 if ((dx*dx + dy*dy) <= (r2*r2))
                 {
-                    // inline array expand
-                    if (nearby.Count == nearby.Items.Length)
-                    {
-                        var arr = new GameplayObject[nearby.Items.Length * 2];
-                        Array.Copy(nearby.Items, arr, nearby.Count);
-                        nearby.Items = arr;
-                    }
                     nearby.Items[nearby.Count++] = obj;
+                    if (nearby.Count >= maxResults)
+                        break; // we are done !
                 }
             }
 

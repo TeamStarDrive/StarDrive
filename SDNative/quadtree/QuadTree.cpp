@@ -168,7 +168,8 @@ namespace tree
 
     int QuadTree::findNearby(int* outResults, int maxResults,
                              float x, float y, float radius,
-                             int typeFilter, int objectToIgnoreId, int loyaltyFilter)
+                             int typeFilter, int objectToIgnoreId,
+                             int excludeLoyalty, int onlyLoyalty)
     {
         // we create a dummy object which covers our search radius
         SpatialObj enclosingRect { x, y, radius };
@@ -189,9 +190,10 @@ namespace tree
 
         NodeStack stack; stack.push(root);
 
-        // NOTE: to avoid a few branches, we used pre-calculated masks
-        int loyaltyMask = (loyaltyFilter == 0) ? 0xff : loyaltyFilter;
-        int filterMask  = typeFilter == 0 ? 0xff : typeFilter;
+        // NOTE: to avoid a few branches, we used pre-calculated masks, 0xff will pass any
+        uint8_t exclLoyaltyMask = (excludeLoyalty == 0) ? 0xff : ~excludeLoyalty;
+        uint8_t onlyLoyaltyMask = (onlyLoyalty == 0)    ? 0xff : onlyLoyalty;
+        uint8_t filterMask      = (typeFilter == 0)     ? 0xff : typeFilter;
         int numResults = 0;
         do
         {
@@ -204,12 +206,16 @@ namespace tree
                 const SpatialObj& so = items[i];
 
                 // either 0x00 (failed) or some 0100 (success)
-                int typeFlags = ((int)so.Type & filterMask);
+                uint8_t typeFlags = (so.Type & filterMask);
+                uint8_t soLoyalty = so.Loyalty;
+                
+                // either 0x00 (failed) or some bits 0011 (success)
+                uint8_t exclLoyaltyFlags = (soLoyalty & exclLoyaltyMask);
 
                 // either 0x00 (failed) or some bits 0011 (success)
-                int loyaltyFlags = (so.Loyalty & loyaltyMask);
+                uint8_t onlyLoyaltyFlags = (soLoyalty & onlyLoyaltyMask);
 
-                if (typeFlags == 0 || loyaltyFlags == 0 ||
+                if (typeFlags == 0 || exclLoyaltyFlags == 0 || onlyLoyaltyFlags == 0 ||
                     so.PendingRemove != 0 || so.ObjectId == objectToIgnoreId)
                     continue;
 

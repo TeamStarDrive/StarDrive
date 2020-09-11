@@ -5,6 +5,7 @@ using Ship_Game.Audio;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 using System;
+using System.Diagnostics.Contracts;
 
 namespace Ship_Game.Ships
 {
@@ -273,8 +274,8 @@ namespace Ship_Game.Ships
 
         public bool IsAmplified => ActualShieldPowerMax > shield_power_max * Bonuses.ShieldMod;
 
-        public Ship GetHangarShip() => hangarShip;
-        public Ship GetParent()     => Parent;
+        [Pure] public Ship GetHangarShip() => hangarShip;
+        [Pure] public Ship GetParent()     => Parent;
 
         public override bool ParentIsThis(Ship ship) => Parent == ship;
 
@@ -645,11 +646,12 @@ namespace Ship_Game.Ships
         {
             float health = Health * percent + ShieldPower;
             float damage = health.Clamped(0, Health + ShieldPower);
-            var source   = GetParent();
+            Ship source = GetParent();
             Damage(source, damage);
         }
 
-        public override void Damage(GameplayObject source, float damageAmount) => Damage(source, damageAmount, out float _);
+        public override void Damage(GameplayObject source, float damageAmount)
+            => Damage(source, damageAmount, out float _);
 
         bool TryDamageModule(GameplayObject source, float modifiedDamage)
         {

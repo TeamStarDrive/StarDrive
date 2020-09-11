@@ -33,7 +33,8 @@ namespace tree
 
         int findNearby(int* outResults, int maxResults,
                        float x, float y, float radius,
-                       int typeFilter, int objectToIgnoreId, int loyaltyFilter);
+                       int typeFilter, int objectToIgnoreId,
+                       int excludeLoyalty, int onlyLoyalty);
 
     private:
         void markForRemoval(int objectId, SpatialObj& so);
