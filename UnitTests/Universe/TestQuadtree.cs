@@ -23,16 +23,16 @@ namespace UnitTests.Universe
             CreateUniverseAndPlayerEmpire(out Empire _);
         }
 
-        Quadtree CreateQuadTree(int numShips, float universeSize)
+        IQuadtree CreateQuadTree(int numShips, IQuadtree tree)
         {
-            var test = QuadtreePerfTests.CreateTestSpace(numShips, universeSize,
+            var test = QuadtreePerfTests.CreateTestSpace(numShips, tree,
                                                          Player, Enemy, SpawnShip);
-            UniverseSize = universeSize;
+            UniverseSize = tree.UniverseSize;
             AllShips = test.Ships;
             return test.Tree;
         }
 
-        void DebugVisualize(Quadtree tree)
+        void DebugVisualize(IQuadtree tree)
         {
             var vis = new QuadTreeVisualization(this, tree);
             Game.ShowAndRun(screen: vis);
@@ -41,12 +41,13 @@ namespace UnitTests.Universe
         [TestMethod]
         public void BasicInsert()
         {
-            Quadtree tree = CreateQuadTree(100, universeSize:100_000f);
+            IQuadtree tree = CreateQuadTree(100, new Quadtree(100_000f));
             Assert.AreEqual(AllShips.Count, tree.Count);
 
             foreach (Ship ship in AllShips)
             {
-                var ships = tree.FindNearby(ship.Position, ship.Radius, GameObjectType.Ship);
+                GameplayObject[] ships = tree.FindNearby(ship.Position, ship.Radius,
+                                                         GameObjectType.Ship, null, null);
                 Assert.AreEqual(1, ships.Length);
                 Assert.AreEqual(ship, ships[0]);
             }
@@ -55,45 +56,45 @@ namespace UnitTests.Universe
                 DebugVisualize(tree);
         }
 
-        void CheckSingleFindNearBy(Quadtree tree, Ship s)
+        void CheckSingleFindNearBy(IQuadtree tree, Ship s)
         {
             var offset = new Vector2(0, 256);
-            GameplayObject[] found1 = tree.FindNearby(s.Position+offset, 256);
+            GameplayObject[] found1 = tree.FindNearby(s.Position+offset, 256, GameObjectType.Any, null, null);
             Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
 
-            GameplayObject[] found2 = tree.FindNearby(s.Position+offset, (256-s.Radius)+0.001f);
+            GameplayObject[] found2 = tree.FindNearby(s.Position+offset, (256-s.Radius)+0.001f, GameObjectType.Any, null, null);
             Assert.AreEqual(1, found2.Length, "FindNearby touching radius must return match");
             
-            GameplayObject[] found3 = tree.FindNearby(s.Position+offset, 255-s.Radius);
+            GameplayObject[] found3 = tree.FindNearby(s.Position+offset, 255-s.Radius, GameObjectType.Any, null, null);
             Assert.AreEqual(0, found3.Length, "FindNearby outside radius must not match");
         }
 
         [TestMethod]
         public void FindNearbySingle()
         {
-            Quadtree tree = CreateQuadTree(1, universeSize:10_000f);
+            IQuadtree tree = CreateQuadTree(1, new Quadtree(10_000f));
             CheckSingleFindNearBy(tree, AllShips.First);
         }
 
         [TestMethod]
         public void FindNearbyMulti()
         {
-            Quadtree tree = CreateQuadTree(100, universeSize:10_000f);
+            IQuadtree tree = CreateQuadTree(100, new Quadtree(10_000f));
             
-            GameplayObject[] f1 = tree.FindNearby(Vector2.Zero, 1000);
+            GameplayObject[] f1 = tree.FindNearby(Vector2.Zero, 1000, GameObjectType.Any, null, null);
             Assert.AreEqual(4, f1.Length, "FindNearby center 1000 must match 4");
 
-            GameplayObject[] f2 = tree.FindNearby(Vector2.Zero, 2000);
+            GameplayObject[] f2 = tree.FindNearby(Vector2.Zero, 2000, GameObjectType.Any, null, null);
             Assert.AreEqual(12, f2.Length, "FindNearby center 2000 must match 12");
 
-            GameplayObject[] f3 = tree.FindNearby(Vector2.Zero, 3000);
+            GameplayObject[] f3 = tree.FindNearby(Vector2.Zero, 3000, GameObjectType.Any, null, null);
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
         }
 
         [TestMethod]
         public void TreeUpdatePerformance()
         {
-            Quadtree tree1 = CreateQuadTree(10_000, universeSize:1_000_000f);
+            IQuadtree tree1 = CreateQuadTree(10_000, new Quadtree(1_000_000f));
             var t1 = new PerfTimer();
             for (int i = 0; i < 60; ++i)
             {
@@ -115,14 +116,14 @@ namespace UnitTests.Universe
         [TestMethod]
         public void TreeSearchPerformance()
         {
-            Quadtree tree = CreateQuadTree(10_000, universeSize:500_000f);
+            IQuadtree tree = CreateQuadTree(10_000, new Quadtree(500_000f));
             const float defaultSensorRange = 30000f;
 
             var t1 = new PerfTimer();
             for (int i = 0; i < AllShips.Count; ++i)
             {
                 Ship ship = AllShips[i];
-                tree.FindLinear(ship.Center, defaultSensorRange);
+                tree.FindLinear(ship.Center, defaultSensorRange, GameObjectType.Any, null, null);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
@@ -130,7 +131,7 @@ namespace UnitTests.Universe
             var t2 = new PerfTimer();
             for (int i = 0; i < AllShips.Count; ++i)
             {
-                tree.FindNearby(AllShips[i].Center, defaultSensorRange);
+                tree.FindNearby(AllShips[i].Center, defaultSensorRange, GameObjectType.Any, null, null);
             }
             float e2 = t2.Elapsed;
             Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
@@ -143,7 +144,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void ConcurrentUpdateAndSearch()
         {
-            Quadtree tree = CreateQuadTree(10_000, universeSize:500_000f);
+            IQuadtree tree = CreateQuadTree(10_000, new Quadtree(500_000f));
             var timer = new PerfTimer();
 
             // update
@@ -169,7 +170,7 @@ namespace UnitTests.Universe
                 {
                     for (int i = 0; i < AllShips.Count; ++i)
                     {
-                        tree.FindNearby(AllShips[i].Center, defaultSensorRange);
+                        tree.FindNearby(AllShips[i].Center, defaultSensorRange, GameObjectType.Any, null, null);
                     }
                 }
             });
@@ -178,7 +179,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void TreeCollisionPerformance()
         {
-            Quadtree tree = CreateQuadTree(10_000, universeSize:50_000f);
+            IQuadtree tree = CreateQuadTree(10_000, new Quadtree(50_000f));
             const int iterations = 1000;
 
             var t1 = new PerfTimer();
