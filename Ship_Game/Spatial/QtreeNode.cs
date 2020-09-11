@@ -11,7 +11,6 @@ namespace Ship_Game
         public SpatialObj[] Items;
         public int Id;
         public int Level;
-
         public int TotalTreeDepthCount;
 
         public QtreeNode(int level, float x, float y, float lastX, float lastY)

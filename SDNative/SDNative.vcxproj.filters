@@ -38,6 +38,9 @@
     <Filter Include="src\SdMesh">
       <UniqueIdentifier>{f92589a6-f7c4-4c68-a4a4-898008deb53b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="quadtree">
+      <UniqueIdentifier>{79594e61-c0f0-4c22-909a-1193d63fce10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShipDataSerializer.cpp">
@@ -135,6 +138,15 @@
     </ClCompile>
     <ClCompile Include="util\os_utils.cpp">
       <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="quadtree\QuadTree.cpp">
+      <Filter>quadtree</Filter>
+    </ClCompile>
+    <ClCompile Include="quadtree\QtreeAllocator.cpp">
+      <Filter>quadtree</Filter>
+    </ClCompile>
+    <ClCompile Include="quadtree\QtreeNode.cpp">
+      <Filter>quadtree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -254,6 +266,24 @@
     </ClInclude>
     <ClInclude Include="SdMesh\SdAnimation.h">
       <Filter>src\SdMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\QuadTree.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\QtreeNode.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\SpatialObj.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\QtreeConstants.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\QtreeAllocator.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\QuadTreeCAPI.cpp">
+      <Filter>quadtree</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

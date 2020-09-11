@@ -63,23 +63,29 @@ namespace Ship_Game
                 {
                     ref SpatialObj proj = ref items[i]; // potential projectile ?
 
-                    // for the next part, we mask all of the attributes together
-                    // if any of these is 0, then the entire result is 0 and we skip this object
+                    //// for the next part, we mask all of the attributes together
+                    //// this avoids branches and speeds up the overall loop
+                    //// if any of these is 0, then the entire result is 0 and we skip this object
 
-                             // object is being removed, no collision
-                             // (0:alive - 1) --> -1
-                             // (1:dead  - 1) --> 0
-                    int all_passed = (proj.PendingRemove - 1)
-                             // No friendly fire in this game mode
-                             // (enemy - friend) --> -1 [-X ... +X]
-                             // (friend - friend) --> 0
-                             & (proj.Loyalty - shipLoyalty)
-                             // if this is not a true projectile type, skip
-                             // Beam-Projectiles are handled by CollideBeamAtNode
-                             //   Proj: (0000_0100 & 1111_1011) --> 0
-                             //   Beam: (0000_1100 & 1111_1011) --> 0000_1000 (8)
-                             & ((int)proj.Type ^ TrueProjXORMask);
-                    if (all_passed == 0)
+                    //// object is being removed, no collision
+                    //// (0:alive - 1) --> -1
+                    //// (1:dead  - 1) --> 0
+                    //int all_passed = (proj.PendingRemove - 1)
+                    //         // No friendly fire in this game mode
+                    //         // (enemy - friend) --> -1 [-X ... +X]
+                    //         // (friend - friend) --> 0
+                    //         & (proj.Loyalty - shipLoyalty)
+                    //         // if this is not a true projectile type, skip
+                    //         // Beam-Projectiles are handled by CollideBeamAtNode
+                    //         //   Proj: (0000_0100 & 1111_1011) --> 0
+                    //         //   Beam: (0000_1100 & 1111_1011) --> 0000_1000 (8)
+                    //         & ((int)proj.Type ^ TrueProjXORMask);
+                    //if (all_passed == 0)
+                    //    continue;
+
+                    if (proj.PendingRemove != 0 ||
+                        proj.Loyalty == shipLoyalty ||
+                        proj.Type != GameObjectType.Proj)
                         continue;
 
                     if (proj.HitTestProj(simTimeStep, ref ship, out ShipModule hitModule))

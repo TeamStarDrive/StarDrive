@@ -7,13 +7,14 @@ namespace Ship_Game
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-    public sealed partial class Quadtree
+    public sealed partial class Quadtree : IQuadtree
     {
         public static readonly SpatialObj[] NoObjects = new SpatialObj[0];
 
-        public readonly int   Levels;
-        public readonly float FullSize;
-        public readonly float QuadToLinearSearchThreshold;
+        public int Levels { get; }
+        public float FullSize { get; }
+
+        readonly float QuadToLinearSearchThreshold;
 
         /// <summary>
         /// How many objects to store per cell before subdividing
@@ -36,9 +37,7 @@ namespace Ship_Game
 
         Array<QtreeNode> DeepestNodesFirstTraversal;
 
-        /// <summary>
-        /// Number of pending and active objects in the Quadtree
-        /// </summary>
+        public float UniverseSize { get; }
         public int Count => Pending.Count + Objects.Count;
 
         /// <summary>
@@ -52,6 +51,7 @@ namespace Ship_Game
         // Create a quadtree to fit the universe
         public Quadtree(float universeSize, float smallestCell = 512f)
         {
+            UniverseSize = universeSize;
             Levels = 1;
             FullSize = smallestCell;
             while (FullSize < universeSize)

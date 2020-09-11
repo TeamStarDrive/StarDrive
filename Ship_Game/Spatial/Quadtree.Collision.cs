@@ -163,13 +163,6 @@ namespace Ship_Game
 
         void CollideAllAt(float simTimeStep, QtreeNode node, Array<BeamHitResult> beamHitCache)
         {
-            if (node.NW != null) // depth first approach, to early filter LastCollided
-            {
-                CollideAllAt(simTimeStep, node.NW, beamHitCache);
-                CollideAllAt(simTimeStep, node.NE, beamHitCache);
-                CollideAllAt(simTimeStep, node.SE, beamHitCache);
-                CollideAllAt(simTimeStep, node.SW, beamHitCache);
-            }
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj so = ref node.Items[i];
@@ -193,6 +186,13 @@ namespace Ship_Game
                 {
                     CollideShipAtNodeRecursive(simTimeStep, node, ref so);
                 }
+            }
+            if (node.NW != null) // depth first approach, to early filter LastCollided
+            {
+                CollideAllAt(simTimeStep, node.NW, beamHitCache);
+                CollideAllAt(simTimeStep, node.NE, beamHitCache);
+                CollideAllAt(simTimeStep, node.SE, beamHitCache);
+                CollideAllAt(simTimeStep, node.SW, beamHitCache);
             }
         }
     }

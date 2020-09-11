@@ -9,20 +9,20 @@ namespace Ship_Game
         public class TestContext
         {
             public Array<Ship> Ships = new Array<Ship>();
-            public Quadtree Tree;
+            public IQuadtree Tree;
         }
 
         public delegate Ship SpawnShipFunc(string name, Empire loyalty, Vector2 pos, Vector2 dir);
 
-        public static TestContext CreateTestSpace(int numShips, float universeSize,
+        public static TestContext CreateTestSpace(int numShips, IQuadtree tree,
                                                   Empire player, Empire enemy,
                                                   SpawnShipFunc spawnShip)
         {
             var test = new TestContext();
-            float spacing = universeSize / (float)Math.Sqrt(numShips);
+            float spacing = tree.UniverseSize / (float)Math.Sqrt(numShips);
 
             // universe is centered at [0,0], so Root node goes from [-half, +half)
-            float half = universeSize / 2;
+            float half = tree.UniverseSize / 2;
             float start = -half + spacing/2;
             float x = start;
             float y = start;
@@ -42,7 +42,7 @@ namespace Ship_Game
                 }
             }
 
-            test.Tree = new Quadtree(universeSize);
+            test.Tree = tree;
             foreach (Ship ship in test.Ships)
                 test.Tree.Insert(ship);
 
@@ -93,7 +93,8 @@ namespace Ship_Game
 
         public static void RunSearchPerfTest()
         {
-            TestContext test = CreateTestSpace(10000, 500_000f, EmpireManager.Void, EmpireManager.Void, SpawnShip);
+            TestContext test = CreateTestSpace(10000, new Quadtree(500_000f),
+                                    EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
             const float defaultSensorRange = 30000f;
             const int iterations = 10;
@@ -115,7 +116,8 @@ namespace Ship_Game
             {
                 for (int i = 0; i < test.Ships.Count; ++i)
                 {
-                    test.Tree.FindNearby(test.Ships[i].Center, defaultSensorRange);
+                    test.Tree.FindNearby(test.Ships[i].Center, defaultSensorRange,
+                                         GameObjectType.Any, null, null);
                 }
             }
             float e2 = t2.Elapsed;
@@ -127,7 +129,9 @@ namespace Ship_Game
 
         public static void RunCollisionPerfTest()
         {
-            TestContext test = CreateTestSpace(10000, 500_000f, EmpireManager.Void, EmpireManager.Void, SpawnShip);
+            TestContext test = CreateTestSpace(10000, new Quadtree(500_000f), 
+                                    EmpireManager.Void, EmpireManager.Void, SpawnShip);
+
             const int iterations = 1000;
             var timeStep = new FixedSimTime(1f / 60f);
 
