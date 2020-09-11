@@ -96,7 +96,8 @@ namespace UnitTests.Universe
             {
                 var timer2 = new PerfTimer();
                 {
-                    QuadtreePerfTests.FindLinearOpt(AllShips, null, SearchStart, SearchRadius);
+                    Tree.FindLinear(GameObjectType.Any, SearchStart, SearchRadius,
+                                     maxResults:1000, null, null, null);
                 }
                 LinearTime = timer2.Elapsed;
 
@@ -104,7 +105,9 @@ namespace UnitTests.Universe
                 {
                     SearchStart = UnprojectToWorldPosition(input.StartLeftHold);
                     SearchRadius = SearchStart.Distance(UnprojectToWorldPosition(input.EndLeftHold));
-                    Found = Tree.FindNearby(SearchStart, SearchRadius, GameObjectType.Any, null, null);
+
+                    Found = Tree.FindNearby(GameObjectType.Any, SearchStart, SearchRadius,
+                                            maxResults:1000, null, null, null);
                 }
                 SearchTime = timer.Elapsed;
             }

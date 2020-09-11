@@ -116,6 +116,7 @@
     <Compile Include="UI\TestUIElement.cs" />
     <Compile Include="TestGameDummy.cs" />
     <Compile Include="Universe\TestNativeQuadtree.cs" />
+    <Compile Include="Universe\TestQuadtreeCommon.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
