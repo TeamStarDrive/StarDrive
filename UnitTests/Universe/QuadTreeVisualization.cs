@@ -9,7 +9,7 @@ namespace UnitTests.Universe
 {
     class QuadTreeVisualization : GameScreen
     {
-        TestQuadTree Test;
+        Array<Ship> AllShips;
         IQuadtree Tree;
         Vector3 Camera;
         float CamHeight;
@@ -21,10 +21,10 @@ namespace UnitTests.Universe
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
 
-        public QuadTreeVisualization(TestQuadTree test, IQuadtree tree) : base(null)
+        public QuadTreeVisualization(Array<Ship> allShips, IQuadtree tree) : base(null)
         {
+            AllShips = allShips;
             Tree = tree;
-            Test = test;
             CamHeight = tree.FullSize * (float)Math.Sqrt(2);
         }
 
@@ -42,9 +42,9 @@ namespace UnitTests.Universe
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Tree.DebugVisualize(this);
-            DrawRectangleProjected(Vector2.Zero, new Vector2(Test.UniverseSize), 0f, Color.Red);
+            DrawRectangleProjected(Vector2.Zero, new Vector2(Tree.UniverseSize), 0f, Color.Red);
 
-            foreach (Ship ship in Test.AllShips)
+            foreach (Ship ship in AllShips)
             {
                 ProjectToScreenCoords(ship.Position, ship.Radius,
                                       out Vector2 screenPos, out float screenRadius);
@@ -96,7 +96,7 @@ namespace UnitTests.Universe
             {
                 var timer2 = new PerfTimer();
                 {
-                    QuadtreePerfTests.FindLinearOpt(Test.AllShips, null, SearchStart, SearchRadius);
+                    QuadtreePerfTests.FindLinearOpt(AllShips, null, SearchStart, SearchRadius);
                 }
                 LinearTime = timer2.Elapsed;
 

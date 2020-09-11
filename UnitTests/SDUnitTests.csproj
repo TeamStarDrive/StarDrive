@@ -115,6 +115,7 @@
     <Compile Include="UI\TestScrollList.cs" />
     <Compile Include="UI\TestUIElement.cs" />
     <Compile Include="TestGameDummy.cs" />
+    <Compile Include="Universe\TestNativeQuadtree.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -141,7 +142,7 @@
     </Content>
     <Content Include="..\StarDrive\SDNative.dll">
       <Link>SDNative.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\XnaNative.dll">
       <Link>XnaNative.dll</Link>

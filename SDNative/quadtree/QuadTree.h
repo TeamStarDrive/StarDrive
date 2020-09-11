@@ -13,6 +13,7 @@ namespace tree
         int Levels;
         float FullSize;
         float QuadToLinearSearchThreshold;
+        QtreeNode* Root;
 
         std::unique_ptr<QtreeAllocator> FrontBuffer = std::make_unique<QtreeAllocator>(10000);
         std::unique_ptr<QtreeAllocator> BackBuffer  = std::make_unique<QtreeAllocator>(20000);
@@ -37,6 +38,7 @@ namespace tree
     private:
         void markForRemoval(int objectId, SpatialObj& so);
         void subdivide(QtreeNode& node, int level);
-        static QtreeNode* pickSubQuadrant(QtreeNode& node, const SpatialObj& obj);
+        static QtreeNode* pickSubQuadrant(QtreeNode& node, const SpatialObj& so);
+        QtreeNode* findEnclosingNode(QtreeNode* node, const SpatialObj& so);
     };
 }
