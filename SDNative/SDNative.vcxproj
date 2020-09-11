@@ -136,7 +136,7 @@
     <ClInclude Include="quadtree\QtreeConstants.h" />
     <ClInclude Include="quadtree\QtreeNode.h" />
     <ClInclude Include="quadtree\QuadTree.h" />
-    <ClInclude Include="quadtree\QuadTreeCAPI.cpp" />
+    <ClCompile Include="quadtree\QuadTreeCAPI.cpp" />
     <ClInclude Include="quadtree\SpatialObj.h" />
     <ClInclude Include="ReCpp\rpp\collections.h" />
     <ClInclude Include="ReCpp\rpp\config.h" />

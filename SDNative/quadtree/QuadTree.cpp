@@ -73,6 +73,22 @@ namespace tree
         return nullptr; // obj does not perfectly fit inside a quadrant
     }
 
+    QtreeNode* QuadTree::findEnclosingNode(QtreeNode* node, const SpatialObj& so)
+    {
+        int level = Levels;
+        for (;;)
+        {
+            if (level <= 1) // no more subdivisions possible
+                break;
+            QtreeNode* quad = pickSubQuadrant(*node, so);
+            if (quad == nullptr)
+                break;
+            node = quad; // go deeper!
+            --level;
+        }
+        return node;
+    }
+
     void QuadTree::insertAt(QtreeNode* node, int level, const SpatialObj& so)
     {
         for (;;)
@@ -154,7 +170,79 @@ namespace tree
                              float x, float y, float radius,
                              int typeFilter, int objectToIgnoreId, int loyaltyFilter)
     {
-        return 0;
+        // we create a dummy object which covers our search radius
+        SpatialObj enclosingRect { x, y, radius };
+
+        // find the deepest enclosing node
+        QtreeNode* root = Root;
+        QtreeNode* enclosing = findEnclosingNode(root, enclosingRect);
+        if (enclosing == nullptr)
+            return 0;
+
+        // If enclosing object is the Root object and radius is huge,
+        // switch to linear search because we need to traverse the ENTIRE universe anyway
+        // TODO -- Implement this in native side
+        //if (enclosing == root && radius > QuadToLinearSearchThreshold)
+        //{
+        //    return FindLinear(worldPos, radius, filter, toIgnore, loyaltyFilter);
+        //}
+
+        NodeStack stack; stack.push(root);
+
+        // NOTE: to avoid a few branches, we used pre-calculated masks
+        int loyaltyMask = (loyaltyFilter == 0) ? 0xff : loyaltyFilter;
+        int filterMask  = typeFilter == 0 ? 0xff : typeFilter;
+        int numResults = 0;
+        do
+        {
+            QtreeNode& node = *stack.pop();
+
+            int count = node.Count;
+            const SpatialObj* items = node.Items;
+            for (int i = 0; i < count; ++i)
+            {
+                const SpatialObj& so = items[i];
+
+                // either 0x00 (failed) or some 0100 (success)
+                int typeFlags = ((int)so.Type & filterMask);
+
+                // either 0x00 (failed) or some bits 0011 (success)
+                int loyaltyFlags = (so.Loyalty & loyaltyMask);
+
+                if (typeFlags == 0 || loyaltyFlags == 0 ||
+                    so.PendingRemove != 0 || so.ObjectId == objectToIgnoreId)
+                    continue;
+
+                // check if inside radius, inlined for perf
+                float dx = x - so.CX;
+                float dy = y - so.CY;
+                float r2 = radius + so.Radius;
+                if ((dx*dx + dy*dy) <= (r2*r2))
+                {
+                    outResults[numResults++] = so.ObjectId;
+                    if (numResults >= maxResults)
+                        return numResults;
+                }
+            }
+
+            if (node.NW != nullptr)
+            {
+                if (node.SW->overlaps(enclosingRect))
+                    stack.push(node.SW);
+
+                if (node.SE->overlaps(enclosingRect))
+                    stack.push(node.SE);
+
+                if (node.NE->overlaps(enclosingRect))
+                    stack.push(node.NE);
+
+                if (node.NW->overlaps(enclosingRect))
+                    stack.push(node.NW);
+            }
+        }
+        while (stack.next >= 0);
+        
+        return numResults;
     }
 
     void QuadTree::markForRemoval(int objectId, SpatialObj& so)

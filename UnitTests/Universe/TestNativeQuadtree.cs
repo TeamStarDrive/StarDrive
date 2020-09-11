@@ -3,17 +3,18 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game.Ships;
+using Ship_Game.Spatial.Native;
 
 namespace UnitTests.Universe
 {
     [TestClass]
-    public class TestQuadTree : StarDriveTest
+    public class TestNativeQuadtree : StarDriveTest
     {
         static bool EnableVisualization = false;
 
         public Array<Ship> AllShips = new Array<Ship>();
 
-        public TestQuadTree()
+        public TestNativeQuadtree()
         {
             CreateGameInstance(800, 800, mockInput:false);
             LoadStarterShips();
@@ -37,7 +38,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void BasicInsert()
         {
-            IQuadtree tree = CreateQuadTree(100, new Quadtree(100_000f));
+            IQuadtree tree = CreateQuadTree(100, new NativeQuadtree(100_000f));
             Assert.AreEqual(AllShips.Count, tree.Count);
 
             foreach (Ship ship in AllShips)
@@ -68,14 +69,14 @@ namespace UnitTests.Universe
         [TestMethod]
         public void FindNearbySingle()
         {
-            IQuadtree tree = CreateQuadTree(1, new Quadtree(10_000f));
+            IQuadtree tree = CreateQuadTree(1, new NativeQuadtree(10_000f));
             CheckSingleFindNearBy(tree, AllShips.First);
         }
 
         [TestMethod]
         public void FindNearbyMulti()
         {
-            IQuadtree tree = CreateQuadTree(100, new Quadtree(10_000f));
+            IQuadtree tree = CreateQuadTree(100, new NativeQuadtree(10_000f));
             
             GameplayObject[] f1 = tree.FindNearby(Vector2.Zero, 1000, GameObjectType.Any, null, null);
             Assert.AreEqual(4, f1.Length, "FindNearby center 1000 must match 4");
@@ -90,7 +91,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void TreeUpdatePerformance()
         {
-            IQuadtree tree = CreateQuadTree(10_000, new Quadtree(1_000_000f));
+            IQuadtree tree = CreateQuadTree(10_000, new NativeQuadtree(1_000_000f));
             float e = 0f;
             for (int i = 0; i < 60; ++i)
             {
@@ -113,7 +114,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void TreeSearchPerformance()
         {
-            IQuadtree tree = CreateQuadTree(10_000, new Quadtree(500_000f));
+            IQuadtree tree = CreateQuadTree(10_000, new NativeQuadtree(500_000f));
             const float defaultSensorRange = 30000f;
 
             var t1 = new PerfTimer();
@@ -141,7 +142,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void ConcurrentUpdateAndSearch()
         {
-            IQuadtree tree = CreateQuadTree(10_000, new Quadtree(500_000f));
+            IQuadtree tree = CreateQuadTree(10_000, new NativeQuadtree(500_000f));
             var timer = new PerfTimer();
 
             // update
@@ -176,7 +177,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void TreeCollisionPerformance()
         {
-            IQuadtree tree = CreateQuadTree(10_000, new Quadtree(50_000f));
+            IQuadtree tree = CreateQuadTree(10_000, new NativeQuadtree(50_000f));
             const int iterations = 1000;
 
             var t1 = new PerfTimer();
