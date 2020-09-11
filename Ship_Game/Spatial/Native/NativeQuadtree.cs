@@ -17,6 +17,7 @@ namespace Ship_Game.Spatial.Native
             public int Levels;
             public float FullSize;
             public float QuadToLinearSearchThreshold;
+            public NativeQtreeNode* Root;
         }
 
         [DllImport("SDNative.dll")]
@@ -46,7 +47,6 @@ namespace Ship_Game.Spatial.Native
                                           int typeFilter, int objectToIgnoreId, int loyaltyFilter);
 
         NativeQtree* Tree;
-        NativeQtreeNode* Root;
         readonly Array<GameplayObject> Pending = new Array<GameplayObject>();
         readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
 
@@ -81,7 +81,7 @@ namespace Ship_Game.Spatial.Native
 
         public void Reset()
         {
-            Root = QtreeCreateRoot(Tree);
+            Tree->Root = QtreeCreateRoot(Tree);
         }
 
         static bool IsObjectDead(GameplayObject go)
@@ -122,7 +122,7 @@ namespace Ship_Game.Spatial.Native
                 int objectId = go.SpatialIndex;
                 Objects[objectId] = null;
                 go.SpatialIndex = -1;
-                QtreeRemoveAt(Tree, Root, objectId);
+                QtreeRemoveAt(Tree, Tree->Root, objectId);
             }
         }
 
@@ -190,7 +190,7 @@ namespace Ship_Game.Spatial.Native
                 QtreeInsert(Tree, newRoot, ref obj);
             }
 
-            Root = newRoot;
+            Tree->Root = newRoot;
         }
 
         bool OnCollision(int objectA, int objectB)
@@ -224,27 +224,13 @@ namespace Ship_Game.Spatial.Native
             QtreeCollideAllRecursive(Tree, timeStep.FixedTime, OnCollisionFunc);
         }
 
-        public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
-            GameObjectType filter, GameplayObject toIgnore, Empire loyaltyFilter)
+        static GameplayObject[] CopyOutput(Array<GameplayObject> objects, int* objectIds, int count)
         {
-            int ignoreId = -1;
-            if (toIgnore != null && toIgnore.SpatialIndex < 0)
-                ignoreId = toIgnore.SpatialIndex;
-
-            int loyaltyF = loyaltyFilter?.Id ?? 0;
-
-            int* objectIds = stackalloc int[1024];
-            int count = QtreeFindNearby(Tree, objectIds, 1024,
-                                        worldPos.X, worldPos.Y, radius,
-                                        (int)filter, ignoreId, loyaltyF);
-            if (count == 0)
-                return Empty<GameplayObject>.Array;
-
             var found = new GameplayObject[count];
             for (int i = 0; i < found.Length; ++i)
             {
                 int spatialIndex = objectIds[i];
-                GameplayObject go = Objects[spatialIndex];
+                GameplayObject go = objects[spatialIndex];
                 if (go.SpatialIndex == spatialIndex)
                 {
                     found[i] = go;
@@ -256,6 +242,24 @@ namespace Ship_Game.Spatial.Native
                 }
             }
             return found;
+        }
+
+        public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
+            GameObjectType filter, GameplayObject toIgnore, Empire loyaltyFilter)
+        {
+            int ignoreId = -1;
+            if (toIgnore != null && toIgnore.SpatialIndex < 0)
+                ignoreId = toIgnore.SpatialIndex;
+
+            int loyaltyF = loyaltyFilter?.Id ?? 0;
+
+            int* objectIds = stackalloc int[10000];
+            int count = QtreeFindNearby(Tree, objectIds, 10000,
+                                        worldPos.X, worldPos.Y, radius,
+                                        (int)filter, ignoreId, loyaltyF);
+            if (count != 0)
+                return CopyOutput(Objects, objectIds, count);
+            return Empty<GameplayObject>.Array;
         }
 
         class FindResultBuffer
@@ -405,7 +409,7 @@ namespace Ship_Game.Spatial.Native
             var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
             Vector2 topLeft = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
             Vector2 botRight = screen.UnprojectToWorldPosition(screenSize);
-            DebugVisualize(screen, topLeft, botRight, Root);
+            DebugVisualize(screen, topLeft, botRight, Tree->Root);
 
             Array.Clear(DebugDrawBuffer, 0, DebugDrawBuffer.Length); // prevent zombie objects
         }
