@@ -10,7 +10,7 @@ namespace Ship_Game
     public struct SpatialObj // sizeof: 36 bytes, neatly fits in one cache line
     {
         // NOTE: These are ordered by the order of access pattern
-        public byte PendingRemove;  // 1 if this item is pending removal
+        public byte Active;  // 1 if this item is active, 0 if DEAD and pending removal
         public byte Loyalty;        // if loyalty == 0, then this is a STATIC world object !!!
         public GameObjectType Type; // GameObjectType : byte
 
@@ -24,7 +24,7 @@ namespace Ship_Game
 
         public SpatialObj(GameplayObject go)
         {
-            PendingRemove = 0;
+            Active = 1;
             Loyalty = (byte)go.GetLoyaltyId();
             Type    = go.Type;
             Obj     = go;
@@ -55,17 +55,17 @@ namespace Ship_Game
 
         public SpatialObj(Vector2 center, float radius)
         {
-            PendingRemove = 0;
-            Loyalty       = 0;
-            Type          = GameObjectType.Any;
-            Obj           = null;
-            CX            = center.X;
-            CY            = center.Y;
-            Radius        = radius;
-            X             = CX - radius;
-            Y             = CY - radius;
-            LastX         = CX + radius;
-            LastY         = CY + radius;
+            Active  = 1;
+            Loyalty = 0;
+            Type    = GameObjectType.Any;
+            Obj     = null;
+            CX      = center.X;
+            CY      = center.Y;
+            Radius  = radius;
+            X       = CX - radius;
+            Y       = CY - radius;
+            LastX   = CX + radius;
+            LastY   = CY + radius;
         }
 
         public static bool HitTestBeam(Beam beam, ref SpatialObj target, out ShipModule hitModule, out float distanceToHit)

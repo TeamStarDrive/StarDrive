@@ -207,10 +207,10 @@ namespace tree
         int onlyLoyaltyMask = (opt.FilterIncludeOnlyByLoyalty == 0) ? 0xffffffff : opt.FilterIncludeOnlyByLoyalty;
         int filterMask      = (opt.FilterByType == 0)               ? 0xffffffff : opt.FilterByType;
         int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~opt.FilterExcludeObjectId;
-        int activeMask     = 0x01;
         float x = opt.OriginX;
         float y = opt.OriginY;
         float radius = opt.SearchRadius;
+        SearchFilterFunc filterFunc = opt.FilterFunction;
 
         int maxResults = opt.MaxResults;
         int numResults = 0;
@@ -224,12 +224,12 @@ namespace tree
             {
                 const SpatialObj& so = items[i];
 
-                if (!so.Active
-                    || !(so.Loyalty & exclLoyaltyMask)
-                    || !(so.Loyalty & onlyLoyaltyMask)
-                    || !(so.Type & filterMask)
-                    || !(so.ObjectId & objectMask))
-                    continue;
+                //if (!so.Active
+                //    || !(so.Loyalty & exclLoyaltyMask)
+                //    || !(so.Loyalty & onlyLoyaltyMask)
+                //    || !(so.Type & filterMask)
+                //    || !(so.ObjectId & objectMask))
+                //    continue;
 
                 //// either 0x00 (failed) or some bits 0100 (success)
                 //int activeFlags = (so.Active & activeMask);
@@ -241,16 +241,27 @@ namespace tree
                 //int filterFlags = activeFlags & exclLoyaltyFlags & onlyLoyaltyFlags & typeFlags & objectFlags;
                 //if (filterFlags == 0)
                 //    continue;
-
-                // check if inside radius, inlined for perf
-                float dx = x - so.CX;
-                float dy = y - so.CY;
-                float r2 = radius + so.Radius;
-                if ((dx*dx + dy*dy) <= (r2*r2))
+                
+                // FLAGS: either 0x00 (failed) or some bits 0100 (success)
+                if (so.Active
+                    && (so.Loyalty & exclLoyaltyMask)
+                    && (so.Loyalty & onlyLoyaltyMask)
+                    && (so.Type & filterMask)
+                    && (so.ObjectId & objectMask))
                 {
-                    outResults[numResults++] = so.ObjectId;
-                    if (numResults >= maxResults)
-                        return numResults;
+                    // check if inside radius, inlined for perf
+                    float dx = x - so.CX;
+                    float dy = y - so.CY;
+                    float r2 = radius + so.Radius;
+                    if ((dx*dx + dy*dy) <= (r2*r2))
+                    {
+                        if (!filterFunc || filterFunc(so.ObjectId) != 0)
+                        {
+                            outResults[numResults++] = so.ObjectId;
+                            if (numResults >= maxResults)
+                                return numResults; // we are done !
+                        }
+                    }
                 }
             }
 
