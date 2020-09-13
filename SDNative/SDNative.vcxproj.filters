@@ -148,6 +148,9 @@
     <ClCompile Include="quadtree\QtreeNode.cpp">
       <Filter>quadtree</Filter>
     </ClCompile>
+    <ClCompile Include="quadtree\QuadTreeCAPI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
@@ -280,9 +283,6 @@
       <Filter>quadtree</Filter>
     </ClInclude>
     <ClInclude Include="quadtree\QtreeAllocator.h">
-      <Filter>quadtree</Filter>
-    </ClInclude>
-    <ClInclude Include="quadtree\QuadTreeCAPI.cpp">
       <Filter>quadtree</Filter>
     </ClInclude>
   </ItemGroup>

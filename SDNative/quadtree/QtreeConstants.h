@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef TREE_API
+#define TREE_API __declspec(dllexport)
+#endif
+
 namespace tree
 {
     /// <summary>
@@ -16,5 +20,5 @@ namespace tree
     /// <summary>
     /// Size of a single quadtree linear allocator slab
     /// </summary>
-    constexpr int QuadLinearAllocatorSlabSize = 64 * 1024;
+    constexpr int QuadLinearAllocatorSlabSize = 128 * 1024;
 }

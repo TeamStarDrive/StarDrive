@@ -458,6 +458,7 @@
     <Compile Include="Ship_Game\Spatial\IQuadtree.cs" />
     <Compile Include="Ship_Game\Spatial\Native\NativeQtreeNode.cs" />
     <Compile Include="Ship_Game\Spatial\Native\NativeQuadtree.cs" />
+    <Compile Include="Ship_Game\Spatial\Native\NativeSearchOptions.cs" />
     <Compile Include="Ship_Game\Spatial\Native\NativeSpatialObj.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeNode.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeRecycleBuffer.cs" />
@@ -467,6 +468,7 @@
     <Compile Include="Ship_Game\Spatial\Quadtree.Debug.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.FindNearby.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.PerfTests.cs" />
+    <Compile Include="Ship_Game\Spatial\SearchOptions.cs" />
     <Compile Include="Ship_Game\Spatial\SpatialObj.cs" />
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
