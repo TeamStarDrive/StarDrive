@@ -36,13 +36,9 @@ DLLEXPORT void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep,
     tree->collideAll(timeStep, onCollide);
 }
 
-DLLEXPORT int __stdcall QtreeFindNearby(QuadTree* tree,
-                                        int* outResults, int maxResults,
-                                        float x, float y, float radius,
-                                        int typeFilter, int objectToIgnoreId,
-                                        int excludeLoyalty, int onlyLoyalty)
+DLLEXPORT int __stdcall QtreeFindNearby(QuadTree* tree, int* outResults,
+                                        const tree::SearchOptions& opt)
 {
-    return tree->findNearby(outResults, maxResults, x, y, radius,
-                            typeFilter, objectToIgnoreId, excludeLoyalty, onlyLoyalty);
+    return tree->findNearby(outResults, opt);
 }
 

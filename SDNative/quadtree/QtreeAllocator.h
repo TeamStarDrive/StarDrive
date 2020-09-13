@@ -1,7 +1,6 @@
 #pragma once
-#include <vector>
-#include <memory>
 #include <cstdint>
+#include <vector>
 
 namespace tree
 {
@@ -11,14 +10,9 @@ namespace tree
     class QtreeAllocator
     {
         // single-use linear slab of memory
-        struct Slab
-        {
-            uint32_t remaining;
-            uint8_t* ptr;
-            void reset();
-        };
-
-        std::vector<std::unique_ptr<Slab, void(*)(void*)>> Slabs;
+        // NOTE: Cannot use std::unique_ptr here due to dll-interface
+        struct Slab;
+        std::vector<Slab*> Slabs;
         Slab* CurrentSlab = nullptr;
         size_t CurrentSlabIndex = 0;
 
@@ -29,6 +23,11 @@ namespace tree
 
         explicit QtreeAllocator(int firstNodeId = 0);
         ~QtreeAllocator();
+
+        QtreeAllocator(QtreeAllocator&&) = delete;
+        QtreeAllocator(const QtreeAllocator&) = delete;
+        QtreeAllocator& operator=(QtreeAllocator&&) = delete;
+        QtreeAllocator& operator=(const QtreeAllocator&) = delete;
         
         /// <summary>
         /// Reset all linear pools

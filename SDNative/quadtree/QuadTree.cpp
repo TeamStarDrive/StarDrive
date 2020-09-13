@@ -7,6 +7,7 @@ namespace tree
     {
         Levels = 1;
         FullSize = smallestCell;
+        UniverseSize = universeSize;
         while (FullSize < universeSize)
         {
             ++Levels;
@@ -15,7 +16,11 @@ namespace tree
         QuadToLinearSearchThreshold = FullSize * QuadToLinearRatio;
     }
 
-    QuadTree::~QuadTree() = default;
+    QuadTree::~QuadTree()
+    {
+        delete FrontBuffer;
+        delete BackBuffer;
+    }
 
     QtreeNode* QuadTree::createRoot()
     {
@@ -27,6 +32,16 @@ namespace tree
         
         float half = FullSize / 2;
         return FrontBuffer->newNode(Levels, -half, -half, +half, +half);
+    }
+
+    void QuadTree::updateAll(const std::vector<SpatialObj>& objects)
+    {
+        QtreeNode* root = createRoot();
+        for (const SpatialObj& so : objects)
+        {
+            insert(root, so);
+        }
+        Root = root;
     }
 
     void QuadTree::subdivide(QtreeNode& node, int level)
@@ -166,13 +181,10 @@ namespace tree
     {
     }
 
-    int QuadTree::findNearby(int* outResults, int maxResults,
-                             float x, float y, float radius,
-                             int typeFilter, int objectToIgnoreId,
-                             int excludeLoyalty, int onlyLoyalty)
+    int QuadTree::findNearby(int* outResults, const SearchOptions& opt)
     {
         // we create a dummy object which covers our search radius
-        SpatialObj enclosingRect { x, y, radius };
+        SpatialObj enclosingRect { opt.OriginX, opt.OriginY, opt.SearchRadius };
 
         // find the deepest enclosing node
         QtreeNode* root = Root;
@@ -191,9 +203,16 @@ namespace tree
         NodeStack stack; stack.push(root);
 
         // NOTE: to avoid a few branches, we used pre-calculated masks, 0xff will pass any
-        uint8_t exclLoyaltyMask = (excludeLoyalty == 0) ? 0xff : ~excludeLoyalty;
-        uint8_t onlyLoyaltyMask = (onlyLoyalty == 0)    ? 0xff : onlyLoyalty;
-        uint8_t filterMask      = (typeFilter == 0)     ? 0xff : typeFilter;
+        int exclLoyaltyMask = (opt.FilterExcludeByLoyalty == 0)     ? 0xffffffff : ~opt.FilterExcludeByLoyalty;
+        int onlyLoyaltyMask = (opt.FilterIncludeOnlyByLoyalty == 0) ? 0xffffffff : opt.FilterIncludeOnlyByLoyalty;
+        int filterMask      = (opt.FilterByType == 0)               ? 0xffffffff : opt.FilterByType;
+        int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~opt.FilterExcludeObjectId;
+        int activeMask     = 0x01;
+        float x = opt.OriginX;
+        float y = opt.OriginY;
+        float radius = opt.SearchRadius;
+
+        int maxResults = opt.MaxResults;
         int numResults = 0;
         do
         {
@@ -205,19 +224,23 @@ namespace tree
             {
                 const SpatialObj& so = items[i];
 
-                // either 0x00 (failed) or some 0100 (success)
-                uint8_t typeFlags = (so.Type & filterMask);
-                uint8_t soLoyalty = so.Loyalty;
-                
-                // either 0x00 (failed) or some bits 0011 (success)
-                uint8_t exclLoyaltyFlags = (soLoyalty & exclLoyaltyMask);
-
-                // either 0x00 (failed) or some bits 0011 (success)
-                uint8_t onlyLoyaltyFlags = (soLoyalty & onlyLoyaltyMask);
-
-                if (typeFlags == 0 || exclLoyaltyFlags == 0 || onlyLoyaltyFlags == 0 ||
-                    so.PendingRemove != 0 || so.ObjectId == objectToIgnoreId)
+                if (!so.Active
+                    || !(so.Loyalty & exclLoyaltyMask)
+                    || !(so.Loyalty & onlyLoyaltyMask)
+                    || !(so.Type & filterMask)
+                    || !(so.ObjectId & objectMask))
                     continue;
+
+                //// either 0x00 (failed) or some bits 0100 (success)
+                //int activeFlags = (so.Active & activeMask);
+                //int soLoyalty   = so.Loyalty;
+                //int exclLoyaltyFlags = (soLoyalty & exclLoyaltyMask);
+                //int onlyLoyaltyFlags = (soLoyalty & onlyLoyaltyMask);
+                //int typeFlags        = (so.Type & filterMask);
+                //int objectFlags      = (so.ObjectId & objectMask);
+                //int filterFlags = activeFlags & exclLoyaltyFlags & onlyLoyaltyFlags & typeFlags & objectFlags;
+                //if (filterFlags == 0)
+                //    continue;
 
                 // check if inside radius, inlined for perf
                 float dx = x - so.CX;
@@ -253,7 +276,7 @@ namespace tree
 
     void QuadTree::markForRemoval(int objectId, SpatialObj& so)
     {
-        so.PendingRemove = 1;
+        so.Active = 0;
         so.ObjectId = -1;
     }
 
