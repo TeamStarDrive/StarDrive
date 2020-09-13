@@ -1,20 +1,41 @@
 #include "QtreeAllocator.h"
+
+#include <stdexcept>
+
 #include "QtreeNode.h"
 #include "QtreeConstants.h"
 
 namespace tree
 {
+    const int SlabAlign = 16;
+
+    struct QtreeAllocator::Slab
+    {
+        int remaining;
+        uint8_t* ptr;
+        void reset()
+        {
+            // everything after Slab member fields is free-to-use memory
+            remaining = QuadLinearAllocatorSlabSize - SlabAlign;
+            ptr = reinterpret_cast<uint8_t*>(this) + SlabAlign;
+        }
+    };
+
     QtreeAllocator::QtreeAllocator(int firstNodeId)
         : FirstNodeId{firstNodeId}, NextNodeId{firstNodeId}
     {
         nextSlab();
     }
 
-    QtreeAllocator::~QtreeAllocator() = default;
+    QtreeAllocator::~QtreeAllocator()
+    {
+        for (Slab* slab : Slabs)
+            _aligned_free(slab);
+    }
     
     void QtreeAllocator::reset()
     {
-        CurrentSlab = Slabs.front().get();
+        CurrentSlab = Slabs.front();
         CurrentSlab->reset();
         CurrentSlabIndex = 0;
         NextNodeId = FirstNodeId;
@@ -25,7 +46,7 @@ namespace tree
         auto* newArray = static_cast<SpatialObj*>( alloc(newCapacity*sizeof(SpatialObj)) );
         if (oldArray != nullptr)
         {
-            memcpy(newArray, oldArray, oldCount*sizeof(SpatialObj));
+            memmove(newArray, oldArray, oldCount*sizeof(SpatialObj));
         }
         return newArray;
     }
@@ -40,41 +61,42 @@ namespace tree
     void* QtreeAllocator::alloc(uint32_t numBytes)
     {
         Slab* slab = CurrentSlab;
-        if (slab->remaining < numBytes)
+        if (slab->remaining < (int)numBytes)
         {
             slab = nextSlab();
+            if (slab->remaining < (int)numBytes)
+            {
+                throw std::runtime_error{"QtreeAllocator::alloc() failed: numBytes is greater than slab size"};
+            }
         }
+
+        uint32_t alignedBytes = numBytes;
+        if (uint32_t rem = numBytes % SlabAlign)
+            alignedBytes += (SlabAlign - rem);
+
         void* ptr = slab->ptr;
-        slab->remaining -= numBytes;
-        slab->ptr       += numBytes;
+        slab->remaining -= alignedBytes;
+        slab->ptr       += alignedBytes;
         return ptr;
     }
 
     QtreeAllocator::Slab* QtreeAllocator::nextSlab()
     {
+        Slab* slab;
         size_t next_index = CurrentSlabIndex + 1;
         if (next_index < Slabs.size()) // reuse existing Slabs
         {
             CurrentSlabIndex = next_index;
-            Slab* slab = CurrentSlab = Slabs[next_index].get();
-            slab->reset();
-            return slab;
+            slab = Slabs[next_index];
         }
         else // make a new slab
         {
             CurrentSlabIndex = Slabs.size();
-            Slab* slab = CurrentSlab = static_cast<Slab*>( ::malloc(QuadLinearAllocatorSlabSize) );
-            slab->reset();
-            Slabs.emplace_back(slab, &::free);
-            return slab;
+            slab = static_cast<Slab*>( _aligned_malloc(QuadLinearAllocatorSlabSize, SlabAlign) );
+            Slabs.push_back(slab);
         }
+        slab->reset();
+        CurrentSlab = slab;
+        return slab;
     }
-
-    void QtreeAllocator::Slab::reset()
-    {
-        // everything after Slab member fields is free-to-use memory
-        remaining = QuadLinearAllocatorSlabSize - sizeof(Slab);
-        ptr = reinterpret_cast<uint8_t*>(this) + sizeof(Slab);
-    }
-
 }

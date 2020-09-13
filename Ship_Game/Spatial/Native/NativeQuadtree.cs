@@ -12,10 +12,12 @@ namespace Ship_Game.Spatial.Native
 
     public sealed unsafe class NativeQuadtree : IQuadtree, IDisposable
     {
+        [StructLayout(LayoutKind.Sequential)]
         struct NativeQtree
         {
             public int Levels;
             public float FullSize;
+            public float UniverseSize;
             public float QuadToLinearSearchThreshold;
             public NativeQtreeNode* Root;
         }
@@ -42,16 +44,13 @@ namespace Ship_Game.Spatial.Native
         static extern void QtreeCollideAllRecursive(NativeQtree* tree, float timeStep, IntPtr onCollide);
 
         [DllImport("SDNative.dll")]
-        static extern int QtreeFindNearby(NativeQtree* tree, int* outResults, int maxResults,
-                                          float x, float y, float radius,
-                                          int typeFilter, int objectToIgnoreId,
-                                          int excludeLoyalty, int onlyLoyalty);
+        static extern int QtreeFindNearby(NativeQtree* tree, int* outResults, ref NativeSearchOptions opt);
 
         NativeQtree* Tree;
         readonly Array<GameplayObject> Pending = new Array<GameplayObject>();
         readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
 
-        public float UniverseSize { get; }
+        public float UniverseSize => Tree->UniverseSize;
         public float FullSize => Tree->FullSize;
         public int Levels => Tree->Levels;
 
@@ -62,7 +61,6 @@ namespace Ship_Game.Spatial.Native
 
         public NativeQuadtree(float universeSize, float smallestCell = 512)
         {
-            UniverseSize = universeSize;
             Tree = QtreeCreate(universeSize, smallestCell);
             Reset();
         }
@@ -257,13 +255,20 @@ namespace Ship_Game.Spatial.Native
             if (toIgnore != null && toIgnore.SpatialIndex < 0)
                 ignoreId = toIgnore.SpatialIndex;
 
-            int exLoyalty = excludeLoyalty?.Id ?? 0;
-            int onLoyalty = onlyLoyalty?.Id ?? 0;
+            var nso = new NativeSearchOptions
+            {
+                OriginX = worldPos.X,
+                OriginY = worldPos.Y,
+                SearchRadius = radius,
+                MaxResults = maxResults,
+                FilterByType = (int)type,
+                FilterExcludeObjectId = ignoreId,
+                FilterExcludeByLoyalty = excludeLoyalty?.Id ?? 0,
+                FilterIncludeOnlyByLoyalty = onlyLoyalty?.Id ?? 0
+            };
 
             int* objectIds = stackalloc int[maxResults];
-            int count = QtreeFindNearby(Tree, objectIds, maxResults,
-                                        worldPos.X, worldPos.Y, radius,
-                                        (int)type, ignoreId, exLoyalty, onLoyalty);
+            int count = QtreeFindNearby(Tree, objectIds, ref nso);
             if (count != 0)
                 return CopyOutput(Objects.GetInternalArrayItems(), objectIds, count);
             return Empty<GameplayObject>.Array;
