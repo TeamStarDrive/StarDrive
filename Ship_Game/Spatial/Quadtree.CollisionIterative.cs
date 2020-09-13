@@ -24,25 +24,25 @@ namespace Ship_Game
                 for (int i = 0; i < node.Count; ++i)
                 {
                     ref SpatialObj so = ref node.Items[i];
-                    if (so.PendingRemove != 0)
-                        continue; // already collided inside this loop
-
-                    // each collision instigator type has a very specific recursive handler
-                    if (so.Type == GameObjectType.Beam)
+                    if (so.Active != 0) // 0: already collided in this loop ?
                     {
-                        var beam = (Beam) so.Obj;
-                        if (!beam.BeamCollidedThisFrame)
-                            CollideBeamAtNode(node, beam, ref so, BeamHitCache);
-                    }
-                    else if (so.Type == GameObjectType.Proj)
-                    {
-                        var projectile = (Projectile) so.Obj;
-                        if (CollideProjAtNode(simTimeStep, node, projectile, ref so) && projectile.DieNextFrame)
-                            MarkForRemoval(so.Obj, ref so);
-                    }
-                    else if (so.Type == GameObjectType.Ship)
-                    {
-                        CollideShipAtNodeIterative(simTimeStep, buffer, node, ref so);
+                        // each collision instigator type has a very specific recursive handler
+                        if (so.Type == GameObjectType.Beam)
+                        {
+                            var beam = (Beam)so.Obj;
+                            if (!beam.BeamCollidedThisFrame)
+                                CollideBeamAtNode(node, beam, ref so, BeamHitCache);
+                        }
+                        else if (so.Type == GameObjectType.Proj)
+                        {
+                            var projectile = (Projectile)so.Obj;
+                            if (CollideProjAtNode(simTimeStep, node, projectile, ref so) && projectile.DieNextFrame)
+                                MarkForRemoval(so.Obj, ref so);
+                        }
+                        else if (so.Type == GameObjectType.Ship)
+                        {
+                            CollideShipAtNodeIterative(simTimeStep, buffer, node, ref so);
+                        }
                     }
                 }
             }
@@ -83,7 +83,7 @@ namespace Ship_Game
                     //if (all_passed == 0)
                     //    continue;
 
-                    if (proj.PendingRemove != 0 ||
+                    if (proj.Active == 0 ||
                         proj.Loyalty == shipLoyalty ||
                         proj.Type != GameObjectType.Proj)
                         continue;

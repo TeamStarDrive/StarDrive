@@ -77,7 +77,7 @@ namespace tree
         float FullSize;
         float UniverseSize;
         float QuadToLinearSearchThreshold;
-        QtreeNode* Root;
+        QtreeNode* Root = nullptr;
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
         QtreeAllocator* FrontBuffer = new QtreeAllocator{10000};

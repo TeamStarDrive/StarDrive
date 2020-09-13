@@ -232,7 +232,7 @@ namespace Ship_Game
         {
             Objects[go.SpatialIndex] = null;
             go.SpatialIndex = -1;
-            obj.PendingRemove = 1;
+            obj.Active = 0; // it's dead, jim !
             obj.Obj = null; // don't leak refs
         }
 

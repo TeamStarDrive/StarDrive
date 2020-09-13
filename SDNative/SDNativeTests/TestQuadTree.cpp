@@ -45,7 +45,7 @@ TestImpl(QuadTree)
         createTestSpace(tree, 10'000, objects);
 
         const float defaultSensorRange = 30000;
-        const int iterations = 100;
+        const int iterations = 200;
         std::vector<int> results(1024, 0);
 
         rpp::Timer t;
@@ -57,7 +57,7 @@ TestImpl(QuadTree)
                 opt.OriginX = o.CX;
                 opt.OriginY = o.CY;
                 opt.SearchRadius = defaultSensorRange;
-                opt.MaxResults = 256;
+                opt.MaxResults = 1024;
                 opt.FilterExcludeObjectId = o.ObjectId;
                 opt.FilterExcludeByLoyalty = o.Loyalty;
                 int n = tree.findNearby(results.data(), opt);

@@ -14,7 +14,7 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj proj = ref node.Items[i]; // potential projectile ?
-                if (proj.PendingRemove == 0 &&           // not pending remove
+                if (proj.Active != 0 &&                  // still active
                     proj.Loyalty != ship.Loyalty &&      // friendlies don't collide
                     proj.Type == GameObjectType.Proj &&  // only collide with projectiles
                     proj.HitTestProj(simTimeStep, ref ship, out ShipModule hitModule))
@@ -46,9 +46,9 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (item.PendingRemove == 0 &&            // not pending remove
-                    item.Loyalty != proj.Loyalty &&       // friendlies don't collide, also ignores self
-                    item.Type == GameObjectType.Beam &&   // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
+                if (proj.Active != 0 &&                  // still active
+                    item.Loyalty != proj.Loyalty &&      // friendlies don't collide, also ignores self
+                    item.Type == GameObjectType.Beam &&  // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(simTimeStep, ref item, out ShipModule hitModule))
                 {
                     // module OR projectile
@@ -93,7 +93,7 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj item = ref node.Items[i];
-                if (item.PendingRemove == 0 &&        // not pending remove
+                if (item.Active != 0 &&               // still active
                     item.Loyalty != beam.Loyalty &&   // friendlies don't collide
                     item.Type == GameObjectType.Beam) // forbid beam-beam collision            
                 {
@@ -166,25 +166,25 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj so = ref node.Items[i];
-                if (so.PendingRemove != 0)
-                    continue; // already collided inside this loop
-
-                // each collision instigator type has a very specific recursive handler
-                if (so.Type == GameObjectType.Beam)
+                if (so.Active != 0) // 0: already collided inside this loop ?
                 {
-                    var beam = (Beam)so.Obj;
-                    if (!beam.BeamCollidedThisFrame)
-                        CollideBeamAtNode(node, beam, ref so, beamHitCache);
-                }
-                else if (so.Type == GameObjectType.Proj)
-                {
-                    var projectile = (Projectile)so.Obj;
-                    if (CollideProjAtNode(simTimeStep, node, projectile, ref so) && projectile.DieNextFrame)
-                        MarkForRemoval(so.Obj, ref so);
-                }
-                else if (so.Type == GameObjectType.Ship)
-                {
-                    CollideShipAtNodeRecursive(simTimeStep, node, ref so);
+                    // each collision instigator type has a very specific recursive handler
+                    if (so.Type == GameObjectType.Beam)
+                    {
+                        var beam = (Beam)so.Obj;
+                        if (!beam.BeamCollidedThisFrame)
+                            CollideBeamAtNode(node, beam, ref so, beamHitCache);
+                    }
+                    else if (so.Type == GameObjectType.Proj)
+                    {
+                        var projectile = (Projectile)so.Obj;
+                        if (CollideProjAtNode(simTimeStep, node, projectile, ref so) && projectile.DieNextFrame)
+                            MarkForRemoval(so.Obj, ref so);
+                    }
+                    else if (so.Type == GameObjectType.Ship)
+                    {
+                        CollideShipAtNodeRecursive(simTimeStep, node, ref so);
+                    }
                 }
             }
             if (node.NW != null) // depth first approach, to early filter LastCollided
