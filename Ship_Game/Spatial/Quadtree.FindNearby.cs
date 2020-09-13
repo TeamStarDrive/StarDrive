@@ -110,32 +110,26 @@ namespace Ship_Game
                 {
                     ref SpatialObj so = ref items[i];
 
-                    // either 0x00 (failed) or some 0100 (success)
-                    int typeFlags = ((int)so.Type & filterMask);
-
-                    int soLoyalty = so.Loyalty;
-
-                    // either 0x00 (failed) or some bits 0011 (success)
-                    int excludeLoyaltyFlags = (soLoyalty & excludeLoyaltyMask);
-
-                    // either 0x00 (failed) or some bits 0011 (success)
-                    int onlyLoyaltyFlags = (soLoyalty & onlyLoyaltyMask);
-
-
-                    if (typeFlags == 0 || excludeLoyaltyFlags == 0 || onlyLoyaltyFlags == 0 ||
-                        so.PendingRemove != 0 || so.Obj == sourceObject)
-                        continue;
-
-                    // check if inside radius, inlined for perf
-                    float dx = cx - so.CX;
-                    float dy = cy - so.CY;
-                    float r2 = r + so.Radius;
-                    if ((dx * dx + dy * dy) <= (r2 * r2))
+                    // FLAGS: either 0x00 (failed) or some bits 0100 (success)
+                    if (so.Active != 0
+                        && (so.Loyalty & excludeLoyaltyMask) != 0
+                        && (so.Loyalty & onlyLoyaltyMask) != 0
+                        && ((int)so.Type & filterMask) != 0
+                        && (so.Obj != sourceObject))
                     {
-                        buffer.Items[buffer.Count++] = so.Obj;
-                        if (buffer.Count >= maxResults)
-                            break; // we are done !
+                        
+                        // check if inside radius, inlined for perf
+                        float dx = cx - so.CX;
+                        float dy = cy - so.CY;
+                        float r2 = r + so.Radius;
+                        if ((dx * dx + dy * dy) <= (r2 * r2))
+                        {
+                            buffer.Items[buffer.Count++] = so.Obj;
+                            if (buffer.Count >= maxResults)
+                                break; // we are done !
+                        }
                     }
+
                 }
 
                 if (buffer.Count >= maxResults)
