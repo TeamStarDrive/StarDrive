@@ -826,20 +826,17 @@ namespace Ship_Game.Ships
             Parent.ShouldRecalculatePower |= ActualPowerFlowMax > 0 || PowerRadius > 0;
             Parent.UpdateExternalSlots(this, becameActive: false);
 
-            if (!cleanupOnly)
+            if (!cleanupOnly && source != null)
             {
                 if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
                 {
                     GameAudio.PlaySfxAsync("sd_explosion_module_small", Parent.SoundEmitter);
                 }
+
                 if (explodes)
                 {
-                    GameplayObject damageCauser = Parent.LastDamagedBy;
-                    if (damageCauser == null)
-                        Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
-                    else
-                        UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
-                            ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
+                    UniverseScreen.SpaceManager.ExplodeAtModule(source, this,
+                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }
             }
         }
