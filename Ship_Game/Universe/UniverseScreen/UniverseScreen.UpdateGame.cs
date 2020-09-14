@@ -464,7 +464,7 @@ namespace Ship_Game
                 for (int i = start; i < end; i++)
                 {
                     var ship = MasterShipList[i];
-                    ship.AI.UpdateCombatStateAI(timeStep);
+                    ship.AI.FireWeapons(timeStep);
                 }
             }, MaxTaskCores);
         }
