@@ -1,4 +1,4 @@
-#include <quadtree/QuadTree.h>
+﻿#include <quadtree/QuadTree.h>
 #include <rpp/timer.h>
 #include <rpp/tests.h>
 
@@ -38,7 +38,59 @@ TestImpl(QuadTree)
         tree.updateAll(objects);
     }
 
+    template<class Func>
+    static void measure_for_each_obj(const char* what, int iterations,
+                                const std::vector<tree::SpatialObj>& objects, Func&& func)
+    {
+        rpp::Timer t;
+        for (int x = 0; x < iterations; ++x)
+        {
+            for (const tree::SpatialObj& o : objects)
+            {
+                func(o);
+            }
+        }
+        double e = t.elapsed_ms();
+        int total_operations = objects.size() * iterations;
+        printf("QuadTree %s total: %.2fms  avg: %.2fus\n", what, e, (e / total_operations)*1000);
+    }
+
+    template<class VoidFunc>
+    static void measure_iterations(const char* what, int iterations, VoidFunc&& func)
+    {
+        rpp::Timer t;
+        for (int x = 0; x < iterations; ++x)
+        {
+            func();
+        }
+        double e = t.elapsed_ms();
+        printf("QuadTree %s total: %.2fms  avg: %.2fus\n", what, e, (e / iterations)*1000);
+    }
+
+
     TestCase(search_perf)
+    {
+        tree::QuadTree tree { 500'000, 512 };
+        std::vector<tree::SpatialObj> objects;
+        createTestSpace(tree, 10'000, objects);
+
+        const float defaultSensorRange = 30000;
+        std::vector<int> results(1024, 0);
+
+        measure_for_each_obj("findNearby", 200, objects, [&](const tree::SpatialObj& o)
+        {
+            tree::SearchOptions opt;
+            opt.OriginX = o.CX;
+            opt.OriginY = o.CY;
+            opt.SearchRadius = defaultSensorRange;
+            opt.MaxResults = 1024;
+            opt.FilterExcludeObjectId = o.ObjectId;
+            opt.FilterExcludeByLoyalty = o.Loyalty;
+            int n = tree.findNearby(results.data(), opt);
+        });
+    }
+
+    TestCase(collision_perf)
     {
         tree::QuadTree tree { 500'000, 512 };
         std::vector<tree::SpatialObj> objects;
@@ -48,22 +100,12 @@ TestImpl(QuadTree)
         const int iterations = 200;
         std::vector<int> results(1024, 0);
 
-        rpp::Timer t;
-        for (int x = 0; x < iterations; ++x)
+        measure_iterations("collideAll", 100, [&]()
         {
-            for (const tree::SpatialObj& o : objects)
+            tree.collideAll(1.0f/60.0f, [](int objectA, int objectB)->int
             {
-                tree::SearchOptions opt;
-                opt.OriginX = o.CX;
-                opt.OriginY = o.CY;
-                opt.SearchRadius = defaultSensorRange;
-                opt.MaxResults = 1024;
-                opt.FilterExcludeObjectId = o.ObjectId;
-                opt.FilterExcludeByLoyalty = o.Loyalty;
-                int n = tree.findNearby(results.data(), opt);
-            }
-        }
-        double e = t.elapsed_ms();
-        printf("QuadTree findNearby elapsed: %.2fms\n", e);
+                return 0;
+            });
+        });
     }
 };
