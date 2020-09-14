@@ -223,30 +223,10 @@ namespace tree
             for (int i = 0; i < count; ++i)
             {
                 const SpatialObj& so = items[i];
-
-                //if (!so.Active
-                //    || !(so.Loyalty & exclLoyaltyMask)
-                //    || !(so.Loyalty & onlyLoyaltyMask)
-                //    || !(so.Type & filterMask)
-                //    || !(so.ObjectId & objectMask))
-                //    continue;
-
-                //// either 0x00 (failed) or some bits 0100 (success)
-                //int activeFlags = (so.Active & activeMask);
-                //int soLoyalty   = so.Loyalty;
-                //int exclLoyaltyFlags = (soLoyalty & exclLoyaltyMask);
-                //int onlyLoyaltyFlags = (soLoyalty & onlyLoyaltyMask);
-                //int typeFlags        = (so.Type & filterMask);
-                //int objectFlags      = (so.ObjectId & objectMask);
-                //int filterFlags = activeFlags & exclLoyaltyFlags & onlyLoyaltyFlags & typeFlags & objectFlags;
-                //if (filterFlags == 0)
-                //    continue;
-                
-                // FLAGS: either 0x00 (failed) or some bits 0100 (success)
                 if (so.Active
                     && (so.Loyalty & exclLoyaltyMask)
                     && (so.Loyalty & onlyLoyaltyMask)
-                    && (so.Type & filterMask)
+                    && (so.Type     & filterMask)
                     && (so.ObjectId & objectMask))
                 {
                     // check if inside radius, inlined for perf

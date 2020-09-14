@@ -117,7 +117,6 @@ namespace Ship_Game
                         && ((int)so.Type & filterMask) != 0
                         && (so.Obj != sourceObject))
                     {
-                        
                         // check if inside radius, inlined for perf
                         float dx = cx - so.CX;
                         float dy = cy - so.CY;
