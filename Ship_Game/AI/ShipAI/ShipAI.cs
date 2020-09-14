@@ -301,7 +301,7 @@ namespace Ship_Game.AI
                     Owner.fleet.FinalDirection, true, State);
         }
 
-        public void UpdateCombatStateAI(FixedSimTime timeStep)
+        public void FireWeapons(FixedSimTime timeStep)
         {
             TriggerDelay -= timeStep.FixedTime;
             FireOnMainTargetTime -= timeStep.FixedTime;
@@ -310,6 +310,11 @@ namespace Ship_Game.AI
                 TriggerDelay = timeStep.FixedTime * 2;
                 FireOnTarget();
             }
+        }
+
+
+        void UpdateCombatStateAI(FixedSimTime timeStep)
+        {
             if (BadGuysNear && !IgnoreCombat && !HasPriorityOrder)
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
