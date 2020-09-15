@@ -132,11 +132,12 @@
     <ClInclude Include="3rdparty\stb\stb_dxt.h" />
     <ClInclude Include="NanoMesh\include\Nano\Mesh.h" />
     <ClInclude Include="NanoMesh\include\Nano\MeshLoader.h" />
+    <ClInclude Include="QtreeRect.h" />
     <ClInclude Include="quadtree\QtreeAllocator.h" />
     <ClInclude Include="quadtree\QtreeConstants.h" />
     <ClInclude Include="quadtree\QtreeNode.h" />
-    <ClInclude Include="quadtree\QuadTree.h" />
     <ClCompile Include="quadtree\QuadTreeCAPI.cpp" />
+    <ClInclude Include="quadtree\QtreeRect.h" />
     <ClInclude Include="quadtree\SpatialObj.h" />
     <ClInclude Include="ReCpp\rpp\collections.h" />
     <ClInclude Include="ReCpp\rpp\config.h" />

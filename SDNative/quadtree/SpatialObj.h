@@ -1,4 +1,5 @@
 #pragma once
+#include "QtreeRect.h"
 #include <cstdint>
 
 namespace tree
@@ -14,20 +15,21 @@ namespace tree
 
         float CX, CY; // Center x y
         float Radius; // radius for collision test
-        float X, Y, LastX, LastY; // bounding box of this spatial obj
+
+        QtreeRect Bounds; // AABB
 
         SpatialObj() = default;
 
         SpatialObj(uint8_t loyalty, uint8_t type, int objectId, 
-                   float cx, float cy, float r, float x1, float y1, float x2, float y2)
+                   float cx, float cy, float r, const QtreeRect& bounds)
             : Active{1}, Loyalty{loyalty}, Type{type}, Reserved{}, ObjectId{objectId}
-            , CX{cx}, CY{cy}, Radius{r}, X{x1}, Y{y1}, LastX{x2}, LastY{y2}
+            , CX{cx}, CY{cy}, Radius{r}, Bounds{bounds}
         {
         }
 
         SpatialObj(float cx, float cy, float r)
             : Active{1}, Loyalty{0}, Type{0}, Reserved{}, ObjectId{-1}
-            , CX{cx}, CY{cy}, Radius{r}, X{cx-r}, Y{cy-r}, LastX{cx+r}, LastY{cy+r}
+            , CX{cx}, CY{cy}, Radius{r}, Bounds{QtreeRect::fromPointRadius(cx, cy, r)}
         {
         }
     };

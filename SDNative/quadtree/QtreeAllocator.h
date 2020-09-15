@@ -16,12 +16,9 @@ namespace tree
         Slab* CurrentSlab = nullptr;
         size_t CurrentSlabIndex = 0;
 
-        int FirstNodeId = 0;
-        int NextNodeId = 0;
-
     public:
 
-        explicit QtreeAllocator(int firstNodeId = 0);
+        explicit QtreeAllocator();
         ~QtreeAllocator();
 
         QtreeAllocator(QtreeAllocator&&) = delete;
@@ -42,7 +39,7 @@ namespace tree
         /// <summary>
         /// Allocate and initialize a new QtreeNode
         /// </summary>
-        QtreeNode* newNode(int level, float x1, float y1, float x2, float y2);
+        QtreeNode* newNode();
 
     private:
 
