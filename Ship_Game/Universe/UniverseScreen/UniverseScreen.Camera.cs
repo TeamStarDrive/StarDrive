@@ -9,31 +9,27 @@ namespace Ship_Game
     {
         private Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
         {
-            Vector2 vector2_1 = new Vector2(
-                MousePosition.X - ScreenWidth /
-                2,
-                MousePosition.Y -
-                ScreenHeight / 2);
+            Vector2 vector2_1 = MousePosition - ScreenCenter;
             Vector3 position1 = Viewport.Unproject(
                 new Vector3(MousePosition.X, MousePosition.Y, 0.0f), Projection, this.View, Matrix.Identity);
             Vector3 direction1 =
                 Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f),
                     Projection, this.View, Matrix.Identity) - position1;
+
             direction1.Normalize();
             Ray ray = new Ray(position1, direction1);
             float num1 = -ray.Position.Z / ray.Direction.Z;
             Vector3 source = new Vector3(ray.Position.X + num1 * ray.Direction.X,
                 ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
+
             Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) *
                           Matrix.CreateRotationX(0.0f.ToRadians()) *
                           Matrix.CreateLookAt(new Vector3(CamPos.X, CamPos.Y, DesiredCamHeight),
                               new Vector3(CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
-            Vector3 vector3 =
-                Viewport.Project(source, Projection, view, Matrix.Identity);
-            Vector2 vector2_2 = new Vector2((int) vector3.X - vector2_1.X,
-                (int) vector3.Y - vector2_1.Y);
-            Vector3 position2 = Viewport.Unproject(
-                new Vector3(vector2_2.X, vector2_2.Y, 0.0f), Projection, view, Matrix.Identity);
+            
+            Vector3 vector3 = Viewport.Project(source, Projection, view, Matrix.Identity);
+            var vector2_2 = new Vector2((int) vector3.X - vector2_1.X, (int) vector3.Y - vector2_1.Y);
+            Vector3 position2 = Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 0.0f), Projection, view, Matrix.Identity);
             Vector3 direction2 =
                 Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 1f),
                     Projection, view, Matrix.Identity) - position2;
@@ -429,6 +425,20 @@ namespace Ship_Game
                 ViewToShip();
             }
             ViewingShip = !ViewingShip;
+        }
+
+        void ToggleCinematicMode()
+        {
+            if (!IsCinematicModeEnabled)
+            {
+                CinematicModeTextTimer = 3;
+                StarDriveGame.Instance.SetCinematicCursor();
+            }
+            else
+            {
+                StarDriveGame.Instance.SetGameCursor();
+            }
+            IsCinematicModeEnabled = !IsCinematicModeEnabled;
         }
     }
 }
