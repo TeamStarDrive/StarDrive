@@ -8,6 +8,9 @@
     <Filter Include="rpp">
       <UniqueIdentifier>{24a894f8-e70e-4705-b666-d327393c35ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{ba245533-b7af-4332-a3eb-8adbf14aaf09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tests_main.cpp">
@@ -37,6 +40,27 @@
     <ClCompile Include="..\ReCpp\rpp\timer.cpp">
       <Filter>rpp</Filter>
     </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_impl_dx11.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugGfxWindow.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_impl_win32.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ReCpp\rpp\collections.h">
@@ -65,6 +89,30 @@
     </ClInclude>
     <ClInclude Include="..\ReCpp\rpp\timer.h">
       <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imgui_impl_dx11.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugGfxWindow.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imgui_impl_win32.h">
+      <Filter>imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 #pragma once
 #include "QtreeConstants.h"
+#include "QtreeRect.h"
 #include "QtreeNode.h"
 #include "QtreeAllocator.h"
 #include <vector>
@@ -71,17 +72,27 @@ namespace tree
         SearchFilterFunc FilterFunction = nullptr;
     };
 
+    struct QtreeVisualizer
+    {
+        virtual void drawRect(float x1, float y1, float x2, float y2, const float color[4]) = 0;
+        virtual void drawCircle(float x, float y, float radius, const float color[4]) = 0;
+        virtual void drawLine(float x1, float y1, float x2, float y2, const float color[4]) = 0;
+        virtual void drawText(float x, float y, const char* text, const float color[4]) = 0;
+        virtual bool isVisible(float x1, float y1, float x2, float y2) const = 0;
+    };
+
     class TREE_API QuadTree
     {
         int Levels;
         float FullSize;
         float UniverseSize;
         float QuadToLinearSearchThreshold;
-        QtreeNode* Root = nullptr;
+
+        QtreeBoundedNode Root { nullptr, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
-        QtreeAllocator* FrontBuffer = new QtreeAllocator{10000};
-        QtreeAllocator* BackBuffer  = new QtreeAllocator{20000};
+        QtreeAllocator* FrontBuffer = new QtreeAllocator{};
+        QtreeAllocator* BackBuffer  = new QtreeAllocator{};
 
     public:
 
@@ -98,12 +109,15 @@ namespace tree
         float universeSize() const { return UniverseSize; }
 
 
-        QtreeNode* createRoot();
+        QtreeBoundedNode createRoot();
 
         void updateAll(const std::vector<SpatialObj>& objects);
 
-        void insertAt(QtreeNode* node, int level, const SpatialObj& so);
-        void insert(QtreeNode* root, const SpatialObj& so) { insertAt(root, Levels, so); }
+        void insertAt(const QtreeBoundedNode& node, int level, const SpatialObj& so);
+        void insert(const QtreeBoundedNode& root, const SpatialObj& so)
+        {
+            insertAt(root, Levels, so);
+        }
         void removeAt(QtreeNode* root, int objectId);
 
         void collideAll(float timeStep, CollisionFunc onCollide);
@@ -111,10 +125,11 @@ namespace tree
 
         int findNearby(int* outResults, const SearchOptions& opt);
 
+
+        void debugVisualize(QtreeVisualizer& visualizer) const;
+
     private:
         void markForRemoval(int objectId, SpatialObj& so);
-        void subdivide(QtreeNode& node, int level);
-        static QtreeNode* pickSubQuadrant(QtreeNode& node, const SpatialObj& so);
-        QtreeNode* findEnclosingNode(QtreeNode* node, const SpatialObj& so);
+        QtreeBoundedNode findEnclosingNode(const QtreeBoundedNode& node, const QtreeRect obj);
     };
 }

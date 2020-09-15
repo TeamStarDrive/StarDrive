@@ -270,9 +270,6 @@
     <ClInclude Include="SdMesh\SdAnimation.h">
       <Filter>src\SdMesh</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\QuadTree.h">
-      <Filter>quadtree</Filter>
-    </ClInclude>
     <ClInclude Include="quadtree\QtreeNode.h">
       <Filter>quadtree</Filter>
     </ClInclude>
@@ -283,6 +280,12 @@
       <Filter>quadtree</Filter>
     </ClInclude>
     <ClInclude Include="quadtree\QtreeAllocator.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="QtreeRect.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\QtreeRect.h">
       <Filter>quadtree</Filter>
     </ClInclude>
   </ItemGroup>

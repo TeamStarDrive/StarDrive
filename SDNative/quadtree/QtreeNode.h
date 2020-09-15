@@ -7,7 +7,6 @@ namespace tree
 
     struct QtreeNode
     {
-        float X1, Y1, X2, Y2;
         QtreeNode* NW = nullptr;
         QtreeNode* NE = nullptr;
         QtreeNode* SE = nullptr;
@@ -15,14 +14,8 @@ namespace tree
         int Count = 0;
         int Capacity = 0;
         SpatialObj* Items = nullptr;
-        int Id;
-        int Level;
-        int TotalTreeDepthCount = 0;
 
-        QtreeNode(int id, int level, float x1, float y1, float x2, float y2)
-            : X1{x1}, Y1{y1}, X2{x2}, Y2{y2}, Id{id}, Level{level}
-        {
-        }
+        QtreeNode() = default;
 
         QtreeNode(QtreeNode&&) = delete;
         QtreeNode(const QtreeNode&) = delete;
@@ -30,11 +23,48 @@ namespace tree
         QtreeNode& operator=(const QtreeNode&) = delete;
 
         void add(QtreeAllocator& allocator, const SpatialObj& obj);
+    };
 
-        bool overlaps(const SpatialObj& o) const
+    // Simple helper: Node pointer, with Center XY and Bounds AABB
+    // We don't store these in the tree itself, in order to save space and improve cache locality
+    struct QtreeBoundedNode
+    {
+        QtreeNode* node;
+        float cx, cy;
+        float left;
+        float top;
+        float right;
+        float bottom;
+
+        //QtreeBoundedNode(QtreeNode* node, const QtreeRect& r)
+        //    : node{node}, cx{r.centerX()}, cy{r.centerY()}, bounds{r}
+        //{
+        //}
+        
+        QtreeBoundedNode nw() const
         {
-            return X1 <= o.LastX && X2 > o.X
-                && Y1 <= o.LastY && Y2 > o.Y;
+            return QtreeBoundedNode{ node->NW, (left+cx)/2, (top+cy)/2, left, top, cx, cy };
+        }
+
+        QtreeBoundedNode ne() const
+        {
+            return QtreeBoundedNode{ node->NE, (cx+right)/2, (top+cy)/2, cx, top, right, cy };
+        }
+
+        QtreeBoundedNode se() const
+        {
+            return QtreeBoundedNode{ node->SE, (cx+right)/2, (cy+bottom)/2, cx, cy, right, bottom };
+        }
+        
+        QtreeBoundedNode sw() const
+        {
+            return QtreeBoundedNode{ node->SW, (left+cx)/2, (cy+bottom)/2, left, cy, cx, bottom };
+        }
+
+        bool overlaps(const QtreeRect& r) const
+        {
+            return left <= r.right  && right  > r.left
+                && top  <= r.bottom && bottom > r.top;
         }
     };
 }

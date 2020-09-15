@@ -12,6 +12,5 @@ namespace tree
             Items = allocator.allocArray(Items, Count, Capacity);
         }
         Items[Count++] = obj;
-        ++TotalTreeDepthCount;
     }
 }

@@ -83,7 +83,7 @@ namespace Ship_Game
                                   toIgnore, excludeLoyalty, onlyLoyalty);
             }
 
-            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(enclosing);
             if (buffer.Items.Length < maxResults)
             {
                 buffer.Items = new GameplayObject[maxResults];
