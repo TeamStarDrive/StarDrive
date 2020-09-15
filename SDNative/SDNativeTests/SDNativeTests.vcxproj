@@ -104,6 +104,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D3D11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -123,6 +124,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D3D11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -139,6 +141,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D3D11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -158,6 +161,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D3D11.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -166,6 +170,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\3rdparty\imgui\imgui.cpp" />
+    <ClCompile Include="..\3rdparty\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\3rdparty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\3rdparty\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\3rdparty\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\3rdparty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\ReCpp\rpp\debugging.cpp" />
     <ClCompile Include="..\ReCpp\rpp\file_io.cpp" />
     <ClCompile Include="..\ReCpp\rpp\sprint.cpp" />
@@ -173,10 +183,18 @@
     <ClCompile Include="..\ReCpp\rpp\tests.cpp" />
     <ClCompile Include="..\ReCpp\rpp\timer.cpp" />
     <ClCompile Include="..\ReCpp\rpp\vec.cpp" />
+    <ClCompile Include="DebugGfxWindow.cpp" />
     <ClCompile Include="TestQuadTree.cpp" />
     <ClCompile Include="tests_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\3rdparty\imgui\imconfig.h" />
+    <ClInclude Include="..\3rdparty\imgui\imgui.h" />
+    <ClInclude Include="..\3rdparty\imgui\imgui_impl_dx11.h" />
+    <ClInclude Include="..\3rdparty\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="..\3rdparty\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\3rdparty\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\3rdparty\imgui\imstb_truetype.h" />
     <ClInclude Include="..\ReCpp\rpp\collections.h" />
     <ClInclude Include="..\ReCpp\rpp\config.h" />
     <ClInclude Include="..\ReCpp\rpp\debugging.h" />
@@ -186,6 +204,7 @@
     <ClInclude Include="..\ReCpp\rpp\tests.h" />
     <ClInclude Include="..\ReCpp\rpp\timer.h" />
     <ClInclude Include="..\ReCpp\rpp\vec.h" />
+    <ClInclude Include="DebugGfxWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ReCpp\rpp\strview.natvis" />

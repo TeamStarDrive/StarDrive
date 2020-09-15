@@ -3,6 +3,7 @@
 #define DLLEXPORT extern "C" __declspec(dllexport)
 using tree::QuadTree;
 using tree::QtreeNode;
+using tree::QtreeBoundedNode;
 using tree::SpatialObj;
 
 DLLEXPORT QuadTree* __stdcall QtreeCreate(float universeSize, float smallestCell)
@@ -17,10 +18,10 @@ DLLEXPORT void __stdcall QtreeDestroy(QuadTree* tree)
 
 DLLEXPORT QtreeNode* __stdcall QtreeCreateRoot(QuadTree* tree)
 {
-    return tree->createRoot();
+    return tree->createRoot().node;
 }
 
-DLLEXPORT void __stdcall QtreeInsert(QuadTree* tree, QtreeNode* root, const SpatialObj& so)
+DLLEXPORT void __stdcall QtreeInsert(QuadTree* tree, QtreeBoundedNode root, const SpatialObj& so)
 {
     tree->insert(root, so);
 }

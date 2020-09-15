@@ -21,8 +21,7 @@ namespace tree
         }
     };
 
-    QtreeAllocator::QtreeAllocator(int firstNodeId)
-        : FirstNodeId{firstNodeId}, NextNodeId{firstNodeId}
+    QtreeAllocator::QtreeAllocator()
     {
         nextSlab();
     }
@@ -38,7 +37,6 @@ namespace tree
         CurrentSlab = Slabs.front();
         CurrentSlab->reset();
         CurrentSlabIndex = 0;
-        NextNodeId = FirstNodeId;
     }
 
     SpatialObj* QtreeAllocator::allocArray(SpatialObj* oldArray, int oldCount, int newCapacity)
@@ -51,11 +49,10 @@ namespace tree
         return newArray;
     }
 
-    QtreeNode* QtreeAllocator::newNode(int level, float x1, float y1, float x2, float y2)
+    QtreeNode* QtreeAllocator::newNode()
     {
         void* ptr = alloc(sizeof(QtreeNode));
-        int id = NextNodeId++;
-        return new (ptr) QtreeNode{id, level, x1, y1, x2, y2};
+        return new (ptr) QtreeNode{};
     }
 
     void* QtreeAllocator::alloc(uint32_t numBytes)
