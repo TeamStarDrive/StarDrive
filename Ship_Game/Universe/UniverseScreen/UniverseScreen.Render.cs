@@ -152,7 +152,7 @@ namespace Ship_Game
                 Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
 
-                if (viewState > UnivScreenState.ShipView)
+                if (viewState > UnivScreenState.ShipView && !IsCinematicModeEnabled)
                 {
                     var transparentDarkGray = new Color(50, 50, 50, 90);
                     DrawCircle(sysScreenPos, planetOrbitRadius, transparentDarkGray, 3f);

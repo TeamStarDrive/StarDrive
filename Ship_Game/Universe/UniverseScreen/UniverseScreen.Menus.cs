@@ -98,15 +98,10 @@ namespace Ship_Game
 
         public void InputOpenDeepSpaceBuildWindow()
         {
-            if (showingDSBW)
-            {
-                showingDSBW = false;
-            }
-            else
+            if (!DeepSpaceBuildWindow.Visible)
             {
                 GameAudio.AcceptClick();
-                dsbw = new DeepSpaceBuildingWindow(this);
-                showingDSBW = true;
+                DeepSpaceBuildWindow.InitializeAndShow();
             }
         }
     }
