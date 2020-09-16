@@ -14,9 +14,10 @@ namespace Ship_Game
     {
         bool HandleGUIClicks(InputState input)
         {
-            bool flag = dsbw != null && showingDSBW && dsbw.HandleInput(input);
-            if (aw.IsOpen && aw.HandleInput(input))
+            bool captured = DeepSpaceBuildWindow.HandleInput(input);
+            if (aw.HandleInput(input))
                 return true;
+
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
                 HandleScrolls(input);
@@ -29,15 +30,15 @@ namespace Ship_Game
                     snappingToShip = false;
                     ViewingShip = false;
                 }
-                flag = true;
+                captured = true;
             }
 
             // @note Make sure HandleInputs are called here
             if (!LookingAtPlanet)
             {
-                flag |= SelectedShip != null && ShipInfoUIElement.HandleInput(input);
-                flag |= SelectedPlanet != null && pInfoUI.HandleInput(input);
-                flag |= SelectedShipList != null && shipListInfoUI.HandleInput(input);
+                captured |= SelectedShip != null && ShipInfoUIElement.HandleInput(input);
+                captured |= SelectedPlanet != null && pInfoUI.HandleInput(input);
+                captured |= SelectedShipList != null && shipListInfoUI.HandleInput(input);
             }
 
             if (SelectedSystem == null)
@@ -46,17 +47,20 @@ namespace Ship_Game
             }
             else
             {
-                flag |= sInfoUI.HandleInput(input) && !LookingAtPlanet;
+                captured |= !LookingAtPlanet && sInfoUI.HandleInput(input);
             }
 
-            if (minimap.HandleInput(input, this)) return true;
-            if (NotificationManager.HandleInput(input)) return true;
+            if (minimap.HandleInput(input, this))
+                return true;
+
+            if (NotificationManager.HandleInput(input))
+                return true;
 
             // @todo Why are these needed??
-            flag |= ShipsInCombat.Rect.HitTest(input.CursorPosition);
-            flag |= PlanetsInCombat.Rect.HitTest(input.CursorPosition);
+            captured |= ShipsInCombat.Rect.HitTest(input.CursorPosition);
+            captured |= PlanetsInCombat.Rect.HitTest(input.CursorPosition);
 
-            return flag;
+            return captured;
         }
 
         void HandleInputNotLookingAtPlanet(InputState input)
@@ -264,6 +268,9 @@ namespace Ship_Game
             // fbedard: Set camera chase on ship
             if (input.ChaseCam)
                 ChaseCam();
+
+            if (input.CinematicMode)
+                ToggleCinematicMode();
 
             ShowTacticalCloseup = input.TacticalIcons;
 
