@@ -182,52 +182,62 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public static void Show(Empire them, string which, GameScreen parent)
         {
-            AddScreen(new DiplomacyScreen(them, Player, which, parent));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, Player, which, parent));
         }
 
         public static void Show(Empire them, Empire us, string which)
         {
-            AddScreen(new DiplomacyScreen(them, us, which, Empire.Universe));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, us, which, Empire.Universe));
         }
 
         public static void Show(Empire them, string which)
         {
-            AddScreen(new DiplomacyScreen(them, Player, which, Empire.Universe));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, Player, which, Empire.Universe));
         }
 
         public static void ShowEndOnly(Empire them, Empire us, string which)
         {
-            AddScreen(new DiplomacyScreen(them, us, which, null, endOnly:true));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, us, which, null, endOnly:true));
         }
 
         public static void ShowEndOnly(Empire them, Empire us, string which, Empire empireToDiscuss)
         {
-            AddScreen(new DiplomacyScreen(them, us, which, empireToDiscuss, endOnly:true));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, us, which, empireToDiscuss, endOnly:true));
         }
 
         public static void Show(Empire them, string which, Offer ourOffer, Offer theirOffer)
         {
-            AddScreen(new DiplomacyScreen(them, Player, which, ourOffer, theirOffer, null));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, Player, which, ourOffer, theirOffer, null));
         }
 
         public static void Show(Empire them, string which, Offer ourOffer, Offer theirOffer, Empire empireToDiscuss)
         {
-            AddScreen(new DiplomacyScreen(them, Player, which, ourOffer, theirOffer, empireToDiscuss));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, Player, which, ourOffer, theirOffer, empireToDiscuss));
         }
 
         public static void Show(Empire them, Empire us, string which, Planet planet)
         {
-            AddScreen(new DiplomacyScreen(them, us, which, planet));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, us, which, planet));
         }
 
         public static void Show(Empire them, Empire us, string which, SolarSystem s)
         {
-            AddScreen(new DiplomacyScreen(them, us, which, s));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, us, which, s));
         }
 
         public static void Show(Empire them, string which, SolarSystem s)
         {
-            AddScreen(new DiplomacyScreen(them, Player, which, s));
+            if (Empire.Universe.CanShowDiplomacyScreen)
+                AddScreen(new DiplomacyScreen(them, Player, which, s));
         }
 
         public static void Stole1stColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim");
@@ -263,6 +273,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
+            if (!Visible)
+                return;
+
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 4 / 5);
             batch.Begin();
 
@@ -485,6 +498,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override bool HandleInput(InputState input)
         {
+            if (!Visible || !Enabled)
+                return false;
+
             if (TrustRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(47);
             if (AngerRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(48);
             if (FearRect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(49);
@@ -711,8 +727,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             
             OurOffersList   = Add(new DiplomacyOffersComponent(Us, Them, usRect, ourBkg));
             TheirOffersList = Add(new DiplomacyOffersComponent(Them, Us, themRect, theirBkg));
-
-            PlayRaceVideoAndMusic();
         }
 
         string ParseTextDiplomacy(string text, float maxLineWidth)
@@ -1061,16 +1075,16 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             DState = DialogState.Them;
         }
 
-        void PlayRaceVideoAndMusic()
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            if (!Visible)
+                return;
+
             if (RacialVideo == null)
                 RacialVideo = new ScreenMediaPlayer(TransientContent);
             RacialVideo.PlayVideoAndMusic(Them, WarDeclared);
             RacialVideo.Rect = Portrait;
-        }
 
-        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
             RacialVideo.Update(this);
 
             if (Discuss != null) Discuss.ToggleOn = DState == DialogState.Discuss;
