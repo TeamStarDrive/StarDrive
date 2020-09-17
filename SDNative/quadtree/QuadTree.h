@@ -25,13 +25,13 @@ namespace tree
         /// <summary>
         /// The initial search origin X, Y coordinates
         /// </summary>
-        float OriginX = 0.0f;
-        float OriginY = 0.0f;
+        int OriginX = 0;
+        int OriginY = 0;
 
         /// <summary>
         /// Only objects that are within this radius are accepted
         /// </summary>
-        float SearchRadius = 100.0f;
+        int SearchRadius = 100;
 
         /// <summary>
         /// Maximum number of filtered final results until search is terminated
@@ -74,21 +74,20 @@ namespace tree
 
     struct QtreeVisualizer
     {
-        virtual void drawRect(float x1, float y1, float x2, float y2, const float color[4]) = 0;
-        virtual void drawCircle(float x, float y, float radius, const float color[4]) = 0;
-        virtual void drawLine(float x1, float y1, float x2, float y2, const float color[4]) = 0;
-        virtual void drawText(float x, float y, const char* text, const float color[4]) = 0;
-        virtual bool isVisible(float x1, float y1, float x2, float y2) const = 0;
+        virtual void drawRect  (int x1, int y1, int x2, int y2,  const float color[4]) = 0;
+        virtual void drawCircle(int x,  int y,  int radius,      const float color[4]) = 0;
+        virtual void drawLine  (int x1, int y1, int x2, int y2,  const float color[4]) = 0;
+        virtual void drawText  (int x,  int y, const char* text, const float color[4]) = 0;
+        virtual bool isVisible (int x1, int y1, int x2, int y2) const = 0;
     };
 
     class TREE_API QuadTree
     {
         int Levels;
-        float FullSize;
-        float UniverseSize;
-        float QuadToLinearSearchThreshold;
+        int FullSize;
+        int UniverseSize;
 
-        QtreeBoundedNode Root { nullptr, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+        QtreeBoundedNode Root { nullptr, 0, 0, 0, 0, 0, 0 };
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
         QtreeAllocator* FrontBuffer = new QtreeAllocator{};
@@ -96,7 +95,7 @@ namespace tree
 
     public:
 
-        explicit QuadTree(float universeSize, float smallestCell);
+        explicit QuadTree(int universeSize, int smallestCell);
         ~QuadTree();
         
         QuadTree(QuadTree&&) = delete;
@@ -105,8 +104,8 @@ namespace tree
         QuadTree& operator=(const QuadTree&) = delete;
 
         int levels() const { return Levels; }
-        float fullSize() const { return FullSize; }
-        float universeSize() const { return UniverseSize; }
+        int fullSize() const { return FullSize; }
+        int universeSize() const { return UniverseSize; }
 
 
         QtreeBoundedNode createRoot();

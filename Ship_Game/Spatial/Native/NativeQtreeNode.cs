@@ -15,10 +15,6 @@ namespace Ship_Game.Spatial.Native
         public int Count;
         public int Capacity;
         public NativeSpatialObj* Items;
-        public int Id;
-        public int Level;
-        public int TotalTreeDepthCount;
-
 
         public bool Overlaps(in Vector2 topLeft, in Vector2 botRight)
         {

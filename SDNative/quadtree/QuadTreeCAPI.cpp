@@ -6,7 +6,7 @@ using tree::QtreeNode;
 using tree::QtreeBoundedNode;
 using tree::SpatialObj;
 
-DLLEXPORT QuadTree* __stdcall QtreeCreate(float universeSize, float smallestCell)
+DLLEXPORT QuadTree* __stdcall QtreeCreate(int universeSize, int smallestCell)
 {
     return new QuadTree(universeSize, smallestCell);
 }

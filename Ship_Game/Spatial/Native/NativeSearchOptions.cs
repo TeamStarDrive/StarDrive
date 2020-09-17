@@ -6,9 +6,9 @@ namespace Ship_Game.Spatial.Native
     [StructLayout(LayoutKind.Sequential)]
     struct NativeSearchOptions
     {
-        public float OriginX;
-        public float OriginY;
-        public float SearchRadius;
+        public int OriginX;
+        public int OriginY;
+        public int SearchRadius;
         public int MaxResults;
         public int FilterByType;
         public int FilterExcludeObjectId;
