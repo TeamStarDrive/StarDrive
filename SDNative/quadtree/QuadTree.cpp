@@ -3,7 +3,7 @@
 
 namespace tree
 {
-    QuadTree::QuadTree(float universeSize, float smallestCell)
+    QuadTree::QuadTree(int universeSize, int smallestCell)
     {
         Levels = 1;
         FullSize = smallestCell;
@@ -13,7 +13,7 @@ namespace tree
             ++Levels;
             FullSize *= 2;
         }
-        QuadToLinearSearchThreshold = FullSize * QuadToLinearRatio;
+        Root = createRoot();
     }
 
     QuadTree::~QuadTree()
@@ -30,8 +30,8 @@ namespace tree
         std::swap(FrontBuffer, BackBuffer);
         FrontBuffer->reset();
         
-        float half = FullSize / 2;
-        return QtreeBoundedNode{FrontBuffer->newNode(), 0.0f, 0.0f, -half, -half, +half, +half };
+        int half = FullSize / 2;
+        return QtreeBoundedNode{FrontBuffer->newNode(), 0, 0, -half, -half, +half, +half };
     }
 
     void QuadTree::updateAll(const std::vector<SpatialObj>& objects)
@@ -234,9 +234,9 @@ namespace tree
         int onlyLoyaltyMask = (opt.FilterIncludeOnlyByLoyalty == 0) ? 0xffffffff : opt.FilterIncludeOnlyByLoyalty;
         int filterMask      = (opt.FilterByType == 0)               ? 0xffffffff : opt.FilterByType;
         int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~opt.FilterExcludeObjectId;
-        float x = opt.OriginX;
-        float y = opt.OriginY;
-        float radius = opt.SearchRadius;
+        int x = opt.OriginX;
+        int y = opt.OriginY;
+        int radius = opt.SearchRadius;
         SearchFilterFunc filterFunc = opt.FilterFunction;
 
         int maxResults = opt.MaxResults;
@@ -257,9 +257,9 @@ namespace tree
                     && (so.ObjectId & objectMask))
                 {
                     // check if inside radius, inlined for perf
-                    float dx = x - so.CX;
-                    float dy = y - so.CY;
-                    float r2 = radius + so.Radius;
+                    int dx = x - so.CX;
+                    int dy = y - so.CY;
+                    int r2 = radius + so.Radius;
                     if ((dx*dx + dy*dy) <= (r2*r2))
                     {
                         if (!filterFunc || filterFunc(so.ObjectId) != 0)

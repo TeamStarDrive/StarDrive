@@ -30,11 +30,11 @@ namespace tree
     struct QtreeBoundedNode
     {
         QtreeNode* node;
-        float cx, cy;
-        float left;
-        float top;
-        float right;
-        float bottom;
+        int cx, cy;
+        int left;
+        int top;
+        int right;
+        int bottom;
 
         //QtreeBoundedNode(QtreeNode* node, const QtreeRect& r)
         //    : node{node}, cx{r.centerX()}, cy{r.centerY()}, bounds{r}

@@ -13,21 +13,21 @@ namespace tree
 
         int ObjectId; // handle to the object
 
-        float CX, CY; // Center x y
-        float Radius; // radius for collision test
+        int CX, CY; // Center x y
+        int Radius; // radius for collision test
 
         QtreeRect Bounds; // AABB
 
         SpatialObj() = default;
 
         SpatialObj(uint8_t loyalty, uint8_t type, int objectId, 
-                   float cx, float cy, float r, const QtreeRect& bounds)
+                   int cx, int cy, int r, const QtreeRect& bounds)
             : Active{1}, Loyalty{loyalty}, Type{type}, Reserved{}, ObjectId{objectId}
             , CX{cx}, CY{cy}, Radius{r}, Bounds{bounds}
         {
         }
 
-        SpatialObj(float cx, float cy, float r)
+        SpatialObj(int cx, int cy, int r)
             : Active{1}, Loyalty{0}, Type{0}, Reserved{}, ObjectId{-1}
             , CX{cx}, CY{cy}, Radius{r}, Bounds{QtreeRect::fromPointRadius(cx, cy, r)}
         {

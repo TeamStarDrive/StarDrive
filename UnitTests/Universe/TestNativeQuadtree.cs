@@ -10,43 +10,43 @@ namespace UnitTests.Universe
         [TestMethod]
         public void BasicInsert()
         {
-            TestBasicInsert(new NativeQuadtree(100_000f));
+            TestBasicInsert(new NativeQuadtree(100_000));
         }
 
         [TestMethod]
         public void FindNearbySingle()
         {
-            TestFindNearbySingle(new NativeQuadtree(10_000f));
+            TestFindNearbySingle(new NativeQuadtree(10_000));
         }
 
         [TestMethod]
         public void FindNearbyMulti()
         {
-            TestFindNearbyMulti(new NativeQuadtree(10_000f));
+            TestFindNearbyMulti(new NativeQuadtree(10_000));
         }
 
         [TestMethod]
         public void TreeUpdatePerformance()
         {
-            TestTreeUpdatePerformance(new NativeQuadtree(1_000_000f));
+            TestTreeUpdatePerformance(new NativeQuadtree(1_000_000));
         }
 
         [TestMethod]
         public void TreeSearchPerformance()
         {
-            TestTreeSearchPerformance(new NativeQuadtree(500_000f));
+            TestTreeSearchPerformance(new NativeQuadtree(500_000));
         }
 
         [TestMethod]
         public void ConcurrentUpdateAndSearch()
         {
-            TestConcurrentUpdateAndSearch(new NativeQuadtree(500_000f));
+            TestConcurrentUpdateAndSearch(new NativeQuadtree(500_000));
         }
 
         [TestMethod]
         public void TreeCollisionPerformance()
         {
-            TestTreeCollisionPerformance(new NativeQuadtree(50_000f));
+            TestTreeCollisionPerformance(new NativeQuadtree(50_000));
         }
     }
 }
