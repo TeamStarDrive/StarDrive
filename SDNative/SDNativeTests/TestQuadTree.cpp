@@ -9,7 +9,7 @@ TestImpl(QuadTree)
     {
     }
 
-    static std::vector<tree::SpatialObj> createObjects(int numObjects, float universeSize)
+    static std::vector<tree::SpatialObj> createObjects(int numObjects, int universeSize)
     {
         std::vector<tree::SpatialObj> objects;
         float spacing = universeSize / std::sqrtf((float)numObjects);
@@ -80,8 +80,8 @@ TestImpl(QuadTree)
         ImVec2 window_center = { 400.0f, 400.0f };
         ImVec2 window_size = { 800.0f, 800.0f };
 
-        float getSize(float v) const { return v * camera_zoom; }
-        ImVec2 getPoint(float x, float y) const
+        float getSize(int v) const { return v * camera_zoom; }
+        ImVec2 getPoint(int x, int y) const
         {
             return ImVec2{window_center.x + (camera_world.x + x)*camera_zoom,
                           window_center.y + (camera_world.y + y)*camera_zoom};
@@ -96,27 +96,27 @@ TestImpl(QuadTree)
             ImVec4 c { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, color[3] / 255.0f };
             return ImGui::ColorConvertFloat4ToU32(c);
         }
-        void drawRect(float x1, float y1, float x2, float y2, const float color[4]) override
+        void drawRect(int x1, int y1, int x2, int y2, const float color[4]) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
             draw->AddRect(getPoint(x1, y1), getPoint(x2, y2), getColor(color));
         }
-        void drawCircle(float x, float y, float radius, const float color[4]) override
+        void drawCircle(int x, int y, int radius, const float color[4]) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
             draw->AddCircle(getPoint(x, y), getSize(radius), getColor(color));
         }
-        void drawLine(float x1, float y1, float x2, float y2, const float color[4]) override
+        void drawLine(int x1, int y1, int x2, int y2, const float color[4]) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
             draw->AddLine(getPoint(x1, y1), getPoint(x2, y2), getColor(color));
         }
-        void drawText(float x, float y, const char* text, const float color[4]) override
+        void drawText(int x, int y, const char* text, const float color[4]) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
             draw->AddText(getPoint(x, y), getColor(color), text);
         }
-        bool isVisible(float x1, float y1, float x2, float y2) const override
+        bool isVisible(int x1, int y1, int x2, int y2) const override
         {
             ImVec2 p1 = getPoint(x1, y1);
             ImVec2 p2 = getPoint(x2, y2);
@@ -171,8 +171,8 @@ TestImpl(QuadTree)
         visualizeTree([&](ImGuiQtreeVis& vis) { tree.debugVisualize(vis); });
     }
 
-    const float UNIVERSE_SIZE = 500'000;
-    const float SMALLEST_SIZE = 32;
+    const int UNIVERSE_SIZE = 500'000;
+    const int SMALLEST_SIZE = 32;
     const int NUM_OBJECTS = 10'000;
 
     TestCase(update_perf)

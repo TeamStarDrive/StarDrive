@@ -14,9 +14,9 @@ namespace Ship_Game.Spatial.Native
 
         public int ObjectId; // the object
 
-        public float CX, CY; // Center x y
-        public float Radius; // radius for collision test
-        public float X1, Y1, X2, Y2; // bounding box of this spatial obj
+        public int CX, CY; // Center x y
+        public int Radius; // radius for collision test
+        public int X1, Y1, X2, Y2; // bounding box of this spatial obj
 
         public NativeSpatialObj(GameplayObject go, int objectId)
         {
@@ -31,19 +31,19 @@ namespace Ship_Game.Spatial.Native
                 var beam = (Beam)go;
                 Vector2 source = beam.Source;
                 Vector2 target = beam.Destination;
-                X1 = Math.Min(source.X, target.X);
-                Y1 = Math.Min(source.Y, target.Y);
-                X2 = Math.Max(source.X, target.X);
-                Y2 = Math.Max(source.Y, target.Y);
-                CX = 0f;
-                CY = 0f;
-                Radius = 0f;
+                X1 = (int)Math.Min(source.X, target.X);
+                Y1 = (int)Math.Min(source.Y, target.Y);
+                X2 = (int)Math.Max(source.X, target.X);
+                Y2 = (int)Math.Max(source.Y, target.Y);
+                CX = 0;
+                CY = 0;
+                Radius = 0;
             }
             else
             {
-                CX = go.Center.X;
-                CY = go.Center.Y;
-                Radius = go.Radius;
+                CX = (int)go.Center.X;
+                CY = (int)go.Center.Y;
+                Radius = (int)go.Radius;
                 X1 = CX - Radius;
                 Y1 = CY - Radius;
                 X2 = CX + Radius;

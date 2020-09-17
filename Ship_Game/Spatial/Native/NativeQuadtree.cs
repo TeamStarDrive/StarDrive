@@ -16,14 +16,13 @@ namespace Ship_Game.Spatial.Native
         struct NativeQtree
         {
             public int Levels;
-            public float FullSize;
-            public float UniverseSize;
-            public float QuadToLinearSearchThreshold;
+            public int FullSize;
+            public int UniverseSize;
             public NativeQtreeNode* Root;
         }
 
         [DllImport("SDNative.dll")]
-        static extern NativeQtree* QtreeCreate(float universeSize, float smallestCell);
+        static extern NativeQtree* QtreeCreate(int universeSize, int smallestCell);
         
         [DllImport("SDNative.dll")]
         static extern void QtreeDestroy(NativeQtree* tree);
@@ -59,7 +58,7 @@ namespace Ship_Game.Spatial.Native
         /// </summary>
         public int Count => Pending.Count + Objects.Count;
 
-        public NativeQuadtree(float universeSize, float smallestCell = 512)
+        public NativeQuadtree(int universeSize, int smallestCell = 512)
         {
             Tree = QtreeCreate(universeSize, smallestCell);
             Reset();
@@ -257,9 +256,9 @@ namespace Ship_Game.Spatial.Native
 
             var nso = new NativeSearchOptions
             {
-                OriginX = worldPos.X,
-                OriginY = worldPos.Y,
-                SearchRadius = radius,
+                OriginX = (int)worldPos.X,
+                OriginY = (int)worldPos.Y,
+                SearchRadius = (int)radius,
                 MaxResults = maxResults,
                 FilterByType = (int)type,
                 FilterExcludeObjectId = ignoreId,
@@ -401,7 +400,7 @@ namespace Ship_Game.Spatial.Native
                 for (int i = 0; i < count; ++i)
                 {
                     ref NativeSpatialObj so = ref DebugDrawBuffer[i];
-                    var soCenter = new Vector2((so.X1 + so.X2) / 2, (so.Y1 + so.Y2) / 2);
+                    var soCenter = new Vector2((so.X1 + so.X2) * 0.5f, (so.Y1 + so.Y2) * 0.5f);
                     var soSize = new Vector2(so.X2 - so.X1, so.Y2 - so.Y1);
                     screen.DrawRectangleProjected(soCenter, soSize, 0f, Violet);
                     screen.DrawCircleProjected(soCenter, so.Radius, Violet);
