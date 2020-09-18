@@ -5,12 +5,10 @@ namespace tree
 {
     QuadTree::QuadTree(int universeSize, int smallestCell)
     {
-        Levels = 1;
         FullSize = smallestCell;
         UniverseSize = universeSize;
         while (FullSize < universeSize)
         {
-            ++Levels;
             FullSize *= 2;
         }
         Root = createRoot();
@@ -18,8 +16,8 @@ namespace tree
 
     QuadTree::~QuadTree()
     {
-        delete FrontBuffer;
-        delete BackBuffer;
+        delete FrontAlloc;
+        delete BackAlloc;
     }
 
     QtreeBoundedNode QuadTree::createRoot()
@@ -27,17 +25,17 @@ namespace tree
         // swap the front and back-buffer
         // the front buffer will be reset and reused
         // while the back buffer will be untouched until next time
-        std::swap(FrontBuffer, BackBuffer);
-        FrontBuffer->reset();
-        
+        std::swap(FrontAlloc, BackAlloc);
+        FrontAlloc->reset();
+
         int half = FullSize / 2;
-        return QtreeBoundedNode{FrontBuffer->newNode(), 0, 0, -half, -half, +half, +half };
+        return QtreeBoundedNode{FrontAlloc->allocArrayZeroed<QtreeNode>(4), {}, 0, 0, -half, -half, +half, +half };
     }
 
-    void QuadTree::updateAll(const std::vector<SpatialObj>& objects)
+    void QuadTree::updateAll(const std::vector<QtreeObject>& objects)
     {
         QtreeBoundedNode root = createRoot();
-        for (const SpatialObj& so : objects)
+        for (const QtreeObject& so : objects)
         {
             insert(root, so);
         }
@@ -46,25 +44,22 @@ namespace tree
 
     QtreeBoundedNode QuadTree::findEnclosingNode(const QtreeBoundedNode& node, const QtreeRect obj)
     {
-        int level = Levels;
         QtreeBoundedNode current = node;
         for (;;)
         {
-            if (current.node->NW != nullptr)
+            if (current.nodes != nullptr)
             {
                 if (obj.left < current.cx && obj.right < current.cx) // left
                 {
                     if (obj.top < current.cy && obj.bottom < current.cy) // top left
                     {
                         current = current.nw();
-                        if (--level > 1) // can we keep subdividing ?
-                            continue;
+                        continue;
                     }
                     if (obj.top >= current.cy) // bot left
                     {
                         current = current.sw();
-                        if (--level > 1) // can we keep subdividing ?
-                            continue;
+                        continue;
                     }
                 }
                 else if (obj.left >= current.cx) // right
@@ -72,14 +67,12 @@ namespace tree
                     if (obj.top < current.cy && obj.bottom < current.cy) // top right
                     {
                         current = current.ne();
-                        if (--level > 1) // can we keep subdividing ?
-                            continue;
+                        continue;
                     }
                     if (obj.top >= current.cy) // bot right
                     {
                         current = current.se();
-                        if (--level > 1) // can we keep subdividing ?
-                            continue;
+                        continue;
                     }
                 }
             }
@@ -89,50 +82,37 @@ namespace tree
         return current;
     }
 
-    void QuadTree::insertAt(const QtreeBoundedNode& node, int level, const SpatialObj& so)
+    void QuadTree::insertAt(QtreeBoundedNode node, const QtreeObject& o, QtreeRect target)
     {
-        QtreeBoundedNode current = node;
-        QtreeRect target = so.Bounds;
-
         for (;;)
         {
-            if (level <= 1) // no more subdivisions possible
-            {
-                current.node->add(*FrontBuffer, so);
-                return;
-            }
-
             // try to select a sub-quadrant, perhaps it's a better match
-            if (current.node->NW != nullptr)
+            if (node.nodes != nullptr)
             {
-                if (target.left < current.cx && target.right < current.cx) // left
+                if (target.left < node.cx && target.right < node.cx) // left
                 {
-                    if (target.top < current.cy && target.bottom < current.cy) // top left
+                    if (target.top < node.cy && target.bottom < node.cy) // top left
                     {
-                        current = current.nw();
-                        if (--level > 1) // can we keep subdividing ?
-                            continue;
+                        node = node.nw();
+                        continue;
                     }
-                    if (target.top >= current.cy) // bot left
+                    if (target.top >= node.cy) // bot left
                     {
-                        current = current.sw();
-                        if (--level > 1) // can we keep subdividing ?
-                            continue;
+                        node = node.sw();
+                        continue;
                     }
                 }
-                else if (target.left >= current.cx) // right
+                else if (target.left >= node.cx) // right
                 {
-                    if (target.top < current.cy && target.bottom < current.cy) // top right
+                    if (target.top < node.cy && target.bottom < node.cy) // top right
                     {
-                        current = current.ne();
-                        if (--level > 1) // can we keep subdividing ?
-                            continue;
+                        node = node.ne();
+                        continue;
                     }
-                    if (target.top >= current.cy) // bot right
+                    if (target.top >= node.cy) // bot right
                     {
-                        current = current.se();
-                        if (--level > 1) // can we keep subdividing ?
-                            continue;
+                        node = node.se();
+                        continue;
                     }
                 }
 
@@ -140,27 +120,22 @@ namespace tree
             }
 
             // item belongs to this node
-            current.node->add(*FrontBuffer, so);
+            node.objects.push_back(*FrontAlloc, o);
 
             // actually, are we maybe over Threshold and should Subdivide ?
-            if (current.node->NW == nullptr && current.node->Count >= QuadCellThreshold)
+            if (node.nodes == nullptr && node.objects.Count >= QuadCellThreshold)
             {
-                current.node->NW = FrontBuffer->newNode();
-                current.node->NE = FrontBuffer->newNode();
-                current.node->SE = FrontBuffer->newNode();
-                current.node->SW = FrontBuffer->newNode();
+                node.nodes = FrontAlloc->allocArrayZeroed<QtreeNode>(4);
 
-                int count = current.node->Count;
+                int count = node.objects.Count;
                 if (count != 0)
                 {
-                    SpatialObj* arr = current.node->Items;
-                    current.node->Count = 0;
-                    current.node->Capacity = 0;
-                    current.node->Items = nullptr;
+                    QtreeObject* items = node.objects.Items;
+                    node.objects.clear();
 
                     // and now reinsert all items one by one
                     for (int i = 0; i < count; ++i)
-                        insertAt(current, level, arr[i]);
+                        insertAt(node, items[i], target);
                 }
             }
             return;
@@ -182,23 +157,23 @@ namespace tree
         do
         {
             QtreeNode& node = *stack.pop();
-            int count = node.Count;
-            SpatialObj* items = node.Items;
+            int count = node.objects.Count;
+            QtreeObject* items = node.objects.Items;
             for (int i = 0; i < count; ++i)
             {
-                SpatialObj& so = items[i];
-                if (so.ObjectId == objectId)
+                QtreeObject& so = items[i];
+                if (so.objectId == objectId)
                 {
                     markForRemoval(objectId, so);
                     return;
                 }
             }
-            if (node.NW != nullptr)
+            if (node.nodes != nullptr)
             {
-                stack.push(node.SW);
-                stack.push(node.SE);
-                stack.push(node.NE);
-                stack.push(node.NW);
+                stack.push( &node.sw() );
+                stack.push( &node.se() );
+                stack.push( &node.ne() );
+                stack.push( &node.nw() );
             }
         } while (stack.next >= 0);
     }
@@ -245,26 +220,26 @@ namespace tree
         {
             QtreeBoundedNode current = stack.pop();
 
-            int count = current.node->Count;
-            const SpatialObj* items = current.node->Items;
+            int count = current.objects.Count;
+            const QtreeObject* items = current.objects.Items;
             for (int i = 0; i < count; ++i)
             {
-                const SpatialObj& so = items[i];
-                if (so.Active
-                    && (so.Loyalty & exclLoyaltyMask)
-                    && (so.Loyalty & onlyLoyaltyMask)
-                    && (so.Type     & filterMask)
-                    && (so.ObjectId & objectMask))
+                const QtreeObject& o = items[i];
+                if (o.Active
+                    && (o.Loyalty & exclLoyaltyMask)
+                    && (o.Loyalty & onlyLoyaltyMask)
+                    && (o.type     & filterMask)
+                    && (o.objectId & objectMask))
                 {
                     // check if inside radius, inlined for perf
-                    int dx = x - so.CX;
-                    int dy = y - so.CY;
-                    int r2 = radius + so.Radius;
+                    int dx = x - o.x;
+                    int dy = y - o.y;
+                    int r2 = radius + o.radius;
                     if ((dx*dx + dy*dy) <= (r2*r2))
                     {
-                        if (!filterFunc || filterFunc(so.ObjectId) != 0)
+                        if (!filterFunc || filterFunc(o.objectId) != 0)
                         {
-                            outResults[numResults++] = so.ObjectId;
+                            outResults[numResults++] = o.objectId;
                             if (numResults >= maxResults)
                                 return numResults; // we are done !
                         }
@@ -272,7 +247,7 @@ namespace tree
                 }
             }
 
-            if (current.node->NW != nullptr)
+            if (current.nodes != nullptr)
             {
                 QtreeBoundedNode sw = current.sw();
                 if (sw.overlaps(enclosingRect))
@@ -314,17 +289,19 @@ namespace tree
             //snprintf(text, sizeof(text), "{%d,%d}", (int)current.cx, (int)current.cy);
             //visualizer.drawText(current.cx, current.cy, text, Red);
 
-            int count = current.node->Count;
-            const SpatialObj* items = current.node->Items;
+            int count = current.objects.Count;
+            const QtreeObject* items = current.objects.Items;
             for (int i = 0; i < count; ++i)
             {
-                const SpatialObj& so = items[i];
-                visualizer.drawRect(so.Bounds.left, so.Bounds.top, so.Bounds.right, so.Bounds.bottom, Violet);
+                const QtreeObject& o = items[i];
+                QtreeRect bounds = o.bounds();
+
+                visualizer.drawRect(bounds.left, bounds.top, bounds.right, bounds.bottom, Violet);
                 //visualizer.drawCircle(so.CX, so.CY, so.Radius, Violet);
-                visualizer.drawLine(current.cx, current.cy, so.CX, so.CY, Violet);
+                visualizer.drawLine(current.cx, current.cy, o.x, o.y, Violet);
             }
 
-            if (current.node->NW != nullptr)
+            if (current.nodes != nullptr)
             {
                 QtreeBoundedNode sw = current.sw();
                 if (visualizer.isVisible(sw.left, sw.top, sw.right, sw.bottom))
@@ -346,10 +323,10 @@ namespace tree
         while (stack.next >= 0);
     }
 
-    void QuadTree::markForRemoval(int objectId, SpatialObj& so)
+    void QuadTree::markForRemoval(int objectId, QtreeObject& o)
     {
-        so.Active = 0;
-        so.ObjectId = -1;
+        o.Active = 0;
+        o.objectId = -1;
     }
 
 

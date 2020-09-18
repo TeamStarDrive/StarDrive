@@ -74,6 +74,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <DisableSpecificWarnings>4244;4275;4251</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -98,6 +99,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <DisableSpecificWarnings>4244;4275;4251</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -134,11 +136,12 @@
     <ClInclude Include="NanoMesh\include\Nano\MeshLoader.h" />
     <ClInclude Include="QtreeRect.h" />
     <ClInclude Include="quadtree\QtreeAllocator.h" />
+    <ClInclude Include="quadtree\QtreeArray.h" />
     <ClInclude Include="quadtree\QtreeConstants.h" />
     <ClInclude Include="quadtree\QtreeNode.h" />
     <ClCompile Include="quadtree\QuadTreeCAPI.cpp" />
     <ClInclude Include="quadtree\QtreeRect.h" />
-    <ClInclude Include="quadtree\SpatialObj.h" />
+    <ClInclude Include="quadtree\QtreeObject.h" />
     <ClInclude Include="ReCpp\rpp\collections.h" />
     <ClInclude Include="ReCpp\rpp\config.h" />
     <ClInclude Include="ReCpp\rpp\debugging.h" />
@@ -174,7 +177,6 @@
     <ClCompile Include="NanoMesh\src\Mesh_Obj.cpp" />
     <ClCompile Include="NanoMesh\src\Mesh_Txt.cpp" />
     <ClCompile Include="quadtree\QtreeAllocator.cpp" />
-    <ClCompile Include="quadtree\QtreeNode.cpp" />
     <ClCompile Include="quadtree\QuadTree.cpp" />
     <ClCompile Include="ReCpp\rpp\debugging.cpp" />
     <ClCompile Include="ReCpp\rpp\file_io.cpp" />

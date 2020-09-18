@@ -4,9 +4,6 @@
 
 namespace tree
 {
-    struct SpatialObj;
-    struct QtreeNode;
-
     class QtreeAllocator
     {
         // single-use linear slab of memory
@@ -32,14 +29,43 @@ namespace tree
         void reset();
 
         /// <summary>
-        /// Allocate a new array for spatial objects
+        /// Allocate a new array for spatial object status's
         /// </summary>
-        SpatialObj* allocArray(SpatialObj* oldArray, int oldCount, int newCapacity);
+        void* allocArray(void* oldArray, int oldCount, int newCapacity, int sizeOf);
+
+        template<class T>
+        T* allocArray(T* oldArray, int oldCount, int newCapacity)
+        {
+            return (T*)allocArray(oldArray, oldCount, newCapacity, sizeof(T));
+        }
 
         /// <summary>
-        /// Allocate and initialize a new QtreeNode
+        /// Allocate a generic object and call its default constructor
         /// </summary>
-        QtreeNode* newNode();
+        template<class T> T* alloc()
+        {
+            void* ptr = alloc(sizeof(T));
+            return new (ptr) T{};
+        }
+
+        /// <summary>
+        /// Uninitialized allocation of an object
+        /// </summary>
+        template<class T> T* allocUninitialized()
+        {
+            return (T*)alloc(sizeof(T));
+        }
+
+        /// <summary>
+        /// Allocates an array of elements are zeroes all fields
+        /// </summary>
+        template<class T> T* allocArrayZeroed(int n)
+        {
+            size_t bytes = sizeof(T) * n;
+            void* ptr = alloc(bytes);
+            memset(ptr, 0, bytes);
+            return (T*)ptr;
+        }
 
     private:
 
