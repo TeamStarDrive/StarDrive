@@ -39,20 +39,14 @@ namespace tree
         CurrentSlabIndex = 0;
     }
 
-    SpatialObj* QtreeAllocator::allocArray(SpatialObj* oldArray, int oldCount, int newCapacity)
+    void* QtreeAllocator::allocArray(void* oldArray, int oldCount, int newCapacity, int sizeOf)
     {
-        auto* newArray = static_cast<SpatialObj*>( alloc(newCapacity*sizeof(SpatialObj)) );
+        void* newArray = alloc(newCapacity*sizeOf);
         if (oldArray != nullptr)
         {
-            memmove(newArray, oldArray, oldCount*sizeof(SpatialObj));
+            memcpy(newArray, oldArray, oldCount*sizeOf);
         }
         return newArray;
-    }
-
-    QtreeNode* QtreeAllocator::newNode()
-    {
-        void* ptr = alloc(sizeof(QtreeNode));
-        return new (ptr) QtreeNode{};
     }
 
     void* QtreeAllocator::alloc(uint32_t numBytes)

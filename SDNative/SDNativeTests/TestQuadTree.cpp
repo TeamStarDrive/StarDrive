@@ -9,23 +9,23 @@ TestImpl(QuadTree)
     {
     }
 
-    static std::vector<tree::SpatialObj> createObjects(int numObjects, int universeSize)
+    static std::vector<tree::QtreeObject> createObjects(int numObjects, int universeSize)
     {
-        std::vector<tree::SpatialObj> objects;
-        float spacing = universeSize / std::sqrtf((float)numObjects);
+        std::vector<tree::QtreeObject> objects;
+        int spacing = universeSize / (int)std::sqrtf((float)numObjects);
 
         // universe is centered at [0,0], so Root node goes from [-half, +half)
-        float half = universeSize / 2;
-        float start = -half + spacing/2;
-        float x = start;
-        float y = start;
+        int half = universeSize / 2;
+        int start = -half + spacing/2;
+        int x = start;
+        int y = start;
 
         for (int i = 0; i < numObjects; ++i)
         {
-            tree::SpatialObj& o = objects.emplace_back(x, y, 64.0f);
+            tree::QtreeObject& o = objects.emplace_back(x, y, 64);
             o.Loyalty = (i % 2) == 0 ? 1 : 2;
-            o.Type = 1;
-            o.ObjectId = i;
+            o.type = tree::ObjectType_Ship;
+            o.objectId = i;
 
             x += spacing;
             if (x >= half)
@@ -37,21 +37,21 @@ TestImpl(QuadTree)
         return objects;
     }
 
-    static std::vector<tree::SpatialObj> createTestSpace(tree::QuadTree& tree, int numObjects)
+    static std::vector<tree::QtreeObject> createTestSpace(tree::QuadTree& tree, int numObjects)
     {
-        std::vector<tree::SpatialObj> objects = createObjects(numObjects, tree.universeSize());
+        std::vector<tree::QtreeObject> objects = createObjects(numObjects, tree.universeSize());
         tree.updateAll(objects);
         return objects;
     }
 
     template<class Func>
     static void measureEachObj(const char* what, int iterations,
-                               const std::vector<tree::SpatialObj>& objects, Func&& func)
+                               const std::vector<tree::QtreeObject>& objects, Func&& func)
     {
         rpp::Timer t;
         for (int x = 0; x < iterations; ++x)
         {
-            for (const tree::SpatialObj& o : objects)
+            for (const tree::QtreeObject& o : objects)
             {
                 func(o);
             }
@@ -70,7 +70,7 @@ TestImpl(QuadTree)
             func();
         }
         double e = t.elapsed_ms();
-        printf("QuadTree %s total: %.2fms  avg: %.2fus\n", what, e, (e / iterations)*1000);
+        printf("QuadTree %s total: %.2fms  avg: %.2fus\n", what, e, (e*1000)/iterations);
     }
 
     struct ImGuiQtreeVis : tree::QtreeVisualizer
@@ -174,11 +174,12 @@ TestImpl(QuadTree)
     const int UNIVERSE_SIZE = 500'000;
     const int SMALLEST_SIZE = 32;
     const int NUM_OBJECTS = 10'000;
+    const int DEFAULT_SENSOR_RANGE = 30000;
 
     TestCase(update_perf)
     {
         tree::QuadTree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
-        std::vector<tree::SpatialObj> objects = createTestSpace(tree, NUM_OBJECTS);
+        std::vector<tree::QtreeObject> objects = createTestSpace(tree, NUM_OBJECTS);
 
         measureIterations("Qtree.updateAll", 1000, [&]()
         {
@@ -189,21 +190,20 @@ TestImpl(QuadTree)
     TestCase(search_perf)
     {
         tree::QuadTree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
-        std::vector<tree::SpatialObj> objects = createTestSpace(tree, NUM_OBJECTS);
+        std::vector<tree::QtreeObject> objects = createTestSpace(tree, NUM_OBJECTS);
 
         //visualizeTree(tree);
 
-        const float defaultSensorRange = 30000;
         std::vector<int> results(1024, 0);
 
-        measureEachObj("findNearby", 200, objects, [&](const tree::SpatialObj& o)
+        measureEachObj("findNearby", 200, objects, [&](const tree::QtreeObject& o)
         {
             tree::SearchOptions opt;
-            opt.OriginX = o.CX;
-            opt.OriginY = o.CY;
-            opt.SearchRadius = defaultSensorRange;
+            opt.OriginX = o.x;
+            opt.OriginY = o.y;
+            opt.SearchRadius = DEFAULT_SENSOR_RANGE;
             opt.MaxResults = 1024;
-            opt.FilterExcludeObjectId = o.ObjectId;
+            opt.FilterExcludeObjectId = o.objectId;
             opt.FilterExcludeByLoyalty = o.Loyalty;
             int n = tree.findNearby(results.data(), opt);
         });
@@ -212,10 +212,8 @@ TestImpl(QuadTree)
     TestCase(collision_perf)
     {
         tree::QuadTree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
-        std::vector<tree::SpatialObj> objects = createTestSpace(tree, NUM_OBJECTS);
+        std::vector<tree::QtreeObject> objects = createTestSpace(tree, NUM_OBJECTS);
 
-        const float defaultSensorRange = 30000;
-        const int iterations = 200;
         std::vector<int> results(1024, 0);
 
         measureIterations("collideAll", 100, [&]()

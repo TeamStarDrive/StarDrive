@@ -4,7 +4,7 @@
 using tree::QuadTree;
 using tree::QtreeNode;
 using tree::QtreeBoundedNode;
-using tree::SpatialObj;
+using tree::QtreeObject;
 
 DLLEXPORT QuadTree* __stdcall QtreeCreate(int universeSize, int smallestCell)
 {
@@ -16,12 +16,7 @@ DLLEXPORT void __stdcall QtreeDestroy(QuadTree* tree)
     delete tree;
 }
 
-DLLEXPORT QtreeNode* __stdcall QtreeCreateRoot(QuadTree* tree)
-{
-    return tree->createRoot().node;
-}
-
-DLLEXPORT void __stdcall QtreeInsert(QuadTree* tree, QtreeBoundedNode root, const SpatialObj& so)
+DLLEXPORT void __stdcall QtreeInsert(QuadTree* tree, QtreeBoundedNode root, const QtreeObject& so)
 {
     tree->insert(root, so);
 }
