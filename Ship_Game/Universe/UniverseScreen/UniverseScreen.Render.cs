@@ -152,7 +152,7 @@ namespace Ship_Game
                 Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
 
-                if (viewState > UnivScreenState.ShipView)
+                if (viewState > UnivScreenState.ShipView && !IsCinematicModeEnabled)
                 {
                     var transparentDarkGray = new Color(50, 50, 50, 90);
                     DrawCircle(sysScreenPos, planetOrbitRadius, transparentDarkGray, 3f);
@@ -251,18 +251,18 @@ namespace Ship_Game
                     for (int x = 0; x < enemies.Count; x++)
                     {
                         var empire = enemies[x];
-                        if (!ssp.HasSeenEmpires.KnownBy(empire)) continue;
-
-                        var screenPos = ProjectToScreenPosition(ssp.Center);
-                        var flag = empire.data.Traits.FlagIndex;
-                        int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
-                        Rectangle rectangle2 = new Rectangle(xPos, (int) screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(empire.EmpireColor));
-                        spacing++;
+                        if (ssp.HasSeenEmpires.KnownBy(empire))
+                        {
+                            var screenPos = ProjectToScreenPosition(ssp.Center);
+                            var flag = empire.data.Traits.FlagIndex;
+                            int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
+                            Rectangle rectangle2 = new Rectangle(xPos, (int)screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
+                            batch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(empire.EmpireColor));
+                            spacing++;
+                        }
                     }
                 }
             }
-
         }
 
         void DrawSolarSystemSectorView(SolarSystem solarSystem)

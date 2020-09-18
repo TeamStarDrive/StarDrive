@@ -54,11 +54,36 @@ namespace Ship_Game
             Directory.CreateDirectory(appData + "/Saved Games/Headers");
             Directory.CreateDirectory(appData + "/Saved Games/Fog Maps");
 
-            var cursor = new Bitmap("Content/Cursors/Cursor.png", true);
-            System.Drawing.Graphics.FromImage(cursor);
-            Control.FromHandle(Window.Handle).Cursor = new Cursor(cursor.GetHicon());
-            IsMouseVisible = true;
             IsFixedTimeStep = true;
+        }
+
+        public void SetGameCursor()
+        {
+            FileInfo file = ResourceManager.GetModOrVanillaFile("Cursors/Cursor.png");
+            if (file != null)
+            {
+                var cursor = new Bitmap(file.FullName, true);
+                Form.Cursor = new Cursor(cursor.GetHicon());
+            }
+            else
+            {
+                Form.Cursor = Cursors.Default;
+            }
+            IsMouseVisible = true;
+        }
+
+        public void SetCinematicCursor()
+        {
+            FileInfo file = ResourceManager.GetModOrVanillaFile("Cursors/CinematicCursor.png");
+            if (file != null)
+            {
+                var cursor = new Bitmap(file.FullName, true);
+                Form.Cursor = new Cursor(cursor.GetHicon());
+            }
+            else
+            {
+                SetGameCursor();
+            }
         }
 
         public void SetSteamAchievement(string name)
@@ -94,6 +119,9 @@ namespace Ship_Game
         {
             if (IsLoaded)
                 return;
+            
+            ResourceManager.InitContentDir();
+            SetGameCursor();
 
             // Quite rare, but brutal case for all graphic resource reload
             if (GraphicsDeviceWasReset)

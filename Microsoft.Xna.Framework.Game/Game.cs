@@ -53,9 +53,9 @@ namespace Microsoft.Xna.Framework
             get => MouseVisible;
             set
             {
-                MouseVisible = value;
-                if (Window == null)
+                if (Window == null || MouseVisible == value)
                     return;
+                MouseVisible = value;
                 Window.IsMouseVisible = value;
             }
         }
@@ -71,7 +71,10 @@ namespace Microsoft.Xna.Framework
             }
         }
 
-        public float TotalRealTimeSeconds => (float)Time.TotalRealTime.TotalSeconds;
+        /// <summary>
+        /// Total elapsed Game time while the Game window has been active
+        /// </summary>
+        public float TotalGameTimeSeconds => (float)Time.TotalGameTime.TotalSeconds;
 
         public bool IsFixedTimeStep { get; set; } = true;
 
