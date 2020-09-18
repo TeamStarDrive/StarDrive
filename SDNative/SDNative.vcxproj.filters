@@ -145,9 +145,6 @@
     <ClCompile Include="quadtree\QtreeAllocator.cpp">
       <Filter>quadtree</Filter>
     </ClCompile>
-    <ClCompile Include="quadtree\QtreeNode.cpp">
-      <Filter>quadtree</Filter>
-    </ClCompile>
     <ClCompile Include="quadtree\QuadTreeCAPI.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -273,9 +270,6 @@
     <ClInclude Include="quadtree\QtreeNode.h">
       <Filter>quadtree</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\SpatialObj.h">
-      <Filter>quadtree</Filter>
-    </ClInclude>
     <ClInclude Include="quadtree\QtreeConstants.h">
       <Filter>quadtree</Filter>
     </ClInclude>
@@ -286,6 +280,12 @@
       <Filter>quadtree</Filter>
     </ClInclude>
     <ClInclude Include="quadtree\QtreeRect.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\QtreeObject.h">
+      <Filter>quadtree</Filter>
+    </ClInclude>
+    <ClInclude Include="quadtree\QtreeArray.h">
       <Filter>quadtree</Filter>
     </ClInclude>
   </ItemGroup>

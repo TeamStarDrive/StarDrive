@@ -83,15 +83,15 @@ namespace tree
 
     class TREE_API QuadTree
     {
-        int Levels;
         int FullSize;
         int UniverseSize;
 
         QtreeBoundedNode Root { nullptr, 0, 0, 0, 0, 0, 0 };
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
-        QtreeAllocator* FrontBuffer = new QtreeAllocator{};
-        QtreeAllocator* BackBuffer  = new QtreeAllocator{};
+        QtreeAllocator* FrontAlloc = new QtreeAllocator{};
+        QtreeAllocator* BackAlloc  = new QtreeAllocator{};
+
 
     public:
 
@@ -103,19 +103,18 @@ namespace tree
         QuadTree& operator=(QuadTree&&) = delete;
         QuadTree& operator=(const QuadTree&) = delete;
 
-        int levels() const { return Levels; }
         int fullSize() const { return FullSize; }
         int universeSize() const { return UniverseSize; }
 
-
         QtreeBoundedNode createRoot();
 
-        void updateAll(const std::vector<SpatialObj>& objects);
+        void updateAll(const std::vector<QtreeObject>& objects);
 
-        void insertAt(const QtreeBoundedNode& node, int level, const SpatialObj& so);
-        void insert(const QtreeBoundedNode& root, const SpatialObj& so)
+        void insertAt(QtreeBoundedNode node, const QtreeObject& o, QtreeRect target);
+
+        void insert(const QtreeBoundedNode& root, const QtreeObject& o)
         {
-            insertAt(root, Levels, so);
+            insertAt(root, o, o.bounds());
         }
         void removeAt(QtreeNode* root, int objectId);
 
@@ -124,11 +123,10 @@ namespace tree
 
         int findNearby(int* outResults, const SearchOptions& opt);
 
-
         void debugVisualize(QtreeVisualizer& visualizer) const;
 
     private:
-        void markForRemoval(int objectId, SpatialObj& so);
+        void markForRemoval(int objectId, QtreeObject& o);
         QtreeBoundedNode findEnclosingNode(const QtreeBoundedNode& node, const QtreeRect obj);
     };
 }

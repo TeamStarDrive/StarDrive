@@ -1,5 +1,7 @@
 #pragma once
-#include "SpatialObj.h"
+#include "QtreeConstants.h"
+#include "QtreeObject.h"
+#include "QtreeArray.h"
 
 namespace tree
 {
@@ -7,29 +9,22 @@ namespace tree
 
     struct QtreeNode
     {
-        QtreeNode* NW = nullptr;
-        QtreeNode* NE = nullptr;
-        QtreeNode* SE = nullptr;
-        QtreeNode* SW = nullptr;
-        int Count = 0;
-        int Capacity = 0;
-        SpatialObj* Items = nullptr;
+        QtreeNode* nodes;
+        QtreeArray<QtreeObject, QuadCellThreshold> objects;
 
-        QtreeNode() = default;
-
-        QtreeNode(QtreeNode&&) = delete;
-        QtreeNode(const QtreeNode&) = delete;
-        QtreeNode& operator=(QtreeNode&&) = delete;
-        QtreeNode& operator=(const QtreeNode&) = delete;
-
-        void add(QtreeAllocator& allocator, const SpatialObj& obj);
+        QtreeNode& nw() const { return *nodes; }
+        QtreeNode& ne() const { return *(nodes + 1); }
+        QtreeNode& se() const { return *(nodes + 2); }
+        QtreeNode& sw() const { return *(nodes + 3); }
     };
 
     // Simple helper: Node pointer, with Center XY and Bounds AABB
     // We don't store these in the tree itself, in order to save space and improve cache locality
     struct QtreeBoundedNode
     {
-        QtreeNode* node;
+        QtreeNode* nodes;
+        QtreeArray<QtreeObject, QuadCellThreshold> objects;
+
         int cx, cy;
         int left;
         int top;
@@ -43,22 +38,26 @@ namespace tree
         
         QtreeBoundedNode nw() const
         {
-            return QtreeBoundedNode{ node->NW, (left+cx)/2, (top+cy)/2, left, top, cx, cy };
+            QtreeNode& node = *nodes;
+            return QtreeBoundedNode{ node.nodes, node.objects, (left+cx)>>1, (top+cy)>>1, left, top, cx, cy };
         }
 
         QtreeBoundedNode ne() const
         {
-            return QtreeBoundedNode{ node->NE, (cx+right)/2, (top+cy)/2, cx, top, right, cy };
+            QtreeNode& node = *(nodes + 1);
+            return QtreeBoundedNode{ node.nodes, node.objects, (cx+right)>>1, (top+cy)>>1, cx, top, right, cy };
         }
 
         QtreeBoundedNode se() const
         {
-            return QtreeBoundedNode{ node->SE, (cx+right)/2, (cy+bottom)/2, cx, cy, right, bottom };
+            QtreeNode& node = *(nodes + 2);
+            return QtreeBoundedNode{ node.nodes, node.objects, (cx+right)>>1, (cy+bottom)>>1, cx, cy, right, bottom };
         }
         
         QtreeBoundedNode sw() const
         {
-            return QtreeBoundedNode{ node->SW, (left+cx)/2, (cy+bottom)/2, left, cy, cx, bottom };
+            QtreeNode& node = *(nodes + 3);
+            return QtreeBoundedNode{ node.nodes, node.objects, (left+cx)>>1, (cy+bottom)>>1, left, cy, cx, bottom };
         }
 
         bool overlaps(const QtreeRect& r) const
