@@ -137,18 +137,20 @@ namespace Ship_Game
                     planet.Station.Update(timeStep);
             }
 
-            bool radiation = ShouldApplyRadiationDamage(timeStep);
             if (Sun.RadiationDamage > 0f)
                 UpdateSolarRadiationDebug();
 
-            for (int i = 0; i < ShipList.Count; ++i)
+            bool radiation = ShouldApplyRadiationDamage(timeStep);
+            if (radiation)
             {
-                Ship ship = ShipList[i];
-                if (radiation && ship.Active)
+                for (int i = 0; i < ShipList.Count; ++i)
                 {
-                    ApplySolarRadiationDamage(ship);
+                    Ship ship = ShipList[i];
+                    if (ship.Active)
+                    {
+                        ApplySolarRadiationDamage(ship);
+                    }
                 }
-                ship.Update(timeStep);
             }
         }
 

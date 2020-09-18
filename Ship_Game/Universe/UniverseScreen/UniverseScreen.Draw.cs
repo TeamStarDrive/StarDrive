@@ -392,12 +392,10 @@ namespace Ship_Game
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
 
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
-                SaveStateMode.SaveState);
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,  SaveStateMode.SaveState);
             basicFogOfWarEffect.Begin();
             basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
-            batch.Draw(texture1,
-                new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
+            batch.Draw(texture1, new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
                     graphics.PresentationParameters.BackBufferHeight), Color.White);
             basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
             basicFogOfWarEffect.End();
@@ -429,44 +427,116 @@ namespace Ship_Game
             batch.End();
 
             batch.Begin();
-            DrawPlanetInfo();
-            if (LookingAtPlanet) workersPanel?.Draw(batch, elapsed);
-
+            
+            // these are all background elements, such as ship overlays, fleet icons, etc..
             DrawShipsInRange(batch);
             DrawPlanetProjectiles(batch);
-
             DrawTacticalPlanetIcons(batch);
-            if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
+            DrawFTLInhibitionNodes();
+            DrawShipRangeOverlay();
+            DrawFleetIcons();
+
+            // in cinematic mode we disable all of these GUI elements
+            bool showGeneralUI = !IsCinematicModeEnabled;
+            if (showGeneralUI)
             {
-                var inhibit = ResourceManager.Texture("UI/node_inhibit");
-                lock (GlobalStats.ClickableSystemsLock)
+                DrawPlanetInfo();
+                EmpireUI.Draw(batch);
+                if (LookingAtPlanet)
                 {
-                    foreach (ClickablePlanets cplanet in ClickPlanetList)
-                    {
-                        float radius = cplanet.planetToClick.GravityWellRadius;
-                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 50, 0, 150), 1f,
-                            inhibit, new Color(200, 0, 0, 50));
-                    }
+                    workersPanel?.Draw(batch, elapsed);
                 }
-                foreach (ClickableShip ship in ClickableShipsList)
+                else
                 {
-                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0f)
-                    {
-                        float radius = ship.shipToClick.InhibitionRadius;
-                        DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 1f,
-                            inhibit, new Color(200, 0, 0, 40));
-                    }
-                }
-                if (viewState >= UnivScreenState.SectorView)
-                {
-                    foreach (Empire.InfluenceNode influ in player.BorderNodes.AtomicCopy())
-                    {
-                        DrawCircleProjected(influ.Position, influ.Radius, new Color(30, 30, 150, 150), 1f, inhibit,
-                            new Color(0, 200, 0, 20));
-                    }
+                    DeepSpaceBuildWindow.Draw(batch, elapsed);
+                    pieMenu.Draw(batch, Fonts.Arial12Bold);
+                    DrawShipUI(batch, elapsed);
+                    NotificationManager.Draw(batch);
                 }
             }
 
+            batch.DrawRectangle(SelectionBox, Color.Green, 1f);
+
+            // This uses the new UIElementV2 system to automatically toggle visibility of items
+            // In general, a much saner way than the old cluster-f*ck of IF statements :)
+            PlanetsInCombat.Visible = ShipsInCombat.Visible = showGeneralUI;
+            aw.Visible = showGeneralUI && aw.IsOpen && !LookingAtPlanet;
+
+            minimap.Visible = showGeneralUI && (!LookingAtPlanet ||
+                              LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
+                              LookingAtPlanet && workersPanel is UnownedPlanetScreen);
+
+            DrawSelectedItems(batch, elapsed);
+
+            if (SelectedShip == null || LookingAtPlanet)
+                ShipInfoUIElement.ShipNameArea.HandlingInput = false;
+
+            DrawToolTip();
+
+            if (Debug)
+                DebugWin?.Draw(batch, elapsed);
+
+            DrawGeneralStatusText(batch, elapsed);
+
+            if (Debug) ShowDebugGameInfo();
+            else       HideDebugGameInfo();
+
+            base.Draw(batch, elapsed);  // UIElementV2 Draw
+
+            batch.End();
+
+            // Advance the simulation time just before we Notify
+            if (!Paused)
+            {
+                AdvanceSimulationTargetTime(elapsed.RealTime.Seconds);
+            }
+
+            // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
+            // the game logic can be updated
+            DrawCompletedEvt.Set();
+        }
+
+        void DrawTopCenterStatusText(SpriteBatch batch, in LocalizedText status, Color color, int lineOffset)
+        {
+            SpriteFont font = Fonts.Pirulen16;
+            string text = status.Text;
+            var pos = new Vector2(ScreenCenter.X - font.TextWidth(text) / 2f, 45f + (font.LineSpacing + 2)*lineOffset);
+            batch.DrawString(font, text, pos, color);
+        }
+
+        void DrawGeneralStatusText(SpriteBatch batch, DrawTimes elapsed)
+        {
+            if (Paused)
+            {
+                DrawTopCenterStatusText(batch, GameText.Paused, Color.White, 0);
+            }
+
+            if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
+            {
+                DrawTopCenterStatusText(batch, "Hyperspace Flux", Color.Yellow, 1);
+            }
+
+            if (IsActive && SavedGame.IsSaving)
+            {
+                DrawTopCenterStatusText(batch, "Saving...", CurrentFlashColor, 2);
+            }
+
+            if (IsActive && !GameSpeed.AlmostEqual(1)) //don't show "1.0x"
+            {
+                string speed = GameSpeed.ToString("0.0##") + "x";
+                var pos = new Vector2(ScreenWidth - Fonts.Pirulen16.TextWidth(speed) - 13f, 64f);
+                batch.DrawString(Fonts.Pirulen16, speed, pos, Color.White);
+            }
+
+            if (IsCinematicModeEnabled && CinematicModeTextTimer > 0f)
+            {
+                CinematicModeTextTimer -= elapsed.RealTime.Seconds;
+                DrawTopCenterStatusText(batch, "Cinematic Mode - Press F11 to exit", Color.White, 3);
+            }
+        }
+
+        void DrawShipRangeOverlay()
+        {
             if (showingRangeOverlay && !LookingAtPlanet)
             {
                 var shipRangeTex = ResourceManager.Texture("UI/node_shiprange");
@@ -497,109 +567,59 @@ namespace Ship_Game
                                 : new Color(200, 0, 0, 10);
                             byte edgeAlpha = 70;
                             DrawTextureProjected(shipRangeTex, ship.Position, ship.SensorRange, color);
-                            DrawCircleProjected(ship.Position, ship.SensorRange,  new Color(Color.Red, edgeAlpha));
+                            DrawCircleProjected(ship.Position, ship.SensorRange, new Color(Color.Red, edgeAlpha));
                         }
                     }
                 }
             }
+        }
 
-            if (showingDSBW && !LookingAtPlanet)
+        void DrawFTLInhibitionNodes()
+        {
+            if (showingFTLOverlay && GlobalStats.PlanetaryGravityWells && !LookingAtPlanet)
             {
-                var nodeTex = ResourceManager.Texture("UI/node1");
+                var inhibit = ResourceManager.Texture("UI/node_inhibit");
                 lock (GlobalStats.ClickableSystemsLock)
                 {
                     foreach (ClickablePlanets cplanet in ClickPlanetList)
                     {
-                        float radius = 2500f * cplanet.planetToClick.Scale;
-                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 150), 1f,
-                            nodeTex, new Color(0, 0, 255, 50));
+                        float radius = cplanet.planetToClick.GravityWellRadius;
+                        DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 50, 0, 150), 1f,
+                            inhibit, new Color(200, 0, 0, 50));
                     }
                 }
-                dsbw.Draw(batch, elapsed);
+
+                foreach (ClickableShip ship in ClickableShipsList)
+                {
+                    if (ship.shipToClick != null && ship.shipToClick.InhibitionRadius > 0f)
+                    {
+                        float radius = ship.shipToClick.InhibitionRadius;
+                        DrawCircleProjected(ship.shipToClick.Position, radius, new Color(255, 50, 0, 150), 1f,
+                            inhibit, new Color(200, 0, 0, 40));
+                    }
+                }
+
+                if (viewState >= UnivScreenState.SectorView)
+                {
+                    foreach (Empire.InfluenceNode influ in player.BorderNodes.AtomicCopy())
+                    {
+                        DrawCircleProjected(influ.Position, influ.Radius, new Color(30, 30, 150, 150), 1f, inhibit,
+                            new Color(0, 200, 0, 20));
+                    }
+                }
             }
-            DrawFleetIcons();
-
-            //fbedard: display values in new buttons
-            ShipsInCombat.Text = "Ships: " + player.empireShipCombat;
-            ShipsInCombat.Style = player.empireShipCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
-            ShipsInCombat.Draw(batch, elapsed);
-
-            PlanetsInCombat.Text = "Planets: " + player.empirePlanetCombat;
-            PlanetsInCombat.Style = player.empirePlanetCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
-            PlanetsInCombat.Draw(batch, elapsed);
-
-            if (!LookingAtPlanet)
-                pieMenu.Draw(batch, Fonts.Arial12Bold);
-
-            batch.DrawRectangle(SelectionBox, Color.Green, 1f);
-            EmpireUI.Draw(batch);
-            if (!LookingAtPlanet)
-                DrawShipUI(batch, elapsed);
-
-            minimap.Visible = !LookingAtPlanet || LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
-                              LookingAtPlanet && workersPanel is UnownedPlanetScreen;
-
-            DrawSelectedItems(batch, elapsed);
-
-            if (SelectedShip == null || LookingAtPlanet)
-                ShipInfoUIElement.ShipNameArea.HandlingInput = false;
-            DrawToolTip();
-            if (!LookingAtPlanet)
-                NotificationManager.Draw(batch);
-
-            if (Debug)
-                DebugWin?.Draw(batch, elapsed);
-
-            if (Paused)
-            {
-                var textPos = new Vector2(ScreenWidth / 2f - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f, 45f);
-                batch.DrawString(Fonts.Pirulen16, Localizer.Token(4005), textPos, Color.White);
-            }
-            if (RandomEventManager.ActiveEvent != null && RandomEventManager.ActiveEvent.InhibitWarp)
-            {
-                var textPos = new Vector2(ScreenWidth / 2f - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f,
-                                          45 + Fonts.Pirulen16.LineSpacing + 2);
-                batch.DrawString(Fonts.Pirulen16, "Hyperspace Flux", textPos, Color.Yellow);
-            }
-            if (IsActive && SavedGame.IsSaving)
-            {
-                var textPos = new Vector2(ScreenWidth / 2f - Fonts.Pirulen16.MeasureString(Localizer.Token(4005)).X / 2f,
-                                          45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
-                batch.DrawString(Fonts.Pirulen16, "Saving...", textPos, CurrentFlashColor);
-            }
-
-            if (IsActive && (GameSpeed != 1f)) //don't show "1.0x"
-            {
-                string speed = GameSpeed.ToString("0.0##") + "x";
-                var textPos = new Vector2(ScreenWidth - Fonts.Pirulen16.MeasureString(speed).X - 13f, 64f);
-                batch.DrawString(Fonts.Pirulen16, speed, textPos, Color.White);
-            }
-
-            RefreshPerfTimers(elapsed);
-            if (Debug) ShowDebugGameInfo();
-            else       HideDebugGameInfo();
-
-            aw.Visible = aw.IsOpen && !LookingAtPlanet;
-
-            base.Draw(batch, elapsed);  // UIElementV2 Draw
-
-            batch.End();
-
-            // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
-            // the game logic can be updated
-            DrawCompletedEvt.Set();
         }
 
-        bool ShowSystemInfo => SelectedSystem != null && !LookingAtPlanet
-                            && viewState == UnivScreenState.GalaxyView;
+        bool ShowSystemInfo => SelectedSystem != null && !LookingAtPlanet && !IsCinematicModeEnabled
+                                                      && viewState == UnivScreenState.GalaxyView;
 
-        bool ShowPlanetInfo => SelectedPlanet != null && !LookingAtPlanet;
+        bool ShowPlanetInfo => SelectedPlanet != null && !LookingAtPlanet && !IsCinematicModeEnabled;
 
-        bool ShowShipInfo => SelectedShip != null && !LookingAtPlanet;
+        bool ShowShipInfo => SelectedShip != null && !LookingAtPlanet && !IsCinematicModeEnabled;
 
-        bool ShowShipList => SelectedShipList.Count > 1 && SelectedFleet == null;
+        bool ShowShipList => SelectedShipList.Count > 1 && SelectedFleet == null && !IsCinematicModeEnabled;
 
-        bool ShowFleetInfo => SelectedFleet != null && !LookingAtPlanet;
+        bool ShowFleetInfo => SelectedFleet != null && !LookingAtPlanet && !IsCinematicModeEnabled;
 
         private void DrawSelectedItems(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -703,15 +723,22 @@ namespace Ship_Game
             DebugGamePerf.Show();
             DebugGamePerf.MultilineText = new Array<string>
             {
-                "Ship Count:  " ,
-                "Turns Per Second:  ",
-                "Ship&Sys Time:  " ,
-                "Empire Time:  " ,
-                "PreEmpire Time:  " ,
-                "Post Empire Time:  " ,
-                "Collision Time: " ,
-                "Action Q  Time:  ",
-                "---Total Time:  ",
+                "Time:             ",
+                "ShipCount:        ",
+                
+                "Turn.Systems:     ",
+                "Turn.Ships:       ",
+                "Turn.PreEmpire:   ",
+                "Turn.Empire:      ",
+                "Turn.PostEmpire:  ",
+                "Turn.Collision:   ",
+                "Turn.EmpireQue:   ",
+
+                " Sim.TurnTime:    ",
+                " Sim.TurnPerSec:  ",
+
+                "  UpdateSim.Time:  ",
+                "  UpdateSim.NTurns: "
             };
             
             DebugGamePerf.Align = TextAlign.Default;
@@ -720,38 +747,23 @@ namespace Ship_Game
             DebugGamePerfValues.Show();
             DebugGamePerfValues.MultilineText = new Array<string>
             {
+                $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime-CurrentSimTime)*1000:0.0}ms",
                 MasterShipList.Count.ToString(),
-                PerfTotalTurnTime.MeasuredSamples.ToString(),
-                PerfShipsAndSystems.String(PerfTotalTurnTime),
-                EmpireUpdatePerf.String(PerfTotalTurnTime),
-                PreEmpirePerf.String(PerfTotalTurnTime),
-                PostEmpirePerf.String(PerfTotalTurnTime),
-                CollisionTime.String(PerfTotalTurnTime),
-                EmpireUpdateQueue.Perf.String(PerfTotalTurnTime),
-                PerfTotalTurnTime.ToString(),
+
+                UpdateSysPerf.String(TurnTimePerf),
+                UpdateShipsPerf.String(TurnTimePerf),
+                PreEmpirePerf.String(TurnTimePerf),
+                EmpireUpdatePerf.String(TurnTimePerf),
+                PostEmpirePerf.String(TurnTimePerf),
+                CollisionTime.String(TurnTimePerf),
+                EmpireUpdateQueue.Perf.String(TurnTimePerf),
+
+                TurnTimePerf.ToString(),
+                $"actual:{ActualSimFPS}  target:{CurrentSimFPS}",
+
+                ProcessSimTurnsPerf.ToString(),
+                ProcessSimTurnsPerf.MeasuredSamples.ToString(),
             };
-        }
-
-        float StatsTimer;
-
-        void RefreshPerfTimers(DrawTimes elapsed)
-        {
-            if (Paused)
-                return;
-
-            StatsTimer += elapsed.RealTime.Seconds;
-            if (StatsTimer >= 1f)
-            {
-                StatsTimer -= 1f;
-                
-                PerfShipsAndSystems.Refresh();
-                EmpireUpdatePerf.Refresh();
-                PreEmpirePerf.Refresh();
-                PostEmpirePerf.Refresh();
-                CollisionTime.Refresh();
-                EmpireUpdateQueue.Perf.Refresh();
-                PerfTotalTurnTime.Refresh();
-            }
         }
 
         void DrawFleetIcons()
@@ -1031,7 +1043,8 @@ namespace Ship_Game
                     !ScreenRectangle.HitTest(ship.ScreenPosition))
                     continue;
 
-                DrawTacticalIcon(ship);
+                if (!IsCinematicModeEnabled)
+                    DrawTacticalIcon(ship);
                 DrawOverlay(ship);
 
                 if (SelectedShip != ship &&
@@ -1049,52 +1062,10 @@ namespace Ship_Game
 
             DrawProjectedGroup();
 
-            if (showingDSBW && !LookingAtPlanet)
-                lock (GlobalStats.ClickableItemLocker)
-                {
-                    var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
-                    for (int i = 0; i < ItemsToBuild.Count; ++i)
-                    {
-                        ClickableItemUnderConstruction item = ItemsToBuild[i];
-
-                        if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
-                        {
-                            ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2 posOnScreen, out float size);
-
-                            float scale = ScaleIconSize(size, 0.01f, 0.125f);
-                            DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
-                                       platform.Height * scale, new Color(0, 255, 0, 100));
-
-                            if (item.UID == "Subspace Projector")
-                            {
-                                DrawCircle(posOnScreen, EmpireManager.Player.GetProjectorRadius(), Color.Orange, 2f);
-                            }
-                            else if (buildTemplate.SensorRange > 0f)
-                            {
-                                DrawCircle(posOnScreen, buildTemplate.SensorRange, Color.Orange, 2f);
-                            }
-                        }
-                    }
-                }
-
-            // show the object placement/build circle
-            if (showingDSBW && dsbw.itemToBuild != null && dsbw.itemToBuild.IsSubspaceProjector &&
-                AdjustCamTimer <= 0f)
-            {
-                Vector2 center = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-                float screenRadius = ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
-                DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), Color.Orange, 2f); //
-            }
+            if (!LookingAtPlanet)
+                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
         }
-        private float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
-        {
-            float size = screenRadius * 2;
-            if (size < minSize && minSize != 0)
-                size = minSize;
-            else if (maxSize > 0f && size > maxSize)
-                size = maxSize;
-            return size + GlobalStats.IconSize;
-        }
+
         void DrawPlanetProjectiles(SpriteBatch batch)
         {
             foreach (SolarSystem sys in SolarSystemList)
@@ -1108,10 +1079,10 @@ namespace Ship_Game
                     Planet planet = planets[i];
                     using (planet.Projectiles.AcquireReadLock())
                     {
-                        for (int x = 0; x < planets[i].Projectiles.Count; x++)
+                        for (int x = 0; x < planet.Projectiles.Count; x++)
                         {
-                            Projectile p = planets[i].Projectiles[x];
-                            if (p?.Active ?? false) p.Draw(batch, this);
+                            Projectile p = planet.Projectiles[x];
+                            if (p?.Active == true) p.Draw(batch, this);
                         }
                     }
                 }
@@ -1344,7 +1315,7 @@ namespace Ship_Game
         {
             if (LookingAtPlanet || viewState > UnivScreenState.SectorView || viewState < UnivScreenState.ShipView)
                 return;
-            Vector2 mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+            Vector2 mousePos = Input.CursorPosition;
             SubTexture planetNamePointer = ResourceManager.Texture("UI/planetNamePointer");
             SubTexture icon_fighting_small = ResourceManager.Texture("UI/icon_fighting_small");
             SubTexture icon_spy_small = ResourceManager.Texture("UI/icon_spy_small");

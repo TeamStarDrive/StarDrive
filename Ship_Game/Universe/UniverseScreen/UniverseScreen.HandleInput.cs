@@ -14,9 +14,10 @@ namespace Ship_Game
     {
         bool HandleGUIClicks(InputState input)
         {
-            bool flag = dsbw != null && showingDSBW && dsbw.HandleInput(input);
-            if (aw.IsOpen && aw.HandleInput(input))
+            bool captured = DeepSpaceBuildWindow.HandleInput(input);
+            if (aw.HandleInput(input))
                 return true;
+
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
                 HandleScrolls(input);
@@ -29,15 +30,15 @@ namespace Ship_Game
                     snappingToShip = false;
                     ViewingShip = false;
                 }
-                flag = true;
+                captured = true;
             }
 
             // @note Make sure HandleInputs are called here
             if (!LookingAtPlanet)
             {
-                flag |= SelectedShip != null && ShipInfoUIElement.HandleInput(input);
-                flag |= SelectedPlanet != null && pInfoUI.HandleInput(input);
-                flag |= SelectedShipList != null && shipListInfoUI.HandleInput(input);
+                captured |= SelectedShip != null && ShipInfoUIElement.HandleInput(input);
+                captured |= SelectedPlanet != null && pInfoUI.HandleInput(input);
+                captured |= SelectedShipList != null && shipListInfoUI.HandleInput(input);
             }
 
             if (SelectedSystem == null)
@@ -46,17 +47,20 @@ namespace Ship_Game
             }
             else
             {
-                flag |= sInfoUI.HandleInput(input) && !LookingAtPlanet;
+                captured |= !LookingAtPlanet && sInfoUI.HandleInput(input);
             }
 
-            if (minimap.HandleInput(input, this)) return true;
-            if (NotificationManager.HandleInput(input)) return true;
+            if (minimap.HandleInput(input, this))
+                return true;
+
+            if (NotificationManager.HandleInput(input))
+                return true;
 
             // @todo Why are these needed??
-            flag |= ShipsInCombat.Rect.HitTest(input.CursorPosition);
-            flag |= PlanetsInCombat.Rect.HitTest(input.CursorPosition);
+            captured |= ShipsInCombat.Rect.HitTest(input.CursorPosition);
+            captured |= PlanetsInCombat.Rect.HitTest(input.CursorPosition);
 
-            return flag;
+            return captured;
         }
 
         void HandleInputNotLookingAtPlanet(InputState input)
@@ -264,6 +268,9 @@ namespace Ship_Game
             // fbedard: Set camera chase on ship
             if (input.ChaseCam)
                 ChaseCam();
+
+            if (input.CinematicMode)
+                ToggleCinematicMode();
 
             ShowTacticalCloseup = input.TacticalIcons;
 
@@ -817,32 +824,83 @@ namespace Ship_Game
             purgeType    = nonCombatShips != 0 && nonCombatShips != ships.Count && !isFleet;
 
             return ships.Count > 0;
-
         }
+
+        bool IsMouseHoveringOverPlanet;
+        bool IsMouseHoveringOverSystem;
 
         public void UpdateClickableItems()
         {
             lock (GlobalStats.ClickableItemLocker)
                 ItemsToBuild.Clear();
-            for (int index = 0; index < EmpireManager.Player.GetEmpireAI().Goals.Count; ++index)
+
+            EmpireAI playerAI = player.GetEmpireAI();
+            for (int index = 0; index < playerAI.Goals.Count; ++index)
             {
-                Goal goal = player.GetEmpireAI().Goals[index];
-                if (!goal.IsDeploymentGoal)
-                    continue;
-                const float radius = 100f;
-                Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), Projection, View, Matrix.Identity).ToVec2();
-                Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointFromAngle(90f, radius), 0.0f), Projection, View, Matrix.Identity);
-                float num = Vector2.Distance(new Vector2(buildOffSet.X, buildOffSet.Y), buildPos) + 10f;
-                var underConstruction = new ClickableItemUnderConstruction
+                Goal goal = playerAI.Goals[index];
+                if (goal.IsDeploymentGoal)
                 {
-                    Radius         = num,
-                    BuildPos       = goal.BuildPosition,
-                    ScreenPos      = buildPos,
-                    UID            = goal.ToBuildUID,
-                    AssociatedGoal = goal
-                };
-                lock (GlobalStats.ClickableItemLocker)
-                    ItemsToBuild.Add(underConstruction);
+                    const float radius = 100f;
+                    Vector2 buildPos    = ProjectToScreenPosition(goal.BuildPosition);
+                    Vector2 buildOffSet = ProjectToScreenPosition(goal.BuildPosition.PointFromAngle(90f, radius));
+                    float clickableRadius = buildOffSet.Distance(buildPos) + 10f;
+                    var underConstruction = new ClickableItemUnderConstruction
+                    {
+                        Radius = clickableRadius, BuildPos = goal.BuildPosition, ScreenPos = buildPos,
+                        UID = goal.ToBuildUID, AssociatedGoal = goal
+                    };
+
+                    lock (GlobalStats.ClickableItemLocker)
+                        ItemsToBuild.Add(underConstruction);
+                }
+            }
+
+            IsMouseHoveringOverPlanet = false;
+            lock (GlobalStats.ClickableSystemsLock)
+            {
+                for (int i = 0; i < ClickPlanetList.Count; ++i)
+                {
+                    ClickablePlanets planet = ClickPlanetList[i];
+                    if (Input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius))
+                    {
+                        IsMouseHoveringOverPlanet = true;
+                        TooltipTimer -= 0.01666667f;
+                        tippedPlanet = planet;
+                    }
+                }
+            }
+
+            IsMouseHoveringOverSystem = false;
+            if (viewState > UnivScreenState.SectorView)
+            {
+                lock (GlobalStats.ClickableSystemsLock)
+                {
+                    for (int i = 0; i < ClickableSystems.Count; ++i)
+                    {
+                        ClickableSystem system = ClickableSystems[i];
+                        if (Input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
+                        {
+                            sTooltipTimer -= 0.01666667f;
+                            tippedSystem = system;
+                            IsMouseHoveringOverSystem = true;
+                        }
+                    }
+                }
+                if (sTooltipTimer <= 0f)
+                    sTooltipTimer = 0.5f;
+            }
+
+            ShowingSysTooltip = IsMouseHoveringOverSystem;
+
+            if (TooltipTimer <= 0f && !LookingAtPlanet)
+            {
+                TooltipTimer = 0.5f;
+            }
+
+            if (!IsMouseHoveringOverPlanet)
+            {
+                ShowingPlanetToolTip = false;
+                TooltipTimer = 0.5f;
             }
         }
 
