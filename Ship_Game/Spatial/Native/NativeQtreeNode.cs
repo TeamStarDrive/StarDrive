@@ -1,25 +1,33 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Spatial.Native
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct NativeQtreeNode
     {
-        public float X, Y, LastX, LastY;
-        public NativeQtreeNode* NW;
-        public NativeQtreeNode* NE;
-        public NativeQtreeNode* SE;
-        public NativeQtreeNode* SW;
-        public int Count;
-        public int Capacity;
-        public NativeSpatialObj* Items;
+        public NativeQtreeNode* Nodes;
+        public int Size;
+        public NativeQtreeObject* Items;
+    }
 
-        public bool Overlaps(in Vector2 topLeft, in Vector2 botRight)
-        {
-            return X <= botRight.X && LastX > topLeft.X
-                && Y <= botRight.Y && LastY > topLeft.Y;
-        }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct NativeBoundedQtreeNode
+    {
+        public NativeQtreeNode* Node;
+        public int X, Y;
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct NativeQtreeRect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
     }
 }

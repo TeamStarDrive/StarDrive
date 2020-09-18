@@ -40,7 +40,8 @@ TestImpl(QuadTree)
     static std::vector<tree::QtreeObject> createTestSpace(tree::QuadTree& tree, int numObjects)
     {
         std::vector<tree::QtreeObject> objects = createObjects(numObjects, tree.universeSize());
-        tree.updateAll(objects);
+        tree.insert(objects);
+        tree.rebuild();
         return objects;
     }
 
@@ -80,49 +81,50 @@ TestImpl(QuadTree)
         ImVec2 window_center = { 400.0f, 400.0f };
         ImVec2 window_size = { 800.0f, 800.0f };
 
+        tree::QtreeRect camera_frustum { 0, 0, 0, 0 };
+
         float getSize(int v) const { return v * camera_zoom; }
-        ImVec2 getPoint(int x, int y) const
+        ImVec2 getPoint(int x, int y) const // get screen point from world point
         {
             return ImVec2{window_center.x + (camera_world.x + x)*camera_zoom,
                           window_center.y + (camera_world.y + y)*camera_zoom};
         }
-        void move_camera(ImVec2 delta)
+        void updateCameraFrustum()
+        {
+            camera_frustum.left = int( (0 - window_center.x)/camera_zoom - camera_world.x );
+            camera_frustum.top  = int( (0 - window_center.y)/camera_zoom - camera_world.y );
+            camera_frustum.right  = int( (window_size.x - window_center.x)/camera_zoom - camera_world.x );
+            camera_frustum.bottom = int( (window_size.y - window_center.y)/camera_zoom - camera_world.y );
+        }
+        void moveCamera(ImVec2 delta)
         {
             camera_world.x += delta.x / camera_zoom;
             camera_world.y += delta.y / camera_zoom;
         }
-        static ImU32 getColor(const float color[4])
+        static ImU32 getColor(tree::QtreeColor c)
         {
-            ImVec4 c { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, color[3] / 255.0f };
-            return ImGui::ColorConvertFloat4ToU32(c);
+            ImVec4 cv { c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f };
+            return ImGui::ColorConvertFloat4ToU32(cv);
         }
-        void drawRect(int x1, int y1, int x2, int y2, const float color[4]) override
+        void drawRect(int x1, int y1, int x2, int y2, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
-            draw->AddRect(getPoint(x1, y1), getPoint(x2, y2), getColor(color));
+            draw->AddRect(getPoint(x1, y1), getPoint(x2, y2), getColor(c));
         }
-        void drawCircle(int x, int y, int radius, const float color[4]) override
+        void drawCircle(int x, int y, int radius, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
-            draw->AddCircle(getPoint(x, y), getSize(radius), getColor(color));
+            draw->AddCircle(getPoint(x, y), getSize(radius), getColor(c));
         }
-        void drawLine(int x1, int y1, int x2, int y2, const float color[4]) override
+        void drawLine(int x1, int y1, int x2, int y2, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
-            draw->AddLine(getPoint(x1, y1), getPoint(x2, y2), getColor(color));
+            draw->AddLine(getPoint(x1, y1), getPoint(x2, y2), getColor(c));
         }
-        void drawText(int x, int y, const char* text, const float color[4]) override
+        void drawText(int x, int y, const char* text, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
-            draw->AddText(getPoint(x, y), getColor(color), text);
-        }
-        bool isVisible(int x1, int y1, int x2, int y2) const override
-        {
-            ImVec2 p1 = getPoint(x1, y1);
-            ImVec2 p2 = getPoint(x2, y2);
-            // does rectangle [p1, p2] overlap the screen?
-            return p1.x <= window_size.x && p2.x > 0.0f
-                && p1.y <= window_size.y && p2.y > 0.0f;
+            draw->AddText(getPoint(x, y), getColor(c), text);
         }
     };
 
@@ -149,7 +151,7 @@ TestImpl(QuadTree)
 
             if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
             {
-                vis.move_camera(ImGui::GetIO().MouseDelta);
+                vis.moveCamera(ImGui::GetIO().MouseDelta);
             }
 
             float wheel = ImGui::GetIO().MouseWheel;
@@ -158,6 +160,7 @@ TestImpl(QuadTree)
                 vis.camera_zoom = wheel < 0 ? vis.camera_zoom * 0.5f : vis.camera_zoom * 2.0f;
             }
 
+            vis.updateCameraFrustum();
             draw(vis);
             ImGui::Text("Qtree avg %.3f ms/frame (%.1f FPS)",
                         1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -168,7 +171,10 @@ TestImpl(QuadTree)
 
     static void visualizeTree(tree::QuadTree& tree)
     {
-        visualizeTree([&](ImGuiQtreeVis& vis) { tree.debugVisualize(vis); });
+        visualizeTree([&](ImGuiQtreeVis& vis)
+        {
+            tree.debugVisualize(vis.camera_frustum, vis);
+        });
     }
 
     const int UNIVERSE_SIZE = 500'000;
@@ -183,7 +189,7 @@ TestImpl(QuadTree)
 
         measureIterations("Qtree.updateAll", 1000, [&]()
         {
-            tree.updateAll(objects);
+            tree.rebuild();
         });
     }
 
@@ -192,7 +198,7 @@ TestImpl(QuadTree)
         tree::QuadTree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
         std::vector<tree::QtreeObject> objects = createTestSpace(tree, NUM_OBJECTS);
 
-        //visualizeTree(tree);
+        visualizeTree(tree);
 
         std::vector<int> results(1024, 0);
 

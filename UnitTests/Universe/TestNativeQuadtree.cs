@@ -24,6 +24,12 @@ namespace UnitTests.Universe
         {
             TestFindNearbyMulti(new NativeQuadtree(10_000));
         }
+        
+        [TestMethod]
+        public void FindNearbyTypeFilter()
+        {
+            TestFindNearbyTypeFilter(new NativeQuadtree(10_000));
+        }
 
         [TestMethod]
         public void TreeUpdatePerformance()

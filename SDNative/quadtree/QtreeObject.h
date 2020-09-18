@@ -10,10 +10,10 @@ namespace tree
         ObjectType_Any        = 0,
         ObjectType_Ship       = 1,
         ObjectType_ShipModule = 2,
-        ObjectType_Proj       = 3, // this is a projectile, NOT a beam
-        ObjectType_Beam       = 4, // this is a BEAM, not a projectile
-        ObjectType_Asteroid   = 5,
-        ObjectType_Moon       = 6,
+        ObjectType_Proj       = 4, // this is a projectile, NOT a beam
+        ObjectType_Beam       = 8, // this is a BEAM, not a projectile
+        ObjectType_Asteroid   = 16,
+        ObjectType_Moon       = 32,
     };
 
     struct QtreeObject
