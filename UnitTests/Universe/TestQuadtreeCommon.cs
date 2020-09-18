@@ -9,7 +9,7 @@ namespace UnitTests.Universe
 {
     public class TestQuadtreeCommon : StarDriveTest
     {
-        protected static bool EnableVisualization = false;
+        protected static bool EnableVisualization = true;
         protected Array<Ship> AllShips = new Array<Ship>();
 
         protected TestQuadtreeCommon()
@@ -19,12 +19,9 @@ namespace UnitTests.Universe
             CreateUniverseAndPlayerEmpire(out Empire _);
         }
 
-        protected IQuadtree CreateQuadTree(int numShips, IQuadtree tree)
+        protected void CreateQuadTree(int numShips, IQuadtree tree)
         {
-            var test = QuadtreePerfTests.CreateTestSpace(numShips, tree,
-                                                         Player, Enemy, SpawnShip);
-            AllShips = test.Ships;
-            return test.Tree;
+            AllShips = QuadtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
         }
 
         protected void DebugVisualize(IQuadtree tree)
@@ -36,19 +33,6 @@ namespace UnitTests.Universe
         protected GameplayObject[] FindNearby(IQuadtree tree, GameObjectType type, Vector2 pos, float r)
         {
             return tree.FindNearby(type, pos, r, 128, null, null, null);
-        }
-
-        protected void CheckSingleFindNearBy(IQuadtree tree, Ship s)
-        {
-            var offset = new Vector2(0, 256);
-            GameplayObject[] found1 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 256);
-            Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
-
-            GameplayObject[] found2 = FindNearby(tree, GameObjectType.Any, s.Position+offset, (256-s.Radius)+0.001f);
-            Assert.AreEqual(1, found2.Length, "FindNearby touching radius must return match");
-            
-            GameplayObject[] found3 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 255-s.Radius);
-            Assert.AreEqual(0, found3.Length, "FindNearby outside radius must not match");
         }
 
         public void TestBasicInsert(IQuadtree tree)
@@ -70,7 +54,17 @@ namespace UnitTests.Universe
         public void TestFindNearbySingle(IQuadtree tree)
         {
             CreateQuadTree(1, tree);
-            CheckSingleFindNearBy(tree, AllShips.First);
+
+            Ship s = AllShips.First;
+            var offset = new Vector2(0, 256);
+            GameplayObject[] found1 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 256);
+            Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
+
+            GameplayObject[] found2 = FindNearby(tree, GameObjectType.Any, s.Position+offset, (256-s.Radius)+0.001f);
+            Assert.AreEqual(1, found2.Length, "FindNearby touching radius must return match");
+            
+            GameplayObject[] found3 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 255-s.Radius);
+            Assert.AreEqual(0, found3.Length, "FindNearby outside radius must not match");
         }
 
         public void TestFindNearbyMulti(IQuadtree tree)
@@ -85,6 +79,23 @@ namespace UnitTests.Universe
 
             GameplayObject[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 3000);
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
+        }
+
+        public void TestFindNearbyTypeFilter(IQuadtree tree)
+        {
+            CreateQuadTree(100, tree);
+            QuadtreePerfTests.SpawnProjectilesFromEachShip(tree, AllShips);
+
+            foreach (Ship s in AllShips)
+            {
+                GameplayObject[] found = FindNearby(tree, GameObjectType.Proj, s.Position, 3000);
+                Assert.AreNotEqual(0, found.Length);
+                foreach (GameplayObject go in found)
+                {
+                    Assert.AreEqual(GameObjectType.Proj, go.Type);
+                    Assert.IsTrue(go.Position.Distance(s.Position) <= 3000);
+                }
+            }
         }
 
         public void TestTreeUpdatePerformance(IQuadtree tree)

@@ -12,13 +12,13 @@ namespace tree
     /// Return 0: no collision
     /// Return 1: collision happened
     /// </summary>
-    using CollisionFunc = int (__stdcall*)(int objectA, int objectB);
+    using CollisionFunc = int (*)(int objectA, int objectB);
 
     /// <summary>
     /// Function type for final filtering of search results
     /// Return 0: failed, Return 1: passed
     /// </summary>
-    using SearchFilterFunc = int (__stdcall*)(int objectA);
+    using SearchFilterFunc = int (*)(int objectA);
 
     struct SearchOptions
     {
@@ -72,14 +72,25 @@ namespace tree
         SearchFilterFunc FilterFunction = nullptr;
     };
 
+    struct QtreeColor { uint8_t r, g, b, a; };
+
     struct QtreeVisualizer
     {
-        virtual void drawRect  (int x1, int y1, int x2, int y2,  const float color[4]) = 0;
-        virtual void drawCircle(int x,  int y,  int radius,      const float color[4]) = 0;
-        virtual void drawLine  (int x1, int y1, int x2, int y2,  const float color[4]) = 0;
-        virtual void drawText  (int x,  int y, const char* text, const float color[4]) = 0;
-        virtual bool isVisible (int x1, int y1, int x2, int y2) const = 0;
+        virtual ~QtreeVisualizer() = default;
+        virtual void drawRect  (int x1, int y1, int x2, int y2,  QtreeColor c) = 0;
+        virtual void drawCircle(int x,  int y,  int radius,      QtreeColor c) = 0;
+        virtual void drawLine  (int x1, int y1, int x2, int y2,  QtreeColor c) = 0;
+        virtual void drawText  (int x,  int y, const char* text, QtreeColor c) = 0;
     };
+
+    struct QtreeVisualizerBridge
+    {
+        void (*DrawRect)  (int x1, int y1, int x2, int y2,  QtreeColor c);
+        void (*DrawCircle)(int x,  int y,  int radius,      QtreeColor c);
+        void (*DrawLine)  (int x1, int y1, int x2, int y2,  QtreeColor c);
+        void (*DrawText)  (int x,  int y, const char* text, QtreeColor c);
+    };
+
 
     class TREE_API QuadTree
     {
@@ -92,6 +103,7 @@ namespace tree
         QtreeAllocator* FrontAlloc = new QtreeAllocator{};
         QtreeAllocator* BackAlloc  = new QtreeAllocator{};
 
+        std::vector<QtreeObject> Objects;
 
     public:
 
@@ -106,27 +118,74 @@ namespace tree
         int fullSize() const { return FullSize; }
         int universeSize() const { return UniverseSize; }
 
-        QtreeBoundedNode createRoot();
+    private:
+        QtreeBoundedNode createRoot() const;
 
-        void updateAll(const std::vector<QtreeObject>& objects);
+    public:
 
+        /**
+         * Clears all of the inserted objects and resets the root 
+         */
+        void clear();
+
+        /**
+         * Rebuilds the quadtree by inserting all current objects
+         */
+        void rebuild();
+
+        /**
+         * Rebuilds the quadtree by inserting only the specified objects
+         */
+        void rebuild(const std::vector<QtreeObject>& objects);
+        void rebuild(const QtreeObject* objects, int numObjects);
+        
+        /**
+         * Inserts a new object into the Quadtree pending list
+         * The object will be actually inserted after `rebuild()` is called
+         */
+        void insert(const QtreeObject& o);
+        void insert(const std::vector<QtreeObject>& objects);
+        void insert(const QtreeObject* objects, int numObjects);
+
+        /**
+         * Removes an object from the object list and marks it for removal during next rebuild
+         */
+        void remove(int objectId);
+
+    private:
+        QtreeBoundedNode findEnclosingNode(QtreeBoundedNode node, const QtreeRect obj);
         void insertAt(const QtreeBoundedNode& root, const QtreeObject& o, QtreeRect target);
-
-        void insert(const QtreeBoundedNode& root, const QtreeObject& o)
-        {
-            insertAt(root, o, o.bounds());
-        }
         void removeAt(QtreeNode* root, int objectId);
 
+    public:
         void collideAll(float timeStep, CollisionFunc onCollide);
         void collideAllRecursive(float timeStep, CollisionFunc onCollide);
 
         int findNearby(int* outResults, const SearchOptions& opt);
 
-        void debugVisualize(QtreeVisualizer& visualizer) const;
+        /**
+         * Iterates through the Quadtree and submits draw calls to objects that overlap the visible rect
+         * @param visible The visible area in World coordinates
+         */
+        void debugVisualize(QtreeRect visible, QtreeVisualizer& visualizer) const;
 
     private:
         void markForRemoval(int objectId, QtreeObject& o);
-        static QtreeBoundedNode findEnclosingNode(QtreeBoundedNode node, const QtreeRect obj);
     };
+
+    TREE_C_API QuadTree* __stdcall QtreeCreate(int universeSize, int smallestCell);
+    TREE_C_API void __stdcall QtreeDestroy(QuadTree* tree);
+    TREE_C_API void __stdcall QtreeClear(QuadTree* tree);
+    TREE_C_API void __stdcall QtreeRebuild(QuadTree* tree);
+    TREE_C_API void __stdcall QtreeRebuildObjects(QuadTree* tree, const QtreeObject* objects, int numObjects);
+    TREE_C_API void __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o);
+    TREE_C_API void __stdcall QtreeInsertObjects(QuadTree* tree, const QtreeObject* objects, int numObjects);
+    TREE_C_API void __stdcall QtreeRemove(QuadTree* tree, int objectId);
+    TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, 
+                                             tree::CollisionFunc onCollide);
+    TREE_C_API int __stdcall QtreeFindNearby(QuadTree* tree, int* outResults,
+                                            const tree::SearchOptions& opt);
+
+    TREE_C_API void __stdcall QtreeDebugVisualize(QuadTree* tree,
+                                QtreeRect visible, const QtreeVisualizerBridge& visualizer);
 }

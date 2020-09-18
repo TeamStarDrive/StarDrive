@@ -13,10 +13,10 @@ namespace Ship_Game
         Any        = 0,
         Ship       = 1,
         ShipModule = 2,
-        Proj       = 3, // this is a projectile, NOT a beam
-        Beam       = 4, // this is a BEAM, not a projectile
-        Asteroid   = 5,
-        Moon       = 6,
+        Proj       = 4, // this is a projectile, NOT a beam
+        Beam       = 8, // this is a BEAM, not a projectile
+        Asteroid   = 16,
+        Moon       = 32,
     }
 
     public abstract class GameplayObject

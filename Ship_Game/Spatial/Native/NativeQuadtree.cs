@@ -18,32 +18,25 @@ namespace Ship_Game.Spatial.Native
             public int Levels;
             public int FullSize;
             public int UniverseSize;
-            public NativeQtreeNode* Root;
         }
 
-        [DllImport("SDNative.dll")]
-        static extern NativeQtree* QtreeCreate(int universeSize, int smallestCell);
-        
-        [DllImport("SDNative.dll")]
-        static extern void QtreeDestroy(NativeQtree* tree);
-        
-        [DllImport("SDNative.dll")]
-        static extern NativeQtreeNode* QtreeCreateRoot(NativeQtree* tree);
-        
-        [DllImport("SDNative.dll")]
-        static extern void QtreeInsert(NativeQtree* tree, NativeQtreeNode* root, ref NativeSpatialObj so);
-        
-        [DllImport("SDNative.dll")]
-        static extern void QtreeRemoveAt(NativeQtree* tree, NativeQtreeNode* node, int objectId);
+        const string Lib = "SDNative.dll";
 
-        [DllImport("SDNative.dll")]
-        static extern void QtreeCollideAll(NativeQtree* tree, float timeStep, IntPtr onCollide);
+        [DllImport(Lib)] static extern NativeQtree* QtreeCreate(int universeSize, int smallestCell);
+        [DllImport(Lib)] static extern void QtreeDestroy(NativeQtree* tree);
         
-        [DllImport("SDNative.dll")]
-        static extern void QtreeCollideAllRecursive(NativeQtree* tree, float timeStep, IntPtr onCollide);
+        [DllImport(Lib)] static extern NativeQtreeNode* QtreeClear(NativeQtree* tree);
+        [DllImport(Lib)] static extern NativeQtreeNode* QtreeRebuild(NativeQtree* tree);
+        [DllImport(Lib)] static extern NativeQtreeNode* QtreeRebuildObjects(NativeQtree* tree,
+                                                                   NativeQtreeObject* objects, int numObjects);
+        
+        [DllImport(Lib)] static extern void QtreeInsert(NativeQtree* tree, ref NativeQtreeObject o);
+        [DllImport(Lib)] static extern void QtreeInsertObjects(NativeQtree* tree,
+                                                                   NativeQtreeObject* objects, int numObjects);
 
-        [DllImport("SDNative.dll")]
-        static extern int QtreeFindNearby(NativeQtree* tree, int* outResults, ref NativeSearchOptions opt);
+        [DllImport(Lib)] static extern void QtreeRemove(NativeQtree* tree, int objectId);
+        [DllImport(Lib)] static extern void QtreeCollideAll(NativeQtree* tree, float timeStep, IntPtr onCollide);
+        [DllImport(Lib)] static extern int QtreeFindNearby(NativeQtree* tree, int* outResults, ref NativeSearchOptions opt);
 
         NativeQtree* Tree;
         readonly Array<GameplayObject> Pending = new Array<GameplayObject>();
@@ -61,7 +54,6 @@ namespace Ship_Game.Spatial.Native
         public NativeQuadtree(int universeSize, int smallestCell = 512)
         {
             Tree = QtreeCreate(universeSize, smallestCell);
-            Reset();
         }
 
         ~NativeQuadtree()
@@ -79,7 +71,7 @@ namespace Ship_Game.Spatial.Native
 
         public void Reset()
         {
-            Tree->Root = QtreeCreateRoot(Tree);
+            QtreeClear(Tree);
         }
 
         static bool IsObjectDead(GameplayObject go)
@@ -120,7 +112,7 @@ namespace Ship_Game.Spatial.Native
                 int objectId = go.SpatialIndex;
                 Objects[objectId] = null;
                 go.SpatialIndex = -1;
-                QtreeRemoveAt(Tree, Tree->Root, objectId);
+                QtreeRemove(Tree, objectId);
             }
         }
 
@@ -180,15 +172,12 @@ namespace Ship_Game.Spatial.Native
             RemoveEmptySpots();
             InsertPending();
 
-            NativeQtreeNode* newRoot = QtreeCreateRoot(Tree);
-
+            NativeQtreeObject* objects = stackalloc NativeQtreeObject[Objects.Count];
             for (int i = 0; i < Objects.Count; ++i)
             {
-                var obj = new NativeSpatialObj(Objects[i], i);
-                QtreeInsert(Tree, newRoot, ref obj);
+                objects[i] = new NativeQtreeObject(Objects[i], i);
             }
-
-            Tree->Root = newRoot;
+            QtreeRebuildObjects(Tree, objects, Objects.Count);
         }
 
         bool OnCollision(int objectA, int objectB)
@@ -219,7 +208,7 @@ namespace Ship_Game.Spatial.Native
 
         public void CollideAllRecursive(FixedSimTime timeStep)
         {
-            QtreeCollideAllRecursive(Tree, timeStep.FixedTime, OnCollisionFunc);
+            QtreeCollideAll(Tree, timeStep.FixedTime, OnCollisionFunc);
         }
 
         static GameplayObject[] CopyOutput(GameplayObject[] objects, int* objectIds, int count)
@@ -291,32 +280,8 @@ namespace Ship_Game.Spatial.Native
             }
         }
 
-        class TraversalBuffer
-        {
-            public int Next = 0; // next node to pop
-            public NativeQtreeNode*[] Stack = new NativeQtreeNode*[512];
-            public NativeQtreeNode* Pop()
-            {
-                NativeQtreeNode* node = Stack[Next];
-                Stack[Next] = default; // don't leak refs
-                --Next;
-                return node;
-            }
-        }
-
         readonly ThreadLocal<FindResultBuffer> FindBuffer
            = new ThreadLocal<FindResultBuffer>(() => new FindResultBuffer());
-
-        readonly ThreadLocal<TraversalBuffer> TraverseBuffer
-           = new ThreadLocal<TraversalBuffer>(() => new TraversalBuffer());
-
-        TraversalBuffer GetThreadLocalTraversalBuffer(NativeQtreeNode* root)
-        {
-            TraversalBuffer buffer = TraverseBuffer.Value;
-            buffer.Next = 0;
-            buffer.Stack[0] = root;
-            return buffer;
-        }
 
         public GameplayObject[] FindLinear(GameObjectType type,
                                            Vector2 worldPos,
@@ -368,71 +333,65 @@ namespace Ship_Game.Spatial.Native
             return nearby.GetArrayAndClearBuffer();
         }
         
-        static NativeSpatialObj[] DebugDrawBuffer = Empty<NativeSpatialObj>.Array;
-
-        static readonly Color Brown = new Color(Color.SaddleBrown, 150);
-        // "Allies are Blue, Enemies are Red, what should I do, with our Quadtree?" - RedFox
-        static readonly Color Violet = new Color(Color.MediumVioletRed, 100);
-        static readonly Color Blue = new Color(Color.CadetBlue, 100);
-        static readonly Color Red = new Color(Color.OrangeRed, 100);
-        static readonly Color Yellow = new Color(Color.Yellow, 100);
-
-        void DebugVisualize(GameScreen screen, in Vector2 topLeft, in Vector2 botRight, NativeQtreeNode* root)
+        struct QtreeColor { public byte r, g, b, a; }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawRectF(int x1, int y1, int x2, int y2, QtreeColor c);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawCircleF(int x, int y, int radius, QtreeColor c);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawLineF(int x1, int y1, int x2, int y2, QtreeColor c);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawTextF(int x, int y, sbyte* text, QtreeColor c);
+        struct QtreeVisualizerBridge
         {
-            TraversalBuffer buffer = GetThreadLocalTraversalBuffer(root);
+            public DrawRectF   DrawRect;
+            public DrawCircleF DrawCircle;
+            public DrawLineF   DrawLine;
+            public DrawTextF   DrawText;
+        }
+        [DllImport(Lib)] static extern void QtreeDebugVisualize(NativeQtree* tree,
+                                                NativeQtreeRect visible, ref QtreeVisualizerBridge vis);
 
-            do
-            {
-                NativeQtreeNode* node = buffer.Pop();
-                
-                var center = new Vector2((node->X + node->LastX) / 2, (node->Y + node->LastY) / 2);
-                var size = new Vector2(node->LastX - node->X, node->LastY - node->Y);
-                screen.DrawRectangleProjected(center, size, 0f, Brown);
+        static GameScreen Screen;
 
-                // @todo This is a hack to reduce concurrency related bugs.
-                //       once the main drawing and simulation loops are stable enough, this copying can be removed
-                //       In most cases it doesn't matter, because this is only used during DEBUG display...
-                int count = node->Count;
-                if (DebugDrawBuffer.Length < count) DebugDrawBuffer = new NativeSpatialObj[count];
-                for (int i = 0; i < count; ++i)
-                    DebugDrawBuffer[i] = node->Items[i];
-
-                for (int i = 0; i < count; ++i)
-                {
-                    ref NativeSpatialObj so = ref DebugDrawBuffer[i];
-                    var soCenter = new Vector2((so.X1 + so.X2) * 0.5f, (so.Y1 + so.Y2) * 0.5f);
-                    var soSize = new Vector2(so.X2 - so.X1, so.Y2 - so.Y1);
-                    screen.DrawRectangleProjected(soCenter, soSize, 0f, Violet);
-                    screen.DrawCircleProjected(soCenter, so.Radius, Violet);
-                    screen.DrawLineProjected(center, soCenter, Violet);
-                }
-
-                if (node->NW != null)
-                {
-                    if (node->NW->Overlaps(topLeft, botRight))
-                        buffer.Stack[++buffer.Next] = node->NW;
-
-                    if (node->NE->Overlaps(topLeft, botRight))
-                        buffer.Stack[++buffer.Next] = node->NE;
-
-                    if (node->SE->Overlaps(topLeft, botRight))
-                        buffer.Stack[++buffer.Next] = node->SE;
-
-                    if (node->SW->Overlaps(topLeft, botRight))
-                        buffer.Stack[++buffer.Next] = node->SW;
-                }
-            } while (buffer.Next >= 0);
-
+        static void DrawRect(int x1, int y1, int x2, int y2, QtreeColor c)
+        {
+            Screen.DrawLineProjected(new Vector2(x1,y1), new Vector2(x2,y2), new Color(c.r,c.g,c.b,c.a));
+        }
+        static void DrawCircle(int x, int y, int radius, QtreeColor c)
+        {
+            Screen.DrawCircleProjected(new Vector2(x,y), radius, new Color(c.r,c.g,c.b,c.a));
+        }
+        static void DrawLine(int x1, int y1, int x2, int y2, QtreeColor c)
+        {
+            Screen.DrawLineProjected(new Vector2(x1,y1), new Vector2(x2,y2), new Color(c.r,c.g,c.b,c.a));
+        }
+        static void DrawText(int x, int y, sbyte* text, QtreeColor c)
+        {
+            Screen.DrawStringProjected(new Vector2(x,y), 0f, 1f, new Color(c.r,c.g,c.b,c.a), new string(text));
         }
 
         public void DebugVisualize(GameScreen screen)
         {
             var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
-            Vector2 topLeft = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
+            Vector2 topLeft  = screen.UnprojectToWorldPosition(Vector2.Zero);
             Vector2 botRight = screen.UnprojectToWorldPosition(screenSize);
-            DebugVisualize(screen, topLeft, botRight, Tree->Root);
 
-            Array.Clear(DebugDrawBuffer, 0, DebugDrawBuffer.Length); // prevent zombie objects
+            var worldRect = new NativeQtreeRect
+            {
+                Left = (int)topLeft.X,
+                Top = (int)topLeft.Y,
+                Right = (int)botRight.X,
+                Bottom = (int)botRight.Y,
+            };
+
+            var vis = new QtreeVisualizerBridge
+            {
+                DrawRect = DrawRect,
+                DrawCircle = DrawCircle,
+                DrawLine = DrawLine,
+                DrawText = DrawText,
+            };
+
+            Screen = screen;
+            QtreeDebugVisualize(Tree, worldRect, ref vis);
+            Screen = null;
         }
     }
 }

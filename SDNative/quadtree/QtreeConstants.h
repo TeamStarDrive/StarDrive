@@ -4,6 +4,10 @@
 #define TREE_API __declspec(dllexport)
 #endif
 
+#ifndef TREE_CAPI
+#define TREE_C_API extern "C" __declspec(dllexport)
+#endif
+
 namespace tree
 {
     /// <summary>
