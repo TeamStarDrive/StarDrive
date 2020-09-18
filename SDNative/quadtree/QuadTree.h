@@ -110,7 +110,7 @@ namespace tree
 
         void updateAll(const std::vector<QtreeObject>& objects);
 
-        void insertAt(QtreeBoundedNode node, const QtreeObject& o, QtreeRect target);
+        void insertAt(const QtreeBoundedNode& root, const QtreeObject& o, QtreeRect target);
 
         void insert(const QtreeBoundedNode& root, const QtreeObject& o)
         {
@@ -127,6 +127,6 @@ namespace tree
 
     private:
         void markForRemoval(int objectId, QtreeObject& o);
-        QtreeBoundedNode findEnclosingNode(const QtreeBoundedNode& node, const QtreeRect obj);
+        static QtreeBoundedNode findEnclosingNode(QtreeBoundedNode node, const QtreeRect obj);
     };
 }

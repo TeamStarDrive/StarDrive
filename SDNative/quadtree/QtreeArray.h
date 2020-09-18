@@ -4,31 +4,28 @@
 
 namespace tree
 {
-    template<class T, int InitialCapacity>
+    template<class T, int Capacity>
     struct QtreeArray
     {
-        uint16_t Count = 0;
-        uint16_t Capacity = 0;
-        T* Items = nullptr;
+        int size = 0;
+        T* items = nullptr;
 
         /// <summary>
         /// Regular vector-like push_back
         /// </summary>
         void push_back(QtreeAllocator& allocator, const T& item)
         {
-            if (Capacity == Count)
+            if (items == nullptr)
             {
-                Capacity = Capacity == 0 ? InitialCapacity : Capacity * 2;
-                Items = allocator.allocArray(Items, Count, Capacity);
+                items = allocator.allocArray<T>(Capacity);
             }
-            Items[Count++] = item;
+            items[size++] = item;
         }
 
         void clear()
         {
-            Count = 0;
-            Capacity = 0;
-            Items = nullptr;
+            size = 0;
+            items = nullptr;
         }
     };
 
