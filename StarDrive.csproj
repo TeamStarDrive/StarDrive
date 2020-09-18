@@ -459,7 +459,7 @@
     <Compile Include="Ship_Game\Spatial\Native\NativeQtreeNode.cs" />
     <Compile Include="Ship_Game\Spatial\Native\NativeQuadtree.cs" />
     <Compile Include="Ship_Game\Spatial\Native\NativeSearchOptions.cs" />
-    <Compile Include="Ship_Game\Spatial\Native\NativeSpatialObj.cs" />
+    <Compile Include="Ship_Game\Spatial\Native\NativeQtreeObject.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeNode.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeRecycleBuffer.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.Collision.cs" />

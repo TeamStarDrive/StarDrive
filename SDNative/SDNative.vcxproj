@@ -72,7 +72,7 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <DisableSpecificWarnings>4244;4275;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4275;4251;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
@@ -97,7 +97,7 @@
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <DisableSpecificWarnings>4244;4275;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4275;4251;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
@@ -139,7 +139,6 @@
     <ClInclude Include="quadtree\QtreeArray.h" />
     <ClInclude Include="quadtree\QtreeConstants.h" />
     <ClInclude Include="quadtree\QtreeNode.h" />
-    <ClCompile Include="quadtree\QuadTreeCAPI.cpp" />
     <ClInclude Include="quadtree\QtreeRect.h" />
     <ClInclude Include="quadtree\QtreeObject.h" />
     <ClInclude Include="ReCpp\rpp\collections.h" />
