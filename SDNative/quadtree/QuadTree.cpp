@@ -29,116 +29,73 @@ namespace tree
         FrontAlloc->reset();
 
         int half = FullSize / 2;
-        return QtreeBoundedNode{FrontAlloc->allocArrayZeroed<QtreeNode>(4), {}, 0, 0, -half, -half, +half, +half };
+        return QtreeBoundedNode{FrontAlloc->alloc<QtreeNode>(), 0, 0, -half, -half, +half, +half };
     }
 
     void QuadTree::updateAll(const std::vector<QtreeObject>& objects)
     {
         QtreeBoundedNode root = createRoot();
-        for (const QtreeObject& so : objects)
+        for (const QtreeObject& o : objects)
         {
-            insert(root, so);
+            insertAt(root, o, o.bounds());
         }
         Root = root;
     }
 
-    QtreeBoundedNode QuadTree::findEnclosingNode(const QtreeBoundedNode& node, const QtreeRect obj)
-    {
-        QtreeBoundedNode current = node;
-        for (;;)
-        {
-            if (current.nodes != nullptr)
-            {
-                if (obj.left < current.cx && obj.right < current.cx) // left
-                {
-                    if (obj.top < current.cy && obj.bottom < current.cy) // top left
-                    {
-                        current = current.nw();
-                        continue;
-                    }
-                    if (obj.top >= current.cy) // bot left
-                    {
-                        current = current.sw();
-                        continue;
-                    }
-                }
-                else if (obj.left >= current.cx) // right
-                {
-                    if (obj.top < current.cy && obj.bottom < current.cy) // top right
-                    {
-                        current = current.ne();
-                        continue;
-                    }
-                    if (obj.top >= current.cy) // bot right
-                    {
-                        current = current.se();
-                        continue;
-                    }
-                }
-            }
-            // otherwise: target does not perfectly fit inside a quadrant anymore
-            break;
-        }
-        return current;
-    }
-
-    void QuadTree::insertAt(QtreeBoundedNode node, const QtreeObject& o, QtreeRect target)
+    QtreeBoundedNode QuadTree::findEnclosingNode(QtreeBoundedNode node, const QtreeRect obj)
     {
         for (;;)
         {
-            // try to select a sub-quadrant, perhaps it's a better match
-            if (node.nodes != nullptr)
+            if (node.node->nodes != nullptr)
             {
-                if (target.left < node.cx && target.right < node.cx) // left
+                if (obj.left < node.cx && obj.right < node.cx) // left
                 {
-                    if (target.top < node.cy && target.bottom < node.cy) // top left
+                    if (obj.top < node.cy && obj.bottom < node.cy) // top left
                     {
                         node = node.nw();
                         continue;
                     }
-                    if (target.top >= node.cy) // bot left
+                    if (obj.top >= node.cy) // bot left
                     {
                         node = node.sw();
                         continue;
                     }
                 }
-                else if (target.left >= node.cx) // right
+                else if (obj.left >= node.cx) // right
                 {
-                    if (target.top < node.cy && target.bottom < node.cy) // top right
+                    if (obj.top < node.cy && obj.bottom < node.cy) // top right
                     {
                         node = node.ne();
                         continue;
                     }
-                    if (target.top >= node.cy) // bot right
+                    if (obj.top >= node.cy) // bot right
                     {
                         node = node.se();
                         continue;
                     }
                 }
-
-                // target does not perfectly fit inside any sub-quadrants, so it belongs to current Node
             }
+            // otherwise: target does not perfectly fit inside a quadrant anymore
+            return node;
+        }
+    }
 
-            // item belongs to this node
-            node.objects.push_back(*FrontAlloc, o);
+    void QuadTree::insertAt(const QtreeBoundedNode& root, const QtreeObject& o, QtreeRect target)
+    {
+        QtreeBoundedNode node = findEnclosingNode(root, target);
+        node.node->objects.push_back(*FrontAlloc, o);
 
-            // actually, are we maybe over Threshold and should Subdivide ?
-            if (node.nodes == nullptr && node.objects.Count >= QuadCellThreshold)
-            {
-                node.nodes = FrontAlloc->allocArrayZeroed<QtreeNode>(4);
+        // actually, are we maybe over Threshold and should Subdivide ?
+        if (node.node->nodes == nullptr && node.node->objects.size >= QuadCellThreshold)
+        {
+            node.node->nodes = FrontAlloc->allocArrayZeroed<QtreeNode>(4);
 
-                int count = node.objects.Count;
-                if (count != 0)
-                {
-                    QtreeObject* items = node.objects.Items;
-                    node.objects.clear();
+            auto objects = node.node->objects;
+            node.node->objects.clear();
 
-                    // and now reinsert all items one by one
-                    for (int i = 0; i < count; ++i)
-                        insertAt(node, items[i], target);
-                }
-            }
-            return;
+            // and now reinsert all items one by one
+            for (int i = 0; i < objects.size; ++i)
+                insertAt(node, objects.items[i], target);
         }
     }
 
@@ -157,9 +114,9 @@ namespace tree
         do
         {
             QtreeNode& node = *stack.pop();
-            int count = node.objects.Count;
-            QtreeObject* items = node.objects.Items;
-            for (int i = 0; i < count; ++i)
+            int size = node.objects.size;
+            QtreeObject* items = node.objects.items;
+            for (int i = 0; i < size; ++i)
             {
                 QtreeObject& so = items[i];
                 if (so.objectId == objectId)
@@ -170,10 +127,10 @@ namespace tree
             }
             if (node.nodes != nullptr)
             {
-                stack.push( &node.sw() );
-                stack.push( &node.se() );
-                stack.push( &node.ne() );
-                stack.push( &node.nw() );
+                stack.push(node.sw());
+                stack.push(node.se());
+                stack.push(node.ne());
+                stack.push(node.nw());
             }
         } while (stack.next >= 0);
     }
@@ -220,9 +177,9 @@ namespace tree
         {
             QtreeBoundedNode current = stack.pop();
 
-            int count = current.objects.Count;
-            const QtreeObject* items = current.objects.Items;
-            for (int i = 0; i < count; ++i)
+            int size = current.node->objects.size;
+            const QtreeObject* items = current.node->objects.items;
+            for (int i = 0; i < size; ++i)
             {
                 const QtreeObject& o = items[i];
                 if (o.Active
@@ -247,7 +204,7 @@ namespace tree
                 }
             }
 
-            if (current.nodes != nullptr)
+            if (current.node->nodes != nullptr)
             {
                 QtreeBoundedNode sw = current.sw();
                 if (sw.overlaps(enclosingRect))
@@ -289,8 +246,8 @@ namespace tree
             //snprintf(text, sizeof(text), "{%d,%d}", (int)current.cx, (int)current.cy);
             //visualizer.drawText(current.cx, current.cy, text, Red);
 
-            int count = current.objects.Count;
-            const QtreeObject* items = current.objects.Items;
+            int count = current.node->objects.size;
+            const QtreeObject* items = current.node->objects.items;
             for (int i = 0; i < count; ++i)
             {
                 const QtreeObject& o = items[i];
@@ -301,7 +258,7 @@ namespace tree
                 visualizer.drawLine(current.cx, current.cy, o.x, o.y, Violet);
             }
 
-            if (current.nodes != nullptr)
+            if (current.node->nodes != nullptr)
             {
                 QtreeBoundedNode sw = current.sw();
                 if (visualizer.isVisible(sw.left, sw.top, sw.right, sw.bottom))
