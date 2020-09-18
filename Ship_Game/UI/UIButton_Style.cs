@@ -8,8 +8,8 @@ namespace Ship_Game
         Small,      // empiretopbar_btn_68px
         Low80,      // empiretopbar_low_btn_80px
         Low100,     // empiretopbar_low_btn_100px
-        Medium,     // empiretopbar_btn_132px
-        MediumMenu, // empiretopbar_btn_132px_menu
+        Medium,     // empiretopbar_btn_132px       -- GoldenBrown button
+        MediumMenu, // empiretopbar_btn_132px_menu  -- Grayed out button
         BigDip,     // empiretopbar_btn_168px_dip
         Military,   // empiretopbar_btn_168px_military
         Close,      // NewUI/Close_Normal

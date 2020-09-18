@@ -33,7 +33,6 @@ namespace Ship_Game
 
         public int FrameId { get; protected set; }
         public UpdateTimes Elapsed { get; protected set; }
-        public FixedSimTime SimulationTime { get; protected set; }
         public float TotalElapsed { get; protected set; }
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);
@@ -202,12 +201,8 @@ namespace Ship_Game
             try
             {
                 ++FrameId;
-                TotalElapsed = base.TotalRealTimeSeconds;
-                
-                float simulationFixedTimeStep = 1f / GlobalStats.SimulationFramesPerSecond;
-                SimulationTime = new FixedSimTime(simulationFixedTimeStep);
-
-                Elapsed = new UpdateTimes(SimulationTime, deltaTime, TotalElapsed);
+                TotalElapsed = base.TotalGameTimeSeconds;
+                Elapsed = new UpdateTimes(deltaTime, TotalElapsed);
 
                 // 1. Handle Input and 2. Update for each game screen
                 ScreenManager.Update(Elapsed);
