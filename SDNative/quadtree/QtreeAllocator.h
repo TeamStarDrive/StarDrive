@@ -39,6 +39,11 @@ namespace tree
             return (T*)allocArray(oldArray, oldCount, newCapacity, sizeof(T));
         }
 
+        template<class T> T* allocArray(int size)
+        {
+            return (T*)alloc(sizeof(T) * size);
+        }
+
         /// <summary>
         /// Allocate a generic object and call its default constructor
         /// </summary>
