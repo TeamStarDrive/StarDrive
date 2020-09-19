@@ -125,6 +125,16 @@ namespace tree
     public:
 
         /**
+         * @return Number of QtreeObjects in this tree
+         */
+        int count() const { return (int)Objects.size(); }
+
+        /**
+         * @return Gets an object by its ObjectId
+         */
+        const QtreeObject& get(int objectId) const { return Objects[objectId]; }
+
+        /**
          * Clears all of the inserted objects and resets the root 
          */
         void clear();
@@ -139,7 +149,7 @@ namespace tree
          */
         void rebuild(const std::vector<QtreeObject>& objects);
         void rebuild(const QtreeObject* objects, int numObjects);
-        
+
         /**
          * Inserts a new object into the Quadtree pending list
          * The object will be actually inserted after `rebuild()` is called
@@ -154,10 +164,8 @@ namespace tree
         void remove(int objectId);
 
     private:
-        void insertAt(int level, const QtreeBoundedNode& root,
-                                 const QtreeObject& o, const QtreeRect& orect);
-        void insertAtLeaf(int level, const QtreeBoundedNode& root,
-                                     const QtreeObject& o, const QtreeRect& orect);
+        void insertAt(int level, const QtreeBoundedNode& root, const QtreeObject& o);
+        void insertAtLeaf(int level, const QtreeBoundedNode& root, const QtreeObject& o);
         void removeAt(QtreeNode* root, int objectId);
 
     public:

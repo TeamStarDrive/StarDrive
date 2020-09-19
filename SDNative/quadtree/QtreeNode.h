@@ -34,7 +34,7 @@ namespace tree
         QtreeNode* se() const { return &nodes[2]; }
         QtreeNode* sw() const { return &nodes[3]; }
 
-        // simply adds another object
+        // fast adding of an object
         __forceinline void addObject(QtreeAllocator& allocator, const QtreeObject& item)
         {
             if (size == 0)
@@ -43,6 +43,39 @@ namespace tree
             }
             objects[size++] = item;
         }
+
+        // compute the next highest power of 2 of 32-bit v
+        static constexpr int upperPowerOf2(unsigned int v)
+        {
+            --v;
+            v |= v >> 1;
+            v |= v >> 2;
+            v |= v >> 4;
+            v |= v >> 8;
+            v |= v >> 16;
+            ++v;
+            return v;
+        }
+
+        // adds another object, growth is only limited by QuadLinearAllocatorSlabSize
+        __forceinline void addObjectUnbounded(QtreeAllocator& allocator, const QtreeObject& item)
+        {
+            if (size == QuadCellThreshold)
+            {
+                constexpr int capacity = upperPowerOf2(QuadCellThreshold+1);
+                objects = allocator.allocArray(objects, size, capacity);
+            }
+            else
+            {
+                int capacity = upperPowerOf2(size+1);
+                if (size == capacity)
+                {
+                    objects = allocator.allocArray(objects, size, capacity);
+                }
+            }
+            objects[size++] = item;
+        }
+
 
         // Converts a LEAF node into a BRANCH node which contains sub-QtreeNode's
         __forceinline void convertToBranch(QtreeAllocator& allocator)

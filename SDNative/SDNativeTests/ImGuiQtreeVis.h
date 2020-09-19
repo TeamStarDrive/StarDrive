@@ -13,18 +13,31 @@ namespace tree::vis
 
         tree::QtreeRect camera_frustum { 0, 0, 0, 0 };
 
-        float getSize(int v) const { return v * camera_zoom; }
-        ImVec2 getPoint(int x, int y) const // get screen point from world point
+        float worldToScreen(int worldSize) const { return worldSize * camera_zoom; }
+        ImVec2 worldToScreen(int worldX, int worldY) const // get screen point from world point
         {
-            return ImVec2{window_center.x + (camera_world.x + x)*camera_zoom,
-                          window_center.y + (camera_world.y + y)*camera_zoom};
+            return ImVec2{window_center.x + (camera_world.x + worldX)*camera_zoom,
+                          window_center.y + (camera_world.y + worldY)*camera_zoom};
         }
+
+        float screenToWorld(float screenSize) const
+        {
+            return screenSize/camera_zoom;
+        }
+        ImVec2 screenToWorld(float screenX, float screenY) const
+        {
+            return { (screenX - window_center.x)/camera_zoom - camera_world.x,
+                     (screenY - window_center.y)/camera_zoom - camera_world.y };
+        }
+
         void updateCameraFrustum()
         {
-            camera_frustum.left = int( (0 - window_center.x)/camera_zoom - camera_world.x );
-            camera_frustum.top  = int( (0 - window_center.y)/camera_zoom - camera_world.y );
-            camera_frustum.right  = int( (window_size.x - window_center.x)/camera_zoom - camera_world.x );
-            camera_frustum.bottom = int( (window_size.y - window_center.y)/camera_zoom - camera_world.y );
+            ImVec2 topLeft = screenToWorld(0, 0);
+            ImVec2 botRight = screenToWorld(window_size.x, window_size.y);
+            camera_frustum.left = (int)topLeft.x;
+            camera_frustum.top  = (int)topLeft.y;
+            camera_frustum.right  = (int)botRight.x;
+            camera_frustum.bottom = (int)botRight.y;
         }
         void moveCamera(ImVec2 delta)
         {
@@ -39,33 +52,54 @@ namespace tree::vis
         void drawRect(int x1, int y1, int x2, int y2, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
-            draw->AddRect(getPoint(x1, y1), getPoint(x2, y2), getColor(c));
+            draw->AddRect(worldToScreen(x1, y1), worldToScreen(x2, y2), getColor(c));
         }
         void drawCircle(int x, int y, int radius, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
-            draw->AddCircle(getPoint(x, y), getSize(radius), getColor(c));
+            draw->AddCircle(worldToScreen(x, y), worldToScreen(radius), getColor(c));
         }
         void drawLine(int x1, int y1, int x2, int y2, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
-            draw->AddLine(getPoint(x1, y1), getPoint(x2, y2), getColor(c));
+            draw->AddLine(worldToScreen(x1, y1), worldToScreen(x2, y2), getColor(c));
         }
         void drawText(int x, int y, int size, const char* text, tree::QtreeColor c) override
         {
-            float screenSize = getSize(size);
+            float screenSize = worldToScreen(size);
             if (screenSize > 200)
             {
                 ImDrawList* draw = ImGui::GetWindowDrawList();
-                draw->AddText(getPoint(x, y), getColor(c), text);
+                draw->AddText(worldToScreen(x, y), getColor(c), text);
             }
         }
     };
 
-    inline void show(float zoom, std::function<void(ImGuiQtreeVis&)>&& draw)
+    inline void show(float zoom, tree::QuadTree& tree)
     {
         ImGuiQtreeVis vis;
         vis.camera_zoom = zoom;
+
+        tree::SearchOptions opt;
+        opt.OriginX = 0;
+        opt.OriginY = 0;
+        opt.SearchRadius = 0;
+        opt.MaxResults = 2048;
+        std::vector<int> searchResults(opt.MaxResults);
+        int numResults = 0;
+        double find_elapsed_ms = 0.0;
+        float timeSink = 0.0f;
+        float timeStep = 1.0f / 60.0f;
+
+        float universeLo = tree.universeSize() * -0.5f;
+        float universeHi = tree.universeSize() * 0.5f;
+
+        for (int i = 0; i < tree.count(); ++i)
+        {
+            tree::QtreeObject& o = const_cast<tree::QtreeObject&>( tree.get(i) );
+            o.vx = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 200000.0f;
+            o.vy = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 200000.0f;
+        }
 
         DebugGfxWindow window;
         window.Run([&]()
@@ -88,6 +122,19 @@ namespace tree::vis
                 vis.moveCamera(ImGui::GetIO().MouseDelta);
             }
 
+            if (ImGui::IsMouseDragging( ImGuiMouseButton_Right ))
+            {
+                ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
+                ImVec2 start = ImGui::GetMousePos();
+                ImVec2 world = vis.screenToWorld(start.x - delta.x, start.y - delta.y);
+                opt.OriginX = (int)world.x;
+                opt.OriginY = (int)world.y;
+                opt.SearchRadius = (int)vis.screenToWorld( sqrtf(delta.x*delta.x + delta.y*delta.y) );
+                rpp::Timer t;
+                numResults = tree.findNearby(searchResults.data(), opt);
+                find_elapsed_ms = t.elapsed_ms();
+            }
+
             float wheel = ImGui::GetIO().MouseWheel;
             if (wheel != 0)
             {
@@ -95,19 +142,50 @@ namespace tree::vis
             }
 
             vis.updateCameraFrustum();
-            draw(vis);
+
+            timeSink += ImGui::GetIO().DeltaTime;
+            while (timeSink >= timeStep)
+            {
+                timeSink -= timeStep;
+                for (int i = 0; i < tree.count(); ++i)
+                {
+                    tree::QtreeObject& o = const_cast<tree::QtreeObject&>( tree.get(i) );
+
+                    if (o.x < universeLo || o.x > universeHi)
+                        o.vx = -o.vx;
+
+                    if (o.y < universeLo || o.y > universeHi)
+                        o.vy = -o.vy;
+
+                    o.x += o.vx * timeStep;
+                    o.y += o.vy * timeStep;
+
+
+                }
+            }
+            tree.rebuild();
+            tree.debugVisualize(vis.camera_frustum, vis);
+
+            if (opt.SearchRadius > 1)
+            {
+                static const QtreeColor Yellow = { 255, 255,  0, 255 };
+                ImDrawList* draw = ImGui::GetWindowDrawList();
+                draw->AddCircle(vis.worldToScreen(opt.OriginX, opt.OriginY), vis.worldToScreen(opt.SearchRadius), vis.getColor(Yellow), 0, 2.0f);
+
+                for (int i = 0; i < numResults; ++i)
+                {
+                    const tree::QtreeObject& o = tree.get(searchResults[i]);
+                    draw->AddCircle(vis.worldToScreen(o.x, o.y), vis.worldToScreen(o.rx), vis.getColor(Yellow), 8);
+                }
+            }
+
             ImGui::Text("Qtree avg %.3f ms/frame (%.1f FPS)",
                         1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+            ImGui::Text("Qtree::findNearby(radius=%d) elapsed: %.3fms", opt.SearchRadius, find_elapsed_ms);
+            ImGui::Text("     Results: %d", numResults);
             ImGui::End();
             return true;
-        });
-    }
-
-    inline void show(tree::QuadTree& tree, float zoom = 0.001f)
-    {
-        show(zoom, [&](ImGuiQtreeVis& vis)
-        {
-            tree.debugVisualize(vis.camera_frustum, vis);
         });
     }
 }
