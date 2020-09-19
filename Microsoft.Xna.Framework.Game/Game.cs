@@ -53,9 +53,9 @@ namespace Microsoft.Xna.Framework
             get => MouseVisible;
             set
             {
-                MouseVisible = value;
-                if (Window == null)
+                if (Window == null || MouseVisible == value)
                     return;
+                MouseVisible = value;
                 Window.IsMouseVisible = value;
             }
         }
