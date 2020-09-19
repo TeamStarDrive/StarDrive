@@ -38,7 +38,7 @@ namespace Ship_Game.AI
         AssaultPirateBase,
         RefitOrbital,
         DeployFleetProjector,
-        RemnantStoryBalancers,
+        RemnantEngagements,
         RemnantBalancersEngage
     }
 
@@ -155,9 +155,9 @@ namespace Ship_Game.AI
                 case PirateProtection.ID:       return new PirateProtection();
                 case AssaultPirateBase.ID:      return new AssaultPirateBase();
                 case DeployFleetProjector.ID:   return new DeployFleetProjector();
-                case RemnantStoryBalancers.ID:  return new RemnantStoryBalancers();
+                case RemnantEngagements.ID:     return new RemnantEngagements();
                 case RemnantPortal.ID:          return new RemnantPortal();
-                case RemnantBalancersEngage.ID: return new RemnantBalancersEngage();
+                case RemnantEngageEmpire.ID:    return new RemnantEngageEmpire();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }

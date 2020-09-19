@@ -4,13 +4,13 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class RemnantStoryBalancers : Goal
+    public class RemnantEngagements : Goal
     {
-        public const string ID = "RemnantStoryBalancers";
+        public const string ID = "RemnantEngagements";
         public override string UID => ID;
         private Remnants Remnants;
 
-        public RemnantStoryBalancers() : base(GoalType.RemnantStoryBalancers)
+        public RemnantEngagements() : base(GoalType.RemnantEngagements)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,12 +20,12 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantStoryBalancers(Empire owner) : this()
+        public RemnantEngagements(Empire owner) : this()
         {
             empire = owner;
 
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Story: Ancient Balancers ----");
+            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Story: {empire.Remnants.Story} ----");
         }
 
         public sealed override void PostInit()
@@ -33,13 +33,15 @@ namespace Ship_Game.Commands.Goals
             Remnants = empire.Remnants;
         }
 
-        void EngageStrongest(Ship[] portals)
+        void EngageEmpire(Ship[] portals)
         {
             if (!Remnants.CanDoAnotherEngagement(out _))
                 return;
 
-            Empire strongest = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
-            Remnants.Goals.Add(new RemnantBalancersEngage(empire, portals.RandItem(), strongest));
+            if (!Remnants.FindValidTarget(portals.RandItem(), out Empire target))
+                return;
+
+            Remnants.Goals.Add(new RemnantEngageEmpire(empire, portals.RandItem(), target));
         }
 
         bool CreatePortal()
@@ -80,7 +82,7 @@ namespace Ship_Game.Commands.Goals
             if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
                 CreatePortal(); // Second portal at level 10
 
-            EngageStrongest(portals);
+            EngageEmpire(portals);
             return GoalStep.TryAgain;
         }
     }
