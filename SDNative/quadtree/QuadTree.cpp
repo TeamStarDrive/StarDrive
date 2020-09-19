@@ -24,8 +24,7 @@ namespace tree
 
     QtreeBoundedNode QuadTree::createRoot() const
     {
-        int half = FullSize / 2;
-        return QtreeBoundedNode{FrontAlloc->alloc<QtreeNode>(), 0, 0, -half, -half, +half, +half };
+        return QtreeBoundedNode{FrontAlloc->alloc<QtreeNode>(), 0, 0, FullSize / 2 };
     }
 
     void QuadTree::clear()
@@ -345,22 +344,18 @@ namespace tree
     void QuadTree::debugVisualize(QtreeRect visible, QtreeVisualizer& visualizer) const
     {
         char text[128];
+        int visibleX = visible.centerX();
+        int visibleY = visible.centerY();
+        int radiusX = visible.width() / 2;
+        int radiusY = visible.height() / 2;
 
-        int visibleX = (visible.left + visible.right) / 2;
-        int visibleY = (visible.top + visible.bottom) / 2;
-        int radiusX = (visible.right - visible.left) / 2;
-        int radiusY = (visible.bottom - visible.top) / 2;
+        visualizer.drawRect(Root.cx-Root.r, Root.cy-Root.r, Root.cx+Root.r, Root.cy+Root.r, Yellow);
 
-        visualizer.drawRect(-UniverseSize/2, -UniverseSize/2, +UniverseSize/2, +UniverseSize/2, Yellow);
-
-        SmallStack<QtreeBoundedNode> stack;
-        //SmallStack<QtreeBoundedNode> stack;
-        //stack.push(Root);
-        stack.push_back(Root);
+        SmallStack<QtreeBoundedNode> stack { Root };
         do
         {
             QtreeBoundedNode current = stack.pop_back();
-            visualizer.drawRect(current.left, current.top, current.right, current.bottom, Brown);
+            visualizer.drawRect(current.cx-current.r, current.cy-current.r, current.cx+current.r, current.cy+current.r, Brown);
 
             if (current.isBranch())
             {
@@ -445,9 +440,7 @@ namespace tree
         return tree->findNearby(outResults, opt);
     }
 
-    
-    TREE_C_API void __stdcall QtreeDebugVisualize(QuadTree* tree,
-                                    QtreeRect visible, const QtreeVisualizerBridge& visualizer)
+    TREE_C_API void __stdcall QtreeDebugVisualize(QuadTree* tree, QtreeRect visible, const QtreeVisualizerBridge& vis)
     {
         struct VisualizerBridge : QtreeVisualizer
         {
@@ -463,7 +456,7 @@ namespace tree
             { vis.DrawText(x, y, size, text, c); }
         };
 
-        VisualizerBridge bridge { visualizer };
+        VisualizerBridge bridge { vis };
         tree->debugVisualize(visible, bridge);
     }
     /////////////////////////////////////////////////////////////////////////////////

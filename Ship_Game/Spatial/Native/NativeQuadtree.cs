@@ -8,8 +8,6 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game.Spatial.Native
 {
-    public delegate bool CollisionDelegate(int objectA, int objectB);
-
     public sealed unsafe class NativeQuadtree : IQuadtree, IDisposable
     {
         [StructLayout(LayoutKind.Sequential)]
