@@ -24,13 +24,13 @@ namespace tree
         uint8_t reserved;
         int objectId; // handle to the object
 
-        int x, y; // Center x y
-        int rx, ry; // Radius x y
+        float x, y; // Center x y
+        float rx, ry; // Radius x y
 
         QtreeObject() = default;
 
         QtreeObject(uint8_t loyalty, uint8_t type, int objectId,
-                    int centerX, int centerY, int radiusX, int radiusY)
+                    float centerX, float centerY, float radiusX, float radiusY)
             : active{1}, loyalty{loyalty}, type{type}, reserved{}, objectId{objectId}
             , x{centerX}, y{centerY}, rx{radiusX}, ry{radiusY}
         {
