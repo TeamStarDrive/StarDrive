@@ -65,7 +65,7 @@ namespace Ship_Game
                 Activate();
             }
 
-            // for testing
+            // todo for testing
             if (!Activated)
                 Activate();
         }
@@ -76,7 +76,7 @@ namespace Ship_Game
             Activated = true;
             SetInitialLevel();
             // create story goal
-            Goals.Add(new RemnantStoryBalancers(Owner));
+            Goals.Add(new RemnantEngagements(Owner));
         }
 
         public bool TryLevelUpByDate(out int newLevel)
@@ -105,6 +105,40 @@ namespace Ship_Game
         {
             numRaids = Goals.Count(g => g.IsRaid);
             return numRaids < Level;
+        }
+
+        public bool FindValidTarget(Ship portal, out Empire target)
+        {
+            target = null;
+            switch (Story)
+            {
+                case RemnantStory.AncientBalancers:
+                    target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore); break;
+                case RemnantStory.AncientExterminators: 
+                    target = EmpireManager.MajorEmpires.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore); break;
+                case RemnantStory.AncientRaidersClosest:
+                    target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
+                    break;
+                case RemnantStory.AncientRaidersRandom:
+                    var potentialEmpires = EmpireManager.MajorEmpires.Filter(e => !e.data.Defeated);
+                    if (potentialEmpires.Length > 0)
+                        target = potentialEmpires.RandItem();
+
+                    break;
+                default: 
+                    return false;
+            }
+
+            return target != null;
+        }
+
+        public bool TargetEmpireStillValid(Empire currentTarget, Ship portal, bool checkOnlyDefeated = false)
+        {
+            if (checkOnlyDefeated && !currentTarget.data.Defeated)
+                return true;
+
+            FindValidTarget(portal, out Empire expectedTarget);
+            return expectedTarget == currentTarget;
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
@@ -219,7 +253,7 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            return RollDice((Level - 1) * 10) ? planet.Level * 2 : 0;
+            return RollDice((Level - 1) * 10) ? planet.Level : 0;
         }
 
         public bool CreatePortal(out Ship portal, out string systemName)
@@ -265,6 +299,7 @@ namespace Ship_Game
             AddShipCost(Owner.data.RemnantCarrier, RemnantShipType.Carrier);
             AddShipCost(Owner.data.RemnantMotherShip, RemnantShipType.Mothership);
             AddShipCost(Owner.data.RemnantExterminator, RemnantShipType.Exterminator);
+            AddShipCost(Owner.data.RemnantInhibitor, RemnantShipType.Inhibitor);
             AddShipCost(Owner.data.RemnantBomber, RemnantShipType.Bomber);
         }
 
@@ -587,12 +622,12 @@ namespace Ship_Game
 
         RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
         {
-            switch (RollDie(1)) // todo 1 is for testing  should be 4
+            switch (RollDie(1)) // todo 1 is for testing  should be 5
             {
                 default:
                 case 1: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientBalancers;
                 case 2: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientExterminators;
-                case 3: goals.Add(new RemnantAI(Owner)); return RemnantStory.ColonizeGalaxy;
+                case 3: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientColonizers;
                 case 4: goals.Add(new RemnantAI(Owner)); return RemnantStory.None;
             }
         }
@@ -602,7 +637,9 @@ namespace Ship_Game
             None,
             AncientBalancers,
             AncientExterminators,
-            ColonizeGalaxy
+            AncientRaidersClosest,
+            AncientRaidersRandom,
+            AncientColonizers
         }
     }
 
