@@ -4,20 +4,20 @@ namespace tree
 {
     struct QtreeRect
     {
-        float left;
-        float top;
-        float right;
-        float bottom;
+        int left;
+        int top;
+        int right;
+        int bottom;
 
         // NOTE: No ctor, to avoid unnecessary code generation
 
-        static QtreeRect fromPointRadius(float x, float y, float r)
+        static QtreeRect fromPointRadius(int x, int y, int r)
         {
             return QtreeRect{x-r, y-r, x+r, y+r};
         }
 
-        float centerX() const { return (left + right) * 0.5f; }
-        float centerY() const { return (top + bottom) * 0.5f; }
+        int centerX() const { return (left + right) >> 1; }
+        int centerY() const { return (top + bottom) >> 1; }
 
         bool overlaps(const QtreeRect& r) const
         {
