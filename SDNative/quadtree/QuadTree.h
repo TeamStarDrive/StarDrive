@@ -25,13 +25,13 @@ namespace tree
         /// <summary>
         /// The initial search origin X, Y coordinates
         /// </summary>
-        float OriginX = 0;
-        float OriginY = 0;
+        int OriginX = 0;
+        int OriginY = 0;
 
         /// <summary>
         /// Only objects that are within this radius are accepted
         /// </summary>
-        float SearchRadius = 100;
+        int SearchRadius = 100;
 
         /// <summary>
         /// Maximum number of filtered final results until search is terminated
@@ -77,28 +77,28 @@ namespace tree
     struct QtreeVisualizer
     {
         virtual ~QtreeVisualizer() = default;
-        virtual void drawRect  (float x1, float y1, float x2, float y2, QtreeColor c) = 0;
-        virtual void drawCircle(float x,  float y,  float radius,       QtreeColor c) = 0;
-        virtual void drawLine  (float x1, float y1, float x2, float y2, QtreeColor c) = 0;
-        virtual void drawText  (float x,  float y, float size, const char* text, QtreeColor c) = 0;
+        virtual void drawRect  (int x1, int y1, int x2, int y2,  QtreeColor c) = 0;
+        virtual void drawCircle(int x,  int y,  int radius,      QtreeColor c) = 0;
+        virtual void drawLine  (int x1, int y1, int x2, int y2,  QtreeColor c) = 0;
+        virtual void drawText  (int x,  int y, int size, const char* text, QtreeColor c) = 0;
     };
 
     struct QtreeVisualizerBridge
     {
-        void (*DrawRect)  (float x1, float y1, float x2, float y2, QtreeColor c);
-        void (*DrawCircle)(float x,  float y,  float radius,       QtreeColor c);
-        void (*DrawLine)  (float x1, float y1, float x2, float y2, QtreeColor c);
-        void (*DrawText)  (float x,  float y,  float size, const char* text, QtreeColor c);
+        void (*DrawRect)  (int x1, int y1, int x2, int y2,  QtreeColor c);
+        void (*DrawCircle)(int x,  int y,  int radius,      QtreeColor c);
+        void (*DrawLine)  (int x1, int y1, int x2, int y2,  QtreeColor c);
+        void (*DrawText)  (int x,  int y, int size, const char* text, QtreeColor c);
     };
 
 
     class TREE_API QuadTree
     {
         int Levels;
-        float FullSize;
-        float UniverseSize;
+        int FullSize;
+        int UniverseSize;
 
-        QtreeBoundedNode Root { nullptr, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+        QtreeBoundedNode Root { nullptr, 0, 0, 0, 0, 0, 0 };
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
         QtreeAllocator* FrontAlloc = new QtreeAllocator{};
@@ -108,7 +108,7 @@ namespace tree
 
     public:
 
-        explicit QuadTree(float universeSize, float smallestCell);
+        explicit QuadTree(int universeSize, int smallestCell);
         ~QuadTree();
         
         QuadTree(QuadTree&&) = delete;
@@ -116,8 +116,8 @@ namespace tree
         QuadTree& operator=(QuadTree&&) = delete;
         QuadTree& operator=(const QuadTree&) = delete;
 
-        float fullSize() const { return FullSize; }
-        float universeSize() const { return UniverseSize; }
+        int fullSize() const { return FullSize; }
+        int universeSize() const { return UniverseSize; }
 
     private:
         QtreeBoundedNode createRoot() const;
@@ -156,7 +156,7 @@ namespace tree
          * This is a deferred update.
          * The actual tree will be updated during `rebuild()`
          */
-        void update(int objectId, float x, float y);
+        void update(int objectId, int x, int y);
 
         /**
          * Removes an object from the object list and marks it for removal during next rebuild

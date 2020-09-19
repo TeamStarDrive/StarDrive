@@ -29,7 +29,7 @@ TestImpl(QuadTree)
             o.vx = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 200000.0f;
             o.vy = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 200000.0f;
 
-            tree::QtreeObject qto { o.loyalty, o.type, 0, o.x, o.y, o.radius, o.radius };
+            tree::QtreeObject qto { o.loyalty, o.type, 0, (int)o.x, (int)o.y, (int)o.radius, (int)o.radius };
             o.spatialId = tree.insert(qto);
         }
         tree.rebuild();
@@ -150,7 +150,7 @@ TestImpl(QuadTree)
 
             o.x += o.vx * timeStep;
             o.y += o.vy * timeStep;
-            tree.update(o.spatialId, o.x, o.y);
+            tree.update(o.spatialId, (int)o.x, (int)o.y);
         }
         tree.rebuild();
     }
@@ -195,9 +195,9 @@ TestImpl(QuadTree)
         measureEachObj("findNearby", 200, objects, [&](const MyGameObject& o)
         {
             tree::SearchOptions opt;
-            opt.OriginX = o.x;
-            opt.OriginY = o.y;
-            opt.SearchRadius = DEFAULT_SENSOR_RANGE;
+            opt.OriginX = (int)o.x;
+            opt.OriginY = (int)o.y;
+            opt.SearchRadius = (int)DEFAULT_SENSOR_RANGE;
             opt.MaxResults = 1024;
             opt.FilterExcludeObjectId = o.spatialId;
             opt.FilterExcludeByLoyalty = o.loyalty;

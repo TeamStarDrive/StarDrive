@@ -3,7 +3,7 @@
 
 namespace tree
 {
-    QuadTree::QuadTree(float universeSize, float smallestCell)
+    QuadTree::QuadTree(int universeSize, int smallestCell)
     {
         Levels = 0;
         FullSize = smallestCell;
@@ -24,7 +24,7 @@ namespace tree
 
     QtreeBoundedNode QuadTree::createRoot() const
     {
-        float half = FullSize / 2;
+        int half = FullSize / 2;
         return QtreeBoundedNode{FrontAlloc->alloc<QtreeNode>(), 0, 0, -half, -half, +half, +half };
     }
 
@@ -62,7 +62,7 @@ namespace tree
         return objectId;
     }
 
-    void QuadTree::update(int objectId, float x, float y)
+    void QuadTree::update(int objectId, int x, int y)
     {
         QtreeObject& o = Objects[objectId];
         o.x = x;
@@ -86,9 +86,8 @@ namespace tree
     struct Overlaps
     {
         bool NW, NE, SE, SW;
-        _forceinline Overlaps(float quadCenterX, float quadCenterY,
-                              float objectX, float objectY,
-                              float objectRadiusX, float objectRadiusY)
+        _forceinline Overlaps(int quadCenterX, int quadCenterY, int objectX, int objectY,
+                              int objectRadiusX, int objectRadiusY)
         {
             // +---------+   The target rectangle overlaps Left quadrants (NW, SW)
             // | x--|    |
@@ -246,7 +245,7 @@ namespace tree
         SmallStack<QtreeBoundedNode> leaves;
     };
 
-    static void findLeaves(FoundLeaves& found, const QtreeBoundedNode& root, float cx, float cy, float rx, float ry)
+    static void findLeaves(FoundLeaves& found, const QtreeBoundedNode& root, int cx, int cy, int rx, int ry)
     {
         SmallStack<QtreeBoundedNode> stack { root };
         do
@@ -347,10 +346,10 @@ namespace tree
     {
         char text[128];
 
-        float visibleX = (visible.left + visible.right) * 0.5f;
-        float visibleY = (visible.top + visible.bottom) * 0.5f;
-        float radiusX = (visible.right - visible.left) * 0.5f;
-        float radiusY = (visible.bottom - visible.top) * 0.5f;
+        int visibleX = (visible.left + visible.right) / 2;
+        int visibleY = (visible.top + visible.bottom) / 2;
+        int radiusX = (visible.right - visible.left) / 2;
+        int radiusY = (visible.bottom - visible.top) / 2;
 
         visualizer.drawRect(-UniverseSize/2, -UniverseSize/2, +UniverseSize/2, +UniverseSize/2, Yellow);
 
@@ -424,7 +423,7 @@ namespace tree
         return tree->insert(o);
     }
 
-    TREE_C_API void __stdcall QtreeUpdate(QuadTree* tree, int objectId, float x, float y)
+    TREE_C_API void __stdcall QtreeUpdate(QuadTree* tree, int objectId, int x, int y)
     {
         tree->update(objectId, x, y);
     }
@@ -454,13 +453,13 @@ namespace tree
         {
             QtreeVisualizerBridge vis;
             explicit VisualizerBridge(const QtreeVisualizerBridge& visualizer) : vis{visualizer} {}
-            void drawRect(float x1, float y1, float x2, float y2, QtreeColor c) override
+            void drawRect(int x1, int y1, int x2, int y2, QtreeColor c) override
             { vis.DrawRect(x1, y1, x2, y2, c); }
-            void drawCircle(float x, float y, float radius, QtreeColor c) override
+            void drawCircle(int x, int y, int radius, QtreeColor c) override
             { vis.DrawCircle(x, y, radius, c); }
-            void drawLine(float x1, float y1, float x2, float y2, QtreeColor c) override
+            void drawLine(int x1, int y1, int x2, int y2, QtreeColor c) override
             { vis.DrawLine(x1, y1, x2, y2, c); }
-            void drawText(float x, float y, float size, const char* text, QtreeColor c) override
+            void drawText(int x, int y, int size, const char* text, QtreeColor c) override
             { vis.DrawText(x, y, size, text, c); }
         };
 
