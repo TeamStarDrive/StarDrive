@@ -30,12 +30,13 @@ namespace Ship_Game.Spatial.Native
         [DllImport(Lib)] static extern NativeQtreeNode* QtreeRebuildObjects(NativeQtree* tree,
                                                                    NativeQtreeObject* objects, int numObjects);
         
-        [DllImport(Lib)] static extern void QtreeInsert(NativeQtree* tree, ref NativeQtreeObject o);
-        [DllImport(Lib)] static extern void QtreeInsertObjects(NativeQtree* tree,
-                                                                   NativeQtreeObject* objects, int numObjects);
-
+        [DllImport(Lib)] static extern int QtreeInsert(NativeQtree* tree, ref NativeQtreeObject o);
+        [DllImport(Lib)] static extern void QtreeUpdate(NativeQtree* tree, int objectId, int x, int y);
         [DllImport(Lib)] static extern void QtreeRemove(NativeQtree* tree, int objectId);
-        [DllImport(Lib)] static extern void QtreeCollideAll(NativeQtree* tree, float timeStep, IntPtr onCollide);
+        
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        delegate int CollisionF(int objectA, int objectB);
+        [DllImport(Lib)] static extern void QtreeCollideAll(NativeQtree* tree, float timeStep, CollisionF onCollide);
         [DllImport(Lib)] static extern int QtreeFindNearby(NativeQtree* tree, int* outResults, ref NativeSearchOptions opt);
 
         NativeQtree* Tree;
@@ -180,35 +181,21 @@ namespace Ship_Game.Spatial.Native
             QtreeRebuildObjects(Tree, objects, Objects.Count);
         }
 
-        bool OnCollision(int objectA, int objectB)
+        int OnCollision(int objectA, int objectB)
         {
             GameplayObject go1 = Objects[objectA];
             GameplayObject go2 = Objects[objectB];
-            return false;
-        }
-
-        IntPtr CollisionFunc;
-        IntPtr OnCollisionFunc
-        {
-            get
-            {
-                if (CollisionFunc == IntPtr.Zero)
-                {
-                    var d = new CollisionDelegate(OnCollision);
-                    CollisionFunc = Marshal.GetFunctionPointerForDelegate(d);
-                }
-                return CollisionFunc;
-            }
+            return 0;
         }
 
         public void CollideAll(FixedSimTime timeStep)
         {
-            QtreeCollideAll(Tree, timeStep.FixedTime, OnCollisionFunc);
+            QtreeCollideAll(Tree, timeStep.FixedTime, OnCollision);
         }
 
         public void CollideAllRecursive(FixedSimTime timeStep)
         {
-            QtreeCollideAll(Tree, timeStep.FixedTime, OnCollisionFunc);
+            QtreeCollideAll(Tree, timeStep.FixedTime, OnCollision);
         }
 
         static GameplayObject[] CopyOutput(GameplayObject[] objects, int* objectIds, int count)

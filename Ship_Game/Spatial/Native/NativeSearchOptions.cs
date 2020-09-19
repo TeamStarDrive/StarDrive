@@ -3,8 +3,11 @@ using System.Runtime.InteropServices;
 
 namespace Ship_Game.Spatial.Native
 {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate int SearchFilter(int objectId);
+
     [StructLayout(LayoutKind.Sequential)]
-    struct NativeSearchOptions
+    public struct NativeSearchOptions
     {
         public int OriginX;
         public int OriginY;
@@ -14,6 +17,6 @@ namespace Ship_Game.Spatial.Native
         public int FilterExcludeObjectId;
         public int FilterExcludeByLoyalty;
         public int FilterIncludeOnlyByLoyalty;
-        public IntPtr FilterFunction;
+        public SearchFilter FilterFunction;
     };
 }
