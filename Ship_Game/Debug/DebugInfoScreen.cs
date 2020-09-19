@@ -625,18 +625,17 @@ namespace Ship_Game.Debug
             NewLine();
             DrawString("Goals:");
             foreach (Goal goal in e.GetEmpireAI().Goals)
-            {
-                DrawString($"{goal.type}, Target Planet: {goal.ColonizationTarget}");
-            }
+                DrawString($"{goal.type}, Target Planet: {goal.ColonizationTarget}, Bombers Wanted: {goal.ShipLevel}");
+            
             NewLine();
-
             DrawString("Fleets:");
             foreach (Fleet fleet in e.GetFleetsDict().Values)
             {
                 if (fleet.FleetTask == null)
                     continue;
 
-                DrawString($"Target Planet: {fleet.FleetTask.TargetPlanet.Name}, Ships: {fleet.Ships.Count}, str: {fleet.GetStrength().String()}, Task Step: {fleet.FleetTask.Step}");
+                DrawString($"Target Planet: {fleet.FleetTask.TargetPlanet.Name}, Ships: {fleet.Ships.Count}" +
+                               $", str: {fleet.GetStrength().String()}, Task Step: {fleet.TaskStep}");
             }
         }
 
