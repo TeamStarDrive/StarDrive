@@ -1,4 +1,5 @@
-﻿#include <quadtree/QuadTree.h>
+﻿#include <ctime>
+#include <quadtree/QuadTree.h>
 #include <rpp/timer.h>
 #include <rpp/tests.h>
 #include "ImGuiQtreeVis.h"
@@ -32,13 +33,14 @@ TestImpl(QuadTree)
         {
             int x = getRandomOffset(universeRadius);
             int y = getRandomOffset(universeRadius);
-            tree::QtreeObject& o = objects.emplace_back(x, y, objectRadius);
-            o.loyalty = (i % 2) == 0 ? 1 : 2;
-            o.type = tree::ObjectType_Ship;
-            o.objectId = i;
+            uint8_t loyalty = (i % 2) == 0 ? 1 : 2;
+            tree::QtreeObject o {loyalty, tree::ObjectType_Ship, i, x, y, objectRadius, objectRadius};
+            objects.push_back(o);
         }
         return objects;
     }
+
+    static float len(float x, float y) { return sqrtf(static_cast<float>(x*x + y*y)); }
 
     // spawn ships around limited cluster of solar systems
     static std::vector<tree::QtreeObject> createObjects(int numObjects, int objectRadius, int universeSize,
@@ -47,24 +49,38 @@ TestImpl(QuadTree)
         std::vector<tree::QtreeObject> objects;
         std::vector<tree::QtreeObject> systems;
         int universeRadius = universeSize/2;
-        //srand(1452);
+        srand(1452);
 
         for (int i = 0; i < numSolarSystems; ++i)
         {
             int x = getRandomOffset(universeRadius - solarRadius);
             int y = getRandomOffset(universeRadius - solarRadius);
-            systems.emplace_back(x, y, solarRadius);
+            tree::QtreeObject o {0, tree::ObjectType_Any, 0, x, y, solarRadius, solarRadius};
+            systems.push_back(o);
         }
 
         for (int i = 0; i < numObjects; ++i)
         {
             const tree::QtreeObject& sys = systems[getRandomIndex(systems.size())];
-            int x = sys.x + getRandomOffset(solarRadius);
-            int y = sys.y + getRandomOffset(solarRadius);
-            tree::QtreeObject& o = objects.emplace_back(x, y, objectRadius);
-            o.loyalty = (i % 2) == 0 ? 1 : 2;
-            o.type = tree::ObjectType_Ship;
-            o.objectId = i;
+
+            int offX = getRandomOffset(solarRadius);
+            int offY = getRandomOffset(solarRadius);
+
+            // limit offset inside the solar system radius
+            float d = len(offX, offY);
+            if (d > solarRadius)
+            {
+                float multiplier = solarRadius / d;
+                offX = (int)(offX * multiplier);
+                offY = (int)(offY * multiplier);
+            }
+
+            int x = sys.x + offX;
+            int y = sys.y + offY;
+
+            uint8_t loyalty = (i % 2) == 0 ? 1 : 2;
+            tree::QtreeObject o {loyalty, tree::ObjectType_Ship, i, x, y, objectRadius, objectRadius};
+            objects.push_back(o);
         }
         return objects;
     }
@@ -121,7 +137,7 @@ TestImpl(QuadTree)
         tree.insert(objects);
         tree.rebuild();
 
-        tree::vis::show(tree, 0.0001f);
+        tree::vis::show(0.0001f, tree);
 
         measureIterations("Qtree.updateAll", 1000, objects.size(), [&]()
         {

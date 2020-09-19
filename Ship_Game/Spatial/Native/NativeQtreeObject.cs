@@ -15,7 +15,8 @@ namespace Ship_Game.Spatial.Native
         public int ObjectId; // the object
 
         public int X, Y; // Center x y
-        public int Radius; // radius for collision test
+        public int RadiusX; // radius for collision test
+        public int RadiusY; // radius for collision test
 
         public NativeQtreeObject(GameplayObject go, int objectId)
         {
@@ -36,17 +37,14 @@ namespace Ship_Game.Spatial.Native
                 int y2 = (int)Math.Max(source.Y, target.Y);
                 X = (x1 + x2) >> 1;
                 Y = (y1 + y2) >> 1;
-                Radius = Math.Max(x2-x1, y2-y1) >> 1;
+                RadiusX = (x2 - x1) >> 1;
+                RadiusY = (y2 - y1) >> 1;
             }
             else
             {
                 X = (int)go.Center.X;
                 Y = (int)go.Center.Y;
-                Radius = (int)go.Radius;
-                //X1 = CX - Radius;
-                //Y1 = CY - Radius;
-                //X2 = CX + Radius;
-                //Y2 = CY + Radius;
+                RadiusX = RadiusY = (int)go.Radius;
             }
         }
     }

@@ -39,30 +39,34 @@ namespace tree
 
     void QuadTree::rebuild()
     {
-        rebuild(Objects.data(), Objects.size());
-    }
-
-    void QuadTree::rebuild(const std::vector<QtreeObject>& objects)
-    {
-        rebuild(objects.data(), objects.size());
-    }
-
-    void QuadTree::rebuild(const QtreeObject* objects, int numObjects)
-    {
         // swap the front and back-buffer
         // the front buffer will be reset and reused
         // while the back buffer will be untouched until next time
         std::swap(FrontAlloc, BackAlloc);
         FrontAlloc->reset();
 
+        const int numObjects = (int)Objects.size();
+        const QtreeObject* objects = Objects.data();
+
         QtreeBoundedNode root = createRoot();
         for (int i = 0; i < numObjects; ++i)
         {
             const QtreeObject& o = objects[i];
-            QtreeRect oRect = o.bounds();
-            insertAt(Levels, root, o, oRect);
+            insertAt(Levels, root, o);
         }
         Root = root;
+    }
+
+    void QuadTree::rebuild(const std::vector<QtreeObject>& objects)
+    {
+        Objects.assign(objects.data(), objects.data() + objects.size());
+        rebuild();
+    }
+
+    void QuadTree::rebuild(const QtreeObject* objects, int numObjects)
+    {
+        Objects.assign(objects, objects + numObjects);
+        rebuild();
     }
 
     void QuadTree::insert(const QtreeObject& o)
@@ -97,32 +101,33 @@ namespace tree
     struct Overlaps
     {
         bool NW, NE, SE, SW;
-        _forceinline Overlaps(int cx, int cy, const QtreeRect& orect)
+        _forceinline Overlaps(int quadCenterX, int quadCenterY, int objectX, int objectY,
+                              int objectRadiusX, int objectRadiusY)
         {
             // +---------+   The target rectangle overlaps Left quadrants (NW, SW)
             // | x--|    |
             // |-|--+----|
             // | x--|    |
             // +---------+
-            bool overlaps_Left = (orect.left < cx);
+            bool overlaps_Left = (objectX-objectRadiusX < quadCenterX);
             // +---------+   The target rectangle overlaps Right quadrants (NE, SE)
             // |    |--x |
             // |----+--|-|
             // |    |--x |
             // +---------+
-            bool overlaps_Right = (orect.right >= cx);
+            bool overlaps_Right = (objectX+objectRadiusX >= quadCenterX);
             // +---------+   The target rectangle overlaps Top quadrants (NW, NE)
             // | x--|-x  |
             // |----+----|
             // |    |    |
             // +---------+
-            bool overlaps_Top = (orect.top < cy);
+            bool overlaps_Top = (objectY-objectRadiusY < quadCenterY);
             // +---------+   The target rectangle overlaps Bottom quadrants (SW, SE)
             // |    |    |
             // |----+----|
             // | x--|-x  |
             // +---------+
-            bool overlaps_Bottom = (orect.bottom >= cy);
+            bool overlaps_Bottom = (objectY+objectRadiusY >= quadCenterY);
 
             // bitwise combine to get which quadrants we overlap: NW, NE, SE, SW
             NW = overlaps_Top & overlaps_Left;
@@ -132,7 +137,7 @@ namespace tree
         }
     };
 
-    void QuadTree::insertAt(int level, const QtreeBoundedNode& root, const QtreeObject& o, const QtreeRect& orect)
+    void QuadTree::insertAt(int level, const QtreeBoundedNode& root, const QtreeObject& o)
     {
         // QtreeBoundedNode node = findEnclosingNode(root, target);
         QtreeBoundedNode cur = root;
@@ -141,7 +146,7 @@ namespace tree
             // try to select a sub-quadrant, perhaps it's a better match
             if (cur.isBranch())
             {
-                Overlaps over { cur.cx, cur.cy, orect };
+                Overlaps over { cur.cx, cur.cy, o.x, o.y, o.rx, o.ry };
 
                 // bitwise add booleans to get the number of overlaps
                 int overlaps = over.NW + over.NE + over.SE + over.SW;
@@ -156,23 +161,22 @@ namespace tree
                 }
                 else // target overlaps multiple quadrants, so it has to be inserted into several of them:
                 {
-                    if (over.NW) { insertAt(level-1, cur.nw(), o, orect); }
-                    if (over.NE) { insertAt(level-1, cur.ne(), o, orect); }
-                    if (over.SE) { insertAt(level-1, cur.se(), o, orect); }
-                    if (over.SW) { insertAt(level-1, cur.sw(), o, orect); }
+                    if (over.NW) { insertAt(level-1, cur.nw(), o); }
+                    if (over.NE) { insertAt(level-1, cur.ne(), o); }
+                    if (over.SE) { insertAt(level-1, cur.se(), o); }
+                    if (over.SW) { insertAt(level-1, cur.sw(), o); }
                     return;
                 }
             }
             else // isLeaf
             {
-                insertAtLeaf(level, cur, o, orect);
+                insertAtLeaf(level, cur, o);
                 return;
             }
         }
     }
 
-    void QuadTree::insertAtLeaf(int level, const QtreeBoundedNode& root,
-                                           const QtreeObject& o, const QtreeRect& orect)
+    void QuadTree::insertAtLeaf(int level, const QtreeBoundedNode& root, const QtreeObject& o)
     {
         QtreeNode& node = *root.node;
 
@@ -181,7 +185,7 @@ namespace tree
             node.addObject(*FrontAlloc, o);
         }
         // are we maybe over Threshold and should Subdivide ?
-        else
+        else if (level > 0)
         {
             const int size = node.size;
             QtreeObject* objects = node.objects;
@@ -190,13 +194,15 @@ namespace tree
             // and now reinsert all items one by one
             for (int i = 0; i < size; ++i)
             {
-                const QtreeObject& reinsert = objects[i];
-                QtreeRect reinsertBounds = reinsert.bounds();
-                insertAt(level-1, root, reinsert, reinsertBounds);
+                insertAt(level-1, root, objects[i]);
             }
 
             // and now try to insert our object again
-            insertAt(level-1, root, o, orect);
+            insertAt(level-1, root, o);
+        }
+        else
+        {
+            node.addObjectUnbounded(*FrontAlloc, o);
         }
     }
 
@@ -246,7 +252,8 @@ namespace tree
 
     int QuadTree::findNearby(int* outResults, const SearchOptions& opt)
     {
-        QtreeRect enclosingRect = QtreeRect::fromPointRadius(opt.OriginX, opt.OriginY, opt.SearchRadius);
+        int searchRX = opt.SearchRadius;
+        int searchRY = opt.SearchRadius;
 
         // find the deepest enclosing node
         //QtreeBoundedNode enclosing = findEnclosingNode(Root, enclosingRect);
@@ -279,7 +286,7 @@ namespace tree
             QtreeBoundedNode current = stack.pop();
             if (current.isBranch())
             {
-                Overlaps over { current.cx, current.cy, enclosingRect };
+                Overlaps over { current.cx, current.cy, x, y, radius, radius };
                 if (over.SW) stack.push(current.sw());
                 if (over.SE) stack.push(current.se());
                 if (over.NE) stack.push(current.ne());
@@ -299,9 +306,9 @@ namespace tree
                         && (o.objectId & objectMask))
                     {
                         // check if inside radius, inlined for perf
-                        int dx = x - o.x;
-                        int dy = y - o.y;
-                        int r2 = radius + o.radius;
+                        float dx = x - o.x;
+                        float dy = y - o.y;
+                        float r2 = radius + o.rx;
                         if ((dx*dx + dy*dy) <= (r2*r2))
                         {
                             if (!filterFunc || filterFunc(o.objectId) != 0)
@@ -322,14 +329,20 @@ namespace tree
     }
     
     static const QtreeColor Brown  = { 139, 69,  19, 150 };
-    static const QtreeColor Violet = { 199, 21, 133, 100 };
+    static const QtreeColor VioletDim = { 199, 21, 133, 100 };
+    static const QtreeColor VioletBright = { 199, 21, 133, 150 };
     static const QtreeColor Blue   = { 95, 158, 160, 100 };
     static const QtreeColor Red    = { 255, 69,   0, 100 };
-    static const QtreeColor Yellow = { 255, 255,  0, 100 };
+    static const QtreeColor Yellow = { 255, 255,  0, 200 };
 
     void QuadTree::debugVisualize(QtreeRect visible, QtreeVisualizer& visualizer) const
     {
         char text[128];
+
+        int visibleX = (visible.left + visible.right) / 2;
+        int visibleY = (visible.top + visible.bottom) / 2;
+        int radiusX = (visible.right - visible.left) / 2;
+        int radiusY = (visible.bottom - visible.top) / 2;
 
         visualizer.drawRect(-UniverseSize/2, -UniverseSize/2, +UniverseSize/2, +UniverseSize/2, Yellow);
 
@@ -349,7 +362,7 @@ namespace tree
                 snprintf(text, sizeof(text), "BR{%d,%d}", (int)current.cx, (int)current.cy);
                 visualizer.drawText(current.cx, current.cy, current.width(), text, Yellow);
 
-                Overlaps over { current.cx, current.cy, visible };
+                Overlaps over { current.cx, current.cy, visibleX, visibleY, radiusX, radiusY };
                 if (over.SW) stack.push_back(current.sw());
                 if (over.SE) stack.push_back(current.se());
                 if (over.NE) stack.push_back(current.ne());
@@ -365,11 +378,8 @@ namespace tree
                 for (int i = 0; i < count; ++i)
                 {
                     const QtreeObject& o = items[i];
-                    QtreeRect bounds = o.bounds();
-
-                    visualizer.drawRect(bounds.left, bounds.top, bounds.right, bounds.bottom, Violet);
-                    //visualizer.drawCircle(so.CX, so.CY, so.Radius, Violet);
-                    visualizer.drawLine(current.cx, current.cy, o.x, o.y, Violet);
+                    visualizer.drawRect(o.x-o.rx, o.y-o.ry, o.x+o.rx, o.y+o.ry, VioletBright);
+                    visualizer.drawLine(current.cx, current.cy, o.x, o.y, VioletDim);
                 }
             }
         }
