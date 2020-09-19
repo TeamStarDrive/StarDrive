@@ -4,6 +4,18 @@
 #include <rpp/tests.h>
 #include "ImGuiQtreeVis.h"
 
+enum ObjectType : uint8_t
+{
+    // Can be used as a search filter to match all object types
+    ObjectType_Any        = 0,
+    ObjectType_Ship       = 1,
+    ObjectType_ShipModule = 2,
+    ObjectType_Proj       = 4, // this is a projectile, NOT a beam
+    ObjectType_Beam       = 8, // this is a BEAM, not a projectile
+    ObjectType_Asteroid   = 16,
+    ObjectType_Moon       = 32,
+};
+
 struct MyGameObject
 {
     float x = 0.0f;
@@ -13,7 +25,7 @@ struct MyGameObject
     float vx = 0.0f;
     float vy = 0.0f;
     uint8_t loyalty = 0;
-    uint8_t type = 0;
+    ObjectType type = ObjectType_Any;
 };
 
 TestImpl(QuadTree)
@@ -58,7 +70,7 @@ TestImpl(QuadTree)
             o.y = getRandomOffset(universeRadius);
             o.radius = objectRadius;
             o.loyalty = (i % 2) == 0 ? 1 : 2;
-            o.type = tree::ObjectType_Ship;
+            o.type = ObjectType_Ship;
             objects.push_back(o);
         }
         return objects;
@@ -91,7 +103,7 @@ TestImpl(QuadTree)
             float offY = getRandomOffset(solarRadius);
 
             // limit offset inside the solar system radius
-            float d = len(offX, offY);
+            float d = sqrtf(offX*offX + offY*offY);
             if (d > solarRadius)
             {
                 float multiplier = solarRadius / d;
@@ -104,7 +116,7 @@ TestImpl(QuadTree)
             o.y = sys.y + offY;
             o.radius = objectRadius;
             o.loyalty = (i % 2) == 0 ? 1 : 2;
-            o.type = tree::ObjectType_Ship;
+            o.type = ObjectType_Ship;
             objects.push_back(o);
         }
         return objects;
