@@ -13,8 +13,8 @@ namespace tree::vis
 
         tree::QtreeRect camera_frustum { 0, 0, 0, 0 };
 
-        float worldToScreen(int worldSize) const { return worldSize * camera_zoom; }
-        ImVec2 worldToScreen(int worldX, int worldY) const // get screen point from world point
+        float worldToScreen(float worldSize) const { return worldSize * camera_zoom; }
+        ImVec2 worldToScreen(float worldX, float worldY) const // get screen point from world point
         {
             return ImVec2{window_center.x + (camera_world.x + worldX)*camera_zoom,
                           window_center.y + (camera_world.y + worldY)*camera_zoom};
@@ -34,10 +34,10 @@ namespace tree::vis
         {
             ImVec2 topLeft = screenToWorld(0, 0);
             ImVec2 botRight = screenToWorld(window_size.x, window_size.y);
-            camera_frustum.left = (int)topLeft.x;
-            camera_frustum.top  = (int)topLeft.y;
-            camera_frustum.right  = (int)botRight.x;
-            camera_frustum.bottom = (int)botRight.y;
+            camera_frustum.left = topLeft.x;
+            camera_frustum.top  = topLeft.y;
+            camera_frustum.right  = botRight.x;
+            camera_frustum.bottom = botRight.y;
         }
         void moveCamera(ImVec2 delta)
         {
@@ -49,22 +49,22 @@ namespace tree::vis
             ImVec4 cv { c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f };
             return ImGui::ColorConvertFloat4ToU32(cv);
         }
-        void drawRect(int x1, int y1, int x2, int y2, tree::QtreeColor c) override
+        void drawRect(float x1, float y1, float x2, float y2, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
             draw->AddRect(worldToScreen(x1, y1), worldToScreen(x2, y2), getColor(c));
         }
-        void drawCircle(int x, int y, int radius, tree::QtreeColor c) override
+        void drawCircle(float x, float y, float radius, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
             draw->AddCircle(worldToScreen(x, y), worldToScreen(radius), getColor(c));
         }
-        void drawLine(int x1, int y1, int x2, int y2, tree::QtreeColor c) override
+        void drawLine(float x1, float y1, float x2, float y2, tree::QtreeColor c) override
         {
             ImDrawList* draw = ImGui::GetWindowDrawList();
             draw->AddLine(worldToScreen(x1, y1), worldToScreen(x2, y2), getColor(c));
         }
-        void drawText(int x, int y, int size, const char* text, tree::QtreeColor c) override
+        void drawText(float x, float y, float size, const char* text, tree::QtreeColor c) override
         {
             float screenSize = worldToScreen(size);
             if (screenSize > 200)
@@ -120,9 +120,9 @@ namespace tree::vis
                 ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
                 ImVec2 start = ImGui::GetMousePos();
                 ImVec2 world = vis.screenToWorld(start.x - delta.x, start.y - delta.y);
-                opt.OriginX = (int)world.x;
-                opt.OriginY = (int)world.y;
-                opt.SearchRadius = (int)vis.screenToWorld( sqrtf(delta.x*delta.x + delta.y*delta.y) );
+                opt.OriginX = world.x;
+                opt.OriginY = world.y;
+                opt.SearchRadius = vis.screenToWorld( sqrtf(delta.x*delta.x + delta.y*delta.y) );
                 rpp::Timer t;
                 numResults = tree.findNearby(searchResults.data(), opt);
                 find_elapsed_ms = t.elapsed_ms();
