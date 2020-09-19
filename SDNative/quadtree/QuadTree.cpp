@@ -57,31 +57,19 @@ namespace tree
         Root = root;
     }
 
-    void QuadTree::rebuild(const std::vector<QtreeObject>& objects)
+    int QuadTree::insert(const QtreeObject& o)
     {
-        Objects.assign(objects.data(), objects.data() + objects.size());
-        rebuild();
+        int objectId = (int)Objects.size();
+        QtreeObject& inserted = Objects.emplace_back(o);
+        inserted.objectId = objectId;
+        return objectId;
     }
 
-    void QuadTree::rebuild(const QtreeObject* objects, int numObjects)
+    void QuadTree::update(int objectId, int x, int y)
     {
-        Objects.assign(objects, objects + numObjects);
-        rebuild();
-    }
-
-    void QuadTree::insert(const QtreeObject& o)
-    {
-        Objects.push_back(o);
-    }
-
-    void QuadTree::insert(const std::vector<QtreeObject>& objects)
-    {
-        Objects.insert(Objects.end(), objects.begin(), objects.end());
-    }
-
-    void QuadTree::insert(const QtreeObject* objects, int numObjects)
-    {
-        Objects.insert(Objects.end(), objects, objects+numObjects);
+        QtreeObject& o = Objects[objectId];
+        o.x = x;
+        o.y = y;
     }
 
     void QuadTree::remove(int objectId)
@@ -273,7 +261,7 @@ namespace tree
         int exclLoyaltyMask = (opt.FilterExcludeByLoyalty == 0)     ? 0xffffffff : ~opt.FilterExcludeByLoyalty;
         int onlyLoyaltyMask = (opt.FilterIncludeOnlyByLoyalty == 0) ? 0xffffffff : opt.FilterIncludeOnlyByLoyalty;
         int filterMask      = (opt.FilterByType == 0)               ? 0xffffffff : opt.FilterByType;
-        int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~opt.FilterExcludeObjectId;
+        int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~(opt.FilterExcludeObjectId+1);
         int x = opt.OriginX;
         int y = opt.OriginY;
         int radius = opt.SearchRadius;
@@ -303,7 +291,7 @@ namespace tree
                         && (o.loyalty & exclLoyaltyMask)
                         && (o.loyalty & onlyLoyaltyMask)
                         && (o.type     & filterMask)
-                        && (o.objectId & objectMask))
+                        && ((o.objectId+1) & objectMask))
                     {
                         // check if inside radius, inlined for perf
                         float dx = x - o.x;
@@ -414,19 +402,14 @@ namespace tree
         tree->rebuild();
     }
 
-    TREE_C_API void __stdcall QtreeRebuildObjects(QuadTree* tree, const QtreeObject* objects, int numObjects)
+    TREE_C_API int __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o)
     {
-        tree->rebuild(objects, numObjects);
+        return tree->insert(o);
     }
 
-    TREE_C_API void __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o)
+    TREE_C_API void __stdcall QtreeUpdate(QuadTree* tree, int objectId, int x, int y)
     {
-        tree->insert(o);
-    }
-
-    TREE_C_API void __stdcall QtreeInsertObjects(QuadTree* tree, const QtreeObject* objects, int numObjects)
-    {
-        tree->insert(objects, numObjects);
+        tree->update(objectId, x, y);
     }
 
     TREE_C_API void __stdcall QtreeRemove(QuadTree* tree, int objectId)
