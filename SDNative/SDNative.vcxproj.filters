@@ -299,6 +299,9 @@
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis">
       <Filter>3rdparty\nano</Filter>
     </Natvis>
+    <Natvis Include="quadtree\Qtree.natvis">
+      <Filter>quadtree</Filter>
+    </Natvis>
   </ItemGroup>
   <ItemGroup>
     <None Include="fbxsdk\libfbxsdk.dll" />

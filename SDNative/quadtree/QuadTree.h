@@ -80,7 +80,7 @@ namespace tree
         virtual void drawRect  (int x1, int y1, int x2, int y2,  QtreeColor c) = 0;
         virtual void drawCircle(int x,  int y,  int radius,      QtreeColor c) = 0;
         virtual void drawLine  (int x1, int y1, int x2, int y2,  QtreeColor c) = 0;
-        virtual void drawText  (int x,  int y, const char* text, QtreeColor c) = 0;
+        virtual void drawText  (int x,  int y, int size, const char* text, QtreeColor c) = 0;
     };
 
     struct QtreeVisualizerBridge
@@ -88,12 +88,13 @@ namespace tree
         void (*DrawRect)  (int x1, int y1, int x2, int y2,  QtreeColor c);
         void (*DrawCircle)(int x,  int y,  int radius,      QtreeColor c);
         void (*DrawLine)  (int x1, int y1, int x2, int y2,  QtreeColor c);
-        void (*DrawText)  (int x,  int y, const char* text, QtreeColor c);
+        void (*DrawText)  (int x,  int y, int size, const char* text, QtreeColor c);
     };
 
 
     class TREE_API QuadTree
     {
+        int Levels;
         int FullSize;
         int UniverseSize;
 
@@ -153,8 +154,10 @@ namespace tree
         void remove(int objectId);
 
     private:
-        QtreeBoundedNode findEnclosingNode(QtreeBoundedNode node, const QtreeRect obj);
-        void insertAt(const QtreeBoundedNode& root, const QtreeObject& o, QtreeRect target);
+        void insertAt(int level, const QtreeBoundedNode& root,
+                                 const QtreeObject& o, const QtreeRect& orect);
+        void insertAtLeaf(int level, const QtreeBoundedNode& root,
+                                     const QtreeObject& o, const QtreeRect& orect);
         void removeAt(QtreeNode* root, int objectId);
 
     public:

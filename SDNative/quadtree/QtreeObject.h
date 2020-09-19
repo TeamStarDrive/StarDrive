@@ -4,7 +4,7 @@
 
 namespace tree
 {
-    enum ObjectType : uint8_t
+    enum ObjectType : int
     {
         // Can be used as a search filter to match all object types
         ObjectType_Any        = 0,
@@ -18,8 +18,8 @@ namespace tree
 
     struct QtreeObject
     {
-        uint8_t Active;  // 1 if this item is active, 0 if this item is DEAD
-        uint8_t Loyalty; // if loyalty == 0, then this is a STATIC world object !!!
+        uint8_t active;  // 1 if this item is active, 0 if this item is DEAD
+        uint8_t loyalty; // if loyalty == 0, then this is a STATIC world object !!!
         uint8_t type; // GameObjectType : byte
         uint8_t reserved;
         int objectId; // handle to the object
@@ -31,12 +31,12 @@ namespace tree
 
         QtreeObject(uint8_t loyalty, uint8_t type, int objectId,
                     int cx, int cy, int r)
-            : Active{1}, Loyalty{loyalty}, type{type}, reserved{}, objectId{objectId}
+            : active{1}, loyalty{loyalty}, type{type}, reserved{}, objectId{objectId}
             , x{cx}, y{cy}, radius{r}
         {
         }
         QtreeObject(int cx, int cy, int r)
-            : Active{1}, Loyalty{0}, type{ObjectType_Any}, reserved{}, objectId{-1}
+            : active{1}, loyalty{0}, type{ObjectType_Any}, reserved{}, objectId{-1}
             , x{cx}, y{cy}, radius{r}
         {
         }

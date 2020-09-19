@@ -114,6 +114,9 @@
     <ClInclude Include="..\3rdparty\imgui\imgui_impl_win32.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiQtreeVis.h">
+      <Filter>tests</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ReCpp\rpp\strview.natvis">

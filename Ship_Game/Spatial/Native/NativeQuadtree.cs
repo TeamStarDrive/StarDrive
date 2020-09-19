@@ -337,7 +337,7 @@ namespace Ship_Game.Spatial.Native
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawRectF(int x1, int y1, int x2, int y2, QtreeColor c);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawCircleF(int x, int y, int radius, QtreeColor c);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawLineF(int x1, int y1, int x2, int y2, QtreeColor c);
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawTextF(int x, int y, sbyte* text, QtreeColor c);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawTextF(int x, int y, int size, sbyte* text, QtreeColor c);
         struct QtreeVisualizerBridge
         {
             public DrawRectF   DrawRect;
@@ -362,9 +362,10 @@ namespace Ship_Game.Spatial.Native
         {
             Screen.DrawLineProjected(new Vector2(x1,y1), new Vector2(x2,y2), new Color(c.r,c.g,c.b,c.a));
         }
-        static void DrawText(int x, int y, sbyte* text, QtreeColor c)
+        static void DrawText(int x, int y, int size, sbyte* text, QtreeColor c)
         {
-            Screen.DrawStringProjected(new Vector2(x,y), 0f, 1f, new Color(c.r,c.g,c.b,c.a), new string(text));
+            float scale = size / 5f;
+            Screen.DrawStringProjected(new Vector2(x,y), 0f, scale, new Color(c.r,c.g,c.b,c.a), new string(text));
         }
 
         public void DebugVisualize(GameScreen screen)

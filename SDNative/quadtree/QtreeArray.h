@@ -1,23 +1,20 @@
 #pragma once
-#include <cstdint>
+#include "QtreeConstants.h"
 #include "QtreeAllocator.h"
+#include "QtreeObject.h"
 
 namespace tree
 {
-    template<class T, int Capacity>
-    struct QtreeArray
+    struct QtreeObjectArray
     {
         int size = 0;
-        T* items = nullptr;
+        QtreeObject* items = nullptr;
 
-        /// <summary>
-        /// Regular vector-like push_back
-        /// </summary>
-        void push_back(QtreeAllocator& allocator, const T& item)
+        void push_back(QtreeAllocator& allocator, const QtreeObject& item)
         {
             if (items == nullptr)
             {
-                items = allocator.allocArray<T>(Capacity);
+                items = allocator.allocArray<QtreeObject>(QuadCellThreshold);
             }
             items[size++] = item;
         }

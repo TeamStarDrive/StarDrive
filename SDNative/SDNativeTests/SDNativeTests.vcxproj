@@ -211,6 +211,7 @@
     <ClInclude Include="..\ReCpp\rpp\timer.h" />
     <ClInclude Include="..\ReCpp\rpp\vec.h" />
     <ClInclude Include="DebugGfxWindow.h" />
+    <ClInclude Include="ImGuiQtreeVis.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ReCpp\rpp\strview.natvis" />
