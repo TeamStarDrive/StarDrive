@@ -1,7 +1,7 @@
 #pragma once
 #include "QtreeConstants.h"
 #include "QtreeObject.h"
-#include "QtreeArray.h"
+#include "QtreeAllocator.h"
 
 namespace tree
 {
@@ -9,13 +9,48 @@ namespace tree
 
     struct QtreeNode
     {
-        QtreeNode* nodes = nullptr;
-        QtreeArray<QtreeObject, QuadCellThreshold> objects;
+        // Our node can be two things:
+        // BRANCH: It has no objects and has 4 sub nodes
+        // LEAF:   It has only objects and NO sub nodes
+        // This is done to save one pointer storage and fit this QtreeNode into 8-byte boundary on x86
+        union
+        {
+            QtreeNode* nodes = nullptr;
+            QtreeObject* objects;
+        };
 
-        QtreeNode* nw() const { return nodes; }
-        QtreeNode* ne() const { return (nodes + 1); }
-        QtreeNode* se() const { return (nodes + 2); }
-        QtreeNode* sw() const { return (nodes + 3); }
+        static constexpr int BRANCH_ID = -1;
+
+        // if size == -1, this is a BRANCH
+        // if size >= 0, this is a LEAF
+        // by default start as a LEAF
+        int size = 0;
+
+        bool isBranch() const { return size == BRANCH_ID; }
+        bool isLeaf()   const { return size != BRANCH_ID; }
+
+        QtreeNode* nw() const { return &nodes[0]; }
+        QtreeNode* ne() const { return &nodes[1]; }
+        QtreeNode* se() const { return &nodes[2]; }
+        QtreeNode* sw() const { return &nodes[3]; }
+
+        // simply adds another object
+        __forceinline void addObject(QtreeAllocator& allocator, const QtreeObject& item)
+        {
+            if (size == 0)
+            {
+                objects = allocator.allocArray<QtreeObject>(QuadCellThreshold);
+            }
+            objects[size++] = item;
+        }
+
+        // Converts a LEAF node into a BRANCH node which contains sub-QtreeNode's
+        __forceinline void convertToBranch(QtreeAllocator& allocator)
+        {
+            // create 4 LEAF nodes
+            nodes = allocator.allocArrayZeroed<QtreeNode>(4);
+            size = BRANCH_ID;
+        }
     };
 
     // Simple helper: Node pointer, with Center XY and Bounds AABB
@@ -29,27 +64,36 @@ namespace tree
         int right;
         int bottom;
 
-        QtreeBoundedNode nw() const
+        /** @return TRUE if this is LEAF node with no child nodes */
+        __forceinline bool isLeaf() const { return node->isLeaf(); }
+
+        /** @return TRUE if this is a branch with child nodes */
+        __forceinline bool isBranch() const { return node->isBranch(); }
+
+        __forceinline int height() const { return bottom - top; }
+        __forceinline int width()  const { return right - left; }
+
+        __forceinline QtreeBoundedNode nw() const
         {
             return QtreeBoundedNode{ node->nw(), (left+cx)>>1, (top+cy)>>1, left, top, cx, cy };
         }
 
-        QtreeBoundedNode ne() const
+        __forceinline QtreeBoundedNode ne() const
         {
             return QtreeBoundedNode{ node->ne(), (cx+right)>>1, (top+cy)>>1, cx, top, right, cy };
         }
 
-        QtreeBoundedNode se() const
+        __forceinline QtreeBoundedNode se() const
         {
             return QtreeBoundedNode{ node->se(), (cx+right)>>1, (cy+bottom)>>1, cx, cy, right, bottom };
         }
         
-        QtreeBoundedNode sw() const
+        __forceinline QtreeBoundedNode sw() const
         {
             return QtreeBoundedNode{ node->sw(), (left+cx)>>1, (cy+bottom)>>1, left, cy, cx, bottom };
         }
 
-        bool overlaps(const QtreeRect& r) const
+        __forceinline bool overlaps(const QtreeRect& r) const
         {
             return left <= r.right  && right  > r.left
                 && top  <= r.bottom && bottom > r.top;

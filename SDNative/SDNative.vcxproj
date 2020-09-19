@@ -194,6 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis" />
+    <Natvis Include="quadtree\Qtree.natvis" />
     <Natvis Include="ReCpp\rpp\strview.natvis" />
     <Natvis Include="ReCpp\rpp\vec.natvis" />
     <Natvis Include="SDNative.natvis" />
