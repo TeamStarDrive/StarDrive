@@ -91,11 +91,7 @@ namespace tree
     struct QtreeBoundedNode
     {
         QtreeNode* node;
-        int cx, cy;
-        int left;
-        int top;
-        int right;
-        int bottom;
+        int cx, cy, r; // node center-x, center-y, radius
 
         /** @return TRUE if this is LEAF node with no child nodes */
         __forceinline bool isLeaf() const { return node->isLeaf(); }
@@ -103,33 +99,37 @@ namespace tree
         /** @return TRUE if this is a branch with child nodes */
         __forceinline bool isBranch() const { return node->isBranch(); }
 
-        __forceinline int height() const { return bottom - top; }
-        __forceinline int width()  const { return right - left; }
+        __forceinline int height() const { return r*2; }
+        __forceinline int width()  const { return r*2; }
 
         __forceinline QtreeBoundedNode nw() const
         {
-            return QtreeBoundedNode{ node->nw(), (left+cx)>>1, (top+cy)>>1, left, top, cx, cy };
+            int r2 = r >> 1;
+            return QtreeBoundedNode{ &node->nodes[0], cx-r2, cy-r2, r2 };
         }
 
         __forceinline QtreeBoundedNode ne() const
         {
-            return QtreeBoundedNode{ node->ne(), (cx+right)>>1, (top+cy)>>1, cx, top, right, cy };
+            int r2 = r >> 1;
+            return QtreeBoundedNode{ &node->nodes[1], cx+r2, cy-r2, r2 };
         }
 
         __forceinline QtreeBoundedNode se() const
         {
-            return QtreeBoundedNode{ node->se(), (cx+right)>>1, (cy+bottom)>>1, cx, cy, right, bottom };
+            int r2 = r >> 1;
+            return QtreeBoundedNode{ &node->nodes[2], cx+r2, cy+r2, r2 };
         }
         
         __forceinline QtreeBoundedNode sw() const
         {
-            return QtreeBoundedNode{ node->sw(), (left+cx)>>1, (cy+bottom)>>1, left, cy, cx, bottom };
+            int r2 = r >> 1;
+            return QtreeBoundedNode{ &node->nodes[3], cx-r2, cy+r2, r2 };
         }
 
-        __forceinline bool overlaps(const QtreeRect& r) const
-        {
-            return left <= r.right  && right  > r.left
-                && top  <= r.bottom && bottom > r.top;
-        }
+        //__forceinline bool overlaps(const QtreeRect& r) const
+        //{
+        //    return left <= r.right  && right  > r.left
+        //        && top  <= r.bottom && bottom > r.top;
+        //}
     };
 }

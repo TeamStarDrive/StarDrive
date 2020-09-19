@@ -98,7 +98,7 @@ namespace tree
         int FullSize;
         int UniverseSize;
 
-        QtreeBoundedNode Root { nullptr, 0, 0, 0, 0, 0, 0 };
+        QtreeBoundedNode Root { nullptr, 0, 0, 0 };
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
         QtreeAllocator* FrontAlloc = new QtreeAllocator{};
@@ -189,7 +189,7 @@ namespace tree
     TREE_C_API void __stdcall QtreeClear(QuadTree* tree);
     TREE_C_API void __stdcall QtreeRebuild(QuadTree* tree);
     TREE_C_API int  __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o);
-    TREE_C_API void __stdcall QtreeUpdatePos(QuadTree* tree, int objectId, float x, float y);
+    TREE_C_API void __stdcall QtreeUpdatePos(QuadTree* tree, int objectId, int x, int y);
     TREE_C_API void __stdcall QtreeRemove(QuadTree* tree, int objectId);
     TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, 
                                              tree::CollisionFunc onCollide);
