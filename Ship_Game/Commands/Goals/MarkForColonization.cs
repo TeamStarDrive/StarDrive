@@ -177,7 +177,8 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (PositiveEnemyPresence(out _))
+            if (empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10 
+                && (!empire.isPlayer || empire.isPlayer && empire.AutoColonize))
             {
                 ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;
