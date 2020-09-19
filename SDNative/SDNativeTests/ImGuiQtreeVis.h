@@ -75,7 +75,7 @@ namespace tree::vis
         }
     };
 
-    inline void show(float zoom, tree::QuadTree& tree)
+    inline void show(float zoom, tree::QuadTree& tree, std::function<void(float timeStep)>&& onUpdate)
     {
         ImGuiQtreeVis vis;
         vis.camera_zoom = zoom;
@@ -88,18 +88,10 @@ namespace tree::vis
         std::vector<int> searchResults(opt.MaxResults);
         int numResults = 0;
         double find_elapsed_ms = 0.0;
+        double update_elapsed_ms = 0.0;
         float timeSink = 0.0f;
         float timeStep = 1.0f / 60.0f;
-
-        float universeLo = tree.universeSize() * -0.5f;
-        float universeHi = tree.universeSize() * 0.5f;
-
-        for (int i = 0; i < tree.count(); ++i)
-        {
-            tree::QtreeObject& o = const_cast<tree::QtreeObject&>( tree.get(i) );
-            o.vx = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 200000.0f;
-            o.vy = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 200000.0f;
-        }
+        bool startSim = false;
 
         DebugGfxWindow window;
         window.Run([&]()
@@ -119,6 +111,7 @@ namespace tree::vis
 
             if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
             {
+                startSim = true;
                 vis.moveCamera(ImGui::GetIO().MouseDelta);
             }
 
@@ -147,23 +140,14 @@ namespace tree::vis
             while (timeSink >= timeStep)
             {
                 timeSink -= timeStep;
-                for (int i = 0; i < tree.count(); ++i)
+                if (startSim)
                 {
-                    tree::QtreeObject& o = const_cast<tree::QtreeObject&>( tree.get(i) );
-
-                    if (o.x < universeLo || o.x > universeHi)
-                        o.vx = -o.vx;
-
-                    if (o.y < universeLo || o.y > universeHi)
-                        o.vy = -o.vy;
-
-                    o.x += o.vx * timeStep;
-                    o.y += o.vy * timeStep;
-
-
+                    rpp::Timer t;
+                    onUpdate(timeStep);
+                    update_elapsed_ms = t.elapsed_ms();
                 }
             }
-            tree.rebuild();
+
             tree.debugVisualize(vis.camera_frustum, vis);
 
             if (opt.SearchRadius > 1)
@@ -174,14 +158,13 @@ namespace tree::vis
 
                 for (int i = 0; i < numResults; ++i)
                 {
-                    const tree::QtreeObject& o = tree.get(searchResults[i]);
+                    const tree::QtreeObject& o = tree.get( searchResults[i] );
                     draw->AddCircle(vis.worldToScreen(o.x, o.y), vis.worldToScreen(o.rx), vis.getColor(Yellow), 8);
                 }
             }
 
-            ImGui::Text("Qtree avg %.3f ms/frame (%.1f FPS)",
-                        1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
+            ImGui::Text("Qtree avg %.3f ms/frame (%.1f FPS)", 1000.0f/ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Text("Qtree::update(%d) elapsed: %.3fms", tree.count(), update_elapsed_ms);
             ImGui::Text("Qtree::findNearby(radius=%d) elapsed: %.3fms", opt.SearchRadius, find_elapsed_ms);
             ImGui::Text("     Results: %d", numResults);
             ImGui::End();

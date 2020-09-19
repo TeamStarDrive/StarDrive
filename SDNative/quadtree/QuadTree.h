@@ -145,18 +145,18 @@ namespace tree
         void rebuild();
 
         /**
-         * Rebuilds the quadtree by inserting only the specified objects
-         */
-        void rebuild(const std::vector<QtreeObject>& objects);
-        void rebuild(const QtreeObject* objects, int numObjects);
-
-        /**
          * Inserts a new object into the Quadtree pending list
          * The object will be actually inserted after `rebuild()` is called
+         * @return The unique ObjectId of this inserted object
          */
-        void insert(const QtreeObject& o);
-        void insert(const std::vector<QtreeObject>& objects);
-        void insert(const QtreeObject* objects, int numObjects);
+        int insert(const QtreeObject& o);
+
+        /**
+         * Updates position of the specified object
+         * This is a deferred update.
+         * The actual tree will be updated during `rebuild()`
+         */
+        void update(int objectId, int x, int y);
 
         /**
          * Removes an object from the object list and marks it for removal during next rebuild
@@ -188,9 +188,8 @@ namespace tree
     TREE_C_API void __stdcall QtreeDestroy(QuadTree* tree);
     TREE_C_API void __stdcall QtreeClear(QuadTree* tree);
     TREE_C_API void __stdcall QtreeRebuild(QuadTree* tree);
-    TREE_C_API void __stdcall QtreeRebuildObjects(QuadTree* tree, const QtreeObject* objects, int numObjects);
-    TREE_C_API void __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o);
-    TREE_C_API void __stdcall QtreeInsertObjects(QuadTree* tree, const QtreeObject* objects, int numObjects);
+    TREE_C_API int  __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o);
+    TREE_C_API void __stdcall QtreeUpdatePos(QuadTree* tree, int objectId, float x, float y);
     TREE_C_API void __stdcall QtreeRemove(QuadTree* tree, int objectId);
     TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, 
                                              tree::CollisionFunc onCollide);
