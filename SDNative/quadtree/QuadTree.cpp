@@ -1,8 +1,5 @@
 #include "QuadTree.h"
-
-#include <stdexcept>
-
-#include "QtreeConstants.h"
+#include <algorithm>
 
 namespace tree
 {
@@ -198,23 +195,25 @@ namespace tree
     {
         static constexpr int MAX = 2048;
         int next = -1;
-        T stack[MAX];
-        __forceinline void push(const T& node) { stack[++next] = node; }
-        __forceinline T pop() { return stack[next--]; }
+        T items[MAX];
+        SmallStack() = default;
+        explicit SmallStack(const T& node) : next{0} { items[0] = node; }
+        __forceinline void push_back(const T& node) { items[++next] = node; }
+        __forceinline T pop_back() { return items[next--]; }
     };
 
     void QuadTree::removeAt(QtreeNode* root, int objectId)
     {
-        SmallStack<QtreeNode*> stack; stack.push(root);
+        SmallStack<QtreeNode*> stack; stack.push_back(root);
         do
         {
-            QtreeNode& node = *stack.pop();
+            QtreeNode& node = *stack.pop_back();
             if (node.isBranch())
             {
-                stack.push(node.sw());
-                stack.push(node.se());
-                stack.push(node.ne());
-                stack.push(node.nw());
+                stack.push_back(node.sw());
+                stack.push_back(node.se());
+                stack.push_back(node.ne());
+                stack.push_back(node.nw());
             }
             else
             {
@@ -238,81 +237,101 @@ namespace tree
     {
     }
 
+    // finds all LEAF nodes that overlap [cx, cy, rx, ry]
+    struct FoundLeaves
+    {
+        int numLeaves = 0; // number of found leaves
+        int totalObjects = 0; // total number of potential objects
+        SmallStack<QtreeBoundedNode> leaves;
+    };
+
+    static void findLeaves(FoundLeaves& found, const QtreeBoundedNode& root, int cx, int cy, int rx, int ry)
+    {
+        SmallStack<QtreeBoundedNode> stack { root };
+        do
+        {
+            QtreeBoundedNode current = stack.pop_back();
+            if (current.isBranch())
+            {
+                Overlaps over { current.cx, current.cy, cx, cy, rx, ry };
+                if (over.SW) stack.push_back(current.sw());
+                if (over.SE) stack.push_back(current.se());
+                if (over.NE) stack.push_back(current.ne());
+                if (over.NW) stack.push_back(current.nw());
+            }
+            else
+            {
+                found.leaves.push_back(current);
+                ++found.numLeaves;
+                found.totalObjects += current.node->size;
+            }
+        } while (stack.next >= 0);
+    }
+
+    #pragma warning( disable : 6262 )
     int QuadTree::findNearby(int* outResults, const SearchOptions& opt)
     {
-        int searchRX = opt.SearchRadius;
-        int searchRY = opt.SearchRadius;
-
-        // find the deepest enclosing node
-        //QtreeBoundedNode enclosing = findEnclosingNode(Root, enclosingRect);
-
-        // If enclosing object is the Root object and radius is huge,
-        // switch to linear search because we need to traverse the ENTIRE universe anyway
-        // TODO -- Implement this in native side
-        //if (enclosing == root && radius > QuadToLinearSearchThreshold)
-        //{
-        //    return FindLinear(worldPos, radius, filter, toIgnore, loyaltyFilter);
-        //}
-
-        SmallStack<QtreeBoundedNode> stack;
-        stack.push(Root);
+        FoundLeaves found;
+        findLeaves(found, Root, opt.OriginX, opt.OriginY, opt.SearchRadius, opt.SearchRadius);
 
         // NOTE: to avoid a few branches, we used pre-calculated masks, 0xff will pass any
         int exclLoyaltyMask = (opt.FilterExcludeByLoyalty == 0)     ? 0xffffffff : ~opt.FilterExcludeByLoyalty;
         int onlyLoyaltyMask = (opt.FilterIncludeOnlyByLoyalty == 0) ? 0xffffffff : opt.FilterIncludeOnlyByLoyalty;
         int filterMask      = (opt.FilterByType == 0)               ? 0xffffffff : opt.FilterByType;
         int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~(opt.FilterExcludeObjectId+1);
-        int x = opt.OriginX;
-        int y = opt.OriginY;
-        int radius = opt.SearchRadius;
+        float x = opt.OriginX;
+        float y = opt.OriginY;
+        float radius = opt.SearchRadius;
         SearchFilterFunc filterFunc = opt.FilterFunction;
-
         int maxResults = opt.MaxResults;
-        int numResults = 0;
-        do
+        QtreeBoundedNode* leaves = found.leaves.items;
+
+        // if total candidates is more than we can fit, we need to sort LEAF nodes by distance to Origin
+        if (found.totalObjects > opt.MaxResults)
         {
-            QtreeBoundedNode current = stack.pop();
-            if (current.isBranch())
+            std::sort(leaves, leaves+found.numLeaves, [x,y](const QtreeBoundedNode& a, const QtreeBoundedNode& b) -> bool
             {
-                Overlaps over { current.cx, current.cy, x, y, radius, radius };
-                if (over.SW) stack.push(current.sw());
-                if (over.SE) stack.push(current.se());
-                if (over.NE) stack.push(current.ne());
-                if (over.NW) stack.push(current.nw());
-            }
-            else
+                float adx = x - a.cx;
+                float ady = y - a.cy;
+                float sqdist1 = adx*adx + ady*ady;
+                float bdx = x - b.cx;
+                float bdy = y - b.cy;
+                float sqdist2 = bdx*bdx + bdy*bdy;
+                return sqdist1 < sqdist2;
+            });
+        }
+
+        int numResults = 0;
+        for (int leafIndex = 0; leafIndex < found.numLeaves; ++leafIndex)
+        {
+            QtreeNode* leaf = found.leaves.items[leafIndex].node;
+            const int size = leaf->size;
+            const QtreeObject* items = leaf->objects;
+            for (int i = 0; i < size; ++i)
             {
-                int size = current.node->size;
-                const QtreeObject* items = current.node->objects;
-                for (int i = 0; i < size; ++i)
+                const QtreeObject& o = items[i];
+                if (o.active
+                    && (o.loyalty & exclLoyaltyMask)
+                    && (o.loyalty & onlyLoyaltyMask)
+                    && (o.type     & filterMask)
+                    && ((o.objectId+1) & objectMask))
                 {
-                    const QtreeObject& o = items[i];
-                    if (o.active
-                        && (o.loyalty & exclLoyaltyMask)
-                        && (o.loyalty & onlyLoyaltyMask)
-                        && (o.type     & filterMask)
-                        && ((o.objectId+1) & objectMask))
+                    // check if inside radius, inlined for perf
+                    float dx = x - o.x;
+                    float dy = y - o.y;
+                    float r2 = radius + o.rx;
+                    if ((dx*dx + dy*dy) <= (r2*r2))
                     {
-                        // check if inside radius, inlined for perf
-                        float dx = x - o.x;
-                        float dy = y - o.y;
-                        float r2 = radius + o.rx;
-                        if ((dx*dx + dy*dy) <= (r2*r2))
+                        if (!filterFunc || filterFunc(o.objectId) != 0)
                         {
-                            if (!filterFunc || filterFunc(o.objectId) != 0)
-                            {
-                                outResults[numResults++] = o.objectId;
-                                if (numResults >= maxResults)
-                                    return numResults; // we are done !
-                            }
+                            outResults[numResults++] = o.objectId;
+                            if (numResults >= maxResults)
+                                return numResults; // we are done !
                         }
                     }
                 }
-
             }
         }
-        while (stack.next >= 0);
-        
         return numResults;
     }
     
@@ -334,21 +353,18 @@ namespace tree
 
         visualizer.drawRect(-UniverseSize/2, -UniverseSize/2, +UniverseSize/2, +UniverseSize/2, Yellow);
 
-        std::vector<QtreeBoundedNode> stack;
-        stack.reserve(128);
+        SmallStack<QtreeBoundedNode> stack;
         //SmallStack<QtreeBoundedNode> stack;
         //stack.push(Root);
         stack.push_back(Root);
         do
         {
-            QtreeBoundedNode current = stack.back();
-            stack.pop_back();
+            QtreeBoundedNode current = stack.pop_back();
             visualizer.drawRect(current.left, current.top, current.right, current.bottom, Brown);
 
             if (current.isBranch())
             {
-                snprintf(text, sizeof(text), "BR{%d,%d}", (int)current.cx, (int)current.cy);
-                visualizer.drawText(current.cx, current.cy, current.width(), text, Yellow);
+                visualizer.drawText(current.cx, current.cy, current.width(), "BR", Yellow);
 
                 Overlaps over { current.cx, current.cy, visibleX, visibleY, radiusX, radiusY };
                 if (over.SW) stack.push_back(current.sw());
@@ -358,7 +374,7 @@ namespace tree
             }
             else
             {
-                snprintf(text, sizeof(text), "LF{%d,%d} size=%d", (int)current.cx, (int)current.cy, current.node->size);
+                snprintf(text, sizeof(text), "LF n=%d", current.node->size);
                 visualizer.drawText(current.cx, current.cy, current.width(), text, Yellow);
 
                 int count = current.node->size;
@@ -371,7 +387,7 @@ namespace tree
                 }
             }
         }
-        while (!stack.empty());
+        while (stack.next >= 0);
     }
 
     void QuadTree::markForRemoval(int objectId, QtreeObject& o)

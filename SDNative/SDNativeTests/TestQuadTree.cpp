@@ -172,10 +172,10 @@ TestImpl(QuadTree)
                                                           SOLAR_SYSTEMS, SOLAR_RADIUS);
         insertAll(tree, objects);
 
-        tree::vis::show(0.0001f, tree, [&](float timeStep)
-        {
-            runSimulation(timeStep, tree, objects);
-        });
+        //tree::vis::show(0.0001f, tree, [&](float timeStep)
+        //{
+        //    runSimulation(timeStep, tree, objects);
+        //});
 
         measureIterations("Qtree.updateAll", 1000, objects.size(), [&]()
         {
