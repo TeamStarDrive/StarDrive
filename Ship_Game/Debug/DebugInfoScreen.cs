@@ -32,6 +32,7 @@ namespace Ship_Game.Debug
         Tech,
         Solar, // Sun timers, black hole data, pulsar radiation radius...
         RelationsWar,
+        Remnants,
         Last // dummy value
     }
 
@@ -229,13 +230,14 @@ namespace Ship_Game.Debug
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
                 {
-                    case DebugModes.Normal        : EmpireInfo(); break;
-                    case DebugModes.DefenseCo     : DefcoInfo(); break;
-                    case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
-                    case DebugModes.Targeting     : Targeting(); break;
+                    case DebugModes.Normal:         EmpireInfo();        break;
+                    case DebugModes.DefenseCo:      DefcoInfo();         break;
+                    case DebugModes.ThreatMatrix:   ThreatMatrixInfo();  break;
+                    case DebugModes.Targeting:      Targeting();         break;
                     case DebugModes.SpatialManager: SpatialManagement(); break;
-                    case DebugModes.input         : InputDebug(); break;
-                    case DebugModes.Tech          : Tech(); break;
+                    case DebugModes.input:          InputDebug();        break;
+                    case DebugModes.Tech:           Tech();              break;
+                    case DebugModes.Remnants:       RemnantInfo();       break;
                 }
                 base.Draw(batch, elapsed);
                 ShipInfo();
@@ -607,6 +609,34 @@ namespace Ship_Game.Debug
                 DrawString($"WayPoints ({wayPoints.Length}):");
                 for (int i = 0; i < wayPoints.Length; ++i)
                     DrawString($"  {i}:  {wayPoints[i].Position}");
+            }
+        }
+
+        void RemnantInfo()
+        {
+            Empire e = EmpireManager.Remnants;
+            SetTextCursor(Win.X + 10 + 255, Win.Y + 150, e.EmpireColor);
+            DrawString($"Remnant Story: {e.Remnants.Story}");
+            string activatedString = e.Remnants.Activated ? "Yes" : "No";
+            activatedString        = e.data.Defeated ? "Defeated" : activatedString;
+            DrawString($"Activated: {activatedString}");
+            DrawString($"Level: {e.Remnants.Level}");
+            DrawString($"Resources: {e.Remnants.Production.String()}");
+            NewLine();
+            DrawString("Goals:");
+            foreach (Goal goal in e.GetEmpireAI().Goals)
+            {
+                DrawString($"{goal.type}, Target Planet: {goal.ColonizationTarget}");
+            }
+            NewLine();
+
+            DrawString("Fleets:");
+            foreach (Fleet fleet in e.GetFleetsDict().Values)
+            {
+                if (fleet.FleetTask == null)
+                    continue;
+
+                DrawString($"Target Planet: {fleet.FleetTask.TargetPlanet.Name}, Ships: {fleet.Ships.Count}, str: {fleet.GetStrength().String()}, Task Step: {fleet.FleetTask.Step}");
             }
         }
 
