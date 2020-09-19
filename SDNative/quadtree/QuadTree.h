@@ -97,8 +97,9 @@ namespace tree
         int Levels;
         int FullSize;
         int UniverseSize;
+        int LeafSplitThreshold = QuadDefaultLeafSplitThreshold;
 
-        QtreeBoundedNode Root { nullptr, 0, 0, 0 };
+        QtreeNode* Root = nullptr;
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
         QtreeAllocator* FrontAlloc = new QtreeAllocator{};
@@ -120,7 +121,7 @@ namespace tree
         int universeSize() const { return UniverseSize; }
 
     private:
-        QtreeBoundedNode createRoot() const;
+        QtreeNode* createRoot() const;
 
     public:
 
@@ -133,6 +134,8 @@ namespace tree
          * @return Gets an object by its ObjectId
          */
         const QtreeObject& get(int objectId) const { return Objects[objectId]; }
+
+        void setLeafSplitThreshold(int threshold) { LeafSplitThreshold = threshold; }
 
         /**
          * Clears all of the inserted objects and resets the root 
@@ -164,8 +167,8 @@ namespace tree
         void remove(int objectId);
 
     private:
-        void insertAt(int level, const QtreeBoundedNode& root, const QtreeObject& o);
-        void insertAtLeaf(int level, const QtreeBoundedNode& root, const QtreeObject& o);
+        void insertAt(int level, QtreeNode* root, const QtreeObject& o);
+        void insertAtLeaf(int level, QtreeNode* leaf, const QtreeObject& o);
         void removeAt(QtreeNode* root, int objectId);
 
     public:
