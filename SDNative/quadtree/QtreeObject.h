@@ -4,7 +4,7 @@
 
 namespace tree
 {
-    enum ObjectType : int
+    enum ObjectType : uint8_t
     {
         // Can be used as a search filter to match all object types
         ObjectType_Any        = 0,
@@ -25,22 +25,18 @@ namespace tree
         int objectId; // handle to the object
 
         int x, y; // Center x y
-        int radius; // radius for collision test
+        int rx, ry; // Radius x y
+
+        float vx = 0;
+        float vy = 0;
 
         QtreeObject() = default;
 
-        QtreeObject(uint8_t loyalty, uint8_t type, int objectId,
-                    int cx, int cy, int r)
+        QtreeObject(uint8_t loyalty, ObjectType type, int objectId,
+                    int centerX, int centerY, int radiusX, int radiusY)
             : active{1}, loyalty{loyalty}, type{type}, reserved{}, objectId{objectId}
-            , x{cx}, y{cy}, radius{r}
+            , x{centerX}, y{centerY}, rx{radiusX}, ry{radiusY}
         {
         }
-        QtreeObject(int cx, int cy, int r)
-            : active{1}, loyalty{0}, type{ObjectType_Any}, reserved{}, objectId{-1}
-            , x{cx}, y{cy}, radius{r}
-        {
-        }
-
-        QtreeRect bounds() const { return QtreeRect::fromPointRadius(x, y, radius); }
     };
 }
