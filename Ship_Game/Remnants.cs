@@ -289,9 +289,9 @@ namespace Ship_Game
                 case 7:
                 case 8:  return RemnantShipType.Cruiser;
                 case 9:
-                case 10: return RemnantShipType.Carrier;
-                case 11:
-                case 12:
+                case 10: return RemnantShipType.Inhibitor;
+                case 11: 
+                case 12: return RemnantShipType.Carrier;
                 case 13:
                 case 14: return RemnantShipType.Mothership;
                 default: return RemnantShipType.Exterminator;
@@ -314,6 +314,7 @@ namespace Ship_Game
                 case RemnantShipType.Exterminator: shipName = Owner.data.RemnantExterminator; break;
                 case RemnantShipType.Portal:       shipName = Owner.data.RemnantPortal;       break;
                 case RemnantShipType.Bomber:       shipName = Owner.data.RemnantBomber;       break;
+                case RemnantShipType.Inhibitor:    shipName = Owner.data.RemnantInhibitor;    break;
             }
 
             if (shipName.NotEmpty())
@@ -555,6 +556,9 @@ namespace Ship_Game
         {
             int numSupportDrones = RollDie(4);
             AddGuardians(numSupportDrones, RemnantShipType.SmallSupport, p);
+
+            if (RollDice(10 + (int)CurrentGame.Difficulty))
+                AddGuardians(1, RemnantShipType.Inhibitor, p);
         }
 
         void AddCarriers(Planet p)  //Added by Gretman
@@ -635,6 +639,7 @@ namespace Ship_Game
         Cruiser,
         Mothership,
         Exterminator,
+        Inhibitor,
         Portal,
         Bomber
     }
