@@ -156,7 +156,7 @@ namespace Ship_Game.AI
             UpdateUtilityModuleAI(timeStep);
             ThrustTarget = Vector2.Zero;
 
-            //UpdateCombatStateAI(elapsedTime);
+            UpdateCombatStateAI(timeStep);
 
             if (UpdateOrderQueueAI(timeStep))
                 return;
@@ -315,6 +315,8 @@ namespace Ship_Game.AI
 
         void UpdateCombatStateAI(FixedSimTime timeStep)
         {
+            FireWeapons(timeStep);
+
             if (BadGuysNear && !IgnoreCombat && !HasPriorityOrder)
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)

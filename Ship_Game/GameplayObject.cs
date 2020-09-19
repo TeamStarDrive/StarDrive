@@ -147,42 +147,39 @@ namespace Ship_Game
                 UniverseScreen.SpaceManager.Remove(this);
             }
 
-            Empire.Universe.RunOnEmpireThread(() =>
+            if ((Type & GameObjectType.Proj) != 0)
             {
-                if ((Type & GameObjectType.Proj) != 0)
+                ((Projectile) this).Loyalty = changeTo;
+            }
+            else if ((Type & GameObjectType.Ship) != 0)
+            {
+                var ship = (Ship) this;
+                Empire oldLoyalty = ship.loyalty;
+                oldLoyalty.TheyKilledOurShip(changeTo, ship);
+                changeTo.WeKilledTheirShip(oldLoyalty, ship);
+                ship.ClearFleet();
+                ship.AI.ClearOrders();
+                oldLoyalty.RemoveShip(ship);
+
+                oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
+                changeTo.AddShipNextFrame(ship);
+                ship.shipStatusChanged = true;
+                ship.loyalty = changeTo;
+
+                ship.SwitchTroopLoyalty(ship.loyalty);
+                ship.ReCalculateTroopsAfterBoard();
+                ship.ScuttleTimer = -1f; // Cancel any active self destruct 
+                changeTo.AddShip(ship);
+                ship.PiratePostChangeLoyalty();
+                if (notification)
                 {
-                    ((Projectile) this).Loyalty = changeTo;
+                    changeTo.AddBoardSuccessNotification(ship);
+                    oldLoyalty.AddBoardedNotification(ship);
                 }
-                else if ((Type & GameObjectType.Ship) != 0)
-                {
-                    var ship = (Ship) this;
-                    Empire oldLoyalty = ship.loyalty;
-                    oldLoyalty.TheyKilledOurShip(changeTo, ship);
-                    changeTo.WeKilledTheirShip(oldLoyalty, ship);
-                    ship.ClearFleet();
-                    ship.AI.ClearOrders();
-                    oldLoyalty.RemoveShip(ship);
+            }
 
-                    oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
-                    changeTo.AddShipNextFrame(ship);
-                    ship.shipStatusChanged = true;
-                    ship.loyalty = changeTo;
-
-                    ship.SwitchTroopLoyalty(ship.loyalty);
-                    ship.ReCalculateTroopsAfterBoard();
-                    ship.ScuttleTimer = -1f; // Cancel any active self destruct 
-                    changeTo.AddShip(ship);
-                    ship.PiratePostChangeLoyalty();
-                    if (notification)
-                    {
-                        changeTo.AddBoardSuccessNotification(ship);
-                        oldLoyalty.AddBoardedNotification(ship);
-                    }
-                }
-
-                // this resets the spatial management
-                SetSystem(null);
-            });
+            // this resets the spatial management
+            SetSystem(null);
         }
 
         public int GetLoyaltyId()
