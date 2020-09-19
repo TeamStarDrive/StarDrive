@@ -88,17 +88,14 @@ namespace Ship_Game
             node.SW = FrontBuffer.Create(nextLevel, node.X, midY,   midX,       node.LastY);
 
             int count = node.Count;
-            if (count != 0)
-            {
-                SpatialObj[] arr = node.Items;
-                node.Items = NoObjects;
-                node.Count = 0;
-                node.TotalTreeDepthCount -= count;
+            SpatialObj[] arr = node.Items;
+            node.Items = NoObjects;
+            node.Count = 0;
+            node.TotalTreeDepthCount -= count;
 
-                // and now reinsert all items one by one
-                for (int i = 0; i < count; ++i)
-                    InsertAt(node, level, ref arr[i]);
-            }
+            // and now reinsert all items one by one
+            for (int i = 0; i < count; ++i)
+                InsertAt(node, level, ref arr[i]);
         }
 
         static QtreeNode PickSubQuadrant(QtreeNode node, ref SpatialObj obj)
