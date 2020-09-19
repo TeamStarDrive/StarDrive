@@ -5,16 +5,16 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class RemnantBalancersEngage : Goal
+    public class RemnantEngageEmpire : Goal
     {
-        public const string ID = "RemnantBalancersEngage";
+        public const string ID = "RemnantEngageEmpire";
         public override string UID => ID;
         public Planet TargetPlanet;
         private Remnants Remnants;
         private Ship Portal;
         private int BombersLevel;
 
-        public RemnantBalancersEngage() : base(GoalType.RemnantBalancersEngage)
+        public RemnantEngageEmpire() : base(GoalType.RemnantBalancersEngage)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -25,13 +25,13 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public RemnantBalancersEngage(Empire owner, Ship portal, Empire target) : this()
+        public RemnantEngageEmpire(Empire owner, Ship portal, Empire target) : this()
         {
             empire       = owner;
             TargetEmpire = target;
             TargetShip   = portal;
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Engagement: Ancient Balancers for {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Remnants: New {empire.Name} Engagement: {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
@@ -43,9 +43,7 @@ namespace Ship_Game.Commands.Goals
         }
 
         public override bool IsRaid => true;
-
-        bool StillStrongest => EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore) == TargetEmpire;
-        
+       
         bool SelectTargetPlanet()
         {
             bool byLevel = RandomMath.RollDice(Remnants.Level);
@@ -70,7 +68,8 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep GatherFleet()
         {
-            if (!StillStrongest)
+            bool checkOnlyDefeated = Remnants.Story == Remnants.RemnantStory.AncientRaidersRandom;
+            if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal, checkOnlyDefeated))
             {
                 Remnants.ReleaseFleet(Fleet);
                 return GoalStep.GoalComplete;
@@ -112,10 +111,10 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete;
             }
 
-            if (Fleet.TaskStep != 7) // cleared enemy at target planet
+            if (Fleet.TaskStep != 7) // Cleared enemy at target planet
                 return GoalStep.TryAgain;
 
-            if (!StillStrongest)
+            if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
             {
                 if (!Remnants.GetClosestPortal(Fleet.AveragePosition(), out Ship closestPortal))
                 {
