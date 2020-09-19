@@ -121,7 +121,7 @@ TestImpl(QuadTree)
         }
         double e = t.elapsed_ms();
         int total_operations = objects.size() * iterations;
-        printf("QuadTree %s total: %.2fms  avg: %.2fus\n", what, e, (e / total_operations)*1000);
+        printf("QuadTree %s total: %.2fms  avg: %.3fus\n", what, e, (e / total_operations)*1000);
     }
 
     template<class VoidFunc> static void measureIterations(const char* what, int iterations,
@@ -132,7 +132,7 @@ TestImpl(QuadTree)
             func();
         }
         double e = t.elapsed_ms();
-        printf("QuadTree %s total: %.2fms  avg: %.2fus\n", what, e, ((e*1000)/iterations)/objectsPerFunc);
+        printf("QuadTree %s total: %.2fms  avg: %.3fus\n", what, e, ((e*1000)/iterations)/objectsPerFunc);
     }
 
     static void runSimulation(float timeStep, tree::QuadTree& tree, std::vector<MyGameObject>& objects)
