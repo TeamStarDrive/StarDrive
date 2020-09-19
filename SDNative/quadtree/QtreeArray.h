@@ -14,7 +14,7 @@ namespace tree
         {
             if (items == nullptr)
             {
-                items = allocator.allocArray<QtreeObject>(QuadCellThreshold);
+                items = allocator.allocArray<QtreeObject>(QuadDefaultLeafSplitThreshold);
             }
             items[size++] = item;
         }
