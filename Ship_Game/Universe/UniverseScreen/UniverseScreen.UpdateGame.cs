@@ -355,7 +355,6 @@ namespace Ship_Game
                 {
                     AllPlanetsScanAndFire(timeStep);
                     UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
-                    FireAllShipWeapons(timeStep);
                 }
             });
         }
@@ -453,18 +452,6 @@ namespace Ship_Game
 
                     foreach (var planet in empire.GetPlanets())
                         planet.UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method. 
-                }
-            }, MaxTaskCores);
-        }
-
-        void FireAllShipWeapons(FixedSimTime timeStep)
-        {
-            Parallel.For(MasterShipList.Count, (start, end) =>
-            {
-                for (int i = start; i < end; i++)
-                {
-                    var ship = MasterShipList[i];
-                    ship.AI.FireWeapons(timeStep);
                 }
             }, MaxTaskCores);
         }
