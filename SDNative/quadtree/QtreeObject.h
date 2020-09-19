@@ -4,18 +4,6 @@
 
 namespace tree
 {
-    enum ObjectType : uint8_t
-    {
-        // Can be used as a search filter to match all object types
-        ObjectType_Any        = 0,
-        ObjectType_Ship       = 1,
-        ObjectType_ShipModule = 2,
-        ObjectType_Proj       = 4, // this is a projectile, NOT a beam
-        ObjectType_Beam       = 8, // this is a BEAM, not a projectile
-        ObjectType_Asteroid   = 16,
-        ObjectType_Moon       = 32,
-    };
-
     struct QtreeObject
     {
         uint8_t active;  // 1 if this item is active, 0 if this item is DEAD
