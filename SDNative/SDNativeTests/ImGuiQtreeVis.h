@@ -14,7 +14,7 @@ namespace tree::vis
         double findNearbyMs = 0.0; // time spent in QuadTree::findNearby()
         int numCollisions = 0;
         std::vector<int> collidedObjects;
-        int totalObjects = 10000;
+        int totalObjects = 0;
 
         bool isPaused = true;
 

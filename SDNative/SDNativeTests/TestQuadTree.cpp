@@ -151,6 +151,7 @@ TestImpl(QuadTree)
 
         explicit Simulation(tree::QuadTree& tree) : SimContext{tree}
         {
+            totalObjects = NUM_OBJECTS;
             recreateAllObjects();
         }
 

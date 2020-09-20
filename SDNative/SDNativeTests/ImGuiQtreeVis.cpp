@@ -11,8 +11,8 @@ namespace tree::vis
         return ImGui::ColorConvertFloat4ToU32(cv);
     }
 
-    static const ImU32 Yellow = getColor({ 255, 255,   0, 255 });
-    static const ImU32 Cyan   = getColor({   0, 255, 255, 255 });
+    static const QtreeColor Yellow = { 255, 255,   0, 255 };
+    static const QtreeColor Cyan   = {   0, 255, 255, 255 };
 
     struct VisualizationState final : QtreeVisualizer
     {
@@ -77,7 +77,10 @@ namespace tree::vis
 
         void drawRect(int x1, int y1, int x2, int y2, QtreeColor c) override
         {
-            DrawList->AddRect(worldToScreen(x1, y1), worldToScreen(x2, y2), getColor(c));
+            ImVec2 tl = worldToScreen(x1, y1);
+            ImVec2 br = worldToScreen(x2, y2);
+            ImVec2 points[4] = { tl, ImVec2{br.x, tl.y}, br, ImVec2{tl.x, br.y} };
+            DrawList->AddPolyline(points, 4, getColor(c), true, 1.0f);
         }
         void drawCircle(int x, int y, int radius, QtreeColor c) override
         {
@@ -85,7 +88,8 @@ namespace tree::vis
         }
         void drawLine(int x1, int y1, int x2, int y2, QtreeColor c) override
         {
-            DrawList->AddLine(worldToScreen(x1, y1), worldToScreen(x2, y2), getColor(c));
+            ImVec2 points[2] = { worldToScreen(x1, y1), worldToScreen(x2, y2) };
+            DrawList->AddPolyline(points, 2, getColor(c), false, 1.0f);
         }
         void drawText(int x, int y, int size, const char* text, QtreeColor c) override
         {
@@ -170,36 +174,42 @@ namespace tree::vis
         }
 
         ImDrawList* DrawList = nullptr;
+        void getDrawList()
+        {
+            DrawList = ImGui::GetWindowDrawList();
+            DrawList->Flags &= ~ImDrawListFlags_AntiAliasedLines;
+        }
 
         void draw()
         {
-            DrawList = ImGui::GetWindowDrawList();
+            getDrawList();
 
             QtreeVisualizerOptions vo;
             vo.visibleWorldRect = camera_frustum;
             vo.nodeText = false;
             vo.objectToLeafLines = false;
+
+            rpp::Timer t1;
             tree.debugVisualize(vo, *this);
-            
+            double elapsedDrawMs = t1.elapsed_ms();
+
             if (opt.SearchRadius > 1)
             {
-                DrawList = ImGui::GetWindowDrawList();
-                DrawList->AddCircle(worldToScreen(opt.OriginX, opt.OriginY), worldToScreen(opt.SearchRadius), Yellow, 0, 2.0f);
+                DrawList->AddCircle(worldToScreen(opt.OriginX, opt.OriginY), worldToScreen(opt.SearchRadius), getColor(Yellow), 0, 2.0f);
 
                 for (int i = 0; i < numSearchResults; ++i)
                 {
                     const QtreeObject& o = tree.get(searchResults[i]);
-                    DrawList->AddRect(worldToScreen(o.left(), o.top()), worldToScreen(o.right(), o.bottom()), Yellow);
+                    drawRect(o.left(), o.top(), o.right(), o.bottom(), Yellow);
                 }
             }
 
             if (context.numCollisions > 0)
             {
-                DrawList = ImGui::GetWindowDrawList();
                 for (int objectId : context.collidedObjects)
                 {
                     const QtreeObject& o = tree.get(objectId);
-                    DrawList->AddRect(worldToScreen(o.left(), o.top()), worldToScreen(o.right(), o.bottom()), Cyan);
+                    drawRect(o.left(), o.top(), o.right(), o.bottom(), Cyan);
                 }
             }
 
@@ -212,7 +222,8 @@ namespace tree::vis
             ImGui::Text("Qtree::rebuild(%d) elapsed: %.1fms", tree.count(), context.rebuildMs);
             ImGui::Text("Qtree::collideAll(%d) elapsed: %.1fms  %d collisions", tree.count(), context.collideMs, context.numCollisions);
             ImGui::Text("Qtree::findNearby(radius=%d) elapsed: %.3fms  %d results", opt.SearchRadius, context.findNearbyMs, numSearchResults);
-            ImGui::Text("Qtree::total(%d) elapsed: %.1fms", tree.count(), context.collideMs+context.rebuildMs);
+            ImGui::Text("Qtree::draw() elapsed: %.1fms", elapsedDrawMs);
+            ImGui::Text("Qtree::total(%d) elapsed: %.1fms", tree.count(), context.collideMs+context.rebuildMs+elapsedDrawMs);
         }
     };
 
