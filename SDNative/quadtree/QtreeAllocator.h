@@ -22,7 +22,12 @@ namespace tree
         QtreeAllocator(const QtreeAllocator&) = delete;
         QtreeAllocator& operator=(QtreeAllocator&&) = delete;
         QtreeAllocator& operator=(const QtreeAllocator&) = delete;
-        
+
+        /// <summary>
+        /// Total bytes used by this Allocator
+        /// </summary>
+        uint32_t totalBytes() const;
+
         /// <summary>
         /// Reset all linear pools
         /// </summary>

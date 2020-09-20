@@ -255,7 +255,7 @@ TestImpl(QuadTree)
 
         std::vector<int> results(1024, 0);
 
-        measureEachObj("findNearby", 200, objects, [&](const MyGameObject& o)
+        measureEachObj("findNearby", 30, objects, [&](const MyGameObject& o)
         {
             tree::SearchOptions opt;
             opt.OriginX = (int)o.pos.x;
