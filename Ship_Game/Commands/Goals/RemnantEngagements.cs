@@ -80,7 +80,10 @@ namespace Ship_Game.Commands.Goals
             }
 
             if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
+            {
                 CreatePortal(); // Second portal at level 10
+                Empire.Universe.NotificationManager.AddRemnantsNewPortal(empire);
+            }
 
             EngageEmpire(portals);
             return GoalStep.TryAgain;
