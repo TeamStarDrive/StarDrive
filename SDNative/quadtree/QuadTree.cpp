@@ -1,5 +1,6 @@
 #include "QuadTree.h"
 #include <algorithm>
+#include <unordered_set>
 
 namespace tree
 {
@@ -42,6 +43,7 @@ namespace tree
         // while the back buffer will be untouched until next time
         std::swap(FrontAlloc, BackAlloc);
         FrontAlloc->reset();
+        CurrentSplitThreshold = PendingSplitThreshold;
 
         const int numObjects = (int)Objects.size();
         const QtreeObject* objects = Objects.data();
@@ -50,7 +52,7 @@ namespace tree
         for (int i = 0; i < numObjects; ++i)
         {
             const QtreeObject& o = objects[i];
-            insertAt(Levels, root, o);
+            insertAt(Levels, *root, o);
         }
         Root = root;
     }
@@ -123,9 +125,9 @@ namespace tree
         }
     };
 
-    void QuadTree::insertAt(int level, QtreeNode* root, const QtreeObject& o)
+    void QuadTree::insertAt(int level, QtreeNode& root, const QtreeObject& o)
     {
-        QtreeNode* cur = root;
+        QtreeNode* cur = &root;
         for (;;)
         {
             // try to select a sub-quadrant, perhaps it's a better match
@@ -146,33 +148,33 @@ namespace tree
                 }
                 else // target overlaps multiple quadrants, so it has to be inserted into several of them:
                 {
-                    if (over.NW) { insertAt(level-1, cur->nw(), o); }
-                    if (over.NE) { insertAt(level-1, cur->ne(), o); }
-                    if (over.SE) { insertAt(level-1, cur->se(), o); }
-                    if (over.SW) { insertAt(level-1, cur->sw(), o); }
+                    if (over.NW) { insertAt(level-1, *cur->nw(), o); }
+                    if (over.NE) { insertAt(level-1, *cur->ne(), o); }
+                    if (over.SE) { insertAt(level-1, *cur->se(), o); }
+                    if (over.SW) { insertAt(level-1, *cur->sw(), o); }
                     return;
                 }
             }
             else // isLeaf
             {
-                insertAtLeaf(level, cur, o);
+                insertAtLeaf(level, *cur, o);
                 return;
             }
         }
     }
 
-    void QuadTree::insertAtLeaf(int level, QtreeNode* leaf, const QtreeObject& o)
+    void QuadTree::insertAtLeaf(int level, QtreeNode& leaf, const QtreeObject& o)
     {
-        if (leaf->size < QuadDefaultLeafSplitThreshold)
+        if (leaf.size < CurrentSplitThreshold)
         {
-            leaf->addObject(*FrontAlloc, o);
+            leaf.addObject(*FrontAlloc, o, CurrentSplitThreshold);
         }
         // are we maybe over Threshold and should Subdivide ?
         else if (level > 0)
         {
-            const int size = leaf->size;
-            QtreeObject* objects = leaf->objects;
-            leaf->convertToBranch(*FrontAlloc);
+            const int size = leaf.size;
+            QtreeObject* objects = leaf.objects;
+            leaf.convertToBranch(*FrontAlloc);
 
             // and now reinsert all items one by one
             for (int i = 0; i < size; ++i)
@@ -187,7 +189,7 @@ namespace tree
         {
             // final edge case: if number of objects overwhelms the tree,
             // keep dynamically expanding the objects array
-            leaf->addObjectUnbounded(*FrontAlloc, o);
+            leaf.addObjectUnbounded(*FrontAlloc, o, CurrentSplitThreshold);
         }
     }
 
@@ -233,8 +235,74 @@ namespace tree
         while (stack.next >= 0);
     }
 
-    void QuadTree::collideAll(float timeStep, CollisionFunc onCollide)
+    struct CollisionPair
     {
+        int ObjectA;
+        int ObjectB;
+        bool operator==(const CollisionPair& o) const
+        {
+            return (ObjectA == o.ObjectA && ObjectB == o.ObjectB)
+                || (ObjectB == o.ObjectA && ObjectA == o.ObjectB);
+        }
+    };
+
+    struct CollisionPairHash
+    {
+        std::size_t operator()(const CollisionPair& p) const
+        {
+            return std::hash<int>()(p.ObjectA) ^ std::hash<int>()(p.ObjectB);
+        }
+    };
+
+    void QuadTree::collideAll(float timeStep, void* user, CollisionFunc onCollide)
+    {
+        std::unordered_set<CollisionPair, CollisionPairHash> collided;
+
+        SmallStack<QtreeNode*> stack { Root };
+        do
+        {
+            const QtreeNode& current = *stack.pop_back();
+            if (current.isBranch())
+            {
+                stack.push_back(current.sw());
+                stack.push_back(current.se());
+                stack.push_back(current.ne());
+                stack.push_back(current.nw());
+            }
+            else
+            {
+                const int size = current.size;
+                const QtreeObject* items = current.objects;
+                for (int i = 0; i < size; ++i)
+                {
+                    const QtreeObject& objectA = items[i];
+                    if (!objectA.active)
+                        continue;
+
+                    for (int j = i + 1; j < size; ++j)
+                    {
+                        const QtreeObject& objectB = items[j];
+                        if (!objectB.active)
+                            continue;
+                        //if (!objectA.overlaps(objectB))
+                        //    continue;
+                        float dx = objectA.x - objectB.x;
+                        float dy = objectA.y - objectB.y;
+                        float r2 = objectA.rx + objectB.rx;
+                        if ((dx*dx + dy*dy) <= (r2*r2))
+                        {
+                            CollisionPair collisionPair { objectA.objectId, objectB.objectId };
+                            if (!collided.contains(collisionPair))
+                            {
+                                collided.insert(collisionPair);
+                                CollisionResult result = onCollide(user, objectA.objectId, objectB.objectId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        while (stack.next >= 0);
     }
 
     // finds all LEAF nodes that overlap [cx, cy, rx, ry]
@@ -250,20 +318,20 @@ namespace tree
         SmallStack<const QtreeNode*> stack { root };
         do
         {
-            const QtreeNode* current = stack.pop_back();
-            if (current->isBranch())
+            const QtreeNode& current = *stack.pop_back();
+            if (current.isBranch())
             {
-                Overlaps over { current->cx, current->cy, cx, cy, rx, ry };
-                if (over.SW) stack.push_back(current->sw());
-                if (over.SE) stack.push_back(current->se());
-                if (over.NE) stack.push_back(current->ne());
-                if (over.NW) stack.push_back(current->nw());
+                Overlaps over { current.cx, current.cy, cx, cy, rx, ry };
+                if (over.SW) stack.push_back(current.sw());
+                if (over.SE) stack.push_back(current.se());
+                if (over.NE) stack.push_back(current.ne());
+                if (over.NW) stack.push_back(current.nw());
             }
             else
             {
-                found.leaves.push_back(current);
+                found.leaves.push_back(&current);
                 ++found.numLeaves;
-                found.totalObjects += current->size;
+                found.totalObjects += current.size;
             }
         } while (stack.next >= 0);
     }
@@ -304,9 +372,9 @@ namespace tree
         int numResults = 0;
         for (int leafIndex = 0; leafIndex < found.numLeaves; ++leafIndex)
         {
-            const QtreeNode* leaf = leaves[leafIndex];
-            const int size = leaf->size;
-            const QtreeObject* items = leaf->objects;
+            const QtreeNode& leaf = *leaves[leafIndex];
+            const int size = leaf.size;
+            const QtreeObject* items = leaf.objects;
             for (int i = 0; i < size; ++i)
             {
                 const QtreeObject& o = items[i];
@@ -338,18 +406,17 @@ namespace tree
     static const QtreeColor Brown  = { 139, 69,  19, 150 };
     static const QtreeColor VioletDim = { 199, 21, 133, 100 };
     static const QtreeColor VioletBright = { 199, 21, 133, 150 };
-    static const QtreeColor Blue   = { 95, 158, 160, 100 };
+    static const QtreeColor Blue   = { 95, 158, 160, 200 };
     static const QtreeColor Red    = { 255, 69,   0, 100 };
     static const QtreeColor Yellow = { 255, 255,  0, 200 };
 
-    void QuadTree::debugVisualize(QtreeRect visible, QtreeVisualizer& visualizer) const
+    void QuadTree::debugVisualize(const QtreeVisualizerOptions& opt, QtreeVisualizer& visualizer) const
     {
         char text[128];
-        int visibleX = visible.centerX();
-        int visibleY = visible.centerY();
-        int radiusX = visible.width() / 2;
-        int radiusY = visible.height() / 2;
-
+        int visibleX = opt.visibleWorldRect.centerX();
+        int visibleY = opt.visibleWorldRect.centerY();
+        int radiusX  = opt.visibleWorldRect.width() / 2;
+        int radiusY  = opt.visibleWorldRect.height() / 2;
         visualizer.drawRect(Root->left(), Root->top(), Root->right(), Root->bottom(), Yellow);
 
         SmallStack<const QtreeNode*> stack { Root };
@@ -360,7 +427,8 @@ namespace tree
 
             if (current.isBranch())
             {
-                visualizer.drawText(current.cx, current.cy, current.width(), "BR", Yellow);
+                if (opt.nodeText)
+                    visualizer.drawText(current.cx, current.cy, current.width(), "BR", Yellow);
 
                 Overlaps over { current.cx, current.cy, visibleX, visibleY, radiusX, radiusY };
                 if (over.SW) stack.push_back(current.sw());
@@ -370,16 +438,25 @@ namespace tree
             }
             else
             {
-                snprintf(text, sizeof(text), "LF n=%d", current.size);
-                visualizer.drawText(current.cx, current.cy, current.width(), text, Yellow);
-
+                if (opt.nodeText)
+                {
+                    snprintf(text, sizeof(text), "LF n=%d", current.size);
+                    visualizer.drawText(current.cx, current.cy, current.width(), text, Yellow);
+                }
                 int count = current.size;
                 const QtreeObject* items = current.objects;
                 for (int i = 0; i < count; ++i)
                 {
                     const QtreeObject& o = items[i];
-                    visualizer.drawRect(o.x-o.rx, o.y-o.ry, o.x+o.rx, o.y+o.ry, VioletBright);
-                    visualizer.drawLine(current.cx, current.cy, o.x, o.y, VioletDim);
+                    if (opt.objectBounds)
+                        visualizer.drawRect(o.x-o.rx, o.y-o.ry, o.x+o.rx, o.y+o.ry, VioletBright);
+                    if (opt.objectToLeafLines)
+                        visualizer.drawLine(current.cx, current.cy, o.x, o.y, VioletDim);
+                    if (opt.objectText)
+                    {
+                        snprintf(text, sizeof(text), "o=%d", o.objectId);
+                        visualizer.drawText(o.x, o.y, o.rx*2, text, Blue);
+                    }
                 }
             }
         }
@@ -398,50 +475,39 @@ namespace tree
     {
         return new QuadTree(universeSize, smallestCell);
     }
-
     TREE_C_API void __stdcall QtreeDestroy(QuadTree* tree)
     {
         delete tree;
     }
-
     TREE_C_API void __stdcall QtreeClear(QuadTree* tree)
     {
         tree->clear();
     }
-
     TREE_C_API void __stdcall QtreeRebuild(QuadTree* tree)
     {
         tree->rebuild();
     }
-
     TREE_C_API int __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o)
     {
         return tree->insert(o);
     }
-
     TREE_C_API void __stdcall QtreeUpdate(QuadTree* tree, int objectId, int x, int y)
     {
         tree->update(objectId, x, y);
     }
-
     TREE_C_API void __stdcall QtreeRemove(QuadTree* tree, int objectId)
     {
         tree->remove(objectId);
     }
-
-    TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, 
-                                              CollisionFunc onCollide)
+    TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, void* user, CollisionFunc onCollide)
     {
-        tree->collideAll(timeStep, onCollide);
+        tree->collideAll(timeStep, user, onCollide);
     }
-
-    TREE_C_API int __stdcall QtreeFindNearby(QuadTree* tree, int* outResults,
-                                             const SearchOptions& opt)
+    TREE_C_API int __stdcall QtreeFindNearby(QuadTree* tree, int* outResults, const SearchOptions& opt)
     {
         return tree->findNearby(outResults, opt);
     }
-
-    TREE_C_API void __stdcall QtreeDebugVisualize(QuadTree* tree, QtreeRect visible, const QtreeVisualizerBridge& vis)
+    TREE_C_API void __stdcall QtreeDebugVisualize(QuadTree* tree, const QtreeVisualizerOptions& opt, const QtreeVisualizerBridge& vis)
     {
         struct VisualizerBridge : QtreeVisualizer
         {
@@ -458,7 +524,7 @@ namespace tree
         };
 
         VisualizerBridge bridge { vis };
-        tree->debugVisualize(visible, bridge);
+        tree->debugVisualize(opt, bridge);
     }
     /////////////////////////////////////////////////////////////////////////////////
 }

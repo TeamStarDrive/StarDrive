@@ -1,5 +1,5 @@
 #pragma once
-#include "QtreeRect.h"
+#include "QtreeConstants.h"
 #include <cstdint>
 
 namespace tree
@@ -22,6 +22,17 @@ namespace tree
             : active{1}, loyalty{loyalty}, type{type}, reserved{}, objectId{objectId}
             , x{centerX}, y{centerY}, rx{radiusX}, ry{radiusY}
         {
+        }
+
+        TREE_FINLINE int left()   const { return x - rx; }
+        TREE_FINLINE int right()  const { return x + rx; }
+        TREE_FINLINE int top()    const { return y - ry; }
+        TREE_FINLINE int bottom() const { return y + ry; }
+
+        TREE_FINLINE bool overlaps(const QtreeObject& o) const
+        {
+            return left() <= o.right()  && right()  > o.left()
+                && top()  <= o.bottom() && bottom() > o.top();
         }
     };
 }
