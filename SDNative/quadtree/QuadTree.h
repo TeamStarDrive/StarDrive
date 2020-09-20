@@ -134,6 +134,7 @@ namespace tree
         QtreeAllocator* BackAlloc  = new QtreeAllocator{};
 
         std::vector<QtreeObject> Objects;
+        std::vector<QtreeObject> Pending;
 
     public:
 
@@ -205,8 +206,8 @@ namespace tree
 
     private:
 
-        void insertAt(int level, QtreeNode& root, const QtreeObject& o);
-        void insertAtLeaf(int level, QtreeNode& leaf, const QtreeObject& o);
+        void insertAt(int level, QtreeNode& root, QtreeObject* o);
+        void insertAtLeaf(int level, QtreeNode& leaf, QtreeObject* o);
         void removeAt(QtreeNode* root, int objectId);
 
     public:
