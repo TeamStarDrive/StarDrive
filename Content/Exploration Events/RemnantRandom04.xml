@@ -1,0 +1,12 @@
+﻿<ExplorationEvent>
+  <Name>Remnant Protocols</Name>
+  <StoryStep>4</StoryStep>
+  <Story>AncientRaidersRandom</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Remnant Protocols</TitleText>
+      <DescriptionText>After gaining some more access to Remnant broken computers, we believe we have uncovered some of their protocols. To our understanding, the remnant fleet is part of a robotic system with malfunctioning code. The erratic behavior of these hostile fleets are a threat to every empire in this sector. We think that the destruction of the Remnant portal will end their involvement in this part of the galaxy. it also seems that the portal is absorbing a rather lethal radiation from the stars they orbit and the bad news is that they are getting stronger as the years pass by.</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

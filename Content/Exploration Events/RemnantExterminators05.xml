@@ -1,0 +1,12 @@
+﻿<ExplorationEvent>
+  <Name>Remnant History</Name>
+  <StoryStep>5</StoryStep>
+  <Story>AncientExterminators</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Remnant History - Ancient Exterminators</TitleText>
+      <DescriptionText>We now know a significant part of the Remnant history. The Remnant was a military race which lived Eons ago. Their part of the galaxy was a constant battleground for many alien empires. The Remnants emerged victorious in the end. They programmed their probes and sent them out to the galaxy to lurk near fertile planets and scan for any sentient activity. It is unknown how many races they have destroyed. It seems that the homeworlds in our galaxy's region were ignored due do calculation errors or break down of the guardians after operating for millions of years. It is unknown of the Remnant still exist somewhere in the galaxy. We strongly advise against seeking them. The best we can do is destroy all Remnant portals in our sector and hope they will never find us again. We hope you will succeed in this task, or we are all doomed!</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

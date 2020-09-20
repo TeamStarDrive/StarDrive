@@ -1,14 +1,10 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using System.Windows.Forms;
 using Ship_Game.Fleets;
-using Ship_Game.AI.Tasks;
 
 namespace Ship_Game
 {
@@ -67,7 +63,7 @@ namespace Ship_Game
             if (empire.isPlayer)
             {
                 PlayerStepTriggerXp += xp;
-                if (PlayerStepTriggerXp > 0) // stepTrigger
+                if (PlayerStepTriggerXp > stepTrigger) // todo 0 is for testing
                 {
                     PlayerStepTriggerXp = 0;
                     if (GetStoryEvent(out ExplorationEvent expEvent))
@@ -77,8 +73,9 @@ namespace Ship_Game
                 }
             }
 
+            /*
             if (!Activated) // todo for testing
-                Activate();
+                Activate();*/
         }
 
         void Activate()
@@ -86,7 +83,7 @@ namespace Ship_Game
             Activated = true;
             SetInitialLevel();
 
-            // Todo None story does not have a goal or maybe the old go
+            // Todo None story does not have a goal or maybe the old goal
 
             if (Story != RemnantStory.AncientColonizers)
                 Goals.Add(new RemnantEngagements(Owner));
@@ -666,13 +663,15 @@ namespace Ship_Game
 
         RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
         {
-            switch (RollDie(1)) // todo 1 is for testing  should be 5
+            switch (RollDie(3)) // todo 3 is for testing  should be 6
             {
                 default:
                 case 1: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientBalancers;
                 case 2: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientExterminators;
-                case 3: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientColonizers;
-                case 4: goals.Add(new RemnantAI(Owner)); return RemnantStory.None;
+                case 3: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientRaidersRandom;
+                case 4: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientRaidersClosest;
+                case 5: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientColonizers;
+                case 6: goals.Add(new RemnantAI(Owner)); return RemnantStory.None;
             }
         }
 
@@ -681,8 +680,8 @@ namespace Ship_Game
             None,
             AncientBalancers,
             AncientExterminators,
-            AncientRaidersClosest,
             AncientRaidersRandom,
+            AncientRaidersClosest,
             AncientColonizers
         }
     }
