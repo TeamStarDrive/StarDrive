@@ -32,6 +32,12 @@ namespace tree
             _aligned_free(slab);
     }
     
+    uint32_t QtreeAllocator::totalBytes() const
+    {
+        uint32_t bytes = sizeof(QtreeAllocator) + Slabs.size()*QuadLinearAllocatorSlabSize;
+        return bytes;
+    }
+
     void QtreeAllocator::reset()
     {
         CurrentSlab = Slabs.front();

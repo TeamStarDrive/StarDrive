@@ -208,6 +208,7 @@ namespace tree::vis
 
             ImGui::Text("Qtree avg %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::Text("Qtree::leafSize: %d", leafSplitThreshold);
+            ImGui::Text("Qtree::memory:  %.1fKB", tree.totalMemory() / 1024.0f);
             ImGui::Text("Qtree::rebuild(%d) elapsed: %.1fms", tree.count(), context.rebuildMs);
             ImGui::Text("Qtree::collideAll(%d) elapsed: %.1fms  %d collisions", tree.count(), context.collideMs, context.numCollisions);
             ImGui::Text("Qtree::findNearby(radius=%d) elapsed: %.3fms  %d results", opt.SearchRadius, context.findNearbyMs, numSearchResults);

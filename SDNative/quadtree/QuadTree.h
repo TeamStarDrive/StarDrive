@@ -148,12 +148,6 @@ namespace tree
         int fullSize() const { return FullSize; }
         int universeSize() const { return UniverseSize; }
 
-    private:
-
-        QtreeNode* createRoot() const;
-
-    public:
-
         /**
          * @return Number of QtreeObjects in this tree
          */
@@ -168,6 +162,17 @@ namespace tree
          * Sets the LEAF node split threshold during next `rebuild()`
          */
         void setLeafSplitThreshold(int threshold) { PendingSplitThreshold = threshold; }
+
+        /**
+         * @return Total number of bytes used entire QuadTree, including all its auxiliary buffers
+         */
+        uint32_t totalMemory() const;
+
+    private:
+
+        QtreeNode* createRoot() const;
+
+    public:
 
         /**
          * Clears all of the inserted objects and resets the root 
