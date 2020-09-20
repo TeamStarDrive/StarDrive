@@ -16,6 +16,7 @@ namespace Ship_Game.Spatial.Native
             public int Levels;
             public int FullSize;
             public int UniverseSize;
+            public int PendingSplitThreshold;
         }
 
         const string Lib = "SDNative.dll";
@@ -44,6 +45,11 @@ namespace Ship_Game.Spatial.Native
         public float UniverseSize => Tree->UniverseSize;
         public float FullSize => Tree->FullSize;
         public int Levels => Tree->Levels;
+        public int LeafSplitThreshold
+        {
+            get => Tree->PendingSplitThreshold;
+            set => Tree->PendingSplitThreshold = value;
+        }
 
         /// <summary>
         /// Number of pending and active objects in the Quadtree
@@ -318,6 +324,7 @@ namespace Ship_Game.Spatial.Native
             return nearby.GetArrayAndClearBuffer();
         }
         
+
         struct QtreeColor { public byte r, g, b, a; }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawRectF(int x1, int y1, int x2, int y2, QtreeColor c);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)] delegate void DrawCircleF(int x, int y, int radius, QtreeColor c);
@@ -330,11 +337,17 @@ namespace Ship_Game.Spatial.Native
             public DrawLineF   DrawLine;
             public DrawTextF   DrawText;
         }
-        [DllImport(Lib)] static extern void QtreeDebugVisualize(NativeQtree* tree,
-                                                NativeQtreeRect visible, ref QtreeVisualizerBridge vis);
-
+        struct QtreeVisualizerOptions
+        {
+            public NativeQtreeRect visibleWorldRect;
+            public byte objectBounds;
+            public byte objectToLeafLines;
+            public byte objectText;
+            public byte nodeText;
+            public byte nodeBounds;
+        }
+        [DllImport(Lib)] static extern void QtreeDebugVisualize(NativeQtree* tree, ref QtreeVisualizerOptions opt, ref QtreeVisualizerBridge vis);
         static GameScreen Screen;
-
         static void DrawRect(int x1, int y1, int x2, int y2, QtreeColor c)
         {
             Screen.DrawLineProjected(new Vector2(x1,y1), new Vector2(x2,y2), new Color(c.r,c.g,c.b,c.a));
@@ -353,18 +366,27 @@ namespace Ship_Game.Spatial.Native
             Screen.DrawStringProjected(new Vector2(x,y), 0f, scale, new Color(c.r,c.g,c.b,c.a), new string(text));
         }
 
+
         public void DebugVisualize(GameScreen screen)
         {
             var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
             Vector2 topLeft  = screen.UnprojectToWorldPosition(Vector2.Zero);
             Vector2 botRight = screen.UnprojectToWorldPosition(screenSize);
 
-            var worldRect = new NativeQtreeRect
+            var opt = new QtreeVisualizerOptions
             {
-                Left = (int)topLeft.X,
-                Top = (int)topLeft.Y,
-                Right = (int)botRight.X,
-                Bottom = (int)botRight.Y,
+                visibleWorldRect = new NativeQtreeRect
+                {
+                    Left = (int)topLeft.X,
+                    Top = (int)topLeft.Y,
+                    Right = (int)botRight.X,
+                    Bottom = (int)botRight.Y,
+                },
+                objectBounds = 1,
+                objectToLeafLines = 1,
+                objectText = 0,
+                nodeText = 0,
+                nodeBounds = 1,
             };
 
             var vis = new QtreeVisualizerBridge
@@ -376,7 +398,7 @@ namespace Ship_Game.Spatial.Native
             };
 
             Screen = screen;
-            QtreeDebugVisualize(Tree, worldRect, ref vis);
+            QtreeDebugVisualize(Tree, ref opt, ref vis);
             Screen = null;
         }
     }

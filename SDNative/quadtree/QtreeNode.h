@@ -52,17 +52,17 @@ namespace tree
         }
 
         // fast adding of an object
-        TREE_FINLINE void addObject(QtreeAllocator& allocator, const QtreeObject& item)
+        TREE_FINLINE void addObject(QtreeAllocator& allocator, const QtreeObject& item, int defaultCapacity)
         {
             if (size == 0)
             {
-                objects = allocator.allocArray<QtreeObject>(QuadDefaultLeafSplitThreshold);
+                objects = allocator.allocArray<QtreeObject>(defaultCapacity);
             }
             objects[size++] = item;
         }
 
         // compute the next highest power of 2 of 32-bit v
-        static constexpr int upperPowerOf2(unsigned int v)
+        TREE_FINLINE static int upperPowerOf2(unsigned int v)
         {
             --v;
             v |= v >> 1;
@@ -75,11 +75,11 @@ namespace tree
         }
 
         // adds another object, growth is only limited by QuadLinearAllocatorSlabSize
-        TREE_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, const QtreeObject& item)
+        TREE_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, const QtreeObject& item, int defaultCapacity)
         {
-            if (size == QuadDefaultLeafSplitThreshold)
+            if (size == defaultCapacity)
             {
-                constexpr int capacity = upperPowerOf2(QuadDefaultLeafSplitThreshold+1);
+                int capacity = upperPowerOf2(defaultCapacity+1);
                 objects = allocator.allocArray(objects, size, capacity);
             }
             else
