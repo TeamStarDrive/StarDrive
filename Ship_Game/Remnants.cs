@@ -20,12 +20,14 @@ namespace Ship_Game
         public readonly Empire Owner;
         public readonly BatchRemovalCollection<Goal> Goals;
         public float StoryTriggerKillsXp { get; private set; }
+        public float PlayerStepTriggerXp { get; private set; }
         public bool Activated { get; private set; }
         public static bool Armageddon;
         public RemnantStory Story { get; private set; }
         public float Production { get; private set; }
         public int Level { get; private set; }
         public Map<RemnantShipType, float> ShipCosts { get; } = new Map<RemnantShipType, float>();
+        public int StoryStep { get; private set; } = 1;
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -45,38 +47,60 @@ namespace Ship_Game
         {
             Activated           = sData.RemnantStoryActivated;
             StoryTriggerKillsXp = sData.RemnantStoryTriggerKillsXp;
+            PlayerStepTriggerXp = sData.RemnantPlayerStepTriggerXp;
             Story               = (RemnantStory)sData.RemnantStoryType;
             Production          = sData.RemnantProduction;
             Level               = sData.RemnantLevel;
+            StoryStep           = sData.RemnantStoryStep;
         }
 
-        public void IncrementKills(Empire empire, int exp)
+        public void IncrementKills(Empire empire, int xp)
         {
-            if (Activated)
-                return;
+            if (!Activated)
+                StoryTriggerKillsXp += xp;
 
-            StoryTriggerKillsXp += exp;
-            float expTrigger = ShipRole.GetMaxExpValue() * EmpireManager.MajorEmpires.Length;
-            if (StoryTriggerKillsXp >= expTrigger && !Activated)
-            {
-                if (empire.isPlayer)
-                    Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
-
+            float xpTrigger   = ShipRole.GetMaxExpValue() * (EmpireManager.MajorEmpires.Length-1);
+            float stepTrigger = ShipRole.GetMaxExpValue() * StoryStep;
+            if (StoryTriggerKillsXp >= xpTrigger && !Activated)
                 Activate();
+
+            if (empire.isPlayer)
+            {
+                PlayerStepTriggerXp += xp;
+                if (PlayerStepTriggerXp > 0) // stepTrigger
+                {
+                    PlayerStepTriggerXp = 0;
+                    if (GetStoryEvent(out ExplorationEvent expEvent))
+                        Empire.Universe.NotificationManager.AddRemnantUpdateNotify(expEvent, Owner);
+
+                    StoryStep += 1;
+                }
             }
 
-            // todo for testing
-            if (!Activated)
+            if (!Activated) // todo for testing
                 Activate();
         }
 
         void Activate()
         {
-            // todo - create relevant goals by story
             Activated = true;
             SetInitialLevel();
-            // create story goal
-            Goals.Add(new RemnantEngagements(Owner));
+
+            // Todo None story does not have a goal or maybe the old go
+
+            if (Story != RemnantStory.AncientColonizers)
+                Goals.Add(new RemnantEngagements(Owner));
+            //else
+               // Todo create colonization story  
+        }
+
+        void NotifyPlayerOnLevelUp()
+        {
+            float espionageStr = EmpireManager.Player.GetSpyDefense();
+            if (espionageStr <= Level * 3)
+                return; // not enough espionage strength to learn about pirate activities
+
+            Empire.Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
         }
 
         public bool TryLevelUpByDate(out int newLevel)
@@ -86,7 +110,13 @@ namespace Ship_Game
             int turnsPassed  = (int)(Empire.Universe.StarDate * 10);
             if (turnsPassed % turnsLevelUp == 0) // 500 turns on Normal
             {
-                newLevel = Level = (Level + 1).UpperBound(MaxLevel); // todo notify player depending on espionage str
+                if (Level < MaxLevel)
+                {
+                    Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level} ----");
+                    NotifyPlayerOnLevelUp();
+                }
+
+                newLevel = Level = (Level + 1).UpperBound(MaxLevel);
                 return true;
             }
 
@@ -99,6 +129,18 @@ namespace Ship_Game
             int turnsPassed  = (int)((Empire.Universe.StarDate - 1000) * 10);
             Level            = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
             Level            = Level.LowerBound(1);
+            Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
+        }
+
+        bool GetStoryEvent(out ExplorationEvent expEvent)
+        {
+            expEvent = null;
+            var events = ResourceManager.EventsDict.Values.ToArray().Filter(e => e.StoryStep == StoryStep 
+                                                                            && (e.Story == Story || Story != RemnantStory.None && e.AllRemnantStories));
+            if (events.Length > 0)
+                expEvent = events.First();
+
+            return expEvent != null;
         }
 
         public bool CanDoAnotherEngagement(out int numRaids)
@@ -113,9 +155,11 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
-                    target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore); break;
+                    target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    break;
                 case RemnantStory.AncientExterminators: 
-                    target = EmpireManager.MajorEmpires.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore); break;
+                    target = EmpireManager.MajorEmpires.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    break;
                 case RemnantStory.AncientRaidersClosest:
                     target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
                     break;
