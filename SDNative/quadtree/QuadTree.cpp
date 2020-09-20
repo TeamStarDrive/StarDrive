@@ -23,6 +23,15 @@ namespace tree
         delete BackAlloc;
     }
 
+    uint32_t QuadTree::totalMemory() const
+    {
+        uint32_t bytes = sizeof(QuadTree);
+        bytes += FrontAlloc->totalBytes();
+        bytes += BackAlloc->totalBytes();
+        bytes += Objects.size() * sizeof(QtreeObject);
+        return bytes;
+    }
+
     QtreeNode* QuadTree::createRoot() const
     {
         QtreeNode* root = FrontAlloc->alloc<QtreeNode>();
