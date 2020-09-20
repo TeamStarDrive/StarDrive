@@ -14,7 +14,7 @@ namespace tree
         union
         {
             QtreeNode* nodes = nullptr;
-            QtreeObject* objects;
+            QtreeObject** objects;
         };
 
         static constexpr int BRANCH_ID = -1;
@@ -52,11 +52,11 @@ namespace tree
         }
 
         // fast adding of an object
-        TREE_FINLINE void addObject(QtreeAllocator& allocator, const QtreeObject& item, int defaultCapacity)
+        TREE_FINLINE void addObject(QtreeAllocator& allocator, QtreeObject* item, int defaultCapacity)
         {
             if (size == 0)
             {
-                objects = allocator.allocArray<QtreeObject>(defaultCapacity);
+                objects = allocator.allocArray<QtreeObject*>(defaultCapacity);
             }
             objects[size++] = item;
         }
@@ -75,7 +75,7 @@ namespace tree
         }
 
         // adds another object, growth is only limited by QuadLinearAllocatorSlabSize
-        TREE_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, const QtreeObject& item, int defaultCapacity)
+        TREE_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, QtreeObject* item, int defaultCapacity)
         {
             if (size == defaultCapacity)
             {
