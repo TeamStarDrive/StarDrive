@@ -61,6 +61,9 @@
     <ClCompile Include="..\3rdparty\imgui\imgui_impl_win32.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="ImGuiQtreeVis.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ReCpp\rpp\collections.h">

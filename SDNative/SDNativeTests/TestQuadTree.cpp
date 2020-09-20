@@ -2,6 +2,7 @@
 #include <quadtree/QuadTree.h>
 #include <rpp/timer.h>
 #include <rpp/tests.h>
+#include <rpp/vec.h>
 #include "ImGuiQtreeVis.h"
 
 enum ObjectType : uint8_t
@@ -18,14 +19,14 @@ enum ObjectType : uint8_t
 
 struct MyGameObject
 {
-    float x = 0.0f;
-    float y = 0.0f;
-    float radius = 0.0f;
     int spatialId = -1;
-    float vx = 0.0f;
-    float vy = 0.0f;
+    rpp::Vector2 pos { 0.0f, 0.0f };
+    rpp::Vector2 vel { 0.0f, 0.0f };
+    float radius = 0.0f;
+    float mass = 1.0f;
     uint8_t loyalty = 0;
     ObjectType type = ObjectType_Any;
+    bool collidedThisFrame = false;
 };
 
 TestImpl(QuadTree)
@@ -36,20 +37,22 @@ TestImpl(QuadTree)
 
     static void insertAll(tree::QuadTree& tree, std::vector<MyGameObject>& objects)
     {
+        tree.clear();
         for (MyGameObject& o : objects)
         {
-            o.vx = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 200000.0f;
-            o.vy = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 200000.0f;
+            o.vel.x = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 5000.0f;
+            o.vel.y = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 5000.0f;
 
-            tree::QtreeObject qto { o.loyalty, o.type, 0, (int)o.x, (int)o.y, (int)o.radius, (int)o.radius };
+            tree::QtreeObject qto { o.loyalty, o.type, 0, (int)o.pos.x, (int)o.pos.y, (int)o.radius, (int)o.radius };
             o.spatialId = tree.insert(qto);
         }
         tree.rebuild();
     }
     
-    static float getRandomOffset(float radius)
+    static rpp::Vector2 getRandomOffset(float radius)
     {
-        return ((rand() / static_cast<float>(RAND_MAX)) * radius * 2) - radius;
+        return { ((rand() / static_cast<float>(RAND_MAX)) * radius * 2) - radius,
+                 ((rand() / static_cast<float>(RAND_MAX)) * radius * 2) - radius, };
     }
 
     static int getRandomIndex(size_t arraySize)
@@ -66,8 +69,7 @@ TestImpl(QuadTree)
         for (int i = 0; i < numObjects; ++i)
         {
             MyGameObject o;
-            o.x = getRandomOffset(universeRadius);
-            o.y = getRandomOffset(universeRadius);
+            o.pos = getRandomOffset(universeRadius);
             o.radius = objectRadius;
             o.loyalty = (i % 2) == 0 ? 1 : 2;
             o.type = ObjectType_Ship;
@@ -75,8 +77,6 @@ TestImpl(QuadTree)
         }
         return objects;
     }
-
-    static float len(float x, float y) { return sqrtf(x*x + y*y); }
 
     // spawn ships around limited cluster of solar systems
     static std::vector<MyGameObject> createObjects(int numObjects, float objectRadius, float universeSize,
@@ -90,8 +90,7 @@ TestImpl(QuadTree)
         for (int i = 0; i < numSolarSystems; ++i)
         {
             MyGameObject o;
-            o.x = getRandomOffset(universeRadius - solarRadius);
-            o.y = getRandomOffset(universeRadius - solarRadius);
+            o.pos = getRandomOffset(universeRadius - solarRadius);
             systems.push_back(o);
         }
 
@@ -99,21 +98,15 @@ TestImpl(QuadTree)
         {
             const MyGameObject& sys = systems[getRandomIndex(systems.size())];
 
-            float offX = getRandomOffset(solarRadius);
-            float offY = getRandomOffset(solarRadius);
+            rpp::Vector2 off = getRandomOffset(solarRadius);
 
             // limit offset inside the solar system radius
-            float d = sqrtf(offX*offX + offY*offY);
+            float d = off.length();
             if (d > solarRadius)
-            {
-                float multiplier = solarRadius / d;
-                offX = (offX * multiplier);
-                offY = (offY * multiplier);
-            }
+                off *= (solarRadius / d);
 
             MyGameObject o;
-            o.x = sys.x + offX;
-            o.y = sys.y + offY;
+            o.pos = sys.pos + off;
             o.radius = objectRadius;
             o.loyalty = (i % 2) == 0 ? 1 : 2;
             o.type = ObjectType_Ship;
@@ -127,9 +120,7 @@ TestImpl(QuadTree)
     {
         rpp::Timer t;
         for (int x = 0; x < iterations; ++x) {
-            for (const MyGameObject& o : objects) {
-                func(o);
-            }
+            for (const MyGameObject& o : objects) { func(o); }
         }
         double e = t.elapsed_ms();
         int total_operations = objects.size() * iterations;
@@ -140,56 +131,116 @@ TestImpl(QuadTree)
                                                            int objectsPerFunc, VoidFunc&& func)
     {
         rpp::Timer t;
-        for (int x = 0; x < iterations; ++x) {
-            func();
-        }
+        for (int x = 0; x < iterations; ++x) { func(); }
         double e = t.elapsed_ms();
         printf("QuadTree %s total: %.2fms  avg: %.3fus\n", what, e, ((e*1000)/iterations)/objectsPerFunc);
     }
 
-    static void runSimulation(float timeStep, tree::QuadTree& tree, std::vector<MyGameObject>& objects)
-    {
-        float universeLo = tree.universeSize() * -0.5f;
-        float universeHi = tree.universeSize() * +0.5f;
-
-        for (MyGameObject& o : objects)
-        {
-            if (o.x < universeLo || o.x > universeHi)
-                o.vx = -o.vx;
-
-            if (o.y < universeLo || o.y > universeHi)
-                o.vy = -o.vy;
-
-            o.x += o.vx * timeStep;
-            o.y += o.vy * timeStep;
-            tree.update(o.spatialId, (int)o.x, (int)o.y);
-        }
-        tree.rebuild();
-    }
-
     static constexpr int UNIVERSE_SIZE = 5'000'000;
     static constexpr int SMALLEST_SIZE = 1024;
-    static constexpr float OBJECT_RADIUS = 120;
-    static constexpr int NUM_OBJECTS = 30'000;
+    static constexpr float OBJECT_RADIUS = 500;
+    static constexpr int NUM_OBJECTS = 50'000;
     static constexpr float DEFAULT_SENSOR_RANGE = 10'000;
 
     static constexpr int SOLAR_SYSTEMS = 32;
     static constexpr int SOLAR_RADIUS = 100'000;
 
+    struct Simulation final : tree::vis::SimContext
+    {
+        std::vector<MyGameObject> objects;
+
+        explicit Simulation(tree::QuadTree& tree) : SimContext{tree}
+        {
+            recreateAllObjects();
+        }
+
+        void update(float timeStep) override
+        {
+            if (objects.size() != totalObjects)
+                recreateAllObjects();
+
+            if (isPaused)
+                return;
+
+            updateObjectPositions(timeStep);
+
+            rpp::Timer t1;
+            tree.rebuild();
+            rebuildMs = t1.elapsed_ms();
+
+            rpp::Timer t2;
+            collidedObjects.clear();
+            tree.collideAll(timeStep, [&](int objectA, int objectB) -> tree::CollisionResult
+            {
+                collide(objectA, objectB);
+                return tree::CollisionResult::NoSideEffects;
+            });
+            numCollisions = (int)collidedObjects.size();
+            collideMs = t2.elapsed_ms();
+        }
+
+        void updateObjectPositions(float timeStep)
+        {
+            float universeLo = tree.universeSize() * -0.5f;
+            float universeHi = tree.universeSize() * +0.5f;
+            for (MyGameObject& o : objects)
+            {
+                if (o.pos.x < universeLo || o.pos.x > universeHi)
+                    o.vel.x = -o.vel.x;
+
+                if (o.pos.y < universeLo || o.pos.y > universeHi)
+                    o.vel.y = -o.vel.y;
+
+                o.pos += o.vel * timeStep;
+                tree.update(o.spatialId, (int)o.pos.x, (int)o.pos.y);
+            }
+        }
+
+        void collide(int objectA, int objectB)
+        {
+            MyGameObject& a = objects[objectA];
+            MyGameObject& b = objects[objectB];
+
+            // impulse calculation
+            // https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
+            rpp::Vector2 collisionNormal = (b.pos - a.pos).normalized();
+            rpp::Vector2 relativeVelocity = b.vel - a.vel;
+            float velAlongNormal = relativeVelocity.dot(collisionNormal);
+            if (velAlongNormal < 0)
+            {
+                float restitution = 1.0f; // perfect rigidity, all energy conserved
+
+                // calculate impulse scalar
+                float invMassA = 1.0f / a.mass;
+                float invMassB = 1.0f / b.mass;
+                float j = -(1 + restitution) * velAlongNormal;
+                j /= invMassA + invMassB;
+
+                // apply impulse
+                rpp::Vector2 impulse = j * collisionNormal;
+                a.vel -= invMassA * impulse;
+                b.vel += invMassB * impulse;
+            }
+
+            collidedObjects.push_back(objectA);
+            collidedObjects.push_back(objectB);
+        }
+
+        void recreateAllObjects()
+        {
+            tree.clear();
+            objects = createObjects(totalObjects, OBJECT_RADIUS, UNIVERSE_SIZE, SOLAR_SYSTEMS, SOLAR_RADIUS);
+            insertAll(tree, objects);
+        }
+    };
+
     TestCase(update_perf)
     {
         tree::QuadTree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
+        Simulation sim { tree };
+        tree::vis::show(sim);
 
-        std::vector<MyGameObject> objects = createObjects(NUM_OBJECTS, OBJECT_RADIUS, UNIVERSE_SIZE,
-                                                          SOLAR_SYSTEMS, SOLAR_RADIUS);
-        insertAll(tree, objects);
-
-        //tree::vis::show(0.0001f, tree, [&](float timeStep)
-        //{
-        //    runSimulation(timeStep, tree, objects);
-        //});
-
-        measureIterations("Qtree.updateAll", 1000, objects.size(), [&]()
+        measureIterations("Qtree.updateAll", 1000, sim.objects.size(), [&]()
         {
             tree.rebuild();
         });
@@ -207,8 +258,8 @@ TestImpl(QuadTree)
         measureEachObj("findNearby", 200, objects, [&](const MyGameObject& o)
         {
             tree::SearchOptions opt;
-            opt.OriginX = (int)o.x;
-            opt.OriginY = (int)o.y;
+            opt.OriginX = (int)o.pos.x;
+            opt.OriginY = (int)o.pos.y;
             opt.SearchRadius = (int)DEFAULT_SENSOR_RANGE;
             opt.MaxResults = 1024;
             opt.FilterExcludeObjectId = o.spatialId;
@@ -228,9 +279,9 @@ TestImpl(QuadTree)
 
         measureIterations("collideAll", 100, objects.size(), [&]()
         {
-            tree.collideAll(1.0f/60.0f, [](int objectA, int objectB)->int
+            tree.collideAll(1.0f/60.0f, [](int objectA, int objectB) -> tree::CollisionResult
             {
-                return 0;
+                return tree::CollisionResult::NoSideEffects;
             });
         });
     }
