@@ -15,7 +15,7 @@
   <CombatState>Artillery</CombatState>
   <MechanicalBoardingDefense>0</MechanicalBoardingDefense>
   <Hull>Remnant/XenoGunship</Hull>
-  <Role>frigate</Role>
+  <Role>corvette</Role>
   <ThrusterList>
     <ThrusterZone>
       <Position>
