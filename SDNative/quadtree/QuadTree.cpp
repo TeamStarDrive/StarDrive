@@ -28,7 +28,8 @@ namespace tree
         uint32_t bytes = sizeof(QuadTree);
         bytes += FrontAlloc->totalBytes();
         bytes += BackAlloc->totalBytes();
-        bytes += Objects.size() * sizeof(QtreeObject);
+        bytes += Pending.capacity() * sizeof(QtreeObject);
+        bytes += Objects.capacity() * sizeof(QtreeObject);
         return bytes;
     }
 
@@ -42,6 +43,7 @@ namespace tree
     void QuadTree::clear()
     {
         Objects.clear();
+        Pending.clear();
         Root = createRoot();
     }
 
@@ -54,13 +56,19 @@ namespace tree
         FrontAlloc->reset();
         CurrentSplitThreshold = PendingSplitThreshold;
 
+        if (!Pending.empty())
+        {
+            Objects.insert(Objects.end(), Pending.begin(), Pending.end());
+            Pending.clear();
+        }
+
         const int numObjects = (int)Objects.size();
-        const QtreeObject* objects = Objects.data();
+        QtreeObject* objects = Objects.data();
 
         QtreeNode* root = createRoot();
         for (int i = 0; i < numObjects; ++i)
         {
-            const QtreeObject& o = objects[i];
+            QtreeObject* o = &objects[i];
             insertAt(Levels, *root, o);
         }
         Root = root;
@@ -68,8 +76,8 @@ namespace tree
 
     int QuadTree::insert(const QtreeObject& o)
     {
-        int objectId = (int)Objects.size();
-        QtreeObject& inserted = Objects.emplace_back(o);
+        int objectId = (int)( Objects.size() + Pending.size() );
+        QtreeObject& inserted = Pending.emplace_back(o);
         inserted.objectId = objectId;
         return objectId;
     }
@@ -134,15 +142,16 @@ namespace tree
         }
     };
 
-    void QuadTree::insertAt(int level, QtreeNode& root, const QtreeObject& o)
+    void QuadTree::insertAt(int level, QtreeNode& root, QtreeObject* o)
     {
         QtreeNode* cur = &root;
+        int ox = o->x, oy = o->y, rx = o->rx, ry = o->ry;
         for (;;)
         {
             // try to select a sub-quadrant, perhaps it's a better match
             if (cur->isBranch())
             {
-                Overlaps over { cur->cx, cur->cy, o.x, o.y, o.rx, o.ry };
+                Overlaps over { cur->cx, cur->cy, ox, oy, rx, ry };
 
                 // bitwise add booleans to get the number of overlaps
                 int overlaps = over.NW + over.NE + over.SE + over.SW;
@@ -172,7 +181,7 @@ namespace tree
         }
     }
 
-    void QuadTree::insertAtLeaf(int level, QtreeNode& leaf, const QtreeObject& o)
+    void QuadTree::insertAtLeaf(int level, QtreeNode& leaf, QtreeObject* o)
     {
         if (leaf.size < CurrentSplitThreshold)
         {
@@ -182,7 +191,7 @@ namespace tree
         else if (level > 0)
         {
             const int size = leaf.size;
-            QtreeObject* objects = leaf.objects;
+            QtreeObject** objects = leaf.objects;
             leaf.convertToBranch(*FrontAlloc);
 
             // and now reinsert all items one by one
@@ -229,10 +238,10 @@ namespace tree
             else
             {
                 int size = node.size;
-                QtreeObject* items = node.objects;
+                QtreeObject** items = node.objects;
                 for (int i = 0; i < size; ++i)
                 {
-                    QtreeObject& so = items[i];
+                    QtreeObject& so = *items[i];
                     if (so.objectId == objectId)
                     {
                         markForRemoval(objectId, so);
@@ -281,16 +290,16 @@ namespace tree
             else
             {
                 const int size = current.size;
-                const QtreeObject* items = current.objects;
+                QtreeObject** const items = current.objects;
                 for (int i = 0; i < size; ++i)
                 {
-                    const QtreeObject& objectA = items[i];
+                    const QtreeObject& objectA = *items[i];
                     if (!objectA.active)
                         continue;
 
                     for (int j = i + 1; j < size; ++j)
                     {
-                        const QtreeObject& objectB = items[j];
+                        const QtreeObject& objectB = *items[j];
                         if (!objectB.active)
                             continue;
                         //if (!objectA.overlaps(objectB))
@@ -383,10 +392,10 @@ namespace tree
         {
             const QtreeNode& leaf = *leaves[leafIndex];
             const int size = leaf.size;
-            const QtreeObject* items = leaf.objects;
+            QtreeObject** const items = leaf.objects;
             for (int i = 0; i < size; ++i)
             {
-                const QtreeObject& o = items[i];
+                const QtreeObject& o = *items[i];
                 if (o.active
                     && (o.loyalty & exclLoyaltyMask)
                     && (o.loyalty & onlyLoyaltyMask)
@@ -453,10 +462,10 @@ namespace tree
                     visualizer.drawText(current.cx, current.cy, current.width(), text, Yellow);
                 }
                 int count = current.size;
-                const QtreeObject* items = current.objects;
+                QtreeObject** const items = current.objects;
                 for (int i = 0; i < count; ++i)
                 {
-                    const QtreeObject& o = items[i];
+                    const QtreeObject& o = *items[i];
                     if (opt.objectBounds)
                         visualizer.drawRect(o.x-o.rx, o.y-o.ry, o.x+o.rx, o.y+o.ry, VioletBright);
                     if (opt.objectToLeafLines)
