@@ -440,14 +440,14 @@ namespace spatial
         return numResults;
     }
     
-    static const QtreeColor Brown  = { 139, 69,  19, 150 };
-    static const QtreeColor VioletDim = { 199, 21, 133, 100 };
-    static const QtreeColor VioletBright = { 199, 21, 133, 150 };
-    static const QtreeColor Blue   = { 95, 158, 160, 200 };
-    static const QtreeColor Red    = { 255, 69,   0, 100 };
-    static const QtreeColor Yellow = { 255, 255,  0, 200 };
+    static const Color Brown  = { 139, 69,  19, 150 };
+    static const Color VioletDim = { 199, 21, 133, 100 };
+    static const Color VioletBright = { 199, 21, 133, 150 };
+    static const Color Blue   = { 95, 158, 160, 200 };
+    static const Color Red    = { 255, 69,   0, 100 };
+    static const Color Yellow = { 255, 255,  0, 200 };
 
-    void Qtree::debugVisualize(const QtreeVisualizerOptions& opt, QtreeVisualizer& visualizer) const
+    void Qtree::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const
     {
         char text[128];
         int visibleX = opt.visibleWorldRect.centerX();
@@ -544,23 +544,23 @@ namespace spatial
     {
         return tree->findNearby(outResults, opt);
     }
-    TREE_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const QtreeVisualizerOptions& opt, const QtreeVisualizerBridge& vis)
+    TREE_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const VisualizerOptions& opt, const VisualizerBridge& vis)
     {
-        struct VisualizerBridge : QtreeVisualizer
+        struct CppToCBridge : Visualizer
         {
-            QtreeVisualizerBridge vis;
-            explicit VisualizerBridge(const QtreeVisualizerBridge& visualizer) : vis{visualizer} {}
-            void drawRect(int x1, int y1, int x2, int y2, QtreeColor c) override
-            { vis.DrawRect(x1, y1, x2, y2, c); }
-            void drawCircle(int x, int y, int radius, QtreeColor c) override
-            { vis.DrawCircle(x, y, radius, c); }
-            void drawLine(int x1, int y1, int x2, int y2, QtreeColor c) override
-            { vis.DrawLine(x1, y1, x2, y2, c); }
-            void drawText(int x, int y, int size, const char* text, QtreeColor c) override
-            { vis.DrawText(x, y, size, text, c); }
+            VisualizerBridge vis;
+            explicit CppToCBridge(const VisualizerBridge& visualizer) : vis{visualizer} {}
+            void drawRect(int x1, int y1, int x2, int y2, Color c) override
+            { vis.drawRect(x1, y1, x2, y2, c); }
+            void drawCircle(int x, int y, int radius, Color c) override
+            { vis.drawCircle(x, y, radius, c); }
+            void drawLine(int x1, int y1, int x2, int y2, Color c) override
+            { vis.drawLine(x1, y1, x2, y2, c); }
+            void drawText(int x, int y, int size, const char* text, Color c) override
+            { vis.drawText(x, y, size, text, c); }
         };
 
-        VisualizerBridge bridge { vis };
+        CppToCBridge bridge { vis };
         tree->debugVisualize(opt, bridge);
     }
     /////////////////////////////////////////////////////////////////////////////////
