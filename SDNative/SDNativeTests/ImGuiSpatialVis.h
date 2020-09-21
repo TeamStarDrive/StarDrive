@@ -28,7 +28,7 @@ namespace spatial::vis
          * @param timeStep Fixed physics timeStep
          */
         virtual void update(float timeStep) = 0;
-    };
 
-    void show(SimContext& context);
+        void show();
+    };
 }

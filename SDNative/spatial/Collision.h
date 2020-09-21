@@ -1,4 +1,6 @@
 #pragma once
+#include "SpatialObject.h"
+#include <unordered_set>
 
 namespace spatial
 {
@@ -23,5 +25,41 @@ namespace spatial
      * @return CollisionResult Result of the collision
      */
     using CollisionFunc = CollisionResult (*)(void* user, int objectA, int objectB);
+
+
+    struct CollisionPair
+    {
+        int a, b;
+        CollisionPair(int objectA, int objectB)
+        {
+            if (objectA < objectB) // A is always the smaller id
+            {
+                a = objectA;
+                b = objectB;
+            }
+            else
+            {
+                a = objectB;
+                b = objectA;
+            }
+        }
+        bool operator==(CollisionPair o) const { return a == o.a && b == o.b; }
+    };
+
+    struct CollisionPairHash
+    {
+        std::size_t operator()(const CollisionPair& p) const
+        {
+            return p.a + p.b*100'000;
+        }
+    };
+
+    struct Collider
+    {
+        std::unordered_set<CollisionPair, CollisionPairHash> collided;
+
+        void collideObjects(SpatialObject** objects, int size, void* user, CollisionFunc onCollide);
+        bool tryCollide(CollisionPair pair);
+    };
 
 }

@@ -6,15 +6,8 @@ namespace spatial
 {
     Qtree::Qtree(int worldSize, int smallestCell)
     {
-        Levels = 0;
-        FullSize = smallestCell;
         WorldSize = worldSize;
-        while (FullSize < worldSize)
-        {
-            FullSize *= 2;
-            ++Levels;
-        }
-        Root = createRoot();
+        setSmallestCellSize(smallestCell);
     }
 
     Qtree::~Qtree()
@@ -38,6 +31,19 @@ namespace spatial
         QtreeNode* root = FrontAlloc->alloc<QtreeNode>();
         root->setCoords(0, 0, FullSize / 2);
         return root;
+    }
+
+    void Qtree::setSmallestCellSize(int cellSize)
+    {
+        SmallestCell = cellSize;
+        Levels = 0;
+        FullSize = cellSize;
+        while (FullSize < WorldSize)
+        {
+            FullSize *= 2;
+            ++Levels;
+        }
+        Root = createRoot();
     }
 
     void Qtree::clear()
@@ -218,8 +224,8 @@ namespace spatial
         T items[MAX];
         SmallStack() = default;
         explicit SmallStack(const T& node) : next{0} { items[0] = node; }
-        __forceinline void push_back(const T& node) { items[++next] = node; }
-        __forceinline T pop_back() { return items[next--]; }
+        SPATIAL_FINLINE void push_back(const T& item) { items[++next] = item; }
+        SPATIAL_FINLINE T pop_back() { return items[next--]; }
     };
 
     void Qtree::removeAt(QtreeNode* root, int objectId)
@@ -253,48 +259,9 @@ namespace spatial
         while (stack.next >= 0);
     }
 
-    struct CollisionPair
-    {
-        int ObjectA;
-        int ObjectB;
-
-        CollisionPair(int objectA, int objectB)
-        {
-            if (objectA < objectB) // A is always the smaller id
-            {
-                ObjectA = objectA;
-                ObjectB = objectB;
-            }
-            else
-            {
-                ObjectA = objectB;
-                ObjectB = objectA;
-            }
-        }
-
-        bool operator==(const CollisionPair& o) const
-        {
-            return ObjectA == o.ObjectA && ObjectB == o.ObjectB;
-        }
-    };
-
-    struct CollisionsThisFrame
-    {
-        
-    };
-
-    struct CollisionPairHash
-    {
-        std::size_t operator()(const CollisionPair& p) const
-        {
-            return p.ObjectA + p.ObjectB*100'000;
-        }
-    };
-
     void Qtree::collideAll(float timeStep, void* user, CollisionFunc onCollide)
     {
-        std::unordered_set<CollisionPair, CollisionPairHash> collided;
-
+        Collider collider;
         SmallStack<QtreeNode*> stack { Root };
         do
         {
@@ -308,51 +275,23 @@ namespace spatial
             }
             else
             {
-                const int size = current.size;
-                SpatialObject** const items = current.objects;
-                for (int i = 0; i < size; ++i)
-                {
-                    const SpatialObject& objectA = *items[i];
-                    if (!objectA.active)
-                        continue;
-
-                    for (int j = i + 1; j < size; ++j)
-                    {
-                        const SpatialObject& objectB = *items[j];
-                        if (!objectB.active)
-                            continue;
-                        //if (!objectA.overlaps(objectB))
-                        //    continue;
-                        float dx = objectA.x - objectB.x;
-                        float dy = objectA.y - objectB.y;
-                        float r2 = objectA.rx + objectB.rx;
-                        if ((dx*dx + dy*dy) <= (r2*r2))
-                        {
-                            CollisionPair collisionPair { objectA.objectId, objectB.objectId };
-                            if (!collided.contains(collisionPair))
-                            {
-                                collided.insert(collisionPair);
-                                CollisionResult result = onCollide(user, objectA.objectId, objectB.objectId);
-                            }
-                        }
-                    }
-                }
+                if (int size = current.size)
+                    collider.collideObjects(current.objects, size, user, onCollide);
             }
         }
         while (stack.next >= 0);
     }
 
-    // finds all LEAF nodes that overlap [cx, cy, rx, ry]
-    struct FoundLeaves
+    #pragma warning( disable : 6262 )
+    int Qtree::findNearby(int* outResults, const SearchOptions& opt) const
     {
-        int numLeaves = 0; // number of found leaves
-        int totalObjects = 0; // total number of potential objects
-        SmallStack<const QtreeNode*> leaves;
-    };
+        FoundNodes found;
 
-    static void findLeaves(FoundLeaves& found, const QtreeNode* root, int cx, int cy, int rx, int ry)
-    {
-        SmallStack<const QtreeNode*> stack { root };
+        SmallStack<const QtreeNode*> stack { Root };
+        int cx = opt.OriginX;
+        int cy = opt.OriginY;
+        int rx = opt.SearchRadius;
+        int ry = opt.SearchRadius;
         do
         {
             const QtreeNode& current = *stack.pop_back();
@@ -366,85 +305,17 @@ namespace spatial
             }
             else
             {
-                found.leaves.push_back(&current);
-                ++found.numLeaves;
-                found.totalObjects += current.size;
+                found.add(current.objects, current.size, current.cx, current.cy);
             }
         } while (stack.next >= 0);
-    }
 
-    #pragma warning( disable : 6262 )
-    int Qtree::findNearby(int* outResults, const SearchOptions& opt) const
-    {
-        FoundLeaves found;
-        findLeaves(found, Root, opt.OriginX, opt.OriginY, opt.SearchRadius, opt.SearchRadius);
-
-        // NOTE: to avoid a few branches, we used pre-calculated masks, 0xff will pass any
-        int exclLoyaltyMask = (opt.FilterExcludeByLoyalty == 0)     ? 0xffffffff : ~opt.FilterExcludeByLoyalty;
-        int onlyLoyaltyMask = (opt.FilterIncludeOnlyByLoyalty == 0) ? 0xffffffff : opt.FilterIncludeOnlyByLoyalty;
-        int filterMask      = (opt.FilterByType == 0)               ? 0xffffffff : opt.FilterByType;
-        int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~(opt.FilterExcludeObjectId+1);
-        float x = opt.OriginX;
-        float y = opt.OriginY;
-        float radius = opt.SearchRadius;
-        SearchFilterFunc filterFunc = opt.FilterFunction;
-        int maxResults = opt.MaxResults;
-        const QtreeNode** leaves = found.leaves.items;
-
-        // if total candidates is more than we can fit, we need to sort LEAF nodes by distance to Origin
-        if (found.totalObjects > opt.MaxResults)
-        {
-            std::sort(leaves, leaves+found.numLeaves, [x,y](const QtreeNode* a, const QtreeNode* b) -> bool
-            {
-                float adx = x - a->cx;
-                float ady = y - a->cy;
-                float sqDist1 = adx*adx + ady*ady;
-                float bdx = x - b->cx;
-                float bdy = y - b->cy;
-                float sqDist2 = bdx*bdx + bdy*bdy;
-                return sqDist1 < sqDist2;
-            });
-        }
-
-        int numResults = 0;
-        for (int leafIndex = 0; leafIndex < found.numLeaves; ++leafIndex)
-        {
-            const QtreeNode& leaf = *leaves[leafIndex];
-            const int size = leaf.size;
-            SpatialObject** const items = leaf.objects;
-            for (int i = 0; i < size; ++i)
-            {
-                const SpatialObject& o = *items[i];
-                if (o.active
-                    && (o.loyalty & exclLoyaltyMask)
-                    && (o.loyalty & onlyLoyaltyMask)
-                    && (o.type     & filterMask)
-                    && ((o.objectId+1) & objectMask))
-                {
-                    // check if inside radius, inlined for perf
-                    float dx = x - o.x;
-                    float dy = y - o.y;
-                    float r2 = radius + o.rx;
-                    if ((dx*dx + dy*dy) <= (r2*r2))
-                    {
-                        if (!filterFunc || filterFunc(o.objectId) != 0)
-                        {
-                            outResults[numResults++] = o.objectId;
-                            if (numResults >= maxResults)
-                                return numResults; // we are done !
-                        }
-                    }
-                }
-            }
-        }
-        return numResults;
+        return spatial::findNearby(outResults, opt, found);
     }
     
     static const Color Brown  = { 139, 69,  19, 150 };
     static const Color VioletDim = { 199, 21, 133, 100 };
     static const Color VioletBright = { 199, 21, 133, 150 };
     static const Color Blue   = { 95, 158, 160, 200 };
-    static const Color Red    = { 255, 69,   0, 100 };
     static const Color Yellow = { 255, 255,  0, 200 };
 
     void Qtree::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const

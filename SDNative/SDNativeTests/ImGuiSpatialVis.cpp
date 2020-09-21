@@ -22,14 +22,18 @@ namespace spatial::vis
         SearchOptions opt;
         std::vector<int> searchResults;
         int numSearchResults = 0;
-        float timeSink = 0.0f;
-        int leafSplitThreshold = QuadDefaultLeafSplitThreshold;
 
         int KEY_SPACE = 0;
         int KEY_UP_ARROW = 0;
         int KEY_DOWN_ARROW = 0;
         int KEY_LEFT_ARROW = 0;
         int KEY_RIGHT_ARROW = 0;
+        int KEY_PAGE_UP = 0;
+        int KEY_PAGE_DOWN = 0;
+
+        // if TRUE, we wait for simulation to catch up if it's lagging
+        bool waitForSimulation = false;
+        float timeSink = 0.0f;
 
         explicit VisualizationState(SimContext& context) : context{context}, tree{context.tree}
         {
@@ -103,11 +107,13 @@ namespace spatial::vis
         {
             if (KEY_SPACE == 0)
             {
-                KEY_SPACE = ImGui::GetKeyIndex(ImGuiKey_Space);
+                KEY_SPACE    = ImGui::GetKeyIndex(ImGuiKey_Space);
                 KEY_UP_ARROW = ImGui::GetKeyIndex(ImGuiKey_UpArrow);
-                KEY_DOWN_ARROW = ImGui::GetKeyIndex(ImGuiKey_DownArrow);
-                KEY_LEFT_ARROW = ImGui::GetKeyIndex(ImGuiKey_LeftArrow);
+                KEY_DOWN_ARROW  = ImGui::GetKeyIndex(ImGuiKey_DownArrow);
+                KEY_LEFT_ARROW  = ImGui::GetKeyIndex(ImGuiKey_LeftArrow);
                 KEY_RIGHT_ARROW = ImGui::GetKeyIndex(ImGuiKey_RightArrow);
+                KEY_PAGE_UP   = ImGui::GetKeyIndex(ImGuiKey_PageUp);
+                KEY_PAGE_DOWN = ImGui::GetKeyIndex(ImGuiKey_PageDown);
             }
 
             ImVec2 winPos = ImGui::GetWindowPos();
@@ -152,12 +158,11 @@ namespace spatial::vis
                 context.findNearbyMs = t.elapsed_ms();
             }
 
-            if (Qtree* qtree = dynamic_cast<Qtree*>(&tree))
-            {
-                if      (isKeyPressed(KEY_LEFT_ARROW))  leafSplitThreshold = std::max(leafSplitThreshold / 2, 2);
-                else if (isKeyPressed(KEY_RIGHT_ARROW)) leafSplitThreshold = std::min(leafSplitThreshold * 2, 256);
-                qtree->setLeafSplitThreshold(leafSplitThreshold);
-            }
+            if      (isKeyPressed(KEY_LEFT_ARROW))  tree.setNodeCapacity(std::max(tree.getNodeCapacity() / 2, 2));
+            else if (isKeyPressed(KEY_RIGHT_ARROW)) tree.setNodeCapacity(std::min(tree.getNodeCapacity() * 2, 256));
+
+            if      (isKeyPressed(KEY_PAGE_UP))   tree.setSmallestCellSize(std::max(tree.getSmallestCellSize() / 2, 256));
+            else if (isKeyPressed(KEY_PAGE_DOWN)) tree.setSmallestCellSize(std::max(tree.getSmallestCellSize() * 2, 256*256));
 
             float wheel = ImGui::GetIO().MouseWheel;
             if (wheel != 0)
@@ -169,10 +174,17 @@ namespace spatial::vis
             float fixedTimeStep = 1.0f / 60.0f;
             updateCameraFrustum();
 
-            timeSink += ImGui::GetIO().DeltaTime;
-            while (timeSink >= fixedTimeStep)
+            if (waitForSimulation)
             {
-                timeSink -= fixedTimeStep;
+                timeSink += ImGui::GetIO().DeltaTime;
+                while (timeSink >= fixedTimeStep)
+                {
+                    timeSink -= fixedTimeStep;
+                    context.update(fixedTimeStep);
+                }
+            }
+            else
+            {
                 context.update(fixedTimeStep);
             }
         }
@@ -221,21 +233,23 @@ namespace spatial::vis
             if (context.isPaused)
                 ImGui::Text("Simulation Paused, press Space to resume");
 
-            ImGui::Text("Qtree avg %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::Text("Qtree::leafSize: %d", leafSplitThreshold);
-            ImGui::Text("Qtree::memory:  %.1fKB", tree.totalMemory() / 1024.0f);
-            ImGui::Text("Qtree::rebuild(%d) elapsed: %.1fms", tree.count(), context.rebuildMs);
-            ImGui::Text("Qtree::collideAll(%d) elapsed: %.1fms  %d collisions", tree.count(), context.collideMs, context.numCollisions);
-            ImGui::Text("Qtree::findNearby(radius=%d) elapsed: %.3fms  %d results", opt.SearchRadius, context.findNearbyMs, numSearchResults);
-            ImGui::Text("Qtree::draw() elapsed: %.1fms", elapsedDrawMs);
-            ImGui::Text("Qtree::total(%d) elapsed: %.1fms", tree.count(), context.collideMs+context.rebuildMs+elapsedDrawMs);
+            const char* name = tree.name();
+            ImGui::Text("%s avg %.3f ms/frame (%.1f FPS)", name, 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Text("%s::nodeCapacity: %d", name, tree.getNodeCapacity());
+            ImGui::Text("%s::smallestCellSize: %d", name, tree.getSmallestCellSize());
+            ImGui::Text("%s::memory:  %.1fKB", name, tree.totalMemory() / 1024.0f);
+            ImGui::Text("%s::rebuild(%d) elapsed: %.1fms", name, tree.count(), context.rebuildMs);
+            ImGui::Text("%s::collideAll(%d) elapsed: %.1fms  %d collisions", name, tree.count(), context.collideMs, context.numCollisions);
+            ImGui::Text("%s::findNearby(radius=%d) elapsed: %.3fms  %d results", name, opt.SearchRadius, context.findNearbyMs, numSearchResults);
+            ImGui::Text("%s::draw() elapsed: %.1fms", name, elapsedDrawMs);
+            ImGui::Text("%s::total(%d) elapsed: %.1fms", name, tree.count(), context.collideMs+context.rebuildMs+elapsedDrawMs);
         }
     };
 
-    void show(SimContext& context)
+    void SimContext::show()
     {
         DebugGfxWindow window;
-        VisualizationState state { context };
+        VisualizationState state { *this };
         window.Run([&]()
         {
             ImGui::SetNextWindowSize(ImVec2((float)window.width(), (float)window.height()));
