@@ -4,12 +4,12 @@
 
 namespace spatial
 {
-    Qtree::Qtree(int universeSize, int smallestCell)
+    Qtree::Qtree(int worldSize, int smallestCell)
     {
         Levels = 0;
         FullSize = smallestCell;
-        UniverseSize = universeSize;
-        while (FullSize < universeSize)
+        WorldSize = worldSize;
+        while (FullSize < worldSize)
         {
             FullSize *= 2;
             ++Levels;
@@ -374,7 +374,7 @@ namespace spatial
     }
 
     #pragma warning( disable : 6262 )
-    int Qtree::findNearby(int* outResults, const SearchOptions& opt)
+    int Qtree::findNearby(int* outResults, const SearchOptions& opt) const
     {
         FoundLeaves found;
         findLeaves(found, Root, opt.OriginX, opt.OriginY, opt.SearchRadius, opt.SearchRadius);
