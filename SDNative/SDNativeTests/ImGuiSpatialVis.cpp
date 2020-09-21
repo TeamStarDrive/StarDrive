@@ -1,4 +1,4 @@
-#include "ImGuiQtreeVis.h"
+#include "ImGuiSpatialVis.h"
 #include "DebugGfxWindow.h"
 #include <algorithm>
 #include <rpp/timer.h>

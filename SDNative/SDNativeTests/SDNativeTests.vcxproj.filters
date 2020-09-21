@@ -61,7 +61,7 @@
     <ClCompile Include="..\3rdparty\imgui\imgui_impl_win32.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiQtreeVis.cpp">
+    <ClCompile Include="ImGuiSpatialVis.cpp">
       <Filter>tests</Filter>
     </ClCompile>
   </ItemGroup>
@@ -117,7 +117,16 @@
     <ClInclude Include="..\3rdparty\imgui\imgui_impl_win32.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiQtreeVis.h">
+    <ClInclude Include="ImGuiSpatialVis.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialSimObject.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialSimUtils.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialSim.h">
       <Filter>tests</Filter>
     </ClInclude>
   </ItemGroup>
