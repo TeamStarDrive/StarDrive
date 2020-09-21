@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   
-  <Type Name="tree::QtreeRect">
+  <Type Name="spatial::Rect">
       <DisplayString>cx={(right-left)/2} cy={(bottom-top)/2} w={right-left} h={bottom-top}</DisplayString>
       <Expand>
         <Item Name="[cx]" ExcludeView="simple">(right-left)/2</Item>
@@ -15,7 +15,7 @@
       </Expand>
   </Type>
 
-  <Type Name="tree::QtreeObject">
+  <Type Name="spatial::SpatialObject">
     <DisplayString Condition="active!=0">{tree::ObjectType(type)} active id={objectId} loy={(int)loyalty} x={x} y={y} r={radius}</DisplayString>
     <DisplayString Condition="active==0">{tree::ObjectType(type)} dead   id={objectId} loy={(int)loyalty} x={x} y={y} r={radius}</DisplayString>
     <Expand>
@@ -29,7 +29,7 @@
     </Expand>
   </Type>
 
-  <Type Name="tree::QtreeNode">
+  <Type Name="spatial::QtreeNode">
       <DisplayString Condition="size == -1">[BRANCH NW={*(nodes+0)} NE={*(nodes+1)} SE={*(nodes+2)} SW={*(nodes+3)}]</DisplayString>
       <DisplayString Condition="size != -1">[LEAF size={size}]</DisplayString>
       <Expand>
@@ -45,27 +45,6 @@
           <ArrayItems Condition="size != -1" >
               <Size>size</Size>
               <ValuePointer>objects</ValuePointer>
-          </ArrayItems>
-      </Expand>
-  </Type>
-
-  <Type Name="tree::QtreeBoundedNode">
-      <DisplayString Condition="node->size == -1">[BRANCH cx={cx} cy={cy} w={right-left} h={bottom-top}]</DisplayString>
-      <DisplayString Condition="node->size != -1">[LEAF size={node->size} cx={cx} cy={cy} w={right-left} h={bottom-top}]</DisplayString>
-      <Expand>
-          <Item Name="[id]" Optional="true">node->id</Item>
-          <Item Name="[node]" ExcludeView="simple">*node</Item>
-          <Item Condition="node->size == -1" Name="[BRANCH]" ExcludeView="simple">true</Item>
-          <Item Condition="node->size == -1" Name="[NW]" ExcludeView="simple">*(node->nodes+0)</Item>
-          <Item Condition="node->size == -1" Name="[NE]" ExcludeView="simple">*(node->nodes+1)</Item>
-          <Item Condition="node->size == -1" Name="[SE]" ExcludeView="simple">*(node->nodes+2)</Item>
-          <Item Condition="node->size == -1" Name="[SW]" ExcludeView="simple">*(node->nodes+3)</Item>
-
-          <Item Condition="node->size != -1" Name="[LEAF]" ExcludeView="simple">true</Item>
-          <Item Condition="node->size != -1" Name="[size]" ExcludeView="simple">node->size</Item>
-          <ArrayItems Condition="node->size != -1" >
-              <Size>node->size</Size>
-              <ValuePointer>node->objects</ValuePointer>
           </ArrayItems>
       </Expand>
   </Type>
