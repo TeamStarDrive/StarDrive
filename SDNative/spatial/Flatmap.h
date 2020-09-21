@@ -1,30 +1,8 @@
 #pragma once
-#include "QtreeAllocator.h"
-#include "../SpatialObject.h"
+#include "SlabAllocator.h"
 
 namespace spatial
 {
-    struct QtreeObjectArray
-    {
-        int size = 0;
-        SpatialObject* items = nullptr;
-
-        void push_back(QtreeAllocator& allocator, const SpatialObject& item)
-        {
-            if (items == nullptr)
-            {
-                items = allocator.allocArray<SpatialObject>(QuadDefaultLeafSplitThreshold);
-            }
-            items[size++] = item;
-        }
-
-        void clear()
-        {
-            size = 0;
-            items = nullptr;
-        }
-    };
-
     template<class T>
     struct QtreeFlatMap
     {
@@ -40,7 +18,7 @@ namespace spatial
         Chunk** Chunks = nullptr;
         int Count = 0; // number of total objects in all active chunks
         int NumChunks = 0; // number of chunks
-        QtreeAllocator* Allocator = nullptr;
+        SlabAllocator* Allocator = nullptr;
 
         void insert(int objectId, const T& item)
         {
@@ -75,7 +53,7 @@ namespace spatial
             ++Count;
         }
 
-        void reset(QtreeAllocator* allocator)
+        void reset(SlabAllocator* allocator)
         {
             Chunks = nullptr;
             NumChunks = 0;
@@ -98,5 +76,4 @@ namespace spatial
             return nullptr;
         }
     };
-
 }

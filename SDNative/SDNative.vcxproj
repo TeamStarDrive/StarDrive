@@ -148,12 +148,12 @@
     <ClInclude Include="ShipDataSerializer.h" />
     <ClInclude Include="spatial\Collision.h" />
     <ClInclude Include="spatial\Config.h" />
+    <ClInclude Include="spatial\Flatmap.h" />
     <ClInclude Include="spatial\Rect.h" />
     <ClInclude Include="spatial\SearchOptions.h" />
     <ClInclude Include="spatial\SlabAllocator.h" />
     <ClInclude Include="spatial\Spatial.h" />
     <ClInclude Include="spatial\qtree\Qtree.h" />
-    <ClInclude Include="spatial\qtree\QtreeArray.h" />
     <ClInclude Include="spatial\qtree\QtreeNode.h" />
     <ClInclude Include="spatial\SpatialObject.h" />
     <ClInclude Include="spatial\Visualizer.h" />
@@ -201,7 +201,7 @@
     <Natvis Include="ReCpp\rpp\strview.natvis" />
     <Natvis Include="ReCpp\rpp\vec.natvis" />
     <Natvis Include="SDNative.natvis" />
-    <Natvis Include="spatial\qtree\Qtree.natvis" />
+    <Natvis Include="spatial\qtree\Spatial.natvis" />
   </ItemGroup>
   <ItemGroup>
     <None Include="3rdparty\libsquish\config" />
