@@ -1,21 +1,21 @@
 #pragma once
 
-#ifndef TREE_API
-#define TREE_API __declspec(dllexport)
+#ifndef SPATIAL_API
+#define SPATIAL_API __declspec(dllexport)
 #endif
 
-#ifndef TREE_CAPI
-#define TREE_C_API extern "C" __declspec(dllexport)
+#ifndef SPATIAL_C_API
+#define SPATIAL_C_API extern "C" __declspec(dllexport)
 #endif
 
 //// @note Some strong hints that some functions are merely wrappers, so should be forced inline
-#ifndef TREE_FINLINE
+#ifndef SPATIAL_FINLINE
 #  ifdef _MSC_VER
-#    define TREE_FINLINE __forceinline
+#    define SPATIAL_FINLINE __forceinline
 #  elif __APPLE__
-#    define TREE_FINLINE inline __attribute__((always_inline))
+#    define SPATIAL_FINLINE inline __attribute__((always_inline))
 #  else
-#    define TREE_FINLINE __attribute__((always_inline))
+#    define SPATIAL_FINLINE __attribute__((always_inline))
 #  endif
 #endif
 

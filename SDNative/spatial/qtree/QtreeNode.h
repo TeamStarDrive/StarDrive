@@ -32,19 +32,19 @@ namespace spatial
         bool isBranch() const { return size == BRANCH_ID; }
         bool isLeaf()   const { return size != BRANCH_ID; }
 
-        TREE_FINLINE QtreeNode* nw() const { return &nodes[0]; }
-        TREE_FINLINE QtreeNode* ne() const { return &nodes[1]; }
-        TREE_FINLINE QtreeNode* se() const { return &nodes[2]; }
-        TREE_FINLINE QtreeNode* sw() const { return &nodes[3]; }
+        SPATIAL_FINLINE QtreeNode* nw() const { return &nodes[0]; }
+        SPATIAL_FINLINE QtreeNode* ne() const { return &nodes[1]; }
+        SPATIAL_FINLINE QtreeNode* se() const { return &nodes[2]; }
+        SPATIAL_FINLINE QtreeNode* sw() const { return &nodes[3]; }
 
-        TREE_FINLINE int height() const { return (radius<<1); }
-        TREE_FINLINE int width()  const { return (radius<<1); }
-        TREE_FINLINE int left()   const { return cx - radius; }
-        TREE_FINLINE int right()  const { return cx + radius; }
-        TREE_FINLINE int top()    const { return cy - radius; }
-        TREE_FINLINE int bottom() const { return cy + radius; }
+        SPATIAL_FINLINE int height() const { return (radius<<1); }
+        SPATIAL_FINLINE int width()  const { return (radius<<1); }
+        SPATIAL_FINLINE int left()   const { return cx - radius; }
+        SPATIAL_FINLINE int right()  const { return cx + radius; }
+        SPATIAL_FINLINE int top()    const { return cy - radius; }
+        SPATIAL_FINLINE int bottom() const { return cy + radius; }
 
-        TREE_FINLINE void setCoords(int centerX, int centerY, int nodeRadius)
+        SPATIAL_FINLINE void setCoords(int centerX, int centerY, int nodeRadius)
         {
             cx = centerX;
             cy = centerY;
@@ -52,7 +52,7 @@ namespace spatial
         }
 
         // fast adding of an object
-        TREE_FINLINE void addObject(QtreeAllocator& allocator, SpatialObject* item, int defaultCapacity)
+        SPATIAL_FINLINE void addObject(QtreeAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
             if (size == 0)
             {
@@ -62,7 +62,7 @@ namespace spatial
         }
 
         // compute the next highest power of 2 of 32-bit v
-        TREE_FINLINE static int upperPowerOf2(unsigned int v)
+        SPATIAL_FINLINE static int upperPowerOf2(unsigned int v)
         {
             --v;
             v |= v >> 1;
@@ -75,7 +75,7 @@ namespace spatial
         }
 
         // adds another object, growth is only limited by QuadLinearAllocatorSlabSize
-        TREE_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, SpatialObject* item, int defaultCapacity)
+        SPATIAL_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
             if (size == defaultCapacity)
             {
@@ -93,9 +93,8 @@ namespace spatial
             objects[size++] = item;
         }
 
-
         // Converts a LEAF node into a BRANCH node which contains sub-QtreeNode's
-        TREE_FINLINE void convertToBranch(QtreeAllocator& allocator)
+        SPATIAL_FINLINE void convertToBranch(QtreeAllocator& allocator)
         {
             // create 4 LEAF nodes
             nodes = allocator.allocArrayZeroed<QtreeNode>(4);
