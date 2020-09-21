@@ -106,7 +106,7 @@ namespace spatial
     struct Overlaps
     {
         bool NW, NE, SE, SW;
-        TREE_FINLINE Overlaps(int quadCenterX, int quadCenterY, int objectX, int objectY,
+        SPATIAL_FINLINE Overlaps(int quadCenterX, int quadCenterY, int objectX, int objectY,
                               int objectRadiusX, int objectRadiusY)
         {
             // +---------+   The target rectangle overlaps Left quadrants (NW, SW)
@@ -508,43 +508,43 @@ namespace spatial
 
     /////////////////////////////////////////////////////////////////////////////////
 
-    TREE_C_API Qtree* __stdcall QtreeCreate(int universeSize, int smallestCell)
+    SPATIAL_C_API Qtree* __stdcall QtreeCreate(int universeSize, int smallestCell)
     {
         return new Qtree(universeSize, smallestCell);
     }
-    TREE_C_API void __stdcall QtreeDestroy(Qtree* tree)
+    SPATIAL_C_API void __stdcall QtreeDestroy(Qtree* tree)
     {
         delete tree;
     }
-    TREE_C_API void __stdcall QtreeClear(Qtree* tree)
+    SPATIAL_C_API void __stdcall QtreeClear(Qtree* tree)
     {
         tree->clear();
     }
-    TREE_C_API void __stdcall QtreeRebuild(Qtree* tree)
+    SPATIAL_C_API void __stdcall QtreeRebuild(Qtree* tree)
     {
         tree->rebuild();
     }
-    TREE_C_API int __stdcall QtreeInsert(Qtree* tree, const SpatialObject& o)
+    SPATIAL_C_API int __stdcall QtreeInsert(Qtree* tree, const SpatialObject& o)
     {
         return tree->insert(o);
     }
-    TREE_C_API void __stdcall QtreeUpdate(Qtree* tree, int objectId, int x, int y)
+    SPATIAL_C_API void __stdcall QtreeUpdate(Qtree* tree, int objectId, int x, int y)
     {
         tree->update(objectId, x, y);
     }
-    TREE_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId)
+    SPATIAL_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId)
     {
         tree->remove(objectId);
     }
-    TREE_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, CollisionFunc onCollide)
+    SPATIAL_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, CollisionFunc onCollide)
     {
         tree->collideAll(timeStep, user, onCollide);
     }
-    TREE_C_API int __stdcall QtreeFindNearby(Qtree* tree, int* outResults, const SearchOptions& opt)
+    SPATIAL_C_API int __stdcall QtreeFindNearby(Qtree* tree, int* outResults, const SearchOptions& opt)
     {
         return tree->findNearby(outResults, opt);
     }
-    TREE_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const VisualizerOptions& opt, const VisualizerBridge& vis)
+    SPATIAL_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const VisualizerOptions& opt, const VisualizerBridge& vis)
     {
         struct CppToCBridge : Visualizer
         {
