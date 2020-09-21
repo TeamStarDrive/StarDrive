@@ -185,7 +185,8 @@ namespace Ship_Game.AI
 
             if (ScanTargetUpdated)
             {
-                Target            = ScannedTarget;
+                if (!HasPriorityTarget || Target?.Active == false)
+                    Target = ScannedTarget;
                 ScanTargetUpdated = false;
             }
         }

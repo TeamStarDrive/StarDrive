@@ -938,7 +938,6 @@ namespace Ship_Game
         public void QueueGameplayObjectRemoval(GameplayObject toRemove)
         {
             toRemove.Active = false;
-            toRemove.DisableSpatialCollision = true;
             if (!toRemove.QueuedForRemoval)
             {
                 toRemove.QueuedForRemoval = true;

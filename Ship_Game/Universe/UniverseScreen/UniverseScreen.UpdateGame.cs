@@ -370,11 +370,10 @@ namespace Ship_Game
                     {
                         var ship = MasterShipList[i];
                         {
-                            if (ship.NotInSpatial == false && (ship.IsSubspaceProjector ||
-                                                               ship.IsPlatformOrStation && ship.System != null))
+                            if (ship.Active && ship.InSpatial && ship.IsPlatformOrStation)
                                 continue;
 
-                            if (!ship.InRadiusOfCurrentSystem)
+                            if (ship.ShipInitialized && !ship.InRadiusOfCurrentSystem)
                             {
                                 ship.SetSystem(null);
 

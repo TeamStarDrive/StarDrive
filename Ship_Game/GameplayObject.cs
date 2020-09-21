@@ -99,7 +99,6 @@ namespace Ship_Game
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {
             Active = false;
-            DisableSpatialCollision = true;
             Empire.Universe?.QueueGameplayObjectRemoval(this);
         }
 
@@ -130,7 +129,7 @@ namespace Ship_Game
             if (System == system)
                 return;
 
-            if (this is Ship ship)
+            if (this is Ship ship && ship.ShipInitialized)
             {
                 System?.ShipList.RemoveSwapLast(ship);
                 system?.ShipList.AddUnique(ship);
