@@ -190,7 +190,7 @@
     <ClCompile Include="..\ReCpp\rpp\timer.cpp" />
     <ClCompile Include="..\ReCpp\rpp\vec.cpp" />
     <ClCompile Include="DebugGfxWindow.cpp" />
-    <ClCompile Include="ImGuiQtreeVis.cpp" />
+    <ClCompile Include="ImGuiSpatialVis.cpp" />
     <ClCompile Include="TestQuadTree.cpp" />
     <ClCompile Include="tests_main.cpp" />
   </ItemGroup>
@@ -212,7 +212,10 @@
     <ClInclude Include="..\ReCpp\rpp\timer.h" />
     <ClInclude Include="..\ReCpp\rpp\vec.h" />
     <ClInclude Include="DebugGfxWindow.h" />
-    <ClInclude Include="ImGuiQtreeVis.h" />
+    <ClInclude Include="ImGuiSpatialVis.h" />
+    <ClInclude Include="SpatialSimObject.h" />
+    <ClInclude Include="SpatialSim.h" />
+    <ClInclude Include="SpatialSimUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="..\ReCpp\rpp\strview.natvis" />
