@@ -4,7 +4,7 @@
 
 namespace spatial
 {
-    QuadTree::QuadTree(int universeSize, int smallestCell)
+    Qtree::Qtree(int universeSize, int smallestCell)
     {
         Levels = 0;
         FullSize = smallestCell;
@@ -17,15 +17,15 @@ namespace spatial
         Root = createRoot();
     }
 
-    QuadTree::~QuadTree()
+    Qtree::~Qtree()
     {
         delete FrontAlloc;
         delete BackAlloc;
     }
 
-    uint32_t QuadTree::totalMemory() const
+    uint32_t Qtree::totalMemory() const
     {
-        uint32_t bytes = sizeof(QuadTree);
+        uint32_t bytes = sizeof(Qtree);
         bytes += FrontAlloc->totalBytes();
         bytes += BackAlloc->totalBytes();
         bytes += Pending.capacity() * sizeof(QtreeObject);
@@ -33,21 +33,21 @@ namespace spatial
         return bytes;
     }
 
-    QtreeNode* QuadTree::createRoot() const
+    QtreeNode* Qtree::createRoot() const
     {
         QtreeNode* root = FrontAlloc->alloc<QtreeNode>();
         root->setCoords(0, 0, FullSize / 2);
         return root;
     }
 
-    void QuadTree::clear()
+    void Qtree::clear()
     {
         Objects.clear();
         Pending.clear();
         Root = createRoot();
     }
 
-    void QuadTree::rebuild()
+    void Qtree::rebuild()
     {
         // swap the front and back-buffer
         // the front buffer will be reset and reused
@@ -74,7 +74,7 @@ namespace spatial
         Root = root;
     }
 
-    int QuadTree::insert(const QtreeObject& o)
+    int Qtree::insert(const QtreeObject& o)
     {
         int objectId = (int)( Objects.size() + Pending.size() );
         QtreeObject& inserted = Pending.emplace_back(o);
@@ -82,14 +82,14 @@ namespace spatial
         return objectId;
     }
 
-    void QuadTree::update(int objectId, int x, int y)
+    void Qtree::update(int objectId, int x, int y)
     {
         QtreeObject& o = Objects[objectId];
         o.x = x;
         o.y = y;
     }
 
-    void QuadTree::remove(int objectId)
+    void Qtree::remove(int objectId)
     {
         // @todo This will be slow with large number of objects
         //       find a better lookup system, maybe a flatmap ?
@@ -142,7 +142,7 @@ namespace spatial
         }
     };
 
-    void QuadTree::insertAt(int level, QtreeNode& root, QtreeObject* o)
+    void Qtree::insertAt(int level, QtreeNode& root, QtreeObject* o)
     {
         QtreeNode* cur = &root;
         int ox = o->x, oy = o->y, rx = o->rx, ry = o->ry;
@@ -181,7 +181,7 @@ namespace spatial
         }
     }
 
-    void QuadTree::insertAtLeaf(int level, QtreeNode& leaf, QtreeObject* o)
+    void Qtree::insertAtLeaf(int level, QtreeNode& leaf, QtreeObject* o)
     {
         if (leaf.size < CurrentSplitThreshold)
         {
@@ -222,7 +222,7 @@ namespace spatial
         __forceinline T pop_back() { return items[next--]; }
     };
 
-    void QuadTree::removeAt(QtreeNode* root, int objectId)
+    void Qtree::removeAt(QtreeNode* root, int objectId)
     {
         SmallStack<QtreeNode*> stack; stack.push_back(root);
         do
@@ -291,7 +291,7 @@ namespace spatial
         }
     };
 
-    void QuadTree::collideAll(float timeStep, void* user, CollisionFunc onCollide)
+    void Qtree::collideAll(float timeStep, void* user, CollisionFunc onCollide)
     {
         std::unordered_set<CollisionPair, CollisionPairHash> collided;
 
@@ -374,7 +374,7 @@ namespace spatial
     }
 
     #pragma warning( disable : 6262 )
-    int QuadTree::findNearby(int* outResults, const SearchOptions& opt)
+    int Qtree::findNearby(int* outResults, const SearchOptions& opt)
     {
         FoundLeaves found;
         findLeaves(found, Root, opt.OriginX, opt.OriginY, opt.SearchRadius, opt.SearchRadius);
@@ -447,7 +447,7 @@ namespace spatial
     static const QtreeColor Red    = { 255, 69,   0, 100 };
     static const QtreeColor Yellow = { 255, 255,  0, 200 };
 
-    void QuadTree::debugVisualize(const QtreeVisualizerOptions& opt, QtreeVisualizer& visualizer) const
+    void Qtree::debugVisualize(const QtreeVisualizerOptions& opt, QtreeVisualizer& visualizer) const
     {
         char text[128];
         int visibleX = opt.visibleWorldRect.centerX();
@@ -500,7 +500,7 @@ namespace spatial
         while (stack.next >= 0);
     }
 
-    void QuadTree::markForRemoval(int objectId, QtreeObject& o)
+    void Qtree::markForRemoval(int objectId, QtreeObject& o)
     {
         o.active = 0;
         o.objectId = -1;
@@ -508,43 +508,43 @@ namespace spatial
 
     /////////////////////////////////////////////////////////////////////////////////
 
-    TREE_C_API QuadTree* __stdcall QtreeCreate(int universeSize, int smallestCell)
+    TREE_C_API Qtree* __stdcall QtreeCreate(int universeSize, int smallestCell)
     {
-        return new QuadTree(universeSize, smallestCell);
+        return new Qtree(universeSize, smallestCell);
     }
-    TREE_C_API void __stdcall QtreeDestroy(QuadTree* tree)
+    TREE_C_API void __stdcall QtreeDestroy(Qtree* tree)
     {
         delete tree;
     }
-    TREE_C_API void __stdcall QtreeClear(QuadTree* tree)
+    TREE_C_API void __stdcall QtreeClear(Qtree* tree)
     {
         tree->clear();
     }
-    TREE_C_API void __stdcall QtreeRebuild(QuadTree* tree)
+    TREE_C_API void __stdcall QtreeRebuild(Qtree* tree)
     {
         tree->rebuild();
     }
-    TREE_C_API int __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o)
+    TREE_C_API int __stdcall QtreeInsert(Qtree* tree, const QtreeObject& o)
     {
         return tree->insert(o);
     }
-    TREE_C_API void __stdcall QtreeUpdate(QuadTree* tree, int objectId, int x, int y)
+    TREE_C_API void __stdcall QtreeUpdate(Qtree* tree, int objectId, int x, int y)
     {
         tree->update(objectId, x, y);
     }
-    TREE_C_API void __stdcall QtreeRemove(QuadTree* tree, int objectId)
+    TREE_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId)
     {
         tree->remove(objectId);
     }
-    TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, void* user, CollisionFunc onCollide)
+    TREE_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, CollisionFunc onCollide)
     {
         tree->collideAll(timeStep, user, onCollide);
     }
-    TREE_C_API int __stdcall QtreeFindNearby(QuadTree* tree, int* outResults, const SearchOptions& opt)
+    TREE_C_API int __stdcall QtreeFindNearby(Qtree* tree, int* outResults, const SearchOptions& opt)
     {
         return tree->findNearby(outResults, opt);
     }
-    TREE_C_API void __stdcall QtreeDebugVisualize(QuadTree* tree, const QtreeVisualizerOptions& opt, const QtreeVisualizerBridge& vis)
+    TREE_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const QtreeVisualizerOptions& opt, const QtreeVisualizerBridge& vis)
     {
         struct VisualizerBridge : QtreeVisualizer
         {

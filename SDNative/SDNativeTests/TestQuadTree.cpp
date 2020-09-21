@@ -35,7 +35,7 @@ TestImpl(QuadTree)
     {
     }
 
-    static void insertAll(spatial::QuadTree& tree, std::vector<MyGameObject>& objects)
+    static void insertAll(spatial::Qtree& tree, std::vector<MyGameObject>& objects)
     {
         tree.clear();
         for (MyGameObject& o : objects)
@@ -151,7 +151,7 @@ TestImpl(QuadTree)
     {
         std::vector<MyGameObject> objects;
 
-        explicit Simulation(spatial::QuadTree& tree) : SimContext{tree}
+        explicit Simulation(spatial::Qtree& tree) : SimContext{tree}
         {
             totalObjects = NUM_OBJECTS;
             recreateAllObjects();
@@ -239,7 +239,7 @@ TestImpl(QuadTree)
 
     TestCase(update_perf)
     {
-        spatial::QuadTree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
+        spatial::Qtree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
         Simulation sim { tree };
         //spatial::vis::show(sim);
 
@@ -251,7 +251,7 @@ TestImpl(QuadTree)
 
     TestCase(search_perf)
     {
-        spatial::QuadTree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
+        spatial::Qtree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
         std::vector<MyGameObject> objects = createObjects(NUM_OBJECTS, OBJECT_RADIUS, UNIVERSE_SIZE,
                                                           SOLAR_SYSTEMS, SOLAR_RADIUS);
         insertAll(tree, objects);
@@ -273,7 +273,7 @@ TestImpl(QuadTree)
 
     TestCase(collision_perf)
     {
-        spatial::QuadTree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
+        spatial::Qtree tree { UNIVERSE_SIZE, SMALLEST_SIZE };
         std::vector<MyGameObject> objects = createObjects(NUM_OBJECTS, OBJECT_RADIUS, UNIVERSE_SIZE,
                                                           SOLAR_SYSTEMS, SOLAR_RADIUS);
         insertAll(tree, objects);
