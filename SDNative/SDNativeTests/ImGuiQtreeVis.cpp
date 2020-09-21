@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <rpp/timer.h>
 
-namespace tree::vis
+namespace spatial::vis
 {
     static ImU32 getColor(QtreeColor c)
     {

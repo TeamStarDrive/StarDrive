@@ -1,8 +1,8 @@
-#include "QuadTree.h"
+#include "Qtree.h"
 #include <algorithm>
 #include <unordered_set>
 
-namespace tree
+namespace spatial
 {
     QuadTree::QuadTree(int universeSize, int smallestCell)
     {
@@ -257,18 +257,37 @@ namespace tree
     {
         int ObjectA;
         int ObjectB;
+
+        CollisionPair(int objectA, int objectB)
+        {
+            if (objectA < objectB) // A is always the smaller id
+            {
+                ObjectA = objectA;
+                ObjectB = objectB;
+            }
+            else
+            {
+                ObjectA = objectB;
+                ObjectB = objectA;
+            }
+        }
+
         bool operator==(const CollisionPair& o) const
         {
-            return (ObjectA == o.ObjectA && ObjectB == o.ObjectB)
-                || (ObjectB == o.ObjectA && ObjectA == o.ObjectB);
+            return ObjectA == o.ObjectA && ObjectB == o.ObjectB;
         }
+    };
+
+    struct CollisionsThisFrame
+    {
+        
     };
 
     struct CollisionPairHash
     {
         std::size_t operator()(const CollisionPair& p) const
         {
-            return std::hash<int>()(p.ObjectA) ^ std::hash<int>()(p.ObjectB);
+            return p.ObjectA + p.ObjectB*100'000;
         }
     };
 
