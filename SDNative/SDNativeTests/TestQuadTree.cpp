@@ -1,5 +1,5 @@
 ﻿#include <ctime>
-#include <quadtree/Qtree.h>
+#include <spatial/qtree/Qtree.h>
 #include <rpp/timer.h>
 #include <rpp/tests.h>
 #include <rpp/vec.h>
