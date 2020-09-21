@@ -38,9 +38,8 @@ namespace spatial
             ++Height;
             FullSize = Width*cellSize;
         }
-
         NodesCount = Width * Height;
-        Cells = FrontAlloc->allocArrayZeroed<GridCell>(NodesCount);
+        rebuild();
     }
 
     void Grid::clear()
@@ -56,8 +55,9 @@ namespace spatial
         // the front buffer will be reset and reused
         // while the back buffer will be untouched until next time
         std::swap(FrontAlloc, BackAlloc);
-        FrontAlloc->reset();
+
         SlabAllocator& front = *FrontAlloc;
+        front.reset();
 
         if (!Pending.empty())
         {
@@ -68,7 +68,7 @@ namespace spatial
         const int numObjects = (int)Objects.size();
         SpatialObject* objects = Objects.data();
 
-        GridCell* cells = FrontAlloc->allocArrayZeroed<GridCell>(NodesCount);
+        GridCell* cells = front.allocArrayZeroed<GridCell>(NodesCount);
         int half = FullSize / 2;
         int cellSize = CellSize;
         int width = Width;
@@ -93,7 +93,7 @@ namespace spatial
                 for (int x = x1; x <= x2; ++x)
                 {
                     GridCell& node = cells[x + y*width];
-                    node.addObject(*FrontAlloc, &o, cellCapacity);
+                    node.addObject(front, &o, cellCapacity);
                 }
             }
         }

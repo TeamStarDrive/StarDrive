@@ -162,7 +162,7 @@ namespace spatial::vis
             else if (isKeyPressed(KEY_RIGHT_ARROW)) tree.setNodeCapacity(std::min(tree.getNodeCapacity() * 2, 256));
 
             if      (isKeyPressed(KEY_PAGE_UP))   tree.setSmallestCellSize(std::max(tree.getSmallestCellSize() / 2, 256));
-            else if (isKeyPressed(KEY_PAGE_DOWN)) tree.setSmallestCellSize(std::max(tree.getSmallestCellSize() * 2, 256*256));
+            else if (isKeyPressed(KEY_PAGE_DOWN)) tree.setSmallestCellSize(std::min(tree.getSmallestCellSize() * 2, 256*1024));
 
             float wheel = ImGui::GetIO().MouseWheel;
             if (wheel != 0)
