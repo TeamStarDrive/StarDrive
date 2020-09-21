@@ -35,7 +35,7 @@ TestImpl(QuadTree)
     {
     }
 
-    static void insertAll(spatial::Qtree& tree, std::vector<MyGameObject>& objects)
+    static void insertAll(spatial::Spatial& tree, std::vector<MyGameObject>& objects)
     {
         tree.clear();
         for (MyGameObject& o : objects)
@@ -184,8 +184,8 @@ TestImpl(QuadTree)
 
         void updateObjectPositions(float timeStep)
         {
-            float universeLo = tree.universeSize() * -0.5f;
-            float universeHi = tree.universeSize() * +0.5f;
+            float universeLo = tree.worldSize() * -0.5f;
+            float universeHi = tree.worldSize() * +0.5f;
             for (MyGameObject& o : objects)
             {
                 if (o.pos.x < universeLo || o.pos.x > universeHi)
