@@ -390,6 +390,9 @@ namespace Ship_Game.Ships
             if (!loadingFromSaveGame)
                 InitializeStatus(false);
             else
+            // TODO: Move this setsystem to the warmupShipsForLoad prior to first update. 
+            // its in the wrong place here. 
+            // normal system update is done prior to ship update. 
                 SetSystem(System);
 
             InitExternalSlots();
