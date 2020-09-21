@@ -389,8 +389,9 @@ namespace Ship_Game.Ships
             // issue link: https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1538/
             if (!loadingFromSaveGame)
                 InitializeStatus(false);
+            else
+                SetSystem(System);
 
-            //SetSystem(System);
             InitExternalSlots();
             Initialize();
 
