@@ -282,13 +282,13 @@
     <ClInclude Include="spatial\qtree\QtreeNode.h">
       <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="spatial\qtree\QtreeObject.h">
-      <Filter>spatial\qtree</Filter>
-    </ClInclude>
     <ClInclude Include="spatial\qtree\QtreeRect.h">
       <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="spatial\ISpatialCollection.h">
+    <ClInclude Include="spatial\Spatial.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\SpatialObject.h">
       <Filter>spatial</Filter>
     </ClInclude>
   </ItemGroup>
