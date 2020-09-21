@@ -1,12 +1,12 @@
 #pragma once
-#include <spatial/qtree/Qtree.h>
+#include <spatial/Spatial.h>
 #include <functional>
 
 namespace spatial::vis
 {
     struct SimContext
     {
-        Qtree& tree;
+        Spatial& tree;
 
         float zoom = 0.0001f;
         double rebuildMs = 0.0; // time spent in Qtree::rebuild()
@@ -18,7 +18,7 @@ namespace spatial::vis
 
         bool isPaused = true;
 
-        explicit SimContext(Qtree& tree) : tree{tree}
+        explicit SimContext(Spatial& tree) : tree{tree}
         {
         }
         virtual ~SimContext() = default;

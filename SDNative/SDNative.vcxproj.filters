@@ -294,6 +294,12 @@
     <ClInclude Include="spatial\Config.h">
       <Filter>spatial</Filter>
     </ClInclude>
+    <ClInclude Include="spatial\SearchOptions.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Collision.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="SDNative.natvis">

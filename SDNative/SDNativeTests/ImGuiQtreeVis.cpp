@@ -2,6 +2,7 @@
 #include "DebugGfxWindow.h"
 #include <algorithm>
 #include <rpp/timer.h>
+#include <spatial/qtree/Qtree.h>
 
 namespace spatial::vis
 {
@@ -17,7 +18,7 @@ namespace spatial::vis
     struct VisualizationState final : Visualizer
     {
         SimContext& context;
-        Qtree& tree;
+        Spatial& tree;
         SearchOptions opt;
         std::vector<int> searchResults;
         int numSearchResults = 0;
@@ -151,9 +152,12 @@ namespace spatial::vis
                 context.findNearbyMs = t.elapsed_ms();
             }
 
-            if      (isKeyPressed(KEY_LEFT_ARROW))  leafSplitThreshold = std::max(leafSplitThreshold / 2, 2);
-            else if (isKeyPressed(KEY_RIGHT_ARROW)) leafSplitThreshold = std::min(leafSplitThreshold * 2, 256);
-            tree.setLeafSplitThreshold(leafSplitThreshold);
+            if (Qtree* qtree = dynamic_cast<Qtree*>(&tree))
+            {
+                if      (isKeyPressed(KEY_LEFT_ARROW))  leafSplitThreshold = std::max(leafSplitThreshold / 2, 2);
+                else if (isKeyPressed(KEY_RIGHT_ARROW)) leafSplitThreshold = std::min(leafSplitThreshold * 2, 256);
+                qtree->setLeafSplitThreshold(leafSplitThreshold);
+            }
 
             float wheel = ImGui::GetIO().MouseWheel;
             if (wheel != 0)

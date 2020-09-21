@@ -12,7 +12,7 @@ namespace Ship_Game.Gameplay
         {
             float universeWidth = universeRadius * 2f;
             QuadTree = new Quadtree(universeWidth);
-            Log.Info($"SpatialManager Width: {(int)universeWidth}  QTSize: {(int)QuadTree.FullSize}  QTLevels: {QuadTree.Levels}");
+            Log.Info($"SpatialManager Width: {(int)universeWidth}  QTSize: {(int)QuadTree.FullSize}");
         }
 
         public void Destroy()
