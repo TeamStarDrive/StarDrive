@@ -3,7 +3,7 @@
 #include "QtreeAllocator.h"
 #include "QtreeObject.h"
 
-namespace tree
+namespace spatial
 {
     struct QtreeObjectArray
     {

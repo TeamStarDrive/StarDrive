@@ -5,7 +5,7 @@
 #include "QtreeAllocator.h"
 #include <vector>
 
-namespace tree
+namespace spatial
 {
     /// <summary>
     /// Describes the result of the collision callback
@@ -250,7 +250,7 @@ namespace tree
     TREE_C_API int  __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o);
     TREE_C_API void __stdcall QtreeUpdate(QuadTree* tree, int objectId, int x, int y);
     TREE_C_API void __stdcall QtreeRemove(QuadTree* tree, int objectId);
-    TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, void* user, tree::CollisionFunc onCollide);
-    TREE_C_API int __stdcall QtreeFindNearby(QuadTree* tree, int* outResults, const tree::SearchOptions& opt);
+    TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
+    TREE_C_API int __stdcall QtreeFindNearby(QuadTree* tree, int* outResults, const spatial::SearchOptions& opt);
     TREE_C_API void __stdcall QtreeDebugVisualize(QuadTree* tree, const QtreeVisualizerOptions& opt, const QtreeVisualizerBridge& vis);
 }

@@ -19,7 +19,7 @@
 #  endif
 #endif
 
-namespace tree
+namespace spatial
 {
     /// <summary>
     /// How many objects to store per quad tree cell before subdividing

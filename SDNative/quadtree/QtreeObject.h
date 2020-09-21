@@ -2,7 +2,7 @@
 #include "QtreeConstants.h"
 #include <cstdint>
 
-namespace tree
+namespace spatial
 {
     struct QtreeObject
     {

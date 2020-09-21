@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace tree
+namespace spatial
 {
     class QtreeAllocator
     {

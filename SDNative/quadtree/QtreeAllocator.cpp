@@ -5,7 +5,7 @@
 #include "QtreeNode.h"
 #include "QtreeConstants.h"
 
-namespace tree
+namespace spatial
 {
     const int SlabAlign = 16;
 

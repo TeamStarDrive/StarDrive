@@ -1,6 +1,6 @@
 #pragma once
 
-namespace tree
+namespace spatial
 {
     struct QtreeRect
     {
