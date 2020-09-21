@@ -28,12 +28,12 @@ namespace spatial
         {
         }
 
-        TREE_FINLINE int left()   const { return x - rx; }
-        TREE_FINLINE int right()  const { return x + rx; }
-        TREE_FINLINE int top()    const { return y - ry; }
-        TREE_FINLINE int bottom() const { return y + ry; }
+        SPATIAL_FINLINE int left()   const { return x - rx; }
+        SPATIAL_FINLINE int right()  const { return x + rx; }
+        SPATIAL_FINLINE int top()    const { return y - ry; }
+        SPATIAL_FINLINE int bottom() const { return y + ry; }
 
-        TREE_FINLINE bool overlaps(const SpatialObject& o) const
+        SPATIAL_FINLINE bool overlaps(const SpatialObject& o) const
         {
             return left() <= o.right()  && right()  > o.left()
                 && top()  <= o.bottom() && bottom() > o.top();

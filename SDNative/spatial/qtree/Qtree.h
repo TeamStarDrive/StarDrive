@@ -91,7 +91,7 @@ namespace spatial
      *  -) Bulk collision reaction function
      *  -) Fast search via findNearby
      */
-    class TREE_API Qtree
+    class SPATIAL_API Qtree
     {
         int Levels;
         int FullSize;
@@ -218,14 +218,14 @@ namespace spatial
         void markForRemoval(int objectId, SpatialObject& o);
     };
 
-    TREE_C_API Qtree* __stdcall QtreeCreate(int universeSize, int smallestCell);
-    TREE_C_API void __stdcall QtreeDestroy(Qtree* tree);
-    TREE_C_API void __stdcall QtreeClear(Qtree* tree);
-    TREE_C_API void __stdcall QtreeRebuild(Qtree* tree);
-    TREE_C_API int  __stdcall QtreeInsert(Qtree* tree, const SpatialObject& o);
-    TREE_C_API void __stdcall QtreeUpdate(Qtree* tree, int objectId, int x, int y);
-    TREE_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId);
-    TREE_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
-    TREE_C_API int __stdcall QtreeFindNearby(Qtree* tree, int* outResults, const spatial::SearchOptions& opt);
-    TREE_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const VisualizerOptions& opt, const VisualizerBridge& vis);
+    SPATIAL_C_API Qtree* __stdcall QtreeCreate(int universeSize, int smallestCell);
+    SPATIAL_C_API void __stdcall QtreeDestroy(Qtree* tree);
+    SPATIAL_C_API void __stdcall QtreeClear(Qtree* tree);
+    SPATIAL_C_API void __stdcall QtreeRebuild(Qtree* tree);
+    SPATIAL_C_API int  __stdcall QtreeInsert(Qtree* tree, const SpatialObject& o);
+    SPATIAL_C_API void __stdcall QtreeUpdate(Qtree* tree, int objectId, int x, int y);
+    SPATIAL_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId);
+    SPATIAL_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
+    SPATIAL_C_API int __stdcall QtreeFindNearby(Qtree* tree, int* outResults, const spatial::SearchOptions& opt);
+    SPATIAL_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const VisualizerOptions& opt, const VisualizerBridge& vis);
 }
