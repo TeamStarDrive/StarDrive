@@ -17,7 +17,7 @@ namespace spatial::vis
     struct VisualizationState final : QtreeVisualizer
     {
         SimContext& context;
-        QuadTree& tree;
+        Qtree& tree;
         SearchOptions opt;
         std::vector<int> searchResults;
         int numSearchResults = 0;

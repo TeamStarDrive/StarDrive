@@ -117,7 +117,7 @@ namespace spatial
     };
 
 
-    class TREE_API QuadTree
+    class TREE_API Qtree
     {
         int Levels;
         int FullSize;
@@ -138,13 +138,13 @@ namespace spatial
 
     public:
 
-        explicit QuadTree(int universeSize, int smallestCell);
-        ~QuadTree();
+        explicit Qtree(int universeSize, int smallestCell);
+        ~Qtree();
         
-        QuadTree(QuadTree&&) = delete;
-        QuadTree(const QuadTree&) = delete;
-        QuadTree& operator=(QuadTree&&) = delete;
-        QuadTree& operator=(const QuadTree&) = delete;
+        Qtree(Qtree&&) = delete;
+        Qtree(const Qtree&) = delete;
+        Qtree& operator=(Qtree&&) = delete;
+        Qtree& operator=(const Qtree&) = delete;
 
         int fullSize() const { return FullSize; }
         int universeSize() const { return UniverseSize; }
@@ -165,7 +165,7 @@ namespace spatial
         void setLeafSplitThreshold(int threshold) { PendingSplitThreshold = threshold; }
 
         /**
-         * @return Total number of bytes used entire QuadTree, including all its auxiliary buffers
+         * @return Total number of bytes used entire Qtree, including all its auxiliary buffers
          */
         uint32_t totalMemory() const;
 
@@ -243,14 +243,14 @@ namespace spatial
         void markForRemoval(int objectId, QtreeObject& o);
     };
 
-    TREE_C_API QuadTree* __stdcall QtreeCreate(int universeSize, int smallestCell);
-    TREE_C_API void __stdcall QtreeDestroy(QuadTree* tree);
-    TREE_C_API void __stdcall QtreeClear(QuadTree* tree);
-    TREE_C_API void __stdcall QtreeRebuild(QuadTree* tree);
-    TREE_C_API int  __stdcall QtreeInsert(QuadTree* tree, const QtreeObject& o);
-    TREE_C_API void __stdcall QtreeUpdate(QuadTree* tree, int objectId, int x, int y);
-    TREE_C_API void __stdcall QtreeRemove(QuadTree* tree, int objectId);
-    TREE_C_API void __stdcall QtreeCollideAll(QuadTree* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
-    TREE_C_API int __stdcall QtreeFindNearby(QuadTree* tree, int* outResults, const spatial::SearchOptions& opt);
-    TREE_C_API void __stdcall QtreeDebugVisualize(QuadTree* tree, const QtreeVisualizerOptions& opt, const QtreeVisualizerBridge& vis);
+    TREE_C_API Qtree* __stdcall QtreeCreate(int universeSize, int smallestCell);
+    TREE_C_API void __stdcall QtreeDestroy(Qtree* tree);
+    TREE_C_API void __stdcall QtreeClear(Qtree* tree);
+    TREE_C_API void __stdcall QtreeRebuild(Qtree* tree);
+    TREE_C_API int  __stdcall QtreeInsert(Qtree* tree, const QtreeObject& o);
+    TREE_C_API void __stdcall QtreeUpdate(Qtree* tree, int objectId, int x, int y);
+    TREE_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId);
+    TREE_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
+    TREE_C_API int __stdcall QtreeFindNearby(Qtree* tree, int* outResults, const spatial::SearchOptions& opt);
+    TREE_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const QtreeVisualizerOptions& opt, const QtreeVisualizerBridge& vis);
 }
