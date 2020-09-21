@@ -1,8 +1,8 @@
 #pragma once
-#include <quadtree/QuadTree.h>
+#include <quadtree/Qtree.h>
 #include <functional>
 
-namespace tree::vis
+namespace spatial::vis
 {
     struct SimContext
     {

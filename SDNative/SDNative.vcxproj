@@ -141,6 +141,7 @@
     <ClInclude Include="quadtree\QtreeNode.h" />
     <ClInclude Include="quadtree\QtreeRect.h" />
     <ClInclude Include="quadtree\QtreeObject.h" />
+    <ClInclude Include="quadtree\Qtree.h" />
     <ClInclude Include="ReCpp\rpp\collections.h" />
     <ClInclude Include="ReCpp\rpp\config.h" />
     <ClInclude Include="ReCpp\rpp\debugging.h" />
@@ -176,7 +177,7 @@
     <ClCompile Include="NanoMesh\src\Mesh_Obj.cpp" />
     <ClCompile Include="NanoMesh\src\Mesh_Txt.cpp" />
     <ClCompile Include="quadtree\QtreeAllocator.cpp" />
-    <ClCompile Include="quadtree\QuadTree.cpp" />
+    <ClCompile Include="quadtree\Qtree.cpp" />
     <ClCompile Include="ReCpp\rpp\debugging.cpp" />
     <ClCompile Include="ReCpp\rpp\file_io.cpp" />
     <ClCompile Include="ReCpp\rpp\sprint.cpp" />
