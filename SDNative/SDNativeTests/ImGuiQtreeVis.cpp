@@ -177,7 +177,8 @@ namespace tree::vis
         void getDrawList()
         {
             DrawList = ImGui::GetWindowDrawList();
-            DrawList->Flags &= ~ImDrawListFlags_AntiAliasedLines;
+            //DrawList->Flags &= ~ImDrawListFlags_AntiAliasedLines;
+            DrawList->Flags |= ImDrawListFlags_AntiAliasedLinesUseTex;
         }
 
         void draw()
