@@ -270,9 +270,6 @@
     <ClInclude Include="spatial\qtree\Qtree.h">
       <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="spatial\qtree\QtreeArray.h">
-      <Filter>spatial\qtree</Filter>
-    </ClInclude>
     <ClInclude Include="spatial\qtree\QtreeNode.h">
       <Filter>spatial\qtree</Filter>
     </ClInclude>
@@ -300,6 +297,9 @@
     <ClInclude Include="spatial\SlabAllocator.h">
       <Filter>spatial</Filter>
     </ClInclude>
+    <ClInclude Include="spatial\Flatmap.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="SDNative.natvis">
@@ -314,8 +314,8 @@
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis">
       <Filter>3rdparty\nano</Filter>
     </Natvis>
-    <Natvis Include="spatial\qtree\Qtree.natvis">
-      <Filter>spatial\qtree</Filter>
+    <Natvis Include="spatial\qtree\Spatial.natvis">
+      <Filter>spatial</Filter>
     </Natvis>
   </ItemGroup>
   <ItemGroup>
