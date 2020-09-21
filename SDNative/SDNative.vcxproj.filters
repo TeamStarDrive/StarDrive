@@ -41,7 +41,7 @@
     <Filter Include="spatial">
       <UniqueIdentifier>{a0f203e2-ca1e-4078-89ce-c1cd0e5416c8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="spatial\quadtree">
+    <Filter Include="spatial\qtree">
       <UniqueIdentifier>{79594e61-c0f0-4c22-909a-1193d63fce10}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -142,11 +142,11 @@
     <ClCompile Include="util\os_utils.cpp">
       <Filter>util</Filter>
     </ClCompile>
-    <ClCompile Include="quadtree\QtreeAllocator.cpp">
-      <Filter>spatial\quadtree</Filter>
+    <ClCompile Include="spatial\qtree\Qtree.cpp">
+      <Filter>spatial\qtree</Filter>
     </ClCompile>
-    <ClCompile Include="quadtree\Qtree.cpp">
-      <Filter>spatial\quadtree</Filter>
+    <ClCompile Include="spatial\qtree\QtreeAllocator.cpp">
+      <Filter>spatial\qtree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -267,29 +267,29 @@
     <ClInclude Include="SdMesh\SdAnimation.h">
       <Filter>src\SdMesh</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\QtreeNode.h">
-      <Filter>spatial\quadtree</Filter>
+    <ClInclude Include="spatial\qtree\Qtree.h">
+      <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\QtreeConstants.h">
-      <Filter>spatial\quadtree</Filter>
+    <ClInclude Include="spatial\qtree\QtreeAllocator.h">
+      <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\QtreeAllocator.h">
-      <Filter>spatial\quadtree</Filter>
+    <ClInclude Include="spatial\qtree\QtreeArray.h">
+      <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="QtreeRect.h">
-      <Filter>spatial\quadtree</Filter>
+    <ClInclude Include="spatial\qtree\QtreeConstants.h">
+      <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\QtreeRect.h">
-      <Filter>spatial\quadtree</Filter>
+    <ClInclude Include="spatial\qtree\QtreeNode.h">
+      <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\QtreeObject.h">
-      <Filter>spatial\quadtree</Filter>
+    <ClInclude Include="spatial\qtree\QtreeObject.h">
+      <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\QtreeArray.h">
-      <Filter>spatial\quadtree</Filter>
+    <ClInclude Include="spatial\qtree\QtreeRect.h">
+      <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="quadtree\Qtree.h">
-      <Filter>spatial\quadtree</Filter>
+    <ClInclude Include="spatial\ISpatialCollection.h">
+      <Filter>spatial</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -305,8 +305,8 @@
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis">
       <Filter>3rdparty\nano</Filter>
     </Natvis>
-    <Natvis Include="quadtree\Qtree.natvis">
-      <Filter>spatial\quadtree</Filter>
+    <Natvis Include="spatial\qtree\Qtree.natvis">
+      <Filter>spatial\qtree</Filter>
     </Natvis>
   </ItemGroup>
   <ItemGroup>
