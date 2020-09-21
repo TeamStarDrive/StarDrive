@@ -276,9 +276,6 @@
     <ClInclude Include="spatial\qtree\QtreeArray.h">
       <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="spatial\qtree\QtreeConstants.h">
-      <Filter>spatial\qtree</Filter>
-    </ClInclude>
     <ClInclude Include="spatial\qtree\QtreeNode.h">
       <Filter>spatial\qtree</Filter>
     </ClInclude>
@@ -292,6 +289,9 @@
       <Filter>spatial</Filter>
     </ClInclude>
     <ClInclude Include="spatial\Visualizer.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Config.h">
       <Filter>spatial</Filter>
     </ClInclude>
   </ItemGroup>
