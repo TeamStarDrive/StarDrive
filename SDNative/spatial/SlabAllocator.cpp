@@ -1,5 +1,4 @@
 #include "SlabAllocator.h"
-#include "Config.h"
 #include <stdexcept>
 
 namespace spatial
@@ -8,19 +7,21 @@ namespace spatial
 
     struct SlabAllocator::Slab
     {
+        uint32_t capacity;
         int remaining;
         uint8_t* ptr;
+        explicit Slab(uint32_t cap) : capacity{cap} { reset(); }
         void reset()
         {
             // everything after Slab member fields is free-to-use memory
-            remaining = AllocatorSlabSize - SlabAlign;
+            remaining = capacity - SlabAlign;
             ptr = reinterpret_cast<uint8_t*>(this) + SlabAlign;
         }
     };
 
-    SlabAllocator::SlabAllocator()
+    SlabAllocator::SlabAllocator(size_t slabSize) : SlabSize{slabSize}
     {
-        nextSlab();
+        CurrentSlab = nextSlab(0);
     }
 
     SlabAllocator::~SlabAllocator()
@@ -31,7 +32,9 @@ namespace spatial
     
     uint32_t SlabAllocator::totalBytes() const
     {
-        uint32_t bytes = sizeof(SlabAllocator) + Slabs.size()*AllocatorSlabSize;
+        uint32_t bytes = sizeof(SlabAllocator);
+        for (Slab* slab : Slabs)
+            bytes += slab->capacity + SlabAlign;
         return bytes;
     }
 
@@ -57,10 +60,10 @@ namespace spatial
         Slab* slab = CurrentSlab;
         if (slab->remaining < (int)numBytes)
         {
-            slab = nextSlab();
+            CurrentSlab = slab = nextSlab(numBytes);
             if (slab->remaining < (int)numBytes)
             {
-                throw std::runtime_error{"QtreeAllocator::alloc() failed: numBytes is greater than slab size"};
+                throw std::runtime_error{"SlabAllocator::alloc() failed: numBytes is greater than slab size"};
             }
         }
 
@@ -74,23 +77,35 @@ namespace spatial
         return ptr;
     }
 
-    SlabAllocator::Slab* SlabAllocator::nextSlab()
+    SlabAllocator::Slab* SlabAllocator::nextSlab(uint32_t allocationSize)
     {
         Slab* slab;
-        size_t next_index = CurrentSlabIndex + 1;
-        if (next_index < Slabs.size()) // reuse existing Slabs
+        size_t nextIndex = CurrentSlabIndex + 1;
+        if (nextIndex < Slabs.size()) // try to reuse existing Slabs
         {
-            CurrentSlabIndex = next_index;
-            slab = Slabs[next_index];
+            slab = Slabs[nextIndex];
+            if (slab->capacity < allocationSize) // next slab is not big enough
+            {
+                // kill all slabs ahead of us:
+                for (size_t i = nextIndex; i < Slabs.size(); ++i)
+                    _aligned_free(Slabs[i]);
+
+                Slabs.erase(Slabs.begin() + nextIndex, Slabs.end());
+                return nextSlab(allocationSize);
+            }
+            CurrentSlabIndex = nextIndex;
+            slab->reset();
         }
         else // make a new slab
         {
+            while (SlabSize < allocationSize)
+                SlabSize *= 2;
+
+            slab = static_cast<Slab*>( _aligned_malloc(SlabSize, SlabAlign) );
             CurrentSlabIndex = Slabs.size();
-            slab = static_cast<Slab*>( _aligned_malloc(AllocatorSlabSize, SlabAlign) );
             Slabs.push_back(slab);
+            new (slab) Slab{SlabSize};
         }
-        slab->reset();
-        CurrentSlab = slab;
         return slab;
     }
 }

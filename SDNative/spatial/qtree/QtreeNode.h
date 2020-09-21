@@ -2,6 +2,7 @@
 #include "../SlabAllocator.h"
 #include "../Config.h"
 #include "../SpatialObject.h"
+#include "../Utilities.h"
 
 namespace spatial
 {
@@ -59,19 +60,6 @@ namespace spatial
                 objects = allocator.allocArray<SpatialObject*>(defaultCapacity);
             }
             objects[size++] = item;
-        }
-
-        // compute the next highest power of 2 of 32-bit v
-        SPATIAL_FINLINE static int upperPowerOf2(unsigned int v)
-        {
-            --v;
-            v |= v >> 1;
-            v |= v >> 2;
-            v |= v >> 4;
-            v |= v >> 8;
-            v |= v >> 16;
-            ++v;
-            return v;
         }
 
         // adds another object, growth is only limited by QuadLinearAllocatorSlabSize

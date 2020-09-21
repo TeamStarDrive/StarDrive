@@ -1,4 +1,5 @@
 #pragma once
+#include "SpatialObject.h"
 
 namespace spatial
 {
@@ -44,4 +45,31 @@ namespace spatial
         /// Return 1: filter passed, object added to results
         SearchFilterFunc FilterFunction = nullptr;
     };
+
+    struct FoundNode
+    {
+        SpatialObject** objects;
+        int count;
+        int worldX, worldY;
+    };
+
+    struct FoundNodes
+    {
+        static constexpr int MAX = 2048;
+        int count = 0;
+        int totalObjects = 0;
+        FoundNode nodes[MAX];
+
+        void add(SpatialObject** objects, int size, int worldX, int worldY)
+        {
+            if (count != MAX)
+            {
+                nodes[count++] = FoundNode{ objects, size, worldX, worldY };
+                totalObjects += size;
+            }
+        }
+    };
+
+    int findNearby(int* outResults, const SearchOptions& opt, FoundNodes& found);
+
 }

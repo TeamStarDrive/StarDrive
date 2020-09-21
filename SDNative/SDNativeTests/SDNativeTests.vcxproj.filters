@@ -64,6 +64,9 @@
     <ClCompile Include="ImGuiSpatialVis.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="TestSpatialGrid.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ReCpp\rpp\collections.h">

@@ -12,10 +12,11 @@ namespace spatial
         std::vector<Slab*> Slabs;
         Slab* CurrentSlab = nullptr;
         size_t CurrentSlabIndex = 0;
+        size_t SlabSize = 0;
 
     public:
 
-        explicit SlabAllocator();
+        explicit SlabAllocator(size_t slabSize);
         ~SlabAllocator();
 
         SlabAllocator(SlabAllocator&&) = delete;
@@ -81,6 +82,6 @@ namespace spatial
 
         // raw alloc from current slab
         void* alloc(uint32_t numBytes);
-        Slab* nextSlab();
+        Slab* nextSlab(uint32_t allocationSize);
     };
 }
