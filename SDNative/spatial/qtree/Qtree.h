@@ -1,8 +1,7 @@
 #pragma once
 #include "QtreeConstants.h"
-#include "QtreeRect.h"
 #include "QtreeNode.h"
-#include "QtreeAllocator.h"
+#include "../Visualizer.h"
 #include <vector>
 
 namespace spatial
@@ -87,36 +86,12 @@ namespace spatial
         SearchFilterFunc FilterFunction = nullptr;
     };
 
-    struct QtreeColor { uint8_t r, g, b, a; };
-
-    struct QtreeVisualizer
-    {
-        virtual ~QtreeVisualizer() = default;
-        virtual void drawRect  (int x1, int y1, int x2, int y2,  QtreeColor c) = 0;
-        virtual void drawCircle(int x,  int y,  int radius,      QtreeColor c) = 0;
-        virtual void drawLine  (int x1, int y1, int x2, int y2,  QtreeColor c) = 0;
-        virtual void drawText  (int x,  int y, int size, const char* text, QtreeColor c) = 0;
-    };
-
-    struct QtreeVisualizerBridge
-    {
-        void (*DrawRect)  (int x1, int y1, int x2, int y2,  QtreeColor c);
-        void (*DrawCircle)(int x,  int y,  int radius,      QtreeColor c);
-        void (*DrawLine)  (int x1, int y1, int x2, int y2,  QtreeColor c);
-        void (*DrawText)  (int x,  int y, int size, const char* text, QtreeColor c);
-    };
-
-    struct QtreeVisualizerOptions
-    {
-        QtreeRect visibleWorldRect; // this visible area in world coordinates that should be drawn
-        bool objectBounds = true; // show bounding box around inserted objects
-        bool objectToLeafLines = true; // show connections from Leaf node to object center
-        bool objectText = false; // show text ontop of each object (very, very intensive)
-        bool nodeText = true; // show text ontop of a leaf or branch node
-        bool nodeBounds = true; // show edges of leaf and branch nodes
-    };
-
-
+    /**
+     * A fast QuadTree implementation
+     *  -) Linear SLAB Allocators for cheap dynamic growth
+     *  -) Bulk collision reaction function
+     *  -) Fast search via findNearby
+     */
     class TREE_API Qtree
     {
         int Levels;
@@ -234,10 +209,11 @@ namespace spatial
         int findNearby(int* outResults, const SearchOptions& opt);
 
         /**
-         * Iterates through the Quadtree and submits draw calls to objects that overlap the visible rect
-         * @param visible The visible area in World coordinates
+         * Iterates through the QuadTree and submits draw calls to objects that overlap the visible rect
+         * @param opt Visualization options
+         * @param visualizer Visualization interface for drawing primitives
          */
-        void debugVisualize(const QtreeVisualizerOptions& opt, QtreeVisualizer& visualizer) const;
+        void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const;
 
     private:
         void markForRemoval(int objectId, SpatialObject& o);
@@ -252,5 +228,5 @@ namespace spatial
     TREE_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId);
     TREE_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
     TREE_C_API int __stdcall QtreeFindNearby(Qtree* tree, int* outResults, const spatial::SearchOptions& opt);
-    TREE_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const QtreeVisualizerOptions& opt, const QtreeVisualizerBridge& vis);
+    TREE_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const VisualizerOptions& opt, const VisualizerBridge& vis);
 }

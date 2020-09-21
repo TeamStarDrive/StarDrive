@@ -5,16 +5,16 @@
 
 namespace spatial::vis
 {
-    static ImU32 getColor(QtreeColor c)
+    static ImU32 getColor(Color c)
     {
         ImVec4 cv { c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f };
         return ImGui::ColorConvertFloat4ToU32(cv);
     }
 
-    static const QtreeColor Yellow = { 255, 255,   0, 255 };
-    static const QtreeColor Cyan   = {   0, 255, 255, 255 };
+    static const Color Yellow = { 255, 255,   0, 255 };
+    static const Color Cyan   = {   0, 255, 255, 255 };
 
-    struct VisualizationState final : QtreeVisualizer
+    struct VisualizationState final : Visualizer
     {
         SimContext& context;
         Qtree& tree;
@@ -42,7 +42,7 @@ namespace spatial::vis
         ImVec2 camera_world = { 0.0f, 0.0f };
         ImVec2 window_center = { 400.0f, 400.0f };
         ImVec2 window_size = { 800.0f, 800.0f };
-        QtreeRect camera_frustum { 0, 0, 0, 0 };
+        Rect camera_frustum { 0, 0, 0, 0 };
 
         float worldToScreen(int worldSize)    const { return worldSize * camera_zoom; }
         float screenToWorld(float screenSize) const { return screenSize/camera_zoom; }
@@ -75,23 +75,23 @@ namespace spatial::vis
             camera_world.y += delta.y / camera_zoom;
         }
 
-        void drawRect(int x1, int y1, int x2, int y2, QtreeColor c) override
+        void drawRect(int x1, int y1, int x2, int y2, Color c) override
         {
             ImVec2 tl = worldToScreen(x1, y1);
             ImVec2 br = worldToScreen(x2, y2);
             ImVec2 points[4] = { tl, ImVec2{br.x, tl.y}, br, ImVec2{tl.x, br.y} };
             DrawList->AddPolyline(points, 4, getColor(c), true, 1.0f);
         }
-        void drawCircle(int x, int y, int radius, QtreeColor c) override
+        void drawCircle(int x, int y, int radius, Color c) override
         {
             DrawList->AddCircle(worldToScreen(x, y), worldToScreen(radius), getColor(c));
         }
-        void drawLine(int x1, int y1, int x2, int y2, QtreeColor c) override
+        void drawLine(int x1, int y1, int x2, int y2, Color c) override
         {
             ImVec2 points[2] = { worldToScreen(x1, y1), worldToScreen(x2, y2) };
             DrawList->AddPolyline(points, 2, getColor(c), false, 1.0f);
         }
-        void drawText(int x, int y, int size, const char* text, QtreeColor c) override
+        void drawText(int x, int y, int size, const char* text, Color c) override
         {
             float screenSize = worldToScreen(size);
             if (screenSize > 200)
@@ -185,7 +185,7 @@ namespace spatial::vis
         {
             getDrawList();
 
-            QtreeVisualizerOptions vo;
+            VisualizerOptions vo;
             vo.visibleWorldRect = camera_frustum;
             vo.nodeText = false;
             vo.objectToLeafLines = false;
