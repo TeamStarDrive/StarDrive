@@ -1,5 +1,5 @@
 #pragma once
-#include "QtreeConstants.h"
+#include "Config.h"
 #include <cstdint>
 
 namespace spatial
