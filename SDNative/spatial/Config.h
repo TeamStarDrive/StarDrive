@@ -22,6 +22,11 @@
 namespace spatial
 {
     /// <summary>
+    /// Size of a single linear allocator slab
+    /// </summary>
+    constexpr int AllocatorSlabSize = 128 * 1024;
+
+    /// <summary>
     /// How many objects to store per quad tree cell before subdividing
     /// </summary>
     constexpr int QuadDefaultLeafSplitThreshold = 64;
@@ -31,9 +36,4 @@ namespace spatial
     /// because Quad search would traverse entire tree
     /// </summary>
     constexpr float QuadToLinearRatio = 0.75f;
-
-    /// <summary>
-    /// Size of a single quadtree linear allocator slab
-    /// </summary>
-    constexpr int QuadLinearAllocatorSlabSize = 128 * 1024;
 }

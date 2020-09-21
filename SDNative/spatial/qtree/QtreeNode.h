@@ -1,5 +1,5 @@
 #pragma once
-#include "QtreeAllocator.h"
+#include "../SlabAllocator.h"
 #include "../Config.h"
 #include "../SpatialObject.h"
 
@@ -52,7 +52,7 @@ namespace spatial
         }
 
         // fast adding of an object
-        SPATIAL_FINLINE void addObject(QtreeAllocator& allocator, SpatialObject* item, int defaultCapacity)
+        SPATIAL_FINLINE void addObject(SlabAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
             if (size == 0)
             {
@@ -75,7 +75,7 @@ namespace spatial
         }
 
         // adds another object, growth is only limited by QuadLinearAllocatorSlabSize
-        SPATIAL_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, SpatialObject* item, int defaultCapacity)
+        SPATIAL_FINLINE void addObjectUnbounded(SlabAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
             if (size == defaultCapacity)
             {
@@ -94,7 +94,7 @@ namespace spatial
         }
 
         // Converts a LEAF node into a BRANCH node which contains sub-QtreeNode's
-        SPATIAL_FINLINE void convertToBranch(QtreeAllocator& allocator)
+        SPATIAL_FINLINE void convertToBranch(SlabAllocator& allocator)
         {
             // create 4 LEAF nodes
             nodes = allocator.allocArrayZeroed<QtreeNode>(4);
