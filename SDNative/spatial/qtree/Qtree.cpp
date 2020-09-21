@@ -28,8 +28,8 @@ namespace spatial
         uint32_t bytes = sizeof(Qtree);
         bytes += FrontAlloc->totalBytes();
         bytes += BackAlloc->totalBytes();
-        bytes += Pending.capacity() * sizeof(QtreeObject);
-        bytes += Objects.capacity() * sizeof(QtreeObject);
+        bytes += Pending.capacity() * sizeof(SpatialObject);
+        bytes += Objects.capacity() * sizeof(SpatialObject);
         return bytes;
     }
 
@@ -63,28 +63,28 @@ namespace spatial
         }
 
         const int numObjects = (int)Objects.size();
-        QtreeObject* objects = Objects.data();
+        SpatialObject* objects = Objects.data();
 
         QtreeNode* root = createRoot();
         for (int i = 0; i < numObjects; ++i)
         {
-            QtreeObject* o = &objects[i];
+            SpatialObject* o = &objects[i];
             insertAt(Levels, *root, o);
         }
         Root = root;
     }
 
-    int Qtree::insert(const QtreeObject& o)
+    int Qtree::insert(const SpatialObject& o)
     {
         int objectId = (int)( Objects.size() + Pending.size() );
-        QtreeObject& inserted = Pending.emplace_back(o);
+        SpatialObject& inserted = Pending.emplace_back(o);
         inserted.objectId = objectId;
         return objectId;
     }
 
     void Qtree::update(int objectId, int x, int y)
     {
-        QtreeObject& o = Objects[objectId];
+        SpatialObject& o = Objects[objectId];
         o.x = x;
         o.y = y;
     }
@@ -142,7 +142,7 @@ namespace spatial
         }
     };
 
-    void Qtree::insertAt(int level, QtreeNode& root, QtreeObject* o)
+    void Qtree::insertAt(int level, QtreeNode& root, SpatialObject* o)
     {
         QtreeNode* cur = &root;
         int ox = o->x, oy = o->y, rx = o->rx, ry = o->ry;
@@ -181,7 +181,7 @@ namespace spatial
         }
     }
 
-    void Qtree::insertAtLeaf(int level, QtreeNode& leaf, QtreeObject* o)
+    void Qtree::insertAtLeaf(int level, QtreeNode& leaf, SpatialObject* o)
     {
         if (leaf.size < CurrentSplitThreshold)
         {
@@ -191,7 +191,7 @@ namespace spatial
         else if (level > 0)
         {
             const int size = leaf.size;
-            QtreeObject** objects = leaf.objects;
+            SpatialObject** objects = leaf.objects;
             leaf.convertToBranch(*FrontAlloc);
 
             // and now reinsert all items one by one
@@ -238,10 +238,10 @@ namespace spatial
             else
             {
                 int size = node.size;
-                QtreeObject** items = node.objects;
+                SpatialObject** items = node.objects;
                 for (int i = 0; i < size; ++i)
                 {
-                    QtreeObject& so = *items[i];
+                    SpatialObject& so = *items[i];
                     if (so.objectId == objectId)
                     {
                         markForRemoval(objectId, so);
@@ -309,16 +309,16 @@ namespace spatial
             else
             {
                 const int size = current.size;
-                QtreeObject** const items = current.objects;
+                SpatialObject** const items = current.objects;
                 for (int i = 0; i < size; ++i)
                 {
-                    const QtreeObject& objectA = *items[i];
+                    const SpatialObject& objectA = *items[i];
                     if (!objectA.active)
                         continue;
 
                     for (int j = i + 1; j < size; ++j)
                     {
-                        const QtreeObject& objectB = *items[j];
+                        const SpatialObject& objectB = *items[j];
                         if (!objectB.active)
                             continue;
                         //if (!objectA.overlaps(objectB))
@@ -411,10 +411,10 @@ namespace spatial
         {
             const QtreeNode& leaf = *leaves[leafIndex];
             const int size = leaf.size;
-            QtreeObject** const items = leaf.objects;
+            SpatialObject** const items = leaf.objects;
             for (int i = 0; i < size; ++i)
             {
-                const QtreeObject& o = *items[i];
+                const SpatialObject& o = *items[i];
                 if (o.active
                     && (o.loyalty & exclLoyaltyMask)
                     && (o.loyalty & onlyLoyaltyMask)
@@ -481,10 +481,10 @@ namespace spatial
                     visualizer.drawText(current.cx, current.cy, current.width(), text, Yellow);
                 }
                 int count = current.size;
-                QtreeObject** const items = current.objects;
+                SpatialObject** const items = current.objects;
                 for (int i = 0; i < count; ++i)
                 {
-                    const QtreeObject& o = *items[i];
+                    const SpatialObject& o = *items[i];
                     if (opt.objectBounds)
                         visualizer.drawRect(o.x-o.rx, o.y-o.ry, o.x+o.rx, o.y+o.ry, VioletBright);
                     if (opt.objectToLeafLines)
@@ -500,7 +500,7 @@ namespace spatial
         while (stack.next >= 0);
     }
 
-    void Qtree::markForRemoval(int objectId, QtreeObject& o)
+    void Qtree::markForRemoval(int objectId, SpatialObject& o)
     {
         o.active = 0;
         o.objectId = -1;
@@ -524,7 +524,7 @@ namespace spatial
     {
         tree->rebuild();
     }
-    TREE_C_API int __stdcall QtreeInsert(Qtree* tree, const QtreeObject& o)
+    TREE_C_API int __stdcall QtreeInsert(Qtree* tree, const SpatialObject& o)
     {
         return tree->insert(o);
     }

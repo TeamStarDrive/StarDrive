@@ -1,6 +1,6 @@
 #pragma once
 #include "QtreeConstants.h"
-#include "QtreeObject.h"
+#include "../SpatialObject.h"
 #include "QtreeAllocator.h"
 
 namespace spatial
@@ -14,7 +14,7 @@ namespace spatial
         union
         {
             QtreeNode* nodes = nullptr;
-            QtreeObject** objects;
+            SpatialObject** objects;
         };
 
         static constexpr int BRANCH_ID = -1;
@@ -52,11 +52,11 @@ namespace spatial
         }
 
         // fast adding of an object
-        TREE_FINLINE void addObject(QtreeAllocator& allocator, QtreeObject* item, int defaultCapacity)
+        TREE_FINLINE void addObject(QtreeAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
             if (size == 0)
             {
-                objects = allocator.allocArray<QtreeObject*>(defaultCapacity);
+                objects = allocator.allocArray<SpatialObject*>(defaultCapacity);
             }
             objects[size++] = item;
         }
@@ -75,7 +75,7 @@ namespace spatial
         }
 
         // adds another object, growth is only limited by QuadLinearAllocatorSlabSize
-        TREE_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, QtreeObject* item, int defaultCapacity)
+        TREE_FINLINE void addObjectUnbounded(QtreeAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
             if (size == defaultCapacity)
             {
