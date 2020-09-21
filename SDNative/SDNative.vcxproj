@@ -150,9 +150,9 @@
     <ClInclude Include="spatial\Config.h" />
     <ClInclude Include="spatial\Rect.h" />
     <ClInclude Include="spatial\SearchOptions.h" />
+    <ClInclude Include="spatial\SlabAllocator.h" />
     <ClInclude Include="spatial\Spatial.h" />
     <ClInclude Include="spatial\qtree\Qtree.h" />
-    <ClInclude Include="spatial\qtree\QtreeAllocator.h" />
     <ClInclude Include="spatial\qtree\QtreeArray.h" />
     <ClInclude Include="spatial\qtree\QtreeNode.h" />
     <ClInclude Include="spatial\SpatialObject.h" />
@@ -190,7 +190,7 @@
     <ClCompile Include="SdMesh\SdMeshGroup.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
     <ClCompile Include="spatial\qtree\Qtree.cpp" />
-    <ClCompile Include="spatial\qtree\QtreeAllocator.cpp" />
+    <ClCompile Include="spatial\SlabAllocator.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\math_utils.cpp" />
     <ClCompile Include="util\os_utils.cpp" />
