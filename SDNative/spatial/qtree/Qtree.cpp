@@ -43,7 +43,7 @@ namespace spatial
             FullSize *= 2;
             ++Levels;
         }
-        Root = createRoot();
+        rebuild();
     }
 
     void Qtree::clear()
