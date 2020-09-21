@@ -200,7 +200,7 @@ namespace spatial::vis
 
                 for (int i = 0; i < numSearchResults; ++i)
                 {
-                    const QtreeObject& o = tree.get(searchResults[i]);
+                    const SpatialObject& o = tree.get(searchResults[i]);
                     drawRect(o.left(), o.top(), o.right(), o.bottom(), Yellow);
                 }
             }
@@ -209,7 +209,7 @@ namespace spatial::vis
             {
                 for (int objectId : context.collidedObjects)
                 {
-                    const QtreeObject& o = tree.get(objectId);
+                    const SpatialObject& o = tree.get(objectId);
                     drawRect(o.left(), o.top(), o.right(), o.bottom(), Cyan);
                 }
             }

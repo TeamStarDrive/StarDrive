@@ -133,8 +133,8 @@ namespace spatial
         QtreeAllocator* FrontAlloc = new QtreeAllocator{};
         QtreeAllocator* BackAlloc  = new QtreeAllocator{};
 
-        std::vector<QtreeObject> Objects;
-        std::vector<QtreeObject> Pending;
+        std::vector<SpatialObject> Objects;
+        std::vector<SpatialObject> Pending;
 
     public:
 
@@ -157,7 +157,7 @@ namespace spatial
         /**
          * @return Gets an object by its ObjectId
          */
-        const QtreeObject& get(int objectId) const { return Objects[objectId]; }
+        const SpatialObject& get(int objectId) const { return Objects[objectId]; }
 
         /**
          * Sets the LEAF node split threshold during next `rebuild()`
@@ -190,7 +190,7 @@ namespace spatial
          * The object will be actually inserted after `rebuild()` is called
          * @return The unique ObjectId of this inserted object
          */
-        int insert(const QtreeObject& o);
+        int insert(const SpatialObject& o);
 
         /**
          * Updates position of the specified object
@@ -206,8 +206,8 @@ namespace spatial
 
     private:
 
-        void insertAt(int level, QtreeNode& root, QtreeObject* o);
-        void insertAtLeaf(int level, QtreeNode& leaf, QtreeObject* o);
+        void insertAt(int level, QtreeNode& root, SpatialObject* o);
+        void insertAtLeaf(int level, QtreeNode& leaf, SpatialObject* o);
         void removeAt(QtreeNode* root, int objectId);
 
     public:
@@ -240,14 +240,14 @@ namespace spatial
         void debugVisualize(const QtreeVisualizerOptions& opt, QtreeVisualizer& visualizer) const;
 
     private:
-        void markForRemoval(int objectId, QtreeObject& o);
+        void markForRemoval(int objectId, SpatialObject& o);
     };
 
     TREE_C_API Qtree* __stdcall QtreeCreate(int universeSize, int smallestCell);
     TREE_C_API void __stdcall QtreeDestroy(Qtree* tree);
     TREE_C_API void __stdcall QtreeClear(Qtree* tree);
     TREE_C_API void __stdcall QtreeRebuild(Qtree* tree);
-    TREE_C_API int  __stdcall QtreeInsert(Qtree* tree, const QtreeObject& o);
+    TREE_C_API int  __stdcall QtreeInsert(Qtree* tree, const SpatialObject& o);
     TREE_C_API void __stdcall QtreeUpdate(Qtree* tree, int objectId, int x, int y);
     TREE_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId);
     TREE_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);

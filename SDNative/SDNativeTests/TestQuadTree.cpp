@@ -43,7 +43,7 @@ TestImpl(QuadTree)
             o.vel.x = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 5000.0f;
             o.vel.y = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 5000.0f;
 
-            spatial::QtreeObject qto { o.loyalty, o.type, 0, (int)o.pos.x, (int)o.pos.y, (int)o.radius, (int)o.radius };
+            spatial::SpatialObject qto { o.loyalty, o.type, 0, (int)o.pos.x, (int)o.pos.y, (int)o.radius, (int)o.radius };
             o.spatialId = tree.insert(qto);
         }
         tree.rebuild();
