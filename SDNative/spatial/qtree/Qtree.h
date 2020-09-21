@@ -16,6 +16,7 @@ namespace spatial
         int Levels;
         int FullSize;
         int WorldSize;
+        int SmallestCell;
 
         // Since we're not able to modify the tree while it's being built
         // Defer the split threshold setting to `rebuild` method
@@ -24,8 +25,8 @@ namespace spatial
         QtreeNode* Root = nullptr;
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
-        SlabAllocator* FrontAlloc = new SlabAllocator{};
-        SlabAllocator* BackAlloc  = new SlabAllocator{};
+        SlabAllocator* FrontAlloc = new SlabAllocator{AllocatorSlabSize};
+        SlabAllocator* BackAlloc  = new SlabAllocator{AllocatorSlabSize};
 
         std::vector<SpatialObject> Objects;
         std::vector<SpatialObject> Pending;
@@ -38,22 +39,19 @@ namespace spatial
          */
         explicit Qtree(int worldSize, int smallestCell);
         ~Qtree();
-        
-        Qtree(Qtree&&) = delete;
-        Qtree(const Qtree&) = delete;
-        Qtree& operator=(Qtree&&) = delete;
-        Qtree& operator=(const Qtree&) = delete;
-        
-        /**
-         * Sets the LEAF node split threshold during next `rebuild()`
-         */
-        void setLeafSplitThreshold(int threshold) { PendingSplitThreshold = threshold; }
 
+        const char* name() const override { return "Qtree"; }
         uint32_t totalMemory() const override;
         int fullSize() const override { return FullSize; }
         int worldSize() const override { return WorldSize; }
         int count() const override { return (int)Objects.size(); }
         const SpatialObject& get(int objectId) const override { return Objects[objectId]; }
+        
+        int getNodeCapacity() const override { return PendingSplitThreshold; }
+        void setNodeCapacity(int capacity) override { PendingSplitThreshold = capacity; }
+        int getSmallestCellSize() const override { return SmallestCell; }
+        void setSmallestCellSize(int cellSize) override;
+
         void clear() override;
         void rebuild() override;
         int insert(const SpatialObject& o) override;

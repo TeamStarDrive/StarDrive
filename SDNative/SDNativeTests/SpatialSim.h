@@ -11,11 +11,14 @@ static constexpr float DEFAULT_SENSOR_RANGE = 10'000;
 static constexpr int SOLAR_SYSTEMS = 32;
 static constexpr int SOLAR_RADIUS = 100'000;
 
+static constexpr int GRID_CELL_SIZE = 20'000;
+static constexpr bool SHOW_SIMULATION = true;
+
 struct Simulation final : spatial::vis::SimContext
 {
     std::vector<MyGameObject> objects;
 
-    explicit Simulation(spatial::Qtree& tree) : SimContext{tree}
+    explicit Simulation(spatial::Spatial& tree) : SimContext{tree}
     {
         totalObjects = NUM_OBJECTS;
         recreateAllObjects();

@@ -36,4 +36,9 @@ namespace spatial
     /// because Quad search would traverse entire tree
     /// </summary>
     constexpr float QuadToLinearRatio = 0.75f;
+
+    /**
+     * Default capacity for a single grid cell before reallocating
+     */
+    constexpr int GridDefaultCellCapacity = 16;
 }

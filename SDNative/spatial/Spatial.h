@@ -3,7 +3,7 @@
 #include "Config.h"
 #include "SpatialObject.h"
 #include "Visualizer.h"
-#include "SearchOptions.h"
+#include "Search.h"
 #include "Collision.h"
 
 namespace spatial
@@ -16,8 +16,14 @@ namespace spatial
     {
     public:
 
+        Spatial() = default;
         virtual ~Spatial() = default;
-        
+
+        /**
+         * Debug friendly name of this Spatial collection
+         */
+        virtual const char* name() const = 0;
+
         /**
          * @return Total number of bytes used, including all its auxiliary buffers
          */
@@ -43,6 +49,31 @@ namespace spatial
          * @return Gets the SpatialObject by its ObjectId
          */
         virtual const SpatialObject& get(int objectId) const = 0;
+        
+        /**
+         * @return Initial node capacity.
+         * For Qtree this is the leaf node capacity
+         * For Grid this is the initial
+         * This can control many different aspects of spatial node storage
+         */
+        virtual int getNodeCapacity() const = 0;
+
+        /**
+         * Sets a new node capacity.
+         * This may control many different aspects of spatial node storage
+         */
+        virtual void setNodeCapacity(int capacity) = 0;
+
+        /**
+         * @return The smallest possible Cell size in this Spatial collection
+         */
+        virtual int getSmallestCellSize() const = 0;
+
+        /**
+         * @return Sets the new smallest cell size.
+         * This is allowed to trigger full rebuild if needed.
+         */
+        virtual void setSmallestCellSize(int cellSize) = 0;
 
         /**
          * Clears all of the inserted objects and resets the Spatial collection
@@ -111,5 +142,12 @@ namespace spatial
          * @param visualizer Visualization interface for drawing primitives
          */
         virtual void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const = 0;
+
+
+        // NO COPY, NO MOVE
+        Spatial(Spatial&&) = delete;
+        Spatial(const Spatial&) = delete;
+        Spatial& operator=(Spatial&&) = delete;
+        Spatial& operator=(const Spatial&) = delete;
     };
 }

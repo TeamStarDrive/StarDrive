@@ -44,6 +44,9 @@
     <Filter Include="spatial\qtree">
       <UniqueIdentifier>{79594e61-c0f0-4c22-909a-1193d63fce10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="spatial\grid">
+      <UniqueIdentifier>{4b26ba28-6163-4c42-a26b-361c722a3497}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShipDataSerializer.cpp">
@@ -147,6 +150,15 @@
     </ClCompile>
     <ClCompile Include="spatial\SlabAllocator.cpp">
       <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\grid\Grid.cpp">
+      <Filter>spatial\grid</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\Search.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\Collision.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -288,9 +300,6 @@
     <ClInclude Include="spatial\Config.h">
       <Filter>spatial</Filter>
     </ClInclude>
-    <ClInclude Include="spatial\SearchOptions.h">
-      <Filter>spatial</Filter>
-    </ClInclude>
     <ClInclude Include="spatial\Collision.h">
       <Filter>spatial</Filter>
     </ClInclude>
@@ -299,6 +308,18 @@
     </ClInclude>
     <ClInclude Include="spatial\Flatmap.h">
       <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\grid\Grid.h">
+      <Filter>spatial\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Utilities.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Search.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\grid\GridCell.h">
+      <Filter>spatial\grid</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

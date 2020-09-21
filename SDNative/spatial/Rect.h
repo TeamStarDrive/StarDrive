@@ -1,4 +1,5 @@
 #pragma once
+#include "Config.h"
 
 namespace spatial
 {
@@ -19,6 +20,12 @@ namespace spatial
         static Rect fromPointRadius(int x, int y, int r)
         {
             return Rect{x-r, y-r, x+r, y+r};
+        }
+
+        SPATIAL_FINLINE bool overlaps(const Rect& r) const
+        {
+            return left <= r.right  && right  > r.left
+                && top  <= r.bottom && bottom > r.top;
         }
     };
 }
