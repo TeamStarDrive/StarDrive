@@ -2,7 +2,7 @@
 
 namespace spatial
 {
-    struct QtreeRect
+    struct Rect
     {
         int left;
         int top;
@@ -16,9 +16,9 @@ namespace spatial
         int width()  const { return (right - left); }
         int height() const { return (bottom - top); }
 
-        static QtreeRect fromPointRadius(int x, int y, int r)
+        static Rect fromPointRadius(int x, int y, int r)
         {
-            return QtreeRect{x-r, y-r, x+r, y+r};
+            return Rect{x-r, y-r, x+r, y+r};
         }
     };
 }
