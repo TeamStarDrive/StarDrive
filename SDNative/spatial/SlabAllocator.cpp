@@ -1,48 +1,48 @@
-#include "QtreeAllocator.h"
-#include "QtreeNode.h"
+#include "SlabAllocator.h"
+#include "Config.h"
 #include <stdexcept>
 
 namespace spatial
 {
     const int SlabAlign = 16;
 
-    struct QtreeAllocator::Slab
+    struct SlabAllocator::Slab
     {
         int remaining;
         uint8_t* ptr;
         void reset()
         {
             // everything after Slab member fields is free-to-use memory
-            remaining = QuadLinearAllocatorSlabSize - SlabAlign;
+            remaining = AllocatorSlabSize - SlabAlign;
             ptr = reinterpret_cast<uint8_t*>(this) + SlabAlign;
         }
     };
 
-    QtreeAllocator::QtreeAllocator()
+    SlabAllocator::SlabAllocator()
     {
         nextSlab();
     }
 
-    QtreeAllocator::~QtreeAllocator()
+    SlabAllocator::~SlabAllocator()
     {
         for (Slab* slab : Slabs)
             _aligned_free(slab);
     }
     
-    uint32_t QtreeAllocator::totalBytes() const
+    uint32_t SlabAllocator::totalBytes() const
     {
-        uint32_t bytes = sizeof(QtreeAllocator) + Slabs.size()*QuadLinearAllocatorSlabSize;
+        uint32_t bytes = sizeof(SlabAllocator) + Slabs.size()*AllocatorSlabSize;
         return bytes;
     }
 
-    void QtreeAllocator::reset()
+    void SlabAllocator::reset()
     {
         CurrentSlab = Slabs.front();
         CurrentSlab->reset();
         CurrentSlabIndex = 0;
     }
 
-    void* QtreeAllocator::allocArray(void* oldArray, int oldCount, int newCapacity, int sizeOf)
+    void* SlabAllocator::allocArray(void* oldArray, int oldCount, int newCapacity, int sizeOf)
     {
         void* newArray = alloc(newCapacity*sizeOf);
         if (oldArray != nullptr)
@@ -52,7 +52,7 @@ namespace spatial
         return newArray;
     }
 
-    void* QtreeAllocator::alloc(uint32_t numBytes)
+    void* SlabAllocator::alloc(uint32_t numBytes)
     {
         Slab* slab = CurrentSlab;
         if (slab->remaining < (int)numBytes)
@@ -74,7 +74,7 @@ namespace spatial
         return ptr;
     }
 
-    QtreeAllocator::Slab* QtreeAllocator::nextSlab()
+    SlabAllocator::Slab* SlabAllocator::nextSlab()
     {
         Slab* slab;
         size_t next_index = CurrentSlabIndex + 1;
@@ -86,7 +86,7 @@ namespace spatial
         else // make a new slab
         {
             CurrentSlabIndex = Slabs.size();
-            slab = static_cast<Slab*>( _aligned_malloc(QuadLinearAllocatorSlabSize, SlabAlign) );
+            slab = static_cast<Slab*>( _aligned_malloc(AllocatorSlabSize, SlabAlign) );
             Slabs.push_back(slab);
         }
         slab->reset();

@@ -24,8 +24,8 @@ namespace spatial
         QtreeNode* Root = nullptr;
 
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
-        QtreeAllocator* FrontAlloc = new QtreeAllocator{};
-        QtreeAllocator* BackAlloc  = new QtreeAllocator{};
+        SlabAllocator* FrontAlloc = new SlabAllocator{};
+        SlabAllocator* BackAlloc  = new SlabAllocator{};
 
         std::vector<SpatialObject> Objects;
         std::vector<SpatialObject> Pending;

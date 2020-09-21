@@ -145,8 +145,8 @@
     <ClCompile Include="spatial\qtree\Qtree.cpp">
       <Filter>spatial\qtree</Filter>
     </ClCompile>
-    <ClCompile Include="spatial\qtree\QtreeAllocator.cpp">
-      <Filter>spatial\qtree</Filter>
+    <ClCompile Include="spatial\SlabAllocator.cpp">
+      <Filter>spatial</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -270,9 +270,6 @@
     <ClInclude Include="spatial\qtree\Qtree.h">
       <Filter>spatial\qtree</Filter>
     </ClInclude>
-    <ClInclude Include="spatial\qtree\QtreeAllocator.h">
-      <Filter>spatial\qtree</Filter>
-    </ClInclude>
     <ClInclude Include="spatial\qtree\QtreeArray.h">
       <Filter>spatial\qtree</Filter>
     </ClInclude>
@@ -298,6 +295,9 @@
       <Filter>spatial</Filter>
     </ClInclude>
     <ClInclude Include="spatial\Collision.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\SlabAllocator.h">
       <Filter>spatial</Filter>
     </ClInclude>
   </ItemGroup>

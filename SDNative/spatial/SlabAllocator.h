@@ -4,7 +4,7 @@
 
 namespace spatial
 {
-    class QtreeAllocator
+    class SlabAllocator
     {
         // single-use linear slab of memory
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
@@ -15,13 +15,13 @@ namespace spatial
 
     public:
 
-        explicit QtreeAllocator();
-        ~QtreeAllocator();
+        explicit SlabAllocator();
+        ~SlabAllocator();
 
-        QtreeAllocator(QtreeAllocator&&) = delete;
-        QtreeAllocator(const QtreeAllocator&) = delete;
-        QtreeAllocator& operator=(QtreeAllocator&&) = delete;
-        QtreeAllocator& operator=(const QtreeAllocator&) = delete;
+        SlabAllocator(SlabAllocator&&) = delete;
+        SlabAllocator(const SlabAllocator&) = delete;
+        SlabAllocator& operator=(SlabAllocator&&) = delete;
+        SlabAllocator& operator=(const SlabAllocator&) = delete;
 
         /// <summary>
         /// Total bytes used by this Allocator
