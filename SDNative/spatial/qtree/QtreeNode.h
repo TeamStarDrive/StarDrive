@@ -1,6 +1,6 @@
 #pragma once
-#include "QtreeConstants.h"
 #include "QtreeAllocator.h"
+#include "../Config.h"
 #include "../SpatialObject.h"
 
 namespace spatial

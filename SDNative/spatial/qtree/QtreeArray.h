@@ -1,20 +1,19 @@
 #pragma once
-#include "QtreeConstants.h"
 #include "QtreeAllocator.h"
-#include "QtreeObject.h"
+#include "../SpatialObject.h"
 
 namespace spatial
 {
     struct QtreeObjectArray
     {
         int size = 0;
-        QtreeObject* items = nullptr;
+        SpatialObject* items = nullptr;
 
-        void push_back(QtreeAllocator& allocator, const QtreeObject& item)
+        void push_back(QtreeAllocator& allocator, const SpatialObject& item)
         {
             if (items == nullptr)
             {
-                items = allocator.allocArray<QtreeObject>(QuadDefaultLeafSplitThreshold);
+                items = allocator.allocArray<SpatialObject>(QuadDefaultLeafSplitThreshold);
             }
             items[size++] = item;
         }

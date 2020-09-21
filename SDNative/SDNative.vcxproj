@@ -146,12 +146,12 @@
     <ClInclude Include="SdMesh\SdMesh.h" />
     <ClInclude Include="SdMesh\SdMeshGroup.h" />
     <ClInclude Include="ShipDataSerializer.h" />
+    <ClInclude Include="spatial\Config.h" />
     <ClInclude Include="spatial\Rect.h" />
     <ClInclude Include="spatial\Spatial.h" />
     <ClInclude Include="spatial\qtree\Qtree.h" />
     <ClInclude Include="spatial\qtree\QtreeAllocator.h" />
     <ClInclude Include="spatial\qtree\QtreeArray.h" />
-    <ClInclude Include="spatial\qtree\QtreeConstants.h" />
     <ClInclude Include="spatial\qtree\QtreeNode.h" />
     <ClInclude Include="spatial\SpatialObject.h" />
     <ClInclude Include="spatial\Visualizer.h" />

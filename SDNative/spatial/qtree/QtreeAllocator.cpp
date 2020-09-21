@@ -1,9 +1,6 @@
 #include "QtreeAllocator.h"
-
-#include <stdexcept>
-
 #include "QtreeNode.h"
-#include "QtreeConstants.h"
+#include <stdexcept>
 
 namespace spatial
 {

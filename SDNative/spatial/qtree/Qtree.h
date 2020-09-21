@@ -1,5 +1,4 @@
 #pragma once
-#include "QtreeConstants.h"
 #include "QtreeNode.h"
 #include "../Visualizer.h"
 #include <vector>
