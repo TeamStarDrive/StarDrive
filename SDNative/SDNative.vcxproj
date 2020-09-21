@@ -134,14 +134,6 @@
     <ClInclude Include="3rdparty\stb\stb_dxt.h" />
     <ClInclude Include="NanoMesh\include\Nano\Mesh.h" />
     <ClInclude Include="NanoMesh\include\Nano\MeshLoader.h" />
-    <ClInclude Include="QtreeRect.h" />
-    <ClInclude Include="quadtree\QtreeAllocator.h" />
-    <ClInclude Include="quadtree\QtreeArray.h" />
-    <ClInclude Include="quadtree\QtreeConstants.h" />
-    <ClInclude Include="quadtree\QtreeNode.h" />
-    <ClInclude Include="quadtree\QtreeRect.h" />
-    <ClInclude Include="quadtree\QtreeObject.h" />
-    <ClInclude Include="quadtree\Qtree.h" />
     <ClInclude Include="ReCpp\rpp\collections.h" />
     <ClInclude Include="ReCpp\rpp\config.h" />
     <ClInclude Include="ReCpp\rpp\debugging.h" />
@@ -154,6 +146,14 @@
     <ClInclude Include="SdMesh\SdMesh.h" />
     <ClInclude Include="SdMesh\SdMeshGroup.h" />
     <ClInclude Include="ShipDataSerializer.h" />
+    <ClInclude Include="spatial\ISpatialCollection.h" />
+    <ClInclude Include="spatial\qtree\Qtree.h" />
+    <ClInclude Include="spatial\qtree\QtreeAllocator.h" />
+    <ClInclude Include="spatial\qtree\QtreeArray.h" />
+    <ClInclude Include="spatial\qtree\QtreeConstants.h" />
+    <ClInclude Include="spatial\qtree\QtreeNode.h" />
+    <ClInclude Include="spatial\qtree\QtreeObject.h" />
+    <ClInclude Include="spatial\qtree\QtreeRect.h" />
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="NodeParser.h" />
   </ItemGroup>
@@ -176,8 +176,6 @@
     <ClCompile Include="NanoMesh\src\Mesh_Fbx.cpp" />
     <ClCompile Include="NanoMesh\src\Mesh_Obj.cpp" />
     <ClCompile Include="NanoMesh\src\Mesh_Txt.cpp" />
-    <ClCompile Include="quadtree\QtreeAllocator.cpp" />
-    <ClCompile Include="quadtree\Qtree.cpp" />
     <ClCompile Include="ReCpp\rpp\debugging.cpp" />
     <ClCompile Include="ReCpp\rpp\file_io.cpp" />
     <ClCompile Include="ReCpp\rpp\sprint.cpp" />
@@ -188,6 +186,8 @@
     <ClCompile Include="SdMesh\SdMesh.cpp" />
     <ClCompile Include="SdMesh\SdMeshGroup.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
+    <ClCompile Include="spatial\qtree\Qtree.cpp" />
+    <ClCompile Include="spatial\qtree\QtreeAllocator.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\math_utils.cpp" />
     <ClCompile Include="util\os_utils.cpp" />
@@ -195,10 +195,10 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis" />
-    <Natvis Include="quadtree\Qtree.natvis" />
     <Natvis Include="ReCpp\rpp\strview.natvis" />
     <Natvis Include="ReCpp\rpp\vec.natvis" />
     <Natvis Include="SDNative.natvis" />
+    <Natvis Include="spatial\qtree\Qtree.natvis" />
   </ItemGroup>
   <ItemGroup>
     <None Include="3rdparty\libsquish\config" />

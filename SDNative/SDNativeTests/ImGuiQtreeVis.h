@@ -1,5 +1,5 @@
 #pragma once
-#include <quadtree/Qtree.h>
+#include <spatial/qtree/Qtree.h>
 #include <functional>
 
 namespace spatial::vis
