@@ -158,11 +158,11 @@ namespace spatial::vis
                 context.findNearbyMs = t.elapsed_ms();
             }
 
-            if      (isKeyPressed(KEY_LEFT_ARROW))  tree.setNodeCapacity(std::max(tree.getNodeCapacity() / 2, 2));
-            else if (isKeyPressed(KEY_RIGHT_ARROW)) tree.setNodeCapacity(std::min(tree.getNodeCapacity() * 2, 256));
+            if      (isKeyPressed(KEY_LEFT_ARROW))  tree.nodeCapacity(std::max(tree.nodeCapacity() / 2, 2));
+            else if (isKeyPressed(KEY_RIGHT_ARROW)) tree.nodeCapacity(std::min(tree.nodeCapacity() * 2, 256));
 
-            if      (isKeyPressed(KEY_PAGE_UP))   tree.setSmallestCellSize(std::max(tree.getSmallestCellSize() / 2, 256));
-            else if (isKeyPressed(KEY_PAGE_DOWN)) tree.setSmallestCellSize(std::min(tree.getSmallestCellSize() * 2, 256*1024));
+            if      (isKeyPressed(KEY_PAGE_UP))   tree.smallestCellSize(std::max(tree.smallestCellSize() / 2, 256));
+            else if (isKeyPressed(KEY_PAGE_DOWN)) tree.smallestCellSize(std::min(tree.smallestCellSize() * 2, 256*1024));
 
             float wheel = ImGui::GetIO().MouseWheel;
             if (wheel != 0)
@@ -235,8 +235,8 @@ namespace spatial::vis
 
             const char* name = tree.name();
             ImGui::Text("%s avg %.3f ms/frame (%.1f FPS)", name, 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::Text("%s::nodeCapacity: %d", name, tree.getNodeCapacity());
-            ImGui::Text("%s::smallestCellSize: %d", name, tree.getSmallestCellSize());
+            ImGui::Text("%s::nodeCapacity: %d", name, tree.nodeCapacity());
+            ImGui::Text("%s::smallestCellSize: %d", name, tree.smallestCellSize());
             ImGui::Text("%s::memory:  %.1fKB", name, tree.totalMemory() / 1024.0f);
             ImGui::Text("%s::rebuild(%d) elapsed: %.1fms", name, tree.count(), context.rebuildMs);
             ImGui::Text("%s::collideAll(%d) elapsed: %.1fms  %d collisions", name, tree.count(), context.collideMs, context.numCollisions);

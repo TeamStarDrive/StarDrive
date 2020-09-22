@@ -3,6 +3,7 @@
 #include "../Spatial.h"
 #include "../SpatialObject.h"
 #include "../SlabAllocator.h"
+#include "../ObjectCollection.h"
 #include "GridCell.h"
 
 namespace spatial
@@ -22,8 +23,7 @@ namespace spatial
         SlabAllocator* FrontAlloc = new SlabAllocator{AllocatorSlabSize};
         SlabAllocator* BackAlloc  = new SlabAllocator{AllocatorSlabSize};
 
-        std::vector<SpatialObject> Objects;
-        std::vector<SpatialObject> Pending;
+        ObjectCollection Objects;
 
     public:
 
@@ -38,19 +38,19 @@ namespace spatial
         uint32_t totalMemory() const override;
         int fullSize() const override { return FullSize; }
         int worldSize() const override { return WorldSize; }
-        int count() const override { return (int)Objects.size(); }
-        const SpatialObject& get(int objectId) const override { return Objects[objectId]; }
+        int count() const override { return Objects.count(); }
+        const SpatialObject& get(int objectId) const override { return Objects.get(objectId); }
         
-        int getNodeCapacity() const override { return CellCapacity; }
-        void setNodeCapacity(int capacity) override { CellCapacity = capacity; }
-        int getSmallestCellSize() const override { return CellSize; }
-        void setSmallestCellSize(int cellSize) override;
+        int nodeCapacity() const override { return CellCapacity; }
+        void nodeCapacity(int capacity) override { CellCapacity = capacity; }
+        int smallestCellSize() const override { return CellSize; }
+        void smallestCellSize(int cellSize) override;
 
         void clear() override;
         void rebuild() override;
-        int insert(const SpatialObject& o) override;
-        void update(int objectId, int x, int y) override;
-        void remove(int objectId) override;
+        int insert(const SpatialObject& o) override { return Objects.insert(o); }
+        void update(int objectId, int x, int y) override { Objects.update(objectId, x, y); }
+        void remove(int objectId) override { Objects.remove(objectId); }
         using Spatial::collideAll;
         void collideAll(float timeStep, void* user, CollisionFunc onCollide) override;
         int findNearby(int* outResults, const SearchOptions& opt) const override;

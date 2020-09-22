@@ -151,6 +151,7 @@
     <ClInclude Include="spatial\Flatmap.h" />
     <ClInclude Include="spatial\grid\Grid.h" />
     <ClInclude Include="spatial\grid\GridCell.h" />
+    <ClInclude Include="spatial\ObjectCollection.h" />
     <ClInclude Include="spatial\Rect.h" />
     <ClInclude Include="spatial\Search.h" />
     <ClInclude Include="spatial\SlabAllocator.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="ShipDataSerializer.cpp" />
     <ClCompile Include="spatial\Collision.cpp" />
     <ClCompile Include="spatial\grid\Grid.cpp" />
+    <ClCompile Include="spatial\ObjectCollection.cpp" />
     <ClCompile Include="spatial\qtree\Qtree.cpp" />
     <ClCompile Include="spatial\Search.cpp" />
     <ClCompile Include="spatial\SlabAllocator.cpp" />
