@@ -55,7 +55,7 @@ namespace spatial
 
     struct FoundNodes
     {
-        static constexpr int MAX = 2048;
+        static constexpr int MAX = 4096;
         int count = 0;
         int totalObjects = 0;
         FoundNode nodes[MAX];

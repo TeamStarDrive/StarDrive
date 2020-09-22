@@ -7,7 +7,7 @@ namespace spatial
     Qtree::Qtree(int worldSize, int smallestCell)
     {
         WorldSize = worldSize;
-        setSmallestCellSize(smallestCell);
+        smallestCellSize(smallestCell);
     }
 
     Qtree::~Qtree()
@@ -33,7 +33,7 @@ namespace spatial
         return root;
     }
 
-    void Qtree::setSmallestCellSize(int cellSize)
+    void Qtree::smallestCellSize(int cellSize)
     {
         SmallestCell = cellSize;
         Levels = 0;

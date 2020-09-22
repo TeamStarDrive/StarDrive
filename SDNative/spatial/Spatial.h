@@ -56,24 +56,24 @@ namespace spatial
          * For Grid this is the initial
          * This can control many different aspects of spatial node storage
          */
-        virtual int getNodeCapacity() const = 0;
+        virtual int nodeCapacity() const = 0;
 
         /**
          * Sets a new node capacity.
          * This may control many different aspects of spatial node storage
          */
-        virtual void setNodeCapacity(int capacity) = 0;
+        virtual void nodeCapacity(int capacity) = 0;
 
         /**
          * @return The smallest possible Cell size in this Spatial collection
          */
-        virtual int getSmallestCellSize() const = 0;
+        virtual int smallestCellSize() const = 0;
 
         /**
          * @return Sets the new smallest cell size.
          * This is allowed to trigger full rebuild if needed.
          */
-        virtual void setSmallestCellSize(int cellSize) = 0;
+        virtual void smallestCellSize(int cellSize) = 0;
 
         /**
          * Clears all of the inserted objects and resets the Spatial collection
