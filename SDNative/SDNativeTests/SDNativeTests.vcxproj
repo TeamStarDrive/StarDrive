@@ -191,6 +191,7 @@
     <ClCompile Include="..\ReCpp\rpp\vec.cpp" />
     <ClCompile Include="DebugGfxWindow.cpp" />
     <ClCompile Include="ImGuiSpatialVis.cpp" />
+    <ClCompile Include="TestObjectCollection.cpp" />
     <ClCompile Include="TestQuadTree.cpp" />
     <ClCompile Include="TestSpatialGrid.cpp" />
     <ClCompile Include="tests_main.cpp" />

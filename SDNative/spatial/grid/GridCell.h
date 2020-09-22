@@ -15,8 +15,7 @@ namespace spatial
         uint16_t capacity = 0;
 
         // adds another object
-        SPATIAL_FINLINE void addObject(SlabAllocator& allocator,
-                                       SpatialObject* item, int defaultCapacity)
+        void addObject(SlabAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
             if (size == capacity)
             {
@@ -31,6 +30,21 @@ namespace spatial
                 capacity = newCapacity;
             }
             objects[size++] = item;
+        }
+
+        void removeObject(int objectId)
+        {
+            int n = size;
+            SpatialObject** objects = this->objects;
+            for (int i = 0; i < n; ++i)
+            {
+                if (objects[i]->objectId == objectId)
+                {
+                    int last = --size;
+                    objects[i] = objects[last];
+                    break;
+                }
+            }
         }
     };
 

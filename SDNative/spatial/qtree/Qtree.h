@@ -47,10 +47,10 @@ namespace spatial
         int count() const override { return (int)Objects.size(); }
         const SpatialObject& get(int objectId) const override { return Objects[objectId]; }
         
-        int getNodeCapacity() const override { return PendingSplitThreshold; }
-        void setNodeCapacity(int capacity) override { PendingSplitThreshold = capacity; }
-        int getSmallestCellSize() const override { return SmallestCell; }
-        void setSmallestCellSize(int cellSize) override;
+        int nodeCapacity() const override { return PendingSplitThreshold; }
+        void nodeCapacity(int capacity) override { PendingSplitThreshold = capacity; }
+        int smallestCellSize() const override { return SmallestCell; }
+        void smallestCellSize(int cellSize) override;
 
         void clear() override;
         void rebuild() override;

@@ -7,7 +7,7 @@ namespace spatial
     Grid::Grid(int worldSize, int cellSize)
     {
         WorldSize = worldSize;
-        setSmallestCellSize(cellSize);
+        smallestCellSize(cellSize);
     }
 
     Grid::~Grid()
@@ -22,12 +22,11 @@ namespace spatial
         bytes += sizeof(GridCell) * Width * Height + 16;
         bytes += FrontAlloc->totalBytes();
         bytes += BackAlloc->totalBytes();
-        bytes += Pending.capacity() * sizeof(SpatialObject);
-        bytes += Objects.capacity() * sizeof(SpatialObject);
+        bytes += Objects.totalMemory();
         return bytes;
     }
 
-    void Grid::setSmallestCellSize(int cellSize)
+    void Grid::smallestCellSize(int cellSize)
     {
         CellSize = cellSize;
         Width = Height = WorldSize / cellSize;
@@ -45,7 +44,6 @@ namespace spatial
     void Grid::clear()
     {
         Objects.clear();
-        Pending.clear();
         memset(Cells, 0, NodesCount * sizeof(GridCell));
     }
 
@@ -55,29 +53,23 @@ namespace spatial
         // the front buffer will be reset and reused
         // while the back buffer will be untouched until next time
         std::swap(FrontAlloc, BackAlloc);
-
         SlabAllocator& front = *FrontAlloc;
         front.reset();
 
-        if (!Pending.empty())
-        {
-            Objects.insert(Objects.end(), Pending.begin(), Pending.end());
-            Pending.clear();
-        }
-
-        const int numObjects = (int)Objects.size();
-        SpatialObject* objects = Objects.data();
+        Objects.submitPending();
 
         GridCell* cells = front.allocArrayZeroed<GridCell>(NodesCount);
-        int half = FullSize / 2;
+        int half     = FullSize / 2;
         int cellSize = CellSize;
-        int width = Width;
+        int width  = Width;
         int height = Height;
         int cellCapacity = CellCapacity;
 
-        for (int i = 0; i < numObjects; ++i)
+        for (SpatialObject& o : Objects)
         {
-            SpatialObject& o = objects[i];
+            if (!o.active)
+                continue;
+
             int ox = o.x, oy = o.y, orx = o.rx, ory = o.ry;
             int x1 = (ox-orx + half) / cellSize;
             int x2 = (ox+orx + half) / cellSize;
@@ -97,36 +89,8 @@ namespace spatial
                 }
             }
         }
+
         Cells = cells;
-    }
-
-    int Grid::insert(const SpatialObject& o)
-    {
-        int objectId = (int)( Objects.size() + Pending.size() );
-        SpatialObject& inserted = Pending.emplace_back(o);
-        inserted.objectId = objectId;
-        return objectId;
-    }
-
-    void Grid::update(int objectId, int x, int y)
-    {
-        SpatialObject& o = Objects[objectId];
-        o.x = x;
-        o.y = y;
-    }
-
-    void Grid::remove(int objectId)
-    {
-        // @todo This will be slow with large number of objects
-        //       find a better lookup system, maybe a flatmap ?
-        for (auto it = Objects.begin(), end = Objects.end(); it != end; ++it)
-        {
-            if (it->objectId == objectId)
-            {
-                Objects.erase(it);
-                break;
-            }
-        }
     }
 
     void Grid::collideAll(float timeStep, void* user, CollisionFunc onCollide)
@@ -164,7 +128,7 @@ namespace spatial
             }
         }
     };
-    
+
     #pragma warning( disable : 6262 )
     int Grid::findNearby(int* outResults, const SearchOptions& opt) const
     {
@@ -183,17 +147,45 @@ namespace spatial
         if (x2 >= Width)  x2 = Width  - 1;
         if (y2 >= Height) y2 = Height - 1;
 
-        for (int iy = y1; iy <= y2; ++iy)
+        auto addCell = [&found,cells,cellSize,width=Width](int ix, int iy)
         {
-            for (int ix = x1; ix <= x2; ++ix)
+            const GridCell& cell = cells[ix + iy*width];
+            if (int size = cell.size)
             {
                 int worldX = (ix * cellSize) - cellSize;
                 int worldY = (iy * cellSize) - cellSize;
-                const GridCell& cell = cells[ix + iy*Width];
-                found.add(cell.objects, cell.size, worldX, worldY);
+                found.add(cell.objects, size, worldX, worldY);
             }
-        }
+        };
 
+        // cell search pattern spirals out from the center
+        int minX = (x1 + x2) / 2;
+        int minY = (y1 + y2) / 2;
+        int maxX = minX, maxY = minY;
+        addCell(minX, minY);
+
+        for (;;)
+        {
+            bool didExpand = false;
+            if (minX > x1) { // test all cells to the left
+                --minX; didExpand = true;
+                for (int y = minY; y <= maxY; ++y) addCell(minX, y);
+            }
+            if (maxX < x2) { // test all cells to the right
+                ++maxX; didExpand = true;
+                for (int y = minY; y <= maxY; ++y) addCell(maxX, y);
+            }
+            if (minY > y1) { // test all top cells
+                --minY; didExpand = true;
+                for (int x = minX; x <= maxX; ++x) addCell(x, minY);
+            }
+            if (maxY < y2) { // test all bottom cells
+                ++maxY; didExpand = true;
+                for (int x = minX; x <= maxX; ++x) addCell(x, maxY);
+            }
+            if (!didExpand)
+                break;
+        }
         return spatial::findNearby(outResults, opt, found);
     }
 

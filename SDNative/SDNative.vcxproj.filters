@@ -160,6 +160,9 @@
     <ClCompile Include="spatial\Collision.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="spatial\ObjectCollection.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
@@ -320,6 +323,9 @@
     </ClInclude>
     <ClInclude Include="spatial\grid\GridCell.h">
       <Filter>spatial\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\ObjectCollection.h">
+      <Filter>spatial</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
