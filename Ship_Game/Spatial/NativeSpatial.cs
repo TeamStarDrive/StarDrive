@@ -70,9 +70,15 @@ namespace Ship_Game.Spatial
         public float FullSize => SpatialFullSize(Spat);
         public int Count => SpatialCount(Spat);
 
-        public NativeSpatial(SpatialType type, int universeSize, int smallestCell = 1024)
+        /// <param name="type">What type of spatial structure to create</param>
+        /// <param name="worldSize">Width and Height of the game world</param>
+        /// <param name="cellSize">
+        /// Size of a single spatial cell. For Grid, this is the Cell Size.
+        /// For QuadTree, this is the smallest possible subdivision cell size
+        /// </param>
+        public NativeSpatial(SpatialType type, int worldSize, int cellSize)
         {
-            Spat = SpatialCreate(type, universeSize, smallestCell);
+            Spat = SpatialCreate(type, worldSize, cellSize);
         }
 
         ~NativeSpatial()
@@ -129,6 +135,18 @@ namespace Ship_Game.Spatial
 
         public void UpdateAll()
         {
+            GameplayObject[] objects = ObjectFlatMap.GetInternalArrayItems();
+            int count = ObjectFlatMap.Count;
+
+            for (int i = 0; i < count; ++i)
+            {
+                GameplayObject go = objects[i];
+                if (go != null)
+                {
+                    SpatialUpdate(Spat, go.SpatialIndex, (int)go.Position.X, (int)go.Position.Y);
+                }
+            }
+
             SpatialRebuild(Spat);
         }
 
@@ -309,7 +327,7 @@ namespace Ship_Game.Spatial
         static GameScreen Screen;
         static void DrawRect(int x1, int y1, int x2, int y2, SpatialColor c)
         {
-            Screen.DrawLineProjected(new Vector2(x1,y1), new Vector2(x2,y2), new Color(c.r,c.g,c.b,c.a));
+            Screen.DrawRectangleProjected(new Rectangle(x1, y1, x2-x1, y2-y1), new Color(c.r,c.g,c.b,c.a));
         }
         static void DrawCircle(int x, int y, int radius, SpatialColor c)
         {
