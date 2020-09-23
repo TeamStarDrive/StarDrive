@@ -99,7 +99,7 @@
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
     <Compile Include="Serialization\TestSerialization.cs" />
-    <Compile Include="Universe\QuadTreeVisualization.cs" />
+    <Compile Include="Universe\SpatialVisualization.cs" />
     <Compile Include="Universe\TestManagedQuadTree.cs" />
     <Compile Include="TestThreadExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

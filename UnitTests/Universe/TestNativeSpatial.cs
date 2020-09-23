@@ -8,53 +8,54 @@ namespace UnitTests.Universe
     public class TestNativeSpatial : TestSpatialCommon
     {
         const SpatialType Type = SpatialType.Grid;
+        const int CellSize = 20000;
 
         [TestMethod]
         public void BasicInsert()
         {
-            TestBasicInsert(new NativeSpatial(Type, 100_000));
+            TestBasicInsert(new NativeSpatial(Type, 100_000, CellSize));
         }
 
         [TestMethod]
         public void FindNearbySingle()
         {
-            TestFindNearbySingle(new NativeSpatial(Type, 10_000));
+            TestFindNearbySingle(new NativeSpatial(Type, 10_000, CellSize));
         }
 
         [TestMethod]
         public void FindNearbyMulti()
         {
-            TestFindNearbyMulti(new NativeSpatial(Type, 10_000));
+            TestFindNearbyMulti(new NativeSpatial(Type, 10_000, CellSize));
         }
         
         [TestMethod]
         public void FindNearbyTypeFilter()
         {
-            TestFindNearbyTypeFilter(new NativeSpatial(Type, 10_000));
+            TestFindNearbyTypeFilter(new NativeSpatial(Type, 10_000, CellSize));
         }
 
         [TestMethod]
         public void TreeUpdatePerformance()
         {
-            TestTreeUpdatePerformance(new NativeSpatial(Type, 1_000_000));
+            TestTreeUpdatePerformance(new NativeSpatial(Type, 1_000_000, CellSize));
         }
 
         [TestMethod]
         public void TreeSearchPerformance()
         {
-            TestTreeSearchPerformance(new NativeSpatial(Type, 500_000));
+            TestTreeSearchPerformance(new NativeSpatial(Type, 500_000, CellSize));
         }
 
         [TestMethod]
         public void ConcurrentUpdateAndSearch()
         {
-            TestConcurrentUpdateAndSearch(new NativeSpatial(Type, 500_000));
+            TestConcurrentUpdateAndSearch(new NativeSpatial(Type, 500_000, CellSize));
         }
 
         [TestMethod]
         public void TreeCollisionPerformance()
         {
-            TestTreeCollisionPerformance(new NativeSpatial(Type, 50_000));
+            TestTreeCollisionPerformance(new NativeSpatial(Type, 50_000, CellSize));
         }
     }
 }

@@ -222,6 +222,7 @@ namespace spatial
         static constexpr int MAX = 2048;
         int next = -1;
         T items[MAX];
+        #pragma warning(disable:26495)
         SmallStack() = default;
         explicit SmallStack(const T& node) : next{0} { items[0] = node; }
         SPATIAL_FINLINE void push_back(const T& item) { items[++next] = item; }

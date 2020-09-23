@@ -10,6 +10,7 @@ namespace UnitTests.Universe
     public class TestSpatialCommon : StarDriveTest
     {
         protected static bool EnableVisualization = true;
+        protected static bool EnableMovingShips = true;
         protected Array<Ship> AllShips = new Array<Ship>();
 
         protected TestSpatialCommon()
@@ -26,7 +27,7 @@ namespace UnitTests.Universe
 
         protected void DebugVisualize(ISpatial tree)
         {
-            var vis = new QuadTreeVisualization(AllShips, tree);
+            var vis = new SpatialVisualization(AllShips, tree, EnableMovingShips);
             Game.ShowAndRun(screen: vis);
         }
 
