@@ -21,39 +21,40 @@ namespace spatial
             return new Qtree{universeSize, cellSize};
         return nullptr;
     }
-    SPATIAL_C_API void SpatialDestroy(Spatial* tree)
+    SPATIAL_C_API void SpatialDestroy(Spatial* spatial)
     {
-        delete tree;
+        delete spatial;
     }
-    SPATIAL_C_API void SpatialClear(Spatial* tree)
+    
+    SPATIAL_C_API SpatialType SpatialGetType(Spatial* spatial) { return spatial->type(); }
+    SPATIAL_C_API int SpatialWorldSize(Spatial* spatial) { return spatial->worldSize(); }
+    SPATIAL_C_API int SpatialFullSize(Spatial* spatial)  { return spatial->fullSize(); }
+    SPATIAL_C_API int SpatialCount(Spatial* spatial)     { return spatial->count(); }
+    SPATIAL_C_API void SpatialClear(Spatial* spatial)    { spatial->clear(); }
+    SPATIAL_C_API void SpatialRebuild(Spatial* spatial)  { spatial->rebuild(); }
+
+    SPATIAL_C_API int SpatialInsert(Spatial* spatial, const SpatialObject* o)
     {
-        tree->clear();
+        return spatial->insert(*o);
     }
-    SPATIAL_C_API void SpatialRebuild(Spatial* tree)
+    SPATIAL_C_API void SpatialUpdate(Spatial* spatial, int objectId, int x, int y)
     {
-        tree->rebuild();
+        spatial->update(objectId, x, y);
     }
-    SPATIAL_C_API int SpatialInsert(Spatial* tree, const SpatialObject& o)
+    SPATIAL_C_API void SpatialRemove(Spatial* spatial, int objectId)
     {
-        return tree->insert(o);
+        spatial->remove(objectId);
     }
-    SPATIAL_C_API void SpatialUpdate(Spatial* tree, int objectId, int x, int y)
+
+    SPATIAL_C_API void SpatialCollideAll(Spatial* spatial, float timeStep, void* user, CollisionFunc onCollide)
     {
-        tree->update(objectId, x, y);
+        spatial->collideAll(timeStep, user, onCollide);
     }
-    SPATIAL_C_API void SpatialRemove(Spatial* tree, int objectId)
+    SPATIAL_C_API int SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt)
     {
-        tree->remove(objectId);
+        return spatial->findNearby(outResults, *opt);
     }
-    SPATIAL_C_API void SpatialCollideAll(Spatial* tree, float timeStep, void* user, CollisionFunc onCollide)
-    {
-        tree->collideAll(timeStep, user, onCollide);
-    }
-    SPATIAL_C_API int SpatialFindNearby(Spatial* tree, int* outResults, const SearchOptions& opt)
-    {
-        return tree->findNearby(outResults, opt);
-    }
-    SPATIAL_C_API void SpatialDebugVisualize(Spatial* tree, const VisualizerOptions& opt, const VisualizerBridge& vis)
+    SPATIAL_C_API void SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis)
     {
         struct CppToCBridge : Visualizer
         {
@@ -69,7 +70,7 @@ namespace spatial
             { vis.drawText(x, y, size, text, c); }
         };
 
-        CppToCBridge bridge { vis };
-        tree->debugVisualize(opt, bridge);
+        CppToCBridge bridge { *vis };
+        spatial->debugVisualize(*opt, bridge);
     }
 }

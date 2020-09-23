@@ -10,7 +10,7 @@ namespace UnitTests.Universe
     class QuadTreeVisualization : GameScreen
     {
         Array<Ship> AllShips;
-        IQuadtree Tree;
+        ISpatial Tree;
         Vector3 Camera;
         float CamHeight;
 
@@ -21,7 +21,7 @@ namespace UnitTests.Universe
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
 
-        public QuadTreeVisualization(Array<Ship> allShips, IQuadtree tree) : base(null)
+        public QuadTreeVisualization(Array<Ship> allShips, ISpatial tree) : base(null)
         {
             AllShips = allShips;
             Tree = tree;

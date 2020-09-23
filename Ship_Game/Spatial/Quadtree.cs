@@ -7,11 +7,11 @@ namespace Ship_Game
     ///////////////////////////////////////////////////////////////////////////////////////////
 
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-    public sealed partial class Quadtree : IQuadtree
+    public sealed partial class Quadtree : ISpatial
     {
         public static readonly SpatialObj[] NoObjects = new SpatialObj[0];
 
-        public int Levels { get; }
+        int Levels { get; }
         public float FullSize { get; }
 
         readonly float QuadToLinearSearchThreshold;
@@ -25,7 +25,7 @@ namespace Ship_Game
         /// Ratio of search radius where we switch to Linear search
         /// because Quad search would traverse entire tree
         /// </summary>
-        public const float QuadToLinearRatio = 0.75f;
+        const float QuadToLinearRatio = 0.75f;
 
         QtreeNode Root;
 
@@ -43,7 +43,7 @@ namespace Ship_Game
         /// <summary>
         /// Current number of active QtreeNodes in the tree
         /// </summary>
-        public int NumActiveNodes { get; private set; }
+        int NumActiveNodes;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////

@@ -455,11 +455,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
-    <Compile Include="Ship_Game\Spatial\IQuadtree.cs" />
-    <Compile Include="Ship_Game\Spatial\Native\NativeQtreeNode.cs" />
-    <Compile Include="Ship_Game\Spatial\Native\NativeQuadtree.cs" />
-    <Compile Include="Ship_Game\Spatial\Native\NativeSearchOptions.cs" />
-    <Compile Include="Ship_Game\Spatial\Native\NativeQtreeObject.cs" />
+    <Compile Include="Ship_Game\Spatial\ISpatial.cs" />
+    <Compile Include="Ship_Game\Spatial\NativeSpatial.cs" />
+    <Compile Include="Ship_Game\Spatial\NativeSpatialObject.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeNode.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeRecycleBuffer.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.Collision.cs" />

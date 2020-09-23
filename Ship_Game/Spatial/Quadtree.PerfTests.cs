@@ -10,12 +10,12 @@ namespace Ship_Game
         public class TestContext
         {
             public Array<Ship> Ships = new Array<Ship>();
-            public IQuadtree Tree;
+            public ISpatial Tree;
         }
 
         public delegate Ship SpawnShipFunc(string name, Empire loyalty, Vector2 pos, Vector2 dir);
 
-        public static Array<Ship> CreateTestSpace(int numShips, IQuadtree tree,
+        public static Array<Ship> CreateTestSpace(int numShips, ISpatial tree,
                                                   Empire player, Empire enemy,
                                                   SpawnShipFunc spawnShip)
         {
@@ -50,7 +50,7 @@ namespace Ship_Game
             return ships;
         }
 
-        public static Array<Projectile> SpawnProjectilesFromEachShip(IQuadtree tree, Array<Ship> ships)
+        public static Array<Projectile> SpawnProjectilesFromEachShip(ISpatial tree, Array<Ship> ships)
         {
             float spacing = tree.UniverseSize / (float)Math.Sqrt(ships.Count);
             var projectiles = new Array<Projectile>();

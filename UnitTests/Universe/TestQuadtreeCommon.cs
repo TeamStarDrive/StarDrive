@@ -19,23 +19,23 @@ namespace UnitTests.Universe
             CreateUniverseAndPlayerEmpire(out Empire _);
         }
 
-        protected void CreateQuadTree(int numShips, IQuadtree tree)
+        protected void CreateQuadTree(int numShips, ISpatial tree)
         {
             AllShips = QuadtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
         }
 
-        protected void DebugVisualize(IQuadtree tree)
+        protected void DebugVisualize(ISpatial tree)
         {
             var vis = new QuadTreeVisualization(AllShips, tree);
             Game.ShowAndRun(screen: vis);
         }
 
-        protected GameplayObject[] FindNearby(IQuadtree tree, GameObjectType type, Vector2 pos, float r)
+        protected GameplayObject[] FindNearby(ISpatial tree, GameObjectType type, Vector2 pos, float r)
         {
             return tree.FindNearby(type, pos, r, 128, null, null, null);
         }
 
-        public void TestBasicInsert(IQuadtree tree)
+        public void TestBasicInsert(ISpatial tree)
         {
             CreateQuadTree(100, tree);
             Assert.AreEqual(AllShips.Count, tree.Count);
@@ -51,7 +51,7 @@ namespace UnitTests.Universe
                 DebugVisualize(tree);
         }
 
-        public void TestFindNearbySingle(IQuadtree tree)
+        public void TestFindNearbySingle(ISpatial tree)
         {
             CreateQuadTree(1, tree);
 
@@ -67,7 +67,7 @@ namespace UnitTests.Universe
             Assert.AreEqual(0, found3.Length, "FindNearby outside radius must not match");
         }
 
-        public void TestFindNearbyMulti(IQuadtree tree)
+        public void TestFindNearbyMulti(ISpatial tree)
         {
             CreateQuadTree(100, tree);
             
@@ -81,7 +81,7 @@ namespace UnitTests.Universe
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
         }
 
-        public void TestFindNearbyTypeFilter(IQuadtree tree)
+        public void TestFindNearbyTypeFilter(ISpatial tree)
         {
             CreateQuadTree(100, tree);
             QuadtreePerfTests.SpawnProjectilesFromEachShip(tree, AllShips);
@@ -98,7 +98,7 @@ namespace UnitTests.Universe
             }
         }
 
-        public void TestTreeUpdatePerformance(IQuadtree tree)
+        public void TestTreeUpdatePerformance(ISpatial tree)
         {
             CreateQuadTree(10_000, tree);
             float e = 0f;
@@ -120,7 +120,7 @@ namespace UnitTests.Universe
                 DebugVisualize(tree);
         }
 
-        public void TestTreeSearchPerformance(IQuadtree tree)
+        public void TestTreeSearchPerformance(ISpatial tree)
         {
             CreateQuadTree(10_000, tree);
             const float defaultSensorRange = 30000f;
@@ -150,7 +150,7 @@ namespace UnitTests.Universe
                 DebugVisualize(tree);
         }
 
-        public void TestConcurrentUpdateAndSearch(IQuadtree tree)
+        public void TestConcurrentUpdateAndSearch(ISpatial tree)
         {
             CreateQuadTree(10_000, tree);
             var timer = new PerfTimer();
@@ -186,7 +186,7 @@ namespace UnitTests.Universe
             });
         }
 
-        public void TestTreeCollisionPerformance(IQuadtree tree)
+        public void TestTreeCollisionPerformance(ISpatial tree)
         {
             CreateQuadTree(10_000, tree);
             const int iterations = 1000;

@@ -2,15 +2,15 @@
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 
-namespace Ship_Game.Spatial.Native
+namespace Ship_Game.Spatial
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct NativeQtreeObject
+    public struct NativeSpatialObject
     {
-        public byte PendingRemove; // 1 if this item is pending removal
-        public byte Loyalty;       // if loyalty == 0, then this is a STATIC world object !!!
-        public byte Type;          // GameObjectType : byte
-        public byte Reserved;
+        public byte Active;  // 1 if this item is active, 0 if this item is DEAD
+        public byte Loyalty; // if loyalty == 0, then this is a STATIC world object !!!
+        public byte Type;    // GameObjectType : byte
+        public byte Update;  // if 1, this object should be updated in the Spatial collection
 
         public int ObjectId; // the object
 
@@ -18,13 +18,13 @@ namespace Ship_Game.Spatial.Native
         public int RadiusX; // radius for collision test
         public int RadiusY; // radius for collision test
 
-        public NativeQtreeObject(GameplayObject go, int objectId)
+        public NativeSpatialObject(GameplayObject go)
         {
-            PendingRemove = 0;
+            Active   = 1;
             Loyalty  = (byte)go.GetLoyaltyId();
             Type     = (byte)go.Type;
-            Reserved = 0;
-            ObjectId = objectId;
+            Update   = 1;
+            ObjectId = -1; // ObjectId will be assigned by Native Spatial system
 
             if (Type == (byte)GameObjectType.Beam)
             {
