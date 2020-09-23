@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTests.Universe
 {
     [TestClass]
-    public class TestNativeQuadtree : TestQuadtreeCommon
+    public class TestNativeSpatial : TestSpatialCommon
     {
         const SpatialType Type = SpatialType.Grid;
 
