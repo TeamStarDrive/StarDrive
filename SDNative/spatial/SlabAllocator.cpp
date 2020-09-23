@@ -104,6 +104,7 @@ namespace spatial
             slab = static_cast<Slab*>( _aligned_malloc(SlabSize, SlabAlign) );
             CurrentSlabIndex = Slabs.size();
             Slabs.push_back(slab);
+            #pragma warning(disable:6386)
             new (slab) Slab{SlabSize};
         }
         return slab;

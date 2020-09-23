@@ -292,7 +292,7 @@ namespace Ship_Game.Ships
                 return;
 
             // for a cool death effect, make the ship accelerate out of control:
-            ApplyThrust(200f, Ships.Thrust.Forward);
+            ApplyThrust(100f, Ships.Thrust.Forward);
             UpdateVelocityAndPosition(timeStep);
 
             int num1 = UniverseRandom.IntBetween(0, 60);

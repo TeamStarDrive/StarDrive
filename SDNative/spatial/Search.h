@@ -52,7 +52,8 @@ namespace spatial
         int count;
         int worldX, worldY;
     };
-
+    
+    #pragma warning(disable:26495)
     struct FoundNodes
     {
         static constexpr int MAX = 4096;
