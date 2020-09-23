@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <memory>
 #include "Config.h"
 #include "SpatialObject.h"
 #include "Visualizer.h"
@@ -8,6 +9,12 @@
 
 namespace spatial
 {
+    enum class SpatialType : int
+    {
+        Grid, // spatial::Grid
+        QuadTree, // spatial::QuadTree
+    };
+
     /**
      * Describes a generic spatial collection which enables
      * fast query of objects
@@ -16,8 +23,21 @@ namespace spatial
     {
     public:
 
+        /**
+         * Virtual factory method for creating a new spacial instance based on the SpatialType
+         * @param type Type of spatial collection: Grid, QuadTree, etc.
+         * @param universeSize The Width and Height of the simulation world
+         * @param cellSize For Grid: size of a single Cell. For Qtree: smallest allowed Qtree node.
+         */
+        static std::shared_ptr<Spatial> create(SpatialType type, int universeSize, int cellSize);
+
         Spatial() = default;
         virtual ~Spatial() = default;
+
+        /**
+         * Type id of the Spatial collection
+         */
+        virtual SpatialType type() const = 0;
 
         /**
          * Debug friendly name of this Spatial collection
@@ -53,7 +73,7 @@ namespace spatial
         /**
          * @return Initial node capacity.
          * For Qtree this is the leaf node capacity
-         * For Grid this is the initial
+         * For Grid this is the initial Cell capacity when a new item is inserted
          * This can control many different aspects of spatial node storage
          */
         virtual int nodeCapacity() const = 0;
@@ -150,4 +170,19 @@ namespace spatial
         Spatial& operator=(Spatial&&) = delete;
         Spatial& operator=(const Spatial&) = delete;
     };
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    SPATIAL_C_API Spatial* SpatialCreate(SpatialType type, int universeSize, int cellSize);
+    SPATIAL_C_API void SpatialDestroy(Spatial* tree);
+    SPATIAL_C_API void SpatialClear(Spatial* tree);
+    SPATIAL_C_API void SpatialRebuild(Spatial* tree);
+    SPATIAL_C_API int  SpatialInsert(Spatial* tree, const SpatialObject& o);
+    SPATIAL_C_API void SpatialUpdate(Spatial* tree, int objectId, int x, int y);
+    SPATIAL_C_API void SpatialRemove(Spatial* tree, int objectId);
+    SPATIAL_C_API void SpatialCollideAll(Spatial* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
+    SPATIAL_C_API int SpatialFindNearby(Spatial* tree, int* outResults, const spatial::SearchOptions& opt);
+    SPATIAL_C_API void SpatialDebugVisualize(Spatial* tree, const VisualizerOptions& opt, const VisualizerBridge& vis);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 }

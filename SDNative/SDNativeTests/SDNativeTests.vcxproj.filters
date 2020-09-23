@@ -61,9 +61,6 @@
     <ClCompile Include="..\3rdparty\imgui\imgui_impl_win32.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiSpatialVis.cpp">
-      <Filter>tests</Filter>
-    </ClCompile>
     <ClCompile Include="TestSpatialGrid.cpp">
       <Filter>tests</Filter>
     </ClCompile>
@@ -123,9 +120,6 @@
     <ClInclude Include="..\3rdparty\imgui\imgui_impl_win32.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="ImGuiSpatialVis.h">
-      <Filter>tests</Filter>
-    </ClInclude>
     <ClInclude Include="SpatialSimObject.h">
       <Filter>tests</Filter>
     </ClInclude>
@@ -133,6 +127,9 @@
       <Filter>tests</Filter>
     </ClInclude>
     <ClInclude Include="SpatialSim.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="SimParams.h">
       <Filter>tests</Filter>
     </ClInclude>
   </ItemGroup>
