@@ -111,7 +111,10 @@ namespace spatial
         /**
          * Inserts a new object into the Spatial collection THREAD SAFELY
          * The object will be visible after the next `update()`
+         *
          * @return The unique ObjectId of this inserted object
+         *         Valid Object ID-s range from [0 ... maxCount)
+         *         And are mapped into a sparse flat map
          */
         virtual int insert(const SpatialObject& o) = 0;
 
@@ -174,15 +177,23 @@ namespace spatial
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     SPATIAL_C_API Spatial* SpatialCreate(SpatialType type, int universeSize, int cellSize);
-    SPATIAL_C_API void SpatialDestroy(Spatial* tree);
-    SPATIAL_C_API void SpatialClear(Spatial* tree);
-    SPATIAL_C_API void SpatialRebuild(Spatial* tree);
-    SPATIAL_C_API int  SpatialInsert(Spatial* tree, const SpatialObject& o);
-    SPATIAL_C_API void SpatialUpdate(Spatial* tree, int objectId, int x, int y);
-    SPATIAL_C_API void SpatialRemove(Spatial* tree, int objectId);
-    SPATIAL_C_API void SpatialCollideAll(Spatial* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
-    SPATIAL_C_API int SpatialFindNearby(Spatial* tree, int* outResults, const spatial::SearchOptions& opt);
-    SPATIAL_C_API void SpatialDebugVisualize(Spatial* tree, const VisualizerOptions& opt, const VisualizerBridge& vis);
+    SPATIAL_C_API void SpatialDestroy(Spatial* spatial);
+
+    SPATIAL_C_API SpatialType SpatialGetType(Spatial* spatial);
+    SPATIAL_C_API int SpatialWorldSize(Spatial* spatial);
+    SPATIAL_C_API int SpatialFullSize(Spatial* spatial);
+    SPATIAL_C_API int SpatialCount(Spatial* spatial);
+
+    SPATIAL_C_API void SpatialClear(Spatial* spatial);
+    SPATIAL_C_API void SpatialRebuild(Spatial* spatial);
+
+    SPATIAL_C_API int  SpatialInsert(Spatial* spatial, const SpatialObject* o);
+    SPATIAL_C_API void SpatialUpdate(Spatial* spatial, int objectId, int x, int y);
+    SPATIAL_C_API void SpatialRemove(Spatial* spatial, int objectId);
+
+    SPATIAL_C_API void SpatialCollideAll(Spatial* spatial, float timeStep, void* user, CollisionFunc onCollide);
+    SPATIAL_C_API int SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt);
+    SPATIAL_C_API void SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 }
