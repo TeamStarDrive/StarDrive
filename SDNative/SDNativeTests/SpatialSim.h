@@ -1,33 +1,139 @@
-#pragma once
+﻿#pragma once
+#include "SimParams.h"
 #include "SpatialSimUtils.h"
-#include "ImGuiSpatialVis.h"
+#include "DebugGfxWindow.h"
+#include <rpp/timer.h>
 
-static constexpr int UNIVERSE_SIZE = 5'000'000;
-static constexpr int SMALLEST_SIZE = 1024;
-static constexpr float OBJECT_RADIUS = 500;
-static constexpr int NUM_OBJECTS = 10'000;
-static constexpr float DEFAULT_SENSOR_RANGE = 10'000;
+using spatial::Color;
 
-static constexpr int SOLAR_SYSTEMS = 32;
-static constexpr int SOLAR_RADIUS = 100'000;
-
-static constexpr int GRID_CELL_SIZE = 20'000;
-static constexpr bool SHOW_SIMULATION = true;
-
-struct Simulation final : spatial::vis::SimContext
+static ImU32 getColor(Color c)
 {
-    std::vector<MyGameObject> objects;
+    ImVec4 cv { c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f };
+    return ImGui::ColorConvertFloat4ToU32(cv);
+}
 
-    explicit Simulation(spatial::Spatial& tree) : SimContext{tree}
+static const Color Yellow = { 255, 255,   0, 255 };
+static const Color Cyan   = {   0, 255, 255, 255 };
+
+struct Simulation final : spatial::Visualizer
+{
+    SimParams params;
+    std::vector<MyGameObject> objects;
+    std::shared_ptr<spatial::Spatial> spat;
+    spatial::SpatialType spatType = {};
+
+    double rebuildMs = 0.0; // time spent in Qtree::rebuild()
+    double collideMs = 0.0; // time spent in Qtree::collideAll()
+    double findNearbyMs = 0.0; // time spent in Qtree::findNearby()
+    int numCollisions = 0;
+    std::vector<int> collidedObjects;
+
+    bool isPaused = true;
+
+    spatial::SearchOptions opt;
+    std::vector<int> searchResults;
+    int numSearchResults = 0;
+
+    // if TRUE, we wait for simulation to catch up if it's lagging
+    bool waitForSimulation = false;
+    float timeSink = 0.0f;
+
+    float camera_zoom = 0.0001f;
+    ImVec2 camera_world = { 0.0f, 0.0f };
+    ImVec2 window_center = { 400.0f, 400.0f };
+    ImVec2 window_size = { 800.0f, 800.0f };
+    spatial::Rect camera_frustum { 0, 0, 0, 0 };
+
+    ///////////////////////////////////////////////////////////////////////////////
+
+    explicit Simulation(SimParams p) : params{p}
     {
-        totalObjects = NUM_OBJECTS;
-        recreateAllObjects();
+        createObjectsIfNeeded();
+
+        opt.SearchRadius = 0;
+        opt.MaxResults = 2048;
+        searchResults.resize(opt.MaxResults);
     }
 
-    void update(float timeStep) override
+    ///////////////////////////////////////////////////////////////////////////////
+
+    ImDrawList* DrawList = nullptr;
+    void getDrawList()
     {
-        if (objects.size() != totalObjects)
-            recreateAllObjects();
+        DrawList = ImGui::GetWindowDrawList();
+        //DrawList->Flags &= ~ImDrawListFlags_AntiAliasedLines;
+        DrawList->Flags |= ImDrawListFlags_AntiAliasedLinesUseTex;
+    }
+    
+    void updateWindow()
+    {
+        ImVec2 winPos = ImGui::GetWindowPos();
+        window_size = ImGui::GetWindowSize();
+        window_center = ImVec2{ winPos.x + window_size.x * 0.5f,
+                                winPos.y + window_size.y * 0.5f };
+    }
+
+    static bool isPressed(int key) { return ImGui::IsKeyPressed(ImGui::GetKeyIndex(key)); }
+
+    ///////////////////////////////////////////////////////////////////////////////
+
+    float worldToScreen(int worldSize)    const { return worldSize * camera_zoom; }
+    float screenToWorld(float screenSize) const { return screenSize/camera_zoom; }
+
+    ImVec2 worldToScreen(int worldX, int worldY) const // get screen point from world point
+    {
+        return ImVec2{window_center.x + (camera_world.x + worldX)*camera_zoom,
+                      window_center.y + (camera_world.y + worldY)*camera_zoom};
+    }
+    ImVec2 screenToWorld(float screenX, float screenY) const
+    {
+        return { (screenX - window_center.x)/camera_zoom - camera_world.x,
+                 (screenY - window_center.y)/camera_zoom - camera_world.y };
+    }
+
+    void updateCameraFrustum()
+    {
+        ImVec2 topLeft = screenToWorld(0, 0);
+        ImVec2 botRight = screenToWorld(window_size.x, window_size.y);
+        camera_frustum.left = (int)topLeft.x;
+        camera_frustum.top  = (int)topLeft.y;
+        camera_frustum.right  = (int)botRight.x;
+        camera_frustum.bottom = (int)botRight.y;
+    }
+    void moveCamera(ImVec2 delta)
+    {
+        camera_world.x += delta.x / camera_zoom;
+        camera_world.y += delta.y / camera_zoom;
+    }
+
+    void drawRect(int x1, int y1, int x2, int y2, Color c) override
+    {
+        ImVec2 tl = worldToScreen(x1, y1);
+        ImVec2 br = worldToScreen(x2, y2);
+        ImVec2 points[4] = { tl, ImVec2{br.x, tl.y}, br, ImVec2{tl.x, br.y} };
+        DrawList->AddPolyline(points, 4, getColor(c), true, 1.0f);
+    }
+    void drawCircle(int x, int y, int radius, Color c) override
+    {
+        DrawList->AddCircle(worldToScreen(x, y), worldToScreen(radius), getColor(c));
+    }
+    void drawLine(int x1, int y1, int x2, int y2, Color c) override
+    {
+        ImVec2 points[2] = { worldToScreen(x1, y1), worldToScreen(x2, y2) };
+        DrawList->AddPolyline(points, 2, getColor(c), false, 1.0f);
+    }
+    void drawText(int x, int y, int size, const char* text, Color c) override
+    {
+        float screenSize = worldToScreen(size);
+        if (screenSize > 200)
+            DrawList->AddText(worldToScreen(x, y), getColor(c), text);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
+
+    void update(float timeStep)
+    {
+        createObjectsIfNeeded();
 
         if (isPaused)
             return;
@@ -35,12 +141,12 @@ struct Simulation final : spatial::vis::SimContext
         updateObjectPositions(timeStep);
 
         rpp::Timer t1;
-        tree.rebuild();
+        spat->rebuild();
         rebuildMs = t1.elapsed_ms();
 
         rpp::Timer t2;
         collidedObjects.clear();
-        tree.collideAll(timeStep, [&](int objectA, int objectB) -> spatial::CollisionResult
+        spat->collideAll(timeStep, [&](int objectA, int objectB) -> spatial::CollisionResult
         {
             collide(objectA, objectB);
             return spatial::CollisionResult::NoSideEffects;
@@ -51,8 +157,8 @@ struct Simulation final : spatial::vis::SimContext
 
     void updateObjectPositions(float timeStep)
     {
-        float universeLo = tree.worldSize() * -0.5f;
-        float universeHi = tree.worldSize() * +0.5f;
+        float universeLo = spat->worldSize() * -0.5f;
+        float universeHi = spat->worldSize() * +0.5f;
         for (MyGameObject& o : objects)
         {
             if (o.pos.x < universeLo || o.pos.x > universeHi)
@@ -62,7 +168,7 @@ struct Simulation final : spatial::vis::SimContext
                 o.vel.y = -o.vel.y;
 
             o.pos += o.vel * timeStep;
-            tree.update(o.spatialId, (int)o.pos.x, (int)o.pos.y);
+            spat->update(o.spatialId, (int)o.pos.x, (int)o.pos.y);
         }
     }
 
@@ -96,10 +202,172 @@ struct Simulation final : spatial::vis::SimContext
         collidedObjects.push_back(objectB);
     }
 
-    void recreateAllObjects()
+    void createObjectsIfNeeded()
     {
-        tree.clear();
-        objects = createObjects(totalObjects, OBJECT_RADIUS, UNIVERSE_SIZE, SOLAR_SYSTEMS, SOLAR_RADIUS);
-        insertAll(tree, objects);
+        if (spat == nullptr || spat->type() != spatType)
+        {
+            SpatialWithObjects swo = createSpatialWithObjects(spatType, params);
+            spat = swo.spatial;
+            objects = std::move(swo.objects);
+        }
+        if (objects.size() != params.numObjects)
+        {
+            spat->clear();
+            objects = createObjects(params);
+            insertAll(*spat, objects);
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
+
+    void draw()
+    {
+        getDrawList();
+        spatial::Spatial& spat = *this->spat;
+
+        spatial::VisualizerOptions vo;
+        vo.visibleWorldRect = camera_frustum;
+        vo.nodeText = false;
+        vo.objectToLeafLines = false;
+
+        rpp::Timer t1;
+        spat.debugVisualize(vo, *this);
+        double elapsedDrawMs = t1.elapsed_ms();
+
+        if (opt.SearchRadius > 1)
+        {
+            DrawList->AddCircle(worldToScreen(opt.OriginX, opt.OriginY), worldToScreen(opt.SearchRadius), getColor(Yellow), 0, 2.0f);
+
+            for (int i = 0; i < numSearchResults; ++i)
+            {
+                const spatial::SpatialObject& o = spat.get(searchResults[i]);
+                drawRect(o.left(), o.top(), o.right(), o.bottom(), Yellow);
+            }
+        }
+
+        if (numCollisions > 0)
+        {
+            for (int objectId : collidedObjects)
+            {
+                const spatial::SpatialObject& o = spat.get(objectId);
+                drawRect(o.left(), o.top(), o.right(), o.bottom(), Cyan);
+            }
+        }
+
+        if (isPaused)
+        {
+            ImGui::Text("Simulation Paused, press SPACE to resume");
+            ImGui::Text("  Change # of Objects:   Up/Down Arrow");
+            ImGui::Text("  Change Node Capacity:  Left/Right Arrow");
+            ImGui::Text("  Change Cell Size:      PgUp/Down");
+            ImGui::Text("  Toggle Spatial Type:   V ");
+            ImGui::Text("  Use FindNearby:        RightMouse ");
+        }
+
+        const char* name = spat.name();
+        ImGui::Text("%s avg %.3f ms/frame (%.1f FPS)", name, 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::Text("%s::nodeCapacity: %d", name, spat.nodeCapacity());
+        ImGui::Text("%s::smallestCellSize: %d", name, spat.smallestCellSize());
+        ImGui::Text("%s::memory:  %.1fKB", name, spat.totalMemory() / 1024.0f);
+        ImGui::Text("%s::rebuild(%d) elapsed: %.1fms", name, spat.count(), rebuildMs);
+        ImGui::Text("%s::collideAll(%d) elapsed: %.1fms  %d collisions", name, spat.count(), collideMs, numCollisions);
+        ImGui::Text("%s::findNearby(radius=%d) elapsed: %.3fms  %d results", name, opt.SearchRadius, findNearbyMs, numSearchResults);
+        ImGui::Text("%s::draw() elapsed: %.1fms", name, elapsedDrawMs);
+        ImGui::Text("%s::total(%d) elapsed: %.1fms", name, spat.count(), collideMs+rebuildMs+elapsedDrawMs);
+    }
+
+    void handleInput()
+    {
+        spatial::Spatial& spat = *this->spat;
+
+        if (isPressed(ImGuiKey_V))
+        {
+            spatType = static_cast<spatial::SpatialType>((int)spatType + 1);
+            if (spatType > spatial::SpatialType::QuadTree)
+                spatType = spatial::SpatialType::Grid;
+        }
+
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+            moveCamera(ImGui::GetIO().MouseDelta);
+
+        if (isPressed(ImGuiKey_Space))
+            isPaused = !isPaused;
+
+        if (isPressed(ImGuiKey_UpArrow))
+        {
+            if (params.numObjects < 10000)
+                params.numObjects += 2000;
+            else
+                params.numObjects += 10'000;
+        }
+        else if (isPressed(ImGuiKey_DownArrow) && params.numObjects > 2000)
+        {
+            if (params.numObjects <= 10000)
+                params.numObjects -= 2000;
+            else
+                params.numObjects -= 10'000;
+        }
+
+        if (ImGui::IsMouseDragging(ImGuiMouseButton_Right))
+        {
+            ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
+            ImVec2 start = ImGui::GetMousePos();
+            ImVec2 world = screenToWorld(start.x - delta.x, start.y - delta.y);
+            opt.OriginX = (int)world.x;
+            opt.OriginY = (int)world.y;
+            opt.SearchRadius = (int)screenToWorld(sqrtf(delta.x * delta.x + delta.y * delta.y));
+            rpp::Timer t;
+            numSearchResults = spat.findNearby(searchResults.data(), opt);
+            findNearbyMs = t.elapsed_ms();
+        }
+
+        if      (isPressed(ImGuiKey_LeftArrow))  spat.nodeCapacity(std::max(spat.nodeCapacity() / 2, 2));
+        else if (isPressed(ImGuiKey_RightArrow)) spat.nodeCapacity(std::min(spat.nodeCapacity() * 2, 256));
+
+        if      (isPressed(ImGuiKey_PageUp))   spat.smallestCellSize(std::max(spat.smallestCellSize() / 2, 256));
+        else if (isPressed(ImGuiKey_PageDown)) spat.smallestCellSize(std::min(spat.smallestCellSize() * 2, 256*1024));
+
+        float wheel = ImGui::GetIO().MouseWheel;
+        if (wheel != 0)
+            camera_zoom = wheel < 0 ? camera_zoom * 0.5f : camera_zoom * 2.0f;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////
+
+    void run()
+    {
+        DebugGfxWindow window;
+        window.Run([this,&window]()
+        {
+            ImGui::SetNextWindowSize(ImVec2((float)window.width(), (float)window.height()));
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+
+            ImGui::Begin("Main", nullptr,
+                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar |
+                ImGuiWindowFlags_NoCollapse);
+
+            updateWindow();
+            handleInput();
+            float fixedTimeStep = 1.0f / 60.0f;
+            updateCameraFrustum();
+            if (waitForSimulation)
+            {
+                timeSink += ImGui::GetIO().DeltaTime;
+                while (timeSink >= fixedTimeStep)
+                {
+                    timeSink -= fixedTimeStep;
+                    update(fixedTimeStep);
+                }
+            }
+            else
+            {
+                update(fixedTimeStep);
+            }
+            draw();
+
+            ImGui::End();
+            return true;
+        });
     }
 };

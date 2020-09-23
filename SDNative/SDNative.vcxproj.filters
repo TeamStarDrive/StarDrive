@@ -163,6 +163,9 @@
     <ClCompile Include="spatial\ObjectCollection.cpp">
       <Filter>spatial</Filter>
     </ClCompile>
+    <ClCompile Include="spatial\Spatial.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
