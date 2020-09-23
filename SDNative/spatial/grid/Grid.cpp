@@ -206,6 +206,21 @@ namespace spatial
         Rect visible = opt.visibleWorldRect;
         visualizer.drawRect(-half, -half, +half, +half, Yellow);
 
+        // the grid itself can be drawn with simple lines instead of thousands of rects
+        for (int gridX = 0; gridX < width; ++gridX)
+        {
+            int x = gridX*cellSize - half;
+            visualizer.drawLine(x, -half, x, +half, Brown); // Vertical Lines |
+        }
+        for (int gridY = 0; gridY < height; ++gridY)
+        {
+            int y = gridY*cellSize - half;
+            visualizer.drawLine(-half, y, +half, y, Brown); // Horizontal Lines ---
+        }
+
+        if (!opt.nodeText && !opt.objectBounds && !opt.objectToLeafLines && !opt.objectText)
+            return;
+
         for (int gridY = 0; gridY < height; ++gridY)
         {
             for (int gridX = 0; gridX < width; ++gridX)
@@ -217,8 +232,6 @@ namespace spatial
                 nodeR.bottom = nodeR.top  + cellSize;
                 if (!nodeR.overlaps(visible))
                     continue;
-
-                visualizer.drawRect(nodeR.left, nodeR.top, nodeR.right, nodeR.bottom, Brown);
 
                 GridCell& cell = nodes[gridX + gridY*width];
                 int cx = nodeR.centerX();

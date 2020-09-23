@@ -112,6 +112,8 @@ namespace Ship_Game.Spatial
             {
                 ObjectFlatMap.Resize(objectId+1);
             }
+
+            ObjectFlatMap[objectId] = go;
         }
 
         public void Remove(GameplayObject go)

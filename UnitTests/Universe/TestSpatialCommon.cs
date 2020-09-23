@@ -7,12 +7,12 @@ using Parallel = Ship_Game.Parallel;
 
 namespace UnitTests.Universe
 {
-    public class TestQuadtreeCommon : StarDriveTest
+    public class TestSpatialCommon : StarDriveTest
     {
         protected static bool EnableVisualization = true;
         protected Array<Ship> AllShips = new Array<Ship>();
 
-        protected TestQuadtreeCommon()
+        protected TestSpatialCommon()
         {
             CreateGameInstance(800, 800, mockInput:false);
             LoadStarterShips();

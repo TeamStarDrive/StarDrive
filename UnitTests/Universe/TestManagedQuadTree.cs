@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTests.Universe
 {
     [TestClass]
-    public class TestQuadTree : TestQuadtreeCommon
+    public class TestManagedQuadTree : TestSpatialCommon
     {
         [TestMethod]
         public void BasicInsert()
