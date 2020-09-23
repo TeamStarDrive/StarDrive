@@ -6,7 +6,7 @@ namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager
     {
-        IQuadtree QuadTree;
+        ISpatial QuadTree;
 
         public void Setup(float universeRadius)
         {

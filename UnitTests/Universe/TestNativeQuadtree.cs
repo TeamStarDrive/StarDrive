@@ -1,5 +1,5 @@
 ﻿using System;
-using Ship_Game.Spatial.Native;
+using Ship_Game.Spatial;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests.Universe
@@ -7,52 +7,54 @@ namespace UnitTests.Universe
     [TestClass]
     public class TestNativeQuadtree : TestQuadtreeCommon
     {
+        const SpatialType Type = SpatialType.Grid;
+
         [TestMethod]
         public void BasicInsert()
         {
-            TestBasicInsert(new NativeQuadtree(100_000));
+            TestBasicInsert(new NativeSpatial(Type, 100_000));
         }
 
         [TestMethod]
         public void FindNearbySingle()
         {
-            TestFindNearbySingle(new NativeQuadtree(10_000));
+            TestFindNearbySingle(new NativeSpatial(Type, 10_000));
         }
 
         [TestMethod]
         public void FindNearbyMulti()
         {
-            TestFindNearbyMulti(new NativeQuadtree(10_000));
+            TestFindNearbyMulti(new NativeSpatial(Type, 10_000));
         }
         
         [TestMethod]
         public void FindNearbyTypeFilter()
         {
-            TestFindNearbyTypeFilter(new NativeQuadtree(10_000));
+            TestFindNearbyTypeFilter(new NativeSpatial(Type, 10_000));
         }
 
         [TestMethod]
         public void TreeUpdatePerformance()
         {
-            TestTreeUpdatePerformance(new NativeQuadtree(1_000_000));
+            TestTreeUpdatePerformance(new NativeSpatial(Type, 1_000_000));
         }
 
         [TestMethod]
         public void TreeSearchPerformance()
         {
-            TestTreeSearchPerformance(new NativeQuadtree(500_000));
+            TestTreeSearchPerformance(new NativeSpatial(Type, 500_000));
         }
 
         [TestMethod]
         public void ConcurrentUpdateAndSearch()
         {
-            TestConcurrentUpdateAndSearch(new NativeQuadtree(500_000));
+            TestConcurrentUpdateAndSearch(new NativeSpatial(Type, 500_000));
         }
 
         [TestMethod]
         public void TreeCollisionPerformance()
         {
-            TestTreeCollisionPerformance(new NativeQuadtree(50_000));
+            TestTreeCollisionPerformance(new NativeSpatial(Type, 50_000));
         }
     }
 }

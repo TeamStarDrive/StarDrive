@@ -7,25 +7,25 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-    public interface IQuadtree
+    /// <summary>
+    /// Generic Spatial collection interface
+    /// Subdivides game world so that object collision and proximity testing can be done efficiently
+    /// </summary>
+    public interface ISpatial
     {
         /// <summary>
-        /// Intended size of the universe
+        /// Original size of the simulation world
         /// </summary>
         float UniverseSize { get; }
 
         /// <summary>
-        /// Full size of the quadtree, usually slightly bigger than intended size
+        /// Full Width and Height of the spatial collection. 
+        /// This is usually bigger than world size
         /// </summary>
         float FullSize { get; }
 
         /// <summary>
-        /// Number of levels in the quadtree
-        /// </summary>
-        int Levels { get; }
-
-        /// <summary>
-        /// Number of pending and active objects in the Quadtree
+        /// Total number of objects in this Spatial collection
         /// </summary>
         int Count { get; }
 
@@ -36,7 +36,6 @@ namespace Ship_Game
         void UpdateAll();
         void CollideAll(FixedSimTime timeStep);
         void CollideAllRecursive(FixedSimTime timeStep);
-
         
         /// <summary>
         /// Finds nearby GameplayObjects using multiple filters
