@@ -199,6 +199,7 @@
     <ClCompile Include="spatial\qtree\Qtree.cpp" />
     <ClCompile Include="spatial\Search.cpp" />
     <ClCompile Include="spatial\SlabAllocator.cpp" />
+    <ClCompile Include="spatial\Spatial.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\math_utils.cpp" />
     <ClCompile Include="util\os_utils.cpp" />

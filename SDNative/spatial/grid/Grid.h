@@ -33,7 +33,8 @@ namespace spatial
          */
         explicit Grid(int worldSize, int cellSize);
         ~Grid();
-        
+
+        SpatialType type() const override { return SpatialType::Grid; }
         const char* name() const override { return "Grid"; }
         uint32_t totalMemory() const override;
         int fullSize() const override { return FullSize; }

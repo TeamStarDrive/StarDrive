@@ -35,11 +35,12 @@ namespace spatial
 
         /**
          * @param worldSize The Width and Height of the simulation world
-         * @param smallestCell The smallest allowed Qtree cell size to prevent qtree getting too deep
+         * @param smallestCell The smallest allowed Qtree node size to prevent qtree getting too deep
          */
         explicit Qtree(int worldSize, int smallestCell);
         ~Qtree();
-
+        
+        SpatialType type() const override { return SpatialType::QuadTree; }
         const char* name() const override { return "Qtree"; }
         uint32_t totalMemory() const override;
         int fullSize() const override { return FullSize; }
@@ -70,15 +71,4 @@ namespace spatial
         void removeAt(QtreeNode* root, int objectId);
         void markForRemoval(int objectId, SpatialObject& o);
     };
-
-    SPATIAL_C_API Qtree* __stdcall QtreeCreate(int universeSize, int smallestCell);
-    SPATIAL_C_API void __stdcall QtreeDestroy(Qtree* tree);
-    SPATIAL_C_API void __stdcall QtreeClear(Qtree* tree);
-    SPATIAL_C_API void __stdcall QtreeRebuild(Qtree* tree);
-    SPATIAL_C_API int  __stdcall QtreeInsert(Qtree* tree, const SpatialObject& o);
-    SPATIAL_C_API void __stdcall QtreeUpdate(Qtree* tree, int objectId, int x, int y);
-    SPATIAL_C_API void __stdcall QtreeRemove(Qtree* tree, int objectId);
-    SPATIAL_C_API void __stdcall QtreeCollideAll(Qtree* tree, float timeStep, void* user, spatial::CollisionFunc onCollide);
-    SPATIAL_C_API int __stdcall QtreeFindNearby(Qtree* tree, int* outResults, const spatial::SearchOptions& opt);
-    SPATIAL_C_API void __stdcall QtreeDebugVisualize(Qtree* tree, const VisualizerOptions& opt, const VisualizerBridge& vis);
 }
