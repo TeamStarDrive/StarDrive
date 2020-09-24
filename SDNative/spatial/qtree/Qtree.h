@@ -1,7 +1,8 @@
 #pragma once
 #include "QtreeNode.h"
 #include "../Spatial.h"
-#include <vector>
+#include "../ObjectCollection.h"
+#include "../SpatialDebug.h"
 
 namespace spatial
 {
@@ -27,9 +28,9 @@ namespace spatial
         // NOTE: Cannot use std::unique_ptr here due to dll-interface
         SlabAllocator* FrontAlloc = new SlabAllocator{AllocatorSlabSize};
         SlabAllocator* BackAlloc  = new SlabAllocator{AllocatorSlabSize};
-
-        std::vector<SpatialObject> Objects;
-        std::vector<SpatialObject> Pending;
+        
+        ObjectCollection Objects;
+        mutable SpatialDebug Dbg;
 
     public:
 
@@ -45,8 +46,8 @@ namespace spatial
         uint32_t totalMemory() const override;
         int fullSize() const override { return FullSize; }
         int worldSize() const override { return WorldSize; }
-        int count() const override { return (int)Objects.size(); }
-        const SpatialObject& get(int objectId) const override { return Objects[objectId]; }
+        int count() const override { return Objects.count(); }
+        const SpatialObject& get(int objectId) const override { return Objects.get(objectId); }
         
         int nodeCapacity() const override { return PendingSplitThreshold; }
         void nodeCapacity(int capacity) override { PendingSplitThreshold = capacity; }
@@ -55,9 +56,9 @@ namespace spatial
 
         void clear() override;
         void rebuild() override;
-        int insert(const SpatialObject& o) override;
-        void update(int objectId, int x, int y) override;
-        void remove(int objectId) override;
+        int insert(const SpatialObject& o) override { return Objects.insert(o); }
+        void update(int objectId, int x, int y) override { Objects.update(objectId, x, y); }
+        void remove(int objectId) override { Objects.remove(objectId); }
         using Spatial::collideAll;
         void collideAll(float timeStep, void* user, CollisionFunc onCollide) override;
         int findNearby(int* outResults, const SearchOptions& opt) const override;
@@ -68,7 +69,5 @@ namespace spatial
         QtreeNode* createRoot() const;
         void insertAt(int level, QtreeNode& root, SpatialObject* o);
         void insertAtLeaf(int level, QtreeNode& leaf, SpatialObject* o);
-        void removeAt(QtreeNode* root, int objectId);
-        void markForRemoval(int objectId, SpatialObject& o);
     };
 }

@@ -1,16 +1,8 @@
 #pragma once
-#include "Rect.h"
-#include <cstdint>
+#include "Primitives.h"
 
 namespace spatial
 {
-    /**
-     * Simple 4-byte RGBA color struct
-     */
-    struct Color
-    {
-        uint8_t r, g, b, a;
-    };
 
     /**
      * Generic visualization interface to draw visualization primitives
@@ -19,10 +11,10 @@ namespace spatial
     struct Visualizer
     {
         virtual ~Visualizer() = default;
-        virtual void drawRect  (int x1, int y1, int x2, int y2,  Color c) = 0;
-        virtual void drawCircle(int x,  int y,  int radius,      Color c) = 0;
-        virtual void drawLine  (int x1, int y1, int x2, int y2,  Color c) = 0;
-        virtual void drawText  (int x,  int y, int size, const char* text, Color c) = 0;
+        virtual void drawRect  (Rect r,  Color c) = 0;
+        virtual void drawCircle(Circle ci, Color c) = 0;
+        virtual void drawLine  (Point a, Point b,  Color c) = 0;
+        virtual void drawText  (Point p, int size, const char* text, Color c) = 0;
     };
 
     /**
@@ -30,10 +22,10 @@ namespace spatial
      */
     struct VisualizerBridge
     {
-        void (*drawRect)  (int x1, int y1, int x2, int y2,  Color c);
-        void (*drawCircle)(int x,  int y,  int radius,      Color c);
-        void (*drawLine)  (int x1, int y1, int x2, int y2,  Color c);
-        void (*drawText)  (int x,  int y, int size, const char* text, Color c);
+        void (*drawRect)  (Rect r,  Color c);
+        void (*drawCircle)(Circle ci, Color c);
+        void (*drawLine)  (Point a, Point b,  Color c);
+        void (*drawText)  (Point p, int size, const char* text, Color c);
     };
 
     /**
@@ -47,6 +39,7 @@ namespace spatial
         bool objectText = false; // show text ontop of each object (very, very intensive)
         bool nodeText = true; // show text ontop of a leaf or branch node
         bool nodeBounds = true; // show edges of leaf and branch nodes
+        bool searchDebug = true; // show the debug information for latest searches
     };
 
 }

@@ -29,6 +29,7 @@ struct Simulation final : spatial::Visualizer
     std::vector<int> collidedObjects;
 
     bool isPaused = true;
+    bool isExiting = false;
 
     spatial::SearchOptions opt;
     std::vector<int> searchResults;
@@ -106,27 +107,27 @@ struct Simulation final : spatial::Visualizer
         camera_world.y += delta.y / camera_zoom;
     }
 
-    void drawRect(int x1, int y1, int x2, int y2, Color c) override
+    void drawRect(spatial::Rect r, Color c) override
     {
-        ImVec2 tl = worldToScreen(x1, y1);
-        ImVec2 br = worldToScreen(x2, y2);
+        ImVec2 tl = worldToScreen(r.left, r.top);
+        ImVec2 br = worldToScreen(r.right, r.bottom);
         ImVec2 points[4] = { tl, ImVec2{br.x, tl.y}, br, ImVec2{tl.x, br.y} };
         DrawList->AddPolyline(points, 4, getColor(c), true, 1.0f);
     }
-    void drawCircle(int x, int y, int radius, Color c) override
+    void drawCircle(spatial::Circle ci, Color c) override
     {
-        DrawList->AddCircle(worldToScreen(x, y), worldToScreen(radius), getColor(c));
+        DrawList->AddCircle(worldToScreen(ci.x, ci.y), worldToScreen(ci.radius), getColor(c));
     }
-    void drawLine(int x1, int y1, int x2, int y2, Color c) override
+    void drawLine(spatial::Point a, spatial::Point b, Color c) override
     {
-        ImVec2 points[2] = { worldToScreen(x1, y1), worldToScreen(x2, y2) };
+        ImVec2 points[2] = { worldToScreen(a.x, a.y), worldToScreen(b.x, b.y) };
         DrawList->AddPolyline(points, 2, getColor(c), false, 1.0f);
     }
-    void drawText(int x, int y, int size, const char* text, Color c) override
+    void drawText(spatial::Point p, int size, const char* text, Color c) override
     {
         float screenSize = worldToScreen(size);
         if (screenSize > 200)
-            DrawList->AddText(worldToScreen(x, y), getColor(c), text);
+            DrawList->AddText(worldToScreen(p.x, p.y), getColor(c), text);
     }
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -234,15 +235,10 @@ struct Simulation final : spatial::Visualizer
         spat.debugVisualize(vo, *this);
         double elapsedDrawMs = t1.elapsed_ms();
 
-        if (opt.SearchRadius > 1)
+        for (int i = 0; i < numSearchResults; ++i)
         {
-            DrawList->AddCircle(worldToScreen(opt.OriginX, opt.OriginY), worldToScreen(opt.SearchRadius), getColor(Yellow), 0, 2.0f);
-
-            for (int i = 0; i < numSearchResults; ++i)
-            {
-                const spatial::SpatialObject& o = spat.get(searchResults[i]);
-                drawRect(o.left(), o.top(), o.right(), o.bottom(), Yellow);
-            }
+            const spatial::SpatialObject& o = spat.get(searchResults[i]);
+            drawRect(o.rect(), Yellow);
         }
 
         if (numCollisions > 0)
@@ -250,7 +246,7 @@ struct Simulation final : spatial::Visualizer
             for (int objectId : collidedObjects)
             {
                 const spatial::SpatialObject& o = spat.get(objectId);
-                drawRect(o.left(), o.top(), o.right(), o.bottom(), Cyan);
+                drawRect(o.rect(), Cyan);
             }
         }
 
@@ -279,6 +275,9 @@ struct Simulation final : spatial::Visualizer
     void handleInput()
     {
         spatial::Spatial& spat = *this->spat;
+
+        if (isPressed(ImGuiKey_Escape))
+            isExiting = true;
 
         if (isPressed(ImGuiKey_V))
         {
@@ -339,6 +338,9 @@ struct Simulation final : spatial::Visualizer
         DebugGfxWindow window;
         window.Run([this,&window]()
         {
+            if (isExiting)
+                return false;
+
             ImGui::SetNextWindowSize(ImVec2((float)window.width(), (float)window.height()));
             ImGui::SetNextWindowPos(ImVec2(0, 0));
 

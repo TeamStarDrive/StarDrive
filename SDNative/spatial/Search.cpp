@@ -11,7 +11,7 @@ namespace spatial
         int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~(opt.FilterExcludeObjectId+1);
         int x = opt.OriginX;
         int y = opt.OriginY;
-        float radius = opt.SearchRadius;
+        int radius = opt.SearchRadius;
         SearchFilterFunc filterFunc = opt.FilterFunction;
         int maxResults = opt.MaxResults;
 
@@ -22,11 +22,11 @@ namespace spatial
         {
             std::sort(nodes, nodes+found.count, [x,y](const FoundNode& a, const FoundNode& b) -> bool
             {
-                float adx = x - a.worldX;
-                float ady = y - a.worldY;
+                float adx = x - a.world.x;
+                float ady = y - a.world.y;
                 float sqDist1 = adx*adx + ady*ady;
-                float bdx = x - b.worldX;
-                float bdy = y - b.worldY;
+                float bdx = x - b.world.x;
+                float bdy = y - b.world.y;
                 float sqDist2 = bdx*bdx + bdy*bdy;
                 return sqDist1 < sqDist2;
             });
@@ -47,11 +47,7 @@ namespace spatial
                     && (o.type     & filterMask)
                     && ((o.objectId+1) & objectMask))
                 {
-                    // check if inside radius, inlined for perf
-                    float dx = x - o.x;
-                    float dy = y - o.y;
-                    float r2 = radius + o.rx;
-                    if ((dx*dx + dy*dy) <= (r2*r2))
+                    if (inRadius(x,y, o.x,o.y, radius, o.rx))
                     {
                         if (!filterFunc || filterFunc(o.objectId) != 0)
                         {

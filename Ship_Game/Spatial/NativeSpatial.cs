@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 #pragma warning disable 0649 // uninitialized struct
@@ -286,16 +285,35 @@ namespace Ship_Game.Spatial
                         break; // we are done !
                 }
             }
-
             return CopyOutput(objectIds, resultCount);
         }
         
-
-        struct SpatialColor { public byte r, g, b, a; }
-        [UnmanagedFunctionPointer(CC)] delegate void DrawRectF(int x1, int y1, int x2, int y2, SpatialColor c);
-        [UnmanagedFunctionPointer(CC)] delegate void DrawCircleF(int x, int y, int radius, SpatialColor c);
-        [UnmanagedFunctionPointer(CC)] delegate void DrawLineF(int x1, int y1, int x2, int y2, SpatialColor c);
-        [UnmanagedFunctionPointer(CC)] delegate void DrawTextF(int x, int y, int size, sbyte* text, SpatialColor c);
+        struct Point
+        {
+            public int X;
+            public int Y;
+        }
+        struct Circle
+        {
+            public int X;
+            public int Y;
+            public int Radius;
+        }
+        struct Rect
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+        struct SpatialColor
+        {
+            public byte r, g, b, a;
+        }
+        [UnmanagedFunctionPointer(CC)] delegate void DrawRectF(Rect r, SpatialColor c);
+        [UnmanagedFunctionPointer(CC)] delegate void DrawCircleF(Circle ci, SpatialColor c);
+        [UnmanagedFunctionPointer(CC)] delegate void DrawLineF(Point a, Point b, SpatialColor c);
+        [UnmanagedFunctionPointer(CC)] delegate void DrawTextF(Point p, int size, sbyte* text, SpatialColor c);
         struct QtreeVisualizerBridge
         {
             public DrawRectF   DrawRect;
@@ -303,44 +321,41 @@ namespace Ship_Game.Spatial
             public DrawLineF   DrawLine;
             public DrawTextF   DrawText;
         }
-        [StructLayout(LayoutKind.Sequential)]
-        struct NativeSpatialRect
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
         struct QtreeVisualizerOptions
         {
-            public NativeSpatialRect visibleWorldRect;
+            public Rect visibleWorldRect;
             public byte objectBounds;
             public byte objectToLeafLines;
             public byte objectText;
             public byte nodeText;
             public byte nodeBounds;
+            public byte searchDebug;
         }
 
         [DllImport(Lib, CallingConvention=CC)]
         static extern void SpatialDebugVisualize(IntPtr spatial, ref QtreeVisualizerOptions opt, ref QtreeVisualizerBridge vis);
         
         static GameScreen Screen;
-        static void DrawRect(int x1, int y1, int x2, int y2, SpatialColor c)
+        static void DrawRect(Rect r, SpatialColor c)
         {
-            Screen.DrawRectangleProjected(new Rectangle(x1, y1, x2-x1, y2-y1), new Color(c.r,c.g,c.b,c.a));
+            Screen.DrawRectangleProjected(new Rectangle(r.Left, r.Top, r.Right- r.Left, r.Bottom- r.Top),
+                                          new Color(c.r, c.g, c.b, c.a));
         }
-        static void DrawCircle(int x, int y, int radius, SpatialColor c)
+        static void DrawCircle(Circle ci, SpatialColor c)
         {
-            Screen.DrawCircleProjected(new Vector2(x,y), radius, new Color(c.r,c.g,c.b,c.a));
+            Screen.DrawCircleProjected(new Vector2(ci.X, ci.Y), ci.Radius,
+                                       new Color(c.r, c.g, c.b, c.a));
         }
-        static void DrawLine(int x1, int y1, int x2, int y2, SpatialColor c)
+        static void DrawLine(Point a, Point b, SpatialColor c)
         {
-            Screen.DrawLineProjected(new Vector2(x1,y1), new Vector2(x2,y2), new Color(c.r,c.g,c.b,c.a));
+            Screen.DrawLineProjected(new Vector2(a.X, a.Y), new Vector2(b.X, b.Y),
+                                     new Color(c.r, c.g, c.b, c.a));
         }
-        static void DrawText(int x, int y, int size, sbyte* text, SpatialColor c)
+        static void DrawText(Point p, int size, sbyte* text, SpatialColor c)
         {
             float scale = size / 5f;
-            Screen.DrawStringProjected(new Vector2(x,y), 0f, scale, new Color(c.r,c.g,c.b,c.a), new string(text));
+            Screen.DrawStringProjected(new Vector2(p.X, p.Y), 0f, scale,
+                                       new Color(c.r, c.g, c.b, c.a), new string(text));
         }
 
         public void DebugVisualize(GameScreen screen)
@@ -351,7 +366,7 @@ namespace Ship_Game.Spatial
 
             var opt = new QtreeVisualizerOptions
             {
-                visibleWorldRect = new NativeSpatialRect
+                visibleWorldRect = new Rect
                 {
                     Left = (int)topLeft.X,
                     Top = (int)topLeft.Y,
@@ -363,6 +378,7 @@ namespace Ship_Game.Spatial
                 objectText = 0,
                 nodeText = 0,
                 nodeBounds = 1,
+                searchDebug = 1,
             };
 
             var vis = new QtreeVisualizerBridge

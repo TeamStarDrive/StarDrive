@@ -1,5 +1,6 @@
 #pragma once
 #include "Config.h"
+#include "Primitives.h"
 #include <cstdint>
 
 namespace spatial
@@ -32,6 +33,7 @@ namespace spatial
         SPATIAL_FINLINE int right()  const { return x + rx; }
         SPATIAL_FINLINE int top()    const { return y - ry; }
         SPATIAL_FINLINE int bottom() const { return y + ry; }
+        SPATIAL_FINLINE Rect rect()  const { return { x-rx, y-ry, x+rx, y+ry }; }
 
         SPATIAL_FINLINE bool overlaps(const SpatialObject& o) const
         {
