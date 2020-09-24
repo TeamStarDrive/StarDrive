@@ -110,8 +110,8 @@ template<class Func> static void measureEachObj(const char* what, int iterations
     }
     double e = t.elapsed_ms();
     int total_operations = objects.size() * iterations;
-    printf("QuadTree %s(%zu) total: %.2fms  avg: %.3fus\n",
-        what, objects.size(), e, (e / total_operations)*1000);
+    printf("%s(%zu) x%d total: %.2fms  avg: %.3fus\n",
+        what, objects.size(), iterations, e, (e / total_operations)*1000);
 }
 
 template<class VoidFunc> static void measureIterations(const char* what, int iterations,
@@ -120,7 +120,7 @@ template<class VoidFunc> static void measureIterations(const char* what, int ite
     rpp::Timer t;
     for (int x = 0; x < iterations; ++x) { func(); }
     double e = t.elapsed_ms();
-    printf("QuadTree %s(%d) total: %.2fms  avg: %.3fus\n",
-        what, objectsPerFunc, e, ((e*1000)/iterations)/objectsPerFunc);
+    printf("%s(%d) x%d total: %.2fms  avg: %.3fus\n",
+        what, objectsPerFunc, iterations, e, ((e*1000)/iterations)/objectsPerFunc);
 }
 

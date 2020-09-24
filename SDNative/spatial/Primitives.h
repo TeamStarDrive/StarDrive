@@ -1,8 +1,32 @@
 #pragma once
 #include "Config.h"
+#include <cstdint>
 
 namespace spatial
 {
+    /**
+     * Simple 4-byte RGBA color struct
+     */
+    struct Color
+    {
+        uint8_t r, g, b, a;
+    };
+
+    struct Point
+    {
+        int x;
+        int y;
+        static constexpr Point Zero() { return { 0, 0 }; }
+    };
+
+    struct Circle
+    {
+        int x;
+        int y;
+        int radius;
+        static constexpr Circle Zero() { return { 0, 0, 0 }; }
+    };
+
     struct Rect
     {
         int left;
@@ -11,9 +35,11 @@ namespace spatial
         int bottom;
 
         // NOTE: No ctor, to avoid sub-optimal code generation
+        static constexpr Rect Zero() { return {0,0,0,0}; }
 
         int centerX() const { return (left + right) >> 1; }
         int centerY() const { return (top + bottom) >> 1; }
+        Point center() const { return { (left + right) >> 1, (top + bottom) >> 1 }; }
         int width()  const { return (right - left); }
         int height() const { return (bottom - top); }
 

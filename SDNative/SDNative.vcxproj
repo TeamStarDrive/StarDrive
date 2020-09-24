@@ -152,12 +152,13 @@
     <ClInclude Include="spatial\grid\Grid.h" />
     <ClInclude Include="spatial\grid\GridCell.h" />
     <ClInclude Include="spatial\ObjectCollection.h" />
-    <ClInclude Include="spatial\Rect.h" />
+    <ClInclude Include="spatial\Primitives.h" />
     <ClInclude Include="spatial\Search.h" />
     <ClInclude Include="spatial\SlabAllocator.h" />
     <ClInclude Include="spatial\Spatial.h" />
     <ClInclude Include="spatial\qtree\Qtree.h" />
     <ClInclude Include="spatial\qtree\QtreeNode.h" />
+    <ClInclude Include="spatial\SpatialDebug.h" />
     <ClInclude Include="spatial\SpatialObject.h" />
     <ClInclude Include="spatial\Utilities.h" />
     <ClInclude Include="spatial\Visualizer.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="spatial\Search.cpp" />
     <ClCompile Include="spatial\SlabAllocator.cpp" />
     <ClCompile Include="spatial\Spatial.cpp" />
+    <ClCompile Include="spatial\SpatialDebug.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\math_utils.cpp" />
     <ClCompile Include="util\os_utils.cpp" />

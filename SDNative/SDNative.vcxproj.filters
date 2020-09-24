@@ -166,6 +166,9 @@
     <ClCompile Include="spatial\Spatial.cpp">
       <Filter>spatial</Filter>
     </ClCompile>
+    <ClCompile Include="spatial\SpatialDebug.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShipDataSerializer.h">
@@ -297,9 +300,6 @@
     <ClInclude Include="spatial\SpatialObject.h">
       <Filter>spatial</Filter>
     </ClInclude>
-    <ClInclude Include="spatial\Rect.h">
-      <Filter>spatial</Filter>
-    </ClInclude>
     <ClInclude Include="spatial\Visualizer.h">
       <Filter>spatial</Filter>
     </ClInclude>
@@ -328,6 +328,12 @@
       <Filter>spatial\grid</Filter>
     </ClInclude>
     <ClInclude Include="spatial\ObjectCollection.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\SpatialDebug.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Primitives.h">
       <Filter>spatial</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,8 +21,7 @@ namespace spatial
         uint32_t bytes = sizeof(Qtree);
         bytes += FrontAlloc->totalBytes();
         bytes += BackAlloc->totalBytes();
-        bytes += Pending.capacity() * sizeof(SpatialObject);
-        bytes += Objects.capacity() * sizeof(SpatialObject);
+        bytes += Objects.totalMemory();
         return bytes;
     }
 
@@ -49,7 +48,6 @@ namespace spatial
     void Qtree::clear()
     {
         Objects.clear();
-        Pending.clear();
         Root = createRoot();
     }
 
@@ -62,51 +60,17 @@ namespace spatial
         FrontAlloc->reset();
         CurrentSplitThreshold = PendingSplitThreshold;
 
-        if (!Pending.empty())
-        {
-            Objects.insert(Objects.end(), Pending.begin(), Pending.end());
-            Pending.clear();
-        }
-
-        const int numObjects = (int)Objects.size();
-        SpatialObject* objects = Objects.data();
-
+        Objects.submitPending();
         QtreeNode* root = createRoot();
-        for (int i = 0; i < numObjects; ++i)
+
+        for (SpatialObject& o : Objects)
         {
-            SpatialObject* o = &objects[i];
-            insertAt(Levels, *root, o);
-        }
-        Root = root;
-    }
-
-    int Qtree::insert(const SpatialObject& o)
-    {
-        int objectId = (int)( Objects.size() + Pending.size() );
-        SpatialObject& inserted = Pending.emplace_back(o);
-        inserted.objectId = objectId;
-        return objectId;
-    }
-
-    void Qtree::update(int objectId, int x, int y)
-    {
-        SpatialObject& o = Objects[objectId];
-        o.x = x;
-        o.y = y;
-    }
-
-    void Qtree::remove(int objectId)
-    {
-        // @todo This will be slow with large number of objects
-        //       find a better lookup system, maybe a flatmap ?
-        for (auto it = Objects.begin(), end = Objects.end(); it != end; ++it)
-        {
-            if (it->objectId == objectId)
+            if (o.active)
             {
-                Objects.erase(it);
-                break;
+                insertAt(Levels, *root, &o);
             }
         }
+        Root = root;
     }
 
     struct Overlaps
@@ -229,37 +193,6 @@ namespace spatial
         SPATIAL_FINLINE T pop_back() { return items[next--]; }
     };
 
-    void Qtree::removeAt(QtreeNode* root, int objectId)
-    {
-        SmallStack<QtreeNode*> stack; stack.push_back(root);
-        do
-        {
-            QtreeNode& node = *stack.pop_back();
-            if (node.isBranch())
-            {
-                stack.push_back(node.sw());
-                stack.push_back(node.se());
-                stack.push_back(node.ne());
-                stack.push_back(node.nw());
-            }
-            else
-            {
-                int size = node.size;
-                SpatialObject** items = node.objects;
-                for (int i = 0; i < size; ++i)
-                {
-                    SpatialObject& so = *items[i];
-                    if (so.objectId == objectId)
-                    {
-                        markForRemoval(objectId, so);
-                        return;
-                    }
-                }
-            }
-        }
-        while (stack.next >= 0);
-    }
-
     void Qtree::collideAll(float timeStep, void* user, CollisionFunc onCollide)
     {
         Collider collider;
@@ -306,18 +239,24 @@ namespace spatial
             }
             else
             {
-                found.add(current.objects, current.size, current.cx, current.cy);
+                found.add(current.objects, current.size,
+                         {current.cx, current.cy}, current.radius);
             }
-        } while (stack.next >= 0);
+        } while (stack.next >= 0 && found.count != found.MAX);
+
+        if (Dbg.FindEnabled)
+        {
+            Dbg.FindCircle = { opt.OriginX, opt.OriginY, opt.SearchRadius };
+            //if (found.count > 0)
+            //    Dbg.FindRect = found.nodes[0].world;
+            //else
+            //    Dbg.FindRect = Rect::Zero();
+            Dbg.setFindCells(found);
+        }
+
 
         return spatial::findNearby(outResults, opt, found);
     }
-    
-    static const Color Brown  = { 139, 69,  19, 150 };
-    static const Color VioletDim = { 199, 21, 133, 100 };
-    static const Color VioletBright = { 199, 21, 133, 150 };
-    static const Color Blue   = { 95, 158, 160, 200 };
-    static const Color Yellow = { 255, 255,  0, 200 };
 
     void Qtree::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const
     {
@@ -326,18 +265,18 @@ namespace spatial
         int visibleY = opt.visibleWorldRect.centerY();
         int radiusX  = opt.visibleWorldRect.width() / 2;
         int radiusY  = opt.visibleWorldRect.height() / 2;
-        visualizer.drawRect(Root->left(), Root->top(), Root->right(), Root->bottom(), Yellow);
+        visualizer.drawRect(Root->rect(), Yellow);
 
         SmallStack<const QtreeNode*> stack { Root };
         do
         {
             const QtreeNode& current = *stack.pop_back();
-            visualizer.drawRect(current.left(), current.top(), current.right(), current.bottom(), Brown);
+            visualizer.drawRect(current.rect(), Brown);
 
             if (current.isBranch())
             {
                 if (opt.nodeText)
-                    visualizer.drawText(current.cx, current.cy, current.width(), "BR", Yellow);
+                    visualizer.drawText({current.cx, current.cy}, current.width(), "BR", Yellow);
 
                 Overlaps over { current.cx, current.cy, visibleX, visibleY, radiusX, radiusY };
                 if (over.SW) stack.push_back(current.sw());
@@ -350,7 +289,7 @@ namespace spatial
                 if (opt.nodeText)
                 {
                     snprintf(text, sizeof(text), "LF n=%d", current.size);
-                    visualizer.drawText(current.cx, current.cy, current.width(), text, Yellow);
+                    visualizer.drawText({current.cx, current.cy}, current.width(), text, Yellow);
                 }
                 int count = current.size;
                 SpatialObject** const items = current.objects;
@@ -358,23 +297,19 @@ namespace spatial
                 {
                     const SpatialObject& o = *items[i];
                     if (opt.objectBounds)
-                        visualizer.drawRect(o.x-o.rx, o.y-o.ry, o.x+o.rx, o.y+o.ry, VioletBright);
+                        visualizer.drawRect(o.rect(), VioletBright);
                     if (opt.objectToLeafLines)
-                        visualizer.drawLine(current.cx, current.cy, o.x, o.y, VioletDim);
+                        visualizer.drawLine({current.cx, current.cy}, {o.x, o.y}, VioletDim);
                     if (opt.objectText)
                     {
                         snprintf(text, sizeof(text), "o=%d", o.objectId);
-                        visualizer.drawText(o.x, o.y, o.rx*2, text, Blue);
+                        visualizer.drawText({o.x, o.y}, o.rx*2, text, Blue);
                     }
                 }
             }
-        }
-        while (stack.next >= 0);
-    }
+        } while (stack.next >= 0);
 
-    void Qtree::markForRemoval(int objectId, SpatialObject& o)
-    {
-        o.active = 0;
-        o.objectId = -1;
+        if (Dbg.setIsFindEnabled(opt.searchDebug))
+            Dbg.draw(visualizer);
     }
 }

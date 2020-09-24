@@ -13,7 +13,7 @@ TestImpl(QuadTree)
         SimParams p {};
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::QuadTree, p);
 
-        measureIterations("Qtree.updateAll", 100, swo.objects.size(), [&]()
+        measureIterations("Qtree::updateAll", 100, swo.objects.size(), [&]()
         {
             swo.spatial->rebuild();
         });
@@ -26,7 +26,7 @@ TestImpl(QuadTree)
 
         std::vector<int> results(1024, 0);
 
-        measureEachObj("findNearby", 10, swo.objects, [&](const MyGameObject& o)
+        measureEachObj("Qtree::findNearby", 100, swo.objects, [&](const MyGameObject& o)
         {
             spatial::SearchOptions opt;
             opt.OriginX = (int)o.pos.x;
@@ -46,7 +46,7 @@ TestImpl(QuadTree)
 
         std::vector<int> results(1024, 0);
 
-        measureIterations("collideAll", 10, swo.objects.size(), [&]()
+        measureIterations("Qtree::collideAll", 100, swo.objects.size(), [&]()
         {
             swo.spatial->collideAll(1.0f/60.0f, [](int objectA, int objectB) -> spatial::CollisionResult
             {
