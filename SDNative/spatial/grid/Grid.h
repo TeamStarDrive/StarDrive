@@ -4,6 +4,7 @@
 #include "../SpatialObject.h"
 #include "../SlabAllocator.h"
 #include "../ObjectCollection.h"
+#include "../SpatialDebug.h"
 #include "GridCell.h"
 
 namespace spatial
@@ -24,6 +25,7 @@ namespace spatial
         SlabAllocator* BackAlloc  = new SlabAllocator{AllocatorSlabSize};
 
         ObjectCollection Objects;
+        mutable SpatialDebug Dbg;
 
     public:
 

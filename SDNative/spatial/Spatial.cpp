@@ -60,16 +60,11 @@ namespace spatial
         {
             VisualizerBridge vis;
             explicit CppToCBridge(const VisualizerBridge& visualizer) : vis{visualizer} {}
-            void drawRect(int x1, int y1, int x2, int y2, Color c) override
-            { vis.drawRect(x1, y1, x2, y2, c); }
-            void drawCircle(int x, int y, int radius, Color c) override
-            { vis.drawCircle(x, y, radius, c); }
-            void drawLine(int x1, int y1, int x2, int y2, Color c) override
-            { vis.drawLine(x1, y1, x2, y2, c); }
-            void drawText(int x, int y, int size, const char* text, Color c) override
-            { vis.drawText(x, y, size, text, c); }
+            void drawRect(Rect r, Color c) override { vis.drawRect(r, c); }
+            void drawCircle(Circle ci, Color c) override { vis.drawCircle(ci, c); }
+            void drawLine(Point a, Point b, Color c) override { vis.drawLine(a, b, c); }
+            void drawText(Point p, int size, const char* text, Color c) override { vis.drawText(p, size, text, c); }
         };
-
         CppToCBridge bridge { *vis };
         spatial->debugVisualize(*opt, bridge);
     }

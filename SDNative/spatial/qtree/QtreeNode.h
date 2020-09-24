@@ -3,6 +3,7 @@
 #include "../Config.h"
 #include "../SpatialObject.h"
 #include "../Utilities.h"
+#include "../Primitives.h"
 
 namespace spatial
 {
@@ -44,6 +45,7 @@ namespace spatial
         SPATIAL_FINLINE int right()  const { return cx + radius; }
         SPATIAL_FINLINE int top()    const { return cy - radius; }
         SPATIAL_FINLINE int bottom() const { return cy + radius; }
+        SPATIAL_FINLINE Rect rect() const { return { cx-radius, cy-radius, cx+radius, cy+radius }; }
 
         SPATIAL_FINLINE void setCoords(int centerX, int centerY, int nodeRadius)
         {
