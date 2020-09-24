@@ -77,7 +77,7 @@ namespace spatial
     {
         bool NW, NE, SE, SW;
         SPATIAL_FINLINE Overlaps(int quadCenterX, int quadCenterY, int objectX, int objectY,
-                              int objectRadiusX, int objectRadiusY)
+                                 int objectRadiusX, int objectRadiusY)
         {
             // +---------+   The target rectangle overlaps Left quadrants (NW, SW)
             // | x--|    |
@@ -220,18 +220,20 @@ namespace spatial
     int Qtree::findNearby(int* outResults, const SearchOptions& opt) const
     {
         FoundNodes found;
-
         SmallStack<const QtreeNode*> stack { Root };
-        int cx = opt.OriginX;
-        int cy = opt.OriginY;
-        int rx = opt.SearchRadius;
-        int ry = opt.SearchRadius;
+        int ox = opt.OriginX;
+        int oy = opt.OriginY;
+        int orx = opt.SearchRadius;
+        int ory = opt.SearchRadius;
+        Rect oRect = Rect::fromPointRadius(ox, oy, orx);
         do
         {
             const QtreeNode& current = *stack.pop_back();
+            int cx = current.cx, cy = current.cy, cr = current.radius;
+
             if (current.isBranch())
             {
-                Overlaps over { current.cx, current.cy, cx, cy, rx, ry };
+                Overlaps over { cx,cy, ox,oy,orx,ory };
                 if (over.SW) stack.push_back(current.sw());
                 if (over.SE) stack.push_back(current.se());
                 if (over.NE) stack.push_back(current.ne());
@@ -239,18 +241,14 @@ namespace spatial
             }
             else
             {
-                found.add(current.objects, current.size,
-                         {current.cx, current.cy}, current.radius);
+                found.add(current.objects, current.size, {cx,cy}, cr);
             }
         } while (stack.next >= 0 && found.count != found.MAX);
 
         if (Dbg.FindEnabled)
         {
-            Dbg.FindCircle = { opt.OriginX, opt.OriginY, opt.SearchRadius };
-            //if (found.count > 0)
-            //    Dbg.FindRect = found.nodes[0].world;
-            //else
-            //    Dbg.FindRect = Rect::Zero();
+            Dbg.FindCircle = { ox, oy, orx };
+            Dbg.FindRect = Rect::fromPointRadius(ox, oy, orx);
             Dbg.setFindCells(found);
         }
 
@@ -273,12 +271,13 @@ namespace spatial
             const QtreeNode& current = *stack.pop_back();
             visualizer.drawRect(current.rect(), Brown);
 
+            int cx = current.cx, cy = current.cy;
             if (current.isBranch())
             {
                 if (opt.nodeText)
-                    visualizer.drawText({current.cx, current.cy}, current.width(), "BR", Yellow);
+                    visualizer.drawText({cx,cy}, current.width(), "BR", Yellow);
 
-                Overlaps over { current.cx, current.cy, visibleX, visibleY, radiusX, radiusY };
+                Overlaps over { cx, cy, visibleX, visibleY, radiusX, radiusY };
                 if (over.SW) stack.push_back(current.sw());
                 if (over.SE) stack.push_back(current.se());
                 if (over.NE) stack.push_back(current.ne());
@@ -289,7 +288,7 @@ namespace spatial
                 if (opt.nodeText)
                 {
                     snprintf(text, sizeof(text), "LF n=%d", current.size);
-                    visualizer.drawText({current.cx, current.cy}, current.width(), text, Yellow);
+                    visualizer.drawText({cx,cy}, current.width(), text, Yellow);
                 }
                 int count = current.size;
                 SpatialObject** const items = current.objects;
@@ -299,11 +298,11 @@ namespace spatial
                     if (opt.objectBounds)
                         visualizer.drawRect(o.rect(), VioletBright);
                     if (opt.objectToLeafLines)
-                        visualizer.drawLine({current.cx, current.cy}, {o.x, o.y}, VioletDim);
+                        visualizer.drawLine({cx,cy}, {o.x,o.y}, VioletDim);
                     if (opt.objectText)
                     {
                         snprintf(text, sizeof(text), "o=%d", o.objectId);
-                        visualizer.drawText({o.x, o.y}, o.rx*2, text, Blue);
+                        visualizer.drawText({o.x,o.y}, o.rx*2, text, Blue);
                     }
                 }
             }
