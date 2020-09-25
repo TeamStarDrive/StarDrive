@@ -9,7 +9,7 @@ namespace spatial
      * @return 0 Search filter failed and this object should be excluded
      * @return 1 Search filter Succeeded and object should be included
      */
-    using SearchFilterFunc = int (STDCALL*)(int objectA);
+    using SearchFilterFunc = int (SPATIAL_CC*)(int objectA);
 
     // Sqrt(2.0), used for rectangular cell proximity approximation
     constexpr float Sqrt2 = 1.414214f;
