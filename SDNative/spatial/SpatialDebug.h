@@ -12,6 +12,8 @@ namespace spatial
     static const Color Brown  = { 139, 69,  19, 150 };
     static const Color VioletDim = { 199, 21, 133, 100 };
     static const Color VioletBright = { 199, 21, 133, 150 };
+    static const Color Aqua = { 180, 254, 231, 150 };
+    static const Color Purple = { 96, 63, 139, 150 };
     static const Color Blue   = { 95, 158, 160, 200 };
     static const Color Yellow = { 255, 255,  0, 200 };
     static const Color Red    = { 255, 80, 80, 200 };

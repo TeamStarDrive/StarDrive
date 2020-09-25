@@ -196,7 +196,8 @@ namespace spatial
 
     void Qtree::collideAll(float timeStep, void* user, CollisionFunc onCollide)
     {
-        Collider collider;
+        Collider collider { *FrontAlloc, Objects.maxObjects() };
+
         SmallStack<QtreeNode*> stack { Root };
         do
         {
@@ -211,7 +212,7 @@ namespace spatial
             else
             {
                 if (int size = current.size)
-                    collider.collideObjects(current.objects, size, user, onCollide);
+                    collider.collideObjects({current.objects, size}, user, onCollide);
             }
         }
         while (stack.next >= 0);
@@ -296,8 +297,12 @@ namespace spatial
                 for (int i = 0; i < count; ++i)
                 {
                     const SpatialObject& o = *items[i];
+
                     if (opt.objectBounds)
-                        visualizer.drawRect(o.rect(), VioletBright);
+                    {
+                        auto color = (o.loyalty % 2 == 0) ? VioletBright : Purple;
+                        visualizer.drawRect(o.rect(), color);
+                    }
                     if (opt.objectToLeafLines)
                         visualizer.drawLine({cx,cy}, {o.x,o.y}, VioletDim);
                     if (opt.objectText)

@@ -29,6 +29,16 @@
     </Expand>
   </Type>
 
+  <Type Name="spatial::SpatialObjectArray">
+      <DisplayString>size={size}</DisplayString>
+      <Expand>
+          <ArrayItems>
+              <Size>size</Size>
+              <ValuePointer>objects</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+
   <Type Name="spatial::QtreeNode">
       <DisplayString Condition="size == -1">[BRANCH NW={*(nodes+0)} NE={*(nodes+1)} SE={*(nodes+2)} SW={*(nodes+3)}]</DisplayString>
       <DisplayString Condition="size != -1">[LEAF size={size}]</DisplayString>

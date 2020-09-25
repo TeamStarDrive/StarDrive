@@ -11,6 +11,7 @@ namespace spatial
         PendingInsert.clear();
         Objects.clear();
         MaxObjects = 0;
+        NumActive = 0;
         FreeIds.clear();
     }
 
