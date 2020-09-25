@@ -326,12 +326,5 @@ namespace Ship_Game
             if (Duration < 0f && !Infinite)
                 Die(null, true);
         }
-        public override void Die(GameplayObject source, bool cleanupOnly)
-        {
-            //im confused on this setsystem. why are we doing this?
-            //pretty sure its going to be set to null later int he die process.
-            SetSystem(AI.Drone.Owner.System);
-            base.Die(source, cleanupOnly);
-        }
     }
 }

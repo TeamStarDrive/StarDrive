@@ -826,20 +826,17 @@ namespace Ship_Game.Ships
             Parent.ShouldRecalculatePower |= ActualPowerFlowMax > 0 || PowerRadius > 0;
             Parent.UpdateExternalSlots(this, becameActive: false);
 
-            if (!cleanupOnly)
+            if (!cleanupOnly && source != null)
             {
                 if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
                 {
                     GameAudio.PlaySfxAsync("sd_explosion_module_small", Parent.SoundEmitter);
                 }
+
                 if (explodes)
                 {
-                    GameplayObject damageCauser = Parent.LastDamagedBy;
-                    if (damageCauser == null)
-                        Log.Error("LastDamagedBy is not properly set. Please check projectile damage code!");
-                    else
-                        UniverseScreen.SpaceManager.ExplodeAtModule(damageCauser, this,
-                            ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
+                    UniverseScreen.SpaceManager.ExplodeAtModule(source, this,
+                        ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }
             }
         }
@@ -877,7 +874,8 @@ namespace Ship_Game.Ships
 
             if (hangarTimer <= 0f && hangarShip == null) // launch the troopship
             {
-                hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
+                hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty,
+                    Center, troop);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
                 hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
@@ -903,28 +901,29 @@ namespace Ship_Game.Ships
                     || hangarShip.AI.IgnoreCombat
                     || hangarShip.AI.Target != null
                     || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar))
-                        return;
+                    return;
                 hangarShip.DoEscort(Parent);
                 return;
             }
-            if (hangarTimer > 0f || (hangarShip != null && (hangarShip == null || hangarShip.Active)))
-                return;
 
-            SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
-            if (hangarShip == null)
+            if (hangarTimer <= 0f && (hangarShip == null || hangarShip != null && !hangarShip.Active))
             {
-                Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
-                return;
+                SetHangarShip(Ship.CreateShipFromHangar(this, Parent.loyalty, Parent.Center + LocalCenter, Parent));
+                if (hangarShip == null)
+                {
+                    Log.Warning($"Could not create ship from hangar, UID = {hangarShipUID}");
+                    return;
+                }
+
+                hangarShip.DoEscort(Parent);
+                hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * GetHangarShip().SpeedLimit;
+
+                hangarShip.Mothership = Parent;
+                HangarShipGuid = GetHangarShip().guid;
+
+                hangarTimer = hangarTimerConstant;
+                Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
             }
-
-            hangarShip.DoEscort(Parent);
-            hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * GetHangarShip().SpeedLimit;
-
-            hangarShip.Mothership = Parent;
-            HangarShipGuid = GetHangarShip().guid;
-
-            hangarTimer = hangarTimerConstant;
-            Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
         }
 
         public void SetAttributes()
