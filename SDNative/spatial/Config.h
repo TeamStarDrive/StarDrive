@@ -8,8 +8,10 @@
 #define SPATIAL_C_API extern "C" __declspec(dllexport)
 #endif
 
-#ifndef STDCALL
-#define STDCALL __stdcall
+/// Calling convention of Spatial C-interface
+/// By default it's set to stdcall because we mostly interface with C#
+#ifndef SPATIAL_CC
+#define SPATIAL_CC __stdcall
 #endif
 
 //// @note Some strong hints that some functions are merely wrappers, so should be forced inline

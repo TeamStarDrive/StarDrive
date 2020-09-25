@@ -25,7 +25,7 @@ namespace spatial
      * @param objectA ID of the second object colliding
      * @return CollisionResult Result of the collision
      */
-    using CollisionFunc = CollisionResult (STDCALL*)(void* user, int objectA, int objectB);
+    using CollisionFunc = CollisionResult (SPATIAL_CC*)(void* user, int objectA, int objectB);
 
 
     struct CollisionPair

@@ -13,7 +13,7 @@ namespace spatial
         return {};
     }
 
-    SPATIAL_C_API Spatial* STDCALL SpatialCreate(SpatialType type, int universeSize, int cellSize)
+    SPATIAL_C_API Spatial* SPATIAL_CC SpatialCreate(SpatialType type, int universeSize, int cellSize)
     {
         if (type == SpatialType::Grid)
             return new Grid{universeSize, cellSize};
@@ -21,40 +21,40 @@ namespace spatial
             return new Qtree{universeSize, cellSize};
         return nullptr;
     }
-    SPATIAL_C_API void STDCALL SpatialDestroy(Spatial* spatial)
+    SPATIAL_C_API void SPATIAL_CC SpatialDestroy(Spatial* spatial)
     {
         delete spatial;
     }
     
-    SPATIAL_C_API SpatialType STDCALL SpatialGetType(Spatial* spatial) { return spatial->type(); }
-    SPATIAL_C_API int STDCALL SpatialWorldSize(Spatial* spatial) { return spatial->worldSize(); }
-    SPATIAL_C_API int STDCALL SpatialFullSize(Spatial* spatial)  { return spatial->fullSize(); }
-    SPATIAL_C_API int STDCALL SpatialNumActive(Spatial* spatial) { return spatial->numActive(); }
-    SPATIAL_C_API void STDCALL SpatialClear(Spatial* spatial)    { spatial->clear(); }
-    SPATIAL_C_API void STDCALL SpatialRebuild(Spatial* spatial)  { spatial->rebuild(); }
+    SPATIAL_C_API SpatialType SPATIAL_CC SpatialGetType(Spatial* spatial) { return spatial->type(); }
+    SPATIAL_C_API int SPATIAL_CC SpatialWorldSize(Spatial* spatial) { return spatial->worldSize(); }
+    SPATIAL_C_API int SPATIAL_CC SpatialFullSize(Spatial* spatial)  { return spatial->fullSize(); }
+    SPATIAL_C_API int SPATIAL_CC SpatialNumActive(Spatial* spatial) { return spatial->numActive(); }
+    SPATIAL_C_API void SPATIAL_CC SpatialClear(Spatial* spatial)    { spatial->clear(); }
+    SPATIAL_C_API void SPATIAL_CC SpatialRebuild(Spatial* spatial)  { spatial->rebuild(); }
 
-    SPATIAL_C_API int STDCALL SpatialInsert(Spatial* spatial, const SpatialObject* o)
+    SPATIAL_C_API int SPATIAL_CC SpatialInsert(Spatial* spatial, const SpatialObject* o)
     {
         return spatial->insert(*o);
     }
-    SPATIAL_C_API void STDCALL SpatialUpdate(Spatial* spatial, int objectId, int x, int y)
+    SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y)
     {
         spatial->update(objectId, x, y);
     }
-    SPATIAL_C_API void STDCALL SpatialRemove(Spatial* spatial, int objectId)
+    SPATIAL_C_API void SPATIAL_CC SpatialRemove(Spatial* spatial, int objectId)
     {
         spatial->remove(objectId);
     }
 
-    SPATIAL_C_API void STDCALL SpatialCollideAll(Spatial* spatial, float timeStep, void* user, CollisionFunc onCollide)
+    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, float timeStep, void* user, CollisionFunc onCollide)
     {
         spatial->collideAll(timeStep, user, onCollide);
     }
-    SPATIAL_C_API int STDCALL SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt)
+    SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt)
     {
         return spatial->findNearby(outResults, *opt);
     }
-    SPATIAL_C_API void STDCALL SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis)
+    SPATIAL_C_API void SPATIAL_CC SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis)
     {
         struct CppToCBridge : Visualizer
         {
