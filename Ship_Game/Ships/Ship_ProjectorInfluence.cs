@@ -124,7 +124,7 @@ namespace Ship_Game.Ships
                     if (influence.Timer + InfluenceTimerBuffer > 0)
                     {
                         Relationship r = influence.Relationship;
-                        if (r != null && r.Treaty_Alliance || r.Treaty_Trade && IsFreighter)
+                        if (r?.Treaty_Alliance == true || r?.Treaty_Trade == true && IsFreighter)
                             return true;
                     }
                 }
