@@ -22,10 +22,10 @@ namespace spatial
      */
     struct VisualizerBridge
     {
-        void (*drawRect)  (Rect r,  Color c);
-        void (*drawCircle)(Circle ci, Color c);
-        void (*drawLine)  (Point a, Point b,  Color c);
-        void (*drawText)  (Point p, int size, const char* text, Color c);
+        void (STDCALL*drawRect)  (Rect r,  Color c);
+        void (STDCALL*drawCircle)(Circle ci, Color c);
+        void (STDCALL*drawLine)  (Point a, Point b,  Color c);
+        void (STDCALL*drawText)  (Point p, int size, const char* text, Color c);
     };
 
     /**

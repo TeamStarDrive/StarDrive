@@ -1,4 +1,5 @@
 #pragma once
+#include "Config.h"
 #include "SpatialObject.h"
 
 namespace spatial
@@ -8,7 +9,7 @@ namespace spatial
      * @return 0 Search filter failed and this object should be excluded
      * @return 1 Search filter Succeeded and object should be included
      */
-    using SearchFilterFunc = int (*)(int objectA);
+    using SearchFilterFunc = int (STDCALL*)(int objectA);
 
     // Sqrt(2.0), used for rectangular cell proximity approximation
     constexpr float Sqrt2 = 1.414214f;
@@ -47,6 +48,12 @@ namespace spatial
         /// Return 0: filter failed, object discarded
         /// Return 1: filter passed, object added to results
         SearchFilterFunc FilterFunction = nullptr;
+
+        /// <summary>
+        /// If set to nonzero, this search will be displayed
+        /// as an unique entry
+        /// </summary>
+        int EnableSearchDebugId = 0;
     };
 
     struct FoundNode
