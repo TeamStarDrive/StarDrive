@@ -42,11 +42,12 @@ TestImpl(TestGrid)
     TestCase(collision_perf)
     {
         SimParams p {};
+        p.numObjects = 100'000;
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::Grid, p);
 
         std::vector<int> results(1024, 0);
 
-        measureIterations("Grid::collideAll", 100, swo.objects.size(), [&]()
+        measureIterations("Grid::collideAll", 10, swo.objects.size(), [&]()
         {
             swo.spatial->collideAll(1.0f/60.0f, [](int objectA, int objectB) -> spatial::CollisionResult
             {

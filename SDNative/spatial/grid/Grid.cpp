@@ -94,14 +94,15 @@ namespace spatial
 
     void Grid::collideAll(float timeStep, void* user, CollisionFunc onCollide)
     {
+        Collider collider { *FrontAlloc, Objects.maxObjects() };
+
         GridCell* cells = Cells;
-        Collider collider;
         for (int i = 0; i < NodesCount; ++i)
         {
             const GridCell& cell = cells[i];
             if (int size = cell.size)
             {
-                collider.collideObjects(cell.objects, size, user, onCollide);
+                collider.collideObjects({cell.objects, size}, user, onCollide);
             }
         }
     }
@@ -288,7 +289,10 @@ namespace spatial
                     {
                         const SpatialObject& o = *items[i];
                         if (opt.objectBounds)
-                            visualizer.drawRect(o.rect(), VioletBright);
+                        {
+                            auto color = (o.loyalty % 2 == 0) ? VioletBright : Purple;
+                            visualizer.drawRect(o.rect(), color);
+                        }
                         if (opt.objectToLeafLines)
                             visualizer.drawLine(c, {o.x, o.y}, VioletDim);
                         if (opt.objectText)
