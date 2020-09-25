@@ -15,12 +15,13 @@ namespace Ship_Game.Ships
                         RemoveAtSwapLast(i);
             }
 
+            // Todo: Profile projectile update
             public void Update(FixedSimTime timeStep)
             {
                 for (int i = 0; i < Count; ++i)
                 {
                     Projectile p = Items[i];
-                    if (p.Active) p.Update(timeStep);
+                    if (p?.Active == true) p.Update(timeStep);
                 }
                 RemoveDeadProjectiles();
             }
@@ -58,7 +59,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Projectiles.Count; ++i)
             {
                 Projectile p = Projectiles[i];
-                if (p.Active) p.Draw(batch, screen);
+                if (p?.Active == true) p.Draw(batch, screen);
             }
         }
 
@@ -82,7 +83,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Projectiles.Count; ++i)
             {
                 Projectile p = Projectiles[i];
-                if (p != null && p.Active && p.Weapon?.IsRepairDrone != false)
+                if (p?.Active == true && p.Weapon?.IsRepairDrone != false)
                     p.DroneAI?.DrawBeams(screen);
             }
         }
@@ -92,7 +93,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < Beams.Count; ++i)
             {
                 Beam beam = Beams[i];
-                if (beam != null && beam.Active)
+                if (beam?.Active == true)
                     beam.Draw(screen);
             }
         }
