@@ -924,6 +924,9 @@ namespace Ship_Game
 
         public void QueueGameplayObjectRemoval(GameplayObject toRemove)
         {
+            // TODO: Investigate calling code that is not calling die first. 
+            // so that this active=false can be removed. 
+            toRemove.Active = false;
             if (!toRemove.QueuedForRemoval)
             {
                 toRemove.QueuedForRemoval = true;
