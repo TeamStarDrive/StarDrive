@@ -104,6 +104,7 @@ namespace Ship_Game
 
         public virtual void RemoveFromUniverseUnsafe()
         {
+            SetSystem(null);
             if (InSpatial)
             {
                 UniverseScreen.SpaceManager.Remove(this);
@@ -128,7 +129,7 @@ namespace Ship_Game
             if (System == system)
                 return;
 
-            if (this is Ship ship)
+            if (this is Ship ship && ship.ShipInitialized)
             {
                 System?.ShipList.RemoveSwapLast(ship);
                 system?.ShipList.AddUnique(ship);
@@ -147,11 +148,11 @@ namespace Ship_Game
 
             if ((Type & GameObjectType.Proj) != 0)
             {
-                ((Projectile)this).Loyalty = changeTo;
+                ((Projectile) this).Loyalty = changeTo;
             }
             else if ((Type & GameObjectType.Ship) != 0)
             {
-                var ship = (Ship)this;
+                var ship = (Ship) this;
                 Empire oldLoyalty = ship.loyalty;
                 oldLoyalty.TheyKilledOurShip(changeTo, ship);
                 changeTo.WeKilledTheirShip(oldLoyalty, ship);
