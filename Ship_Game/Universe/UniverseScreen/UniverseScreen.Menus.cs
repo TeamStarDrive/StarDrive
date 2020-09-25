@@ -103,6 +103,10 @@ namespace Ship_Game
                 GameAudio.AcceptClick();
                 DeepSpaceBuildWindow.InitializeAndShow();
             }
+            else
+            {
+                DeepSpaceBuildWindow.Hide();
+            }
         }
     }
 }
