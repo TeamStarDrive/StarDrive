@@ -41,4 +41,5 @@ namespace spatial
                 && top()  <= o.bottom() && bottom() > o.top();
         }
     };
+
 }

@@ -160,6 +160,7 @@
     <ClInclude Include="spatial\qtree\QtreeNode.h" />
     <ClInclude Include="spatial\SpatialDebug.h" />
     <ClInclude Include="spatial\SpatialObject.h" />
+    <ClInclude Include="spatial\SpatialObjectArray.h" />
     <ClInclude Include="spatial\Utilities.h" />
     <ClInclude Include="spatial\Visualizer.h" />
     <ClInclude Include="util\apex_memmove.h" />

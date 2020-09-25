@@ -157,9 +157,6 @@
     <ClCompile Include="spatial\Search.cpp">
       <Filter>spatial</Filter>
     </ClCompile>
-    <ClCompile Include="spatial\Collision.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="spatial\ObjectCollection.cpp">
       <Filter>spatial</Filter>
     </ClCompile>
@@ -167,6 +164,9 @@
       <Filter>spatial</Filter>
     </ClCompile>
     <ClCompile Include="spatial\SpatialDebug.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\Collision.cpp">
       <Filter>spatial</Filter>
     </ClCompile>
   </ItemGroup>
@@ -334,6 +334,9 @@
       <Filter>spatial</Filter>
     </ClInclude>
     <ClInclude Include="spatial\Primitives.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\SpatialObjectArray.h">
       <Filter>spatial</Filter>
     </ClInclude>
   </ItemGroup>

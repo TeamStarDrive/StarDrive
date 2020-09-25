@@ -1,7 +1,8 @@
 #pragma once
 #include "Config.h"
 #include "SpatialObject.h"
-#include <unordered_set>
+#include "SlabAllocator.h"
+#include "SpatialObjectArray.h"
 
 namespace spatial
 {
@@ -27,39 +28,70 @@ namespace spatial
      */
     using CollisionFunc = CollisionResult (SPATIAL_CC*)(void* user, int objectA, int objectB);
 
+    /**
+     *
+     */
+    struct CollisionRule
+    {
+        uint8_t typeA; // first type of the collision rule
+        uint8_t typeB; // second type of the collision rule
+        uint8_t ignoreSameLoyalty; // should two friendly objects ignore each other? 
+    };
+
+    /**
+     * Implements collision rule set to pre-filter objects
+     */
+    struct CollisionRuleSet
+    {
+        // 256 x 256 bit-matrix
+        uint32_t* CollisionMatrix;
+
+        CollisionRuleSet();
+        ~CollisionRuleSet();
+
+        // no copy, no move
+        CollisionRuleSet(const CollisionRuleSet&) = delete;
+        CollisionRuleSet(CollisionRuleSet&&) = delete;
+        CollisionRuleSet& operator=(const CollisionRuleSet&) = delete;
+        CollisionRuleSet& operator=(CollisionRuleSet&&) = delete;
+    };
 
     struct CollisionPair
     {
         int a, b;
-        CollisionPair(int objectA, int objectB)
-        {
-            if (objectA < objectB) // A is always the smaller id
-            {
-                a = objectA;
-                b = objectB;
-            }
-            else
-            {
-                a = objectB;
-                b = objectA;
-            }
-        }
-        bool operator==(CollisionPair o) const { return a == o.a && b == o.b; }
     };
 
-    struct CollisionPairHash
+    class Collider
     {
-        std::size_t operator()(const CollisionPair& p) const
+        SlabAllocator& Allocator;
+        int MaxObjectId; // for estimating bit-array size
+
+        // bit set to flag which object-id's have already collided
+        uint32_t* CollisionBits;
+
+        // Maps ObjectA ID to a chain of collided pairs
+        // @note The map of chains is faster than a map of arrays
+        //       and 20x faster than a simple array of collisions
+        struct CollisionChain
         {
-            return p.a + p.b*100'000;
-        }
-    };
+            int b; // object B
+            CollisionChain* next;
+        };
+        CollisionChain** CollidedObjectsMap;
 
-    struct Collider
-    {
-        std::unordered_set<CollisionPair, CollisionPairHash> collided;
+    public:
 
-        void collideObjects(SpatialObject** objects, int size, void* user, CollisionFunc onCollide);
+        explicit Collider(SlabAllocator& allocator, int maxObjectId);
+
+        /**
+         * @param arr Sorted array of spatial objects
+         * @param user User pointer for onCollide
+         * @param onCollide collision response callback
+         */
+        void collideObjects(SpatialObjectArray arr, void* user, CollisionFunc onCollide);
+
+    private:
+
         bool tryCollide(CollisionPair pair);
     };
 

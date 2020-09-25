@@ -42,6 +42,7 @@ TestImpl(QuadTree)
     TestCase(collision_perf)
     {
         SimParams p {};
+        p.numObjects = 100'000;
         SpatialWithObjects swo = createSpatialWithObjects(spatial::SpatialType::QuadTree, p);
 
         std::vector<int> results(1024, 0);
