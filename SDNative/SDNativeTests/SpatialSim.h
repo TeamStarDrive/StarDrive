@@ -53,6 +53,7 @@ struct Simulation final : spatial::Visualizer
 
         opt.SearchRadius = 0;
         opt.MaxResults = 2048;
+        opt.EnableSearchDebugId = 1;
         searchResults.resize(opt.MaxResults);
     }
 
@@ -261,15 +262,16 @@ struct Simulation final : spatial::Visualizer
         }
 
         const char* name = spat.name();
+        int n = spat.numActive();
         ImGui::Text("%s avg %.3f ms/frame (%.1f FPS)", name, 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Text("%s::nodeCapacity: %d", name, spat.nodeCapacity());
         ImGui::Text("%s::smallestCellSize: %d", name, spat.smallestCellSize());
         ImGui::Text("%s::memory:  %.1fKB", name, spat.totalMemory() / 1024.0f);
-        ImGui::Text("%s::rebuild(%d) elapsed: %.1fms", name, spat.count(), rebuildMs);
-        ImGui::Text("%s::collideAll(%d) elapsed: %.1fms  %d collisions", name, spat.count(), collideMs, numCollisions);
+        ImGui::Text("%s::rebuild(%d) elapsed: %.1fms", name, n, rebuildMs);
+        ImGui::Text("%s::collideAll(%d) elapsed: %.1fms  %d collisions", name, n, collideMs, numCollisions);
         ImGui::Text("%s::findNearby(radius=%d) elapsed: %.3fms  %d results", name, opt.SearchRadius, findNearbyMs, numSearchResults);
         ImGui::Text("%s::draw() elapsed: %.1fms", name, elapsedDrawMs);
-        ImGui::Text("%s::total(%d) elapsed: %.1fms", name, spat.count(), collideMs+rebuildMs+elapsedDrawMs);
+        ImGui::Text("%s::total(%d) elapsed: %.1fms", name, n, collideMs+rebuildMs+elapsedDrawMs);
     }
 
     void handleInput()

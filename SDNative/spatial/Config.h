@@ -8,6 +8,10 @@
 #define SPATIAL_C_API extern "C" __declspec(dllexport)
 #endif
 
+#ifndef STDCALL
+#define STDCALL __stdcall
+#endif
+
 //// @note Some strong hints that some functions are merely wrappers, so should be forced inline
 #ifndef SPATIAL_FINLINE
 #  ifdef _MSC_VER

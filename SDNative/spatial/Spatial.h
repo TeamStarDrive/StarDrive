@@ -61,12 +61,17 @@ namespace spatial
         virtual int worldSize() const = 0;
 
         /**
-         * @return Total number of objects in this Spatial collection
+         * @return Total number of Active objects in this Spatial collection
+         * @warning Spatial Id-s are mapped by a FlatMap,
+         *          so MaxId will not match NumActive
+         *          Ex: There are 1000 reserved Id-s, but only 100 active objects
          */
-        virtual int count() const = 0;
+        virtual int numActive() const = 0;
 
         /**
          * @return Gets the SpatialObject by its ObjectId
+         * @warning These Id-s map to a FlatMap,
+         *          so some entries in the middle of the FlatMap can be inactive 
          */
         virtual const SpatialObject& get(int objectId) const = 0;
         
@@ -176,24 +181,24 @@ namespace spatial
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    SPATIAL_C_API Spatial* SpatialCreate(SpatialType type, int universeSize, int cellSize);
-    SPATIAL_C_API void SpatialDestroy(Spatial* spatial);
+    SPATIAL_C_API Spatial* STDCALL SpatialCreate(SpatialType type, int universeSize, int cellSize);
+    SPATIAL_C_API void STDCALL SpatialDestroy(Spatial* spatial);
 
-    SPATIAL_C_API SpatialType SpatialGetType(Spatial* spatial);
-    SPATIAL_C_API int SpatialWorldSize(Spatial* spatial);
-    SPATIAL_C_API int SpatialFullSize(Spatial* spatial);
-    SPATIAL_C_API int SpatialCount(Spatial* spatial);
+    SPATIAL_C_API SpatialType STDCALL SpatialGetType(Spatial* spatial);
+    SPATIAL_C_API int STDCALL SpatialWorldSize(Spatial* spatial);
+    SPATIAL_C_API int STDCALL SpatialFullSize(Spatial* spatial);
+    SPATIAL_C_API int STDCALL SpatialNumActive(Spatial* spatial);
 
-    SPATIAL_C_API void SpatialClear(Spatial* spatial);
-    SPATIAL_C_API void SpatialRebuild(Spatial* spatial);
+    SPATIAL_C_API void STDCALL SpatialClear(Spatial* spatial);
+    SPATIAL_C_API void STDCALL SpatialRebuild(Spatial* spatial);
 
-    SPATIAL_C_API int  SpatialInsert(Spatial* spatial, const SpatialObject* o);
-    SPATIAL_C_API void SpatialUpdate(Spatial* spatial, int objectId, int x, int y);
-    SPATIAL_C_API void SpatialRemove(Spatial* spatial, int objectId);
+    SPATIAL_C_API int STDCALL  SpatialInsert(Spatial* spatial, const SpatialObject* o);
+    SPATIAL_C_API void STDCALL SpatialUpdate(Spatial* spatial, int objectId, int x, int y);
+    SPATIAL_C_API void STDCALL SpatialRemove(Spatial* spatial, int objectId);
 
-    SPATIAL_C_API void SpatialCollideAll(Spatial* spatial, float timeStep, void* user, CollisionFunc onCollide);
-    SPATIAL_C_API int SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt);
-    SPATIAL_C_API void SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis);
+    SPATIAL_C_API void STDCALL SpatialCollideAll(Spatial* spatial, float timeStep, void* user, CollisionFunc onCollide);
+    SPATIAL_C_API int STDCALL SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt);
+    SPATIAL_C_API void STDCALL SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 }
