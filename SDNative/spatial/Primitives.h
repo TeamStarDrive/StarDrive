@@ -43,6 +43,8 @@ namespace spatial
         int width()  const { return (right - left); }
         int height() const { return (bottom - top); }
 
+        bool empty() const { return left == right; }
+
         SPATIAL_FINLINE static Rect fromPointRadius(int x, int y, int r)
         {
             return Rect{x-r, y-r, x+r, y+r};

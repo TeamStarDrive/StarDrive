@@ -49,6 +49,7 @@ namespace spatial
     {
         Objects.clear();
         Root = createRoot();
+        Dbg.clear();
     }
 
     void Qtree::rebuild()
@@ -225,7 +226,6 @@ namespace spatial
         int oy = opt.OriginY;
         int orx = opt.SearchRadius;
         int ory = opt.SearchRadius;
-        Rect oRect = Rect::fromPointRadius(ox, oy, orx);
         do
         {
             const QtreeNode& current = *stack.pop_back();
@@ -245,13 +245,14 @@ namespace spatial
             }
         } while (stack.next >= 0 && found.count != found.MAX);
 
-        if (Dbg.FindEnabled)
+        if (opt.EnableSearchDebugId)
         {
-            Dbg.FindCircle = { ox, oy, orx };
-            Dbg.FindRect = Rect::fromPointRadius(ox, oy, orx);
-            Dbg.setFindCells(found);
+            DebugFindNearby dfn;
+            dfn.Circle = { ox, oy, orx };
+            dfn.Rectangle = Rect::fromPointRadius(ox, oy, orx);
+            dfn.addCells(found);
+            Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
         }
-
 
         return spatial::findNearby(outResults, opt, found);
     }
@@ -308,7 +309,9 @@ namespace spatial
             }
         } while (stack.next >= 0);
 
-        if (Dbg.setIsFindEnabled(opt.searchDebug))
+        if (opt.searchDebug)
+        {
             Dbg.draw(visualizer);
+        }
     }
 }

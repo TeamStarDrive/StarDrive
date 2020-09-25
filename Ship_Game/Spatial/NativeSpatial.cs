@@ -16,33 +16,22 @@ namespace Ship_Game.Spatial
     public sealed unsafe class NativeSpatial : ISpatial, IDisposable
     {
         const string Lib = "SDNative.dll";
-        const CallingConvention CC = CallingConvention.Cdecl;
+        const CallingConvention CC = CallingConvention.StdCall;
 
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern IntPtr SpatialCreate(SpatialType type, int worldSize, int cellSize);
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern void SpatialDestroy(IntPtr spatial);
+        [DllImport(Lib)] static extern IntPtr SpatialCreate(SpatialType type, int worldSize, int cellSize);
+        [DllImport(Lib)] static extern void SpatialDestroy(IntPtr spatial);
         
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern SpatialType SpatialGetType(IntPtr spatial);
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern int SpatialWorldSize(IntPtr spatial);
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern int SpatialFullSize(IntPtr spatial);
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern int SpatialCount(IntPtr spatial);
+        [DllImport(Lib)] static extern SpatialType SpatialGetType(IntPtr spatial);
+        [DllImport(Lib)] static extern int SpatialWorldSize(IntPtr spatial);
+        [DllImport(Lib)] static extern int SpatialFullSize(IntPtr spatial);
+        [DllImport(Lib)] static extern int SpatialNumActive(IntPtr spatial);
         
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern void SpatialClear(IntPtr spatial);
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern void SpatialRebuild(IntPtr spatial);
+        [DllImport(Lib)] static extern void SpatialClear(IntPtr spatial);
+        [DllImport(Lib)] static extern void SpatialRebuild(IntPtr spatial);
 
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern int SpatialInsert(IntPtr spatial, ref NativeSpatialObject o);
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern void SpatialUpdate(IntPtr spatial, int objectId, int x, int y);
-        [DllImport(Lib, CallingConvention=CC)]
-        static extern void SpatialRemove(IntPtr spatial, int objectId);
+        [DllImport(Lib)] static extern int SpatialInsert(IntPtr spatial, ref NativeSpatialObject o);
+        [DllImport(Lib)] static extern void SpatialUpdate(IntPtr spatial, int objectId, int x, int y);
+        [DllImport(Lib)] static extern void SpatialRemove(IntPtr spatial, int objectId);
         
         enum CollisionResult : int
         {
@@ -55,10 +44,10 @@ namespace Ship_Game.Spatial
         [UnmanagedFunctionPointer(CC)]
         delegate CollisionResult CollisionF(IntPtr voidPtr, int objectA, int objectB);
         
-        [DllImport(Lib, CallingConvention=CC)]
+        [DllImport(Lib)]
         static extern void SpatialCollideAll(IntPtr spatial, float timeStep, IntPtr voidPtr, CollisionF onCollide);
         
-        [DllImport(Lib, CallingConvention=CC)]
+        [DllImport(Lib)]
         static extern int SpatialFindNearby(IntPtr spatial, int* outResults, ref NativeSearchOptions opt);
 
         IntPtr Spat;
@@ -67,7 +56,7 @@ namespace Ship_Game.Spatial
         public SpatialType Type => SpatialGetType(Spat);
         public float UniverseSize => SpatialWorldSize(Spat);
         public float FullSize => SpatialFullSize(Spat);
-        public int Count => SpatialCount(Spat);
+        public int Count => SpatialNumActive(Spat);
 
         /// <param name="type">What type of spatial structure to create</param>
         /// <param name="worldSize">Width and Height of the game world</param>
@@ -210,6 +199,7 @@ namespace Ship_Game.Spatial
             public int FilterExcludeByLoyalty;
             public int FilterIncludeOnlyByLoyalty;
             public SearchFilter FilterFunction;
+            public int EnableSearchDebugId;
         };
 
         public GameplayObject[] FindNearby(GameObjectType type,
@@ -233,7 +223,9 @@ namespace Ship_Game.Spatial
                 FilterByType = (int)type,
                 FilterExcludeObjectId = ignoreId,
                 FilterExcludeByLoyalty = excludeLoyalty?.Id ?? 0,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty?.Id ?? 0
+                FilterIncludeOnlyByLoyalty = onlyLoyalty?.Id ?? 0,
+                FilterFunction = null,
+                EnableSearchDebugId = 0,
             };
 
             int* objectIds = stackalloc int[maxResults];
@@ -332,7 +324,7 @@ namespace Ship_Game.Spatial
             public byte searchDebug;
         }
 
-        [DllImport(Lib, CallingConvention=CC)]
+        [DllImport(Lib)]
         static extern void SpatialDebugVisualize(IntPtr spatial, ref QtreeVisualizerOptions opt, ref QtreeVisualizerBridge vis);
         
         static GameScreen Screen;

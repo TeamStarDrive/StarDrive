@@ -46,7 +46,7 @@ namespace spatial
         uint32_t totalMemory() const override;
         int fullSize() const override { return FullSize; }
         int worldSize() const override { return WorldSize; }
-        int count() const override { return Objects.count(); }
+        int numActive() const override { return Objects.numActive(); }
         const SpatialObject& get(int objectId) const override { return Objects.get(objectId); }
         
         int nodeCapacity() const override { return PendingSplitThreshold; }

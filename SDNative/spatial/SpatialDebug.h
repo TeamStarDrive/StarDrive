@@ -1,6 +1,8 @@
 #pragma once
 #include "Primitives.h"
 #include <vector>
+#include <unordered_map>
+#include <mutex>
 
 namespace spatial
 {
@@ -14,24 +16,28 @@ namespace spatial
     static const Color Yellow = { 255, 255,  0, 200 };
     static const Color Red    = { 255, 80, 80, 200 };
 
-    struct SpatialDebug
+    struct DebugFindNearby
     {
-        bool FindEnabled = false;
-        Circle FindCircle = Circle::Zero();
-        Rect FindRect     = Rect::Zero();
-        Rect FindTopLeft  = Rect::Zero();
-        Rect FindBotRight = Rect::Zero();
+        Circle Circle = Circle::Zero();
+        Rect Rectangle = Rect::Zero();
+        Rect TopLeft  = Rect::Zero();
+        Rect BotRight = Rect::Zero();
         std::vector<Rect> FindCells;
 
-        void setFindCells(const FoundNodes& found);
-        void draw(Visualizer& visualizer);
+        void addCells(const FoundNodes& found);
+        void draw(Visualizer& visualizer) const;
+    };
 
-        // if FindDebug is not yet enabled, toggle it,
-        // so the next search will record the info
-        bool setIsFindEnabled(bool findEnabled)
-        {
-            return FindEnabled = findEnabled;
-        }
+    struct SpatialDebug
+    {
+        // For our use case, findNearby can be called from another thread
+        // so this mutable debug data must be lock guarded
+        mutable std::mutex FindMutex;
+        std::unordered_map<int, DebugFindNearby> FindNearby;
+
+        void clear();
+        void setFindNearby(int id, DebugFindNearby&& find);
+        void draw(Visualizer& visualizer) const;
     };
 
 }

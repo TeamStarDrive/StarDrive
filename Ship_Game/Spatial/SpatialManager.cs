@@ -1,28 +1,31 @@
 using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 
 namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager
     {
-        ISpatial QuadTree;
+        ISpatial Spatial;
 
         public void Setup(float universeRadius)
         {
             float universeWidth = universeRadius * 2f;
-            QuadTree = new Quadtree(universeWidth);
-            Log.Info($"SpatialManager Width: {(int)universeWidth}  QTSize: {(int)QuadTree.FullSize}");
+            //Spatial = new Quadtree(universeWidth, smallestCell: 512);
+            Spatial = new NativeSpatial(SpatialType.Grid, (int)universeWidth, 20_000);
+
+            Log.Info($"SpatialManager Width: {(int)universeWidth}  QTSize: {(int)Spatial.FullSize}");
         }
 
         public void Destroy()
         {
-            QuadTree = null;
+            Spatial = null;
         }
 
         public void DebugVisualize(UniverseScreen screen)
         {
-            QuadTree.DebugVisualize(screen);
+            Spatial.DebugVisualize(screen);
         }
 
         static bool IsSpatialType(GameplayObject obj)
@@ -32,21 +35,21 @@ namespace Ship_Game.Gameplay
         
         public void Add(GameplayObject obj)
         {
-            if (!IsSpatialType(obj) || QuadTree == null)
+            if (!IsSpatialType(obj) || Spatial == null)
                 return; // not a supported spatial manager type. just ignore it
 
-            QuadTree.Insert(obj);
+            Spatial.Insert(obj);
         }
 
         public void Remove(GameplayObject obj)
         {
-            QuadTree.Remove(obj);
+            Spatial.Remove(obj);
         }
 
         public void Update(FixedSimTime timeStep)
         {
-            QuadTree.UpdateAll();
-            QuadTree.CollideAll(timeStep);
+            Spatial.UpdateAll();
+            Spatial.CollideAll(timeStep);
         }
 
         public GameplayObject[] FindNearby(GameObjectType type, GameplayObject obj, float radius,
@@ -54,7 +57,7 @@ namespace Ship_Game.Gameplay
                                            Empire excludeLoyalty = null,
                                            Empire onlyLoyalty = null)
         {
-            return QuadTree.FindNearby(type, obj.Center, radius, maxResults,
+            return Spatial.FindNearby(type, obj.Center, radius, maxResults,
                                        toIgnore:obj, excludeLoyalty, onlyLoyalty);
         }
 
@@ -63,7 +66,7 @@ namespace Ship_Game.Gameplay
                                            Empire excludeLoyalty = null,
                                            Empire onlyLoyalty = null)
         {
-            return QuadTree.FindNearby(type, worldPos, radius, maxResults,
+            return Spatial.FindNearby(type, worldPos, radius, maxResults,
                                        toIgnore:null, excludeLoyalty, onlyLoyalty);
         }
 

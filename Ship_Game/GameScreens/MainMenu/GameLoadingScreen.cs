@@ -133,8 +133,8 @@ namespace Ship_Game
                 ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod);
                 Log.Write($"Finished loading 'Root' Assets {GameBase.GameContent.GetLoadedAssetMegabytes():0.0}MB");
 
-                QuadtreePerfTests.RunCollisionPerfTest();
-                StarDriveGame.Instance.Exit();
+                //QuadtreePerfTests.RunCollisionPerfTest();
+                //StarDriveGame.Instance.Exit();
             }
             catch (Exception ex)
             {

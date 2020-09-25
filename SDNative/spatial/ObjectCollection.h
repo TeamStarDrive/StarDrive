@@ -18,7 +18,8 @@ namespace spatial
         // Deleted objects are marked in a free-list so that ID-s can be reused
         // ObjectId will map directly as an Index to this array
         std::vector<SpatialObject> Objects;
-        uint32_t NumObjects = 0;
+        uint32_t MaxObjects = 0;
+        uint32_t NumActive = 0;
         std::vector<int> FreeIds;
 
     public:
@@ -32,11 +33,26 @@ namespace spatial
         void clear();
         
         /**
-         * Total number of Objects
-         * Some of these may be inactive
-         * Pending not included
+         * Maximum number of Objects.
+         * Some of these can be inactive as they are removed.
+         * Pending not included.
          */
-        int count() const { return Objects.size(); }
+        int maxObjects() const { return MaxObjects; }
+
+        /**
+         * Current number of active objects
+         */
+        int numActive() const { return NumActive; }
+
+        /**
+         * Number of objects that are pending insertion
+         */
+        int numPending() const { return PendingInsert.size(); }
+
+        /**
+         * Number of Free ID-s that will be reused during next inserts
+         */
+        int numFreeIds() const { return FreeIds.size(); }
 
         /** Total bytes used */
         uint32_t totalMemory() const;

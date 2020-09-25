@@ -43,6 +43,7 @@ namespace spatial
     {
         Objects.clear();
         memset(Cells, 0, NodesCount * sizeof(GridCell));
+        Dbg.clear();
     }
 
     void Grid::rebuild()
@@ -53,7 +54,7 @@ namespace spatial
         std::swap(FrontAlloc, BackAlloc);
         SlabAllocator& front = *FrontAlloc;
         front.reset();
-
+        
         Objects.submitPending();
 
         GridCell* cells = front.allocArrayZeroed<GridCell>(NodesCount);
@@ -220,13 +221,15 @@ namespace spatial
             }
         }
 
-        if (Dbg.FindEnabled)
+        if (opt.EnableSearchDebugId)
         {
-            Dbg.FindCircle = { opt.OriginX, opt.OriginY, opt.SearchRadius };
-            Dbg.FindRect     = toWorldRect(x1, y1, x2, y2, half, cellSize);
-            Dbg.FindTopLeft  = toWorldRect(x1, y1, half, cellSize);
-            Dbg.FindBotRight = toWorldRect(x2, y2, half, cellSize);
-            Dbg.setFindCells(found);
+            DebugFindNearby dfn;
+            dfn.Circle = { opt.OriginX, opt.OriginY, opt.SearchRadius };
+            dfn.Rectangle = toWorldRect(x1, y1, x2, y2, half, cellSize);
+            dfn.TopLeft  = toWorldRect(x1, y1, half, cellSize);
+            dfn.BotRight = toWorldRect(x2, y2, half, cellSize);
+            dfn.addCells(found);
+            Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
         }
 
         return spatial::findNearby(outResults, opt, found);
@@ -298,8 +301,10 @@ namespace spatial
             }
         }
 
-        if (Dbg.setIsFindEnabled(opt.searchDebug))
+        if (opt.searchDebug)
+        {
             Dbg.draw(visualizer);
+        }
     }
 
 

@@ -4,9 +4,8 @@
 
 namespace spatial
 {
-    void SpatialDebug::setFindCells(const FoundNodes& found)
+    void DebugFindNearby::addCells(const FoundNodes& found)
     {
-        FindCells.clear();
         for (int i = 0; i < found.count; ++i)
         {
             const FoundNode& node = found.nodes[i];
@@ -14,24 +13,44 @@ namespace spatial
         }
     }
 
-    void SpatialDebug::draw(Visualizer& visualizer)
+    void DebugFindNearby::draw(Visualizer& visualizer) const
     {
-        if (FindCircle.radius != 0)
-            visualizer.drawCircle(FindCircle, Yellow);
+        if (Circle.radius != 0)
+            visualizer.drawCircle(Circle, Yellow);
 
-        if (FindRect.width() != 0)
-            visualizer.drawRect(FindRect, Yellow);
+        if (!Rectangle.empty())
+            visualizer.drawRect(Rectangle, Yellow);
 
-        if (FindTopLeft.width() != 0)
-            visualizer.drawRect(FindTopLeft, Red);
+        if (!TopLeft.empty())
+            visualizer.drawRect(TopLeft, Red);
 
-        if (FindBotRight.width() != 0)
-            visualizer.drawRect(FindBotRight, Red);
+        if (!BotRight.empty())
+            visualizer.drawRect(BotRight, Red);
 
-        if (!FindCells.empty())
+        for (const Rect& findCell : FindCells)
+            visualizer.drawRect(findCell, Blue);
+    }
+
+    void SpatialDebug::clear()
+    {
+        std::lock_guard lock { FindMutex };
+        FindNearby.clear();
+    }
+
+    void SpatialDebug::setFindNearby(int id, DebugFindNearby&& find)
+    {
+        std::lock_guard lock { FindMutex };
+
+        FindNearby[id] = std::move(find);
+    }
+
+    void SpatialDebug::draw(Visualizer& visualizer) const
+    {
+        std::lock_guard lock { FindMutex };
+
+        for (auto& [id, find] : FindNearby)
         {
-            for (size_t i = 0; i < FindCells.size(); ++i)
-                visualizer.drawRect(FindCells[i], Blue);
+            find.draw(visualizer);
         }
     }
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "Config.h"
 #include "SpatialObject.h"
 #include <unordered_set>
 
@@ -24,7 +25,7 @@ namespace spatial
      * @param objectA ID of the second object colliding
      * @return CollisionResult Result of the collision
      */
-    using CollisionFunc = CollisionResult (*)(void* user, int objectA, int objectB);
+    using CollisionFunc = CollisionResult (STDCALL*)(void* user, int objectA, int objectB);
 
 
     struct CollisionPair

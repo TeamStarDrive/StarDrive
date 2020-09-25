@@ -10,7 +10,7 @@ namespace spatial
     {
         PendingInsert.clear();
         Objects.clear();
-        NumObjects = 0;
+        MaxObjects = 0;
         FreeIds.clear();
     }
 
@@ -44,10 +44,12 @@ namespace spatial
         }
         else
         {
-            objectId = NumObjects++;
+            objectId = MaxObjects++;
         }
 
         SpatialObject& pending = PendingInsert.emplace_back(object);
+        // it MUST be active if it was inserted, we need this to be set 1
+        pending.active = 1;
         pending.update = 1;
         pending.objectId = objectId;
         return objectId;
@@ -63,6 +65,7 @@ namespace spatial
                 o.active = 0;
                 o.update = 1;
                 FreeIds.push_back(objectId);
+                --NumActive;
             }
         }
         else
@@ -98,14 +101,15 @@ namespace spatial
     {
         if (!PendingInsert.empty())
         {
-            if (Objects.size() < NumObjects)
-                Objects.resize(NumObjects);
+            if (Objects.size() < MaxObjects)
+                Objects.resize(MaxObjects);
 
             while (!PendingInsert.empty())
             {
                 SpatialObject& pending = PendingInsert.back();
                 Objects[pending.objectId] = pending;
                 PendingInsert.pop_back();
+                ++NumActive;
             }
             PendingInsert.clear();
         }
