@@ -37,7 +37,7 @@ namespace Ship_Game
 
         Array<QtreeNode> DeepestNodesFirstTraversal;
 
-        public float UniverseSize { get; }
+        public float WorldSize { get; }
         public int Count => Pending.Count + Objects.Count;
 
         /// <summary>
@@ -45,13 +45,15 @@ namespace Ship_Game
         /// </summary>
         int NumActiveNodes;
 
+        public string Name => "C#-Qtree";
+
         ///////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////
 
         // Create a quadtree to fit the universe
         public Quadtree(float universeSize, float smallestCell = 512f)
         {
-            UniverseSize = universeSize;
+            WorldSize = universeSize;
             Levels = 1;
             FullSize = smallestCell;
             while (FullSize < universeSize)
@@ -334,6 +336,20 @@ namespace Ship_Game
                 --level;
             }
             return node;
+        }
+
+        public void CopyTo(ISpatial target)
+        {
+            for (int i = 0; i < Objects.Count; ++i)
+            {
+                GameplayObject go = Objects[i];
+                if (go != null)
+                    target.Insert(go);
+            }
+            for (int i = 0; i < Pending.Count; ++i)
+            {
+                target.Insert(Pending[i]);
+            }
         }
     }
 }
