@@ -55,13 +55,12 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            float xpTrigger   = ShipRole.GetMaxExpValue() * (EmpireManager.MajorEmpires.Length-1);
-            float stepTrigger = ShipRole.GetMaxExpValue() * StoryStep;
-            if (StoryTriggerKillsXp >= xpTrigger && !Activated)
+            if (!Activated && StoryTriggerKillsXp >= 50)
                 Activate();
 
             if (empire.isPlayer)
             {
+                float stepTrigger = ShipRole.GetMaxExpValue() * (StoryStep / 2f).LowerBound(1);
                 PlayerStepTriggerXp += xp;
                 if (PlayerStepTriggerXp > stepTrigger) // todo 0 is for testing
                 {
@@ -73,9 +72,9 @@ namespace Ship_Game
                 }
             }
 
-            /*
+
             if (!Activated) // todo for testing
-                Activate();*/
+                Activate();
         }
 
         void Activate()
@@ -185,6 +184,9 @@ namespace Ship_Game
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
         {
             ship = null;
+            if (portal.System == null)
+                return false;
+
             var availableShips = portal.System.ShipList.Filter(s => s.fleet == null 
                                                                     && s.loyalty == Owner 
                                                                     && s.IsGuardian
@@ -231,6 +233,9 @@ namespace Ship_Game
 
         public void OrderEscortPortal(Ship portal)
         {
+            if (portal.System == null)
+                return;
+
             for (int i = 0; i < portal.System.ShipList.Count; i++)
             {
                 Ship ship = portal.System.ShipList[i];
