@@ -1,4 +1,5 @@
 #pragma once
+#include "Config.h"
 #include "SlabAllocator.h"
 #include "SpatialObject.h"
 
@@ -8,16 +9,22 @@ namespace spatial
     {
         SpatialObject** objects;
         int size;
+    };
 
-        // fast adding of an object
-        SPATIAL_FINLINE void addObject(SlabAllocator& allocator,
-                                       SpatialObject* item, int defaultCapacity)
+    struct SpatialIdArray
+    {
+        int* ids = nullptr;
+        int size = 0;
+        int capacity = 0;
+
+        SPATIAL_FINLINE void addId(SlabAllocator& allocator, int id, int defaultCapacity)
         {
-            if (size == 0)
+            if (size == capacity)
             {
-                objects = allocator.allocArray<SpatialObject*>(defaultCapacity);
+                capacity = (capacity == 0) ? defaultCapacity : capacity*2;
+                ids = allocator.allocArray(ids, size, capacity);
             }
-            objects[size++] = item;
+            ids[size++] = id;
         }
     };
 }

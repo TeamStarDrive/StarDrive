@@ -43,12 +43,8 @@ namespace Ship_Game.Spatial
 
         [UnmanagedFunctionPointer(CC)]
         delegate CollisionResult CollisionF(IntPtr voidPtr, int objectA, int objectB);
-        
-        [DllImport(Lib)]
-        static extern void SpatialCollideAll(IntPtr spatial, float timeStep, IntPtr voidPtr, CollisionF onCollide);
-        
-        [DllImport(Lib)]
-        static extern int SpatialFindNearby(IntPtr spatial, int* outResults, ref NativeSearchOptions opt);
+        [DllImport(Lib)] static extern void SpatialCollideAll(IntPtr spatial, ref CollisionParams param);
+        [DllImport(Lib)] static extern int SpatialFindNearby(IntPtr spatial, int* outResults, ref NativeSearchOptions opt);
 
         IntPtr Spat;
         readonly Array<GameplayObject> ObjectFlatMap = new Array<GameplayObject>(capacity:512);
@@ -145,15 +141,35 @@ namespace Ship_Game.Spatial
 
             return CollisionResult.NoSideEffects;
         }
+        
+        [StructLayout(LayoutKind.Sequential)]
+        struct CollisionParams
+        {
+            IntPtr User;
+            public CollisionF OnCollide;
+            public byte IgnoreSameLoyalty; // if 1, same loyalty objects don't collide
+            public byte ShowCollisions; // if 1, collisions are shown as debug
+        }
 
         public void CollideAll(FixedSimTime timeStep)
         {
-            SpatialCollideAll(Spat, timeStep.FixedTime, IntPtr.Zero, OnCollision);
+            var p = new CollisionParams
+            {
+                OnCollide = OnCollision,
+                IgnoreSameLoyalty = 1,
+            };
+            SpatialCollideAll(Spat, ref p);
         }
 
         public void CollideAllRecursive(FixedSimTime timeStep)
         {
-            SpatialCollideAll(Spat, timeStep.FixedTime, IntPtr.Zero, OnCollision);
+            var p = new CollisionParams
+            {
+                OnCollide = OnCollision,
+                IgnoreSameLoyalty = 0,
+                ShowCollisions = (byte)(Empire.Universe?.Debug == true ? 1 : 0),
+            };
+            SpatialCollideAll(Spat, ref p);
         }
 
         GameplayObject[] CopyOutput(int* objectIds, int count)

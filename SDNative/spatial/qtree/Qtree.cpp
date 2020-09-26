@@ -194,8 +194,9 @@ namespace spatial
         SPATIAL_FINLINE T pop_back() { return items[next--]; }
     };
 
-    void Qtree::collideAll(float timeStep, void* user, CollisionFunc onCollide)
+    int Qtree::collideAll(const CollisionParams& params)
     {
+        int count = 0;
         Collider collider { *FrontAlloc, Objects.maxObjects() };
 
         SmallStack<QtreeNode*> stack { Root };
@@ -212,10 +213,19 @@ namespace spatial
             else
             {
                 if (int size = current.size)
-                    collider.collideObjects({current.objects, size}, user, onCollide);
+                {
+                    count += collider.collideObjects({current.objects, size}, params);
+                }
             }
         }
         while (stack.next >= 0);
+
+        if (params.showCollisions)
+        {
+            Dbg.setCollisions(collider.Collisions.ids, collider.Collisions.size);
+        }
+
+        return count;
     }
 
     #pragma warning( disable : 6262 )
@@ -246,16 +256,18 @@ namespace spatial
             }
         } while (stack.next >= 0 && found.count != found.MAX);
 
+        int numResults = spatial::findNearby(outResults, opt, found);
+
         if (opt.EnableSearchDebugId)
         {
             DebugFindNearby dfn;
             dfn.Circle = { ox, oy, orx };
             dfn.Rectangle = Rect::fromPointRadius(ox, oy, orx);
             dfn.addCells(found);
+            dfn.addResults(outResults, numResults);
             Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
         }
-
-        return spatial::findNearby(outResults, opt, found);
+        return numResults;
     }
 
     void Qtree::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const
@@ -316,7 +328,7 @@ namespace spatial
 
         if (opt.searchDebug)
         {
-            Dbg.draw(visualizer);
+            Dbg.draw(visualizer, opt, Objects.data());
         }
     }
 }

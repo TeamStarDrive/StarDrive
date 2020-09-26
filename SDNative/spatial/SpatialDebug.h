@@ -6,7 +6,9 @@
 
 namespace spatial
 {
+    struct SpatialObject;
     struct Visualizer;
+    struct VisualizerOptions;
     struct FoundNodes;
 
     static const Color Brown  = { 139, 69,  19, 150 };
@@ -17,6 +19,8 @@ namespace spatial
     static const Color Blue   = { 95, 158, 160, 200 };
     static const Color Yellow = { 255, 255,  0, 200 };
     static const Color Red    = { 255, 80, 80, 200 };
+    static const Color YellowBright = { 255, 255, 0, 255 };
+    static const Color Cyan   = {   0, 255, 255, 255 };
 
     struct DebugFindNearby
     {
@@ -25,9 +29,12 @@ namespace spatial
         Rect TopLeft  = Rect::Zero();
         Rect BotRight = Rect::Zero();
         std::vector<Rect> FindCells;
+        std::vector<int> SearchResults;
 
         void addCells(const FoundNodes& found);
-        void draw(Visualizer& visualizer) const;
+        void addResults(const int* results, int numResults);
+        void draw(Visualizer& visualizer, const VisualizerOptions& opt,
+                  const SpatialObject* objects) const;
     };
 
     struct SpatialDebug
@@ -36,10 +43,13 @@ namespace spatial
         // so this mutable debug data must be lock guarded
         mutable std::mutex FindMutex;
         std::unordered_map<int, DebugFindNearby> FindNearby;
+        std::vector<int> Collisions;
 
         void clear();
         void setFindNearby(int id, DebugFindNearby&& find);
-        void draw(Visualizer& visualizer) const;
+        void setCollisions(const int* collisions, int numCollisions);
+        void draw(Visualizer& visualizer, const VisualizerOptions& opt,
+                  const SpatialObject* objects) const;
     };
 
 }

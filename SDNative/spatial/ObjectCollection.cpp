@@ -25,7 +25,7 @@ namespace spatial
 
     const SpatialObject& ObjectCollection::get(int objectId) const
     {
-        if (objectId < (int)Objects.size())
+        if ((size_t)objectId < Objects.size())
         {
             return Objects.data()[objectId];
         }
@@ -51,7 +51,6 @@ namespace spatial
         SpatialObject& pending = PendingInsert.emplace_back(object);
         // it MUST be active if it was inserted, we need this to be set 1
         pending.active = 1;
-        pending.update = 1;
         pending.objectId = objectId;
         return objectId;
     }
@@ -64,7 +63,6 @@ namespace spatial
             if (o.active)
             {
                 o.active = 0;
-                o.update = 1;
                 FreeIds.push_back(objectId);
                 --NumActive;
             }
@@ -93,7 +91,6 @@ namespace spatial
             {
                 o.x = x;
                 o.y = y;
-                o.update = 1;
             }
         }
     }

@@ -29,31 +29,16 @@ namespace spatial
     using CollisionFunc = CollisionResult (SPATIAL_CC*)(void* user, int objectA, int objectB);
 
     /**
-     *
+     * Collision mask which matches all object types
      */
-    struct CollisionRule
+    constexpr uint8_t CollisionMaskAll = 0xff;
+
+    struct CollisionParams
     {
-        uint8_t typeA; // first type of the collision rule
-        uint8_t typeB; // second type of the collision rule
-        uint8_t ignoreSameLoyalty; // should two friendly objects ignore each other? 
-    };
-
-    /**
-     * Implements collision rule set to pre-filter objects
-     */
-    struct CollisionRuleSet
-    {
-        // 256 x 256 bit-matrix
-        uint32_t* CollisionMatrix;
-
-        CollisionRuleSet();
-        ~CollisionRuleSet();
-
-        // no copy, no move
-        CollisionRuleSet(const CollisionRuleSet&) = delete;
-        CollisionRuleSet(CollisionRuleSet&&) = delete;
-        CollisionRuleSet& operator=(const CollisionRuleSet&) = delete;
-        CollisionRuleSet& operator=(CollisionRuleSet&&) = delete;
+        void* user = nullptr; // user pointer passed to onCollide
+        CollisionFunc onCollide = nullptr; // collide reaction callback
+        bool ignoreSameLoyalty = false; // if TRUE, ignore objects of same loyalty
+        bool showCollisions = false; // if TRUE, collided objects are saved for debug
     };
 
     struct CollisionPair
@@ -80,15 +65,15 @@ namespace spatial
         CollisionChain** CollidedObjectsMap;
 
     public:
+        SpatialIdArray Collisions;
 
         explicit Collider(SlabAllocator& allocator, int maxObjectId);
 
         /**
          * @param arr Sorted array of spatial objects
-         * @param user User pointer for onCollide
-         * @param onCollide collision response callback
+         * @param params Collision parameters
          */
-        void collideObjects(SpatialObjectArray arr, void* user, CollisionFunc onCollide);
+        int collideObjects(SpatialObjectArray arr, const CollisionParams& params);
 
     private:
 

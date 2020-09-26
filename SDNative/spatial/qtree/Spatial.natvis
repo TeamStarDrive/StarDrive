@@ -32,9 +32,21 @@
   <Type Name="spatial::SpatialObjectArray">
       <DisplayString>size={size}</DisplayString>
       <Expand>
+          <Item Name="[size]" ExcludeView="simple">size</Item>
+          <Item Name="[capacity]" ExcludeView="simple">capacity</Item>
           <ArrayItems>
               <Size>size</Size>
               <ValuePointer>objects</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+
+  <Type Name="spatial::SpatialIdArray">
+      <DisplayString>size={size}</DisplayString>
+      <Expand>
+          <ArrayItems>
+              <Size>size</Size>
+              <ValuePointer>ids</ValuePointer>
           </ArrayItems>
       </Expand>
   </Type>

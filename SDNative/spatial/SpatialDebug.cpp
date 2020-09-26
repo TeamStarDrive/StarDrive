@@ -6,6 +6,7 @@ namespace spatial
 {
     void DebugFindNearby::addCells(const FoundNodes& found)
     {
+        FindCells.reserve(found.count);
         for (int i = 0; i < found.count; ++i)
         {
             const FoundNode& node = found.nodes[i];
@@ -13,7 +14,18 @@ namespace spatial
         }
     }
 
-    void DebugFindNearby::draw(Visualizer& visualizer) const
+    void DebugFindNearby::addResults(const int* results, int numResults)
+    {
+        SearchResults.reserve(numResults);
+        for (int i = 0; i < numResults; ++i)
+        {
+            int objectId = results[i];
+            SearchResults.push_back(results[i]);
+        }
+    }
+
+    void DebugFindNearby::draw(Visualizer& visualizer, const VisualizerOptions& opt,
+                  const SpatialObject* objects) const
     {
         if (Circle.radius != 0)
             visualizer.drawCircle(Circle, Yellow);
@@ -29,6 +41,14 @@ namespace spatial
 
         for (const Rect& findCell : FindCells)
             visualizer.drawRect(findCell, Blue);
+
+        if (opt.searchResults)
+        {
+            for (int objectId : SearchResults)
+            {
+                visualizer.drawRect(objects[objectId].rect(), YellowBright);
+            }
+        }
     }
 
     void SpatialDebug::clear()
@@ -40,17 +60,31 @@ namespace spatial
     void SpatialDebug::setFindNearby(int id, DebugFindNearby&& find)
     {
         std::lock_guard lock { FindMutex };
-
         FindNearby[id] = std::move(find);
     }
 
-    void SpatialDebug::draw(Visualizer& visualizer) const
+    void SpatialDebug::setCollisions(const int* collisions, int numCollisions)
+    {
+        std::lock_guard lock { FindMutex };
+        Collisions.assign(collisions, collisions+numCollisions);
+    }
+
+    void SpatialDebug::draw(Visualizer& visualizer, const VisualizerOptions& opt,
+                            const SpatialObject* objects) const
     {
         std::lock_guard lock { FindMutex };
 
         for (auto& [id, find] : FindNearby)
         {
-            find.draw(visualizer);
+            find.draw(visualizer, opt, objects);
+        }
+
+        if (opt.collisions)
+        {
+            for (int objectId : Collisions)
+            {
+                visualizer.drawRect(objects[objectId].rect(), Cyan);
+            }
         }
     }
 }

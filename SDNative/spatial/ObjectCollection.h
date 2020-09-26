@@ -61,6 +61,7 @@ namespace spatial
          * Gets an object via its objectId
          */
         const SpatialObject& get(int objectId) const;
+        const SpatialObject* data() const { return Objects.data(); }
         SpatialObject* begin() { return Objects.data(); }
         SpatialObject* end()   { return Objects.data() + Objects.size(); }
 
