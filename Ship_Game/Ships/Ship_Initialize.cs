@@ -389,11 +389,6 @@ namespace Ship_Game.Ships
             // issue link: https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1538/
             if (!loadingFromSaveGame)
                 InitializeStatus(false);
-            else
-            // TODO: Move this setsystem to the warmupShipsForLoad prior to first update. 
-            // its in the wrong place here. 
-            // normal system update is done prior to ship update. 
-                SetSystem(System);
 
             InitExternalSlots();
             Initialize();
