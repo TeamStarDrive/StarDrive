@@ -370,7 +370,7 @@ namespace Ship_Game
                     {
                         var ship = MasterShipList[i];
                         {
-                            if (ship.Active && ship.InSpatial && ship.IsPlatformOrStation)
+                            if (ship.Active && ship.InSpatial)
                                 continue;
 
                             if (ship.ShipInitialized && !ship.InRadiusOfCurrentSystem)
