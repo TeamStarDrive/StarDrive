@@ -11,6 +11,7 @@ enum ObjectType : uint8_t
     ObjectType_Beam       = 8, // this is a BEAM, not a projectile
     ObjectType_Asteroid   = 16,
     ObjectType_Moon       = 32,
+    ObjectType_All        = 255, // collide with all types
 };
 
 struct MyGameObject
