@@ -11,6 +11,8 @@ namespace Ship_Game.Spatial
     {
         Grid, // spatial::Grid
         QuadTree, // spatial::QuadTree
+
+        ManagedQtree, // C# Quadtree
     };
 
     public sealed unsafe class NativeSpatial : ISpatial, IDisposable
@@ -43,16 +45,17 @@ namespace Ship_Game.Spatial
 
         [UnmanagedFunctionPointer(CC)]
         delegate CollisionResult CollisionF(IntPtr voidPtr, int objectA, int objectB);
-        [DllImport(Lib)] static extern void SpatialCollideAll(IntPtr spatial, ref CollisionParams param);
+        [DllImport(Lib)] static extern int SpatialCollideAll(IntPtr spatial, ref CollisionParams param);
         [DllImport(Lib)] static extern int SpatialFindNearby(IntPtr spatial, int* outResults, ref NativeSearchOptions opt);
 
         IntPtr Spat;
         readonly Array<GameplayObject> ObjectFlatMap = new Array<GameplayObject>(capacity:512);
 
-        public SpatialType Type => SpatialGetType(Spat);
-        public float UniverseSize => SpatialWorldSize(Spat);
-        public float FullSize => SpatialFullSize(Spat);
+        public SpatialType Type { get; }
+        public float WorldSize { get; }
+        public float FullSize { get; }
         public int Count => SpatialNumActive(Spat);
+        public string Name { get; }
 
         /// <param name="type">What type of spatial structure to create</param>
         /// <param name="worldSize">Width and Height of the game world</param>
@@ -62,7 +65,12 @@ namespace Ship_Game.Spatial
         /// </param>
         public NativeSpatial(SpatialType type, int worldSize, int cellSize)
         {
+            Type = type;
             Spat = SpatialCreate(type, worldSize, cellSize);
+
+            WorldSize = worldSize;
+            FullSize = SpatialFullSize(Spat);
+            Name = "C++" + Type;
         }
 
         ~NativeSpatial()
@@ -151,14 +159,14 @@ namespace Ship_Game.Spatial
             public byte ShowCollisions; // if 1, collisions are shown as debug
         }
 
-        public void CollideAll(FixedSimTime timeStep)
+        public int CollideAll(FixedSimTime timeStep)
         {
             var p = new CollisionParams
             {
                 OnCollide = OnCollision,
                 IgnoreSameLoyalty = 1,
             };
-            SpatialCollideAll(Spat, ref p);
+            return SpatialCollideAll(Spat, ref p);
         }
 
         public void CollideAllRecursive(FixedSimTime timeStep)
@@ -400,6 +408,16 @@ namespace Ship_Game.Spatial
             Screen = screen;
             SpatialDebugVisualize(Spat, ref opt, ref vis);
             Screen = null;
+        }
+
+        public void CopyTo(ISpatial target)
+        {
+            for (int i = 0; i < ObjectFlatMap.Count; ++i)
+            {
+                GameplayObject go = ObjectFlatMap[i];
+                if (go != null)
+                    target.Insert(go);
+            }
         }
     }
 }

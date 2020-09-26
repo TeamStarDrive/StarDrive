@@ -776,7 +776,12 @@ namespace Ship_Game.Debug
 
         void SpatialManagement()
         {
-            UniverseScreen.SpaceManager.DebugVisualize(Screen);
+            SetTextCursor(50f, 150f, Color.White);
+            SpatialManager manager = UniverseScreen.SpaceManager;
+            DrawString($"Spatial.Type: {manager.Name}");
+            DrawString($"Spatial.Collisions: {manager.Collisions}");
+            DrawString($"Spatial.ActiveObjects: {manager.Count}");
+            manager.DebugVisualize(Screen);
         }
 
         void InputDebug()

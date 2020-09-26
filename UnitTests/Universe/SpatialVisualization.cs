@@ -51,8 +51,8 @@ namespace UnitTests.Universe
 
             if (MoveShips)
             {
-                float universeLo = Spat.UniverseSize * -0.5f;
-                float universeHi = Spat.UniverseSize * +0.5f;
+                float universeLo = Spat.WorldSize * -0.5f;
+                float universeHi = Spat.WorldSize * +0.5f;
                 var simTime = new FixedSimTime(fixedDeltaTime);
                 foreach (Ship ship in AllShips)
                 {
@@ -80,7 +80,7 @@ namespace UnitTests.Universe
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Spat.DebugVisualize(this);
-            DrawRectangleProjected(Vector2.Zero, new Vector2(Spat.UniverseSize), 0f, Color.Red);
+            DrawRectangleProjected(Vector2.Zero, new Vector2(Spat.WorldSize), 0f, Color.Red);
 
             foreach (Ship ship in AllShips)
             {

@@ -132,6 +132,9 @@ namespace Ship_Game
                     Ship.CreateShipAtPoint(input.EmpireToggle ? "Remnant Mothership" : "Target Dummy", EmpireManager.Remnants, mouseWorldPos);
             }
 
+            if (input.ToggleSpatialManagerType)
+                SpaceManager.ToggleSpatialType();
+
             if (input.IsShiftKeyDown && input.KeyPressed(Keys.B))
                 StressTestShipLoading();
         }

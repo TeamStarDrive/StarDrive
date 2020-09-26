@@ -14,9 +14,14 @@ namespace Ship_Game
     public interface ISpatial
     {
         /// <summary>
+        /// User friendly name to describe this spatial container
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// Original size of the simulation world
         /// </summary>
-        float UniverseSize { get; }
+        float WorldSize { get; }
 
         /// <summary>
         /// Full Width and Height of the spatial collection. 
@@ -34,7 +39,7 @@ namespace Ship_Game
         void Remove(GameplayObject go);
 
         void UpdateAll();
-        void CollideAll(FixedSimTime timeStep);
+        int CollideAll(FixedSimTime timeStep);
         void CollideAllRecursive(FixedSimTime timeStep);
         
         /// <summary>
@@ -68,5 +73,10 @@ namespace Ship_Game
                                     Empire onlyLoyalty);
 
         void DebugVisualize(GameScreen screen);
+
+        /// <summary>
+        /// Copies this Spatial Collection's objects into the target collection
+        /// </summary>
+        void CopyTo(ISpatial target);
     }
 }

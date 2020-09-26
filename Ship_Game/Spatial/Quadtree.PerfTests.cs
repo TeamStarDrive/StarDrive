@@ -20,10 +20,10 @@ namespace Ship_Game
                                                   SpawnShipFunc spawnShip)
         {
             var ships = new Array<Ship>();
-            float spacing = tree.UniverseSize / (float)Math.Sqrt(numShips);
+            float spacing = tree.WorldSize / (float)Math.Sqrt(numShips);
 
             // universe is centered at [0,0], so Root node goes from [-half, +half)
-            float half = tree.UniverseSize / 2;
+            float half = tree.WorldSize / 2;
             float start = -half + spacing/2;
             float x = start;
             float y = start;
@@ -52,7 +52,7 @@ namespace Ship_Game
 
         public static Array<Projectile> SpawnProjectilesFromEachShip(ISpatial tree, Array<Ship> ships)
         {
-            float spacing = tree.UniverseSize / (float)Math.Sqrt(ships.Count);
+            float spacing = tree.WorldSize / (float)Math.Sqrt(ships.Count);
             var projectiles = new Array<Projectile>();
             foreach (Ship ship in ships)
             {
