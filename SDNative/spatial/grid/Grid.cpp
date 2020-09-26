@@ -92,8 +92,9 @@ namespace spatial
         Cells = cells;
     }
 
-    void Grid::collideAll(float timeStep, void* user, CollisionFunc onCollide)
+    int Grid::collideAll(const CollisionParams& params)
     {
+        int numCollisions = 0;
         Collider collider { *FrontAlloc, Objects.maxObjects() };
 
         GridCell* cells = Cells;
@@ -102,9 +103,16 @@ namespace spatial
             const GridCell& cell = cells[i];
             if (int size = cell.size)
             {
-                collider.collideObjects({cell.objects, size}, user, onCollide);
+                numCollisions += collider.collideObjects({cell.objects, size}, params);
             }
         }
+
+        if (params.showCollisions)
+        {
+            Dbg.setCollisions(collider.Collisions.ids, collider.Collisions.size);
+        }
+
+        return numCollisions;
     }
 
     // transform a cell at index X,Y
@@ -222,6 +230,8 @@ namespace spatial
             }
         }
 
+        int numResults = spatial::findNearby(outResults, opt, found);
+        
         if (opt.EnableSearchDebugId)
         {
             DebugFindNearby dfn;
@@ -230,10 +240,11 @@ namespace spatial
             dfn.TopLeft  = toWorldRect(x1, y1, half, cellSize);
             dfn.BotRight = toWorldRect(x2, y2, half, cellSize);
             dfn.addCells(found);
+            dfn.addResults(outResults, numResults);
             Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
         }
 
-        return spatial::findNearby(outResults, opt, found);
+        return numResults;
     }
 
     void Grid::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const
@@ -294,7 +305,9 @@ namespace spatial
                             visualizer.drawRect(o.rect(), color);
                         }
                         if (opt.objectToLeafLines)
+                        {
                             visualizer.drawLine(c, {o.x, o.y}, VioletDim);
+                        }
                         if (opt.objectText)
                         {
                             snprintf(text, sizeof(text), "o=%d", o.objectId);
@@ -307,7 +320,7 @@ namespace spatial
 
         if (opt.searchDebug)
         {
-            Dbg.draw(visualizer);
+            Dbg.draw(visualizer, opt, Objects.data());
         }
     }
 

@@ -49,7 +49,7 @@ TestImpl(TestGrid)
 
         measureIterations("Grid::collideAll", 10, swo.objects.size(), [&]()
         {
-            swo.spatial->collideAll(1.0f/60.0f, [](int objectA, int objectB) -> spatial::CollisionResult
+            swo.spatial->collideAll({}, [](int objectA, int objectB)
             {
                 return spatial::CollisionResult::NoSideEffects;
             });

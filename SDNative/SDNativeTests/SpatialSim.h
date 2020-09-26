@@ -2,6 +2,7 @@
 #include "SimParams.h"
 #include "SpatialSimUtils.h"
 #include "DebugGfxWindow.h"
+#include <spatial/SpatialDebug.h>
 #include <rpp/timer.h>
 
 using spatial::Color;
@@ -12,8 +13,6 @@ static ImU32 getColor(Color c)
     return ImGui::ColorConvertFloat4ToU32(cv);
 }
 
-static const Color Yellow = { 255, 255,   0, 255 };
-static const Color Cyan   = {   0, 255, 255, 255 };
 
 struct Simulation final : spatial::Visualizer
 {
@@ -26,7 +25,6 @@ struct Simulation final : spatial::Visualizer
     double collideMs = 0.0; // time spent in Qtree::collideAll()
     double findNearbyMs = 0.0; // time spent in Qtree::findNearby()
     int numCollisions = 0;
-    std::vector<int> collidedObjects;
 
     bool isPaused = true;
     bool isExiting = false;
@@ -147,13 +145,15 @@ struct Simulation final : spatial::Visualizer
         rebuildMs = t1.elapsed_ms();
 
         rpp::Timer t2;
-        collidedObjects.clear();
-        spat->collideAll(timeStep, [&](int objectA, int objectB) -> spatial::CollisionResult
+
+        spatial::CollisionParams cp;
+        cp.showCollisions = true;
+        numCollisions = spat->collideAll(cp, [this](int objectA, int objectB)
         {
             collide(objectA, objectB);
             return spatial::CollisionResult::NoSideEffects;
         });
-        numCollisions = (int)collidedObjects.size();
+
         collideMs = t2.elapsed_ms();
     }
 
@@ -199,9 +199,6 @@ struct Simulation final : spatial::Visualizer
             a.vel -= invMassA * impulse;
             b.vel += invMassB * impulse;
         }
-
-        collidedObjects.push_back(objectA);
-        collidedObjects.push_back(objectB);
     }
 
     void createObjectsIfNeeded()
@@ -235,21 +232,6 @@ struct Simulation final : spatial::Visualizer
         rpp::Timer t1;
         spat.debugVisualize(vo, *this);
         double elapsedDrawMs = t1.elapsed_ms();
-
-        for (int i = 0; i < numSearchResults; ++i)
-        {
-            const spatial::SpatialObject& o = spat.get(searchResults[i]);
-            drawRect(o.rect(), Yellow);
-        }
-
-        if (numCollisions > 0)
-        {
-            for (int objectId : collidedObjects)
-            {
-                const spatial::SpatialObject& o = spat.get(objectId);
-                drawRect(o.rect(), Cyan);
-            }
-        }
 
         if (isPaused)
         {

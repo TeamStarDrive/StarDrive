@@ -138,21 +138,20 @@ namespace spatial
         /**
          * Collide all objects and call CollisionFunc for each collided pair
          * @note Once two objects have collided, they cannot collide anything else during collideAll
-         * @param timeStep The fixed physics time step to ensure objects do not pass through when collision testing
-         * @param user User defined pointer for passing application specific context
-         * @param onCollide Collision resolution callback
+         * @param params Collision parameters
          */
-        virtual void collideAll(float timeStep, void* user, CollisionFunc onCollide) = 0;
+        virtual int collideAll(const CollisionParams& params) = 0;
 
         template<class CollisionCallback>
-        void collideAll(float timeStep, const CollisionCallback& callback)
+        int collideAll(CollisionParams params, const CollisionCallback& callback)
         {
-            this->collideAll(timeStep, (void*)&callback,
-                [](void* user, int objectA, int objectB) -> CollisionResult
+            params.user = (void*)&callback;
+            params.onCollide = [](void* user, int objectA, int objectB) -> CollisionResult
             {
                 const CollisionCallback& callback = *static_cast<const CollisionCallback*>(user);
                 return callback(objectA, objectB);
-            });
+            };
+            return this->collideAll(params);
         }
 
         /**
@@ -196,7 +195,7 @@ namespace spatial
     SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y);
     SPATIAL_C_API void SPATIAL_CC SpatialRemove(Spatial* spatial, int objectId);
 
-    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, float timeStep, void* user, CollisionFunc onCollide);
+    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params);
     SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt);
     SPATIAL_C_API void SPATIAL_CC SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis);
 

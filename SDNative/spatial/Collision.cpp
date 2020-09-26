@@ -2,13 +2,6 @@
 
 namespace spatial
 {
-    CollisionRuleSet::CollisionRuleSet()
-    {
-    }
-    CollisionRuleSet::~CollisionRuleSet()
-    {
-    }
-
     Collider::Collider(SlabAllocator& allocator, int maxObjectId)
         : Allocator{allocator}, MaxObjectId{maxObjectId}
     {
@@ -16,8 +9,12 @@ namespace spatial
         CollidedObjectsMap = allocator.allocArrayZeroed<CollisionChain*>(maxObjectId + 1);
     }
 
-    void Collider::collideObjects(SpatialObjectArray arr, void* user, CollisionFunc onCollide)
+    int Collider::collideObjects(SpatialObjectArray arr, const CollisionParams& params)
     {
+        int numCollision = 0;
+        bool ignoreSame = params.ignoreSameLoyalty;
+        bool showCollisions = params.showCollisions;
+
         for (int i = 0; i < arr.size; ++i)
         {
             SpatialObject& objectA = *arr.objects[i];
@@ -28,14 +25,14 @@ namespace spatial
             float ay = objectA.y;
             float ar = objectA.rx;
             uint8_t loyaltyA = objectA.loyalty;
-            uint8_t typeA = objectA.type;
+            uint8_t collisionMaskA = objectA.collisionMask;
 
             for (int j = i + 1; j < arr.size; ++j)
             {
                 SpatialObject& objectB = *arr.objects[j];
-                if (!objectB.active)
+                if (!objectB.active || (collisionMaskA & objectB.collisionMask) == 0)
                     continue;
-                if (objectB.loyalty == loyaltyA)
+                if (ignoreSame && objectB.loyalty == loyaltyA)
                     continue; // ignore same loyalty objects from collision
 
                 float dx = ax - objectB.x;
@@ -46,7 +43,14 @@ namespace spatial
                     CollisionPair pair { objectA.objectId, objectB.objectId };
                     if (tryCollide(pair))
                     {
-                        CollisionResult result = onCollide(user, pair.a, pair.b);
+                        ++numCollision;
+                        if (showCollisions)
+                        {
+                            Collisions.addId(Allocator, pair.a, 128);
+                            Collisions.addId(Allocator, pair.b, 128);
+                        }
+
+                        CollisionResult result = params.onCollide(params.user, pair.a, pair.b);
                         switch (result)
                         {
                             case CollisionResult::NoSideEffects:
@@ -67,6 +71,7 @@ namespace spatial
             }
             nextObjectA:continue;
         }
+        return numCollision;
     }
 
     bool Collider::tryCollide(CollisionPair pair)

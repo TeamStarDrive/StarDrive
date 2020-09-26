@@ -40,6 +40,8 @@ namespace spatial
         bool nodeText = true; // show text ontop of a leaf or branch node
         bool nodeBounds = true; // show edges of leaf and branch nodes
         bool searchDebug = true; // show the debug information for latest searches
+        bool searchResults = true; // highlight search results
+        bool collisions = true; // show collision flashes
     };
 
 }

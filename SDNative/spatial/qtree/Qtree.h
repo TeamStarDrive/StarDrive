@@ -60,7 +60,7 @@ namespace spatial
         void update(int objectId, int x, int y) override { Objects.update(objectId, x, y); }
         void remove(int objectId) override { Objects.remove(objectId); }
         using Spatial::collideAll;
-        void collideAll(float timeStep, void* user, CollisionFunc onCollide) override;
+        int collideAll(const CollisionParams& params) override;
         int findNearby(int* outResults, const SearchOptions& opt) const override;
         void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const override;
 
