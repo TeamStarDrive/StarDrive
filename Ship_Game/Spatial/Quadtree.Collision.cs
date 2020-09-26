@@ -19,9 +19,9 @@ namespace Ship_Game
                     proj.Type == GameObjectType.Proj &&  // only collide with projectiles
                     proj.HitTestProj(simTimeStep, ref ship, out ShipModule hitModule))
                 {
+                    ++NumCollisions;
                     GameplayObject victim = hitModule ?? ship.Obj;
                     var projectile = (Projectile)proj.Obj;
-
                     if (IsObjectDead(victim))
                     {
                         Log.Warning($"Ship dead but still in Quadtree: {ship.Obj}");
@@ -51,6 +51,7 @@ namespace Ship_Game
                     item.Type == GameObjectType.Beam &&  // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
                     proj.HitTestProj(simTimeStep, ref item, out ShipModule hitModule))
                 {
+                    ++NumCollisions;
                     // module OR projectile
                     GameplayObject victim = hitModule ?? item.Obj;
                     if (IsObjectDead(victim))
@@ -88,7 +89,7 @@ namespace Ship_Game
         // we keep this list as a cache to reduce memory pressure
         readonly Array<BeamHitResult> BeamHitCache = new Array<BeamHitResult>();
 
-        static void CollideBeamRecursive(QtreeNode node, Beam theBeam, ref SpatialObj beam, Array<BeamHitResult> outHitResults)
+        void CollideBeamRecursive(QtreeNode node, Beam theBeam, ref SpatialObj beam, Array<BeamHitResult> outHitResults)
         {
             for (int i = 0; i < node.Count; ++i)
             {
@@ -97,6 +98,7 @@ namespace Ship_Game
                     item.Loyalty != beam.Loyalty &&   // friendlies don't collide
                     item.Type == GameObjectType.Beam) // forbid beam-beam collision            
                 {
+                    ++NumCollisions;
                     if (SpatialObj.HitTestBeam(theBeam, ref item, out ShipModule hitModule, out float dist))
                     {
                         outHitResults.Add(new BeamHitResult
@@ -114,7 +116,7 @@ namespace Ship_Game
             CollideBeamRecursive(node.SW, theBeam, ref beam, outHitResults);
         }
 
-        static void CollideBeamAtNode(QtreeNode node, Beam theBeam, ref SpatialObj beam, Array<BeamHitResult> beamHitCache)
+        void CollideBeamAtNode(QtreeNode node, Beam theBeam, ref SpatialObj beam, Array<BeamHitResult> beamHitCache)
         {
             CollideBeamRecursive(node, theBeam, ref beam, beamHitCache);
 
@@ -158,6 +160,7 @@ namespace Ship_Game
 
         public void CollideAllRecursive(FixedSimTime timeStep)
         {
+            NumCollisions = 0;
             CollideAllAt(timeStep.FixedTime, Root, BeamHitCache);
         }
 

@@ -7,15 +7,38 @@ namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager
     {
+        SpatialType Type = SpatialType.ManagedQtree;
         ISpatial Spatial;
+        int UniverseWidth;
+
+        public string Name => Spatial?.Name ?? "";
+        public int Collisions { get; private set; }
+        public int Count => Spatial?.Count ?? 0;
 
         public void Setup(float universeRadius)
         {
-            float universeWidth = universeRadius * 2f;
-            //Spatial = new Quadtree(universeWidth, smallestCell: 512);
-            Spatial = new NativeSpatial(SpatialType.Grid, (int)universeWidth, 20_000);
+            UniverseWidth = (int)(universeRadius * 2f);
+            Create(Type);
+        }
 
-            Log.Info($"SpatialManager Width: {(int)universeWidth}  QTSize: {(int)Spatial.FullSize}");
+        void Create(SpatialType type)
+        {
+            Type = type;
+            ISpatial newSpatial = null;
+            switch (type)
+            {
+                case SpatialType.Grid:         newSpatial = new NativeSpatial(type, UniverseWidth, 20_000); break;
+                case SpatialType.QuadTree:     newSpatial = new NativeSpatial(type, UniverseWidth, 1024); break;
+                case SpatialType.ManagedQtree: newSpatial = new Quadtree(UniverseWidth, 1024); break;
+            }
+            Spatial?.CopyTo(newSpatial);
+            Spatial = newSpatial;
+            Log.Info($"SpatialManager {Spatial.Name} Width: {(int)UniverseWidth}  FullSize: {(int)Spatial.FullSize}");
+        }
+
+        public void ToggleSpatialType()
+        {
+            Create( Type.IncrementWithWrap(1) );
         }
 
         public void Destroy()
@@ -49,7 +72,7 @@ namespace Ship_Game.Gameplay
         public void Update(FixedSimTime timeStep)
         {
             Spatial.UpdateAll();
-            Spatial.CollideAll(timeStep);
+            Collisions = Spatial.CollideAll(timeStep);
         }
 
         public GameplayObject[] FindNearby(GameObjectType type, GameplayObject obj, float radius,

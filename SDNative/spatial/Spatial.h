@@ -195,7 +195,7 @@ namespace spatial
     SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y);
     SPATIAL_C_API void SPATIAL_CC SpatialRemove(Spatial* spatial, int objectId);
 
-    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params);
+    SPATIAL_C_API int SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params);
     SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt);
     SPATIAL_C_API void SPATIAL_CC SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis);
 

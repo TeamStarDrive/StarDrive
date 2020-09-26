@@ -65,6 +65,7 @@ namespace spatial
         CollisionChain** CollidedObjectsMap;
 
     public:
+
         SpatialIdArray Collisions;
 
         explicit Collider(SlabAllocator& allocator, int maxObjectId);

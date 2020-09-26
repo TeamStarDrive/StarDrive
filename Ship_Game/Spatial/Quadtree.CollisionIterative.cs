@@ -8,8 +8,11 @@ namespace Ship_Game
         // XOR Bitmask for True Projectile matching
         const int TrueProjXORMask = (int)GameObjectType.Proj; // 0000_0100
 
-        public void CollideAll(FixedSimTime timeStep)
+        int NumCollisions;
+
+        public int CollideAll(FixedSimTime timeStep)
         {
+            NumCollisions = 0;
             float simTimeStep = timeStep.FixedTime;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
 
@@ -46,6 +49,7 @@ namespace Ship_Game
                     }
                 }
             }
+            return NumCollisions;
         }
 
         // ship collision; this can collide with multiple projectiles..

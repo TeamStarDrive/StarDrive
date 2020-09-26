@@ -94,7 +94,7 @@ namespace spatial
 
     int Grid::collideAll(const CollisionParams& params)
     {
-        int numCollisions = 0;
+        int count = 0;
         Collider collider { *FrontAlloc, Objects.maxObjects() };
 
         GridCell* cells = Cells;
@@ -103,7 +103,7 @@ namespace spatial
             const GridCell& cell = cells[i];
             if (int size = cell.size)
             {
-                numCollisions += collider.collideObjects({cell.objects, size}, params);
+                count += collider.collideObjects({cell.objects, size}, params);
             }
         }
 
@@ -112,7 +112,7 @@ namespace spatial
             Dbg.setCollisions(collider.Collisions.ids, collider.Collisions.size);
         }
 
-        return numCollisions;
+        return count;
     }
 
     // transform a cell at index X,Y
