@@ -55,12 +55,12 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            if (!Activated && StoryTriggerKillsXp >= 50)
+            if (!Activated && StoryTriggerKillsXp >= 30)
                 Activate();
 
             if (empire.isPlayer)
             {
-                float stepTrigger = ShipRole.GetMaxExpValue() * (StoryStep / 2f).LowerBound(1);
+                float stepTrigger = ShipRole.GetMaxExpValue() * StoryStep;
                 PlayerStepTriggerXp += xp;
                 if (PlayerStepTriggerXp > stepTrigger) // todo 0 is for testing
                 {
@@ -270,17 +270,23 @@ namespace Ship_Game
             return targetPlanet != null;
         }
 
-        public bool SelectClosestNextPlanet(Empire targetEmpire, Planet currentPlanet, int numBombers, out Planet nextPlanet)
+        public bool TargetNextPlanet(Empire targetEmpire, Planet currentPlanet, int numBombers, out Planet nextPlanet)
         {
             nextPlanet           = null;
-            // pick another system if there are not bombers in the fleet
-            var potentialPlanets = numBombers == 0 ? targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem)
-                                                   : targetEmpire.GetPlanets().ToArray();
 
+            if (numBombers > 0 && currentPlanet.ParentSystem.IsOwnedBy(targetEmpire))
+            {
+                nextPlanet = currentPlanet.ParentSystem.PlanetList.Filter(p => p.Owner == targetEmpire).RandItem();
+                return true;
+            }
+
+            var potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem);
             if (potentialPlanets.Length == 0)
                 return false;
 
-            nextPlanet = potentialPlanets.FindMin(p => p.Center.Distance(currentPlanet.Center));
+            int numPlanets     = 5.UpperBound(potentialPlanets.Length);
+            var closestPlanets = potentialPlanets.Sorted(p => p.Center.Distance(currentPlanet.Center)).Take(numPlanets).ToArray();
+            nextPlanet         = closestPlanets.RandItem();
             return nextPlanet != null;
         }
 
