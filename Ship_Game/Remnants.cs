@@ -149,8 +149,8 @@ namespace Ship_Game
 
         public bool FindValidTarget(Ship portal, out Empire target)
         {
-            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.MajorEmpires
-                                                                      : EmpireManager.NonPlayerEmpires;
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires
+                                                                      : EmpireManager.MajorEmpires;
 
             target = null;
             switch (Story)
