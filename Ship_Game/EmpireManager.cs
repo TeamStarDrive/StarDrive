@@ -33,7 +33,7 @@ namespace Ship_Game
         public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateVoidEmpire());
 
         public static Empire[] NonPlayerEmpires =>
-            Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
+            Empires.Filter(empire => !empire.isFaction && !empire.isPlayer);
 
         public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.isFaction);
         public static Empire[] Factions       => Empires.Filter(empire => empire.isFaction);

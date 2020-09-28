@@ -149,20 +149,23 @@ namespace Ship_Game
 
         public bool FindValidTarget(Ship portal, out Empire target)
         {
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.MajorEmpires
+                                                                      : EmpireManager.NonPlayerEmpires;
+
             target = null;
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
-                    target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
                     break;
                 case RemnantStory.AncientExterminators: 
-                    target = EmpireManager.MajorEmpires.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore);
                     break;
                 case RemnantStory.AncientRaidersClosest:
-                    target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
+                    target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
                     break;
                 case RemnantStory.AncientRaidersRandom:
-                    var potentialEmpires = EmpireManager.MajorEmpires.Filter(e => !e.data.Defeated);
+                    var potentialEmpires = empiresList.Filter(e => !e.data.Defeated);
                     if (potentialEmpires.Length > 0)
                         target = potentialEmpires.RandItem();
 
@@ -214,13 +217,14 @@ namespace Ship_Game
            return fleet?.Ships.Count(s => s.Name == Owner.data.RemnantBomber) ?? 0;
         }
 
-        public void ReleaseFleet(Fleet fleet)
+        public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep)
         {
             if (fleet == null)
-                return;
+                return goalStep;
 
             fleet.FleetTask?.DisbandFleet(fleet);
             fleet.FleetTask?.EndTask();
+            return goalStep;
         }
 
         public bool GetClosestPortal(Vector2 position, out Ship portal)
@@ -246,21 +250,6 @@ namespace Ship_Game
             }
         }
 
-        public bool SelectTargetPlanetByLevel(Empire targetEmpire, out Planet targetPlanet)
-        {
-            targetPlanet           = null;
-            int desiredPlanetLevel = (RollDie(5) - 5 + Level).LowerBound(1);
-            var potentialPlanets   = targetEmpire.GetPlanets().Filter(p => p.Level == desiredPlanetLevel);
-            if (potentialPlanets.Length == 0) // Try lower level planets if not found exact level
-                potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.Level < desiredPlanetLevel);
-
-            if (potentialPlanets.Length == 0)
-                return false; // Could not find a target planet by planet level
-
-            targetPlanet = potentialPlanets.RandItem();
-            return true;
-        }
-
         public bool SelectTargetClosestPlanet(Ship portal, Empire targetEmpire, out Planet targetPlanet)
         {
             targetPlanet = null;
@@ -274,8 +263,7 @@ namespace Ship_Game
 
         public bool TargetNextPlanet(Empire targetEmpire, Planet currentPlanet, int numBombers, out Planet nextPlanet)
         {
-            nextPlanet           = null;
-
+            nextPlanet = null;
             if (numBombers > 0 && currentPlanet.ParentSystem.IsOwnedBy(targetEmpire))
             {
                 nextPlanet = currentPlanet.ParentSystem.PlanetList.Filter(p => p.Owner == targetEmpire).RandItem();
