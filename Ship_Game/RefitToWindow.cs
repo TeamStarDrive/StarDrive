@@ -19,6 +19,7 @@ namespace Ship_Game
         UIButton RefitAll;
         Ship RefitTo;
         DanButton ConfirmRefit;
+        ShipInfoOverlayComponent ShipInfoOverlay;
 
         public RefitToWindow(ShipListScreen screen, ShipListScreenItem item) : base(screen)
         {
@@ -95,6 +96,12 @@ namespace Ship_Game
             RefitOne.Tooltip = Localizer.Token(2267);
             RefitAll = ButtonMedium(shipDesignsRect.X + 250, shipDesignsRect.Y + 505, text:2266, click: OnRefitAllClicked);
             RefitAll.Tooltip = Localizer.Token(2268);
+
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            RefitShipList.OnHovered = (item) =>
+            {
+                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+            };
 
             base.LoadContent();
         }
