@@ -181,8 +181,9 @@ namespace Ship_Game.AI.Tasks
 
         public void ChangeTargetPlanet(Planet planet)
         {
-            TargetPlanet = planet;
-            AO           = planet.Center;
+            TargetPlanet     = planet;
+            TargetPlanetGuid = planet.guid;
+            AO               = planet.Center;
         }
 
         public void ChangeAO(Vector2 position)
