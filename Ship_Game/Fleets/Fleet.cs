@@ -782,7 +782,8 @@ namespace Ship_Game.Fleets
                     TaskStep = 9;
                     break;
                 case 9:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                    float divider = Ships.Count < 5 ? 0.5f : 2;
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / divider))
                         break;
 
                     TaskStep = 10;
