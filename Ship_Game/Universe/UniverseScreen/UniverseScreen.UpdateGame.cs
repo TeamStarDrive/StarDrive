@@ -361,41 +361,37 @@ namespace Ship_Game
 
         void AssignSystemsToShips(FixedSimTime timeStep)
         {
-            if (timeStep.FixedTime > 0f && --shiptimer <= 0.0f)
+            shiptimer -= timeStep.FixedTime;
+            if (shiptimer > 0.0f)
+                return;
+
+            shiptimer = 2f;
+            Parallel.For(MasterShipList.Count, (start, end) =>
             {
-                shiptimer = 2f;
-                Parallel.For(MasterShipList.Count, (start, end) =>
+                for (int i = start; i < end; ++i)
                 {
-                    for (int i = start; i < end; ++i)
+                    Ship ship = MasterShipList[i];
                     {
-                        var ship = MasterShipList[i];
+                        if (!ship.Active || ship.IsPlatformOrStation && ship.InSpatial)
+                            continue; // Orbitals updated in spatial do not need checking since they do not change system
+
+                        if (ship.ShipInitialized && !ship.InRadiusOfCurrentSystem)
                         {
-                            if (ship.Active && ship.InSpatial && ship.IsPlatformOrStation)
-                                continue;
-
-                            if (ship.ShipInitialized && !ship.InRadiusOfCurrentSystem)
+                            ship.SetSystem(null);
+                            for (int x = 0; x < SolarSystemList.Count; x++)
                             {
-                                ship.SetSystem(null);
-
-                                for (int x = 0; x < SolarSystemList.Count; x++)
+                                SolarSystem system = SolarSystemList[x];
+                                if (ship.InRadiusOfSystem(system))
                                 {
-                                    SolarSystem system = SolarSystemList[x];
-
-                                    if (ship.InRadiusOfSystem(system))
-                                    {
-                                        system.SetExploredBy(ship.loyalty);
-                                        ship.SetSystem(system);
-
-                                        // No need to keep looping through all other systems
-                                        // if one is found -Gretman
-                                        break;
-                                    }
+                                    system.SetExploredBy(ship.loyalty);
+                                    ship.SetSystem(system);
+                                    break;
                                 }
                             }
                         }
                     }
-                }, MaxTaskCores);
-            }
+                }
+            }, MaxTaskCores);
         }
 
 

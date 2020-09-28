@@ -159,6 +159,20 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
+        public void AddRemnantsStoryActivation(Empire remnants)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = remnants,
+                ClickRect       = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect,
+                Message         = "Your Scientists report that they observed increased\n" +
+                                  "radiation signatures in the galaxy. They believe\n" +
+                                  "a new, powerful object has manifested somewhere\n." +
+                                  "and it is related to the Remnants."
+            }, "sd_ui_notification_warning");
+        }
+
         public void AddRemnantsNewPortal(Empire remnants)
         {
             AddNotification(new Notification
