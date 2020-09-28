@@ -55,7 +55,7 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            if (!Activated && StoryTriggerKillsXp >= 30 * (EmpireManager.MajorEmpires.Length -1))
+            if (!Activated && StoryTriggerKillsXp >= 30 * (EmpireManager.MajorEmpires.Length - 1))
                 Activate();
 
             if (empire.isPlayer)
