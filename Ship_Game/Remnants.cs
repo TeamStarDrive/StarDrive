@@ -144,7 +144,7 @@ namespace Ship_Game
         public bool CanDoAnotherEngagement(out int numRaids)
         {
             numRaids = Goals.Count(g => g.IsRaid);
-            return numRaids < Level;
+            return numRaids < (Level / 2).LowerBound(1);
         }
 
         public bool FindValidTarget(Ship portal, out Empire target)
@@ -295,7 +295,7 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            return RollDice((Level - 1) * 10) ? planet.Level : 0;
+            return RollDice((Level - 1) * 10) ? planet.Level.UpperBound(Level / 2) : 0;
         }
 
         public bool CreatePortal(out Ship portal, out string systemName)
