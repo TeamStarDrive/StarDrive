@@ -747,7 +747,7 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
-                    CombatMoveToAO(task, FleetTask.TargetPlanet.GravityWellRadius * 1.5f);
+                    FleetMoveToPosition(task.AO, FleetTask.TargetPlanet.GravityWellRadius * 1.5f, false);
                     TaskStep = 4;
                     break;
                 case 4:
@@ -760,6 +760,7 @@ namespace Ship_Game.Fleets
                 case 5:
                     if (FleetInAreaInCombat(task.AO, task.AORadius) == CombatStatus.InCombat)
                     {
+                        BombPlanet(FleetTask);
                         AttackEnemyStrengthClumpsInAO(task);
                         break;
                     }
@@ -773,12 +774,16 @@ namespace Ship_Game.Fleets
 
                     TaskStep = 7;
                     break;
-                case 8: // Go back to portal, this step is set from the remnant goal
+                case 7:
+                    OrderFleetOrbit(FleetTask.TargetPlanet);
+                    break; // Change in task step is done from Remnant goals
+                case 8: // Go back to portal, this step is set from the Remnant goal
                     GatherAtAO(task, 20000);
                     TaskStep = 9;
                     break;
                 case 9:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / 2))
+                    float divider = Ships.Count < 5 ? 0.5f : 2;
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / divider))
                         break;
 
                     TaskStep = 10;
@@ -1165,7 +1170,10 @@ namespace Ship_Game.Fleets
                         //    break;
 
                         Ship ship = availableShips[i];
-                        if (ship.AI.HasPriorityOrder || ship.InCombat || ship.AI.State == AIState.AssaultPlanet)
+                        if (ship.AI.HasPriorityOrder 
+                            || ship.InCombat 
+                            || ship.AI.State == AIState.AssaultPlanet 
+                            || ship.AI.State != AIState.Bombard)
                         {
                             availableShips.RemoveAtSwapLast(i);
                             continue;

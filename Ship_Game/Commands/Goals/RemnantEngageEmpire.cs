@@ -46,14 +46,29 @@ namespace Ship_Game.Commands.Goals
        
         bool SelectTargetPlanet()
         {
-            bool byLevel = RandomMath.RollDice(Remnants.Level);
-            if (!byLevel || !Remnants.SelectTargetPlanetByLevel(TargetEmpire, out TargetPlanet))
-                if (!Remnants.SelectTargetClosestPlanet(Portal, TargetEmpire, out TargetPlanet))
-                    return false; // Could not find a target planet
+            // Find closest planet in the map to Portal and target a planet from the victim's planet list
+            var planets   = Empire.Universe.PlanetsDict.Values.ToArray();
+            Planet planet = planets.FindMin(p => p.Center.Distance(Portal.Center));
+            if (!Remnants.TargetNextPlanet(TargetEmpire, planet, 0, out TargetPlanet))
+                return false; // Could not find a target planet
 
             ColonizationTarget = TargetPlanet; // Using TargetPlanet for better readability
             return TargetPlanet != null;
         }
+
+        void ChangeTaskTargetPlanet()
+        {
+            var tasks = empire.GetEmpireAI().GetTasks();
+            tasks.Filter(t => t.Fleet == Fleet);
+            switch (tasks.Count)
+            {
+                case 0:                                                                                  return;
+                case 1:  tasks[0].ChangeTargetPlanet(TargetPlanet);                                      break;
+                default: Log.Warning($"Found multiple Remnant tasks with the tame fleet: {Fleet.Name}"); break;
+            }
+        }
+
+        float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
 
         GoalStep SelectFirstTargetPlanet()
         {
@@ -63,6 +78,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep DetermineNumBombers()
         {
             ShipLevel = BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
+            //ShipLevel = BombersLevel = 1; // todo for testing
             return GoalStep.GoToNextStep;
         }
 
@@ -70,10 +86,7 @@ namespace Ship_Game.Commands.Goals
         {
             bool checkOnlyDefeated = Remnants.Story == Remnants.RemnantStory.AncientRaidersRandom;
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal, checkOnlyDefeated))
-            {
-                Remnants.ReleaseFleet(Fleet);
-                return GoalStep.GoalComplete;
-            }
+                return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
             int missingBombers = BombersLevel > 0 ? BombersLevel - Remnants.NumBombersInFleet(Fleet): 0;
             if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, out Ship ship))
@@ -84,7 +97,7 @@ namespace Ship_Game.Commands.Goals
             {
                 var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, empire);
                 empire.GetEmpireAI().AddPendingTask(task);
-                task.CreateRemnantFleet(empire, ship, "Ancient Fleet", out Fleet);
+                task.CreateRemnantFleet(empire, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
             }
             else
             {
@@ -92,7 +105,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             ship.AI.AddEscortGoal(Portal);
-            if (Fleet.GetStrength() < (TargetEmpire.CurrentMilitaryStrength / 4).LowerBound(Remnants.Level * 100))
+            if (FleetStrNoBombers < (TargetEmpire.CurrentMilitaryStrength / 4).LowerBound(Remnants.Level * 100))
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();
@@ -106,10 +119,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // fleet is dead
 
             if (Fleet.TaskStep == 10) // Arrived back to portal
-            {
-                Remnants.ReleaseFleet(Fleet);
-                return GoalStep.GoalComplete;
-            }
+                return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
             if (Fleet.TaskStep != 7) // Cleared enemy at target planet
                 return GoalStep.TryAgain;
@@ -117,10 +127,7 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
             {
                 if (!Remnants.GetClosestPortal(Fleet.AveragePosition(), out Ship closestPortal))
-                {
-                    Remnants.ReleaseFleet(Fleet);
-                    return GoalStep.GoalComplete;
-                }
+                    return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
                 Fleet.FleetTask.ChangeAO(closestPortal.Center);
                 Fleet.TaskStep = 8; // Order fleet to go back to portal
@@ -128,13 +135,14 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Select a new closest planet
-            if (!Remnants.SelectClosestNextPlanet(TargetEmpire, TargetPlanet, Remnants.NumBombersInFleet(Fleet), out Planet nextPlanet))
-                return GoalStep.GoalComplete;
+            if (!Remnants.TargetNextPlanet(TargetEmpire, TargetPlanet, Remnants.NumBombersInFleet(Fleet), out Planet nextPlanet))
+                return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
-            TargetPlanet = nextPlanet;
-            Fleet.FleetTask.ChangeTargetPlanet(TargetPlanet);
+            Fleet.FleetTask.ChangeTargetPlanet(nextPlanet);
+            TargetPlanet   = nextPlanet;
+            Fleet.Name     = $"Ancient Fleet - {TargetPlanet.Name}";
             Fleet.TaskStep = 1;
-
+            ChangeTaskTargetPlanet();
             return GoalStep.TryAgain;
         }
     }

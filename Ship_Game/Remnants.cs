@@ -55,13 +55,12 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            float xpTrigger   = ShipRole.GetMaxExpValue() * (EmpireManager.MajorEmpires.Length-1);
-            float stepTrigger = ShipRole.GetMaxExpValue() * StoryStep;
-            if (StoryTriggerKillsXp >= xpTrigger && !Activated)
+            if (!Activated && StoryTriggerKillsXp >= 30 * (EmpireManager.MajorEmpires.Length - 1))
                 Activate();
 
             if (empire.isPlayer)
             {
+                float stepTrigger = ShipRole.GetMaxExpValue() / 2f * StoryStep;
                 PlayerStepTriggerXp += xp;
                 if (PlayerStepTriggerXp > stepTrigger) // todo 0 is for testing
                 {
@@ -72,10 +71,9 @@ namespace Ship_Game
                     StoryStep += 1;
                 }
             }
-
-            /*
-            if (!Activated) // todo for testing
-                Activate();*/
+            
+            //if (!Activated) // todo for testing
+            //    Activate();
         }
 
         void Activate()
@@ -86,9 +84,12 @@ namespace Ship_Game
             // Todo None story does not have a goal or maybe the old goal
 
             if (Story != RemnantStory.AncientColonizers)
+            {
                 Goals.Add(new RemnantEngagements(Owner));
+                Empire.Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
+            }
             //else
-               // Todo create colonization story  
+            // Todo create colonization story  
         }
 
         void NotifyPlayerOnLevelUp()
@@ -143,25 +144,28 @@ namespace Ship_Game
         public bool CanDoAnotherEngagement(out int numRaids)
         {
             numRaids = Goals.Count(g => g.IsRaid);
-            return numRaids < Level;
+            return numRaids < (Level / 2).LowerBound(1);
         }
 
         public bool FindValidTarget(Ship portal, out Empire target)
         {
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.MajorEmpires
+                                                                      : EmpireManager.NonPlayerEmpires;
+
             target = null;
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
-                    target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
                     break;
                 case RemnantStory.AncientExterminators: 
-                    target = EmpireManager.MajorEmpires.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore);
                     break;
                 case RemnantStory.AncientRaidersClosest:
-                    target = EmpireManager.MajorEmpires.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
+                    target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
                     break;
                 case RemnantStory.AncientRaidersRandom:
-                    var potentialEmpires = EmpireManager.MajorEmpires.Filter(e => !e.data.Defeated);
+                    var potentialEmpires = empiresList.Filter(e => !e.data.Defeated);
                     if (potentialEmpires.Length > 0)
                         target = potentialEmpires.RandItem();
 
@@ -185,6 +189,9 @@ namespace Ship_Game
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
         {
             ship = null;
+            if (portal.System == null)
+                return false;
+
             var availableShips = portal.System.ShipList.Filter(s => s.fleet == null 
                                                                     && s.loyalty == Owner 
                                                                     && s.IsGuardian
@@ -210,13 +217,14 @@ namespace Ship_Game
            return fleet?.Ships.Count(s => s.Name == Owner.data.RemnantBomber) ?? 0;
         }
 
-        public void ReleaseFleet(Fleet fleet)
+        public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep)
         {
             if (fleet == null)
-                return;
+                return goalStep;
 
             fleet.FleetTask?.DisbandFleet(fleet);
             fleet.FleetTask?.EndTask();
+            return goalStep;
         }
 
         public bool GetClosestPortal(Vector2 position, out Ship portal)
@@ -231,27 +239,15 @@ namespace Ship_Game
 
         public void OrderEscortPortal(Ship portal)
         {
+            if (portal.System == null)
+                return;
+
             for (int i = 0; i < portal.System.ShipList.Count; i++)
             {
                 Ship ship = portal.System.ShipList[i];
                 if (!ship.IsPlatformOrStation && ship.IsGuardian && !ship.InCombat && ship.AI.EscortTarget == null && ship.fleet == null)
                     ship.AI.AddEscortGoal(portal);
             }
-        }
-
-        public bool SelectTargetPlanetByLevel(Empire targetEmpire, out Planet targetPlanet)
-        {
-            targetPlanet           = null;
-            int desiredPlanetLevel = (RollDie(5) - 5 + Level).LowerBound(1);
-            var potentialPlanets   = targetEmpire.GetPlanets().Filter(p => p.Level == desiredPlanetLevel);
-            if (potentialPlanets.Length == 0) // Try lower level planets if not found exact level
-                potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.Level < desiredPlanetLevel);
-
-            if (potentialPlanets.Length == 0)
-                return false; // Could not find a target planet by planet level
-
-            targetPlanet = potentialPlanets.RandItem();
-            return true;
         }
 
         public bool SelectTargetClosestPlanet(Ship portal, Empire targetEmpire, out Planet targetPlanet)
@@ -265,17 +261,22 @@ namespace Ship_Game
             return targetPlanet != null;
         }
 
-        public bool SelectClosestNextPlanet(Empire targetEmpire, Planet currentPlanet, int numBombers, out Planet nextPlanet)
+        public bool TargetNextPlanet(Empire targetEmpire, Planet currentPlanet, int numBombers, out Planet nextPlanet)
         {
-            nextPlanet           = null;
-            // pick another system if there are not bombers in the fleet
-            var potentialPlanets = numBombers == 0 ? targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem)
-                                                   : targetEmpire.GetPlanets().ToArray();
+            nextPlanet = null;
+            if (numBombers > 0 && currentPlanet.ParentSystem.IsOwnedBy(targetEmpire))
+            {
+                nextPlanet = currentPlanet.ParentSystem.PlanetList.Filter(p => p.Owner == targetEmpire).RandItem();
+                return true;
+            }
 
+            var potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem);
             if (potentialPlanets.Length == 0)
                 return false;
 
-            nextPlanet = potentialPlanets.FindMin(p => p.Center.Distance(currentPlanet.Center));
+            int numPlanets     = 5.UpperBound(potentialPlanets.Length);
+            var closestPlanets = potentialPlanets.Sorted(p => p.Center.Distance(currentPlanet.Center)).Take(numPlanets).ToArray();
+            nextPlanet         = closestPlanets.RandItem();
             return nextPlanet != null;
         }
 
@@ -294,7 +295,7 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            return RollDice((Level - 1) * 10) ? planet.Level : 0;
+            return RollDice((Level - 1) * 10) ? planet.Level.UpperBound(Level / 2) : 0;
         }
 
         public bool CreatePortal(out Ship portal, out string systemName)
