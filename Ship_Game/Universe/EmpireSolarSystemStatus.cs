@@ -36,7 +36,7 @@ namespace Ship_Game.Universe
         {
             foreach (Ship ship in System.ShipList)
             {
-                if (ship.loyalty == Owner)
+                if (ship == null || ship.loyalty == Owner)
                     continue;
 
                 if (ship.loyalty.isFaction || Owner.IsEmpireAttackable(ship.loyalty, ship))

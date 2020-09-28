@@ -63,6 +63,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep DetermineNumBombers()
         {
             ShipLevel = BombersLevel = Remnants.GetNumBombersNeeded(TargetPlanet);
+            //ShipLevel = BombersLevel = 1; // todo for testing
             return GoalStep.GoToNextStep;
         }
 
