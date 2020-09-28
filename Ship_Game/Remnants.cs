@@ -71,9 +71,9 @@ namespace Ship_Game
                     StoryStep += 1;
                 }
             }
-
-            if (!Activated) // todo for testing
-                Activate();
+            
+            //if (!Activated) // todo for testing
+            //    Activate();
         }
 
         void Activate()
