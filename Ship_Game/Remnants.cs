@@ -55,12 +55,12 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            if (!Activated && StoryTriggerKillsXp >= 30)
+            if (!Activated && StoryTriggerKillsXp >= 30 * (EmpireManager.MajorEmpires.Length -1))
                 Activate();
 
             if (empire.isPlayer)
             {
-                float stepTrigger = ShipRole.GetMaxExpValue() * StoryStep;
+                float stepTrigger = ShipRole.GetMaxExpValue() / 2f * StoryStep;
                 PlayerStepTriggerXp += xp;
                 if (PlayerStepTriggerXp > stepTrigger) // todo 0 is for testing
                 {
@@ -71,7 +71,6 @@ namespace Ship_Game
                     StoryStep += 1;
                 }
             }
-
 
             if (!Activated) // todo for testing
                 Activate();
@@ -85,9 +84,12 @@ namespace Ship_Game
             // Todo None story does not have a goal or maybe the old goal
 
             if (Story != RemnantStory.AncientColonizers)
+            {
                 Goals.Add(new RemnantEngagements(Owner));
+                Empire.Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
+            }
             //else
-               // Todo create colonization story  
+            // Todo create colonization story  
         }
 
         void NotifyPlayerOnLevelUp()
