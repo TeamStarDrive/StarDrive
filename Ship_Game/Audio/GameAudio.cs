@@ -216,15 +216,13 @@ namespace Ship_Game.Audio
         public static void SwitchToRacialMusic()
         {
             if (CantPlayMusic()) return;
-            Music.Stop(AudioStopOptions.Immediate);
-            MuteGenericMusic();
-            UnMuteRacialMusic();
+            Music.Pause();
+            RacialMusic.SetVolume(GlobalStats.MusicVolume);
         }
 
         public static void SwitchBackToGenericMusic()
         {
-            if (CantPlayMusic()) return;
-            UnMuteGenericMusic();
+            if (CantPlayMusic()) return;            
             Music.Resume();
             RacialMusic.Stop(AudioStopOptions.Immediate);
         }

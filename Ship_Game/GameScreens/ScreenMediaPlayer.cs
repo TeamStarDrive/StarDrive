@@ -106,13 +106,11 @@ namespace Ship_Game.GameScreens
         {
             PlayVideo(empire.data.Traits.VideoPath);
 
-            GameAudio.PauseGenericMusic();
-
-            if (empire.data.MusicCue != null)
-            {
-                GameAudio.PauseGenericMusic();
+            if (empire.data.MusicCue != null && Player.State != MediaState.Playing)
+            {                
                 string warCue = "Stardrive_Combat 1c_114BPM";
                 Music = GameAudio.PlayMusic(warMusic ? warCue : empire.data.MusicCue);
+                GameAudio.SwitchToRacialMusic();
             }
         }
 
