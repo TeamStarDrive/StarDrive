@@ -2479,12 +2479,10 @@ namespace Ship_Game
                     if (allEmpiresDead)
                     {
                         Empire remnants = EmpireManager.Remnants;
-                        if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated)
+                        if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
                             Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
                         else
-                        {
-
-                        }
+                            remnants.Remnants.TriggerOnlyRemnantsLeftEvent();
 
                         return;
                     }

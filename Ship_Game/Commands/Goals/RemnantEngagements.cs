@@ -44,18 +44,9 @@ namespace Ship_Game.Commands.Goals
             Remnants.Goals.Add(new RemnantEngageEmpire(empire, portals.RandItem(), target));
         }
 
-        bool CreatePortal()
-        {
-            if (!Remnants.CreatePortal(out Ship portal, out string systemName))
-                return false;
-
-            Remnants.Goals.Add(new RemnantPortal(empire, portal, systemName));
-            return true;
-        }
-
         GoalStep CreateFirstPortal()
         {
-            if (!CreatePortal())
+            if (!Remnants.CreatePortal())
             {
                 Log.Warning($"Could not create a portal for {empire.data.Name}, they will not be activated!");
                 return GoalStep.GoalFailed;
@@ -81,8 +72,8 @@ namespace Ship_Game.Commands.Goals
 
             if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
             {
-                CreatePortal(); // Second portal at level 10
-                Empire.Universe.NotificationManager.AddRemnantsNewPortal(empire);
+                if (Remnants.CreatePortal()); // Second portal at level 10
+                    Empire.Universe.NotificationManager.AddRemnantsNewPortal(empire);
             }
 
             EngageEmpire(portals);
