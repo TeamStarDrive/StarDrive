@@ -134,7 +134,6 @@ namespace Ship_Game
         bool ShowingSysTooltip;
         bool ShowingPlanetToolTip;
         float MusicCheckTimer;
-        float shiptimer;
         public Ship ShipToView;
         public float AdjustCamTimer;
         public AutomationWindow aw;
