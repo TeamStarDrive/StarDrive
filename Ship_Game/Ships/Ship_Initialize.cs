@@ -205,6 +205,9 @@ namespace Ship_Game.Ships
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
 
+            if (loyalty.WeAreRemnants)
+                IsGuardian = true;
+
             if (!ResourceManager.ShipTemplateExists(save.Name))
             {
                 save.data.Hull = save.Hull;

@@ -24,6 +24,7 @@ namespace Ship_Game
         public int Level { get; private set; }
         public Map<RemnantShipType, float> ShipCosts { get; } = new Map<RemnantShipType, float>();
         public int StoryStep { get; private set; } = 1;
+        public bool OnlyRemnantLeft { get; private set; }
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -48,6 +49,7 @@ namespace Ship_Game
             Production          = sData.RemnantProduction;
             Level               = sData.RemnantLevel;
             StoryStep           = sData.RemnantStoryStep;
+            OnlyRemnantLeft     = sData.OnlyRemnantLeft;
         }
 
         public void IncrementKills(Empire empire, int xp)
@@ -130,15 +132,56 @@ namespace Ship_Game
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
         }
 
-        bool GetStoryEvent(out ExplorationEvent expEvent)
+        bool GetStoryEvent(out ExplorationEvent expEvent, bool onlyRemnantsLeft = false)
         {
-            expEvent = null;
-            var events = ResourceManager.EventsDict.Values.ToArray().Filter(e => e.StoryStep == StoryStep 
-                                                                            && (e.Story == Story || Story != RemnantStory.None && e.AllRemnantStories));
+            expEvent            = null;
+            var potentialEvents = ResourceManager.EventsDict.Values.ToArray();
+            var events = onlyRemnantsLeft ? potentialEvents.Filter(e => e.Story == Story && e.TriggerWhenOnlyRemnantsLeft)
+                                          : potentialEvents.Filter(e => e.StoryStep == StoryStep 
+                                             && (e.Story == Story || Story != RemnantStory.None && e.AllRemnantStories));
             if (events.Length > 0)
                 expEvent = events.First();
 
             return expEvent != null;
+        }
+
+        public void TriggerOnlyRemnantsLeftEvent()
+        {
+            if (OnlyRemnantLeft)
+                return;
+
+            if (GetStoryEvent(out ExplorationEvent expEvent, true))
+            {
+                Empire.Universe.NotificationManager.AddRemnantUpdateNotify(expEvent, Owner);
+                OnlyRemnantLeft = true;
+                TriggerVsPlayerEndGame();
+            }
+            else
+            {
+                Activated = false; // Shutdown Remnants so win screen could be displayed if no event found
+            }
+        }
+
+        void TriggerVsPlayerEndGame()
+        {
+            switch (Story)
+            {
+                case RemnantStory.AncientBalancers:
+                    for (int i = 0; i <= (int)CurrentGame.Difficulty; i++)
+                        CreatePortal();
+                    break;
+                case RemnantStory.AncientExterminators:
+                    if (!GetPortals(out Ship[] portals))
+                        return;
+                    Ship portal = portals.RandItem();
+                    for (int i = 0; i < ((int)CurrentGame.Difficulty + 1) * 3; i++)
+                    {
+                        if (!SpawnShip(RemnantShipType.Exterminator, portal.Center, out _))
+                            return;
+                    }
+
+                    break;
+            }
         }
 
         public bool CanDoAnotherEngagement(out int numRaids)
@@ -298,7 +341,16 @@ namespace Ship_Game
             return RollDice((Level - 1) * 10) ? planet.Level.UpperBound(Level / 2) : 0;
         }
 
-        public bool CreatePortal(out Ship portal, out string systemName)
+        public bool CreatePortal()
+        {
+            if (!CreatePortal(out Ship portal, out string systemName))
+                return false;
+
+            Goals.Add(new RemnantPortal(Owner, portal, systemName));
+            return true;
+        }
+
+        bool CreatePortal(out Ship portal, out string systemName)
         {
             portal             = null;
             SolarSystem system = null;
