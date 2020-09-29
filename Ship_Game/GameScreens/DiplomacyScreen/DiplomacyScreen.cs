@@ -507,6 +507,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             if (Exit.HandleInput(input) && DState != DialogState.TheirOffer)
             {
+                Ship_Game.Audio.GameAudio.SwitchBackToGenericMusic();
                 ExitScreen();
                 return true;
             }
