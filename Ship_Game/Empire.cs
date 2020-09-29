@@ -2478,7 +2478,14 @@ namespace Ship_Game
                     }
                     if (allEmpiresDead)
                     {
-                        Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
+                        Empire remnants = EmpireManager.Remnants;
+                        if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated)
+                            Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
+                        else
+                        {
+
+                        }
+
                         return;
                     }
                 }
