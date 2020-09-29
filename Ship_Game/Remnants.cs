@@ -202,7 +202,7 @@ namespace Ship_Game
                     target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
                     break;
                 case RemnantStory.AncientExterminators: 
-                    target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.CurrentMilitaryStrength);
                     break;
                 case RemnantStory.AncientRaidersClosest:
                     target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
