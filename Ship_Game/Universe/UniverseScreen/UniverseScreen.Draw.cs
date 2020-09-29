@@ -486,7 +486,7 @@ namespace Ship_Game
             batch.End();
 
             // Advance the simulation time just before we Notify
-            if (!Paused)
+            if (!Paused && IsActive)
             {
                 AdvanceSimulationTargetTime(elapsed.RealTime.Seconds);
             }

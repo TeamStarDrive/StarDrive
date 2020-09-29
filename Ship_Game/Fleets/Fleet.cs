@@ -733,6 +733,7 @@ namespace Ship_Game.Fleets
 
         void DoRemnantEngagement(MilitaryTask task)
         {
+            float divider = Ships.Count < 5 ? 0.5f : 2;
             switch (TaskStep)
             {
                 case 1:
@@ -751,7 +752,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length()))
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / divider))
                         break;
 
                     TaskStep = 5;
@@ -762,6 +763,8 @@ namespace Ship_Game.Fleets
                     {
                         BombPlanet(FleetTask);
                         AttackEnemyStrengthClumpsInAO(task);
+                        if (FleetTask.TargetPlanet.Owner == null)
+                            TaskStep = 7;
                         break;
                     }
 
@@ -782,7 +785,6 @@ namespace Ship_Game.Fleets
                     TaskStep = 9;
                     break;
                 case 9:
-                    float divider = Ships.Count < 5 ? 0.5f : 2;
                     if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / divider))
                         break;
 
