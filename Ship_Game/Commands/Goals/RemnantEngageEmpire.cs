@@ -105,7 +105,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             ship.AI.AddEscortGoal(Portal);
-            if (FleetStrNoBombers < (TargetEmpire.CurrentMilitaryStrength / 4).LowerBound(Remnants.Level * 100))
+            if (FleetStrNoBombers < (TargetEmpire.CurrentMilitaryStrength / 4).LowerBound(Remnants.Level*Remnants.Level * 100))
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();
@@ -121,7 +121,7 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.TaskStep == 10) // Arrived back to portal
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
-            if (Fleet.TaskStep != 7) // Cleared enemy at target planet
+            if (Fleet.TaskStep != 7 && TargetPlanet.Owner != null) // Cleared enemy at target planet
                 return GoalStep.TryAgain;
 
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
@@ -130,7 +130,9 @@ namespace Ship_Game.Commands.Goals
                     return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
                 Fleet.FleetTask.ChangeAO(closestPortal.Center);
-                Fleet.TaskStep = 8; // Order fleet to go back to portal
+                if (Fleet.TaskStep < 8)
+                    Fleet.TaskStep = 8; // Order fleet to go back to portal
+
                 return GoalStep.TryAgain;
             }
 
@@ -139,9 +141,10 @@ namespace Ship_Game.Commands.Goals
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
             Fleet.FleetTask.ChangeTargetPlanet(nextPlanet);
-            TargetPlanet   = nextPlanet;
-            Fleet.Name     = $"Ancient Fleet - {TargetPlanet.Name}";
-            Fleet.TaskStep = 1;
+            int changeToStep = TargetPlanet.ParentSystem == nextPlanet.ParentSystem ? 5 : 1;
+            TargetPlanet     = nextPlanet;
+            Fleet.Name       = $"Ancient Fleet - {TargetPlanet.Name}";
+            Fleet.TaskStep   = changeToStep;
             ChangeTaskTargetPlanet();
             return GoalStep.TryAgain;
         }
