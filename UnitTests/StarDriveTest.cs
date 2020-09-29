@@ -142,6 +142,7 @@ namespace UnitTests
             target.InFrustum = true; // force module pos update
             target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
+            target.SetSystem(null);
             return target;
         }
 
