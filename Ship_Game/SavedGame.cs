@@ -171,6 +171,7 @@ namespace Ship_Game
                     empireToSave.RemnantLevel               = e.Remnants.Level;
                     empireToSave.RemnantStoryStep           = e.Remnants.StoryStep;
                     empireToSave.RemnantPlayerStepTriggerXp = e.Remnants.PlayerStepTriggerXp;
+                    empireToSave.OnlyRemnantLeft            = e.Remnants.OnlyRemnantLeft;
                 }
 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
@@ -590,6 +591,7 @@ namespace Ship_Game
             [Serialize(34)] public int RemnantLevel;
             [Serialize(35)] public int RemnantStoryStep;
             [Serialize(36)] public float RemnantPlayerStepTriggerXp;
+            [Serialize(37)] public bool OnlyRemnantLeft;
         }
 
         public class FleetSave

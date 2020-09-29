@@ -8,6 +8,7 @@ namespace Ship_Game
         public int StoryStep;
         public Remnants.RemnantStory Story;
         public bool AllRemnantStories; // This event step is relevant for all Remnant Stories
+        public bool TriggerWhenOnlyRemnantsLeft; // Trigger this when all empires are defeated but the Remnants
 
         public Array<Outcome> PotentialOutcomes;
 
