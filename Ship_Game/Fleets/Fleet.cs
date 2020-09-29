@@ -733,7 +733,6 @@ namespace Ship_Game.Fleets
 
         void DoRemnantEngagement(MilitaryTask task)
         {
-            float divider = Ships.Count < 5 ? 0.5f : 2;
             switch (TaskStep)
             {
                 case 1:
@@ -741,7 +740,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length()))
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
                         break;
 
                     TaskStep = 3;
@@ -752,8 +751,11 @@ namespace Ship_Game.Fleets
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / divider))
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
+                    {
+                        BombPlanet(FleetTask);
                         break;
+                    }
 
                     TaskStep = 5;
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
@@ -785,7 +787,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 9;
                     break;
                 case 9:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() / divider))
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
                         break;
 
                     TaskStep = 10;
