@@ -1,33 +1,11 @@
 #pragma once
-#include "Config.h"
 #include "SpatialObject.h"
 #include "SlabAllocator.h"
 #include "SpatialObjectArray.h"
+#include "Primitives.h"
 
 namespace spatial
 {
-    /**
-     * Describes the result of the collision callback.
-     * This allows the collider to ignore objects which
-     * no longer participate in further collisions
-     */
-    enum class CollisionResult : int
-    {
-        NoSideEffects, // no visible side effect from collision (both objects still alive)
-        ObjectAKilled, // objects collided and objectA was killed (no further collision possible)
-        ObjectBKilled, // objects collided and objectB was killed (no further collision possible)
-        BothKilled,    // both objects were killed during collision (no further collision possible)
-    };
-
-    /**
-     * Function for handling collisions between two objects
-     * @param user User defined pointer for passing context
-     * @param objectA ID of the first object colliding
-     * @param objectA ID of the second object colliding
-     * @return CollisionResult Result of the collision
-     */
-    using CollisionFunc = CollisionResult (SPATIAL_CC*)(void* user, int objectA, int objectB);
-
     /**
      * Collision mask which matches all object types
      */
@@ -35,16 +13,12 @@ namespace spatial
 
     struct CollisionParams
     {
-        void* user = nullptr; // user pointer passed to onCollide
-        CollisionFunc onCollide = nullptr; // collide reaction callback
         bool ignoreSameLoyalty = false; // if TRUE, ignore objects of same loyalty
+        bool sortCollisionsById = true; // if TRUE, collision results are sorted by object Id-s, ascending
         bool showCollisions = false; // if TRUE, collided objects are saved for debug
     };
 
-    struct CollisionPair
-    {
-        int a, b;
-    };
+    using CollisionPairs = Array<CollisionPair>;
 
     class Collider
     {
@@ -64,9 +38,9 @@ namespace spatial
         };
         CollisionChain** CollidedObjectsMap;
 
-    public:
+        CollisionPairs Results {};
 
-        SpatialIdArray Collisions;
+    public:
 
         explicit Collider(SlabAllocator& allocator, int maxObjectId);
 
@@ -74,7 +48,12 @@ namespace spatial
          * @param arr Sorted array of spatial objects
          * @param params Collision parameters
          */
-        int collideObjects(SpatialObjectArray arr, const CollisionParams& params);
+        void collideObjects(SpatialObjectsView arr, const CollisionParams& params);
+
+        /**
+         * Get collision results and applies final modifications to the result array
+         */
+        CollisionPairs getResults(const CollisionParams& params);
 
     private:
 
