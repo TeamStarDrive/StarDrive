@@ -12,6 +12,11 @@ namespace spatial
         uint8_t r, g, b, a;
     };
 
+    struct CollisionPair
+    {
+        int a, b;
+    };
+
     struct Point
     {
         int x;

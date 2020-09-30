@@ -34,13 +34,8 @@ namespace Ship_Game
         /// </summary>
         int Count { get; }
 
-        void Reset();
-        void Insert(GameplayObject go);
-        void Remove(GameplayObject go);
-
-        void UpdateAll();
+        void UpdateAll(Array<GameplayObject> allObjects);
         int CollideAll(FixedSimTime timeStep);
-        void CollideAllRecursive(FixedSimTime timeStep);
         
         /// <summary>
         /// Finds nearby GameplayObjects using multiple filters
@@ -73,10 +68,5 @@ namespace Ship_Game
                                     Empire onlyLoyalty);
 
         void DebugVisualize(GameScreen screen);
-
-        /// <summary>
-        /// Copies this Spatial Collection's objects into the target collection
-        /// </summary>
-        void CopyTo(ISpatial target);
     }
 }

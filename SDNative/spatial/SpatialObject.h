@@ -11,8 +11,8 @@ namespace spatial
      */
     struct SpatialObject
     {
-        uint8_t active;  // 1 if this item is active, 0 if this item is DEAD
-        uint8_t loyalty; // if loyalty == 0, then this is a STATIC world object !!!
+        uint8_t active;  // 1 if this item is active, 0 if this item is DEAD and REMOVED from world
+        uint8_t loyalty; // if loyalty == 0xff, then this is a STATIC world object !!!
         uint8_t type; // object type used in filtering findNearby queries
         uint8_t collisionMask; // mask which matches objects this object can collide with
         int objectId; // handle to the object

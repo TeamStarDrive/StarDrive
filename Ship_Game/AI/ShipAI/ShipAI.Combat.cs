@@ -126,6 +126,8 @@ namespace Ship_Game.AI
                 for (int i = 0; i < projectiles.Length; i++)
                 {
                     GameplayObject go = projectiles[i];
+                    if (go == null)
+                        continue;
                     var missile = (Projectile) go;
                     if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
                         ScannedProjectiles.AddUniqueRef(missile);

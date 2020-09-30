@@ -1,6 +1,7 @@
 #pragma once
 #include "SpatialObject.h"
 #include <vector>
+#include <mutex>
 
 namespace spatial
 {
@@ -12,6 +13,7 @@ namespace spatial
      */
     class SPATIAL_API ObjectCollection
     {
+        std::mutex Sync;
         std::vector<SpatialObject> PendingInsert;
 
         // Stable vector of the objects, this capacity does not change often

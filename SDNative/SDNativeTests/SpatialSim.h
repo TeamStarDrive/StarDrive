@@ -148,11 +148,11 @@ struct Simulation final : spatial::Visualizer
 
         spatial::CollisionParams cp;
         cp.showCollisions = true;
-        numCollisions = spat->collideAll(cp, [this](int objectA, int objectB)
+        spatial::Array<spatial::CollisionPair> collisions = spat->collideAll(cp);
+        for (spatial::CollisionPair collision : collisions)
         {
-            collide(objectA, objectB);
-            return spatial::CollisionResult::NoSideEffects;
-        });
+            collide(collision.a, collision.b);
+        }
 
         collideMs = t2.elapsed_ms();
     }

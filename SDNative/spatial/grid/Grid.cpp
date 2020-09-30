@@ -92,9 +92,8 @@ namespace spatial
         Cells = cells;
     }
 
-    int Grid::collideAll(const CollisionParams& params)
+    CollisionPairs Grid::collideAll(const CollisionParams& params)
     {
-        int count = 0;
         Collider collider { *FrontAlloc, Objects.maxObjects() };
 
         GridCell* cells = Cells;
@@ -103,16 +102,16 @@ namespace spatial
             const GridCell& cell = cells[i];
             if (int size = cell.size)
             {
-                count += collider.collideObjects({cell.objects, size}, params);
+                collider.collideObjects({cell.objects, size}, params);
             }
         }
 
+        CollisionPairs results = collider.getResults(params);
         if (params.showCollisions)
         {
-            Dbg.setCollisions(collider.Collisions.ids, collider.Collisions.size);
+            Dbg.setCollisions(results);
         }
-
-        return count;
+        return results;
     }
 
     // transform a cell at index X,Y

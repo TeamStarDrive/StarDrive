@@ -139,20 +139,9 @@ namespace spatial
          * Collide all objects and call CollisionFunc for each collided pair
          * @note Once two objects have collided, they cannot collide anything else during collideAll
          * @param params Collision parameters
+         * @return Collision results
          */
-        virtual int collideAll(const CollisionParams& params) = 0;
-
-        template<class CollisionCallback>
-        int collideAll(CollisionParams params, const CollisionCallback& callback)
-        {
-            params.user = (void*)&callback;
-            params.onCollide = [](void* user, int objectA, int objectB) -> CollisionResult
-            {
-                const CollisionCallback& callback = *static_cast<const CollisionCallback*>(user);
-                return callback(objectA, objectB);
-            };
-            return this->collideAll(params);
-        }
+        virtual Array<CollisionPair> collideAll(const CollisionParams& params) = 0;
 
         /**
          * Finds multiple nearby objects. This is THREAD SAFE
@@ -195,7 +184,7 @@ namespace spatial
     SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y);
     SPATIAL_C_API void SPATIAL_CC SpatialRemove(Spatial* spatial, int objectId);
 
-    SPATIAL_C_API int SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params);
+    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params, CollisionPairs* outResults);
     SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt);
     SPATIAL_C_API void SPATIAL_CC SpatialDebugVisualize(Spatial* spatial, const VisualizerOptions* opt, const VisualizerBridge* vis);
 

@@ -1,4 +1,5 @@
 #include "Collision.h"
+#include <algorithm>
 
 namespace spatial
 {
@@ -9,18 +10,13 @@ namespace spatial
         CollidedObjectsMap = allocator.allocArrayZeroed<CollisionChain*>(maxObjectId + 1);
     }
 
-    int Collider::collideObjects(SpatialObjectArray arr, const CollisionParams& params)
+    void Collider::collideObjects(SpatialObjectsView arr, const CollisionParams& params)
     {
-        int numCollision = 0;
         bool ignoreSame = params.ignoreSameLoyalty;
-        bool showCollisions = params.showCollisions;
 
         for (int i = 0; i < arr.size; ++i)
         {
             SpatialObject& objectA = *arr.objects[i];
-            if (!objectA.active)
-                continue;
-
             float ax = objectA.x;
             float ay = objectA.y;
             float ar = objectA.rx;
@@ -30,7 +26,7 @@ namespace spatial
             for (int j = i + 1; j < arr.size; ++j)
             {
                 SpatialObject& objectB = *arr.objects[j];
-                if (!objectB.active || (collisionMaskA & objectB.collisionMask) == 0)
+                if ((collisionMaskA & objectB.collisionMask) == 0)
                     continue;
                 if (ignoreSame && objectB.loyalty == loyaltyA)
                     continue; // ignore same loyalty objects from collision
@@ -43,35 +39,24 @@ namespace spatial
                     CollisionPair pair { objectA.objectId, objectB.objectId };
                     if (tryCollide(pair))
                     {
-                        ++numCollision;
-                        if (showCollisions)
-                        {
-                            Collisions.addId(Allocator, pair.a, 128);
-                            Collisions.addId(Allocator, pair.b, 128);
-                        }
-
-                        CollisionResult result = params.onCollide(params.user, pair.a, pair.b);
-                        switch (result)
-                        {
-                            case CollisionResult::NoSideEffects:
-                                break;
-                            case CollisionResult::ObjectAKilled:
-                                objectA.active = 0;
-                                goto nextObjectA;
-                            case CollisionResult::ObjectBKilled:
-                                objectB.active = 0;
-                                break;
-                            case CollisionResult::BothKilled:
-                                objectA.active = 0;
-                                objectB.active = 0;
-                                goto nextObjectA;
-                        }
+                        Results.add(Allocator, pair, 128);
                     }
                 }
             }
-            nextObjectA:continue;
         }
-        return numCollision;
+    }
+
+    CollisionPairs Collider::getResults(const CollisionParams& params)
+    {
+        if (params.sortCollisionsById)
+        {
+            std::sort(Results.begin(), Results.end(),
+            [](CollisionPair first, CollisionPair second)
+            {
+                return first.a < second.a && first.b < second.b;
+            });
+        }
+        return Results;
     }
 
     bool Collider::tryCollide(CollisionPair pair)

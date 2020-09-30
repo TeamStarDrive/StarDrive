@@ -43,26 +43,8 @@ namespace Ship_Game
                 }
             }
 
-            foreach (Ship ship in ships)
-                tree.Insert(ship);
-
-            tree.UpdateAll();
+            tree.UpdateAll(new Array<GameplayObject>(ships));
             return ships;
-        }
-
-        public static Array<Projectile> SpawnProjectilesFromEachShip(ISpatial tree, Array<Ship> ships)
-        {
-            float spacing = tree.WorldSize / (float)Math.Sqrt(ships.Count);
-            var projectiles = new Array<Projectile>();
-            foreach (Ship ship in ships)
-            {
-                Weapon weapon = ship.Weapons.First;
-                var p = Projectile.Create(weapon, ship.Position + Vectors.Up*spacing, Vectors.Up, null, false);
-                projectiles.Add(p);
-                tree.Insert(p);
-            }
-            tree.UpdateAll();
-            return projectiles;
         }
 
         static Ship SpawnShip(string name, Empire loyalty, Vector2 pos, Vector2 dir)

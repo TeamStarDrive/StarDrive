@@ -198,16 +198,7 @@ namespace UnitTests.Universe
                 tree.CollideAll(TestSimStep);
             }
             float e1 = t1.Elapsed;
-            Console.WriteLine($"-- CollideAllIterative 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
-
-            var t2 = new PerfTimer();
-            for (int i = 0; i < iterations; ++i)
-            {
-                tree.CollideAllRecursive(TestSimStep);
-            }
-            float e2 = t2.Elapsed;
-            Console.WriteLine($"-- CollideAllRecursive 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
-
+            Console.WriteLine($"-- CollideAll 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
         }
     }
 }

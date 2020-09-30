@@ -5,9 +5,6 @@ namespace Ship_Game
 {
     public sealed partial class Quadtree
     {
-        // XOR Bitmask for True Projectile matching
-        const int TrueProjXORMask = (int)GameObjectType.Proj; // 0000_0100
-
         int NumCollisions;
 
         public int CollideAll(FixedSimTime timeStep)

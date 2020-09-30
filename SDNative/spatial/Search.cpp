@@ -41,11 +41,10 @@ namespace spatial
             for (int i = 0; i < size; ++i)
             {
                 const SpatialObject& o = *objects[i];
-                if (o.active
-                    && (o.loyalty & exclLoyaltyMask)
-                    && (o.loyalty & onlyLoyaltyMask)
-                    && (o.type     & filterMask)
-                    && ((o.objectId+1) & objectMask))
+                if ((o.loyalty & exclLoyaltyMask) &&
+                    (o.loyalty & onlyLoyaltyMask) &&
+                    (o.type    & filterMask) && 
+                    ((o.objectId+1) & objectMask))
                 {
                     if (inRadius(x,y, o.x,o.y, radius, o.rx))
                     {
