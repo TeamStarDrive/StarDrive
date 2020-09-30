@@ -37,6 +37,7 @@ namespace spatial
 
     int ObjectCollection::insert(const SpatialObject& object)
     {
+        //std::lock_guard<std::mutex> lock { Sync };
         int objectId;
         if (!FreeIds.empty())
         {
@@ -57,6 +58,7 @@ namespace spatial
 
     void ObjectCollection::remove(int objectId)
     {
+        //std::lock_guard<std::mutex> lock { Sync };
         if (objectId < (int)Objects.size())
         {
             SpatialObject& o = Objects[objectId];
@@ -97,6 +99,7 @@ namespace spatial
 
     void ObjectCollection::submitPending()
     {
+        //std::lock_guard<std::mutex> lock { Sync };
         if (!PendingInsert.empty())
         {
             if (Objects.size() < MaxObjects)

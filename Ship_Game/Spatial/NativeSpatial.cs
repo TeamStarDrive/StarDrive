@@ -3,6 +3,8 @@ using System;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
+
 #pragma warning disable 0649 // uninitialized struct
 
 namespace Ship_Game.Spatial
@@ -11,7 +13,6 @@ namespace Ship_Game.Spatial
     {
         Grid, // spatial::Grid
         QuadTree, // spatial::QuadTree
-
         ManagedQtree, // C# Quadtree
     };
 
@@ -34,18 +35,8 @@ namespace Ship_Game.Spatial
         [DllImport(Lib)] static extern int SpatialInsert(IntPtr spatial, ref NativeSpatialObject o);
         [DllImport(Lib)] static extern void SpatialUpdate(IntPtr spatial, int objectId, int x, int y);
         [DllImport(Lib)] static extern void SpatialRemove(IntPtr spatial, int objectId);
-        
-        enum CollisionResult : int
-        {
-            NoSideEffects, // no visible side effect from collision (both objects still alive)
-            ObjectAKilled, // objects collided and objectA was killed (no further collision possible)
-            ObjectBKilled, // objects collided and objectB was killed (no further collision possible)
-            BothKilled,    // both objects were killed during collision (no further collision possible)
-        }
 
-        [UnmanagedFunctionPointer(CC)]
-        delegate CollisionResult CollisionF(IntPtr voidPtr, int objectA, int objectB);
-        [DllImport(Lib)] static extern int SpatialCollideAll(IntPtr spatial, ref CollisionParams param);
+        [DllImport(Lib)] static extern void SpatialCollideAll(IntPtr spatial, ref CollisionParams param, ref CollisionPairs outResults);
         [DllImport(Lib)] static extern int SpatialFindNearby(IntPtr spatial, int* outResults, ref NativeSearchOptions opt);
 
         IntPtr Spat;
@@ -86,99 +77,221 @@ namespace Ship_Game.Spatial
             SpatialDestroy(tree);
         }
 
-        public void Reset()
+        public void UpdateAll(Array<GameplayObject> allObjects)
         {
+            int count = allObjects.Count;
             SpatialClear(Spat);
-        }
+                ObjectFlatMap.Resize(count);
 
-        static bool IsObjectDead(GameplayObject go)
-        {
-            // this is related to QuadTree fast-removal
-            return !go.Active || (go.Type == GameObjectType.Proj && ((Projectile)go).DieNextFrame);
-        }
-
-        public void Insert(GameplayObject go)
-        {
-            if (IsObjectDead(go))
-                return;
-
-            var so = new NativeSpatialObject(go);
-            int objectId = SpatialInsert(Spat, ref so);
-            go.SpatialIndex = objectId;
-
-            if (ObjectFlatMap.Count <= objectId)
-            {
-                ObjectFlatMap.Resize(objectId+1);
-            }
-
-            ObjectFlatMap[objectId] = go;
-        }
-
-        public void Remove(GameplayObject go)
-        {
-            int objectId = go.SpatialIndex;
-            if (objectId != -1)
-            {
-                go.SpatialIndex = -1;
-                ObjectFlatMap[objectId] = null;
-                SpatialRemove(Spat, objectId);
-            }
-        }
-
-        public void UpdateAll()
-        {
-            GameplayObject[] objects = ObjectFlatMap.GetInternalArrayItems();
-            int count = ObjectFlatMap.Count;
-
+            GameplayObject[] objects = allObjects.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
                 GameplayObject go = objects[i];
-                if (go != null)
-                {
-                    SpatialUpdate(Spat, go.SpatialIndex, (int)go.Position.X, (int)go.Position.Y);
-                }
+                if (!go.Active)
+                    continue;
+
+                var so = new NativeSpatialObject(go);
+                int objectId = SpatialInsert(Spat, ref so);
+                go.SpatialIndex = objectId;
+                ObjectFlatMap[objectId] = go;
             }
 
             SpatialRebuild(Spat);
         }
 
-        CollisionResult OnCollision(IntPtr voidPtr, int objectA, int objectB)
-        {
-            GameplayObject go1 = ObjectFlatMap[objectA];
-            GameplayObject go2 = ObjectFlatMap[objectB];
-
-            return CollisionResult.NoSideEffects;
-        }
-        
         [StructLayout(LayoutKind.Sequential)]
         struct CollisionParams
         {
-            IntPtr User;
-            public CollisionF OnCollide;
             public byte IgnoreSameLoyalty; // if 1, same loyalty objects don't collide
+            public byte SortCollisionsById; // if 1, collision results are sorted by object Id-s, ascending
             public byte ShowCollisions; // if 1, collisions are shown as debug
+        }
+        struct CollisionPair
+        {
+            public int A;
+            public int B;
+            public static readonly CollisionPair Empty = new CollisionPair{ A = -1, B = -1 };
+        }
+        struct CollisionPairs
+        {
+            public CollisionPair* Data;
+            public int Size;
+            public int Capacity;
         }
 
         public int CollideAll(FixedSimTime timeStep)
         {
             var p = new CollisionParams
             {
-                OnCollide = OnCollision,
                 IgnoreSameLoyalty = 1,
-            };
-            return SpatialCollideAll(Spat, ref p);
-        }
-
-        public void CollideAllRecursive(FixedSimTime timeStep)
-        {
-            var p = new CollisionParams
-            {
-                OnCollide = OnCollision,
-                IgnoreSameLoyalty = 0,
+                SortCollisionsById = 1,
                 ShowCollisions = (byte)(Empire.Universe?.Debug == true ? 1 : 0),
             };
-            SpatialCollideAll(Spat, ref p);
+
+            // get the collisions
+            CollisionPairs collisions = default;
+            SpatialCollideAll(Spat, ref p, ref collisions);
+            
+            int numCollisions = CollideObjects(collisions);
+            return numCollisions;
         }
+
+        struct BeamHitResult : IComparable<BeamHitResult>
+        {
+            public GameplayObject Collided;
+            public float Distance;
+            public int CompareTo(BeamHitResult other)
+            {
+                return Distance.CompareTo(other.Distance);
+            }
+        }
+
+        int CollideObjects(CollisionPairs collisions)
+        {
+            int numCollisions = 0;
+
+            // handle the sorted collision pairs
+            // for beam weapons, we need to gather all overlaps and find the nearest
+            var beamHits = new Array<BeamHitResult>();
+
+            for (int i = 0; i < collisions.Size; ++i)
+            {
+                CollisionPair pair = collisions.Data[i];
+                if (pair.A == -1) // object removed by beam collision
+                    continue;
+
+                GameplayObject objectA = ObjectFlatMap[pair.A];
+                GameplayObject objectB = ObjectFlatMap[pair.B];
+                if (!objectA.Active || !objectB.Active)
+                    continue; // a collision participant already died
+
+                // beam collision is a special case
+                if (objectA.Type == GameObjectType.Beam ||
+                    objectB.Type == GameObjectType.Beam)
+                {
+                    bool isBeamA = objectA.Type == GameObjectType.Beam;
+                    int beamId = isBeamA ? pair.A : pair.B;
+                    var beam = (Beam)(isBeamA ? objectA : objectB);
+                    GameplayObject victim = isBeamA ? objectB : objectA;
+
+                    AddBeamHit(beamHits, beam, victim);
+
+                    // gather and remove all other overlaps with this beam
+                    for (int j = i+1; j < collisions.Size; ++j)
+                    {
+                        pair = collisions.Data[j];
+                        if (pair.A == beamId)
+                        {
+                            AddBeamHit(beamHits, beam, ObjectFlatMap[pair.B]);
+                            collisions.Data[j] = CollisionPair.Empty; // remove
+                        }
+                        else if (pair.B == beamId)
+                        {
+                            AddBeamHit(beamHits, beam, ObjectFlatMap[pair.A]);
+                            collisions.Data[j] = CollisionPair.Empty; // remove
+                        }
+                    }
+
+                    if (beamHits.Count > 0)
+                    {
+                        // for beams, it's important to only collide the CLOSEST object
+                        // so we need to sort the hits by distance
+                        // and then work from closest to farthest until we get a valid collision
+                        // Some missiles/projectiles have special dodge features,
+                        // so we need to check all touches.
+                        if (beamHits.Count > 1)
+                            beamHits.Sort();
+
+                        for (int hitIndex = 0; hitIndex < beamHits.Count; ++hitIndex)
+                        {
+                            BeamHitResult hit = beamHits[hitIndex];
+                            if (HandleBeamCollision(beam, hit.Collided, hit.Distance))
+                            {
+                                ++numCollisions;
+                                break; // and we're done
+                            }
+                        }
+                        beamHits.Clear();
+                    }
+                }
+                else if (objectA.Type == GameObjectType.Proj ||
+                         objectB.Type == GameObjectType.Proj)
+                {
+                    bool isProjA = objectA.Type == GameObjectType.Proj;
+                    var proj = (Projectile)(isProjA ? objectA : objectB);
+                    GameplayObject victim = isProjA ? objectB : objectA;
+                    if (proj.Touch(victim))
+                        ++numCollisions;
+                }
+            }
+            return numCollisions;
+        }
+
+        static bool HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
+        {
+            if (!beam.Touch(victim))
+                return false;
+
+            Vector2 beamStart = beam.Source;
+            Vector2 beamEnd   = beam.Destination;
+            Vector2 hitPos;
+            if (hitDistance > 0f)
+                hitPos = beamStart + (beamEnd - beamStart).Normalized()*hitDistance;
+            else // the beam probably glanced the module from side, so just get the closest point:
+                hitPos = victim.Center.FindClosestPointOnLine(beamStart, beamEnd);
+
+            beam.BeamCollidedThisFrame = true;
+            beam.ActualHitDestination = hitPos;
+            return true;
+        }
+
+
+        static void AddBeamHit(Array<BeamHitResult> beamHits, Beam beam, GameplayObject victim)
+        {
+            if (HitTestBeam(beam, victim, out ShipModule hitModule, out float dist))
+            {
+                beamHits.Add(new BeamHitResult
+                {
+                    Distance = dist,
+                    Collided = hitModule ?? victim
+                });
+            }
+        }
+
+        static bool HitTestBeam(Beam beam, GameplayObject victim, out ShipModule hitModule, out float distanceToHit)
+        {
+            ++GlobalStats.BeamTests;
+
+            Vector2 beamStart = beam.Source;
+            Vector2 beamEnd   = beam.Destination;
+
+            if (victim.Type == GameObjectType.Ship) // beam-ship is special collision
+            {
+                var ship = (Ship)victim;
+                hitModule = ship.RayHitTestSingle(beamStart, beamEnd, 8f, beam.IgnoresShields);
+                if (hitModule == null)
+                {
+                    distanceToHit = float.NaN;
+                    return false;
+                }
+                return hitModule.RayHitTest(beamStart, beamEnd, 8f, out distanceToHit);
+            }
+
+            hitModule = null;
+            if (victim.Type == GameObjectType.Proj)
+            {
+                var proj = (Projectile)victim;
+                if (!proj.Weapon.Tag_Intercept) // for projectiles, make sure they are physical and can be killed
+                {
+                    distanceToHit = float.NaN;
+                    return false;
+                }
+            }
+
+            // intersect projectiles or anything else that can collide
+            return victim.Center.RayCircleIntersect(victim.Radius, beamStart, beamEnd, out distanceToHit);
+        }
+
 
         GameplayObject[] CopyOutput(int* objectIds, int count)
         {
@@ -408,16 +521,6 @@ namespace Ship_Game.Spatial
             Screen = screen;
             SpatialDebugVisualize(Spat, ref opt, ref vis);
             Screen = null;
-        }
-
-        public void CopyTo(ISpatial target)
-        {
-            for (int i = 0; i < ObjectFlatMap.Count; ++i)
-            {
-                GameplayObject go = ObjectFlatMap[i];
-                if (go != null)
-                    target.Insert(go);
-            }
         }
     }
 }

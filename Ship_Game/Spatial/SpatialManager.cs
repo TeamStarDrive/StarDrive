@@ -7,7 +7,7 @@ namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager
     {
-        SpatialType Type = SpatialType.ManagedQtree;
+        SpatialType Type = SpatialType.Grid;
         ISpatial Spatial;
         int UniverseWidth;
 
@@ -31,7 +31,6 @@ namespace Ship_Game.Gameplay
                 case SpatialType.QuadTree:     newSpatial = new NativeSpatial(type, UniverseWidth, 1024); break;
                 case SpatialType.ManagedQtree: newSpatial = new Quadtree(UniverseWidth, 1024); break;
             }
-            Spatial?.CopyTo(newSpatial);
             Spatial = newSpatial;
             Log.Info($"SpatialManager {Spatial.Name} Width: {(int)UniverseWidth}  FullSize: {(int)Spatial.FullSize}");
         }
@@ -51,27 +50,9 @@ namespace Ship_Game.Gameplay
             Spatial.DebugVisualize(screen);
         }
 
-        static bool IsSpatialType(GameplayObject obj)
-            => obj.Type == GameObjectType.Ship
-            || obj.Type == GameObjectType.Proj
-            || obj.Type == GameObjectType.Beam;
-        
-        public void Add(GameplayObject obj)
+        public void Update(FixedSimTime timeStep, Array<GameplayObject> allObjects)
         {
-            if (!IsSpatialType(obj) || Spatial == null)
-                return; // not a supported spatial manager type. just ignore it
-
-            Spatial.Insert(obj);
-        }
-
-        public void Remove(GameplayObject obj)
-        {
-            Spatial.Remove(obj);
-        }
-
-        public void Update(FixedSimTime timeStep)
-        {
-            Spatial.UpdateAll();
+            Spatial.UpdateAll(allObjects);
             Collisions = Spatial.CollideAll(timeStep);
         }
 

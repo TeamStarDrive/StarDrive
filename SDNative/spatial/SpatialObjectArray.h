@@ -5,26 +5,34 @@
 
 namespace spatial
 {
-    struct SpatialObjectArray
+    // Transient View of a SpatialObject Cell
+    struct SpatialObjectsView
     {
         SpatialObject** objects;
         int size;
     };
 
-    struct SpatialIdArray
+    template<class T> struct Array
     {
-        int* ids = nullptr;
+        T* data = nullptr;
         int size = 0;
         int capacity = 0;
 
-        SPATIAL_FINLINE void addId(SlabAllocator& allocator, int id, int defaultCapacity)
+        
+        T* begin() { return data; }
+        T* end()   { return data+size; }
+        const T* begin() const { return data; }
+        const T* end()   const { return data+size; }
+
+        SPATIAL_FINLINE void add(SlabAllocator& allocator, const T& item, int defaultCapacity)
         {
             if (size == capacity)
             {
                 capacity = (capacity == 0) ? defaultCapacity : capacity*2;
-                ids = allocator.allocArray(ids, size, capacity);
+                data = allocator.allocArray(data, size, capacity);
             }
-            ids[size++] = id;
+            data[size++] = item;
         }
     };
+
 }

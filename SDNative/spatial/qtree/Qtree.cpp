@@ -194,9 +194,8 @@ namespace spatial
         SPATIAL_FINLINE T pop_back() { return items[next--]; }
     };
 
-    int Qtree::collideAll(const CollisionParams& params)
+    CollisionPairs Qtree::collideAll(const CollisionParams& params)
     {
-        int count = 0;
         Collider collider { *FrontAlloc, Objects.maxObjects() };
 
         SmallStack<QtreeNode*> stack { Root };
@@ -214,18 +213,18 @@ namespace spatial
             {
                 if (int size = current.size)
                 {
-                    count += collider.collideObjects({current.objects, size}, params);
+                    collider.collideObjects({current.objects, size}, params);
                 }
             }
         }
         while (stack.next >= 0);
 
+        CollisionPairs results = collider.getResults(params);
         if (params.showCollisions)
         {
-            Dbg.setCollisions(collider.Collisions.ids, collider.Collisions.size);
+            Dbg.setCollisions(results);
         }
-
-        return count;
+        return results;
     }
 
     #pragma warning( disable : 6262 )

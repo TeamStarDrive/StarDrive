@@ -4,9 +4,11 @@ using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Xml.Serialization;
+using System;
 
 namespace Ship_Game
 {
+    [Flags]
     public enum GameObjectType : byte
     {
         // Can be used as a search filter to match all object types
@@ -46,12 +48,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
 
-        // -2: pending, -1: not in spatial, >= 0: in spatial
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
-        [XmlIgnore][JsonIgnore] public bool NotInSpatial   => SpatialIndex == -1;
-        [XmlIgnore][JsonIgnore] public bool InSpatial      => SpatialIndex != -1;
-        [XmlIgnore][JsonIgnore] public bool SpatialPending => SpatialIndex == -2;
-
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
 
         // current rotation converted into a direction vector
@@ -97,10 +94,6 @@ namespace Ship_Game
         public virtual void RemoveFromUniverseUnsafe()
         {
             SetSystem(null);
-            if (InSpatial)
-            {
-                UniverseScreen.SpaceManager.Remove(this);
-            }
         }
 
         [XmlIgnore][JsonIgnore]
@@ -113,11 +106,6 @@ namespace Ship_Game
 
         public void SetSystem(SolarSystem system)
         {
-            // SetSystem means this GameplayObject is used somewhere in the universe
-            // Regardless whether the system itself is null, we insert self to SpaceManager
-            if (!DisableSpatialCollision && Active && NotInSpatial)
-                UniverseScreen.SpaceManager.Add(this);
-
             if (System == system)
                 return;
 
@@ -143,13 +131,6 @@ namespace Ship_Game
 
         public void ChangeLoyalty(Empire changeTo, bool notification = true)
         {
-            // spatial collisions are filtered by loyalty,
-            // so we need to remove and re-insert after the loyalty change
-            if (InSpatial)
-            {
-                UniverseScreen.SpaceManager.Remove(this);
-            }
-
             if (Type == GameObjectType.Proj)
             {
                 ((Projectile) this).Loyalty = changeTo;

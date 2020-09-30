@@ -63,10 +63,10 @@ namespace spatial
         FindNearby[id] = std::move(find);
     }
 
-    void SpatialDebug::setCollisions(const int* collisions, int numCollisions)
+    void SpatialDebug::setCollisions(const CollisionPairs& collisions)
     {
         std::lock_guard lock { FindMutex };
-        Collisions.assign(collisions, collisions+numCollisions);
+        Collisions.assign(collisions.begin(), collisions.end());
     }
 
     void SpatialDebug::draw(Visualizer& visualizer, const VisualizerOptions& opt,
@@ -81,9 +81,10 @@ namespace spatial
 
         if (opt.collisions)
         {
-            for (int objectId : Collisions)
+            for (CollisionPair collision : Collisions)
             {
-                visualizer.drawRect(objects[objectId].rect(), Cyan);
+                visualizer.drawRect(objects[collision.a].rect(), Cyan);
+                visualizer.drawRect(objects[collision.b].rect(), Cyan);
             }
         }
     }

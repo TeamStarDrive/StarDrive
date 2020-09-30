@@ -1,8 +1,10 @@
 #pragma once
 #include "Primitives.h"
+#include "Collision.h"
 #include <vector>
 #include <unordered_map>
 #include <mutex>
+
 
 namespace spatial
 {
@@ -43,11 +45,11 @@ namespace spatial
         // so this mutable debug data must be lock guarded
         mutable std::mutex FindMutex;
         std::unordered_map<int, DebugFindNearby> FindNearby;
-        std::vector<int> Collisions;
+        std::vector<CollisionPair> Collisions;
 
         void clear();
         void setFindNearby(int id, DebugFindNearby&& find);
-        void setCollisions(const int* collisions, int numCollisions);
+        void setCollisions(const CollisionPairs& collisions);
         void draw(Visualizer& visualizer, const VisualizerOptions& opt,
                   const SpatialObject* objects) const;
     };

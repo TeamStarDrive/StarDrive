@@ -54,8 +54,7 @@ namespace spatial
         int insert(const SpatialObject& o) override { return Objects.insert(o); }
         void update(int objectId, int x, int y) override { Objects.update(objectId, x, y); }
         void remove(int objectId) override { Objects.remove(objectId); }
-        using Spatial::collideAll;
-        int collideAll(const CollisionParams& params) override;
+        CollisionPairs collideAll(const CollisionParams& params) override;
         int findNearby(int* outResults, const SearchOptions& opt) const override;
         void debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const override;
     };

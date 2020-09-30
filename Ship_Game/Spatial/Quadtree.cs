@@ -29,16 +29,14 @@ namespace Ship_Game
 
         QtreeNode Root;
 
-        readonly Array<GameplayObject> Pending = new Array<GameplayObject>();
         readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
-
         QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer(10000);
         QtreeRecycleBuffer BackBuffer  = new QtreeRecycleBuffer(20000);
 
         Array<QtreeNode> DeepestNodesFirstTraversal;
 
         public float WorldSize { get; }
-        public int Count => Pending.Count + Objects.Count;
+        public int Count { get; private set; }
 
         /// <summary>
         /// Current number of active QtreeNodes in the tree
@@ -46,9 +44,6 @@ namespace Ship_Game
         int NumActiveNodes;
 
         public string Name => "C#-Qtree";
-
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////
 
         // Create a quadtree to fit the universe
         public Quadtree(float universeSize, float smallestCell = 512f)
@@ -70,9 +65,8 @@ namespace Ship_Game
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
             Root = FrontBuffer.Create(Levels, -half, -half, +half, +half);
-            lock (Pending)
+            lock (Objects)
             {
-                Pending.Clear();
                 Objects.Clear();
             }
         }
@@ -163,162 +157,49 @@ namespace Ship_Game
             return !proj.Active || proj.DieNextFrame;
         }
 
-        /// <summary>
-        /// Insert the item as Pending.
-        /// This means it will be visible in the Quadtree after next update
-        /// </summary>
-        public void Insert(GameplayObject go)
-        {
-            if (IsObjectDead(go))
-                return;
-
-            // this can be called from UI Thread, so we'll insert it later during Update()
-            lock (Pending)
-            {
-                Pending.Add(go);
-                go.SpatialIndex = -2;
-            }
-        }
-
-        /// <summary>
-        /// Object will be marked as PendingRemove and will be removed next frame
-        /// </summary>
-        public void Remove(GameplayObject go)
-        {
-            if (go.SpatialPending)
-            {
-                lock (Pending)
-                {
-                    Pending.RemoveRef(go);
-                    go.SpatialIndex = -1;
-                }
-            }
-            else if (go.InSpatial)
-            {
-                RemoveAt(Root, go);
-            }
-        }
-
-        void RemoveAt(QtreeNode root, GameplayObject go)
-        {
-            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
-            do
-            {
-                QtreeNode node = buffer.Pop();
-
-                int count = node.Count;
-                SpatialObj[] items = node.Items;
-                for (int i = 0; i < count; ++i)
-                {
-                    ref SpatialObj so = ref items[i];
-                    if (so.Obj == go)
-                    {
-                        MarkForRemoval(go, ref so);
-                        return;
-                    }
-                }
-                if (node.NW != null)
-                {
-                    buffer.NodeStack[++buffer.NextNode] = node.NW;
-                    buffer.NodeStack[++buffer.NextNode] = node.NE;
-                    buffer.NodeStack[++buffer.NextNode] = node.SE;
-                    buffer.NodeStack[++buffer.NextNode] = node.SW;
-                }
-            } while (buffer.NextNode >= 0);
-        }
-
         void MarkForRemoval(GameplayObject go, ref SpatialObj obj)
         {
-            Objects[go.SpatialIndex] = null;
-            go.SpatialIndex = -1;
             obj.Active = 0; // it's dead, jim !
             obj.Obj = null; // don't leak refs
         }
 
-        void InsertPending()
-        {
-            lock (Pending)
-            {
-                for (int i = 0; i < Pending.Count; ++i)
-                {
-                    GameplayObject go = Pending[i];
-                    // NOTE: This happens sometimes with beam weapons. Seems like a bug
-                    if (IsObjectDead(go))
-                    {
-                        Log.Warning($"Quadtree.InsertPending object has died while pending: {go}");
-                    }
-                    else
-                    {
-                        go.SpatialIndex = Objects.Count;
-                        Objects.Add(go);
-                    }
-                }
-                Pending.Clear();
-            }
-        }
-
-        // remove inactive objects which are designated by null
-        void RemoveEmptySpots()
-        {
-            GameplayObject[] objects = Objects.GetInternalArrayItems();
-
-            for (int i = 0; i < Objects.Count; ++i)
-            {
-                GameplayObject go = objects[i];
-                if (go != null)
-                {
-                    // NOTE: this is very common, we have dead projectiles still in the objects list
-                    //       (which died last frame)
-                    if (IsObjectDead(go))
-                    {
-                        go.SpatialIndex = -1;
-                        Objects.RemoveAtSwapLast(i--);
-                    }
-                    else
-                    {
-                        go.SpatialIndex = i;
-                    }
-                }
-                else // empty slot
-                {
-                    Objects.RemoveAtSwapLast(i--);
-                }
-            }
-        }
-
-        QtreeNode CreateFullTree()
+        QtreeNode CreateFullTree(Array<GameplayObject> allObjects)
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
             QtreeNode newRoot = FrontBuffer.Create(Levels, -half, -half, +half, +half);;
-            for (int i = 0; i < Objects.Count; ++i)
+            for (int i = 0; i < allObjects.Count; ++i)
             {
-                var obj = new SpatialObj(Objects[i]);
+                var obj = new SpatialObj(allObjects[i]);
                 InsertAt(newRoot, Levels, ref obj);
             }
+            Count = allObjects.Count;
             return newRoot;
         }
 
-        public void UpdateAll()
+        public void UpdateAll(Array<GameplayObject> allObjects)
         {
-            RemoveEmptySpots();
-            InsertPending();
-
             // prepare our node buffer for allocation
             FrontBuffer.MarkAllNodesInactive();
 
             // create the new tree from current world state
-            QtreeNode newRoot = CreateFullTree();
+            QtreeNode newRoot = CreateFullTree(allObjects);
             // Swap recycle lists
             // We move last frame's nodes to front and start overwriting them
             QtreeRecycleBuffer newBackBuffer = FrontBuffer;
 
             DeepestNodesFirstTraversal = newBackBuffer.GetDeepestNodesFirst();
 
-            Root = newRoot;
-            NumActiveNodes = newBackBuffer.NumActiveNodes;
-            FrontBuffer = BackBuffer; // move backbuffer to front
-            BackBuffer = newBackBuffer;
+            lock (Objects)
+            {
+                Objects.Clear();
+                Objects.AddRange(allObjects);
+
+                Root = newRoot;
+                NumActiveNodes = newBackBuffer.NumActiveNodes;
+                FrontBuffer = BackBuffer; // move backbuffer to front
+                BackBuffer = newBackBuffer;
+            }
         }
 
         // finds the node that fully encloses this spatial object
@@ -336,20 +217,6 @@ namespace Ship_Game
                 --level;
             }
             return node;
-        }
-
-        public void CopyTo(ISpatial target)
-        {
-            for (int i = 0; i < Objects.Count; ++i)
-            {
-                GameplayObject go = Objects[i];
-                if (go != null)
-                    target.Insert(go);
-            }
-            for (int i = 0; i < Pending.Count; ++i)
-            {
-                target.Insert(Pending[i]);
-            }
         }
     }
 }

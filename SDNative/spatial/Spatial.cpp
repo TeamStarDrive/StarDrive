@@ -46,9 +46,9 @@ namespace spatial
         spatial->remove(objectId);
     }
 
-    SPATIAL_C_API int SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params)
+    SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params, CollisionPairs* outResults)
     {
-        return spatial->collideAll(*params);
+        *outResults = spatial->collideAll(*params);
     }
     SPATIAL_C_API int SPATIAL_CC SpatialFindNearby(Spatial* spatial, int* outResults, const SearchOptions* opt)
     {

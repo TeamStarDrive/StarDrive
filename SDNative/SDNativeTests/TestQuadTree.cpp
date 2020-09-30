@@ -49,10 +49,7 @@ TestImpl(QuadTree)
 
         measureIterations("Qtree::collideAll", 100, swo.objects.size(), [&]()
         {
-            swo.spatial->collideAll({}, [](int objectA, int objectB)
-            {
-                return spatial::CollisionResult::NoSideEffects;
-            });
+            swo.spatial->collideAll({});
         });
     }
 };
