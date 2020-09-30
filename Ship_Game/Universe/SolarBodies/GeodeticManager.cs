@@ -109,6 +109,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
+                if (ship == null)
+                    continue; // Todo: this null check should be removed once ShipList is safe
+
                 bool loyaltyMatch = ship.loyalty == Owner;
 
                 if (ship.loyalty.isFaction)

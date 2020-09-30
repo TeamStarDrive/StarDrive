@@ -52,8 +52,8 @@ namespace UnitTests.AITests.Ships
             // wait for ship to enter warp
             while (ship.engineState != Ship.MoveState.Warp)
             {
-                ship.Update(TestSimStep);
                 ship.AI.DoManualSensorScan(new FixedSimTime(10f));
+                ship.Update(TestSimStep);                
             }
             bool sawEnemyShip       = false;
 
