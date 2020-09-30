@@ -39,7 +39,8 @@ namespace Ship_Game.AI
         RefitOrbital,
         DeployFleetProjector,
         RemnantEngagements,
-        RemnantBalancersEngage
+        RemnantBalancersEngage,
+        RemnantInit
     }
 
     public enum GoalStep
@@ -144,6 +145,7 @@ namespace Ship_Game.AI
                 case RefitOrbital.ID:           return new RefitOrbital();
                 case BuildOrbital.ID:           return new BuildOrbital();
                 case RemnantAI.ID:              return new RemnantAI();
+                case RemnantInit.ID:            return new RemnantInit();
                 case PirateAI.ID:               return new PirateAI();
                 case PirateDirectorPayment.ID:  return new PirateDirectorPayment();
                 case PirateDirectorRaid.ID:     return new PirateDirectorRaid();
