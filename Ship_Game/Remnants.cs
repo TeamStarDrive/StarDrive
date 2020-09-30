@@ -202,7 +202,7 @@ namespace Ship_Game
                     target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
                     break;
                 case RemnantStory.AncientExterminators: 
-                    target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.CurrentMilitaryStrength);
                     break;
                 case RemnantStory.AncientRaidersClosest:
                     target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
@@ -338,7 +338,14 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            return RollDice((Level - 1) * 10) ? planet.Level.UpperBound(Level / 2) : 0;
+            if (!RollDice((Level - 1) * 10)) 
+                return 0;
+
+            var numBombers = planet.Level > 4 ? 2.UpperBound(Level / 2) : 1;
+            if (planet.ShieldStrengthMax.Greater(0))
+                numBombers += (planet.ShieldStrengthMax / 500).RoundDownTo(1);
+
+            return numBombers;
         }
 
         public bool CreatePortal()
@@ -508,7 +515,9 @@ namespace Ship_Game
                 return; // Don't create Remnants on starting systems or Pirate systems
 
             float quality   = PlanetQuality(p);
-            int dieModifier = (int)CurrentGame.Difficulty * 5 - 5; // easy -5, brutal +10
+            int dieModifier = (int)CurrentGame.Difficulty * 5 - 10; // easy -10, brutal +5
+            if (Story != RemnantStory.None)
+                dieModifier -= 10;
             int d100        = RollDie(100) + dieModifier;
 
             switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
@@ -719,12 +728,12 @@ namespace Ship_Game
             switch (RollDie(3)) // todo 3 is for testing  should be 6
             {
                 default:
-                case 1: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientBalancers;
-                case 2: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientExterminators;
-                case 3: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientRaidersRandom;
-                case 4: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientRaidersClosest;
-                case 5: goals.Add(new RemnantAI(Owner)); return RemnantStory.AncientColonizers;
-                case 6: goals.Add(new RemnantAI(Owner)); return RemnantStory.None;
+                case 1: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientBalancers;
+                case 2: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientExterminators;
+                case 3: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersRandom;
+                case 4: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersClosest;
+                case 5: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientColonizers;
+                case 6: goals.Add(new RemnantInit(Owner)); return RemnantStory.None;
             }
         }
 
