@@ -1565,11 +1565,9 @@ namespace Ship_Game.Ships
 
         public void QueueTotalRemoval()
         {
-            Active = false;
             Empire.Universe?.QueueGameplayObjectRemoval(this);
 
             AI.ClearOrdersAndWayPoints();
-            SetSystem(null);
         }
 
         public override void RemoveFromUniverseUnsafe()

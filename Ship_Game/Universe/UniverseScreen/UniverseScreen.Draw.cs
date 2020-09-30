@@ -459,7 +459,7 @@ namespace Ship_Game
 
             // This uses the new UIElementV2 system to automatically toggle visibility of items
             // In general, a much saner way than the old cluster-f*ck of IF statements :)
-            PlanetsInCombat.Visible = ShipsInCombat.Visible = showGeneralUI;
+            PlanetsInCombat.Visible = ShipsInCombat.Visible = showGeneralUI && !LookingAtPlanet;
             aw.Visible = showGeneralUI && aw.IsOpen && !LookingAtPlanet;
 
             minimap.Visible = showGeneralUI && (!LookingAtPlanet ||
@@ -486,7 +486,7 @@ namespace Ship_Game
             batch.End();
 
             // Advance the simulation time just before we Notify
-            if (!Paused)
+            if (!Paused && IsActive)
             {
                 AdvanceSimulationTargetTime(elapsed.RealTime.Seconds);
             }
