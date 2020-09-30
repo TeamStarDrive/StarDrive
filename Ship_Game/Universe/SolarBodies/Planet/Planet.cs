@@ -428,8 +428,8 @@ namespace Ship_Game
             TroopManager.Update(timeStep);
             GeodeticManager.Update(timeStep);
             UpdatePlanetaryProjectiles(timeStep);
-            // moved to action queue
-            //UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
+            // this needs some work
+            UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.             
         }
 
         void RefreshOrbitalStations()
