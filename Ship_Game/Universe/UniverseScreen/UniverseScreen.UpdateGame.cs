@@ -353,7 +353,7 @@ namespace Ship_Game
             {
                 lock (ShipPoolLock)
                 {
-                    AllPlanetsScanAndFire(timeStep);
+                    FleetSpeed(timeStep);
                     UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
                 }
             });
@@ -361,15 +361,11 @@ namespace Ship_Game
 
         void AssignSystemsToShips(FixedSimTime timeStep)
         {
-            shiptimer -= timeStep.FixedTime;
-            if (shiptimer > 0.0f)
-                return;
-
-            shiptimer = 2f;
             Parallel.For(MasterShipList.Count, (start, end) =>
             {
                 for (int i = start; i < end; ++i)
                 {
+                    // this can be done more efficiently.                     
                     Ship ship = MasterShipList[i];
                     {
                         if (!ship.Active || ship.IsPlatformOrStation && ship.InSpatial)
@@ -433,7 +429,7 @@ namespace Ship_Game
             ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
-        void AllPlanetsScanAndFire(FixedSimTime timeStep)
+        void FleetSpeed(FixedSimTime timeStep)
         {
             Parallel.For(EmpireManager.Empires.Count, (start, end) =>
             {
@@ -444,9 +440,6 @@ namespace Ship_Game
                     {
                         kv.Value.SetSpeed();
                     }
-
-                    foreach (var planet in empire.GetPlanets())
-                        planet.UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method. 
                 }
             }, MaxTaskCores);
         }
@@ -562,17 +555,15 @@ namespace Ship_Game
                 return;
 
             UpdateShipsPerf.Start();
-            Parallel.For(MasterShipList.Count, (start, end) =>
+
+            for (int i = 0; i < MasterShipList.Count; i++)
             {
-                for (int i = start; i < end; ++i)
+                Ship ship = MasterShipList[i];
+                if (ship != null && ship.Active)
                 {
-                    Ship ship = MasterShipList[i];
-                    if (ship != null && ship.Active)
-                    {
-                        ship.Update(timeStep);
-                    }
+                    ship.Update(timeStep);
                 }
-            });
+            }
             UpdateShipsPerf.Stop();
         }
 
