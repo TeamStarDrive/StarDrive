@@ -401,7 +401,8 @@ namespace Ship_Game
 
         public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
         {
-            Population -= 1000f * amount;
+            float netPopKill = (amount * PopulationRatio).LowerBound(0.01f); // harder to kill sparse pop
+            Population      -= 1000f * netPopKill;
             AddBaseFertility(amount * -0.25f); // environment suffers temp damage
             if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 200))
                 AddMaxBaseFertility(-0.02f); // permanent damage to Max Fertility
