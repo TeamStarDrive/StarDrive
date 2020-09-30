@@ -377,7 +377,7 @@ namespace Ship_Game
             if (CanAttack)
             {
                 score += Strength + Defense + CombatStrength + SoftAttack + HardAttack;
-                score += PlanetaryShieldStrengthAdded / 100;
+                score += PlanetaryShieldStrengthAdded / 50;
                 score += InvadeInjurePoints * 10;
                 if (AllowInfantry)
                     score += 50;
