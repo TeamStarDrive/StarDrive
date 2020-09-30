@@ -452,6 +452,8 @@ namespace Ship_Game.Universe.SolarBodies
         public void ClearQueue()
         {
             ConstructionQueue.Clear();
+            foreach (PlanetGridSquare tile in P.TilesList)
+                tile.QItem = null; // Clear all planned buildings from tiles
         }
     }
 }
