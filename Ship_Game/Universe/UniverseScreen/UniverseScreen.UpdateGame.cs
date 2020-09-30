@@ -353,7 +353,7 @@ namespace Ship_Game
             {
                 lock (ShipPoolLock)
                 {
-                    AllPlanetsScanAndFire(timeStep);
+                    FleetSpeed(timeStep);
                     UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
                 }
             });
@@ -429,7 +429,7 @@ namespace Ship_Game
             ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
-        void AllPlanetsScanAndFire(FixedSimTime timeStep)
+        void FleetSpeed(FixedSimTime timeStep)
         {
             Parallel.For(EmpireManager.Empires.Count, (start, end) =>
             {
@@ -440,9 +440,6 @@ namespace Ship_Game
                     {
                         kv.Value.SetSpeed();
                     }
-
-                    foreach (var planet in empire.GetPlanets())
-                        planet.UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method. 
                 }
             }, MaxTaskCores);
         }

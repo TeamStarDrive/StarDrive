@@ -380,10 +380,25 @@ namespace Ship_Game
 
             value += SpecialCommodities * 10;
             value += MineralRichness * 10;
-            value += PotentialMaxPopBillionsFor(empire) * 5;
-            return value;
-        }
+            value += PotentialMaxPopBillionsFor(empire) * PopMultiplier();
 
+            return value;
+
+            float PopMultiplier()
+            {
+                float multiplier = 5;
+                if (empire.NonCybernetic 
+                    && HabitablePercentage < 0.25f
+                    && empire.IsBuildingUnlocked(Building.BiospheresId)
+                    && !empire.IsBuildingUnlocked(Building.TerraformerId))
+                {
+                    multiplier = 2.5f; // Avoid crappy barren planets unless they have really large pop potential
+                }
+
+                return multiplier;
+            }
+        }
+    
         public float ColonyWarValueTo(Empire empire)
         {
             if (Owner == null)                    return ColonyPotentialValue(empire);
@@ -401,7 +416,8 @@ namespace Ship_Game
 
         public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
         {
-            Population -= 1000f * amount;
+            float netPopKill = (amount * PopulationRatio).LowerBound(0.01f); // harder to kill sparse pop
+            Population      -= 1000f * netPopKill;
             AddBaseFertility(amount * -0.25f); // environment suffers temp damage
             if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 200))
                 AddMaxBaseFertility(-0.02f); // permanent damage to Max Fertility
@@ -428,8 +444,8 @@ namespace Ship_Game
             TroopManager.Update(timeStep);
             GeodeticManager.Update(timeStep);
             UpdatePlanetaryProjectiles(timeStep);
-            // moved to action queue
-            //UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
+            // this needs some work
+            UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.             
         }
 
         void RefreshOrbitalStations()
