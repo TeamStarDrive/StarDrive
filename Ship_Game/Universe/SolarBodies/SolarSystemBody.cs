@@ -445,26 +445,22 @@ namespace Ship_Game
             if (newOwner.isPlayer && Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
 
-            if (IsExploredBy(Empire.Universe.PlayerEmpire))
+            if (IsExploredBy(EmpireManager.Player))
             {
-                if (!newOwner.isFaction)
+                if (Owner != null)
                     Empire.Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
-                else
-                {
-                    Empire.Universe.NotificationManager.AddPlanetDiedNotification(thisPlanet, Empire.Universe.PlayerEmpire);
 
-                    if (Owner != null)
-                    {
-                        // check if Owner still has planets in this system:
-                        bool hasPlanetsInSystem = ParentSystem.PlanetList
-                                                .Any(p => p != thisPlanet && p.Owner == Owner);
-                        if (!hasPlanetsInSystem)
-                            ParentSystem.OwnerList.Remove(Owner);
-                        Owner = null;
-                    }
-                    Construction.ClearQueue();
-                    return;
+                if (Owner != null)
+                {
+                    // check if Owner still has planets in this system:
+                    bool hasPlanetsInSystem = ParentSystem.PlanetList.Any(p => p != thisPlanet && p.Owner == Owner);
+                    if (!hasPlanetsInSystem)
+                        ParentSystem.OwnerList.Remove(Owner);
+
+                    Owner = null;
                 }
+
+                return;
             }
 
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
@@ -518,7 +514,6 @@ namespace Ship_Game
             thisPlanet.ResetGarrisonSize();
             thisPlanet.ResetFoodAfterInvasionSuccess();
             TurnsSinceTurnover = 0;
-            Construction.ClearQueue();
             ParentSystem.OwnerList.Clear();
 
             foreach (Planet planet in ParentSystem.PlanetList)
