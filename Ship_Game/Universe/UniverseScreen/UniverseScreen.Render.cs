@@ -377,7 +377,7 @@ namespace Ship_Game
                             ToolTip.CreateTooltip(123);
                         ++num3;
 
-                        if (solarSystem.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.SpaceCombatNearPlanet))
+                        if (solarSystem.IsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;
@@ -465,7 +465,7 @@ namespace Ship_Game
                         ++num3;
 
 
-                        if (solarSystem.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.SpaceCombatNearPlanet))
+                        if (solarSystem.IsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;
@@ -487,14 +487,14 @@ namespace Ship_Game
             if (viewState > UnivScreenState.ShipView)
                 return;
             using (player.KnownShips.AcquireReadLock())
-            for (int i = 0; i < player.KnownShips.Count; ++i)
-            {
-                Ship ship = player.KnownShips[i];
-                if (ship != null && ship.InFrustum && ship.inSensorRange)
+                for (int i = 0; i < player.KnownShips.Count; ++i)
                 {
-                    ship.RenderThrusters(ref View, ref Projection);
+                    Ship ship = player.KnownShips[i];
+                    if (ship != null && ship.InFrustum && ship.inSensorRange)
+                    {
+                        ship.RenderThrusters(ref View, ref Projection);
+                    }
                 }
-            }
         }
 
         public void DrawZones(SpriteFont font, string text, ref int cursorY, Color color)
