@@ -60,7 +60,7 @@ namespace UnitTests.AITests.Ships
             // wait for ship to exit warp
             while (ship.engineState == Ship.MoveState.Warp)
             {
-                UniverseScreen.SpaceManager.Update(TestSimStep);
+                UniverseScreen.Spatial.Update(Universe.GetMasterObjectList());
                 ship.Update(TestSimStep);
                 enemy.Update(TestSimStep);
                 ship.AI.DoManualSensorScan(new FixedSimTime(10f));
@@ -87,7 +87,7 @@ namespace UnitTests.AITests.Ships
             // wait for ship to exit warp
             while (ship.engineState == Ship.MoveState.Warp)
             {
-                UniverseScreen.SpaceManager.Update(TestSimStep);
+                UniverseScreen.Spatial.Update(Universe.GetMasterObjectList());
                 ship.Update(TestSimStep);
                 enemy.Update(TestSimStep);                
                 Universe.EmpireUpdateQueue.ManualUpdate();

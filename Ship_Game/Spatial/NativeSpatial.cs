@@ -489,18 +489,16 @@ namespace Ship_Game.Spatial
 
         public void DebugVisualize(GameScreen screen)
         {
-            var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
-            Vector2 topLeft  = screen.UnprojectToWorldPosition(Vector2.Zero);
-            Vector2 botRight = screen.UnprojectToWorldPosition(screenSize);
+            Rectangle worldRect = screen.GetVisibleWorldRect();
 
             var opt = new QtreeVisualizerOptions
             {
                 visibleWorldRect = new Rect
                 {
-                    Left = (int)topLeft.X,
-                    Top = (int)topLeft.Y,
-                    Right = (int)botRight.X,
-                    Bottom = (int)botRight.Y,
+                    Left = worldRect.Left,
+                    Top = worldRect.Top,
+                    Right = worldRect.Right,
+                    Bottom = worldRect.Bottom,
                 },
                 objectBounds = 1,
                 objectToLeafLines = 1,

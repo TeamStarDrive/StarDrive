@@ -143,8 +143,6 @@ namespace Ship_Game.Ships
 
             if (timeStep.FixedTime > 0f)
             {
-                Projectiles.Update(timeStep);
-                Beams.Update(timeStep);
                 if (!EMPdisabled && Active)
                     AI.Update(timeStep);
             }
@@ -320,8 +318,6 @@ namespace Ship_Game.Ships
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
                 ShipSO.UpdateAnimation(timeStep.FixedTime);
             }
-
-            Projectiles.Update(timeStep);
 
             SoundEmitter.Position = new Vector3(Center, 0);
 

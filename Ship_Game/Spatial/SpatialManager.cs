@@ -50,9 +50,13 @@ namespace Ship_Game.Gameplay
             Spatial.DebugVisualize(screen);
         }
 
-        public void Update(FixedSimTime timeStep, Array<GameplayObject> allObjects)
+        public void Update(Array<GameplayObject> allObjects)
         {
             Spatial.UpdateAll(allObjects);
+        }
+
+        public void CollideAll(FixedSimTime timeStep)
+        {
             Collisions = Spatial.CollideAll(timeStep);
         }
 

@@ -430,7 +430,6 @@ namespace Ship_Game
             
             // these are all background elements, such as ship overlays, fleet icons, etc..
             DrawShipsInRange(batch);
-            DrawPlanetProjectiles(batch);
             DrawTacticalPlanetIcons(batch);
             DrawFTLInhibitionNodes();
             DrawShipRangeOverlay();
@@ -993,8 +992,6 @@ namespace Ship_Game
 
         void DrawShipsInRange(SpriteBatch batch)
         {
-            var currentlyKnown = player.KnownShips.AtomicCopy();
-
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             var rs = Device.RenderState;
@@ -1005,22 +1002,27 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.None;
 
-            int projectileDrawCap = 10;
+            RectF worldRect = GetVisibleWorldRect();
+            float radius = Math.Max(worldRect.W, worldRect.H) * 0.5f;
+            Vector2 center = worldRect.Center;
 
-            for (int i = 0; i < currentlyKnown.Length; i++)
+            if (viewState <= UnivScreenState.PlanetView)
             {
-                Ship ship = currentlyKnown[i];
-                if (viewState <= UnivScreenState.PlanetView && ship != null &&
-                    (ship.InFrustum || ship.AI.Target?.InFrustum == true))
-                {
-                    if (viewState > UnivScreenState.ShipView &&
-                        --projectileDrawCap < 0)
-                    {
-                        projectileDrawCap = 2;
-                        continue;
-                    }
 
-                    ship.DrawProjectiles(batch, this);
+                GameplayObject[] projectiles = Spatial.FindNearby(GameObjectType.Proj,
+                                                                  center, radius, 256);
+                for (int i = 0; i < projectiles.Length; ++i)
+                {
+                    var proj = (Projectile)projectiles[i];
+                    proj.Draw(batch, this);
+                }
+
+                GameplayObject[] beams = Spatial.FindNearby(GameObjectType.Beam,
+                                                            center, radius, 256);
+                for (int i = 0; i < beams.Length; ++i)
+                {
+                    var beam = (Beam)beams[i];
+                    beam.Draw(this);
                 }
             }
 
@@ -1033,14 +1035,14 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable                     = false;
             rs.CullMode                                   = CullMode.None;
 
-            // @todo This should make use of spatial manager's quadtree
-            //       We can select all ships inside screen area and check if those ships are Known
 
-            for (int i = 0; i < currentlyKnown.Length; i++)
+            GameplayObject[] ships = Spatial.FindNearby(GameObjectType.Ship,
+                                                        center, radius, 10_000);
+
+            for (int i = 0; i < ships.Length; ++i)
             {
-                Ship ship = currentlyKnown[i];
-                if (!ship.Active || !ship.inSensorRange ||
-                    !ScreenRectangle.HitTest(ship.ScreenPosition))
+                var ship = (Ship)ships[i];
+                if (!ship.Active || !ship.inSensorRange)
                     continue;
 
                 if (!IsCinematicModeEnabled)
@@ -1057,36 +1059,13 @@ namespace Ship_Game
                         ? Color.Red
                         : Color.Gray;
                 batch.BracketRectangle(ship.ScreenPosition,
-                    ship.ScreenRadius, color);
+                                       ship.ScreenRadius, color);
             }
 
             DrawProjectedGroup();
 
             if (!LookingAtPlanet)
                 DeepSpaceBuildWindow.DrawBlendedBuildIcons();
-        }
-
-        void DrawPlanetProjectiles(SpriteBatch batch)
-        {
-            foreach (SolarSystem sys in SolarSystemList)
-            {
-                if (!sys.isVisible)
-                    continue;
-
-                Array<Planet> planets = sys.PlanetList;
-                for (int i = 0; i < planets.Count; i++)
-                {
-                    Planet planet = planets[i];
-                    using (planet.Projectiles.AcquireReadLock())
-                    {
-                        for (int x = 0; x < planet.Projectiles.Count; x++)
-                        {
-                            Projectile p = planet.Projectiles[x];
-                            if (p?.Active == true) p.Draw(batch, this);
-                        }
-                    }
-                }
-            }
         }
 
         void DrawProjectedGroup()

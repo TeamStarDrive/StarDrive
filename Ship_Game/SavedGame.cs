@@ -368,15 +368,16 @@ namespace Ship_Game
                     {
                         sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
                     }
-
-                    sdata.Projectiles = ship.CopyProjectiles.Select(p => new ProjectileSaveData
-                    {
-                        Velocity = p.Velocity,
-                        Rotation = p.Rotation,
-                        Weapon   = p.Weapon.UID,
-                        Position = p.Center,
-                        Duration = p.Duration
-                    });
+                    
+                    sdata.Projectiles = screenToSave.GetProjectilesForShip(ship)
+                        .Select(p => new ProjectileSaveData
+                        {
+                            Velocity = p.Velocity,
+                            Rotation = p.Rotation,
+                            Weapon   = p.Weapon.UID,
+                            Position = p.Center,
+                            Duration = p.Duration
+                        });
 
                     empireToSave.OwnedShips.Add(sdata);
                 }

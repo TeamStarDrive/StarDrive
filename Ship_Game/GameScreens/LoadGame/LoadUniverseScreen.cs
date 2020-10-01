@@ -170,8 +170,8 @@ namespace Ship_Game
             CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets);
             
             EmpireManager.Clear();
-            if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
-                Empire.Universe.MasterShipList.Clear();
+            if (Empire.Universe != null)
+                Empire.Universe.ClearAllObjects();
             
             CreateEmpires(saveData, data);                     step.Advance();
             GiftShipsFromServantEmpire(data);                  step.Advance();
@@ -223,13 +223,10 @@ namespace Ship_Game
 
         static void FinalizeShips(UniverseScreen us)
         {
-            foreach (Ship ship in us.MasterShipList)
+            foreach (Ship ship in us.GetMasterShipList())
             {
                 if (!ship.Active)
-                {
-                    us.MasterShipList.QueuePendingRemoval(ship);
                     continue;
-                }
 
                 if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
                 {
@@ -241,7 +238,6 @@ namespace Ship_Game
                     ship.AddedOnLoad = true;
                 }
             }
-            us.MasterShipList.ApplyPendingRemovals();
         }
 
         void CreateSceneObjects(UniverseData data)

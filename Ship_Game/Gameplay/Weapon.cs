@@ -738,7 +738,6 @@ namespace Ship_Game.Gameplay
 
             PrepareToFire();
             var beam = new Beam(this, source, destination, target);
-            Module.GetParent().AddBeam(beam);
             return true;
         }
 

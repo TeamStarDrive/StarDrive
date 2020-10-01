@@ -552,7 +552,7 @@ namespace Ship_Game
                 }
 
                 evt["StarDate"]  = Empire.Universe?.StarDateString ?? "NULL";
-                evt["Ships"]     = Empire.Universe?.MasterShipList?.Count.ToString() ?? "NULL";
+                evt["Ships"]     = Empire.Universe?.GetMasterShipList().Count.ToString() ?? "NULL";
                 evt["Planets"]   = Empire.Universe?.PlanetsDict?.Count.ToString() ?? "NULL";
 
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
