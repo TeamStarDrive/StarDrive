@@ -378,7 +378,7 @@ namespace Ship_Game
             if (empire.IsCybernetic)
                 value += PotentialMaxFertilityFor(empire) * 10;
 
-            value += SpecialCommodities * 10;
+            value += SpecialCommodities * 20;
             value += MineralRichness * 10;
             value += PotentialMaxPopBillionsFor(empire) * PopMultiplier();
 
