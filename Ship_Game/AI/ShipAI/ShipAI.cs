@@ -381,19 +381,25 @@ namespace Ship_Game.AI
 
         void AIStateRebase()
         {
-            if (State != AIState.Rebase) return;
+            if (State != AIState.Rebase) 
+                return;
+
             if (OrderQueue.IsEmpty)
             {
                 OrderRebaseToNearest();
                 return;
             }
+
             for (int x = 0; x < OrderQueue.Count; x++)
             {
                 ShipGoal goal = OrderQueue[x];
-                if (goal.Plan != Plan.Rebase || goal.TargetPlanet == null || goal.TargetPlanet.Owner == Owner.loyalty)
-                    continue;
-                ClearOrders();
-                return;
+                if (goal.Plan == Plan.Rebase 
+                    && goal.TargetPlanet.Owner != Owner.loyalty
+                    && !Owner.loyalty.isPlayer) // player rebase is not cancelled 
+                {
+                    ClearOrders();
+                    return;
+                }
             }
         }
 
