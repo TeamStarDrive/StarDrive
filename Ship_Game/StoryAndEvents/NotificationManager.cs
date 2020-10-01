@@ -97,15 +97,23 @@ namespace Ship_Game
             }, "sd_ui_notification_colonized_01");
         }
 
-        public void AddConqueredNotification(Planet wasConquered, Empire conquerer, Empire loser)
+        public void AddConqueredNotification(Planet p, Empire conqueror, Empire loser)
         {
+            string action = "SnapToSystem";
+            object item   = p.ParentSystem;
+            if (conqueror.isPlayer)
+            {
+                action = "SnapToPlanet";
+                item   = p;
+            }
+
             AddNotification(new Notification
             {
-                RelevantEmpire  = conquerer,
-                Message         = conquerer.data.Traits.Name + Localizer.Token(1503) + wasConquered.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
-                ReferencedItem1 = wasConquered.ParentSystem,
-                IconPath        = wasConquered.IconPath,
-                Action          = "SnapToSystem"
+                RelevantEmpire  = conqueror,
+                Message         = conqueror.data.Traits.Name + Localizer.Token(1503) + p.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
+                ReferencedItem1 = item,
+                IconPath        = p.IconPath,
+                Action          = action
             }, "sd_troop_march_01");
         }
 
@@ -291,13 +299,13 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        public void AddPlanetDiedNotification(Planet died, Empire owner)
+        public void AddPlanetDiedNotification(Planet p)
         {
             AddNotification(new Notification
             {
-                Message         = Localizer.Token(1511) + died.Name + Localizer.Token(1512),
-                ReferencedItem1 = died.ParentSystem,
-                IconPath        = died.IconPath,
+                Message         = Localizer.Token(1511) + p.Name + Localizer.Token(1512),
+                ReferencedItem1 = p.ParentSystem,
+                IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
             }, "sd_ui_notification_warning");
         }

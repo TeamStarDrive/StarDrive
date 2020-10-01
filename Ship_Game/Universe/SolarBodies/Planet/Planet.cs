@@ -1188,8 +1188,8 @@ namespace Ship_Game
 
             UpdateTerraformPoints(0);
             Owner.RemovePlanet(this, attacker);
-            if (IsExploredBy(Empire.Universe.PlayerEmpire))
-                Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
+            if (IsExploredBy(EmpireManager.Player) && (Owner.isPlayer || attacker.isPlayer))
+                Empire.Universe.NotificationManager.AddPlanetDiedNotification(this);
 
             bool removeOwner = true;
             foreach (Planet other in ParentSystem.PlanetList)
