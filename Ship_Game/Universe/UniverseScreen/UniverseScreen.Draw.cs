@@ -773,16 +773,18 @@ namespace Ship_Game
                 return;
             bool debug = Debug && SelectedShip == null;
             Empire empireLooking = Debug ? SelectedShip?.loyalty ?? player : player;
-            foreach (Empire empire in EmpireManager.Empires)
-            {
+            for (int i = 0; i < EmpireManager.Empires.Count; i++)
+            { 
+                Empire empire = EmpireManager.Empires[i];
                 bool doDraw = debug || !(player.DifficultyModifiers.HideTacticalData && empireLooking.IsEmpireAttackable(empire));
-                if (!doDraw) continue;
+                if (!doDraw) 
+                    continue;
+
                 // not sure if this is the right way to do this but its hitting a crash here on collection change when the fleet loop is a foreach
                 Fleet[] fleets = empire.GetFleetsDict().AtomicValuesArray();
-                
-                for (int i = 0; i < fleets.Length; i++)
+                for (int j = 0; j < fleets.Length; j++)
                 {
-                    Fleet fleet = fleets[i];
+                    Fleet fleet = fleets[j];
                     if (fleet.Ships.Count <= 0)
                         continue;
 
