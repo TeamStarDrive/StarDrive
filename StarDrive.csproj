@@ -429,7 +429,6 @@
     <Compile Include="Ship_Game\Ships\Ship_Initialize.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Movement.cs" />
-    <Compile Include="Ship_Game\Ships\Ship_Projectiles.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\GameLoadingScreen.cs" />
@@ -540,6 +539,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.HandleInput.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.InputActions.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Menus.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.ObjectList.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Render.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.ShipGroupMove.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.StressTestShipLoading.cs" />

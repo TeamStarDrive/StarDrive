@@ -837,7 +837,7 @@ namespace Ship_Game.Ships
 
                 if (explodes)
                 {
-                    UniverseScreen.SpaceManager.ExplodeAtModule(source, this,
+                    UniverseScreen.Spatial.ExplodeAtModule(source, this,
                         ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }
             }

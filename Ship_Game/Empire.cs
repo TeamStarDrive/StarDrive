@@ -1243,7 +1243,7 @@ namespace Ship_Game
             bool debug = Universe?.Debug == true;
 
             // find ships in radius of node. 
-            GameplayObject[] targets = UniverseScreen.SpaceManager.FindNearby(GameObjectType.Ship,
+            GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
                                                         node.Position, node.Radius, maxResults:1024);
             for (int i = 0; i < targets.Length; i++)
             {
@@ -1262,7 +1262,7 @@ namespace Ship_Game
         void ScanForInfluence(InfluenceNode node, FixedSimTime timeStep)
         {
             // find anyone within this influence node
-            GameplayObject[] targets = UniverseScreen.SpaceManager.FindNearby(GameObjectType.Ship,
+            GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
                                                        node.Position, node.Radius, maxResults:1024);
             for (int i = 0; i < targets.Length; i++)
             {
@@ -2605,7 +2605,9 @@ namespace Ship_Game
             }
 
             StarDriveGame.Instance?.EndingGame(true);
-            foreach (Ship ship in Universe.MasterShipList)
+
+            // TODO: Maybe turn them into corsairs?
+            foreach (Ship ship in Universe.GetMasterShipList())
                 ship.Die(null, true);
 
             Universe.Paused = true;
@@ -3226,14 +3228,13 @@ namespace Ship_Game
 
         public void PopulateKnownShips()
         {
-            Array<Ship> currentlyKnown = new Array<Ship>();
+            var currentlyKnown = new Array<Ship>();
 
-            var ships = Universe.MasterShipList;
+            Array<Ship> ships = Universe.GetMasterShipList();
 
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
-
                 bool shipKnown = ship.loyalty == this || ship.KnownByEmpires.KnownBy(this);
 
                 if (shipKnown)

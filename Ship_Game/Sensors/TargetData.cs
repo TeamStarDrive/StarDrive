@@ -14,7 +14,7 @@ namespace Ship_Game.Sensors
 
         public virtual GameplayObject[] Scan(float elapsedTime, Vector2 position, Empire empire = null)
         {
-            Nearby = UniverseScreen.SpaceManager.FindNearby(ScanFilter, position, ScanRange,
+            Nearby = UniverseScreen.Spatial.FindNearby(ScanFilter, position, ScanRange,
                                                             maxResults:256, onlyLoyalty:empire)
                      ?? Empty<GameplayObject>.Array;
             return Nearby;

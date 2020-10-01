@@ -52,7 +52,7 @@ namespace Ship_Game.GameScreens.Sandbox
             }
             else if (CanFire)
             {
-                GameplayObject[] nearby = UniverseScreen.SpaceManager.FindNearby(GameObjectType.Ship,
+                GameplayObject[] nearby = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
                                                                                  this, 4000f, maxResults:64);
                 nearby.SortByDistance(Center);
 

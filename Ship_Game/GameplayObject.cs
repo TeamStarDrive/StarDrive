@@ -88,12 +88,10 @@ namespace Ship_Game
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {
             Active = false;
-            Empire.Universe?.QueueGameplayObjectRemoval(this);
         }
 
         public virtual void RemoveFromUniverseUnsafe()
         {
-            SetSystem(null);
         }
 
         [XmlIgnore][JsonIgnore]
@@ -106,27 +104,7 @@ namespace Ship_Game
 
         public void SetSystem(SolarSystem system)
         {
-            if (System == system)
-                return;
-
-            // if we keep this system shiplist thing we should protect it. 
-            // this is unmanagable. 
-            // i believe even with the locks this should be faster in parallel
-            // being as the number of hits per frame per system ought to be relativly low
-            if (this is Ship ship && ship.ShipInitialized)
-            {
-                if (ship.System != null)
-                {
-                    lock (ship.System.ShipList)                    
-                        System.ShipList.RemoveSwapLast(ship);                                            
-                }
-
-                if (system != null)
-                {
-                        system.ShipList.AddUnique(ship);
-                }
-                System = system;
-            }            
+            System = system;
         }
 
         public void ChangeLoyalty(Empire changeTo, bool notification = true)
@@ -165,9 +143,6 @@ namespace Ship_Game
                     oldLoyalty.AddBoardedNotification(ship);
                 }
             }
-
-            // this resets the spatial management
-            SetSystem(null);
         }
 
         public int GetLoyaltyId()

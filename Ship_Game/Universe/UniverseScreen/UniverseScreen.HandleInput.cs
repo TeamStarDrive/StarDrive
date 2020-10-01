@@ -133,7 +133,7 @@ namespace Ship_Game
             }
 
             if (input.ToggleSpatialManagerType)
-                SpaceManager.ToggleSpatialType();
+                Spatial.ToggleSpatialType();
 
             if (input.IsShiftKeyDown && input.KeyPressed(Keys.B))
                 StressTestShipLoading();
