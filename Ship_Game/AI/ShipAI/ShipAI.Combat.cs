@@ -117,7 +117,7 @@ namespace Ship_Game.AI
             }
 
             // find hostile projectiles
-            GameplayObject[] projectiles = UniverseScreen.SpaceManager.FindNearby(GameObjectType.Proj,
+            GameplayObject[] projectiles = UniverseScreen.Spatial.FindNearby(GameObjectType.Proj,
                                     Owner, Owner.WeaponsMaxRange, maxResults:64, excludeLoyalty:Owner.loyalty);
             {
                 ScannedProjectiles.Clear();
@@ -198,7 +198,7 @@ namespace Ship_Game.AI
 
             // get enemies and friends in close proximity
             float scanRadius = radius + (radius < 0.01f ? 10000 : 0);
-            GameplayObject[] scannedShips = UniverseScreen.SpaceManager.FindNearby(GameObjectType.Ship,
+            GameplayObject[] scannedShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
                                                                     Owner, scanRadius, maxResults:128);
  
             for (int x = 0; x < scannedShips.Length; x++)

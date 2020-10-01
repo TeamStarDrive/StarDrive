@@ -11,7 +11,8 @@ namespace UnitTests.Universe
     {
         protected static bool EnableVisualization = true;
         protected static bool EnableMovingShips = true;
-        protected Array<Ship> AllShips = new Array<Ship>();
+        //protected Array<Ship> AllShips = new Array<Ship>();
+        protected Array<GameplayObject> AllObjects = new Array<GameplayObject>();
 
         protected TestSpatialCommon()
         {
@@ -22,12 +23,12 @@ namespace UnitTests.Universe
 
         protected void CreateQuadTree(int numShips, ISpatial tree)
         {
-            AllShips = QuadtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
+            AllObjects = QuadtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
         }
 
         protected void DebugVisualize(ISpatial tree)
         {
-            var vis = new SpatialVisualization(AllShips, tree, EnableMovingShips);
+            var vis = new SpatialVisualization(AllObjects, tree, EnableMovingShips);
             Game.ShowAndRun(screen: vis);
         }
 
@@ -39,13 +40,13 @@ namespace UnitTests.Universe
         public void TestBasicInsert(ISpatial tree)
         {
             CreateQuadTree(100, tree);
-            Assert.AreEqual(AllShips.Count, tree.Count);
+            Assert.AreEqual(AllObjects.Count, tree.Count);
 
-            foreach (Ship ship in AllShips)
+            foreach (GameplayObject go in AllObjects)
             {
-                GameplayObject[] ships = FindNearby(tree, GameObjectType.Ship, ship.Position, ship.Radius);
+                GameplayObject[] ships = FindNearby(tree, GameObjectType.Ship, go.Position, go.Radius);
                 Assert.AreEqual(1, ships.Length);
-                Assert.AreEqual(ship, ships[0]);
+                Assert.AreEqual(go, ships[0]);
             }
 
             if (EnableVisualization)
@@ -56,7 +57,7 @@ namespace UnitTests.Universe
         {
             CreateQuadTree(1, tree);
 
-            Ship s = AllShips.First;
+            Ship s = (Ship)AllObjects.First;
             var offset = new Vector2(0, 256);
             GameplayObject[] found1 = FindNearby(tree, GameObjectType.Any, s.Position+offset, 256);
             Assert.AreEqual(1, found1.Length, "FindNearby exact 256 must return match");
@@ -85,9 +86,9 @@ namespace UnitTests.Universe
         public void TestFindNearbyTypeFilter(ISpatial tree)
         {
             CreateQuadTree(100, tree);
-            QuadtreePerfTests.SpawnProjectilesFromEachShip(tree, AllShips);
+            QuadtreePerfTests.SpawnProjectilesFromEachShip(tree, AllObjects);
 
-            foreach (Ship s in AllShips)
+            foreach (Ship s in AllObjects)
             {
                 GameplayObject[] found = FindNearby(tree, GameObjectType.Proj, s.Position, 3000);
                 Assert.AreNotEqual(0, found.Length);
@@ -105,14 +106,14 @@ namespace UnitTests.Universe
             float e = 0f;
             for (int i = 0; i < 60; ++i)
             {
-                foreach (Ship ship in AllShips)
+                foreach (Ship ship in AllObjects)
                 {
                     ship.Center.X += 10f;
                     ship.Position = ship.Center;
                     ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
                 }
                 var t = new PerfTimer();
-                tree.UpdateAll();
+                tree.UpdateAll(AllObjects);
                 e += t.Elapsed;
             }
             Console.WriteLine($"-- Tree UpdateAll elapsed: {(e*1000).String(2)}ms");
@@ -127,18 +128,18 @@ namespace UnitTests.Universe
             const float defaultSensorRange = 30000f;
 
             var t1 = new PerfTimer();
-            for (int i = 0; i < AllShips.Count; ++i)
+            for (int i = 0; i < AllObjects.Count; ++i)
             {
-                Ship ship = AllShips[i];
+                Ship ship = (Ship)AllObjects[i];
                 tree.FindLinear(GameObjectType.Any, ship.Center, defaultSensorRange, 128, null, null, null);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
 
             var t2 = new PerfTimer();
-            for (int i = 0; i < AllShips.Count; ++i)
+            for (int i = 0; i < AllObjects.Count; ++i)
             {
-                tree.FindNearby(GameObjectType.Any, AllShips[i].Center, defaultSensorRange, 128, null, null, null);
+                tree.FindNearby(GameObjectType.Any, AllObjects[i].Center, defaultSensorRange, 128, null, null, null);
             }
             float e2 = t2.Elapsed;
             Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
@@ -161,13 +162,13 @@ namespace UnitTests.Universe
             {
                 while (timer.Elapsed < 1.0)
                 {
-                    foreach (Ship ship in AllShips)
+                    foreach (Ship ship in AllObjects)
                     {
                         ship.Center.X += 10f;
                         ship.Position = ship.Center;
                         ship.UpdateModulePositions(TestSimStep, true, forceUpdate: true);
                     }
-                    tree.UpdateAll();
+                    tree.UpdateAll(AllObjects);
                     tree.CollideAll(TestSimStep);
                 }
             });
@@ -178,9 +179,9 @@ namespace UnitTests.Universe
                 const float defaultSensorRange = 30000f;
                 while (timer.Elapsed < 1.0)
                 {
-                    for (int i = 0; i < AllShips.Count; ++i)
+                    for (int i = 0; i < AllObjects.Count; ++i)
                     {
-                        tree.FindNearby(GameObjectType.Any, AllShips[i].Center, defaultSensorRange, 
+                        tree.FindNearby(GameObjectType.Any, AllObjects[i].Center, defaultSensorRange, 
                                         maxResults:128, null, null, null);
                     }
                 }

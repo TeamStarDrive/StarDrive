@@ -15,11 +15,11 @@ namespace Ship_Game
 
         public delegate Ship SpawnShipFunc(string name, Empire loyalty, Vector2 pos, Vector2 dir);
 
-        public static Array<Ship> CreateTestSpace(int numShips, ISpatial tree,
-                                                  Empire player, Empire enemy,
-                                                  SpawnShipFunc spawnShip)
+        public static Array<GameplayObject> CreateTestSpace(int numShips, ISpatial tree,
+                                                            Empire player, Empire enemy,
+                                                            SpawnShipFunc spawnShip)
         {
-            var ships = new Array<Ship>();
+            var ships = new Array<GameplayObject>();
             float spacing = tree.WorldSize / (float)Math.Sqrt(numShips);
 
             // universe is centered at [0,0], so Root node goes from [-half, +half)
@@ -43,7 +43,7 @@ namespace Ship_Game
                 }
             }
 
-            tree.UpdateAll(new Array<GameplayObject>(ships));
+            tree.UpdateAll(ships);
             return ships;
         }
 
@@ -57,10 +57,28 @@ namespace Ship_Game
             return target;
         }
 
+        public static void SpawnProjectilesFromEachShip(ISpatial tree, Array<GameplayObject> allObjects)
+        {
+            float spacing = tree.WorldSize / (float)Math.Sqrt(allObjects.Count);
+            var projectiles = new Array<Projectile>();
+            foreach (GameplayObject go in allObjects)
+            {
+                if (!(go is Ship ship))
+                    continue;
+                Weapon weapon = ship.Weapons.First;
+                var p = Projectile.Create(weapon, ship.Position + Vectors.Up*spacing, Vectors.Up, null, false);
+                projectiles.Add(p);
+            }
+
+            allObjects.AddRange(projectiles);
+            tree.UpdateAll(allObjects);
+        }
+
         public static void RunSearchPerfTest()
         {
             var tree = new Quadtree(500_000f);
-            Array<Ship> ships = CreateTestSpace(10000, tree, EmpireManager.Void, EmpireManager.Void, SpawnShip);
+            Array<GameplayObject> ships = CreateTestSpace(10000, tree,
+                EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
             const float defaultSensorRange = 30000f;
             const int iterations = 10;
@@ -70,7 +88,7 @@ namespace Ship_Game
             {
                 for (int i = 0; i < ships.Count; ++i)
                 {
-                    Ship ship = ships[i];
+                    var ship = (Ship)ships[i];
                     tree.FindLinear(GameObjectType.Any, ship.Center, defaultSensorRange,
                                     maxResults:256, null, null, null);
                 }
@@ -97,7 +115,8 @@ namespace Ship_Game
         public static void RunCollisionPerfTest()
         {
             var tree = new Quadtree(500_000f);
-            Array<Ship> ships = CreateTestSpace(10000, tree, EmpireManager.Void, EmpireManager.Void, SpawnShip);
+            Array<GameplayObject> ships = CreateTestSpace(10000, tree,
+                EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
             const int iterations = 1000;
             var timeStep = new FixedSimTime(1f / 60f);

@@ -25,7 +25,9 @@ namespace UnitTests.Ships
             CreateUniverseAndPlayerEmpire(out empire);
             ship = CreateShip(empire, "Excalibur-Class Supercarrier", Vector2.Zero);
             target = CreateShip(empire, "Corsair", new Vector2(1000, 1000));
-            UniverseScreen.SpaceManager.Update(new FixedSimTime(1f));
+
+            Universe.UpdateMasterObjectsLists();
+            UniverseScreen.Spatial.Update(Universe.GetMasterObjectList());
         }
 
         Ship CreateShip(Empire empire, string shipName, Vector2 pos)

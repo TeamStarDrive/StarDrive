@@ -23,7 +23,7 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        public static readonly SpatialManager SpaceManager = new SpatialManager();
+        public static readonly SpatialManager Spatial = new SpatialManager();
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         public float GamePace = 1f;
@@ -37,7 +37,6 @@ namespace Ship_Game
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
         Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
-        public BatchRemovalCollection<Ship> MasterShipList;
         public Background bg;
         public float UniverseSize       = 5000000f; // universe width and height in world units
         public float FTLModifier        = 1f;
@@ -173,7 +172,6 @@ namespace Ship_Game
         public PlanetScreen workersPanel;
         CursorState cState;
         int SelectorFrame;
-        readonly Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
         public Ship previousSelection;
 
         public UIButton ShipsInCombat;
@@ -221,9 +219,10 @@ namespace Ship_Game
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
             GravityWells          = data.GravityWells;
             SolarSystemList       = data.SolarSystemsList;
-            MasterShipList        = data.MasterShipList;
-            SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
-            SpaceManager.Setup(UniverseSize);
+
+            MasterShipList.AddRange(data.MasterShipList);
+            SubSpaceProjectors = new SubSpaceProjectors(UniverseSize);
+            Spatial.Setup(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
         }
@@ -811,7 +810,6 @@ namespace Ship_Game
 
             ItemsToBuild       ?.Dispose(ref ItemsToBuild);
             anomalyManager     ?.Dispose(ref anomalyManager);
-            MasterShipList     ?.Dispose(ref MasterShipList);
             BombList           ?.Dispose(ref BombList);
             SelectedShipList   ?.Dispose(ref SelectedShipList);
             NotificationManager?.Dispose(ref NotificationManager);
@@ -832,11 +830,7 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
-            for (int i = 0; i < MasterShipList.Count; ++i)
-                MasterShipList[i]?.RemoveFromUniverseUnsafe();
-            MasterShipList.ClearPendingRemovals();
-            MasterShipList.Clear();
-
+            ClearAllObjects();
             ClearSolarSystems();
             ClearSpaceJunk();
 
@@ -858,7 +852,7 @@ namespace Ship_Game
             ClickableSystems.Clear();
             SolarSystemDict.Clear();
 
-            SpaceManager.Destroy();
+            Spatial.Destroy();
 
             Empire.Universe = null;
             StatTracker.Reset();
@@ -932,24 +926,6 @@ namespace Ship_Game
             if (weaponArc >= 32.5f) return Arc45;
             if (weaponArc >= 17.5f) return Arc20;
             return Arc15;
-        }
-
-        public void QueueGameplayObjectRemoval(GameplayObject toRemove)
-        {
-            // TODO: Investigate calling code that is not calling die first. 
-            // so that this active=false can be removed. 
-            toRemove.Active = false;
-            if (!toRemove.QueuedForRemoval)
-            {
-                toRemove.QueuedForRemoval = true;
-                GamePlayObjectToRemove.Add(toRemove);
-            }
-        }
-
-        void TotallyRemoveGameplayObjects()
-        {
-            while (GamePlayObjectToRemove.TryPopLast(out GameplayObject toRemove))
-                toRemove.RemoveFromUniverseUnsafe();
         }
 
         public struct ClickablePlanets

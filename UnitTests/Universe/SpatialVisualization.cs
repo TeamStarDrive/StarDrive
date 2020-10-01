@@ -8,7 +8,7 @@ namespace UnitTests.Universe
 {
     class SpatialVisualization : GameScreen
     {
-        Array<Ship> AllShips;
+        Array<GameplayObject> AllObjects;
         ISpatial Spat;
         bool MoveShips;
         Vector3 Camera;
@@ -23,9 +23,9 @@ namespace UnitTests.Universe
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
 
-        public SpatialVisualization(Array<Ship> allShips, ISpatial spat, bool moveShips) : base(null)
+        public SpatialVisualization(Array<GameplayObject> allObjects, ISpatial spat, bool moveShips) : base(null)
         {
-            AllShips = allShips;
+            AllObjects = allObjects;
             Spat = spat;
             MoveShips = moveShips;
             CamHeight = spat.FullSize * (float)Math.Sqrt(2);
@@ -33,10 +33,10 @@ namespace UnitTests.Universe
             if (moveShips)
             {
                 var rand = new Random();
-                foreach (Ship ship in allShips)
+                foreach (GameplayObject obj in allObjects)
                 {
-                    ship.Velocity.X = (float)(rand.NextDouble() - 0.5) * 2.0f * 5000.0f;
-                    ship.Velocity.Y = (float)(rand.NextDouble() - 0.5) * 2.0f * 5000.0f;
+                    obj.Velocity.X = (float)(rand.NextDouble() - 0.5) * 2.0f * 5000.0f;
+                    obj.Velocity.Y = (float)(rand.NextDouble() - 0.5) * 2.0f * 5000.0f;
                 }
             }
         }
@@ -54,8 +54,11 @@ namespace UnitTests.Universe
                 float universeLo = Spat.WorldSize * -0.5f;
                 float universeHi = Spat.WorldSize * +0.5f;
                 var simTime = new FixedSimTime(fixedDeltaTime);
-                foreach (Ship ship in AllShips)
+                foreach (GameplayObject go in AllObjects)
                 {
+                    if (!(go is Ship ship))
+                        continue;
+
                     if (ship.Position.X < universeLo || ship.Position.X > universeHi)
                         ship.Position.X = -ship.Position.X;
 
@@ -66,7 +69,7 @@ namespace UnitTests.Universe
                     ship.UpdateModulePositions(simTime, true);
                 }
                 var timer1 = new PerfTimer();
-                Spat.UpdateAll();
+                Spat.UpdateAll(AllObjects);
                 UpdateTime = timer1.Elapsed;
 
                 var timer2 = new PerfTimer();
@@ -82,8 +85,11 @@ namespace UnitTests.Universe
             Spat.DebugVisualize(this);
             DrawRectangleProjected(Vector2.Zero, new Vector2(Spat.WorldSize), 0f, Color.Red);
 
-            foreach (Ship ship in AllShips)
+            foreach (GameplayObject go in AllObjects)
             {
+                if (!(go is Ship ship))
+                    continue;
+
                 ProjectToScreenCoords(ship.Position, ship.Radius,
                                       out Vector2 screenPos, out float screenRadius);
                 if (!HitTest(screenPos))

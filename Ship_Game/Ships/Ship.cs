@@ -27,16 +27,12 @@ namespace Ship_Game.Ships
             var ships = new Array<Ship>();
             for (int i = 0; i < guids.Count; i++)
             {
-                var guid = guids[i];
-                var ship = GetShipFromGuid(guid);
+                Ship ship = Empire.Universe.FindShipByGuid(guids[i]);
                 if (ship != null)
                     ships.AddUnique(ship);
             }
-
             return ships;
         }
-
-        public static Ship GetShipFromGuid(Guid guid) => Empire.Universe.MasterShipList.Find(s => s.guid == guid);
 
         public string VanityName                = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
@@ -1460,7 +1456,7 @@ namespace Ship_Game.Ships
                 ExplosionManager.AddExplosion(position, Velocity,
                     size*1.75f, 12f, ExplosionType.Warp);
             }
-            UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
+            UniverseScreen.Spatial.ShipExplode(this, size * 50, Center, Radius);
         }
 
         // cleanupOnly: for tumbling ships that are already dead
@@ -1473,8 +1469,6 @@ namespace Ship_Game.Ships
                 psource?.Module?.GetParent().UpdateEmpiresOnKill(this);
                 psource?.Module?.GetParent().AddKill(this);
             }
-
-            RemoveBeams();
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
@@ -1565,19 +1559,13 @@ namespace Ship_Game.Ships
 
         public void QueueTotalRemoval()
         {
-            Empire.Universe?.QueueGameplayObjectRemoval(this);
-
+            Active = false;
             AI.ClearOrdersAndWayPoints();
         }
 
         public override void RemoveFromUniverseUnsafe()
         {
             AI.Reset();
-
-            Empire.Universe.MasterShipList.QueuePendingRemoval(this);
-            if (Empire.Universe.SelectedShip == this)
-                Empire.Universe.SelectedShip = null;
-            Empire.Universe.SelectedShipList.RemoveRef(this);
 
             if (Mothership != null)
             {
@@ -1597,9 +1585,6 @@ namespace Ship_Game.Ships
                 empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
 
-            RemoveProjectiles();
-            RemoveBeams();
-
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
@@ -1612,7 +1597,6 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
 
             loyalty.RemoveShip(this);
-            SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
 
             RemoveSceneObject();

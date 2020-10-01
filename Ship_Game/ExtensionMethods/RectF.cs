@@ -30,5 +30,7 @@ namespace Ship_Game
         {
             return new Rectangle((int)r.X, (int)r.Y, (int)r.W, (int)r.H);
         }
+
+        public Vector2 Center => new Vector2(X + W*0.5f, Y + H*0.5f);
     }
 }

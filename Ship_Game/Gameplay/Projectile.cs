@@ -1,18 +1,18 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Particle3DSample;
+using System;
+using System.IO;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using Ship_Game.Audio;
+using Particle3DSample;
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
+
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Audio;
 
 namespace Ship_Game.Gameplay
 {
@@ -195,15 +195,15 @@ namespace Ship_Game.Gameplay
             LoadContent();
             Initialize();
 
+            Empire.Universe?.AddObject(this);
+
             if (Owner != null)
             {
                 SetSystem(Owner.System);
-                Owner.AddProjectile(this);
             }
             else if (Planet != null)
             {
                 SetSystem(Planet.ParentSystem);
-                Planet.AddProjectile(this);
             }
 
             if (playSound && (System != null && System.isVisible || Owner?.InFrustum == true))
@@ -386,24 +386,19 @@ namespace Ship_Game.Gameplay
             }
 
             ++DebugInfoScreen.ProjDied;
-            if (Active)
+            if (Light != null)
+                Empire.Universe.RemoveLight(Light);
+
+            if (InFlightSfx.IsPlaying)
+                InFlightSfx.Stop();
+
+            ExplodeProjectile(cleanupOnly);
+
+            if (ProjSO != null)
             {
-                if (Light != null)
-                    Empire.Universe.RemoveLight(Light);
-
-                if (InFlightSfx.IsPlaying)
-                    InFlightSfx.Stop();
-
-                ExplodeProjectile(cleanupOnly);
-
-                if (ProjSO != null)
-                {
-                    Empire.Universe.RemoveObject(ProjSO);
-                    ProjSO.Clear();
-                }
+                Empire.Universe.RemoveObject(ProjSO);
+                ProjSO.Clear();
             }
-
-            DroneAI?.KillAllBeams();
 
             SetSystem(null);
             base.Die(source, cleanupOnly);
@@ -556,7 +551,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
 
-                UniverseScreen.SpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
+                UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius);
             }
             // @note FakeExplode basically FORCES an explosion, I think it's used for Flak weapons
             //       In Vanilla, it only appears in Flak & DualFlak weapons
