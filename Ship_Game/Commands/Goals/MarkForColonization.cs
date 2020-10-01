@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals
             empire             = e;
             ColonizationTarget = toColonize;
             StarDateAdded      = Empire.Universe.StarDate;
-            if (PositiveEnemyPresence(out _)) 
+            if (PositiveEnemyPresence(out _) && AIControlsColonization) 
                 return;
 
             // Fast track to colonize if planet is safe and we have a ready Colony Ship
@@ -75,11 +75,8 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateClaimTask()
         {
-            if (PositiveEnemyPresence(out float spaceStrength))
+            if (PositiveEnemyPresence(out float spaceStrength) && !empire.isPlayer)
             {
-                if (empire.isPlayer)
-                    return GoalStep.GoalFailed;
-
                 var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
                 empire.GetEmpireAI().AddPendingTask(task);
             }
@@ -177,8 +174,7 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10 
-                && (!empire.isPlayer || empire.isPlayer && empire.AutoColonize))
+            if (empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10 && AIControlsColonization)
             {
                 ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;
@@ -240,5 +236,7 @@ namespace Ship_Game.Commands.Goals
 
             return null;
         }
+
+        bool AIControlsColonization => !empire.isPlayer || empire.isPlayer && empire.AutoColonize;
     }
 }

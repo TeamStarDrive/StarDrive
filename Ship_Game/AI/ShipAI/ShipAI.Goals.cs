@@ -225,7 +225,8 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndRebase(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, false, AIState.Rebase);
+            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.Rebase);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
