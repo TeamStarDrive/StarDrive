@@ -367,8 +367,7 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    if (solarSystem.HostileForcesPresent(EmpireManager.Player)
-                        && solarSystem.IsExploredBy(EmpireManager.Player))
+                    if (EmpireManager.Player.KnownEnemyStrengthIn(solarSystem).Greater(0))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
@@ -455,7 +454,7 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
+                    if (EmpireManager.Player.KnownEnemyStrengthIn(solarSystem).Greater(0))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
