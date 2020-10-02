@@ -75,10 +75,24 @@ namespace Ship_Game
 
         public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader, float strRatio)
         {
+            string threatLevel = "\nThreat level vs. our forces\nthere is ";
+            if      (strRatio < 0.1f)  threatLevel += "negligible.";
+            else if (strRatio < 0.3f)  threatLevel += "very low.";
+            else if (strRatio < 0.5f)  threatLevel += "low.";
+            else if (strRatio < 0.75f) threatLevel += "medium.";
+            else if (strRatio < 1f)    threatLevel += "high.";
+            else if (strRatio < 1.5f)  threatLevel += "very high.";
+            else                       threatLevel += "overwhelming.";
+
+            string message = invader.data.Traits.Singular
+                             + Localizer.Token(1500) + '\n'
+                             + Localizer.Token(1501) + beingInvaded.Name
+                             + Localizer.Token(1502) + threatLevel;
+
             AddNotification(new Notification
             {
                 RelevantEmpire  = invader,
-                Message         = invader.data.Traits.Singular + Localizer.Token(1500) + '\n' + Localizer.Token(1501) + beingInvaded.Name + Localizer.Token(1502),
+                Message         = message,
                 ReferencedItem1 = beingInvaded,
                 IconPath        = "NewUI/icon_planet_terran_01_mid",
                 Action          = "SnapToSystem"
