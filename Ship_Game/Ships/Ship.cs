@@ -1432,6 +1432,19 @@ namespace Ship_Game.Ships
 
         public void AddToShipLevel(int amountToAdd) => Level = (Level + amountToAdd).Clamped(0,10);
 
+        public bool NotThreatToPlayer()
+        {
+            if (loyalty == EmpireManager.Player)
+                return true;
+
+            if (loyalty == EmpireManager.Remnants)
+                return false;
+
+            return BaseStrength.LessOrEqual(0)
+                   || IsFreighter
+                   || EmpireManager.Player.TryGetRelations(loyalty, out Relationship rel) && !rel.AtWar;
+        }
+
         public void UpdateEmpiresOnKill(Ship killedShip)
         {
             loyalty.WeKilledTheirShip(killedShip.loyalty, killedShip);

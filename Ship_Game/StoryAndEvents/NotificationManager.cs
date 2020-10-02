@@ -73,7 +73,7 @@ namespace Ship_Game
             }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02");
         }
 
-        public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader)
+        public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader, float strRatio)
         {
             AddNotification(new Notification
             {
