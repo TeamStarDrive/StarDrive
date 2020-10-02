@@ -35,10 +35,10 @@ namespace UnitTests.NotificationTests
             NotificationManager.AddAgentResult(true, "AgentTest", empire);
 
             var planet = empire.GetPlanets().First();
-            NotificationManager.AddPlanetDiedNotification(planet, empire);
-            NotificationManager.AddPlanetDiedNotification(planet, empire);
-            NotificationManager.AddPlanetDiedNotification(planet, empire);
-            NotificationManager.AddPlanetDiedNotification(planet, empire);
+            NotificationManager.AddPlanetDiedNotification(planet);
+            NotificationManager.AddPlanetDiedNotification(planet);
+            NotificationManager.AddPlanetDiedNotification(planet);
+            NotificationManager.AddPlanetDiedNotification(planet);
 
             NotificationManager.AddAgentResult(true, "AgentTest", empire);
             NotificationManager.AddAgentResult(true, "AgentTest", empire);
