@@ -1245,9 +1245,9 @@ namespace Ship_Game
                 float ourSpaceOffense = 0;
 
                 if (ourSpaceAssets.Length > 0)
-                    ourSpaceAssets.Sum(s => s.BaseStrength);
+                    ourSpaceOffense += ourSpaceAssets.Sum(s => s.BaseStrength);
 
-                float ourOffense = ourSpaceOffense + ourPlanetsOffense;
+                float ourOffense = (ourSpaceOffense + ourPlanetsOffense).LowerBound(1);
                 return hostileOffense / ourOffense;
             }
         }
@@ -1607,7 +1607,7 @@ namespace Ship_Game
             BestStationWeCanBuild  = BestShipWeCanBuild(ShipData.RoleName.station, this);
         }
 
-        private void UpdateDefenseShipBuildingOffense()
+        public void UpdateDefenseShipBuildingOffense()
         {
             for (int i = 0 ; i < OwnedPlanets.Count; i++)
             {

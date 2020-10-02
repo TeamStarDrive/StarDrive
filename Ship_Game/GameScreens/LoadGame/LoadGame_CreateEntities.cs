@@ -612,9 +612,13 @@ namespace Ship_Game
         void CreateSolarSystems(SavedGame.UniverseSaveData saveData, UniverseData data)
         {
             foreach (SavedGame.SolarSystemSaveData ssd in saveData.SolarSystemDataList)
-            {
                 data.SolarSystemsList.Add(CreateSystemFromData(ssd));
-            }
+        }
+
+        void UpdateDefenseShipBuildingOffense()
+        {
+            foreach (Empire empire in EmpireManager.MajorEmpires)
+                empire.UpdateDefenseShipBuildingOffense();
         }
 
         static void CreateRelations(SavedGame.UniverseSaveData saveData)
