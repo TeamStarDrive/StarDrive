@@ -111,6 +111,17 @@ namespace Ship_Game
             }, "sd_ui_notification_colonized_01");
         }
 
+        public void AddAnomalyInvestigated(Planet p, string message)
+        {
+            AddNotification(new Notification
+            {
+                Message         = message,
+                ReferencedItem1 = p,
+                IconPath        = p.IconPath,
+                Action          = "CombatScreen"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddConqueredNotification(Planet p, Empire conqueror, Empire loser)
         {
             string action = "SnapToSystem";
@@ -629,7 +640,7 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            Screen.SnapViewColony(p);
+            Screen.SnapViewColony(combatView: false);
         }
 
         public void SnapToShip(Ship s)
