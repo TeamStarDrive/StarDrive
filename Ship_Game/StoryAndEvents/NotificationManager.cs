@@ -118,7 +118,7 @@ namespace Ship_Game
                 Message         = message,
                 ReferencedItem1 = p,
                 IconPath        = p.IconPath,
-                Action          = "SnapToPlanet"
+                Action          = "CombatScreen"
             }, "sd_ui_notification_encounter");
         }
 
@@ -640,8 +640,7 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            bool combatView = p.Owner != EmpireManager.Player;
-            Screen.SnapViewColony(combatView);
+            Screen.SnapViewColony(combatView: false);
         }
 
         public void SnapToShip(Ship s)
