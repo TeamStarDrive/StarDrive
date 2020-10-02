@@ -1,9 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
 using Ship_Game.Ships.AI;
-using Ship_Game.Fleets;
 
 namespace Ship_Game.AI
 {
@@ -92,7 +92,7 @@ namespace Ship_Game.AI
             Vector2 pos = goal.BuildPosition;
             Vector2 dir = Owner.Center.DirectionToTarget(pos);
             OrderMoveTo(pos, dir, true, AIState.MoveTo, goal);
-            if (goal.type == GoalType.DeepSpaceConstruction) // deep space structures
+            if (goal.type == GoalType.DeepSpaceConstruction || goal.TetherTarget == Guid.Empty) // deep space structures
                 AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
             else // orbitals for planet defense
                 AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
