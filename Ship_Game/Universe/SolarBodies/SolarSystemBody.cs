@@ -432,7 +432,7 @@ namespace Ship_Game
         static float GetTraitMax(float invader, float owner) => invader.LowerBound(owner);
         static float GetTraitMin(float invader, float owner) => invader.UpperBound(owner);
 
-        public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel)
+        public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel) // TODO: FB - this code needs refactor
         {
             var thisPlanet = (Planet)this;
 
@@ -449,18 +449,16 @@ namespace Ship_Game
             {
                 if (Owner != null)
                     Empire.Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
+            }
 
-                if (Owner != null)
-                {
-                    // check if Owner still has planets in this system:
-                    bool hasPlanetsInSystem = ParentSystem.PlanetList.Any(p => p != thisPlanet && p.Owner == Owner);
-                    if (!hasPlanetsInSystem)
-                        ParentSystem.OwnerList.Remove(Owner);
+            if (Owner?.isFaction == true)
+            {
+                // check if Owner still has planets in this system:
+                bool hasPlanetsInSystem = ParentSystem.PlanetList.Any(p => p != thisPlanet && p.Owner == Owner);
+                if (!hasPlanetsInSystem)
+                    ParentSystem.OwnerList.Remove(Owner);
 
-                    Owner = null;
-                }
-
-                return;
+                Owner = null;
             }
 
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
