@@ -126,7 +126,9 @@ namespace Ship_Game
 
         float TotalShipCostInRefitGoals()
         {
-            var refitGoals = Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.Refit && g.PlanetBuildingAt == this);
+            var refitGoals = Owner.GetEmpireAI().Goals
+                .Filter(g => (g.type == GoalType.Refit || g.type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
+
             if (refitGoals.Length == 0)
                 return 0;
 
