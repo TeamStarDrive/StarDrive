@@ -429,26 +429,26 @@ namespace Ship_Game.AI
                 case Plan.MakeFinalApproach:        MakeFinalApproach(timeStep, goal);        break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
-                case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);           break;
+                case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);        break;
                 case Plan.Explore:                  DoExplore(timeStep);                      break;
                 case Plan.Rebase:                   DoLandTroop(timeStep, goal);              break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
                 case Plan.DoCombat:                 DoCombat(timeStep);                       break;
-                case Plan.DeployStructure:          DoDeploy(goal);                              break;
-                case Plan.DeployOrbital:            DoDeployOrbital(goal);                       break;
+                case Plan.DeployStructure:          DoDeploy(goal);                           break;
+                case Plan.DeployOrbital:            DoDeployOrbital(goal);                    break;
                 case Plan.PickupGoods:              PickupGoods.Execute(timeStep, goal);      break;
                 case Plan.DropOffGoods:             DropOffGoods.Execute(timeStep, goal);     break;
                 case Plan.ReturnToHangar:           DoReturnToHangar(timeStep);               break;
                 case Plan.TroopToShip:              DoTroopToShip(timeStep, goal);            break;
                 case Plan.BoardShip:                DoBoardShip(timeStep);                    break;
                 case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
-                case Plan.Refit:                    DoRefit(goal);                               break;
+                case Plan.Refit:                    DoRefit(goal);                            break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
                 case Plan.ReturnHome:               DoReturnHome(timeStep);                   break;
                 case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
-                case Plan.HoldPosition:             HoldPosition();                              break;
-                case Plan.HoldPositionOffensive:    HoldPositionOffensive();                     break;
+                case Plan.HoldPosition:             HoldPosition();                           break;
+                case Plan.HoldPositionOffensive:    HoldPositionOffensive();                  break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
             }
 
