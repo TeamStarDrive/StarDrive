@@ -1233,7 +1233,7 @@ namespace Ship_Game
 
                     if (ignoreList.Contains(checkedEmpire) 
                         || ship.NotThreatToPlayer()
-                        || !system.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.ShipWithinSensorRange(ship)))
+                        || !ship.inSensorRange)
                     {
                         ignoreList.Add(checkedEmpire);
                         continue;
@@ -1534,7 +1534,7 @@ namespace Ship_Game
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem system = UniverseScreen.SolarSystemList[i];
-                if (!system.IsOwnedBy(EmpireManager.Player))
+                if (!system.IsOwnedBy(EmpireManager.Player) || GlobalStats.NotifyEnemyInSystemAfterLoad)
                 {
                     HostilesLogged.Add(system, false);
                     continue;
