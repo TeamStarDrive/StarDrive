@@ -1001,6 +1001,11 @@ namespace Ship_Game
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
 
+        public bool ShipWithinSensorRange(Ship ship)
+        {
+            return ship.Center.Distance(Center) < SensorRange;
+        }
+
         private static float CalcShipBuildingModifier(int numShipyards)
         {
             float shipyardDiminishedReturn = 1;
