@@ -116,7 +116,7 @@ namespace Ship_Game
         public BatchRemovalCollection<Ship> KnownShips = new BatchRemovalCollection<Ship>();
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
-        private readonly Map<SolarSystem, bool> HostilesPresent = new Map<SolarSystem, bool>();
+        private readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
         private readonly Map<Empire, Relationship> Relationships = new Map<Empire, Relationship>();
         public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
@@ -149,7 +149,7 @@ namespace Ship_Game
 
         public float updateContactsTimer = 0f;
         public float MaxContactTimer = 0f;
-        private bool InitializedHostilesDict;
+        private bool HostilesDictForPlayerInitialized;
         public float NetPlanetIncomes { get; private set; }
         public float GrossPlanetIncome { get; private set; }
         public float PotentialIncome { get; private set; }
@@ -596,7 +596,7 @@ namespace Ship_Game
             OwnedShips.Clear();
             Relationships.Clear();
             EmpireAI = null;
-            HostilesPresent.Clear();
+            HostilesLogged.Clear();
             Pool.ClearForcePools();
             KnownShips.Clear();
             SensorNodes.Clear();
@@ -1205,18 +1205,50 @@ namespace Ship_Game
             UnlockTech(techID, techUnlockType, target);
         }
 
-        private void AssessHostilePresence()
+        void AssessHostilePresenceForPlayerWarnings()
         {
-            foreach (SolarSystem beingInvaded in OwnedSolarSystems)
+            for (int i = 0; i < OwnedSolarSystems.Count; i++)
             {
-                foreach (Ship ship in beingInvaded.ShipList)
+                SolarSystem system = OwnedSolarSystems[i];
+                if (HostilesLogged[system])
                 {
-                    if (ship.loyalty == this || (!ship.loyalty.isFaction && !Relationships[ship.loyalty].AtWar) || HostilesPresent[beingInvaded])
+                    HostilesLogged[system] = system.HostileForcesPresent(this);
+                    continue;
+                }
+
+                HashSet<Empire> ignoreList = new HashSet<Empire>();
+                for (int j = 0; j < system.ShipList.Count; j++)
+                {
+                    Ship ship            = system.ShipList[j];
+                    Empire checkedEmpire = ship.loyalty;
+
+                    if (ignoreList.Contains(checkedEmpire) 
+                        || ship.NotThreatToPlayer()
+                        || !system.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.ShipWithinSensorRange(ship)))
+                    {
+                        ignoreList.Add(checkedEmpire);
                         continue;
-                    Universe.NotificationManager.AddBeingInvadedNotification(beingInvaded, ship.loyalty);
-                    HostilesPresent[beingInvaded] = true;
+                    }
+
+                    float strRatio = StrRatio(system, checkedEmpire);
+                    Universe.NotificationManager.AddBeingInvadedNotification(system, checkedEmpire, strRatio);
+                    HostilesLogged[system] = true;
                     break;
                 }
+            }
+
+            float StrRatio(SolarSystem system, Empire hostiles)
+            {
+                float hostileOffense  = system.ShipList.Filter(s => s.loyalty == hostiles).Sum(s => s.BaseStrength);
+                var ourPlanetsOffense = system.PlanetList.Filter(p => p.Owner == this).Sum(p => p.BuildingGeodeticOffense);
+                var ourSpaceAssets    = system.ShipList.Filter(s => s.loyalty == this);
+                float ourSpaceOffense = 0;
+
+                if (ourSpaceAssets.Length > 0)
+                    ourSpaceOffense += ourSpaceAssets.Sum(s => s.BaseStrength);
+
+                float ourOffense = (ourSpaceOffense + ourPlanetsOffense).LowerBound(1);
+                return hostileOffense / ourOffense;
             }
         }
 
@@ -1391,8 +1423,6 @@ namespace Ship_Game
                 if (this == Universe.PlayerEmpire)
                 {
                     Universe.UpdateStarDateAndTriggerEvents(Universe.StarDate + 0.1f);
-                    
-
                     StatTracker.StatUpdateStarDate(Universe.StarDate);
                     if (Universe.StarDate.AlmostEqual(1000.09f))
                     {
@@ -1406,22 +1436,10 @@ namespace Ship_Game
                         }
                     }
 
-                    if (!InitializedHostilesDict)
-                    {
-                        InitializedHostilesDict = true;
-                        foreach (SolarSystem system in UniverseScreen.SolarSystemList)
-                        {
-                            bool flag = false;
-                            foreach (Ship ship in system.ShipList)
-                            {
-                                if (ship.loyalty != this && (ship.loyalty.isFaction || Relationships[ship.loyalty].AtWar))
-                                    flag = true;
-                            }
-                            HostilesPresent.Add(system, flag);
-                        }
-                    }
+                    if (!HostilesDictForPlayerInitialized)
+                        InitializeHostilesInSystemDict();
                     else
-                        AssessHostilePresence();
+                        AssessHostilePresenceForPlayerWarnings();
                 }
                 //added by gremlin. empire ship reserve.
 
@@ -1501,6 +1519,34 @@ namespace Ship_Game
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
 
+        void InitializeHostilesInSystemDict() // For Player warnings
+        {
+            HostilesDictForPlayerInitialized = true;
+            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
+            {
+                SolarSystem system = UniverseScreen.SolarSystemList[i];
+                if (!system.IsOwnedBy(EmpireManager.Player))
+                {
+                    HostilesLogged.Add(system, false);
+                    continue;
+                }
+
+                bool hostileFound = false;
+                for (int j = 0; j < system.ShipList.Count; j++)
+                {
+                    Ship ship = system.ShipList[j];
+                    if (!ship.NotThreatToPlayer() 
+                        && system.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.ShipWithinSensorRange(ship)))
+                    {
+                        hostileFound = true;
+                        break;
+                    }
+                }
+
+                HostilesLogged.Add(system, hostileFound);
+            }
+        }
+
         /// <summary>
         /// This should be run on save load to set economic values without taking a turn.
         /// </summary>
@@ -1561,7 +1607,7 @@ namespace Ship_Game
             BestStationWeCanBuild  = BestShipWeCanBuild(ShipData.RoleName.station, this);
         }
 
-        private void UpdateDefenseShipBuildingOffense()
+        public void UpdateDefenseShipBuildingOffense()
         {
             for (int i = 0 ; i < OwnedPlanets.Count; i++)
             {
