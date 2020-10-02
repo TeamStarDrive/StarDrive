@@ -359,6 +359,9 @@ namespace Ship_Game.Ships
             AI.TargetGuid         = aiSave.AttackTarget;
             AI.SystemToDefendGuid = aiSave.SystemToDefend;
             AI.EscortTargetGuid   = aiSave.EscortTarget;
+            AI.HasPriorityTarget  = aiSave.PriorityTarget;
+
+            AI.SetPriorityOrder(aiSave.PriorityOrder);
         }
 
         public void InitializeShip(bool loadingFromSaveGame = false)
