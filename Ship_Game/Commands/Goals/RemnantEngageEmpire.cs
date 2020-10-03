@@ -70,11 +70,11 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float str = 0;
+            float str;
             if (TargetEmpire.isPlayer)
                 str = TargetEmpire.CurrentMilitaryStrength / 4;
             else
-                str = TargetEmpire.CurrentMilitaryStrength / TargetEmpire.GetPlanets().Count;
+                str = TargetEmpire.CurrentMilitaryStrength / (TargetEmpire.GetPlanets().Count / 2f).LowerBound(1);
 
             return str.LowerBound(Remnants.Level * Remnants.Level * 100);
         }
