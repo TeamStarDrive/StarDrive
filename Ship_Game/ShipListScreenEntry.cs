@@ -310,10 +310,12 @@ namespace Ship_Game
                 case AIState.ReturnToHangar: return Localizer.Token(181);
                 case AIState.Ferrying:       return Localizer.Token(185);
                 case AIState.Refit:          return ship.IsPlatformOrStation ? Localizer.Token(1820) : Localizer.Token(184);
-                case AIState.Scrap:          return Localizer.Token(186);
                 case AIState.FormationWarp:  return "Moving in Formation";
                 case AIState.Scuttle:        return "Self Destruct: " + ship.ScuttleTimer.ToString("#");
                 case AIState.ReturnHome:     return "Defense Ship Returning Home";
+                case AIState.Scrap:
+                    string scrapInPlanet = ship.AI.OrbitTarget != null ? $" in {ship.AI.OrbitTarget.Name}" : "";
+                    return Localizer.Token(186) + scrapInPlanet;
             }
         }
 
