@@ -170,8 +170,7 @@ namespace Ship_Game
             CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets);
             
             EmpireManager.Clear();
-            if (Empire.Universe != null)
-                Empire.Universe.ClearAllObjects();
+            Empire.Universe?.Objects.Clear();
             
             CreateEmpires(saveData, data);                     step.Advance();
             GiftShipsFromServantEmpire(data);                  step.Advance();

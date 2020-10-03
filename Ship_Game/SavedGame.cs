@@ -369,7 +369,7 @@ namespace Ship_Game
                         sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
                     }
                     
-                    sdata.Projectiles = screenToSave.GetProjectilesForShip(ship)
+                    sdata.Projectiles = screenToSave.Objects.GetProjectiles(ship)
                         .Select(p => new ProjectileSaveData
                         {
                             Velocity = p.Velocity,

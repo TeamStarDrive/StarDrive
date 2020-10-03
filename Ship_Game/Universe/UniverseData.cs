@@ -22,7 +22,7 @@ namespace Ship_Game
 
         public bool GravityWells;
 
-        public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
+        public Array<Ship> MasterShipList = new Array<Ship>();
         public Array<Empire> EmpireList = new Array<Empire>();
 
         public enum GameDifficulty

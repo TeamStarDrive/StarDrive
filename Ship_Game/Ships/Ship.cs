@@ -27,7 +27,7 @@ namespace Ship_Game.Ships
             var ships = new Array<Ship>();
             for (int i = 0; i < guids.Count; i++)
             {
-                Ship ship = Empire.Universe.FindShipByGuid(guids[i]);
+                Ship ship = Empire.Universe.Objects.FindShip(guids[i]);
                 if (ship != null)
                     ships.AddUnique(ship);
             }
