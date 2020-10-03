@@ -117,7 +117,7 @@ namespace Ship_Game.AI
             return PatrolRoute.Count > 0;
         }
 
-        void ScrapShip(FixedSimTime timeStep, ShipGoal goal)
+        void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius * 3)
             {
@@ -130,12 +130,10 @@ namespace Ship_Game.AI
                 ThrustOrWarpToPos(goal.TargetPlanet.Center, timeStep, 200f);
                 return;
             }
-            ClearOrders(State);
-            Owner.loyalty.RefundCreditsPostRemoval(Owner);
-            goal.TargetPlanet.ProdHere += Owner.GetCost(Owner.loyalty) / 2f;
-            Owner.loyalty.TryUnlockByScrap(Owner);
-            Owner.QueueTotalRemoval();
-            Owner.loyalty.GetEmpireAI().Recyclepool++;
+
+            // Waiting to be scrapped by Empire goal
+            if (!Owner.loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.ScrapShip && g.OldShip == Owner))
+                ClearOrders(); // Could not find empire scrap goal 
         }
 
         public void Update(FixedSimTime timeStep)
@@ -422,7 +420,7 @@ namespace Ship_Game.AI
                     if (ReverseThrustUntilStopped(timeStep)) { DequeueCurrentOrder(); }       break;
                 case Plan.Bombard:                  return DoBombard(timeStep, goal);
                 case Plan.Exterminate:              return DoExterminate(timeStep, goal);
-                case Plan.Scrap:                    ScrapShip(timeStep, goal);                break;
+                case Plan.Scrap:                    DoScrapShip(timeStep, goal);              break;
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(timeStep, goal); break;
                 case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(timeStep, goal);    break;
                 case Plan.MoveToWithin1000:         MoveToWithin1000(timeStep, goal);         break;
