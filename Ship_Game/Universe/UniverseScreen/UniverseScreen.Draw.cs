@@ -430,6 +430,10 @@ namespace Ship_Game
             
             // these are all background elements, such as ship overlays, fleet icons, etc..
             DrawShipsInRange(batch);
+
+            DrawProjectedGroup();
+            if (!LookingAtPlanet)
+                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
             DrawTacticalPlanetIcons(batch);
             DrawFTLInhibitionNodes();
             DrawShipRangeOverlay();
@@ -1065,11 +1069,6 @@ namespace Ship_Game
                 batch.BracketRectangle(ship.ScreenPosition,
                                        ship.ScreenRadius, color);
             }
-
-            DrawProjectedGroup();
-
-            if (!LookingAtPlanet)
-                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
         }
 
         void DrawProjectedGroup()
