@@ -218,6 +218,11 @@ namespace Ship_Game.AI
             }
         }
 
+        public void AddScrapShipGoal(Ship ship)
+        {
+            Goals.Add(new ScrapShip(ship, OwnerEmpire));
+        }
+
         public void Update()
         {
             DefStr = DefensiveCoordinator.GetForcePoolStrength();
