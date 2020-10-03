@@ -195,7 +195,7 @@ namespace Ship_Game.Gameplay
             LoadContent();
             Initialize();
 
-            Empire.Universe?.AddObject(this);
+            Empire.Universe?.Objects.AddObject(this);
 
             if (Owner != null)
             {

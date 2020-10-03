@@ -47,7 +47,7 @@ namespace Ship_Game.AI
 
             public void RestoreUnSerializedData(in Guid shipGuid)
             {
-                Ship ship = Empire.Universe.FindShipByGuid(shipGuid);
+                Ship ship = Empire.Universe.Objects.FindShip(shipGuid);
                 if (ship == null) return;
 
                 PinGuid = shipGuid;

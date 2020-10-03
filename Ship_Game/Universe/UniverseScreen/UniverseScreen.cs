@@ -24,8 +24,18 @@ namespace Ship_Game
     public partial class UniverseScreen : GameScreen
     {
         public static readonly SpatialManager Spatial = new SpatialManager();
+
+        /// <summary>
+        /// Manages universe objects in a thread-safe manner
+        /// </summary>
+        public UniverseObjectManager Objects;
+
+        // TODO: Encapsulate
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
+
+        // TODO: Encapsulate
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
+        
         public float GamePace = 1f;
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
@@ -191,6 +201,9 @@ namespace Ship_Game
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
+        public Array<Ship> GetMasterShipList() => Objects.Ships;
+        public Array<GameplayObject> GetMasterObjectList() => Objects.Objects;
+
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
             SetupUniverseScreen(data, loyalty);
@@ -219,12 +232,20 @@ namespace Ship_Game
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
             GravityWells          = data.GravityWells;
             SolarSystemList       = data.SolarSystemsList;
-
-            MasterShipList.AddRange(data.MasterShipList);
-            SubSpaceProjectors = new SubSpaceProjectors(UniverseSize);
+            
             Spatial.Setup(UniverseSize);
+            Objects = new UniverseObjectManager(this, Spatial, data);
+            Objects.OnShipRemoved += Objects_OnShipRemoved;
+            SubSpaceProjectors = new SubSpaceProjectors(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
+        }
+
+        void Objects_OnShipRemoved(Ship ship)
+        {
+            if (SelectedShip == ship)
+                SelectedShip = null;
+            SelectedShipList.RemoveRef(ship);
         }
 
         public Planet GetPlanet(Guid guid)
@@ -411,7 +432,7 @@ namespace Ship_Game
 
         void CreateStationTethers()
         {
-            foreach (Ship ship in MasterShipList)
+            foreach (Ship ship in Objects.Ships)
             {
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
@@ -471,7 +492,8 @@ namespace Ship_Game
 
         void CreateStartingShips()
         {
-            if (StarDate > 1000f || MasterShipList.Count > 0) // not a new game or load game at stardate 1000 
+            // not a new game or load game at stardate 1000 
+            if (StarDate > 1000f || Objects.Ships.Count > 0)
                 return;
 
             foreach (Empire empire in EmpireManager.MajorEmpires)
@@ -830,7 +852,7 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
-            ClearAllObjects();
+            Objects.Clear();
             ClearSolarSystems();
             ClearSpaceJunk();
 
