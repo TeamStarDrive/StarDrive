@@ -114,11 +114,6 @@ namespace Ship_Game
             return total.UpperBound(9999);
         }
 
-        public float TotalCostOfTroopsInQueue()
-        {
-            return ConstructionQueue.Filter(qi => qi.isTroop).Sum(qi => qi.Cost);
-        }
-
         public float TotalProdNeededInQueue()
         {
             return ConstructionQueue.Sum(qi => qi.ProductionNeeded);
@@ -145,6 +140,19 @@ namespace Ship_Game
             }
 
             return cost.LowerBound(0);
+        }
+
+        public float MissingProdHereForScrap(Goal[] scrapGoals)
+        {
+            float effectiveProd         = ProdHere + IncomingProd;
+            if (scrapGoals.Length > 0)
+            {
+                var scrapGoalsTargetingThis = scrapGoals.Filter(g => g.type == GoalType.ScrapShip && g.PlanetBuildingAt == this);
+                if (scrapGoalsTargetingThis.Length > 0)
+                    effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip.GetScrapCost());
+            }
+
+            return Storage.Max - effectiveProd; // Negative means we have excess prod
         }
 
         public Array<Ship> GetAllShipsInQueue() => ShipRolesInQueue(null);
