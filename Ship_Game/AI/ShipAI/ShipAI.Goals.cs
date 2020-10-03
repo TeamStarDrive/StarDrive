@@ -244,7 +244,9 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndScrap(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, AIState.Scrap);
+            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            OrbitTarget = p;
+            OrderMoveTo(GetPositionOnPlanet(p), direction, true, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 
