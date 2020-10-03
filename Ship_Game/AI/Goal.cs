@@ -40,7 +40,8 @@ namespace Ship_Game.AI
         DeployFleetProjector,
         RemnantEngagements,
         RemnantBalancersEngage,
-        RemnantInit
+        RemnantInit,
+        ScrapShip
     }
 
     public enum GoalStep
@@ -160,6 +161,8 @@ namespace Ship_Game.AI
                 case RemnantEngagements.ID:     return new RemnantEngagements();
                 case RemnantPortal.ID:          return new RemnantPortal();
                 case RemnantEngageEmpire.ID:    return new RemnantEngageEmpire();
+                case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
+                case ScrapShip.ID:              return new ScrapShip();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
