@@ -26,11 +26,11 @@ namespace UnitTests.Ships
             ship = CreateShip(empire, "Excalibur-Class Supercarrier", Vector2.Zero);
             target = CreateShip(empire, "Corsair", new Vector2(1000, 1000));
 
-            Universe.UpdateMasterObjectsLists();
+            Universe.Objects.Update(TestSimStep);
             UniverseScreen.Spatial.Update(Universe.GetMasterObjectList());
         }
 
-        Ship CreateShip(Empire empire, string shipName, Vector2 pos)
+        static Ship CreateShip(Empire empire, string shipName, Vector2 pos)
         {
             var ship = Ship.CreateShipAtPoint(shipName, empire, pos);
             ship.SetSystem(null);

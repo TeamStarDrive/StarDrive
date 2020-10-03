@@ -730,6 +730,8 @@ namespace Ship_Game
                 "Turn.PreEmpire:   ",
                 "Turn.Empire:      ",
                 "Turn.PostEmpire:  ",
+
+                "Turn.SpatialUpd:  ",
                 "Turn.Collision:   ",
                 "Turn.EmpireQue:   ",
 
@@ -747,14 +749,16 @@ namespace Ship_Game
             DebugGamePerfValues.MultilineText = new Array<string>
             {
                 $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime-CurrentSimTime)*1000:0.0}ms",
-                MasterShipList.Count.ToString(),
+                Objects.Ships.Count.ToString(),
 
-                UpdateSysPerf.String(TurnTimePerf),
-                UpdateShipsPerf.String(TurnTimePerf),
+                Objects.SysPerf.String(TurnTimePerf),
+                Objects.ShipsPerf.String(TurnTimePerf),
                 PreEmpirePerf.String(TurnTimePerf),
                 EmpireUpdatePerf.String(TurnTimePerf),
                 PostEmpirePerf.String(TurnTimePerf),
-                CollisionTime.String(TurnTimePerf),
+
+                Spatial.UpdateTime.String(TurnTimePerf),
+                Spatial.CollisionTime.String(TurnTimePerf),
                 EmpireUpdateQueue.Perf.String(TurnTimePerf),
 
                 TurnTimePerf.ToString(),

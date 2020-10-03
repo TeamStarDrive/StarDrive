@@ -534,12 +534,12 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Explorable.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\ShipGroupProject.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\ShipMoveCommands.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseObjectManager.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Camera.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Draw.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.HandleInput.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.InputActions.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Menus.cs" />
-    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.ObjectList.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Render.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.ShipGroupMove.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.StressTestShipLoading.cs" />

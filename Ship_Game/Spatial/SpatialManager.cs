@@ -11,6 +11,9 @@ namespace Ship_Game.Gameplay
         ISpatial Spatial;
         int UniverseWidth;
 
+        public readonly AggregatePerfTimer UpdateTime = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer CollisionTime = new AggregatePerfTimer();
+
         public string Name => Spatial?.Name ?? "";
         public int Collisions { get; private set; }
         public int Count => Spatial?.Count ?? 0;
@@ -52,12 +55,16 @@ namespace Ship_Game.Gameplay
 
         public void Update(Array<GameplayObject> allObjects)
         {
+            UpdateTime.Start();
             Spatial.UpdateAll(allObjects);
+            UpdateTime.Stop();
         }
 
         public void CollideAll(FixedSimTime timeStep)
         {
+            CollisionTime.Start();
             Collisions = Spatial.CollideAll(timeStep);
+            CollisionTime.Stop();
         }
 
         public GameplayObject[] FindNearby(GameObjectType type, GameplayObject obj, float radius,
