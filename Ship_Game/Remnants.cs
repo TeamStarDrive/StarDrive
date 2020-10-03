@@ -423,7 +423,7 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation() // Note Bombers are created exclusively 
         {
-            int roll = RollDie(Level + 3, Level/2).LowerBound(1);
+            int roll = RollDie(Level + 4, Level/2).LowerBound(1);
             switch (roll)
             {
                 case 1:
