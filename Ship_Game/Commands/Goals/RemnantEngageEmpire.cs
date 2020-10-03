@@ -68,6 +68,17 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
+        float RequiredFleetStr()
+        {
+            float str = 0;
+            if (TargetEmpire.isPlayer)
+                str = TargetEmpire.CurrentMilitaryStrength / 4;
+            else
+                str = TargetEmpire.CurrentMilitaryStrength / TargetEmpire.GetPlanets().Count;
+
+            return str.LowerBound(Remnants.Level * Remnants.Level * 100);
+        }
+
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
 
         GoalStep SelectFirstTargetPlanet()
@@ -104,7 +115,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             ship.AI.AddEscortGoal(Portal);
-            if (FleetStrNoBombers < (TargetEmpire.CurrentMilitaryStrength / 4).LowerBound(Remnants.Level*Remnants.Level * 100))
+            if (FleetStrNoBombers < RequiredFleetStr())
                 return GoalStep.TryAgain;
 
             Fleet.AutoArrange();
