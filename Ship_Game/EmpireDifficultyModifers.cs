@@ -96,7 +96,7 @@
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
                     ExpandSearchTurns    = 100;
-                    RemnantTurnsLevelUp  = 800;
+                    RemnantTurnsLevelUp  = 750;
                     RemnantResourceMod   = 0.2f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
