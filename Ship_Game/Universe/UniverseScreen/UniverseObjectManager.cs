@@ -33,6 +33,7 @@ namespace Ship_Game
 
         public readonly AggregatePerfTimer SysPerf   = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ShipsPerf = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer ProjPerf  = new AggregatePerfTimer();
 
         /// <summary>
         /// Invoked when a Ship is removed from the universe
@@ -72,7 +73,7 @@ namespace Ship_Game
             return projectiles;
         }
 
-        public void AddObject(GameplayObject go)
+        public void Add(GameplayObject go)
         {
             if (go.Type == GameObjectType.Ship)
             {
@@ -131,6 +132,7 @@ namespace Ship_Game
 
             UpdateAllSystems(timeStep);
             UpdateAllShips(timeStep);
+            UpdateAllProjectiles(timeStep);
 
             lock (Objects)
             {
@@ -242,6 +244,22 @@ namespace Ship_Game
             }, Universe.MaxTaskCores);
 
             ShipsPerf.Stop();
+        }
+
+        void UpdateAllProjectiles(FixedSimTime timeStep)
+        {
+            ProjPerf.Start();
+
+            Parallel.For(Projectiles.Count, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    Projectile proj = Projectiles[i];
+                    proj.Update(timeStep);
+                }
+            }, Universe.MaxTaskCores);
+
+            ProjPerf.Stop();
         }
     }
 }

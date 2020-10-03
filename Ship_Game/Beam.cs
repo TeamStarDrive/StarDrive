@@ -79,13 +79,15 @@ namespace Ship_Game
             base.Initialize();
             if (Owner != null)
             {
-                Loyalty = Owner?.loyalty ?? DroneAI?.Drone?.Loyalty; // set loyalty before adding to spatial manager
+                Loyalty = Owner?.loyalty ?? DroneAI?.Drone?.Loyalty;
                 SetSystem(Owner?.System ?? DroneAI?.Drone?.System);
             }
             InitBeamMeshIndices();
             UpdateBeamMesh();
 
-            QuadVertexDecl = new VertexDeclaration(Empire.Universe.ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+            QuadVertexDecl = new VertexDeclaration(Empire.Universe.ScreenManager.GraphicsDevice,
+                                                   VertexPositionNormalTexture.VertexElements);
+            Empire.Universe.Objects.Add(this);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)

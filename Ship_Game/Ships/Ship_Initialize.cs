@@ -90,7 +90,7 @@ namespace Ship_Game.Ships
                 Log.Warning($"Warning: Ship base warp is false: {this}");
 
             owner.AddShip(this);
-            Empire.Universe?.Objects.AddObject(this);
+            Empire.Universe?.Objects.Add(this);
             if (owner.GetEmpireAI() != null && !owner.isPlayer)
                 owner.Pool.ForcePoolAdd(this);
         }

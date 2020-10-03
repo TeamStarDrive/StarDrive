@@ -220,8 +220,12 @@ namespace Ship_Game.Spatial
                     bool isProjA = objectA.Type == GameObjectType.Proj;
                     var proj = (Projectile)(isProjA ? objectA : objectB);
                     GameplayObject victim = isProjA ? objectB : objectA;
-                    if (proj.Touch(victim))
-                        ++numCollisions;
+
+                    if (HitTestProj(0f, proj, victim, out ShipModule hitModule))
+                    {
+                        if (proj.Touch(hitModule ?? victim))
+                            ++numCollisions;
+                    }
                 }
             }
             return numCollisions;
@@ -292,6 +296,37 @@ namespace Ship_Game.Spatial
             return victim.Center.RayCircleIntersect(victim.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
+        public bool HitTestProj(float simTimeStep, Projectile proj, GameplayObject victim, out ShipModule hitModule)
+        {
+            // NOTE: this is for Projectile<->Projectile collision!
+            if (victim.Type != GameObjectType.Ship) // target not a ship, collision success
+            {
+                hitModule = null;
+                return true;
+            }
+
+            // ship collision, target modules instead
+            var ship = (Ship)victim;
+            float velocity = proj.Velocity.Length();
+            float maxDistPerFrame = velocity * simTimeStep;
+
+            // if this projectile will move more than 15 units (1 module grid = 16x16) within one simulation step
+            // we have to use ray-casting to avoid projectiles clipping through objects
+            if (maxDistPerFrame > 15f)
+            {
+                Vector2 dir = proj.Velocity / velocity;
+                float cx = proj.Center.X;
+                float cy = proj.Center.Y;
+                var prevPos = new Vector2(cx - dir.X*maxDistPerFrame, cy - dir.Y*maxDistPerFrame);
+                var center = new Vector2(cx, cy);
+                hitModule = ship.RayHitTestSingle(prevPos, center, proj.Radius, proj.IgnoresShields);
+            }
+            else
+            {
+                hitModule = ship.HitTestSingle(proj.Center, proj.Radius, proj.IgnoresShields);
+            }
+            return hitModule != null;
+        }
 
         GameplayObject[] CopyOutput(int* objectIds, int count)
         {
