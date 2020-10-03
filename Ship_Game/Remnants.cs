@@ -106,9 +106,9 @@ namespace Ship_Game
         public bool TryLevelUpByDate(out int newLevel)
         {
             newLevel         = 0;
-            int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp;
+            int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
             int turnsPassed  = (int)(Empire.Universe.StarDate * 10);
-            if (turnsPassed % turnsLevelUp == 0) // 500 turns on Normal
+            if (turnsPassed % turnsLevelUp == 0) // 750 turns on Normal
             {
                 if (Level < MaxLevel)
                 {
@@ -123,12 +123,22 @@ namespace Ship_Game
             return false;
         }
 
+        float StoryTurnsLevelUpModifier() // Above 1 is slower
+        {
+            switch (Story)
+            {
+                case RemnantStory.AncientExterminators: return 1.5f;
+                case RemnantStory.AncientRaidersRandom: return 0.75f;
+                default:                                return 1;
+            }
+        }
+
         void SetInitialLevel()
         {
-            int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp;
+            int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
             int turnsPassed  = (int)((Empire.Universe.StarDate - 1000) * 10);
             Level            = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
-            Level            = Level.LowerBound(1);
+            Level            = Level.Clamped(1, 3);
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
         }
 
@@ -413,23 +423,25 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation() // Note Bombers are created exclusively 
         {
-            int roll = RollDie(Level + 3, Level/2).LowerBound(1);
+            int roll = RollDie(Level + 4, Level/2).LowerBound(1);
             switch (roll)
             {
                 case 1:
                 case 2:  return RemnantShipType.Fighter;
-                case 3:  return RemnantShipType.SmallSupport;
-                case 4:  return RemnantShipType.Corvette;
+                case 3:
+                case 4:  return RemnantShipType.SmallSupport;
                 case 5:
-                case 6:  return RemnantShipType.Assimilator;
+                case 6:  return RemnantShipType.Corvette;
                 case 7:
-                case 8:  return RemnantShipType.Cruiser;
+                case 8:  return RemnantShipType.Assimilator;
                 case 9:
-                case 10: return RemnantShipType.Inhibitor;
-                case 11: 
-                case 12: return RemnantShipType.Carrier;
+                case 10: return RemnantShipType.Cruiser;
+                case 11:
+                case 12: return RemnantShipType.Inhibitor;
                 case 13:
-                case 14: return RemnantShipType.Mothership;
+                case 14: return RemnantShipType.Carrier;
+                case 15:
+                case 16: return RemnantShipType.Mothership;
                 default: return RemnantShipType.Exterminator;
             }
         }
@@ -471,7 +483,7 @@ namespace Ship_Game
 
         public void GenerateProduction(float amount)
         {
-            Production = (Production + amount).UpperBound(Level * Level * 1000); // Level 20 - 400k
+            Production = (Production + amount).UpperBound(Level * Level * 500); // Level 20 - 400k
         }
 
         public int NumPortals()
@@ -518,8 +530,8 @@ namespace Ship_Game
             int dieModifier = (int)CurrentGame.Difficulty * 5 - 10; // easy -10, brutal +5
             if (Story != RemnantStory.None)
                 dieModifier -= 10;
-            int d100        = RollDie(100) + dieModifier;
 
+            int d100 = RollDie(100) + dieModifier;
             switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
             {
                 case ExtraRemnantPresence.VeryRare:   VeryRarePresence(quality, d100, p);   break;
