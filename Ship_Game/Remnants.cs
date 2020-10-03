@@ -108,7 +108,7 @@ namespace Ship_Game
             newLevel         = 0;
             int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
             int turnsPassed  = (int)(Empire.Universe.StarDate * 10);
-            if (turnsPassed % turnsLevelUp == 0) // 500 turns on Normal
+            if (turnsPassed % turnsLevelUp == 0) // 750 turns on Normal
             {
                 if (Level < MaxLevel)
                 {
@@ -127,7 +127,7 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 2f;
+                case RemnantStory.AncientExterminators: return 1.5f;
                 case RemnantStory.AncientRaidersRandom: return 0.75f;
                 default:                                return 1;
             }
