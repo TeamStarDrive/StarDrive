@@ -564,6 +564,11 @@ namespace Ship_Game.Ships
             return ShipStats.GetCost(BaseCost, shipData, empire);
         }
 
+        public float GetScrapCost()
+        {
+            return GetCost(loyalty) / 2f;
+        }
+
         public ShipData BaseHull => shipData.BaseHull;
 
         public void SetShipData(ShipData data)
@@ -1434,7 +1439,7 @@ namespace Ship_Game.Ships
 
         public bool NotThreatToPlayer()
         {
-            if (loyalty == EmpireManager.Player)
+            if (loyalty == EmpireManager.Player || IsInWarp)
                 return true;
 
             if (loyalty == EmpireManager.Remnants)

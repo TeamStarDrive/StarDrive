@@ -381,6 +381,21 @@ namespace Ship_Game
             return builtAt;
         }
 
+        public bool FindPlanetToScrapIn(Ship ship, out Planet planet)
+        {
+            planet = null;
+            if (OwnedPlanets.Count == 0)
+                return false;
+
+            var scrapGoals       = GetEmpireAI().Goals.Filter(g => g.type == GoalType.ScrapShip);
+            var potentialPlanets = OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).Take(5).ToArray();
+            if (potentialPlanets.Length == 0)
+                return false;
+
+            planet = potentialPlanets.FindMin(p => p.Center.Distance(ship.Center));
+            return planet != null;
+        }
+
         public float KnownEnemyStrengthIn(SolarSystem system)
                      => EmpireAI.ThreatMatrix.PingHostileStr(system.Position, system.Radius, this);
         public float KnownEnemyStrengthIn(AO ao)

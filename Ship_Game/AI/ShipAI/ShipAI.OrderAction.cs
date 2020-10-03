@@ -466,36 +466,7 @@ namespace Ship_Game.AI
 
         public void OrderScrapShip()
         {
-            if (!Owner.CanBeScrapped)
-                return;
-
-            Owner.loyalty.Pool.RemoveShipFromFleetAndPools(Owner);
-
-            if (Owner.SecondsAlive < 10)
-                Log.Warning($"Possible Scrap loop - {Owner} was ordered scrap while it was alive {Owner.SecondsAlive} seconds.");
-
-            if (Owner.shipData.Role <= ShipData.RoleName.station && Owner.ScuttleTimer < 1)
-            {
-                Owner.ScuttleTimer = 1;
-                ClearOrders(AIState.Scuttle, priority:true);
-                Owner.QueueTotalRemoval(); // fbedard
-                return;
-            }
-
-            ClearOrders();
-
-            IgnoreCombat = true;
-            OrbitTarget = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
-            if (OrbitTarget == null) // nowhere to scrap
-            {
-                Owner.ScuttleTimer = 1;
-                ClearOrders(AIState.Scuttle, priority:true);
-                Owner.QueueTotalRemoval();
-                return;
-            }
-
-            OrderMoveAndScrap(OrbitTarget);
-            return;
+            Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner);
         }
 
         public void AddSupplyShipGoal(Ship supplyTarget)
