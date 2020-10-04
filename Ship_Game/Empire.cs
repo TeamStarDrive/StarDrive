@@ -363,9 +363,9 @@ namespace Ship_Game
             {
                 float planetDivider;
                 if (isPlayer)
-                    planetDivider = IsIndustrialists ? 5f : 4f;
-                else
                     planetDivider = 2;
+                else
+                    planetDivider = IsIndustrialists ? 5f : 4f;
 
                 int numPlanetsToFocus = ((int)Math.Ceiling(OwnedPlanets.Count / planetDivider)).Clamped(1, ports.Count + 1);
                 bestPorts             = ports.SortedDescending(p => p.Prod.NetMaxPotential);
