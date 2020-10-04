@@ -617,15 +617,54 @@ namespace Ship_Game.Debug
             Empire e = EmpireManager.Remnants;
             SetTextCursor(Win.X + 10 + 255, Win.Y + 150, e.EmpireColor);
             DrawString($"Remnant Story: {e.Remnants.Story}");
+            if (!e.Remnants.Activated)
+                DrawString($"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{25 * (EmpireManager.MajorEmpires.Length - 1)}");
+
             string activatedString = e.Remnants.Activated ? "Yes" : "No";
             activatedString        = e.data.Defeated ? "Defeated" : activatedString;
             DrawString($"Activated: {activatedString}");
             DrawString($"Level: {e.Remnants.Level}");
             DrawString($"Resources: {e.Remnants.Production.String()}");
             NewLine();
+            DrawString("Empires Score and Strength:");
+            for (int i = 0; i < EmpireManager.MajorEmpires.Length; i++)
+            {
+                Empire empire = EmpireManager.MajorEmpires[i];
+                DrawString(empire.EmpireColor,$"{empire.data.Name} - Score: {empire.TotalScore}, Strength: {empire.CurrentMilitaryStrength}");
+            }
+
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires
+                                                                      : EmpireManager.MajorEmpires;
+            NewLine();
+            float averageScore = (float)empiresList.Average(empire => empire.TotalScore);
+            float averageStr   = empiresList.Average(empire => empire.CurrentMilitaryStrength);
+            DrawString($"AI Empire Average Score:     {averageScore.String(0)}");
+            DrawString($"AI Empire Average Strength: {averageStr.String(0)}");
+
+            NewLine();
+            Empire bestScore = empiresList.FindMax(empire => empire.TotalScore);
+            Empire bestStr   = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
+
+            float diffFromAverageScore = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
+            float diffFromAverageStr   = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+
+            DrawString(bestScore.EmpireColor, $"Highest Score Empire: {bestScore.data.Name} ({(diffFromAverageScore-100).String(1)}% above average)");
+            DrawString(bestStr.EmpireColor,  $"Highest Str Empire:     {bestStr.data.Name} ({(diffFromAverageStr-100).String(1)}% above average)");
+
+            NewLine();
             DrawString("Goals:");
             foreach (Goal goal in e.GetEmpireAI().Goals)
-                DrawString($"{goal.type}, Target Planet: {goal.ColonizationTarget}, Bombers Wanted: {goal.ShipLevel}");
+            {
+                if (goal.type != GoalType.RemnantBalancersEngage)
+                {
+                    DrawString($"{goal.type}");
+                }
+                else
+                {
+                    Color color = goal.ColonizationTarget?.Owner?.EmpireColor ?? e.EmpireColor;
+                    DrawString(color,$"{goal.type}, Target Planet: {goal.ColonizationTarget?.Name}, Bombers Wanted: {goal.ShipLevel}");
+                }
+            }
             
             NewLine();
             DrawString("Fleets:");

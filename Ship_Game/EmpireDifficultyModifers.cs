@@ -96,7 +96,7 @@
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
                     ExpandSearchTurns    = 100;
-                    RemnantTurnsLevelUp  = 750;
+                    RemnantTurnsLevelUp  = 800;
                     RemnantResourceMod   = 0.2f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
@@ -145,7 +145,7 @@
                     ExpansionModifier    = 0f;
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 50;
-                    RemnantTurnsLevelUp  = 500;
+                    RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.5f;
 
                     if (!empire.isPlayer)

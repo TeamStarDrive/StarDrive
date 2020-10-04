@@ -57,7 +57,7 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            if (!Activated && StoryTriggerKillsXp >= 30 * (EmpireManager.MajorEmpires.Length - 1))
+            if (!Activated && StoryTriggerKillsXp >= 25 * (EmpireManager.MajorEmpires.Length - 1))
                 Activate();
 
             if (empire.isPlayer)
@@ -82,6 +82,7 @@ namespace Ship_Game
         {
             Activated = true;
             SetInitialLevel();
+            Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
 
             // Todo None story does not have a goal or maybe the old goal
 
@@ -107,8 +108,8 @@ namespace Ship_Game
         {
             newLevel         = 0;
             int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
-            int turnsPassed  = (int)(Empire.Universe.StarDate * 10);
-            if (turnsPassed % turnsLevelUp == 0) // 750 turns on Normal
+            int turnsPassed  = (int)((Empire.Universe.StarDate-1000) * 10);
+            if (turnsPassed % turnsLevelUp == 0) // 800 turns on Normal
             {
                 if (Level < MaxLevel)
                 {
@@ -136,7 +137,7 @@ namespace Ship_Game
         void SetInitialLevel()
         {
             int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
-            int turnsPassed  = (int)((Empire.Universe.StarDate - 1000) * 10);
+            int turnsPassed  = (int)((Empire.Universe.StarDate-1000) * 10);
             Level            = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
             Level            = Level.Clamped(1, 3);
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
@@ -194,10 +195,11 @@ namespace Ship_Game
             }
         }
 
-        public bool CanDoAnotherEngagement(out int numRaids)
+        public bool CanDoAnotherEngagement()
         {
-            numRaids = Goals.Count(g => g.IsRaid);
-            return numRaids < (Level / 2).LowerBound(1);
+            int maxRaids     = (Level < 5 ? 1 : 2) * NumPortals();
+            int onGoingRaids = Goals.Count(g => g.IsRaid);
+            return onGoingRaids < maxRaids;
         }
 
         public bool FindValidTarget(Ship portal, out Empire target)
@@ -209,7 +211,7 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
-                    target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    target = FindStrongestByAverageScore(empiresList);
                     break;
                 case RemnantStory.AncientExterminators: 
                     target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.CurrentMilitaryStrength);
@@ -237,6 +239,14 @@ namespace Ship_Game
 
             FindValidTarget(portal, out Empire expectedTarget);
             return expectedTarget == currentTarget;
+        }
+
+        Empire FindStrongestByAverageScore(Empire[] empiresList)
+        {
+            var averageScore  = empiresList.Average(e => e.TotalScore);
+            Empire bestEmpire = empiresList.FindMax(e => e.TotalScore);
+
+            return bestEmpire.TotalScore > averageScore * 1.2f ? bestEmpire : null;
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
