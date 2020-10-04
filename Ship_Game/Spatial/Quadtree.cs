@@ -57,10 +57,10 @@ namespace Ship_Game
                 FullSize *= 2;
             }
             QuadToLinearSearchThreshold = FullSize * QuadToLinearRatio;
-            Reset();
+            Clear();
         }
 
-        public void Reset()
+        public void Clear()
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;

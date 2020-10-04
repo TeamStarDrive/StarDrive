@@ -1,5 +1,7 @@
 #include "Grid.h"
 
+#include <algorithm>
+
 namespace spatial
 {
     Grid::Grid(int worldSize, int cellSize)
@@ -74,10 +76,11 @@ namespace spatial
             int x2 = (ox+orx + half) / cellSize;
             int y1 = (oy-ory + half) / cellSize;
             int y2 = (oy+ory + half) / cellSize;
-            if (x1 < 0) x1 = 0;
-            if (y1 < 0) y1 = 0;
-            if (x2 >= width)  x2 = width  - 1;
-            if (y2 >= height) y2 = height - 1;
+
+            x1 = std::clamp<int>(x1, 0, width - 1);
+            x2 = std::clamp<int>(x2, 0, width - 1);
+            y1 = std::clamp<int>(y1, 0, height - 1);
+            y2 = std::clamp<int>(y2, 0, height - 1);
 
             for (int y = y1; y <= y2; ++y)
             {
@@ -150,14 +153,16 @@ namespace spatial
         int cellSize = CellSize;
         int cellRadius = cellSize/2;
         int half = FullSize / 2;
+
         int x1 = (selection.left  + half) / cellSize;
         int x2 = (selection.right + half) / cellSize;
         int y1 = (selection.top    + half) / cellSize;
         int y2 = (selection.bottom + half) / cellSize;
-        if (x1 < 0) x1 = 0;
-        if (y1 < 0) y1 = 0;
-        if (x2 >= Width)  x2 = Width  - 1;
-        if (y2 >= Height) y2 = Height - 1;
+
+        x1 = std::clamp<int>(x1, 0, Width - 1);
+        x2 = std::clamp<int>(x2, 0, Width - 1);
+        y1 = std::clamp<int>(y1, 0, Height - 1);
+        y2 = std::clamp<int>(y2, 0, Height - 1);
 
         constexpr int SearchPattern = 1;
 

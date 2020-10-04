@@ -31,6 +31,7 @@ namespace Ship_Game.Spatial
         
         [DllImport(Lib)] static extern void SpatialClear(IntPtr spatial);
         [DllImport(Lib)] static extern void SpatialRebuild(IntPtr spatial);
+        [DllImport(Lib)] static extern void SpatialRebuildAll(IntPtr spatial);
 
         [DllImport(Lib)] static extern int SpatialInsert(IntPtr spatial, ref NativeSpatialObject o);
         [DllImport(Lib)] static extern void SpatialUpdate(IntPtr spatial, int objectId, int x, int y);
@@ -77,23 +78,53 @@ namespace Ship_Game.Spatial
             SpatialDestroy(tree);
         }
 
+        public void Clear()
+        {
+            SpatialClear(Spat);
+
+            RemoveInactive();
+            ObjectFlatMap.Clear();
+        }
+
+        void RemoveInactive()
+        {
+            for (int i = 0; i < ObjectFlatMap.Count; ++i)
+            {
+                GameplayObject existing = ObjectFlatMap[i];
+                if (existing != null && existing.SpatialIndex != -1 && !existing.Active)
+                {
+                    existing.SpatialIndex = -1;
+                    SpatialRemove(Spat, i);
+                }
+            }
+        }
+
         public void UpdateAll(Array<GameplayObject> allObjects)
         {
+            RemoveInactive();
+
             int count = allObjects.Count;
-            SpatialClear(Spat);
+            if (ObjectFlatMap.Count < count)
                 ObjectFlatMap.Resize(count);
 
             GameplayObject[] objects = allObjects.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
                 GameplayObject go = objects[i];
-                if (!go.Active)
-                    continue;
-
-                var so = new NativeSpatialObject(go);
-                int objectId = SpatialInsert(Spat, ref so);
-                go.SpatialIndex = objectId;
-                ObjectFlatMap[objectId] = go;
+                int objectId = go.SpatialIndex;
+                if (objectId == -1)
+                {
+                    var so = new NativeSpatialObject(go);
+                    objectId = SpatialInsert(Spat, ref so);
+                    go.SpatialIndex = objectId;
+                    if (ObjectFlatMap.Count <= objectId)
+                        ObjectFlatMap.Resize(objectId+1);
+                    ObjectFlatMap[objectId] = go;
+                }
+                else
+                {
+                    SpatialUpdate(Spat, objectId, (int)go.Center.X, (int)go.Center.Y);
+                }
             }
 
             SpatialRebuild(Spat);
@@ -132,7 +163,7 @@ namespace Ship_Game.Spatial
             CollisionPairs collisions = default;
             SpatialCollideAll(Spat, ref p, ref collisions);
             
-            int numCollisions = CollideObjects(collisions);
+            int numCollisions = CollideObjects(timeStep, collisions);
             return numCollisions;
         }
 
@@ -146,7 +177,7 @@ namespace Ship_Game.Spatial
             }
         }
 
-        int CollideObjects(CollisionPairs collisions)
+        int CollideObjects(FixedSimTime timeStep, CollisionPairs collisions)
         {
             int numCollisions = 0;
 
@@ -221,7 +252,7 @@ namespace Ship_Game.Spatial
                     var proj = (Projectile)(isProjA ? objectA : objectB);
                     GameplayObject victim = isProjA ? objectB : objectA;
 
-                    if (HitTestProj(0f, proj, victim, out ShipModule hitModule))
+                    if (HitTestProj(timeStep.FixedTime, proj, victim, out ShipModule hitModule))
                     {
                         if (proj.Touch(hitModule ?? victim))
                             ++numCollisions;
@@ -339,19 +370,7 @@ namespace Ship_Game.Spatial
             {
                 int spatialIndex = objectIds[i];
                 GameplayObject go = objects[spatialIndex];
-                if (go == null)
-                {
-                    Log.Warning($"FindNearby ObjectId points to null at:{spatialIndex} - this is a threading issue!");
-                }
-                else if (go.SpatialIndex == spatialIndex)
-                {
-                    found[i] = go;
-                }
-                else
-                {
-                    Log.Error($"FindNearby returned invalid ObjectId:{spatialIndex}\n"
-                              +$"Does not match expected:{go.SpatialIndex}\nFor {go}");
-                }
+                found[i] = go;
             }
             return found;
         }
@@ -380,7 +399,8 @@ namespace Ship_Game.Spatial
                                            int maxResults,
                                            GameplayObject toIgnore,
                                            Empire excludeLoyalty,
-                                           Empire onlyLoyalty)
+                                           Empire onlyLoyalty,
+                                           int debugId = 0)
         {
             int ignoreId = -1;
             if (toIgnore != null && toIgnore.SpatialIndex < 0)
@@ -397,7 +417,7 @@ namespace Ship_Game.Spatial
                 FilterExcludeByLoyalty = excludeLoyalty?.Id ?? 0,
                 FilterIncludeOnlyByLoyalty = onlyLoyalty?.Id ?? 0,
                 FilterFunction = null,
-                EnableSearchDebugId = 0,
+                EnableSearchDebugId = debugId,
             };
 
             int* objectIds = stackalloc int[maxResults];
@@ -411,7 +431,8 @@ namespace Ship_Game.Spatial
                                            int maxResults,
                                            GameplayObject toIgnore,
                                            Empire excludeLoyalty,
-                                           Empire onlyLoyalty)
+                                           Empire onlyLoyalty,
+                                           int debugId = 0)
         {
             float cx = worldPos.X;
             float cy = worldPos.Y;
@@ -494,6 +515,8 @@ namespace Ship_Game.Spatial
             public byte nodeText;
             public byte nodeBounds;
             public byte searchDebug;
+            public byte searchResults;
+            public byte collisions;
         }
 
         [DllImport(Lib)]
@@ -541,6 +564,8 @@ namespace Ship_Game.Spatial
                 nodeText = 0,
                 nodeBounds = 1,
                 searchDebug = 1,
+                searchResults = 1,
+                collisions = 1,
             };
 
             var vis = new QtreeVisualizerBridge

@@ -71,7 +71,11 @@ namespace Ship_Game.AI
                 if (Beams.NotEmpty)
                 {
                     for (int i = 0; i < Beams.Count; ++i)
-                        Beams[i].Die(null, false);
+                    {
+                        Beam beam = Beams[i];
+                        if (beam.Active)
+                            beam.Die(null, false);
+                    }
                     Beams.Clear();
                 }
 

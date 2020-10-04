@@ -806,6 +806,12 @@ namespace Ship_Game
             int fleetShips     = 0;
             fleet              = null;
 
+            if (Debug && DebugInfoScreen.Mode == DebugModes.SpatialManager)
+            {
+                RectF search = UnprojectToWorldRect(screenArea);
+                Spatial.FindNearby(GameObjectType.Ship, search.Center,
+                    Math.Max(search.W, search.H)/2, 1024, debugId:1);
+            }
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
                 Ship ship = clickableShip.shipToClick;

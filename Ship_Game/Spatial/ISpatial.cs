@@ -34,6 +34,7 @@ namespace Ship_Game
         /// </summary>
         int Count { get; }
 
+        void Clear();
         void UpdateAll(Array<GameplayObject> allObjects);
         int CollideAll(FixedSimTime timeStep);
         
@@ -54,7 +55,8 @@ namespace Ship_Game
                                     int maxResults,
                                     GameplayObject toIgnore,
                                     Empire excludeLoyalty,
-                                    Empire onlyLoyalty);
+                                    Empire onlyLoyalty,
+                                    int debugId = 0);
 
         /// <summary>
         /// Performs a linear search instead of using the Quadtree
@@ -65,7 +67,8 @@ namespace Ship_Game
                                     int maxResults,
                                     GameplayObject toIgnore,
                                     Empire excludeLoyalty,
-                                    Empire onlyLoyalty);
+                                    Empire onlyLoyalty,
+                                    int debugId = 0);
 
         void DebugVisualize(GameScreen screen);
     }
