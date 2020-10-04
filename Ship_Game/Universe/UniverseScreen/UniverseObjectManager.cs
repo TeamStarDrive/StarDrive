@@ -214,10 +214,15 @@ namespace Ship_Game
                         ship.SetSystem(system);
                         system.SetExploredBy(ship.loyalty);
                     }
-
-                    system.Update(timeStep, Universe);
                 }
             }, Universe.MaxTaskCores);
+
+            // TODO: SolarySystem.Update is not thread safe because of resource loading
+            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; ++i)
+            {
+                SolarSystem system = UniverseScreen.SolarSystemList[i];
+                system.Update(timeStep, Universe);
+            }
 
             SysPerf.Stop();
         }

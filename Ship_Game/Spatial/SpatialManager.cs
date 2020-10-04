@@ -30,10 +30,13 @@ namespace Ship_Game.Gameplay
             ISpatial newSpatial = null;
             switch (type)
             {
+                default:
                 case SpatialType.Grid:         newSpatial = new NativeSpatial(type, UniverseWidth, 20_000); break;
                 case SpatialType.QuadTree:     newSpatial = new NativeSpatial(type, UniverseWidth, 1024); break;
                 case SpatialType.ManagedQtree: newSpatial = new Quadtree(UniverseWidth, 1024); break;
             }
+
+            Spatial?.Clear();
             Spatial = newSpatial;
             Log.Info($"SpatialManager {Spatial.Name} Width: {(int)UniverseWidth}  FullSize: {(int)Spatial.FullSize}");
         }
@@ -70,19 +73,23 @@ namespace Ship_Game.Gameplay
         public GameplayObject[] FindNearby(GameObjectType type, GameplayObject obj, float radius,
                                            int maxResults,
                                            Empire excludeLoyalty = null,
-                                           Empire onlyLoyalty = null)
+                                           Empire onlyLoyalty = null,
+                                           int debugId = 0)
         {
             return Spatial.FindNearby(type, obj.Center, radius, maxResults,
-                                       toIgnore:obj, excludeLoyalty, onlyLoyalty);
+                                       toIgnore:obj, excludeLoyalty, onlyLoyalty,
+                                       debugId:debugId);
         }
 
         public GameplayObject[] FindNearby(GameObjectType type, Vector2 worldPos, float radius,
                                            int maxResults,
                                            Empire excludeLoyalty = null,
-                                           Empire onlyLoyalty = null)
+                                           Empire onlyLoyalty = null,
+                                           int debugId = 0)
         {
             return Spatial.FindNearby(type, worldPos, radius, maxResults,
-                                       toIgnore:null, excludeLoyalty, onlyLoyalty);
+                                       toIgnore:null, excludeLoyalty, onlyLoyalty,
+                                       debugId:debugId);
         }
 
 

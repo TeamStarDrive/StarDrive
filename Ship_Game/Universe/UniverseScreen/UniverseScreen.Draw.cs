@@ -429,7 +429,7 @@ namespace Ship_Game
             batch.Begin();
             
             // these are all background elements, such as ship overlays, fleet icons, etc..
-            DrawShipsInRange(batch);
+            DrawShipsAndProjectiles(batch);
 
             DrawProjectedGroup();
             if (!LookingAtPlanet)
@@ -553,12 +553,13 @@ namespace Ship_Game
                             : new Color(200, 0, 0, 30);
                         byte edgeAlpha = 40;
                         DrawCircleProjected(ship.Position, ship.WeaponsMaxRange, new Color(Color.Red, edgeAlpha));
-                        if (Empire.Universe.SelectedShip != ship) continue;
-
-                        edgeAlpha = 70;
-                        DrawTextureProjected(shipRangeTex, ship.Position, ship.WeaponsMaxRange, color);
-                        DrawCircleProjected(ship.Position, ship.WeaponsAvgRange, new Color(Color.Orange, edgeAlpha));
-                        DrawCircleProjected(ship.Position, ship.WeaponsMinRange, new Color(Color.Yellow, edgeAlpha));
+                        if (SelectedShip == ship)
+                        {
+                            edgeAlpha = 70;
+                            DrawTextureProjected(shipRangeTex, ship.Position, ship.WeaponsMaxRange, color);
+                            DrawCircleProjected(ship.Position, ship.WeaponsAvgRange, new Color(Color.Orange, edgeAlpha));
+                            DrawCircleProjected(ship.Position, ship.WeaponsMinRange, new Color(Color.Yellow, edgeAlpha));
+                        }
                     }
 
                     if ((ship?.SensorRange ?? 0) > 0)
@@ -998,7 +999,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawShipsInRange(SpriteBatch batch)
+        void DrawShipsAndProjectiles(SpriteBatch batch)
         {
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
@@ -1016,7 +1017,6 @@ namespace Ship_Game
 
             if (viewState <= UnivScreenState.PlanetView)
             {
-
                 GameplayObject[] projectiles = Spatial.FindNearby(GameObjectType.Proj,
                                                                   center, radius, 256);
                 for (int i = 0; i < projectiles.Length; ++i)
@@ -1043,31 +1043,26 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable                     = false;
             rs.CullMode                                   = CullMode.None;
 
-
             GameplayObject[] ships = Spatial.FindNearby(GameObjectType.Ship,
                                                         center, radius, 10_000);
 
             for (int i = 0; i < ships.Length; ++i)
             {
                 var ship = (Ship)ships[i];
-                if (!ship.Active || !ship.inSensorRange)
-                    continue;
+                if (ship.Active && ship.inSensorRange)
+                {
+                    if (!IsCinematicModeEnabled)
+                        DrawTacticalIcon(ship);
+                    DrawOverlay(ship);
 
-                if (!IsCinematicModeEnabled)
-                    DrawTacticalIcon(ship);
-                DrawOverlay(ship);
-
-                if (SelectedShip != ship &&
-                    !SelectedShipList.Contains(ship))
-                    continue;
-
-                Color color = Color.LightGreen;
-                if (player != ship.loyalty)
-                    color = player.IsEmpireAttackable(ship.loyalty)
-                        ? Color.Red
-                        : Color.Gray;
-                batch.BracketRectangle(ship.ScreenPosition,
-                                       ship.ScreenRadius, color);
+                    if (SelectedShip == ship || SelectedShipList.Contains(ship))
+                    {
+                        Color color = Color.LightGreen;
+                        if (player != ship.loyalty)
+                            color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
+                        batch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius, color);
+                    }
+                }
             }
         }
 
