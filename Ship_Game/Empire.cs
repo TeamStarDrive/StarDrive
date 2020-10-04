@@ -391,6 +391,15 @@ namespace Ship_Game
             if (OwnedPlanets.Count == 0)
                 return false;
 
+            if (!ship.BaseCanWarp)
+            {
+                planet = FindNearestRallyPoint(ship.Center);
+                if (planet == null || planet.Center.Distance(ship.Center) > 50000)
+                    ship.ScuttleTimer = 5;
+                
+                return planet != null;
+            }
+
             var scrapGoals       = GetEmpireAI().Goals.Filter(g => g.type == GoalType.ScrapShip);
             var potentialPlanets = OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).Take(5).ToArray();
             if (potentialPlanets.Length == 0)
