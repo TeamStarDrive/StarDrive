@@ -47,9 +47,10 @@ namespace Ship_Game
             PlayerStepTriggerXp = sData.RemnantPlayerStepTriggerXp;
             Story               = (RemnantStory)sData.RemnantStoryType;
             Production          = sData.RemnantProduction;
-            Level               = sData.RemnantLevel;
             StoryStep           = sData.RemnantStoryStep;
             OnlyRemnantLeft     = sData.OnlyRemnantLeft;
+
+            SetLevel(sData.RemnantLevel);
         }
 
         public void IncrementKills(Empire empire, int xp)
@@ -107,21 +108,28 @@ namespace Ship_Game
         public bool TryLevelUpByDate(out int newLevel)
         {
             newLevel         = 0;
-            int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
-            int turnsPassed  = (int)((Empire.Universe.StarDate-1000) * 10);
-            if (turnsPassed % turnsLevelUp == 0) // 800 turns on Normal
+            int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
+            turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier());
+            int turnsPassed  = ((Empire.Universe.StarDate-1000) * 10).RoundDownTo(1);
+            if (turnsPassed % turnsLevelUp == 0)
             {
                 if (Level < MaxLevel)
                 {
-                    Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level} ----");
+                    Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level+1} ----");
                     NotifyPlayerOnLevelUp();
                 }
 
-                newLevel = Level = (Level + 1).UpperBound(MaxLevel);
+                SetLevel(Level + 1);
+                newLevel = Level;
                 return true;
             }
 
             return false;
+        }
+
+        private void SetLevel(int level)
+        {
+            Level = level.Clamped(1, MaxLevel);
         }
 
         float StoryTurnsLevelUpModifier() // Above 1 is slower
@@ -134,12 +142,16 @@ namespace Ship_Game
             }
         }
 
+        int ExtraLevelUpEffort => (Level-1) * 25;
+
         void SetInitialLevel()
         {
             int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
-            int turnsPassed  = (int)((Empire.Universe.StarDate-1000) * 10);
-            Level            = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
-            Level            = Level.Clamped(1, 3);
+            int turnsPassed  = ((Empire.Universe.StarDate - 1000) * 10).RoundDownTo(1);
+            int initialLevel = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
+            initialLevel     = initialLevel.Clamped(1, 3);
+
+            SetLevel(initialLevel);
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
         }
 
