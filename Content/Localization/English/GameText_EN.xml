@@ -6097,7 +6097,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2214</Index>
-      <Text>Orders the ship to return to the nearest shipyard to be dismantled. The planet where the ship is dismantled will have a portion of the ship's original production cost added to its production stockpile</Text>
+      <Text>Orders the ship to return to the nearest shipyard to be dismantled. The planet where the ship is dismantled will have a portion of the ship's original production cost added to its production stockpile. SHIFT clicking on this ship will order ALL ships of the same design to be dismantled!</Text>
     </Token>
     <Token>
       <Index>2215</Index>
@@ -8886,7 +8886,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7005</Index>
-      <Text>Order ship back to the shipyards to be scrapped. If that ship is of a foreign hull, your engineers might be able to reverse engineer the hull.</Text>
+      <Text>Order ship back to the shipyards to be scrapped. If that ship is of a foreign hull, your engineers might be able to reverse engineer the hull. If you want to Mass scrap ALL ships of this design, use the 'Ships Array' screen and order scrap with SHIFT click.</Text>
     </Token>
   <Token>
       <Index>7006</Index>
