@@ -62,7 +62,8 @@ namespace Ship_Game
                                            int maxResults,
                                            GameplayObject toIgnore,
                                            Empire excludeLoyalty,
-                                           Empire onlyLoyalty)
+                                           Empire onlyLoyalty,
+                                           int debugId = 0)
         {
             // we create a dummy object which covers our search radius
             var enclosingRectangle = new SpatialObj(worldPos, radius);
@@ -159,7 +160,8 @@ namespace Ship_Game
                                            int maxResults,
                                            GameplayObject toIgnore,
                                            Empire excludeLoyalty,
-                                           Empire onlyLoyalty)
+                                           Empire onlyLoyalty,
+                                           int debugId = 0)
         {
             FindResultBuffer nearby = FindBuffer.Value;
             if (nearby.Items.Length < maxResults)

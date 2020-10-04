@@ -468,17 +468,20 @@ namespace Ship_Game
         {
             return UnprojectToWorldPosition3D(screenSpace).ToVec2();
         }
-        
-        // visible rectangle in world coordinates
-        public RectF GetVisibleWorldRect()
-        {
-            var screenSize = new Vector2(Viewport.Width, Viewport.Height);
-            Vector2 topLeft = UnprojectToWorldPosition(new Vector2(0f, 0f));
-            Vector2 botRight = UnprojectToWorldPosition(screenSize);
 
+        public RectF UnprojectToWorldRect(in Rectangle screenR)
+        {
+            Vector2 topLeft = UnprojectToWorldPosition(new Vector2(screenR.X, screenR.Y));
+            Vector2 botRight = UnprojectToWorldPosition(new Vector2(screenR.Right, screenR.Bottom));
             return new RectF(topLeft.X, topLeft.Y,
                             (botRight.X - topLeft.X),
                             (botRight.Y - topLeft.Y));
+        }
+
+        // visible rectangle in world coordinates
+        public RectF GetVisibleWorldRect()
+        {
+            return UnprojectToWorldRect(new Rectangle(0,0, Viewport.Width, Viewport.Height));
         }
 
         // Unprojects cursor screen pos to world 3D position
