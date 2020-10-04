@@ -361,8 +361,12 @@ namespace Ship_Game
             bestPorts = null;
             if (ports.Count > 0)
             {
-                // The divider will slowly increase, so a race with 20 planets will have the divider + 1 for better prod focus
-                float planetDivider   = IsIndustrialists ? 5f + OwnedPlanets.Count/20f : 4f + OwnedPlanets.Count/20f;
+                float planetDivider;
+                if (isPlayer)
+                    planetDivider = IsIndustrialists ? 5f : 4f;
+                else
+                    planetDivider = 2;
+
                 int numPlanetsToFocus = ((int)Math.Ceiling(OwnedPlanets.Count / planetDivider)).Clamped(1, ports.Count + 1);
                 bestPorts             = ports.SortedDescending(p => p.Prod.NetMaxPotential);
                 bestPorts             = bestPorts.Take(numPlanetsToFocus).ToArray();
