@@ -35,7 +35,7 @@ namespace Ship_Game.Commands.Goals
 
         void EngageEmpire(Ship[] portals)
         {
-            if (!Remnants.CanDoAnotherEngagement(out _))
+            if (!Remnants.CanDoAnotherEngagement())
                 return;
 
             if (!Remnants.FindValidTarget(portals.RandItem(), out Empire target))
