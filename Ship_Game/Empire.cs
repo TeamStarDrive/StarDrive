@@ -361,8 +361,12 @@ namespace Ship_Game
             bestPorts = null;
             if (ports.Count > 0)
             {
-                // The divider will slowly increase, so a race with 20 planets will have the divider + 1 for better prod focus
-                float planetDivider   = IsIndustrialists ? 5f + OwnedPlanets.Count/20f : 4f + OwnedPlanets.Count/20f;
+                float planetDivider;
+                if (isPlayer)
+                    planetDivider = 2;
+                else
+                    planetDivider = IsIndustrialists ? 5f : 4f;
+
                 int numPlanetsToFocus = ((int)Math.Ceiling(OwnedPlanets.Count / planetDivider)).Clamped(1, ports.Count + 1);
                 bestPorts             = ports.SortedDescending(p => p.Prod.NetMaxPotential);
                 bestPorts             = bestPorts.Take(numPlanetsToFocus).ToArray();
@@ -386,6 +390,15 @@ namespace Ship_Game
             planet = null;
             if (OwnedPlanets.Count == 0)
                 return false;
+
+            if (!ship.BaseCanWarp)
+            {
+                planet = FindNearestRallyPoint(ship.Center);
+                if (planet == null || planet.Center.Distance(ship.Center) > 50000)
+                    ship.ScuttleTimer = 5;
+                
+                return planet != null;
+            }
 
             var scrapGoals       = GetEmpireAI().Goals.Filter(g => g.type == GoalType.ScrapShip);
             var potentialPlanets = OwnedPlanets.SortedDescending(p => p.MissingProdHereForScrap(scrapGoals)).Take(5).ToArray();
@@ -2672,6 +2685,18 @@ namespace Ship_Game
             Universe.ScreenManager.AddScreenDeferred(new YouLoseScreen(Universe));
             Universe.Paused = false;
             return true;
+        }
+
+        public void MassScrap(Ship ship)
+        {
+            var shipList = ship.IsSubspaceProjector ? OwnedProjectors : OwnedShips;
+            using (shipList.AcquireReadLock())
+                for (int i = 0; i < shipList.Count; i++)
+                {
+                    Ship s = shipList[i];
+                    if (s.Name == ship.Name)
+                        s.AI.OrderScrapShip();
+                }
         }
 
         public void UpdateRelationships()
