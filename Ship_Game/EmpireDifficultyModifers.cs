@@ -68,7 +68,7 @@
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 150;
                     RemnantTurnsLevelUp  = 600;
-                    RemnantResourceMod   = 0.15f;
+                    RemnantResourceMod   = 0.2f;
 
                     if (!empire.isPlayer)
                     {
@@ -97,7 +97,7 @@
                     MinStartingColonies  = 4;
                     ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 400;
-                    RemnantResourceMod   = 0.2f;
+                    RemnantResourceMod   = 0.3f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -116,7 +116,7 @@
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 75;
                     RemnantTurnsLevelUp  = 400;
-                    RemnantResourceMod   = 0.3f;
+                    RemnantResourceMod   = 0.4f;
 
                     if (!empire.isPlayer)
                     {
@@ -146,7 +146,7 @@
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 300;
-                    RemnantResourceMod   = 0.5f;
+                    RemnantResourceMod   = 0.6f;
 
                     if (!empire.isPlayer)
                     {

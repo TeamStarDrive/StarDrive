@@ -287,6 +287,11 @@ namespace Ship_Game
             return ship != null;
         }
 
+        public int NumShipsInFleet(Fleet fleet)
+        {
+            return fleet?.Ships.Count ?? 0;
+        }
+
         public int NumBombersInFleet(Fleet fleet)
         {
            return fleet?.Ships.Count(s => s.Name == Owner.data.RemnantBomber) ?? 0;
@@ -373,9 +378,13 @@ namespace Ship_Game
             if (!RollDice((Level - 1) * 10)) 
                 return 0;
 
-            var numBombers = planet.Level > 4 ? 2.UpperBound(Level / 2) : 1;
+            var numBombers = planet.Level > 4 ? 2 : 1;
+            if (Level > 10)
+                numBombers += 1;
+
+            numBombers = (numBombers + NumPortals()).UpperBound(Level/2);
             if (planet.ShieldStrengthMax.Greater(0))
-                numBombers += (planet.ShieldStrengthMax / 500).RoundDownTo(1);
+                numBombers += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
 
             return numBombers;
         }
@@ -408,10 +417,10 @@ namespace Ship_Game
             return SpawnShip(RemnantShipType.Portal, pos, out portal);
         }
 
-        public bool CreateShip(Ship portal, bool needBomber, out Ship ship)
+        public bool CreateShip(Ship portal, bool needBomber, int numShips, out Ship ship)
         {
             ship = null;
-            RemnantShipType type = needBomber ? RemnantShipType.Bomber : SelectShipForCreation();
+            RemnantShipType type = needBomber ? RemnantShipType.Bomber : SelectShipForCreation(numShips);
             if (!ShipCosts.TryGetValue(type, out float cost) || Production < cost)
                 return false;
 
@@ -443,9 +452,10 @@ namespace Ship_Game
             ShipCosts.Add(type, cost);
         }
 
-        RemnantShipType SelectShipForCreation() // Note Bombers are created exclusively 
+        RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int roll = RollDie(Level + 4, Level/2).LowerBound(1);
+            int effectiveLevel = Level + 4 + shipsInFleet/10;
+            int roll = RollDie(effectiveLevel, effectiveLevel / 2).LowerBound(1);
             switch (roll)
             {
                 case 1:
