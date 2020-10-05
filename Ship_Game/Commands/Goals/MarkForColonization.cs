@@ -89,7 +89,7 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (ClaimTask(out MilitaryTask task))
+            if (TryGetClaimTask(out MilitaryTask task))
             {
                 if (!PositiveEnemyPresence(out _) || task.Fleet?.TaskStep == 7)
                     return GoalStep.GoToNextStep;
@@ -131,7 +131,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
             {
-                if (ClaimTask(out MilitaryTask task))
+                if (TryGetClaimTask(out MilitaryTask task))
                     task.EndTask();
 
                 return GoalStep.GoalFailed;
@@ -159,7 +159,7 @@ namespace Ship_Game.Commands.Goals
 
             if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
             {
-                if (ClaimTask(out MilitaryTask task))
+                if (TryGetClaimTask(out MilitaryTask task))
                     task.EndTask();
 
                 return GoalStep.GoalFailed;
@@ -176,7 +176,7 @@ namespace Ship_Game.Commands.Goals
 
             if (AIControlsColonization 
                 && empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10
-                && (!ClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7))
+                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7))
             {
                 ReleaseShipFromGoal();
                 task?.EndTask();
@@ -188,7 +188,7 @@ namespace Ship_Game.Commands.Goals
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != ColonizationTarget)
             {
-                if (ClaimTask(out MilitaryTask claimTask))
+                if (TryGetClaimTask(out MilitaryTask claimTask))
                     claimTask.EndTask();
 
                 return GoalStep.GoalFailed;
@@ -242,7 +242,7 @@ namespace Ship_Game.Commands.Goals
 
         bool AIControlsColonization => !empire.isPlayer || empire.isPlayer && empire.AutoColonize;
 
-        bool ClaimTask(out MilitaryTask task)
+        bool TryGetClaimTask(out MilitaryTask task)
         {
             return empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out task);
         }

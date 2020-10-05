@@ -199,7 +199,6 @@ namespace Ship_Game.Ships
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
 
         bool ScrambleAssaultShips(float strengthNeeded)
-
         {
             if (Owner == null || !Owner.HasOurTroops)
                 return false;
@@ -558,17 +557,17 @@ namespace Ship_Game.Ships
             if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
                 return false;
 
-            if (!Owner.Carrier.AnyAssaultOpsAvailable) 
+            if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange))
                 return false;
 
             bool sendingTroops = false;
 
             float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
-            float enemyStrength = targetShip.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
+            float enemyStrength              = targetShip.BoardingDefenseTotal/2;
 
             if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
             {
-                if (MaxTroopStrengthInSpaceToCommit < enemyStrength && targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange))
+                if (MaxTroopStrengthInSpaceToCommit < enemyStrength)
                     // This will launch salvos of assault shuttles if possible
                     sendingTroops = ScrambleAssaultShips(enemyStrength); 
 

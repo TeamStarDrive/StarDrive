@@ -38,6 +38,7 @@ namespace Ship_Game.AI
             if (distance < EscortTarget.Radius + 300f)
             {
                 Owner.TryLandSingleTroopOnShip(EscortTarget);
+                OrderReturnToHangar();
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)
             {
