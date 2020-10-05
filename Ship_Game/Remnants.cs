@@ -279,11 +279,11 @@ namespace Ship_Game
                     if (bombers.Length > 0)
                         ship = bombers.First();
                 }
-                else
+                else if (availableShips.Length <= 60 || RollDice(50)) // if there are too many ship, 50% to not assign
                 {
                     ship = availableShips.RandItem();
                 }
-
+            
             return ship != null;
         }
 
