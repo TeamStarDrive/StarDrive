@@ -191,16 +191,18 @@ namespace Ship_Game.Ships
             TetherOffset     = save.TetherOffset;
             InCombat         = InCombatTimer > 0f;
 
-            TransportingFood         = save.TransportingFood;
-            TransportingProduction   = save.TransportingProduction;
-            TransportingColonists    = save.TransportingColonists;
-            AllowInterEmpireTrade    = save.AllowInterEmpireTrade;
-            TradeRoutes              = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
+            TransportingFood          = save.TransportingFood;
+            TransportingProduction    = save.TransportingProduction;
+            TransportingColonists     = save.TransportingColonists;
+            AllowInterEmpireTrade     = save.AllowInterEmpireTrade;
+            TradeRoutes               = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
+            MechanicalBoardingDefense = save.MechanicalBoardingDefense;
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;
 
             HealthMax = RecalculateMaxHealth();
+            CalcTroopBoardingDefense();
 
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
