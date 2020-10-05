@@ -149,6 +149,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 ship.AddPower(supply*10);
                 ship.ChangeOrdnance(supply);
             }
+
+            ship.HealTroops(healOne: true);
         }
 
         private float CalcRepairPool()
@@ -179,7 +181,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
             foreach (PlanetGridSquare pgs in TilesList)
             {
-                if (troopCount >= ship.TroopCapacity || TroopsHere.Count <= garrisonSize)
+                if (troopCount + ship.NumTroopsRebasingHere >= ship.TroopCapacity || garrisonSize == 0)
                     break;
 
                 if (pgs.LockOnOurTroop(ship.loyalty, out Troop troop))

@@ -150,7 +150,7 @@ namespace Ship_Game.Ships
         public int FixedTrackingPower;
         public bool ShipInitialized;
         public override bool ParentIsThis(Ship ship) => this == ship;
-        public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
+        public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost    { get; private set; }
@@ -1171,7 +1171,8 @@ namespace Ship_Game.Ships
             }
 
             UpdateResupply();
-            UpdateTroops();
+            UpdateTroops(timeSinceLastUpdate);
+
 
             if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
@@ -1786,7 +1787,10 @@ namespace Ship_Game.Ships
                 if (repairAmount.AlmostEqual(0)) break;
                 repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
             }
+
             ApplyRepairToShields(repairAmount);
+            if (Health.AlmostEqual(HealthMax))
+                RefreshMechanicalBoardingDefense();
         }
 
         /**
