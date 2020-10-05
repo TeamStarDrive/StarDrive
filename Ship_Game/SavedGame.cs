@@ -292,7 +292,8 @@ namespace Ship_Game
                     sdata.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
                     sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
 
-                    sdata.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
+                    sdata.RecallFightersBeforeFTL   = ship.Carrier.RecallFightersBeforeFTL;
+                    sdata.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
 
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
@@ -814,6 +815,7 @@ namespace Ship_Game
             [Serialize(31)] public Array<Guid> TradeRoutes;
             [Serialize(32)] public bool SendTroopsToShip;
             [Serialize(33)] public bool RecallFightersBeforeFTL;
+            [Serialize(34)] public float MechanicalBoardingDefense;
         }
 
         public class SolarSystemSaveData
