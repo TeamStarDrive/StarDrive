@@ -1124,7 +1124,7 @@ namespace Ship_Game
                 if (Owner.isPlayer)
                     threshold = AutoBuildTroops ? 0 : GarrisonSize;
 
-                return TroopsHere.Count - threshold;
+                return (TroopsHere.Count - threshold).LowerBound(0);
             }
         }
 
