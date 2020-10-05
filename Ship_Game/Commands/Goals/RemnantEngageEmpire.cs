@@ -101,7 +101,7 @@ namespace Ship_Game.Commands.Goals
 
             int missingBombers = BombersLevel > 0 ? BombersLevel - Remnants.NumBombersInFleet(Fleet): 0;
             if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, out Ship ship))
-                if (!Remnants.CreateShip(Portal, missingBombers > 0, out ship))
+                if (!Remnants.CreateShip(Portal, missingBombers > 0, Remnants.NumShipsInFleet(Fleet), out ship))
                     return GoalStep.TryAgain;
 
             if (Fleet == null)
