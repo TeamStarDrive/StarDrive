@@ -1979,7 +1979,7 @@ namespace Ship_Game
             if (checkedTech.IsHidden(this))
                 return false;
 
-            if (!checkedTech.IsOnlyShipTech())
+            if (!checkedTech.IsOnlyShipTech() || isPlayer)
                 return true;
 
             return WeCanUseThisInDesigns(checkedTech, ourFactionShips);
@@ -1987,6 +1987,7 @@ namespace Ship_Game
 
         public bool WeCanUseThisInDesigns(TechEntry checkedTech, Array<Ship> ourFactionShips)
         {
+            // Dont offer tech to AI if it does not have designs for it.
             Technology tech = checkedTech.Tech;
             foreach (Ship ship in ourFactionShips)
             {
