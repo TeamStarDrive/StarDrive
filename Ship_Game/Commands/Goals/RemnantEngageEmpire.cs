@@ -72,7 +72,7 @@ namespace Ship_Game.Commands.Goals
         {
             float str;
             if (TargetEmpire.isPlayer)
-                str = TargetEmpire.CurrentMilitaryStrength / 4 * ((int)CurrentGame.Difficulty).LowerBound(1);
+                str = TargetEmpire.CurrentMilitaryStrength / 5 * ((int)CurrentGame.Difficulty).LowerBound(1);
             else
                 str = TargetEmpire.CurrentMilitaryStrength / (TargetEmpire.GetPlanets().Count / 2f).LowerBound(1);
 
