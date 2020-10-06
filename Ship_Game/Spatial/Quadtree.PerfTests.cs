@@ -57,16 +57,15 @@ namespace Ship_Game
             return target;
         }
 
-        public static void SpawnProjectilesFromEachShip(ISpatial tree, Array<GameplayObject> allObjects)
+        public static void SpawnProjectilesFromEachShip(ISpatial tree, Array<GameplayObject> allObjects, Vector2 offset)
         {
-            float spacing = tree.WorldSize / (float)Math.Sqrt(allObjects.Count);
             var projectiles = new Array<Projectile>();
             foreach (GameplayObject go in allObjects)
             {
                 if (!(go is Ship ship))
                     continue;
                 Weapon weapon = ship.Weapons.First;
-                var p = Projectile.Create(weapon, ship.Position + Vectors.Up*spacing, Vectors.Up, null, false);
+                var p = Projectile.Create(weapon, ship.Position + offset, Vectors.Up, null, false);
                 projectiles.Add(p);
             }
 

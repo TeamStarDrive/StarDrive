@@ -26,9 +26,10 @@ namespace UnitTests.Universe
             AllObjects = QuadtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
         }
 
-        protected void DebugVisualize(ISpatial tree)
+        protected void DebugVisualize(ISpatial tree, bool enableMovingShips = true)
         {
-            var vis = new SpatialVisualization(AllObjects, tree, EnableMovingShips);
+            bool moving = enableMovingShips && EnableMovingShips;
+            var vis = new SpatialVisualization(AllObjects, tree, moving);
             Game.ShowAndRun(screen: vis);
         }
 
@@ -72,34 +73,63 @@ namespace UnitTests.Universe
         public void TestFindNearbyMulti(ISpatial tree)
         {
             CreateQuadTree(100, tree);
-            
-            GameplayObject[] f1 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 1000);
-            Assert.AreEqual(4, f1.Length, "FindNearby center 1000 must match 4");
 
-            GameplayObject[] f2 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 2000);
+            GameplayObject[] f1 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 7200);
+            Assert.AreEqual(4, f1.Length, "FindNearby center 7200 must match 4");
+
+            GameplayObject[] f2 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 16500);
             Assert.AreEqual(12, f2.Length, "FindNearby center 2000 must match 12");
 
-            GameplayObject[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 3000);
+            GameplayObject[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 30000);
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
+        }
+
+        void CheckFindNearby(GameplayObject[] found, Ship s, float radius)
+        {
+            Assert.AreNotEqual(0, found.Length);
+            foreach (GameplayObject go in found)
+            {
+                Assert.AreEqual(GameObjectType.Proj, go.Type);
+                Assert.IsTrue(go.Position.Distance(s.Position) <= radius);
+            }
         }
 
         public void TestFindNearbyTypeFilter(ISpatial tree)
         {
             CreateQuadTree(100, tree);
-            QuadtreePerfTests.SpawnProjectilesFromEachShip(tree, AllObjects);
+            QuadtreePerfTests.SpawnProjectilesFromEachShip(tree, AllObjects, new Vector2(100));
 
             foreach (GameplayObject obj in AllObjects)
             {
                 if (obj is Ship s)
                 {
-                    GameplayObject[] found = FindNearby(tree, GameObjectType.Proj, s.Position, 3000);
-                    Assert.AreNotEqual(0, found.Length);
-                    foreach (GameplayObject go in found)
-                    {
-                        Assert.AreEqual(GameObjectType.Proj, go.Type);
-                        Assert.IsTrue(go.Position.Distance(s.Position) <= 3000);
-                    }
+                    GameplayObject[] found = FindNearby(tree, GameObjectType.Proj, s.Position, 10000);
+                    CheckFindNearby(found, s, 10000);
                 }
+            }
+        }
+
+        public void TestFindNearbyExcludeLoyaltyFilter(ISpatial tree)
+        {
+            CreateQuadTree(100, tree);
+
+            foreach (Ship s in AllObjects)
+            {
+                GameplayObject[] found = tree.FindNearby(GameObjectType.Ship, s.Position, 10000, 128,
+                                                         null, excludeLoyalty:s.loyalty, null);
+                CheckFindNearby(found, s, 10000);
+            }
+        }
+
+        public void TestFindNearbyOnlyLoyaltyFilter(ISpatial tree)
+        {
+            CreateQuadTree(100, tree);
+
+            foreach (Ship s in AllObjects)
+            {
+                GameplayObject[] found = tree.FindNearby(GameObjectType.Ship, s.Position, 10000, 128,
+                                                         null, null, onlyLoyalty:s.loyalty);
+                CheckFindNearby(found, s, 10000);
             }
         }
 
