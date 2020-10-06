@@ -44,10 +44,6 @@ namespace Ship_Game.AI.ExpansionAI
             return list;
         }
 
-        SolarSystem[] OwnedPotentialSystems(float ownerStrength) => Owner.GetOwnedSystems().Filter(s => s.IsOnlyOwnedBy(Owner)
-                                                                                            && s.PlanetList.Any(p => p.Habitable)
-                                                                                            && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength));
-
         int DesiredColonyGoals
         {
             get
@@ -88,14 +84,12 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             float ownerStrength       = Owner.CurrentMilitaryStrength;
-            var potentialOwnedSystems = OwnedPotentialSystems(ownerStrength);
             int ourPlanets            = Owner.GetPlanets().Count;
 
-            if (PopulationRatio < ExpansionThreshold
-                && potentialOwnedSystems.Length == 0
+            if (!Owner.isPlayer && PopulationRatio < ExpansionThreshold 
                 && ourPlanets >= Owner.DifficultyModifiers.MinStartingColonies)
             {
-                return; // We have not reached our pop capacity threshold yet and not have systems only owned by us to check
+                return; // We have not reached our pop capacity threshold (for AI only) 
             }
 
             Log.Info(ConsoleColor.Magenta,$"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");

@@ -38,7 +38,7 @@ namespace Ship_Game
             {
                 EventPopup popup = null;
                 if (triggeredBy == EmpireManager.Player)
-                    popup = new EventPopup(screen, triggeredBy, this, triggeredOutcome,false);
+                    popup = new EventPopup(screen, triggeredBy, this, triggeredOutcome,false, p);
                 triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy,popup);
                 if (popup != null)
                 {
