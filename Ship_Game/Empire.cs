@@ -2691,13 +2691,12 @@ namespace Ship_Game
         public void MassScrap(Ship ship)
         {
             var shipList = ship.IsSubspaceProjector ? OwnedProjectors : OwnedShips;
-            using (shipList.AcquireReadLock())
-                for (int i = 0; i < shipList.Count; i++)
-                {
-                    Ship s = shipList[i];
-                    if (s.Name == ship.Name)
-                        s.AI.OrderScrapShip();
-                }
+            for (int i = 0; i < shipList.Count; i++)
+            {
+                Ship s = shipList[i];
+                if (s.Name == ship.Name)
+                    s.AI.OrderScrapShip();
+            }
         }
 
         public void UpdateRelationships()

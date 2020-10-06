@@ -367,7 +367,7 @@ namespace Ship_Game
                     {
                         if (input.IsShiftKeyDown)
                         {
-                            ship.loyalty.MassScrap(ship);
+                            RunOnEmpireThread(() => ship.loyalty.MassScrap(ship));
                             screen.ResetStatus();
                         }
                         else
