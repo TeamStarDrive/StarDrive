@@ -5,8 +5,10 @@ namespace spatial
 {
     int findNearby(int* outResults, const SearchOptions& opt, FoundNodes& found)
     {
-        int exclLoyaltyMask = (opt.FilterExcludeByLoyalty == 0)     ? 0xffffffff : ~opt.FilterExcludeByLoyalty;
-        int onlyLoyaltyMask = (opt.FilterIncludeOnlyByLoyalty == 0) ? 0xffffffff : opt.FilterIncludeOnlyByLoyalty;
+        int loyaltyMask = 0xfffffff;
+        if (opt.FilterIncludeOnlyByLoyalty) loyaltyMask = opt.FilterIncludeOnlyByLoyalty;
+        if (opt.FilterExcludeByLoyalty)     loyaltyMask = ~opt.FilterExcludeByLoyalty;
+
         int filterMask      = (opt.FilterByType == 0)               ? 0xffffffff : opt.FilterByType;
         int objectMask      = (opt.FilterExcludeObjectId == -1)     ? 0xffffffff : ~(opt.FilterExcludeObjectId+1);
         int x = opt.OriginX;
@@ -41,8 +43,7 @@ namespace spatial
             for (int i = 0; i < size; ++i)
             {
                 const SpatialObject& o = *objects[i];
-                if ((o.loyalty & exclLoyaltyMask) &&
-                    (o.loyalty & onlyLoyaltyMask) &&
+                if ((o.loyalty & loyaltyMask) &&
                     (o.type    & filterMask) && 
                     ((o.objectId+1) & objectMask))
                 {

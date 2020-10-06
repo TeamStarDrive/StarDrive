@@ -78,6 +78,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>

@@ -9,7 +9,7 @@ namespace UnitTests.Universe
 {
     public class TestSpatialCommon : StarDriveTest
     {
-        protected static bool EnableVisualization = true;
+        protected static bool EnableVisualization = false;
         protected static bool EnableMovingShips = true;
         //protected Array<Ship> AllShips = new Array<Ship>();
         protected Array<GameplayObject> AllObjects = new Array<GameplayObject>();
@@ -88,14 +88,17 @@ namespace UnitTests.Universe
             CreateQuadTree(100, tree);
             QuadtreePerfTests.SpawnProjectilesFromEachShip(tree, AllObjects);
 
-            foreach (Ship s in AllObjects)
+            foreach (GameplayObject obj in AllObjects)
             {
-                GameplayObject[] found = FindNearby(tree, GameObjectType.Proj, s.Position, 3000);
-                Assert.AreNotEqual(0, found.Length);
-                foreach (GameplayObject go in found)
+                if (obj is Ship s)
                 {
-                    Assert.AreEqual(GameObjectType.Proj, go.Type);
-                    Assert.IsTrue(go.Position.Distance(s.Position) <= 3000);
+                    GameplayObject[] found = FindNearby(tree, GameObjectType.Proj, s.Position, 3000);
+                    Assert.AreNotEqual(0, found.Length);
+                    foreach (GameplayObject go in found)
+                    {
+                        Assert.AreEqual(GameObjectType.Proj, go.Type);
+                        Assert.IsTrue(go.Position.Distance(s.Position) <= 3000);
+                    }
                 }
             }
         }
