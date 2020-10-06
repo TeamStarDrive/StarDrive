@@ -17,6 +17,7 @@ namespace Ship_Game
         public readonly BatchRemovalCollection<Goal> Goals;
         public float StoryTriggerKillsXp { get; private set; }
         public float PlayerStepTriggerXp { get; private set; }
+        public float NextLevelUpDate { get; private set; }
         public bool Activated { get; private set; }
         public static bool Armageddon;
         public RemnantStory Story { get; private set; }
@@ -49,6 +50,7 @@ namespace Ship_Game
             Production          = sData.RemnantProduction;
             StoryStep           = sData.RemnantStoryStep;
             OnlyRemnantLeft     = sData.OnlyRemnantLeft;
+            NextLevelUpDate     = sData.RemnantNextLevelUpDate;
 
             SetLevel(sData.RemnantLevel);
         }
@@ -85,6 +87,7 @@ namespace Ship_Game
             SetInitialLevel();
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
 
+
             // Todo None story does not have a goal or maybe the old goal
 
             if (Story != RemnantStory.AncientColonizers)
@@ -108,14 +111,15 @@ namespace Ship_Game
         public bool TryLevelUpByDate(out int newLevel)
         {
             newLevel         = 0;
-            int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
-            turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier());
-            int turnsPassed  = ((Empire.Universe.StarDate-1000) * 10).RoundDownTo(1);
-            if (turnsPassed % turnsLevelUp == 0)
+            if (NextLevelUpDate.AlmostEqual(Empire.Universe.StarDate))
             {
+                int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
+                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier());
+                NextLevelUpDate     += turnsLevelUp;
+
                 if (Level < MaxLevel)
                 {
-                    Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level+1} ----");
+                    Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level+1}. Next level up in Stardate {NextLevelUpDate} ----");
                     NotifyPlayerOnLevelUp();
                 }
 
@@ -150,7 +154,7 @@ namespace Ship_Game
             int turnsPassed  = ((Empire.Universe.StarDate - 1000) * 10).RoundDownTo(1);
             int initialLevel = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
             initialLevel     = initialLevel.Clamped(1, 3);
-
+            NextLevelUpDate      = Empire.Universe.StarDate + turnsLevelUp;
             SetLevel(initialLevel);
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
         }
