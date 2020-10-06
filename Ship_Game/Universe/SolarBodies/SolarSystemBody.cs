@@ -492,10 +492,6 @@ namespace Ship_Game
                 newOwner.data.Traits.TaxMod        = GetTraitMax(newOwner.data.Traits.TaxMod, realTaxMod);
             }
 
-
-            if (newOwner.isFaction)
-                return;
-
             foreach (var kv in OrbitalStations)
             {
                 Ship station = kv.Value;
