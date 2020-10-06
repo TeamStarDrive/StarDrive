@@ -379,7 +379,7 @@ namespace Ship_Game
             if (empire.IsCybernetic)
                 value += PotentialMaxFertilityFor(empire) * 10;
 
-            value += SpecialCommodities * 10;
+            value += SpecialCommodities * 20;
             value += MineralRichness * 10;
             value += PotentialMaxPopBillionsFor(empire) * PopMultiplier();
 
@@ -971,6 +971,11 @@ namespace Ship_Game
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
 
+        public bool ShipWithinSensorRange(Ship ship)
+        {
+            return ship.Center.Distance(Center) < SensorRange;
+        }
+
         private static float CalcShipBuildingModifier(int numShipyards)
         {
             float shipyardDiminishedReturn = 1;
@@ -1089,7 +1094,7 @@ namespace Ship_Game
                 if (Owner.isPlayer)
                     threshold = AutoBuildTroops ? 0 : GarrisonSize;
 
-                return TroopsHere.Count - threshold;
+                return (TroopsHere.Count - threshold).LowerBound(0);
             }
         }
 
@@ -1158,8 +1163,8 @@ namespace Ship_Game
 
             UpdateTerraformPoints(0);
             Owner.RemovePlanet(this, attacker);
-            if (IsExploredBy(Empire.Universe.PlayerEmpire))
-                Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
+            if (IsExploredBy(EmpireManager.Player) && (Owner.isPlayer || attacker.isPlayer))
+                Empire.Universe.NotificationManager.AddPlanetDiedNotification(this);
 
             bool removeOwner = true;
             foreach (Planet other in ParentSystem.PlanetList)

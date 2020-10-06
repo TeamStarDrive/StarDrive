@@ -73,12 +73,26 @@ namespace Ship_Game
             }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02");
         }
 
-        public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader)
+        public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader, float strRatio)
         {
+            string threatLevel = "\nThreat level vs. our forces\nthere is ";
+            if      (strRatio < 0.1f)  threatLevel += "negligible.";
+            else if (strRatio < 0.3f)  threatLevel += "very low.";
+            else if (strRatio < 0.5f)  threatLevel += "low.";
+            else if (strRatio < 0.75f) threatLevel += "medium.";
+            else if (strRatio < 1f)    threatLevel += "high.";
+            else if (strRatio < 1.5f)  threatLevel += "very high.";
+            else                       threatLevel += "overwhelming.";
+
+            string message = invader.data.Traits.Singular
+                             + Localizer.Token(1500) + '\n'
+                             + Localizer.Token(1501) + beingInvaded.Name
+                             + Localizer.Token(1502) + threatLevel;
+
             AddNotification(new Notification
             {
                 RelevantEmpire  = invader,
-                Message         = invader.data.Traits.Singular + Localizer.Token(1500) + '\n' + Localizer.Token(1501) + beingInvaded.Name + Localizer.Token(1502),
+                Message         = message,
                 ReferencedItem1 = beingInvaded,
                 IconPath        = "NewUI/icon_planet_terran_01_mid",
                 Action          = "SnapToSystem"
@@ -97,15 +111,34 @@ namespace Ship_Game
             }, "sd_ui_notification_colonized_01");
         }
 
-        public void AddConqueredNotification(Planet wasConquered, Empire conquerer, Empire loser)
+        public void AddAnomalyInvestigated(Planet p, string message)
         {
             AddNotification(new Notification
             {
-                RelevantEmpire  = conquerer,
-                Message         = conquerer.data.Traits.Name + Localizer.Token(1503) + wasConquered.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
-                ReferencedItem1 = wasConquered.ParentSystem,
-                IconPath        = wasConquered.IconPath,
-                Action          = "SnapToSystem"
+                Message         = message,
+                ReferencedItem1 = p,
+                IconPath        = p.IconPath,
+                Action          = "CombatScreen"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddConqueredNotification(Planet p, Empire conqueror, Empire loser)
+        {
+            string action = "SnapToSystem";
+            object item   = p.ParentSystem;
+            if (conqueror.isPlayer)
+            {
+                action = "SnapToPlanet";
+                item   = p;
+            }
+
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = conqueror,
+                Message         = conqueror.data.Traits.Name + Localizer.Token(1503) + p.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
+                ReferencedItem1 = item,
+                IconPath        = p.IconPath,
+                Action          = action
             }, "sd_troop_march_01");
         }
 
@@ -291,13 +324,13 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        public void AddPlanetDiedNotification(Planet died, Empire owner)
+        public void AddPlanetDiedNotification(Planet p)
         {
             AddNotification(new Notification
             {
-                Message         = Localizer.Token(1511) + died.Name + Localizer.Token(1512),
-                ReferencedItem1 = died.ParentSystem,
-                IconPath        = died.IconPath,
+                Message         = Localizer.Token(1511) + p.Name + Localizer.Token(1512),
+                ReferencedItem1 = p.ParentSystem,
+                IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
             }, "sd_ui_notification_warning");
         }
@@ -607,7 +640,7 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            Screen.SnapViewColony(p);
+            Screen.SnapViewColony(combatView: false);
         }
 
         public void SnapToShip(Ship s)

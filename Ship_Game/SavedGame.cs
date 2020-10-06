@@ -292,7 +292,8 @@ namespace Ship_Game
                     sdata.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
                     sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
 
-                    sdata.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
+                    sdata.RecallFightersBeforeFTL   = ship.Carrier.RecallFightersBeforeFTL;
+                    sdata.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
 
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
@@ -318,10 +319,12 @@ namespace Ship_Game
                     {
                         sdata.AISave.AttackTarget = targetShip.guid;
                     }
-                    sdata.AISave.DefaultState = ship.AI.DefaultAIState;
-                    sdata.AISave.MovePosition = ship.AI.MovePosition;
-                    sdata.AISave.WayPoints     = new Array<WayPoint>(ship.AI.CopyWayPoints());
-                    sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
+                    sdata.AISave.DefaultState   = ship.AI.DefaultAIState;
+                    sdata.AISave.MovePosition   = ship.AI.MovePosition;
+                    sdata.AISave.WayPoints      = new Array<WayPoint>(ship.AI.CopyWayPoints());
+                    sdata.AISave.ShipGoalsList  = new Array<ShipGoalSave>();
+                    sdata.AISave.PriorityOrder  = ship.AI.HasPriorityOrder;
+                    sdata.AISave.PriorityTarget = ship.AI.HasPriorityTarget;
 
                     foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
                     {
@@ -749,6 +752,8 @@ namespace Ship_Game
             [Serialize(7)] public Guid SystemToDefend;
             [Serialize(8)] public Guid AttackTarget;
             [Serialize(9)] public Guid EscortTarget;
+            [Serialize(10)] public bool PriorityOrder;
+            [Serialize(11)] public bool PriorityTarget;
         }
 
         public class ShipGoalSave
@@ -811,6 +816,7 @@ namespace Ship_Game
             [Serialize(31)] public Array<Guid> TradeRoutes;
             [Serialize(32)] public bool SendTroopsToShip;
             [Serialize(33)] public bool RecallFightersBeforeFTL;
+            [Serialize(34)] public float MechanicalBoardingDefense;
         }
 
         public class SolarSystemSaveData
