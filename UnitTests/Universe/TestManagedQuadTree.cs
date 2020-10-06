@@ -16,19 +16,31 @@ namespace UnitTests.Universe
         [TestMethod]
         public void FindNearbySingle()
         {
-            TestFindNearbySingle(new Quadtree(10_000));
+            TestFindNearbySingle(new Quadtree(100_000));
         }
 
         [TestMethod]
         public void FindNearbyMulti()
         {
-            TestFindNearbyMulti(new Quadtree(10_000));
+            TestFindNearbyMulti(new Quadtree(100_000));
         }
 
         [TestMethod]
         public void FindNearbyTypeFilter()
         {
-            TestFindNearbyTypeFilter(new Quadtree(10_000));
+            TestFindNearbyTypeFilter(new Quadtree(100_000));
+        }
+
+        [TestMethod]
+        public void TestFindNearbyExcludeLoyaltyFilter()
+        {
+            TestFindNearbyExcludeLoyaltyFilter(new Quadtree(100_000));
+        }
+
+        [TestMethod]
+        public void TestFindNearbyOnlyLoyaltyFilter()
+        {
+            TestFindNearbyOnlyLoyaltyFilter(new Quadtree(100_000));
         }
 
         [TestMethod]
@@ -52,7 +64,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void TreeCollisionPerformance()
         {
-            TestTreeCollisionPerformance(new Quadtree(50_000));
+            TestTreeCollisionPerformance(new Quadtree(100_000));
         }
     }
 }

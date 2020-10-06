@@ -8,7 +8,7 @@ namespace UnitTests.Universe
     public class TestNativeSpatial : TestSpatialCommon
     {
         const SpatialType Type = SpatialType.Grid;
-        const int CellSize = 20000;
+        const int CellSize = 20_000;
 
         [TestMethod]
         public void BasicInsert()
@@ -19,19 +19,31 @@ namespace UnitTests.Universe
         [TestMethod]
         public void FindNearbySingle()
         {
-            TestFindNearbySingle(new NativeSpatial(Type, 10_000, CellSize));
+            TestFindNearbySingle(new NativeSpatial(Type, 100_000, CellSize));
         }
 
         [TestMethod]
         public void FindNearbyMulti()
         {
-            TestFindNearbyMulti(new NativeSpatial(Type, 10_000, CellSize));
+            TestFindNearbyMulti(new NativeSpatial(Type, 100_000, CellSize));
         }
         
         [TestMethod]
         public void FindNearbyTypeFilter()
         {
-            TestFindNearbyTypeFilter(new NativeSpatial(Type, 10_000, CellSize));
+            TestFindNearbyTypeFilter(new NativeSpatial(Type, 100_000, CellSize));
+        }
+
+        [TestMethod]
+        public void TestFindNearbyExcludeLoyaltyFilter()
+        {
+            TestFindNearbyExcludeLoyaltyFilter(new NativeSpatial(Type, 100_000, CellSize));
+        }
+
+        [TestMethod]
+        public void TestFindNearbyOnlyLoyaltyFilter()
+        {
+            TestFindNearbyOnlyLoyaltyFilter(new NativeSpatial(Type, 100_000, CellSize));
         }
 
         [TestMethod]
@@ -55,7 +67,7 @@ namespace UnitTests.Universe
         [TestMethod]
         public void TreeCollisionPerformance()
         {
-            TestTreeCollisionPerformance(new NativeSpatial(Type, 50_000, CellSize));
+            TestTreeCollisionPerformance(new NativeSpatial(Type, 100_000, CellSize));
         }
     }
 }
