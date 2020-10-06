@@ -365,7 +365,15 @@ namespace Ship_Game
                     }
                     else
                     {
-                        ship.AI.OrderScrapShip();
+                        if (input.IsShiftKeyDown)
+                        {
+                            ship.loyalty.MassScrap(ship);
+                            screen.ResetStatus();
+                        }
+                        else
+                        {
+                            ship.AI.OrderScrapShip();
+                        }
                     }
                     Status_Text = GetStatusText(ship);
                 }

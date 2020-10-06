@@ -38,6 +38,7 @@ namespace Ship_Game.AI
             if (distance < EscortTarget.Radius + 300f)
             {
                 Owner.TryLandSingleTroopOnShip(EscortTarget);
+                OrderReturnToHangar();
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)
             {
@@ -525,7 +526,8 @@ namespace Ship_Game.AI
             {
                 // find another friendly planet to land at
                 Owner.UpdateHomePlanet(Owner.loyalty.RallyShipYardNearestTo(Owner.Center));
-                if (Owner.HomePlanet == null)
+                if (Owner.HomePlanet == null 
+                    || Owner.HomePlanet.ParentSystem != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
                 {
                     // Nowhere to land, bye bye.
                     Owner.ScuttleTimer = 1;
