@@ -77,6 +77,9 @@ namespace spatial
             int y1 = (oy-ory + half) / cellSize;
             int y2 = (oy+ory + half) / cellSize;
 
+            if (x2 < 0 || y2 < 0 || x1 >= width || y1 >= height)
+                continue; // this object is out of world bounds
+
             x1 = std::clamp<int>(x1, 0, width - 1);
             x2 = std::clamp<int>(x2, 0, width - 1);
             y1 = std::clamp<int>(y1, 0, height - 1);
@@ -234,7 +237,9 @@ namespace spatial
             }
         }
 
-        int numResults = spatial::findNearby(outResults, opt, found);
+        int numResults = 0;
+        if (found.count)
+            numResults = spatial::findNearby(outResults, opt, found);
         
         if (opt.EnableSearchDebugId)
         {

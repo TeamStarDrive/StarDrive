@@ -28,7 +28,8 @@ namespace Ship_Game.Spatial
         [DllImport(Lib)] static extern int SpatialWorldSize(IntPtr spatial);
         [DllImport(Lib)] static extern int SpatialFullSize(IntPtr spatial);
         [DllImport(Lib)] static extern int SpatialNumActive(IntPtr spatial);
-        
+        [DllImport(Lib)] static extern int SpatialMaxObjects(IntPtr spatial);
+
         [DllImport(Lib)] static extern void SpatialClear(IntPtr spatial);
         [DllImport(Lib)] static extern void SpatialRebuild(IntPtr spatial);
         [DllImport(Lib)] static extern void SpatialRebuildAll(IntPtr spatial);
@@ -41,12 +42,14 @@ namespace Ship_Game.Spatial
         [DllImport(Lib)] static extern int SpatialFindNearby(IntPtr spatial, int* outResults, ref NativeSearchOptions opt);
 
         IntPtr Spat;
-        readonly Array<GameplayObject> ObjectFlatMap = new Array<GameplayObject>(capacity:512);
+        Array<GameplayObject> FrontObjects = new Array<GameplayObject>(capacity:512);
+        Array<GameplayObject> BackObjects  = new Array<GameplayObject>(capacity:512);
 
         public SpatialType Type { get; }
         public float WorldSize { get; }
         public float FullSize { get; }
         public int Count => SpatialNumActive(Spat);
+        public int MaxObjects => SpatialMaxObjects(Spat);
         public string Name { get; }
 
         /// <param name="type">What type of spatial structure to create</param>
@@ -81,53 +84,54 @@ namespace Ship_Game.Spatial
         public void Clear()
         {
             SpatialClear(Spat);
-
-            RemoveInactive();
-            ObjectFlatMap.Clear();
-        }
-
-        void RemoveInactive()
-        {
-            for (int i = 0; i < ObjectFlatMap.Count; ++i)
-            {
-                GameplayObject existing = ObjectFlatMap[i];
-                if (existing != null && existing.SpatialIndex != -1 && !existing.Active)
-                {
-                    existing.SpatialIndex = -1;
-                    SpatialRemove(Spat, i);
-                }
-            }
+            FrontObjects.Clear();
+            BackObjects.Clear();
         }
 
         public void UpdateAll(Array<GameplayObject> allObjects)
         {
-            RemoveInactive();
-
             int count = allObjects.Count;
-            if (ObjectFlatMap.Count < count)
-                ObjectFlatMap.Resize(count);
+            int maxObjects = Math.Max(MaxObjects, count);
+
+            var objectsMap = BackObjects;
+            objectsMap.Clear(); // avoid any ref leaks
+            objectsMap.Resize(maxObjects);
 
             GameplayObject[] objects = allObjects.GetInternalArrayItems();
             for (int i = 0; i < count; ++i)
             {
                 GameplayObject go = objects[i];
                 int objectId = go.SpatialIndex;
-                if (objectId == -1)
+                if (go.Active)
                 {
-                    var so = new NativeSpatialObject(go);
-                    objectId = SpatialInsert(Spat, ref so);
-                    go.SpatialIndex = objectId;
-                    if (ObjectFlatMap.Count <= objectId)
-                        ObjectFlatMap.Resize(objectId+1);
-                    ObjectFlatMap[objectId] = go;
+                    if (objectId == -1)
+                    {
+                        var so = new NativeSpatialObject(go);
+                        objectId = SpatialInsert(Spat, ref so);
+                        go.SpatialIndex = objectId;
+                        objectsMap[objectId] = go;
+                    }
+                    else
+                    {
+                        SpatialUpdate(Spat, objectId, (int)go.Center.X, (int)go.Center.Y);
+                        objectsMap[objectId] = go;
+                    }
                 }
                 else
                 {
-                    SpatialUpdate(Spat, objectId, (int)go.Center.X, (int)go.Center.Y);
+                    if (objectId != -1)
+                    {
+                        SpatialRemove(Spat, objectId);
+                        go.SpatialIndex = -1;
+                    }
                 }
             }
 
             SpatialRebuild(Spat);
+
+            // now swap front and back
+            BackObjects = FrontObjects;
+            FrontObjects = objectsMap;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -191,8 +195,13 @@ namespace Ship_Game.Spatial
                 if (pair.A == -1) // object removed by beam collision
                     continue;
 
-                GameplayObject objectA = ObjectFlatMap[pair.A];
-                GameplayObject objectB = ObjectFlatMap[pair.B];
+                GameplayObject objectA = FrontObjects[pair.A];
+                GameplayObject objectB = FrontObjects[pair.B];
+                if (objectB == null)
+                {
+                    Log.Error($"CollideObjects objectB was null at {pair.B}");
+                    continue;
+                }
                 if (!objectA.Active || !objectB.Active)
                     continue; // a collision participant already died
 
@@ -213,12 +222,12 @@ namespace Ship_Game.Spatial
                         pair = collisions.Data[j];
                         if (pair.A == beamId)
                         {
-                            AddBeamHit(beamHits, beam, ObjectFlatMap[pair.B]);
+                            AddBeamHit(beamHits, beam, FrontObjects[pair.B]);
                             collisions.Data[j] = CollisionPair.Empty; // remove
                         }
                         else if (pair.B == beamId)
                         {
-                            AddBeamHit(beamHits, beam, ObjectFlatMap[pair.A]);
+                            AddBeamHit(beamHits, beam, FrontObjects[pair.A]);
                             collisions.Data[j] = CollisionPair.Empty; // remove
                         }
                     }
@@ -359,12 +368,11 @@ namespace Ship_Game.Spatial
             return hitModule != null;
         }
 
-        GameplayObject[] CopyOutput(int* objectIds, int count)
+        GameplayObject[] CopyOutput(int* objectIds, int count, GameplayObject[] objects)
         {
             if (count == 0)
                 return Empty<GameplayObject>.Array;
 
-            GameplayObject[] objects = ObjectFlatMap.GetInternalArrayItems();
             var found = new GameplayObject[count];
             for (int i = 0; i < found.Length; ++i)
             {
@@ -420,9 +428,12 @@ namespace Ship_Game.Spatial
                 EnableSearchDebugId = debugId,
             };
 
+            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
+            int count = FrontObjects.Count;
+
             int* objectIds = stackalloc int[maxResults];
             int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);
-            return CopyOutput(objectIds, resultCount);
+            return CopyOutput(objectIds, resultCount, objects);
         }
 
         public GameplayObject[] FindLinear(GameObjectType type,
@@ -438,8 +449,8 @@ namespace Ship_Game.Spatial
             float cy = worldPos.Y;
             bool filterByLoyalty = (excludeLoyalty != null) || (onlyLoyalty != null);
 
-            GameplayObject[] objects = ObjectFlatMap.GetInternalArrayItems();
-            int count = ObjectFlatMap.Count;
+            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
+            int count = FrontObjects.Count;
             
             int resultCount = 0;
             int* objectIds = stackalloc int[maxResults];
@@ -470,7 +481,7 @@ namespace Ship_Game.Spatial
                         break; // we are done !
                 }
             }
-            return CopyOutput(objectIds, resultCount);
+            return CopyOutput(objectIds, resultCount, objects);
         }
         
         struct Point

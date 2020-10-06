@@ -30,6 +30,7 @@ namespace spatial
     SPATIAL_C_API int SPATIAL_CC SpatialWorldSize(Spatial* spatial) { return spatial->worldSize(); }
     SPATIAL_C_API int SPATIAL_CC SpatialFullSize(Spatial* spatial)  { return spatial->fullSize(); }
     SPATIAL_C_API int SPATIAL_CC SpatialNumActive(Spatial* spatial) { return spatial->numActive(); }
+    SPATIAL_C_API int SPATIAL_CC SpatialMaxObjects(Spatial* spatial){ return spatial->maxObjects(); }
     SPATIAL_C_API void SPATIAL_CC SpatialClear(Spatial* spatial)    { spatial->clear(); }
     SPATIAL_C_API void SPATIAL_CC SpatialRebuild(Spatial* spatial)  { spatial->rebuild(); }
 
