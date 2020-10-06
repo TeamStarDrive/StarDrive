@@ -70,9 +70,9 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
+            if (Remnants.TryLevelUp(out int newLevel) && newLevel == 10)
             {
-                if (Remnants.CreatePortal()); // Second portal at level 10
+                if (Remnants.CreatePortal()) // Second portal at level 10
                     Empire.Universe.NotificationManager.AddRemnantsNewPortal(empire);
             }
 
