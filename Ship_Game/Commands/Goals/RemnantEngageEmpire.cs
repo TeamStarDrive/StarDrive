@@ -72,10 +72,11 @@ namespace Ship_Game.Commands.Goals
         {
             float str;
             if (TargetEmpire.isPlayer)
-                str = TargetEmpire.CurrentMilitaryStrength / 4;
+                str = TargetEmpire.CurrentMilitaryStrength / 5 * ((int)CurrentGame.Difficulty).LowerBound(1);
             else
                 str = TargetEmpire.CurrentMilitaryStrength / (TargetEmpire.GetPlanets().Count / 2f).LowerBound(1);
 
+            str = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
             return str.LowerBound(Remnants.Level * Remnants.Level * 100);
         }
 
@@ -100,7 +101,7 @@ namespace Ship_Game.Commands.Goals
 
             int missingBombers = BombersLevel > 0 ? BombersLevel - Remnants.NumBombersInFleet(Fleet): 0;
             if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, out Ship ship))
-                if (!Remnants.CreateShip(Portal, missingBombers > 0, out ship))
+                if (!Remnants.CreateShip(Portal, missingBombers > 0, Remnants.NumShipsInFleet(Fleet), out ship))
                     return GoalStep.TryAgain;
 
             if (Fleet == null)
