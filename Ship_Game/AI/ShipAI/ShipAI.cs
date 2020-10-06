@@ -117,7 +117,7 @@ namespace Ship_Game.AI
             return PatrolRoute.Count > 0;
         }
 
-        void ScrapShip(FixedSimTime timeStep, ShipGoal goal)
+        void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)
         {
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius * 3)
             {
@@ -130,12 +130,10 @@ namespace Ship_Game.AI
                 ThrustOrWarpToPos(goal.TargetPlanet.Center, timeStep, 200f);
                 return;
             }
-            ClearOrders(State);
-            Owner.loyalty.RefundCreditsPostRemoval(Owner);
-            goal.TargetPlanet.ProdHere += Owner.GetCost(Owner.loyalty) / 2f;
-            Owner.loyalty.TryUnlockByScrap(Owner);
-            Owner.QueueTotalRemoval();
-            Owner.loyalty.GetEmpireAI().Recyclepool++;
+
+            // Waiting to be scrapped by Empire goal
+            if (!Owner.loyalty.GetEmpireAI().Goals.Any(g => g.type == GoalType.ScrapShip && g.OldShip == Owner))
+                ClearOrders(); // Could not find empire scrap goal 
         }
 
         public void Update(FixedSimTime timeStep)
@@ -381,19 +379,25 @@ namespace Ship_Game.AI
 
         void AIStateRebase()
         {
-            if (State != AIState.Rebase) return;
+            if (State != AIState.Rebase) 
+                return;
+
             if (OrderQueue.IsEmpty)
             {
                 OrderRebaseToNearest();
                 return;
             }
+
             for (int x = 0; x < OrderQueue.Count; x++)
             {
                 ShipGoal goal = OrderQueue[x];
-                if (goal.Plan != Plan.Rebase || goal.TargetPlanet == null || goal.TargetPlanet.Owner == Owner.loyalty)
-                    continue;
-                ClearOrders();
-                return;
+                if (goal.Plan == Plan.Rebase 
+                    && goal.TargetPlanet.Owner != Owner.loyalty
+                    && !Owner.loyalty.isPlayer) // player rebase is not cancelled 
+                {
+                    ClearOrders();
+                    return;
+                }
             }
         }
 
@@ -416,33 +420,33 @@ namespace Ship_Game.AI
                     if (ReverseThrustUntilStopped(timeStep)) { DequeueCurrentOrder(); }       break;
                 case Plan.Bombard:                  return DoBombard(timeStep, goal);
                 case Plan.Exterminate:              return DoExterminate(timeStep, goal);
-                case Plan.Scrap:                    ScrapShip(timeStep, goal);                break;
+                case Plan.Scrap:                    DoScrapShip(timeStep, goal);              break;
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(timeStep, goal); break;
                 case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(timeStep, goal);    break;
                 case Plan.MoveToWithin1000:         MoveToWithin1000(timeStep, goal);         break;
                 case Plan.MakeFinalApproach:        MakeFinalApproach(timeStep, goal);        break;
                 case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(timeStep);       break;
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, timeStep); break;
-                case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);           break;
+                case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);        break;
                 case Plan.Explore:                  DoExplore(timeStep);                      break;
                 case Plan.Rebase:                   DoLandTroop(timeStep, goal);              break;
                 case Plan.DefendSystem:             DoSystemDefense(timeStep);                break;
                 case Plan.DoCombat:                 DoCombat(timeStep);                       break;
-                case Plan.DeployStructure:          DoDeploy(goal);                              break;
-                case Plan.DeployOrbital:            DoDeployOrbital(goal);                       break;
+                case Plan.DeployStructure:          DoDeploy(goal);                           break;
+                case Plan.DeployOrbital:            DoDeployOrbital(goal);                    break;
                 case Plan.PickupGoods:              PickupGoods.Execute(timeStep, goal);      break;
                 case Plan.DropOffGoods:             DropOffGoods.Execute(timeStep, goal);     break;
                 case Plan.ReturnToHangar:           DoReturnToHangar(timeStep);               break;
                 case Plan.TroopToShip:              DoTroopToShip(timeStep, goal);            break;
                 case Plan.BoardShip:                DoBoardShip(timeStep);                    break;
                 case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
-                case Plan.Refit:                    DoRefit(goal);                               break;
+                case Plan.Refit:                    DoRefit(goal);                            break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
                 case Plan.ReturnHome:               DoReturnHome(timeStep);                   break;
                 case Plan.RebaseToShip:             DoRebaseToShip(timeStep);                 break;
-                case Plan.HoldPosition:             HoldPosition();                              break;
-                case Plan.HoldPositionOffensive:    HoldPositionOffensive();                     break;
+                case Plan.HoldPosition:             HoldPosition();                           break;
+                case Plan.HoldPositionOffensive:    HoldPositionOffensive();                  break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
             }
 

@@ -146,7 +146,7 @@ namespace Ship_Game.Ships
         public int FixedTrackingPower;
         public bool ShipInitialized;
         public override bool ParentIsThis(Ship ship) => this == ship;
-        public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
+        public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost    { get; private set; }
@@ -558,6 +558,11 @@ namespace Ship_Game.Ships
         public float GetCost(Empire empire)
         {
             return ShipStats.GetCost(BaseCost, shipData, empire);
+        }
+
+        public float GetScrapCost()
+        {
+            return GetCost(loyalty) / 2f;
         }
 
         public ShipData BaseHull => shipData.BaseHull;
@@ -1144,7 +1149,7 @@ namespace Ship_Game.Ships
             }
 
             // return home if it is a defense ship
-            if (!InCombat && HomePlanet != null)
+            if (!InCombat && HomePlanet != null && !HomePlanet.SpaceCombatNearPlanet)
                 ReturnHome();
 
             // Repair
@@ -1162,7 +1167,8 @@ namespace Ship_Game.Ships
             }
 
             UpdateResupply();
-            UpdateTroops();
+            UpdateTroops(timeSinceLastUpdate);
+
 
             if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
@@ -1427,6 +1433,19 @@ namespace Ship_Game.Ships
         }
 
         public void AddToShipLevel(int amountToAdd) => Level = (Level + amountToAdd).Clamped(0,10);
+
+        public bool NotThreatToPlayer()
+        {
+            if (loyalty == EmpireManager.Player || IsInWarp)
+                return true;
+
+            if (loyalty == EmpireManager.Remnants)
+                return false;
+
+            return BaseStrength.LessOrEqual(0)
+                   || IsFreighter
+                   || EmpireManager.Player.TryGetRelations(loyalty, out Relationship rel) && !rel.AtWar;
+        }
 
         public void UpdateEmpiresOnKill(Ship killedShip)
         {
@@ -1752,7 +1771,10 @@ namespace Ship_Game.Ships
                 if (repairAmount.AlmostEqual(0)) break;
                 repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
             }
+
             ApplyRepairToShields(repairAmount);
+            if (Health.AlmostEqual(HealthMax))
+                RefreshMechanicalBoardingDefense();
         }
 
         /**

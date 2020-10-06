@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals
             empire             = e;
             ColonizationTarget = toColonize;
             StarDateAdded      = Empire.Universe.StarDate;
-            if (PositiveEnemyPresence(out _)) 
+            if (PositiveEnemyPresence(out _) && AIControlsColonization) 
                 return;
 
             // Fast track to colonize if planet is safe and we have a ready Colony Ship
@@ -75,11 +75,8 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateClaimTask()
         {
-            if (PositiveEnemyPresence(out float spaceStrength))
+            if (PositiveEnemyPresence(out float spaceStrength) && !empire.isPlayer)
             {
-                if (empire.isPlayer)
-                    return GoalStep.GoalFailed;
-
                 var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
                 empire.GetEmpireAI().AddPendingTask(task);
             }
@@ -92,7 +89,7 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
+            if (TryGetClaimTask(out MilitaryTask task))
             {
                 if (!PositiveEnemyPresence(out _) || task.Fleet?.TaskStep == 7)
                     return GoalStep.GoToNextStep;
@@ -134,7 +131,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
             {
-                if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
+                if (TryGetClaimTask(out MilitaryTask task))
                     task.EndTask();
 
                 return GoalStep.GoalFailed;
@@ -162,7 +159,7 @@ namespace Ship_Game.Commands.Goals
 
             if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
             {
-                if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
+                if (TryGetClaimTask(out MilitaryTask task))
                     task.EndTask();
 
                 return GoalStep.GoalFailed;
@@ -177,10 +174,12 @@ namespace Ship_Game.Commands.Goals
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10 
-                && (!empire.isPlayer || empire.isPlayer && empire.AutoColonize))
+            if (AIControlsColonization 
+                && empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10
+                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7))
             {
                 ReleaseShipFromGoal();
+                task?.EndTask();
                 return GoalStep.GoalFailed;
             }
 
@@ -189,8 +188,8 @@ namespace Ship_Game.Commands.Goals
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != ColonizationTarget)
             {
-                if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
-                    task.EndTask();
+                if (TryGetClaimTask(out MilitaryTask claimTask))
+                    claimTask.EndTask();
 
                 return GoalStep.GoalFailed;
             }
@@ -239,6 +238,13 @@ namespace Ship_Game.Commands.Goals
             }
 
             return null;
+        }
+
+        bool AIControlsColonization => !empire.isPlayer || empire.isPlayer && empire.AutoColonize;
+
+        bool TryGetClaimTask(out MilitaryTask task)
+        {
+            return empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out task);
         }
     }
 }

@@ -100,6 +100,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 float disToOrbital   = targetPlanet.Center.Distance(OldShip.Center);
                 TetherOffset         = dirToOrbital.Normalized() * disToOrbital;
             }
+            else
+            {
+                BuildPosition = OldShip.Center;
+            }
 
             FinishedShip.IsConstructor = true;
             FinishedShip.AI.OrderDeepSpaceBuild(this);

@@ -23,7 +23,9 @@ namespace Ship_Game.Ships
                                        && (!AI.HasPriorityOrder || !AI.HasWayPoints)
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
-                                       && AI.State != AIState.Refit;
+                                       && AI.State != AIState.Refit
+                                       && AI.State != AIState.Scrap
+                                       && AI.State != AIState.Scuttle;
 
         public bool AddTradeRoute(Planet planet)
         {
