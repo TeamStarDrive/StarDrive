@@ -115,7 +115,7 @@ namespace Ship_Game
             {
                 int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
                 turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier());
-                NextLevelUpDate     += turnsLevelUp;
+                NextLevelUpDate += turnsLevelUp/10f;
 
                 if (Level < MaxLevel)
                 {
@@ -154,7 +154,7 @@ namespace Ship_Game
             int turnsPassed  = ((Empire.Universe.StarDate - 1000) * 10).RoundDownTo(1);
             int initialLevel = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
             initialLevel     = initialLevel.Clamped(1, 3);
-            NextLevelUpDate      = Empire.Universe.StarDate + turnsLevelUp;
+            NextLevelUpDate  = Empire.Universe.StarDate + turnsLevelUp/10f;
             SetLevel(initialLevel);
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
         }

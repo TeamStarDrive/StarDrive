@@ -617,8 +617,9 @@ namespace Ship_Game.Debug
             Empire e = EmpireManager.Remnants;
             SetTextCursor(Win.X + 10 + 255, Win.Y + 150, e.EmpireColor);
             DrawString($"Remnant Story: {e.Remnants.Story}");
-            if (!e.Remnants.Activated)
-                DrawString($"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{25 * (EmpireManager.MajorEmpires.Length - 1)}");
+            DrawString(!e.Remnants.Activated
+                ? $"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{25 * (EmpireManager.MajorEmpires.Length - 1)}"
+                : $"Level Up Stardate: {e.Remnants.NextLevelUpDate}");
 
             string activatedString = e.Remnants.Activated ? "Yes" : "No";
             activatedString        = e.data.Defeated ? "Defeated" : activatedString;
