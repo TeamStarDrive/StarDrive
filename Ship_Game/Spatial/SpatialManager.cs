@@ -7,8 +7,9 @@ namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager
     {
-        SpatialType Type = SpatialType.Grid;
+        SpatialType Type = SpatialType.QuadTree;
         ISpatial Spatial;
+        ISpatial ResetToNewSpatial;
         int UniverseWidth;
 
         public readonly AggregatePerfTimer UpdateTime = new AggregatePerfTimer();
@@ -21,13 +22,14 @@ namespace Ship_Game.Gameplay
         public void Setup(float universeRadius)
         {
             UniverseWidth = (int)(universeRadius * 2f);
-            Create(Type);
+            Spatial = Create(Type);
+            ResetToNewSpatial = null;
         }
 
-        void Create(SpatialType type)
+        ISpatial Create(SpatialType type)
         {
             Type = type;
-            ISpatial newSpatial = null;
+            ISpatial newSpatial;
             switch (type)
             {
                 default:
@@ -35,15 +37,13 @@ namespace Ship_Game.Gameplay
                 case SpatialType.QuadTree:     newSpatial = new NativeSpatial(type, UniverseWidth, 1024); break;
                 case SpatialType.ManagedQtree: newSpatial = new Quadtree(UniverseWidth, 1024); break;
             }
-
-            Spatial?.Clear();
-            Spatial = newSpatial;
-            Log.Info($"SpatialManager {Spatial.Name} Width: {(int)UniverseWidth}  FullSize: {(int)Spatial.FullSize}");
+            Log.Info($"SpatialManager {newSpatial.Name} Width: {UniverseWidth}  FullSize: {(int)newSpatial.FullSize}");
+            return newSpatial;
         }
 
         public void ToggleSpatialType()
         {
-            Create( Type.IncrementWithWrap(1) );
+            ResetToNewSpatial = Create( Type.IncrementWithWrap(1) );
         }
 
         public void Destroy()
@@ -58,6 +58,17 @@ namespace Ship_Game.Gameplay
 
         public void Update(Array<GameplayObject> allObjects)
         {
+            if (ResetToNewSpatial != null)
+            {
+                // wipe all objects from spatial
+                for (int i = 0; i < allObjects.Count; ++i)
+                    allObjects[i].SpatialIndex = -1;
+
+                Spatial.Clear();
+                Spatial = ResetToNewSpatial;
+                ResetToNewSpatial = null;
+            }
+
             UpdateTime.Start();
             Spatial.UpdateAll(allObjects);
             UpdateTime.Stop();

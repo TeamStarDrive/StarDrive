@@ -47,6 +47,7 @@ namespace spatial
         int fullSize() const override { return FullSize; }
         int worldSize() const override { return WorldSize; }
         int numActive() const override { return Objects.numActive(); }
+        int maxObjects() const override { return Objects.maxObjects(); }
         const SpatialObject& get(int objectId) const override { return Objects.get(objectId); }
         
         int nodeCapacity() const override { return PendingSplitThreshold; }

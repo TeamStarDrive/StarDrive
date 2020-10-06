@@ -3071,10 +3071,16 @@ namespace Ship_Game
             }
 
             if (ship.IsSubspaceProjector)
-                OwnedProjectors.RemoveRef(ship);
+            {
+                using (OwnedProjectors.AcquireWriteLock())
+                    OwnedProjectors.RemoveRef(ship);
+            }
             else
-                OwnedShips.RemoveRef(ship);
-            
+            {
+                using (OwnedShips.AcquireWriteLock())
+                    OwnedShips.RemoveRef(ship);
+            }
+
             ship.AI.ClearOrders();
             Pool.RemoveShipFromFleetAndPools(ship);
         }
@@ -3235,8 +3241,8 @@ namespace Ship_Game
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
-                bool shipKnown = ship.loyalty == this || ship.KnownByEmpires.KnownBy(this);
-
+                bool shipKnown = ship != null
+                            && (ship.loyalty == this || ship.KnownByEmpires.KnownBy(this));
                 if (shipKnown)
                 {
                     currentlyKnown.Add(ship);
