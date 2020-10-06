@@ -410,7 +410,7 @@ namespace Ship_Game.Spatial
             {
                 OriginX = (int)worldPos.X,
                 OriginY = (int)worldPos.Y,
-                SearchRadius = (int)radius,
+                SearchRadius = (int)(radius + 0.5f), // ceil
                 MaxResults = maxResults,
                 FilterByType = (int)type,
                 FilterExcludeObjectId = ignoreId,
