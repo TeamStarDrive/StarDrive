@@ -2,10 +2,10 @@
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   
     <Type Name="spatial::Rect">
-        <DisplayString>cx={(right-left)/2} cy={(bottom-top)/2} w={right-left} h={bottom-top}</DisplayString>
+        <DisplayString>cx={(right+left)/2} cy={(bottom+top)/2} w={right-left} h={bottom-top}</DisplayString>
         <Expand>
-            <Item Name="[cx]" ExcludeView="simple">(right-left)/2</Item>
-            <Item Name="[cy]" ExcludeView="simple">(bottom-top)/2</Item>
+            <Item Name="[cx]" ExcludeView="simple">(right+left)/2</Item>
+            <Item Name="[cy]" ExcludeView="simple">(bottom+top)/2</Item>
             <Item Name="[width]" ExcludeView="simple">right-left</Item>
             <Item Name="[height]" ExcludeView="simple">bottom-top</Item>
             <Item Name="[left]" ExcludeView="simple">left</Item>

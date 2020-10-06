@@ -255,7 +255,9 @@ namespace spatial
             }
         } while (stack.next >= 0 && found.count != found.MAX);
 
-        int numResults = spatial::findNearby(outResults, opt, found);
+        int numResults = 0;
+        if (found.count)
+            numResults = spatial::findNearby(outResults, opt, found);
 
         if (opt.EnableSearchDebugId)
         {

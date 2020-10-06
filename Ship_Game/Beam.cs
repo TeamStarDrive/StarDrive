@@ -316,7 +316,7 @@ namespace Ship_Game
         {
             Duration -= timeStep.FixedTime;
             Source = AI.Drone.Center;
-            ActualHitDestination = AI.DroneTarget.Center;
+            ActualHitDestination = AI.DroneTarget?.Center ?? Source;
             // apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {

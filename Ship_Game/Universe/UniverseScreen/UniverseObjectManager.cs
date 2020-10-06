@@ -45,6 +45,7 @@ namespace Ship_Game
             Universe = universe;
             Spatial = spatial;
             Ships.AddRange(data.MasterShipList);
+            Objects.AddRange(data.MasterShipList);
         }
 
         public Ship FindShip(in Guid guid)
@@ -136,7 +137,13 @@ namespace Ship_Game
 
             lock (Objects)
             {
+                // spatial update will automatically:
+                //   add objects with no spatial Id
+                //   remove objects that are !Active
+                //   update objects that have spatial Id
                 Spatial.Update(Objects);
+                // remove inactive objects only after Spatial has seen them as inactive
+                Objects.RemoveInActiveObjects(); 
             }
 
             Spatial.CollideAll(timeStep);
@@ -179,11 +186,6 @@ namespace Ship_Game
                 }
                 Projectiles.RemoveInActiveObjects();
             }
-            
-            lock (Objects)
-            {
-                Objects.RemoveInActiveObjects();
-            }
         }
 
         void UpdateAllSystems(FixedSimTime timeStep)
@@ -199,14 +201,17 @@ namespace Ship_Game
                     Ships[i].SetSystem(null);
             }
 
-            Parallel.For(UniverseScreen.SolarSystemList.Count, (start, end) =>
+            void UpdateSystems(int start, int end)
             {
                 for (int i = start; i < end; ++i)
                 {
                     SolarSystem system = UniverseScreen.SolarSystemList[i];
                     system.ShipList.Clear();
 
-                    GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship, system.Position, system.Radius, 10_000);
+                    //int debugId = (system.Name == "Opteris") ? 11 : 0;
+                    GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
+                                                    system.Position, system.Radius,
+                                                    maxResults:10_000/*, debugId:debugId*/);
                     for (int j = 0; j < shipsInSystem.Length; ++j)
                     {
                         var ship = (Ship)shipsInSystem[j];
@@ -215,7 +220,14 @@ namespace Ship_Game
                         system.SetExploredBy(ship.loyalty);
                     }
                 }
-            }, Universe.MaxTaskCores);
+            }
+
+            UpdateSystems(0, UniverseScreen.SolarSystemList.Count);
+
+            //Parallel.For(UniverseScreen.SolarSystemList.Count, (start, end) =>
+            //{
+            //    UpdateSystems(start, end);
+            //}, Universe.MaxTaskCores);
 
             // TODO: SolarySystem.Update is not thread safe because of resource loading
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; ++i)

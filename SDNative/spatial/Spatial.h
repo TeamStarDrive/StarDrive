@@ -69,6 +69,11 @@ namespace spatial
         virtual int numActive() const = 0;
 
         /**
+         * @return Current maximum objects in the Spatial ObjectId FlatMap
+         */
+        virtual int maxObjects() const = 0;
+
+        /**
          * @return Gets the SpatialObject by its ObjectId
          * @warning These Id-s map to a FlatMap,
          *          so some entries in the middle of the FlatMap can be inactive 
@@ -176,6 +181,7 @@ namespace spatial
     SPATIAL_C_API int SPATIAL_CC SpatialWorldSize(Spatial* spatial);
     SPATIAL_C_API int SPATIAL_CC SpatialFullSize(Spatial* spatial);
     SPATIAL_C_API int SPATIAL_CC SpatialNumActive(Spatial* spatial);
+    SPATIAL_C_API int SPATIAL_CC SpatialMaxObjects(Spatial* spatial);
 
     SPATIAL_C_API void SPATIAL_CC SpatialClear(Spatial* spatial);
     SPATIAL_C_API void SPATIAL_CC SpatialRebuild(Spatial* spatial);
