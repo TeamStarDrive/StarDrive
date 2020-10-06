@@ -17,6 +17,7 @@ namespace Ship_Game
         public readonly BatchRemovalCollection<Goal> Goals;
         public float StoryTriggerKillsXp { get; private set; }
         public float PlayerStepTriggerXp { get; private set; }
+        public float NextLevelUpDate { get; private set; }
         public bool Activated { get; private set; }
         public static bool Armageddon;
         public RemnantStory Story { get; private set; }
@@ -47,9 +48,11 @@ namespace Ship_Game
             PlayerStepTriggerXp = sData.RemnantPlayerStepTriggerXp;
             Story               = (RemnantStory)sData.RemnantStoryType;
             Production          = sData.RemnantProduction;
-            Level               = sData.RemnantLevel;
             StoryStep           = sData.RemnantStoryStep;
             OnlyRemnantLeft     = sData.OnlyRemnantLeft;
+            NextLevelUpDate     = sData.RemnantNextLevelUpDate;
+
+            SetLevel(sData.RemnantLevel);
         }
 
         public void IncrementKills(Empire empire, int xp)
@@ -57,7 +60,7 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            if (!Activated && StoryTriggerKillsXp >= 30 * (EmpireManager.MajorEmpires.Length - 1))
+            if (!Activated && StoryTriggerKillsXp >= 25 * (EmpireManager.MajorEmpires.Length - 1))
                 Activate();
 
             if (empire.isPlayer)
@@ -82,6 +85,8 @@ namespace Ship_Game
         {
             Activated = true;
             SetInitialLevel();
+            Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
+
 
             // Todo None story does not have a goal or maybe the old goal
 
@@ -105,22 +110,30 @@ namespace Ship_Game
 
         public bool TryLevelUpByDate(out int newLevel)
         {
-            newLevel         = 0;
-            int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
-            int turnsPassed  = (int)(Empire.Universe.StarDate * 10);
-            if (turnsPassed % turnsLevelUp == 0) // 750 turns on Normal
+            newLevel = 0;
+            if (NextLevelUpDate.GreaterOrEqual(Empire.Universe.StarDate))
             {
+                int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
+                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier());
+                NextLevelUpDate += turnsLevelUp/10f;
+
                 if (Level < MaxLevel)
                 {
-                    Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level} ----");
+                    Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level+1}. Next level up in Stardate {NextLevelUpDate} ----");
                     NotifyPlayerOnLevelUp();
                 }
 
-                newLevel = Level = (Level + 1).UpperBound(MaxLevel);
+                SetLevel(Level + 1);
+                newLevel = Level;
                 return true;
             }
 
             return false;
+        }
+
+        private void SetLevel(int level)
+        {
+            Level = level.Clamped(1, MaxLevel);
         }
 
         float StoryTurnsLevelUpModifier() // Above 1 is slower
@@ -133,12 +146,16 @@ namespace Ship_Game
             }
         }
 
+        int ExtraLevelUpEffort => (Level-1) * 25;
+
         void SetInitialLevel()
         {
             int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
-            int turnsPassed  = (int)((Empire.Universe.StarDate - 1000) * 10);
-            Level            = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
-            Level            = Level.Clamped(1, 3);
+            int turnsPassed  = ((Empire.Universe.StarDate - 1000) * 10).RoundDownTo(1);
+            int initialLevel = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
+            initialLevel     = initialLevel.Clamped(1, 3);
+            NextLevelUpDate  = Empire.Universe.StarDate + turnsLevelUp/10f;
+            SetLevel(initialLevel);
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
         }
 
@@ -194,10 +211,11 @@ namespace Ship_Game
             }
         }
 
-        public bool CanDoAnotherEngagement(out int numRaids)
+        public bool CanDoAnotherEngagement()
         {
-            numRaids = Goals.Count(g => g.IsRaid);
-            return numRaids < (Level / 2).LowerBound(1);
+            int maxRaids     = (Level < 5 ? 1 : 2) * NumPortals();
+            int onGoingRaids = Goals.Count(g => g.IsRaid);
+            return onGoingRaids < maxRaids;
         }
 
         public bool FindValidTarget(Ship portal, out Empire target)
@@ -209,7 +227,7 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
-                    target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => e.TotalScore);
+                    target = FindStrongestByAverageScore(empiresList);
                     break;
                 case RemnantStory.AncientExterminators: 
                     target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.CurrentMilitaryStrength);
@@ -239,6 +257,14 @@ namespace Ship_Game
             return expectedTarget == currentTarget;
         }
 
+        Empire FindStrongestByAverageScore(Empire[] empiresList)
+        {
+            var averageScore  = empiresList.Average(e => e.TotalScore);
+            Empire bestEmpire = empiresList.FindMax(e => e.TotalScore);
+
+            return bestEmpire.TotalScore > averageScore * 1.2f ? bestEmpire : null;
+        }
+
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
         {
             ship = null;
@@ -257,12 +283,17 @@ namespace Ship_Game
                     if (bombers.Length > 0)
                         ship = bombers.First();
                 }
-                else
+                else if (availableShips.Length <= 60 || RollDice(50)) // if there are too many ship, 50% to not assign
                 {
                     ship = availableShips.RandItem();
                 }
-
+            
             return ship != null;
+        }
+
+        public int NumShipsInFleet(Fleet fleet)
+        {
+            return fleet?.Ships.Count ?? 0;
         }
 
         public int NumBombersInFleet(Fleet fleet)
@@ -351,9 +382,13 @@ namespace Ship_Game
             if (!RollDice((Level - 1) * 10)) 
                 return 0;
 
-            var numBombers = planet.Level > 4 ? 2.UpperBound(Level / 2) : 1;
+            var numBombers = planet.Level > 4 ? 2 : 1;
+            if (Level > 10)
+                numBombers += 1;
+
+            numBombers = (numBombers + NumPortals()).UpperBound(Level/2);
             if (planet.ShieldStrengthMax.Greater(0))
-                numBombers += (planet.ShieldStrengthMax / 500).RoundDownTo(1);
+                numBombers += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
 
             return numBombers;
         }
@@ -386,10 +421,10 @@ namespace Ship_Game
             return SpawnShip(RemnantShipType.Portal, pos, out portal);
         }
 
-        public bool CreateShip(Ship portal, bool needBomber, out Ship ship)
+        public bool CreateShip(Ship portal, bool needBomber, int numShips, out Ship ship)
         {
             ship = null;
-            RemnantShipType type = needBomber ? RemnantShipType.Bomber : SelectShipForCreation();
+            RemnantShipType type = needBomber ? RemnantShipType.Bomber : SelectShipForCreation(numShips);
             if (!ShipCosts.TryGetValue(type, out float cost) || Production < cost)
                 return false;
 
@@ -421,9 +456,10 @@ namespace Ship_Game
             ShipCosts.Add(type, cost);
         }
 
-        RemnantShipType SelectShipForCreation() // Note Bombers are created exclusively 
+        RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int roll = RollDie(Level + 4, Level/2).LowerBound(1);
+            int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/10;
+            int roll           = RollDie(effectiveLevel, Level / 2).LowerBound(1);
             switch (roll)
             {
                 case 1:

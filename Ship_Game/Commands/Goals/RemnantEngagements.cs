@@ -35,7 +35,7 @@ namespace Ship_Game.Commands.Goals
 
         void EngageEmpire(Ship[] portals)
         {
-            if (!Remnants.CanDoAnotherEngagement(out _))
+            if (!Remnants.CanDoAnotherEngagement())
                 return;
 
             if (!Remnants.FindValidTarget(portals.RandItem(), out Empire target))
@@ -72,7 +72,7 @@ namespace Ship_Game.Commands.Goals
 
             if (Remnants.TryLevelUpByDate(out int newLevel) && newLevel == 10)
             {
-                if (Remnants.CreatePortal()); // Second portal at level 10
+                if (Remnants.CreatePortal()) // Second portal at level 10
                     Empire.Universe.NotificationManager.AddRemnantsNewPortal(empire);
             }
 
