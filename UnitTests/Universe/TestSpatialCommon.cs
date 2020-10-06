@@ -84,13 +84,14 @@ namespace UnitTests.Universe
             Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
         }
 
-        void CheckFindNearby(GameplayObject[] found, Ship s, float radius)
+        void CheckFindNearby(GameplayObject[] found, GameObjectType expected,
+                             Vector2 pos, float radius)
         {
             Assert.AreNotEqual(0, found.Length);
             foreach (GameplayObject go in found)
             {
-                Assert.AreEqual(GameObjectType.Proj, go.Type);
-                Assert.IsTrue(go.Position.Distance(s.Position) <= radius);
+                Assert.AreEqual(expected, go.Type);
+                Assert.IsTrue(go.Position.Distance(pos) <= radius);
             }
         }
 
@@ -104,7 +105,7 @@ namespace UnitTests.Universe
                 if (obj is Ship s)
                 {
                     GameplayObject[] found = FindNearby(tree, GameObjectType.Proj, s.Position, 10000);
-                    CheckFindNearby(found, s, 10000);
+                    CheckFindNearby(found, GameObjectType.Proj, s.Position, 10000);
                 }
             }
         }
@@ -117,7 +118,7 @@ namespace UnitTests.Universe
             {
                 GameplayObject[] found = tree.FindNearby(GameObjectType.Ship, s.Position, 10000, 128,
                                                          null, excludeLoyalty:s.loyalty, null);
-                CheckFindNearby(found, s, 10000);
+                CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
             }
         }
 
@@ -129,7 +130,7 @@ namespace UnitTests.Universe
             {
                 GameplayObject[] found = tree.FindNearby(GameObjectType.Ship, s.Position, 10000, 128,
                                                          null, null, onlyLoyalty:s.loyalty);
-                CheckFindNearby(found, s, 10000);
+                CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
             }
         }
 
@@ -224,7 +225,7 @@ namespace UnitTests.Universe
         public void TestTreeCollisionPerformance(ISpatial tree)
         {
             CreateQuadTree(10_000, tree);
-            const int iterations = 1000;
+            const int iterations = 100;
 
             var t1 = new PerfTimer();
             for (int i = 0; i < iterations; ++i)
