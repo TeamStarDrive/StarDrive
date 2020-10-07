@@ -451,16 +451,6 @@ namespace Ship_Game
                     Empire.Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
             }
 
-            if (Owner?.isFaction == true)
-            {
-                // check if Owner still has planets in this system:
-                bool hasPlanetsInSystem = ParentSystem.PlanetList.Any(p => p != thisPlanet && p.Owner == Owner);
-                if (!hasPlanetsInSystem)
-                    ParentSystem.OwnerList.Remove(Owner);
-
-                Owner = null;
-            }
-
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
             {
                 RacialTrait ownerTraits = Owner.data.Traits;
@@ -482,12 +472,11 @@ namespace Ship_Game
                 // Do not add AI difficulty modifiers for the below
                 float realProductionMod = ownerTraits.ProductionMod - Owner.DifficultyModifiers.ProductionMod;
                 float realResearchMod   = ownerTraits.ResearchMod - Owner.DifficultyModifiers.ResearchMod;
-                float realShipCostMod   = ownerTraits.ShipCostMod + Owner.DifficultyModifiers.ShipCostMod;  // "+"
+                float realShipCostMod   = ownerTraits.ShipCostMod - Owner.DifficultyModifiers.ShipCostMod;
                 float realModHpModifer  = ownerTraits.ModHpModifier - Owner.DifficultyModifiers.ModHpModifier;
                 float realTaxMod        = ownerTraits.TaxMod - Owner.DifficultyModifiers.TaxMod;
 
-                newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod);
-
+                newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod); // min
                 newOwner.data.Traits.ProductionMod = GetTraitMax(newOwner.data.Traits.ProductionMod, realProductionMod);
                 newOwner.data.Traits.ResearchMod   = GetTraitMax(newOwner.data.Traits.ResearchMod, realResearchMod);
                 newOwner.data.Traits.ModHpModifier = GetTraitMax(newOwner.data.Traits.ModHpModifier, realModHpModifer);
@@ -502,18 +491,19 @@ namespace Ship_Game
                     Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
                 }
             }
+
             newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;
             thisPlanet.ResetGarrisonSize();
             thisPlanet.ResetFoodAfterInvasionSuccess();
             Construction.ClearQueue();
             TurnsSinceTurnover = 0;
-            ParentSystem.OwnerList.Clear();
 
+            ParentSystem.OwnerList.Clear();
             foreach (Planet planet in ParentSystem.PlanetList)
             {
-                if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
-                    ParentSystem.OwnerList.Add(planet.Owner);                
+                if (planet.Owner != null && !ParentSystem.IsOwnedBy(planet.Owner))
+                    ParentSystem.OwnerList.Add(planet.Owner);
             }
 
             if (newOwner.isPlayer && !newOwner.AutoColonize)
