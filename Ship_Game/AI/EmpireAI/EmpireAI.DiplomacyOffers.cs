@@ -240,7 +240,7 @@ namespace Ship_Game.AI
                         }
                     }
 
-                    foreach (Ship orbital in p.OrbitalStations.Values)
+                    foreach (Ship orbital in p.OrbitalStations)
                         orbital.ChangeLoyalty(them, notification: false);
 
                     toRemove.Add(p);
@@ -299,7 +299,7 @@ namespace Ship_Game.AI
                         p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
 
-                    foreach (Ship orbital in p.OrbitalStations.Values)
+                    foreach (Ship orbital in p.OrbitalStations)
                         orbital.ChangeLoyalty(us, notification: false);
 
                     // remove troops which are not ours from the planet

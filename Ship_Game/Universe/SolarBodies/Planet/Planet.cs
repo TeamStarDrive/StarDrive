@@ -456,7 +456,7 @@ namespace Ship_Game
 
         public void RemoveFromOrbitalStations(Ship orbital)
         {
-            OrbitalStations.Remove(orbital.guid);
+            OrbitalStations.RemoveSwapLast(orbital);
         }
 
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
@@ -805,7 +805,7 @@ namespace Ship_Game
         void UpdateOrbitalsMaintenance()
         {
             OrbitalsMaintenance = 0;
-            foreach (Ship orbital in OrbitalStations.Values)
+            foreach (Ship orbital in OrbitalStations)
             {
                 OrbitalsMaintenance += orbital.GetMaintCost(Owner);
             }
@@ -912,15 +912,17 @@ namespace Ship_Game
             TotalDefensiveStrength    = 0;
             PlusFlatPopulationPerTurn = 0;
             float totalStorage        = 0;
-
+            float projectorRange      = 0;
+            float sensorRange         = 0;
+            /*
             if (!loadUniverse) // FB - this is needed since OrbitalStations from save has only GUID, so we must not use this when loading a game
             {
                 var deadShipyards = new Array<Guid>();
                 NumShipyards      = 0; // reset NumShipyards since we are not loading it from a save
 
-                foreach (KeyValuePair<Guid, Ship> orbitalStation in OrbitalStations)
+                foreach (Ship orbital in OrbitalStations)
                 {
-                    if (orbitalStation.Value == null)
+                    if (orbital == null)
                         deadShipyards.Add(orbitalStation.Key);
                     else if (orbitalStation.Value.Active && orbitalStation.Value.shipData.IsShipyard)
                         NumShipyards++; // Found a shipyard, increase the number
@@ -931,10 +933,9 @@ namespace Ship_Game
                 foreach (Guid key in deadShipyards)
                     OrbitalStations.Remove(key);
             }
+            */
 
-            float projectorRange = 0;
-            float sensorRange = 0;
-
+            NumShipyards         = OrbitalStations.Count(s => s.Active && s.shipData.IsShipyard);
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -1221,7 +1222,7 @@ namespace Ship_Game
         public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
         public float BuildingGeodeticOffense => BuildingList.Sum(b => b.Offense);
         public int BuildingGeodeticCount     => BuildingList.Count(b => b.Offense > 0);
-        public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
+        public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Sum(o => o.BaseStrength);
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
