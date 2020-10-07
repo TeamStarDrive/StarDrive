@@ -287,7 +287,7 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime)
         {
-            if (!hasBeamWeapons || burstEnergyPowerTime > 2 || burstEnergyPowerTime.Less(0))
+            if (!hasBeamWeapons || burstEnergyPowerTime.GreaterOrEqual(2) || burstEnergyPowerTime.Less(0))
                 return;
 
             WarningLevel severity = burstEnergyPowerTime < 1 ? WarningLevel.Critical : WarningLevel.Major;
