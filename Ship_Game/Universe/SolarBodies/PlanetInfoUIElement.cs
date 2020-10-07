@@ -242,7 +242,6 @@ namespace Ship_Game
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
 
-
             Rectangle pIcon = new Rectangle(325,
                 Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
                 ResourceManager.Texture("NewUI/icon_production").Width,

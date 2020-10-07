@@ -494,9 +494,8 @@ namespace Ship_Game
                 newOwner.data.Traits.TaxMod        = GetTraitMax(newOwner.data.Traits.TaxMod, realTaxMod);
             }
 
-            foreach (var kv in OrbitalStations)
+            foreach (Ship station in OrbitalStations.Values)
             {
-                Ship station = kv.Value;
                 if (station.loyalty != newOwner)
                 {
                     station.ChangeLoyalty(newOwner);
@@ -507,6 +506,7 @@ namespace Ship_Game
             Owner = newOwner;
             thisPlanet.ResetGarrisonSize();
             thisPlanet.ResetFoodAfterInvasionSuccess();
+            Construction.ClearQueue();
             TurnsSinceTurnover = 0;
             ParentSystem.OwnerList.Clear();
 
