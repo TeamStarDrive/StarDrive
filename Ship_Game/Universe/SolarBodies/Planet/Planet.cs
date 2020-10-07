@@ -65,7 +65,7 @@ namespace Ship_Game
         }
 
         // Timers
-        float NonCriticalTimer = 0;
+        float PlanetUpdatePerTurnTimer = 0;
 
         public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
@@ -437,11 +437,11 @@ namespace Ship_Game
             if (!Habitable)
                 return;
 
-            NonCriticalTimer -= timeStep.FixedTime;
-            if (NonCriticalTimer < 0 )
+            PlanetUpdatePerTurnTimer -= timeStep.FixedTime;
+            if (PlanetUpdatePerTurnTimer < 0 )
             {
                 UpdateBaseFertility();
-                NonCriticalTimer = GlobalStats.TurnTimer;
+                PlanetUpdatePerTurnTimer = GlobalStats.TurnTimer;
             }
 
             TroopManager.Update(timeStep);
