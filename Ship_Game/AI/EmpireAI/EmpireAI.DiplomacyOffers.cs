@@ -233,13 +233,16 @@ namespace Ship_Game.AI
                     // remove our troops from this planet
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-
                         if (pgs.TroopsAreOnTile && pgs.LockOnOurTroop(us, out Troop troop))
                         {
                             troop.SetPlanet(p); // FB - this is for making sure there is a host planet for the troops? strange
                             troopShips.Add(troop.Launch(ignoreMovement: true));
                         }
                     }
+
+                    foreach (Ship orbital in p.OrbitalStations)
+                        orbital.ChangeLoyalty(them, notification: false);
+
                     toRemove.Add(p);
                     p.Owner = them;
                     them.AddPlanet(p);
@@ -295,6 +298,9 @@ namespace Ship_Game.AI
                         }
                         p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
+
+                    foreach (Ship orbital in p.OrbitalStations)
+                        orbital.ChangeLoyalty(us, notification: false);
 
                     // remove troops which are not ours from the planet
                     foreach (PlanetGridSquare pgs in p.TilesList)

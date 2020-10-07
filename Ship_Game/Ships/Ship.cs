@@ -1585,7 +1585,7 @@ namespace Ship_Game.Ships
         public void QueueTotalRemoval()
         {
             Empire.Universe?.QueueGameplayObjectRemoval(this);
-
+            TetheredTo?.RemoveFromOrbitalStations(this);
             AI.ClearOrdersAndWayPoints();
         }
 

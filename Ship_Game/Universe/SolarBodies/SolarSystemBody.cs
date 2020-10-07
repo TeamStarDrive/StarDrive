@@ -151,7 +151,7 @@ namespace Ship_Game
         //public Array<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
         public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
-        public Map<Guid, Ship> OrbitalStations = new Map<Guid, Ship>();
+        public Array<Ship> OrbitalStations = new Array<Ship>();
         public Matrix RingWorld;
         public SceneObject SO;
         public Guid guid = Guid.NewGuid();
@@ -494,9 +494,8 @@ namespace Ship_Game
                 newOwner.data.Traits.TaxMod        = GetTraitMax(newOwner.data.Traits.TaxMod, realTaxMod);
             }
 
-            foreach (var kv in OrbitalStations)
+            foreach (Ship station in OrbitalStations)
             {
-                Ship station = kv.Value;
                 if (station.loyalty != newOwner)
                 {
                     station.ChangeLoyalty(newOwner);
@@ -507,6 +506,7 @@ namespace Ship_Game
             Owner = newOwner;
             thisPlanet.ResetGarrisonSize();
             thisPlanet.ResetFoodAfterInvasionSuccess();
+            Construction.ClearQueue();
             TurnsSinceTurnover = 0;
             ParentSystem.OwnerList.Clear();
 
