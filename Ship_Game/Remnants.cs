@@ -111,7 +111,7 @@ namespace Ship_Game
         public bool TryLevelUpByDate(out int newLevel)
         {
             newLevel = 0;
-            if (NextLevelUpDate.GreaterOrEqual(Empire.Universe.StarDate))
+            if (Empire.Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
                 int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
                 turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier());

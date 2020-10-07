@@ -413,7 +413,14 @@ namespace Ship_Game
             foreach (Ship ship in MasterShipList)
             {
                 if (ship.TetherGuid != Guid.Empty)
-                    ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
+                {
+                    Planet p = GetPlanet(ship.TetherGuid);
+                    if (p != null)
+                    {
+                        ship.TetherToPlanet(p);
+                        p.OrbitalStations.Add(ship);
+                    }
+                }
             }
         }
 

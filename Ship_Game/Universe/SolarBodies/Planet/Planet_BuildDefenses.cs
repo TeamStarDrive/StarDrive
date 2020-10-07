@@ -45,7 +45,7 @@ namespace Ship_Game
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
         {
             var orbitalList = new Array<Ship>();
-            foreach (Ship orbital in OrbitalStations.Values)
+            foreach (Ship orbital in OrbitalStations)
             {
                 if (orbital.shipData.Role == role && !orbital.shipData.IsShipyard  // shipyards are not defense stations
                                                   && !orbital.IsConstructor)
@@ -311,7 +311,7 @@ namespace Ship_Game
         public bool IsOutOfOrbitalsLimit(Ship ship, Empire owner)
         {
             int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role, owner);
-            int numShipyards = OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt(owner);
+            int numShipyards = OrbitalStations.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt(owner);
             if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
                 return true;
 
