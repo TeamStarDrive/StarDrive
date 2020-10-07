@@ -440,9 +440,6 @@ namespace Ship_Game
             NonCriticalTimer -= timeStep.FixedTime;
             if (NonCriticalTimer < 0 )
             {
-                if (Name == "Mars")
-                    Log.Info("lala");
-
                 UpdateBaseFertility();
                 NonCriticalTimer = GlobalStats.TurnTimer;
             }
@@ -914,26 +911,6 @@ namespace Ship_Game
             float totalStorage        = 0;
             float projectorRange      = 0;
             float sensorRange         = 0;
-            /*
-            if (!loadUniverse) // FB - this is needed since OrbitalStations from save has only GUID, so we must not use this when loading a game
-            {
-                var deadShipyards = new Array<Guid>();
-                NumShipyards      = 0; // reset NumShipyards since we are not loading it from a save
-
-                foreach (Ship orbital in OrbitalStations)
-                {
-                    if (orbital == null)
-                        deadShipyards.Add(orbitalStation.Key);
-                    else if (orbitalStation.Value.Active && orbitalStation.Value.shipData.IsShipyard)
-                        NumShipyards++; // Found a shipyard, increase the number
-                    else if (!orbitalStation.Value.Active)
-                        deadShipyards.Add(orbitalStation.Key);
-                }
-
-                foreach (Guid key in deadShipyards)
-                    OrbitalStations.Remove(key);
-            }
-            */
 
             NumShipyards         = OrbitalStations.Count(s => s.Active && s.shipData.IsShipyard);
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
