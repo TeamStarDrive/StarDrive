@@ -185,7 +185,7 @@ namespace Ship_Game.AI
                 Planet planetToTether = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = g.Goal.TetherOffset;
-                planetToTether.OrbitalStations.Add(orbital.guid, orbital);
+                planetToTether.OrbitalStations.Add(orbital);
             }
             Owner.QueueTotalRemoval();
             if (g.Goal.OldShip?.Active == true) // we are refitting something
@@ -219,7 +219,7 @@ namespace Ship_Game.AI
             {
                 orbital.Center = g.Goal.BuildPosition;
                 orbital.TetherToPlanet(target);
-                target.OrbitalStations.Add(orbital.guid, orbital);
+                target.OrbitalStations.Add(orbital);
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
                     g.Goal.OldShip.QueueTotalRemoval();
