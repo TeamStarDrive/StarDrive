@@ -65,7 +65,7 @@ namespace Ship_Game
         }
 
         // Timers
-        float NonCriticalTimer = 0;
+        float PlanetUpdatePerTurnTimer = 0;
 
         public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
@@ -428,7 +428,6 @@ namespace Ship_Game
 
         public void Update(FixedSimTime timeStep)
         {
-            RefreshOrbitalStations();
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
         }
@@ -436,42 +435,26 @@ namespace Ship_Game
         void UpdateHabitable(FixedSimTime timeStep)
         {
             // none of the code below requires an owner.
-
             if (!Habitable)
                 return;
-            if (NonCriticalTimer-- < 0 ) NonCriticalTimer = timeStep.FixedTime *5;
+
+            PlanetUpdatePerTurnTimer -= timeStep.FixedTime;
+            if (PlanetUpdatePerTurnTimer < 0 )
+            {
+                UpdateBaseFertility();
+                PlanetUpdatePerTurnTimer = GlobalStats.TurnTimer;
+            }
 
             TroopManager.Update(timeStep);
             GeodeticManager.Update(timeStep);
             UpdatePlanetaryProjectiles(timeStep);
             // this needs some work
-            UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.             
+            UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
         }
 
-        void RefreshOrbitalStations()
+        public void RemoveFromOrbitalStations(Ship orbital)
         {
-            if (OrbitalStations.Count == 0 || NonCriticalTimer > 0)
-                return;
-
-            Guid[] toRemove = null;
-            int guidIndex =0;
-            foreach(var kv in OrbitalStations)
-            {
-                var shipyard = kv.Value;
-                if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
-                {
-                    if (toRemove == null) toRemove = new Guid[OrbitalStations.Count];
-                    toRemove[guidIndex++] = kv.Key;
-                }
-            }
-            if (toRemove != null)
-            {
-                for (int i = 0; i < guidIndex; i++)
-                {
-                    var key = toRemove[i];
-                    OrbitalStations.Remove(key);
-                }
-            }
+            OrbitalStations.RemoveSwapLast(orbital);
         }
 
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
@@ -678,7 +661,6 @@ namespace Ship_Game
             CalcIncomingGoods();
             RemoveInvalidFreighters(IncomingFreighters);
             RemoveInvalidFreighters(OutgoingFreighters);
-            UpdateBaseFertility();
             InitResources(); // must be done before Governing
             UpdateOrbitalsMaintenance();
             UpdateMilitaryBuildingMaintenance();
@@ -821,7 +803,7 @@ namespace Ship_Game
         void UpdateOrbitalsMaintenance()
         {
             OrbitalsMaintenance = 0;
-            foreach (Ship orbital in OrbitalStations.Values)
+            foreach (Ship orbital in OrbitalStations)
             {
                 OrbitalsMaintenance += orbital.GetMaintCost(Owner);
             }
@@ -928,29 +910,10 @@ namespace Ship_Game
             TotalDefensiveStrength    = 0;
             PlusFlatPopulationPerTurn = 0;
             float totalStorage        = 0;
+            float projectorRange      = 0;
+            float sensorRange         = 0;
 
-            if (!loadUniverse) // FB - this is needed since OrbitalStations from save has only GUID, so we must not use this when loading a game
-            {
-                var deadShipyards = new Array<Guid>();
-                NumShipyards      = 0; // reset NumShipyards since we are not loading it from a save
-
-                foreach (KeyValuePair<Guid, Ship> orbitalStation in OrbitalStations)
-                {
-                    if (orbitalStation.Value == null)
-                        deadShipyards.Add(orbitalStation.Key);
-                    else if (orbitalStation.Value.Active && orbitalStation.Value.shipData.IsShipyard)
-                        NumShipyards++; // Found a shipyard, increase the number
-                    else if (!orbitalStation.Value.Active)
-                        deadShipyards.Add(orbitalStation.Key);
-                }
-
-                foreach (Guid key in deadShipyards)
-                    OrbitalStations.Remove(key);
-            }
-
-            float projectorRange = 0;
-            float sensorRange = 0;
-
+            NumShipyards         = OrbitalStations.Count(s => s.Active && s.shipData.IsShipyard);
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -1237,7 +1200,7 @@ namespace Ship_Game
         public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
         public float BuildingGeodeticOffense => BuildingList.Sum(b => b.Offense);
         public int BuildingGeodeticCount     => BuildingList.Count(b => b.Offense > 0);
-        public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
+        public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Sum(o => o.BaseStrength);
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
