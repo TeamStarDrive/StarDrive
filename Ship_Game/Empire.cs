@@ -1979,7 +1979,7 @@ namespace Ship_Game
             if (checkedTech.IsHidden(this))
                 return false;
 
-            if (!checkedTech.IsOnlyShipTech())
+            if (!checkedTech.IsOnlyShipTech() || isPlayer)
                 return true;
 
             return WeCanUseThisInDesigns(checkedTech, ourFactionShips);
@@ -1987,6 +1987,7 @@ namespace Ship_Game
 
         public bool WeCanUseThisInDesigns(TechEntry checkedTech, Array<Ship> ourFactionShips)
         {
+            // Dont offer tech to AI if it does not have designs for it.
             Technology tech = checkedTech.Tech;
             foreach (Ship ship in ourFactionShips)
             {
@@ -2690,13 +2691,12 @@ namespace Ship_Game
         public void MassScrap(Ship ship)
         {
             var shipList = ship.IsSubspaceProjector ? OwnedProjectors : OwnedShips;
-            using (shipList.AcquireReadLock())
-                for (int i = 0; i < shipList.Count; i++)
-                {
-                    Ship s = shipList[i];
-                    if (s.Name == ship.Name)
-                        s.AI.OrderScrapShip();
-                }
+            for (int i = 0; i < shipList.Count; i++)
+            {
+                Ship s = shipList[i];
+                if (s.Name == ship.Name)
+                    s.AI.OrderScrapShip();
+            }
         }
 
         public void UpdateRelationships()

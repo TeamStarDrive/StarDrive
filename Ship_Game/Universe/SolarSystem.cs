@@ -684,12 +684,12 @@ namespace Ship_Game
                     SpecialDescription   = planet.SpecialDescription,
                     IncomingFreighters   = planet.IncomingFreighterIds,
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
-                    StationsList         = planet.OrbitalStations.Where(kv => kv.Value.Active)
-                                                                 .Select(kv => kv.Key).ToArray(),
-
+                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.guid).ToArray(),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     BaseFertilityTerraformRatio = planet.BaseFertilityTerraformRatio
                 };
+
+
 
                 if (planet.Owner != null)
                 {

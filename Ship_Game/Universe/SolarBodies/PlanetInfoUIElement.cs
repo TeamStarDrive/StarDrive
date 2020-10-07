@@ -229,19 +229,20 @@ namespace Ship_Game
             };
             ToolTipItems.Add(ti);
             Vector2 tcurs = new Vector2(fIcon.X + 25, Housing.Y + 205);
-            float fertility = P.FertilityFor(EmpireManager.Player);
-            batch.DrawString(Fonts.Arial12Bold, fertility.String(2), tcurs, tColor);
+            float fertility   = P.FertilityFor(EmpireManager.Player);
+            float maxFert     = P.MaxFertilityFor(EmpireManager.Player);
+            string fertString = fertility.AlmostEqual(maxFert) ? fertility.String(2) : $"{fertility.String(2)}/{maxFert.String(2)}";
+            batch.DrawString(Fonts.Arial12Bold, fertString, tcurs, tColor);
             
             float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
-            if (!fertEnvMultiplier.AlmostEqual(1))
+            if (!fertEnvMultiplier.AlmostEqual(1) && !P.BaseFertility.AlmostZero())
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
-                var fertMultiplier = new Vector2(tcurs.X + Font12.MeasureString($"{fertility.String(2)} ").X, tcurs.Y+2);
+                var fertMultiplier = new Vector2(tcurs.X + Font12.MeasureString(fertString).X + 3, tcurs.Y+2);
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
 
-
-            Rectangle pIcon = new Rectangle(300,
+            Rectangle pIcon = new Rectangle(325,
                 Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
                 ResourceManager.Texture("NewUI/icon_production").Width,
                 ResourceManager.Texture("NewUI/icon_production").Height);
@@ -254,7 +255,7 @@ namespace Ship_Game
             ToolTipItems.Add(ti);
 
             AddUnExploredTips();
-            tcurs = new Vector2(325f, Housing.Y + 205);
+            tcurs = new Vector2(350f, Housing.Y + 205);
             batch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), tcurs, tColor);
 
             int numHabitableTile    = P.TotalHabitableTiles;
