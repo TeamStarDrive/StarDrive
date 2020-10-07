@@ -151,7 +151,7 @@ namespace Ship_Game
         //public Array<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
         public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
-        public Map<Guid, Ship> OrbitalStations = new Map<Guid, Ship>();
+        public Array<Ship> OrbitalStations = new Array<Ship>();
         public Matrix RingWorld;
         public SceneObject SO;
         public Guid guid = Guid.NewGuid();
@@ -494,7 +494,7 @@ namespace Ship_Game
                 newOwner.data.Traits.TaxMod        = GetTraitMax(newOwner.data.Traits.TaxMod, realTaxMod);
             }
 
-            foreach (Ship station in OrbitalStations.Values)
+            foreach (Ship station in OrbitalStations)
             {
                 if (station.loyalty != newOwner)
                 {
