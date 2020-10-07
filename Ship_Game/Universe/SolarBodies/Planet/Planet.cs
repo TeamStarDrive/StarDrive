@@ -427,7 +427,6 @@ namespace Ship_Game
 
         public void Update(FixedSimTime timeStep)
         {
-            RefreshOrbitalStations();
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
         }
@@ -435,42 +434,29 @@ namespace Ship_Game
         void UpdateHabitable(FixedSimTime timeStep)
         {
             // none of the code below requires an owner.
-
             if (!Habitable)
                 return;
-            if (NonCriticalTimer-- < 0 ) NonCriticalTimer = timeStep.FixedTime *5;
+
+            NonCriticalTimer -= timeStep.FixedTime;
+            if (NonCriticalTimer < 0 )
+            {
+                if (Name == "Mars")
+                    Log.Info("lala");
+
+                UpdateBaseFertility();
+                NonCriticalTimer = GlobalStats.TurnTimer;
+            }
 
             TroopManager.Update(timeStep);
             GeodeticManager.Update(timeStep);
             UpdatePlanetaryProjectiles(timeStep);
             // this needs some work
-            UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.             
+            UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
         }
 
-        void RefreshOrbitalStations()
+        public void RemoveFromOrbitalStations(Ship orbital)
         {
-            if (OrbitalStations.Count == 0 || NonCriticalTimer > 0)
-                return;
-
-            Guid[] toRemove = null;
-            int guidIndex =0;
-            foreach(var kv in OrbitalStations)
-            {
-                var shipyard = kv.Value;
-                if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
-                {
-                    if (toRemove == null) toRemove = new Guid[OrbitalStations.Count];
-                    toRemove[guidIndex++] = kv.Key;
-                }
-            }
-            if (toRemove != null)
-            {
-                for (int i = 0; i < guidIndex; i++)
-                {
-                    var key = toRemove[i];
-                    OrbitalStations.Remove(key);
-                }
-            }
+            OrbitalStations.Remove(orbital.guid);
         }
 
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
@@ -677,7 +663,6 @@ namespace Ship_Game
             CalcIncomingGoods();
             RemoveInvalidFreighters(IncomingFreighters);
             RemoveInvalidFreighters(OutgoingFreighters);
-            UpdateBaseFertility();
             InitResources(); // must be done before Governing
             UpdateOrbitalsMaintenance();
             UpdateMilitaryBuildingMaintenance();
