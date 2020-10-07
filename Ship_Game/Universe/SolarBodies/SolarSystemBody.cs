@@ -451,16 +451,6 @@ namespace Ship_Game
                     Empire.Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
             }
 
-            if (Owner?.isFaction == true)
-            {
-                // check if Owner still has planets in this system:
-                bool hasPlanetsInSystem = ParentSystem.PlanetList.Any(p => p != thisPlanet && p.Owner == Owner);
-                if (!hasPlanetsInSystem)
-                    ParentSystem.OwnerList.Remove(Owner);
-
-                Owner = null;
-            }
-
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
             {
                 RacialTrait ownerTraits = Owner.data.Traits;
@@ -501,18 +491,19 @@ namespace Ship_Game
                     Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
                 }
             }
+
             newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;
             thisPlanet.ResetGarrisonSize();
             thisPlanet.ResetFoodAfterInvasionSuccess();
             Construction.ClearQueue();
             TurnsSinceTurnover = 0;
-            ParentSystem.OwnerList.Clear();
 
+            ParentSystem.OwnerList.Clear();
             foreach (Planet planet in ParentSystem.PlanetList)
             {
-                if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
-                    ParentSystem.OwnerList.Add(planet.Owner);                
+                if (planet.Owner != null && !ParentSystem.IsOwnedBy(planet.Owner))
+                    ParentSystem.OwnerList.Add(planet.Owner);
             }
 
             if (newOwner.isPlayer && !newOwner.AutoColonize)
