@@ -530,6 +530,7 @@ namespace Ship_Game.AI
                     || Owner.HomePlanet.ParentSystem != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
                 {
                     // Nowhere to land, bye bye.
+                    ClearOrders(AIState.Scuttle);
                     Owner.ScuttleTimer = 1;
                     return;
                 }
