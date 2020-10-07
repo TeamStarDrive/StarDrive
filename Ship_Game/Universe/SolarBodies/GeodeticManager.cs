@@ -10,7 +10,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
     {
         private float SystemCombatTimer;
         private readonly Planet P;
-        public TimedScanner AllNearShips;
         private float Population  => P.Population;
         private Empire Owner      => P.Owner;
         private Shield Shield     => P.Shield;
@@ -18,14 +17,12 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private SceneObject SO    => P.SO;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
-        private int NumShipYards  => Stations.Values.Count(s => s.shipData.IsShipyard);
-        private Map<Guid,Ship> Stations      => P.OrbitalStations;
+        private int NumShipYards  => P.OrbitalStations.Count(s => s.shipData.IsShipyard);
         private float RepairPerTurn          => P.RepairPerTurn;
         private SolarSystem ParentSystem     => P.ParentSystem;
         private int TurnsSinceTurnover       => P.TurnsSinceTurnover;
         private float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
-        private Array<PlanetGridSquare> TilesList        => P.TilesList;
-        private BatchRemovalCollection<Troop> TroopsHere => P.TroopsHere;
+        private Array<PlanetGridSquare> TilesList => P.TilesList;
 
         public GeodeticManager (Planet planet)
         {
