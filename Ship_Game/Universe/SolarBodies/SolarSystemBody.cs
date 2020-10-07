@@ -482,12 +482,11 @@ namespace Ship_Game
                 // Do not add AI difficulty modifiers for the below
                 float realProductionMod = ownerTraits.ProductionMod - Owner.DifficultyModifiers.ProductionMod;
                 float realResearchMod   = ownerTraits.ResearchMod - Owner.DifficultyModifiers.ResearchMod;
-                float realShipCostMod   = ownerTraits.ShipCostMod + Owner.DifficultyModifiers.ShipCostMod;  // "+"
+                float realShipCostMod   = ownerTraits.ShipCostMod - Owner.DifficultyModifiers.ShipCostMod;
                 float realModHpModifer  = ownerTraits.ModHpModifier - Owner.DifficultyModifiers.ModHpModifier;
                 float realTaxMod        = ownerTraits.TaxMod - Owner.DifficultyModifiers.TaxMod;
 
-                newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod);
-
+                newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod); // min
                 newOwner.data.Traits.ProductionMod = GetTraitMax(newOwner.data.Traits.ProductionMod, realProductionMod);
                 newOwner.data.Traits.ResearchMod   = GetTraitMax(newOwner.data.Traits.ResearchMod, realResearchMod);
                 newOwner.data.Traits.ModHpModifier = GetTraitMax(newOwner.data.Traits.ModHpModifier, realModHpModifer);
