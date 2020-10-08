@@ -737,6 +737,9 @@ namespace Ship_Game.Fleets
             {
                 case 1:
                     GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
+                    if (TryCalcEtaToPlanet(task, out float eta))
+                        Owner.Remnants.WarnPlayerFleetIncoming(FleetTask.TargetPlanet, eta);
+
                     TaskStep = 2;
                     break;
                 case 2:
@@ -793,6 +796,21 @@ namespace Ship_Game.Fleets
                     TaskStep = 10;
                     break;
             }
+        }
+
+        bool TryCalcEtaToPlanet(MilitaryTask task, out float starDateEta)
+        {
+            starDateEta = 0;
+            if (task.TargetPlanet == null)
+                return false;
+
+            float distanceToPlanet = AveragePosition().Distance(task.TargetPlanet.Center);
+            float slowestWarpSpeed = Ships.Min(s => s.MaxFTLSpeed).LowerBound(1000);
+            float secondsToTarget  = distanceToPlanet / slowestWarpSpeed;
+            float turnsToTarget    = secondsToTarget / GlobalStats.TurnTimer;
+            starDateEta            = (Empire.Universe.StarDate + turnsToTarget / 10).RoundToFractionOf10();
+
+            return starDateEta.Greater(0);
         }
 
         void DoAssaultPirateBase(MilitaryTask task)
