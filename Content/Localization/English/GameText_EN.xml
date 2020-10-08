@@ -5824,7 +5824,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2147</Index>
-      <Text>Our study of Remnant Computing technology has led us to believe that ships we have encountered are drones. If we want to discover the location of their masters we need to build a device to discover the source of the control signal. </Text>
+      <Text>Our study of Remnant Ships has led us to believe we can build a structure that will detect incoming Remnant ships, should they every target us.</Text>
+      <!--<Text>Our study of Remnant Computing technology has led us to believe that ships we have encountered are drones. If we want to discover the location of their masters we need to build a device to discover the source of the control signal. </Text>-->
     </Token>
     <Token>
       <Index>2148</Index>
@@ -5832,11 +5833,13 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2149</Index>
-      <Text>Our scientists believe that this building will allow us to detect the origin of the signal that controls the Remnant drones in our galaxy. </Text>
+      <Text>Our scientists believe that this building will allow us to detect any remnant fleet targeting the planet it is built on, and it's ETA.</Text>
+      <!--  <Text>Our scientists believe that this building will allow us to detect the origin of the signal that controls the Remnant drones in our galaxy. </Text> -->
     </Token>
     <Token>
       <Index>2150</Index>
-      <Text>Special building</Text>
+      <!--<Text>Special Building</Text> -->
+      <Text>Remnant Fleet Detector</Text>
     </Token>
     <Token>
       <Index>2151</Index>
