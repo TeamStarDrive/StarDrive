@@ -22,7 +22,7 @@ namespace Ship_Game
         public static bool Armageddon;
         public RemnantStory Story { get; private set; }
         public float Production { get; private set; }
-        public int Level { get; private set; }
+        public int Level { get; private set; } = 1;
         public Map<RemnantShipType, float> ShipCosts { get; } = new Map<RemnantShipType, float>();
         public int StoryStep { get; private set; } = 1;
         public bool OnlyRemnantLeft { get; private set; }
@@ -84,9 +84,8 @@ namespace Ship_Game
         void Activate()
         {
             Activated = true;
-            SetInitialLevel();
+            SetInitialLevelUpDate();
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
-
 
             // Todo None story does not have a goal or maybe the old goal
 
@@ -114,13 +113,14 @@ namespace Ship_Game
             if (Empire.Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
                 int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
-                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier());
+                turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
                 NextLevelUpDate += turnsLevelUp/10f;
 
                 if (Level < MaxLevel)
                 {
                     Log.Info(ConsoleColor.Green, $"---- Remnants: Level up to level {Level+1}. Next level up in Stardate {NextLevelUpDate} ----");
-                    NotifyPlayerOnLevelUp();
+                    if (Empire.Universe.StarDate.Less(NextLevelUpDate)) // do not notify on multiple initial level ups
+                        NotifyPlayerOnLevelUp();
                 }
 
                 SetLevel(Level + 1);
@@ -148,15 +148,11 @@ namespace Ship_Game
 
         int ExtraLevelUpEffort => (Level-1) * 25;
 
-        void SetInitialLevel()
+        void SetInitialLevelUpDate()
         {
-            int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier());
-            int turnsPassed  = ((Empire.Universe.StarDate - 1000) * 10).RoundDownTo(1);
-            int initialLevel = (int)Math.Floor(turnsPassed / (decimal)turnsLevelUp);
-            initialLevel     = initialLevel.Clamped(1, 3);
-            NextLevelUpDate  = Empire.Universe.StarDate + turnsLevelUp/10f;
-            SetLevel(initialLevel);
-            Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
+            int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
+            NextLevelUpDate  = 1000 + turnsLevelUp/10f;
+            Log.Info(ConsoleColor.Green, $"---- Remnants: Activation ----");
         }
 
         bool GetStoryEvent(out ExplorationEvent expEvent, bool onlyRemnantsLeft = false)
@@ -332,6 +328,16 @@ namespace Ship_Game
                 if (!ship.IsPlatformOrStation && ship.IsGuardian && !ship.InCombat && ship.AI.EscortTarget == null && ship.fleet == null)
                     ship.AI.AddEscortGoal(portal);
             }
+        }
+
+        public void WarnPlayerFleetIncoming(Planet p, float starDateEta)
+        {
+            if (p.Owner == null || !p.Owner.isPlayer ||!p.BuildingList.Any(b => b.DetectsRemnantFleet))
+                return;
+
+            string message = $"Remnant Fleet is targeting {p.Name}\nETA - Stardate {starDateEta.String(1)}";
+            Empire.Universe.NotificationManager.AddIncomingRemnants(p, message);
+            // todo add notification
         }
 
         public bool SelectTargetClosestPlanet(Ship portal, Empire targetEmpire, out Planet targetPlanet)

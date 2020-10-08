@@ -142,6 +142,18 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddIncomingRemnants(Planet p, string message)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = EmpireManager.Remnants,
+                Message         = message,
+                ReferencedItem1 = p.ParentSystem,
+                IconPath        = p.IconPath,
+                Action          = "SnapToSystem"
+            }, "sd_troop_march_01");
+        }
+
         public void AddEmpireDiedNotification(Empire thatDied)
         {
             AddNotification(new Notification
