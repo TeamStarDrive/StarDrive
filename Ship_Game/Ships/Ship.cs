@@ -1136,13 +1136,11 @@ namespace Ship_Game.Ships
             }
 
             // Add ordnance
-            if (Ordinance < OrdinanceMax)
+            if (OrdnancePercent.Less(1))
             {
-                Ordinance += OrdAddedPerSecond;
-                if (Ordinance > OrdinanceMax)
-                    Ordinance = OrdinanceMax;
+                ChangeOrdnance(OrdAddedPerSecond);
+                UpdateMovementFromOrdnanceChange();
             }
-            else Ordinance = OrdinanceMax;
 
             // Update max health if needed
             int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
@@ -1376,7 +1374,7 @@ namespace Ship_Game.Ships
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
             (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
-            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, OrdnancePercent);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             CurrentStrength = CalculateShipStrength();
