@@ -26,13 +26,19 @@ namespace Ship_Game.Ships
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
 
-        public float OrdnancePercent => 
-            OrdinanceMax > 1 ? Ordinance / OrdinanceMax : 1f;
+        public float OrdnancePercent => OrdinanceMax > 1 ? Ordinance / OrdinanceMax : 1f;
 
-        public float ChangeOrdnance(float ordnance)
+        public float ChangeOrdnance(float amount)
         {
-            float ordnanceLeft = (ordnance - (OrdinanceMax - Ordinance)).Clamped(0, ordnance);
-            Ordinance = (Ordinance + ordnance).Clamped(0, OrdinanceMax);
+            if (OrdnancePercent.AlmostEqual(1))
+                return amount; // easy shortcut with no movement calcs
+
+            float ordnanceLeft = (amount - (OrdinanceMax - Ordinance)).Clamped(0, amount);
+            Ordinance          = (Ordinance + amount).Clamped(0, OrdinanceMax);
+
+            if (amount > 0 && ordnanceLeft.GreaterOrEqual(0)) // fully or over rearmed
+                UpdateMovementFromOrdnanceChange();
+
             return ordnanceLeft;
         }
 
