@@ -475,9 +475,10 @@ namespace Ship_Game
                     targetNear |= targetFound;
                 }
 
+                SpaceCombatNearPlanet |= targetNear;
                 if (!targetNear && NoSpaceCombatTargetsFoundDelay <= 0)
                 {
-                    SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange);
+                    SpaceCombatNearPlanet          = ThreatsNearPlanet(enemyInRange);
                     NoSpaceCombatTargetsFoundDelay = 2f;
                 }
             }
@@ -542,7 +543,6 @@ namespace Ship_Game
             if (troop != null)
                 target = troop;
 
-            SpaceCombatNearPlanet = target != null;
             return target;
         }
 
