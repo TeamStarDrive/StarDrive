@@ -93,7 +93,7 @@ namespace Ship_Game.Ships
         public float PackDamageModifier { get; private set; }
         public Empire loyalty;
         public int SurfaceArea;
-        public float Ordinance { get; private set; }
+        public float Ordinance { get; private set; } // FB: use ChanceOrdnance function to control Ordnance
         public float OrdinanceMax;
         public ShipAI AI { get; private set; }
 
@@ -1033,7 +1033,6 @@ namespace Ship_Game.Ships
 
             Carrier.HandleHangarShipsScramble();
 
-            Ordinance                  = Math.Min(Ordinance, OrdinanceMax);
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
 
             if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
@@ -1136,13 +1135,8 @@ namespace Ship_Game.Ships
             }
 
             // Add ordnance
-            if (Ordinance < OrdinanceMax)
-            {
-                Ordinance += OrdAddedPerSecond;
-                if (Ordinance > OrdinanceMax)
-                    Ordinance = OrdinanceMax;
-            }
-            else Ordinance = OrdinanceMax;
+            ChangeOrdnance(OrdAddedPerSecond);
+            UpdateMovementFromOrdnanceChange();
 
             // Update max health if needed
             int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
@@ -1363,7 +1357,7 @@ namespace Ship_Game.Ships
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
 
-            shield_percent = (100.0 * shield_power / shield_max).LowerBound(0);
+            shield_percent = (100.0 * shield_power / shield_max.LowerBound(0.1f)).LowerBound(0);
             SensorRange   += sensorBonus;
 
             // Apply modifiers to stats
@@ -1376,7 +1370,7 @@ namespace Ship_Game.Ships
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
             (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
-            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, OrdnancePercent);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             CurrentStrength = CalculateShipStrength();
