@@ -6,6 +6,7 @@ using Ship_Game.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Ship_Game
 {
@@ -415,13 +416,15 @@ namespace Ship_Game
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            Ship[] ourShips = ourEmpire.GetShips().AtomicCopy();
+            var ourShips = ourEmpire.GetShips();
+            ourShips.AddRange(ourEmpire.GetProjectors());            
 
-            Parallel.For(ourShips.Length, (start, end) =>
+            Parallel.For(MasterShipList.Count, (start, end) =>
             {
                 for (int i = start; i < end; i++)
                 {
-                    Ship ourShip = ourShips[i];
+                    Ship ourShip = MasterShipList[i];
+                    if (ourShip.loyalty != ourEmpire || !ourShip.Active) continue;
                     ourShip.UpdateSensorsAndInfluence(timeStep);
                 }
             }, MaxTaskCores);
