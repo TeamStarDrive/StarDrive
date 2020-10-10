@@ -6,7 +6,6 @@ using Ship_Game.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace Ship_Game
 {
