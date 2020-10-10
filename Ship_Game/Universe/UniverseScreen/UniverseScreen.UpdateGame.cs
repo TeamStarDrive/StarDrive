@@ -415,10 +415,11 @@ namespace Ship_Game
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            var ourShips = ourEmpire.GetShips();
-            ourShips.AddRange(ourEmpire.GetProjectors());            
+            var ourShips = ourEmpire.GetShipsAtomic();
+            //var ourShips = ourEmpire.GetShips();
+            //ourShips.AddRange(ourEmpire.GetProjectors());            
 
-            Parallel.For(ourShips.Count, (start, end) =>
+            Parallel.For(ourShips.Length, (start, end) =>
             {
                 for (int i = start; i < end; i++)
                 {
