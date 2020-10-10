@@ -415,13 +415,16 @@ namespace Ship_Game
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            Ship[] ourShips = ourEmpire.GetShips().AtomicCopy();
+            var ourShips = ourEmpire.GetShipsAtomic();
+            //var ourShips = ourEmpire.GetShips();
+            //ourShips.AddRange(ourEmpire.GetProjectors());            
 
             Parallel.For(ourShips.Length, (start, end) =>
             {
                 for (int i = start; i < end; i++)
                 {
                     Ship ourShip = ourShips[i];
+                    if (!ourShip.Active) continue;
                     ourShip.UpdateSensorsAndInfluence(timeStep);
                 }
             }, MaxTaskCores);
