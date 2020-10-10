@@ -119,7 +119,11 @@ namespace Ship_Game.Ships
 
         void UpdateMovementFromOrdnanceChange()
         {
-            var shipStats = new ShipStats();
+            if (!OrdnanceChanged)
+                return;
+
+            OrdnanceChanged = false;
+            var shipStats   = new ShipStats();
             shipStats.Update(ModuleSlotList, shipData, loyalty, Level, OrdnancePercent);
             Mass                     = shipStats.Mass;
             MaxFTLSpeed              = shipStats.MaxFTLSpeed;
