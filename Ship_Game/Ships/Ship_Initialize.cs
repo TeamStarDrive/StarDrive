@@ -182,7 +182,6 @@ namespace Ship_Game.Ships
             kills            = save.kills;
             PowerCurrent     = save.Power;
             yRotation        = save.yRotation;
-            Ordinance        = save.Ordnance;
             Rotation         = save.Rotation;
             Velocity         = save.Velocity;
             IsSpooling       = save.AfterBurnerOn;
@@ -203,6 +202,7 @@ namespace Ship_Game.Ships
 
             HealthMax = RecalculateMaxHealth();
             CalcTroopBoardingDefense();
+            ChangeOrdnance(save.Ordnance);
 
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
@@ -518,9 +518,7 @@ namespace Ship_Game.Ships
                 OrdinanceMax    += module.OrdinanceCapacity;
 
                 if (!fromSave)
-                {
-                    Ordinance += module.OrdinanceCapacity;
-                }
+                    ChangeOrdnance(module.OrdinanceCapacity);
             }
 
             if (!fromSave)
