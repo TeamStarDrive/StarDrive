@@ -440,6 +440,7 @@ namespace Ship_Game.AI
                 case Plan.TroopToShip:              DoTroopToShip(timeStep, goal);            break;
                 case Plan.BoardShip:                DoBoardShip(timeStep);                    break;
                 case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
+                case Plan.RearmShipFromPlanet:      DoRearmShip(timeStep);                    break;
                 case Plan.Refit:                    DoRefit(goal);                            break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;

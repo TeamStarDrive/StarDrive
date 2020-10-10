@@ -987,6 +987,21 @@ namespace Ship_Game
             return shipBuildingModifier;
         }
 
+        public bool TryGetShipsNeedRearm(out Ship[] shipsNeedRearm, Empire empire)
+        {
+            // Not using the planet Owner since it might have been changed by invasion
+            shipsNeedRearm = null;
+            if (ParentSystem.DangerousForcesPresent(empire) || ParentSystem.ShipList.Count == 0)
+                return false;
+
+            shipsNeedRearm = ParentSystem.ShipList.Filter(s => s.loyalty == empire
+                                                                      && s.IsSuitableForPlanetaryRearm()
+                                                                      && !s.Position.InRadius(Center, 5000f));
+
+            shipsNeedRearm = shipsNeedRearm.SortedDescending(s => s.OrdinanceMax - s.Ordinance);
+            return shipsNeedRearm.Length > 0;
+        }
+
         private void UpdateHomeDefenseHangars(Building b)
         {
             if (SpaceCombatNearPlanet || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
@@ -1118,6 +1133,7 @@ namespace Ship_Game
 
             return false;
         }
+
         private void GrowPopulation()
         {
             if (Owner == null)
