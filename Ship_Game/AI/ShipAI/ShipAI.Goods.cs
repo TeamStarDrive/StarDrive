@@ -74,7 +74,7 @@ namespace Ship_Game.AI
                     exportPlanet.ProdHere += Owner.UnloadProduction();
                     exportPlanet.FoodHere += Owner.UnloadFood();
 
-                    float maxPopLoad        = exportPlanet.ExportablePop(exportPlanet, importPlanet, eta);
+                    float maxPopLoad        = exportPlanet.ExportablePop(exportPlanet, importPlanet);
                     if (maxPopLoad.AlmostZero())
                     {
                         AI.CancelTradePlan(exportPlanet); // No pop to load
