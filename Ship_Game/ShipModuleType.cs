@@ -12,7 +12,7 @@ namespace Ship_Game
         Engine,
         Shield,
         MissileLauncher,
-        Storage,         
+        Storage,
         Colony,
         FuelCell,
         Hangar,
