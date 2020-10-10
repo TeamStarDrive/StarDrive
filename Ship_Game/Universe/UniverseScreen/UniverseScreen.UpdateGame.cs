@@ -419,12 +419,12 @@ namespace Ship_Game
             var ourShips = ourEmpire.GetShips();
             ourShips.AddRange(ourEmpire.GetProjectors());            
 
-            Parallel.For(MasterShipList.Count, (start, end) =>
+            Parallel.For(ourShips.Count, (start, end) =>
             {
                 for (int i = start; i < end; i++)
                 {
-                    Ship ourShip = MasterShipList[i];
-                    if (ourShip.loyalty != ourEmpire || !ourShip.Active) continue;
+                    Ship ourShip = ourShips[i];
+                    if (!ourShip.Active) continue;
                     ourShip.UpdateSensorsAndInfluence(timeStep);
                 }
             }, MaxTaskCores);
