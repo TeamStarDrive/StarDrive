@@ -4658,6 +4658,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1822</Index>
       <Text>One of your ships was lost during a mutiny\n The mutiny was incited by</Text>
     </Token>
+    <Token>
+      <Index>1823</Index>
+      <Text>Maximum imprecision angle (in degrees) this weapon has. The more range a weapon has, the more it will be inaccurate, as a function of the imprecision angle.</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>

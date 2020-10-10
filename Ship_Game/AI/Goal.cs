@@ -38,7 +38,8 @@ namespace Ship_Game.AI
         AssaultPirateBase,
         RefitOrbital,
         DeployFleetProjector,
-        ScrapShip
+        ScrapShip,
+        RearmShipFromPlanet
     }
 
     public enum GoalStep
@@ -157,6 +158,7 @@ namespace Ship_Game.AI
                 case DeployFleetProjector.ID:   return new DeployFleetProjector();
                 case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
                 case ScrapShip.ID:              return new ScrapShip();
+                case RearmShipFromPlanet.ID:    return new RearmShipFromPlanet();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
