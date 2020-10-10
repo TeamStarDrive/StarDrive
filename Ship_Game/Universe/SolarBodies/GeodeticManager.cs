@@ -104,7 +104,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             var planetSupplyGoals = Owner.GetEmpireAI()
                 .Goals.Filter(g => g.type == AI.GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == P);
 
-            int remainingRearmGoals = (int)P.InfraStructure - 1 - planetSupplyGoals.Length;
+            int remainingRearmGoals = (int)P.InfraStructure - planetSupplyGoals.Length;
             if (remainingRearmGoals <= 0)
                 return; // Maximum supply ships launched
 
