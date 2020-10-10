@@ -207,7 +207,7 @@ namespace Ship_Game.Ships
 
         public SubTexture ModuleTexture => ResourceManager.Texture(IconTexturePath);
 
-        public float ActualPowerStoreMax   => PowerStoreMax * Bonuses.FuelCellMod;
+        public float ActualPowerStoreMax   => Is(ShipModuleType.FuelCell) ? PowerStoreMax * Bonuses.FuelCellMod : PowerStoreMax;
         public float ActualPowerFlowMax    => PowerFlowMax  * Bonuses.PowerFlowMod;
         public float ActualBonusRepairRate => BonusRepairRate * Bonuses.RepairRateMod;
         public float ActualShieldPowerMax { get; private set; }
