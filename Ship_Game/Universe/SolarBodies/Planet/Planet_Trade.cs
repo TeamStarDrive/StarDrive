@@ -257,13 +257,12 @@ namespace Ship_Game
             return maxProdLoad.Clamped(0f, prodLoadLimit); ;
         }
 
-        public float ExportablePop(Planet exportPlanet, Planet importPlanet, float eta)
+        public float ExportablePop(Planet exportPlanet, Planet importPlanet)
         {
-            if (!importPlanet.IsStarving)
+            if (importPlanet.IsStarving)
                 return 0;
 
             float maxPopLoad = importPlanet.MaxPopulation - importPlanet.Population - importPlanet.IncomingPop;
-            maxPopLoad      -= eta * importPlanet.PlusFlatPopulationPerTurn;
             return maxPopLoad.Clamped(0, exportPlanet.MaxPopulation * 0.2f);
         }
 
