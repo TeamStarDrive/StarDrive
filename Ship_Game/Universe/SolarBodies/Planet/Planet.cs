@@ -995,11 +995,19 @@ namespace Ship_Game
                 return false;
 
             shipsNeedRearm = ParentSystem.ShipList.Filter(s => s.loyalty == empire
-                                                                      && s.IsSuitableForPlanetaryRearm()
-                                                                      && !s.Position.InRadius(Center, 5000f));
+                                                               && s.IsSuitableForPlanetaryRearm()
+                                                               && s.AI.OrbitTarget?.Owner == s.loyalty);
 
             shipsNeedRearm = shipsNeedRearm.SortedDescending(s => s.OrdinanceMax - s.Ordinance);
             return shipsNeedRearm.Length > 0;
+        }
+
+        public int NumSupplyShuttlesCanLaunch() // Net, after subtracting already launched shuttles
+        {
+            var planetSupplyGoals = Owner.GetEmpireAI()
+                .Goals.Filter(g => g.type == AI.GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == this);
+
+            return (int)InfraStructure - planetSupplyGoals.Length;
         }
 
         private void UpdateHomeDefenseHangars(Building b)

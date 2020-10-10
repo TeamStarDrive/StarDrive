@@ -101,17 +101,14 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         void AssignPlanetarySupply()
         {
-            var planetSupplyGoals = Owner.GetEmpireAI()
-                .Goals.Filter(g => g.type == AI.GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == P);
-
-            int remainingRearmGoals = (int)P.InfraStructure - planetSupplyGoals.Length;
-            if (remainingRearmGoals <= 0)
+            int remainingSupplyShuttles = P.NumSupplyShuttlesCanLaunch();
+            if (remainingSupplyShuttles <= 0)
                 return; // Maximum supply ships launched
 
             if (!P.TryGetShipsNeedRearm(out Ship[] ourShipsNeedRearm, Owner))
                 return;
 
-            for (int i = 0; i < ourShipsNeedRearm.Length && remainingRearmGoals-- > 0; i++)
+            for (int i = 0; i < ourShipsNeedRearm.Length && remainingSupplyShuttles-- > 0; i++)
                Owner.GetEmpireAI().AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
         }
 
