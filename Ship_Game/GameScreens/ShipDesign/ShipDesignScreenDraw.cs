@@ -554,7 +554,7 @@ namespace Ship_Game
             }
 
             var stats = new ShipStats();
-            stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0);
+            stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0, 1);
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
             shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
             bool mainShieldsPresent      = modules.Shields.Any(s => s.ModuleType == ShipModuleType.Shield);

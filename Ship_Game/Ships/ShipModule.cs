@@ -207,7 +207,7 @@ namespace Ship_Game.Ships
 
         public SubTexture ModuleTexture => ResourceManager.Texture(IconTexturePath);
 
-        public float ActualPowerStoreMax   => PowerStoreMax * Bonuses.FuelCellMod;
+        public float ActualPowerStoreMax   => Is(ShipModuleType.FuelCell) ? PowerStoreMax * Bonuses.FuelCellMod : PowerStoreMax;
         public float ActualPowerFlowMax    => PowerFlowMax  * Bonuses.PowerFlowMod;
         public float ActualBonusRepairRate => BonusRepairRate * Bonuses.RepairRateMod;
         public float ActualShieldPowerMax { get; private set; }
@@ -223,6 +223,7 @@ namespace Ship_Game.Ships
                 return Flyweight.PowerFlowMax >= 1f;
             if (type == ShipModuleType.Shield)
                 return Flyweight.shield_power_max >= 1f;
+
             return ModuleType == type;
         }
 
@@ -1051,11 +1052,14 @@ namespace Ship_Game.Ships
             return shieldPower.Clamped(0, shieldMax);
         }
 
-        public float GetActualMass(Empire loyalty)
+        public float GetActualMass(Empire loyalty, float ordnancePercent)
         {
             float mass = Mass;
             if (Is(ShipModuleType.Armor))
                 mass *= loyalty.data.ArmourMassModifier;
+
+            if (Is(ShipModuleType.Ordnance))
+                mass = (mass * ordnancePercent).LowerBound(mass * 0.1f);
 
             // regular positive mass modules
             if (mass >= 0f)
@@ -1063,10 +1067,7 @@ namespace Ship_Game.Ships
 
             // only allow negative mass modules (mass reduction devices)
             // if we're powered, otherwise return their absolute mass
-            if (Powered)
-                return mass;
-            else
-                return Math.Abs(mass);
+            return Powered ? mass : Math.Abs(mass);
         }
 
         // @note This is called every frame for every module for every ship in the universe

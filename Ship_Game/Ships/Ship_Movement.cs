@@ -117,6 +117,20 @@ namespace Ship_Game.Ships
             MaxSTLSpeed = ShipStats.GetSTLSpeed(Thrust, Mass, loyalty);
         }
 
+        void UpdateMovementFromOrdnanceChange()
+        {
+            if (!OrdnanceChanged)
+                return;
+
+            OrdnanceChanged = false;
+            var shipStats   = new ShipStats();
+            shipStats.Update(ModuleSlotList, shipData, loyalty, Level, OrdnancePercent);
+            Mass                     = shipStats.Mass;
+            MaxFTLSpeed              = shipStats.MaxFTLSpeed;
+            MaxSTLSpeed              = shipStats.MaxSTLSpeed;
+            RotationRadiansPerSecond = shipStats.TurnRadsPerSec;
+        }
+
         public void RotateToFacing(FixedSimTime timeStep, float angleDiff, float rotationDir)
         {
             float rotAmount = rotationDir * timeStep.FixedTime * RotationRadiansPerSecond;
