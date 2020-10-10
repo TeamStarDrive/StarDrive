@@ -245,6 +245,9 @@ namespace Ship_Game.AI
                     return;
             }
 
+            if (Owner.IsPlatformOrStation)
+                return;
+
             SetPriorityOrder(true);
             DecideWhereToResupply(nearestRallyPoint);
         }
