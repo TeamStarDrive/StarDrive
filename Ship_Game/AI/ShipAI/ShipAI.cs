@@ -199,22 +199,17 @@ namespace Ship_Game.AI
         public void ProcessResupply(ResupplyReason resupplyReason)
         {
             Planet nearestRallyPoint = null;
-            Ship supplyShip = null;
             switch (resupplyReason)
             {
                 case ResupplyReason.LowOrdnanceCombat:
-
-                    supplyShip = NearBySupplyShip;
-                    if (supplyShip != null)
+                case ResupplyReason.LowOrdnanceNonCombat:
+                    if (Owner.IsPlatformOrStation)
                     {
-                        SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
+                        RequestResupplyFromPlanet();
                         return;
                     }
 
-                    nearestRallyPoint = Owner.loyalty.FindNearestSafeRallyPoint(Owner.Center);
-                    break;
-                case ResupplyReason.LowOrdnanceNonCombat:
-                    supplyShip = NearBySupplyShip;
+                    Ship supplyShip = NearBySupplyShip;
                     if (supplyShip != null)
                     {
                         SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
@@ -298,6 +293,20 @@ namespace Ship_Game.AI
             if (Owner.fleet != null)
                 OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, 
                     Owner.fleet.FinalDirection, true, State);
+        }
+
+        void RequestResupplyFromPlanet()
+        {
+            if (Owner.InCombat || Owner.GetTether()?.Owner == Owner.loyalty)
+                return;
+
+            EmpireAI ai = Owner.loyalty.GetEmpireAI();
+            if (ai.Goals.Any(g => g.type == GoalType.RearmShipFromPlanet && g.TargetShip == Owner))
+                return; // Supply ship is on the way
+
+            var possiblePlanets = Owner.loyalty.GetPlanets().Filter(p => p.NumSupplyShuttlesCanLaunch() > 0);
+            Planet planet = possiblePlanets.FindMin(p => p.Center.SqDist(Owner.Center));
+            ai.AddPlanetaryRearmGoal(Owner, planet);
         }
 
         public void FireWeapons(FixedSimTime timeStep)

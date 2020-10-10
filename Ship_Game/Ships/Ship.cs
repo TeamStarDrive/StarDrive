@@ -1253,10 +1253,13 @@ namespace Ship_Game.Ships
             if (InCombat 
                 || !Active
                 || OrdnancePercent.AlmostEqual(1)
+                || IsPlatformOrStation && TetheredTo?.Owner == loyalty
+                || AI.OrbitTarget?.Owner == loyalty
                 || AI.State == AIState.Resupply
                 || AI.State == AIState.Scrap
                 || AI.State == AIState.Refit
                 || IsSupplyShuttle)
+
             {
                 return false;
             }
