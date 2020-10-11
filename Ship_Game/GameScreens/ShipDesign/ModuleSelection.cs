@@ -515,6 +515,9 @@ namespace Ship_Game
                 if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, 242);
             }
 
+            if (w.FireImprecisionAngle > 0)
+                DrawStat(ref cursor, "Imprecision", w.FireImprecisionAngle, 273);
+
             DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
             DrawStat(ref cursor, "Delay", delay, 183);
             DrawStat(ref cursor, "EMP", w.EMPDamage, 110);
