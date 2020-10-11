@@ -108,10 +108,16 @@ namespace UnitTests
             Cleanup();
         }
 
-        public void CreateUniverseAndPlayerEmpire(out Empire player)
+        void RequireGameInstance(string functionName)
         {
             if (Game == null)
-                throw new Exception("CreateGameInstance() must be called BEFORE CreateUniverseAndPlayerEmpire() !");
+                throw new Exception($"CreateGameInstance() must be called BEFORE {functionName}() !");
+
+        }
+
+        public void CreateUniverseAndPlayerEmpire(out Empire player)
+        {
+            RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
 
             var data = new UniverseData();
             Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0]);
@@ -123,6 +129,7 @@ namespace UnitTests
 
         public void LoadStarterShips(params string[] shipList)
         {
+            RequireGameInstance(nameof(LoadStarterShips));
             ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
         }
 
@@ -148,17 +155,13 @@ namespace UnitTests
 
         public void LoadPlanetContent()
         {
-            if (Game == null)
-                throw new Exception("CreateGameInstance() must be called BEFORE LoadPlanetContent() !");
-
+            RequireGameInstance(nameof(LoadPlanetContent));
             ResourceManager.LoadPlanetContentForTesting();
         }
 
         public void LoadTechContent()
         {
-            if (Game == null)
-                throw new Exception("CreateGameInstance() must be called BEFORE LoadPlanetContent() !");
-
+            RequireGameInstance(nameof(LoadPlanetContent));
             ResourceManager.LoadTechContentForTesting();
         }
 
