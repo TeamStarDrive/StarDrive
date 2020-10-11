@@ -12,7 +12,9 @@ namespace UnitTests.Ships
     {
         public TestWeaponMunition()
         {
+            CreateGameInstance();
             LoadStarterShipVulcan();
+            CreateUniverseAndPlayerEmpire(out _);
         }
 
         static bool FireAtVisiblePoint(Weapon weapon)
@@ -22,8 +24,7 @@ namespace UnitTests.Ships
 
         void CreateWeapon(out Ship ship, out Weapon weapon, float ordCost, float pwrCost)
         {
-            Empire empire = EmpireManager.CreateNewEmpire("TargetingEmpire");
-            ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
+            ship = Ship.CreateShipAtPoint("Vulcan Scout", Player, Vector2.Zero);
             weapon = ship.Weapons.Find(w => w.UID == "VulcanCannon");
 
             weapon.SalvoCount = 1;
