@@ -322,6 +322,17 @@ namespace Ship_Game
             return capitals.Length > 0;
         }
 
+        public string GetAssaultShuttleName() // this will get the name of an Assault Shuttle if defined in race.xml or use default one
+        {
+            return data.DefaultAssaultShuttle.IsEmpty() ? BoardingShuttle.Name : data.DefaultAssaultShuttle;
+        }
+
+        public string GetSupplyShuttleName() // this will get the name of a Supply Shuttle if defined in race.xml or use default one
+        {
+            return data.DefaultSupplyShuttle.IsEmpty() ? SupplyShuttle.Name
+                                                       : data.DefaultSupplyShuttle;
+        }
+
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
         {
             closest = SpacePorts.FindMin(p => p.Center.SqDist(position));
