@@ -413,6 +413,7 @@ namespace Ship_Game
             }
 
             SaveData.Projectiles = screenToSave.Objects.GetProjectileSaveData();
+            SaveData.Beams       = screenToSave.Objects.GetBeamSaveData();
 
             SaveData.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
             foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> e in StatTracker.SnapshotsMap)
@@ -687,18 +688,23 @@ namespace Ship_Game
 
         public struct ProjectileSaveData
         {
-            [Serialize(0)] public string Weapon;
-            [Serialize(1)] public float Duration;
-            [Serialize(2)] public float Rotation;
-            [Serialize(3)] public Vector2 Velocity;
-            [Serialize(4)] public Vector2 Position;
-            [Serialize(5)] public Guid Owner; // Ship or Planet
-            [Serialize(6)] public bool Beam; // beams require a special constructor
+            [Serialize(0)] public Guid Owner; // Ship or Planet
+            [Serialize(1)] public string Weapon;
+            [Serialize(2)] public float Duration;
+            [Serialize(3)] public float Rotation;
+            [Serialize(4)] public Vector2 Velocity;
+            [Serialize(5)] public Vector2 Position;
         }
 
         public struct BeamSaveData
         {
-
+            [Serialize(0)] public Guid Owner; // Ship or Planet
+            [Serialize(1)] public string Weapon;
+            [Serialize(2)] public float Duration;
+            [Serialize(3)] public Vector2 Source;
+            [Serialize(4)] public Vector2 Destination;
+            [Serialize(5)] public Vector2 ActualHitDestination;
+            [Serialize(6)] public Guid Target; // Ship or Projectile
         }
 
         public class QueueItemSave
@@ -876,8 +882,8 @@ namespace Ship_Game
             [Serialize(36)] public float StarsModifier = 1;
             [Serialize(37)] public int ExtraPlanets;
 
-            // New global projectile list, contains both Beams and Projectiles
-            [Serialize(38)] public ProjectileSaveData[] Projectiles;
+            [Serialize(38)] public ProjectileSaveData[] Projectiles; // New global projectile list
+            [Serialize(39)] public BeamSaveData[] Beams; // new global beam list
         }
     }
 }

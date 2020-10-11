@@ -46,8 +46,10 @@ namespace Ship_Game
             Emitter.Position        = new Vector3(source, 0f);
             Owner                   = weapon.Owner;
             Source                  = source;
-            Destination             = destination + (DisableSpatialCollision ? Vector2.Zero :
-                                                    Weapon.GetTargetError(target, Owner.Level));
+
+            int crewLevel = Owner?.Level ?? -1;
+            Destination = destination + (DisableSpatialCollision ? Vector2.Zero :
+                                         Weapon.GetTargetError(target, crewLevel));
             ActualHitDestination = Destination;
             BeamCollidedThisFrame = true; 
 
@@ -74,6 +76,23 @@ namespace Ship_Game
             Initialize();
         }
 
+        // loading from savegame
+        public static Beam Create(in SavedGame.BeamSaveData bdata, UniverseData data)
+        {
+            GameplayObject target = data.FindObjectOrNull(bdata.Target);
+
+            ProjectileOwnership o = GetOwners(bdata.Owner, bdata.Weapon, data);
+            var beam = new Beam(o.Weapon, bdata.Source, bdata.Destination, target);
+
+            if      (o.Owner != null)  beam.Owner = o.Owner;
+            else if (o.Planet != null) beam.Planet = o.Planet;
+
+            beam.ActualHitDestination = bdata.ActualHitDestination;
+            beam.Duration = bdata.Duration;
+            beam.FirstRun = false;
+            return beam;
+        }
+
         public override void Initialize()
         {
             base.Initialize();
@@ -82,11 +101,14 @@ namespace Ship_Game
                 Loyalty = Owner?.loyalty ?? DroneAI?.Drone?.Loyalty;
                 SetSystem(Owner?.System ?? DroneAI?.Drone?.System);
             }
+
             InitBeamMeshIndices();
             UpdateBeamMesh();
 
-            QuadVertexDecl = new VertexDeclaration(GameBase.Base.GraphicsDevice,
-                                                   VertexPositionNormalTexture.VertexElements);
+            if (QuadVertexDecl == null)
+                QuadVertexDecl = new VertexDeclaration(GameBase.Base.GraphicsDevice,
+                                        VertexPositionNormalTexture.VertexElements);
+
             Empire.Universe?.Objects.Add(this);
         }
 

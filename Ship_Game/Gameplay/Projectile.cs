@@ -70,7 +70,7 @@ namespace Ship_Game.Gameplay
    
 
         public Ship Owner { get; protected set; }
-        public Planet Planet { get; private set; }
+        public Planet Planet { get; protected set; }
 
         public override IDamageModifier DamageMod => Weapon;
 
@@ -117,27 +117,57 @@ namespace Ship_Game.Gameplay
             return projectile;
         }
 
-        // loading from savegame
-        public static Projectile Create(SavedGame.ProjectileSaveData pdata, UniverseData data)
+        public struct ProjectileOwnership
         {
-            Projectile projectile = null;
-            //if (pdata.Beam)
-            //{
-            //    //projectile = Beam.Create()
-            //}
+            public Ship Owner;
+            public Planet Planet;
+            public Weapon Weapon;
+            public Empire Loyalty;
+        }
 
+        public static ProjectileOwnership GetOwners(in Guid ownerGuid, string weaponUID, UniverseData data)
+        {
+            Planet planet = null;
+            Weapon weapon = null;
+            Ship owner = data.FindShipOrNull(ownerGuid);
+            if (owner != null)
+            {
+                if (weaponUID.NotEmpty())
+                    weapon = owner.Weapons.Find(w => w.UID == weaponUID);
+            }
+            else
+            {
+                planet = data.FindPlanetOrNull(ownerGuid);
+                if (planet != null)
+                    weapon = planet.BuildingList.Find(b => b.Weapon == weaponUID).TheWeapon;
+            }
+            
+            return new ProjectileOwnership
+            {
+                Owner = owner,
+                Planet = planet,
+                Weapon = weapon,
+                Loyalty = owner?.loyalty ?? planet?.Owner ?? EmpireManager.Void
+            };
+        }
 
-            //Weapon weapon = ResourceManager.CreateWeapon(pdata.Weapon);
-            //var projectile = new Projectile(owner.loyalty, GameObjectType.Proj)
-            //{
-            //    Weapon  = weapon,
-            //    Owner   = owner,
-            //    Module  = weapon.Module
-            //};
-            //projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
-            //projectile.Duration = pdata.Duration; // apply duration from save data
-            //projectile.FirstRun = false;
-            return projectile;
+        // loading from savegame
+        public static Projectile Create(in SavedGame.ProjectileSaveData pdata, UniverseData data)
+        {
+            ProjectileOwnership o = GetOwners(pdata.Owner, pdata.Weapon, data);
+            var p = new Projectile(o.Loyalty)
+            {
+                Weapon = o.Weapon,
+                Module = o.Weapon?.Module,
+            };
+
+            if      (o.Owner != null)  p.Owner = o.Owner;
+            else if (o.Planet != null) p.Planet = o.Planet;
+
+            p.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
+            p.Duration = pdata.Duration; // apply duration from save data
+            p.FirstRun = false;
+            return p;
         }
 
         void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound, Vector2 inheritedVelocity, bool isMirv = false)
