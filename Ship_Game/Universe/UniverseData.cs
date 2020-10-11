@@ -24,7 +24,10 @@ namespace Ship_Game
         public bool GravityWells;
 
         public Array<Ship> MasterShipList = new Array<Ship>();
+
+        // All Projectiles AND Beams
         public Array<Projectile> MasterProjectileList = new Array<Projectile>();
+
         public Array<Empire> EmpireList = new Array<Empire>();
 
         public enum GameDifficulty
@@ -119,6 +122,19 @@ namespace Ship_Game
                 foreach (Ship ship in ownedShips)
                     if (ship.guid == shipGuid)
                         return ship;
+            }
+            return null;
+        }
+
+        public GameplayObject FindObjectOrNull(in Guid objectGuid)
+        {
+            if (objectGuid != Guid.Empty)
+            {
+                foreach (Ship ship in MasterShipList)
+                    if (ship.guid == objectGuid)
+                        return ship;
+
+                // TODO: implement Projectile and Beam search
             }
             return null;
         }

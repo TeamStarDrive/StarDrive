@@ -47,7 +47,7 @@ namespace Ship_Game
 
             Ships.AddRange(data.MasterShipList);
             Projectiles.AddRange(data.MasterProjectileList);
-            
+
             Objects.AddRange(Ships);
             Objects.AddRange(Projectiles);
         }
@@ -63,24 +63,54 @@ namespace Ship_Game
             }
         }
 
+        public GameplayObject FindObject(in Guid guid)
+        {
+            // TODO: Currently only Ships are supported,
+            //       but in the future we will use GameplayObject.Id instead of the slow Guid
+            return FindShip(guid);
+        }
+
         public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
         {
             lock (Projectiles)
             {
-                return Projectiles.Select(p => new SavedGame.ProjectileSaveData
+                return Projectiles.FilterSelect(p => p.Type == GameObjectType.Proj,
+                p => new SavedGame.ProjectileSaveData
                 {
-                    Velocity = p.Velocity,
-                    Rotation = p.Rotation,
-                    Weapon   = p.Weapon.UID,
-                    Position = p.Center,
-                    Duration = p.Duration,
                     Owner = p.Owner?.guid ?? p.Planet?.guid ?? Guid.Empty,
-                    Beam = p.Type == GameObjectType.Beam,
+                    Weapon   = p.Weapon.UID,
+                    Duration = p.Duration,
+                    Rotation = p.Rotation,
+                    Velocity = p.Velocity,
+                    Position = p.Center,
+                });
+            }
+        }
+        
+        public SavedGame.BeamSaveData[] GetBeamSaveData()
+        {
+            lock (Projectiles)
+            {
+                return Projectiles.FilterSelect(p => p.Type == GameObjectType.Beam,
+                p =>
+                {
+                    var beam = (Beam)p;
+                    return new SavedGame.BeamSaveData
+                    {
+                        Owner = p.Owner?.guid ?? p.Planet?.guid ?? Guid.Empty,
+                        Weapon = p.Weapon.UID,
+                        Duration = p.Duration,
+                        Source = beam.Source,
+                        Destination = beam.Destination,
+                        ActualHitDestination = beam.ActualHitDestination,
+                        Target = beam.Target is Ship ship ? ship.guid : Guid.Empty,
+                    };
                 });
             }
         }
 
         // NOTE: SLOW !! Should only be used for UNIT TESTS
+        // Only returns projectiles NOT BEAMS
         public Array<Projectile> GetProjectiles(Ship ship)
         {
             var projectiles = new Array<Projectile>();
@@ -89,7 +119,7 @@ namespace Ship_Game
                 for (int i = 0; i < Projectiles.Count; ++i)
                 {
                     Projectile p = Projectiles[i];
-                    if (!(p is Beam) && p.Owner == ship)
+                    if (p.Type == GameObjectType.Proj && p.Owner == ship)
                         projectiles.Add(p);
                 }
             }

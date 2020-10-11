@@ -606,9 +606,14 @@ namespace Ship_Game
                     CreateShipFromSave(data, shipData, e);
             }
 
-            foreach (SavedGame.ProjectileSaveData pdata in saveData.Projectiles)
+            foreach (SavedGame.ProjectileSaveData projData in saveData.Projectiles)
             {
-                data.MasterProjectileList.Add(Projectile.Create(pdata, data));
+                data.MasterProjectileList.Add(Projectile.Create(projData, data));
+            }
+
+            foreach (SavedGame.BeamSaveData beamData in saveData.Beams)
+            {
+                data.MasterProjectileList.Add(Beam.Create(beamData, data));
             }
         }
 
