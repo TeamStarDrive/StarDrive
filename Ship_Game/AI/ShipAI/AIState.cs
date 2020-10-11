@@ -35,6 +35,7 @@ namespace Ship_Game.AI
         Scuttle,
         Scrap,
         ResupplyEscort,
-        ReturnHome
+        ReturnHome,
+        SupplyReturnHome
     }
 }

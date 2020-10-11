@@ -54,7 +54,7 @@ namespace Ship_Game
         }
 
         public float PopulationBillion { get; private set; }
-        public float PlusFlatPopulationPerTurn;
+        public float PlusFlatPopulationPerTurn { get; private set; }
 
         public bool HasProduction    => Prod.GrossIncome > 1.0f;
         public float PopulationRatio => MaxPopulation.AlmostZero() ? 0 : Storage.Population / MaxPopulation;
