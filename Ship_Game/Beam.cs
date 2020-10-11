@@ -85,9 +85,9 @@ namespace Ship_Game
             InitBeamMeshIndices();
             UpdateBeamMesh();
 
-            QuadVertexDecl = new VertexDeclaration(Empire.Universe.ScreenManager.GraphicsDevice,
+            QuadVertexDecl = new VertexDeclaration(GameBase.Base.GraphicsDevice,
                                                    VertexPositionNormalTexture.VertexElements);
-            Empire.Universe.Objects.Add(this);
+            Empire.Universe?.Objects.Add(this);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -300,8 +300,9 @@ namespace Ship_Game
             }
         }
 
-        private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
+        static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
     }
+
     public sealed class DroneBeam : Beam
     {
         readonly DroneAI AI;
