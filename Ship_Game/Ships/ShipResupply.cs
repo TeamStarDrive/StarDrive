@@ -52,9 +52,10 @@ namespace Ship_Game.Ships
 
         public ResupplyReason Resupply(bool forceSupplyStateCheck = false)
         {
-            if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
-                                                           || Ship.DesignRole == ShipData.RoleName.supply
-                                                           || Ship.AI.HasPriorityOrder && Ship.AI.State != AIState.Bombard)
+            if (Ship.DesignRole == ShipData.RoleName.construction 
+                || Ship.DesignRole == ShipData.RoleName.troop
+                || Ship.DesignRole == ShipData.RoleName.supply
+                || Ship.AI.HasPriorityOrder && Ship.AI.State != AIState.Bombard)
             {
                 return ResupplyReason.NotNeeded;
             }
