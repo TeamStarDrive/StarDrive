@@ -178,6 +178,7 @@ namespace Ship_Game.AI
 
             public void SetAllValuesToAverage(int numberOfShips)
             {
+                if (numberOfShips < 1) return;
                 if (Averaged)
                 { 
                     Log.Warning("Target charasterics averaged more than once");
