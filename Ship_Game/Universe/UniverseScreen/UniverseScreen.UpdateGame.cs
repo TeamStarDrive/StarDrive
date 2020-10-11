@@ -416,9 +416,15 @@ namespace Ship_Game
                 return;
 
             var ourShips = ourEmpire.GetShipsAtomic();
-            //var ourShips = ourEmpire.GetShips();
-            //ourShips.AddRange(ourEmpire.GetProjectors());            
+            ExecuteShipSensorScans(ourShips, timeStep);
+            var ourSSPs = ourEmpire.GetProjectors().ToArray();
+            ExecuteShipSensorScans(ourSSPs, timeStep);
 
+            ourEmpire.UpdateContactsAndBorders(timeStep);
+        }
+
+        void ExecuteShipSensorScans(Ship[] ourShips, FixedSimTime timeStep)
+        {
             Parallel.For(ourShips.Length, (start, end) =>
             {
                 for (int i = start; i < end; i++)
@@ -428,8 +434,6 @@ namespace Ship_Game
                     ourShip.UpdateSensorsAndInfluence(timeStep);
                 }
             }, MaxTaskCores);
-
-            ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
         void FleetSpeed(FixedSimTime timeStep)
