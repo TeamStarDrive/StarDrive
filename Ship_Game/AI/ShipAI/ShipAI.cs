@@ -308,7 +308,7 @@ namespace Ship_Game.AI
                 return; // Supply ship is on the way
 
             var possiblePlanets = Owner.loyalty.GetPlanets().Filter(p => p.NumSupplyShuttlesCanLaunch() > 0);
-            Planet planet = possiblePlanets.FindMin(p => p.Center.SqDist(Owner.Center));
+            Planet planet       = possiblePlanets.FindMin(p => p.Center.SqDist(Owner.Center));
             ai.AddPlanetaryRearmGoal(Owner, planet);
         }
 
