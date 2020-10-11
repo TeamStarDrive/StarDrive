@@ -111,7 +111,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool IsOrbitalAlreadyPresentAt(Vector2 position)
         {
-            foreach (Ship orbital in GetTetherPlanet.OrbitalStations.Values)
+            foreach (Ship orbital in GetTetherPlanet.OrbitalStations)
             {
                 Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);

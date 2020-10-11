@@ -185,7 +185,7 @@ namespace Ship_Game.AI
                 Planet planetToTether = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = g.Goal.TetherOffset;
-                planetToTether.OrbitalStations.Add(orbital.guid, orbital);
+                planetToTether.OrbitalStations.Add(orbital);
             }
             Owner.QueueTotalRemoval();
             if (g.Goal.OldShip?.Active == true) // we are refitting something
@@ -219,7 +219,7 @@ namespace Ship_Game.AI
             {
                 orbital.Center = g.Goal.BuildPosition;
                 orbital.TetherToPlanet(target);
-                target.OrbitalStations.Add(orbital.guid, orbital);
+                target.OrbitalStations.Add(orbital);
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
                     g.Goal.OldShip.QueueTotalRemoval();
@@ -530,6 +530,7 @@ namespace Ship_Game.AI
                     || Owner.HomePlanet.ParentSystem != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
                 {
                     // Nowhere to land, bye bye.
+                    ClearOrders(AIState.Scuttle);
                     Owner.ScuttleTimer = 1;
                     return;
                 }
@@ -567,6 +568,17 @@ namespace Ship_Game.AI
 
                 Owner.TryLandSingleTroopOnShip(EscortTarget);
             }
+        }
+
+        void DoRearmShip(FixedSimTime timeStep)
+        {
+            if (EscortTarget == null)
+            {
+                ClearOrders();
+                return;
+            }
+
+            ThrustOrWarpToPos(EscortTarget.Center, timeStep);
         }
 
         void DoSupplyShip(FixedSimTime timeStep)

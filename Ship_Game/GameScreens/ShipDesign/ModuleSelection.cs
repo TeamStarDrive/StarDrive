@@ -291,7 +291,7 @@ namespace Ship_Game
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
             DrawStat(ref modTitlePos, 128, mod.ActualCost, 84);
-            DrawStat(ref modTitlePos, 123, mod.GetActualMass(EmpireManager.Player), 79);
+            DrawStat(ref modTitlePos, 123, mod.GetActualMass(EmpireManager.Player, 1), 79);
             DrawStat(ref modTitlePos, 124, mod.ActualMaxHealth, 80);
 
             float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
@@ -471,7 +471,7 @@ namespace Ship_Game
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, Localizer.Token(128), cost, 84);
-            DrawStat(ref cursor, Localizer.Token(123), m.GetActualMass(EmpireManager.Player), 79);
+            DrawStat(ref cursor, Localizer.Token(123), m.GetActualMass(EmpireManager.Player, 1), 79);
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
@@ -514,6 +514,9 @@ namespace Ship_Game
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
                 if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, 242);
             }
+
+            if (w.FireImprecisionAngle > 0)
+                DrawStat(ref cursor, "Imprecision", w.FireImprecisionAngle, 273);
 
             DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
             DrawStat(ref cursor, "Delay", delay, 183);

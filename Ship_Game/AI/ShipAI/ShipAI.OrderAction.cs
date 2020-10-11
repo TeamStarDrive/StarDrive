@@ -469,14 +469,15 @@ namespace Ship_Game.AI
             Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner);
         }
 
-        public void AddSupplyShipGoal(Ship supplyTarget)
+        public void AddSupplyShipGoal(Ship supplyTarget, Plan plan = Plan.SupplyShip)
         {
             ClearOrders();
             IgnoreCombat = true;
             //Clearorders wipes stored ordnance data if state is ferrying.
             EscortTarget = supplyTarget;
-            AddShipGoal(Plan.SupplyShip, AIState.Ferrying);
+            AddShipGoal(plan, AIState.Ferrying);
         }
+
         public void OrderSystemDefense(SolarSystem system)
         {
             ShipGoal goal = OrderQueue.PeekLast;

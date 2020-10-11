@@ -215,6 +215,14 @@ namespace Ship_Game.AI
             Goals.Add(new ScrapShip(ship, OwnerEmpire));
         }
 
+        public void AddPlanetaryRearmGoal(Ship ship, Planet p, Ship existingSupplyShip = null)
+        {
+            if (existingSupplyShip == null)
+                Goals.Add(new RearmShipFromPlanet(ship, p, OwnerEmpire));
+            else
+                Goals.Add(new RearmShipFromPlanet(ship, existingSupplyShip, p, OwnerEmpire));
+        }
+
         public void Update()
         {
             DefStr = DefensiveCoordinator.GetForcePoolStrength();

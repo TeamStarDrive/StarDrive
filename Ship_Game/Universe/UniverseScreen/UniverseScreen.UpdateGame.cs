@@ -340,18 +340,25 @@ namespace Ship_Game
             if (ourEmpire.IsEmpireDead())
                 return;
 
-            Ship[] ourShips = ourEmpire.GetShips().AtomicCopy();
+            var ourShips = ourEmpire.GetShipsAtomic();
+            ExecuteShipSensorScans(ourShips, timeStep);
+            var ourSSPs = ourEmpire.GetProjectors().ToArray();
+            ExecuteShipSensorScans(ourSSPs, timeStep);
 
+            ourEmpire.UpdateContactsAndBorders(timeStep);
+        }
+
+        void ExecuteShipSensorScans(Ship[] ourShips, FixedSimTime timeStep)
+        {
             Parallel.For(ourShips.Length, (start, end) =>
             {
                 for (int i = start; i < end; i++)
                 {
                     Ship ourShip = ourShips[i];
+                    if (!ourShip.Active) continue;
                     ourShip.UpdateSensorsAndInfluence(timeStep);
                 }
             }, MaxTaskCores);
-
-            ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
         void FleetSpeed(FixedSimTime timeStep)
