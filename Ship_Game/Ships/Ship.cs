@@ -1248,17 +1248,26 @@ namespace Ship_Game.Ships
             }
         }
 
-        public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use default one
+        public bool IsSuitableForPlanetaryRearm()
         {
-            return  empire.data.DefaultAssaultShuttle.IsEmpty() ? empire.BoardingShuttle.Name
-                                                                : empire.data.DefaultAssaultShuttle;
+            if (InCombat 
+                || !Active
+                || OrdnancePercent.AlmostEqual(1)
+                || IsPlatformOrStation && TetheredTo?.Owner == loyalty
+                || AI.OrbitTarget?.Owner == loyalty
+                || AI.State == AIState.Resupply
+                || AI.State == AIState.Scrap
+                || AI.State == AIState.Refit
+                || IsSupplyShuttle)
+
+            {
+                return false;
+            }
+
+            return true;
         }
 
-        public static string GetSupplyShuttleName(Empire empire) // this will get the name of a Supply Shuttle if defined in race.xml or use default one
-        {
-            return empire.data.DefaultSupplyShuttle.IsEmpty() ? empire.SupplyShuttle.Name
-                                                              : empire.data.DefaultSupplyShuttle;
-        }
+        bool IsSupplyShuttle => Name == loyalty.GetSupplyShuttleName();
 
         public int RefitCost(Ship newShip)
         {
