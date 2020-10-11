@@ -597,13 +597,18 @@ namespace Ship_Game
                 }
         }
 
-        static void CreateAllShips(SavedGame.UniverseSaveData saveData, UniverseData data)
+        static void CreateAllObjects(SavedGame.UniverseSaveData saveData, UniverseData data)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                     CreateShipFromSave(data, shipData, e);
+            }
+
+            foreach (SavedGame.ProjectileSaveData pdata in saveData.Projectiles)
+            {
+                data.MasterProjectileList.Add(Projectile.Create(pdata, data));
             }
         }
 

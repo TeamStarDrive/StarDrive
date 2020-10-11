@@ -118,18 +118,25 @@ namespace Ship_Game.Gameplay
         }
 
         // loading from savegame
-        public static Projectile Create(Ship owner, SavedGame.ProjectileSaveData pdata)
+        public static Projectile Create(SavedGame.ProjectileSaveData pdata, UniverseData data)
         {
-            Weapon weapon = ResourceManager.CreateWeapon(pdata.Weapon);
-            var projectile = new Projectile(owner.loyalty, GameObjectType.Proj)
-            {
-                Weapon  = weapon,
-                Owner   = owner,
-                Module  = weapon.Module
-            };
-            projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
-            projectile.Duration = pdata.Duration; // apply duration from save data
-            projectile.FirstRun = false;
+            Projectile projectile = null;
+            //if (pdata.Beam)
+            //{
+            //    //projectile = Beam.Create()
+            //}
+
+
+            //Weapon weapon = ResourceManager.CreateWeapon(pdata.Weapon);
+            //var projectile = new Projectile(owner.loyalty, GameObjectType.Proj)
+            //{
+            //    Weapon  = weapon,
+            //    Owner   = owner,
+            //    Module  = weapon.Module
+            //};
+            //projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
+            //projectile.Duration = pdata.Duration; // apply duration from save data
+            //projectile.FirstRun = false;
             return projectile;
         }
 
