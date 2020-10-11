@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -23,6 +24,7 @@ namespace Ship_Game
         public bool GravityWells;
 
         public Array<Ship> MasterShipList = new Array<Ship>();
+        public Array<Projectile> MasterProjectileList = new Array<Projectile>();
         public Array<Empire> EmpireList = new Array<Empire>();
 
         public enum GameDifficulty

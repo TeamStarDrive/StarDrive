@@ -44,8 +44,12 @@ namespace Ship_Game
         {
             Universe = universe;
             Spatial = spatial;
+
             Ships.AddRange(data.MasterShipList);
-            Objects.AddRange(data.MasterShipList);
+            Projectiles.AddRange(data.MasterProjectileList);
+            
+            Objects.AddRange(Ships);
+            Objects.AddRange(Projectiles);
         }
 
         public Ship FindShip(in Guid guid)
@@ -59,6 +63,24 @@ namespace Ship_Game
             }
         }
 
+        public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
+        {
+            lock (Projectiles)
+            {
+                return Projectiles.Select(p => new SavedGame.ProjectileSaveData
+                {
+                    Velocity = p.Velocity,
+                    Rotation = p.Rotation,
+                    Weapon   = p.Weapon.UID,
+                    Position = p.Center,
+                    Duration = p.Duration,
+                    Owner = p.Owner?.guid ?? p.Planet?.guid ?? Guid.Empty,
+                    Beam = p.Type == GameObjectType.Beam,
+                });
+            }
+        }
+
+        // NOTE: SLOW !! Should only be used for UNIT TESTS
         public Array<Projectile> GetProjectiles(Ship ship)
         {
             var projectiles = new Array<Projectile>();

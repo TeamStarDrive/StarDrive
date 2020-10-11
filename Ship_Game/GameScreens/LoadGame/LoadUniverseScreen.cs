@@ -149,10 +149,10 @@ namespace Ship_Game
             return usData;
         }
 
-
+        // Universe does not exist yet !
         UniverseData LoadEverything(SavedGame.UniverseSaveData saveData, ProgressCounter step)
         {
-            step.Start(8); // arbitrary count... check # of calls below:
+            step.Start(9); // arbitrary count... check # of calls below:
 
             ScreenManager.RemoveAllObjects();
             var data = new UniverseData
@@ -176,7 +176,7 @@ namespace Ship_Game
             GiftShipsFromServantEmpire(data);                  step.Advance();
             CreateRelations(saveData);                         step.Advance();
             CreateSolarSystems(saveData, data);                step.Advance();
-            CreateAllShips(saveData, data);                    step.Advance();
+            CreateAllObjects(saveData, data);                  step.Advance();
             CreateFleetsFromSave(saveData, data);              step.Advance();
             CreateTasksGoalsRoads(saveData, data);             step.Advance();
             CreatePlanetImportExportShipLists(saveData, data); step.Advance();
