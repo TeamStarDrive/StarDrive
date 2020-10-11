@@ -178,10 +178,6 @@ namespace Ship_Game.AI
 
             UpdateTrackedProjectiles();
 
-            
-
-            //Doctor: Increased this from 0.66f as seemed slightly on the low side. 
-            //CombatAI.PreferredEngagementDistance =    Owner.maxWeaponsRange * 0.75f ;
             SolarSystem thisSystem = Owner.System;
             float armorAvg = 0;
             float shieldAvg = 0;
@@ -197,6 +193,8 @@ namespace Ship_Game.AI
                 }
             }
 
+            // radius hack needs investigation.
+            // i believe this is an orbital no control systems compensator. But it should not be handled here. 
             GameplayObject[] scannedShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
  
             for (int x = 0; x < scannedShips.Length; x++)
@@ -204,10 +202,9 @@ namespace Ship_Game.AI
                 var go = scannedShips[x];
                 var nearbyShip = (Ship) go;
 
-                var sw = new ShipWeight(nearbyShip, 1);
-                ScannedNearby.Add(sw);
-
                 nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
+
+                // in debug show all ships except when one is selected. 
                 if (Empire.Universe?.Debug == true)
                 {
                     if (Empire.Universe.SelectedShip == null || Empire.Universe.SelectedShip == Owner)
@@ -215,11 +212,12 @@ namespace Ship_Game.AI
                         nearbyShip.KnownByEmpires.SetSeen(EmpireManager.Player);
                     }
                 }
-                if (!nearbyShip.Active || nearbyShip.dying)
-                { 
-                    continue;
-                }
 
+                // do not process dead and dying any further. Let them be visibilbe but not show up in any target lists. 
+                if (!nearbyShip.Active || nearbyShip.dying)                 
+                    continue;
+                
+                // this should be expanded to include allied ships. 
                 Empire empire = nearbyShip.loyalty;
                 if (empire == Owner.loyalty)
                 {
@@ -228,30 +226,42 @@ namespace Ship_Game.AI
                 }
 
                 bool canAttack = Owner.loyalty.IsEmpireAttackable(nearbyShip.loyalty, nearbyShip);
-                if (!canAttack)
-                    continue;
-                BadGuysNear = true;
-                if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
+                if (canAttack)
                 {
-                    ScannedTargets.Add(nearbyShip);
-                    continue;
+                    BadGuysNear = true;
+                    
+                    if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
+                    {
+                        ScannedTargets.Add(nearbyShip);
+                    }
+                    else
+                    {
+                        // this radius <1 hack needs investigation. 
+                        // technically this should never be true however the above radius hack may be causing ships 
+                        // with no control to have a scan radius and so its possible this would 0 and still scanning.
+                        if (radius < 1)
+                            continue;
+
+                        var sw = new ShipWeight(nearbyShip, 1);
+                        ScannedNearby.Add(sw);
+
+                        // these are used later for weights when calculating weights.
+                        // so the effect of target weighting is dynamic for the targets available. 
+                        armorAvg  += nearbyShip.armor_max;
+                        shieldAvg += nearbyShip.shield_max;
+                        dpsAvg    += nearbyShip.GetDPS();
+                        sizeAvg   += nearbyShip.SurfaceArea;
+
+                        // bonus weight to secort targets
+                        if (BadGuysNear && nearbyShip.AI.Target is Ship ScannedNearbyTarget &&
+                            ScannedNearbyTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
+                        {
+                            sw += 3f;
+                        }
+                        
+                        ScannedNearby[ScannedNearby.Count - 1] = sw;
+                    }
                 }
-
-                armorAvg  += nearbyShip.armor_max;
-                shieldAvg += nearbyShip.shield_max;
-                dpsAvg    += nearbyShip.GetDPS();
-                sizeAvg   += nearbyShip.SurfaceArea;
-                
-                if (radius < 1)
-                    continue;
-
-                if (BadGuysNear && nearbyShip.AI.Target is Ship ScannedNearbyTarget &&
-                    ScannedNearbyTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
-                {
-                    sw += 3f;
-                }
-
-                ScannedNearby[ScannedNearby.Count -1] = sw;
             }
 
             if (Target is Ship target)
@@ -270,6 +280,7 @@ namespace Ship_Game.AI
                 }
             }
 
+            // non combat ships dont process combat weight concepts. 
             if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
                 return Target;
 
@@ -287,13 +298,16 @@ namespace Ship_Game.AI
                 ScannedNearby.AddUnique(sw);
             }
 
+            // process combat taget weight preferences. 
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
-            ShipWeight[] sortedList2 = ScannedNearby.Filter(weight => weight.Weight > -100)
+            // limiting combat targets to the arbitrary -100 weight. Poor explained here. 
+            ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > -100)
                 .OrderByDescending(weight => weight.Weight).ToArray();
 
-            ScannedTargets.AddRange(sortedList2.Select(ship => ship.Ship));
+            ScannedTargets.AddRange(SortedTargets.Select(ship => ship.Ship));
 
+            // check target validity
             if (Target?.Active != true)
             {
                 ScannedTarget = null;
@@ -307,8 +321,8 @@ namespace Ship_Game.AI
             }
 
             Ship targetShip = null;
-            if (sortedList2.Length > 0)
-                targetShip = sortedList2[0].Ship;
+            if (SortedTargets.Length > 0)
+                targetShip = SortedTargets[0].Ship;
 
             if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars)
                 return targetShip;
