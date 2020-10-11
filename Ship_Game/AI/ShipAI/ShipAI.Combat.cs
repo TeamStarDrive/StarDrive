@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
@@ -148,6 +149,50 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public class TargetParameterTotals
+        {
+            public enum Paramter
+            {
+                None,
+                Armor,
+                Shield,
+                DPS,
+                Size
+            }
+            bool Averaged = false;
+            public Paramter[] Characteristic = (Paramter[])Enum.GetValues(typeof(Paramter));
+            float[] TargetValues                = new float[Enum.GetValues(typeof(Paramter)).Length];
+
+            public void AddTargetValue(Ship ship)
+            {
+                TargetValues[(int)Paramter.Armor]  += ship.armor_max;
+                TargetValues[(int)Paramter.Shield] += ship.shield_max;
+                TargetValues[(int)Paramter.DPS]    += ship.GetDPS();
+                TargetValues[(int)Paramter.Size]   += ship.SurfaceArea;
+            }
+
+            public float GetCharateristic(Paramter paramter)
+            {
+                return TargetValues[(int)paramter];
+            }
+
+            public void SetAllValuesToAverage(int numberOfShips)
+            {
+                if (Averaged)
+                { 
+                    Log.Warning("Target charasterics averaged more than once");
+                    return;
+                }
+                Averaged = true;
+                for (int i = 0; i < TargetValues.Length; i++)
+                {
+                    float value = TargetValues[i];
+                    if (value > 0)
+                        TargetValues[i] /= numberOfShips;
+                }
+            }
+        }
+
         public Ship ScanForCombatTargets(Ship sensorShip, float radius)
         {
             Owner.KnownByEmpires.SetSeen(Owner.loyalty);
@@ -162,7 +207,7 @@ namespace Ship_Game.AI
             ScannedFriendlies.Clear();
             ScannedTargets.Clear();
             ScannedNearby.Clear();
-
+            var targetPrefs = new TargetParameterTotals();
             if (HasPriorityTarget)
             {
                 if (Target == null)
@@ -183,10 +228,6 @@ namespace Ship_Game.AI
             //Doctor: Increased this from 0.66f as seemed slightly on the low side. 
             //CombatAI.PreferredEngagementDistance =    Owner.maxWeaponsRange * 0.75f ;
             SolarSystem thisSystem = Owner.System;
-            float armorAvg = 0;
-            float shieldAvg = 0;
-            float dpsAvg = 0;
-            float sizeAvg = 0;
 
             if (thisSystem != null)
             {
@@ -237,10 +278,7 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                armorAvg  += nearbyShip.armor_max;
-                shieldAvg += nearbyShip.shield_max;
-                dpsAvg    += nearbyShip.GetDPS();
-                sizeAvg   += nearbyShip.SurfaceArea;
+                targetPrefs.AddTargetValue(nearbyShip);                
                 
                 if (radius < 1)
                     continue;
@@ -287,7 +325,7 @@ namespace Ship_Game.AI
                 ScannedNearby.AddUnique(sw);
             }
 
-            SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
+            SetTargetWeights(targetPrefs);
 
             ShipWeight[] sortedList2 = ScannedNearby.Filter(weight => weight.Weight > -100)
                 .OrderByDescending(weight => weight.Weight).ToArray();
@@ -315,11 +353,13 @@ namespace Ship_Game.AI
             return null;
         }
 
-        private void SetTargetWeights(float armorAvg, float shieldAvg, float dpsAvg, float sizeAvg)
+        private void SetTargetWeights(TargetParameterTotals targetPrefs)
         {
-            armorAvg  /= ScannedNearby.Count + .01f;
-            shieldAvg /= ScannedNearby.Count + .01f;
-            dpsAvg    /= ScannedNearby.Count + .01f;
+            targetPrefs.SetAllValuesToAverage(ScannedNearby.Count);
+            float armorAvg = targetPrefs.GetCharateristic(TargetParameterTotals.Paramter.Armor);
+            float shieldAvg = targetPrefs.GetCharateristic(TargetParameterTotals.Paramter.Shield);
+            float dpsAvg    = targetPrefs.GetCharateristic(TargetParameterTotals.Paramter.DPS);
+            float sizeAvg = targetPrefs.GetCharateristic(TargetParameterTotals.Paramter.Size);
 
             for (int i = ScannedNearby.Count - 1; i >= 0; i--)
             {
@@ -332,7 +372,7 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                copyWeight += CombatAI.ApplyWeight(copyWeight.Ship);
+                copyWeight += CombatAI.ApplyWeight(copyWeight.Ship, targetPrefs);
 
                 if (Owner.fleet == null || FleetNode == null)
                 {
@@ -344,8 +384,7 @@ namespace Ship_Game.AI
                 float distanceToFleet = fleetPos.Distance(copyWeight.Ship.Center);
                 copyWeight += FleetNode.OrdersRadius <= distanceToFleet ? 0 : -distanceToFleet / FleetNode.OrdersRadius;
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);
-                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.shield_power, shieldAvg,
-                    FleetNode.AttackShieldedWeight);
+                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.shield_power, shieldAvg, FleetNode.AttackShieldedWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.SurfaceArea, sizeAvg, FleetNode.SizeWeight);
                 copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet, copyWeight.Ship);
