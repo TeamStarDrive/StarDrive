@@ -570,6 +570,17 @@ namespace Ship_Game.AI
             }
         }
 
+        void DoRearmShip(FixedSimTime timeStep)
+        {
+            if (EscortTarget == null)
+            {
+                ClearOrders();
+                return;
+            }
+
+            ThrustOrWarpToPos(EscortTarget.Center, timeStep);
+        }
+
         void DoSupplyShip(FixedSimTime timeStep)
         {
             if (EscortTarget == null || !EscortTarget.Active
