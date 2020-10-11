@@ -89,7 +89,7 @@ namespace Ship_Game.Ships
         public float PackDamageModifier { get; private set; }
         public Empire loyalty;
         public int SurfaceArea;
-        public float Ordinance { get; private set; }
+        public float Ordinance { get; private set; } // FB: use ChanceOrdnance function to control Ordnance
         public float OrdinanceMax;
         public ShipAI AI { get; private set; }
 
@@ -1029,7 +1029,6 @@ namespace Ship_Game.Ships
 
             Carrier.HandleHangarShipsScramble();
 
-            Ordinance                  = Math.Min(Ordinance, OrdinanceMax);
             InternalSlotsHealthPercent = (float)ActiveInternalSlotCount / InternalSlotCount;
 
             if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
@@ -1132,13 +1131,8 @@ namespace Ship_Game.Ships
             }
 
             // Add ordnance
-            if (Ordinance < OrdinanceMax)
-            {
-                Ordinance += OrdAddedPerSecond;
-                if (Ordinance > OrdinanceMax)
-                    Ordinance = OrdinanceMax;
-            }
-            else Ordinance = OrdinanceMax;
+            ChangeOrdnance(OrdAddedPerSecond);
+            UpdateMovementFromOrdnanceChange();
 
             // Update max health if needed
             int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
@@ -1250,17 +1244,26 @@ namespace Ship_Game.Ships
             }
         }
 
-        public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use default one
+        public bool IsSuitableForPlanetaryRearm()
         {
-            return  empire.data.DefaultAssaultShuttle.IsEmpty() ? empire.BoardingShuttle.Name
-                                                                : empire.data.DefaultAssaultShuttle;
+            if (InCombat 
+                || !Active
+                || OrdnancePercent.AlmostEqual(1)
+                || IsPlatformOrStation && TetheredTo?.Owner == loyalty
+                || AI.OrbitTarget?.Owner == loyalty
+                || AI.State == AIState.Resupply
+                || AI.State == AIState.Scrap
+                || AI.State == AIState.Refit
+                || IsSupplyShuttle)
+
+            {
+                return false;
+            }
+
+            return true;
         }
 
-        public static string GetSupplyShuttleName(Empire empire) // this will get the name of a Supply Shuttle if defined in race.xml or use default one
-        {
-            return empire.data.DefaultSupplyShuttle.IsEmpty() ? empire.SupplyShuttle.Name
-                                                              : empire.data.DefaultSupplyShuttle;
-        }
+        bool IsSupplyShuttle => Name == loyalty.GetSupplyShuttleName();
 
         public int RefitCost(Ship newShip)
         {
@@ -1359,7 +1362,7 @@ namespace Ship_Game.Ships
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
 
-            shield_percent = (100.0 * shield_power / shield_max).LowerBound(0);
+            shield_percent = (100.0 * shield_power / shield_max.LowerBound(0.1f)).LowerBound(0);
             SensorRange   += sensorBonus;
 
             // Apply modifiers to stats
@@ -1372,7 +1375,7 @@ namespace Ship_Game.Ships
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
             (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
-            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, OrdnancePercent);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             CurrentStrength = CalculateShipStrength();
@@ -1579,7 +1582,8 @@ namespace Ship_Game.Ships
         public void QueueTotalRemoval()
         {
             Active = false;
-            AI.ClearOrdersAndWayPoints();
+            TetheredTo?.RemoveFromOrbitalStations(this);
+            AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
         }
 
         public override void RemoveFromUniverseUnsafe()

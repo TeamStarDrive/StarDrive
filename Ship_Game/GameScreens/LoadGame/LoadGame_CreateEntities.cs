@@ -82,60 +82,58 @@ namespace Ship_Game
             return e;
         }
 
-        static Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData psdata)
+        static Planet CreatePlanetFromPlanetSaveData(SolarSystem forSystem, SavedGame.PlanetSaveData psData)
         {
             var p = new Planet
             {
                 ParentSystem = forSystem,
-                guid = psdata.guid,
-                Name = psdata.Name,
-                OrbitalAngle = psdata.OrbitalAngle
+                guid = psData.guid,
+                Name = psData.Name,
+                OrbitalAngle = psData.OrbitalAngle
             };
 
-            if (psdata.Owner.NotEmpty())
+            if (psData.Owner.NotEmpty())
             {
-                p.Owner = EmpireManager.GetEmpireByName(psdata.Owner);
+                p.Owner = EmpireManager.GetEmpireByName(psData.Owner);
                 p.Owner.AddPlanet(p);
             }
 
-            if (psdata.SpecialDescription.NotEmpty())
-                p.SpecialDescription = psdata.SpecialDescription;
+            if (psData.SpecialDescription.NotEmpty())
+                p.SpecialDescription = psData.SpecialDescription;
 
-            p.RestorePlanetTypeFromSave(psdata.WhichPlanet);
-            p.Scale = psdata.Scale > 0f ? psdata.Scale : RandomMath.RandomBetween(1f, 2f);
-            p.colonyType         = psdata.ColonyType;
-            p.GovOrbitals        = psdata.GovOrbitals;
-            p.AutoBuildTroops    = psdata.GovMilitia;
-            p.GarrisonSize       = psdata.GarrisonSize;
-            p.Quarantine         = psdata.Quarantine;
-            p.DontScrapBuildings = psdata.DontScrapBuildings;
-            p.NumShipyards       = psdata.NumShipyards;
-            p.FS                 = psdata.FoodState;
-            p.PS                 = psdata.ProdState;
-            p.Food.PercentLock   = psdata.FoodLock;
-            p.Prod.PercentLock   = psdata.ProdLock;
-            p.Res.PercentLock    = psdata.ResLock;
-            p.OrbitalRadius      = psdata.OrbitalDistance;
-            p.BasePopPerTile     = psdata.BasePopPerTile;
+            p.RestorePlanetTypeFromSave(psData.WhichPlanet);
+            p.Scale = psData.Scale > 0f ? psData.Scale : RandomMath.RandomBetween(1f, 2f);
+            p.colonyType         = psData.ColonyType;
+            p.GovOrbitals        = psData.GovOrbitals;
+            p.AutoBuildTroops    = psData.GovMilitia;
+            p.GarrisonSize       = psData.GarrisonSize;
+            p.Quarantine         = psData.Quarantine;
+            p.DontScrapBuildings = psData.DontScrapBuildings;
+            p.NumShipyards       = psData.NumShipyards;
+            p.FS                 = psData.FoodState;
+            p.PS                 = psData.ProdState;
+            p.Food.PercentLock   = psData.FoodLock;
+            p.Prod.PercentLock   = psData.ProdLock;
+            p.Res.PercentLock    = psData.ResLock;
+            p.OrbitalRadius      = psData.OrbitalDistance;
+            p.BasePopPerTile     = psData.BasePopPerTile;
 
-            p.SetBaseFertility(psdata.Fertility, psdata.MaxFertility);
+            p.SetBaseFertility(psData.Fertility, psData.MaxFertility);
 
-            p.MineralRichness       = psdata.Richness;
-            p.HasRings              = psdata.HasRings;
-            p.ShieldStrengthCurrent = psdata.ShieldStrength;
-            p.CrippledTurns         = psdata.Crippled_Turns;
+            p.MineralRichness       = psData.Richness;
+            p.HasRings              = psData.HasRings;
+            p.ShieldStrengthCurrent = psData.ShieldStrength;
+            p.CrippledTurns         = psData.Crippled_Turns;
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
-            p.UpdateTerraformPoints(psdata.TerraformPoints);
-            p.RestoreBaseFertilityTerraformRatio(psdata.BaseFertilityTerraformRatio);
-            foreach (Guid guid in psdata.StationsList)
-                p.OrbitalStations[guid] = null; // reserve orbital stations (and platforms)
+            p.UpdateTerraformPoints(psData.TerraformPoints);
+            p.RestoreBaseFertilityTerraformRatio(psData.BaseFertilityTerraformRatio);
+            p.SetWorkerPercentages(psData.farmerPercentage, psData.workerPercentage, psData.researcherPercentage);
 
-            p.SetWorkerPercentages(psdata.farmerPercentage, psdata.workerPercentage, psdata.researcherPercentage);
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
 
-            foreach (SavedGame.PGSData d in psdata.PGSList)
+            foreach (SavedGame.PGSData d in psData.PGSList)
             {
                 var pgs = new PlanetGridSquare(d.x, d.y, d.building, d.Habitable, d.Terraformable)
                 {

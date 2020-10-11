@@ -34,6 +34,7 @@ namespace Ship_Game.Universe
 
         void UpdateInCombat()
         {
+            DangerousForcesPresent = false;
             for (int i = 0; i < System.ShipList.Count; i++)
             {
                 Ship ship = System.ShipList[i];

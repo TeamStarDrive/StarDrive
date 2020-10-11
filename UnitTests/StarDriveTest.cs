@@ -150,11 +150,15 @@ namespace UnitTests
         {
             if (Game == null)
                 throw new Exception("CreateGameInstance() must be called BEFORE LoadPlanetContent() !");
+
             ResourceManager.LoadPlanetContentForTesting();
         }
 
         public void LoadTechContent()
         {
+            if (Game == null)
+                throw new Exception("CreateGameInstance() must be called BEFORE LoadPlanetContent() !");
+
             ResourceManager.LoadTechContentForTesting();
         }
 

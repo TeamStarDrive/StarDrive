@@ -2032,11 +2032,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>571</Index>
-      <Text>This technology will switch all of your ships' power cells over to the newer Deuterium standard.  Deuterium cells can hold 20% more power than a standard cell, which translates into longer effective range for ships as well as greater energy pools available for combat systems. </Text>
+      <Text>This technology will switch all of your ships' dedicated power cells over to the newer Deuterium standard.  Deuterium cells can hold 20% more power than a standard cell, which translates into longer effective range for ships as well as greater energy pools available for combat systems. </Text>
     </Token>
     <Token>
       <Index>572</Index>
-      <Text>Gain an empire-wide 20% bonus to the amount of power that is stored in fuel cells</Text>
+      <Text>Gain an empire-wide 20% bonus to the amount of power that is stored in dedicated power cells</Text>
     </Token>
     <Token>
       <Index>573</Index>
@@ -2044,9 +2044,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>574</Index>
-      <Text>Iridium has proven itself the superior element for power storage purposes.  This technology switches all of your empire's fuel cells to the Iridium standard, increasing fuel cell efficiency by a total of 50%. </Text>
+      <Text>Iridium has proven itself the superior element for power storage purposes.  This technology switches all of your empire's dedicated power cells to the Iridium standard, increasing dedicated power cell efficiency by a total of 50%. </Text>
     </Token>
-
     <Token>
       <Index>576</Index>
       <Text>Fusion Beams</Text>
@@ -4659,6 +4658,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1822</Index>
       <Text>One of your ships was lost during a mutiny\n The mutiny was incited by</Text>
     </Token>
+    <Token>
+      <Index>1823</Index>
+      <Text>Maximum imprecision angle (in degrees) this weapon has. The more range a weapon has, the more it will be inaccurate, as a function of the imprecision angle.</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>
@@ -6963,7 +6966,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>248</Index>
-      <Text>Click to rush production from this colony's storage. \n \nA single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available.\mThe amount of production rushed will be also deducted from your Empire's Treasury.\nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
+      <Text>Click to rush production from this colony's storage. \n \nA single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available.\nThe amount of production rushed will be also deducted from your Empire's Treasury.\nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
     </Token>
     <Token>
       <Index>215</Index>

@@ -10,7 +10,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
     {
         private float SystemCombatTimer;
         private readonly Planet P;
-        public TimedScanner AllNearShips;
         private float Population  => P.Population;
         private Empire Owner      => P.Owner;
         private Shield Shield     => P.Shield;
@@ -18,14 +17,12 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private SceneObject SO    => P.SO;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
-        private int NumShipYards  => Stations.Values.Count(s => s.shipData.IsShipyard);
-        private Map<Guid,Ship> Stations      => P.OrbitalStations;
+        private int NumShipYards  => P.OrbitalStations.Count(s => s.shipData.IsShipyard);
         private float RepairPerTurn          => P.RepairPerTurn;
         private SolarSystem ParentSystem     => P.ParentSystem;
         private int TurnsSinceTurnover       => P.TurnsSinceTurnover;
         private float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
-        private Array<PlanetGridSquare> TilesList        => P.TilesList;
-        private BatchRemovalCollection<Troop> TroopsHere => P.TroopsHere;
+        private Array<PlanetGridSquare> TilesList => P.TilesList;
 
         public GeodeticManager (Planet planet)
         {
@@ -102,16 +99,27 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             P.ShieldStrengthCurrent = Math.Max(P.ShieldStrengthCurrent - bomb.HardDamageMax, 0);
         }
 
+        void AssignPlanetarySupply()
+        {
+            int remainingSupplyShuttles = P.NumSupplyShuttlesCanLaunch();
+            if (remainingSupplyShuttles <= 0)
+                return; // Maximum supply ships launched
+
+            if (!P.TryGetShipsNeedRearm(out Ship[] ourShipsNeedRearm, Owner))
+                return;
+
+            for (int i = 0; i < ourShipsNeedRearm.Length && remainingSupplyShuttles-- > 0; i++)
+               Owner.GetEmpireAI().AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
+        }
+
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
+            AssignPlanetarySupply();
             float repairPool = CalcRepairPool();
             bool spaceCombat = P.SpaceCombatNearPlanet;
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
-                if (ship == null)
-                    continue; // Todo: this null check should be removed once ShipList is safe
-
                 bool loyaltyMatch = ship.loyalty == Owner;
 
                 if (ship.loyalty.isFaction)

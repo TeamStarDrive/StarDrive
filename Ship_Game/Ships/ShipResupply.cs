@@ -8,6 +8,7 @@ namespace Ship_Game.Ships
         private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.1f;
         public const float OrdnanceThresholdNonCombat          = 0.35f;
+        public const float OrdnanceThresholdNonCombatOrbital   = 0.85f;
         public const float KineticToEnergyRatio                = 0.6f;
         private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
@@ -51,9 +52,10 @@ namespace Ship_Game.Ships
 
         public ResupplyReason Resupply(bool forceSupplyStateCheck = false)
         {
-            if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
-                                                           || Ship.DesignRole == ShipData.RoleName.supply
-                                                           || Ship.AI.HasPriorityOrder && Ship.AI.State != AIState.Bombard)
+            if (Ship.DesignRole == ShipData.RoleName.construction 
+                || Ship.DesignRole == ShipData.RoleName.troop
+                || Ship.DesignRole == ShipData.RoleName.supply
+                || Ship.AI.HasPriorityOrder && Ship.AI.State != AIState.Bombard)
             {
                 return ResupplyReason.NotNeeded;
             }
@@ -143,7 +145,9 @@ namespace Ship_Game.Ships
             if (PlayerKamikaze)
                 return false; // Only player manual command will convince Kamikaze ship to resupply
 
-            float threshold = InCombat ? OrdnanceThresholdCombat : OrdnanceThresholdNonCombat;
+            float threshold = InCombat 
+                              ? OrdnanceThresholdCombat 
+                              : Ship.IsPlatformOrStation ? OrdnanceThresholdNonCombatOrbital : OrdnanceThresholdNonCombat;
             
             return Ship.OrdnancePercent < threshold;
         }

@@ -370,7 +370,7 @@ namespace Ship_Game.Gameplay
 
         public void DamageMissile(GameplayObject source, float damageAmount)
         {
-            if (Health < 1)
+            if (Health < 0.001f)
                 Log.Info($"Projectile had no health {Weapon.Name}");
             Health -= damageAmount;
             if (Health <= 0f && Active)
