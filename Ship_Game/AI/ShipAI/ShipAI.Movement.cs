@@ -210,7 +210,8 @@ namespace Ship_Game.AI
                 if (HasPriorityOrder && !Owner.loyalty.isPlayer) // For AI fleets doing priority order
                 {
                     HadPO = true;
-                    ClearPriorityOrder();
+                    ClearPriorityOrderAndTarget();
+
                 }
             }
 
