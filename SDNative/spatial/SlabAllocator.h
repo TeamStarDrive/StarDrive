@@ -17,14 +17,18 @@ namespace spatial
             int Capacity;
             SlabArray() noexcept;
             ~SlabArray() noexcept;
+            void clear() noexcept { Size = 0; }
             void push_back(Slab* slab) noexcept;
             void assign(const SlabArray& other) noexcept;
             Slab** begin() const noexcept { return Data; }
             Slab** end() const noexcept { return Data + Size; }
+            Slab* try_pop(int size) noexcept;
         };
 
         SlabArray Slabs; // All recorded slabs
         SlabArray Active; // active slabs that should be checked for alloc
+
+        SlabArray ReuseArrayAlloc; // reused sub-slabs for allocArray
 
         // default size in bytes of a single slab
         // as memory demand increases, slab size will be increased
@@ -55,6 +59,11 @@ namespace spatial
         /// </summary>
         void* allocArray(void* oldArray, int oldCount, int newCapacity, int sizeOf) noexcept;
 
+        /// <summary>
+        /// Reuse an array during next allocArray
+        /// </summary>
+        void reuseArray(void* arr, int capacity, int sizeOf) noexcept;
+
         template<class T>
         T* allocArray(T* oldArray, int oldCount, int newCapacity) noexcept
         {
@@ -64,6 +73,11 @@ namespace spatial
         template<class T> T* allocArray(int size) noexcept
         {
             return (T*)alloc(sizeof(T) * size);
+        }
+
+        template<class T> void reuseArray(T* arr, int capacity) noexcept
+        {
+            reuseArray((void*)arr, capacity, sizeof(T));
         }
 
         /// <summary>

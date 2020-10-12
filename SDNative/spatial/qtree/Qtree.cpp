@@ -35,11 +35,17 @@ namespace spatial
     void Qtree::smallestCellSize(int cellSize)
     {
         SmallestCell = cellSize;
-        Levels = 0;
         FullSize = cellSize;
         while (FullSize < WorldSize)
         {
             FullSize *= 2;
+        }
+
+        Levels = 0;
+        int currentSize = FullSize;
+        while (currentSize > SmallestCell*2)
+        {
+            currentSize /= 2;
             ++Levels;
         }
         rebuild();
@@ -64,11 +70,12 @@ namespace spatial
         Objects.submitPending();
         QtreeNode* root = createRoot();
 
+        int topLevel = Levels - 1;
         for (SpatialObject& o : Objects)
         {
             if (o.active)
             {
-                insertAt(Levels, *root, &o);
+                insertAt(topLevel, *root, &o);
             }
         }
         Root = root;
@@ -130,10 +137,10 @@ namespace spatial
                 // this is an optimal case, we only overlap 1 sub-quadrant, so we go deeper
                 if (overlaps == 1)
                 {
-                    if      (over.NW) { cur = cur->nw(); }
-                    else if (over.NE) { cur = cur->ne(); }
-                    else if (over.SE) { cur = cur->se(); }
-                    else if (over.SW) { cur = cur->sw(); }
+                    if      (over.NW) { cur = cur->nw(); --level; }
+                    else if (over.NE) { cur = cur->ne(); --level; }
+                    else if (over.SE) { cur = cur->se(); --level; }
+                    else if (over.SW) { cur = cur->sw(); --level; }
                 }
                 else // target overlaps multiple quadrants, so it has to be inserted into several of them:
                 {
@@ -165,14 +172,19 @@ namespace spatial
             SpatialObject** objects = leaf.objects;
             leaf.convertToBranch(*FrontAlloc);
 
+            int nextLevel = level - 1;
+
             // and now reinsert all items one by one
             for (int i = 0; i < size; ++i)
             {
-                insertAt(level-1, leaf, objects[i]);
+                insertAt(nextLevel, leaf, objects[i]);
             }
 
+            // we can reuse this array later
+            FrontAlloc->reuseArray(objects, leaf.size);
+
             // and now try to insert our object again
-            insertAt(level-1, leaf, o);
+            insertAt(nextLevel, leaf, o);
         }
         else
         {

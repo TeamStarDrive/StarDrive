@@ -48,16 +48,32 @@ namespace spatial
         Active.assign(Slabs);
         for (Slab* active : Active)
             active->reset();
+
+        ReuseArrayAlloc.clear();
     }
 
     void* SlabAllocator::allocArray(void* oldArray, int oldCount, int newCapacity, int sizeOf) noexcept
     {
-        void* newArray = alloc(newCapacity*sizeOf);
+        int newBytes = newCapacity*sizeOf;
+        void* newArray = ReuseArrayAlloc.try_pop(newBytes);
+        if (!newArray)
+        {
+            newArray = alloc(newCapacity*sizeOf);
+        }
+
         if (oldArray != nullptr)
         {
             memcpy(newArray, oldArray, oldCount*sizeOf);
         }
         return newArray;
+    }
+
+    void SlabAllocator::reuseArray(void* arr, int capacity, int sizeOf) noexcept
+    {
+        Slab* slab = static_cast<Slab*>(arr);
+        slab->remaining = slab->capacity = capacity * sizeOf;
+        slab->ptr = nullptr;
+        ReuseArrayAlloc.push_back(slab);
     }
 
     void* SlabAllocator::alloc(uint32_t numBytes) noexcept
@@ -155,6 +171,20 @@ namespace spatial
         }
         for (int i = 0; i < Size; ++i)
             Data[i] = other.Data[i];
+    }
+
+    inline SlabAllocator::Slab* SlabAllocator::SlabArray::try_pop(int size) noexcept
+    {
+        if (Size)
+        {
+            Slab* slab = Data[Size - 1];
+            if (slab->remaining >= size)
+            {
+                --Size;
+                return slab;
+            }
+        }
+        return nullptr;
     }
 
     ////////////////////////////////////////////////////////////////////////////
