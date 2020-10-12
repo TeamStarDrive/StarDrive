@@ -266,7 +266,8 @@ namespace Ship_Game
         {
             foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
             {
-                var qi = new QueueItem(p);
+                var qi  = new QueueItem(p);
+                qi.Rush = qisave.Rush;
                 if (qisave.isBuilding)
                 {
                     qi.isBuilding    = true;
@@ -275,7 +276,6 @@ namespace Ship_Game
                     qi.Cost          = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
                     qi.IsPlayerAdded = qisave.isPlayerAdded;
-                    qi.Rush          = qisave.Rush;
 
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
