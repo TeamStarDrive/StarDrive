@@ -108,7 +108,6 @@ namespace Ship_Game.Universe.SolarBodies
 
                 if (rush && (!Owner.isPlayer || !Empire.Universe.Debug))
                 {
-                    Owner.AddMoney(-maxAmount);
                     Owner.ChargeRushFees(maxAmount);
                 }
             }
@@ -226,25 +225,23 @@ namespace Ship_Game.Universe.SolarBodies
         {
             // surplus will be reset every turn and consumed at first opportunity
             SurplusThisTurn = surplusFromPlanet;
-            if (ConstructionQueue.IsEmpty)
-                return;
+            if (ConstructionQueue.IsEmpty || P.CrippledTurns > 0)
+                return; // Massive sabotage to planetary facilities or no items
 
-            float percentToApply = 1f;
-            if      (P.CrippledTurns > 0) percentToApply = 0.05f; // massive sabotage to planetary facilities
-            else if (P.RecentCombat)      percentToApply = 0.2f;  // ongoing combat is hindering logistics
-
+            float percentToApply = P.RecentCombat ? 0.1f : 1f; // Ongoing combat is hindering logistics
             float limitSpentProd = P.LimitedProductionExpenditure();
             ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0);
             TryPlayerRush();
         }
 
-        void TryPlayerRush() // Apply rush if player marked items as resident rush
+        void TryPlayerRush() // Apply rush if player marked items as continuous rush
         {
-            if (!Owner.isPlayer || Count == 0)
+            if (!Owner.isPlayer || Count == 0 || P.CrippledTurns > 0 || P.RecentCombat)
                 return;
 
-            if (ConstructionQueue[0].Rush || Owner.RushAllConsturction)
-                RushProduction(0, P.ProdHere, true);
+            QueueItem item = ConstructionQueue[0];
+            if (item.Rush || Owner.RushAllConsturction)
+                RushProduction(0, item.ProductionNeeded, true);
         }
 
         // @return TRUE if building was added to CQ,
@@ -321,13 +318,13 @@ namespace Ship_Game.Universe.SolarBodies
         {
             var qi = new QueueItem(P)
             {
-                isShip = true,
-                isOrbital = ship.IsPlatformOrStation,
-                Goal   = goal,
-                sData  = ship.shipData,
-                Cost   = ship.GetCost(Owner),
+                isShip        = true,
+                isOrbital     = ship.IsPlatformOrStation,
+                Goal          = goal,
+                sData         = ship.shipData,
+                Cost          = ship.GetCost(Owner),
                 NotifyOnEmpty = notifyOnEmpty,
-                QueueNumber = ConstructionQueue.Count,
+                QueueNumber   = ConstructionQueue.Count,
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
@@ -459,6 +456,17 @@ namespace Ship_Game.Universe.SolarBodies
             QueueItem item = ConstructionQueue[currentIndex];
             ConstructionQueue.RemoveAt(currentIndex);
             ConstructionQueue.Insert(moveTo, item);
+        }
+
+        public void MoveToAndContinuousRushFirstItem()
+        {
+            if (Empty)
+                return;
+
+            if (Count > 1)
+                MoveTo(0, Count - 1);
+
+            ConstructionQueue[0].Rush = true;
         }
 
         public void SwitchRushAllConstruction(bool rush)
