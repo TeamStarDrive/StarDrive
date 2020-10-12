@@ -38,9 +38,9 @@ namespace spatial
     {
         return spatial->insert(*o);
     }
-    SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y)
+    SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y, int rx, int ry)
     {
-        spatial->update(objectId, x, y);
+        spatial->update(objectId, x, y, rx, ry);
     }
     SPATIAL_C_API void SPATIAL_CC SpatialRemove(Spatial* spatial, int objectId)
     {

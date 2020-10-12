@@ -35,7 +35,7 @@ namespace Ship_Game.Spatial
         [DllImport(Lib)] static extern void SpatialRebuildAll(IntPtr spatial);
 
         [DllImport(Lib)] static extern int SpatialInsert(IntPtr spatial, ref NativeSpatialObject o);
-        [DllImport(Lib)] static extern void SpatialUpdate(IntPtr spatial, int objectId, int x, int y);
+        [DllImport(Lib)] static extern void SpatialUpdate(IntPtr spatial, int objectId, int x, int y, int rx, int ry);
         [DllImport(Lib)] static extern void SpatialRemove(IntPtr spatial, int objectId);
 
         [DllImport(Lib)] static extern void SpatialCollideAll(IntPtr spatial, ref CollisionParams param, ref CollisionPairs outResults);
@@ -113,7 +113,19 @@ namespace Ship_Game.Spatial
                     }
                     else
                     {
-                        SpatialUpdate(Spat, objectId, (int)go.Center.X, (int)go.Center.Y);
+                        int rx, ry;
+                        if (go.Type == GameObjectType.Beam)
+                        {
+                            var beam = (Beam)go;
+                            rx = beam.RadiusX;
+                            ry = beam.RadiusY;
+                        }
+                        else
+                        {
+                            rx = ry = (int)go.Radius;
+                        }
+
+                        SpatialUpdate(Spat, objectId, (int)go.Center.X, (int)go.Center.Y, rx, ry);
                         objectsMap[objectId] = go;
                     }
                 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <stdexcept>
 #include "../SlabAllocator.h"
 #include "../Config.h"
 #include "../SpatialObject.h"
@@ -19,12 +20,13 @@ namespace spatial
             SpatialObject** objects;
         };
 
-        static constexpr int BRANCH_ID = -1;
+        static constexpr uint16_t BRANCH_ID = -1;
 
         // if size == -1, this is a BRANCH
         // if size >= 0, this is a LEAF
         // by default start as a LEAF
-        int size = 0;
+        uint16_t size = 0;
+        uint16_t capacity = 0;
 
         // node center-x, center-y, radius
         int cx = 0;
@@ -57,28 +59,20 @@ namespace spatial
         // fast adding of an object
         SPATIAL_FINLINE void addObject(SlabAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
-            if (size == 0)
+            if (size == capacity)
             {
-                objects = allocator.allocArray<SpatialObject*>(defaultCapacity);
-            }
-            objects[size++] = item;
-        }
-
-        // adds another object, growth is only limited by QuadLinearAllocatorSlabSize
-        SPATIAL_FINLINE void addObjectUnbounded(SlabAllocator& allocator, SpatialObject* item, int defaultCapacity)
-        {
-            if (size == defaultCapacity)
-            {
-                int capacity = upperPowerOf2(defaultCapacity+1);
-                objects = allocator.allocArray(objects, size, capacity);
-            }
-            else
-            {
-                int capacity = upperPowerOf2(size+1);
-                if (size == capacity)
+                int newCapacity = capacity == 0 ? defaultCapacity : capacity*2;
+                if (newCapacity > UINT16_MAX)
                 {
-                    objects = allocator.allocArray(objects, size, capacity);
+                    newCapacity = UINT16_MAX;
+                    if (size == UINT16_MAX)
+                        throw std::runtime_error{"QtreeNode::addObject failed: UINT16_MAX capacity reached"};
                 }
+
+                SpatialObject** oldObjects = objects;
+                objects = allocator.allocArray(oldObjects, size, newCapacity);
+                allocator.reuseArray(oldObjects, size); // reuse this array next time
+                capacity = newCapacity;
             }
             objects[size++] = item;
         }

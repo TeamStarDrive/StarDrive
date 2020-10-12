@@ -70,10 +70,12 @@ namespace spatial
 
     void SlabAllocator::reuseArray(void* arr, int capacity, int sizeOf) noexcept
     {
-        Slab* slab = static_cast<Slab*>(arr);
-        slab->remaining = slab->capacity = capacity * sizeOf;
-        slab->ptr = nullptr;
-        ReuseArrayAlloc.push_back(slab);
+        if (Slab* slab = static_cast<Slab*>(arr))
+        {
+            slab->remaining = slab->capacity = capacity * sizeOf;
+            slab->ptr = nullptr;
+            ReuseArrayAlloc.push_back(slab);
+        }
     }
 
     void* SlabAllocator::alloc(uint32_t numBytes) noexcept
