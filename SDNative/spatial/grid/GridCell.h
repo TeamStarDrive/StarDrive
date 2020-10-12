@@ -26,7 +26,10 @@ namespace spatial
                     if (size == UINT16_MAX)
                         throw std::runtime_error{"GridCell::addObject failed: UINT16_MAX capacity reached"};
                 }
-                objects = allocator.allocArray(objects, size, newCapacity);
+
+                SpatialObject** oldObjects = objects;
+                objects = allocator.allocArray(oldObjects, size, newCapacity);
+                allocator.reuseArray(oldObjects, size); // reuse this array next time
                 capacity = newCapacity;
             }
             objects[size++] = item;

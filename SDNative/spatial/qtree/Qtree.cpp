@@ -161,15 +161,11 @@ namespace spatial
 
     void Qtree::insertAtLeaf(int level, QtreeNode& leaf, SpatialObject* o)
     {
-        if (leaf.size < CurrentSplitThreshold)
-        {
-            leaf.addObject(*FrontAlloc, o, CurrentSplitThreshold);
-        }
         // are we maybe over Threshold and should Subdivide ?
-        else if (level > 0)
+        if (level > 0 && leaf.size >= CurrentSplitThreshold)
         {
-            const int size = leaf.size;
             SpatialObject** objects = leaf.objects;
+            const int size = leaf.size;
             leaf.convertToBranch(*FrontAlloc);
 
             int nextLevel = level - 1;
@@ -181,16 +177,14 @@ namespace spatial
             }
 
             // we can reuse this array later
-            FrontAlloc->reuseArray(objects, leaf.size);
+            FrontAlloc->reuseArray(objects, size);
 
             // and now try to insert our object again
             insertAt(nextLevel, leaf, o);
         }
-        else
+        else // expand LEAF
         {
-            // final edge case: if number of objects overwhelms the tree,
-            // keep dynamically expanding the objects array
-            leaf.addObjectUnbounded(*FrontAlloc, o, CurrentSplitThreshold);
+            leaf.addObject(*FrontAlloc, o, CurrentSplitThreshold);
         }
     }
 

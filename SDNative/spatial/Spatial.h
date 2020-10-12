@@ -132,7 +132,7 @@ namespace spatial
          * Updates position of the specified object THREAD SAFELY
          * The changes will be visible after next `update()`
          */
-        virtual void update(int objectId, int x, int y) = 0;
+        virtual void update(int objectId, int x, int y, int rx, int ry) = 0;
 
         /**
          * Removes an object from the object list
@@ -187,7 +187,7 @@ namespace spatial
     SPATIAL_C_API void SPATIAL_CC SpatialRebuild(Spatial* spatial);
 
     SPATIAL_C_API int SPATIAL_CC  SpatialInsert(Spatial* spatial, const SpatialObject* o);
-    SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y);
+    SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y, int rx, int ry);
     SPATIAL_C_API void SPATIAL_CC SpatialRemove(Spatial* spatial, int objectId);
 
     SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params, CollisionPairs* outResults);

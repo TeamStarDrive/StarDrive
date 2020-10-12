@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -14,6 +15,12 @@ namespace Ship_Game
         public Vector2 Source;
         public Vector2 Destination;
         public Vector2 ActualHitDestination; // actual location where beam hits another ship
+        
+        // for spatial manager:
+        public int RadiusX;
+        public int RadiusY;
+
+
         public int Thickness { get; private set; }
         public static Effect BeamEffect;
         public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
@@ -104,6 +111,7 @@ namespace Ship_Game
 
             InitBeamMeshIndices();
             UpdateBeamMesh();
+            UpdatePosition();
 
             if (QuadVertexDecl == null)
                 QuadVertexDecl = new VertexDeclaration(GameBase.Base.GraphicsDevice,
@@ -238,6 +246,22 @@ namespace Ship_Game
             return true;
         }
 
+        void UpdatePosition()
+        {
+            Vector2 source = Source;
+            Vector2 target = ActualHitDestination;
+            int x1 = (int)Math.Min(source.X, target.X);
+            int y1 = (int)Math.Min(source.Y, target.Y);
+            int x2 = (int)Math.Max(source.X, target.X);
+            int y2 = (int)Math.Max(source.Y, target.Y);
+
+            // These are used by Spatial management
+            Center = new Vector2((x1 + x2) >> 1,
+                                 (y1 + y2) >> 1);
+            RadiusX = (x2 - x1) >> 1;
+            RadiusY = (y2 - y1) >> 1;
+        }
+
         public override void Update(FixedSimTime timeStep)
         {
             if (Module == null)
@@ -275,7 +299,6 @@ namespace Ship_Game
             Source = muzzleOrigin;
 
             // always update Destination to ensure beam stays in range
-            
             Vector2 newDestination = (Target?.Center ?? Destination);
 
             // old destination adjusted to same distance as newDestination,
@@ -293,6 +316,8 @@ namespace Ship_Game
                 ActualHitDestination = Destination;
             else
                 BeamCollidedThisFrame = false;
+
+            UpdatePosition();
 
             UpdateBeamMesh();
             if (Duration < 0f && !Infinite)
