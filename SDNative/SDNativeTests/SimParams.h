@@ -1,5 +1,6 @@
 #pragma once
 #include <spatial/Spatial.h>
+#include <rpp/vec.h>
 
 struct SimParams
 {
@@ -15,4 +16,8 @@ struct SimParams
 
     int qtreeCellSize = 1024;
     int gridCellSize = 20'000;
+
+	bool useRandomVelocity = true;
+
+	rpp::Vector2 singleSystemPos; // if solarSystems == 1
 };
