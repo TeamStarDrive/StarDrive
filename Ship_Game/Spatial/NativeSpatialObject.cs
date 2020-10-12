@@ -24,7 +24,7 @@ namespace Ship_Game.Spatial
             Loyalty  = (byte)go.GetLoyaltyId();
             GameObjectType type = go.Type;
             Type     = (byte)type;
-            CollisionMask = GetCollisionMask(type);
+            CollisionMask = go.DisableSpatialCollision ? (byte)0 : GetCollisionMask(type);
             ObjectId = -1; // ObjectId will be assigned by Native Spatial system
 
             X = (int)go.Center.X;
