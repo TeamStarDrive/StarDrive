@@ -102,7 +102,7 @@ namespace Ship_Game.Spatial
             {
                 GameplayObject go = objects[i];
                 int objectId = go.SpatialIndex;
-                if (go.Active)
+                if (go.Active && !go.DisableSpatialCollision)
                 {
                     if (objectId == -1)
                     {
@@ -129,13 +129,10 @@ namespace Ship_Game.Spatial
                         objectsMap[objectId] = go;
                     }
                 }
-                else
+                else if (objectId != -1)
                 {
-                    if (objectId != -1)
-                    {
-                        SpatialRemove(Spat, objectId);
-                        go.SpatialIndex = -1;
-                    }
+                    SpatialRemove(Spat, objectId);
+                    go.SpatialIndex = -1;
                 }
             }
 
