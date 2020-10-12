@@ -58,6 +58,9 @@ namespace Ship_Game
 
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
+
+                e.RushAllConsturction = sdata.RushAllConstruction;
+                e.WeightedCenter      = sdata.WeightedCenter;
             }
 
             foreach (TechEntry tech in sdata.TechTree)
@@ -272,6 +275,7 @@ namespace Ship_Game
                     qi.Cost          = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
                     qi.IsPlayerAdded = qisave.isPlayerAdded;
+                    qi.Rush          = qisave.Rush;
 
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
