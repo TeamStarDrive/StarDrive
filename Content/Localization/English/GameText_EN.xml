@@ -4668,7 +4668,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1825</Index>
-      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items. Warning: This will quickly spend your treasury and may cause high tax rates.</Text>
+      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items.\. WARNING: This will quickly spend your treasury and may cause high tax rates.</Text>
+    </Token>
+    <Token>
+      <Index>1826</Index>
+      <Text>build all ships now, prioritize them to be first in queue and apply continuous rush.\n \nWARNING: This might drain your Treasury in an alarming rate.</Text>
     </Token>
     <!-- Personality traits-->
     <Token>
@@ -6974,7 +6978,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>248</Index>
-      <Text>Click to rush production from this colony's storage. \n \nA single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available.\nThe amount of production rushed will be also deducted from your Empire's Treasury.\nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
+      <Text>Click to rush production from this colony's storage.\n \nA single click will apply 10 production from storage to current production.\n \nCTRL-Click to add as much production currently available.\n \nShift-Click will try to rush this item until completed while draining your Treasury.\nThe amount of production rushed will be also deducted from your Empire's Treasury.\n \nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
     </Token>
     <Token>
       <Index>215</Index>
