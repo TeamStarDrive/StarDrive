@@ -91,9 +91,11 @@ namespace Ship_Game.AI
 
         void TryFireDroneBeam()
         {
-            if (Beams.Count == 0 && DroneTarget.Health < DroneTarget.HealthMax
-                                 && DroneWeapon.CooldownTimer <= 0f
-                                 && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.BaseRange)
+            if (Beams.Count == 0 &&
+                DroneTarget.Health < DroneTarget.HealthMax &&
+                DroneWeapon.CooldownTimer <= 0f &&
+                DroneTarget != null &&
+                Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.BaseRange)
             {
                 // NOTE: Beam projectile is updated by universe
                 DroneBeam droneBeam = DroneWeapon.FireDroneBeam(this);

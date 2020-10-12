@@ -74,10 +74,11 @@ namespace Ship_Game
         {
             lock (Projectiles)
             {
-                return Projectiles.FilterSelect(p => p.Type == GameObjectType.Proj,
+                return Projectiles.FilterSelect(
+                p => p.Type == GameObjectType.Proj,
                 p => new SavedGame.ProjectileSaveData
                 {
-                    Owner = p.Owner?.guid ?? p.Planet?.guid ?? Guid.Empty,
+                    Owner = p.Owner?.guid ?? p.Planet.guid,
                     Weapon   = p.Weapon.UID,
                     Duration = p.Duration,
                     Rotation = p.Rotation,
@@ -91,13 +92,14 @@ namespace Ship_Game
         {
             lock (Projectiles)
             {
-                return Projectiles.FilterSelect(p => p.Type == GameObjectType.Beam,
+                return Projectiles.FilterSelect(
+                p => p.Type == GameObjectType.Beam && (p.Owner != null || p.Planet != null),
                 p =>
                 {
                     var beam = (Beam)p;
                     return new SavedGame.BeamSaveData
                     {
-                        Owner = p.Owner?.guid ?? p.Planet?.guid ?? Guid.Empty,
+                        Owner = p.Owner?.guid ?? p.Planet.guid,
                         Weapon = p.Weapon.UID,
                         Duration = p.Duration,
                         Source = beam.Source,

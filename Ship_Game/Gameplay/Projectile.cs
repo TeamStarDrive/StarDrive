@@ -141,6 +141,10 @@ namespace Ship_Game.Gameplay
                 if (planet != null)
                     weapon = planet.BuildingList.Find(b => b.Weapon == weaponUID).TheWeapon;
             }
+
+            // fallback, the owner has died, or this is a Mirv warhead (owner is a projectile)
+            if (weapon == null)
+                weapon = ResourceManager.CreateWeapon(weaponUID);
             
             return new ProjectileOwnership
             {
@@ -407,8 +411,8 @@ namespace Ship_Game.Gameplay
 
         public void DamageMissile(GameplayObject source, float damageAmount)
         {
-            if (Health < 0.001f)
-                Log.Info($"Projectile had no health {Weapon.Name}");
+            //if (Health < 0.001f)
+            //    Log.Info($"Projectile had no health {Weapon.Name}");
             Health -= damageAmount;
             if (Health <= 0f && Active)
                 DieNextFrame = true;
