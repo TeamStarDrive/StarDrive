@@ -19,7 +19,6 @@ struct Simulation final : spatial::Visualizer
     SimParams params;
     std::vector<MyGameObject> objects;
     std::shared_ptr<spatial::Spatial> spat;
-    spatial::SpatialType spatType = {};
 
     double rebuildMs = 0.0; // time spent in Qtree::rebuild()
     double collideMs = 0.0; // time spent in Qtree::collideAll()
@@ -203,17 +202,11 @@ struct Simulation final : spatial::Visualizer
 
     void createObjectsIfNeeded()
     {
-        if (spat == nullptr || spat->type() != spatType)
+        if (spat == nullptr || spat->type() != params.type || objects.size() != params.numObjects)
         {
-            SpatialWithObjects swo = createSpatialWithObjects(spatType, params);
+            SpatialWithObjects swo = createSpatialWithObjects(params.type, params);
             spat = swo.spatial;
             objects = std::move(swo.objects);
-        }
-        if (objects.size() != params.numObjects)
-        {
-            spat->clear();
-            objects = createObjects(params);
-            insertAll(*spat, objects);
         }
     }
 
@@ -265,9 +258,9 @@ struct Simulation final : spatial::Visualizer
 
         if (isPressed(ImGuiKey_V))
         {
-            spatType = static_cast<spatial::SpatialType>((int)spatType + 1);
-            if (spatType > spatial::SpatialType::QuadTree)
-                spatType = spatial::SpatialType::Grid;
+            params.type = static_cast<spatial::SpatialType>((int)params.type + 1);
+            if (params.type > spatial::SpatialType::QuadTree)
+                params.type = spatial::SpatialType::Grid;
         }
 
         if (ImGui::IsMouseDown(ImGuiMouseButton_Left))

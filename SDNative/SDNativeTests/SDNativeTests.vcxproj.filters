@@ -67,6 +67,9 @@
     <ClCompile Include="TestObjectCollection.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="TestSimulation.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ReCpp\rpp\collections.h">

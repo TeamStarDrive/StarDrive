@@ -196,6 +196,7 @@
     <ClCompile Include="DebugGfxWindow.cpp" />
     <ClCompile Include="TestObjectCollection.cpp" />
     <ClCompile Include="TestQuadTree.cpp" />
+    <ClCompile Include="TestSimulation.cpp" />
     <ClCompile Include="TestSpatialGrid.cpp" />
     <ClCompile Include="tests_main.cpp" />
   </ItemGroup>

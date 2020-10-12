@@ -606,15 +606,13 @@ namespace Ship_Game
                     CreateShipFromSave(data, shipData, e);
             }
 
-            foreach (SavedGame.ProjectileSaveData projData in saveData.Projectiles)
-            {
-                data.MasterProjectileList.Add(Projectile.Create(projData, data));
-            }
-
-            foreach (SavedGame.BeamSaveData beamData in saveData.Beams)
-            {
-                data.MasterProjectileList.Add(Beam.Create(beamData, data));
-            }
+            if (saveData.Projectiles != null) // NULL check: backwards compatibility
+                foreach (SavedGame.ProjectileSaveData projData in saveData.Projectiles)
+                    data.MasterProjectileList.Add(Projectile.Create(projData, data));
+            
+            if (saveData.Beams != null) // NULL check: backwards compatibility
+                foreach (SavedGame.BeamSaveData beamData in saveData.Beams)
+                    data.MasterProjectileList.Add(Beam.Create(beamData, data));
         }
 
         void CreateSolarSystems(SavedGame.UniverseSaveData saveData, UniverseData data)
