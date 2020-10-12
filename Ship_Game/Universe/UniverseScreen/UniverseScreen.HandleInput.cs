@@ -1280,12 +1280,7 @@ namespace Ship_Game
             {
                 ship.ClearFleet();
                 if (ship.loyalty == player && !ship.IsConstructor && ship.Mothership == null)
-                    //fbedard: cannot add ships from hangar in fleet
-                {
-                    ship.AI.ClearOrdersAndWayPoints();
-                    ship.AI.ClearPriorityOrder();
                     fleet.AddShip(ship);
-                }
             }
             fleet.SetCommandShip(null);
             fleet.Update(FixedSimTime.Zero/*paused during init*/);
