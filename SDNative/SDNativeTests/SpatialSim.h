@@ -169,7 +169,8 @@ struct Simulation final : spatial::Visualizer
                 o.vel.y = -o.vel.y;
 
             o.pos += o.vel * timeStep;
-            spat->update(o.spatialId, (int)o.pos.x, (int)o.pos.y);
+            spat->update(o.spatialId, (int)o.pos.x, (int)o.pos.y,
+                                      (int)o.radius, (int)o.radius);
         }
     }
 
