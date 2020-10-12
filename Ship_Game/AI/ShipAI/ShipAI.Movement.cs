@@ -207,10 +207,11 @@ namespace Ship_Game.AI
 
             if (goal.HasCombatMove(0))
             {
-
-                if (HasPriorityOrder)
+                if (HasPriorityOrder && !Owner.loyalty.isPlayer) // For AI fleets doing priority order
+                {
                     HadPO = true;
-                ClearPriorityOrder();
+                    ClearPriorityOrder();
+                }
             }
 
             Vector2 targetPos = goal.MovePosition;
@@ -292,6 +293,7 @@ namespace Ship_Game.AI
         // this is used when we arrive at final position
         void RotateToDesiredFacing(FixedSimTime timeStep, ShipGoal goal)
         {
+            SetPriorityOrder(false);
             if (!RotateToDirection(goal.Direction, timeStep, 0.02f))
             {
                 DequeueCurrentOrder(); // rotation complete
