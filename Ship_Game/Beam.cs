@@ -64,7 +64,8 @@ namespace Ship_Game
 
             Initialize();
 
-            if (Owner != null && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && Owner.InFrustum)
+            if (Owner != null && Owner.InFrustum &&
+                Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
                 weapon.PlayToggleAndFireSfx(Emitter);
             }
