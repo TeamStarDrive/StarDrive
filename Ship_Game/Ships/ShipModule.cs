@@ -582,7 +582,7 @@ namespace Ship_Game.Ships
             if (damage <= 0.001f)
                 return true;
 
-            Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
+            //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager, Center, Radius, 1.5f);
 
             Damage(source, damage, out damageInOut);
             return damageInOut <= 0f;

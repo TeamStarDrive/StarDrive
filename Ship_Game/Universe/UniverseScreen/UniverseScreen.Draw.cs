@@ -355,11 +355,15 @@ namespace Ship_Game
             // Wait for ProcessTurns to finish before we start drawing
             if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
             {
+                DrawSyncPerf.Start();
                 if (!ProcessTurnsCompletedEvt.WaitOne(100))
                 {
                     Log.Warning("Universe ProcessTurns Wait timed out: ProcessTurns was taking too long!");
                 }
+                DrawSyncPerf.Stop();
             }
+
+            DrawPerf.Start();
 
             lock (GlobalStats.BeamEffectLocker)
             {
@@ -501,6 +505,8 @@ namespace Ship_Game
             // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
             // the game logic can be updated
             DrawCompletedEvt.Set();
+
+            DrawPerf.Stop();
         }
 
         void DrawTopCenterStatusText(SpriteBatch batch, in LocalizedText status, Color color, int lineOffset)
@@ -743,6 +749,9 @@ namespace Ship_Game
                 "Turn.SpatialUpd:  ",
                 "Turn.Collision:   ",
                 "Turn.EmpireQue:   ",
+                
+                "Draw.Sync:     ",
+                "Draw.Universe: ",
 
                 " Sim.TurnTime:    ",
                 " Sim.TurnPerSec:  ",
@@ -769,6 +778,9 @@ namespace Ship_Game
                 Spatial.UpdateTime.String(TurnTimePerf),
                 Spatial.CollisionTime.String(TurnTimePerf),
                 EmpireUpdateQueue.Perf.String(TurnTimePerf),
+
+                DrawSyncPerf.ToString(),
+                DrawPerf.ToString(),
 
                 TurnTimePerf.ToString(),
                 $"actual:{ActualSimFPS}  target:{CurrentSimFPS}",

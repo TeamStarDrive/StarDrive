@@ -20,6 +20,9 @@ namespace Ship_Game
         readonly AggregatePerfTimer PostEmpirePerf   = new AggregatePerfTimer();
         readonly AggregatePerfTimer TurnTimePerf     = new AggregatePerfTimer();
         readonly AggregatePerfTimer ProcessSimTurnsPerf = new AggregatePerfTimer();
+        
+        readonly AggregatePerfTimer DrawSyncPerf = new AggregatePerfTimer();
+        readonly AggregatePerfTimer DrawPerf = new AggregatePerfTimer();
 
         // This is our current time in simulation time axis [0 .. current .. target]
         float CurrentSimTime;
