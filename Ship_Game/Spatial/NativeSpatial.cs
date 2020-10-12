@@ -102,7 +102,7 @@ namespace Ship_Game.Spatial
             {
                 GameplayObject go = objects[i];
                 int objectId = go.SpatialIndex;
-                if (go.Active && !go.DisableSpatialCollision)
+                if (go.Active)
                 {
                     if (objectId == -1)
                     {
