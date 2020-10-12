@@ -152,6 +152,8 @@ namespace Ship_Game
                 empireToSave.ExpandSearchTimer        = e.GetEmpireAI().ExpansionAI.ExpandSearchTimer;
                 empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
                 empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
+                empireToSave.WeightedCenter           = e.WeightedCenter;
+                empireToSave.RushAllConstruction      = e.RushAllConsturction;
 
                 if (e.WeArePirates)
                 {
@@ -588,15 +590,17 @@ namespace Ship_Game
             [Serialize(27)] public int MaxSystemsToCheckedDiv;
             [Serialize(28)] public AI.StrategyAI.WarGoals.War EmpireDefense;
             [Serialize(29)] public int AverageFreighterFTLSpeed;
-            [Serialize(30)] public float RemnantStoryTriggerKillsXp;
-            [Serialize(31)] public bool RemnantStoryActivated;
-            [Serialize(32)] public int RemnantStoryType;
-            [Serialize(33)] public float RemnantProduction;
-            [Serialize(34)] public int RemnantLevel;
-            [Serialize(35)] public int RemnantStoryStep;
-            [Serialize(36)] public float RemnantPlayerStepTriggerXp;
-            [Serialize(37)] public bool OnlyRemnantLeft;
-            [Serialize(38)] public float RemnantNextLevelUpDate;
+            [Serialize(30)] public Vector2 WeightedCenter;
+            [Serialize(31)] public bool RushAllConstruction;
+            [Serialize(32)] public float RemnantStoryTriggerKillsXp;
+            [Serialize(33)] public bool RemnantStoryActivated;
+            [Serialize(34)] public int RemnantStoryType;
+            [Serialize(35)] public float RemnantProduction;
+            [Serialize(36)] public int RemnantLevel;
+            [Serialize(37)] public int RemnantStoryStep;
+            [Serialize(38)] public float RemnantPlayerStepTriggerXp;
+            [Serialize(39)] public bool OnlyRemnantLeft;
+            [Serialize(40)] public float RemnantNextLevelUpDate;
         }
 
         public class FleetSave
@@ -739,6 +743,7 @@ namespace Ship_Game
             [Serialize(14)] public bool TransportingProduction;
             [Serialize(15)] public bool AllowInterEmpireTrade;
             [Serialize(16)] public bool IsMilitary;
+            [Serialize(17)] public bool Rush;
         }
 
         public struct RingSave
