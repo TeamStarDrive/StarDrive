@@ -373,7 +373,7 @@ namespace Ship_Game
             }
 
             UpdateBeamMesh();
-            if (Duration < 0f && !Infinite)
+            if (Active && Duration < 0f && !Infinite)
                 Die(null, true);
         }
     }
