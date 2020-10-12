@@ -194,6 +194,7 @@ namespace Ship_Game
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
+        public bool RushAllConsturction;
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -2124,6 +2125,12 @@ namespace Ship_Game
                 foreach (Planet p in OwnedPlanets)
                     num += p.Food.GrossIncome;
             return num;
+        }
+
+        public void SwitchRushAllConstruction(bool rush)
+        {
+            foreach (Planet planet in OwnedPlanets)
+                planet.Construction.SwitchRushAllConstruction(rush);
         }
 
         public Planet.ColonyType AssessColonyNeeds2(Planet p)
