@@ -11,6 +11,7 @@ namespace Ship_Game
     {
         readonly Planet Planet;
         public readonly QueueItem Item;
+        private UICheckBox Rush;
 
         public ConstructionQueueScrollListItem(QueueItem item)
         {
@@ -20,6 +21,9 @@ namespace Ship_Game
             AddDown(new Vector2(-90, 0), /*Queue down*/64, OnDownClicked);
             AddApply(new Vector2(-60, 0), /*Cancel production*/50, OnApplyClicked);
             AddCancel(new Vector2(-30, 0), /*Cancel production*/53, OnCancelClicked);
+
+            Rush = Add(new UICheckBox(() => Item.Rush, Fonts.Arial12Bold, title: 1960, tooltip: 1961));
+            Rush.SetRelPos(-200, 20); ;
         }
 
 
@@ -99,6 +103,12 @@ namespace Ship_Game
         void OnApplyClicked()
         {
             InputState input = GameBase.ScreenManager.input;
+            if (input.IsShiftKeyDown)
+            {
+                RunOnEmpireThread(() => Item.Rush = !Item.Rush);
+                return;
+            }
+
             float maxAmount = (input.IsCtrlKeyDown ? Planet.ProdHere : 10f).UpperBound(Item.ProductionNeeded);
             RunOnEmpireThread(() => RushProduction(Item, maxAmount.UpperBound(Planet.ProdHere)));
         }
