@@ -58,6 +58,9 @@ namespace Ship_Game
 
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
+
+                e.RushAllConsturction = sdata.RushAllConstruction;
+                e.WeightedCenter      = sdata.WeightedCenter;
             }
 
             foreach (TechEntry tech in sdata.TechTree)
@@ -263,7 +266,8 @@ namespace Ship_Game
         {
             foreach (SavedGame.QueueItemSave qisave in rsave.Planet.QISaveList)
             {
-                var qi = new QueueItem(p);
+                var qi  = new QueueItem(p);
+                qi.Rush = qisave.Rush;
                 if (qisave.isBuilding)
                 {
                     qi.isBuilding    = true;
