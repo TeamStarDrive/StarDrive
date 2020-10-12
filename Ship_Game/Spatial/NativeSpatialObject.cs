@@ -27,24 +27,17 @@ namespace Ship_Game.Spatial
             CollisionMask = GetCollisionMask(type);
             ObjectId = -1; // ObjectId will be assigned by Native Spatial system
 
+            X = (int)go.Center.X;
+            Y = (int)go.Center.Y;
+
             if (Type == (byte)GameObjectType.Beam)
             {
                 var beam = (Beam)go;
-                Vector2 source = beam.Source;
-                Vector2 target = beam.Destination;
-                int x1 = (int)Math.Min(source.X, target.X);
-                int y1 = (int)Math.Min(source.Y, target.Y);
-                int x2 = (int)Math.Max(source.X, target.X);
-                int y2 = (int)Math.Max(source.Y, target.Y);
-                X = (x1 + x2) >> 1;
-                Y = (y1 + y2) >> 1;
-                RadiusX = (x2 - x1) >> 1;
-                RadiusY = (y2 - y1) >> 1;
+                RadiusX = beam.RadiusX;
+                RadiusY = beam.RadiusY;
             }
             else
             {
-                X = (int)go.Center.X;
-                Y = (int)go.Center.Y;
                 RadiusX = RadiusY = (int)go.Radius;
             }
         }

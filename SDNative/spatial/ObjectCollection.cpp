@@ -84,15 +84,17 @@ namespace spatial
         }
     }
 
-    void ObjectCollection::update(int objectId, int x, int y)
+    void ObjectCollection::update(int objectId, int x, int y, int rx, int ry)
     {
         if (objectId < (int)Objects.size())
         {
             SpatialObject& o = Objects[objectId];
-            if (o.active && (o.x != x || o.y != y))
+            if (o.active && (o.x != x || o.y != y || o.rx != rx || o.ry != ry))
             {
                 o.x = x;
                 o.y = y;
+                o.rx = rx;
+                o.ry = ry;
             }
         }
     }
