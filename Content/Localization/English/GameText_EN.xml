@@ -4662,6 +4662,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1823</Index>
       <Text>Maximum imprecision angle (in degrees) this weapon has. The more range a weapon has, the more it will be inaccurate, as a function of the imprecision angle.</Text>
     </Token>
+    <Token>
+      <Index>1824</Index>
+      <Text>Continuous Rush</Text>
+    </Token>
+    <Token>
+      <Index>1825</Index>
+      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items. Warning: This will quickly spend your treasury and may cause high tax rates.</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>
