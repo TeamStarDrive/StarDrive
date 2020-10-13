@@ -120,9 +120,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
-                bool loyaltyMatch = ship.loyalty == Owner;
+                bool loyaltyMatch = ship?.loyalty == Owner;
 
-                if (ship.loyalty.isFaction)
+                if (ship != null && ship.loyalty.isFaction)
                     AddTroopsForFactions(ship);
 
                 if (loyaltyMatch)
