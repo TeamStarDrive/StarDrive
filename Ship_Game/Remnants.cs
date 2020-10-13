@@ -453,6 +453,7 @@ namespace Ship_Game
             AddShipCost(Owner.data.RemnantExterminator, RemnantShipType.Exterminator);
             AddShipCost(Owner.data.RemnantInhibitor, RemnantShipType.Inhibitor);
             AddShipCost(Owner.data.RemnantBomber, RemnantShipType.Bomber);
+            AddShipCost(Owner.data.RemnantFrigate, RemnantShipType.Frigate);
         }
 
         void AddShipCost(string shipName, RemnantShipType type)
@@ -464,7 +465,7 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/10;
+            int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/15;
             int roll           = RollDie(effectiveLevel, Level / 2).LowerBound(1);
             switch (roll)
             {
@@ -475,15 +476,17 @@ namespace Ship_Game
                 case 5:
                 case 6:  return RemnantShipType.Corvette;
                 case 7:
-                case 8:  return RemnantShipType.Assimilator;
+                case 8:  return RemnantShipType.Frigate;
                 case 9:
-                case 10: return RemnantShipType.Cruiser;
+                case 10: return RemnantShipType.Assimilator;
                 case 11:
-                case 12: return RemnantShipType.Inhibitor;
+                case 12: return RemnantShipType.Cruiser;
                 case 13:
-                case 14: return RemnantShipType.Carrier;
+                case 14: return RemnantShipType.Inhibitor;
                 case 15:
-                case 16: return RemnantShipType.Mothership;
+                case 16: return RemnantShipType.Carrier;
+                case 17:
+                case 18: return RemnantShipType.Mothership;
                 default: return RemnantShipType.Exterminator;
             }
         }
@@ -505,6 +508,7 @@ namespace Ship_Game
                 case RemnantShipType.Portal:       shipName = Owner.data.RemnantPortal;       break;
                 case RemnantShipType.Bomber:       shipName = Owner.data.RemnantBomber;       break;
                 case RemnantShipType.Inhibitor:    shipName = Owner.data.RemnantInhibitor;    break;
+                case RemnantShipType.Frigate:      shipName = Owner.data.RemnantFrigate;      break;
             }
 
             if (shipName.NotEmpty())
@@ -837,6 +841,7 @@ namespace Ship_Game
         Exterminator,
         Inhibitor,
         Portal,
-        Bomber
+        Bomber,
+        Frigate
     }
 }
