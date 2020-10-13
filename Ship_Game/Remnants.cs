@@ -27,6 +27,7 @@ namespace Ship_Game
         public int StoryStep { get; private set; } = 1;
         public bool OnlyRemnantLeft { get; private set; }
         public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
+        public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -53,6 +54,7 @@ namespace Ship_Game
             OnlyRemnantLeft     = sData.OnlyRemnantLeft;
             NextLevelUpDate     = sData.RemnantNextLevelUpDate;
             HibernationTurns    = sData.RemnantHibernationTurns;
+            ActivationXpNeeded = sData.RemnantActivationXpNeeded;
 
             SetLevel(sData.RemnantLevel);
         }
@@ -62,7 +64,7 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            if (!Activated && StoryTriggerKillsXp >= 25 * (EmpireManager.MajorEmpires.Length - 1))
+            if (!Activated && StoryTriggerKillsXp >= ActivationXpNeeded)
                 Activate();
 
             if (empire.isPlayer)
@@ -107,6 +109,11 @@ namespace Ship_Game
                 return; // not enough espionage strength to learn about pirate activities
 
             Empire.Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
+        }
+
+        public void GenerateStoryActivationThreshold()
+        {
+            
         }
 
         public bool TryLevelUpByDate(out int newLevel)
@@ -792,7 +799,10 @@ namespace Ship_Game
             {
                 Vector2 pos = p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
                 if (SpawnShip(type, pos, out Ship ship))
+                {
                     ship.OrderToOrbit(p);
+                    ActivationXpNeeded += ShipRole.GetExpSettings(ship).KillExp / 10;
+                }
             }
         }
 
