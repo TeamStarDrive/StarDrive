@@ -625,6 +625,10 @@ namespace Ship_Game.Debug
             activatedString        = e.data.Defeated ? "Defeated" : activatedString;
             DrawString($"Activated: {activatedString}");
             DrawString($"Level: {e.Remnants.Level}");
+
+            if (e.Remnants.HibernationTurns > 0)
+                DrawString($"Hibernating for: {e.Remnants.HibernationTurns} turns");
+
             DrawString($"Resources: {e.Remnants.Production.String()}");
             NewLine();
             DrawString("Empires Score and Strength:");
