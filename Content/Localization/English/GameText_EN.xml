@@ -5848,7 +5848,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2149</Index>
-      <Text>Our scientists believe that this building will allow us to detect any remnant fleet targeting the planet it is built on, and it's ETA.</Text>
+      <Text>Our scientists believe that this building will allow us to detect any remnant fleet targeting a system if this building in built on any of it's planets. it will also ETA.</Text>
       <!--  <Text>Our scientists believe that this building will allow us to detect the origin of the signal that controls the Remnant drones in our galaxy. </Text> -->
     </Token>
     <Token>
