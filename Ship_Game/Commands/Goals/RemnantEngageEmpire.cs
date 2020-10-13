@@ -77,7 +77,7 @@ namespace Ship_Game.Commands.Goals
                 str = TargetEmpire.CurrentMilitaryStrength / (TargetEmpire.GetPlanets().Count / 3f).LowerBound(1);
 
             str = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
-            return str.LowerBound(Remnants.Level * Remnants.Level * 100);
+            return str.LowerBound(Remnants.Level * Remnants.Level * 200);
         }
 
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
