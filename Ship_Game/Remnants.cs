@@ -26,6 +26,7 @@ namespace Ship_Game
         public Map<RemnantShipType, float> ShipCosts { get; } = new Map<RemnantShipType, float>();
         public int StoryStep { get; private set; } = 1;
         public bool OnlyRemnantLeft { get; private set; }
+        public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -51,6 +52,7 @@ namespace Ship_Game
             StoryStep           = sData.RemnantStoryStep;
             OnlyRemnantLeft     = sData.OnlyRemnantLeft;
             NextLevelUpDate     = sData.RemnantNextLevelUpDate;
+            HibernationTurns    = sData.RemnantHibernationTurns;
 
             SetLevel(sData.RemnantLevel);
         }
@@ -112,9 +114,10 @@ namespace Ship_Game
             newLevel = 0;
             if (Empire.Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
-                int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
+                int turnsLevelUp = TurnsLevelUp + ExtraLevelUpEffort;
                 turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
-                NextLevelUpDate += turnsLevelUp/10f;
+                HibernationTurns = NeededHibernationTurns;
+                NextLevelUpDate += turnsLevelUp / 10f;
 
                 if (Level < MaxLevel)
                 {
@@ -146,12 +149,14 @@ namespace Ship_Game
             }
         }
 
-        int ExtraLevelUpEffort => (Level-1) * 25;
+        int TurnsLevelUp           => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
+        int ExtraLevelUpEffort     => (Level-1) * 25 + NeededHibernationTurns;
+        int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 1);
 
         void SetInitialLevelUpDate()
         {
-            int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
-            NextLevelUpDate  = 1000 + turnsLevelUp/10f;
+            int turnsLevelUp = (int)(TurnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
+            NextLevelUpDate  = 1000 + turnsLevelUp/5f; // Initial Level in half rate (/5 instead of /10)
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation ----");
         }
 
@@ -246,6 +251,9 @@ namespace Ship_Game
 
         public bool TargetEmpireStillValid(Empire currentTarget, Ship portal, bool checkOnlyDefeated = false)
         {
+            if (HibernationTurns > 0)
+                return false;
+
             if (checkOnlyDefeated && !currentTarget.data.Defeated)
                 return true;
 
@@ -368,7 +376,7 @@ namespace Ship_Game
             if (potentialPlanets.Length == 0)
                 return false;
 
-            int numPlanets     = 5.UpperBound(potentialPlanets.Length);
+            int numPlanets     = 10.UpperBound(potentialPlanets.Length);
             var closestPlanets = potentialPlanets.Sorted(p => p.Center.Distance(currentPlanet.Center)).Take(numPlanets).ToArray();
             nextPlanet         = closestPlanets.RandItem();
             return nextPlanet != null;
@@ -392,11 +400,8 @@ namespace Ship_Game
             if (!RollDice((Level - 1) * 10)) 
                 return 0;
 
-            var numBombers = planet.Level > 4 ? 2 : 1;
-            if (Level > 10)
-                numBombers += 1;
-
-            numBombers = (numBombers + NumPortals()).UpperBound(Level/2);
+            var numBombers = Level > 10 ? 2 : 1;
+            numBombers     = (numBombers + NumPortals()).UpperBound(Level/2);
             if (planet.ShieldStrengthMax.Greater(0))
                 numBombers += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
 
@@ -531,7 +536,13 @@ namespace Ship_Game
             return remnantShip != null;
         }
 
-        public void GenerateProduction(float amount)
+        public void TryGenerateProduction(float amount)
+        {
+            if (HibernationTurns-- <= 0)
+                GenerateProduction(amount);
+        }
+
+        void GenerateProduction(float amount)
         {
             Production = (Production + amount).UpperBound(Level * Level * 500); // Level 20 - 400k
         }
