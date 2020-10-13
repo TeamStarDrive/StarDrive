@@ -123,7 +123,7 @@ namespace Ship_Game
             {
                 int turnsLevelUp = TurnsLevelUp + ExtraLevelUpEffort;
                 turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
-                HibernationTurns = NeededHibernationTurns;
+                HibernationTurns = 0;
                 NextLevelUpDate += turnsLevelUp / 10f;
 
                 if (Level < MaxLevel)
@@ -138,7 +138,14 @@ namespace Ship_Game
                 return true;
             }
 
+            CheckHibernation();
             return false;
+        }
+
+        void CheckHibernation() // Start Hibernation some time before leveling up
+        {
+            if (Empire.Universe.StarDate.AlmostEqual(NextLevelUpDate - NeededHibernationTurns/10f))
+                HibernationTurns = NeededHibernationTurns;
         }
 
         private void SetLevel(int level)
@@ -156,9 +163,9 @@ namespace Ship_Game
             }
         }
 
-        int TurnsLevelUp           => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort     => (Level-1) * 25 + NeededHibernationTurns;
-        int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 1);
+        int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
+        int ExtraLevelUpEffort            => (Level-1) * 25 + NeededHibernationTurns;
+        public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
 
         void SetInitialLevelUpDate()
         {
@@ -258,7 +265,7 @@ namespace Ship_Game
 
         public bool TargetEmpireStillValid(Empire currentTarget, Ship portal, bool checkOnlyDefeated = false)
         {
-            if (HibernationTurns > 0)
+            if (Hibernating)
                 return false;
 
             if (checkOnlyDefeated && !currentTarget.data.Defeated)
@@ -393,7 +400,7 @@ namespace Ship_Game
         {
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                var guardians = system.ShipList.Filter(s => s.IsGuardian && !s.InCombat);
+                var guardians = system.ShipList.Filter(s => s != null && s.IsGuardian && !s.InCombat);
                 if (guardians.Length > 0)
                 {
                     Ship chosenGuardian = guardians.RandItem();
@@ -543,10 +550,17 @@ namespace Ship_Game
             return remnantShip != null;
         }
 
+        public bool Hibernating => HibernationTurns > 0;
+
         public void TryGenerateProduction(float amount)
         {
-            if (HibernationTurns-- <= 0)
-                GenerateProduction(amount);
+            if (Hibernating)
+            {
+                HibernationTurns -= 1;
+                return;
+            }
+
+            GenerateProduction(amount);
         }
 
         void GenerateProduction(float amount)
