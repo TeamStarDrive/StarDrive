@@ -330,14 +330,18 @@ namespace Ship_Game
             }
         }
 
-        public void WarnPlayerFleetIncoming(Planet p, float starDateEta)
+        public void WarnPlayerFleetIncoming(Planet planet, float starDateEta)
         {
-            if (p.Owner == null || !p.Owner.isPlayer ||!p.BuildingList.Any(b => b.DetectsRemnantFleet))
+            if (planet.Owner == null || !planet.Owner.isPlayer)
                 return;
 
-            string message = $"Remnant Fleet is targeting {p.Name}\nETA - Stardate {starDateEta.String(1)}";
-            Empire.Universe.NotificationManager.AddIncomingRemnants(p, message);
-            // todo add notification
+            SolarSystem system = planet.ParentSystem;
+            if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player 
+                                           && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
+            {
+                string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
+                Empire.Universe.NotificationManager.AddIncomingRemnants(planet, message);
+            }
         }
 
         public bool SelectTargetClosestPlanet(Ship portal, Empire targetEmpire, out Planet targetPlanet)
