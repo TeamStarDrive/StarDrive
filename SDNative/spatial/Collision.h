@@ -25,9 +25,6 @@ namespace spatial
         SlabAllocator& Allocator;
         int MaxObjectId; // for estimating bit-array size
 
-        // bit set to flag which object-id's have already collided
-        uint32_t* CollisionBits;
-
         // Maps ObjectA ID to a chain of collided pairs
         // @note The map of chains is faster than a map of arrays
         //       and 20x faster than a simple array of collisions

@@ -3,8 +3,15 @@
 
 namespace spatial
 {
-    int findNearby(int* outResults, const SearchOptions& opt, FoundNodes& found)
+    int findNearby(int* outResults, int maxObjectId, const SearchOptions& opt, FoundNodes& found)
     {
+        // we use a bit array to ignore duplicate objects
+        // duplication is present by design to handle grid border overlap
+        // this filtering is faster than other more complicated structural methods
+        int idBitArraySize = ((maxObjectId / 32) + 1) * sizeof(uint32_t);
+        uint32_t* idBitArray = (uint32_t*)_alloca(idBitArraySize);
+        memset(idBitArray, 0, idBitArraySize);
+
         const int MATCH_ALL = 0xffffffff; // mask that passes any filter
 
         int loyaltyMask = MATCH_ALL;
@@ -52,9 +59,16 @@ namespace spatial
                     Rect rect = o.rect();
                     if (searchRect.overlaps(rect))
                     {
-                        if (!filterFunc || filterFunc(o.objectId) != 0)
+                        int id = o.objectId;
+                        int wordIndex = id / 32;
+                        int wordOffset = id % 32;
+                        if (idBitArray[wordIndex] & (1<<wordOffset))
+                            continue; // already present in results array
+
+                        if (!filterFunc || filterFunc(id) != 0)
                         {
-                            outResults[numResults++] = o.objectId;
+                            outResults[numResults++] = id;
+                            idBitArray[wordIndex] |= (1<<wordOffset); // set unique result
                             if (numResults >= maxResults)
                                 return numResults; // we are done !
                         }
