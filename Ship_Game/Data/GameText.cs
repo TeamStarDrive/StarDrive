@@ -4235,6 +4235,10 @@ namespace Ship_Game
         ThisIsTheMaximumSensor = 7090,
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         ThisIsThisShipsSelfrepair = 7091,
+        /// <summary>Rush All Construction</summary>
+        RushAllConstruction = 1824,
+        /// <summary>Rush All Construction</summary>
+        RushAllConstructionTip = 1825,
         /// <summary>Big Clusters Game Mode</summary>
         BigClustersGame = 1892,
         /// <summary>Small Clusters Game Mode</summary>
