@@ -555,7 +555,7 @@ namespace Ship_Game
             return false;
         }
 
-        public void AddRange(ICollection<T> collection)
+        public void AddRange(Array<T> collection)
         {
             int n = collection.Count;
             int i = Count;
@@ -563,11 +563,37 @@ namespace Ship_Game
             collection.CopyTo(Items, i);
         }
 
-        public void AddRange(IEnumerable<T> enumerable)
+        public void AddRange(IReadOnlyList<T> list)
         {
-            using (IEnumerator<T> en = enumerable.GetEnumerator())
-                while (en.MoveNext()) Add(en.Current);
+            int n = list.Count;
+            int i = Count;
+            Resize(i + n);
+
+            if (list is ICollection<T> collection)
+            {
+                collection.CopyTo(Items, i);
+            }
+            else
+            {
+                for (int x = 0; x < n; ++x)
+                    Items[i++] = list[x];
+            }
         }
+
+        public void AddRange<U>(Array<U> collection) where U : T
+        {
+            int n = collection.Count;
+            int i = Count;
+            Resize(i + n);
+            for (int x = 0; x < n; ++x)
+                Items[i++] = collection.Items[x];
+        }
+
+        //public void AddRange(IEnumerable<T> enumerable)
+        //{
+        //    using (IEnumerator<T> en = enumerable.GetEnumerator())
+        //        while (en.MoveNext()) Add(en.Current);
+        //}
 
         /// Assigns all items from `array` to `this`
         /// Internal buffer is resized only if needed
@@ -575,9 +601,7 @@ namespace Ship_Game
         {
             int count = array.Count;
             Resize(count);
-
-            for (int i = 0; i < count; ++i)
-                Items[i] = array.Items[i];
+            array.CopyTo(Items);
         }
 
         public void Sort()
