@@ -1029,28 +1029,21 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.None;
 
-            RectF worldRect = GetVisibleWorldRect();
-            float radius = Math.Max(worldRect.W, worldRect.H) * 0.5f;
-            Vector2 center = worldRect.Center;
+            Ship[] ships = Objects.VisibleShips;
 
             if (viewState <= UnivScreenState.PlanetView)
             {
-                GameplayObject[] projectiles = Spatial.FindNearby(GameObjectType.Proj,
-                                                                  center, radius, 256);
+                Projectile[] projectiles = Objects.VisibleProjectiles;
+                Beam[] beams = Objects.VisibleBeams;
                 for (int i = 0; i < projectiles.Length; ++i)
                 {
-                    // TODO: THREADING ISSUE between DrawThread and SimThread
-                    if (projectiles[i] is Projectile proj)
-                        proj.Draw(batch, this);
+                    Projectile proj = projectiles[i];
+                    proj.Draw(batch, this);
                 }
-
-                GameplayObject[] beams = Spatial.FindNearby(GameObjectType.Beam,
-                                                            center, radius, 256);
                 for (int i = 0; i < beams.Length; ++i)
                 {
-                    // TODO: THREADING ISSUE between DrawThread and SimThread
-                    if (beams[i] is Beam beam)
-                        beam.Draw(this);
+                    Beam beam = beams[i];
+                    beam.Draw(this);
                 }
             }
 
@@ -1063,13 +1056,10 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
             rs.CullMode               = CullMode.None;
 
-            GameplayObject[] ships = Spatial.FindNearby(GameObjectType.Ship,
-                                                        center, radius, 10_000);
-
             for (int i = 0; i < ships.Length; ++i)
             {
-                var ship = (Ship)ships[i];
-                if (ship.Active && ship.inSensorRange)
+                Ship ship = ships[i];
+                if (ship.inSensorRange)
                 {
                     if (!IsCinematicModeEnabled)
                         DrawTacticalIcon(ship);
