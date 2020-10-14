@@ -81,15 +81,33 @@ namespace Ship_Game.Gameplay
             CollisionTime.Stop();
         }
 
+        public GameplayObject[] FindNearby(in SearchOptions opt)
+        {
+            return Spatial.FindNearby(opt);
+        }
+
+        public T[] FindNearby<T>(in SearchOptions opt) where T : GameplayObject
+        {
+            GameplayObject[] objects = Spatial.FindNearby(opt);
+            return objects.FastCast<GameplayObject, T>();
+        }
+
         public GameplayObject[] FindNearby(GameObjectType type, GameplayObject obj, float radius,
                                            int maxResults,
                                            Empire excludeLoyalty = null,
                                            Empire onlyLoyalty = null,
                                            int debugId = 0)
         {
-            return Spatial.FindNearby(type, obj.Center, radius, maxResults,
-                                       toIgnore:obj, excludeLoyalty, onlyLoyalty,
-                                       debugId:debugId);
+            var opt = new SearchOptions(obj.Center, radius, type)
+            {
+                MaxResults = maxResults,
+                FilterExcludeObject = obj,
+                FilterExcludeByLoyalty = excludeLoyalty,
+                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                DebugId = debugId
+            };
+
+            return Spatial.FindNearby(opt);
         }
 
         public GameplayObject[] FindNearby(GameObjectType type, Vector2 worldPos, float radius,
@@ -98,9 +116,33 @@ namespace Ship_Game.Gameplay
                                            Empire onlyLoyalty = null,
                                            int debugId = 0)
         {
-            return Spatial.FindNearby(type, worldPos, radius, maxResults,
-                                       toIgnore:null, excludeLoyalty, onlyLoyalty,
-                                       debugId:debugId);
+            var opt = new SearchOptions(worldPos, radius, type)
+            {
+                MaxResults = maxResults,
+                FilterExcludeByLoyalty = excludeLoyalty,
+                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                DebugId = debugId
+            };
+
+            return Spatial.FindNearby(opt);
+        }
+
+        public GameplayObject[] FindNearby(GameObjectType type, 
+                                           in AABoundingBox2D searchArea,
+                                           int maxResults,
+                                           Empire excludeLoyalty = null,
+                                           Empire onlyLoyalty = null,
+                                           int debugId = 0)
+        {
+            var opt = new SearchOptions(searchArea, type)
+            {
+                MaxResults = maxResults,
+                FilterExcludeByLoyalty = excludeLoyalty,
+                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                DebugId = debugId
+            };
+
+            return Spatial.FindNearby(opt);
         }
 
 

@@ -398,7 +398,8 @@ namespace Ship_Game.Spatial
         [StructLayout(LayoutKind.Sequential)]
         struct NativeSearchOptions
         {
-            public Rect SearchRect;
+            public AABoundingBox2Di SearchRect;
+            public float SearchRadius;
             public int MaxResults;
             public int FilterByType;
             public int FilterExcludeObjectId;
@@ -408,84 +409,76 @@ namespace Ship_Game.Spatial
             public int EnableSearchDebugId;
         };
 
-        public GameplayObject[] FindNearby(GameObjectType type,
-                                           Vector2 worldPos,
-                                           float radius,
-                                           int maxResults,
-                                           GameplayObject toIgnore,
-                                           Empire excludeLoyalty,
-                                           Empire onlyLoyalty,
-                                           int debugId = 0)
+        public GameplayObject[] FindNearby(in SearchOptions opt)
         {
             int ignoreId = -1;
-            if (toIgnore != null && toIgnore.SpatialIndex < 0)
-                ignoreId = toIgnore.SpatialIndex;
-
-            int x = (int)worldPos.X;
-            int y = (int)worldPos.Y;
-            int r = (int)(radius + 0.5f); // ceil
+            if (opt.FilterExcludeObject != null && opt.FilterExcludeObject.SpatialIndex >= 0)
+                ignoreId = opt.FilterExcludeObject.SpatialIndex;
 
             var nso = new NativeSearchOptions
             {
-                SearchRect = new Rect { Left=x-r, Top=y-r, Right=x+r, Bottom=y+r},
-                MaxResults = maxResults,
-                FilterByType = (int)type,
+                SearchRect = new AABoundingBox2Di(opt.SearchRect),
+                SearchRadius = opt.SearchRadius,
+                MaxResults = opt.MaxResults,
+                FilterByType = (int)opt.FilterByType,
                 FilterExcludeObjectId = ignoreId,
-                FilterExcludeByLoyalty = excludeLoyalty?.Id ?? 0,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty?.Id ?? 0,
+                FilterExcludeByLoyalty = opt.FilterExcludeByLoyalty?.Id ?? 0,
+                FilterIncludeOnlyByLoyalty = opt.FilterIncludeOnlyByLoyalty?.Id ?? 0,
                 FilterFunction = null,
-                EnableSearchDebugId = debugId,
+                EnableSearchDebugId = opt.DebugId,
             };
-
+            
             GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
 
-            int* objectIds = stackalloc int[maxResults];
+            if (opt.FilterFunction != null)
+            {
+                SearchFilterFunc filterFunc = opt.FilterFunction;
+                nso.FilterFunction = (int objectId) =>
+                {
+                    GameplayObject go = objects[objectId];
+                    bool success = filterFunc(go);
+                    return success ? 1 : 0;
+                };
+            }
+
+            int* objectIds = stackalloc int[opt.MaxResults];
             int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);
             return CopyOutput(objectIds, resultCount, objects);
         }
 
-        public GameplayObject[] FindLinear(GameObjectType type,
-                                           Vector2 worldPos,
-                                           float radius,
-                                           int maxResults,
-                                           GameplayObject toIgnore,
-                                           Empire excludeLoyalty,
-                                           Empire onlyLoyalty,
-                                           int debugId = 0)
+        public GameplayObject[] FindLinear(in SearchOptions opt)
         {
-            float cx = worldPos.X;
-            float cy = worldPos.Y;
-            bool filterByLoyalty = (excludeLoyalty != null) || (onlyLoyalty != null);
+            int resultCount = 0;
+            int* objectIds = stackalloc int[opt.MaxResults];
+
+            AABoundingBox2D searchRect = opt.SearchRect;
+            bool filterByLoyalty = (opt.FilterExcludeByLoyalty != null)
+                                || (opt.FilterIncludeOnlyByLoyalty != null);
 
             GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
             int count = FrontObjects.Count;
-            
-            int resultCount = 0;
-            int* objectIds = stackalloc int[maxResults];
 
             for (int i = 0; i < count; ++i)
             {
                 GameplayObject obj = objects[i];
-                if (obj == null || (toIgnore != null && obj == toIgnore)
-                    || (type != GameObjectType.Any && obj.Type != type))
+                if (obj == null
+                    || (opt.FilterExcludeObject != null && obj == opt.FilterExcludeObject)
+                    || (opt.FilterByType != GameObjectType.Any && obj.Type != opt.FilterByType))
                     continue;
                 
                 if (filterByLoyalty)
                 {
                     Empire loyalty = obj.GetLoyalty();
-                    if ((excludeLoyalty != null && loyalty == excludeLoyalty)
-                        || (onlyLoyalty != null && loyalty != onlyLoyalty))
+                    if ((opt.FilterExcludeByLoyalty != null && loyalty == opt.FilterExcludeByLoyalty) ||
+                        (opt.FilterIncludeOnlyByLoyalty != null && loyalty != opt.FilterIncludeOnlyByLoyalty))
                         continue;
                 }
 
-                // check if inside radius, inlined for perf
-                float dx = cx - obj.Center.X;
-                float dy = cy - obj.Center.Y;
-                float r2 = radius + obj.Radius;
-                if ((dx*dx + dy*dy) <= (r2*r2))
+                var objectRect = new AABoundingBox2D(obj);
+                if (objectRect.Overlaps(searchRect))
                 {
                     objectIds[resultCount++] = obj.SpatialIndex;
-                    if (resultCount >= maxResults)
+                    if (resultCount >= opt.MaxResults)
                         break; // we are done !
                 }
             }
@@ -503,18 +496,12 @@ namespace Ship_Game.Spatial
             public int Y;
             public int Radius;
         }
-        struct Rect
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
+
         struct SpatialColor
         {
             public byte r, g, b, a;
         }
-        [UnmanagedFunctionPointer(CC)] delegate void DrawRectF(Rect r, SpatialColor c);
+        [UnmanagedFunctionPointer(CC)] delegate void DrawRectF(AABoundingBox2Di r, SpatialColor c);
         [UnmanagedFunctionPointer(CC)] delegate void DrawCircleF(Circle ci, SpatialColor c);
         [UnmanagedFunctionPointer(CC)] delegate void DrawLineF(Point a, Point b, SpatialColor c);
         [UnmanagedFunctionPointer(CC)] delegate void DrawTextF(Point p, int size, sbyte* text, SpatialColor c);
@@ -527,7 +514,7 @@ namespace Ship_Game.Spatial
         }
         struct QtreeVisualizerOptions
         {
-            public Rect visibleWorldRect;
+            public AABoundingBox2Di visibleWorldRect;
             public byte objectBounds;
             public byte objectToLeafLines;
             public byte objectText;
@@ -542,9 +529,9 @@ namespace Ship_Game.Spatial
         static extern void SpatialDebugVisualize(IntPtr spatial, ref QtreeVisualizerOptions opt, ref QtreeVisualizerBridge vis);
         
         static GameScreen Screen;
-        static void DrawRect(Rect r, SpatialColor c)
+        static void DrawRect(AABoundingBox2Di r, SpatialColor c)
         {
-            Screen.DrawRectangleProjected(new Rectangle(r.Left, r.Top, r.Right- r.Left, r.Bottom- r.Top),
+            Screen.DrawRectangleProjected(new Rectangle(r.X1, r.Y1, r.Width, r.Height),
                                           new Color(c.r, c.g, c.b, c.a));
         }
         static void DrawCircle(Circle ci, SpatialColor c)
@@ -566,17 +553,11 @@ namespace Ship_Game.Spatial
 
         public void DebugVisualize(GameScreen screen)
         {
-            Rectangle worldRect = screen.GetVisibleWorldRect();
+            AABoundingBox2D worldRect = screen.GetVisibleWorldRect();
 
             var opt = new QtreeVisualizerOptions
             {
-                visibleWorldRect = new Rect
-                {
-                    Left = worldRect.Left,
-                    Top = worldRect.Top,
-                    Right = worldRect.Right,
-                    Bottom = worldRect.Bottom,
-                },
+                visibleWorldRect = new AABoundingBox2Di(worldRect),
                 objectBounds = 1,
                 objectToLeafLines = 1,
                 objectText = 0,

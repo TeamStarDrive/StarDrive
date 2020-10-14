@@ -64,7 +64,7 @@ namespace Ship_Game
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            Root = FrontBuffer.Create(Levels, -half, -half, +half, +half);
+            Root = FrontBuffer.Create(Levels, new AABoundingBox2D(-half, -half, +half, +half));
             lock (Objects)
             {
                 Objects.Clear();
@@ -74,14 +74,14 @@ namespace Ship_Game
         // Takes an existing undivided node and subdivides it into quadrants
         void SubdivideNode(QtreeNode node, int level)
         {
-            float midX = (node.X + node.LastX) / 2;
-            float midY = (node.Y + node.LastY) / 2;
+            float midX = (node.AABB.X1 + node.AABB.X2) * 0.5f;
+            float midY = (node.AABB.Y1 + node.AABB.Y2) * 0.5f;
 
             int nextLevel = level - 1;
-            node.NW = FrontBuffer.Create(nextLevel, node.X, node.Y, midX,       midY);
-            node.NE = FrontBuffer.Create(nextLevel, midX,   node.Y, node.LastX, midY);
-            node.SE = FrontBuffer.Create(nextLevel, midX,   midY,   node.LastX, node.LastY);
-            node.SW = FrontBuffer.Create(nextLevel, node.X, midY,   midX,       node.LastY);
+            node.NW = FrontBuffer.Create(nextLevel, new AABoundingBox2D(node.AABB.X1, node.AABB.Y1, midX,         midY));
+            node.NE = FrontBuffer.Create(nextLevel, new AABoundingBox2D(midX,         node.AABB.Y1, node.AABB.X2, midY));
+            node.SE = FrontBuffer.Create(nextLevel, new AABoundingBox2D(midX,         midY,         node.AABB.X2, node.AABB.Y2));
+            node.SW = FrontBuffer.Create(nextLevel, new AABoundingBox2D(node.AABB.X1, midY,         midX,         node.AABB.Y2));
 
             int count = node.Count;
             SpatialObj[] arr = node.Items;
@@ -94,20 +94,20 @@ namespace Ship_Game
                 InsertAt(node, level, ref arr[i]);
         }
 
-        static QtreeNode PickSubQuadrant(QtreeNode node, ref SpatialObj obj)
+        static QtreeNode PickSubQuadrant(QtreeNode node, in AABoundingBox2D b)
         {
-            float midX = (node.X + node.LastX) / 2;
-            float midY = (node.Y + node.LastY) / 2;
+            float midX = (node.AABB.X1 + node.AABB.X2) * 0.5f;
+            float midY = (node.AABB.Y1 + node.AABB.Y2) * 0.5f;
 
-            if (obj.X < midX && obj.LastX < midX) // left
+            if (b.X1 < midX && b.X2 < midX) // left
             {
-                if (obj.Y <  midY && obj.LastY < midY) return node.NW; // top left
-                if (obj.Y >= midY)                     return node.SW; // bot left
+                if (b.Y1 <  midY && b.Y2 < midY) return node.NW; // top left
+                if (b.Y1 >= midY)                return node.SW; // bot left
             }
-            else if (obj.X >= midX) // right
+            else if (b.X1 >= midX) // right
             {
-                if (obj.Y <  midY && obj.LastY < midY) return node.NE; // top right
-                if (obj.Y >= midY)                     return node.SE; // bot right
+                if (b.Y1 <  midY && b.Y2 < midY) return node.NE; // top right
+                if (b.Y1 >= midY)                return node.SE; // bot right
             }
             return null; // obj does not perfectly fit inside a quadrant
         }
@@ -124,7 +124,7 @@ namespace Ship_Game
 
                 if (node.NW != null)
                 {
-                    QtreeNode quad = PickSubQuadrant(node, ref obj);
+                    QtreeNode quad = PickSubQuadrant(node, obj.AABB);
                     if (quad != null)
                     {
                         ++node.TotalTreeDepthCount;
@@ -167,7 +167,7 @@ namespace Ship_Game
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            QtreeNode newRoot = FrontBuffer.Create(Levels, -half, -half, +half, +half);;
+            QtreeNode newRoot = FrontBuffer.Create(Levels, new AABoundingBox2D(-half, -half, +half, +half));;
             for (int i = 0; i < allObjects.Count; ++i)
             {
                 var obj = new SpatialObj(allObjects[i]);
@@ -203,14 +203,14 @@ namespace Ship_Game
         }
 
         // finds the node that fully encloses this spatial object
-        QtreeNode FindEnclosingNode(QtreeNode node, ref SpatialObj obj)
+        QtreeNode FindEnclosingNode(QtreeNode node, in AABoundingBox2D bounds)
         {
             int level = Levels;
             for (;;)
             {
                 if (level <= 1) // no more subdivisions possible
                     break;
-                QtreeNode quad = PickSubQuadrant(node, ref obj);
+                QtreeNode quad = PickSubQuadrant(node, bounds);
                 if (quad == null)
                     break;
                 node = quad; // go deeper!

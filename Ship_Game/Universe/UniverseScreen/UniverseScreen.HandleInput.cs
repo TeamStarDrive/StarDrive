@@ -808,9 +808,8 @@ namespace Ship_Game
 
             if (Debug && DebugInfoScreen.Mode == DebugModes.SpatialManager)
             {
-                RectF search = UnprojectToWorldRect(screenArea);
-                Spatial.FindNearby(GameObjectType.Ship, search.Center,
-                    Math.Max(search.W, search.H)/2, 1024, debugId:1);
+                AABoundingBox2D search = UnprojectToWorldRect(screenArea);
+                Spatial.FindNearby(GameObjectType.Ship, search, 1024, debugId:1);
             }
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {

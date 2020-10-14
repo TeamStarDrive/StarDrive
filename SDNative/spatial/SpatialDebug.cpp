@@ -30,6 +30,12 @@ namespace spatial
         if (!SearchArea.empty())
             visualizer.drawRect(SearchArea, Yellow);
 
+        if (SearchRadius >= 1.0f)
+        {
+            Circle circle = { SearchArea.centerX(), SearchArea.centerY(), (int)SearchRadius};
+            visualizer.drawCircle(circle, Yellow);
+        }
+
         if (!SelectedRect.empty())
             visualizer.drawRect(SelectedRect, Yellow);
 
