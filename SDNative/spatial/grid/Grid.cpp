@@ -150,17 +150,16 @@ namespace spatial
     {
         FoundNodes found;
 
-        Rect selection = Rect::fromPointRadius(opt.OriginX, opt.OriginY, opt.SearchRadius);
         int maxResults = opt.MaxResults;
         const GridCell* cells = Cells;
         int cellSize = CellSize;
         int cellRadius = cellSize/2;
         int half = FullSize / 2;
 
-        int x1 = (selection.left  + half) / cellSize;
-        int x2 = (selection.right + half) / cellSize;
-        int y1 = (selection.top    + half) / cellSize;
-        int y2 = (selection.bottom + half) / cellSize;
+        int x1 = (opt.SearchRect.left  + half) / cellSize;
+        int x2 = (opt.SearchRect.right + half) / cellSize;
+        int y1 = (opt.SearchRect.top    + half) / cellSize;
+        int y2 = (opt.SearchRect.bottom + half) / cellSize;
 
         x1 = std::clamp<int>(x1, 0, Width - 1);
         x2 = std::clamp<int>(x2, 0, Width - 1);
@@ -244,7 +243,6 @@ namespace spatial
         if (opt.EnableSearchDebugId)
         {
             DebugFindNearby dfn;
-            dfn.Circle = { opt.OriginX, opt.OriginY, opt.SearchRadius };
             dfn.Rectangle = toWorldRect(x1, y1, x2, y2, half, cellSize);
             dfn.TopLeft  = toWorldRect(x1, y1, half, cellSize);
             dfn.BotRight = toWorldRect(x2, y2, half, cellSize);

@@ -81,36 +81,35 @@ namespace spatial
         Root = root;
     }
 
-    struct Overlaps
+    struct OverlapsRect
     {
         bool NW, NE, SE, SW;
-        SPATIAL_FINLINE Overlaps(int quadCenterX, int quadCenterY, int objectX, int objectY,
-                                 int objectRadiusX, int objectRadiusY)
+        SPATIAL_FINLINE OverlapsRect(int quadCenterX, int quadCenterY, Rect rect)
         {
             // +---------+   The target rectangle overlaps Left quadrants (NW, SW)
             // | x--|    |
             // |-|--+----|
             // | x--|    |
             // +---------+
-            bool overlaps_Left = (objectX-objectRadiusX < quadCenterX);
+            bool overlaps_Left = (rect.left < quadCenterX);
             // +---------+   The target rectangle overlaps Right quadrants (NE, SE)
             // |    |--x |
             // |----+--|-|
             // |    |--x |
             // +---------+
-            bool overlaps_Right = (objectX+objectRadiusX >= quadCenterX);
+            bool overlaps_Right = (rect.right >= quadCenterX);
             // +---------+   The target rectangle overlaps Top quadrants (NW, NE)
             // | x--|-x  |
             // |----+----|
             // |    |    |
             // +---------+
-            bool overlaps_Top = (objectY-objectRadiusY < quadCenterY);
+            bool overlaps_Top = (rect.top < quadCenterY);
             // +---------+   The target rectangle overlaps Bottom quadrants (SW, SE)
             // |    |    |
             // |----+----|
             // | x--|-x  |
             // +---------+
-            bool overlaps_Bottom = (objectY+objectRadiusY >= quadCenterY);
+            bool overlaps_Bottom = (rect.bottom >= quadCenterY);
 
             // bitwise combine to get which quadrants we overlap: NW, NE, SE, SW
             NW = overlaps_Top & overlaps_Left;
@@ -123,13 +122,13 @@ namespace spatial
     void Qtree::insertAt(int level, QtreeNode& root, SpatialObject* o)
     {
         QtreeNode* cur = &root;
-        int ox = o->x, oy = o->y, rx = o->rx, ry = o->ry;
+        Rect oRect = o->rect();
         for (;;)
         {
             // try to select a sub-quadrant, perhaps it's a better match
             if (cur->isBranch())
             {
-                Overlaps over { cur->cx, cur->cy, ox, oy, rx, ry };
+                OverlapsRect over { cur->cx, cur->cy, oRect };
 
                 // bitwise add booleans to get the number of overlaps
                 int overlaps = over.NW + over.NE + over.SE + over.SW;
@@ -238,10 +237,7 @@ namespace spatial
     {
         FoundNodes found;
         SmallStack<const QtreeNode*> stack { Root };
-        int ox = opt.OriginX;
-        int oy = opt.OriginY;
-        int orx = opt.SearchRadius;
-        int ory = opt.SearchRadius;
+        Rect searchRect = opt.SearchRect;
         do
         {
             const QtreeNode& current = *stack.pop_back();
@@ -249,7 +245,7 @@ namespace spatial
 
             if (current.isBranch())
             {
-                Overlaps over { cx,cy, ox,oy,orx,ory };
+                OverlapsRect over { cx, cy, searchRect };
                 if (over.SW) stack.push_back(current.sw());
                 if (over.SE) stack.push_back(current.se());
                 if (over.NE) stack.push_back(current.ne());
@@ -268,8 +264,7 @@ namespace spatial
         if (opt.EnableSearchDebugId)
         {
             DebugFindNearby dfn;
-            dfn.Circle = { ox, oy, orx };
-            dfn.Rectangle = Rect::fromPointRadius(ox, oy, orx);
+            dfn.Rectangle = searchRect;
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
             Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
@@ -280,10 +275,7 @@ namespace spatial
     void Qtree::debugVisualize(const VisualizerOptions& opt, Visualizer& visualizer) const
     {
         char text[128];
-        int visibleX = opt.visibleWorldRect.centerX();
-        int visibleY = opt.visibleWorldRect.centerY();
-        int radiusX  = opt.visibleWorldRect.width() / 2;
-        int radiusY  = opt.visibleWorldRect.height() / 2;
+        Rect visibleRect = opt.visibleWorldRect;
         visualizer.drawRect(Root->rect(), Yellow);
 
         SmallStack<const QtreeNode*> stack { Root };
@@ -298,7 +290,7 @@ namespace spatial
                 if (opt.nodeText)
                     visualizer.drawText({cx,cy}, current.width(), "BR", Yellow);
 
-                Overlaps over { cx, cy, visibleX, visibleY, radiusX, radiusY };
+                OverlapsRect over { cx, cy, visibleRect };
                 if (over.SW) stack.push_back(current.sw());
                 if (over.SE) stack.push_back(current.se());
                 if (over.NE) stack.push_back(current.ne());

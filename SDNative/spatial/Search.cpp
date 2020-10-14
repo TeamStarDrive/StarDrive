@@ -13,9 +13,7 @@ namespace spatial
 
         int filterMask = (opt.FilterByType == 0)           ? MATCH_ALL : opt.FilterByType;
         int objectMask = (opt.FilterExcludeObjectId == -1) ? MATCH_ALL : ~(opt.FilterExcludeObjectId+1);
-        int x = opt.OriginX;
-        int y = opt.OriginY;
-        int radius = opt.SearchRadius;
+        Rect searchRect = opt.SearchRect;
         SearchFilterFunc filterFunc = opt.FilterFunction;
         int maxResults = opt.MaxResults;
 
@@ -24,6 +22,8 @@ namespace spatial
         // if total candidates is more than we can fit, we need to sort LEAF nodes by distance to Origin
         if (found.totalObjects > maxResults)
         {
+            int x = searchRect.centerX();
+            int y = searchRect.centerY();
             std::sort(nodes, nodes+found.count, [x,y](const FoundNode& a, const FoundNode& b) -> bool
             {
                 float adx = x - a.world.x;
@@ -49,7 +49,8 @@ namespace spatial
                     (o.type    & filterMask) && 
                     ((o.objectId+1) & objectMask))
                 {
-                    if (inRadius(x,y, o.x,o.y, radius, o.rx))
+                    Rect rect = o.rect();
+                    if (searchRect.overlaps(rect))
                     {
                         if (!filterFunc || filterFunc(o.objectId) != 0)
                         {

@@ -27,9 +27,6 @@ namespace spatial
     void DebugFindNearby::draw(Visualizer& visualizer, const VisualizerOptions& opt,
                   const SpatialObject* objects) const
     {
-        if (Circle.radius != 0)
-            visualizer.drawCircle(Circle, Yellow);
-
         if (!Rectangle.empty())
             visualizer.drawRect(Rectangle, Yellow);
 

@@ -27,6 +27,8 @@ struct Simulation final : spatial::Visualizer
 
     bool isPaused = true;
     bool isExiting = false;
+    bool wasMouseDragging = false;
+    ImVec2 mouseDragStart {};
 
     spatial::SearchOptions opt;
     std::vector<int> searchResults;
@@ -47,8 +49,7 @@ struct Simulation final : spatial::Visualizer
     explicit Simulation(SimParams p) : params{p}
     {
         createObjectsIfNeeded();
-
-        opt.SearchRadius = 0;
+        opt.SearchRect = {};
         opt.MaxResults = 2048;
         opt.EnableSearchDebugId = 1;
         searchResults.resize(opt.MaxResults);
@@ -89,6 +90,7 @@ struct Simulation final : spatial::Visualizer
         return { (screenX - window_center.x)/camera_zoom - camera_world.x,
                  (screenY - window_center.y)/camera_zoom - camera_world.y };
     }
+    ImVec2 screenToWorld(ImVec2 screenXY) const { return screenToWorld(screenXY.x, screenXY.y); }
 
     void updateCameraFrustum()
     {
@@ -245,7 +247,7 @@ struct Simulation final : spatial::Visualizer
         ImGui::Text("%s::memory:  %.1fKB", name, spat.totalMemory() / 1024.0f);
         ImGui::Text("%s::rebuild(%d) elapsed: %.1fms", name, n, rebuildMs);
         ImGui::Text("%s::collideAll(%d) elapsed: %.1fms  %d collisions", name, n, collideMs, numCollisions);
-        ImGui::Text("%s::findNearby(radius=%d) elapsed: %.3fms  %d results", name, opt.SearchRadius, findNearbyMs, numSearchResults);
+        ImGui::Text("%s::findNearby(size=%d) elapsed: %.3fms  %d results", name, opt.SearchRect.width(), findNearbyMs, numSearchResults);
         ImGui::Text("%s::draw() elapsed: %.1fms", name, elapsedDrawMs);
         ImGui::Text("%s::total(%d) elapsed: %.1fms", name, n, collideMs+rebuildMs+elapsedDrawMs);
     }
@@ -285,18 +287,24 @@ struct Simulation final : spatial::Visualizer
                 params.numObjects -= 10'000;
         }
 
-        if (ImGui::IsMouseDragging(ImGuiMouseButton_Right))
+        bool isDragging = ImGui::IsMouseDragging(ImGuiMouseButton_Right);
+        if (isDragging)
         {
-            ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
-            ImVec2 start = ImGui::GetMousePos();
-            ImVec2 world = screenToWorld(start.x - delta.x, start.y - delta.y);
-            opt.OriginX = (int)world.x;
-            opt.OriginY = (int)world.y;
-            opt.SearchRadius = (int)screenToWorld(sqrtf(delta.x * delta.x + delta.y * delta.y));
+            if (!wasMouseDragging)
+            {
+                mouseDragStart = screenToWorld(ImGui::GetMousePos());
+            }
+
+            ImVec2 end = screenToWorld(ImGui::GetMousePos());
+            opt.SearchRect = { (int)mouseDragStart.x, (int)mouseDragStart.y, (int)end.x, (int)end.y };
+            opt.SearchRect = opt.SearchRect.normalized();
+
             rpp::Timer t;
             numSearchResults = spat.findNearby(searchResults.data(), opt);
             findNearbyMs = t.elapsed_ms();
         }
+
+        wasMouseDragging = isDragging;
 
         if      (isPressed(ImGuiKey_LeftArrow))  spat.nodeCapacity(std::max(spat.nodeCapacity() / 2, 2));
         else if (isPressed(ImGuiKey_RightArrow)) spat.nodeCapacity(std::min(spat.nodeCapacity() * 2, 256));

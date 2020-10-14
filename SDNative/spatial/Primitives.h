@@ -50,9 +50,27 @@ namespace spatial
 
         bool empty() const { return left == right; }
 
+        /** @return Fixes a Rect with negative width */
+        Rect normalized() const
+        {
+            Rect result;
+            const bool swapX = left > right;
+            const bool swapY = top > bottom;
+            result.left   = swapX ? right : left;
+            result.right  = swapX ? left : right;
+            result.top    = swapY ? bottom : top;
+            result.bottom = swapY ? top : bottom;
+            return result;
+        }
+
         SPATIAL_FINLINE static Rect fromPointRadius(int x, int y, int r)
         {
             return Rect{x-r, y-r, x+r, y+r};
+        }
+
+        SPATIAL_FINLINE static Rect fromWorldCoords(float x1, float y1, float x2, float y2)
+        {
+            return Rect{ (int)x1, (int)y1, (int)x2, (int)y2 };
         }
 
         SPATIAL_FINLINE bool overlaps(const Rect& r) const
