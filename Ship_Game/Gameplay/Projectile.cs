@@ -422,7 +422,6 @@ namespace Ship_Game.Gameplay
             if (ProjSO != null)
             {
                 Empire.Universe.RemoveObject(ProjSO);
-                ProjSO.Clear();
             }
 
             SetSystem(null);
@@ -552,8 +551,8 @@ namespace Ship_Game.Gameplay
         }
 
 
-        bool CloseEnoughForExplosion    => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SectorView;
-        bool CloseEnoughForFlashExplode => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView;
+        bool CloseEnoughForExplosion    => Empire.Universe.IsSectorViewOrCloser;
+        bool CloseEnoughForFlashExplode => Empire.Universe.IsSystemViewOrCloser;
 
         void ExplodeProjectile(bool cleanupOnly)
         {
