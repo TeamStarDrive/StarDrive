@@ -569,6 +569,17 @@ namespace Ship_Game
                 while (en.MoveNext()) Add(en.Current);
         }
 
+        /// Assigns all items from `array` to `this`
+        /// Internal buffer is resized only if needed
+        public void Assign(Array<T> array)
+        {
+            int count = array.Count;
+            Resize(count);
+
+            for (int i = 0; i < count; ++i)
+                Items[i] = array.Items[i];
+        }
+
         public void Sort()
         {
             Array.Sort(Items, 0, Count, null);

@@ -28,6 +28,10 @@ namespace Ship_Game
         /// </summary>
         public readonly Array<Projectile> Projectiles = new Array<Projectile>();
 
+        // temporary ship and projectile arrays used during Update()
+        readonly Array<Ship> ShipsToUpdate = new Array<Ship>();
+        readonly Array<Projectile> ProjectilesToUpdate = new Array<Projectile>();
+
         public readonly AggregatePerfTimer SysPerf   = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ShipsPerf = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ProjPerf  = new AggregatePerfTimer();
@@ -37,9 +41,11 @@ namespace Ship_Game
         /// </summary>
         public event Action<Ship> OnShipRemoved;
 
+
         public Ship[] VisibleShips { get; private set; } = Empty<Ship>.Array;
         public Projectile[] VisibleProjectiles { get; private set; } = Empty<Projectile>.Array;
         public Beam[] VisibleBeams { get; private set; } = Empty<Beam>.Array;
+
 
         public UniverseObjectManager(UniverseScreen universe, SpatialManager spatial, UniverseData data)
         {
@@ -186,10 +192,9 @@ namespace Ship_Game
         public void Update(FixedSimTime timeStep)
         {
             UpdateLists();
-
-            UpdateAllSystems(timeStep);
-            UpdateAllShips(timeStep);
-            UpdateAllProjectiles(timeStep);
+            UpdateAllSystems(timeStep, ShipsToUpdate);
+            UpdateAllShips(timeStep, ShipsToUpdate);
+            UpdateAllProjectiles(timeStep, ProjectilesToUpdate);
 
             lock (Objects)
             {
@@ -224,11 +229,11 @@ namespace Ship_Game
                     }
                 }
                 Ships.RemoveInActiveObjects();
+                ShipsToUpdate.Assign(Ships);
             }
 
             lock (Projectiles)
             {
-
                 for (int i = 0; i < Projectiles.Count; ++i)
                 {
                     Projectile proj = Projectiles[i];
@@ -245,21 +250,19 @@ namespace Ship_Game
                     }
                 }
                 Projectiles.RemoveInActiveObjects();
+                ProjectilesToUpdate.Assign(Projectiles);
             }
         }
 
-        void UpdateAllSystems(FixedSimTime timeStep)
+        void UpdateAllSystems(FixedSimTime timeStep, Array<Ship> ships)
         {
             if (Universe.IsExiting)
                 return;
             
             SysPerf.Start();
 
-            lock (Ships)
-            {
-                for (int i = 0; i < Ships.Count; ++i)
-                    Ships[i].SetSystem(null);
-            }
+            for (int i = 0; i < ships.Count; ++i)
+                ships[i].SetSystem(null);
 
             void UpdateSystems(int start, int end)
             {
@@ -271,7 +274,7 @@ namespace Ship_Game
                     //int debugId = (system.Name == "Opteris") ? 11 : 0;
                     GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
                                                     system.Position, system.Radius,
-                                                    maxResults:10_000/*, debugId:debugId*/);
+                                                    maxResults:ships.Count/*, debugId:debugId*/);
                     for (int j = 0; j < shipsInSystem.Length; ++j)
                     {
                         var ship = (Ship)shipsInSystem[j];
@@ -299,44 +302,45 @@ namespace Ship_Game
             SysPerf.Stop();
         }
 
-        void UpdateAllShips(FixedSimTime timeStep)
+        void UpdateAllShips(FixedSimTime timeStep, Array<Ship> ships)
         {
             ShipsPerf.Start();
-            bool isSystemView = (Universe.viewState <= UniverseScreen.UnivScreenState.SystemView);
-            lock (Ships)
-            {
-                Ship[] allShips = Ships.GetInternalArrayItems();
-                Parallel.For(Ships.Count, (start, end) =>
-                {
-                    for (int i = start; i < end; ++i)
-                    {
-                        Ship ship = allShips[i];
-                        ship.Update(timeStep);
-                        ship.UpdateModulePositions(timeStep, isSystemView);
 
-                        // make sure dead and dying ships can be seen.
-                        if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
-                            ship.KnownByEmpires.SetSeenByPlayer();
-                    }
-                }, Universe.MaxTaskCores);
-            }
+            bool isSystemView = (Universe.viewState <= UniverseScreen.UnivScreenState.SystemView);
+            Ship[] allShips = ships.GetInternalArrayItems();
+
+            Parallel.For(ships.Count, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    Ship ship = allShips[i];
+                    ship.Update(timeStep);
+                    ship.UpdateModulePositions(timeStep, isSystemView);
+
+                    // make sure dead and dying ships can be seen.
+                    if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
+                        ship.KnownByEmpires.SetSeenByPlayer();
+                }
+            }, Universe.MaxTaskCores);
+
             ShipsPerf.Stop();
         }
 
-        void UpdateAllProjectiles(FixedSimTime timeStep)
+        void UpdateAllProjectiles(FixedSimTime timeStep, Array<Projectile> projectiles)
         {
             ProjPerf.Start();
-            lock (Projectiles)
+
+            Projectile[] allProjectiles = projectiles.GetInternalArrayItems();
+
+            Parallel.For(projectiles.Count, (start, end) =>
             {
-                Parallel.For(Projectiles.Count, (start, end) =>
+                for (int i = start; i < end; ++i)
                 {
-                    for (int i = start; i < end; ++i)
-                    {
-                        Projectile proj = Projectiles[i];
-                        proj.Update(timeStep);
-                    }
-                }, Universe.MaxTaskCores);
-            }
+                    Projectile proj = allProjectiles[i];
+                    proj.Update(timeStep);
+                }
+            }, Universe.MaxTaskCores);
+
             ProjPerf.Stop();
         }
 
