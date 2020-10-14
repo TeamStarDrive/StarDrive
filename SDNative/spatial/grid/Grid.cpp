@@ -244,6 +244,7 @@ namespace spatial
         {
             DebugFindNearby dfn;
             dfn.SearchArea = opt.SearchRect;
+            dfn.RadialFilter = opt.RadialFilter;
             dfn.SelectedRect = toWorldRect(x1, y1, x2, y2, half, cellSize);
             dfn.TopLeft  = toWorldRect(x1, y1, half, cellSize);
             dfn.BotRight = toWorldRect(x2, y2, half, cellSize);

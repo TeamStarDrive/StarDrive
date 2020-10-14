@@ -399,7 +399,7 @@ namespace Ship_Game.Spatial
         struct NativeSearchOptions
         {
             public AABoundingBox2Di SearchRect;
-            public float SearchRadius;
+            public Circle RadialFilter;
             public int MaxResults;
             public int FilterByType;
             public int FilterExcludeObjectId;
@@ -418,7 +418,12 @@ namespace Ship_Game.Spatial
             var nso = new NativeSearchOptions
             {
                 SearchRect = new AABoundingBox2Di(opt.SearchRect),
-                SearchRadius = opt.SearchRadius,
+                RadialFilter = new Circle
+                {
+                    X=(int)opt.FilterOrigin.X,
+                    Y=(int)opt.FilterOrigin.Y,
+                    Radius=(int)opt.FilterRadius
+                },
                 MaxResults = opt.MaxResults,
                 FilterByType = (int)opt.FilterByType,
                 FilterExcludeObjectId = ignoreId,
