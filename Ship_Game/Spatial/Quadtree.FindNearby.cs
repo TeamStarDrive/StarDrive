@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.Xna.Framework;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -56,51 +57,37 @@ namespace Ship_Game
             return buffer;
         }
 
-        public GameplayObject[] FindNearby(GameObjectType type,
-                                           Vector2 worldPos,
-                                           float radius,
-                                           int maxResults,
-                                           GameplayObject toIgnore,
-                                           Empire excludeLoyalty,
-                                           Empire onlyLoyalty,
-                                           int debugId = 0)
+        public GameplayObject[] FindNearby(in SearchOptions opt)
         {
-            // we create a dummy object which covers our search radius
-            var enclosingRectangle = new SpatialObj(worldPos, radius);
-            enclosingRectangle.Obj = toIgnore; // This object will be excluded from the search
-            enclosingRectangle.Loyalty = (byte) (onlyLoyalty?.Id ?? 0); // filter by loyalty?
+            AABoundingBox2D searchRect = opt.SearchRect;
 
             // find the deepest enclosing node
             QtreeNode root = Root;
-            QtreeNode enclosing = FindEnclosingNode(root, ref enclosingRectangle);
+            QtreeNode enclosing = FindEnclosingNode(root, searchRect);
             if (enclosing == null)
                 return Empty<GameplayObject>.Array;
 
             // If enclosing object is the Root object and radius is huge,
             // switch to linear search because we need to traverse the ENTIRE universe anyway
-            if (enclosing == root && radius > QuadToLinearSearchThreshold)
+            if (enclosing == root && (searchRect.Width/2) > QuadToLinearSearchThreshold)
             {
-                return FindLinear(type, worldPos, radius, maxResults,
-                                  toIgnore, excludeLoyalty, onlyLoyalty);
+                return FindLinear(opt);
             }
 
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(enclosing);
-            if (buffer.Items.Length < maxResults)
+            if (buffer.Items.Length < opt.MaxResults)
             {
-                buffer.Items = new GameplayObject[maxResults];
+                buffer.Items = new GameplayObject[opt.MaxResults];
             }
 
             // NOTE: to avoid a few branches, we used pre-calculated masks
-            int excludeLoyaltyVal = (excludeLoyalty?.Id ?? 0);
+            int excludeLoyaltyVal = (opt.FilterExcludeByLoyalty?.Id ?? 0);
             int excludeLoyaltyMask = (excludeLoyaltyVal == 0) ? 0xff : ~excludeLoyaltyVal;
-            int onlyLoyaltyVal = (onlyLoyalty?.Id ?? 0); // filter by loyalty?
+            int onlyLoyaltyVal = (opt.FilterIncludeOnlyByLoyalty?.Id ?? 0); // filter by loyalty?
             int onlyLoyaltyMask = (onlyLoyaltyVal == 0) ? 0xff : onlyLoyaltyVal;
-            int filterMask = type == GameObjectType.Any ? 0xff : (int)type;
+            int filterMask = opt.FilterByType == GameObjectType.Any ? 0xff : (int)opt.FilterByType;
 
-            float cx = enclosingRectangle.CX;
-            float cy = enclosingRectangle.CY;
-            float r = enclosingRectangle.Radius;
-            GameplayObject sourceObject = enclosingRectangle.Obj;
+            GameplayObject sourceObject = opt.FilterExcludeObject;
             do
             {
                 QtreeNode node = buffer.Pop();
@@ -118,35 +105,30 @@ namespace Ship_Game
                         && ((int)so.Type & filterMask) != 0
                         && (so.Obj != sourceObject))
                     {
-                        // check if inside radius, inlined for perf
-                        float dx = cx - so.CX;
-                        float dy = cy - so.CY;
-                        float r2 = r + so.Radius;
-                        if ((dx * dx + dy * dy) <= (r2 * r2))
+                        if (so.AABB.Overlaps(searchRect))
                         {
                             buffer.Items[buffer.Count++] = so.Obj;
-                            if (buffer.Count >= maxResults)
+                            if (buffer.Count >= opt.MaxResults)
                                 break; // we are done !
                         }
                     }
-
                 }
 
-                if (buffer.Count >= maxResults)
+                if (buffer.Count >= opt.MaxResults)
                     break; // we are done !
 
                 if (node.NW != null)
                 {
-                    if (node.NW.Overlaps(enclosingRectangle))
+                    if (node.NW.AABB.Overlaps(searchRect))
                         buffer.NodeStack[++buffer.NextNode] = node.NW;
 
-                    if (node.NE.Overlaps(enclosingRectangle))
+                    if (node.NE.AABB.Overlaps(searchRect))
                         buffer.NodeStack[++buffer.NextNode] = node.NE;
 
-                    if (node.SE.Overlaps(enclosingRectangle))
+                    if (node.SE.AABB.Overlaps(searchRect))
                         buffer.NodeStack[++buffer.NextNode] = node.SE;
 
-                    if (node.SW.Overlaps(enclosingRectangle))
+                    if (node.SW.AABB.Overlaps(searchRect))
                         buffer.NodeStack[++buffer.NextNode] = node.SW;
                 }
             } while (buffer.NextNode >= 0);
@@ -154,50 +136,42 @@ namespace Ship_Game
             return buffer.GetArrayAndClearBuffer();
         }
 
-        public GameplayObject[] FindLinear(GameObjectType type,
-                                           Vector2 worldPos,
-                                           float radius,
-                                           int maxResults,
-                                           GameplayObject toIgnore,
-                                           Empire excludeLoyalty,
-                                           Empire onlyLoyalty,
-                                           int debugId = 0)
+        public GameplayObject[] FindLinear(in SearchOptions opt)
         {
             FindResultBuffer nearby = FindBuffer.Value;
-            if (nearby.Items.Length < maxResults)
+            if (nearby.Items.Length < opt.MaxResults)
             {
-                nearby.Items = new GameplayObject[maxResults];
+                nearby.Items = new GameplayObject[opt.MaxResults];
             }
             
-            float cx = worldPos.X;
-            float cy = worldPos.Y;
-            bool filterByLoyalty = (excludeLoyalty != null) || (onlyLoyalty != null);
+            AABoundingBox2D searchRect = opt.SearchRect;
+            bool filterByLoyalty = (opt.FilterExcludeByLoyalty != null)
+                                || (opt.FilterIncludeOnlyByLoyalty != null);
 
             GameplayObject[] objects = Objects.GetInternalArrayItems();
             int count = Objects.Count;
+
             for (int i = 0; i < count; ++i)
             {
                 GameplayObject obj = objects[i];
-                if (obj == null || (toIgnore != null && obj == toIgnore)
-                    || (type != GameObjectType.Any && obj.Type != type))
+                if (obj == null
+                    || (opt.FilterExcludeObject != null && obj == opt.FilterExcludeObject)
+                    || (opt.FilterByType != GameObjectType.Any && obj.Type != opt.FilterByType))
                     continue;
 
                 if (filterByLoyalty)
                 {
                     Empire loyalty = obj.GetLoyalty();
-                    if ((excludeLoyalty != null && loyalty == excludeLoyalty)
-                        || (onlyLoyalty != null && loyalty != onlyLoyalty))
+                    if ((opt.FilterExcludeByLoyalty != null && loyalty == opt.FilterExcludeByLoyalty) ||
+                        (opt.FilterIncludeOnlyByLoyalty != null && loyalty != opt.FilterIncludeOnlyByLoyalty))
                         continue;
                 }
 
-                // check if inside radius, inlined for perf
-                float dx = cx - obj.Center.X;
-                float dy = cy - obj.Center.Y;
-                float r2 = radius + obj.Radius;
-                if ((dx*dx + dy*dy) <= (r2*r2))
+                var objectRect = new AABoundingBox2D(obj);
+                if (objectRect.Overlaps(searchRect))
                 {
                     nearby.Items[nearby.Count++] = obj;
-                    if (nearby.Count >= maxResults)
+                    if (nearby.Count >= opt.MaxResults)
                         break; // we are done !
                 }
             }

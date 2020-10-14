@@ -342,23 +342,21 @@ namespace Ship_Game
 
         void UpdateVisibleObjects()
         {
-            RectF worldRect = Universe.GetVisibleWorldRect();
-            float radius = Math.Max(worldRect.W, worldRect.H) * 0.5f;
-            Vector2 center = worldRect.Center;
+            AABoundingBox2D visibleWorld = Universe.GetVisibleWorldRect();
 
             Projectile[] projs = Empty<Projectile>.Array;
             Beam[] beams = Empty<Beam>.Array;
 
             if (Universe.viewState <= UniverseScreen.UnivScreenState.PlanetView)
             {
-                projs = Spatial.FindNearby(GameObjectType.Proj, center, radius, 1024)
+                projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 1024)
                                .FastCast<GameplayObject, Projectile>();
 
-                beams = Spatial.FindNearby(GameObjectType.Beam, center, radius, 1024)
+                beams = Spatial.FindNearby(GameObjectType.Beam, visibleWorld, 1024)
                                .FastCast<GameplayObject, Beam>();
             }
 
-            Ship[] ships = Spatial.FindNearby(GameObjectType.Ship, center, radius, 1024)
+            Ship[] ships = Spatial.FindNearby(GameObjectType.Ship, visibleWorld, 1024)
                                   .FastCast<GameplayObject, Ship>();
 
             VisibleProjectiles = projs;
