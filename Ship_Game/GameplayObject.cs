@@ -137,6 +137,7 @@ namespace Ship_Game
                 ship.ScuttleTimer = -1f; // Cancel any active self destruct 
                 changeTo.AddShip(ship);
                 ship.PiratePostChangeLoyalty();
+                ship.IsGuardian = changeTo.WeAreRemnants;
                 if (notification)
                 {
                     changeTo.AddBoardSuccessNotification(ship);
