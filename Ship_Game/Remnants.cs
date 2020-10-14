@@ -421,7 +421,7 @@ namespace Ship_Game
             numBombers    += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
 
             GetBomberType(out int multiplier);
-            return numBombers * multiplier;
+            return (numBombers * multiplier).UpperBound(Level-1);
         }
 
         RemnantShipType GetBomberType(out int bomberNumMultiplier)
@@ -511,28 +511,31 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/15;
-            int roll           = RollDie(effectiveLevel, Level / 2).LowerBound(1);
+            int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/10;
+            int roll           = RollDie(effectiveLevel, (Level / 2).LowerBound(1));
             switch (roll)
             {
                 case 1:
-                case 2:  return RemnantShipType.Fighter;
+                case 2:
                 case 3:
-                case 4:  return RemnantShipType.SmallSupport;
+                case 4:  return RemnantShipType.Fighter;
                 case 5:
-                case 6:  return RemnantShipType.Corvette;
+                case 6:  return RemnantShipType.SmallSupport;
                 case 7:
-                case 8:  return RemnantShipType.Frigate;
-                case 9:
-                case 10: return RemnantShipType.Assimilator;
-                case 11:
-                case 12: return RemnantShipType.Cruiser;
-                case 13:
-                case 14: return RemnantShipType.Inhibitor;
-                case 15:
-                case 16: return RemnantShipType.Carrier;
-                case 17:
-                case 18: return RemnantShipType.Mothership;
+                case 8:
+                case 9:  return RemnantShipType.Corvette;
+                case 10:
+                case 11: return RemnantShipType.Frigate;
+                case 12:
+                case 13: return RemnantShipType.Assimilator;
+                case 14:
+                case 15: return RemnantShipType.Cruiser;
+                case 16:
+                case 17: return RemnantShipType.Inhibitor;
+                case 18:
+                case 19: return RemnantShipType.Carrier;
+                case 20:
+                case 21: return RemnantShipType.Mothership;
                 default: return RemnantShipType.Exterminator;
             }
         }
