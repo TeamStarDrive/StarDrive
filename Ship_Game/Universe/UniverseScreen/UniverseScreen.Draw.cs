@@ -767,7 +767,7 @@ namespace Ship_Game
             DebugGamePerfValues.MultilineText = new Array<string>
             {
                 $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime-CurrentSimTime)*1000:0.0}ms",
-                Objects.Ships.Count.ToString(),
+                GetMasterShipList().Count.ToString(),
 
                 Objects.SysPerf.String(TurnTimePerf),
                 Objects.ShipsPerf.String(TurnTimePerf),
