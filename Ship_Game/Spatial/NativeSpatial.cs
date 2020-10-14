@@ -377,21 +377,6 @@ namespace Ship_Game.Spatial
             return hitModule != null;
         }
 
-        GameplayObject[] CopyOutput(int* objectIds, int count, GameplayObject[] objects)
-        {
-            if (count == 0)
-                return Empty<GameplayObject>.Array;
-
-            var found = new GameplayObject[count];
-            for (int i = 0; i < found.Length; ++i)
-            {
-                int spatialIndex = objectIds[i];
-                GameplayObject go = objects[spatialIndex];
-                found[i] = go;
-            }
-            return found;
-        }
-
         [UnmanagedFunctionPointer(CC)]
         delegate int SearchFilter(int objectId);
 
@@ -422,7 +407,7 @@ namespace Ship_Game.Spatial
                 {
                     X=(int)opt.FilterOrigin.X,
                     Y=(int)opt.FilterOrigin.Y,
-                    Radius=(int)opt.FilterRadius
+                    Radius=(int)(opt.FilterRadius + 0.5f) // ceil
                 },
                 MaxResults = opt.MaxResults,
                 FilterByType = (int)opt.FilterByType,
@@ -453,15 +438,25 @@ namespace Ship_Game.Spatial
 
         public GameplayObject[] FindLinear(in SearchOptions opt)
         {
+            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
+            int count = FrontObjects.Count;
+            return FindLinear(opt, objects, count);
+        }
+        
+        public static GameplayObject[] FindLinear(in SearchOptions opt, GameplayObject[] objects, int count)
+        {
+            int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
+            int* objectIds = stackalloc int[maxResults];
             int resultCount = 0;
-            int* objectIds = stackalloc int[opt.MaxResults];
 
             AABoundingBox2D searchRect = opt.SearchRect;
             bool filterByLoyalty = (opt.FilterExcludeByLoyalty != null)
                                 || (opt.FilterIncludeOnlyByLoyalty != null);
 
-            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
-            int count = FrontObjects.Count;
+            float searchFX = opt.FilterOrigin.X;
+            float searchFY = opt.FilterOrigin.Y;
+            float searchFR = opt.FilterRadius;
+            bool useSearchRadius = searchFR > 0f;
 
             for (int i = 0; i < count; ++i)
             {
@@ -480,16 +475,39 @@ namespace Ship_Game.Spatial
                 }
 
                 var objectRect = new AABoundingBox2D(obj);
-                if (objectRect.Overlaps(searchRect))
+                if (!objectRect.Overlaps(searchRect))
+                    continue;
+
+                if (useSearchRadius)
                 {
-                    objectIds[resultCount++] = obj.SpatialIndex;
-                    if (resultCount >= opt.MaxResults)
-                        break; // we are done !
+                    float dx = searchFX - obj.Center.X;
+                    float dy = searchFY - obj.Center.Y;
+                    float rr = searchFR + obj.Radius;
+                    if ((dx*dx + dy*dy) > (rr*rr))
+                        continue; // not in squared radius
                 }
+
+                objectIds[resultCount++] = i;
+                if (resultCount == maxResults)
+                    break; // we are done !
             }
             return CopyOutput(objectIds, resultCount, objects);
         }
-        
+        static GameplayObject[] CopyOutput(int* objectIds, int count, GameplayObject[] objects)
+        {
+            if (count == 0)
+                return Empty<GameplayObject>.Array;
+
+            var found = new GameplayObject[count];
+            for (int i = 0; i < found.Length; ++i)
+            {
+                int spatialIndex = objectIds[i];
+                GameplayObject go = objects[spatialIndex];
+                found[i] = go;
+            }
+            return found;
+        }
+
         struct Point
         {
             public int X;

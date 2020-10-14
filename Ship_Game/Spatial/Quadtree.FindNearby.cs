@@ -86,6 +86,11 @@ namespace Ship_Game
             int onlyLoyaltyVal = (opt.FilterIncludeOnlyByLoyalty?.Id ?? 0); // filter by loyalty?
             int onlyLoyaltyMask = (onlyLoyaltyVal == 0) ? 0xff : onlyLoyaltyVal;
             int filterMask = opt.FilterByType == GameObjectType.Any ? 0xff : (int)opt.FilterByType;
+            int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
+            float searchFX = opt.FilterOrigin.X;
+            float searchFY = opt.FilterOrigin.Y;
+            float searchFR = opt.FilterRadius;
+            bool useSearchRadius = searchFR > 0f;
 
             GameplayObject sourceObject = opt.FilterExcludeObject;
             do
@@ -105,16 +110,25 @@ namespace Ship_Game
                         && ((int)so.Type & filterMask) != 0
                         && (so.Obj != sourceObject))
                     {
-                        if (so.AABB.Overlaps(searchRect))
+                        if (!so.AABB.Overlaps(searchRect))
+                            continue;
+
+                        if (useSearchRadius)
                         {
-                            buffer.Items[buffer.Count++] = so.Obj;
-                            if (buffer.Count >= opt.MaxResults)
-                                break; // we are done !
+                            float dx = searchFX - so.CX;
+                            float dy = searchFY - so.CY;
+                            float rr = searchFR + so.Radius;
+                            if ((dx*dx + dy*dy) > (rr*rr))
+                                continue; // not in squared radius
                         }
+
+                        buffer.Items[buffer.Count++] = so.Obj;
+                        if (buffer.Count == opt.MaxResults)
+                            break; // we are done !
                     }
                 }
 
-                if (buffer.Count >= opt.MaxResults)
+                if (buffer.Count == maxResults)
                     break; // we are done !
 
                 if (node.NW != null)
@@ -138,45 +152,7 @@ namespace Ship_Game
 
         public GameplayObject[] FindLinear(in SearchOptions opt)
         {
-            FindResultBuffer nearby = FindBuffer.Value;
-            if (nearby.Items.Length < opt.MaxResults)
-            {
-                nearby.Items = new GameplayObject[opt.MaxResults];
-            }
-            
-            AABoundingBox2D searchRect = opt.SearchRect;
-            bool filterByLoyalty = (opt.FilterExcludeByLoyalty != null)
-                                || (opt.FilterIncludeOnlyByLoyalty != null);
-
-            GameplayObject[] objects = Objects.GetInternalArrayItems();
-            int count = Objects.Count;
-
-            for (int i = 0; i < count; ++i)
-            {
-                GameplayObject obj = objects[i];
-                if (obj == null
-                    || (opt.FilterExcludeObject != null && obj == opt.FilterExcludeObject)
-                    || (opt.FilterByType != GameObjectType.Any && obj.Type != opt.FilterByType))
-                    continue;
-
-                if (filterByLoyalty)
-                {
-                    Empire loyalty = obj.GetLoyalty();
-                    if ((opt.FilterExcludeByLoyalty != null && loyalty == opt.FilterExcludeByLoyalty) ||
-                        (opt.FilterIncludeOnlyByLoyalty != null && loyalty != opt.FilterIncludeOnlyByLoyalty))
-                        continue;
-                }
-
-                var objectRect = new AABoundingBox2D(obj);
-                if (objectRect.Overlaps(searchRect))
-                {
-                    nearby.Items[nearby.Count++] = obj;
-                    if (nearby.Count >= opt.MaxResults)
-                        break; // we are done !
-                }
-            }
-
-            return nearby.GetArrayAndClearBuffer();
+            return NativeSpatial.FindLinear(opt, Objects.GetInternalArrayItems(), Objects.Count);
         }
     }
 }
