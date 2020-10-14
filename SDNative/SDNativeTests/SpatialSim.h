@@ -27,6 +27,7 @@ struct Simulation final : spatial::Visualizer
 
     bool isPaused = true;
     bool isExiting = false;
+    bool useRadialFilter = true;
     bool wasMouseDragging = false;
     ImVec2 mouseDragStart {};
 
@@ -74,6 +75,7 @@ struct Simulation final : spatial::Visualizer
     }
 
     static bool isPressed(int key) { return ImGui::IsKeyPressed(ImGui::GetKeyIndex(key)); }
+    static bool isPressed(char key) { return ImGui::IsKeyPressed(key); }
 
     ///////////////////////////////////////////////////////////////////////////////
 
@@ -236,6 +238,7 @@ struct Simulation final : spatial::Visualizer
             ImGui::Text("  Change Node Capacity:  Left/Right Arrow");
             ImGui::Text("  Change Cell Size:      PgUp/Down");
             ImGui::Text("  Toggle Spatial Type:   V ");
+            ImGui::Text("  Toggle Radius Filter:  R");
             ImGui::Text("  Use FindNearby:        RightMouse ");
         }
 
@@ -247,7 +250,8 @@ struct Simulation final : spatial::Visualizer
         ImGui::Text("%s::memory:  %.1fKB", name, spat.totalMemory() / 1024.0f);
         ImGui::Text("%s::rebuild(%d) elapsed: %.1fms", name, n, rebuildMs);
         ImGui::Text("%s::collideAll(%d) elapsed: %.1fms  %d collisions", name, n, collideMs, numCollisions);
-        ImGui::Text("%s::findNearby(size=%d) elapsed: %.3fms  %d results", name, opt.SearchRect.width(), findNearbyMs, numSearchResults);
+        ImGui::Text("%s::findNearby(%dx%d) elapsed: %.3fms  %d results",
+                    name, opt.SearchRect.width(), opt.SearchRect.height(), findNearbyMs, numSearchResults);
         ImGui::Text("%s::draw() elapsed: %.1fms", name, elapsedDrawMs);
         ImGui::Text("%s::total(%d) elapsed: %.1fms", name, n, collideMs+rebuildMs+elapsedDrawMs);
     }
@@ -264,6 +268,11 @@ struct Simulation final : spatial::Visualizer
             params.type = static_cast<spatial::SpatialType>((int)params.type + 1);
             if (params.type > spatial::SpatialType::QuadTree)
                 params.type = spatial::SpatialType::Grid;
+        }
+
+        if (isPressed('R'))
+        {
+            useRadialFilter = !useRadialFilter;
         }
 
         if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
@@ -298,6 +307,16 @@ struct Simulation final : spatial::Visualizer
             ImVec2 end = screenToWorld(ImGui::GetMousePos());
             opt.SearchRect = { (int)mouseDragStart.x, (int)mouseDragStart.y, (int)end.x, (int)end.y };
             opt.SearchRect = opt.SearchRect.normalized();
+            if (useRadialFilter)
+            {
+                int radius = std::max(opt.SearchRect.width(), opt.SearchRect.height()) / 2;
+                opt.RadialFilter = { opt.SearchRect.centerX(), opt.SearchRect.centerY(), radius };
+                //opt.RadialFilter = { opt.SearchRect.left, opt.SearchRect.centerY(), radius };
+            }
+            else
+            {
+                opt.RadialFilter = spatial::Circle::Zero();
+            }
 
             rpp::Timer t;
             numSearchResults = spat.findNearby(searchResults.data(), opt);
