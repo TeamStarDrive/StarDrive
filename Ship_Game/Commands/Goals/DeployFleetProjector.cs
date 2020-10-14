@@ -59,11 +59,11 @@ namespace Ship_Game.Commands.Goals
                 {
                     if (Fleet == null)
                     {
-                        constructionGoal.PlanetBuildingAt.Construction.Cancel(constructionGoal);
+                        constructionGoal.PlanetBuildingAt?.Construction.Cancel(constructionGoal);
                         return GoalStep.GoalFailed;
                     }
 
-                    constructionGoal.PlanetBuildingAt.Construction.PrioritizeProjector(BuildPosition);
+                    constructionGoal.PlanetBuildingAt?.Construction.PrioritizeProjector(BuildPosition);
                     return GoalStep.TryAgain;
                 }
 

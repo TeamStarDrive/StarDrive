@@ -1,0 +1,12 @@
+﻿<ExplorationEvent>
+  <Name>Remnant Protocols</Name>
+  <StoryStep>4</StoryStep>
+  <Story>AncientBalancers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Remnant Protocols</TitleText>
+      <DescriptionText>After gaining some more access to Remnant broken computers, we believe we have uncovered some of their protocols. To our understanding, they believe they are the Balancers of the galaxy. They have left guardians which triggered the portal creation once enough sentient activity was detected by them. Their protocols require to keep all sentient life in check, thus bringing balance to the galaxy. They will engage any empire which becomes a threat to others. We think that the destruction of the Remnant portal will end their involvement in this part of the galaxy. it also seems that the portal is absorbing a rather lethal radiation from the stars they orbit and the bad news is that they are getting stronger as the years pass by.</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

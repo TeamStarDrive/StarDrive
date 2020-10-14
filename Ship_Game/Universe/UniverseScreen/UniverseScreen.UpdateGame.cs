@@ -400,6 +400,8 @@ namespace Ship_Game
                 ProjectPieMenu(SelectedPlanet.Center, 2500f);
             }
 
+            // todo figure what to do with this
+            /*
             if (GlobalStats.RemnantArmageddon)
             {
                 ArmageddonCountdown(timeStep);
