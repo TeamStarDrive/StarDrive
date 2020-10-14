@@ -135,6 +135,9 @@ namespace Ship_Game
             return projectiles;
         }
 
+        /// <summary>
+        /// Adds a new object to the Universe, in a Thread-Safe manner
+        /// </summary>
         public void Add(GameplayObject go)
         {
             if (go.Type == GameObjectType.Ship)
@@ -219,36 +222,47 @@ namespace Ship_Game
         {
             lock (Ships)
             {
-                for (int i = 0; i < Ships.Count; ++i)
+                ShipsToUpdate.Assign(Ships);
+            }
+            lock (Projectiles)
+            {
+                ProjectilesToUpdate.Assign(Projectiles);
+            }
+
+            for (int i = 0; i < ShipsToUpdate.Count; ++i)
+            {
+                Ship ship = ShipsToUpdate[i];
+                if (!ship.Active)
                 {
-                    Ship ship = Ships[i];
-                    if (!ship.Active)
+                    OnShipRemoved?.Invoke(ship);
+                    ship.RemoveFromUniverseUnsafe();
+                }
+            }
+
+            for (int i = 0; i < ProjectilesToUpdate.Count; ++i)
+            {
+                Projectile proj = ProjectilesToUpdate[i];
+                if (proj.DieNextFrame)
+                {
+                    proj.Die(proj, false);
+                }
+                else if (proj is Beam beam)
+                {
+                    if (beam.Owner?.Active == false)
                     {
-                        OnShipRemoved?.Invoke(ship);
-                        ship.RemoveFromUniverseUnsafe();
+                        beam.Die(beam, false);
                     }
                 }
+            }
+
+            lock (Ships)
+            {
                 Ships.RemoveInActiveObjects();
                 ShipsToUpdate.Assign(Ships);
             }
 
             lock (Projectiles)
             {
-                for (int i = 0; i < Projectiles.Count; ++i)
-                {
-                    Projectile proj = Projectiles[i];
-                    if (proj.DieNextFrame)
-                    {
-                        proj.Die(proj, false);
-                    }
-                    else if (proj is Beam beam)
-                    {
-                        if (beam.Owner?.Active == false)
-                        {
-                            beam.Die(beam, false);
-                        }
-                    }
-                }
                 Projectiles.RemoveInActiveObjects();
                 ProjectilesToUpdate.Assign(Projectiles);
             }
