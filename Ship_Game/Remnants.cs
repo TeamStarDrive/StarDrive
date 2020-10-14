@@ -26,6 +26,8 @@ namespace Ship_Game
         public Map<RemnantShipType, float> ShipCosts { get; } = new Map<RemnantShipType, float>();
         public int StoryStep { get; private set; } = 1;
         public bool OnlyRemnantLeft { get; private set; }
+        public int HibernationTurns { get; private set; } // Remnants will not attack or gain production if above 0
+        public float ActivationXpNeeded { get; private set; } // xp of killed Remnant ships needed to for story activation
 
         public Remnants(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -51,6 +53,8 @@ namespace Ship_Game
             StoryStep           = sData.RemnantStoryStep;
             OnlyRemnantLeft     = sData.OnlyRemnantLeft;
             NextLevelUpDate     = sData.RemnantNextLevelUpDate;
+            HibernationTurns    = sData.RemnantHibernationTurns;
+            ActivationXpNeeded = sData.RemnantActivationXpNeeded;
 
             SetLevel(sData.RemnantLevel);
         }
@@ -60,7 +64,7 @@ namespace Ship_Game
             if (!Activated)
                 StoryTriggerKillsXp += xp;
 
-            if (!Activated && StoryTriggerKillsXp >= 25 * (EmpireManager.MajorEmpires.Length - 1))
+            if (!Activated && StoryTriggerKillsXp >= ActivationXpNeeded)
                 Activate();
 
             if (empire.isPlayer)
@@ -107,14 +111,20 @@ namespace Ship_Game
             Empire.Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
         }
 
+        public void GenerateStoryActivationThreshold()
+        {
+            
+        }
+
         public bool TryLevelUpByDate(out int newLevel)
         {
             newLevel = 0;
             if (Empire.Universe.StarDate.GreaterOrEqual(NextLevelUpDate))
             {
-                int turnsLevelUp = Owner.DifficultyModifiers.RemnantTurnsLevelUp + ExtraLevelUpEffort;
+                int turnsLevelUp = TurnsLevelUp + ExtraLevelUpEffort;
                 turnsLevelUp     = (int)(turnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
-                NextLevelUpDate += turnsLevelUp/10f;
+                HibernationTurns = 0;
+                NextLevelUpDate += turnsLevelUp / 10f;
 
                 if (Level < MaxLevel)
                 {
@@ -128,7 +138,15 @@ namespace Ship_Game
                 return true;
             }
 
+            CheckHibernation();
             return false;
+        }
+
+        void CheckHibernation() // Start Hibernation some time before leveling up
+        {
+            float hibernationDate = (NextLevelUpDate - NeededHibernationTurns / 10f).RoundToFractionOf10();
+            if (Empire.Universe.StarDate.RoundToFractionOf10().AlmostEqual(hibernationDate))
+                HibernationTurns = NeededHibernationTurns;
         }
 
         private void SetLevel(int level)
@@ -146,12 +164,14 @@ namespace Ship_Game
             }
         }
 
-        int ExtraLevelUpEffort => (Level-1) * 25;
+        int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
+        int ExtraLevelUpEffort            => (Level-1) * 25 + NeededHibernationTurns;
+        public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
 
         void SetInitialLevelUpDate()
         {
-            int turnsLevelUp = (int)(Owner.DifficultyModifiers.RemnantTurnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
-            NextLevelUpDate  = 1000 + turnsLevelUp/10f;
+            int turnsLevelUp = (int)(TurnsLevelUp * StoryTurnsLevelUpModifier() * CurrentGame.Pace);
+            NextLevelUpDate  = 1000 + turnsLevelUp/5f; // Initial Level in half rate (/5 instead of /10)
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation ----");
         }
 
@@ -209,6 +229,9 @@ namespace Ship_Game
 
         public bool CanDoAnotherEngagement()
         {
+            if (Hibernating)
+                return false;
+
             int maxRaids     = (Level < 5 ? 1 : 2) * NumPortals();
             int onGoingRaids = Goals.Count(g => g.IsRaid);
             return onGoingRaids < maxRaids;
@@ -246,6 +269,9 @@ namespace Ship_Game
 
         public bool TargetEmpireStillValid(Empire currentTarget, Ship portal, bool checkOnlyDefeated = false)
         {
+            if (Hibernating)
+                return false;
+
             if (checkOnlyDefeated && !currentTarget.data.Defeated)
                 return true;
 
@@ -275,7 +301,7 @@ namespace Ship_Game
             if (availableShips.Length > 0)
                 if (bombersNeeded > 0)
                 {
-                    var bombers = availableShips.Filter(s => s.Name == Owner.data.RemnantBomber);
+                    var bombers = availableShips.Filter(s => s.DesignRole == ShipData.RoleName.bomber);
                     if (bombers.Length > 0)
                         ship = bombers.First();
                 }
@@ -294,7 +320,7 @@ namespace Ship_Game
 
         public int NumBombersInFleet(Fleet fleet)
         {
-           return fleet?.Ships.Count(s => s.Name == Owner.data.RemnantBomber) ?? 0;
+           return fleet?.Ships.Count(s => s.DesignRole == ShipData.RoleName.bomber) ?? 0;
         }
 
         public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep)
@@ -330,14 +356,18 @@ namespace Ship_Game
             }
         }
 
-        public void WarnPlayerFleetIncoming(Planet p, float starDateEta)
+        public void WarnPlayerFleetIncoming(Planet planet, float starDateEta)
         {
-            if (p.Owner == null || !p.Owner.isPlayer ||!p.BuildingList.Any(b => b.DetectsRemnantFleet))
+            if (planet.Owner == null || !planet.Owner.isPlayer)
                 return;
 
-            string message = $"Remnant Fleet is targeting {p.Name}\nETA - Stardate {starDateEta.String(1)}";
-            Empire.Universe.NotificationManager.AddIncomingRemnants(p, message);
-            // todo add notification
+            SolarSystem system = planet.ParentSystem;
+            if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player 
+                                           && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
+            {
+                string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
+                Empire.Universe.NotificationManager.AddIncomingRemnants(planet, message);
+            }
         }
 
         public bool SelectTargetClosestPlanet(Ship portal, Empire targetEmpire, out Planet targetPlanet)
@@ -364,7 +394,7 @@ namespace Ship_Game
             if (potentialPlanets.Length == 0)
                 return false;
 
-            int numPlanets     = 5.UpperBound(potentialPlanets.Length);
+            int numPlanets     = 10.UpperBound(potentialPlanets.Length);
             var closestPlanets = potentialPlanets.Sorted(p => p.Center.Distance(currentPlanet.Center)).Take(numPlanets).ToArray();
             nextPlanet         = closestPlanets.RandItem();
             return nextPlanet != null;
@@ -374,7 +404,7 @@ namespace Ship_Game
         {
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                var guardians = system.ShipList.Filter(s => s.IsGuardian && !s.InCombat);
+                var guardians = system.ShipList.Filter(s => s != null && s.IsGuardian && !s.InCombat);
                 if (guardians.Length > 0)
                 {
                     Ship chosenGuardian = guardians.RandItem();
@@ -385,18 +415,31 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            if (!RollDice((Level - 1) * 10)) 
-                return 0;
 
-            var numBombers = planet.Level > 4 ? 2 : 1;
-            if (Level > 10)
-                numBombers += 1;
+            var numBombers = Level > 10 ? 2 : 1;
+            numBombers    += NumPortals()-1;
+            numBombers    += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
 
-            numBombers = (numBombers + NumPortals()).UpperBound(Level/2);
-            if (planet.ShieldStrengthMax.Greater(0))
-                numBombers += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
+            GetBomberType(out int multiplier);
+            return (numBombers * multiplier).UpperBound(Level-1);
+        }
 
-            return numBombers;
+        RemnantShipType GetBomberType(out int bomberNumMultiplier)
+        {
+            bomberNumMultiplier = 1;
+            if (Level < 5)
+            {
+                bomberNumMultiplier = 3;
+                return RemnantShipType.BomberLight;
+            }
+
+            if (Level < 10)
+            {
+                bomberNumMultiplier = 2;
+                return RemnantShipType.BomberMedium;
+            }
+
+            return RemnantShipType.Bomber;
         }
 
         public bool CreatePortal()
@@ -430,7 +473,7 @@ namespace Ship_Game
         public bool CreateShip(Ship portal, bool needBomber, int numShips, out Ship ship)
         {
             ship = null;
-            RemnantShipType type = needBomber ? RemnantShipType.Bomber : SelectShipForCreation(numShips);
+            RemnantShipType type = needBomber ? GetBomberType(out _) : SelectShipForCreation(numShips);
             if (!ShipCosts.TryGetValue(type, out float cost) || Production < cost)
                 return false;
 
@@ -448,11 +491,15 @@ namespace Ship_Game
             AddShipCost(Owner.data.RemnantCorvette, RemnantShipType.Corvette);
             AddShipCost(Owner.data.RemnantSupportSmall, RemnantShipType.SmallSupport);
             AddShipCost(Owner.data.RemnantAssimilator, RemnantShipType.Assimilator);
+            AddShipCost(Owner.data.RemnantCruiser, RemnantShipType.Cruiser);
             AddShipCost(Owner.data.RemnantCarrier, RemnantShipType.Carrier);
             AddShipCost(Owner.data.RemnantMotherShip, RemnantShipType.Mothership);
             AddShipCost(Owner.data.RemnantExterminator, RemnantShipType.Exterminator);
             AddShipCost(Owner.data.RemnantInhibitor, RemnantShipType.Inhibitor);
             AddShipCost(Owner.data.RemnantBomber, RemnantShipType.Bomber);
+            AddShipCost(Owner.data.RemnantFrigate, RemnantShipType.Frigate);
+            AddShipCost(Owner.data.RemnantBomberLight, RemnantShipType.BomberLight);
+            AddShipCost(Owner.data.RemnantBomberMedium, RemnantShipType.BomberMedium);
         }
 
         void AddShipCost(string shipName, RemnantShipType type)
@@ -465,25 +512,30 @@ namespace Ship_Game
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/10;
-            int roll           = RollDie(effectiveLevel, Level / 2).LowerBound(1);
+            int roll           = RollDie(effectiveLevel, (Level / 2).LowerBound(1));
             switch (roll)
             {
                 case 1:
-                case 2:  return RemnantShipType.Fighter;
+                case 2:
                 case 3:
-                case 4:  return RemnantShipType.SmallSupport;
+                case 4:  return RemnantShipType.Fighter;
                 case 5:
-                case 6:  return RemnantShipType.Corvette;
+                case 6:  return RemnantShipType.SmallSupport;
                 case 7:
-                case 8:  return RemnantShipType.Assimilator;
-                case 9:
-                case 10: return RemnantShipType.Cruiser;
-                case 11:
-                case 12: return RemnantShipType.Inhibitor;
-                case 13:
-                case 14: return RemnantShipType.Carrier;
-                case 15:
-                case 16: return RemnantShipType.Mothership;
+                case 8:
+                case 9:  return RemnantShipType.Corvette;
+                case 10:
+                case 11: return RemnantShipType.Frigate;
+                case 12:
+                case 13: return RemnantShipType.Assimilator;
+                case 14:
+                case 15: return RemnantShipType.Cruiser;
+                case 16:
+                case 17: return RemnantShipType.Inhibitor;
+                case 18:
+                case 19: return RemnantShipType.Carrier;
+                case 20:
+                case 21: return RemnantShipType.Mothership;
                 default: return RemnantShipType.Exterminator;
             }
         }
@@ -505,6 +557,9 @@ namespace Ship_Game
                 case RemnantShipType.Portal:       shipName = Owner.data.RemnantPortal;       break;
                 case RemnantShipType.Bomber:       shipName = Owner.data.RemnantBomber;       break;
                 case RemnantShipType.Inhibitor:    shipName = Owner.data.RemnantInhibitor;    break;
+                case RemnantShipType.Frigate:      shipName = Owner.data.RemnantFrigate;      break;
+                case RemnantShipType.BomberLight:  shipName = Owner.data.RemnantBomberLight;  break;
+                case RemnantShipType.BomberMedium: shipName = Owner.data.RemnantBomberMedium; break;
             }
 
             if (shipName.NotEmpty())
@@ -523,7 +578,20 @@ namespace Ship_Game
             return remnantShip != null;
         }
 
-        public void GenerateProduction(float amount)
+        public bool Hibernating => HibernationTurns > 0;
+
+        public void TryGenerateProduction(float amount)
+        {
+            if (Hibernating)
+            {
+                HibernationTurns -= 1;
+                return;
+            }
+
+            GenerateProduction(amount);
+        }
+
+        void GenerateProduction(float amount)
         {
             Production = (Production + amount).UpperBound(Level * Level * 500); // Level 20 - 400k
         }
@@ -773,7 +841,10 @@ namespace Ship_Game
             {
                 Vector2 pos = p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
                 if (SpawnShip(type, pos, out Ship ship))
+                {
                     ship.OrderToOrbit(p);
+                    ActivationXpNeeded += ShipRole.GetExpSettings(ship).KillExp / 10;
+                }
             }
         }
 
@@ -837,6 +908,9 @@ namespace Ship_Game
         Exterminator,
         Inhibitor,
         Portal,
-        Bomber
+        Bomber,
+        Frigate,
+        BomberLight,
+        BomberMedium
     }
 }

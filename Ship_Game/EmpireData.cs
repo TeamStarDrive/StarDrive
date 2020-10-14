@@ -292,8 +292,11 @@ namespace Ship_Game
         [Serialize(137)] public string RemnantMotherShip;
         [Serialize(138)] public string RemnantExterminator;
         [Serialize(139)] public string RemnantPortal;
-        [Serialize(139)] public string RemnantBomber;
-        [Serialize(140)] public string RemnantInhibitor;
+        [Serialize(140)] public string RemnantBomber;
+        [Serialize(141)] public string RemnantInhibitor;
+        [Serialize(142)] public string RemnantFrigate;
+        [Serialize(143)] public string RemnantBomberLight;
+        [Serialize(144)] public string RemnantBomberMedium;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;

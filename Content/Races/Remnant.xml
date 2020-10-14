@@ -18,6 +18,9 @@
   <RemnantExterminator>Remnant Exterminator</RemnantExterminator>
   <RemnantInhibitor>Remnant Inhibitor</RemnantInhibitor>
   <RemnantPortal>Remnant Portal</RemnantPortal>
+  <RemnantFrigate>Ancient Frigate</RemnantFrigate>
+  <RemnantBomberLight>Light Ancient Bomber</RemnantBomberLight>
+  <RemnantBomberMedium>Medium Ancient Bomber</RemnantBomberMedium>
 
   <!-- Fertility multipliers for environments. For Remnants, this will control amount of guardian fleet deploy at game creation -->
   <EnvTerran>2</EnvTerran>
