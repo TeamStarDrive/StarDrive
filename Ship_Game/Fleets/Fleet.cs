@@ -804,6 +804,9 @@ namespace Ship_Game.Fleets
             if (task.TargetPlanet == null)
                 return false;
 
+            if (AveragePosition().InRadius(task.TargetPlanet.ParentSystem.Position, task.TargetPlanet.ParentSystem.Radius))
+                return false; // The Fleet is already there
+
             float distanceToPlanet = AveragePosition().Distance(task.TargetPlanet.Center);
             float slowestWarpSpeed = Ships.Min(s => s.MaxFTLSpeed).LowerBound(1000);
             float secondsToTarget  = distanceToPlanet / slowestWarpSpeed;

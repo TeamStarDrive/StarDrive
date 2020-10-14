@@ -618,13 +618,20 @@ namespace Ship_Game.Debug
             SetTextCursor(Win.X + 10 + 255, Win.Y + 150, e.EmpireColor);
             DrawString($"Remnant Story: {e.Remnants.Story}");
             DrawString(!e.Remnants.Activated
-                ? $"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{25 * (EmpireManager.MajorEmpires.Length - 1)}"
+                ? $"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{e.Remnants.ActivationXpNeeded.String()}"
                 : $"Level Up Stardate: {e.Remnants.NextLevelUpDate}");
+
+            DrawString(!e.Remnants.Hibernating
+                ? $"Next Hibernation in: {e.Remnants.NextLevelUpDate - e.Remnants.NeededHibernationTurns/10f}"
+                : $"Hibernating for: {e.Remnants.HibernationTurns} turns");
 
             string activatedString = e.Remnants.Activated ? "Yes" : "No";
             activatedString        = e.data.Defeated ? "Defeated" : activatedString;
             DrawString($"Activated: {activatedString}");
             DrawString($"Level: {e.Remnants.Level}");
+
+
+
             DrawString($"Resources: {e.Remnants.Production.String()}");
             NewLine();
             DrawString("Empires Score and Strength:");
