@@ -19,6 +19,10 @@ namespace spatial
         /// Search rectangle
         Rect SearchRect = Rect::Zero();
 
+        /// If Non-Zero, search results will have an additional
+        /// filtering pass using this radius
+        float SearchRadius = 0.0f;
+
         /// Maximum number of filtered final results until search is terminated
         /// Must be at least 1
         int MaxResults = 10;

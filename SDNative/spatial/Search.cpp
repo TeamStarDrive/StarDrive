@@ -9,6 +9,7 @@ namespace spatial
         // duplication is present by design to handle grid border overlap
         // this filtering is faster than other more complicated structural methods
         int idBitArraySize = ((maxObjectId / 32) + 1) * sizeof(uint32_t);
+        #pragma warning(disable:6255)
         uint32_t* idBitArray = (uint32_t*)_alloca(idBitArraySize);
         memset(idBitArray, 0, idBitArraySize);
 
