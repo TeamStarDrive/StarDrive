@@ -18,7 +18,7 @@ namespace Ship_Game
 
         public float CX, CY; // Center x y
         public float Radius;
-        public float X, Y, LastX, LastY;
+        public AABoundingBox2D AABB;
 
         public override string ToString() => Obj.ToString();
 
@@ -28,44 +28,10 @@ namespace Ship_Game
             Loyalty = (byte)go.GetLoyaltyId();
             Type    = go.Type;
             Obj     = go;
-            if (Type == GameObjectType.Beam)
-            {
-                var beam = (Beam)go;
-                Vector2 source = beam.Source;
-                Vector2 target = beam.Destination;
-                X     = Math.Min(source.X, target.X);
-                Y     = Math.Min(source.Y, target.Y);
-                LastX = Math.Max(source.X, target.X);
-                LastY = Math.Max(source.Y, target.Y);
-                CX = 0f;
-                CY = 0f;
-                Radius = 0f;
-            }
-            else
-            {
-                CX       = Obj.Center.X;
-                CY       = Obj.Center.Y;
-                Radius   = Obj.Radius;
-                X        = CX - Radius;
-                Y        = CY - Radius;
-                LastX    = CX + Radius;
-                LastY    = CY + Radius;
-            }
-        }
-
-        public SpatialObj(Vector2 center, float radius)
-        {
-            Active  = 1;
-            Loyalty = 0;
-            Type    = GameObjectType.Any;
-            Obj     = null;
-            CX      = center.X;
-            CY      = center.Y;
-            Radius  = radius;
-            X       = CX - radius;
-            Y       = CY - radius;
-            LastX   = CX + radius;
-            LastY   = CY + radius;
+            CX      = Obj.Center.X;
+            CY      = Obj.Center.Y;
+            Radius  = Obj.Radius;
+            AABB = new AABoundingBox2D(go);
         }
 
         public static bool HitTestBeam(Beam beam, ref SpatialObj target, out ShipModule hitModule, out float distanceToHit)

@@ -265,6 +265,7 @@ namespace spatial
         {
             DebugFindNearby dfn;
             dfn.SearchArea = searchRect;
+            dfn.SearchRadius = opt.SearchRadius;
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
             Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));

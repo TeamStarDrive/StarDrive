@@ -42,7 +42,7 @@ namespace Ship_Game
         static readonly Color Red = new Color(Color.OrangeRed, 100);
         static readonly Color Yellow = new Color(Color.Yellow, 100);
 
-        void DebugVisualize(GameScreen screen, in Vector2 topLeft, in Vector2 botRight, QtreeNode root)
+        void DebugVisualize(GameScreen screen, AABoundingBox2D visibleWorld, QtreeNode root)
         {
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
 
@@ -50,9 +50,8 @@ namespace Ship_Game
             {
                 QtreeNode node = buffer.Pop();
                 
-                var center = new Vector2((node.X + node.LastX) / 2, (node.Y + node.LastY) / 2);
-                var size = new Vector2(node.LastX - node.X, node.LastY - node.Y);
-                screen.DrawRectangleProjected(center, size, 0f, Brown);
+                Vector2 center = node.AABB.Center;
+                screen.DrawRectangleProjected(center, node.AABB.Size, 0f, Brown);
 
                 // @todo This is a hack to reduce concurrency related bugs.
                 //       once the main drawing and simulation loops are stable enough, this copying can be removed
@@ -64,25 +63,24 @@ namespace Ship_Game
                 for (int i = 0; i < count; ++i)
                 {
                     ref SpatialObj so = ref DebugDrawBuffer[i];
-                    var soCenter = new Vector2((so.X + so.LastX) / 2, (so.Y + so.LastY) / 2);
-                    var soSize = new Vector2(so.LastX - so.X, so.LastY - so.Y);
-                    screen.DrawRectangleProjected(soCenter, soSize, 0f, Violet);
+                    Vector2 soCenter = so.AABB.Center;
+                    screen.DrawRectangleProjected(soCenter, so.AABB.Size, 0f, Violet);
                     screen.DrawCircleProjected(soCenter, so.Radius, Violet);
                     screen.DrawLineProjected(center, soCenter, Violet);
                 }
 
                 if (node.NW != null)
                 {
-                    if (node.NW.Overlaps(topLeft, botRight))
+                    if (node.NW.AABB.Overlaps(visibleWorld))
                         buffer.NodeStack[++buffer.NextNode] = node.NW;
 
-                    if (node.NE.Overlaps(topLeft, botRight))
+                    if (node.NE.AABB.Overlaps(visibleWorld))
                         buffer.NodeStack[++buffer.NextNode] = node.NE;
 
-                    if (node.SE.Overlaps(topLeft, botRight))
+                    if (node.SE.AABB.Overlaps(visibleWorld))
                         buffer.NodeStack[++buffer.NextNode] = node.SE;
 
-                    if (node.SW.Overlaps(topLeft, botRight))
+                    if (node.SW.AABB.Overlaps(visibleWorld))
                         buffer.NodeStack[++buffer.NextNode] = node.SW;
                 }
             } while (buffer.NextNode >= 0);
@@ -91,10 +89,8 @@ namespace Ship_Game
 
         public void DebugVisualize(GameScreen screen)
         {
-            var screenSize = new Vector2(screen.Viewport.Width, screen.Viewport.Height);
-            Vector2 topLeft = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
-            Vector2 botRight = screen.UnprojectToWorldPosition(screenSize);
-            DebugVisualize(screen, topLeft, botRight, Root);
+            AABoundingBox2D visibleWorld = screen.GetVisibleWorldRect();
+            DebugVisualize(screen, visibleWorld, Root);
 
             Array.Clear(DebugDrawBuffer, 0, DebugDrawBuffer.Length); // prevent zombie objects
 
