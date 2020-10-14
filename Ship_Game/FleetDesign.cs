@@ -39,8 +39,8 @@ namespace Ship_Game
 
             // above or below average * fleet weightTypeValue should give a positive value when both are the same sign. 
             // and negative when opposite. 
-            float weight = weightTypeValue * (rawWeight - 0.5f);
-            return weight;
+            float weight = (weightTypeValue - 0.5f) * rawWeight;
+            return weight.UpperBound(1);
 
             // ex.
             // fleet value weightTypeValue is 0.5
@@ -53,8 +53,7 @@ namespace Ship_Game
             float weight = 0;
 
             bool defend = false;
-            float assist = 0;
-            int combatShips = 0;
+            bool assist = false;
 
             for (int i = 0; i < fleetShips.Count; i++)
             {
@@ -62,20 +61,17 @@ namespace Ship_Game
                 if (ship?.Active != true || ship.AI.Target == null || ship.DesignRoleType != ShipData.RoleType.Warship) 
                     continue;
 
-                combatShips++;
                 if (potential.AI.Target == ship) defend = true;
-
-                if (assist < Ship.Level)
-                {
-                    if (ship.AI.Target == potential) assist++;
-                }
-                else if (defend) 
+                if (ship.AI.Target == potential) assist = true;
+                
+                if (defend && assist) 
                     break;
             }
-            weight += ApplyTargetWeight(assist, assist / combatShips, DefenderWeight);
 
             if (defend)
                 weight += DefenderWeight;
+            if (assist)
+                weight += AssistWeight;
             
             return weight;
         }
