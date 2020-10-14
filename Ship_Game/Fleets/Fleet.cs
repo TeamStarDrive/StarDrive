@@ -476,7 +476,7 @@ namespace Ship_Game.Fleets
                                              && ship.InRadius(ao, radius) 
                                              && ship.AI.Target.InRadius(ao, radius))
                 {
-                    ship.AI.ClearPriorityOrder();
+                    ship.AI.ClearPriorityOrderAndTarget();
                     clearedOrder = true;
                 }
             }
@@ -945,7 +945,7 @@ namespace Ship_Game.Fleets
                     ship.AI.State == AIState.FormationWarp)
                 {
                     ship.AI.State = AIState.AwaitingOrders;
-                    ship.AI.ClearPriorityOrder();
+                    ship.AI.ClearPriorityOrderAndTarget();
                 }
             }
         }

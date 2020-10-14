@@ -81,7 +81,7 @@ namespace Ship_Game.AI
             ClearOrders(newState, priority);
         }
 
-        public void ClearPriorityOrder()
+        public void ClearPriorityOrderAndTarget()
         {
             SetPriorityOrder(false);
             Intercepting      = false;
