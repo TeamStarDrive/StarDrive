@@ -144,7 +144,8 @@ namespace Ship_Game
 
         void CheckHibernation() // Start Hibernation some time before leveling up
         {
-            if (Empire.Universe.StarDate.AlmostEqual(NextLevelUpDate - NeededHibernationTurns/10f))
+            float hibernationDate = (NextLevelUpDate - NeededHibernationTurns / 10f).RoundToFractionOf10();
+            if (Empire.Universe.StarDate.RoundToFractionOf10().AlmostEqual(hibernationDate))
                 HibernationTurns = NeededHibernationTurns;
         }
 
@@ -228,6 +229,9 @@ namespace Ship_Game
 
         public bool CanDoAnotherEngagement()
         {
+            if (Hibernating)
+                return false;
+
             int maxRaids     = (Level < 5 ? 1 : 2) * NumPortals();
             int onGoingRaids = Goals.Count(g => g.IsRaid);
             return onGoingRaids < maxRaids;
@@ -297,7 +301,7 @@ namespace Ship_Game
             if (availableShips.Length > 0)
                 if (bombersNeeded > 0)
                 {
-                    var bombers = availableShips.Filter(s => s.Name == Owner.data.RemnantBomber);
+                    var bombers = availableShips.Filter(s => s.DesignRole == ShipData.RoleName.bomber);
                     if (bombers.Length > 0)
                         ship = bombers.First();
                 }
@@ -316,7 +320,7 @@ namespace Ship_Game
 
         public int NumBombersInFleet(Fleet fleet)
         {
-           return fleet?.Ships.Count(s => s.Name == Owner.data.RemnantBomber) ?? 0;
+           return fleet?.Ships.Count(s => s.DesignRole == ShipData.RoleName.bomber) ?? 0;
         }
 
         public GoalStep ReleaseFleet(Fleet fleet, GoalStep goalStep)
@@ -411,15 +415,31 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
-            if (!RollDice((Level - 1) * 10)) 
-                return 0;
 
             var numBombers = Level > 10 ? 2 : 1;
-            numBombers     = (numBombers + NumPortals()).UpperBound(Level/2);
-            if (planet.ShieldStrengthMax.Greater(0))
-                numBombers += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
+            numBombers    += NumPortals()-1;
+            numBombers    += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
 
-            return numBombers;
+            GetBomberType(out int multiplier);
+            return (numBombers * multiplier).UpperBound(Level-1);
+        }
+
+        RemnantShipType GetBomberType(out int bomberNumMultiplier)
+        {
+            bomberNumMultiplier = 1;
+            if (Level < 5)
+            {
+                bomberNumMultiplier = 3;
+                return RemnantShipType.BomberLight;
+            }
+
+            if (Level < 10)
+            {
+                bomberNumMultiplier = 2;
+                return RemnantShipType.BomberMedium;
+            }
+
+            return RemnantShipType.Bomber;
         }
 
         public bool CreatePortal()
@@ -453,7 +473,7 @@ namespace Ship_Game
         public bool CreateShip(Ship portal, bool needBomber, int numShips, out Ship ship)
         {
             ship = null;
-            RemnantShipType type = needBomber ? RemnantShipType.Bomber : SelectShipForCreation(numShips);
+            RemnantShipType type = needBomber ? GetBomberType(out _) : SelectShipForCreation(numShips);
             if (!ShipCosts.TryGetValue(type, out float cost) || Production < cost)
                 return false;
 
@@ -471,12 +491,15 @@ namespace Ship_Game
             AddShipCost(Owner.data.RemnantCorvette, RemnantShipType.Corvette);
             AddShipCost(Owner.data.RemnantSupportSmall, RemnantShipType.SmallSupport);
             AddShipCost(Owner.data.RemnantAssimilator, RemnantShipType.Assimilator);
+            AddShipCost(Owner.data.RemnantCruiser, RemnantShipType.Cruiser);
             AddShipCost(Owner.data.RemnantCarrier, RemnantShipType.Carrier);
             AddShipCost(Owner.data.RemnantMotherShip, RemnantShipType.Mothership);
             AddShipCost(Owner.data.RemnantExterminator, RemnantShipType.Exterminator);
             AddShipCost(Owner.data.RemnantInhibitor, RemnantShipType.Inhibitor);
             AddShipCost(Owner.data.RemnantBomber, RemnantShipType.Bomber);
             AddShipCost(Owner.data.RemnantFrigate, RemnantShipType.Frigate);
+            AddShipCost(Owner.data.RemnantBomberLight, RemnantShipType.BomberLight);
+            AddShipCost(Owner.data.RemnantBomberMedium, RemnantShipType.BomberMedium);
         }
 
         void AddShipCost(string shipName, RemnantShipType type)
@@ -488,28 +511,31 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/15;
-            int roll           = RollDie(effectiveLevel, Level / 2).LowerBound(1);
+            int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/10;
+            int roll           = RollDie(effectiveLevel, (Level / 2).LowerBound(1));
             switch (roll)
             {
                 case 1:
-                case 2:  return RemnantShipType.Fighter;
+                case 2:
                 case 3:
-                case 4:  return RemnantShipType.SmallSupport;
+                case 4:  return RemnantShipType.Fighter;
                 case 5:
-                case 6:  return RemnantShipType.Corvette;
+                case 6:  return RemnantShipType.SmallSupport;
                 case 7:
-                case 8:  return RemnantShipType.Frigate;
-                case 9:
-                case 10: return RemnantShipType.Assimilator;
-                case 11:
-                case 12: return RemnantShipType.Cruiser;
-                case 13:
-                case 14: return RemnantShipType.Inhibitor;
-                case 15:
-                case 16: return RemnantShipType.Carrier;
-                case 17:
-                case 18: return RemnantShipType.Mothership;
+                case 8:
+                case 9:  return RemnantShipType.Corvette;
+                case 10:
+                case 11: return RemnantShipType.Frigate;
+                case 12:
+                case 13: return RemnantShipType.Assimilator;
+                case 14:
+                case 15: return RemnantShipType.Cruiser;
+                case 16:
+                case 17: return RemnantShipType.Inhibitor;
+                case 18:
+                case 19: return RemnantShipType.Carrier;
+                case 20:
+                case 21: return RemnantShipType.Mothership;
                 default: return RemnantShipType.Exterminator;
             }
         }
@@ -532,6 +558,8 @@ namespace Ship_Game
                 case RemnantShipType.Bomber:       shipName = Owner.data.RemnantBomber;       break;
                 case RemnantShipType.Inhibitor:    shipName = Owner.data.RemnantInhibitor;    break;
                 case RemnantShipType.Frigate:      shipName = Owner.data.RemnantFrigate;      break;
+                case RemnantShipType.BomberLight:  shipName = Owner.data.RemnantBomberLight;  break;
+                case RemnantShipType.BomberMedium: shipName = Owner.data.RemnantBomberMedium; break;
             }
 
             if (shipName.NotEmpty())
@@ -881,6 +909,8 @@ namespace Ship_Game
         Inhibitor,
         Portal,
         Bomber,
-        Frigate
+        Frigate,
+        BomberLight,
+        BomberMedium
     }
 }
