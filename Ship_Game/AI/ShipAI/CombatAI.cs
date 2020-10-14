@@ -57,7 +57,7 @@ namespace Ship_Game.AI
                 {
                     mains += w.Module.XSIZE * w.Module.YSIZE;
                 }
-                else if (w.SalvoCount > 2 || w.Tag_PD || w.Tag_Flak)
+                else if (w.SalvoCount > 2 || w.Tag_PD || w.Tag_Flak || w.Module.XSIZE + w.Module.YSIZE < 3)
                 {
                     pd += w.Module.XSIZE * w.Module.YSIZE;
                 }
@@ -78,6 +78,7 @@ namespace Ship_Game.AI
             if (ship.loyalty.WeArePirates)
                 PirateWeight   = 1;
             AssistWeight = Owner.Mothership != null ? 1 : 0;
+            PreferredEngagementDistance = Owner.WeaponsMaxRange > 0 ? Owner.WeaponsMaxRange : Owner.AI.GetSensorRadius().LowerBound(1);
         }
 
         public float ApplyWeight(Ship nearbyShip, TargetParameterTotals nearbyTotals)
@@ -91,12 +92,8 @@ namespace Ship_Game.AI
             if (Owner.AI.Target == nearbyShip)
                 weight += 1;
 
-            if (nearbyShip?.Weapons.Count == 0) 
-                weight += PirateWeight;
-
             weight += VultureWeight * (1 - nearbyShip.HealthPercent);
-            weight += SizeAttackWeight(weight, nearbyShip, nearbyTotals);
-            weight += RangeWeight(nearbyShip, weight);
+            weight += RangeWeight(nearbyShip);
 
             if (nearbyShip.AI.Target == Owner)
                 weight += SelfDefenseWeight;
@@ -104,32 +101,27 @@ namespace Ship_Game.AI
             if (nearbyShip.AI.Target?.GetLoyalty() == Owner.loyalty) 
                 weight += AssistWeight;
 
-            return weight;
+            return weight / 5;
         }
 
-        private float RangeWeight(Ship nearbyShip, float weight)
+        public float RangeWeight(Ship nearbyShip)
         {
             float rangeToTarget = Owner.Center.Distance(nearbyShip.Center);
+            float weight = 0;
             if (Owner.Mothership != null)            
-                rangeToTarget = Owner.Mothership.Center.Distance(nearbyShip.Center);
+                rangeToTarget = Owner.Mothership.Center.Distance(nearbyShip.Center).UpperBound(Owner.Mothership.AI.CombatAI.PreferredEngagementDistance);
             
-            if (Owner.AI.EscortTarget != null)            
-                rangeToTarget = Owner.AI.EscortTarget.Center.Distance(nearbyShip.Center);
-            
-
-            if (rangeToTarget <= PreferredEngagementDistance)
+            if (Owner.AI.EscortTarget != null)
             {
-                weight += (int) Math.Ceiling(5 * (rangeToTarget / PreferredEngagementDistance));
+                rangeToTarget = Owner.AI.EscortTarget.Center.Distance(nearbyShip.Center).UpperBound(PreferredEngagementDistance);
             }
-            else 
-            {
-                weight -= (int)Math.Ceiling(5 * (rangeToTarget / PreferredEngagementDistance));
-            }       
-            
-            return weight;
+            weight += 1 - (int)Math.Ceiling(rangeToTarget / PreferredEngagementDistance);
+
+
+            return weight.Clamped(-1f, 1);
         }
 
-        float SizeAttackWeight(float weight, Ship target, TargetParameterTotals nearbyAverages)
+        public float SizeAttackWeight(Ship target, TargetParameterTotals nearbyAverages)
         {
             float avgNearBySize = nearbyAverages.Size;
             int surfaceArea     = target.SurfaceArea;
@@ -140,13 +132,7 @@ namespace Ship_Game.AI
             else if (surfaceArea > avgNearBySize * 1.25f)
                 priority = LargeAttackWeight;
 
-            weight += priority;
-
-            // make range more pronounced for war support ships
-            if (target.DesignRoleType == ShipData.RoleType.WarSupport)
-                weight *= 2;
-
-            return weight;
+            return priority;
         }
 
         public void SetCombatTactics(CombatState combatState)

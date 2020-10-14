@@ -281,7 +281,7 @@ namespace Ship_Game.AI
                             continue;
 
 
-                        var sw = new ShipWeight(nearbyShip, 1);
+                        var sw = new ShipWeight(nearbyShip, 0);
                         if (BadGuysNear && nearbyShip.AI.Target is Ship ScannedNearbyTarget &&
                             ScannedNearbyTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
                         {
@@ -313,27 +313,26 @@ namespace Ship_Game.AI
             if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
                 return Target;
 
-            if (Target is Ship shipTarget)
-            {
-                if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
-                {
-                    var sw = new ShipWeight(shipTarget, 1);
-                    ScannedNearby.AddUnique(sw);
-                }
-            }
-            if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
-            {
-                var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
-                ScannedNearby.AddUnique(sw);
-            }
-
             SetTargetWeights(targetPrefs);
 
-            // limiting combat targets to the arbitrary -100 weight. Poor explained here. 
-            ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > -100)
-                .OrderByDescending(weight => weight.Weight).ToArray();
+            //if (Target is Ship shipTarget)
+            //{
+            //    if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
+            //    {
+            //        var sw = new ShipWeight(shipTarget, 1);
+            //        ScannedNearby.Add(sw);
+            //    }
+            //}
+            if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
+            {
+                var sw = new ShipWeight(EscortTarget.AI.Target, 1f);
+                ScannedNearby.Add(sw);
+            }
 
-            ScannedTargets.AddRange(SortedTargets.Select(ship => ship.Ship));
+            // limiting combat targets to only those with positive weight 
+            var sortedTargets = ScannedNearby.Filter(weight => weight.Weight > 0).SortedDescending(weight => weight.Weight);
+
+            ScannedTargets.AddRange(sortedTargets.Select(ship => ship.Ship));
 
             // check target validity
             if (Target?.Active != true)
@@ -349,8 +348,8 @@ namespace Ship_Game.AI
             }
 
             Ship targetShip = null;
-            if (SortedTargets.Length > 0)
-                targetShip = SortedTargets[0].Ship;
+            if (sortedTargets.Length > 0)
+                targetShip = sortedTargets[0].Ship;
 
             if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars)
                 return targetShip;
@@ -372,11 +371,14 @@ namespace Ship_Game.AI
                     continue;
                 }
 
+                if (copyWeight.Ship.Weapons.Count == 0)
+                    copyWeight += CombatAI.PirateWeight;
+
+                copyWeight += CombatAI.SizeAttackWeight(copyWeight.Ship, targetPrefs);
+
                 if (Owner.fleet == null || FleetNode == null)
                 {
-
                     copyWeight += CombatAI.ApplyWeight(copyWeight.Ship, targetPrefs);
-                    ScannedNearby[i] = copyWeight;//update stored weight from copy
                 }
                 else
                 {
@@ -384,7 +386,7 @@ namespace Ship_Game.AI
 
                     float orderRatio = fleetPos.Distance(copyWeight.Ship.Center) / FleetNode.OrdersRadius;
                     // if outside ordersRatio drop a heavy weight. 
-                    orderRatio = orderRatio <= 1 ? orderRatio : orderRatio * 10;
+                    orderRatio = orderRatio > 1 ? orderRatio : 1;
 
                     // 1- ordersRatio makes closer targets better.
                     copyWeight += (1 - orderRatio);
@@ -393,11 +395,12 @@ namespace Ship_Game.AI
                     copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.armor_max, targetPrefs.Armor, FleetNode.ArmoredWeight);
                     copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.SurfaceArea, targetPrefs.Size, FleetNode.SizeWeight);
                     copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.HealthPercent, targetPrefs.Health, FleetNode.VultureWeight);
-                    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.MaxSTLSpeed, targetPrefs.Speed, FleetNode.VultureWeight);
                     copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship);
-                    //ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
-                    ScannedNearby[i] = copyWeight;
+                    copyWeight.SetWeight(copyWeight.Weight / 9);
+                    
                 }
+                //ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
+                ScannedNearby[i] = copyWeight;
             }
         }
         
