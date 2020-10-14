@@ -431,7 +431,7 @@ namespace Ship_Game
 
         void CreateStationTethers()
         {
-            foreach (Ship ship in Objects.Ships)
+            foreach (Ship ship in GetMasterShipList())
             {
                 if (ship.TetherGuid != Guid.Empty)
                 {
@@ -499,7 +499,7 @@ namespace Ship_Game
         void CreateStartingShips()
         {
             // not a new game or load game at stardate 1000 
-            if (StarDate > 1000f || Objects.Ships.Count > 0)
+            if (StarDate > 1000f || GetMasterShipList().Count > 0)
                 return;
 
             foreach (Empire empire in EmpireManager.MajorEmpires)
