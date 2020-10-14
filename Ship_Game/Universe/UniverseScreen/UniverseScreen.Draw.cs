@@ -1039,27 +1039,29 @@ namespace Ship_Game
                                                                   center, radius, 256);
                 for (int i = 0; i < projectiles.Length; ++i)
                 {
-                    var proj = (Projectile)projectiles[i];
-                    proj.Draw(batch, this);
+                    // TODO: THREADING ISSUE between DrawThread and SimThread
+                    if (projectiles[i] is Projectile proj)
+                        proj.Draw(batch, this);
                 }
 
                 GameplayObject[] beams = Spatial.FindNearby(GameObjectType.Beam,
                                                             center, radius, 256);
                 for (int i = 0; i < beams.Length; ++i)
                 {
-                    var beam = (Beam)beams[i];
-                    beam.Draw(this);
+                    // TODO: THREADING ISSUE between DrawThread and SimThread
+                    if (beams[i] is Beam beam)
+                        beam.Draw(this);
                 }
             }
 
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            rs.AlphaBlendEnable                           = true;
-            rs.AlphaBlendOperation                        = BlendFunction.Add;
-            rs.SourceBlend                                = Blend.SourceAlpha;
-            rs.DestinationBlend                           = Blend.InverseSourceAlpha;
-            rs.DepthBufferWriteEnable                     = false;
-            rs.CullMode                                   = CullMode.None;
+            rs.AlphaBlendEnable       = true;
+            rs.AlphaBlendOperation    = BlendFunction.Add;
+            rs.SourceBlend            = Blend.SourceAlpha;
+            rs.DestinationBlend       = Blend.InverseSourceAlpha;
+            rs.DepthBufferWriteEnable = false;
+            rs.CullMode               = CullMode.None;
 
             GameplayObject[] ships = Spatial.FindNearby(GameObjectType.Ship,
                                                         center, radius, 10_000);
