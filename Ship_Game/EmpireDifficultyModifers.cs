@@ -11,7 +11,6 @@
         public readonly float TaskForceStrength;
         public readonly bool DataVisibleToPlayer;
         public readonly float Anger;
-        public readonly int RemnantStory;
         public readonly int ShipLevel;
         public readonly bool HideTacticalData;
         public readonly float MaxDesiredPlanets;
@@ -22,6 +21,8 @@
         public readonly float PiratePayModifier;
         public readonly int MinStartingColonies; // Starting colonies what we want
         public readonly int ExpandSearchTurns; // For Expansion
+        public readonly int RemnantTurnsLevelUp; // How many turns should pass before Remnants level up
+        public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -66,6 +67,8 @@
                     ExpansionModifier    = 0.2f;
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 150;
+                    RemnantTurnsLevelUp  = 500;
+                    RemnantResourceMod   = 0.15f;
 
                     if (!empire.isPlayer)
                     {
@@ -93,6 +96,8 @@
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
                     ExpandSearchTurns    = 100;
+                    RemnantTurnsLevelUp  = 450;
+                    RemnantResourceMod   = 0.25f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -110,6 +115,8 @@
                     ExpansionModifier    = 0.05f;
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 75;
+                    RemnantTurnsLevelUp  = 400;
+                    RemnantResourceMod   = 0.3f;
 
                     if (!empire.isPlayer)
                     {
@@ -138,6 +145,8 @@
                     ExpansionModifier    = 0f;
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 50;
+                    RemnantTurnsLevelUp  = 350;
+                    RemnantResourceMod   = 0.5f;
 
                     if (!empire.isPlayer)
                     {
@@ -165,7 +174,6 @@
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
             DiploWeightVsPlayer = (int)difficulty + 1;
             Anger               = 1 + ((int)difficulty + 1) * 0.2f;
-            RemnantStory        = (int)difficulty * 3;
 
             if (empire.isPlayer)
             {

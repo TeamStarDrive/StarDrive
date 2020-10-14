@@ -142,6 +142,18 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddIncomingRemnants(Planet p, string message)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = EmpireManager.Remnants,
+                Message         = message,
+                ReferencedItem1 = p.ParentSystem,
+                IconPath        = p.IconPath,
+                Action          = "SnapToSystem"
+            }, "sd_troop_march_01");
+        }
+
         public void AddEmpireDiedNotification(Empire thatDied)
         {
             AddNotification(new Notification
@@ -174,9 +186,49 @@ namespace Ship_Game
                 RelevantEmpire = pirates,
                 Message = $"Your Spies report that {pirates.Name} are getting stronger.\n" +
                           $"They have around {numBases} bases.",
-                ClickRect = DefaultClickRect,
+                ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
             }, "sd_troop_march_01");
+        }
+
+        public void AddRemnantsAreGettingStronger(Empire remnants)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = remnants,
+                ClickRect       = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect,
+                Message         = "Your Scientists report that they observed increased\n" +
+                                  "radiation signatures in the galaxy and it is possible\n" +
+                                  "that the Remnants are getting stronger."
+            }, "sd_ui_notification_warning");
+        }
+
+        public void AddRemnantsStoryActivation(Empire remnants)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = remnants,
+                ClickRect       = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect,
+                Message         = "Your Scientists report that they observed increased\n" +
+                                  "radiation signatures in the galaxy. They believe\n" +
+                                  "a new, powerful object has manifested somewhere\n." +
+                                  "and it is related to the Remnants."
+            }, "sd_ui_notification_warning");
+        }
+
+        public void AddRemnantsNewPortal(Empire remnants)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = remnants,
+                ClickRect       = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect,
+                Message         = "Your Scientists report massive radiation increase\n" +
+                                  "in the galaxy. They suspect another Remnant portal\n" +
+                                  "was created in the galaxy!"
+            }, "sd_ui_notification_encounter");
         }
 
         public void AddPiratesAreGettingWeaker(Empire pirates, int numBases)
@@ -257,6 +309,19 @@ namespace Ship_Game
                 Message         = cMessage,
                 ReferencedItem1 = expEvent,
                 IconPath        = "ResearchMenu/icon_event_science",
+                Action          = "LoadEvent"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddRemnantUpdateNotify(ExplorationEvent expEvent, Empire remnants)
+        {
+
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = remnants,
+                Pause           = false,
+                Message         = $"{expEvent.Name}\nClick for more info",
+                ReferencedItem1 = expEvent,
                 Action          = "LoadEvent"
             }, "sd_ui_notification_encounter");
         }

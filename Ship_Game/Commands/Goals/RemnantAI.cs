@@ -1,24 +1,23 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class RemnantAI : Goal
+    public class RemnantAI : Goal  // TODO FB - this is legacy code
     {
         public const string ID = "RemnantAI";
         public override string UID => ID;
-        public RemnantAI() : base(GoalType.RemnantAI)
+
+        public RemnantAI(): base(GoalType.RemnantAI)
         {
             Steps = new Func<GoalStep>[]
             {
-                CreateAColony,
-                UtilizeColony,
-                Exterminate
+                DummyStep
             };
         }
+
         public RemnantAI(Empire owner) : this()
         {
             empire = owner;
@@ -30,6 +29,7 @@ namespace Ship_Game.Commands.Goals
                 .FindMinFiltered(potentials => potentials.Owner == null && potentials.Habitable
                 , potentials => Vector2.Distance(shipPosition, potentials.Center));
         }
+
         Ship GetAvailableColonyShips()
         {
             return empire.GetShips().FindMinFiltered(assimilate =>
@@ -52,6 +52,11 @@ namespace Ship_Game.Commands.Goals
             );
         }
 
+        GoalStep DummyStep() // For Support in pre remnant logic saves
+        {
+            return GoalStep.GoalComplete;
+        }
+
         GoalStep CreateAColony()
         {
             Ship ship = GetAvailableColonyShips();
@@ -70,7 +75,6 @@ namespace Ship_Game.Commands.Goals
 
                 return GoalStep.GoToNextStep;
             }
-
 
             if (!empire.GetEmpireAI().Goals.Any(g => g.type == GoalType.Colonize &&
                                                     g.ColonizationTarget == colonyTarget))
@@ -126,7 +130,7 @@ namespace Ship_Game.Commands.Goals
                 if (target != null)
                     ship.AI.OrderLandAllTroops(target);
             }
-            return GoalStep.RestartGoal;
+            return GoalStep.GoalComplete;
         }
     }
 }

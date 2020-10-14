@@ -78,9 +78,6 @@ namespace Ship_Game
         public SavedGame(UniverseScreen screenToSave, string saveAs)
         {
             SaveData.SaveGameVersion       = SaveGameVersion;
-            SaveData.RemnantKills          = GlobalStats.RemnantKills;
-            SaveData.RemnantActivation     = GlobalStats.RemnantActivation;
-            SaveData.RemnantArmageddon     = GlobalStats.RemnantArmageddon;
             SaveData.gameDifficulty        = CurrentGame.Difficulty;
             SaveData.GalaxySize            = CurrentGame.GalaxySize;
             SaveData.StarsModifier         = CurrentGame.StarsModifier;
@@ -167,6 +164,20 @@ namespace Ship_Game
                     empireToSave.ShipsWeCanSpawn     = e.Pirates.ShipsWeCanSpawn;
                 }
 
+                if (e.WeAreRemnants)
+                {
+                    empireToSave.RemnantStoryActivated      = e.Remnants.Activated;
+                    empireToSave.RemnantStoryTriggerKillsXp = e.Remnants.StoryTriggerKillsXp;
+                    empireToSave.RemnantStoryType           = (int)e.Remnants.Story;
+                    empireToSave.RemnantProduction          = e.Remnants.Production;
+                    empireToSave.RemnantLevel               = e.Remnants.Level;
+                    empireToSave.RemnantStoryStep           = e.Remnants.StoryStep;
+                    empireToSave.RemnantPlayerStepTriggerXp = e.Remnants.PlayerStepTriggerXp;
+                    empireToSave.OnlyRemnantLeft            = e.Remnants.OnlyRemnantLeft;
+                    empireToSave.RemnantNextLevelUpDate     = e.Remnants.NextLevelUpDate;
+                    empireToSave.RemnantHibernationTurns    = e.Remnants.HibernationTurns;
+                    empireToSave.RemnantActivationXpNeeded  = e.Remnants.ActivationXpNeeded;
+                }
 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
                 {
@@ -575,6 +586,17 @@ namespace Ship_Game
             [Serialize(29)] public int AverageFreighterFTLSpeed;
             [Serialize(30)] public Vector2 WeightedCenter;
             [Serialize(31)] public bool RushAllConstruction;
+            [Serialize(32)] public float RemnantStoryTriggerKillsXp;
+            [Serialize(33)] public bool RemnantStoryActivated;
+            [Serialize(34)] public int RemnantStoryType;
+            [Serialize(35)] public float RemnantProduction;
+            [Serialize(36)] public int RemnantLevel;
+            [Serialize(37)] public int RemnantStoryStep;
+            [Serialize(38)] public float RemnantPlayerStepTriggerXp;
+            [Serialize(39)] public bool OnlyRemnantLeft;
+            [Serialize(40)] public float RemnantNextLevelUpDate;
+            [Serialize(41)] public int RemnantHibernationTurns;
+            [Serialize(42)] public float RemnantActivationXpNeeded;
         }
 
         public class FleetSave
