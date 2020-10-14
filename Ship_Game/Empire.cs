@@ -2692,10 +2692,7 @@ namespace Ship_Game
 
             StarDriveGame.Instance?.EndingGame(true);
 
-            // TODO: Maybe turn them into corsairs?
-            foreach (Ship ship in Universe.GetMasterShipList())
-                ship.Die(null, true);
-
+            Universe.Objects.Clear();
             Universe.Paused = true;
             HelperFunctions.CollectMemory();
             StarDriveGame.Instance?.EndingGame(false);
@@ -3343,8 +3340,7 @@ namespace Ship_Game
                 if (shipKnown)
                 {
                     currentlyKnown.Add(ship);
-                    if (ship.loyalty != this &&
-                        GetRelations(ship.loyalty)?.Known == false)
+                    if (ship.loyalty != this && GetRelations(ship.loyalty)?.Known == false)
                         DoFirstContact(ship.loyalty);
                 }
             }
