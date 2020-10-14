@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -39,6 +36,10 @@ namespace Ship_Game
         /// Invoked when a Ship is removed from the universe
         /// </summary>
         public event Action<Ship> OnShipRemoved;
+
+        public Ship[] VisibleShips { get; private set; } = Empty<Ship>.Array;
+        public Projectile[] VisibleProjectiles { get; private set; } = Empty<Projectile>.Array;
+        public Beam[] VisibleBeams { get; private set; } = Empty<Beam>.Array;
 
         public UniverseObjectManager(UniverseScreen universe, SpatialManager spatial, UniverseData data)
         {
@@ -179,6 +180,7 @@ namespace Ship_Game
         /// -) Updates all ships and modules
         /// -) Updates spatial subdivision information for world objects
         /// -) Resolves collisions between all world objects
+        /// -) Updates list of visible Ships, Projectiles, Beams
         /// </summary>
         /// <param name="timeStep"></param>
         public void Update(FixedSimTime timeStep)
@@ -200,9 +202,12 @@ namespace Ship_Game
                 Objects.RemoveInActiveObjects(); 
             }
 
+            // trigger all Hit events
             Spatial.CollideAll(timeStep);
+
+            UpdateVisibleObjects();
         }
-        
+
         /// <summary>Updates master objects lists, removing inactive objects</summary>
         void UpdateLists()
         {
@@ -283,7 +288,7 @@ namespace Ship_Game
             //    UpdateSystems(start, end);
             //}, Universe.MaxTaskCores);
 
-            // TODO: SolarySystem.Update is not thread safe because of resource loading
+            // TODO: SolarSystem.Update is not thread safe because of resource loading
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; ++i)
             {
                 SolarSystem system = UniverseScreen.SolarSystemList[i];
@@ -296,41 +301,68 @@ namespace Ship_Game
         void UpdateAllShips(FixedSimTime timeStep)
         {
             ShipsPerf.Start();
-
             bool isSystemView = (Universe.viewState <= UniverseScreen.UnivScreenState.SystemView);
-            Ship[] allShips = Ships.GetInternalArrayItems();
-
-            Parallel.For(Ships.Count, (start, end) =>
+            lock (Ships)
             {
-                for (int i = start; i < end; ++i)
+                Ship[] allShips = Ships.GetInternalArrayItems();
+                Parallel.For(Ships.Count, (start, end) =>
                 {
-                    Ship ship = allShips[i];
-                    ship.Update(timeStep);
-                    ship.UpdateModulePositions(timeStep, isSystemView);
+                    for (int i = start; i < end; ++i)
+                    {
+                        Ship ship = allShips[i];
+                        ship.Update(timeStep);
+                        ship.UpdateModulePositions(timeStep, isSystemView);
 
-                    // make sure dead and dying ships can be seen.
-                    if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
-                        ship.KnownByEmpires.SetSeenByPlayer();
-                }
-            }, Universe.MaxTaskCores);
-
+                        // make sure dead and dying ships can be seen.
+                        if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
+                            ship.KnownByEmpires.SetSeenByPlayer();
+                    }
+                }, Universe.MaxTaskCores);
+            }
             ShipsPerf.Stop();
         }
 
         void UpdateAllProjectiles(FixedSimTime timeStep)
         {
             ProjPerf.Start();
-
-            Parallel.For(Projectiles.Count, (start, end) =>
+            lock (Projectiles)
             {
-                for (int i = start; i < end; ++i)
+                Parallel.For(Projectiles.Count, (start, end) =>
                 {
-                    Projectile proj = Projectiles[i];
-                    proj.Update(timeStep);
-                }
-            }, Universe.MaxTaskCores);
-
+                    for (int i = start; i < end; ++i)
+                    {
+                        Projectile proj = Projectiles[i];
+                        proj.Update(timeStep);
+                    }
+                }, Universe.MaxTaskCores);
+            }
             ProjPerf.Stop();
+        }
+
+        void UpdateVisibleObjects()
+        {
+            RectF worldRect = Universe.GetVisibleWorldRect();
+            float radius = Math.Max(worldRect.W, worldRect.H) * 0.5f;
+            Vector2 center = worldRect.Center;
+
+            Projectile[] projs = Empty<Projectile>.Array;
+            Beam[] beams = Empty<Beam>.Array;
+
+            if (Universe.viewState <= UniverseScreen.UnivScreenState.PlanetView)
+            {
+                projs = Spatial.FindNearby(GameObjectType.Proj, center, radius, 1024)
+                               .FastCast<GameplayObject, Projectile>();
+
+                beams = Spatial.FindNearby(GameObjectType.Beam, center, radius, 1024)
+                               .FastCast<GameplayObject, Beam>();
+            }
+
+            Ship[] ships = Spatial.FindNearby(GameObjectType.Ship, center, radius, 1024)
+                                  .FastCast<GameplayObject, Ship>();
+
+            VisibleProjectiles = projs;
+            VisibleBeams = beams;
+            VisibleShips = ships;
         }
     }
 }
