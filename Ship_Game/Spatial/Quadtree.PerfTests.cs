@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -87,9 +89,12 @@ namespace Ship_Game
             {
                 for (int i = 0; i < ships.Count; ++i)
                 {
-                    var ship = (Ship)ships[i];
-                    tree.FindLinear(GameObjectType.Any, ship.Center, defaultSensorRange,
-                                    maxResults:256, null, null, null);
+                    var s = (Ship)ships[i];
+                    var opt = new SearchOptions(s.Center, defaultSensorRange)
+                    {
+                        MaxResults = 256
+                    };
+                    tree.FindLinear(opt);
                 }
             }
             float e1 = t1.Elapsed;
@@ -100,8 +105,12 @@ namespace Ship_Game
             {
                 for (int i = 0; i < ships.Count; ++i)
                 {
-                    tree.FindNearby(GameObjectType.Any, ships[i].Center, defaultSensorRange,
-                                    maxResults:256, null, null, null);
+                    var s = (Ship)ships[i];
+                    var opt = new SearchOptions(s.Center, defaultSensorRange)
+                    {
+                        MaxResults = 256
+                    };
+                    tree.FindNearby(opt);
                 }
             }
             float e2 = t2.Elapsed;
