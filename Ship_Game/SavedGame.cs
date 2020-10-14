@@ -158,6 +158,8 @@ namespace Ship_Game
                 empireToSave.ExpandSearchTimer        = e.GetEmpireAI().ExpansionAI.ExpandSearchTimer;
                 empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
                 empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
+                empireToSave.WeightedCenter           = e.WeightedCenter;
+                empireToSave.RushAllConstruction      = e.RushAllConsturction;
 
                 if (e.WeArePirates)
                 {
@@ -575,6 +577,7 @@ namespace Ship_Game
             [Serialize(28)] public AI.StrategyAI.WarGoals.War EmpireDefense;
             [Serialize(29)] public int AverageFreighterFTLSpeed;
             [Serialize(30)] public Vector2 WeightedCenter;
+            [Serialize(31)] public bool RushAllConstruction;
         }
 
         public class FleetSave
@@ -729,6 +732,7 @@ namespace Ship_Game
             [Serialize(14)] public bool TransportingProduction;
             [Serialize(15)] public bool AllowInterEmpireTrade;
             [Serialize(16)] public bool IsMilitary;
+            [Serialize(17)] public bool Rush;
         }
 
         public struct RingSave
