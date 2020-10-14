@@ -202,7 +202,6 @@ namespace Ship_Game
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
         public Array<Ship> GetMasterShipList() => Objects.Ships;
-        public Array<GameplayObject> GetMasterObjectList() => Objects.Objects;
 
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
