@@ -29,9 +29,7 @@ TestImpl(QuadTree)
         measureEachObj("Qtree::findNearby", 100, swo.objects, [&](const MyGameObject& o)
         {
             spatial::SearchOptions opt;
-            opt.OriginX = (int)o.pos.x;
-            opt.OriginY = (int)o.pos.y;
-            opt.SearchRadius = p.defaultSensorRange;
+            opt.SearchRect = spatial::Rect::fromPointRadius((int)o.pos.x, (int)o.pos.y, p.defaultSensorRange);
             opt.MaxResults = 1024;
             opt.FilterExcludeObjectId = o.spatialId;
             opt.FilterExcludeByLoyalty = o.loyalty;

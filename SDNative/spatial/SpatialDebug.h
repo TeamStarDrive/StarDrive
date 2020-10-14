@@ -26,7 +26,6 @@ namespace spatial
 
     struct DebugFindNearby
     {
-        Circle Circle = Circle::Zero();
         Rect Rectangle = Rect::Zero();
         Rect TopLeft  = Rect::Zero();
         Rect BotRight = Rect::Zero();

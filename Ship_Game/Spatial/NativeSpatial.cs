@@ -398,9 +398,7 @@ namespace Ship_Game.Spatial
         [StructLayout(LayoutKind.Sequential)]
         struct NativeSearchOptions
         {
-            public int OriginX;
-            public int OriginY;
-            public int SearchRadius;
+            public Rect SearchRect;
             public int MaxResults;
             public int FilterByType;
             public int FilterExcludeObjectId;
@@ -423,11 +421,13 @@ namespace Ship_Game.Spatial
             if (toIgnore != null && toIgnore.SpatialIndex < 0)
                 ignoreId = toIgnore.SpatialIndex;
 
+            int x = (int)worldPos.X;
+            int y = (int)worldPos.Y;
+            int r = (int)(radius + 0.5f); // ceil
+
             var nso = new NativeSearchOptions
             {
-                OriginX = (int)worldPos.X,
-                OriginY = (int)worldPos.Y,
-                SearchRadius = (int)(radius + 0.5f), // ceil
+                SearchRect = new Rect { Left=x-r, Top=y-r, Right=x+r, Bottom=y+r},
                 MaxResults = maxResults,
                 FilterByType = (int)type,
                 FilterExcludeObjectId = ignoreId,
@@ -438,7 +438,6 @@ namespace Ship_Game.Spatial
             };
 
             GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
-            int count = FrontObjects.Count;
 
             int* objectIds = stackalloc int[maxResults];
             int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);

@@ -16,12 +16,8 @@ namespace spatial
 
     struct SearchOptions
     {
-        /// The initial search origin X, Y coordinates
-        int OriginX = 0;
-        int OriginY = 0;
-
-        /// Only objects that are within this radius are accepted
-        int SearchRadius = 100;
+        /// Search rectangle
+        Rect SearchRect = Rect::Zero();
 
         /// Maximum number of filtered final results until search is terminated
         /// Must be at least 1
