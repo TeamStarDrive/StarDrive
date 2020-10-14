@@ -35,16 +35,16 @@ namespace Ship_Game
             NodeIds = idStart;
         }
 
-        public QtreeNode Create(int level, float x, float y, float lastX, float lastY)
+        public QtreeNode Create(int level, in AABoundingBox2D bounds)
         {
             // Reuse existing node from front buffer
             if (Inactive.TryPopLast(out QtreeNode node))
             {
-                node.InitializeForReuse(level, x, y, lastX, lastY);
+                node.InitializeForReuse(level, bounds);
             }
             else // create a new node
             {
-                node = new QtreeNode(level, x, y, lastX, lastY);
+                node = new QtreeNode(level, bounds);
                 node.Id = ++NodeIds;
             }
 

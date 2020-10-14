@@ -5,7 +5,7 @@ namespace Ship_Game
 {
     public class QtreeNode
     {
-        public float X, Y, LastX, LastY;
+        public AABoundingBox2D AABB;
         public QtreeNode NW, NE, SE, SW;
         public int Count;
         public SpatialObj[] Items;
@@ -13,23 +13,21 @@ namespace Ship_Game
         public int Level;
         public int TotalTreeDepthCount;
 
-        public QtreeNode(int level, float x, float y, float lastX, float lastY)
+        public QtreeNode(int level, in AABoundingBox2D bounds)
         {
-            X = x; Y = y;
-            LastX = lastX; LastY = lastY;
+            AABB = bounds;
             Items = Quadtree.NoObjects;
             Level = level;
         }
 
         public override string ToString()
         {
-            return $"ID={Id} L{Level} N={Count} TN={TotalTreeDepthCount} X={X} LX={LastX} Y={Y} LY={LastY}";
+            return $"ID={Id} L{Level} N={Count} TN={TotalTreeDepthCount} {AABB}";
         }
 
-        public void InitializeForReuse(int level, float x, float y, float lastX, float lastY)
+        public void InitializeForReuse(int level, in AABoundingBox2D bounds)
         {
-            X = x; Y = y;
-            LastX = lastX; LastY = lastY;
+            AABB = bounds;
             NW = NE = SE = SW = null;
             Level = level;
 
@@ -71,18 +69,6 @@ namespace Ship_Game
                 ++Count;
             }
             ++TotalTreeDepthCount;
-        }
-
-        public bool Overlaps(in Vector2 topLeft, in Vector2 botRight)
-        {
-            return X <= botRight.X && LastX > topLeft.X
-                && Y <= botRight.Y && LastY > topLeft.Y;
-        }
-
-        public bool Overlaps(in SpatialObj o)
-        {
-            return X <= o.LastX && LastX > o.X
-                && Y <= o.LastY && LastY > o.Y;
         }
     }
 }
