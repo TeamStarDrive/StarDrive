@@ -202,8 +202,9 @@ namespace Ship_Game
                 Objects.RemoveInActiveObjects(); 
             }
 
-            // trigger all Hit events
-            Spatial.CollideAll(timeStep);
+            // trigger all Hit events, but only if we are not paused!
+            if (timeStep.FixedTime > 0f)
+                Spatial.CollideAll(timeStep);
 
             UpdateVisibleObjects();
         }
