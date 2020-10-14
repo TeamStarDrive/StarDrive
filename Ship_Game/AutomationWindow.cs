@@ -22,7 +22,7 @@ namespace Ship_Game
         {
             Universe = universe;
             const int windowWidth = 210;
-            Rect = new Rectangle(ScreenWidth - 115 - windowWidth, 490, windowWidth, 300);
+            Rect = new Rectangle(ScreenWidth - 115 - windowWidth, 440, windowWidth, 350);
 
         }
 
@@ -73,6 +73,7 @@ namespace Ship_Game
             rest.AddCheckbox(() => GlobalStats.AutoCombat,                     title: 2207, tooltip: 2230);
             rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: 6136, tooltip: 7039);
             rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: 7040);
+            rest.AddCheckbox(() => RushConstruction, title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
 
             UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
@@ -91,7 +92,6 @@ namespace Ship_Game
 
             // draw ordering is still imperfect, this is a hack
             ticks.ReverseZOrder();
-
             UpdateDropDowns();
         }
 
@@ -114,7 +114,7 @@ namespace Ship_Game
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(batch, elapsed);
             ConstructionSubMenu.Draw(batch, elapsed);
-
+            
             base.Draw(batch, elapsed);
         }
 
@@ -205,6 +205,16 @@ namespace Ship_Game
                            ship.DesignRole == ShipData.RoleName.fighter ||
                            ship.shipData?.ShipCategory == ShipData.Category.Recon);
                 });
+        }
+
+        bool RushConstruction
+        {
+            get => EmpireManager.Player.RushAllConsturction;
+            set // used in the rush construction checkbox at start
+            {
+                EmpireManager.Player.RushAllConsturction = value;
+                RunOnEmpireThread(() => EmpireManager.Player.SwitchRushAllConstruction(value));
+            }
         }
     }
 }

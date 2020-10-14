@@ -10,6 +10,7 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "FleetRequisition";
         public override string UID => ID;
+        private bool Rush; // no need for saving this as it is used immediately
 
         public FleetRequisition() : base(GoalType.FleetRequisition)
         {
@@ -32,24 +33,28 @@ namespace Ship_Game.Commands.Goals
             PlanetBuildingAt = ai.OrbitTarget;
         }
 
-        public FleetRequisition(string shipName, Empire owner) : this()
+        public FleetRequisition(string shipName, Empire owner, bool rush) : this()
         {
-            empire = owner;
-            ToBuildUID = shipName;
+            empire      = owner;
+            ToBuildUID  = shipName;
             ShipToBuild = ResourceManager.GetShipTemplate(shipName);
+            Rush        = rush;
+
+            Evaluate();
         }
 
         GoalStep FindPlanetForFleetRequisition()
         {            
             if (PlanetBuildingAt == null || !PlanetBuildingAt.HasSpacePort)
-            {
                 empire.FindPlanetToBuildAt(empire.SpacePorts, ShipToBuild, out PlanetBuildingAt);
-            }
 
             if (PlanetBuildingAt == null)
                 return GoalStep.TryAgain;
             
             PlanetBuildingAt.Construction.Enqueue(ShipToBuild, this, notifyOnEmpty: false);
+            if (Rush)
+                PlanetBuildingAt.Construction.MoveToAndContinuousRushFirstItem();
+
             return GoalStep.GoToNextStep;
         }
 
