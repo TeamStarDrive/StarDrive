@@ -307,7 +307,7 @@ namespace Ship_Game
         {
             ShipsPerf.Start();
 
-            bool isSystemView = (Universe.viewState <= UniverseScreen.UnivScreenState.SystemView);
+            bool isSystemView = Universe.IsSystemViewOrCloser;
             Ship[] allShips = ships.GetInternalArrayItems();
 
             Parallel.For(ships.Count, (start, end) =>
@@ -354,7 +354,7 @@ namespace Ship_Game
             Projectile[] projs = Empty<Projectile>.Array;
             Beam[] beams = Empty<Beam>.Array;
 
-            if (Universe.viewState <= UniverseScreen.UnivScreenState.PlanetView)
+            if (Universe.IsPlanetViewOrCloser)
             {
                 projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 2048)
                                .FastCast<GameplayObject, Projectile>();

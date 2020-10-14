@@ -97,7 +97,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore]
         public bool IsInFrustum =>
-            Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView &&
+            Empire.Universe.IsSystemViewOrCloser &&
             Empire.Universe.Frustum.Contains(Center, 2000f);
 
         [XmlIgnore][JsonIgnore]

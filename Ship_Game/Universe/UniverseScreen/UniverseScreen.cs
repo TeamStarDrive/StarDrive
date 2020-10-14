@@ -203,6 +203,11 @@ namespace Ship_Game
 
         public Array<Ship> GetMasterShipList() => Objects.Ships;
 
+        public bool IsSectorViewOrCloser => viewState <= UnivScreenState.SectorView;
+        public bool IsSystemViewOrCloser => viewState <= UnivScreenState.SystemView;
+        public bool IsPlanetViewOrCloser => viewState <= UnivScreenState.PlanetView;
+        public bool IsShipViewOrCloser => viewState <= UnivScreenState.ShipView;
+
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
             SetupUniverseScreen(data, loyalty);
@@ -901,7 +906,6 @@ namespace Ship_Game
                     planet.TilesList = new Array<PlanetGridSquare>();
                     if (planet.SO != null)
                     {
-                        planet.SO.Clear();
                         ScreenManager.RemoveObject(planet.SO);
                         planet.SO = null;
                     }

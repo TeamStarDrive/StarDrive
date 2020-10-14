@@ -64,8 +64,7 @@ namespace Ship_Game
 
             Initialize();
 
-            if (Owner != null && Owner.InFrustum &&
-                Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (Owner != null && Owner.InFrustum && Empire.Universe.IsSystemViewOrCloser)
             {
                 weapon.PlayToggleAndFireSfx(Emitter);
             }
@@ -313,10 +312,14 @@ namespace Ship_Game
                 Destination = Source.OffsetTowards(newPosition, Range);
             }
 
-            if (!BeamCollidedThisFrame)
-                ActualHitDestination = Destination;
-            else
-                BeamCollidedThisFrame = false;
+            // only RESET ActualHitDestination if game is unpaused
+            if (timeStep.FixedTime > 0f)
+            {
+                if (!BeamCollidedThisFrame)
+                    ActualHitDestination = Destination;
+                else
+                    BeamCollidedThisFrame = false;
+            }
 
             UpdatePosition();
 
