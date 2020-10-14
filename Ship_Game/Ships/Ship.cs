@@ -117,7 +117,6 @@ namespace Ship_Game.Ships
         public bool InCombat;
         public float xRotation;
         public float ScreenRadius;
-        public bool InFrustum;
         public bool ShouldRecalculatePower;
         public bool Deleted;
         private float BonusEMP_Protection;
