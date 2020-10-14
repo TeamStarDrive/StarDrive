@@ -29,7 +29,7 @@ namespace spatial
         bool useSearchRadius = radialFR > 0.0f;
 
         SearchFilterFunc filterFunc = opt.FilterFunction;
-        int maxResults = opt.MaxResults;
+        int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
 
         FoundNode* nodes = found.nodes;
 
@@ -86,7 +86,7 @@ namespace spatial
                     {
                         outResults[numResults++] = id;
                         idBitArray[wordIndex] |= (1<<wordOffset); // set unique result
-                        if (numResults >= maxResults)
+                        if (numResults == maxResults)
                             return numResults; // we are done !
                     }
                 }

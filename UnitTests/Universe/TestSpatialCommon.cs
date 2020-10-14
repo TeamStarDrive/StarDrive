@@ -81,10 +81,10 @@ namespace UnitTests.Universe
             Assert.AreEqual(4, f1.Length, "FindNearby center 7200 must match 4");
 
             GameplayObject[] f2 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 16000);
-            Assert.AreEqual(16, f2.Length, "FindNearby center 16000 must match 16");
+            Assert.AreEqual(12, f2.Length, "FindNearby center 16000 must match 12");
             
             GameplayObject[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 26000);
-            Assert.AreEqual(36, f3.Length, "FindNearby center 26000 must match 36");
+            Assert.AreEqual(24, f3.Length, "FindNearby center 26000 must match 24");
         }
 
         void CheckFindNearby(GameplayObject[] found, GameObjectType expected,
@@ -145,9 +145,9 @@ namespace UnitTests.Universe
 
         public void TestTreeUpdatePerformance(ISpatial tree)
         {
-            CreateQuadTree(10_000, tree);
+            CreateQuadTree(5_000, tree);
             float e = 0f;
-            for (int i = 0; i < 60; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 foreach (Ship ship in AllObjects)
                 {
@@ -167,7 +167,7 @@ namespace UnitTests.Universe
 
         public void TestTreeSearchPerformance(ISpatial tree)
         {
-            CreateQuadTree(10_000, tree);
+            CreateQuadTree(1_000, tree);
             const float defaultSensorRange = 30000f;
 
             var t1 = new PerfTimer();
@@ -200,7 +200,7 @@ namespace UnitTests.Universe
 
         public void TestConcurrentUpdateAndSearch(ISpatial tree)
         {
-            CreateQuadTree(10_000, tree);
+            CreateQuadTree(5_000, tree);
             var timer = new PerfTimer();
 
             // update
@@ -238,7 +238,7 @@ namespace UnitTests.Universe
         public void TestTreeCollisionPerformance(ISpatial tree)
         {
             CreateQuadTree(10_000, tree);
-            const int iterations = 100;
+            const int iterations = 50;
 
             var t1 = new PerfTimer();
             for (int i = 0; i < iterations; ++i)
