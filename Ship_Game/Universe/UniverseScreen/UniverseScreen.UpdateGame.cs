@@ -424,7 +424,7 @@ namespace Ship_Game
                         empire.UpdateMilitaryStrengths();
                     }
                 }, MaxTaskCores);
-            }
+            }*/
 
             PreEmpirePerf.Stop();
             
@@ -450,6 +450,7 @@ namespace Ship_Game
             return !Paused;
         }
 
+        /*
         void ArmageddonCountdown(FixedSimTime timeStep)
         {
             ArmageddonTimer -= timeStep.FixedTime;
@@ -466,7 +467,7 @@ namespace Ship_Game
                     exterminator.AI.DefaultAIState = AIState.Exterminate;
                 }
             }
-        }
+        }*/
 
         void HandleGameSpeedChange(InputState input)
         {
