@@ -26,7 +26,8 @@ namespace spatial
 
     struct DebugFindNearby
     {
-        Rect Rectangle = Rect::Zero();
+        Rect SearchArea = Rect::Zero();
+        Rect SelectedRect = Rect::Zero();
         Rect TopLeft  = Rect::Zero();
         Rect BotRight = Rect::Zero();
         std::vector<Rect> FindCells;

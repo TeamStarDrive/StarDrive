@@ -259,12 +259,12 @@ namespace spatial
 
         int numResults = 0;
         if (found.count)
-            numResults = spatial::findNearby(outResults, opt, found);
+            numResults = spatial::findNearby(outResults, Objects.maxObjects(), opt, found);
 
         if (opt.EnableSearchDebugId)
         {
             DebugFindNearby dfn;
-            dfn.Rectangle = searchRect;
+            dfn.SearchArea = searchRect;
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
             Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));

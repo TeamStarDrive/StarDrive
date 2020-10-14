@@ -25,10 +25,13 @@ namespace spatial
     }
 
     void DebugFindNearby::draw(Visualizer& visualizer, const VisualizerOptions& opt,
-                  const SpatialObject* objects) const
+                               const SpatialObject* objects) const
     {
-        if (!Rectangle.empty())
-            visualizer.drawRect(Rectangle, Yellow);
+        if (!SearchArea.empty())
+            visualizer.drawRect(SearchArea, Yellow);
+
+        if (!SelectedRect.empty())
+            visualizer.drawRect(SelectedRect, Yellow);
 
         if (!TopLeft.empty())
             visualizer.drawRect(TopLeft, Red);

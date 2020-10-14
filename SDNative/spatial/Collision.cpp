@@ -6,7 +6,6 @@ namespace spatial
     Collider::Collider(SlabAllocator& allocator, int maxObjectId)
         : Allocator{allocator}, MaxObjectId{maxObjectId}
     {
-        CollisionBits = allocator.allocArray<uint32_t>( (maxObjectId / 32) + 1);
         CollidedObjectsMap = allocator.allocArrayZeroed<CollisionChain*>(maxObjectId + 1);
     }
 
