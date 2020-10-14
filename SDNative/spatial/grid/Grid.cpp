@@ -238,12 +238,13 @@ namespace spatial
 
         int numResults = 0;
         if (found.count)
-            numResults = spatial::findNearby(outResults, opt, found);
+            numResults = spatial::findNearby(outResults, Objects.maxObjects(), opt, found);
         
         if (opt.EnableSearchDebugId)
         {
             DebugFindNearby dfn;
-            dfn.Rectangle = toWorldRect(x1, y1, x2, y2, half, cellSize);
+            dfn.SearchArea = opt.SearchRect;
+            dfn.SelectedRect = toWorldRect(x1, y1, x2, y2, half, cellSize);
             dfn.TopLeft  = toWorldRect(x1, y1, half, cellSize);
             dfn.BotRight = toWorldRect(x2, y2, half, cellSize);
             dfn.addCells(found);

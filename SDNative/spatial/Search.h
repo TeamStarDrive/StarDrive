@@ -86,6 +86,6 @@ namespace spatial
         return (dx*dx + dy*dy) <= (rr*rr);
     }
 
-    int findNearby(int* outResults, const SearchOptions& opt, FoundNodes& found);
+    int findNearby(int* outResults, int maxObjectId, const SearchOptions& opt, FoundNodes& found);
 
 }
