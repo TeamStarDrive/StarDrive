@@ -32,9 +32,12 @@ namespace Ship_Game
         readonly Array<Ship> PendingShips = new Array<Ship>();
         readonly Array<Projectile> PendingProjectiles = new Array<Projectile>();
 
+        public readonly AggregatePerfTimer TotalTime = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer ListTime = new AggregatePerfTimer();
         public readonly AggregatePerfTimer SysPerf   = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ShipsPerf = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ProjPerf  = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer VisPerf   = new AggregatePerfTimer();
 
         /// <summary>
         /// Invoked when a Ship is removed from the universe
@@ -80,7 +83,7 @@ namespace Ship_Game
         public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
         {
             return Projectiles.FilterSelect(
-            p => p.Type == GameObjectType.Proj,
+            p => p.Active && p.Type == GameObjectType.Proj,
             p => new SavedGame.ProjectileSaveData
             {
                 Owner = p.Owner?.guid ?? p.Planet.guid,
@@ -95,7 +98,7 @@ namespace Ship_Game
         public SavedGame.BeamSaveData[] GetBeamSaveData()
         {
             return Projectiles.FilterSelect(
-            p => p.Type == GameObjectType.Beam && (p.Owner != null || p.Planet != null),
+            p => p.Active && p.Type == GameObjectType.Beam && (p.Owner != null || p.Planet != null),
             p =>
             {
                 var beam = (Beam)p;
@@ -179,6 +182,8 @@ namespace Ship_Game
         /// <param name="timeStep"></param>
         public void Update(FixedSimTime timeStep)
         {
+            TotalTime.Start();
+
             UpdateLists();
             UpdateAllSystems(timeStep, Ships);
             UpdateAllShips(timeStep, Ships);
@@ -197,11 +202,15 @@ namespace Ship_Game
                 Spatial.CollideAll(timeStep);
 
             UpdateVisibleObjects();
+
+            TotalTime.Stop();
         }
 
         /// <summary>Updates master objects lists, removing inactive objects</summary>
         void UpdateLists()
         {
+            ListTime.Start();
+
             lock (PendingShips)
             {
                 Ships.AddRange(PendingShips);
@@ -242,6 +251,8 @@ namespace Ship_Game
                 }
             }
             Projectiles.RemoveInActiveObjects();
+
+            ListTime.Stop();
         }
 
         void UpdateAllSystems(FixedSimTime timeStep, Array<Ship> ships)
@@ -336,6 +347,8 @@ namespace Ship_Game
 
         void UpdateVisibleObjects()
         {
+            VisPerf.Start();
+
             AABoundingBox2D visibleWorld = Universe.GetVisibleWorldRect();
 
             Projectile[] projs = Empty<Projectile>.Array;
@@ -343,19 +356,37 @@ namespace Ship_Game
 
             if (Universe.viewState <= UniverseScreen.UnivScreenState.PlanetView)
             {
-                projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 1024)
+                projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 2048)
                                .FastCast<GameplayObject, Projectile>();
 
-                beams = Spatial.FindNearby(GameObjectType.Beam, visibleWorld, 1024)
+                beams = Spatial.FindNearby(GameObjectType.Beam, visibleWorld, 2048)
                                .FastCast<GameplayObject, Beam>();
             }
 
             Ship[] ships = Spatial.FindNearby(GameObjectType.Ship, visibleWorld, 1024)
                                   .FastCast<GameplayObject, Ship>();
 
+            // Reset frustum value for ship visible in previous frame
+            SetInFrustum(VisibleProjectiles, false);
+            SetInFrustum(VisibleBeams, false);
+            SetInFrustum(VisibleShips, false);
+
+            // And now set this frame's objects as visible
+            SetInFrustum(projs, true);
+            SetInFrustum(beams, true);
+            SetInFrustum(ships, true);
+            
             VisibleProjectiles = projs;
             VisibleBeams = beams;
             VisibleShips = ships;
+
+            VisPerf.Stop();
+        }
+
+        static void SetInFrustum<T>(T[] objects, bool inFrustum) where T : GameplayObject
+        {
+            for (int i = 0; i < objects.Length; ++i)
+                objects[i].InFrustum = inFrustum;
         }
     }
 }
