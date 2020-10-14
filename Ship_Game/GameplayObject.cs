@@ -50,6 +50,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
+        [XmlIgnore][JsonIgnore] public bool InFrustum; // Updated by UniverseObjectManager
 
         // current rotation converted into a direction vector
         [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();

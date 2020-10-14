@@ -53,8 +53,6 @@ namespace Ship_Game
         {
             var target = Ship.CreateShipAtPoint(name, loyalty, pos);
             target.Rotation = dir.Normalized().ToRadians();
-            target.InFrustum = true; // force module pos update
-            //target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
             return target;
         }
