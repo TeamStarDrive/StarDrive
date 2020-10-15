@@ -117,7 +117,6 @@ namespace Ship_Game.Ships
         public bool InCombat;
         public float xRotation;
         public float ScreenRadius;
-        public bool InFrustum;
         public bool ShouldRecalculatePower;
         public bool Deleted;
         private float BonusEMP_Protection;
@@ -345,7 +344,7 @@ namespace Ship_Game.Ships
                     // again, damage also depends on module radius and their energy resistance
                     float damageAbsorb = 1 - module.EnergyResist;
                     module.Damage(damageCauser, damage * damageAbsorb * module.Radius);
-                    if (InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                    if (InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
                     {
                         // visualize radiation hits on external modules
                         for (int j = 0; j < 50; j++)

@@ -64,7 +64,6 @@ namespace Ship_Game.Gameplay
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
-        bool InFrustum;
         bool Deflected;
         public bool TrailTurnedOn { get; protected set; } = true;
    
@@ -367,23 +366,8 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        int LastDrawId;
-
         public void Draw(SpriteBatch batch, GameScreen screen)
         {
-            int thisFrame = StarDriveGame.Instance.FrameId;
-            if (LastDrawId == thisFrame)
-            {
-                // NOTE: It's cheaper to leave in this concurrency issue
-                //       and just rely on the LastDrawId to ignore double-update projectiles.
-                //       Synchronized/ThreadSafe lists have an extreme performance impact.
-                //Log.Warning("Projectile.Draw called twice per frame!");
-                return;
-            }
-            LastDrawId = thisFrame;
-                
-            InFrustum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
-                         && Empire.Universe.Frustum.Contains(Center, Radius*100f);
             if (!InFrustum)
                 return;
 
@@ -438,7 +422,6 @@ namespace Ship_Game.Gameplay
             if (ProjSO != null)
             {
                 Empire.Universe.RemoveObject(ProjSO);
-                ProjSO.Clear();
             }
 
             SetSystem(null);
@@ -568,8 +551,8 @@ namespace Ship_Game.Gameplay
         }
 
 
-        bool CloseEnoughForExplosion    => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SectorView;
-        bool CloseEnoughForFlashExplode => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView;
+        bool CloseEnoughForExplosion    => Empire.Universe.IsSectorViewOrCloser;
+        bool CloseEnoughForFlashExplode => Empire.Universe.IsSystemViewOrCloser;
 
         void ExplodeProjectile(bool cleanupOnly)
         {

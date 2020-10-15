@@ -17,10 +17,11 @@ namespace Ship_Game.Spatial
         public AABoundingBox2D SearchRect;
 
         /// <summary>
-        /// If Non-Zero, search results will have an additional
-        /// filtering pass using this radius
+        /// Radial filter
+        /// If set, search results will have an additional filtering pass using this circle
         /// </summary>
-        public float SearchRadius;
+        public Vector2 FilterOrigin;
+        public float FilterRadius;
 
         /// <summary>
         /// Maximum number of filtered final results until search is terminated
@@ -73,7 +74,8 @@ namespace Ship_Game.Spatial
         public SearchOptions(Vector2 center, float radius, GameObjectType type = GameObjectType.Any)
         {
             SearchRect = new AABoundingBox2D(center, radius);
-            SearchRadius = radius;
+            FilterOrigin = center;
+            FilterRadius = radius;
             MaxResults = 128;
             FilterByType = type;
             FilterExcludeObject = null;
@@ -92,7 +94,8 @@ namespace Ship_Game.Spatial
         public SearchOptions(AABoundingBox2D searchArea, GameObjectType type = GameObjectType.Any)
         {
             SearchRect = searchArea;
-            SearchRadius = 0;
+            FilterOrigin = default;
+            FilterRadius = 0;
             MaxResults = 128;
             FilterByType = type;
             FilterExcludeObject = null;

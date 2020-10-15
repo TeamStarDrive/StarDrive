@@ -19,9 +19,9 @@ namespace spatial
         /// Search rectangle
         Rect SearchRect = Rect::Zero();
 
-        /// If Non-Zero, search results will have an additional
-        /// filtering pass using this radius
-        float SearchRadius = 0.0f;
+        /// Radial filter
+        /// If set, search results will have an additional filtering pass using this circle
+        Circle RadialFilter = Circle::Zero();
 
         /// Maximum number of filtered final results until search is terminated
         /// Must be at least 1
@@ -81,14 +81,6 @@ namespace spatial
             }
         }
     };
-
-    SPATIAL_FINLINE bool inRadius(int x1, int y1, int x2, int y2, int r1, int r2)
-    {
-        float dx = (float)(x2 - x1);
-        float dy = (float)(y2 - y1);
-        float rr = (float)(r1 + r2);
-        return (dx*dx + dy*dy) <= (rr*rr);
-    }
 
     int findNearby(int* outResults, int maxObjectId, const SearchOptions& opt, FoundNodes& found);
 

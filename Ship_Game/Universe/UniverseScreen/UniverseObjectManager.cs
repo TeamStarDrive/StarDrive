@@ -28,18 +28,27 @@ namespace Ship_Game
         /// </summary>
         public readonly Array<Projectile> Projectiles = new Array<Projectile>();
 
+        // pending ships and projectiles submitted to object manager
+        readonly Array<Ship> PendingShips = new Array<Ship>();
+        readonly Array<Projectile> PendingProjectiles = new Array<Projectile>();
+
+        public readonly AggregatePerfTimer TotalTime = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer ListTime = new AggregatePerfTimer();
         public readonly AggregatePerfTimer SysPerf   = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ShipsPerf = new AggregatePerfTimer();
         public readonly AggregatePerfTimer ProjPerf  = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer VisPerf   = new AggregatePerfTimer();
 
         /// <summary>
         /// Invoked when a Ship is removed from the universe
         /// </summary>
         public event Action<Ship> OnShipRemoved;
 
+
         public Ship[] VisibleShips { get; private set; } = Empty<Ship>.Array;
         public Projectile[] VisibleProjectiles { get; private set; } = Empty<Projectile>.Array;
         public Beam[] VisibleBeams { get; private set; } = Empty<Beam>.Array;
+
 
         public UniverseObjectManager(UniverseScreen universe, SpatialManager spatial, UniverseData data)
         {
@@ -73,43 +82,37 @@ namespace Ship_Game
 
         public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
         {
-            lock (Projectiles)
+            return Projectiles.FilterSelect(
+            p => p.Active && p.Type == GameObjectType.Proj,
+            p => new SavedGame.ProjectileSaveData
             {
-                return Projectiles.FilterSelect(
-                p => p.Type == GameObjectType.Proj,
-                p => new SavedGame.ProjectileSaveData
-                {
-                    Owner = p.Owner?.guid ?? p.Planet.guid,
-                    Weapon   = p.Weapon.UID,
-                    Duration = p.Duration,
-                    Rotation = p.Rotation,
-                    Velocity = p.Velocity,
-                    Position = p.Center,
-                });
-            }
+                Owner = p.Owner?.guid ?? p.Planet.guid,
+                Weapon   = p.Weapon.UID,
+                Duration = p.Duration,
+                Rotation = p.Rotation,
+                Velocity = p.Velocity,
+                Position = p.Center,
+            });
         }
         
         public SavedGame.BeamSaveData[] GetBeamSaveData()
         {
-            lock (Projectiles)
+            return Projectiles.FilterSelect(
+            p => p.Active && p.Type == GameObjectType.Beam && (p.Owner != null || p.Planet != null),
+            p =>
             {
-                return Projectiles.FilterSelect(
-                p => p.Type == GameObjectType.Beam && (p.Owner != null || p.Planet != null),
-                p =>
+                var beam = (Beam)p;
+                return new SavedGame.BeamSaveData
                 {
-                    var beam = (Beam)p;
-                    return new SavedGame.BeamSaveData
-                    {
-                        Owner = p.Owner?.guid ?? p.Planet.guid,
-                        Weapon = p.Weapon.UID,
-                        Duration = p.Duration,
-                        Source = beam.Source,
-                        Destination = beam.Destination,
-                        ActualHitDestination = beam.ActualHitDestination,
-                        Target = beam.Target is Ship ship ? ship.guid : Guid.Empty,
-                    };
-                });
-            }
+                    Owner = p.Owner?.guid ?? p.Planet.guid,
+                    Weapon = p.Weapon.UID,
+                    Duration = p.Duration,
+                    Source = beam.Source,
+                    Destination = beam.Destination,
+                    ActualHitDestination = beam.ActualHitDestination,
+                    Target = beam.Target is Ship ship ? ship.guid : Guid.Empty,
+                };
+            });
         }
 
         // NOTE: SLOW !! Should only be used for UNIT TESTS
@@ -117,60 +120,54 @@ namespace Ship_Game
         public Array<Projectile> GetProjectiles(Ship ship)
         {
             var projectiles = new Array<Projectile>();
-            lock (Projectiles)
+            for (int i = 0; i < Projectiles.Count; ++i)
             {
-                for (int i = 0; i < Projectiles.Count; ++i)
-                {
-                    Projectile p = Projectiles[i];
-                    if (p.Type == GameObjectType.Proj && p.Owner == ship)
-                        projectiles.Add(p);
-                }
+                Projectile p = Projectiles[i];
+                if (p.Type == GameObjectType.Proj && p.Owner == ship)
+                    projectiles.Add(p);
             }
             return projectiles;
         }
 
+        /// <summary>Thread-safely Adds a new Object to the Universe</summary>
         public void Add(GameplayObject go)
         {
             if (go.Type == GameObjectType.Ship)
             {
-                lock (Ships)
-                {
-                    Ships.Add((Ship)go);
-                }
-                lock (Objects)
-                {
-                    Objects.Add(go);
-                }
+                Add((Ship)go);
             }
             else if (go.Type == GameObjectType.Beam || go.Type == GameObjectType.Proj)
             {
-                lock (Projectiles)
-                {
-                    Projectiles.Add((Projectile)go);
-                }
-                lock (Objects)
-                {
-                    Objects.Add(go);
-                }
+                Add((Projectile)go);
             }
+        }
+        /// <summary>Thread-safely Adds a new Ship to the Universe</summary>
+        public void Add(Ship ship)
+        {
+            lock (PendingShips)
+                PendingShips.Add(ship);
+        }
+        /// <summary>Thread-safely Adds a new PROJECTILE or BEAM to the Universe</summary>
+        public void Add(Projectile projectile)
+        {
+            lock (PendingProjectiles)
+                PendingProjectiles.Add(projectile);
         }
 
         public void Clear()
         {
-            lock (Ships)
-            {
-                for (int i = 0; i < Ships.Count; ++i)
-                    Ships[i]?.RemoveFromUniverseUnsafe();
-                Ships.Clear();
-            }
-            lock (Projectiles)
-            {
-                Projectiles.Clear();
-            }
-            lock (Objects)
-            {
-                Objects.Clear();
-            }
+            lock (PendingShips)
+                PendingShips.Clear();
+            
+            lock (PendingProjectiles)
+                PendingProjectiles.Clear();
+
+            for (int i = 0; i < Ships.Count; ++i)
+                Ships[i]?.RemoveFromUniverseUnsafe();
+
+            Ships.Clear();
+            Projectiles.Clear();
+            Objects.Clear();
         }
         
         /// <summary>
@@ -185,81 +182,88 @@ namespace Ship_Game
         /// <param name="timeStep"></param>
         public void Update(FixedSimTime timeStep)
         {
+            TotalTime.Start();
+
             UpdateLists();
+            UpdateAllSystems(timeStep, Ships);
+            UpdateAllShips(timeStep, Ships);
+            UpdateAllProjectiles(timeStep, Projectiles);
 
-            UpdateAllSystems(timeStep);
-            UpdateAllShips(timeStep);
-            UpdateAllProjectiles(timeStep);
-
-            lock (Objects)
-            {
-                // spatial update will automatically:
-                //   add objects with no spatial Id
-                //   remove objects that are !Active
-                //   update objects that have spatial Id
-                Spatial.Update(Objects);
-                // remove inactive objects only after Spatial has seen them as inactive
-                Objects.RemoveInActiveObjects(); 
-            }
+            // spatial update will automatically:
+            //   add objects with no spatial Id
+            //   remove objects that are !Active
+            //   update objects that have spatial Id
+            Spatial.Update(Objects);
+            // remove inactive objects only after Spatial has seen them as inactive
+            Objects.RemoveInActiveObjects(); 
 
             // trigger all Hit events, but only if we are not paused!
             if (timeStep.FixedTime > 0f)
                 Spatial.CollideAll(timeStep);
 
             UpdateVisibleObjects();
+
+            TotalTime.Stop();
         }
 
         /// <summary>Updates master objects lists, removing inactive objects</summary>
         void UpdateLists()
         {
-            lock (Ships)
+            ListTime.Start();
+
+            lock (PendingShips)
             {
-                for (int i = 0; i < Ships.Count; ++i)
-                {
-                    Ship ship = Ships[i];
-                    if (!ship.Active)
-                    {
-                        OnShipRemoved?.Invoke(ship);
-                        ship.RemoveFromUniverseUnsafe();
-                    }
-                }
-                Ships.RemoveInActiveObjects();
+                Ships.AddRange(PendingShips);
+                Objects.AddRange(PendingShips);
+                PendingShips.Clear();
+            }
+            lock (PendingProjectiles)
+            {
+                Projectiles.AddRange(PendingProjectiles);
+                Objects.AddRange(PendingProjectiles);
+                PendingProjectiles.Clear();
             }
 
-            lock (Projectiles)
+            for (int i = 0; i < Ships.Count; ++i)
             {
-
-                for (int i = 0; i < Projectiles.Count; ++i)
+                Ship ship = Ships[i];
+                if (!ship.Active)
                 {
-                    Projectile proj = Projectiles[i];
-                    if (proj.DieNextFrame)
+                    OnShipRemoved?.Invoke(ship);
+                    ship.RemoveFromUniverseUnsafe();
+                }
+            }
+            Ships.RemoveInActiveObjects();
+
+            for (int i = 0; i < Projectiles.Count; ++i)
+            {
+                Projectile proj = Projectiles[i];
+                if (proj.DieNextFrame)
+                {
+                    proj.Die(proj, false);
+                }
+                else if (proj is Beam beam)
+                {
+                    if (beam.Owner?.Active == false)
                     {
-                        proj.Die(proj, false);
-                    }
-                    else if (proj is Beam beam)
-                    {
-                        if (beam.Owner?.Active == false)
-                        {
-                            beam.Die(beam, false);
-                        }
+                        beam.Die(beam, false);
                     }
                 }
-                Projectiles.RemoveInActiveObjects();
             }
+            Projectiles.RemoveInActiveObjects();
+
+            ListTime.Stop();
         }
 
-        void UpdateAllSystems(FixedSimTime timeStep)
+        void UpdateAllSystems(FixedSimTime timeStep, Array<Ship> ships)
         {
             if (Universe.IsExiting)
                 return;
             
             SysPerf.Start();
 
-            lock (Ships)
-            {
-                for (int i = 0; i < Ships.Count; ++i)
-                    Ships[i].SetSystem(null);
-            }
+            for (int i = 0; i < ships.Count; ++i)
+                ships[i].SetSystem(null);
 
             void UpdateSystems(int start, int end)
             {
@@ -271,7 +275,7 @@ namespace Ship_Game
                     //int debugId = (system.Name == "Opteris") ? 11 : 0;
                     GameplayObject[] shipsInSystem = Spatial.FindNearby(GameObjectType.Ship,
                                                     system.Position, system.Radius,
-                                                    maxResults:10_000/*, debugId:debugId*/);
+                                                    maxResults:ships.Count/*, debugId:debugId*/);
                     for (int j = 0; j < shipsInSystem.Length; ++j)
                     {
                         var ship = (Ship)shipsInSystem[j];
@@ -299,69 +303,90 @@ namespace Ship_Game
             SysPerf.Stop();
         }
 
-        void UpdateAllShips(FixedSimTime timeStep)
+        void UpdateAllShips(FixedSimTime timeStep, Array<Ship> ships)
         {
             ShipsPerf.Start();
-            bool isSystemView = (Universe.viewState <= UniverseScreen.UnivScreenState.SystemView);
-            lock (Ships)
-            {
-                Ship[] allShips = Ships.GetInternalArrayItems();
-                Parallel.For(Ships.Count, (start, end) =>
-                {
-                    for (int i = start; i < end; ++i)
-                    {
-                        Ship ship = allShips[i];
-                        ship.Update(timeStep);
-                        ship.UpdateModulePositions(timeStep, isSystemView);
 
-                        // make sure dead and dying ships can be seen.
-                        if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
-                            ship.KnownByEmpires.SetSeenByPlayer();
-                    }
-                }, Universe.MaxTaskCores);
-            }
+            bool isSystemView = Universe.IsSystemViewOrCloser;
+            Ship[] allShips = ships.GetInternalArrayItems();
+
+            Parallel.For(ships.Count, (start, end) =>
+            {
+                for (int i = start; i < end; ++i)
+                {
+                    Ship ship = allShips[i];
+                    ship.Update(timeStep);
+                    ship.UpdateModulePositions(timeStep, isSystemView);
+
+                    // make sure dead and dying ships can be seen.
+                    if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
+                        ship.KnownByEmpires.SetSeenByPlayer();
+                }
+            }, Universe.MaxTaskCores);
+
             ShipsPerf.Stop();
         }
 
-        void UpdateAllProjectiles(FixedSimTime timeStep)
+        void UpdateAllProjectiles(FixedSimTime timeStep, Array<Projectile> projectiles)
         {
             ProjPerf.Start();
-            lock (Projectiles)
+
+            Projectile[] allProjectiles = projectiles.GetInternalArrayItems();
+
+            Parallel.For(projectiles.Count, (start, end) =>
             {
-                Parallel.For(Projectiles.Count, (start, end) =>
+                for (int i = start; i < end; ++i)
                 {
-                    for (int i = start; i < end; ++i)
-                    {
-                        Projectile proj = Projectiles[i];
-                        proj.Update(timeStep);
-                    }
-                }, Universe.MaxTaskCores);
-            }
+                    Projectile proj = allProjectiles[i];
+                    proj.Update(timeStep);
+                }
+            }, Universe.MaxTaskCores);
+
             ProjPerf.Stop();
         }
 
         void UpdateVisibleObjects()
         {
+            VisPerf.Start();
+
             AABoundingBox2D visibleWorld = Universe.GetVisibleWorldRect();
 
             Projectile[] projs = Empty<Projectile>.Array;
             Beam[] beams = Empty<Beam>.Array;
 
-            if (Universe.viewState <= UniverseScreen.UnivScreenState.PlanetView)
+            if (Universe.IsPlanetViewOrCloser)
             {
-                projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 1024)
+                projs = Spatial.FindNearby(GameObjectType.Proj, visibleWorld, 2048)
                                .FastCast<GameplayObject, Projectile>();
 
-                beams = Spatial.FindNearby(GameObjectType.Beam, visibleWorld, 1024)
+                beams = Spatial.FindNearby(GameObjectType.Beam, visibleWorld, 2048)
                                .FastCast<GameplayObject, Beam>();
             }
 
             Ship[] ships = Spatial.FindNearby(GameObjectType.Ship, visibleWorld, 1024)
                                   .FastCast<GameplayObject, Ship>();
 
+            // Reset frustum value for ship visible in previous frame
+            SetInFrustum(VisibleProjectiles, false);
+            SetInFrustum(VisibleBeams, false);
+            SetInFrustum(VisibleShips, false);
+
+            // And now set this frame's objects as visible
+            SetInFrustum(projs, true);
+            SetInFrustum(beams, true);
+            SetInFrustum(ships, true);
+            
             VisibleProjectiles = projs;
             VisibleBeams = beams;
             VisibleShips = ships;
+
+            VisPerf.Stop();
+        }
+
+        static void SetInFrustum<T>(T[] objects, bool inFrustum) where T : GameplayObject
+        {
+            for (int i = 0; i < objects.Length; ++i)
+                objects[i].InFrustum = inFrustum;
         }
     }
 }

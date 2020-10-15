@@ -631,7 +631,7 @@ namespace Ship_Game.Ships
 
         private void Deflect(GameplayObject source)
         {
-            if (!Parent.InFrustum || Empire.Universe?.viewState > UniverseScreen.UnivScreenState.ShipView)
+            if (!Parent.InFrustum || Empire.Universe?.IsShipViewOrCloser == false)
                 return;
 
             if (!(source is Projectile proj))
@@ -690,7 +690,7 @@ namespace Ship_Game.Ships
                         BeamMassDamage(beam, hittingShields: true);
                     }
 
-                    if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                    if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
                         Shield.HitShield(this, proj);
                 }
 
@@ -708,7 +708,7 @@ namespace Ship_Game.Ships
                 //Log.Info($"{Parent.Name} module '{UID}' dmg {modifiedDamage}  hp  {Health} by {proj?.WeaponType}");
             }
 
-            if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
             {
                 if      (beam != null)            beam.CreateHitParticles(Center3D.Z);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
@@ -831,7 +831,7 @@ namespace Ship_Game.Ships
 
             if (!cleanupOnly && source != null)
             {
-                if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                if (Parent.Active && Parent.InFrustum && Empire.Universe.IsShipViewOrCloser)
                 {
                     GameAudio.PlaySfxAsync("sd_explosion_module_small", Parent.SoundEmitter);
                 }
@@ -1078,8 +1078,7 @@ namespace Ship_Game.Ships
             if (!CanVisualizeDamage)
                 return; // bail out for modules that are never visualized
 
-            if (OnFire && Parent.InFrustum &&
-                Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (OnFire && Parent.InFrustum && Empire.Universe.IsSystemViewOrCloser)
             {
                 if (DamageVisualizer == null)
                     DamageVisualizer = new ShipModuleDamageVisualization(this);
@@ -1135,7 +1134,7 @@ namespace Ship_Game.Ships
 
         public void VisualizeRepair()
         {
-            if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            if (Parent.InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
             {
                 float modelZ = Parent.BaseHull.ModelZ;
                 modelZ = modelZ.Clamped(0, 200) * -1;
