@@ -401,11 +401,11 @@ namespace Ship_Game
             }
 
             // todo figure what to do with this
-            /*
-            if (GlobalStats.RemnantArmageddon)
-            {
-                ArmageddonCountdown(timeStep);
-            }
+            
+            //if (GlobalStats.RemnantArmageddon)
+            //{
+            //    ArmageddonCountdown(timeStep);
+            //}
 
             // this block contains master ship list and empire pool updates. 
             // threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
@@ -450,23 +450,23 @@ namespace Ship_Game
             return !Paused;
         }
 
-        void ArmageddonCountdown(FixedSimTime timeStep)
-        {
-            ArmageddonTimer -= timeStep.FixedTime;
-            if (ArmageddonTimer < 0f)
-            {
-                ArmageddonTimer = 300f;
-                ++ArmageddonCounter;
-                if (ArmageddonCounter > 5)
-                    ArmageddonCounter = 5;
-                for (int i = 0; i < ArmageddonCounter; ++i)
-                {
-                    var exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
-                                                              player.WeightedCenter + RandomMath.Vector2D(500_000f));
-                    exterminator.AI.DefaultAIState = AIState.Exterminate;
-                }
-            }
-        }
+        //void ArmageddonCountdown(FixedSimTime timeStep)
+        //{
+        //    ArmageddonTimer -= timeStep.FixedTime;
+        //    if (ArmageddonTimer < 0f)
+        //    {
+        //        ArmageddonTimer = 300f;
+        //        ++ArmageddonCounter;
+        //        if (ArmageddonCounter > 5)
+        //            ArmageddonCounter = 5;
+        //        for (int i = 0; i < ArmageddonCounter; ++i)
+        //        {
+        //            var exterminator = Ship.CreateShipAtPoint("Remnant Exterminator", EmpireManager.Remnants,
+        //                                                      player.WeightedCenter + RandomMath.Vector2D(500_000f));
+        //            exterminator.AI.DefaultAIState = AIState.Exterminate;
+        //        }
+        //    }
+        //}
 
         void HandleGameSpeedChange(InputState input)
         {
