@@ -66,8 +66,6 @@ namespace Ship_Game
             set => Rotation = value.ToRadians();
         }
 
-        [XmlIgnore][JsonIgnore] public bool QueuedForRemoval;
-
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 

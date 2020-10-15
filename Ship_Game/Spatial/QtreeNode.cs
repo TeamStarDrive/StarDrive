@@ -5,24 +5,25 @@ namespace Ship_Game
 {
     public class QtreeNode
     {
+        public static readonly int[] NoObjects = new int[0];
+
         public AABoundingBox2D AABB;
         public QtreeNode NW, NE, SE, SW;
         public int Count;
-        public SpatialObj[] Items;
+        public int[] Items;
         public int Id;
         public int Level;
-        public int TotalTreeDepthCount;
 
         public QtreeNode(int level, in AABoundingBox2D bounds)
         {
             AABB = bounds;
-            Items = Quadtree.NoObjects;
+            Items = NoObjects;
             Level = level;
         }
 
         public override string ToString()
         {
-            return $"ID={Id} L{Level} N={Count} TN={TotalTreeDepthCount} {AABB}";
+            return $"ID={Id} L{Level} N={Count} {AABB}";
         }
 
         public void InitializeForReuse(int level, in AABoundingBox2D bounds)
@@ -38,37 +39,35 @@ namespace Ship_Game
             }
         }
 
-        public void Add(ref SpatialObj obj)
+        public void Add(int objectId)
         {
             int count = Count;
-            SpatialObj[] oldItems = Items;
+            int[] oldItems = Items;
             if (oldItems.Length == count)
             {
                 if (count == 0)
                 {
-                    var newItems = new SpatialObj[Quadtree.CellThreshold];
-                    newItems[count] = obj;
+                    var newItems = new int[Quadtree.CellThreshold];
+                    newItems[count] = objectId;
                     Items = newItems;
-                    ++Count;
+                    Count = 1;
                 }
                 else // oldItems.Length == Count
                 {
                     //Array.Resize(ref Items, Count * 2);
-                    var newItems = new SpatialObj[oldItems.Length * 2];
-                    int i = 0;
-                    for (; i < oldItems.Length; ++i)
+                    var newItems = new int[oldItems.Length * 2];
+                    for (int i = 0; i < oldItems.Length; ++i)
                         newItems[i] = oldItems[i];
-                    newItems[count] = obj;
+                    newItems[count] = objectId;
                     Items = newItems;
-                    ++Count;
+                    Count = count+1;
                 }
             }
             else
             {
-                oldItems[count] = obj;
-                ++Count;
+                oldItems[count] = objectId;
+                Count = count+1;
             }
-            ++TotalTreeDepthCount;
         }
     }
 }

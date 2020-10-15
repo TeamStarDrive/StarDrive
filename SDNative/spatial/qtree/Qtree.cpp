@@ -167,19 +167,17 @@ namespace spatial
             const int size = leaf.size;
             leaf.convertToBranch(*FrontAlloc);
 
-            int nextLevel = level - 1;
-
             // and now reinsert all items one by one
             for (int i = 0; i < size; ++i)
             {
-                insertAt(nextLevel, leaf, objects[i]);
+                insertAt(level, leaf, objects[i]);
             }
 
             // we can reuse this array later
             FrontAlloc->reuseArray(objects, size);
 
             // and now try to insert our object again
-            insertAt(nextLevel, leaf, o);
+            insertAt(level, leaf, o);
         }
         else // expand LEAF
         {

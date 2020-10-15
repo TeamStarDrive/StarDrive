@@ -73,10 +73,11 @@ namespace spatial
             CollisionChain* newNode = Allocator.allocUninitialized<CollisionChain>();
             newNode->b = pair.b;
             newNode->next = nullptr;
+            chain->next = newNode;
         }
         else
         {
-            // create a new chain entry
+            // create the first chain entry
             CollisionChain* newNode = Allocator.allocUninitialized<CollisionChain>();
             newNode->b = pair.b;
             newNode->next = nullptr;
