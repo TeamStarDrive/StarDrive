@@ -564,7 +564,13 @@ namespace Ship_Game
         {
             lock (SceneObjFrontQueue)
             {
-                SceneObjBackQueue.AddRange(SceneObjFrontQueue);
+                for (int i = 0; i < SceneObjFrontQueue.Count; i++)
+                {
+                    var ship = SceneObjFrontQueue[i];
+                    SceneObjBackQueue.AddUniqueRef(ship);
+                }
+
+
                 SceneObjFrontQueue.Clear();
             }
 
