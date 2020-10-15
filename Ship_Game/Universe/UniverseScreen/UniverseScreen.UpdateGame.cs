@@ -47,7 +47,12 @@ namespace Ship_Game
         {
             lock (SimTimeLock)
             {
-                TargetSimTime += deltaTimeFromUI * GameSpeed;
+                // Only advance simulation time if lag is less than 1 second
+                float lag = TargetSimTime - CurrentSimTime;
+                if (lag <= 1.0f)
+                {
+                    TargetSimTime += deltaTimeFromUI * GameSpeed;
+                }
             }
         }
 
