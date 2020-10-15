@@ -11,9 +11,33 @@ namespace Ship_Game.Spatial
 {
     public enum SpatialType : int
     {
-        Grid, // spatial::Grid
-        QuadTree, // spatial::QuadTree
-        ManagedQtree, // C# Quadtree
+        /// <summary>
+        /// spatial::Grid
+        /// Not that good because the universe is just too damn big
+        /// </summary>
+        Grid,
+
+        /// <summary>
+        /// spatial::Qtree
+        /// Really good performance, and very low memory usage
+        /// Only downside is C# to C++ bridge overhead. So it's a good Volkswagen.
+        /// </summary>
+        Qtree, 
+
+        /// <summary>
+        /// spatial::GridL2
+        /// A bit trickier, gives fine grain where we really need it and leaves
+        /// vast emptiness of space relatively empty
+        /// </summary>
+        GridL2,
+
+        /// <summary>
+        /// C# Qtree
+        /// Almost identical to spatial::Qtree, ported from C++ to C#
+        /// Very fast because there is no conversion layer
+        /// A bit of a memory hog - needs Array allocator support
+        /// </summary>
+        ManagedQtree,
     };
 
     public sealed unsafe class NativeSpatial : ISpatial, IDisposable
@@ -21,7 +45,7 @@ namespace Ship_Game.Spatial
         const string Lib = "SDNative.dll";
         const CallingConvention CC = CallingConvention.StdCall;
 
-        [DllImport(Lib)] static extern IntPtr SpatialCreate(SpatialType type, int worldSize, int cellSize);
+        [DllImport(Lib)] static extern IntPtr SpatialCreate(SpatialType type, int worldSize, int cellSize, int cellSize2);
         [DllImport(Lib)] static extern void SpatialDestroy(IntPtr spatial);
         
         [DllImport(Lib)] static extern SpatialType SpatialGetType(IntPtr spatial);
@@ -58,10 +82,11 @@ namespace Ship_Game.Spatial
         /// Size of a single spatial cell. For Grid, this is the Cell Size.
         /// For QuadTree, this is the smallest possible subdivision cell size
         /// </param>
-        public NativeSpatial(SpatialType type, int worldSize, int cellSize)
+        /// <param name="cellSize2">Size of secondary cells, for example L2 Grid's second level cell size</param>
+        public NativeSpatial(SpatialType type, int worldSize, int cellSize, int cellSize2 = 0)
         {
             Type = type;
-            Spat = SpatialCreate(type, worldSize, cellSize);
+            Spat = SpatialCreate(type, worldSize, cellSize, cellSize2);
 
             WorldSize = worldSize;
             FullSize = SpatialFullSize(Spat);
@@ -124,7 +149,7 @@ namespace Ship_Game.Spatial
                         {
                             rx = ry = (int)go.Radius;
                         }
-
+                        
                         SpatialUpdate(Spat, objectId, (int)go.Center.X, (int)go.Center.Y, rx, ry);
                         objectsMap[objectId] = go;
                     }
@@ -150,13 +175,18 @@ namespace Ship_Game.Spatial
             public byte SortCollisionsById; // if 1, collision results are sorted by object Id-s, ascending
             public byte ShowCollisions; // if 1, collisions are shown as debug
         }
-        struct CollisionPair
+        public struct CollisionPair
         {
+            public static readonly CollisionPair Empty = new CollisionPair(-1, -1);
             public int A;
             public int B;
-            public static readonly CollisionPair Empty = new CollisionPair{ A = -1, B = -1 };
+            public CollisionPair(int a, int b)
+            {
+                A = a;
+                B = b;
+            }
         }
-        struct CollisionPairs
+        public struct CollisionPairs
         {
             public CollisionPair* Data;
             public int Size;
@@ -176,11 +206,11 @@ namespace Ship_Game.Spatial
             CollisionPairs collisions = default;
             SpatialCollideAll(Spat, ref p, ref collisions);
             
-            int numCollisions = CollideObjects(timeStep, collisions);
+            int numCollisions = CollideObjects(timeStep, collisions, FrontObjects);
             return numCollisions;
         }
 
-        struct BeamHitResult : IComparable<BeamHitResult>
+        public struct BeamHitResult : IComparable<BeamHitResult>
         {
             public GameplayObject Collided;
             public float Distance;
@@ -190,7 +220,7 @@ namespace Ship_Game.Spatial
             }
         }
 
-        int CollideObjects(FixedSimTime timeStep, CollisionPairs collisions)
+        public static int CollideObjects(FixedSimTime timeStep, CollisionPairs collisions, Array<GameplayObject> objects)
         {
             int numCollisions = 0;
 
@@ -204,8 +234,8 @@ namespace Ship_Game.Spatial
                 if (pair.A == -1) // object removed by beam collision
                     continue;
 
-                GameplayObject objectA = FrontObjects[pair.A];
-                GameplayObject objectB = FrontObjects[pair.B];
+                GameplayObject objectA = objects[pair.A];
+                GameplayObject objectB = objects[pair.B];
                 if (objectB == null)
                 {
                     Log.Error($"CollideObjects objectB was null at {pair.B}");
@@ -231,12 +261,12 @@ namespace Ship_Game.Spatial
                         pair = collisions.Data[j];
                         if (pair.A == beamId)
                         {
-                            AddBeamHit(beamHits, beam, FrontObjects[pair.B]);
+                            AddBeamHit(beamHits, beam, objects[pair.B]);
                             collisions.Data[j] = CollisionPair.Empty; // remove
                         }
                         else if (pair.B == beamId)
                         {
-                            AddBeamHit(beamHits, beam, FrontObjects[pair.A]);
+                            AddBeamHit(beamHits, beam, objects[pair.A]);
                             collisions.Data[j] = CollisionPair.Empty; // remove
                         }
                     }
@@ -289,17 +319,16 @@ namespace Ship_Game.Spatial
             Vector2 beamEnd   = beam.Destination;
             Vector2 hitPos;
             if (hitDistance > 0f)
-                hitPos = beamStart + (beamEnd - beamStart).Normalized()*hitDistance;
+                hitPos = beamStart + (beamEnd - beamStart).Normalized()*Math.Min(beam.Range,hitDistance);
             else // the beam probably glanced the module from side, so just get the closest point:
                 hitPos = victim.Center.FindClosestPointOnLine(beamStart, beamEnd);
 
             beam.BeamCollidedThisFrame = true;
-            beam.ActualHitDestination = hitPos;
+            beam.SetActualHitDestination(hitPos);
             return true;
         }
 
-
-        static void AddBeamHit(Array<BeamHitResult> beamHits, Beam beam, GameplayObject victim)
+        public static void AddBeamHit(Array<BeamHitResult> beamHits, Beam beam, GameplayObject victim)
         {
             if (HitTestBeam(beam, victim, out ShipModule hitModule, out float dist))
             {
@@ -345,7 +374,7 @@ namespace Ship_Game.Spatial
             return victim.Center.RayCircleIntersect(victim.Radius, beamStart, beamEnd, out distanceToHit);
         }
 
-        public bool HitTestProj(float simTimeStep, Projectile proj, GameplayObject victim, out ShipModule hitModule)
+        public static bool HitTestProj(float simTimeStep, Projectile proj, GameplayObject victim, out ShipModule hitModule)
         {
             // NOTE: this is for Projectile<->Projectile collision!
             if (victim.Type != GameObjectType.Ship) // target not a ship, collision success
@@ -377,7 +406,123 @@ namespace Ship_Game.Spatial
             return hitModule != null;
         }
 
-        GameplayObject[] CopyOutput(int* objectIds, int count, GameplayObject[] objects)
+        [UnmanagedFunctionPointer(CC)]
+        delegate int SearchFilter(int objectId);
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct NativeSearchOptions
+        {
+            public AABoundingBox2Di SearchRect;
+            public Circle RadialFilter;
+            public int MaxResults;
+            public int FilterByType;
+            public int FilterExcludeObjectId;
+            public int FilterExcludeByLoyalty;
+            public int FilterIncludeOnlyByLoyalty;
+            public SearchFilter FilterFunction;
+            public int EnableSearchDebugId;
+        };
+
+        public GameplayObject[] FindNearby(in SearchOptions opt)
+        {
+            int ignoreId = -1;
+            if (opt.FilterExcludeObject != null && opt.FilterExcludeObject.SpatialIndex >= 0)
+                ignoreId = opt.FilterExcludeObject.SpatialIndex;
+
+            var nso = new NativeSearchOptions
+            {
+                SearchRect = new AABoundingBox2Di(opt.SearchRect),
+                RadialFilter = new Circle
+                {
+                    X=(int)opt.FilterOrigin.X,
+                    Y=(int)opt.FilterOrigin.Y,
+                    Radius=(int)(opt.FilterRadius + 0.5f) // ceil
+                },
+                MaxResults = opt.MaxResults,
+                FilterByType = (int)opt.FilterByType,
+                FilterExcludeObjectId = ignoreId,
+                FilterExcludeByLoyalty = opt.FilterExcludeByLoyalty?.Id ?? 0,
+                FilterIncludeOnlyByLoyalty = opt.FilterIncludeOnlyByLoyalty?.Id ?? 0,
+                FilterFunction = null,
+                EnableSearchDebugId = opt.DebugId,
+            };
+            
+            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
+
+            if (opt.FilterFunction != null)
+            {
+                SearchFilterFunc filterFunc = opt.FilterFunction;
+                nso.FilterFunction = (int objectId) =>
+                {
+                    GameplayObject go = objects[objectId];
+                    bool success = filterFunc(go);
+                    return success ? 1 : 0;
+                };
+            }
+
+            int* objectIds = stackalloc int[opt.MaxResults];
+            int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);
+            return CopyOutput(objectIds, resultCount, objects);
+        }
+
+        public GameplayObject[] FindLinear(in SearchOptions opt)
+        {
+            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
+            int count = FrontObjects.Count;
+            return FindLinear(opt, objects, count);
+        }
+        
+        public static GameplayObject[] FindLinear(in SearchOptions opt, GameplayObject[] objects, int count)
+        {
+            int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
+            int* objectIds = stackalloc int[maxResults];
+            int resultCount = 0;
+
+            AABoundingBox2D searchRect = opt.SearchRect;
+            bool filterByLoyalty = (opt.FilterExcludeByLoyalty != null)
+                                || (opt.FilterIncludeOnlyByLoyalty != null);
+
+            float searchFX = opt.FilterOrigin.X;
+            float searchFY = opt.FilterOrigin.Y;
+            float searchFR = opt.FilterRadius;
+            bool useSearchRadius = searchFR > 0f;
+
+            for (int i = 0; i < count; ++i)
+            {
+                GameplayObject obj = objects[i];
+                if (obj == null
+                    || (opt.FilterExcludeObject != null && obj == opt.FilterExcludeObject)
+                    || (opt.FilterByType != GameObjectType.Any && obj.Type != opt.FilterByType))
+                    continue;
+                
+                if (filterByLoyalty)
+                {
+                    Empire loyalty = obj.GetLoyalty();
+                    if ((opt.FilterExcludeByLoyalty != null && loyalty == opt.FilterExcludeByLoyalty) ||
+                        (opt.FilterIncludeOnlyByLoyalty != null && loyalty != opt.FilterIncludeOnlyByLoyalty))
+                        continue;
+                }
+
+                var objectRect = new AABoundingBox2D(obj);
+                if (!objectRect.Overlaps(searchRect))
+                    continue;
+
+                if (useSearchRadius)
+                {
+                    float dx = searchFX - obj.Center.X;
+                    float dy = searchFY - obj.Center.Y;
+                    float rr = searchFR + obj.Radius;
+                    if ((dx*dx + dy*dy) > (rr*rr))
+                        continue; // not in squared radius
+                }
+
+                objectIds[resultCount++] = i;
+                if (resultCount == maxResults)
+                    break; // we are done !
+            }
+            return CopyOutput(objectIds, resultCount, objects);
+        }
+        static GameplayObject[] CopyOutput(int* objectIds, int count, GameplayObject[] objects)
         {
             if (count == 0)
                 return Empty<GameplayObject>.Array;
@@ -392,106 +537,6 @@ namespace Ship_Game.Spatial
             return found;
         }
 
-        [UnmanagedFunctionPointer(CC)]
-        delegate int SearchFilter(int objectId);
-
-        [StructLayout(LayoutKind.Sequential)]
-        struct NativeSearchOptions
-        {
-            public Rect SearchRect;
-            public int MaxResults;
-            public int FilterByType;
-            public int FilterExcludeObjectId;
-            public int FilterExcludeByLoyalty;
-            public int FilterIncludeOnlyByLoyalty;
-            public SearchFilter FilterFunction;
-            public int EnableSearchDebugId;
-        };
-
-        public GameplayObject[] FindNearby(GameObjectType type,
-                                           Vector2 worldPos,
-                                           float radius,
-                                           int maxResults,
-                                           GameplayObject toIgnore,
-                                           Empire excludeLoyalty,
-                                           Empire onlyLoyalty,
-                                           int debugId = 0)
-        {
-            int ignoreId = -1;
-            if (toIgnore != null && toIgnore.SpatialIndex < 0)
-                ignoreId = toIgnore.SpatialIndex;
-
-            int x = (int)worldPos.X;
-            int y = (int)worldPos.Y;
-            int r = (int)(radius + 0.5f); // ceil
-
-            var nso = new NativeSearchOptions
-            {
-                SearchRect = new Rect { Left=x-r, Top=y-r, Right=x+r, Bottom=y+r},
-                MaxResults = maxResults,
-                FilterByType = (int)type,
-                FilterExcludeObjectId = ignoreId,
-                FilterExcludeByLoyalty = excludeLoyalty?.Id ?? 0,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty?.Id ?? 0,
-                FilterFunction = null,
-                EnableSearchDebugId = debugId,
-            };
-
-            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
-
-            int* objectIds = stackalloc int[maxResults];
-            int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);
-            return CopyOutput(objectIds, resultCount, objects);
-        }
-
-        public GameplayObject[] FindLinear(GameObjectType type,
-                                           Vector2 worldPos,
-                                           float radius,
-                                           int maxResults,
-                                           GameplayObject toIgnore,
-                                           Empire excludeLoyalty,
-                                           Empire onlyLoyalty,
-                                           int debugId = 0)
-        {
-            float cx = worldPos.X;
-            float cy = worldPos.Y;
-            bool filterByLoyalty = (excludeLoyalty != null) || (onlyLoyalty != null);
-
-            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
-            int count = FrontObjects.Count;
-            
-            int resultCount = 0;
-            int* objectIds = stackalloc int[maxResults];
-
-            for (int i = 0; i < count; ++i)
-            {
-                GameplayObject obj = objects[i];
-                if (obj == null || (toIgnore != null && obj == toIgnore)
-                    || (type != GameObjectType.Any && obj.Type != type))
-                    continue;
-                
-                if (filterByLoyalty)
-                {
-                    Empire loyalty = obj.GetLoyalty();
-                    if ((excludeLoyalty != null && loyalty == excludeLoyalty)
-                        || (onlyLoyalty != null && loyalty != onlyLoyalty))
-                        continue;
-                }
-
-                // check if inside radius, inlined for perf
-                float dx = cx - obj.Center.X;
-                float dy = cy - obj.Center.Y;
-                float r2 = radius + obj.Radius;
-                if ((dx*dx + dy*dy) <= (r2*r2))
-                {
-                    objectIds[resultCount++] = obj.SpatialIndex;
-                    if (resultCount >= maxResults)
-                        break; // we are done !
-                }
-            }
-            return CopyOutput(objectIds, resultCount, objects);
-        }
-        
         struct Point
         {
             public int X;
@@ -503,18 +548,12 @@ namespace Ship_Game.Spatial
             public int Y;
             public int Radius;
         }
-        struct Rect
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
+
         struct SpatialColor
         {
             public byte r, g, b, a;
         }
-        [UnmanagedFunctionPointer(CC)] delegate void DrawRectF(Rect r, SpatialColor c);
+        [UnmanagedFunctionPointer(CC)] delegate void DrawRectF(AABoundingBox2Di r, SpatialColor c);
         [UnmanagedFunctionPointer(CC)] delegate void DrawCircleF(Circle ci, SpatialColor c);
         [UnmanagedFunctionPointer(CC)] delegate void DrawLineF(Point a, Point b, SpatialColor c);
         [UnmanagedFunctionPointer(CC)] delegate void DrawTextF(Point p, int size, sbyte* text, SpatialColor c);
@@ -525,9 +564,9 @@ namespace Ship_Game.Spatial
             public DrawLineF   DrawLine;
             public DrawTextF   DrawText;
         }
-        struct QtreeVisualizerOptions
+        struct VisualizationOptions
         {
-            public Rect visibleWorldRect;
+            public AABoundingBox2Di visibleWorldRect;
             public byte objectBounds;
             public byte objectToLeafLines;
             public byte objectText;
@@ -539,12 +578,12 @@ namespace Ship_Game.Spatial
         }
 
         [DllImport(Lib)]
-        static extern void SpatialDebugVisualize(IntPtr spatial, ref QtreeVisualizerOptions opt, ref QtreeVisualizerBridge vis);
+        static extern void SpatialDebugVisualize(IntPtr spatial, ref VisualizationOptions opt, ref QtreeVisualizerBridge vis);
         
         static GameScreen Screen;
-        static void DrawRect(Rect r, SpatialColor c)
+        static void DrawRect(AABoundingBox2Di r, SpatialColor c)
         {
-            Screen.DrawRectangleProjected(new Rectangle(r.Left, r.Top, r.Right- r.Left, r.Bottom- r.Top),
+            Screen.DrawRectangleProjected(new Rectangle(r.X1, r.Y1, r.Width, r.Height),
                                           new Color(c.r, c.g, c.b, c.a));
         }
         static void DrawCircle(Circle ci, SpatialColor c)
@@ -566,17 +605,11 @@ namespace Ship_Game.Spatial
 
         public void DebugVisualize(GameScreen screen)
         {
-            Rectangle worldRect = screen.GetVisibleWorldRect();
+            AABoundingBox2D worldRect = screen.GetVisibleWorldRect();
 
-            var opt = new QtreeVisualizerOptions
+            var opt = new VisualizationOptions
             {
-                visibleWorldRect = new Rect
-                {
-                    Left = worldRect.Left,
-                    Top = worldRect.Top,
-                    Right = worldRect.Right,
-                    Bottom = worldRect.Bottom,
-                },
+                visibleWorldRect = new AABoundingBox2Di(worldRect),
                 objectBounds = 1,
                 objectToLeafLines = 1,
                 objectText = 0,

@@ -27,7 +27,6 @@ namespace UnitTests.Ships
             target = CreateShip(empire, "Corsair", new Vector2(1000, 1000));
 
             Universe.Objects.Update(TestSimStep);
-            UniverseScreen.Spatial.Update(Universe.GetMasterObjectList());
         }
 
         static Ship CreateShip(Empire empire, string shipName, Vector2 pos)

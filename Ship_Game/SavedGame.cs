@@ -77,6 +77,9 @@ namespace Ship_Game
 
         public SavedGame(UniverseScreen screenToSave, string saveAs)
         {
+            // clean up and submit objects before saving
+            screenToSave.Objects.Update(FixedSimTime.Zero);
+
             SaveData.SaveGameVersion       = SaveGameVersion;
             SaveData.gameDifficulty        = CurrentGame.Difficulty;
             SaveData.GalaxySize            = CurrentGame.GalaxySize;
@@ -269,7 +272,7 @@ namespace Ship_Game
                 });
                 empireToSave.GSAIData = gsaidata;
 
-                empireToSave.TechTree.AddRange(e.TechEntries);
+                empireToSave.TechTree.AddRange(e.TechEntries.ToArray());
 
                 foreach (Ship ship in e.GetShips())
                 {
