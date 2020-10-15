@@ -266,7 +266,7 @@ struct Simulation final : spatial::Visualizer
         if (isPressed(ImGuiKey_V))
         {
             params.type = static_cast<spatial::SpatialType>((int)params.type + 1);
-            if (params.type > spatial::SpatialType::QuadTree)
+            if (params.type >= spatial::SpatialType::MAX)
                 params.type = spatial::SpatialType::Grid;
         }
 
