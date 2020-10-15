@@ -111,7 +111,6 @@ namespace Ship_Game.GameScreens.MainMenu
             if (ShipObj != null)
             {
                 ScreenManager.Instance.RemoveObject(ShipObj);
-                ShipObj.Clear();
                 ShipObj = null;
             }
         }
