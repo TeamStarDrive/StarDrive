@@ -611,12 +611,23 @@ namespace Ship_Game
             }
 
             if (saveData.Projectiles != null) // NULL check: backwards compatibility
+            {
                 foreach (SavedGame.ProjectileSaveData projData in saveData.Projectiles)
-                    data.MasterProjectileList.Add(Projectile.Create(projData, data));
-            
+                {
+                    var p = Projectile.Create(projData, data);
+                    if (p != null) // invalid projectile data, maybe savegame issue
+                        data.MasterProjectileList.Add(p);
+                }
+            }
             if (saveData.Beams != null) // NULL check: backwards compatibility
+            {
                 foreach (SavedGame.BeamSaveData beamData in saveData.Beams)
-                    data.MasterProjectileList.Add(Beam.Create(beamData, data));
+                {
+                    var b = Beam.Create(beamData, data);
+                    if (b != null) // invalid beam data, maybe savegame issue
+                        data.MasterProjectileList.Add(b);
+                }
+            }
         }
 
         void CreateSolarSystems(SavedGame.UniverseSaveData saveData, UniverseData data)

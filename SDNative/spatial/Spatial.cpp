@@ -1,24 +1,29 @@
 #include "Spatial.h"
 #include "grid/Grid.h"
+#include "gridL2/GridL2.h"
 #include "qtree/Qtree.h"
 
 namespace spatial
 {
-    std::shared_ptr<Spatial> Spatial::create(SpatialType type, int universeSize, int cellSize)
+    std::shared_ptr<Spatial> Spatial::create(SpatialType type, int universeSize, int cellSize, int cellSize2)
     {
         if (type == SpatialType::Grid)
             return std::make_shared<Grid>(universeSize, cellSize);
         if (type == SpatialType::QuadTree)
             return std::make_shared<Qtree>(universeSize, cellSize);
+        if (type == SpatialType::GridL2)
+            return std::make_shared<GridL2>(universeSize, cellSize, cellSize2);
         return {};
     }
 
-    SPATIAL_C_API Spatial* SPATIAL_CC SpatialCreate(SpatialType type, int universeSize, int cellSize)
+    SPATIAL_C_API Spatial* SPATIAL_CC SpatialCreate(SpatialType type, int universeSize, int cellSize, int cellSize2)
     {
         if (type == SpatialType::Grid)
             return new Grid{universeSize, cellSize};
         if (type == SpatialType::QuadTree)
             return new Qtree{universeSize, cellSize};
+        if (type == SpatialType::GridL2)
+            return new GridL2{universeSize, cellSize, cellSize2};
         return nullptr;
     }
     SPATIAL_C_API void SPATIAL_CC SpatialDestroy(Spatial* spatial)
