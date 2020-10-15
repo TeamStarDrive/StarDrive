@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 
 namespace UnitTests.Universe
 {
@@ -14,8 +15,8 @@ namespace UnitTests.Universe
         Vector3 Camera;
         float CamHeight;
 
-        Vector2 SearchStart;
-        float SearchRadius;
+        AABoundingBox2D SearchArea;
+
         float UpdateTime;
         float CollideTime;
         float SearchTime;
@@ -110,9 +111,9 @@ namespace UnitTests.Universe
                 }
             }
 
-            if (SearchStart != Vector2.Zero && SearchRadius != 0f)
+            if (SearchArea.Width > 0f)
             {
-                DrawCircleProjected(SearchStart, SearchRadius, Color.GreenYellow, 2);
+                DrawRectProjected(SearchArea, Color.GreenYellow, 2);
             }
 
             var cursor = new Vector2(20, 20);
@@ -121,7 +122,7 @@ namespace UnitTests.Universe
             DrawText(ref cursor, $"UpdateTime:  {(UpdateTime*1000).String(4)}ms");
             DrawText(ref cursor, $"CollideTime: {(CollideTime*1000).String(4)}ms");
             DrawText(ref cursor, $"FindNearby: {Found.Length}");
-            DrawText(ref cursor, $"SearchRadius: {SearchRadius}");
+            DrawText(ref cursor, $"SearchArea: {SearchArea.Width}x{SearchArea.Height}");
             DrawText(ref cursor, $"SearchTime:   {(SearchTime*1000).String(4)}ms");
             DrawText(ref cursor, $"LinearTime:   {(LinearTime*1000).String(4)}ms");
 
@@ -150,20 +151,24 @@ namespace UnitTests.Universe
 
             if (input.RightMouseHeldDown)
             {
+                SearchArea = new AABoundingBox2D(
+                    UnprojectToWorldPosition(input.StartRightHold),
+                    UnprojectToWorldPosition(input.EndRightHold));
+
+                var opt = new SearchOptions(SearchArea)
+                {
+                    MaxResults = 1000
+                };
+
                 var timer2 = new PerfTimer();
                 {
-                    Spat.FindLinear(GameObjectType.Any, SearchStart, SearchRadius,
-                                     maxResults:1000, null, null, null);
+                    Spat.FindLinear(opt);
                 }
                 LinearTime = timer2.Elapsed;
 
                 var timer = new PerfTimer();
                 {
-                    SearchStart = UnprojectToWorldPosition(input.StartRightHold);
-                    SearchRadius = SearchStart.Distance(UnprojectToWorldPosition(input.EndRightHold));
-
-                    Found = Spat.FindNearby(GameObjectType.Any, SearchStart, SearchRadius,
-                                            maxResults:1000, null, null, null);
+                    Found = Spat.FindNearby(opt);
                 }
                 SearchTime = timer.Elapsed;
             }

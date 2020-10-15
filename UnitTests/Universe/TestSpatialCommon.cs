@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 using Parallel = Ship_Game.Parallel;
 
 namespace UnitTests.Universe
@@ -35,7 +36,9 @@ namespace UnitTests.Universe
 
         protected GameplayObject[] FindNearby(ISpatial tree, GameObjectType type, Vector2 pos, float r)
         {
-            return tree.FindNearby(type, pos, r, 128, null, null, null);
+            var opt = new SearchOptions(pos, r, type);
+            opt.MaxResults = 128;
+            return tree.FindNearby(opt);
         }
 
         public void TestBasicInsert(ISpatial tree)
@@ -77,11 +80,11 @@ namespace UnitTests.Universe
             GameplayObject[] f1 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 7200);
             Assert.AreEqual(4, f1.Length, "FindNearby center 7200 must match 4");
 
-            GameplayObject[] f2 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 16500);
-            Assert.AreEqual(12, f2.Length, "FindNearby center 2000 must match 12");
-
-            GameplayObject[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 30000);
-            Assert.AreEqual(32, f3.Length, "FindNearby center 3000 must match 32");
+            GameplayObject[] f2 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 16000);
+            Assert.AreEqual(12, f2.Length, "FindNearby center 16000 must match 12");
+            
+            GameplayObject[] f3 = FindNearby(tree, GameObjectType.Any, Vector2.Zero, 26000);
+            Assert.AreEqual(24, f3.Length, "FindNearby center 26000 must match 24");
         }
 
         void CheckFindNearby(GameplayObject[] found, GameObjectType expected,
@@ -116,8 +119,11 @@ namespace UnitTests.Universe
 
             foreach (Ship s in AllObjects)
             {
-                GameplayObject[] found = tree.FindNearby(GameObjectType.Ship, s.Position, 10000, 128,
-                                                         null, excludeLoyalty:s.loyalty, null);
+                var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
+                {
+                    FilterExcludeByLoyalty = s.loyalty
+                };
+                GameplayObject[] found = tree.FindNearby(opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
             }
         }
@@ -128,17 +134,20 @@ namespace UnitTests.Universe
 
             foreach (Ship s in AllObjects)
             {
-                GameplayObject[] found = tree.FindNearby(GameObjectType.Ship, s.Position, 10000, 128,
-                                                         null, null, onlyLoyalty:s.loyalty);
+                var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
+                {
+                    FilterIncludeOnlyByLoyalty = s.loyalty
+                };
+                GameplayObject[] found = tree.FindNearby(opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
             }
         }
 
         public void TestTreeUpdatePerformance(ISpatial tree)
         {
-            CreateQuadTree(10_000, tree);
+            CreateQuadTree(5_000, tree);
             float e = 0f;
-            for (int i = 0; i < 60; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 foreach (Ship ship in AllObjects)
                 {
@@ -158,14 +167,15 @@ namespace UnitTests.Universe
 
         public void TestTreeSearchPerformance(ISpatial tree)
         {
-            CreateQuadTree(10_000, tree);
+            CreateQuadTree(1_000, tree);
             const float defaultSensorRange = 30000f;
 
             var t1 = new PerfTimer();
             for (int i = 0; i < AllObjects.Count; ++i)
             {
-                Ship ship = (Ship)AllObjects[i];
-                tree.FindLinear(GameObjectType.Any, ship.Center, defaultSensorRange, 128, null, null, null);
+                var s = (Ship)AllObjects[i];
+                var opt = new SearchOptions(s.Position, defaultSensorRange);
+                tree.FindLinear(opt);
             }
             float e1 = t1.Elapsed;
             Console.WriteLine($"-- LinearSearch 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
@@ -173,7 +183,9 @@ namespace UnitTests.Universe
             var t2 = new PerfTimer();
             for (int i = 0; i < AllObjects.Count; ++i)
             {
-                tree.FindNearby(GameObjectType.Any, AllObjects[i].Center, defaultSensorRange, 128, null, null, null);
+                var s = (Ship)AllObjects[i];
+                var opt = new SearchOptions(s.Position, defaultSensorRange);
+                tree.FindNearby(opt);
             }
             float e2 = t2.Elapsed;
             Console.WriteLine($"-- TreeSearch 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
@@ -188,7 +200,7 @@ namespace UnitTests.Universe
 
         public void TestConcurrentUpdateAndSearch(ISpatial tree)
         {
-            CreateQuadTree(10_000, tree);
+            CreateQuadTree(5_000, tree);
             var timer = new PerfTimer();
 
             // update
@@ -215,8 +227,9 @@ namespace UnitTests.Universe
                 {
                     for (int i = 0; i < AllObjects.Count; ++i)
                     {
-                        tree.FindNearby(GameObjectType.Any, AllObjects[i].Center, defaultSensorRange, 
-                                        maxResults:128, null, null, null);
+                        var s = (Ship)AllObjects[i];
+                        var opt = new SearchOptions(s.Position, defaultSensorRange);
+                        tree.FindNearby(opt);
                     }
                 }
             });
@@ -225,7 +238,7 @@ namespace UnitTests.Universe
         public void TestTreeCollisionPerformance(ISpatial tree)
         {
             CreateQuadTree(10_000, tree);
-            const int iterations = 100;
+            const int iterations = 50;
 
             var t1 = new PerfTimer();
             for (int i = 0; i < iterations; ++i)

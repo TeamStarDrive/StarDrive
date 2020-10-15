@@ -261,6 +261,7 @@
     <Compile Include="Ship_Game\Empires\ShipPools\WarSupportShips.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
     <Compile Include="Ship_Game\Empire_Realtionship.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\AABoundingBox2D.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadSafeRandom.cs" />
     <Compile Include="Ship_Game\Pirates.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
@@ -467,7 +468,6 @@
     <Compile Include="Ship_Game\Spatial\QtreeNode.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeRecycleBuffer.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.Collision.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.CollisionIterative.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.Debug.cs" />
     <Compile Include="Ship_Game\Spatial\Quadtree.FindNearby.cs" />
@@ -544,6 +544,7 @@
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseObjectManager.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Camera.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Draw.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.DrawDebugInfo.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.HandleInput.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.InputActions.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Menus.cs" />

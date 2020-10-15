@@ -30,10 +30,9 @@ namespace Ship_Game
         QtreeNode Root;
 
         readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
+        SpatialObj[] SpatialObjects = new SpatialObj[0];
         QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer(10000);
         QtreeRecycleBuffer BackBuffer  = new QtreeRecycleBuffer(20000);
-
-        Array<QtreeNode> DeepestNodesFirstTraversal;
 
         public float WorldSize { get; }
         public int Count { get; private set; }
@@ -64,85 +63,127 @@ namespace Ship_Game
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            Root = FrontBuffer.Create(Levels, -half, -half, +half, +half);
+            Root = FrontBuffer.Create(Levels, new AABoundingBox2D(-half, -half, +half, +half));
             lock (Objects)
             {
                 Objects.Clear();
             }
         }
 
-        // Takes an existing undivided node and subdivides it into quadrants
-        void SubdivideNode(QtreeNode node, int level)
+        struct OverlapsRect
         {
-            float midX = (node.X + node.LastX) / 2;
-            float midY = (node.Y + node.LastY) / 2;
+            public readonly byte NW, NE, SE, SW;
+            public OverlapsRect(in AABoundingBox2D quad, in AABoundingBox2D rect)
+            {
+                float midX = (quad.X1 + quad.X2) * 0.5f;
+                float midY = (quad.Y1 + quad.Y2) * 0.5f;
+                // +---------+   The target rectangle overlaps Left quadrants (NW, SW)
+                // | x--|    |
+                // |-|--+----|
+                // | x--|    |
+                // +---------+
+                byte overlaps_Left = (rect.X1 < midX)?(byte)1:(byte)0;
+                // +---------+   The target rectangle overlaps Right quadrants (NE, SE)
+                // |    |--x |
+                // |----+--|-|
+                // |    |--x |
+                // +---------+
+                byte overlaps_Right = (rect.X2 >= midX)?(byte)1:(byte)0;
+                // +---------+   The target rectangle overlaps Top quadrants (NW, NE)
+                // | x--|-x  |
+                // |----+----|
+                // |    |    |
+                // +---------+
+                byte overlaps_Top = (rect.Y1 < midY)?(byte)1:(byte)0;
+                // +---------+   The target rectangle overlaps Bottom quadrants (SW, SE)
+                // |    |    |
+                // |----+----|
+                // | x--|-x  |
+                // +---------+
+                byte overlaps_Bottom = (rect.Y2 >= midY)?(byte)1:(byte)0;
 
-            int nextLevel = level - 1;
-            node.NW = FrontBuffer.Create(nextLevel, node.X, node.Y, midX,       midY);
-            node.NE = FrontBuffer.Create(nextLevel, midX,   node.Y, node.LastX, midY);
-            node.SE = FrontBuffer.Create(nextLevel, midX,   midY,   node.LastX, node.LastY);
-            node.SW = FrontBuffer.Create(nextLevel, node.X, midY,   midX,       node.LastY);
-
-            int count = node.Count;
-            SpatialObj[] arr = node.Items;
-            node.Items = NoObjects;
-            node.Count = 0;
-            node.TotalTreeDepthCount -= count;
-
-            // and now reinsert all items one by one
-            for (int i = 0; i < count; ++i)
-                InsertAt(node, level, ref arr[i]);
+                // bitwise combine to get which quadrants we overlap: NW, NE, SE, SW
+                NW = (byte)(overlaps_Top & overlaps_Left);
+                NE = (byte)(overlaps_Top & overlaps_Right);
+                SE = (byte)(overlaps_Bottom & overlaps_Right);
+                SW = (byte)(overlaps_Bottom & overlaps_Left);
+            }
         }
 
-        static QtreeNode PickSubQuadrant(QtreeNode node, ref SpatialObj obj)
+        void InsertAt(QtreeNode node, int level, SpatialObj[] spatialObjects, int objectId)
         {
-            float midX = (node.X + node.LastX) / 2;
-            float midY = (node.Y + node.LastY) / 2;
-
-            if (obj.X < midX && obj.LastX < midX) // left
-            {
-                if (obj.Y <  midY && obj.LastY < midY) return node.NW; // top left
-                if (obj.Y >= midY)                     return node.SW; // bot left
-            }
-            else if (obj.X >= midX) // right
-            {
-                if (obj.Y <  midY && obj.LastY < midY) return node.NE; // top right
-                if (obj.Y >= midY)                     return node.SE; // bot right
-            }
-            return null; // obj does not perfectly fit inside a quadrant
-        }
-
-        void InsertAt(QtreeNode node, int level, ref SpatialObj obj)
-        {
+            AABoundingBox2D objectRect = spatialObjects[objectId].AABB;
             for (;;)
             {
                 if (level <= 1) // no more subdivisions possible
                 {
-                    node.Add(ref obj);
+                    node.Add(objectId);
                     return;
                 }
 
-                if (node.NW != null)
+                if (node.NW != null) // isBranch
                 {
-                    QtreeNode quad = PickSubQuadrant(node, ref obj);
-                    if (quad != null)
+                    var over = new OverlapsRect(node.AABB, objectRect);
+                    int overlaps = over.NW + over.NE + over.SE + over.SW;
+
+                    // this is an optimal case, we only overlap 1 sub-quadrant, so we go deeper
+                    if (overlaps == 1)
                     {
-                        ++node.TotalTreeDepthCount;
-                        node = quad; // go deeper!
-                        --level;
-                        continue;
+                        if      (over.NW != 0) { node = node.NW; --level; }
+                        else if (over.NE != 0) { node = node.NE; --level; }
+                        else if (over.SE != 0) { node = node.SE; --level; }
+                        else if (over.SW != 0) { node = node.SW; --level; }
+                    }
+                    else // target overlaps multiple quadrants, so it has to be inserted into several of them:
+                    {
+                        if (over.NW != 0) { InsertAt(node.NW, level-1, spatialObjects, objectId); }
+                        if (over.NE != 0) { InsertAt(node.NE, level-1, spatialObjects, objectId); }
+                        if (over.SE != 0) { InsertAt(node.SE, level-1, spatialObjects, objectId); }
+                        if (over.SW != 0) { InsertAt(node.SW, level-1, spatialObjects, objectId); }
+                        return;
                     }
                 }
-
-                // item belongs to this node
-                node.Add(ref obj);
-
-                // actually, are we maybe over Threshold and should Subdivide ?
-                if (node.NW == null && node.Count >= CellThreshold)
+                else // isLeaf
                 {
-                    SubdivideNode(node, level);
+                    InsertAtLeaf(node, level, spatialObjects, objectId);
+                    return;
                 }
-                return;
+            }
+        }
+
+        void InsertAtLeaf(QtreeNode leaf, int level, SpatialObj[] spatialObjects, int objectId)
+        {
+            // are we maybe over Threshold and should Subdivide ?
+            if (level > 0 && leaf.Count >= CellThreshold)
+            {
+                float x1 = leaf.AABB.X1;
+                float x2 = leaf.AABB.X2;
+                float y1 = leaf.AABB.Y1;
+                float y2 = leaf.AABB.Y2;
+                float midX = (x1 + x2) * 0.5f;
+                float midY = (y1 + y2) * 0.5f;
+
+                int nextLevel = level - 1;
+                leaf.NW = FrontBuffer.Create(nextLevel, new AABoundingBox2D(x1, y1, midX, midY));
+                leaf.NE = FrontBuffer.Create(nextLevel, new AABoundingBox2D(midX, y1, x2, midY));
+                leaf.SE = FrontBuffer.Create(nextLevel, new AABoundingBox2D(midX, midY, x2, y2));
+                leaf.SW = FrontBuffer.Create(nextLevel, new AABoundingBox2D(x1, midY, midX, y2));
+
+                int count = leaf.Count;
+                int[] arr = leaf.Items;
+                leaf.Items = QtreeNode.NoObjects;
+                leaf.Count = 0;
+
+                // and now reinsert all items one by one
+                for (int i = 0; i < count; ++i)
+                    InsertAt(leaf, level, spatialObjects, arr[i]);
+
+                // and now try to insert our object again
+                InsertAt(leaf, level, spatialObjects, objectId);
+            }
+            else // expand LEAF
+            {
+                leaf.Add(objectId);
             }
         }
 
@@ -163,15 +204,16 @@ namespace Ship_Game
             obj.Obj = null; // don't leak refs
         }
 
-        QtreeNode CreateFullTree(Array<GameplayObject> allObjects)
+        QtreeNode CreateFullTree(Array<GameplayObject> allObjects, SpatialObj[] spatialObjects)
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
-            QtreeNode newRoot = FrontBuffer.Create(Levels, -half, -half, +half, +half);;
+            QtreeNode newRoot = FrontBuffer.Create(Levels, new AABoundingBox2D(-half, -half, +half, +half));
+
             for (int i = 0; i < allObjects.Count; ++i)
             {
-                var obj = new SpatialObj(allObjects[i]);
-                InsertAt(newRoot, Levels, ref obj);
+                spatialObjects[i] = new SpatialObj(allObjects[i]);
+                InsertAt(newRoot, Levels, spatialObjects, i);
             }
             Count = allObjects.Count;
             return newRoot;
@@ -183,40 +225,22 @@ namespace Ship_Game
             FrontBuffer.MarkAllNodesInactive();
 
             // create the new tree from current world state
-            QtreeNode newRoot = CreateFullTree(allObjects);
+            var spatialObjects = new SpatialObj[allObjects.Count];
+            QtreeNode newRoot = CreateFullTree(allObjects, spatialObjects);
             // Swap recycle lists
             // We move last frame's nodes to front and start overwriting them
             QtreeRecycleBuffer newBackBuffer = FrontBuffer;
 
-            DeepestNodesFirstTraversal = newBackBuffer.GetDeepestNodesFirst();
-
             lock (Objects)
             {
-                Objects.Clear();
-                Objects.AddRange(allObjects);
+                Objects.Assign(allObjects);
 
                 Root = newRoot;
+                SpatialObjects = spatialObjects;
                 NumActiveNodes = newBackBuffer.NumActiveNodes;
                 FrontBuffer = BackBuffer; // move backbuffer to front
                 BackBuffer = newBackBuffer;
             }
-        }
-
-        // finds the node that fully encloses this spatial object
-        QtreeNode FindEnclosingNode(QtreeNode node, ref SpatialObj obj)
-        {
-            int level = Levels;
-            for (;;)
-            {
-                if (level <= 1) // no more subdivisions possible
-                    break;
-                QtreeNode quad = PickSubQuadrant(node, ref obj);
-                if (quad == null)
-                    break;
-                node = quad; // go deeper!
-                --level;
-            }
-            return node;
         }
     }
 }
