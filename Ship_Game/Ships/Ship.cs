@@ -367,11 +367,13 @@ namespace Ship_Game.Ships
                 //if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
                 return true;
             }
+            // remove this reassignment and use System when scanning is no longer done in the queue
+            var system = System;
 
-            if (System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
+            if (system != null && attackerRelationThis.WarnedSystemsList.Contains(system.guid))
                 return true;
 
-            if (DesignRole == ShipData.RoleName.troop && System != null && attacker.GetOwnedSystems().ContainsRef(System))
+            if (DesignRole == ShipData.RoleName.troop && system != null && attacker.GetOwnedSystems().ContainsRef(system))
                 return true;
 
             return false;
