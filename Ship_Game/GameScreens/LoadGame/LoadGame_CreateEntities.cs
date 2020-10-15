@@ -601,13 +601,32 @@ namespace Ship_Game
                 }
         }
 
-        static void CreateAllShips(SavedGame.UniverseSaveData saveData, UniverseData data)
+        static void CreateAllObjects(SavedGame.UniverseSaveData saveData, UniverseData data)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                     CreateShipFromSave(data, shipData, e);
+            }
+
+            if (saveData.Projectiles != null) // NULL check: backwards compatibility
+            {
+                foreach (SavedGame.ProjectileSaveData projData in saveData.Projectiles)
+                {
+                    var p = Projectile.Create(projData, data);
+                    if (p != null) // invalid projectile data, maybe savegame issue
+                        data.MasterProjectileList.Add(p);
+                }
+            }
+            if (saveData.Beams != null) // NULL check: backwards compatibility
+            {
+                foreach (SavedGame.BeamSaveData beamData in saveData.Beams)
+                {
+                    var b = Beam.Create(beamData, data);
+                    if (b != null) // invalid beam data, maybe savegame issue
+                        data.MasterProjectileList.Add(b);
+                }
             }
         }
 

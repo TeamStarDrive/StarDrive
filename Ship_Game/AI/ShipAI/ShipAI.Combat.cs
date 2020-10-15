@@ -37,11 +37,6 @@ namespace Ship_Game.AI
         bool ScanDataProcessed = true;
         bool ScanTargetUpdated = true;
 
-        public GameplayObject[] GetObjectsInSensors(GameObjectType gameObjectType, float radius)
-        {
-            return UniverseScreen.SpaceManager.FindNearby(Owner, radius, gameObjectType);
-        }
-
         public void CancelIntercept()
         {
             HasPriorityTarget = false;
@@ -121,7 +116,9 @@ namespace Ship_Game.AI
                 return;
             }
 
-            GameplayObject[] projectiles = GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
+            // find hostile projectiles
+            GameplayObject[] projectiles = UniverseScreen.Spatial.FindNearby(GameObjectType.Proj,
+                                    Owner, Owner.WeaponsMaxRange, maxResults:64, excludeLoyalty:Owner.loyalty);
             {
                 ScannedProjectiles.Clear();
                 if (Owner.Mothership != null)
@@ -129,6 +126,8 @@ namespace Ship_Game.AI
                 for (int i = 0; i < projectiles.Length; i++)
                 {
                     GameplayObject go = projectiles[i];
+                    if (go == null)
+                        continue;
                     var missile = (Projectile) go;
                     if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
                         ScannedProjectiles.AddUniqueRef(missile);
@@ -193,9 +192,12 @@ namespace Ship_Game.AI
                 }
             }
 
+            // get enemies and friends in close proximity
             // radius hack needs investigation.
             // i believe this is an orbital no control systems compensator. But it should not be handled here. 
-            GameplayObject[] scannedShips = sensorShip.AI.GetObjectsInSensors(GameObjectType.Ship, radius + (radius < 0.01f ? 10000 : 0));
+            float scanRadius = radius + (radius < 0.01f ? 10000 : 0);
+            GameplayObject[] scannedShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
+                                                                    Owner, scanRadius, maxResults:128);
  
             for (int x = 0; x < scannedShips.Length; x++)
             {

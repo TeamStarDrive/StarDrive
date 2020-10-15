@@ -27,7 +27,8 @@ namespace Ship_Game
         // If TRUE, this entry acts as a special ScrollList Item Header
         // Which can be expanded and collapsed
         public bool IsHeader;
-        public readonly string HeaderText;
+        public string HeaderText;
+        public int HeaderMaxWidth = 350; // maximum allowed header width limit
 
         protected Array<ScrollListItemBase> SubEntries;
 
@@ -208,7 +209,7 @@ namespace Ship_Game
 
             if (IsHeader)
             {
-                int width = Math.Min(350, (int)Width - 40);
+                int width = Math.Min(HeaderMaxWidth, (int)Width);
                 var r = new Rectangle((int)X, (int)Y+4, width, (int)Height - 10);
 
                 if (HeaderText != null)

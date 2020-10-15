@@ -1,198 +1,131 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
+﻿using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
     public sealed partial class Quadtree
     {
-        // ship collision; this can collide with multiple projectiles..
-        // beams are ignored because they may intersect multiple objects and thus require special CollideBeamAtNode
-        void CollideShipAtNode(float simTimeStep, QtreeNode node, ref SpatialObj ship)
+        class Collider
         {
-            for (int i = 0; i < node.Count; ++i)
+            // Maps ObjectA ID to a chain of collided pairs
+            // @note The map of chains is faster than a map of arrays
+            //       and 20x faster than a simple array of collisions
+            class CollisionChain
             {
-                ref SpatialObj proj = ref node.Items[i]; // potential projectile ?
-                if (proj.PendingRemove == 0 &&                // not pending remove
-                    proj.Loyalty != ship.Loyalty &&           // friendlies don't collide
-                    (proj.Type & GameObjectType.Proj) != 0 && // only collide with projectiles
-                    (proj.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
-                    proj.HitTestProj(simTimeStep, ref ship, out ShipModule hitModule))
-                {
-                    GameplayObject victim = hitModule ?? ship.Obj;
-                    var projectile = (Projectile)proj.Obj;
-
-                    if (IsObjectDead(victim))
-                    {
-                        Log.Warning($"Ship dead but still in Quadtree: {ship.Obj}");
-                        MarkForRemoval(ship.Obj, ref ship);
-                    }
-                    else if (projectile.Touch(victim) && IsObjectDead(projectile))
-                    {
-                        MarkForRemoval(projectile, ref proj);
-                    }
-                }
+                public int B;
+                public CollisionChain Next;
             }
-            if (node.NW == null) return;
-            CollideShipAtNode(simTimeStep, node.NW, ref ship);
-            CollideShipAtNode(simTimeStep, node.NE, ref ship);
-            CollideShipAtNode(simTimeStep, node.SE, ref ship);
-            CollideShipAtNode(simTimeStep, node.SW, ref ship);
-        }
+            CollisionChain[] CollidedObjectsMap;
+            SpatialObj[] SpatialObjects;
 
-        // projectile collision, return the first match because the projectile destroys itself anyway
-        bool CollideProjAtNode(float simTimeStep, QtreeNode node, Projectile theProj, ref SpatialObj proj)
-        {
-            for (int i = 0; i < node.Count; ++i)
+            public Array<NativeSpatial.CollisionPair> Results = new Array<NativeSpatial.CollisionPair>();
+
+            public Collider(SpatialObj[] spatialObjects)
             {
-                ref SpatialObj item = ref node.Items[i];
-                if (item.PendingRemove == 0 &&                // not pending remove
-                    item.Loyalty != proj.Loyalty &&           // friendlies don't collide, also ignores self
-                    (item.Type & GameObjectType.Beam) == 0 && // forbid obj-beam tests; beam-obj is handled by CollideBeamAtNode
-                    proj.HitTestProj(simTimeStep, ref item, out ShipModule hitModule))
+                CollidedObjectsMap = new CollisionChain[spatialObjects.Length + 1];
+                SpatialObjects = spatialObjects;
+            }
+
+            public void CollideObjects(int[] ids, int count)
+            {
+                for (int i = 0; i < count; ++i)
                 {
-                    // module OR projectile
-                    GameplayObject victim = hitModule ?? item.Obj;
-                    if (IsObjectDead(victim))
+                    int idA = ids[i];
+                    ref SpatialObj objectA = ref SpatialObjects[idA];
+                    byte loyaltyA = objectA.Loyalty;
+                    byte collisionMaskA = objectA.CollisionMask;
+                    AABoundingBox2D rectA = objectA.AABB;
+
+                    for (int j = i + 1; j < count; ++j)
                     {
-                        Log.Warning("Victim dead but still in Quadtree");
-                        MarkForRemoval(item.Obj, ref item);
-                    }
-                    else if (theProj.Touch(victim))
-                    {
-                        if (IsObjectDead(item.Obj))
+                        int idB = ids[j];
+                        ref SpatialObj objectB = ref SpatialObjects[idB];
+                        if ((collisionMaskA & objectB.CollisionMask) == 0)
+                            continue;
+                        if (objectB.Loyalty == loyaltyA)
+                            continue; // ignore same loyalty objects from collision
+
+                        if (objectB.AABB.Overlaps(rectA))
                         {
-                            MarkForRemoval(item.Obj, ref item);
+                            var pair = new NativeSpatial.CollisionPair(idA, idB);
+                            if (TryCollide(pair))
+                            {
+                                Results.Add(pair);
+                            }
                         }
-                        return true;
                     }
                 }
             }
-            if (node.NW == null) return false;
-            return CollideProjAtNode(simTimeStep, node.NW, theProj, ref proj)
-                || CollideProjAtNode(simTimeStep, node.NE, theProj, ref proj)
-                || CollideProjAtNode(simTimeStep, node.SE, theProj, ref proj)
-                || CollideProjAtNode(simTimeStep, node.SW, theProj, ref proj);
-        }
 
-        struct BeamHitResult : IComparable<BeamHitResult>
-        {
-            public GameplayObject Collided;
-            public float Distance;
-            public int CompareTo(BeamHitResult other)
+            bool TryCollide(NativeSpatial.CollisionPair pair)
             {
-                return Distance.CompareTo(other.Distance);
-            }
-        }
-
-        // we keep this list as a cache to reduce memory pressure
-        readonly Array<BeamHitResult> BeamHitCache = new Array<BeamHitResult>();
-
-        static void CollideBeamRecursive(QtreeNode node, ref SpatialObj beam, Array<BeamHitResult> outHitResults)
-        {
-            for (int i = 0; i < node.Count; ++i)
-            {
-                ref SpatialObj item = ref node.Items[i];
-                if (item.PendingRemove == 0 &&             // not pending remove
-                    item.Loyalty != beam.Loyalty &&        // friendlies don't collide
-                   (item.Type & GameObjectType.Beam) == 0) // forbid beam-beam collision            
+                CollisionChain chain = CollidedObjectsMap[pair.A];
+                if (chain != null)
                 {
-                    if (beam.HitTestBeam(ref item, out ShipModule hitModule, out float dist))
+                    for (;;)
                     {
-                        outHitResults.Add(new BeamHitResult
-                        {
-                            Distance = dist,
-                            Collided = hitModule ?? item.Obj
-                        });
+                        if (chain.B == pair.B)
+                            return false; // already collided
+
+                        CollisionChain next = chain.Next;
+                        if (next == null)
+                            break; // end of chain
+                        chain = next;
+                    }
+
+                    // insert a new node to the end
+                    chain.Next = new CollisionChain { B = pair.B };
+                }
+                else
+                {
+                    // create the first chain entry
+                    CollidedObjectsMap[pair.A] = new CollisionChain { B = pair.B };
+                }
+                return true; // we can collide
+            }
+        }
+
+        public unsafe int CollideAll(FixedSimTime timeStep)
+        {
+            var collider = new Collider(SpatialObjects);
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
+
+            do
+            {
+                QtreeNode current = buffer.Pop();
+                if (current.NW != null) // isBranch
+                {
+                    buffer.PushBack(current.SW);
+                    buffer.PushBack(current.SE);
+                    buffer.PushBack(current.NE);
+                    buffer.PushBack(current.NW);
+                }
+                else // isLeaf
+                {
+                    if (current.Count > 0)
+                    {
+                        collider.CollideObjects(current.Items, current.Count);
                     }
                 }
             }
-            if (node.NW == null) return;
-            CollideBeamRecursive(node.NW, ref beam, outHitResults);
-            CollideBeamRecursive(node.NE, ref beam, outHitResults);
-            CollideBeamRecursive(node.SE, ref beam, outHitResults);
-            CollideBeamRecursive(node.SW, ref beam, outHitResults);
-        }
+            while (buffer.NextNode >= 0);
 
-        static void CollideBeamAtNode(QtreeNode node, ref SpatialObj beam, Array<BeamHitResult> beamHitCache)
-        {
-            CollideBeamRecursive(node, ref beam, beamHitCache);
+            NativeSpatial.CollisionPair[] candidates = collider.Results.GetInternalArrayItems();
+            int numCandidates = collider.Results.Count;
+            if (numCandidates == 0)
+                return 0;
 
-            if (beamHitCache.Count > 0)
+            fixed (NativeSpatial.CollisionPair* pairsPtr = candidates)
             {
-                // for beams it's important to only collide the CLOSEST object
-                // so we need to sort the hits by distance
-                // and then work from closest to farthest until we get a valid collision
-                // 
-                // Some missiles/projectiles have special dodge features, so we need to check all touches.
-                if (beamHitCache.Count > 1)
-                    beamHitCache.Sort();
-
-                for (int i = 0; i < beamHitCache.Count; ++i)
+                var collisions = new NativeSpatial.CollisionPairs
                 {
-                    BeamHitResult hit = beamHitCache[i];
-                    if (HandleBeamCollision(beam.Obj as Beam, hit.Collided, hit.Distance))
-                        break; // and we're done
-                }
-                beamHitCache.Clear();
+                    Data = pairsPtr,
+                    Size = numCandidates,
+                    Capacity = candidates.Length
+                };
+                return NativeSpatial.CollideObjects(timeStep, collisions, Objects);
             }
-        }
-
-        public void CollideAll()
-        {
-            CollideAllAt(SimulationStep.FixedTime, Root, BeamHitCache);
-        }
-
-        void CollideAllAt(float simTimeStep, QtreeNode node, Array<BeamHitResult> beamHitCache)
-        {
-            if (node.NW != null) // depth first approach, to early filter LastCollided
-            {
-                CollideAllAt(simTimeStep, node.NW, beamHitCache);
-                CollideAllAt(simTimeStep, node.NE, beamHitCache);
-                CollideAllAt(simTimeStep, node.SE, beamHitCache);
-                CollideAllAt(simTimeStep, node.SW, beamHitCache);
-            }
-            for (int i = 0; i < node.Count; ++i)
-            {
-                ref SpatialObj so = ref node.Items[i];
-                if (so.PendingRemove != 0)
-                    continue; // already collided inside this loop
-
-                // each collision instigator type has a very specific recursive handler
-                if ((so.Type & GameObjectType.Beam) != 0)
-                {
-                    CollideBeamAtNode(node, ref so, beamHitCache);
-                }
-                else if ((so.Type & GameObjectType.Proj) != 0)
-                {
-                    var projectile = (Projectile)so.Obj;
-                    if (CollideProjAtNode(simTimeStep, node, projectile, ref so) && projectile.DieNextFrame)
-                        MarkForRemoval(so.Obj, ref so);
-                }
-                else if ((so.Type & GameObjectType.Ship) != 0)
-                {
-                    CollideShipAtNode(simTimeStep, node, ref so);
-                }
-            }
-        }
-
-        static bool HandleBeamCollision(Beam beam, GameplayObject victim, float hitDistance)
-        {
-            if (!beam.Touch(victim))
-                return false;
-
-            Vector2 beamStart = beam.Source;
-            Vector2 beamEnd   = beam.Destination;
-            Vector2 hitPos;
-            if (hitDistance > 0f)
-                hitPos = beamStart + (beamEnd - beamStart).Normalized()*hitDistance;
-            else // the beam probably glanced the module from side, so just get the closest point:
-                hitPos = victim.Center.FindClosestPointOnLine(beamStart, beamEnd);
-
-            beam.BeamCollidedThisFrame = true;
-            beam.ActualHitDestination = hitPos;
-            return true;
         }
     }
 }
