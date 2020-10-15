@@ -83,7 +83,7 @@ namespace Ship_Game
         public SavedGame.ProjectileSaveData[] GetProjectileSaveData()
         {
             return Projectiles.FilterSelect(
-            p => p.Active && p.Type == GameObjectType.Proj,
+            p => p.Active && p.Type == GameObjectType.Proj && (p.Owner != null || p.Planet != null),
             p => new SavedGame.ProjectileSaveData
             {
                 Owner = p.Owner?.guid ?? p.Planet.guid,
