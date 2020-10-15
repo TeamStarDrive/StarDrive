@@ -124,7 +124,7 @@ namespace Ship_Game.Gameplay
             public Empire Loyalty;
         }
 
-        public static ProjectileOwnership GetOwners(in Guid ownerGuid, string weaponUID, UniverseData data)
+        public static ProjectileOwnership GetOwners(in Guid ownerGuid, string weaponUID, bool isBeam, UniverseData data)
         {
             Planet planet = null;
             Weapon weapon = null;
@@ -142,7 +142,7 @@ namespace Ship_Game.Gameplay
             }
 
             // fallback, the owner has died, or this is a Mirv warhead (owner is a projectile)
-            if (weapon == null)
+            if (weapon == null && !isBeam)
                 weapon = ResourceManager.CreateWeapon(weaponUID);
             
             return new ProjectileOwnership
@@ -157,7 +157,10 @@ namespace Ship_Game.Gameplay
         // loading from savegame
         public static Projectile Create(in SavedGame.ProjectileSaveData pdata, UniverseData data)
         {
-            ProjectileOwnership o = GetOwners(pdata.Owner, pdata.Weapon, data);
+            ProjectileOwnership o = GetOwners(pdata.Owner, pdata.Weapon, false, data);
+            if (o.Weapon == null) // this owner or weapon no longer exists
+                return null;
+
             var p = new Projectile(o.Loyalty)
             {
                 Weapon = o.Weapon,

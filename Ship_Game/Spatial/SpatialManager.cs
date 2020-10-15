@@ -7,7 +7,7 @@ namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager
     {
-        SpatialType Type = SpatialType.QuadTree;
+        SpatialType Type = SpatialType.GridL2;
         ISpatial Spatial;
         ISpatial ResetToNewSpatial;
         int UniverseWidth;
@@ -35,6 +35,7 @@ namespace Ship_Game.Gameplay
                 default:
                 case SpatialType.Grid:         newSpatial = new NativeSpatial(type, UniverseWidth, 20_000); break;
                 case SpatialType.QuadTree:     newSpatial = new NativeSpatial(type, UniverseWidth, 1024); break;
+                case SpatialType.GridL2:       newSpatial = new NativeSpatial(type, UniverseWidth, 20_000, 1000); break;
                 case SpatialType.ManagedQtree: newSpatial = new Quadtree(UniverseWidth, 1024); break;
             }
             Log.Info($"SpatialManager {newSpatial.Name} Width: {UniverseWidth}  FullSize: {(int)newSpatial.FullSize}");
