@@ -131,8 +131,9 @@ namespace Ship_Game
 
         public int TerraformerLimit => ((int)(TilesList.Count(t => t.Habitable && !t.Biosphere) * 0.25f)).LowerBound(1);
 
-        public GameplayObject[] GetNearByShips() => GetNearByShips(GravityWellRadius);
-        public GameplayObject[] GetNearByShips(float radius) => UniverseScreen.SpaceManager.FindNearby(Center, radius,GameObjectType.Ship, Owner);
+        public GameplayObject[] FindNearbyFriendlyShips()
+            => UniverseScreen.Spatial.FindNearby(GameObjectType.Ship, Center, GravityWellRadius,
+                                                      maxResults:128, onlyLoyalty:Owner);
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
@@ -406,11 +407,6 @@ namespace Ship_Game
             return 0;
         }
 
-        public void AddProjectile(Projectile projectile)
-        {
-            Projectiles.Add(projectile);
-        }
-
         // added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);
 
@@ -446,7 +442,6 @@ namespace Ship_Game
 
             TroopManager.Update(timeStep);
             GeodeticManager.Update(timeStep);
-            UpdatePlanetaryProjectiles(timeStep);
             // this needs some work
             UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
         }
@@ -505,44 +500,40 @@ namespace Ship_Game
 
         public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
         {
-            weaponRange     = weaponRange.UpperBound(SensorRange);
-            float previousT = weaponRange;
-            float previousD = weaponRange;
-            Ship troop      = null;
-            Ship target     = null;
+            weaponRange = weaponRange.UpperBound(SensorRange);
+            float closestTroop = weaponRange;
+            float closestShip = weaponRange;
+            Ship troop = null;
+            Ship closest = null;
 
-            var nearBy = UniverseScreen.SpaceManager.FindNearby(Center, weaponRange, GameObjectType.Ship);
+            GameplayObject[] enemyShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
+                                                 Center, weaponRange, maxResults:64, excludeLoyalty:Owner);
 
-
-            for (int j = 0; j < nearBy.Length; ++j)
+            for (int j = 0; j < enemyShips.Length; ++j)
             {
-                Ship ship = (Ship)nearBy[j];
-
-                if (ship.loyalty == Owner || ship.engineState == Ship.MoveState.Warp)
+                var ship = (Ship)enemyShips[j];
+                if (ship.engineState == Ship.MoveState.Warp || !Owner.IsEmpireAttackable(ship.loyalty))
                     continue;
 
-                if (!Owner.IsEmpireAttackable(ship.loyalty))
-                    continue;
-
-                float currentD = Vector2.Distance(Center, ship.Center);
-                if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
+                float dist = Center.Distance(ship.Center);
+                if (ship.shipData.Role == ShipData.RoleName.troop && dist < closestTroop)
                 {
-                    previousT = currentD;
+                    closestTroop = dist;
                     troop = ship;
-                    continue;
                 }
-
-                if (currentD < previousD && troop == null)
+                else if (dist < closestShip && troop == null)
                 {
-                    previousD = currentD;
-                    target = ship;
+                    closestShip = dist;
+                    closest = ship;
                 }
             }
 
+            // always prefer to target troop ships first (so evil!)
             if (troop != null)
-                target = troop;
+                closest = troop;
 
-            return target;
+            SpaceCombatNearPlanet = closest != null;
+            return closest;
         }
 
         public void LandDefenseShip(Ship ship)
@@ -555,26 +546,6 @@ namespace Ship_Game
             }
 
             Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
-        }
-
-
-        void UpdatePlanetaryProjectiles(FixedSimTime timeStep)
-        {
-            if (timeStep.FixedTime <= 0f)
-                return;
-            
-            using (Projectiles.AcquireReadLock())
-            {
-                for (int i = Projectiles.Count - 1; i >= 0; --i)
-                {
-                    Projectile p = Projectiles[i];
-                    if (p.Active) p.Update(timeStep);
-                }
-            }
-            using (Projectiles.AcquireWriteLock())
-            {
-                Projectiles.RemoveInActiveObjects();
-            }
         }
 
         public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
@@ -1293,7 +1264,6 @@ namespace Ship_Game
             Storage   = null;
             TroopManager    = null;
             GeodeticManager = null;
-            Projectiles?.Dispose(ref Projectiles);
             TroopsHere?.Dispose(ref TroopsHere);
         }
 

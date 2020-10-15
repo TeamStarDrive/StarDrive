@@ -38,6 +38,13 @@ namespace Ship_Game
             Initialize(theMenu);
         }
 
+        public Selector(Rectangle theMenu, Color fillColor, Color edgeColor)
+        {
+            Fill = fillColor;
+            EdgeColor = edgeColor;
+            Initialize(theMenu);
+        }
+
         class ElementTextures
         {
             public SubTexture CornerTL, CornerTR, CornerBL, CornerBR;

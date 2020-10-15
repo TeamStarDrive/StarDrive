@@ -757,9 +757,9 @@ namespace Ship_Game
 
             ScreenManager.AddScreen(us);
 
-            Log.Info("CreatingNewGameScreen.UpdateAllSystems(0.01)");
-            us.UpdateAllSystems(new FixedSimTime(0.01f));
-            us.UpdateAllShips(new FixedSimTime(0.01f));
+            Log.Info("CreatingNewGameScreen.Objects.Update(0.01)");
+            us.Objects.Update(new FixedSimTime(0.01f));
+
             ScreenManager.Music.Stop();
             ScreenManager.RemoveScreen(MainMenu);
  
