@@ -232,9 +232,9 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            int maxRaids     = (Level < 5 ? 1 : 2) * NumPortals();
-            int onGoingRaids = Goals.Count(g => g.IsRaid);
-            return onGoingRaids < maxRaids;
+            int maxRaids     = (Level < 7 ? 1 : 2) * NumPortals();
+            int ongoingRaids = Goals.Count(g => g.IsRaid);
+            return ongoingRaids < maxRaids;
         }
 
         public bool FindValidTarget(Ship portal, out Empire target)
@@ -429,13 +429,13 @@ namespace Ship_Game
             bomberNumMultiplier = 1;
             if (Level < 5)
             {
-                bomberNumMultiplier = 3;
+                bomberNumMultiplier = 3 * Level;
                 return RemnantShipType.BomberLight;
             }
 
             if (Level < 10)
             {
-                bomberNumMultiplier = 2;
+                bomberNumMultiplier = (int)(1.5f * Level);
                 return RemnantShipType.BomberMedium;
             }
 
