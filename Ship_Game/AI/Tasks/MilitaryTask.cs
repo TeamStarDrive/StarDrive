@@ -762,7 +762,7 @@ namespace Ship_Game.AI.Tasks
 
         public void RestoreFromSaveFromUniverse(Empire e)
         {
-            var ship   =  Ship.GetShipFromGuid(TargetShipGuid);
+            Ship ship = Empire.Universe.Objects.FindShip(TargetShipGuid);
             var planet = Planet.GetPlanetFromGuid(TargetPlanetGuid);
             RestoreFromSaveFromSave(e, ship, planet);
         }
