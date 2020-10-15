@@ -48,7 +48,7 @@ namespace Ship_Game.Commands.Goals
             Remnants.OrderEscortPortal(Portal);
             float production = Empire.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
             production      *= empire.DifficultyModifiers.RemnantResourceMod;
-            production      *= (int)(CurrentGame.GalaxySize + 1) * 2f / EmpireManager.MajorEmpires.Length;
+            production      *= (int)(CurrentGame.GalaxySize + 1) * 2 * CurrentGame.StarsModifier / EmpireManager.MajorEmpires.Length;
             Remnants.TryGenerateProduction(production);
             return GoalStep.TryAgain;
         }
