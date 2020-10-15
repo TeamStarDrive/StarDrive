@@ -200,7 +200,11 @@ namespace Ship_Game
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
         public Array<Ship> GetMasterShipList() => Objects.Ships;
-        public Array<GameplayObject> GetMasterObjectList() => Objects.Objects;
+
+        public bool IsSectorViewOrCloser => viewState <= UnivScreenState.SectorView;
+        public bool IsSystemViewOrCloser => viewState <= UnivScreenState.SystemView;
+        public bool IsPlanetViewOrCloser => viewState <= UnivScreenState.PlanetView;
+        public bool IsShipViewOrCloser => viewState <= UnivScreenState.ShipView;
 
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
@@ -430,7 +434,7 @@ namespace Ship_Game
 
         void CreateStationTethers()
         {
-            foreach (Ship ship in Objects.Ships)
+            foreach (Ship ship in GetMasterShipList())
             {
                 if (ship.TetherGuid != Guid.Empty)
                 {
@@ -487,7 +491,7 @@ namespace Ship_Game
         void CreateStartingShips()
         {
             // not a new game or load game at stardate 1000 
-            if (StarDate > 1000f || Objects.Ships.Count > 0)
+            if (StarDate > 1000f || GetMasterShipList().Count > 0)
                 return;
 
             foreach (Empire empire in EmpireManager.MajorEmpires)
@@ -889,7 +893,6 @@ namespace Ship_Game
                     planet.TilesList = new Array<PlanetGridSquare>();
                     if (planet.SO != null)
                     {
-                        planet.SO.Clear();
                         ScreenManager.RemoveObject(planet.SO);
                         planet.SO = null;
                     }
