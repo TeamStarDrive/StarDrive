@@ -11,10 +11,33 @@ namespace Ship_Game.Spatial
 {
     public enum SpatialType : int
     {
-        Grid, // spatial::Grid
-        QuadTree, // spatial::QuadTree
-        GridL2, // spatial::GridL2
-        ManagedQtree, // C# Quadtree
+        /// <summary>
+        /// spatial::Grid
+        /// Not that good because the universe is just too damn big
+        /// </summary>
+        Grid,
+
+        /// <summary>
+        /// spatial::Qtree
+        /// Really good performance, and very low memory usage
+        /// Only downside is C# to C++ bridge overhead. So it's a good Volkswagen.
+        /// </summary>
+        Qtree, 
+
+        /// <summary>
+        /// spatial::GridL2
+        /// A bit trickier, gives fine grain where we really need it and leaves
+        /// vast emptiness of space relatively empty
+        /// </summary>
+        GridL2,
+
+        /// <summary>
+        /// C# Qtree
+        /// Almost identical to spatial::Qtree, ported from C++ to C#
+        /// Very fast because there is no conversion layer
+        /// A bit of a memory hog - needs Array allocator support
+        /// </summary>
+        ManagedQtree,
     };
 
     public sealed unsafe class NativeSpatial : ISpatial, IDisposable
@@ -541,7 +564,7 @@ namespace Ship_Game.Spatial
             public DrawLineF   DrawLine;
             public DrawTextF   DrawText;
         }
-        struct QtreeVisualizerOptions
+        struct VisualizationOptions
         {
             public AABoundingBox2Di visibleWorldRect;
             public byte objectBounds;
@@ -555,7 +578,7 @@ namespace Ship_Game.Spatial
         }
 
         [DllImport(Lib)]
-        static extern void SpatialDebugVisualize(IntPtr spatial, ref QtreeVisualizerOptions opt, ref QtreeVisualizerBridge vis);
+        static extern void SpatialDebugVisualize(IntPtr spatial, ref VisualizationOptions opt, ref QtreeVisualizerBridge vis);
         
         static GameScreen Screen;
         static void DrawRect(AABoundingBox2Di r, SpatialColor c)
@@ -584,7 +607,7 @@ namespace Ship_Game.Spatial
         {
             AABoundingBox2D worldRect = screen.GetVisibleWorldRect();
 
-            var opt = new QtreeVisualizerOptions
+            var opt = new VisualizationOptions
             {
                 visibleWorldRect = new AABoundingBox2Di(worldRect),
                 objectBounds = 1,
