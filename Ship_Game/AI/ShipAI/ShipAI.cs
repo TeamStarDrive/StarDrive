@@ -203,7 +203,9 @@ namespace Ship_Game.AI
             {
                 case ResupplyReason.LowOrdnanceCombat:
                 case ResupplyReason.LowOrdnanceNonCombat:
-                    if (Owner.IsPlatformOrStation)
+                    // should this check for the range of planets?
+                    // if the nearest planet is very far it could take quite a while to resupply. 
+                    if (Owner.IsPlatformOrStation && Owner.loyalty.GetPlanets().Count > 0)
                     {
                         RequestResupplyFromPlanet();
                         return;
@@ -309,7 +311,8 @@ namespace Ship_Game.AI
 
             var possiblePlanets = Owner.loyalty.GetPlanets().Filter(p => p.NumSupplyShuttlesCanLaunch() > 0);
             Planet planet       = possiblePlanets.FindMin(p => p.Center.SqDist(Owner.Center));
-            ai.AddPlanetaryRearmGoal(Owner, planet);
+            if (planet != null)
+                ai.AddPlanetaryRearmGoal(Owner, planet);
         }
 
         public void FireWeapons(FixedSimTime timeStep)
