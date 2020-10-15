@@ -4,9 +4,8 @@
 
 namespace spatial
 {
-    Qtree::Qtree(int worldSize, int smallestCell)
+    Qtree::Qtree(int worldSize, int smallestCell) : Spatial{worldSize}
     {
-        WorldSize = worldSize;
         smallestCellSize(smallestCell);
     }
 

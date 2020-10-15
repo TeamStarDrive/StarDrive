@@ -47,6 +47,9 @@
     <Filter Include="spatial\grid">
       <UniqueIdentifier>{4b26ba28-6163-4c42-a26b-361c722a3497}</UniqueIdentifier>
     </Filter>
+    <Filter Include="spatial\gridL2">
+      <UniqueIdentifier>{91700856-7a20-4226-9aed-bb8c189fb46f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShipDataSerializer.cpp">
@@ -168,6 +171,12 @@
     </ClCompile>
     <ClCompile Include="spatial\Collision.cpp">
       <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\gridL2\GridL2.cpp">
+      <Filter>spatial\gridL2</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\grid\GridCellView.cpp">
+      <Filter>spatial\grid</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -338,6 +347,12 @@
     </ClInclude>
     <ClInclude Include="spatial\SpatialObjectArray.h">
       <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\gridL2\GridL2.h">
+      <Filter>spatial\gridL2</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\grid\GridCellView.h">
+      <Filter>spatial\grid</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
