@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -51,8 +53,6 @@ namespace Ship_Game
         {
             var target = Ship.CreateShipAtPoint(name, loyalty, pos);
             target.Rotation = dir.Normalized().ToRadians();
-            target.InFrustum = true; // force module pos update
-            //target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
             return target;
         }
@@ -87,9 +87,12 @@ namespace Ship_Game
             {
                 for (int i = 0; i < ships.Count; ++i)
                 {
-                    var ship = (Ship)ships[i];
-                    tree.FindLinear(GameObjectType.Any, ship.Center, defaultSensorRange,
-                                    maxResults:256, null, null, null);
+                    var s = (Ship)ships[i];
+                    var opt = new SearchOptions(s.Center, defaultSensorRange)
+                    {
+                        MaxResults = 256
+                    };
+                    tree.FindLinear(opt);
                 }
             }
             float e1 = t1.Elapsed;
@@ -100,8 +103,12 @@ namespace Ship_Game
             {
                 for (int i = 0; i < ships.Count; ++i)
                 {
-                    tree.FindNearby(GameObjectType.Any, ships[i].Center, defaultSensorRange,
-                                    maxResults:256, null, null, null);
+                    var s = (Ship)ships[i];
+                    var opt = new SearchOptions(s.Center, defaultSensorRange)
+                    {
+                        MaxResults = 256
+                    };
+                    tree.FindNearby(opt);
                 }
             }
             float e2 = t2.Elapsed;
@@ -126,16 +133,7 @@ namespace Ship_Game
                 tree.CollideAll(timeStep);
             }
             float e1 = t1.Elapsed;
-            Console.WriteLine($"-- CollideAllIterative 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
-
-            var t2 = new PerfTimer();
-            for (int i = 0; i < iterations; ++i)
-            {
-                tree.CollideAllRecursive(timeStep);
-            }
-            float e2 = t2.Elapsed;
-            Console.WriteLine($"-- CollideAllRecursive 10k ships, 30k sensor elapsed: {(e2*1000).String(2)}ms");
-
+            Console.WriteLine($"-- CollideAll 10k ships, 30k sensor elapsed: {(e1*1000).String(2)}ms");
         }
     }
 }

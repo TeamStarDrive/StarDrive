@@ -257,6 +257,10 @@ namespace Ship_Game
             if (HandleTradeRoutesDefinition(input))
                 return true;
 
+            // Handle new UIElementV2 items
+            if (base.HandleInput(input))
+                return true;
+
             for (int i = SelectedShipList.Count - 1; i >= 0; --i)
             {
                 Ship ship = SelectedShipList[i];
@@ -380,7 +384,7 @@ namespace Ship_Game
                         cState = CursorState.Orbit;
                 }
             }
-            return base.HandleInput(input);
+            return false;
         }
 
         static int InputFleetSelection(InputState input)
@@ -808,9 +812,8 @@ namespace Ship_Game
 
             if (Debug && DebugInfoScreen.Mode == DebugModes.SpatialManager)
             {
-                RectF search = UnprojectToWorldRect(screenArea);
-                Spatial.FindNearby(GameObjectType.Ship, search.Center,
-                    Math.Max(search.W, search.H)/2, 1024, debugId:1);
+                AABoundingBox2D search = UnprojectToWorldRect(screenArea);
+                Spatial.FindNearby(GameObjectType.Ship, search, 1024, debugId:1);
             }
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {

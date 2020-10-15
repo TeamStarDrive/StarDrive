@@ -4,9 +4,8 @@
 
 namespace spatial
 {
-    Qtree::Qtree(int worldSize, int smallestCell)
+    Qtree::Qtree(int worldSize, int smallestCell) : Spatial{worldSize}
     {
-        WorldSize = worldSize;
         smallestCellSize(smallestCell);
     }
 
@@ -167,19 +166,17 @@ namespace spatial
             const int size = leaf.size;
             leaf.convertToBranch(*FrontAlloc);
 
-            int nextLevel = level - 1;
-
             // and now reinsert all items one by one
             for (int i = 0; i < size; ++i)
             {
-                insertAt(nextLevel, leaf, objects[i]);
+                insertAt(level, leaf, objects[i]);
             }
 
             // we can reuse this array later
             FrontAlloc->reuseArray(objects, size);
 
             // and now try to insert our object again
-            insertAt(nextLevel, leaf, o);
+            insertAt(level, leaf, o);
         }
         else // expand LEAF
         {
@@ -264,7 +261,8 @@ namespace spatial
         if (opt.EnableSearchDebugId)
         {
             DebugFindNearby dfn;
-            dfn.SearchArea = searchRect;
+            dfn.SearchArea = opt.SearchRect;
+            dfn.RadialFilter = opt.RadialFilter;
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
             Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));

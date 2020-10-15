@@ -63,8 +63,23 @@ struct SpatialWithObjects
 
 	void createSpatial(spatial::SpatialType type, SimParams p)
 	{
-		int cellSize = (type == spatial::SpatialType::Grid) ? p.gridCellSize : p.qtreeCellSize;
-		spatial = spatial::Spatial::create(type, p.universeSize, cellSize);
+        int cellSize = 0;
+        int cellSize2 = 0;
+        switch (type)
+        {
+            case spatial::SpatialType::Grid:
+                cellSize = p.gridCellSize;
+                break;
+            case spatial::SpatialType::QuadTree:
+                cellSize = p.qtreeCellSize;
+                break;
+            case spatial::SpatialType::GridL2:
+                cellSize = p.gridL2CellSize;
+                cellSize2 = p.gridL2CellSize2;
+                break;
+        }
+
+		spatial = spatial::Spatial::create(type, p.universeSize, cellSize, cellSize2);
 
 	    for (MyGameObject& o : objects)
 	    {

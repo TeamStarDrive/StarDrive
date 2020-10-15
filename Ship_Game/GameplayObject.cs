@@ -50,6 +50,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
+        [XmlIgnore][JsonIgnore] public bool InFrustum; // Updated by UniverseObjectManager
 
         // current rotation converted into a direction vector
         [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();
@@ -64,8 +65,6 @@ namespace Ship_Game
             get => Rotation.ToDegrees();
             set => Rotation = value.ToRadians();
         }
-
-        [XmlIgnore][JsonIgnore] public bool QueuedForRemoval;
 
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
@@ -96,7 +95,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore]
         public bool IsInFrustum =>
-            Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView &&
+            Empire.Universe.IsSystemViewOrCloser &&
             Empire.Universe.Frustum.Contains(Center, 2000f);
 
         [XmlIgnore][JsonIgnore]

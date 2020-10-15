@@ -30,6 +30,9 @@ namespace spatial
         if (!SearchArea.empty())
             visualizer.drawRect(SearchArea, Yellow);
 
+        if (RadialFilter.radius > 0)
+            visualizer.drawCircle(RadialFilter, Yellow);
+
         if (!SelectedRect.empty())
             visualizer.drawRect(SelectedRect, Yellow);
 
