@@ -238,7 +238,7 @@ namespace Ship_Game
             for (int i = 0; i < Projectiles.Count; ++i)
             {
                 Projectile proj = Projectiles[i];
-                if (proj.DieNextFrame)
+                if (proj.Active && proj.DieNextFrame)
                 {
                     proj.Die(proj, false);
                 }

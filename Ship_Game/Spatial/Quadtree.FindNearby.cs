@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Ship_Game.Spatial;
@@ -16,7 +17,8 @@ namespace Ship_Game
             public GameplayObject[] Items = new GameplayObject[128];
             public int NextNode = 0; // next node to pop
             public QtreeNode[] NodeStack = new QtreeNode[512];
-
+            
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public QtreeNode Pop()
             {
                 QtreeNode node = NodeStack[NextNode];
@@ -25,10 +27,10 @@ namespace Ship_Game
                 return node;
             }
 
-            public void ResetAndPush(QtreeNode pushFirst)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void PushBack(QtreeNode node)
             {
-                NextNode = 0;
-                NodeStack[0] = pushFirst;
+                NodeStack[++NextNode] = node;
             }
 
             public GameplayObject[] GetArrayAndClearBuffer()
@@ -60,93 +62,75 @@ namespace Ship_Game
         public GameplayObject[] FindNearby(in SearchOptions opt)
         {
             AABoundingBox2D searchRect = opt.SearchRect;
-
-            // find the deepest enclosing node
-            QtreeNode root = Root;
-            QtreeNode enclosing = FindEnclosingNode(root, searchRect);
-            if (enclosing == null)
-                return Empty<GameplayObject>.Array;
-
-            // If enclosing object is the Root object and radius is huge,
-            // switch to linear search because we need to traverse the ENTIRE universe anyway
-            if (enclosing == root && (searchRect.Width/2) > QuadToLinearSearchThreshold)
-            {
-                return FindLinear(opt);
-            }
-
-            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(enclosing);
-            if (buffer.Items.Length < opt.MaxResults)
-            {
-                buffer.Items = new GameplayObject[opt.MaxResults];
-            }
-
+            int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
+            
             // NOTE: to avoid a few branches, we used pre-calculated masks
             int excludeLoyaltyVal = (opt.FilterExcludeByLoyalty?.Id ?? 0);
             int excludeLoyaltyMask = (excludeLoyaltyVal == 0) ? 0xff : ~excludeLoyaltyVal;
             int onlyLoyaltyVal = (opt.FilterIncludeOnlyByLoyalty?.Id ?? 0); // filter by loyalty?
             int onlyLoyaltyMask = (onlyLoyaltyVal == 0) ? 0xff : onlyLoyaltyVal;
             int filterMask = opt.FilterByType == GameObjectType.Any ? 0xff : (int)opt.FilterByType;
-            int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
             float searchFX = opt.FilterOrigin.X;
             float searchFY = opt.FilterOrigin.Y;
             float searchFR = opt.FilterRadius;
             bool useSearchRadius = searchFR > 0f;
-
             GameplayObject sourceObject = opt.FilterExcludeObject;
+
+            QtreeNode root = Root;
+            SpatialObj[] spatialObjects = SpatialObjects;
+            FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
+            if (buffer.Items.Length < maxResults)
+                buffer.Items = new GameplayObject[maxResults];
+
             do
             {
-                QtreeNode node = buffer.Pop();
-
-                int count = node.Count;
-                SpatialObj[] items = node.Items;
-                for (int i = 0; i < count; ++i)
+                QtreeNode current = buffer.Pop();
+                if (current.NW != null) // isBranch
                 {
-                    ref SpatialObj so = ref items[i];
-
-                    // FLAGS: either 0x00 (failed) or some bits 0100 (success)
-                    if (so.Active != 0
-                        && (so.Loyalty & excludeLoyaltyMask) != 0
-                        && (so.Loyalty & onlyLoyaltyMask) != 0
-                        && ((int)so.Type & filterMask) != 0
-                        && (so.Obj != sourceObject))
+                    var over = new OverlapsRect(current.AABB, searchRect);
+                    if (over.SW != 0) buffer.PushBack(current.SW);
+                    if (over.SE != 0) buffer.PushBack(current.SE);
+                    if (over.NE != 0) buffer.PushBack(current.NE);
+                    if (over.NW != 0) buffer.PushBack(current.NW);
+                }
+                else // isLeaf
+                {
+                    int count = current.Count;
+                    int[] items = current.Items;
+                    for (int i = 0; i < count; ++i)
                     {
-                        if (!so.AABB.Overlaps(searchRect))
-                            continue;
+                        int objectId = items[i];
+                        ref SpatialObj so = ref spatialObjects[objectId];
 
-                        if (useSearchRadius)
+                        // FLAGS: either 0x00 (failed) or some bits 0100 (success)
+                        if (so.Active != 0
+                            && (so.Loyalty & excludeLoyaltyMask) != 0
+                            && (so.Loyalty & onlyLoyaltyMask) != 0
+                            && ((int)so.Type & filterMask) != 0
+                            && (so.Obj != sourceObject))
                         {
-                            float dx = searchFX - so.CX;
-                            float dy = searchFY - so.CY;
-                            float rr = searchFR + so.Radius;
-                            if ((dx*dx + dy*dy) > (rr*rr))
-                                continue; // not in squared radius
+                            if (!so.AABB.Overlaps(searchRect))
+                                continue;
+
+                            if (useSearchRadius)
+                            {
+                                float dx = searchFX - so.CX;
+                                float dy = searchFY - so.CY;
+                                float rr = searchFR + so.Radius;
+                                if ((dx*dx + dy*dy) > (rr*rr))
+                                    continue; // not in squared radius
+                            }
+
+                            buffer.Items[buffer.Count++] = so.Obj;
+                            if (buffer.Count == opt.MaxResults)
+                                break; // we are done !
                         }
-
-                        buffer.Items[buffer.Count++] = so.Obj;
-                        if (buffer.Count == opt.MaxResults)
-                            break; // we are done !
                     }
+                    if (buffer.Count == maxResults)
+                        break; // we are done !
                 }
+            } while (buffer.NextNode >= 0 && buffer.Count < maxResults);
 
-                if (buffer.Count == maxResults)
-                    break; // we are done !
-
-                if (node.NW != null)
-                {
-                    if (node.NW.AABB.Overlaps(searchRect))
-                        buffer.NodeStack[++buffer.NextNode] = node.NW;
-
-                    if (node.NE.AABB.Overlaps(searchRect))
-                        buffer.NodeStack[++buffer.NextNode] = node.NE;
-
-                    if (node.SE.AABB.Overlaps(searchRect))
-                        buffer.NodeStack[++buffer.NextNode] = node.SE;
-
-                    if (node.SW.AABB.Overlaps(searchRect))
-                        buffer.NodeStack[++buffer.NextNode] = node.SW;
-                }
-            } while (buffer.NextNode >= 0);
-            
             return buffer.GetArrayAndClearBuffer();
         }
 
