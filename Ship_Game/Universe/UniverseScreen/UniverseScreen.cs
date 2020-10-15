@@ -23,9 +23,19 @@ namespace Ship_Game
 {
     public partial class UniverseScreen : GameScreen
     {
-        public static readonly SpatialManager SpaceManager = new SpatialManager();
+        public static readonly SpatialManager Spatial = new SpatialManager();
+
+        /// <summary>
+        /// Manages universe objects in a thread-safe manner
+        /// </summary>
+        public UniverseObjectManager Objects;
+
+        // TODO: Encapsulate
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
+
+        // TODO: Encapsulate
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
+        
         public float GamePace = 1f;
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
@@ -37,7 +47,6 @@ namespace Ship_Game
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
         Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
-        public BatchRemovalCollection<Ship> MasterShipList;
         public Background bg;
         public float UniverseSize       = 5000000f; // universe width and height in world units
         public float FTLModifier        = 1f;
@@ -171,7 +180,6 @@ namespace Ship_Game
         public PlanetScreen workersPanel;
         CursorState cState;
         int SelectorFrame;
-        readonly Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
         public Ship previousSelection;
 
         public UIButton ShipsInCombat;
@@ -190,6 +198,13 @@ namespace Ship_Game
         bool IsUniverseInitialized;
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
+
+        public Array<Ship> GetMasterShipList() => Objects.Ships;
+
+        public bool IsSectorViewOrCloser => viewState <= UnivScreenState.SectorView;
+        public bool IsSystemViewOrCloser => viewState <= UnivScreenState.SystemView;
+        public bool IsPlanetViewOrCloser => viewState <= UnivScreenState.PlanetView;
+        public bool IsShipViewOrCloser => viewState <= UnivScreenState.ShipView;
 
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
@@ -219,11 +234,20 @@ namespace Ship_Game
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
             GravityWells          = data.GravityWells;
             SolarSystemList       = data.SolarSystemsList;
-            MasterShipList        = data.MasterShipList;
-            SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
-            SpaceManager.Setup(UniverseSize);
+            
+            Spatial.Setup(UniverseSize);
+            Objects = new UniverseObjectManager(this, Spatial, data);
+            Objects.OnShipRemoved += Objects_OnShipRemoved;
+            SubSpaceProjectors = new SubSpaceProjectors(UniverseSize);
             ShipCommands = new ShipMoveCommands(this);
             DeepSpaceBuildWindow = new DeepSpaceBuildingWindow(this);
+        }
+
+        void Objects_OnShipRemoved(Ship ship)
+        {
+            if (SelectedShip == ship)
+                SelectedShip = null;
+            SelectedShipList.RemoveRef(ship);
         }
 
         public Planet GetPlanet(Guid guid)
@@ -410,7 +434,7 @@ namespace Ship_Game
 
         void CreateStationTethers()
         {
-            foreach (Ship ship in MasterShipList)
+            foreach (Ship ship in GetMasterShipList())
             {
                 if (ship.TetherGuid != Guid.Empty)
                 {
@@ -466,7 +490,8 @@ namespace Ship_Game
 
         void CreateStartingShips()
         {
-            if (StarDate > 1000f || MasterShipList.Count > 0) // not a new game or load game at stardate 1000 
+            // not a new game or load game at stardate 1000 
+            if (StarDate > 1000f || GetMasterShipList().Count > 0)
                 return;
 
             foreach (Empire empire in EmpireManager.MajorEmpires)
@@ -805,7 +830,6 @@ namespace Ship_Game
 
             ItemsToBuild       ?.Dispose(ref ItemsToBuild);
             anomalyManager     ?.Dispose(ref anomalyManager);
-            MasterShipList     ?.Dispose(ref MasterShipList);
             BombList           ?.Dispose(ref BombList);
             SelectedShipList   ?.Dispose(ref SelectedShipList);
             NotificationManager?.Dispose(ref NotificationManager);
@@ -826,11 +850,7 @@ namespace Ship_Game
             RemoveLighting();
             ScreenManager.Music.Stop();
 
-            for (int i = 0; i < MasterShipList.Count; ++i)
-                MasterShipList[i]?.RemoveFromUniverseUnsafe();
-            MasterShipList.ClearPendingRemovals();
-            MasterShipList.Clear();
-
+            Objects.Clear();
             ClearSolarSystems();
             ClearSpaceJunk();
 
@@ -852,7 +872,7 @@ namespace Ship_Game
             ClickableSystems.Clear();
             SolarSystemDict.Clear();
 
-            SpaceManager.Destroy();
+            Spatial.Destroy();
 
             Empire.Universe = null;
             StatTracker.Reset();
@@ -873,7 +893,6 @@ namespace Ship_Game
                     planet.TilesList = new Array<PlanetGridSquare>();
                     if (planet.SO != null)
                     {
-                        planet.SO.Clear();
                         ScreenManager.RemoveObject(planet.SO);
                         planet.SO = null;
                     }
@@ -926,24 +945,6 @@ namespace Ship_Game
             if (weaponArc >= 32.5f) return Arc45;
             if (weaponArc >= 17.5f) return Arc20;
             return Arc15;
-        }
-
-        public void QueueGameplayObjectRemoval(GameplayObject toRemove)
-        {
-            // TODO: Investigate calling code that is not calling die first. 
-            // so that this active=false can be removed. 
-            toRemove.Active = false;
-            if (!toRemove.QueuedForRemoval)
-            {
-                toRemove.QueuedForRemoval = true;
-                GamePlayObjectToRemove.Add(toRemove);
-            }
-        }
-
-        void TotallyRemoveGameplayObjects()
-        {
-            while (GamePlayObjectToRemove.TryPopLast(out GameplayObject toRemove))
-                toRemove.RemoveFromUniverseUnsafe();
         }
 
         public struct ClickablePlanets
