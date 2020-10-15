@@ -14,9 +14,7 @@ namespace Ship_Game.Spatial
         
         public int ObjectId; // the object
 
-        public int X, Y; // Center x y
-        public int RadiusX; // radius for collision test
-        public int RadiusY; // radius for collision test
+        public AABoundingBox2D AABB;
 
         public NativeSpatialObject(GameplayObject go)
         {
@@ -26,20 +24,7 @@ namespace Ship_Game.Spatial
             Type     = (byte)type;
             CollisionMask = go.DisableSpatialCollision ? (byte)0 : GetCollisionMask(type);
             ObjectId = -1; // ObjectId will be assigned by Native Spatial system
-
-            X = (int)go.Center.X;
-            Y = (int)go.Center.Y;
-
-            if (Type == (byte)GameObjectType.Beam)
-            {
-                var beam = (Beam)go;
-                RadiusX = beam.RadiusX;
-                RadiusY = beam.RadiusY;
-            }
-            else
-            {
-                RadiusX = RadiusY = (int)go.Radius;
-            }
+            AABB = new AABoundingBox2D(go);
         }
 
         // ships collide with: projectiles, beams
