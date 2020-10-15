@@ -17,6 +17,9 @@ struct SimParams
     int qtreeCellSize = 1024;
     int gridCellSize = 20'000;
 
+    int gridL2CellSize = 80'000;
+    int gridL2CellSize2 = 5000;
+
 	bool useRandomVelocity = true;
 
 	rpp::Vector2 singleSystemPos; // if solarSystems == 1
