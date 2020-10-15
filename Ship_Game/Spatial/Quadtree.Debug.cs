@@ -40,6 +40,8 @@ namespace Ship_Game
                     for (int i = 0; i < node.Count; ++i)
                     {
                         int objectId = node.Items[i];
+                        if (objectId >= spatialObjects.Length)
+                            continue; // hmmmm
                         ref SpatialObj so = ref spatialObjects[objectId];
 
                         Color color = (so.Loyalty % 2 == 0) ? VioletBright : Purple;

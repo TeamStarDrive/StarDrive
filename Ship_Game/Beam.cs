@@ -20,7 +20,6 @@ namespace Ship_Game
         public int RadiusX;
         public int RadiusY;
 
-
         public int Thickness { get; private set; }
         public static Effect BeamEffect;
         public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
@@ -57,7 +56,7 @@ namespace Ship_Game
             int crewLevel = Owner?.Level ?? -1;
             Destination = destination + (DisableSpatialCollision ? Vector2.Zero :
                                          Weapon.GetTargetError(target, crewLevel));
-            ActualHitDestination = Destination;
+            SetActualHitDestination(Destination);
             BeamCollidedThisFrame = true; 
 
             weapon.ApplyDamageModifiers(this);
@@ -86,15 +85,17 @@ namespace Ship_Game
         // loading from savegame
         public static Beam Create(in SavedGame.BeamSaveData bdata, UniverseData data)
         {
+            ProjectileOwnership o = GetOwners(bdata.Owner, bdata.Weapon, true, data);
+            if (o.Weapon == null) // this owner or weapon no longer exists
+                return null;
+            
             GameplayObject target = data.FindObjectOrNull(bdata.Target);
-
-            ProjectileOwnership o = GetOwners(bdata.Owner, bdata.Weapon, data);
             var beam = new Beam(o.Weapon, bdata.Source, bdata.Destination, target);
 
             if      (o.Owner != null)  beam.Owner = o.Owner;
             else if (o.Planet != null) beam.Planet = o.Planet;
 
-            beam.ActualHitDestination = bdata.ActualHitDestination;
+            beam.SetActualHitDestination(bdata.ActualHitDestination);
             beam.Duration = bdata.Duration;
             beam.FirstRun = false;
             return beam;
@@ -246,6 +247,21 @@ namespace Ship_Game
             return true;
         }
 
+        // This is a bugfix for broken Hit Destinations
+        public void SetActualHitDestination(Vector2 hit)
+        {
+            Vector2 delta = hit - Source;
+            float distance = delta.Length();
+            if (distance > (Range+10)) // if distance is ridiculous, normalize it to something meaningful
+            {
+                ActualHitDestination = Source + delta.Normalized() * Range;
+            }
+            else
+            {
+                ActualHitDestination = hit;
+            }
+        }
+
         void UpdatePosition()
         {
             Vector2 source = Source;
@@ -316,14 +332,15 @@ namespace Ship_Game
             if (timeStep.FixedTime > 0f)
             {
                 if (!BeamCollidedThisFrame)
-                    ActualHitDestination = Destination;
+                    ActualHitDestination = Destination; // will be validated below
                 else
                     BeamCollidedThisFrame = false;
             }
 
+            SetActualHitDestination(ActualHitDestination); // validate hit destination
             UpdatePosition();
-
             UpdateBeamMesh();
+            
             if (Duration < 0f && !Infinite)
             {
                 Die(null, true);
@@ -368,7 +385,7 @@ namespace Ship_Game
         {
             Duration -= timeStep.FixedTime;
             Source = AI.Drone.Center;
-            ActualHitDestination = AI.DroneTarget?.Center ?? Source;
+            SetActualHitDestination(AI.DroneTarget?.Center ?? Source);
             // apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {

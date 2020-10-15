@@ -6,6 +6,7 @@
 #include "Visualizer.h"
 #include "Search.h"
 #include "Collision.h"
+#include "ObjectCollection.h"
 
 namespace spatial
 {
@@ -13,6 +14,8 @@ namespace spatial
     {
         Grid, // spatial::Grid
         QuadTree, // spatial::QuadTree
+        GridL2, // spatial::GridL2
+        MAX, 
     };
 
     /**
@@ -21,6 +24,11 @@ namespace spatial
      */
     class SPATIAL_API Spatial
     {
+    protected:
+        int FullSize = 0;
+        int WorldSize = 0;
+        ObjectCollection Objects;
+
     public:
 
         /**
@@ -28,10 +36,11 @@ namespace spatial
          * @param type Type of spatial collection: Grid, QuadTree, etc.
          * @param universeSize The Width and Height of the simulation world
          * @param cellSize For Grid: size of a single Cell. For Qtree: smallest allowed Qtree node.
+         * @param cellSize2 Secondary cell parameter for containers like L2Grid
          */
-        static std::shared_ptr<Spatial> create(SpatialType type, int universeSize, int cellSize);
+        static std::shared_ptr<Spatial> create(SpatialType type, int universeSize, int cellSize, int cellSize2);
 
-        Spatial() = default;
+        explicit Spatial(int worldSize) : WorldSize{worldSize} {}
         virtual ~Spatial() = default;
 
         /**
@@ -53,12 +62,11 @@ namespace spatial
          * @return Full Width and Height of the spatial collection. 
          *         This is usually bigger than world size
          */
-        virtual int fullSize() const = 0;
-
+        int fullSize() const { return FullSize; }
         /**
          * @return Original size of the simulation world
          */
-        virtual int worldSize() const = 0;
+        int worldSize() const { return WorldSize; }
 
         /**
          * @return Total number of Active objects in this Spatial collection
@@ -66,19 +74,19 @@ namespace spatial
          *          so MaxId will not match NumActive
          *          Ex: There are 1000 reserved Id-s, but only 100 active objects
          */
-        virtual int numActive() const = 0;
+        int numActive() const { return Objects.numActive(); }
 
         /**
          * @return Current maximum objects in the Spatial ObjectId FlatMap
          */
-        virtual int maxObjects() const = 0;
+        int maxObjects() const { return Objects.maxObjects(); }
 
         /**
          * @return Gets the SpatialObject by its ObjectId
          * @warning These Id-s map to a FlatMap,
          *          so some entries in the middle of the FlatMap can be inactive 
          */
-        virtual const SpatialObject& get(int objectId) const = 0;
+        const SpatialObject& get(int objectId) const { return Objects.get(objectId); }
         
         /**
          * @return Initial node capacity.
@@ -126,19 +134,22 @@ namespace spatial
          *         Valid Object ID-s range from [0 ... maxCount)
          *         And are mapped into a sparse flat map
          */
-        virtual int insert(const SpatialObject& o) = 0;
+        int insert(const SpatialObject& o) { return Objects.insert(o); }
 
         /**
-         * Updates position of the specified object THREAD SAFELY
+         * Updates position and size of the specified object THREAD SAFELY
          * The changes will be visible after next `update()`
          */
-        virtual void update(int objectId, int x, int y, int rx, int ry) = 0;
+        void update(int objectId, int x, int y, int rx, int ry)
+        {
+            Objects.update(objectId, x, y, rx, ry);
+        }
 
         /**
          * Removes an object from the object list
          * and marks it for removal during next rebuild
          */
-        virtual void remove(int objectId) = 0;
+        void remove(int objectId) { Objects.remove(objectId); }
 
         /**
          * Collide all objects and call CollisionFunc for each collided pair
@@ -174,7 +185,7 @@ namespace spatial
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    SPATIAL_C_API Spatial* SPATIAL_CC SpatialCreate(SpatialType type, int universeSize, int cellSize);
+    SPATIAL_C_API Spatial* SPATIAL_CC SpatialCreate(SpatialType type, int universeSize, int cellSize, int cellSize2);
     SPATIAL_C_API void SPATIAL_CC SpatialDestroy(Spatial* spatial);
 
     SPATIAL_C_API SpatialType SPATIAL_CC SpatialGetType(Spatial* spatial);

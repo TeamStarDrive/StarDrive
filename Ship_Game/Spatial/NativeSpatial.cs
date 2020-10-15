@@ -13,6 +13,7 @@ namespace Ship_Game.Spatial
     {
         Grid, // spatial::Grid
         QuadTree, // spatial::QuadTree
+        GridL2, // spatial::GridL2
         ManagedQtree, // C# Quadtree
     };
 
@@ -21,7 +22,7 @@ namespace Ship_Game.Spatial
         const string Lib = "SDNative.dll";
         const CallingConvention CC = CallingConvention.StdCall;
 
-        [DllImport(Lib)] static extern IntPtr SpatialCreate(SpatialType type, int worldSize, int cellSize);
+        [DllImport(Lib)] static extern IntPtr SpatialCreate(SpatialType type, int worldSize, int cellSize, int cellSize2);
         [DllImport(Lib)] static extern void SpatialDestroy(IntPtr spatial);
         
         [DllImport(Lib)] static extern SpatialType SpatialGetType(IntPtr spatial);
@@ -58,10 +59,11 @@ namespace Ship_Game.Spatial
         /// Size of a single spatial cell. For Grid, this is the Cell Size.
         /// For QuadTree, this is the smallest possible subdivision cell size
         /// </param>
-        public NativeSpatial(SpatialType type, int worldSize, int cellSize)
+        /// <param name="cellSize2">Size of secondary cells, for example L2 Grid's second level cell size</param>
+        public NativeSpatial(SpatialType type, int worldSize, int cellSize, int cellSize2 = 0)
         {
             Type = type;
-            Spat = SpatialCreate(type, worldSize, cellSize);
+            Spat = SpatialCreate(type, worldSize, cellSize, cellSize2);
 
             WorldSize = worldSize;
             FullSize = SpatialFullSize(Spat);
@@ -124,7 +126,7 @@ namespace Ship_Game.Spatial
                         {
                             rx = ry = (int)go.Radius;
                         }
-
+                        
                         SpatialUpdate(Spat, objectId, (int)go.Center.X, (int)go.Center.Y, rx, ry);
                         objectsMap[objectId] = go;
                     }
@@ -294,12 +296,12 @@ namespace Ship_Game.Spatial
             Vector2 beamEnd   = beam.Destination;
             Vector2 hitPos;
             if (hitDistance > 0f)
-                hitPos = beamStart + (beamEnd - beamStart).Normalized()*hitDistance;
+                hitPos = beamStart + (beamEnd - beamStart).Normalized()*Math.Min(beam.Range,hitDistance);
             else // the beam probably glanced the module from side, so just get the closest point:
                 hitPos = victim.Center.FindClosestPointOnLine(beamStart, beamEnd);
 
             beam.BeamCollidedThisFrame = true;
-            beam.ActualHitDestination = hitPos;
+            beam.SetActualHitDestination(hitPos);
             return true;
         }
 
