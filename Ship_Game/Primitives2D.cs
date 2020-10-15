@@ -174,7 +174,7 @@ namespace Ship_Game
         public static void DrawRectangle(this SpriteBatch batch, in AABoundingBox2D rect, Color color, float thickness = 1f)
         {
             var tl = new Vector2(rect.X1, rect.Y1);
-            var tr = new Vector2(rect.X2, rect.Y2);
+            var tr = new Vector2(rect.X2, rect.Y1);
             var br = new Vector2(rect.X2, rect.Y2);
             var bl = new Vector2(rect.X1, rect.Y2);
             DrawLine(batch, tl, tr, color, thickness); // ---- top

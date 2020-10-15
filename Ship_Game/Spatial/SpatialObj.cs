@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 
 namespace Ship_Game
 {
@@ -13,6 +14,7 @@ namespace Ship_Game
         public byte Active;  // 1 if this item is active, 0 if DEAD and pending removal
         public byte Loyalty;        // if loyalty == 0, then this is a STATIC world object !!!
         public GameObjectType Type; // GameObjectType : byte
+        public byte CollisionMask; // mask which matches objects this object can collide with
 
         public GameplayObject Obj;
 
@@ -27,6 +29,7 @@ namespace Ship_Game
             Active = 1;
             Loyalty = (byte)go.GetLoyaltyId();
             Type    = go.Type;
+            CollisionMask = go.DisableSpatialCollision ? (byte)0 : NativeSpatialObject.GetCollisionMask(Type);
             Obj     = go;
             CX      = Obj.Center.X;
             CY      = Obj.Center.Y;
