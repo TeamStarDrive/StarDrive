@@ -405,10 +405,10 @@ namespace Ship_Game
             if (GlobalStats.RemnantArmageddon)
             {
                 ArmageddonCountdown(timeStep);
-            }
+            }*/
 
-             this block contains master ship list and empire pool updates. 
-             threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
+             //this block contains master ship list and empire pool updates. 
+             //threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
             lock (ShipPoolLock)
             {
                 // Execute all the actions submitted from UI thread
@@ -424,7 +424,7 @@ namespace Ship_Game
                         empire.UpdateMilitaryStrengths();
                     }
                 }, MaxTaskCores);
-            }*/
+            }
 
             PreEmpirePerf.Stop();
             
