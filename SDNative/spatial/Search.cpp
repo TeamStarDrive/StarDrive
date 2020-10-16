@@ -72,14 +72,14 @@ namespace spatial
 
                     int id = o.objectId;
                     int wordIndex = id / 32;
-                    int wordOffset = id % 32;
-                    if (idBitArray[wordIndex] & (1<<wordOffset))
+                    int idMask = (1 << (id % 32));
+                    if (idBitArray[wordIndex] & idMask)
                         continue; // already present in results array
 
                     if (!filterFunc || filterFunc(id) != 0)
                     {
                         outResults[numResults++] = id;
-                        idBitArray[wordIndex] |= (1<<wordOffset); // set unique result
+                        idBitArray[wordIndex] |= idMask; // set unique result
                         if (numResults == maxResults)
                             return numResults; // we are done !
                     }
