@@ -364,12 +364,13 @@ namespace Ship_Game.Ships
 
             if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
-                //if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
                 return true;
             }
             // remove this reassignment and use System when scanning is no longer done in the queue
             var system = System;
 
+            // temporary fix until threading issue is resolved. 
+            var system = System;
             if (system != null && attackerRelationThis.WarnedSystemsList.Contains(system.guid))
                 return true;
 
