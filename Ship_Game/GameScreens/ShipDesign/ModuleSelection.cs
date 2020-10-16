@@ -475,6 +475,7 @@ namespace Ship_Game
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
+            DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), w.BaseTargetError((int)Screen.FireControlLevel) / -16f, 4114);
 
             if (isBeam)
             {
