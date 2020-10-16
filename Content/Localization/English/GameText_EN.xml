@@ -4660,7 +4660,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1823</Index>
-      <Text>Maximum imprecision angle (in degrees) this weapon has. The more range a weapon has, the more it will be inaccurate, as a function of the imprecision angle.</Text>
+      <Text>Maximum imprecision angle (in degrees) this weapon has. This is used in weapons such as vulcan cannons and plasma throwers. Gives the weapon a spray of shots.</Text>
     </Token>
     <Token>
       <Index>1824</Index>
@@ -5120,6 +5120,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1972</Index>
       <Text>Terraforming A Tile</Text>
     </Token>
+	  <Token>
+		  <Index>1973</Index>
+		  <Text>Accuracy</Text>
+	  </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
       <Index>1974</Index>
@@ -5127,7 +5131,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1975</Index>
-      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has revocered from the EMP overload.</Text>
+      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload.</Text>
     </Token>
     <Token>
       <Index>1976</Index>
@@ -6719,6 +6723,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2571</Index>
       <Text>Add ordnance storage to support burst Ordnance usage. Current Ordnance Weapon Efficiency is</Text>
     </Token>
+	<Token>
+	  <Index>2572</Index>
+	  <Text>Low Weapon Accuracy</Text>
+	</Token>
+	<Token>
+	  <Index>2573</Index>
+	  <Text>Low Weapon Accuracy can make smaller targets hard to hit such as fighters, corvettes, frigates, and critical ship systems. </Text>
+	</Token>
+	<Token>
+	  <Index>2574</Index>
+	  <Text>Improve Accuracy with higher FCS control systems or more accurate weapons. Check the module information for individual weapon accuracy.</Text>
+	</Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>
@@ -7733,6 +7749,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4113</Index>
       <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\n meteor was comprised mostly of useful minerals.</Text>
     </Token>
+	  <!-- More Venus ToolTips-->
+	<Token>
+	  <Index>4114</Index>
+	  <Text>Weapon target error radius measured in ship slots. Ex. an value of -6 means the weapon will hit within a 6 slot radius of the target point. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
+	</Token>
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
