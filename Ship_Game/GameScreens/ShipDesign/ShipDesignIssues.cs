@@ -469,10 +469,10 @@ namespace Ship_Game.ShipDesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssueNoWarp");
                     break;
                 case DesignIssueType.SlowWarp:
-                    Title                  = new LocalizedText(2525).Text;
-                    Problem                = new LocalizedText(2526).Text;
-                    Remediation            = new LocalizedText(2527).Text; 
-                    Texture                = ResourceManager.Texture("NewUI/IssueSlowWarp");
+                    Title       = new LocalizedText(2525).Text;
+                    Problem     = new LocalizedText(2526).Text;
+                    Remediation = new LocalizedText(2527).Text; 
+                    Texture     = ResourceManager.Texture("NewUI/IssueSlowWarp");
                     break;
                 case DesignIssueType.NegativeRecharge:
                     Title       = new LocalizedText(2519).Text;
@@ -559,10 +559,10 @@ namespace Ship_Game.ShipDesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssueHighBurstOrdnance");
                     break;
                 case DesignIssueType.Accuracy:
-                    Title       = LocalizedText.ParseText("{LowAccuracy}");
-                    Problem     = LocalizedText.ParseText("{WeaponAccuracy}");
-                    Remediation = LocalizedText.ParseText("{ImproveAccuracy}");
-                    Texture     = ResourceManager.Texture("NewUI/IssueCantTargetFighters");
+                    Title       = new LocalizedText(GameText.LowAccuracy).Text;
+                    Problem     = new LocalizedText(GameText.WeaponAccuracy).Text;
+                    Remediation = new LocalizedText(GameText.ImproveAccuracy).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
                     break;
             }
 
