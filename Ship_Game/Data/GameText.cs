@@ -4253,7 +4253,8 @@ namespace Ship_Game
         Accuracy = 1973,
         LowAccuracy = 2572,
         WeaponAccuracy = 2573,
-        ImproveAccuracy = 2574
+        ImproveAccuracy = 2574,
+        WeaponTargetError = 4114
 
     }
 }
