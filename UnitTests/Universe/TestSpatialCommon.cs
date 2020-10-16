@@ -121,7 +121,7 @@ namespace UnitTests.Universe
             {
                 var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
                 {
-                    FilterExcludeByLoyalty = s.loyalty
+                    ExcludeLoyalty = s.loyalty
                 };
                 GameplayObject[] found = tree.FindNearby(opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
@@ -136,7 +136,7 @@ namespace UnitTests.Universe
             {
                 var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
                 {
-                    FilterIncludeOnlyByLoyalty = s.loyalty
+                    OnlyLoyalty = s.loyalty
                 };
                 GameplayObject[] found = tree.FindNearby(opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);

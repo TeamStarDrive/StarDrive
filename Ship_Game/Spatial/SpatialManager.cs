@@ -104,9 +104,9 @@ namespace Ship_Game.Gameplay
             var opt = new SearchOptions(obj.Center, radius, type)
             {
                 MaxResults = maxResults,
-                FilterExcludeObject = obj,
-                FilterExcludeByLoyalty = excludeLoyalty,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                Exclude = obj,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
                 DebugId = debugId
             };
 
@@ -122,8 +122,8 @@ namespace Ship_Game.Gameplay
             var opt = new SearchOptions(worldPos, radius, type)
             {
                 MaxResults = maxResults,
-                FilterExcludeByLoyalty = excludeLoyalty,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
                 DebugId = debugId
             };
 
@@ -140,8 +140,8 @@ namespace Ship_Game.Gameplay
             var opt = new SearchOptions(searchArea, type)
             {
                 MaxResults = maxResults,
-                FilterExcludeByLoyalty = excludeLoyalty,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
                 DebugId = debugId
             };
 
