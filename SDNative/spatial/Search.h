@@ -11,9 +11,9 @@ namespace spatial
      */
     using SearchFilterFunc = int (SPATIAL_CC*)(int objectA);
 
-    // Sqrt(2.0), used for rectangular cell proximity approximation
-    constexpr float Sqrt2 = 1.414214f;
-
+    /**
+     * Configuration parameters for a single search operation
+     */
     struct SearchOptions
     {
         /// Search rectangle
@@ -29,19 +29,19 @@ namespace spatial
 
         /// Filter search results by object type
         /// 0: disabled
-        int FilterByType = 0;
+        int Type = 0;
 
         /// Filter search results by excluding this specific object
         /// -1: disabled
-        int FilterExcludeObjectId = -1;
+        int Exclude = -1;
 
         /// Filter search results by excluding objects with this loyalty
         /// 0: disabled
-        int FilterExcludeByLoyalty = 0;
+        int ExcludeLoyalty = 0;
 
         /// Filter search results by only matching objects with this loyalty
         /// 0: disabled
-        int FilterIncludeOnlyByLoyalty = 0;
+        int OnlyLoyalty = 0;
 
         /// Filter search results by passing the matched object through this function
         /// null: disabled
@@ -53,7 +53,7 @@ namespace spatial
         /// If set to nonzero, this search will be displayed
         /// as an unique entry
         /// </summary>
-        int EnableSearchDebugId = 0;
+        int DebugId = 0;
     };
 
     struct FoundNode
@@ -81,6 +81,16 @@ namespace spatial
             }
         }
     };
+
+    const int MATCH_ALL = 0xffffffff; // mask that passes any filter
+
+    inline int getLoyaltyMask(const SearchOptions& opt)
+    {
+        int loyaltyMask = MATCH_ALL;
+        if (opt.OnlyLoyalty)    loyaltyMask = opt.OnlyLoyalty;
+        if (opt.ExcludeLoyalty) loyaltyMask = ~opt.ExcludeLoyalty;
+        return loyaltyMask;
+    }
 
     int findNearby(int* outResults, int maxObjectId, const SearchOptions& opt, FoundNodes& found);
 

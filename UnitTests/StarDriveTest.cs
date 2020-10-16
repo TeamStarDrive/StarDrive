@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using UnitTests.UI;
 
@@ -193,6 +194,15 @@ namespace UnitTests
         {
             AddDummyPlanet(out p);
             p.GenerateNewHomeWorld(empire);
+        }
+
+        public Array<Projectile> GetProjectiles(Ship ship)
+        {
+            return Universe.Objects.GetProjectiles(ship);
+        }
+        public int GetProjectileCount(Ship ship)
+        {
+            return GetProjectiles(ship).Count;
         }
     }
 }
