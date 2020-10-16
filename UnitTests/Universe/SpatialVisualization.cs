@@ -23,7 +23,7 @@ namespace UnitTests.Universe
         float LinearTime;
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
-        VisualizationOptions VisOpt = new VisualizationOptions();
+        VisualizerOptions VisOpt = VisualizerOptions.Default;
 
         public SpatialVisualization(Array<GameplayObject> allObjects, ISpatial spat, bool moveShips) : base(null)
         {

@@ -14,7 +14,7 @@ namespace Ship_Game.Spatial
         static readonly Color Purple = new Color(96, 63, 139, 150);
         static readonly Color Yellow = new Color(Color.Yellow, 100);
 
-        public void DebugVisualize(GameScreen screen, in VisualizationOptions opt)
+        public void DebugVisualize(GameScreen screen, in VisualizerOptions opt)
         {
             AABoundingBox2D visibleWorld = screen.GetVisibleWorldRect();
             SpatialObj[] spatialObjects = SpatialObjects;
