@@ -52,6 +52,6 @@ namespace Ship_Game
         /// <summary>
         /// Visualize this Spatial collection for debugging purposes
         /// </summary>
-        void DebugVisualize(GameScreen screen, in VisualizerOptions opt);
+        void DebugVisualize(GameScreen screen, VisualizerOptions opt);
     }
 }

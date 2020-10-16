@@ -280,7 +280,8 @@ namespace spatial
         do
         {
             const QtreeNode& current = *stack.pop_back();
-            visualizer.drawRect(current.rect(), Brown);
+            if (opt.nodeBounds)
+                visualizer.drawRect(current.rect(), Brown);
 
             int cx = current.cx, cy = current.cy;
             if (current.isBranch())
@@ -301,6 +302,7 @@ namespace spatial
                     snprintf(text, sizeof(text), "LF n=%d", current.size);
                     visualizer.drawText({cx,cy}, current.width(), text, Yellow);
                 }
+
                 int count = current.size;
                 SpatialObject** const items = current.objects;
                 for (int i = 0; i < count; ++i)
@@ -313,7 +315,9 @@ namespace spatial
                         visualizer.drawRect(o.rect, color);
                     }
                     if (opt.objectToLeafLines)
+                    {
                         visualizer.drawLine({cx,cy}, o.rect.center(), VioletDim);
+                    }
                     if (opt.objectText)
                     {
                         snprintf(text, sizeof(text), "o=%d", o.objectId);
