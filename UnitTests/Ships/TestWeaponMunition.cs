@@ -41,7 +41,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(62, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
-            Assert.AreEqual(1, Universe.Objects.GetProjectiles(ship).Count, "Invalid projectile count");
+            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
             Assert.AreEqual(61, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
         }
@@ -54,7 +54,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(62, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
-            Assert.AreEqual(1, Universe.Objects.GetProjectiles(ship).Count, "Invalid projectile count");
+            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
             Assert.AreEqual(62, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(19, ship.PowerCurrent, "ship.PowerCurrent");
         }
