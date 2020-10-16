@@ -49,10 +49,10 @@ namespace spatial
         void setViewOffset2(GridCell* cells, int gridX, int gridY, const GridCellView& topLevel)
         {
             Cells = cells;
-            Coords.left   = topLevel.Coords.left + (gridX * topLevel.CellSize);
-            Coords.top    = topLevel.Coords.top  + (gridY * topLevel.CellSize);
-            Coords.right  = Coords.left + GridSize;
-            Coords.bottom = Coords.top  + GridSize;
+            Coords.x1 = topLevel.Coords.x1 + (gridX * topLevel.CellSize);
+            Coords.y1 = topLevel.Coords.y1 + (gridY * topLevel.CellSize);
+            Coords.x2 = Coords.x1 + GridSize;
+            Coords.y2 = Coords.y1 + GridSize;
         }
 
         // Converts world coordinates into cell coordinates
@@ -65,26 +65,26 @@ namespace spatial
         SPATIAL_FINLINE Point toWorldPoint(int x, int y) const
         {
             int cellSize = CellSize;
-            int worldX = Coords.left + (x * cellSize);
-            int worldY = Coords.top  + (y * cellSize);
+            int worldX = Coords.x1 + (x * cellSize);
+            int worldY = Coords.y1 + (y * cellSize);
             return { worldX, worldY };
         }
 
         SPATIAL_FINLINE Rect toWorldRect(int x, int y) const
         {
             int cellSize = CellSize;
-            int worldX = Coords.left + (x * cellSize);
-            int worldY = Coords.top  + (y * cellSize);
+            int worldX = Coords.x1 + (x * cellSize);
+            int worldY = Coords.y1 + (y * cellSize);
             return { worldX, worldY, worldX + cellSize, worldY + cellSize };
         }
 
         SPATIAL_FINLINE Rect toWorldRect(Rect r) const
         {
             int cellSize = CellSize;
-            int worldX1 = Coords.left + (r.left * cellSize);
-            int worldY1 = Coords.top  + (r.top  * cellSize);
-            int worldX2 = Coords.left + (r.right  * cellSize) + cellSize;
-            int worldY2 = Coords.top  + (r.bottom * cellSize) + cellSize;
+            int worldX1 = Coords.x1 + (r.x1 * cellSize);
+            int worldY1 = Coords.y1 + (r.y1 * cellSize);
+            int worldX2 = Coords.x1 + (r.x2 * cellSize) + cellSize;
+            int worldY2 = Coords.y1 + (r.y2 * cellSize) + cellSize;
             return { worldX1, worldY1, worldX2, worldY2 };
         }
     };

@@ -19,6 +19,8 @@ namespace Ship_Game.Gameplay
         public int Collisions { get; private set; }
         public int Count => Spatial?.Count ?? 0;
 
+        public VisualizerOptions VisOpt = new VisualizerOptions();
+
         public void Setup(float universeRadius)
         {
             UniverseWidth = (int)(universeRadius * 2f);
@@ -36,7 +38,7 @@ namespace Ship_Game.Gameplay
                 case SpatialType.Grid:         newSpatial = new NativeSpatial(type, UniverseWidth, 10_000); break;
                 case SpatialType.Qtree:        newSpatial = new NativeSpatial(type, UniverseWidth, 1024); break;
                 case SpatialType.GridL2:       newSpatial = new NativeSpatial(type, UniverseWidth, 20_000, 1000); break;
-                case SpatialType.ManagedQtree: newSpatial = new Quadtree(UniverseWidth, 1024); break;
+                case SpatialType.ManagedQtree: newSpatial = new Qtree(UniverseWidth, 1024); break;
             }
             Log.Info($"SpatialManager {newSpatial.Name} Width: {UniverseWidth}  FullSize: {(int)newSpatial.FullSize}");
             return newSpatial;
@@ -54,7 +56,7 @@ namespace Ship_Game.Gameplay
 
         public void DebugVisualize(UniverseScreen screen)
         {
-            Spatial.DebugVisualize(screen);
+            Spatial.DebugVisualize(screen, VisOpt);
         }
 
         public void Update(Array<GameplayObject> allObjects)
@@ -102,9 +104,9 @@ namespace Ship_Game.Gameplay
             var opt = new SearchOptions(obj.Center, radius, type)
             {
                 MaxResults = maxResults,
-                FilterExcludeObject = obj,
-                FilterExcludeByLoyalty = excludeLoyalty,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                Exclude = obj,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
                 DebugId = debugId
             };
 
@@ -120,8 +122,8 @@ namespace Ship_Game.Gameplay
             var opt = new SearchOptions(worldPos, radius, type)
             {
                 MaxResults = maxResults,
-                FilterExcludeByLoyalty = excludeLoyalty,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
                 DebugId = debugId
             };
 
@@ -138,8 +140,8 @@ namespace Ship_Game.Gameplay
             var opt = new SearchOptions(searchArea, type)
             {
                 MaxResults = maxResults,
-                FilterExcludeByLoyalty = excludeLoyalty,
-                FilterIncludeOnlyByLoyalty = onlyLoyalty,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
                 DebugId = debugId
             };
 
@@ -201,8 +203,7 @@ namespace Ship_Game.Gameplay
             Vector2 explosionCenter = position;
 
             // find any nearby ship -- even allies
-            GameplayObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64,
-                                                 maxResults:32);
+            GameplayObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
 
             for (int i = 0; i < nearby.Length; ++i)
             {

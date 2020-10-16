@@ -1,36 +1,34 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
-    public class QtreeNode
+    public unsafe class QtreeNode
     {
-        public static readonly int[] NoObjects = new int[0];
+        public static readonly SpatialObj*[] NoObjects = new SpatialObj*[0];
 
         public AABoundingBox2D AABB;
         public QtreeNode NW, NE, SE, SW;
         public int Count;
-        public int[] Items;
-        public int Id;
-        public int Level;
+        public SpatialObj*[] Items;
 
-        public QtreeNode(int level, in AABoundingBox2D bounds)
+        public byte LoyaltyMask;
+        public byte LoyaltyCount;
+
+        public QtreeNode(in AABoundingBox2D bounds)
         {
             AABB = bounds;
             Items = NoObjects;
-            Level = level;
         }
 
         public override string ToString()
         {
-            return $"ID={Id} L{Level} N={Count} {AABB}";
+            return $"N={Count} {AABB}";
         }
 
-        public void InitializeForReuse(int level, in AABoundingBox2D bounds)
+        public void InitializeForReuse(in AABoundingBox2D bounds)
         {
             AABB = bounds;
             NW = NE = SE = SW = null;
-            Level = level;
 
             if (Count != 0)
             {
@@ -39,35 +37,42 @@ namespace Ship_Game
             }
         }
 
-        public void Add(int objectId)
+        public void Add(SpatialObj* obj)
         {
             int count = Count;
-            int[] oldItems = Items;
+            SpatialObj*[] oldItems = Items;
             if (oldItems.Length == count)
             {
                 if (count == 0)
                 {
-                    var newItems = new int[Quadtree.CellThreshold];
-                    newItems[count] = objectId;
+                    var newItems = new SpatialObj*[Qtree.CellThreshold];
+                    newItems[count] = obj;
                     Items = newItems;
                     Count = 1;
                 }
                 else // oldItems.Length == Count
                 {
                     //Array.Resize(ref Items, Count * 2);
-                    var newItems = new int[oldItems.Length * 2];
+                    var newItems = new SpatialObj*[oldItems.Length * 2];
                     for (int i = 0; i < oldItems.Length; ++i)
                         newItems[i] = oldItems[i];
-                    newItems[count] = objectId;
+                    newItems[count] = obj;
                     Items = newItems;
                     Count = count+1;
                 }
             }
             else
             {
-                oldItems[count] = objectId;
+                oldItems[count] = obj;
                 Count = count+1;
             }
+
+            byte loyalty = obj->Loyalty;
+            if ((LoyaltyMask & (~loyalty)) != 0)
+            {
+                ++LoyaltyCount;
+            }
+            LoyaltyMask |= loyalty;
         }
     }
 }

@@ -1,9 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Spatial
 {
@@ -33,22 +28,22 @@ namespace Ship_Game.Spatial
         /// Filter search results by object type
         /// 0: disabled
         /// </summary>
-        public GameObjectType FilterByType;
+        public GameObjectType Type;
 
         /// <summary>
         /// Filter search results by excluding this specific object
         /// </summary>
-        public GameplayObject FilterExcludeObject;
+        public GameplayObject Exclude;
 
         /// <summary>
         /// Filter search results by excluding objects with this loyalty
         /// </summary>
-        public Empire FilterExcludeByLoyalty;
+        public Empire ExcludeLoyalty;
 
         /// <summary>
         /// Filter search results by only matching objects with this loyalty
         /// </summary>
-        public Empire FilterIncludeOnlyByLoyalty;
+        public Empire OnlyLoyalty;
 
         /// <summary>
         /// Filter search results by passing the matched object through this function
@@ -77,10 +72,10 @@ namespace Ship_Game.Spatial
             FilterOrigin = center;
             FilterRadius = radius;
             MaxResults = 128;
-            FilterByType = type;
-            FilterExcludeObject = null;
-            FilterExcludeByLoyalty = null;
-            FilterIncludeOnlyByLoyalty = null;
+            Type = type;
+            Exclude = null;
+            ExcludeLoyalty = null;
+            OnlyLoyalty = null;
             FilterFunction = null;
             DebugId = 0;
         }
@@ -97,10 +92,10 @@ namespace Ship_Game.Spatial
             FilterOrigin = default;
             FilterRadius = 0;
             MaxResults = 128;
-            FilterByType = type;
-            FilterExcludeObject = null;
-            FilterExcludeByLoyalty = null;
-            FilterIncludeOnlyByLoyalty = null;
+            Type = type;
+            Exclude = null;
+            ExcludeLoyalty = null;
+            OnlyLoyalty = null;
             FilterFunction = null;
             DebugId = 0;
         }

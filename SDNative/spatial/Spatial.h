@@ -140,9 +140,9 @@ namespace spatial
          * Updates position and size of the specified object THREAD SAFELY
          * The changes will be visible after next `update()`
          */
-        void update(int objectId, int x, int y, int rx, int ry)
+        void update(int objectId, const Rect& rect)
         {
-            Objects.update(objectId, x, y, rx, ry);
+            Objects.update(objectId, rect);
         }
 
         /**
@@ -198,7 +198,7 @@ namespace spatial
     SPATIAL_C_API void SPATIAL_CC SpatialRebuild(Spatial* spatial);
 
     SPATIAL_C_API int SPATIAL_CC  SpatialInsert(Spatial* spatial, const SpatialObject* o);
-    SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, int x, int y, int rx, int ry);
+    SPATIAL_C_API void SPATIAL_CC SpatialUpdate(Spatial* spatial, int objectId, const Rect* rect);
     SPATIAL_C_API void SPATIAL_CC SpatialRemove(Spatial* spatial, int objectId);
 
     SPATIAL_C_API void SPATIAL_CC SpatialCollideAll(Spatial* spatial, const CollisionParams* params, CollisionPairs* outResults);
