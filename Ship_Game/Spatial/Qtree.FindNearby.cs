@@ -57,17 +57,29 @@ namespace Ship_Game.Spatial
             return buffer;
         }
 
-        public GameplayObject[] FindNearby(in SearchOptions opt)
+        public unsafe GameplayObject[] FindNearby(in SearchOptions opt)
         {
             AABoundingBox2D searchRect = opt.SearchRect;
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
+            SpatialObj[] spatialObjects = SpatialObjects;
             
+            int idBitArraySize = ((spatialObjects.Length / 32) + 1) * sizeof(uint);
+            uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
+            for (int i = 0; i < idBitArraySize; ++i) // so we need to zero the idBitArray
+                idBitArray[i] = 0;
+
             // NOTE: to avoid a few branches, we used pre-calculated masks
             int excludeLoyaltyVal = (opt.ExcludeLoyalty?.Id ?? 0);
-            int excludeLoyaltyMask = (excludeLoyaltyVal == 0) ? 0xff : ~excludeLoyaltyVal;
-            int onlyLoyaltyVal = (opt.OnlyLoyalty?.Id ?? 0); // filter by loyalty?
-            int onlyLoyaltyMask = (onlyLoyaltyVal == 0) ? 0xff : onlyLoyaltyVal;
-            int filterMask = opt.Type == GameObjectType.Any ? 0xff : (int)opt.Type;
+            int onlyLoyaltyVal    = (opt.OnlyLoyalty?.Id ?? 0);
+
+            const byte MATCH_ALL = 0xff; // mask that passes any filter
+
+            byte loyaltyMask = MATCH_ALL;
+            if (onlyLoyaltyVal != 0)    loyaltyMask = (byte)onlyLoyaltyVal;
+            if (excludeLoyaltyVal != 0) loyaltyMask = (byte)~excludeLoyaltyVal;
+
+            int filterMask = opt.Type == GameObjectType.Any ? MATCH_ALL : (int)opt.Type;
+
             float searchFX = opt.FilterOrigin.X;
             float searchFY = opt.FilterOrigin.Y;
             float searchFR = opt.FilterRadius;
@@ -75,7 +87,6 @@ namespace Ship_Game.Spatial
             GameplayObject sourceObject = opt.Exclude;
 
             QtreeNode root = Root;
-            SpatialObj[] spatialObjects = SpatialObjects;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
             if (buffer.Items.Length < maxResults)
                 buffer.Items = new GameplayObject[maxResults];
@@ -101,11 +112,9 @@ namespace Ship_Game.Spatial
                         ref SpatialObj so = ref spatialObjects[objectId];
 
                         // FLAGS: either 0x00 (failed) or some bits 0100 (success)
-                        if (so.Active != 0
-                            && (so.Loyalty & excludeLoyaltyMask) != 0
-                            && (so.Loyalty & onlyLoyaltyMask) != 0
-                            && ((int)so.Type & filterMask) != 0
-                            && (so.Obj != sourceObject))
+                        if ((so.Loyalty & loyaltyMask) != 0 &&
+                            ((int)so.Type & filterMask) != 0 &&
+                            (so.Obj != sourceObject))
                         {
                             if (!so.AABB.Overlaps(searchRect))
                                 continue;
@@ -116,9 +125,19 @@ namespace Ship_Game.Spatial
                                     continue; // AABB not in SearchRadius
                             }
 
-                            buffer.Items[buffer.Count++] = so.Obj;
-                            if (buffer.Count == opt.MaxResults)
-                                break; // we are done !
+                            int id = so.ObjectId;
+                            int wordIndex = id / 32;
+                            uint idMask = (uint)(1 << (id % 32));
+                            if ((idBitArray[wordIndex] & idMask) != 0)
+                                continue; // already present in results array
+
+                            if (opt.FilterFunction == null || opt.FilterFunction(so.Obj))
+                            {
+                                buffer.Items[buffer.Count++] = so.Obj;
+                                idBitArray[wordIndex] |= idMask; // set unique result
+                                if (buffer.Count == opt.MaxResults)
+                                    break; // we are done !
+                            }
                         }
                     }
                     if (buffer.Count == maxResults)

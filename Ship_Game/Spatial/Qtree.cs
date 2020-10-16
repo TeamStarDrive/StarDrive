@@ -196,8 +196,9 @@ namespace Ship_Game.Spatial
                 GameplayObject go = allObjects[i];
                 if (go.Active)
                 {
-                    spatialObjects[i] = new SpatialObj(go);
-                    InsertAt(newRoot, Levels, spatialObjects, i);
+                    int objectId = i;
+                    spatialObjects[objectId] = new SpatialObj(go, objectId);
+                    InsertAt(newRoot, Levels, spatialObjects, objectId);
                 }
             }
             Count = allObjects.Count;
