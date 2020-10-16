@@ -258,6 +258,7 @@
     <Compile Include="Ship_Game\Empire_Realtionship.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\AABoundingBox2D.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadSafeRandom.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignStat.cs" />
     <Compile Include="Ship_Game\Pirates.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
