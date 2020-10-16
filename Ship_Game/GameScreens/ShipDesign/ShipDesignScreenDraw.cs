@@ -448,7 +448,7 @@ namespace Ship_Game
             bool canTargetCorvettes        = false;
             bool canTargetCapitals         = false;
             int pointDefenseValue          = 0;
-            var weaponAccuracy = new Map<ShipModule, float>();
+            var weaponAccuracy             = new Map<ShipModule, float>();
             DesignIssues.Reset();
             var modules = new ModuleCache(ModuleGrid.CopyModulesList());
 
@@ -553,12 +553,11 @@ namespace Ship_Game
                 }
                 float accuracy = weapon.BaseTargetError((int)FireControlLevel);
                 if (accuracy > 0)
-                {
                     weaponAccuracy[module] = accuracy / 16;
-                }
             }
+
             FireControlLevel = targets + 1;
-            var stats = new ShipStats();
+            var stats        = new ShipStats();
             stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0, 1);
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
             shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
@@ -627,7 +626,7 @@ namespace Ship_Game
                 DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons);
                 DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
                 DesignIssues.CheckTroops(troopCount, size);
-                DesignIssues.CheckAccuracy(weaponAccuracy, FireControlLevel);
+                DesignIssues.CheckAccuracy(weaponAccuracy);
                 UpdateDesignButton();
             }
         }
