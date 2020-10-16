@@ -291,15 +291,15 @@ namespace Ship_Game.Spatial
         }
         struct NativeVisOptions
         {
-            public AABoundingBox2Di visibleWorldRect;
-            public byte objectBounds;
-            public byte objectToLeafLines;
-            public byte objectText;
-            public byte nodeText;
-            public byte nodeBounds;
-            public byte searchDebug;
-            public byte searchResults;
-            public byte collisions;
+            public AABoundingBox2Di VisibleWorldRect;
+            public byte ObjectBounds;
+            public byte ObjectToLeafLines;
+            public byte ObjectText;
+            public byte NodeText;
+            public byte NodeBounds;
+            public byte SearchDebug;
+            public byte SearchResults;
+            public byte Collisions;
         }
 
         [DllImport(Lib)]
@@ -328,21 +328,19 @@ namespace Ship_Game.Spatial
                                        new Color(c.r, c.g, c.b, c.a), new string(text));
         }
 
-        public void DebugVisualize(GameScreen screen, in VisualizationOptions opt)
+        public void DebugVisualize(GameScreen screen, in VisualizerOptions opt)
         {
-            AABoundingBox2D worldRect = screen.GetVisibleWorldRect();
-
             var nativeOpt = new NativeVisOptions
             {
-                visibleWorldRect = new AABoundingBox2Di(worldRect),
-                objectBounds = 1,
-                objectToLeafLines = 1,
-                objectText = 0,
-                nodeText = 0,
-                nodeBounds = 1,
-                searchDebug = 1,
-                searchResults = 1,
-                collisions = 1,
+                VisibleWorldRect  = new AABoundingBox2Di(screen.GetVisibleWorldRect()),
+                ObjectBounds      = (byte)(opt.ObjectBounds?1:0),
+                ObjectToLeafLines = (byte)(opt.ObjectToLeafLines?1:0),
+                ObjectText    = (byte)(opt.ObjectText?1:0),
+                NodeText      = (byte)(opt.NodeText?1:0),
+                NodeBounds    = (byte)(opt.NodeBounds?1:0),
+                SearchDebug   = (byte)(opt.SearchDebug?1:0),
+                SearchResults = (byte)(opt.SearchResults?1:0),
+                Collisions    = (byte)(opt.Collisions?1:0),
             };
 
             var vis = new QtreeVisualizerBridge
