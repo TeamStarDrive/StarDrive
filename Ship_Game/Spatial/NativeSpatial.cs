@@ -328,19 +328,20 @@ namespace Ship_Game.Spatial
                                        new Color(c.r, c.g, c.b, c.a), new string(text));
         }
 
-        public void DebugVisualize(GameScreen screen, in VisualizerOptions opt)
+        public void DebugVisualize(GameScreen screen, VisualizerOptions opt)
         {
+            bool enabled = opt.Enabled;
             var nativeOpt = new NativeVisOptions
             {
                 VisibleWorldRect  = new AABoundingBox2Di(screen.GetVisibleWorldRect()),
-                ObjectBounds      = (byte)(opt.ObjectBounds?1:0),
-                ObjectToLeafLines = (byte)(opt.ObjectToLeafLines?1:0),
-                ObjectText    = (byte)(opt.ObjectText?1:0),
-                NodeText      = (byte)(opt.NodeText?1:0),
-                NodeBounds    = (byte)(opt.NodeBounds?1:0),
-                SearchDebug   = (byte)(opt.SearchDebug?1:0),
-                SearchResults = (byte)(opt.SearchResults?1:0),
-                Collisions    = (byte)(opt.Collisions?1:0),
+                ObjectBounds      = (byte)(enabled & opt.ObjectBounds?1:0),
+                ObjectToLeafLines = (byte)(enabled & opt.ObjectToLeaf?1:0),
+                ObjectText    = (byte)(enabled & opt.ObjectText?1:0),
+                NodeText      = (byte)(enabled & opt.NodeText?1:0),
+                NodeBounds    = (byte)(enabled & opt.NodeBounds?1:0),
+                SearchDebug   = (byte)(enabled & opt.SearchDebug?1:0),
+                SearchResults = (byte)(enabled & opt.SearchResults?1:0),
+                Collisions    = (byte)(enabled & opt.Collisions?1:0),
             };
 
             var vis = new QtreeVisualizerBridge
