@@ -300,9 +300,10 @@ namespace Ship_Game.Debug
 
         void Targeting()
         {
-            for (int i = 0; i < Screen.MasterShipList.Count; ++i)
+            Array<Ship> masterShipList = Screen.GetMasterShipList();
+            for (int i = 0; i < masterShipList.Count; ++i)
             {
-                Ship ship = Screen.MasterShipList[i];
+                Ship ship = masterShipList[i];
                 if (ship == null || !ship.InFrustum || ship.AI.Target == null)
                     continue;
 
@@ -323,11 +324,12 @@ namespace Ship_Game.Debug
                         Screen.DrawLineProjected(impactNoError, weapon.DebugLastImpactPredict, Color.DarkKhaki, 2f);
                     }
 
-                    Projectile projectile = ship.CopyProjectiles.FirstOrDefault(p => p.Weapon == weapon);
-                    if (projectile != null)
-                    {
-                        Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
-                    }
+                    // TODO: re-implement this
+                    //Projectile projectile = ship.CopyProjectiles.FirstOrDefault(p => p.Weapon == weapon);
+                    //if (projectile != null)
+                    //{
+                    //    Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
+                    //}
                     break;
                 }
             }
@@ -518,8 +520,9 @@ namespace Ship_Game.Debug
 
         IEnumerable<PredictionDebugPlatform> GetPredictionDebugPlatforms()
         {
-            for (int i = 0; i < Screen.MasterShipList.Count; ++i)
-                if (Screen.MasterShipList[i] is PredictionDebugPlatform platform)
+            Array<Ship> ships = Screen.GetMasterShipList();
+            for (int i = 0; i < ships.Count; ++i)
+                if (ships[i] is PredictionDebugPlatform platform)
                     yield return platform;
         }
 
@@ -776,7 +779,12 @@ namespace Ship_Game.Debug
 
         void SpatialManagement()
         {
-            UniverseScreen.SpaceManager.DebugVisualize(Screen);
+            SetTextCursor(50f, 150f, Color.White);
+            SpatialManager manager = UniverseScreen.Spatial;
+            DrawString($"Spatial.Type: {manager.Name}");
+            DrawString($"Spatial.Collisions: {manager.Collisions}");
+            DrawString($"Spatial.ActiveObjects: {manager.Count}");
+            manager.DebugVisualize(Screen);
         }
 
         void InputDebug()

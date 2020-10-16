@@ -354,8 +354,16 @@ namespace Ship_Game
         {
             // Wait for ProcessTurns to finish before we start drawing
             if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
+            {
+                DrawSyncPerf.Start();
                 if (!ProcessTurnsCompletedEvt.WaitOne(100))
+                {
                     Log.Warning("Universe ProcessTurns Wait timed out: ProcessTurns was taking too long!");
+                }
+                DrawSyncPerf.Stop();
+            }
+
+            DrawPerf.Start();
 
             lock (GlobalStats.BeamEffectLocker)
             {
@@ -429,8 +437,11 @@ namespace Ship_Game
             batch.Begin();
             
             // these are all background elements, such as ship overlays, fleet icons, etc..
-            DrawShipsInRange(batch);
-            DrawPlanetProjectiles(batch);
+            DrawShipsAndProjectiles(batch);
+
+            DrawProjectedGroup();
+            if (!LookingAtPlanet)
+                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
             DrawTacticalPlanetIcons(batch);
             DrawFTLInhibitionNodes();
             DrawShipRangeOverlay();
@@ -494,6 +505,8 @@ namespace Ship_Game
             // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
             // the game logic can be updated
             DrawCompletedEvt.Set();
+
+            DrawPerf.Stop();
         }
 
         void DrawTopCenterStatusText(SpriteBatch batch, in LocalizedText status, Color color, int lineOffset)
@@ -550,12 +563,13 @@ namespace Ship_Game
                             : new Color(200, 0, 0, 30);
                         byte edgeAlpha = 40;
                         DrawCircleProjected(ship.Position, ship.WeaponsMaxRange, new Color(Color.Red, edgeAlpha));
-                        if (Empire.Universe.SelectedShip != ship) continue;
-
-                        edgeAlpha = 70;
-                        DrawTextureProjected(shipRangeTex, ship.Position, ship.WeaponsMaxRange, color);
-                        DrawCircleProjected(ship.Position, ship.WeaponsAvgRange, new Color(Color.Orange, edgeAlpha));
-                        DrawCircleProjected(ship.Position, ship.WeaponsMinRange, new Color(Color.Yellow, edgeAlpha));
+                        if (SelectedShip == ship)
+                        {
+                            edgeAlpha = 70;
+                            DrawTextureProjected(shipRangeTex, ship.Position, ship.WeaponsMaxRange, color);
+                            DrawCircleProjected(ship.Position, ship.WeaponsAvgRange, new Color(Color.Orange, edgeAlpha));
+                            DrawCircleProjected(ship.Position, ship.WeaponsMinRange, new Color(Color.Yellow, edgeAlpha));
+                        }
                     }
 
                     if ((ship?.SensorRange ?? 0) > 0)
@@ -675,96 +689,6 @@ namespace Ship_Game
             }
         }
 
-
-        UILabel DebugGameStats;
-        UILabel DebugGameStatValues;
-        UILabel DebugGamePerf;
-        UILabel DebugGamePerfValues;
-
-        void HideDebugGameInfo()
-        {
-            DebugGameStats?.Hide();
-            DebugGameStatValues?.Hide();
-            DebugGamePerf?.Hide();
-            DebugGamePerfValues?.Hide();
-        }
-
-        void ShowDebugGameInfo()
-        {
-            if (DebugGameStats == null)
-            {
-                DebugGameStats = Label(150f, 44f, "");
-                DebugGameStatValues = Label(150f, 44f, "");
-                DebugGamePerf =Label(150f, 44f, "");
-                DebugGamePerfValues =Label(150f, 44f, "");
-            }
-            
-            DebugGameStats.Show();
-            DebugGameStats.MultilineText = new Array<string>
-            {
-                "Comparisons:      " ,
-                "Dis Check Avg:    " ,
-                "Modules Updated:  " ,
-                "Arc Checks:       " ,
-                "Beam Tests:       "
-            };
-            DebugGameStatValues.SetAbsPos(DebugGameStats.TopLeft.X + DebugGameStats.Size.X , DebugGameStats.Y);
-            DebugGameStatValues.Show();
-            DebugGameStatValues.MultilineText = new Array<string>
-            {
-                GlobalStats.Comparisons.ToString(),
-                (GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter).ToString(),
-                GlobalStats.ModuleUpdates.ToString(),
-                GlobalStats.WeaponArcChecks.ToString(),
-                GlobalStats.BeamTests.ToString(),
-            };
-
-            DebugGamePerf.SetAbsPos(DebugGameStatValues.TopLeft.X + DebugGameStatValues.Size.X + 50, DebugGameStatValues.Y);
-            DebugGamePerf.Show();
-            DebugGamePerf.MultilineText = new Array<string>
-            {
-                "Time:             ",
-                "ShipCount:        ",
-                
-                "Turn.Systems:     ",
-                "Turn.Ships:       ",
-                "Turn.PreEmpire:   ",
-                "Turn.Empire:      ",
-                "Turn.PostEmpire:  ",
-                "Turn.Collision:   ",
-                "Turn.EmpireQue:   ",
-
-                " Sim.TurnTime:    ",
-                " Sim.TurnPerSec:  ",
-
-                "  UpdateSim.Time:  ",
-                "  UpdateSim.NTurns: "
-            };
-            
-            DebugGamePerf.Align = TextAlign.Default;
-
-            DebugGamePerfValues.X = DebugGamePerf.TopLeft.X + DebugGamePerf.Size.X;
-            DebugGamePerfValues.Show();
-            DebugGamePerfValues.MultilineText = new Array<string>
-            {
-                $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime-CurrentSimTime)*1000:0.0}ms",
-                MasterShipList.Count.ToString(),
-
-                UpdateSysPerf.String(TurnTimePerf),
-                UpdateShipsPerf.String(TurnTimePerf),
-                PreEmpirePerf.String(TurnTimePerf),
-                EmpireUpdatePerf.String(TurnTimePerf),
-                PostEmpirePerf.String(TurnTimePerf),
-                CollisionTime.String(TurnTimePerf),
-                EmpireUpdateQueue.Perf.String(TurnTimePerf),
-
-                TurnTimePerf.ToString(),
-                $"actual:{ActualSimFPS}  target:{CurrentSimFPS}",
-
-                ProcessSimTurnsPerf.ToString(),
-                ProcessSimTurnsPerf.MeasuredSamples.ToString(),
-            };
-        }
 
         void DrawFleetIcons()
         {
@@ -993,10 +917,8 @@ namespace Ship_Game
             }
         }
 
-        void DrawShipsInRange(SpriteBatch batch)
+        void DrawShipsAndProjectiles(SpriteBatch batch)
         {
-            var currentlyKnown = player.KnownShips.AtomicCopy();
-
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             var rs = Device.RenderState;
@@ -1007,85 +929,48 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.None;
 
-            int projectileDrawCap = 10;
+            Ship[] ships = Objects.VisibleShips;
 
-            for (int i = 0; i < currentlyKnown.Length; i++)
+            if (viewState <= UnivScreenState.PlanetView)
             {
-                Ship ship = currentlyKnown[i];
-                if (viewState <= UnivScreenState.PlanetView && ship != null &&
-                    (ship.InFrustum || ship.AI.Target?.InFrustum == true))
+                Projectile[] projectiles = Objects.VisibleProjectiles;
+                Beam[] beams = Objects.VisibleBeams;
+                for (int i = 0; i < projectiles.Length; ++i)
                 {
-                    if (viewState > UnivScreenState.ShipView &&
-                        --projectileDrawCap < 0)
-                    {
-                        projectileDrawCap = 2;
-                        continue;
-                    }
-
-                    ship.DrawProjectiles(batch, this);
+                    Projectile proj = projectiles[i];
+                    proj.Draw(batch, this);
+                }
+                for (int i = 0; i < beams.Length; ++i)
+                {
+                    Beam beam = beams[i];
+                    beam.Draw(this);
                 }
             }
 
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            rs.AlphaBlendEnable                           = true;
-            rs.AlphaBlendOperation                        = BlendFunction.Add;
-            rs.SourceBlend                                = Blend.SourceAlpha;
-            rs.DestinationBlend                           = Blend.InverseSourceAlpha;
-            rs.DepthBufferWriteEnable                     = false;
-            rs.CullMode                                   = CullMode.None;
+            rs.AlphaBlendEnable       = true;
+            rs.AlphaBlendOperation    = BlendFunction.Add;
+            rs.SourceBlend            = Blend.SourceAlpha;
+            rs.DestinationBlend       = Blend.InverseSourceAlpha;
+            rs.DepthBufferWriteEnable = false;
+            rs.CullMode               = CullMode.None;
 
-            // @todo This should make use of spatial manager's quadtree
-            //       We can select all ships inside screen area and check if those ships are Known
-
-            for (int i = 0; i < currentlyKnown.Length; i++)
+            for (int i = 0; i < ships.Length; ++i)
             {
-                Ship ship = currentlyKnown[i];
-                if (!ship.Active || !ship.inSensorRange ||
-                    !ScreenRectangle.HitTest(ship.ScreenPosition))
-                    continue;
-
-                if (!IsCinematicModeEnabled)
-                    DrawTacticalIcon(ship);
-                DrawOverlay(ship);
-
-                if (SelectedShip != ship &&
-                    !SelectedShipList.Contains(ship))
-                    continue;
-
-                Color color = Color.LightGreen;
-                if (player != ship.loyalty)
-                    color = player.IsEmpireAttackable(ship.loyalty)
-                        ? Color.Red
-                        : Color.Gray;
-                batch.BracketRectangle(ship.ScreenPosition,
-                    ship.ScreenRadius, color);
-            }
-
-            DrawProjectedGroup();
-
-            if (!LookingAtPlanet)
-                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
-        }
-
-        void DrawPlanetProjectiles(SpriteBatch batch)
-        {
-            foreach (SolarSystem sys in SolarSystemList)
-            {
-                if (!sys.isVisible)
-                    continue;
-
-                Array<Planet> planets = sys.PlanetList;
-                for (int i = 0; i < planets.Count; i++)
+                Ship ship = ships[i];
+                if (ship.inSensorRange)
                 {
-                    Planet planet = planets[i];
-                    using (planet.Projectiles.AcquireReadLock())
+                    if (!IsCinematicModeEnabled)
+                        DrawTacticalIcon(ship);
+                    DrawOverlay(ship);
+
+                    if (SelectedShip == ship || SelectedShipList.Contains(ship))
                     {
-                        for (int x = 0; x < planet.Projectiles.Count; x++)
-                        {
-                            Projectile p = planet.Projectiles[x];
-                            if (p?.Active == true) p.Draw(batch, this);
-                        }
+                        Color color = Color.LightGreen;
+                        if (player != ship.loyalty)
+                            color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
+                        batch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius, color);
                     }
                 }
             }
