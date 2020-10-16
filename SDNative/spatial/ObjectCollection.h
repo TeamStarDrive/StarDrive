@@ -83,7 +83,7 @@ namespace spatial
          * Sets the new X and Y of an object.
          * If X and Y changed, the object is marked for update
          */
-        void update(int objectId, int x, int y, int rx, int ry);
+        void update(int objectId, const Rect& rect);
 
         /**
          * Submits pending objects into the main Objects list

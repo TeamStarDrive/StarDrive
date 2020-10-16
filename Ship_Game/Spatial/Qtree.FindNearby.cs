@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Microsoft.Xna.Framework;
-using Ship_Game.Spatial;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
-    public sealed partial class Quadtree
+    public sealed partial class Qtree
     {
         /// <summary>
         /// Optimized temporary search buffer for FindNearby
@@ -59,25 +57,36 @@ namespace Ship_Game
             return buffer;
         }
 
-        public GameplayObject[] FindNearby(in SearchOptions opt)
+        public unsafe GameplayObject[] FindNearby(in SearchOptions opt)
         {
             AABoundingBox2D searchRect = opt.SearchRect;
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
+            SpatialObj[] spatialObjects = SpatialObjects;
             
+            int idBitArraySize = ((spatialObjects.Length / 32) + 1) * sizeof(uint);
+            uint* idBitArray = stackalloc uint[idBitArraySize]; // C# spec says contents undefined
+            for (int i = 0; i < idBitArraySize; ++i) // so we need to zero the idBitArray
+                idBitArray[i] = 0;
+
             // NOTE: to avoid a few branches, we used pre-calculated masks
-            int excludeLoyaltyVal = (opt.FilterExcludeByLoyalty?.Id ?? 0);
-            int excludeLoyaltyMask = (excludeLoyaltyVal == 0) ? 0xff : ~excludeLoyaltyVal;
-            int onlyLoyaltyVal = (opt.FilterIncludeOnlyByLoyalty?.Id ?? 0); // filter by loyalty?
-            int onlyLoyaltyMask = (onlyLoyaltyVal == 0) ? 0xff : onlyLoyaltyVal;
-            int filterMask = opt.FilterByType == GameObjectType.Any ? 0xff : (int)opt.FilterByType;
+            int excludeLoyaltyVal = (opt.ExcludeLoyalty?.Id ?? 0);
+            int onlyLoyaltyVal    = (opt.OnlyLoyalty?.Id ?? 0);
+
+            const byte MATCH_ALL = 0xff; // mask that passes any filter
+
+            byte loyaltyMask = MATCH_ALL;
+            if (onlyLoyaltyVal != 0)    loyaltyMask = (byte)onlyLoyaltyVal;
+            if (excludeLoyaltyVal != 0) loyaltyMask = (byte)~excludeLoyaltyVal;
+
+            int filterMask = opt.Type == GameObjectType.Any ? MATCH_ALL : (int)opt.Type;
+
             float searchFX = opt.FilterOrigin.X;
             float searchFY = opt.FilterOrigin.Y;
             float searchFR = opt.FilterRadius;
             bool useSearchRadius = searchFR > 0f;
-            GameplayObject sourceObject = opt.FilterExcludeObject;
+            int objectMask = (opt.Exclude == null) ? MATCH_ALL : ~(opt.Exclude.SpatialIndex+1);
 
             QtreeNode root = Root;
-            SpatialObj[] spatialObjects = SpatialObjects;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
             if (buffer.Items.Length < maxResults)
                 buffer.Items = new GameplayObject[maxResults];
@@ -96,34 +105,42 @@ namespace Ship_Game
                 else // isLeaf
                 {
                     int count = current.Count;
-                    int[] items = current.Items;
+                    if (count == 0 || (current.LoyaltyMask & loyaltyMask) == 0)
+                        continue;
+
+                    SpatialObj*[] items = current.Items;
                     for (int i = 0; i < count; ++i)
                     {
-                        int objectId = items[i];
-                        ref SpatialObj so = ref spatialObjects[objectId];
+                        SpatialObj* so = items[i];
 
                         // FLAGS: either 0x00 (failed) or some bits 0100 (success)
-                        if (so.Active != 0
-                            && (so.Loyalty & excludeLoyaltyMask) != 0
-                            && (so.Loyalty & onlyLoyaltyMask) != 0
-                            && ((int)so.Type & filterMask) != 0
-                            && (so.Obj != sourceObject))
+                        if ((so->Loyalty & loyaltyMask) != 0 &&
+                            ((int)so->Type & filterMask) != 0 &&
+                            ((so->ObjectId+1) & objectMask) != 0)
                         {
-                            if (!so.AABB.Overlaps(searchRect))
+                            if (!so->AABB.Overlaps(searchRect))
                                 continue;
 
                             if (useSearchRadius)
                             {
-                                float dx = searchFX - so.CX;
-                                float dy = searchFY - so.CY;
-                                float rr = searchFR + so.Radius;
-                                if ((dx*dx + dy*dy) > (rr*rr))
-                                    continue; // not in squared radius
+                                if (!so->AABB.Overlaps(searchFX, searchFY, searchFR))
+                                    continue; // AABB not in SearchRadius
                             }
 
-                            buffer.Items[buffer.Count++] = so.Obj;
-                            if (buffer.Count == opt.MaxResults)
-                                break; // we are done !
+                            int id = so->ObjectId;
+                            int wordIndex = id / 32;
+                            uint idMask = (uint)(1 << (id % 32));
+                            if ((idBitArray[wordIndex] & idMask) != 0)
+                                continue; // already present in results array
+
+                            GameplayObject go = Objects[id];
+                            if (opt.FilterFunction == null || opt.FilterFunction(go))
+                            {
+                                buffer.Items[buffer.Count++] = go;
+                                idBitArray[wordIndex] |= idMask; // set unique result
+                                if (buffer.Count == opt.MaxResults)
+                                    break; // we are done !
+                            }
                         }
                     }
                     if (buffer.Count == maxResults)
@@ -136,7 +153,7 @@ namespace Ship_Game
 
         public GameplayObject[] FindLinear(in SearchOptions opt)
         {
-            return NativeSpatial.FindLinear(opt, Objects.GetInternalArrayItems(), Objects.Count);
+            return LinearSearch.FindNearby(opt, Objects.GetInternalArrayItems(), Objects.Count);
         }
     }
 }
