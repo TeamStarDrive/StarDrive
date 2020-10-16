@@ -258,14 +258,14 @@ namespace spatial
         if (found.count)
             numResults = spatial::findNearby(outResults, Objects.maxObjects(), opt, found);
 
-        if (opt.EnableSearchDebugId)
+        if (opt.DebugId)
         {
             DebugFindNearby dfn;
             dfn.SearchArea = opt.SearchRect;
             dfn.RadialFilter = opt.RadialFilter;
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
-            Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
+            Dbg.setFindNearby(opt.DebugId, std::move(dfn));
         }
         return numResults;
     }

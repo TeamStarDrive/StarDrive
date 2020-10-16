@@ -216,8 +216,8 @@ namespace Ship_Game.Spatial
         public GameplayObject[] FindNearby(in SearchOptions opt)
         {
             int ignoreId = -1;
-            if (opt.FilterExcludeObject != null && opt.FilterExcludeObject.SpatialIndex >= 0)
-                ignoreId = opt.FilterExcludeObject.SpatialIndex;
+            if (opt.Exclude != null && opt.Exclude.SpatialIndex >= 0)
+                ignoreId = opt.Exclude.SpatialIndex;
 
             var nso = new NativeSearchOptions
             {
@@ -229,10 +229,10 @@ namespace Ship_Game.Spatial
                     Radius=(int)(opt.FilterRadius + 0.5f) // ceil
                 },
                 MaxResults = opt.MaxResults,
-                FilterByType = (int)opt.FilterByType,
+                FilterByType = (int)opt.Type,
                 FilterExcludeObjectId = ignoreId,
-                FilterExcludeByLoyalty = opt.FilterExcludeByLoyalty?.Id ?? 0,
-                FilterIncludeOnlyByLoyalty = opt.FilterIncludeOnlyByLoyalty?.Id ?? 0,
+                FilterExcludeByLoyalty = opt.ExcludeLoyalty?.Id ?? 0,
+                FilterIncludeOnlyByLoyalty = opt.OnlyLoyalty?.Id ?? 0,
                 FilterFunction = null,
                 EnableSearchDebugId = opt.DebugId,
             };

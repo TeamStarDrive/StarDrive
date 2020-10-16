@@ -29,19 +29,19 @@ namespace spatial
 
         /// Filter search results by object type
         /// 0: disabled
-        int FilterByType = 0;
+        int Type = 0;
 
         /// Filter search results by excluding this specific object
         /// -1: disabled
-        int FilterExcludeObjectId = -1;
+        int Exclude = -1;
 
         /// Filter search results by excluding objects with this loyalty
         /// 0: disabled
-        int FilterExcludeByLoyalty = 0;
+        int ExcludeLoyalty = 0;
 
         /// Filter search results by only matching objects with this loyalty
         /// 0: disabled
-        int FilterIncludeOnlyByLoyalty = 0;
+        int OnlyLoyalty = 0;
 
         /// Filter search results by passing the matched object through this function
         /// null: disabled
@@ -53,7 +53,7 @@ namespace spatial
         /// If set to nonzero, this search will be displayed
         /// as an unique entry
         /// </summary>
-        int EnableSearchDebugId = 0;
+        int DebugId = 0;
     };
 
     struct FoundNode
