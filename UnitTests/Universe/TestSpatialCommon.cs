@@ -24,7 +24,7 @@ namespace UnitTests.Universe
 
         protected void CreateQuadTree(int numShips, ISpatial tree)
         {
-            AllObjects = QuadtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
+            AllObjects = QtreePerfTests.CreateTestSpace(numShips, tree, Player, Enemy, SpawnShip);
         }
 
         protected void DebugVisualize(ISpatial tree, bool enableMovingShips = true)
@@ -101,7 +101,7 @@ namespace UnitTests.Universe
         public void TestFindNearbyTypeFilter(ISpatial tree)
         {
             CreateQuadTree(100, tree);
-            QuadtreePerfTests.SpawnProjectilesFromEachShip(tree, AllObjects, new Vector2(100));
+            QtreePerfTests.SpawnProjectilesFromEachShip(tree, AllObjects, new Vector2(100));
 
             foreach (GameplayObject obj in AllObjects)
             {
@@ -121,7 +121,7 @@ namespace UnitTests.Universe
             {
                 var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
                 {
-                    FilterExcludeByLoyalty = s.loyalty
+                    ExcludeLoyalty = s.loyalty
                 };
                 GameplayObject[] found = tree.FindNearby(opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);
@@ -136,7 +136,7 @@ namespace UnitTests.Universe
             {
                 var opt = new SearchOptions(s.Position, 10000, GameObjectType.Ship)
                 {
-                    FilterIncludeOnlyByLoyalty = s.loyalty
+                    OnlyLoyalty = s.loyalty
                 };
                 GameplayObject[] found = tree.FindNearby(opt);
                 CheckFindNearby(found, GameObjectType.Ship, s.Position, 10000);

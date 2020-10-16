@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
@@ -69,10 +70,10 @@ namespace Ship_Game
                 rx = ry = go.Radius;
             }
 
-            X1 = x - rx;
-            X2 = x + rx;
-            Y1 = y - ry;
-            Y2 = y + ry;
+            X1 = (x - rx);
+            X2 = (x + rx);
+            Y1 = (y - ry);
+            Y2 = (y + ry);
         }
 
         [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -80,6 +81,17 @@ namespace Ship_Game
         {
             return X1 <= r.X2 && X2 > r.X1
                 && Y1 <= r.Y2 && Y2 > r.Y1;
+        }
+        
+        [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Overlaps(float cx, float cy, float radius)
+        {
+            // find the nearest point on the rectangle to the center of the circle
+            float nearestX = Math.Max(X1, Math.Min(cx, X2));
+            float nearestY = Math.Max(Y1, Math.Min(cy, Y2));
+            float dx = nearestX - cx;
+            float dy = nearestY - cy;
+            return (dx*dx + dy*dy) <= (radius*radius);
         }
     }
 
@@ -109,6 +121,30 @@ namespace Ship_Game
             Y1 = (int)r.Top;
             X2 = (int)r.Right;
             Y2 = (int)r.Bottom;
+        }
+
+        public AABoundingBox2Di(GameplayObject go)
+        {
+            int x = (int)go.Center.X;
+            int y = (int)go.Center.Y;
+            int rx, ry;
+
+            // beam AABB's is a special case
+            if (go.Type == GameObjectType.Beam)
+            {
+                var beam = (Beam)go;
+                rx = beam.RadiusX;
+                ry = beam.RadiusY;
+            }
+            else
+            {
+                rx = ry = (int)(go.Radius + 0.5f); // ceil
+            }
+
+            X1 = (x - rx);
+            X2 = (x + rx);
+            Y1 = (y - ry);
+            Y2 = (y + ry);
         }
 
         [Pure][MethodImpl(MethodImplOptions.AggressiveInlining)]

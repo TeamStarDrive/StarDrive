@@ -90,25 +90,25 @@ namespace spatial
             // |-|--+----|
             // | x--|    |
             // +---------+
-            bool overlaps_Left = (rect.left < quadCenterX);
+            bool overlaps_Left = (rect.x1 < quadCenterX);
             // +---------+   The target rectangle overlaps Right quadrants (NE, SE)
             // |    |--x |
             // |----+--|-|
             // |    |--x |
             // +---------+
-            bool overlaps_Right = (rect.right >= quadCenterX);
+            bool overlaps_Right = (rect.x2 >= quadCenterX);
             // +---------+   The target rectangle overlaps Top quadrants (NW, NE)
             // | x--|-x  |
             // |----+----|
             // |    |    |
             // +---------+
-            bool overlaps_Top = (rect.top < quadCenterY);
+            bool overlaps_Top = (rect.y1 < quadCenterY);
             // +---------+   The target rectangle overlaps Bottom quadrants (SW, SE)
             // |    |    |
             // |----+----|
             // | x--|-x  |
             // +---------+
-            bool overlaps_Bottom = (rect.bottom >= quadCenterY);
+            bool overlaps_Bottom = (rect.y2 >= quadCenterY);
 
             // bitwise combine to get which quadrants we overlap: NW, NE, SE, SW
             NW = overlaps_Top & overlaps_Left;
@@ -121,7 +121,7 @@ namespace spatial
     void Qtree::insertAt(int level, QtreeNode& root, SpatialObject* o)
     {
         QtreeNode* cur = &root;
-        Rect oRect = o->rect();
+        Rect oRect = o->rect;
         for (;;)
         {
             // try to select a sub-quadrant, perhaps it's a better match
@@ -213,9 +213,9 @@ namespace spatial
             }
             else
             {
-                if (int size = current.size)
+                if (current.size > 1)
                 {
-                    collider.collideObjects({current.objects, size}, params);
+                    collider.collideObjects({current.objects, current.size}, current.loyalty, params);
                 }
             }
         }
@@ -235,6 +235,7 @@ namespace spatial
         FoundNodes found;
         SmallStack<const QtreeNode*> stack { Root };
         Rect searchRect = opt.SearchRect;
+        int loyaltyMask = getLoyaltyMask(opt);
         do
         {
             const QtreeNode& current = *stack.pop_back();
@@ -250,7 +251,10 @@ namespace spatial
             }
             else
             {
-                found.add(current.objects, current.size, {cx,cy}, cr);
+                if (current.size && (current.loyalty.mask & loyaltyMask))
+                {
+                    found.add(current.objects, current.size, {cx,cy}, cr);
+                }
             }
         } while (stack.next >= 0 && found.count != found.MAX);
 
@@ -258,14 +262,14 @@ namespace spatial
         if (found.count)
             numResults = spatial::findNearby(outResults, Objects.maxObjects(), opt, found);
 
-        if (opt.EnableSearchDebugId)
+        if (opt.DebugId)
         {
             DebugFindNearby dfn;
             dfn.SearchArea = opt.SearchRect;
             dfn.RadialFilter = opt.RadialFilter;
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
-            Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
+            Dbg.setFindNearby(opt.DebugId, std::move(dfn));
         }
         return numResults;
     }
@@ -280,7 +284,11 @@ namespace spatial
         do
         {
             const QtreeNode& current = *stack.pop_back();
-            visualizer.drawRect(current.rect(), Brown);
+            if (opt.nodeBounds)
+            {
+                auto color = current.loyalty.count > 1 ? Brown : BrownDim;
+                visualizer.drawRect(current.rect(), color);
+            }
 
             int cx = current.cx, cy = current.cy;
             if (current.isBranch())
@@ -301,6 +309,7 @@ namespace spatial
                     snprintf(text, sizeof(text), "LF n=%d", current.size);
                     visualizer.drawText({cx,cy}, current.width(), text, Yellow);
                 }
+
                 int count = current.size;
                 SpatialObject** const items = current.objects;
                 for (int i = 0; i < count; ++i)
@@ -310,14 +319,17 @@ namespace spatial
                     if (opt.objectBounds)
                     {
                         auto color = (o.loyalty % 2 == 0) ? VioletBright : Purple;
-                        visualizer.drawRect(o.rect(), color);
+                        visualizer.drawRect(o.rect, color);
                     }
-                    if (opt.objectToLeafLines)
-                        visualizer.drawLine({cx,cy}, {o.x,o.y}, VioletDim);
+                    if (opt.objectToLeaf)
+                    {
+                        auto color = (o.loyalty % 2 == 0) ? VioletDim : Purple;
+                        visualizer.drawLine({cx,cy}, o.rect.center(), color);
+                    }
                     if (opt.objectText)
                     {
                         snprintf(text, sizeof(text), "o=%d", o.objectId);
-                        visualizer.drawText({o.x,o.y}, o.rx*2, text, Blue);
+                        visualizer.drawText(o.rect.center(), o.rect.width(), text, Blue);
                     }
                 }
             }
