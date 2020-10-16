@@ -132,6 +132,9 @@ namespace Ship_Game
                     Ship.CreateShipAtPoint(input.EmpireToggle ? "Remnant Mothership" : "Target Dummy", EmpireManager.Remnants, mouseWorldPos);
             }
 
+            if (input.ToggleSpatialManagerType)
+                Spatial.ToggleSpatialType();
+
             if (input.IsShiftKeyDown && input.KeyPressed(Keys.B))
                 StressTestShipLoading();
         }
@@ -252,6 +255,10 @@ namespace Ship_Game
                 return true;
 
             if (HandleTradeRoutesDefinition(input))
+                return true;
+
+            // Handle new UIElementV2 items
+            if (base.HandleInput(input))
                 return true;
 
             for (int i = SelectedShipList.Count - 1; i >= 0; --i)
@@ -377,7 +384,7 @@ namespace Ship_Game
                         cState = CursorState.Orbit;
                 }
             }
-            return base.HandleInput(input);
+            return false;
         }
 
         static int InputFleetSelection(InputState input)
@@ -803,6 +810,11 @@ namespace Ship_Game
             int fleetShips     = 0;
             fleet              = null;
 
+            if (Debug && DebugInfoScreen.Mode == DebugModes.SpatialManager)
+            {
+                AABoundingBox2D search = UnprojectToWorldRect(screenArea);
+                Spatial.FindNearby(GameObjectType.Ship, search, 1024, debugId:1);
+            }
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
                 Ship ship = clickableShip.shipToClick;
@@ -1280,12 +1292,7 @@ namespace Ship_Game
             {
                 ship.ClearFleet();
                 if (ship.loyalty == player && !ship.IsConstructor && ship.Mothership == null)
-                    //fbedard: cannot add ships from hangar in fleet
-                {
-                    ship.AI.ClearOrdersAndWayPoints();
-                    ship.AI.ClearPriorityOrder();
                     fleet.AddShip(ship);
-                }
             }
             fleet.SetCommandShip(null);
             fleet.Update(FixedSimTime.Zero/*paused during init*/);

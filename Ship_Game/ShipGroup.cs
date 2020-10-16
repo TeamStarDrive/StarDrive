@@ -596,7 +596,7 @@ namespace Ship_Game
         {
             if (!ship.IsSpoolingOrInWarp)
             {
-                ship.AI.ClearPriorityOrder();
+                ship.AI.ClearPriorityOrderAndTarget();
                 ship.AI.ChangeAIState(AIState.AwaitingOrders);
                 return true;
             }

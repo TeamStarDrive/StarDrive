@@ -350,7 +350,7 @@ namespace Ship_Game.Ships
             }
             if (hit != null && DebugInfoScreen.Mode == DebugModes.SpatialManager)
             {
-                DebugDrawShieldHit(hit, worldStartPos, worldEndPos);
+                //DebugDrawShieldHit(hit, worldStartPos, worldEndPos);
             }
             hitDistance = minD;
             return hit;

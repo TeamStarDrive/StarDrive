@@ -35,13 +35,15 @@ namespace Ship_Game.Ships.DataPackets
 
         float[] GetSeenByID()
         {
-            if (SeenByID.Length != EmpireManager.NumEmpires)
+            float[] seenById = SeenByID;
+            if (seenById.Length != EmpireManager.NumEmpires)
             {
                 var newArray = new float[EmpireManager.NumEmpires];
-                Array.Copy(SeenByID, newArray, SeenByID.Length);
+                Array.Copy(seenById, newArray, seenById.Length);
                 SeenByID = newArray;
+                return newArray;
             }
-            return SeenByID;
+            return seenById;
         }
 
         /// <summary>
