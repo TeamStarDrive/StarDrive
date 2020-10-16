@@ -250,6 +250,7 @@
     <Compile Include="Ship_Game\Data\GameTips.cs" />
     <Compile Include="Ship_Game\Data\LocalizedText.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
+    <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\Empires\EmpireUI.cs" />
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
@@ -458,18 +459,21 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
+    <Compile Include="Ship_Game\Spatial\LinearSearch.cs" />
     <Compile Include="Ship_Game\Spatial\ISpatial.cs" />
+    <Compile Include="Ship_Game\Spatial\NarrowPhase.cs" />
     <Compile Include="Ship_Game\Spatial\NativeSpatial.cs" />
     <Compile Include="Ship_Game\Spatial\NativeSpatialObject.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeNode.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeRecycleBuffer.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.Collision.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.Debug.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.FindNearby.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.PerfTests.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.Collision.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.Debug.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.FindNearby.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.PerfTests.cs" />
     <Compile Include="Ship_Game\Spatial\SearchOptions.cs" />
     <Compile Include="Ship_Game\Spatial\SpatialObj.cs" />
+    <Compile Include="Ship_Game\Spatial\VisualizerOptions.cs" />
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
     <Compile Include="Ship_Game\GameScreens\Espionage\AgentListItem.cs" />

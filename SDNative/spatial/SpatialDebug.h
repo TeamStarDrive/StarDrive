@@ -14,6 +14,7 @@ namespace spatial
     struct FoundNodes;
 
     static const Color Brown  = { 139, 69,  19, 150 };
+    static const Color BrownDim  = { 89, 39,  5, 150 };
     static const Color VioletDim = { 199, 21, 133, 100 };
     static const Color VioletBright = { 199, 21, 133, 150 };
     static const Color Aqua = { 180, 254, 231, 150 };
