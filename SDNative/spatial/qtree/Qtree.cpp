@@ -121,7 +121,7 @@ namespace spatial
     void Qtree::insertAt(int level, QtreeNode& root, SpatialObject* o)
     {
         QtreeNode* cur = &root;
-        Rect oRect = o->rect();
+        Rect oRect = o->rect;
         for (;;)
         {
             // try to select a sub-quadrant, perhaps it's a better match
@@ -310,14 +310,14 @@ namespace spatial
                     if (opt.objectBounds)
                     {
                         auto color = (o.loyalty % 2 == 0) ? VioletBright : Purple;
-                        visualizer.drawRect(o.rect(), color);
+                        visualizer.drawRect(o.rect, color);
                     }
                     if (opt.objectToLeafLines)
-                        visualizer.drawLine({cx,cy}, {o.x,o.y}, VioletDim);
+                        visualizer.drawLine({cx,cy}, o.rect.center(), VioletDim);
                     if (opt.objectText)
                     {
                         snprintf(text, sizeof(text), "o=%d", o.objectId);
-                        visualizer.drawText({o.x,o.y}, o.rx*2, text, Blue);
+                        visualizer.drawText(o.rect.center(), o.rect.width(), text, Blue);
                     }
                 }
             }

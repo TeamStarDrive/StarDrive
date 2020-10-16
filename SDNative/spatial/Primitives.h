@@ -32,6 +32,19 @@ namespace spatial
         static constexpr Circle Zero() { return { 0, 0, 0 }; }
     };
 
+    struct CircleF
+    {
+        float x;
+        float y;
+        float radius;
+
+        CircleF() = default;
+        constexpr CircleF(float x, float y, float r) : x{x}, y{y}, radius{r} {}
+        constexpr CircleF(const Circle& c) : x{(float)c.x}, y{(float)c.y}, radius{(float)c.radius} {}
+
+        static constexpr CircleF Zero() { return { 0.0f, 0.0f, 0.0f }; }
+    };
+
     struct Rect
     {
         int left;
@@ -49,6 +62,17 @@ namespace spatial
         int height() const { return (bottom - top); }
 
         bool empty() const { return left == right; }
+
+        bool operator==(const Rect& r) const
+        {
+            return left  == r.left  && top == r.top
+                && right == r.right && bottom == r.bottom;
+        }
+        bool operator!=(const Rect& r) const
+        {
+            return left  != r.left  || top != r.top
+                || right != r.right || bottom != r.bottom;
+        }
 
         /** @return Fixes a Rect with negative width */
         Rect normalized() const
@@ -77,6 +101,20 @@ namespace spatial
         {
             return left <= r.right  && right  > r.left
                 && top  <= r.bottom && bottom > r.top;
+        }
+
+        static constexpr float max(float a, float b) { return a > b ? a : b; }
+        static constexpr float min(float a, float b) { return a < b ? a : b; }
+
+        SPATIAL_FINLINE bool overlaps(const CircleF& c) const
+        {
+            // find the nearest point on the rectangle to the center of the circle
+            float nearestX = max((float)left, min(c.x, (float)right));
+            float nearestY = max((float)top,  min(c.y, (float)bottom));
+            float dx = nearestX - c.x;
+            float dy = nearestY - c.y;
+            float rr = c.radius;
+            return (dx*dx + dy*dy) <= (rr*rr);
         }
     };
 }

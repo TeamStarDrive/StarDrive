@@ -14,9 +14,6 @@ namespace Ship_Game
         public byte CollisionMask; // mask which matches objects this object can collide with
 
         public GameplayObject Obj;
-
-        public float CX, CY; // Center x y
-        public float Radius;
         public AABoundingBox2D AABB;
 
         public override string ToString() => Obj.ToString();
@@ -28,9 +25,6 @@ namespace Ship_Game
             Type    = go.Type;
             CollisionMask = go.DisableSpatialCollision ? (byte)0 : NativeSpatialObject.GetCollisionMask(Type);
             Obj     = go;
-            CX      = Obj.Center.X;
-            CY      = Obj.Center.Y;
-            Radius  = Obj.Radius;
             AABB = new AABoundingBox2D(go);
         }
     }

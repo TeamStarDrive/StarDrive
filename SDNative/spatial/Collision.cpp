@@ -18,7 +18,7 @@ namespace spatial
             SpatialObject& objectA = *arr.objects[i];
             uint8_t loyaltyA = objectA.loyalty;
             uint8_t collisionMaskA = objectA.collisionMask;
-            Rect rectA = objectA.rect();
+            Rect rectA = objectA.rect;
 
             for (int j = i + 1; j < arr.size; ++j)
             {
@@ -28,8 +28,7 @@ namespace spatial
                 if (ignoreSame && objectB.loyalty == loyaltyA)
                     continue; // ignore same loyalty objects from collision
 
-                Rect rectB = objectB.rect();
-                if (rectA.overlaps(rectB))
+                if (rectA.overlaps(objectB.rect))
                 {
                     CollisionPair pair { objectA.objectId, objectB.objectId };
                     if (tryCollide(pair))
