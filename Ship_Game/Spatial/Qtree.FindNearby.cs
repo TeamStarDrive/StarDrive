@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Microsoft.Xna.Framework;
-using Ship_Game.Spatial;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
-    public sealed partial class Quadtree
+    public sealed partial class Qtree
     {
         /// <summary>
         /// Optimized temporary search buffer for FindNearby
