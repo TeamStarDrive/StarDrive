@@ -13,39 +13,60 @@ namespace Ship_Game.Spatial
         static readonly Color VioletBright = new Color(199, 21, 133, 150);
         static readonly Color Purple = new Color(96, 63, 139, 150);
         static readonly Color Yellow = new Color(Color.Yellow, 100);
+        static readonly Color Blue   = new Color( 95, 158, 160, 200);
 
-        public void DebugVisualize(GameScreen screen, in VisualizerOptions opt)
+        public void DebugVisualize(GameScreen screen, VisualizerOptions opt)
         {
+            VisualizerOptions o = opt.Enabled ? opt : VisualizerOptions.None;
+
             AABoundingBox2D visibleWorld = screen.GetVisibleWorldRect();
             SpatialObj[] spatialObjects = SpatialObjects;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
             screen.DrawRectProjected(Root.AABB, Yellow);
             do
             {
-                QtreeNode node = buffer.Pop();
-                Vector2 center = node.AABB.Center;
-                screen.DrawRectProjected(node.AABB, Brown);
+                QtreeNode current = buffer.Pop();
+                Vector2 center = current.AABB.Center;
+                if (o.NodeBounds)
+                    screen.DrawRectProjected(current.AABB, Brown);
 
-                if (node.NW != null) // isBranch
+                if (current.NW != null) // isBranch
                 {
-                    var over = new OverlapsRect(node.AABB, visibleWorld);
-                    if (over.NW != 0) buffer.PushBack(node.NW);
-                    if (over.NE != 0) buffer.PushBack(node.NE);
-                    if (over.SE != 0) buffer.PushBack(node.SE);
-                    if (over.SW != 0) buffer.PushBack(node.SW);
+                    if (o.NodeText)
+                        screen.DrawStringProjected(center, current.AABB.Width/2, Yellow, "BR");
+
+                    var over = new OverlapsRect(current.AABB, visibleWorld);
+                    if (over.NW != 0) buffer.PushBack(current.NW);
+                    if (over.NE != 0) buffer.PushBack(current.NE);
+                    if (over.SE != 0) buffer.PushBack(current.SE);
+                    if (over.SW != 0) buffer.PushBack(current.SW);
                 }
                 else // isLeaf
                 {
-                    for (int i = 0; i < node.Count; ++i)
+                    if (o.NodeText)
+                        screen.DrawStringProjected(center, current.AABB.Width/2, Yellow, $"LF n={current.Count}");
+
+                    for (int i = 0; i < current.Count; ++i)
                     {
-                        int objectId = node.Items[i];
+                        int objectId = current.Items[i];
                         if (objectId >= spatialObjects.Length)
                             continue; // hmmmm
+
                         ref SpatialObj so = ref spatialObjects[objectId];
 
-                        Color color = (so.Loyalty % 2 == 0) ? VioletBright : Purple;
-                        screen.DrawRectProjected(so.AABB, color);
-                        screen.DrawLineProjected(center, so.AABB.Center, VioletDim);
+                        if (o.ObjectBounds)
+                        {
+                            Color color = (so.Loyalty % 2 == 0) ? VioletBright : Purple;
+                            screen.DrawRectProjected(so.AABB, color);
+                        }
+                        if (o.ObjectToLeaf)
+                        {
+                            screen.DrawLineProjected(center, so.AABB.Center, VioletDim);
+                        }
+                        if (o.ObjectText)
+                        {
+                            screen.DrawStringProjected(so.AABB.Center, so.AABB.Width, Blue, $"o={so.ObjectId}");
+                        }
                     }
                 }
             } while (buffer.NextNode >= 0);
