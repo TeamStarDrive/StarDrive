@@ -457,7 +457,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
+    <Compile Include="Ship_Game\Spatial\LinearSearch.cs" />
     <Compile Include="Ship_Game\Spatial\ISpatial.cs" />
+    <Compile Include="Ship_Game\Spatial\NarrowPhase.cs" />
     <Compile Include="Ship_Game\Spatial\NativeSpatial.cs" />
     <Compile Include="Ship_Game\Spatial\NativeSpatialObject.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeNode.cs" />

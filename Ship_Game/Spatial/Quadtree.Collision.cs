@@ -19,7 +19,7 @@ namespace Ship_Game
             CollisionChain[] CollidedObjectsMap;
             SpatialObj[] SpatialObjects;
 
-            public Array<NativeSpatial.CollisionPair> Results = new Array<NativeSpatial.CollisionPair>();
+            public Array<CollisionPair> Results = new Array<CollisionPair>();
 
             public Collider(SpatialObj[] spatialObjects)
             {
@@ -48,7 +48,7 @@ namespace Ship_Game
 
                         if (objectB.AABB.Overlaps(rectA))
                         {
-                            var pair = new NativeSpatial.CollisionPair(idA, idB);
+                            var pair = new CollisionPair(idA, idB);
                             if (TryCollide(pair))
                             {
                                 Results.Add(pair);
@@ -58,7 +58,7 @@ namespace Ship_Game
                 }
             }
 
-            bool TryCollide(NativeSpatial.CollisionPair pair)
+            bool TryCollide(CollisionPair pair)
             {
                 CollisionChain chain = CollidedObjectsMap[pair.A];
                 if (chain != null)
@@ -111,20 +111,15 @@ namespace Ship_Game
             }
             while (buffer.NextNode >= 0);
 
-            NativeSpatial.CollisionPair[] candidates = collider.Results.GetInternalArrayItems();
+            CollisionPair[] candidates = collider.Results.GetInternalArrayItems();
             int numCandidates = collider.Results.Count;
             if (numCandidates == 0)
                 return 0;
 
-            fixed (NativeSpatial.CollisionPair* pairsPtr = candidates)
+            fixed (CollisionPair* candidatesPtr = candidates)
             {
-                var collisions = new NativeSpatial.CollisionPairs
-                {
-                    Data = pairsPtr,
-                    Size = numCandidates,
-                    Capacity = candidates.Length
-                };
-                return NativeSpatial.CollideObjects(timeStep, collisions, Objects);
+                return NarrowPhase.Collide(timeStep, 
+                    candidatesPtr, numCandidates, Objects);
             }
         }
     }

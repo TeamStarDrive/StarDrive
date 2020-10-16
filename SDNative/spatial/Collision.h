@@ -13,9 +13,14 @@ namespace spatial
 
     struct CollisionParams
     {
-        bool ignoreSameLoyalty = false; // if TRUE, ignore objects of same loyalty
-        bool sortCollisionsById = true; // if TRUE, collision results are sorted by object Id-s, ascending
-        bool showCollisions = false; // if TRUE, collided objects are saved for debug
+        // if TRUE, ignore objects of same loyalty
+        bool ignoreSameLoyalty = false;
+
+        // if TRUE, collision results are sorted by object Id-s, ascending
+        bool sortCollisionsById = false;
+
+        // if TRUE, collided objects are saved for debug
+        bool showCollisions = false;
     };
 
     using CollisionPairs = Array<CollisionPair>;
