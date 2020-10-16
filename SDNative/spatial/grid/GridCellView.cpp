@@ -23,10 +23,10 @@ namespace spatial
         int cellSize = CellSize;
         int width  = Width;
         int height = Height;
-        int x1 = (worldCoords.left   - Coords.left) / cellSize;
-        int x2 = (worldCoords.right  - Coords.left) / cellSize;
-        int y1 = (worldCoords.top    - Coords.top)  / cellSize;
-        int y2 = (worldCoords.bottom - Coords.top)  / cellSize;
+        int x1 = (worldCoords.x1 - Coords.x1) / cellSize;
+        int x2 = (worldCoords.x2 - Coords.x1) / cellSize;
+        int y1 = (worldCoords.y1 - Coords.y1) / cellSize;
+        int y2 = (worldCoords.y2 - Coords.y1) / cellSize;
         if (x2 < 0 || y2 < 0 || x1 >= width || y1 >= height)
             return false; // out of grid bounds
 
@@ -45,9 +45,9 @@ namespace spatial
         {
             GridCell* cells = Cells;
             int width  = Width;
-            for (int y = cell.top; y <= cell.bottom; ++y)
+            for (int y = cell.y1; y <= cell.y2; ++y)
             {
-                for (int x = cell.left; x <= cell.right; ++x)
+                for (int x = cell.x1; x <= cell.x2; ++x)
                 {
                     GridCell& node = cells[x + y*width];
                     node.addObject(allocator, &o, cellCapacity);
@@ -74,9 +74,9 @@ namespace spatial
         if constexpr (SearchPattern == 0)
         {
             int width = Width;
-            for (int y = cell.top; y <= cell.bottom; ++y)
+            for (int y = cell.y1; y <= cell.y2; ++y)
             {
-                for (int x = cell.left; x <= cell.right; ++x)
+                for (int x = cell.x1; x <= cell.x2; ++x)
                 {
                     const GridCell& gridCell = cells[x + y*width];
                     if (int size = gridCell.size)
@@ -113,22 +113,22 @@ namespace spatial
             while (found.count != found.MAX && found.totalObjects < maxResults)
             {
                 bool didExpand = false;
-                if (minX > cell.left) { // test all cells to the left
+                if (minX > cell.x1) { // test all cells to the left
                     --minX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         addCell(minX, y);
                 }
-                if (maxX < cell.right) { // test all cells to the right
+                if (maxX < cell.x2) { // test all cells to the right
                     ++maxX; didExpand = true;
                     for (int y = minY; y <= maxY; ++y)
                         addCell(maxX, y);
                 }
-                if (minY > cell.top) { // test all top cells
+                if (minY > cell.y1) { // test all top cells
                     --minY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
                         addCell(x, minY);
                 }
-                if (maxY < cell.bottom) { // test all bottom cells
+                if (maxY < cell.y2) { // test all bottom cells
                     ++maxY; didExpand = true;
                     for (int x = minX; x <= maxX; ++x)
                         addCell(x, maxY);
@@ -157,14 +157,14 @@ namespace spatial
         {
             for (int gridX = 0; gridX < width; ++gridX)
             {
-                int x = Coords.left + gridX*cellSize;
-                visualizer.drawLine({x, Coords.top}, {x, Coords.bottom}, Brown); // Vertical Lines |
+                int x = Coords.x1 + gridX*cellSize;
+                visualizer.drawLine({x, Coords.y1}, {x, Coords.y2}, Brown); // Vertical Lines |
             }
 
             for (int gridY = 0; gridY < height; ++gridY)
             {
-                int y = Coords.top + gridY*cellSize;
-                visualizer.drawLine({Coords.left, y}, {Coords.right, y}, Brown); // Horizontal Lines ---
+                int y = Coords.y1 + gridY*cellSize;
+                visualizer.drawLine({Coords.x1, y}, {Coords.x2, y}, Brown); // Horizontal Lines ---
             }
         }
 

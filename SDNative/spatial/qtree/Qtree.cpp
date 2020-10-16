@@ -90,25 +90,25 @@ namespace spatial
             // |-|--+----|
             // | x--|    |
             // +---------+
-            bool overlaps_Left = (rect.left < quadCenterX);
+            bool overlaps_Left = (rect.x1 < quadCenterX);
             // +---------+   The target rectangle overlaps Right quadrants (NE, SE)
             // |    |--x |
             // |----+--|-|
             // |    |--x |
             // +---------+
-            bool overlaps_Right = (rect.right >= quadCenterX);
+            bool overlaps_Right = (rect.x2 >= quadCenterX);
             // +---------+   The target rectangle overlaps Top quadrants (NW, NE)
             // | x--|-x  |
             // |----+----|
             // |    |    |
             // +---------+
-            bool overlaps_Top = (rect.top < quadCenterY);
+            bool overlaps_Top = (rect.y1 < quadCenterY);
             // +---------+   The target rectangle overlaps Bottom quadrants (SW, SE)
             // |    |    |
             // |----+----|
             // | x--|-x  |
             // +---------+
-            bool overlaps_Bottom = (rect.bottom >= quadCenterY);
+            bool overlaps_Bottom = (rect.y2 >= quadCenterY);
 
             // bitwise combine to get which quadrants we overlap: NW, NE, SE, SW
             NW = overlaps_Top & overlaps_Left;
