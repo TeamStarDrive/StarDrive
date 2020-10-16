@@ -129,14 +129,25 @@ namespace Ship_Game.Spatial
                 int objectId = go.SpatialIndex;
                 if (go.Active)
                 {
-                    if (objectId == -1)
+                    if (go.ReinsertSpatial) // if marked for reinsert, remove from Spat
+                    {
+                        go.ReinsertSpatial = false;
+                        if (objectId != -1)
+                        {
+                            SpatialRemove(Spat, objectId);
+                            go.SpatialIndex = -1;
+                            objectId = -1;
+                        }
+                    }
+
+                    if (objectId == -1) // insert new
                     {
                         var so = new NativeSpatialObject(go);
                         objectId = SpatialInsert(Spat, ref so);
                         go.SpatialIndex = objectId;
                         objectsMap[objectId] = go;
                     }
-                    else
+                    else // update existing
                     {
                         int rx, ry;
                         if (go.Type == GameObjectType.Beam)
