@@ -11,12 +11,8 @@ namespace Ship_Game.Spatial
         public byte Loyalty;        // if loyalty == 0, then this is a STATIC world object !!!
         public GameObjectType Type; // GameObjectType : byte
         public byte CollisionMask; // mask which matches objects this object can collide with
-
-        public GameplayObject Obj;
         public int ObjectId;
         public AABoundingBox2D AABB;
-
-        public override string ToString() => Obj.ToString();
 
         public SpatialObj(GameplayObject go, int objectId)
         {
@@ -24,7 +20,6 @@ namespace Ship_Game.Spatial
             Loyalty = (byte)go.GetLoyaltyId();
             Type    = go.Type;
             CollisionMask = go.DisableSpatialCollision ? (byte)0 : NativeSpatialObject.GetCollisionMask(Type);
-            Obj     = go;
             ObjectId = objectId;
             AABB = new AABoundingBox2D(go);
         }
