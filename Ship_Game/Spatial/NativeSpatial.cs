@@ -56,10 +56,9 @@ namespace Ship_Game.Spatial
 
         [DllImport(Lib)] static extern void SpatialClear(IntPtr spatial);
         [DllImport(Lib)] static extern void SpatialRebuild(IntPtr spatial);
-        [DllImport(Lib)] static extern void SpatialRebuildAll(IntPtr spatial);
 
         [DllImport(Lib)] static extern int SpatialInsert(IntPtr spatial, ref NativeSpatialObject o);
-        [DllImport(Lib)] static extern void SpatialUpdate(IntPtr spatial, int objectId, int x, int y, int rx, int ry);
+        [DllImport(Lib)] static extern void SpatialUpdate(IntPtr spatial, int objectId, ref AABoundingBox2Di rect);
         [DllImport(Lib)] static extern void SpatialRemove(IntPtr spatial, int objectId);
 
         [DllImport(Lib)] static extern void SpatialCollideAll(IntPtr spatial, ref CollisionParams param, ref CollisionPairs outResults);
@@ -149,19 +148,8 @@ namespace Ship_Game.Spatial
                     }
                     else // update existing
                     {
-                        int rx, ry;
-                        if (go.Type == GameObjectType.Beam)
-                        {
-                            var beam = (Beam)go;
-                            rx = beam.RadiusX;
-                            ry = beam.RadiusY;
-                        }
-                        else
-                        {
-                            rx = ry = (int)go.Radius;
-                        }
-                        
-                        SpatialUpdate(Spat, objectId, (int)go.Center.X, (int)go.Center.Y, rx, ry);
+                        var rect = new AABoundingBox2Di(go);
+                        SpatialUpdate(Spat, objectId, ref rect);
                         objectsMap[objectId] = go;
                     }
                 }

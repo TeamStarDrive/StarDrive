@@ -60,9 +60,8 @@ namespace spatial
             if (!o.active)
                 continue;
 
-            Rect rect = o.rect();
             Rect topLevel;
-            if (!TopLevel.toCellRect(rect, topLevel))
+            if (!TopLevel.toCellRect(o.rect, topLevel))
                 continue;
 
             for (int y = topLevel.top; y <= topLevel.bottom; ++y)

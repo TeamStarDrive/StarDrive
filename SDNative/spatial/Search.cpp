@@ -23,10 +23,8 @@ namespace spatial
         int objectMask = (opt.FilterExcludeObjectId == -1) ? MATCH_ALL : ~(opt.FilterExcludeObjectId+1);
 
         Rect searchRect = opt.SearchRect;
-        float radialFR = opt.RadialFilter.radius;
-        float radialFX = opt.RadialFilter.x;
-        float radialFY = opt.RadialFilter.y;
-        bool useSearchRadius = radialFR > 0.0f;
+        CircleF radialFilter = opt.RadialFilter;
+        bool useSearchRadius = opt.RadialFilter.radius > 0;
 
         SearchFilterFunc filterFunc = opt.FilterFunction;
         int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
@@ -63,17 +61,13 @@ namespace spatial
                     (o.type    & filterMask) && 
                     ((o.objectId+1) & objectMask))
                 {
-                    Rect rect = o.rect();
-                    if (!searchRect.overlaps(rect))
+                    if (!searchRect.overlaps(o.rect))
                         continue; // AABB's don't overlap
 
                     if (useSearchRadius)
                     {
-                        float dx = radialFX - o.x;
-                        float dy = radialFY - o.y;
-                        float rr = radialFR + std::max(o.rx, o.ry);
-                        if ((dx*dx + dy*dy) > (rr*rr))
-                            continue; // not in squared radius
+                        if (!o.rect.overlaps(radialFilter))
+                            continue;
                     }
 
                     int id = o.objectId;
