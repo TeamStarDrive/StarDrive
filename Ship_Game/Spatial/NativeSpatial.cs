@@ -289,7 +289,7 @@ namespace Ship_Game.Spatial
             public DrawLineF   DrawLine;
             public DrawTextF   DrawText;
         }
-        struct VisualizationOptions
+        struct NativeVisOptions
         {
             public AABoundingBox2Di visibleWorldRect;
             public byte objectBounds;
@@ -303,7 +303,7 @@ namespace Ship_Game.Spatial
         }
 
         [DllImport(Lib)]
-        static extern void SpatialDebugVisualize(IntPtr spatial, ref VisualizationOptions opt, ref QtreeVisualizerBridge vis);
+        static extern void SpatialDebugVisualize(IntPtr spatial, ref NativeVisOptions opt, ref QtreeVisualizerBridge vis);
         
         static GameScreen Screen;
         static void DrawRect(AABoundingBox2Di r, SpatialColor c)
@@ -328,11 +328,11 @@ namespace Ship_Game.Spatial
                                        new Color(c.r, c.g, c.b, c.a), new string(text));
         }
 
-        public void DebugVisualize(GameScreen screen)
+        public void DebugVisualize(GameScreen screen, in VisualizationOptions opt)
         {
             AABoundingBox2D worldRect = screen.GetVisibleWorldRect();
 
-            var opt = new VisualizationOptions
+            var nativeOpt = new NativeVisOptions
             {
                 visibleWorldRect = new AABoundingBox2Di(worldRect),
                 objectBounds = 1,
@@ -354,7 +354,7 @@ namespace Ship_Game.Spatial
             };
 
             Screen = screen;
-            SpatialDebugVisualize(Spat, ref opt, ref vis);
+            SpatialDebugVisualize(Spat, ref nativeOpt, ref vis);
             Screen = null;
         }
     }

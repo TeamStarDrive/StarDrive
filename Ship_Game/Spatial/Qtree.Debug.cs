@@ -1,11 +1,10 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Gameplay;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
-    public sealed partial class Quadtree
+    public sealed partial class Qtree
     {
         static readonly Color Brown = new Color(Color.SaddleBrown, 150);
         
@@ -15,7 +14,7 @@ namespace Ship_Game
         static readonly Color Purple = new Color(96, 63, 139, 150);
         static readonly Color Yellow = new Color(Color.Yellow, 100);
 
-        public void DebugVisualize(GameScreen screen)
+        public void DebugVisualize(GameScreen screen, in VisualizationOptions opt)
         {
             AABoundingBox2D visibleWorld = screen.GetVisibleWorldRect();
             SpatialObj[] spatialObjects = SpatialObjects;
