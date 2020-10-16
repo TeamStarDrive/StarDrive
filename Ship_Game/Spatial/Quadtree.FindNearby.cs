@@ -133,7 +133,7 @@ namespace Ship_Game
 
         public GameplayObject[] FindLinear(in SearchOptions opt)
         {
-            return NativeSpatial.FindLinear(opt, Objects.GetInternalArrayItems(), Objects.Count);
+            return LinearSearch.FindNearby(opt, Objects.GetInternalArrayItems(), Objects.Count);
         }
     }
 }
