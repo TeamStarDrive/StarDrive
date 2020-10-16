@@ -4660,7 +4660,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1823</Index>
-      <Text>Maximum imprecision angle (in degrees) this weapon has. The more range a weapon has, the more it will be inaccurate, as a function of the imprecision angle.</Text>
+      <Text>Maximum imprecision angle (in degrees) this weapon has. This is used in weapons such as vulcan cannons and plasma throwers. Gives the weapon a spray of shots.</Text>
     </Token>
     <Token>
       <Index>1824</Index>
@@ -5120,6 +5120,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1972</Index>
       <Text>Terraforming A Tile</Text>
     </Token>
+	  <Token>
+		  <Index>1973</Index>
+		  <Text>Accuracy</Text>
+	  </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
       <Index>1974</Index>
@@ -5127,7 +5131,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1975</Index>
-      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has revocered from the EMP overload.</Text>
+      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload.</Text>
     </Token>
     <Token>
       <Index>1976</Index>
@@ -6719,6 +6723,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2571</Index>
       <Text>Add ordnance storage to support burst Ordnance usage. Current Ordnance Weapon Efficiency is</Text>
     </Token>
+	<Token>
+	  <Index>2572</Index>
+	  <Text>Low Weapon Accuracy</Text>
+	</Token>
+	<Token>
+	  <Index>2573</Index>
+	  <Text>Weapon Accuracy can be seen in the weapon module information. The number shown is 1x1 modules in radius that the weapon shot will vary. Ex. A fighter 6 modules wide will be very hard to hit with an accuracy of 3</Text>
+	</Token>
+	<Token>
+	  <Index>2574</Index>
+	  <Text>Improve Accuracy with higher FCS control systems, smaller or turreted weapons, crew level, or traits. </Text>
+	</Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>
@@ -9237,5 +9253,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7091</Index>
       <Text>This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this.</Text>
     </Token>
+    <!-- More Venus ToolTips-->
+	  <Token>
+		  <Index>7092</Index>
+		  <Text>Weapon target error radius measured in ship slots. Ex. an value of -6 means the weapon will hit within a 6 slot radius of the target point. Fire Control Systems and crew level can reduce this</Text>
+	  </Token>
   </TokenList>
 </LocalizationFile>
