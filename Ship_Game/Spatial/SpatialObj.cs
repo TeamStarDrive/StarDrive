@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Ship_Game.Spatial;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
     [StructLayout(LayoutKind.Sequential, Pack=4)]
     public struct SpatialObj // sizeof: 36 bytes, neatly fits in one cache line

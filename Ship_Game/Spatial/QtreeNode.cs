@@ -1,7 +1,6 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
     public class QtreeNode
     {
@@ -11,26 +10,22 @@ namespace Ship_Game
         public QtreeNode NW, NE, SE, SW;
         public int Count;
         public int[] Items;
-        public int Id;
-        public int Level;
 
-        public QtreeNode(int level, in AABoundingBox2D bounds)
+        public QtreeNode(in AABoundingBox2D bounds)
         {
             AABB = bounds;
             Items = NoObjects;
-            Level = level;
         }
 
         public override string ToString()
         {
-            return $"ID={Id} L{Level} N={Count} {AABB}";
+            return $"N={Count} {AABB}";
         }
 
-        public void InitializeForReuse(int level, in AABoundingBox2D bounds)
+        public void InitializeForReuse(in AABoundingBox2D bounds)
         {
             AABB = bounds;
             NW = NE = SE = SW = null;
-            Level = level;
 
             if (Count != 0)
             {
@@ -47,7 +42,7 @@ namespace Ship_Game
             {
                 if (count == 0)
                 {
-                    var newItems = new int[Quadtree.CellThreshold];
+                    var newItems = new int[Qtree.CellThreshold];
                     newItems[count] = objectId;
                     Items = newItems;
                     Count = 1;

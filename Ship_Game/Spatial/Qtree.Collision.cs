@@ -2,9 +2,9 @@
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
-    public sealed partial class Quadtree
+    public sealed partial class Qtree
     {
         class Collider
         {
