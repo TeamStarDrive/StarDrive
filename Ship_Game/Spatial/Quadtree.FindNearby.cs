@@ -114,11 +114,8 @@ namespace Ship_Game
 
                             if (useSearchRadius)
                             {
-                                float dx = searchFX - so.CX;
-                                float dy = searchFY - so.CY;
-                                float rr = searchFR + so.Radius;
-                                if ((dx*dx + dy*dy) > (rr*rr))
-                                    continue; // not in squared radius
+                                if (!so.AABB.Overlaps(searchFX, searchFY, searchFR))
+                                    continue; // AABB not in SearchRadius
                             }
 
                             buffer.Items[buffer.Count++] = so.Obj;
