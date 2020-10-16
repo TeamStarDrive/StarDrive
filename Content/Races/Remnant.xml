@@ -12,7 +12,8 @@
   <RemnantSupportSmall>Support Drone</RemnantSupportSmall>
   <RemnantCarrier>Ancient Carrier</RemnantCarrier>
   <RemnantAssimilator>Ancient Assimilator</RemnantAssimilator>
-  <RemnantCruiser>Ancient Torpedo Cruiser</RemnantCruiser>
+  <RemnantTorpedoCruiser>Ancient Torpedo Cruiser</RemnantTorpedoCruiser>
+  <RemnantCruiser>Ancient Cruiser</RemnantCruiser>
   <RemnantBomber>Ancient Bomber</RemnantBomber>
   <RemnantMotherShip>Remnant Mothership</RemnantMotherShip>
   <RemnantExterminator>Remnant Exterminator</RemnantExterminator>

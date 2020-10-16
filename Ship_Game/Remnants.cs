@@ -487,19 +487,20 @@ namespace Ship_Game
 
         void CalculateShipCosts()
         {
-            AddShipCost(Owner.data.RemnantFighter, RemnantShipType.Fighter);
-            AddShipCost(Owner.data.RemnantCorvette, RemnantShipType.Corvette);
-            AddShipCost(Owner.data.RemnantSupportSmall, RemnantShipType.SmallSupport);
-            AddShipCost(Owner.data.RemnantAssimilator, RemnantShipType.Assimilator);
-            AddShipCost(Owner.data.RemnantCruiser, RemnantShipType.Cruiser);
-            AddShipCost(Owner.data.RemnantCarrier, RemnantShipType.Carrier);
-            AddShipCost(Owner.data.RemnantMotherShip, RemnantShipType.Mothership);
-            AddShipCost(Owner.data.RemnantExterminator, RemnantShipType.Exterminator);
-            AddShipCost(Owner.data.RemnantInhibitor, RemnantShipType.Inhibitor);
-            AddShipCost(Owner.data.RemnantBomber, RemnantShipType.Bomber);
-            AddShipCost(Owner.data.RemnantFrigate, RemnantShipType.Frigate);
-            AddShipCost(Owner.data.RemnantBomberLight, RemnantShipType.BomberLight);
-            AddShipCost(Owner.data.RemnantBomberMedium, RemnantShipType.BomberMedium);
+            AddShipCost(Owner.data.RemnantFighter,         RemnantShipType.Fighter);
+            AddShipCost(Owner.data.RemnantCorvette,        RemnantShipType.Corvette);
+            AddShipCost(Owner.data.RemnantSupportSmall,    RemnantShipType.SmallSupport);
+            AddShipCost(Owner.data.RemnantAssimilator,     RemnantShipType.Assimilator);
+            AddShipCost(Owner.data.RemnantTorpedoCruiser,  RemnantShipType.TorpedoCruiser);
+            AddShipCost(Owner.data.RemnantCruiser,         RemnantShipType.Cruiser);
+            AddShipCost(Owner.data.RemnantCarrier,         RemnantShipType.Carrier);
+            AddShipCost(Owner.data.RemnantMotherShip,      RemnantShipType.Mothership);
+            AddShipCost(Owner.data.RemnantExterminator,    RemnantShipType.Exterminator);
+            AddShipCost(Owner.data.RemnantInhibitor,       RemnantShipType.Inhibitor);
+            AddShipCost(Owner.data.RemnantBomber,          RemnantShipType.Bomber);
+            AddShipCost(Owner.data.RemnantFrigate,         RemnantShipType.Frigate);
+            AddShipCost(Owner.data.RemnantBomberLight,     RemnantShipType.BomberLight);
+            AddShipCost(Owner.data.RemnantBomberMedium,    RemnantShipType.BomberMedium);
         }
 
         void AddShipCost(string shipName, RemnantShipType type)
@@ -511,9 +512,9 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet/5;
+            int fleetModifier  = shipsInFleet / 5;
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
-            int roll           = RollDie(effectiveLevel, (fleetModifier + Level/2).LowerBound(1));
+            int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
             switch (roll)
             {
                 case 1:
@@ -525,9 +526,9 @@ namespace Ship_Game
                 case 7:
                 case 8:  return RemnantShipType.Frigate;
                 case 9:
-                case 10: return RemnantShipType.Assimilator;
+                case 10: return RemnantShipType.Cruiser;
                 case 11:
-                case 12: return RemnantShipType.Cruiser;
+                case 12: return RemnantShipType.TorpedoCruiser;
                 case 13:
                 case 14: return RemnantShipType.Inhibitor;
                 case 15:
@@ -545,19 +546,21 @@ namespace Ship_Game
             switch (shipType)
             {
                 default:
-                case RemnantShipType.Fighter:      shipName = Owner.data.RemnantFighter;      break;
-                case RemnantShipType.Corvette:     shipName = Owner.data.RemnantCorvette;     break;
-                case RemnantShipType.SmallSupport: shipName = Owner.data.RemnantSupportSmall; break;
-                case RemnantShipType.Assimilator:  shipName = Owner.data.RemnantAssimilator;  break;
-                case RemnantShipType.Carrier:      shipName = Owner.data.RemnantCarrier;      break;
-                case RemnantShipType.Mothership:   shipName = Owner.data.RemnantMotherShip;   break;
-                case RemnantShipType.Exterminator: shipName = Owner.data.RemnantExterminator; break;
-                case RemnantShipType.Portal:       shipName = Owner.data.RemnantPortal;       break;
-                case RemnantShipType.Bomber:       shipName = Owner.data.RemnantBomber;       break;
-                case RemnantShipType.Inhibitor:    shipName = Owner.data.RemnantInhibitor;    break;
-                case RemnantShipType.Frigate:      shipName = Owner.data.RemnantFrigate;      break;
-                case RemnantShipType.BomberLight:  shipName = Owner.data.RemnantBomberLight;  break;
-                case RemnantShipType.BomberMedium: shipName = Owner.data.RemnantBomberMedium; break;
+                case RemnantShipType.Fighter:        shipName = Owner.data.RemnantFighter;        break;
+                case RemnantShipType.Corvette:       shipName = Owner.data.RemnantCorvette;       break;
+                case RemnantShipType.SmallSupport:   shipName = Owner.data.RemnantSupportSmall;   break;
+                case RemnantShipType.Assimilator:    shipName = Owner.data.RemnantAssimilator;    break;
+                case RemnantShipType.Carrier:        shipName = Owner.data.RemnantCarrier;        break;
+                case RemnantShipType.Mothership:     shipName = Owner.data.RemnantMotherShip;     break;
+                case RemnantShipType.Exterminator:   shipName = Owner.data.RemnantExterminator;   break;
+                case RemnantShipType.Portal:         shipName = Owner.data.RemnantPortal;         break;
+                case RemnantShipType.Bomber:         shipName = Owner.data.RemnantBomber;         break;
+                case RemnantShipType.Inhibitor:      shipName = Owner.data.RemnantInhibitor;      break;
+                case RemnantShipType.Frigate:        shipName = Owner.data.RemnantFrigate;        break;
+                case RemnantShipType.BomberLight:    shipName = Owner.data.RemnantBomberLight;    break;
+                case RemnantShipType.BomberMedium:   shipName = Owner.data.RemnantBomberMedium;   break;
+                case RemnantShipType.Cruiser:        shipName = Owner.data.RemnantCruiser;        break;
+                case RemnantShipType.TorpedoCruiser: shipName = Owner.data.RemnantTorpedoCruiser; break;
             }
 
             if (shipName.NotEmpty())
@@ -828,9 +831,9 @@ namespace Ship_Game
 
         void AddTorpedoShips(Planet p)  //Added by Gretman
         {
-            AddGuardians(1, RemnantShipType.Cruiser, p);
+            AddGuardians(1, RemnantShipType.TorpedoCruiser, p);
             if (RollDice(10)) // 10% chance for another torpedo cruiser
-                AddGuardians(1, RemnantShipType.Cruiser, p);
+                AddGuardians(1, RemnantShipType.TorpedoCruiser, p);
         }
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
@@ -900,8 +903,8 @@ namespace Ship_Game
         Corvette,
         SmallSupport,
         Carrier,
-        Assimilator,
-        Cruiser,
+        Assimilator, // Assimilators are Guardians which are created at game start only
+        TorpedoCruiser,
         Mothership,
         Exterminator,
         Inhibitor,
@@ -909,6 +912,7 @@ namespace Ship_Game
         Bomber,
         Frigate,
         BomberLight,
-        BomberMedium
+        BomberMedium,
+        Cruiser
     }
 }
