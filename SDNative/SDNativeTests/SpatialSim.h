@@ -98,10 +98,10 @@ struct Simulation final : spatial::Visualizer
     {
         ImVec2 topLeft = screenToWorld(0, 0);
         ImVec2 botRight = screenToWorld(window_size.x, window_size.y);
-        camera_frustum.left = (int)topLeft.x;
-        camera_frustum.top  = (int)topLeft.y;
-        camera_frustum.right  = (int)botRight.x;
-        camera_frustum.bottom = (int)botRight.y;
+        camera_frustum.x1 = (int)topLeft.x;
+        camera_frustum.y1 = (int)topLeft.y;
+        camera_frustum.x2 = (int)botRight.x;
+        camera_frustum.y2 = (int)botRight.y;
     }
     void moveCamera(ImVec2 delta)
     {
@@ -111,8 +111,8 @@ struct Simulation final : spatial::Visualizer
 
     void drawRect(spatial::Rect r, Color c) override
     {
-        ImVec2 tl = worldToScreen(r.left, r.top);
-        ImVec2 br = worldToScreen(r.right, r.bottom);
+        ImVec2 tl = worldToScreen(r.x1, r.y1);
+        ImVec2 br = worldToScreen(r.x2, r.y2);
         ImVec2 points[4] = { tl, ImVec2{br.x, tl.y}, br, ImVec2{tl.x, br.y} };
         DrawList->AddPolyline(points, 4, getColor(c), true, 1.0f);
     }
@@ -173,8 +173,9 @@ struct Simulation final : spatial::Visualizer
                 o.vel.y = -o.vel.y;
 
             o.pos += o.vel * timeStep;
-            spat->update(o.spatialId, (int)o.pos.x, (int)o.pos.y,
-                                      (int)o.radius, (int)o.radius);
+
+            auto rect = spatial::Rect::fromPointRadius((int)o.pos.x, (int)o.pos.y, (int)o.radius);
+            spat->update(o.spatialId, rect);
         }
     }
 

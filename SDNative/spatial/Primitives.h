@@ -47,43 +47,43 @@ namespace spatial
 
     struct Rect
     {
-        int left;
-        int top;
-        int right;
-        int bottom;
+        int x1;
+        int y1;
+        int x2;
+        int y2;
 
         // NOTE: No ctor, to avoid sub-optimal code generation
         static constexpr Rect Zero() { return {0,0,0,0}; }
 
-        int centerX() const { return (left + right) >> 1; }
-        int centerY() const { return (top + bottom) >> 1; }
-        Point center() const { return { (left + right) >> 1, (top + bottom) >> 1 }; }
-        int width()  const { return (right - left); }
-        int height() const { return (bottom - top); }
+        int centerX() const { return (x1 + x2) >> 1; }
+        int centerY() const { return (y1 + y2) >> 1; }
+        Point center() const { return { (x1 + x2) >> 1, (y1 + y2) >> 1 }; }
+        int width()  const { return (x2 - x1); }
+        int height() const { return (y2 - y1); }
 
-        bool empty() const { return left == right; }
+        bool empty() const { return x1 == x2; }
 
         bool operator==(const Rect& r) const
         {
-            return left  == r.left  && top == r.top
-                && right == r.right && bottom == r.bottom;
+            return x1  == r.x1 && y1 == r.y1
+                && x2 == r.x2 && y2 == r.y2;
         }
         bool operator!=(const Rect& r) const
         {
-            return left  != r.left  || top != r.top
-                || right != r.right || bottom != r.bottom;
+            return x1 != r.x1 || y1 != r.y1
+                || x2 != r.x2 || y2 != r.y2;
         }
 
         /** @return Fixes a Rect with negative width */
         Rect normalized() const
         {
             Rect result;
-            const bool swapX = left > right;
-            const bool swapY = top > bottom;
-            result.left   = swapX ? right : left;
-            result.right  = swapX ? left : right;
-            result.top    = swapY ? bottom : top;
-            result.bottom = swapY ? top : bottom;
+            const bool swapX = x1 > x2;
+            const bool swapY = y1 > y2;
+            result.x1 = swapX ? x2 : x1;
+            result.x2 = swapX ? x1 : x2;
+            result.y1 = swapY ? y2 : y1;
+            result.y2 = swapY ? y1 : y2;
             return result;
         }
 
@@ -99,8 +99,8 @@ namespace spatial
 
         SPATIAL_FINLINE bool overlaps(const Rect& r) const
         {
-            return left <= r.right  && right  > r.left
-                && top  <= r.bottom && bottom > r.top;
+            return x1 <= r.x2 && x2 > r.x1
+                && y1 <= r.y2 && y2 > r.y1;
         }
 
         static constexpr float max(float a, float b) { return a > b ? a : b; }
@@ -109,8 +109,8 @@ namespace spatial
         SPATIAL_FINLINE bool overlaps(const CircleF& c) const
         {
             // find the nearest point on the rectangle to the center of the circle
-            float nearestX = max((float)left, min(c.x, (float)right));
-            float nearestY = max((float)top,  min(c.y, (float)bottom));
+            float nearestX = max((float)x1, min(c.x, (float)x2));
+            float nearestY = max((float)y1, min(c.y, (float)y2));
             float dx = nearestX - c.x;
             float dy = nearestY - c.y;
             float rr = c.radius;

@@ -107,8 +107,8 @@ namespace spatial
             if (view.toCellRect(opt.SearchRect, cell))
             {
                 dfn.SelectedRect = view.toWorldRect(cell);
-                dfn.TopLeft      = view.toWorldRect(cell.left, cell.top);
-                dfn.BotRight     = view.toWorldRect(cell.right, cell.bottom);
+                dfn.TopLeft      = view.toWorldRect(cell.x1, cell.y1);
+                dfn.BotRight     = view.toWorldRect(cell.x2, cell.y2);
             }
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
