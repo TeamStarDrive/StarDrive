@@ -339,15 +339,18 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.LowTroops, severity, troopsMissing);
         }
 
-        public void CheckAccuracy(Map<ShipModule,float> accuracyList, float fcs)
+        public void CheckAccuracy(Map<ShipModule,float> accuracyList)
         {
+            if (accuracyList.Count == 0)
+                return;
+
             var average = accuracyList.Average(kv=> kv.Value);
-            WarningLevel severity = WarningLevel.None;
-            if (average > 12) severity = WarningLevel.Critical;
-            else if (average > 6) severity = WarningLevel.Major;
-            else if (average > 3) severity = WarningLevel.Minor;
-            else if (average > 1) severity = WarningLevel.Informative;
-            else return;
+            WarningLevel severity;
+            if      (average > 12) severity = WarningLevel.Critical;
+            else if (average > 6)  severity = WarningLevel.Major;
+            else if (average > 3)  severity = WarningLevel.Minor;
+            else if (average > 1)  severity = WarningLevel.Informative;
+            else                   return;
 
             AddDesignIssue(DesignIssueType.Accuracy, severity, " " + LocalizedText.ParseText("{Average}") +" "+ LocalizedText.ParseText("{Accuracy}") + ": " 
                                                                + Math.Round(average, 1).ToString(CultureInfo.InvariantCulture));
