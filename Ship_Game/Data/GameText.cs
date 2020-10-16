@@ -4248,6 +4248,13 @@ namespace Ship_Game
         /// <summary>We Destroyed a pirate base</summary>
         DestroyedPirateBase = 1871,
         /// <summary>Low MoneyWarning</summary>
-        LowMoneyWarning = 2296
+        LowMoneyWarning = 2296,
+        /// <summary>Weapon Accuracy</summary>
+        Accuracy = 1973,
+        LowAccuracy = 2572,
+        WeaponAccuracy = 2573,
+        ImproveAccuracy = 2574,
+        WeaponTargetError = 4114
+
     }
 }
