@@ -11,10 +11,8 @@ namespace Ship_Game.Spatial
         public byte Loyalty; // if loyalty == 0xff, then this is a STATIC world object !!!
         public byte Type;    // object type used in filtering findNearby queries
         public byte CollisionMask; // mask which matches objects this object can collide with
-        
-        public int ObjectId; // the object
-
-        public AABoundingBox2D AABB;
+        public int ObjectId; // the object ID
+        public AABoundingBox2Di AABB;
 
         public NativeSpatialObject(GameplayObject go)
         {
@@ -24,7 +22,7 @@ namespace Ship_Game.Spatial
             Type     = (byte)type;
             CollisionMask = go.DisableSpatialCollision ? (byte)0 : GetCollisionMask(type);
             ObjectId = -1; // ObjectId will be assigned by Native Spatial system
-            AABB = new AABoundingBox2D(go);
+            AABB = new AABoundingBox2Di(go);
         }
 
         // ships collide with: projectiles, beams
