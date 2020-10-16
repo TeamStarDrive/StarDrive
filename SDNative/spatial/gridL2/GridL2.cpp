@@ -64,9 +64,9 @@ namespace spatial
             if (!TopLevel.toCellRect(o.rect, topLevel))
                 continue;
 
-            for (int y = topLevel.top; y <= topLevel.bottom; ++y)
+            for (int y = topLevel.y1; y <= topLevel.y2; ++y)
             {
-                for (int x = topLevel.left; x <= topLevel.right; ++x)
+                for (int x = topLevel.x1; x <= topLevel.x2; ++x)
                 {
                     view2.Cells = arrayOfCells[x + y*topLevelWidth];
                     if (!view2.Cells)
@@ -126,9 +126,9 @@ namespace spatial
         GridCellView view2 = SecondLevel;
         GridCell** arrayOfCells = ArrayOfCells;
 
-        for (int y = topLevel.top; y <= topLevel.bottom; ++y)
+        for (int y = topLevel.y1; y <= topLevel.y2; ++y)
         {
-            for (int x = topLevel.left; x <= topLevel.right; ++x)
+            for (int x = topLevel.x1; x <= topLevel.x2; ++x)
             {
                 if (GridCell* cells = arrayOfCells[x + y*topLevelWidth])
                 {
@@ -146,8 +146,8 @@ namespace spatial
             dfn.SearchArea   = opt.SearchRect;
             dfn.RadialFilter = opt.RadialFilter;
             dfn.SelectedRect = TopLevel.toWorldRect(topLevel);
-            dfn.TopLeft      = TopLevel.toWorldRect(topLevel.left, topLevel.top);
-            dfn.BotRight     = TopLevel.toWorldRect(topLevel.right, topLevel.bottom);
+            dfn.TopLeft      = TopLevel.toWorldRect(topLevel.x1, topLevel.y1);
+            dfn.BotRight     = TopLevel.toWorldRect(topLevel.x2, topLevel.y2);
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
             Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
@@ -168,9 +168,9 @@ namespace spatial
         Rect visibleTop;
         if (topLevel.toCellRect(opt.visibleWorldRect, visibleTop))
         {
-            for (int y = visibleTop.top; y <= visibleTop.bottom; ++y)
+            for (int y = visibleTop.y1; y <= visibleTop.y2; ++y)
             {
-                for (int x = visibleTop.left; x <= visibleTop.right; ++x)
+                for (int x = visibleTop.x1; x <= visibleTop.x2; ++x)
                 {
                     if (GridCell* secondLevel = arrayOfCells[x + y*topLevelWidth])
                     {
