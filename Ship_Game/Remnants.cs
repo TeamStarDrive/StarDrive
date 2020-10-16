@@ -232,9 +232,9 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            int maxRaids     = (Level < 5 ? 1 : 2) * NumPortals();
-            int onGoingRaids = Goals.Count(g => g.IsRaid);
-            return onGoingRaids < maxRaids;
+            int maxRaids     = (Level < 7 ? 1 : 2) * NumPortals();
+            int ongoingRaids = Goals.Count(g => g.IsRaid);
+            return ongoingRaids < maxRaids;
         }
 
         public bool FindValidTarget(Ship portal, out Empire target)
@@ -429,13 +429,13 @@ namespace Ship_Game
             bomberNumMultiplier = 1;
             if (Level < 5)
             {
-                bomberNumMultiplier = 3;
+                bomberNumMultiplier = 3 * Level;
                 return RemnantShipType.BomberLight;
             }
 
             if (Level < 10)
             {
-                bomberNumMultiplier = 2;
+                bomberNumMultiplier = (int)(1.5f * Level);
                 return RemnantShipType.BomberMedium;
             }
 
@@ -511,31 +511,29 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int effectiveLevel = Level + (int)CurrentGame.Difficulty + shipsInFleet/10;
-            int roll           = RollDie(effectiveLevel, (Level / 2).LowerBound(1));
+            int fleetModifier  = shipsInFleet/5;
+            int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
+            int roll           = RollDie(effectiveLevel, (fleetModifier + Level/2).LowerBound(1));
             switch (roll)
             {
                 case 1:
-                case 2:
+                case 2:  return RemnantShipType.Fighter;
                 case 3:
-                case 4:  return RemnantShipType.Fighter;
+                case 4:  return RemnantShipType.SmallSupport;
                 case 5:
-                case 6:  return RemnantShipType.SmallSupport;
+                case 6:  return RemnantShipType.Corvette;
                 case 7:
-                case 8:
-                case 9:  return RemnantShipType.Corvette;
-                case 10:
-                case 11: return RemnantShipType.Frigate;
-                case 12:
-                case 13: return RemnantShipType.Assimilator;
-                case 14:
-                case 15: return RemnantShipType.Cruiser;
-                case 16:
-                case 17: return RemnantShipType.Inhibitor;
-                case 18:
-                case 19: return RemnantShipType.Carrier;
-                case 20:
-                case 21: return RemnantShipType.Mothership;
+                case 8:  return RemnantShipType.Frigate;
+                case 9:
+                case 10: return RemnantShipType.Assimilator;
+                case 11:
+                case 12: return RemnantShipType.Cruiser;
+                case 13:
+                case 14: return RemnantShipType.Inhibitor;
+                case 15:
+                case 16: return RemnantShipType.Carrier;
+                case 17:
+                case 18: return RemnantShipType.Mothership;
                 default: return RemnantShipType.Exterminator;
             }
         }
