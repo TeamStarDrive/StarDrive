@@ -154,7 +154,7 @@ namespace spatial
         // We only draw the grid if it covers a sufficient amount of pixels on screen
 
         float visiblePercent = GridSize / (float)visible.width();
-        if (visiblePercent > 0.025f)
+        if (opt.nodeBounds && visiblePercent > 0.025f)
         {
             for (int gridX = 0; gridX < width; ++gridX)
             {
@@ -170,7 +170,7 @@ namespace spatial
         }
 
         GridCell* nodes = Cells;
-        if (nodes && (opt.nodeText || opt.objectBounds || opt.objectToLeafLines || opt.objectText))
+        if (nodes && (opt.nodeText || opt.objectBounds || opt.objectToLeaf || opt.objectText))
         {
             for (int gridY = 0; gridY < height; ++gridY)
             {
@@ -183,6 +183,11 @@ namespace spatial
                     GridCell& cell = nodes[gridX + gridY*width];
                     Point c = nodeR.center();
 
+                    if (opt.nodeBounds)
+                    {
+                        auto color = cell.loyalty.count > 1 ? Brown : BrownDim;
+                        visualizer.drawRect(nodeR, color);
+                    }
                     if (opt.nodeText)
                     {
                         snprintf(text, sizeof(text), "CELL n=%d", cell.size);
@@ -199,9 +204,10 @@ namespace spatial
                             auto color = (o.loyalty % 2 == 0) ? VioletBright : Purple;
                             visualizer.drawRect(o.rect, color);
                         }
-                        if (opt.objectToLeafLines)
+                        if (opt.objectToLeaf)
                         {
-                            visualizer.drawLine(c, o.rect.center(), VioletDim);
+                            auto color = (o.loyalty % 2 == 0) ? VioletDim : Purple;
+                            visualizer.drawLine(c, o.rect.center(), color);
                         }
                         if (opt.objectText)
                         {
