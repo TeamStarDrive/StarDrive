@@ -364,14 +364,15 @@ namespace Ship_Game.Ships
 
             if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
-                //if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
                 return true;
             }
 
-            if (System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
+            // temporary fix until threading issue is resolved. 
+            var system = System;
+            if (system != null && attackerRelationThis.WarnedSystemsList.Contains(system.guid))
                 return true;
 
-            if (DesignRole == ShipData.RoleName.troop && System != null && attacker.GetOwnedSystems().ContainsRef(System))
+            if (DesignRole == ShipData.RoleName.troop && system != null && attacker.GetOwnedSystems().ContainsRef(system))
                 return true;
 
             return false;
