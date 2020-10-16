@@ -19,7 +19,7 @@ namespace Ship_Game.Gameplay
         public int Collisions { get; private set; }
         public int Count => Spatial?.Count ?? 0;
 
-        public VisualizationOptions VisOpt = new VisualizationOptions();
+        public VisualizerOptions VisOpt = VisualizerOptions.Default;
 
         public void Setup(float universeRadius)
         {
