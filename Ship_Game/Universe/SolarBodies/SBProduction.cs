@@ -53,7 +53,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return false; // Not enough credits to rush
 
             // inject artificial surplus to instantly rush & finish production
-            if (Empire.Universe.Debug)
+            if (Empire.Universe.Debug && Owner.isPlayer)
             {
                 amount = SurplusThisTurn = 1000;
             }

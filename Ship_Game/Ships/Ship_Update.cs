@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
     public partial class Ship
     {
         // > 0 if ship is outside frustum
-        float OutsideFrustumTimer;
+        float NotVisibleToPlayerTimer;
 
         // after X seconds of ships being invisible, we remove their scene objects
         const float RemoveInvisibleSceneObjectsAfterTime = 15f;
@@ -27,6 +27,9 @@ namespace Ship_Game.Ships
             ShipSO.Visibility = GlobalStats.ShipVisibility;
         }
 
+        public bool IsVisibleToPlayer => InFrustum && inSensorRange
+                                      && (Empire.Universe?.IsSystemViewOrCloser == true);
+
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
         public void CreateSceneObject()
@@ -38,9 +41,8 @@ namespace Ship_Game.Ships
             shipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
-            // Since we just created the object, it must be visible
+            NotVisibleToPlayerTimer = 0;
             UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
-
             ScreenManager.Instance.AddObject(ShipSO);
         }
 
@@ -50,33 +52,25 @@ namespace Ship_Game.Ships
             ShipSO = null;
             if (so != null)
             {
-                //Log.Info($"RemoveSO {Id} {Name}");
-                so.Clear();
                 ScreenManager.Instance.RemoveObject(so);
             }
         }
 
         void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
-            bool inFrustum = forceVisible || inSensorRange && (System == null || System.isVisible)
-                && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                && (Empire.Universe.Frustum.Contains(Position, 2000f) || 
-                    (AI?.Target != null &&
-                     Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)));
-
-            InFrustum = inFrustum;
-            if (inFrustum) OutsideFrustumTimer = 0f;
-            else           OutsideFrustumTimer += timeStep.FixedTime;
+            bool visibleToPlayer = forceVisible || IsVisibleToPlayer;
+            if (visibleToPlayer) NotVisibleToPlayerTimer = 0f;
+            else                 NotVisibleToPlayerTimer += timeStep.FixedTime;
 
             if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
             {
-                if (!inFrustum && OutsideFrustumTimer > RemoveInvisibleSceneObjectsAfterTime)
+                if (!visibleToPlayer && NotVisibleToPlayerTimer > RemoveInvisibleSceneObjectsAfterTime)
                 {
                     RemoveSceneObject();
                 }
                 else
                 {
-                    ShipSO.Visibility = inFrustum ? GlobalStats.ShipVisibility : ObjectVisibility.None;
+                    ShipSO.Visibility = visibleToPlayer ? GlobalStats.ShipVisibility : ObjectVisibility.None;
                 }
             }
         }
@@ -143,8 +137,6 @@ namespace Ship_Game.Ships
 
             if (timeStep.FixedTime > 0f)
             {
-                Projectiles.Update(timeStep);
-                Beams.Update(timeStep);
                 if (!EMPdisabled && Active)
                     AI.Update(timeStep);
             }
@@ -172,7 +164,7 @@ namespace Ship_Game.Ships
                 UpdateEnginesAndVelocity(timeStep);
             }
 
-            if (InFrustum)
+            if (IsVisibleToPlayer)
             {
                 if (ShipSO != null)
                 {
@@ -292,7 +284,7 @@ namespace Ship_Game.Ships
                 return;
 
             // for a cool death effect, make the ship accelerate out of control:
-            ApplyThrust(200f, Ships.Thrust.Forward);
+            ApplyThrust(100f, Ships.Thrust.Forward);
             UpdateVelocityAndPosition(timeStep);
 
             int num1 = UniverseRandom.IntBetween(0, 60);
@@ -312,7 +304,7 @@ namespace Ship_Game.Ships
             Rotation  += DieRotation.Z * timeStep.FixedTime;
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
-            if (inSensorRange && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            if (inSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
                 ShipSO.World = Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
@@ -320,8 +312,6 @@ namespace Ship_Game.Ships
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
                 ShipSO.UpdateAnimation(timeStep.FixedTime);
             }
-
-            Projectiles.Update(timeStep);
 
             SoundEmitter.Position = new Vector3(Center, 0);
 
