@@ -27,16 +27,12 @@ namespace Ship_Game.Ships
             var ships = new Array<Ship>();
             for (int i = 0; i < guids.Count; i++)
             {
-                var guid = guids[i];
-                var ship = GetShipFromGuid(guid);
+                Ship ship = Empire.Universe.Objects.FindShip(guids[i]);
                 if (ship != null)
                     ships.AddUnique(ship);
             }
-
             return ships;
         }
-
-        public static Ship GetShipFromGuid(Guid guid) => Empire.Universe.MasterShipList.Find(s => s.guid == guid);
 
         public string VanityName                = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
@@ -121,7 +117,6 @@ namespace Ship_Game.Ships
         public bool InCombat;
         public float xRotation;
         public float ScreenRadius;
-        public bool InFrustum;
         public bool ShouldRecalculatePower;
         public bool Deleted;
         private float BonusEMP_Protection;
@@ -349,7 +344,7 @@ namespace Ship_Game.Ships
                     // again, damage also depends on module radius and their energy resistance
                     float damageAbsorb = 1 - module.EnergyResist;
                     module.Damage(damageCauser, damage * damageAbsorb * module.Radius);
-                    if (InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                    if (InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
                     {
                         // visualize radiation hits on external modules
                         for (int j = 0; j < 50; j++)
@@ -369,14 +364,15 @@ namespace Ship_Game.Ships
 
             if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
-                //if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
                 return true;
             }
 
-            if (System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
+            // temporary fix until threading issue is resolved. 
+            var system = System;
+            if (system != null && attackerRelationThis.WarnedSystemsList.Contains(system.guid))
                 return true;
 
-            if (DesignRole == ShipData.RoleName.troop && System != null && attacker.GetOwnedSystems().ContainsRef(System))
+            if (DesignRole == ShipData.RoleName.troop && system != null && attacker.GetOwnedSystems().ContainsRef(system))
                 return true;
 
             return false;
@@ -1482,7 +1478,7 @@ namespace Ship_Game.Ships
                 ExplosionManager.AddExplosion(position, Velocity,
                     size*1.75f, 12f, ExplosionType.Warp);
             }
-            UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
+            UniverseScreen.Spatial.ShipExplode(this, size * 50, Center, Radius);
         }
 
         // cleanupOnly: for tumbling ships that are already dead
@@ -1495,8 +1491,6 @@ namespace Ship_Game.Ships
                 psource?.Module?.GetParent().UpdateEmpiresOnKill(this);
                 psource?.Module?.GetParent().AddKill(this);
             }
-
-            RemoveBeams();
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
@@ -1587,19 +1581,14 @@ namespace Ship_Game.Ships
 
         public void QueueTotalRemoval()
         {
-            Empire.Universe?.QueueGameplayObjectRemoval(this);
+            Active = false;
             TetheredTo?.RemoveFromOrbitalStations(this);
-            AI.ClearOrdersAndWayPoints();
+            AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
         }
 
         public override void RemoveFromUniverseUnsafe()
         {
             AI.Reset();
-
-            Empire.Universe.MasterShipList.QueuePendingRemoval(this);
-            if (Empire.Universe.SelectedShip == this)
-                Empire.Universe.SelectedShip = null;
-            Empire.Universe.SelectedShipList.RemoveRef(this);
 
             if (Mothership != null)
             {
@@ -1619,9 +1608,6 @@ namespace Ship_Game.Ships
                 empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
 
-            RemoveProjectiles();
-            RemoveBeams();
-
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
@@ -1634,7 +1620,6 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
 
             loyalty.RemoveShip(this);
-            SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
 
             RemoveSceneObject();
@@ -1886,7 +1871,7 @@ namespace Ship_Game.Ships
             if (maxValue <= 0) return Status.NotApplicable;
             if (valueToCheck > maxValue)
             {
-                Log.Info("MaxValue of check as greater than value to check");
+                //Log.Info("MaxValue of check as greater than value to check");
                 return Status.NotApplicable;
             }
 

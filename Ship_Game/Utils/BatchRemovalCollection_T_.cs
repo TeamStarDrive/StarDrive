@@ -15,7 +15,7 @@ namespace Ship_Game
         {
             PendingRemovals = new ConcurrentStack<T>();
         }
-        public BatchRemovalCollection(ICollection<T> listToCopy) : this()
+        public BatchRemovalCollection(IReadOnlyList<T> listToCopy) : this()
         {
             base.AddRange(listToCopy);
         }
@@ -92,14 +92,6 @@ namespace Ship_Game
             return found;
         }
 
-        public void ClearAdd(IEnumerable<T> item)
-        {
-            ThisLock.EnterWriteLock();
-            base.Clear();
-            base.AddRange(item);
-            ThisLock.ExitWriteLock();
-        }
-
         public new bool Contains(T item)
         {
             ThisLock.EnterReadLock();
@@ -108,10 +100,10 @@ namespace Ship_Game
             return result;
         }
 
-        public new void AddRange(ICollection<T> collection)
+        public new void AddRange(IReadOnlyList<T> list)
         {
             ThisLock.EnterWriteLock();
-            base.AddRange(collection);
+            base.AddRange(list);
             ThisLock.ExitWriteLock();
         }
 
