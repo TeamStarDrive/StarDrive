@@ -48,9 +48,10 @@ namespace spatial
 
         /**
          * @param arr Sorted array of spatial objects
+         * @param loyalty Loyalty information of this cell
          * @param params Collision parameters
          */
-        void collideObjects(SpatialObjectsView arr, const CollisionParams& params);
+        void collideObjects(SpatialObjectsView arr, CellLoyalty loyalty, const CollisionParams& params);
 
         /**
          * Get collision results and applies final modifications to the result array

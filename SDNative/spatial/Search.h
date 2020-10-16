@@ -11,9 +11,9 @@ namespace spatial
      */
     using SearchFilterFunc = int (SPATIAL_CC*)(int objectA);
 
-    // Sqrt(2.0), used for rectangular cell proximity approximation
-    constexpr float Sqrt2 = 1.414214f;
-
+    /**
+     * Configuration parameters for a single search operation
+     */
     struct SearchOptions
     {
         /// Search rectangle
@@ -81,6 +81,16 @@ namespace spatial
             }
         }
     };
+
+    const int MATCH_ALL = 0xffffffff; // mask that passes any filter
+
+    inline int getLoyaltyMask(const SearchOptions& opt)
+    {
+        int loyaltyMask = MATCH_ALL;
+        if (opt.OnlyLoyalty)    loyaltyMask = opt.OnlyLoyalty;
+        if (opt.ExcludeLoyalty) loyaltyMask = ~opt.ExcludeLoyalty;
+        return loyaltyMask;
+    }
 
     int findNearby(int* outResults, int maxObjectId, const SearchOptions& opt, FoundNodes& found);
 

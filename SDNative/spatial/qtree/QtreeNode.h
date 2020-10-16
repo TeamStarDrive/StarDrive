@@ -33,6 +33,8 @@ namespace spatial
         int cy = 0;
         int radius = 0;
 
+        CellLoyalty loyalty;
+
         bool isBranch() const { return size == BRANCH_ID; }
         bool isLeaf()   const { return size != BRANCH_ID; }
 
@@ -75,6 +77,7 @@ namespace spatial
                 capacity = newCapacity;
             }
             objects[size++] = item;
+            loyalty.addLoyalty(item->loyalty);
         }
 
         // Converts a LEAF node into a BRANCH node which contains sub-QtreeNode's

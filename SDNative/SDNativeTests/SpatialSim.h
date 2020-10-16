@@ -151,6 +151,8 @@ struct Simulation final : spatial::Visualizer
 
         spatial::CollisionParams cp;
         cp.showCollisions = true;
+        cp.ignoreSameLoyalty = true;
+
         spatial::Array<spatial::CollisionPair> collisions = spat->collideAll(cp);
         for (spatial::CollisionPair collision : collisions)
         {
@@ -305,6 +307,7 @@ struct Simulation final : spatial::Visualizer
                 mouseDragStart = screenToWorld(ImGui::GetMousePos());
             }
 
+            opt.OnlyLoyalty = 1;
             ImVec2 end = screenToWorld(ImGui::GetMousePos());
             opt.SearchRect = { (int)mouseDragStart.x, (int)mouseDragStart.y, (int)end.x, (int)end.y };
             opt.SearchRect = opt.SearchRect.normalized();

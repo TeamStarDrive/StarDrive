@@ -61,7 +61,8 @@ namespace spatial
         Rect cell;
         if (!toCellRect(opt.SearchRect, cell))
             return 0;
-
+        
+        int loyaltyMask = getLoyaltyMask(opt);
         int maxResults = opt.MaxResults;
         const GridCell* cells = Cells;
         int cellSize = CellSize;
@@ -78,11 +79,11 @@ namespace spatial
             {
                 for (int x = cell.x1; x <= cell.x2; ++x)
                 {
-                    const GridCell& gridCell = cells[x + y*width];
-                    if (int size = gridCell.size)
+                    const GridCell& current = cells[x + y*width];
+                    if (current.size && (current.loyalty.mask & loyaltyMask))
                     {
                         Point pt = toWorldCellCenter(x,y,half,cellSize);
-                        found.add(gridCell.objects, size, pt, cellRadius);
+                        found.add(current.objects, current.size, pt, cellRadius);
                         if (found.count == found.MAX || found.totalObjects >= maxResults)
                             break;
                     }
@@ -98,13 +99,13 @@ namespace spatial
             int minY = cell.centerY();
             int maxX = minX, maxY = minY;
 
-            auto addCell = [&found,cells,half,cellSize,width,cellRadius](int x, int y)
+            auto addCell = [&found,cells,half,cellSize,width,cellRadius,loyaltyMask](int x, int y)
             {
-                const GridCell& cell = cells[x + y*width];
-                if (int size = cell.size)
+                const GridCell& current = cells[x + y*width];
+                if (current.size && (current.loyalty.mask & loyaltyMask))
                 {
                     Point pt = toWorldCellCenter(x,y,half,cellSize);
-                    found.add(cell.objects, size, pt, cellRadius);
+                    found.add(current.objects, current.size, pt, cellRadius);
                 }
             };
 

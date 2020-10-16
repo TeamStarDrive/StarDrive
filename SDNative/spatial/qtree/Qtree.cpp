@@ -213,9 +213,9 @@ namespace spatial
             }
             else
             {
-                if (int size = current.size)
+                if (current.size > 1)
                 {
-                    collider.collideObjects({current.objects, size}, params);
+                    collider.collideObjects({current.objects, current.size}, current.loyalty, params);
                 }
             }
         }
@@ -235,6 +235,7 @@ namespace spatial
         FoundNodes found;
         SmallStack<const QtreeNode*> stack { Root };
         Rect searchRect = opt.SearchRect;
+        int loyaltyMask = getLoyaltyMask(opt);
         do
         {
             const QtreeNode& current = *stack.pop_back();
@@ -250,7 +251,10 @@ namespace spatial
             }
             else
             {
-                found.add(current.objects, current.size, {cx,cy}, cr);
+                if (current.size && (current.loyalty.mask & loyaltyMask))
+                {
+                    found.add(current.objects, current.size, {cx,cy}, cr);
+                }
             }
         } while (stack.next >= 0 && found.count != found.MAX);
 

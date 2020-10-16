@@ -9,9 +9,11 @@ namespace spatial
         CollidedObjectsMap = allocator.allocArrayZeroed<CollisionChain*>(maxObjectId + 1);
     }
 
-    void Collider::collideObjects(SpatialObjectsView arr, const CollisionParams& params)
+    void Collider::collideObjects(SpatialObjectsView arr, CellLoyalty loyalty, const CollisionParams& params)
     {
         bool ignoreSame = params.ignoreSameLoyalty;
+        if (ignoreSame && loyalty.count == 1)
+            return; // definitely nothing to do here!
 
         for (int i = 0; i < arr.size; ++i)
         {

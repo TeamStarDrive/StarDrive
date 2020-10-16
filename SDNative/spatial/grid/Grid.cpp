@@ -73,9 +73,9 @@ namespace spatial
         for (int i = 0; i < numCells; ++i)
         {
             const GridCell& cell = cells[i];
-            if (int size = cell.size)
+            if (cell.size > 1)
             {
-                collider.collideObjects({cell.objects, size}, params);
+                collider.collideObjects({cell.objects, cell.size}, cell.loyalty, params);
             }
         }
 

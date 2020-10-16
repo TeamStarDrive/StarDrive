@@ -97,9 +97,9 @@ namespace spatial
                 for (int j = 0; j < numSecondLevelCells; ++j)
                 {
                     const GridCell& cell = secondLevel[j];
-                    if (int size = cell.size)
+                    if (cell.size > 1)
                     {
-                        collider.collideObjects({cell.objects, size}, params);
+                        collider.collideObjects({cell.objects, cell.size}, cell.loyalty, params);
                     }
                 }
             }
