@@ -903,7 +903,7 @@ namespace Ship_Game
         Corvette,
         SmallSupport,
         Carrier,
-        Assimilator,
+        Assimilator, // Assimilators are Guardians which are created at game start only
         TorpedoCruiser,
         Mothership,
         Exterminator,
