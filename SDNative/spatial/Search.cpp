@@ -16,11 +16,11 @@ namespace spatial
         const int MATCH_ALL = 0xffffffff; // mask that passes any filter
 
         int loyaltyMask = MATCH_ALL;
-        if (opt.FilterIncludeOnlyByLoyalty) loyaltyMask = opt.FilterIncludeOnlyByLoyalty;
-        if (opt.FilterExcludeByLoyalty)     loyaltyMask = ~opt.FilterExcludeByLoyalty;
+        if (opt.OnlyLoyalty)    loyaltyMask = opt.OnlyLoyalty;
+        if (opt.ExcludeLoyalty) loyaltyMask = ~opt.ExcludeLoyalty;
 
-        int filterMask = (opt.FilterByType == 0)           ? MATCH_ALL : opt.FilterByType;
-        int objectMask = (opt.FilterExcludeObjectId == -1) ? MATCH_ALL : ~(opt.FilterExcludeObjectId+1);
+        int filterMask = (opt.Type == 0)     ? MATCH_ALL : opt.Type;
+        int objectMask = (opt.Exclude == -1) ? MATCH_ALL : ~(opt.Exclude+1);
 
         Rect searchRect = opt.SearchRect;
         CircleF radialFilter = opt.RadialFilter;

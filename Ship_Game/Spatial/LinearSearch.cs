@@ -19,8 +19,8 @@ namespace Ship_Game.Spatial
             int resultCount = 0;
 
             AABoundingBox2D searchRect = opt.SearchRect;
-            bool filterByLoyalty = (opt.FilterExcludeByLoyalty != null)
-                                || (opt.FilterIncludeOnlyByLoyalty != null);
+            bool filterByLoyalty = (opt.ExcludeLoyalty != null)
+                                || (opt.OnlyLoyalty != null);
 
             float searchFX = opt.FilterOrigin.X;
             float searchFY = opt.FilterOrigin.Y;
@@ -31,15 +31,15 @@ namespace Ship_Game.Spatial
             {
                 GameplayObject obj = objects[i];
                 if (obj == null
-                    || (opt.FilterExcludeObject != null && obj == opt.FilterExcludeObject)
-                    || (opt.FilterByType != GameObjectType.Any && obj.Type != opt.FilterByType))
+                    || (opt.Exclude != null && obj == opt.Exclude)
+                    || (opt.Type != GameObjectType.Any && obj.Type != opt.Type))
                     continue;
                 
                 if (filterByLoyalty)
                 {
                     Empire loyalty = obj.GetLoyalty();
-                    if ((opt.FilterExcludeByLoyalty != null && loyalty == opt.FilterExcludeByLoyalty) ||
-                        (opt.FilterIncludeOnlyByLoyalty != null && loyalty != opt.FilterIncludeOnlyByLoyalty))
+                    if ((opt.ExcludeLoyalty != null && loyalty == opt.ExcludeLoyalty) ||
+                        (opt.OnlyLoyalty != null && loyalty != opt.OnlyLoyalty))
                         continue;
                 }
 

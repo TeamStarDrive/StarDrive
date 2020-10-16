@@ -140,7 +140,7 @@ namespace spatial
 
         int numResults = spatial::findNearby(outResults, Objects.maxObjects(), opt, found);
 
-        if (opt.EnableSearchDebugId)
+        if (opt.DebugId)
         {
             DebugFindNearby dfn;
             dfn.SearchArea   = opt.SearchRect;
@@ -150,7 +150,7 @@ namespace spatial
             dfn.BotRight     = TopLevel.toWorldRect(topLevel.x2, topLevel.y2);
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
-            Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
+            Dbg.setFindNearby(opt.DebugId, std::move(dfn));
         }
 
         return numResults;

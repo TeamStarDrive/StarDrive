@@ -31,8 +31,8 @@ TestImpl(QuadTree)
             spatial::SearchOptions opt;
             opt.SearchRect = spatial::Rect::fromPointRadius((int)o.pos.x, (int)o.pos.y, p.defaultSensorRange);
             opt.MaxResults = 1024;
-            opt.FilterExcludeObjectId = o.spatialId;
-            opt.FilterExcludeByLoyalty = o.loyalty;
+            opt.Exclude = o.spatialId;
+            opt.ExcludeLoyalty = o.loyalty;
             int n = swo.spatial->findNearby(results.data(), opt);
         });
     }

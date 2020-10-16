@@ -63,16 +63,16 @@ namespace Ship_Game.Spatial
             int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
             
             // NOTE: to avoid a few branches, we used pre-calculated masks
-            int excludeLoyaltyVal = (opt.FilterExcludeByLoyalty?.Id ?? 0);
+            int excludeLoyaltyVal = (opt.ExcludeLoyalty?.Id ?? 0);
             int excludeLoyaltyMask = (excludeLoyaltyVal == 0) ? 0xff : ~excludeLoyaltyVal;
-            int onlyLoyaltyVal = (opt.FilterIncludeOnlyByLoyalty?.Id ?? 0); // filter by loyalty?
+            int onlyLoyaltyVal = (opt.OnlyLoyalty?.Id ?? 0); // filter by loyalty?
             int onlyLoyaltyMask = (onlyLoyaltyVal == 0) ? 0xff : onlyLoyaltyVal;
-            int filterMask = opt.FilterByType == GameObjectType.Any ? 0xff : (int)opt.FilterByType;
+            int filterMask = opt.Type == GameObjectType.Any ? 0xff : (int)opt.Type;
             float searchFX = opt.FilterOrigin.X;
             float searchFY = opt.FilterOrigin.Y;
             float searchFR = opt.FilterRadius;
             bool useSearchRadius = searchFR > 0f;
-            GameplayObject sourceObject = opt.FilterExcludeObject;
+            GameplayObject sourceObject = opt.Exclude;
 
             QtreeNode root = Root;
             SpatialObj[] spatialObjects = SpatialObjects;

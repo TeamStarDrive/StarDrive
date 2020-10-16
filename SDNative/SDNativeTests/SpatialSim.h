@@ -52,7 +52,7 @@ struct Simulation final : spatial::Visualizer
         createObjectsIfNeeded();
         opt.SearchRect = {};
         opt.MaxResults = 2048;
-        opt.EnableSearchDebugId = 1;
+        opt.DebugId = 1;
         searchResults.resize(opt.MaxResults);
     }
 
