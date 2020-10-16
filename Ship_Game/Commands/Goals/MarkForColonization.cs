@@ -39,6 +39,9 @@ namespace Ship_Game.Commands.Goals
                 ChangeToStep(OrderShipToColonize);
                 Evaluate();
             }
+
+            if (!AIControlsColonization) // Fast track for player colonization
+                ChangeToStep(OrderShipForColonization);
         }
 
         // Player ordered an existing colony ship to colonize
@@ -98,7 +101,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // Check if there is enemy presence without a claim task
-            if (PositiveEnemyPresence(out _))
+            if (PositiveEnemyPresence(out _) && AIControlsColonization)
             {
                 ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;
