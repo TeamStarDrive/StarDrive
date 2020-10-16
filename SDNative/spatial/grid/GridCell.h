@@ -14,6 +14,8 @@ namespace spatial
         uint16_t size = 0;
         uint16_t capacity = 0;
 
+        CellLoyalty loyalty;
+
         // adds another object
         void addObject(SlabAllocator& allocator, SpatialObject* item, int defaultCapacity)
         {
@@ -33,21 +35,7 @@ namespace spatial
                 capacity = newCapacity;
             }
             objects[size++] = item;
-        }
-
-        void removeObject(int objectId)
-        {
-            int n = size;
-            SpatialObject** objects = this->objects;
-            for (int i = 0; i < n; ++i)
-            {
-                if (objects[i]->objectId == objectId)
-                {
-                    int last = --size;
-                    objects[i] = objects[last];
-                    break;
-                }
-            }
+            loyalty.addLoyalty(item->loyalty);
         }
     };
 

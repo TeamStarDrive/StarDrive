@@ -9,16 +9,18 @@ namespace spatial
         CollidedObjectsMap = allocator.allocArrayZeroed<CollisionChain*>(maxObjectId + 1);
     }
 
-    void Collider::collideObjects(SpatialObjectsView arr, const CollisionParams& params)
+    void Collider::collideObjects(SpatialObjectsView arr, CellLoyalty loyalty, const CollisionParams& params)
     {
         bool ignoreSame = params.ignoreSameLoyalty;
+        if (ignoreSame && loyalty.count <= 1)
+            return; // definitely nothing to do here!
 
         for (int i = 0; i < arr.size; ++i)
         {
             SpatialObject& objectA = *arr.objects[i];
             uint8_t loyaltyA = objectA.loyalty;
             uint8_t collisionMaskA = objectA.collisionMask;
-            Rect rectA = objectA.rect();
+            Rect rectA = objectA.rect;
 
             for (int j = i + 1; j < arr.size; ++j)
             {
@@ -28,8 +30,7 @@ namespace spatial
                 if (ignoreSame && objectB.loyalty == loyaltyA)
                     continue; // ignore same loyalty objects from collision
 
-                Rect rectB = objectB.rect();
-                if (rectA.overlaps(rectB))
+                if (rectA.overlaps(objectB.rect))
                 {
                     CollisionPair pair { objectA.objectId, objectB.objectId };
                     if (tryCollide(pair))

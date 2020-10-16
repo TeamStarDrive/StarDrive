@@ -88,10 +88,9 @@ struct SpatialWithObjects
 		        o.vel.x = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 5000.0f;
 		        o.vel.y = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 5000.0f;
 	    	}
-	    	
-	        spatial::SpatialObject qto { o.loyalty, o.type, ObjectType_All, 0,
-	                                     (int)o.pos.x, (int)o.pos.y,
-	                                     (int)o.radius, (int)o.radius };
+
+            auto rect = spatial::Rect::fromPointRadius((int)o.pos.x, (int)o.pos.y, (int)o.radius);
+	        spatial::SpatialObject qto { o.loyalty, o.type, /*collisionMask:*/ObjectType_All, /*objectId:*/-1, rect };
 	        o.spatialId = spatial->insert(qto);
 	    }
 	    spatial->rebuild();
