@@ -285,7 +285,10 @@ namespace spatial
         {
             const QtreeNode& current = *stack.pop_back();
             if (opt.nodeBounds)
-                visualizer.drawRect(current.rect(), Brown);
+            {
+                auto color = current.loyalty.count > 1 ? Brown : BrownDim;
+                visualizer.drawRect(current.rect(), color);
+            }
 
             int cx = current.cx, cy = current.cy;
             if (current.isBranch())
@@ -318,9 +321,10 @@ namespace spatial
                         auto color = (o.loyalty % 2 == 0) ? VioletBright : Purple;
                         visualizer.drawRect(o.rect, color);
                     }
-                    if (opt.objectToLeafLines)
+                    if (opt.objectToLeaf)
                     {
-                        visualizer.drawLine({cx,cy}, o.rect.center(), VioletDim);
+                        auto color = (o.loyalty % 2 == 0) ? VioletDim : Purple;
+                        visualizer.drawLine({cx,cy}, o.rect.center(), color);
                     }
                     if (opt.objectText)
                     {

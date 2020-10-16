@@ -84,7 +84,7 @@ namespace Ship_Game.Spatial
             float searchFY = opt.FilterOrigin.Y;
             float searchFR = opt.FilterRadius;
             bool useSearchRadius = searchFR > 0f;
-            GameplayObject sourceObject = opt.Exclude;
+            int objectMask = (opt.Exclude == null) ? MATCH_ALL : ~(opt.Exclude.SpatialIndex+1);
 
             QtreeNode root = Root;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
@@ -105,35 +105,38 @@ namespace Ship_Game.Spatial
                 else // isLeaf
                 {
                     int count = current.Count;
-                    int[] items = current.Items;
+                    if (count == 0 || (current.LoyaltyMask & loyaltyMask) == 0)
+                        continue;
+
+                    SpatialObj*[] items = current.Items;
                     for (int i = 0; i < count; ++i)
                     {
-                        int objectId = items[i];
-                        ref SpatialObj so = ref spatialObjects[objectId];
+                        SpatialObj* so = items[i];
 
                         // FLAGS: either 0x00 (failed) or some bits 0100 (success)
-                        if ((so.Loyalty & loyaltyMask) != 0 &&
-                            ((int)so.Type & filterMask) != 0 &&
-                            (so.Obj != sourceObject))
+                        if ((so->Loyalty & loyaltyMask) != 0 &&
+                            ((int)so->Type & filterMask) != 0 &&
+                            ((so->ObjectId+1) & objectMask) != 0)
                         {
-                            if (!so.AABB.Overlaps(searchRect))
+                            if (!so->AABB.Overlaps(searchRect))
                                 continue;
 
                             if (useSearchRadius)
                             {
-                                if (!so.AABB.Overlaps(searchFX, searchFY, searchFR))
+                                if (!so->AABB.Overlaps(searchFX, searchFY, searchFR))
                                     continue; // AABB not in SearchRadius
                             }
 
-                            int id = so.ObjectId;
+                            int id = so->ObjectId;
                             int wordIndex = id / 32;
                             uint idMask = (uint)(1 << (id % 32));
                             if ((idBitArray[wordIndex] & idMask) != 0)
                                 continue; // already present in results array
 
-                            if (opt.FilterFunction == null || opt.FilterFunction(so.Obj))
+                            GameplayObject go = Objects[id];
+                            if (opt.FilterFunction == null || opt.FilterFunction(go))
                             {
-                                buffer.Items[buffer.Count++] = so.Obj;
+                                buffer.Items[buffer.Count++] = go;
                                 idBitArray[wordIndex] |= idMask; // set unique result
                                 if (buffer.Count == opt.MaxResults)
                                     break; // we are done !

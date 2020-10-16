@@ -12,7 +12,7 @@ namespace spatial
     void Collider::collideObjects(SpatialObjectsView arr, CellLoyalty loyalty, const CollisionParams& params)
     {
         bool ignoreSame = params.ignoreSameLoyalty;
-        if (ignoreSame && loyalty.count == 1)
+        if (ignoreSame && loyalty.count <= 1)
             return; // definitely nothing to do here!
 
         for (int i = 0; i < arr.size; ++i)

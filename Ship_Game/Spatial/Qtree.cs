@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace Ship_Game.Spatial
 {
@@ -12,8 +13,6 @@ namespace Ship_Game.Spatial
 
         int Levels { get; }
         public float FullSize { get; }
-
-        readonly float QuadToLinearSearchThreshold;
 
         /// <summary>
         /// How many objects to store per cell before subdividing
@@ -30,6 +29,7 @@ namespace Ship_Game.Spatial
 
         readonly Array<GameplayObject> Objects = new Array<GameplayObject>();
         SpatialObj[] SpatialObjects = new SpatialObj[0];
+        GCHandle PinnedObjects;
         QtreeRecycleBuffer FrontBuffer = new QtreeRecycleBuffer(10000);
         QtreeRecycleBuffer BackBuffer  = new QtreeRecycleBuffer(20000);
 
@@ -54,7 +54,6 @@ namespace Ship_Game.Spatial
                 ++Levels;
                 FullSize *= 2;
             }
-            QuadToLinearSearchThreshold = FullSize * QuadToLinearRatio;
             Clear();
         }
 
@@ -109,17 +108,11 @@ namespace Ship_Game.Spatial
             }
         }
 
-        void InsertAt(QtreeNode node, int level, SpatialObj[] spatialObjects, int objectId)
+        unsafe void InsertAt(QtreeNode node, int level, SpatialObj* obj)
         {
-            AABoundingBox2D objectRect = spatialObjects[objectId].AABB;
+            AABoundingBox2D objectRect = obj->AABB;
             for (;;)
             {
-                if (level <= 1) // no more subdivisions possible
-                {
-                    node.Add(objectId);
-                    return;
-                }
-
                 if (node.NW != null) // isBranch
                 {
                     var over = new OverlapsRect(node.AABB, objectRect);
@@ -135,22 +128,22 @@ namespace Ship_Game.Spatial
                     }
                     else // target overlaps multiple quadrants, so it has to be inserted into several of them:
                     {
-                        if (over.NW != 0) { InsertAt(node.NW, level-1, spatialObjects, objectId); }
-                        if (over.NE != 0) { InsertAt(node.NE, level-1, spatialObjects, objectId); }
-                        if (over.SE != 0) { InsertAt(node.SE, level-1, spatialObjects, objectId); }
-                        if (over.SW != 0) { InsertAt(node.SW, level-1, spatialObjects, objectId); }
+                        if (over.NW != 0) { InsertAt(node.NW, level-1, obj); }
+                        if (over.NE != 0) { InsertAt(node.NE, level-1, obj); }
+                        if (over.SE != 0) { InsertAt(node.SE, level-1, obj); }
+                        if (over.SW != 0) { InsertAt(node.SW, level-1, obj); }
                         return;
                     }
                 }
                 else // isLeaf
                 {
-                    InsertAtLeaf(node, level, spatialObjects, objectId);
+                    InsertAtLeaf(node, level, obj);
                     return;
                 }
             }
         }
 
-        void InsertAtLeaf(QtreeNode leaf, int level, SpatialObj[] spatialObjects, int objectId)
+        unsafe void InsertAtLeaf(QtreeNode leaf, int level, SpatialObj* obj)
         {
             // are we maybe over Threshold and should Subdivide ?
             if (level > 0 && leaf.Count >= CellThreshold)
@@ -168,24 +161,24 @@ namespace Ship_Game.Spatial
                 leaf.SW = FrontBuffer.Create(x1, midY, midX, y2);
 
                 int count = leaf.Count;
-                int[] arr = leaf.Items;
+                SpatialObj*[] arr = leaf.Items;
                 leaf.Items = QtreeNode.NoObjects;
                 leaf.Count = 0;
 
                 // and now reinsert all items one by one
                 for (int i = 0; i < count; ++i)
-                    InsertAt(leaf, level, spatialObjects, arr[i]);
+                    InsertAt(leaf, level, arr[i]);
 
                 // and now try to insert our object again
-                InsertAt(leaf, level, spatialObjects, objectId);
+                InsertAt(leaf, level, obj);
             }
             else // expand LEAF
             {
-                leaf.Add(objectId);
+                leaf.Add(obj);
             }
         }
 
-        QtreeNode CreateFullTree(Array<GameplayObject> allObjects, SpatialObj[] spatialObjects)
+        unsafe QtreeNode CreateFullTree(Array<GameplayObject> allObjects, SpatialObj* spatialObjects)
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
             float half = FullSize / 2;
@@ -197,22 +190,26 @@ namespace Ship_Game.Spatial
                 if (go.Active)
                 {
                     int objectId = i;
+                    go.SpatialIndex = objectId;
                     spatialObjects[objectId] = new SpatialObj(go, objectId);
-                    InsertAt(newRoot, Levels, spatialObjects, objectId);
+                    InsertAt(newRoot, Levels, &spatialObjects[objectId]);
                 }
             }
             Count = allObjects.Count;
             return newRoot;
         }
 
-        public void UpdateAll(Array<GameplayObject> allObjects)
+        public unsafe void UpdateAll(Array<GameplayObject> allObjects)
         {
             // prepare our node buffer for allocation
             FrontBuffer.MarkAllNodesInactive();
 
             // create the new tree from current world state
             var spatialObjects = new SpatialObj[allObjects.Count];
-            QtreeNode newRoot = CreateFullTree(allObjects, spatialObjects);
+            GCHandle pinned = GCHandle.Alloc(spatialObjects, GCHandleType.Pinned);
+            var pSpatialObjects = (SpatialObj*)pinned.AddrOfPinnedObject();
+
+            QtreeNode newRoot = CreateFullTree(allObjects, pSpatialObjects);
             // Swap recycle lists
             // We move last frame's nodes to front and start overwriting them
             QtreeRecycleBuffer newBackBuffer = FrontBuffer;
@@ -223,6 +220,9 @@ namespace Ship_Game.Spatial
 
                 Root = newRoot;
                 SpatialObjects = spatialObjects;
+                if (PinnedObjects.IsAllocated)
+                    PinnedObjects.Free();
+                PinnedObjects = pinned;
                 NumActiveNodes = newBackBuffer.NumActiveNodes;
                 FrontBuffer = BackBuffer; // move backbuffer to front
                 BackBuffer = newBackBuffer;

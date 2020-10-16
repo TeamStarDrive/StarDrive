@@ -228,7 +228,7 @@ struct Simulation final : spatial::Visualizer
         spatial::VisualizerOptions vo;
         vo.visibleWorldRect = camera_frustum;
         vo.nodeText = false;
-        vo.objectToLeafLines = false;
+        vo.objectToLeaf = false;
 
         rpp::Timer t1;
         spat.debugVisualize(vo, *this);
