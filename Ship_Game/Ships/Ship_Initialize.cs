@@ -361,7 +361,6 @@ namespace Ship_Game.Ships
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
-            Empire.Universe?.QueueSceneObjectCreation(this);
 
             if (VanityName.IsEmpty())
                 VanityName = Name;
