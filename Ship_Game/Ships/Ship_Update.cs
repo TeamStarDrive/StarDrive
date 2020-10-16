@@ -164,7 +164,7 @@ namespace Ship_Game.Ships
                 UpdateEnginesAndVelocity(timeStep);
             }
 
-            if (InFrustum)
+            if (IsVisibleToPlayer)
             {
                 if (ShipSO != null)
                 {
