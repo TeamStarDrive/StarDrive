@@ -35,7 +35,7 @@ namespace spatial
     {
         Rect visibleWorldRect; // this visible area in world coordinates that should be drawn
         bool objectBounds = true; // show bounding box around inserted objects
-        bool objectToLeafLines = true; // show connections from Leaf node to object center
+        bool objectToLeaf = true; // show connections from Leaf node to object center
         bool objectText = false; // show text ontop of each object (very, very intensive)
         bool nodeText = true; // show text ontop of a leaf or branch node
         bool nodeBounds = true; // show edges of leaf and branch nodes

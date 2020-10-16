@@ -126,6 +126,15 @@ namespace Ship_Game
                 if (p.Type == GameObjectType.Proj && p.Owner == ship)
                     projectiles.Add(p);
             }
+            lock (PendingProjectiles)
+            {
+                for (int i = 0; i < PendingProjectiles.Count; ++i)
+                {
+                    Projectile p = PendingProjectiles[i];
+                    if (p.Type == GameObjectType.Proj && p.Owner == ship)
+                        projectiles.Add(p);
+                }
+            }
             return projectiles;
         }
 

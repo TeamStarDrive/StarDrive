@@ -49,7 +49,7 @@ namespace spatial
         {
             for (int objectId : SearchResults)
             {
-                visualizer.drawRect(objects[objectId].rect(), YellowBright);
+                visualizer.drawRect(objects[objectId].rect, YellowBright);
             }
         }
     }
@@ -86,8 +86,8 @@ namespace spatial
         {
             for (CollisionPair collision : Collisions)
             {
-                visualizer.drawRect(objects[collision.a].rect(), Cyan);
-                visualizer.drawRect(objects[collision.b].rect(), Cyan);
+                visualizer.drawRect(objects[collision.a].rect, Cyan);
+                visualizer.drawRect(objects[collision.b].rect, Cyan);
             }
         }
     }
