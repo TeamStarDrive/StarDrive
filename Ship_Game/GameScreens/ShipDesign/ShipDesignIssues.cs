@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.ShipDesignIssues
@@ -335,6 +336,21 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.LowTroops, severity, troopsMissing);
         }
 
+        public void CheckAccuracy(Map<ShipModule,float> accuracyList, float fcs)
+        {
+            var max = accuracyList.FindMax((k, v) => v);
+            var min = accuracyList.FindMin((k, v) => v);
+            WarningLevel severity = WarningLevel.None;
+            if (min.Value + max.Value > 12) severity = WarningLevel.Critical;
+            else if (min.Value + max.Value > 6) severity = WarningLevel.Major;
+            else if (min.Value + max.Value > 3) severity = WarningLevel.Minor;
+            else if (min.Value + max.Value > 1) severity = WarningLevel.Informative;
+            else return;
+            string helpText = $"\n\nFCS = {fcs} {max.Key.NameLocalized.Text} = -{System.Math.Round(max.Value, 1)} ";
+            
+            AddDesignIssue(DesignIssueType.Accuracy, severity, helpText);
+        }
+
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
 
         public static Color IssueColor(WarningLevel severity)
@@ -374,7 +390,8 @@ namespace Ship_Game.ShipDesignIssues
         LowTroops,
         LowTroopsForBays,
         NotIdealCombatEfficiency,
-        HighBurstOrdnance
+        HighBurstOrdnance,
+        Accuracy
     }
 
     public enum WarningLevel
@@ -535,6 +552,12 @@ namespace Ship_Game.ShipDesignIssues
                     Problem     = new LocalizedText(2570).Text;
                     Remediation = new LocalizedText(2571).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueHighBurstOrdnance");
+                    break;
+                case DesignIssueType.Accuracy:
+                    Title       = LocalizedText.ParseText("{LowAccuracy}");
+                    Problem     = LocalizedText.ParseText("{WeaponAccuracy}");
+                    Remediation = LocalizedText.ParseText("{ImproveAccuracy}");
+                    Texture     = ResourceManager.Texture("NewUI/IssueCantTargetFighters");
                     break;
             }
 
