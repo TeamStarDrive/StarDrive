@@ -1,6 +1,9 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using System.Globalization;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Linq;
 
 namespace Ship_Game.ShipDesignIssues
 {
@@ -338,17 +341,16 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckAccuracy(Map<ShipModule,float> accuracyList, float fcs)
         {
-            var max = accuracyList.FindMax((k, v) => v);
-            var min = accuracyList.FindMin((k, v) => v);
+            var average = accuracyList.Average(kv=> kv.Value);
             WarningLevel severity = WarningLevel.None;
-            if (min.Value + max.Value > 12) severity = WarningLevel.Critical;
-            else if (min.Value + max.Value > 6) severity = WarningLevel.Major;
-            else if (min.Value + max.Value > 3) severity = WarningLevel.Minor;
-            else if (min.Value + max.Value > 1) severity = WarningLevel.Informative;
+            if (average > 12) severity = WarningLevel.Critical;
+            else if (average > 6) severity = WarningLevel.Major;
+            else if (average > 3) severity = WarningLevel.Minor;
+            else if (average > 1) severity = WarningLevel.Informative;
             else return;
-            string helpText = $"\n\nFCS = {fcs} {max.Key.NameLocalized.Text} = -{System.Math.Round(max.Value, 1)} ";
-            
-            AddDesignIssue(DesignIssueType.Accuracy, severity, helpText);
+
+            AddDesignIssue(DesignIssueType.Accuracy, severity, " " + LocalizedText.ParseText("{Average}") +" "+ LocalizedText.ParseText("{Accuracy}") + ": " 
+                                                               + Math.Round(average, 1).ToString(CultureInfo.InvariantCulture));
         }
 
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);

@@ -6729,11 +6729,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	</Token>
 	<Token>
 	  <Index>2573</Index>
-	  <Text>Weapon Accuracy can be seen in the weapon module information. The number shown is 1x1 modules in radius that the weapon shot will vary. Ex. A fighter 6 modules wide will be very hard to hit with an accuracy of 3</Text>
+	  <Text>Low Weapon Accuracy can make smaller targets hard to hit such as fighters, corvettes, frigates, and critical ship systems. </Text>
 	</Token>
 	<Token>
 	  <Index>2574</Index>
-	  <Text>Improve Accuracy with higher FCS control systems, smaller or turreted weapons, crew level, or traits. </Text>
+	  <Text>Improve Accuracy with higher FCS control systems or more accurate weapons. Check the module information for individual weapon accuracy.</Text>
 	</Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
@@ -7749,6 +7749,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4113</Index>
       <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\n meteor was comprised mostly of useful minerals.</Text>
     </Token>
+	  <!-- More Venus ToolTips-->
+	<Token>
+	  <Index>4114</Index>
+	  <Text>Weapon target error radius measured in ship slots. Ex. an value of -6 means the weapon will hit within a 6 slot radius of the target point. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
+	</Token>
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
@@ -9253,10 +9258,5 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7091</Index>
       <Text>This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this.</Text>
     </Token>
-    <!-- More Venus ToolTips-->
-	  <Token>
-		  <Index>7092</Index>
-		  <Text>Weapon target error radius measured in ship slots. Ex. an value of -6 means the weapon will hit within a 6 slot radius of the target point. Fire Control Systems and crew level can reduce this</Text>
-	  </Token>
   </TokenList>
 </LocalizationFile>
