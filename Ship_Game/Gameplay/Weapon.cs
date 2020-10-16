@@ -509,11 +509,11 @@ namespace Ship_Game.Gameplay
             // reduce or increase error based on weapon and trait characteristics.
             if (Tag_Cannon) adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
             if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
-            adjust *= WeaponAccuracyModifies();
+            adjust *= WeaponAccuracyModifiers();
             return adjust;
         }
 
-        float WeaponAccuracyModifies()
+        float WeaponAccuracyModifiers()
         {
             float accuracy = (Module?.AccuracyPercent ?? 0f);
             if (accuracy.AlmostEqual(-1f))
