@@ -187,23 +187,6 @@ namespace Ship_Game
             }
         }
 
-        static bool IsObjectDead(GameplayObject go)
-        {
-            // this is related to QuadTree fast-removal
-            return !go.Active || (go.Type == GameObjectType.Proj && ((Projectile)go).DieNextFrame);
-        }
-
-        static bool IsObjectDead(Projectile proj)
-        {
-            return !proj.Active || proj.DieNextFrame;
-        }
-
-        void MarkForRemoval(GameplayObject go, ref SpatialObj obj)
-        {
-            obj.Active = 0; // it's dead, jim !
-            obj.Obj = null; // don't leak refs
-        }
-
         QtreeNode CreateFullTree(Array<GameplayObject> allObjects, SpatialObj[] spatialObjects)
         {
             // universe is centered at [0,0], so Root node goes from [-half, +half)
@@ -212,8 +195,12 @@ namespace Ship_Game
 
             for (int i = 0; i < allObjects.Count; ++i)
             {
-                spatialObjects[i] = new SpatialObj(allObjects[i]);
-                InsertAt(newRoot, Levels, spatialObjects, i);
+                GameplayObject go = allObjects[i];
+                if (go.Active)
+                {
+                    spatialObjects[i] = new SpatialObj(go);
+                    InsertAt(newRoot, Levels, spatialObjects, i);
+                }
             }
             Count = allObjects.Count;
             return newRoot;
