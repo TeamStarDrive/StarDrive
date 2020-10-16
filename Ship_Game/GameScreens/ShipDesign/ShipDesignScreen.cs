@@ -58,6 +58,7 @@ namespace Ship_Game
         ModuleOrientation ActiveModState;
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
+        public float FireControlLevel { get; private set; } = 0;
         
 
         bool ShowAllArcs;
