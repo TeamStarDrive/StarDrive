@@ -2,11 +2,11 @@
 using Ship_Game.Ships;
 using Ship_Game.Spatial;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
-    public sealed partial class Quadtree
+    public sealed partial class Qtree
     {
-        class Collider
+        unsafe class Collider
         {
             // Maps ObjectA ID to a chain of collided pairs
             // @note The map of chains is faster than a map of arrays
@@ -17,38 +17,34 @@ namespace Ship_Game
                 public CollisionChain Next;
             }
             CollisionChain[] CollidedObjectsMap;
-            SpatialObj[] SpatialObjects;
 
-            public Array<NativeSpatial.CollisionPair> Results = new Array<NativeSpatial.CollisionPair>();
+            public Array<CollisionPair> Results = new Array<CollisionPair>();
 
-            public Collider(SpatialObj[] spatialObjects)
+            public Collider(int maxObjectId)
             {
-                CollidedObjectsMap = new CollisionChain[spatialObjects.Length + 1];
-                SpatialObjects = spatialObjects;
+                CollidedObjectsMap = new CollisionChain[maxObjectId + 1];
             }
 
-            public void CollideObjects(int[] ids, int count)
+            public void CollideObjects(SpatialObj*[] objects, int count)
             {
                 for (int i = 0; i < count; ++i)
                 {
-                    int idA = ids[i];
-                    ref SpatialObj objectA = ref SpatialObjects[idA];
-                    byte loyaltyA = objectA.Loyalty;
-                    byte collisionMaskA = objectA.CollisionMask;
-                    AABoundingBox2D rectA = objectA.AABB;
+                    SpatialObj* objectA = objects[i];
+                    byte loyaltyA = objectA->Loyalty;
+                    byte collisionMaskA = objectA->CollisionMask;
+                    AABoundingBox2D rectA = objectA->AABB;
 
                     for (int j = i + 1; j < count; ++j)
                     {
-                        int idB = ids[j];
-                        ref SpatialObj objectB = ref SpatialObjects[idB];
-                        if ((collisionMaskA & objectB.CollisionMask) == 0)
+                        SpatialObj* objectB = objects[j];
+                        if ((collisionMaskA & objectB->CollisionMask) == 0)
                             continue;
-                        if (objectB.Loyalty == loyaltyA)
+                        if (objectB->Loyalty == loyaltyA)
                             continue; // ignore same loyalty objects from collision
 
-                        if (objectB.AABB.Overlaps(rectA))
+                        if (objectB->AABB.Overlaps(rectA))
                         {
-                            var pair = new NativeSpatial.CollisionPair(idA, idB);
+                            var pair = new CollisionPair(objectA->ObjectId, objectB->ObjectId);
                             if (TryCollide(pair))
                             {
                                 Results.Add(pair);
@@ -58,7 +54,7 @@ namespace Ship_Game
                 }
             }
 
-            bool TryCollide(NativeSpatial.CollisionPair pair)
+            bool TryCollide(CollisionPair pair)
             {
                 CollisionChain chain = CollidedObjectsMap[pair.A];
                 if (chain != null)
@@ -88,7 +84,7 @@ namespace Ship_Game
 
         public unsafe int CollideAll(FixedSimTime timeStep)
         {
-            var collider = new Collider(SpatialObjects);
+            var collider = new Collider(SpatialObjects.Length);
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(Root);
 
             do
@@ -103,7 +99,7 @@ namespace Ship_Game
                 }
                 else // isLeaf
                 {
-                    if (current.Count > 0)
+                    if (current.Count > 1 && current.LoyaltyCount > 1)
                     {
                         collider.CollideObjects(current.Items, current.Count);
                     }
@@ -111,20 +107,15 @@ namespace Ship_Game
             }
             while (buffer.NextNode >= 0);
 
-            NativeSpatial.CollisionPair[] candidates = collider.Results.GetInternalArrayItems();
+            CollisionPair[] candidates = collider.Results.GetInternalArrayItems();
             int numCandidates = collider.Results.Count;
             if (numCandidates == 0)
                 return 0;
 
-            fixed (NativeSpatial.CollisionPair* pairsPtr = candidates)
+            fixed (CollisionPair* candidatesPtr = candidates)
             {
-                var collisions = new NativeSpatial.CollisionPairs
-                {
-                    Data = pairsPtr,
-                    Size = numCandidates,
-                    Capacity = candidates.Length
-                };
-                return NativeSpatial.CollideObjects(timeStep, collisions, Objects);
+                return NarrowPhase.Collide(timeStep, 
+                    candidatesPtr, numCandidates, Objects);
             }
         }
     }

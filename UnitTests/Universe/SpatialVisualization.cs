@@ -23,6 +23,7 @@ namespace UnitTests.Universe
         float LinearTime;
         GameplayObject[] Found = Empty<GameplayObject>.Array;
 
+        VisualizerOptions VisOpt = new VisualizerOptions();
 
         public SpatialVisualization(Array<GameplayObject> allObjects, ISpatial spat, bool moveShips) : base(null)
         {
@@ -83,7 +84,7 @@ namespace UnitTests.Universe
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Spat.DebugVisualize(this);
+            Spat.DebugVisualize(this, VisOpt);
             DrawRectangleProjected(Vector2.Zero, new Vector2(Spat.WorldSize), 0f, Color.Red);
 
             foreach (GameplayObject go in AllObjects)

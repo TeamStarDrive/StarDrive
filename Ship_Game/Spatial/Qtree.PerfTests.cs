@@ -1,20 +1,12 @@
 ﻿using System;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using Ship_Game.Spatial;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
-    public class QuadtreePerfTests
+    public class QtreePerfTests
     {
-        public class TestContext
-        {
-            public Array<Ship> Ships = new Array<Ship>();
-            public ISpatial Tree;
-        }
-
         public delegate Ship SpawnShipFunc(string name, Empire loyalty, Vector2 pos, Vector2 dir);
 
         public static Array<GameplayObject> CreateTestSpace(int numShips, ISpatial tree,
@@ -75,7 +67,7 @@ namespace Ship_Game
 
         public static void RunSearchPerfTest()
         {
-            var tree = new Quadtree(500_000f);
+            var tree = new Qtree(500_000f);
             Array<GameplayObject> ships = CreateTestSpace(10000, tree,
                 EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
@@ -120,7 +112,7 @@ namespace Ship_Game
 
         public static void RunCollisionPerfTest()
         {
-            var tree = new Quadtree(500_000f);
+            var tree = new Qtree(500_000f);
             Array<GameplayObject> ships = CreateTestSpace(10000, tree,
                 EmpireManager.Void, EmpireManager.Void, SpawnShip);
 
