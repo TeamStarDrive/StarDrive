@@ -366,8 +366,6 @@ namespace Ship_Game.Ships
             {
                 return true;
             }
-            // remove this reassignment and use System when scanning is no longer done in the queue
-            var system = System;
 
             // temporary fix until threading issue is resolved. 
             var system = System;
