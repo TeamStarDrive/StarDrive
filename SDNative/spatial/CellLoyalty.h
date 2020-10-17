@@ -21,6 +21,4 @@ namespace spatial
             mask |= thisMask;
         }
     };
-
-
 }
