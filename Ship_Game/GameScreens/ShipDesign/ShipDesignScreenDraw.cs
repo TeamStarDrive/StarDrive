@@ -36,8 +36,13 @@ namespace Ship_Game
 
             batch.Begin();
             if (ActiveModule != null && !ModuleSelectComponent.HitTest(Input))
+            {
                 DrawActiveModule(batch);
+            }
 
+            DrawTargetReference();
+
+            
             DrawUi(batch, elapsed);
             ArcsButton.DrawWithShadowCaps(batch);
             switch (DesignIssues.CurrentWarningLevel)
@@ -53,6 +58,22 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
             batch.End();
             ScreenManager.EndFrameRendering();
+        }
+
+        void DrawTargetReference()
+        {
+            if (Camera.Zoom > 0.5f) return;
+            float x = GlobalStats.XRES / 2 - CameraPosition.X * Camera.Zoom;
+            float y = GlobalStats.YRES / 2 - CameraPosition.Y * Camera.Zoom;
+            float radius = (1000 + shipSO.WorldBoundingSphere.Radius) * Camera.Zoom;
+            float topEdge = y - radius;
+
+            DrawCircle(new Vector2(x,y), radius, Color.Red);
+            DrawString(new Vector2(x, topEdge + 10), 0, 1, Color.Red, "Range 1000");
+            DrawCircle(new Vector2(x, topEdge), shipSO.WorldBoundingSphere.Radius * Camera.Zoom, Color.Red);
+
+
+
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -300,6 +321,7 @@ namespace Ship_Game
             if (w == null)
                 return;
             DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f);
+
         }
 
         void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 screenPos, float facing = 0f)
@@ -311,6 +333,7 @@ namespace Ship_Game
             int cx = (int)(8f * module.XSIZE * Camera.Zoom);
             int cy = (int)(8f * module.YSIZE * Camera.Zoom);
             DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f);
+            
         }
 
         void DrawActiveModule(SpriteBatch spriteBatch)
@@ -336,6 +359,7 @@ namespace Ship_Game
 
             center += normalizeShieldCircle;
             DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
+            DrawCircle(center, 1000, Color.Red);
             if (IsSymmetricDesignMode)
             {
                 Vector2 mirrorCenter = new Vector2(mirrorX, Input.CursorPosition.Y);
