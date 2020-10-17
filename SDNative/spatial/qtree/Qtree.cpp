@@ -235,7 +235,7 @@ namespace spatial
         FoundNodes found;
         SmallStack<const QtreeNode*> stack { Root };
         Rect searchRect = opt.SearchRect;
-        int loyaltyMask = getLoyaltyMask(opt);
+        uint32_t loyaltyMask = getLoyaltyMask(opt);
         do
         {
             const QtreeNode& current = *stack.pop_back();
