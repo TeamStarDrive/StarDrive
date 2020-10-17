@@ -1,0 +1,13 @@
+﻿<ExplorationEvent>
+  <Name>Reverse Engineering</Name>
+  <StoryStep>2</StoryStep>
+  <AllRemnantStories>true</AllRemnantStories>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Secrets of the Remnant</TitleText>
+      <DescriptionText>After analyzing more Remnant wreckage, we have enough information of some of the technologies the Remnants are using. We will need to assign our scientists to the task of reverse engineering these secrets. A new "Secrets" technology path has been added to the research screen.</DescriptionText>
+      <SecretTechDiscovered>Remnant Studies</SecretTechDiscovered>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

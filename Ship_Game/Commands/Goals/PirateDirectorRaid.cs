@@ -86,7 +86,7 @@ namespace Ship_Game.Commands.Goals
                 case 7:  return GoalType.PirateRaidTransport;
                 case 8:  return GoalType.PirateRaidCombatShip;
                 case 9:  return GoalType.PirateRaidOrbital;
-                case 10: return GoalType.PirateRaidColonyShip;
+                case 10: return GoalType.PirateRaidTransport;
                 case 11: return GoalType.PirateRaidCombatShip;
                 case 12: return GoalType.PirateRaidOrbital;
                 case 13: return GoalType.PirateRaidCombatShip;

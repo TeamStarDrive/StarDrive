@@ -205,7 +205,7 @@ namespace Ship_Game
 
         void ApplySolarRadiationDamage(Ship ship)
         {
-            if (ShipWithinRadiationRadius(ship, out float distance))
+            if (!ship.IsGuardian && ShipWithinRadiationRadius(ship, out float distance))
             {
                 float damage = SunLayers[0].Intensity * Sun.DamageMultiplier(distance)
                                                       * Sun.RadiationDamage;
@@ -372,8 +372,6 @@ namespace Ship_Game
                     string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(i);
                     var newOrbital    = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
 
-                    newOrbital.GenerateRemnantPresence();
-
                     PlanetList.Add(newOrbital);
                     ringRadius += newOrbital.ObjectRadius;
                     var ring = new Ring
@@ -470,16 +468,9 @@ namespace Ship_Game
                     newOrbital.RingTilt = RandomBetween(-80f, -45f);
                 }
 
-                // Add Remnant Presence
-                newOrbital.GenerateRemnantPresence();
-
                 // Add buildings to planet
                 foreach (string building in ringData.BuildingList)
                     ResourceManager.CreateBuilding(building).SetPlanet(newOrbital);
-
-                // Add ships to orbit
-                foreach (string ship in ringData.Guardians)
-                    newOrbital.Guardians.Add(ship);
 
                 // Add moons to planets
                 for (int j = 0; j < ringData.Moons.Count; j++)

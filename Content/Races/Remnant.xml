@@ -6,6 +6,23 @@
   <StartingScout>Xeno Fighter</StartingScout>
   <BaseShipLevel>3</BaseShipLevel>
 
+  <IsRemnantFaction>true</IsRemnantFaction>
+  <RemnantFighter>Xeno Fighter</RemnantFighter>
+  <RemnantCorvette>Heavy Drone</RemnantCorvette>
+  <RemnantSupportSmall>Support Drone</RemnantSupportSmall>
+  <RemnantCarrier>Ancient Carrier</RemnantCarrier>
+  <RemnantAssimilator>Ancient Assimilator</RemnantAssimilator>
+  <RemnantTorpedoCruiser>Ancient Torpedo Cruiser</RemnantTorpedoCruiser>
+  <RemnantCruiser>Ancient Cruiser</RemnantCruiser>
+  <RemnantBomber>Ancient Bomber</RemnantBomber>
+  <RemnantMotherShip>Remnant Mothership</RemnantMotherShip>
+  <RemnantExterminator>Remnant Exterminator</RemnantExterminator>
+  <RemnantInhibitor>Remnant Inhibitor</RemnantInhibitor>
+  <RemnantPortal>Remnant Portal</RemnantPortal>
+  <RemnantFrigate>Ancient Frigate</RemnantFrigate>
+  <RemnantBomberLight>Light Ancient Bomber</RemnantBomberLight>
+  <RemnantBomberMedium>Medium Ancient Bomber</RemnantBomberMedium>
+
   <!-- Fertility multipliers for environments. For Remnants, this will control amount of guardian fleet deploy at game creation -->
   <EnvTerran>2</EnvTerran>
   <EnvOceanic>1.5</EnvOceanic>
@@ -29,7 +46,7 @@
     <B>91</B>
     <RaceDescription>The Remnant is an empire comprised of Remnant. Remnant are a race of terrestrial beings with a moderate reproductive rate and unremarkable dietary needs. Physically, Remnant have no particular strengths or weaknesses. Remnant possess an average intelligence for a starfaring race. 
  
-Remnant government is functional but unremarkable while society at large is neither overly efficent nor wasteful. Remnant are not particularly industrious or lazy but their engineers are competent although not especially noteworthy for any strengths or shortcomings. 
+Remnant government is functional but unremarkable while society at large is neither overly efficient nor wasteful. Remnant are not particularly industrious or lazy but their engineers are competent although not especially noteworthy for any strengths or shortcomings. 
  
 The Remnant homeworld of Earth is of an average size for a terran planet. </RaceDescription>
     <Cost>0</Cost>
