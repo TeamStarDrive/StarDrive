@@ -354,6 +354,9 @@
     <ClInclude Include="spatial\grid\GridCellView.h">
       <Filter>spatial\grid</Filter>
     </ClInclude>
+    <ClInclude Include="spatial\CellLoyalty.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="SDNative.natvis">
