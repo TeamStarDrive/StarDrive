@@ -42,7 +42,7 @@ namespace Ship_Game.Ships
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
             NotVisibleToPlayerTimer = 0;
-            UpdateVisibilityToPlayer(FixedSimTime.Zero);
+            UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
             ScreenManager.Instance.AddObject(ShipSO);
         }
 
@@ -56,9 +56,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdateVisibilityToPlayer(FixedSimTime timeStep)
+        void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
-            bool visibleToPlayer = IsVisibleToPlayer;
+            bool visibleToPlayer = forceVisible || IsVisibleToPlayer;
             if (visibleToPlayer) NotVisibleToPlayerTimer = 0f;
             else                 NotVisibleToPlayerTimer += timeStep.FixedTime;
 
@@ -89,7 +89,7 @@ namespace Ship_Game.Ships
                 Die(null, true);
             }
             
-            UpdateVisibilityToPlayer(timeStep);
+            UpdateVisibilityToPlayer(timeStep, forceVisible: false);
 
             if (!Active)
                 return;

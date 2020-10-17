@@ -73,9 +73,9 @@ namespace spatial
         for (int i = 0; i < numCells; ++i)
         {
             const GridCell& cell = cells[i];
-            if (int size = cell.size)
+            if (cell.size > 1)
             {
-                collider.collideObjects({cell.objects, size}, params);
+                collider.collideObjects({cell.objects, cell.size}, cell.loyalty, params);
             }
         }
 
@@ -98,7 +98,7 @@ namespace spatial
             numResults = spatial::findNearby(outResults, Objects.maxObjects(), opt, found);
         }
         
-        if (opt.EnableSearchDebugId)
+        if (opt.DebugId)
         {
             DebugFindNearby dfn;
             dfn.SearchArea   = opt.SearchRect;
@@ -107,12 +107,12 @@ namespace spatial
             if (view.toCellRect(opt.SearchRect, cell))
             {
                 dfn.SelectedRect = view.toWorldRect(cell);
-                dfn.TopLeft      = view.toWorldRect(cell.left, cell.top);
-                dfn.BotRight     = view.toWorldRect(cell.right, cell.bottom);
+                dfn.TopLeft      = view.toWorldRect(cell.x1, cell.y1);
+                dfn.BotRight     = view.toWorldRect(cell.x2, cell.y2);
             }
             dfn.addCells(found);
             dfn.addResults(outResults, numResults);
-            Dbg.setFindNearby(opt.EnableSearchDebugId, std::move(dfn));
+            Dbg.setFindNearby(opt.DebugId, std::move(dfn));
         }
 
         return numResults;

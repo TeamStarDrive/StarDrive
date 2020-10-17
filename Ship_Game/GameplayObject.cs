@@ -50,6 +50,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
+        [XmlIgnore][JsonIgnore] public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
         [XmlIgnore][JsonIgnore] public bool InFrustum; // Updated by UniverseObjectManager
 
         // current rotation converted into a direction vector
@@ -108,6 +109,7 @@ namespace Ship_Game
 
         public void ChangeLoyalty(Empire changeTo, bool notification = true)
         {
+            // TODO: Should we allow projectiles to change loyalty? They are short lived anyway
             if (Type == GameObjectType.Proj)
             {
                 ((Projectile) this).Loyalty = changeTo;
@@ -142,6 +144,7 @@ namespace Ship_Game
                     oldLoyalty.AddBoardedNotification(ship);
                 }
             }
+            ReinsertSpatial = true;
         }
 
         public int GetLoyaltyId()
