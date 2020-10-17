@@ -5,6 +5,7 @@
 #include "../SpatialObject.h"
 #include "../Utilities.h"
 #include "../Primitives.h"
+#include "../CellLoyalty.h"
 
 namespace spatial
 {
