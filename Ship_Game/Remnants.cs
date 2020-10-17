@@ -843,13 +843,19 @@ namespace Ship_Game
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p);
-                    ActivationXpNeeded += ShipRole.GetExpSettings(ship).KillExp / 10;
+                    ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / 10) * StoryTurnsLevelUpModifier();
                 }
             }
         }
 
         RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
         {
+            if (GlobalStats.DisableRemnantStory)
+            {
+                goals.Add(new RemnantInit(Owner)); 
+                return RemnantStory.None;
+            }
+
             switch (RollDie(3)) // todo 3 is for testing  should be 6
             {
                 default:
@@ -858,7 +864,6 @@ namespace Ship_Game
                 case 3: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersRandom;
                 case 4: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersClosest;
                 case 5: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientColonizers;
-                case 6: goals.Add(new RemnantInit(Owner)); return RemnantStory.None;
             }
         }
 

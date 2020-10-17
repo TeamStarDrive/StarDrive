@@ -81,19 +81,20 @@ namespace Ship_Game
             Checkbox(ftlRect.X + 420, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: 6178);
             Checkbox(ftlRect.X + 420, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: 1861, tooltip: 1862);
             Checkbox(ftlRect.X + 420, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: 1868, tooltip: 1869);
+            Checkbox(ftlRect.X + 420, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: 1844, tooltip: 1845);
 
-            var gwRect = new Rectangle(x, leftRect.Y + 220, 270, 50);
-            var epRect = new Rectangle(x, leftRect.Y + 280, 270, 50);
-            var richnessRect = new Rectangle(x, leftRect.Y + 340, 270, 50);
+            var gwRect = new Rectangle(x, leftRect.Y + 210, 270, 50);
+            var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
+            var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
 
             GravityWellSize  = Slider(gwRect, Localizer.Token(6002), 0, 20000, GlobalStats.GravityWellRange);
             extraPlanets     = Slider(epRect, "Extra Planets", 0, 3f, GlobalStats.ExtraPlanets);
             StartingRichness = Slider(richnessRect, "Starting Planet Richness Bonus", 0, 5f, GlobalStats.StartingPlanetRichness);
 
 
-            var optionTurnTimer  = new Rectangle(leftRect.X + 460, leftRect.Y + 220, 270, 50);
-            var minimumWarpRange = new Rectangle(leftRect.X + 460, leftRect.Y + 280, 270, 50);
-            var maintenanceRect  = new Rectangle(leftRect.X + 460, leftRect.Y + 340, 270, 50);
+            var optionTurnTimer  = new Rectangle(x, leftRect.Y + 390, 270, 50);
+            var minimumWarpRange = new Rectangle(x, leftRect.Y + 450, 270, 50);
+            var maintenanceRect  = new Rectangle(x, leftRect.Y + 510, 270, 50);
 
             TurnTimer           = Slider(optionTurnTimer,  "Change Turn Timer",    2f, 18f,     GlobalStats.TurnTimer);
             MinimumWarpRange    = Slider(minimumWarpRange, "Minimum Warp Range",   0, 1200000f, GlobalStats.MinimumWarpRange);
