@@ -314,7 +314,7 @@ namespace Ship_Game.Debug
                 Screen.ProjectToScreenCoords(m.Center, size, 
                                       out Vector2 posOnScreen, out float sizeOnScreen);
                 ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch,
-                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f);
+                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f, ship.Level);
 
                 DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
 

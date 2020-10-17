@@ -109,7 +109,6 @@ namespace Ship_Game.Gameplay
         public bool isTurret;
         public bool isMainGun;
         public float OrdinanceRequiredToFire;
-
         // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
         public Vector2 PlanetCenter;
         
@@ -487,7 +486,7 @@ namespace Ship_Game.Gameplay
             return RandomMath2.Vector2D(adjust);
         }
 
-        public float BaseTargetError(int level)
+        public float BaseTargetError(int level, float range = 0)
         {
             if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
                 return 0;
@@ -501,6 +500,19 @@ namespace Ship_Game.Gameplay
 
             // reduce error by level cubed. if error is less than a module radius stop.
             float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
+
+            if (FireTarget != null)
+            {
+                range = range < 1 ? Origin.Distance(FireTarget.Center).LowerBound(100) : range;
+                float rangeRatioToSTLConstant = range / Ship.TargetErrorFocalPoint;
+                baseError *= rangeRatioToSTLConstant;
+            }
+            else
+            {
+                range = range < 1 ? Math.Min(3000, BaseRange).LowerBound(100) : range;
+                float rangeRatioToSTLConstant = range / Ship.TargetErrorFocalPoint;
+                baseError *= rangeRatioToSTLConstant;
+            }
             float adjust = (baseError - level * level * level).LowerBound(0);
             
             if (adjust < 8)
