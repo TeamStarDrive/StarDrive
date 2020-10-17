@@ -44,7 +44,7 @@ static std::vector<MyGameObject> createObjects(SimParams p)
         MyGameObject o;
         o.pos = sys.pos + getRandomOffset(p.solarRadius);
         o.radius = p.objectRadius;
-        o.loyalty = (i % 2) == 0 ? 1 : 2;
+        o.loyalty = (i % 2) == 0 ? 7 : 2; // 0b0111 : 0b0010, overlap for debugging
         o.type = ObjectType_Ship;
         objects.push_back(o);
     }
@@ -67,6 +67,7 @@ struct SpatialWithObjects
         int cellSize2 = 0;
         switch (type)
         {
+            default:
             case spatial::SpatialType::Grid:
                 cellSize = p.gridCellSize;
                 break;
@@ -85,8 +86,8 @@ struct SpatialWithObjects
 	    {
 	    	if (p.useRandomVelocity)
 	    	{
-		        o.vel.x = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 5000.0f;
-		        o.vel.y = ((rand() / (float)RAND_MAX) - 0.5f) * 2.0f * 5000.0f;
+		        o.vel.x = randFloat() * 5000.0f;
+		        o.vel.y = randFloat() * 5000.0f;
 	    	}
 
             auto rect = spatial::Rect::fromPointRadius((int)o.pos.x, (int)o.pos.y, (int)o.radius);

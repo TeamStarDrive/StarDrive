@@ -13,7 +13,7 @@ namespace spatial
         uint32_t* idBitArray = (uint32_t*)_alloca(idBitArraySize);
         memset(idBitArray, 0, idBitArraySize);
 
-        int loyaltyMask = getLoyaltyMask(opt);
+        uint32_t loyaltyMask = getLoyaltyMask(opt);
         int filterMask = (opt.Type == 0)     ? MATCH_ALL : opt.Type;
         int objectMask = (opt.Exclude == -1) ? MATCH_ALL : ~(opt.Exclude+1);
 
