@@ -62,18 +62,46 @@ namespace Ship_Game
 
         void DrawTargetReference()
         {
-            if (Camera.Zoom > 0.5f) return;
-            float x = GlobalStats.XRES / 2 - CameraPosition.X * Camera.Zoom;
-            float y = GlobalStats.YRES / 2 - CameraPosition.Y * Camera.Zoom;
-            float radius = (1000 + shipSO.WorldBoundingSphere.Radius) * Camera.Zoom;
+            if (Camera.Zoom > 0.4f) return;
+            float x = GlobalStats.XRES / 2f - CameraPosition.X * Camera.Zoom;
+            float y = GlobalStats.YRES / 2f - CameraPosition.Y * Camera.Zoom;
+
+            float focalPoint = Ship.TargetErrorFocalPoint;
+            float radius = (focalPoint + shipSO.WorldBoundingSphere.Radius) * Camera.Zoom;
             float topEdge = y - radius;
 
-            DrawCircle(new Vector2(x,y), radius, Color.Red);
-            DrawString(new Vector2(x, topEdge + 10), 0, 1, Color.Red, "Range 1000");
-            DrawCircle(new Vector2(x, topEdge), shipSO.WorldBoundingSphere.Radius * Camera.Zoom, Color.Red);
+            DrawRangeCircle(x, y, 1);
+            DrawRangeCircle(x, y, 2);
+            
+            DrawRangeCircle(x, y, 4);
+            
+            
+            DrawRangeCircle(x, y, 6);
 
+        }
 
+        void DrawRangeCircle(float x, float y, float multiplier)
+        {
+            float focalPoint = Ship.TargetErrorFocalPoint * multiplier;
+            float radius = (focalPoint) * Camera.Zoom;
+            float topEdge = y - radius;
+            float rightEdge = x + radius;
+            float leftEdge = x - radius;
+            float bottomEdge = y + radius;
+            float thickness = 0.5f + (multiplier / 7);
 
+            DrawCircle(new Vector2(x, y), radius, Color.Red, thickness);
+            DrawString(new Vector2(rightEdge + 20, y), .95f, 1, Color.Red, $"Range {focalPoint}");
+            
+            DrawCircle(new Vector2(x, topEdge), 100 * 8 * Camera.Zoom, Color.Red);
+            DrawString(new Vector2(x, topEdge + 10), 0, 1, Color.Red,  new LocalizedText(GameText.Capital).Text);
+            
+            DrawCircle(new Vector2(leftEdge, y), 30 * 8 * Camera.Zoom, Color.Red);
+            DrawString(new Vector2(leftEdge + 10, y), 1, 1, Color.Red, new LocalizedText(GameText.Cruiser).Text);
+            
+            DrawCircle(new Vector2(x, bottomEdge), 10 * 8 * Camera.Zoom, Color.Red);
+            DrawString(new Vector2(x, bottomEdge + 10), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
+            
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -207,7 +235,7 @@ namespace Ship_Game
                 if (s.Module.ModuleType == ShipModuleType.Hangar)
                     DrawHangarShipText(s);
 
-                DrawWeaponArcs(batch, s);
+                DrawWeaponArcs(batch, s, FireControlLevel);
 
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(s, out SlotStruct mirrored))
                 {
@@ -271,11 +299,12 @@ namespace Ship_Game
         }
 
         static void DrawArc(SpriteBatch batch, float shipFacing, Weapon w, ShipModule m,
-                            Vector2 posOnScreen, float sizeOnScreen, Color color)
+                            Vector2 posOnScreen, float sizeOnScreen, Color color, float level)
         {
             SubTexture arcTexture = Empire.Universe.GetArcTexture(m.FieldOfFire.ToDegrees());
 
             var texOrigin = new Vector2(250f, 250f);
+            
             Rectangle rect = posOnScreen.ToRect((int)sizeOnScreen, (int)sizeOnScreen);
 
             float radians = (shipFacing + m.FacingRadians);
@@ -283,9 +312,11 @@ namespace Ship_Game
 
             Vector2 direction = radians.RadiansToDirection();
             Vector2 start     = posOnScreen;
-            Vector2 end       = start + direction * sizeOnScreen;
-            batch.DrawLine(start, end, color.Alpha(0.1f), 5);
+            Vector2 end = start + direction * w.BaseRange;
 
+            batch.DrawLine(start, end, color.Alpha(0.25f), 5);
+
+            end = start + direction * sizeOnScreen;
             Vector2 textPos = start.LerpTo(end, 0.16f);
             float textRot   = radians + RadMath.HalfPI;
             Vector2 offset  = direction.RightVector() * 6f;
@@ -298,13 +329,13 @@ namespace Ship_Game
             string rangeText = $"Range: {w.BaseRange.String(0)}";
             float textWidth  = Fonts.Arial8Bold.TextWidth(rangeText);
             batch.DrawString(Fonts.Arial8Bold, rangeText,
-                textPos + offset, color.Alpha(0.4f),
+                textPos + offset, color.Alpha(0.3f),
                 textRot, new Vector2(textWidth / 2, 10f), 1f, SpriteEffects.None, 1f);
         }
 
         // @note This is reused in DebugInfoScreen as well
         public static void DrawWeaponArcs(SpriteBatch batch, float shipFacing, 
-            Weapon w, ShipModule module, Vector2 posOnScreen, float sizeOnScreen)
+            Weapon w, ShipModule module, Vector2 posOnScreen, float sizeOnScreen, float shipLevel)
         {
             Color color;
             if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
@@ -312,15 +343,15 @@ namespace Ship_Game
             else if (w.Tag_Cannon)                    color = new Color(0, 255, 0, 255);
             else if (!w.isBeam)                       color = new Color(255, 0, 0, 255);
             else                                      color = new Color(0, 0, 255, 255);
-            DrawArc(batch, shipFacing, w, module, posOnScreen, sizeOnScreen, color);
+            DrawArc(batch, shipFacing, w, module, posOnScreen, sizeOnScreen, color, shipLevel);
         }
 
-        public static void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot)
+        public static void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot, float shipLevel)
         {
             Weapon w = slot.Module.InstalledWeapon;
             if (w == null)
                 return;
-            DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f);
+            DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f, shipLevel);
 
         }
 
@@ -332,7 +363,7 @@ namespace Ship_Game
 
             int cx = (int)(8f * module.XSIZE * Camera.Zoom);
             int cy = (int)(8f * module.YSIZE * Camera.Zoom);
-            DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f);
+            DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f, FireControlLevel);
             
         }
 
