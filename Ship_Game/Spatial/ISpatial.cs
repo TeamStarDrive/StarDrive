@@ -49,6 +49,9 @@ namespace Ship_Game
         /// </summary>
         GameplayObject[] FindLinear(in SearchOptions opt);
 
-        void DebugVisualize(GameScreen screen);
+        /// <summary>
+        /// Visualize this Spatial collection for debugging purposes
+        /// </summary>
+        void DebugVisualize(GameScreen screen, VisualizerOptions opt);
     }
 }

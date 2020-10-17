@@ -13,20 +13,13 @@ namespace spatial
         uint32_t* idBitArray = (uint32_t*)_alloca(idBitArraySize);
         memset(idBitArray, 0, idBitArraySize);
 
-        const int MATCH_ALL = 0xffffffff; // mask that passes any filter
-
-        int loyaltyMask = MATCH_ALL;
-        if (opt.FilterIncludeOnlyByLoyalty) loyaltyMask = opt.FilterIncludeOnlyByLoyalty;
-        if (opt.FilterExcludeByLoyalty)     loyaltyMask = ~opt.FilterExcludeByLoyalty;
-
-        int filterMask = (opt.FilterByType == 0)           ? MATCH_ALL : opt.FilterByType;
-        int objectMask = (opt.FilterExcludeObjectId == -1) ? MATCH_ALL : ~(opt.FilterExcludeObjectId+1);
+        int loyaltyMask = getLoyaltyMask(opt);
+        int filterMask = (opt.Type == 0)     ? MATCH_ALL : opt.Type;
+        int objectMask = (opt.Exclude == -1) ? MATCH_ALL : ~(opt.Exclude+1);
 
         Rect searchRect = opt.SearchRect;
-        float radialFR = opt.RadialFilter.radius;
-        float radialFX = opt.RadialFilter.x;
-        float radialFY = opt.RadialFilter.y;
-        bool useSearchRadius = radialFR > 0.0f;
+        CircleF radialFilter = opt.RadialFilter;
+        bool useSearchRadius = opt.RadialFilter.radius > 0;
 
         SearchFilterFunc filterFunc = opt.FilterFunction;
         int maxResults = opt.MaxResults > 0 ? opt.MaxResults : 1;
@@ -63,29 +56,25 @@ namespace spatial
                     (o.type    & filterMask) && 
                     ((o.objectId+1) & objectMask))
                 {
-                    Rect rect = o.rect();
-                    if (!searchRect.overlaps(rect))
+                    if (!searchRect.overlaps(o.rect))
                         continue; // AABB's don't overlap
 
                     if (useSearchRadius)
                     {
-                        float dx = radialFX - o.x;
-                        float dy = radialFY - o.y;
-                        float rr = radialFR + std::max(o.rx, o.ry);
-                        if ((dx*dx + dy*dy) > (rr*rr))
-                            continue; // not in squared radius
+                        if (!o.rect.overlaps(radialFilter))
+                            continue;
                     }
 
                     int id = o.objectId;
                     int wordIndex = id / 32;
-                    int wordOffset = id % 32;
-                    if (idBitArray[wordIndex] & (1<<wordOffset))
+                    int idMask = (1 << (id % 32));
+                    if (idBitArray[wordIndex] & idMask)
                         continue; // already present in results array
 
                     if (!filterFunc || filterFunc(id) != 0)
                     {
                         outResults[numResults++] = id;
-                        idBitArray[wordIndex] |= (1<<wordOffset); // set unique result
+                        idBitArray[wordIndex] |= idMask; // set unique result
                         if (numResults == maxResults)
                             return numResults; // we are done !
                     }
