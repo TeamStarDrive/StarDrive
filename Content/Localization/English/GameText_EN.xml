@@ -4668,11 +4668,19 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1825</Index>
-      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items.\. WARNING: This will quickly spend your treasury and may cause high tax rates.</Text>
+      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items.\n \nWARNING: This will quickly spend your treasury and may cause high tax rates.</Text>
     </Token>
     <Token>
       <Index>1826</Index>
       <Text>build all ships now, prioritize them to be first in queue and apply continuous rush.\n \nWARNING: This might drain your Treasury in an alarming rate.</Text>
+    </Token>
+    <Token>
+      <Index>1844</Index>
+      <Text>Disable Remnant Story</Text>
+    </Token>
+    <Token>
+      <Index>1845</Index>
+      <Text>If checked, Remnant forces in the game will act as passive planet Guardians only.</Text>
     </Token>
     <Token>
       <Index>1846</Index>
