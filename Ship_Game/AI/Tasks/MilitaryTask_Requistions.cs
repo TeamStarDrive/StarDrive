@@ -103,6 +103,23 @@ namespace Ship_Game.AI.Tasks
             newFleet.AutoArrange();
         }
 
+        public void CreateRemnantFleet(Empire owner, Ship ship, string name, out Fleet newFleet)
+        {
+            newFleet = new Fleet
+            {
+                Name = name,
+                Owner = owner,
+            };
+
+            int fleetNum = FindUnusedFleetNumber();
+            Owner.GetFleetsDict()[fleetNum] = newFleet;
+            Owner.GetEmpireAI().UsedFleets.Add(fleetNum);
+            WhichFleet = fleetNum;
+            newFleet.FleetTask = this;
+            ship.AI.ClearOrders();
+            newFleet.AddShip(ship);
+        }
+
         private bool AreThereEnoughTroopsToInvade(float invasionTroopStrength, out Array<Troop> troopsOnPlanetNeeded,
                                                   Vector2 rallyPoint, bool troopPriorityHigh = false)
         {
