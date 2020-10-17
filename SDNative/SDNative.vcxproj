@@ -147,6 +147,7 @@
     <ClInclude Include="SdMesh\SdMesh.h" />
     <ClInclude Include="SdMesh\SdMeshGroup.h" />
     <ClInclude Include="ShipDataSerializer.h" />
+    <ClInclude Include="spatial\CellLoyalty.h" />
     <ClInclude Include="spatial\Collision.h" />
     <ClInclude Include="spatial\Config.h" />
     <ClInclude Include="spatial\Flatmap.h" />
