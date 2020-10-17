@@ -26,24 +26,5 @@ namespace spatial
         {
         }
     };
-
-    // Contains information about different loyalties found in a single cell
-    struct CellLoyalty
-    {
-        // Mask for which loyalties are present in this Node
-        // Allows for a special optimization during collision and search
-        uint8_t mask = 0;
-
-        // How many different loyalties are present in this cell
-        uint8_t count = 0;
-
-        SPATIAL_FINLINE void addLoyalty(uint8_t loyalty)
-        {
-            if ((mask & (~loyalty)) != 0)
-            {
-                ++count;
-            }
-            mask |= loyalty;
-        }
-    };
 }
+
