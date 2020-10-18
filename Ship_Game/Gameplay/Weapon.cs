@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Ship_Game.Audio;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Ship_Game.Gameplay
 {
@@ -76,6 +77,7 @@ namespace Ship_Game.Gameplay
         public bool Tag_Tractor   { get => Tag(WeaponTag.Tractor);   set => Tag(WeaponTag.Tractor, value);   }
 
         [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
+
         public float HitPoints;
         public bool isBeam;
         public float EffectVsArmor = 1f;
@@ -486,38 +488,53 @@ namespace Ship_Game.Gameplay
             return RandomMath2.Vector2D(adjust);
         }
 
-        public float BaseTargetError(int level, float range = 0)
+        public static float TraitTargetModifiers(Empire loyalty)
+        {
+            float level = 0;
+            if (loyalty != null)
+            {
+                level += loyalty.data.Traits.Militaristic;
+            }
+            return level;
+        }
+
+        public float BaseTargetError(int level, float range = 0, Empire loyalty = null)
         {
             if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
                 return 0;
 
-            if (level == -1)
-            {
-                level = (Owner?.Level ?? 0)
-                        + (Owner?.TrackingPower ?? 0)
-                        + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
-            }
-
-            // reduce error by level cubed. if error is less than a module radius stop.
-            float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
-
+           
+            // for situations where this is used outside of real combat
             if (FireTarget != null)
             {
                 range = range < 1 ? Origin.Distance(FireTarget.Center).LowerBound(100) : range;
-                float rangeRatioToSTLConstant = range / Ship.TargetErrorFocalPoint;
-                baseError *= rangeRatioToSTLConstant;
             }
             else
             {
                 range = range < 1 ? Math.Min(3000, BaseRange).LowerBound(100) : range;
-                float rangeRatioToSTLConstant = range / Ship.TargetErrorFocalPoint;
-                baseError *= rangeRatioToSTLConstant;
             }
-            float adjust = (baseError - level * level * level).LowerBound(0);
-            
-            if (adjust < 8)
-                return adjust;
 
+            float rangeRatioToSTLConstant = range / Ship.TargetErrorFocalPoint;
+
+            // calculate level
+            // if the level is less than 0 than the level is being forced.
+            // likely because its being used outside of the universe such as the shipyard.
+
+            if (level < 0)
+            {
+                level = (Owner?.Level ?? 0) + (Owner?.TrackingPower ?? 0);
+            }
+            level += 8 + (loyalty?.data.Traits.Militaristic ?? 0);
+
+            // base error is based on a fixed value + module size in slots
+            float baseError =  (Module.Area + 32) * (Module.Area +32 );
+            
+            // reduce error when relativistic effects stop causing an issue. 
+            if (rangeRatioToSTLConstant < 1) baseError *= rangeRatioToSTLConstant;
+
+            // reduce the error by level
+            float adjust = (baseError / level).LowerBound(0);
+            
             // reduce or increase error based on weapon and trait characteristics.
             if (Tag_Cannon) adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
             if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
@@ -527,8 +544,8 @@ namespace Ship_Game.Gameplay
 
         float WeaponAccuracyModifiers()
         {
-            float accuracy = (Module?.AccuracyPercent ?? 0f);
-            if (accuracy.AlmostEqual(-1f))
+            float accuracy = Module?.AccuracyPercent ?? 0f;
+            if (accuracy < 0)
             {
                 accuracy = 1f;
                 if (isTurret) accuracy *= 0.5f;

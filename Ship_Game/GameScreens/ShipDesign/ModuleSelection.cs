@@ -372,7 +372,7 @@ namespace Ship_Game
             {
                 DrawString(batch, ref modTitlePos, "Explodes", mod.explodes);
                 DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
-                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
+                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius / 16f, 239);
             }
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), mod.EnergyResist, 190,  true);
