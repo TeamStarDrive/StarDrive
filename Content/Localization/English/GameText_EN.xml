@@ -5058,7 +5058,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1957</Index>
-      <Text>Create a Garrison force for the planet, based on the Garrison size you set. It will allow troops to be off-loaded below the Garrison size, and will train new troops to replace them.</Text>
+      <Text>Create a Garrison force for the planet, based on the Garrison size you set. It will allow troops to be off-loaded below the Garrison size, and will train new troops to replace them. It will also auto build the cheapest building which can build Infantry, if able.</Text>
     </Token>
     <Token>
       <Index>1958</Index>g
