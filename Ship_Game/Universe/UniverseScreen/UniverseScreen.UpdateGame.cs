@@ -425,7 +425,7 @@ namespace Ship_Game
                     }
                 }
             }
->>>>>>> develop
+            ArmageddonCountdown(timeStep);
             */
             // this block contains master ship list and empire pool updates. 
             // threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped.
@@ -469,6 +469,7 @@ namespace Ship_Game
             
             return !Paused;
         }
+
         /*
         void ArmageddonCountdown(FixedSimTime timeStep)
         {
