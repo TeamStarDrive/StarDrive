@@ -303,6 +303,21 @@ namespace Ship_Game
                 troop.Launch();
         }
 
+        public void ForceLaunchInvadingTroops(Empire loyaltyToLaunch)
+        {
+            for (int i = TroopsHere.Count - 1; i >= 0; i--)
+            {
+                Troop t      = TroopsHere[i];
+                Empire owner = t?.Loyalty;
+
+                if (owner == loyaltyToLaunch && owner?.data.DefaultTroopShip != null)
+                {
+                    Ship troopship = t.Launch(ignoreMovement: true);
+                    troopship?.AI.OrderRebaseToNearest();
+                }
+            }
+        }
+
         public float GravityWellForEmpire(Empire empire)
         {
             if (!Empire.Universe.GravityWells)
