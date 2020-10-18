@@ -3,6 +3,7 @@
 #include "SlabAllocator.h"
 #include "SpatialObjectArray.h"
 #include "Primitives.h"
+#include "CellLoyalty.h"
 
 namespace spatial
 {
