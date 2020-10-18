@@ -194,7 +194,9 @@
     <ClCompile Include="..\ReCpp\rpp\timer.cpp" />
     <ClCompile Include="..\ReCpp\rpp\vec.cpp" />
     <ClCompile Include="DebugGfxWindow.cpp" />
+    <ClCompile Include="TestCellLoyalty.cpp" />
     <ClCompile Include="TestObjectCollection.cpp" />
+    <ClCompile Include="TestPrimitiveMath.cpp" />
     <ClCompile Include="TestQuadTree.cpp" />
     <ClCompile Include="TestSimulation.cpp" />
     <ClCompile Include="TestSpatialGrid.cpp" />

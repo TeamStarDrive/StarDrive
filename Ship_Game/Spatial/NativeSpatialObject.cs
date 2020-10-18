@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework;
 
 namespace Ship_Game.Spatial
 {
@@ -47,6 +47,31 @@ namespace Ship_Game.Spatial
                 case GameObjectType.Moon: return 0;
                 default: return 0;
             }
+        }
+
+        /// <summary>
+        /// This Loyalty Mask will match with everything
+        /// </summary>
+        public const uint MatchAll = 0xffff_ffff;
+
+        // Calculates an appropriate bitmask from loyaltyId [1..32]
+        // If loyalty is out of range, then MatchAll is returned
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint GetLoyaltyMask(int loyaltyId)
+        {
+            byte id = (byte)(loyaltyId - 1);
+            return id < 32 ? (uint)(1 << id) : MatchAll;
+        }
+
+        // Gets loyalty mask from search options
+        public static uint GetLoyaltyMask(in SearchOptions opt)
+        {
+            uint loyaltyMask = MatchAll;
+            if (opt.OnlyLoyalty != null)
+                loyaltyMask = GetLoyaltyMask(opt.OnlyLoyalty.Id);
+            if (opt.ExcludeLoyalty != null)
+                loyaltyMask = ~GetLoyaltyMask(opt.ExcludeLoyalty.Id);
+            return loyaltyMask;
         }
     }
 }

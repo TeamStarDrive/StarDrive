@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Ship_Game.Spatial
 {
@@ -11,8 +12,8 @@ namespace Ship_Game.Spatial
         public int Count;
         public SpatialObj*[] Items;
 
-        public byte LoyaltyMask;
-        public byte LoyaltyCount;
+        public uint LoyaltyMask; // matches up to 32 loyalties
+        public int LoyaltyCount;
 
         public QtreeNode(in AABoundingBox2D bounds)
         {
@@ -67,12 +68,16 @@ namespace Ship_Game.Spatial
                 Count = count+1;
             }
 
-            byte loyalty = obj->Loyalty;
-            if ((LoyaltyMask & (~loyalty)) != 0)
-            {
+            AddLoyalty(obj->Loyalty);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void AddLoyalty(byte loyaltyId)
+        {
+            uint thisMask = NativeSpatialObject.GetLoyaltyMask(loyaltyId);
+            if ((LoyaltyMask & thisMask) == 0) // this mask not present yet?
                 ++LoyaltyCount;
-            }
-            LoyaltyMask |= loyalty;
+            LoyaltyMask |= thisMask;
         }
     }
 }
