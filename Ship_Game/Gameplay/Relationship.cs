@@ -158,15 +158,28 @@ namespace Ship_Game.Gameplay
         }
 
 
-        public void SetTreaty(TreatyType treatyType, bool value)
+        public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
             switch (treatyType)
             {
-                case TreatyType.Alliance:      Treaty_Alliance    = value;                                        break;
-                case TreatyType.NonAggression: Treaty_NAPact      = value;                                        break;
-                case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                        break;
-                case TreatyType.Peace:         Treaty_Peace       = value; PeaceTurnsRemaining = value ? 100 : 0; break;
-                case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0;         break;
+                case TreatyType.Alliance:      Treaty_Alliance    = value;                                break;
+                case TreatyType.NonAggression: Treaty_NAPact      = value;                                break;
+                case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                break;
+                case TreatyType.Peace:         Treaty_Peace       = value; SetPeace();                    break;
+                case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0; break;
+            }
+
+            void SetPeace()
+            {
+                if (value)
+                {
+                    PeaceTurnsRemaining = 100;
+                    us.LaunchTroopsAfterPeaceSigned(Them);
+                }
+                else
+                {
+                    PeaceTurnsRemaining = 0;
+                }
             }
         }
 
