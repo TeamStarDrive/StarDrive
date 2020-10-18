@@ -65,6 +65,7 @@ namespace Ship_Game
 
         public bool MilitaryBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && b.IsMilitary);
         public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && !b.IsMilitary);
+        public bool MilitaryBaseInTheWorks     => ConstructionQueue.Any(b => b.isBuilding && !b.Building.AllowInfantry);
 
         public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);
         public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
