@@ -406,7 +406,6 @@
     <Compile Include="Ship_Game\Sensors\BasicSensors.cs" />
     <Compile Include="Ship_Game\Sensors\TargetData.cs" />
     <Compile Include="Ship_Game\Sensors\TimedScanner.cs" />
-    <Compile Include="Ship_Game\ShipListScreenEntry.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
@@ -510,7 +509,6 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreenEntry.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_BuildDefenses.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Colonize.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />
