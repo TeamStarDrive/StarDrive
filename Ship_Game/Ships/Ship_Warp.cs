@@ -11,7 +11,7 @@ namespace Ship_Game.Ships
         // Warp ships cannot go slower than this
         public const float LightSpeedConstant = 3000f;
         /// <summary> This is point at which relativistic effects begin to reduce targeting ability </summary>
-        public const float TargetErrorFocalPoint = 1500;
+        public const float TargetErrorFocalPoint = 1800;
         // This is the maximum STL speed that ships can achieve
         // This is both for balancing and for realism, since sub-light
         // ships should not get even close to light speed
