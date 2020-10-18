@@ -62,7 +62,7 @@ namespace spatial
         if (!toCellRect(opt.SearchRect, cell))
             return 0;
         
-        int loyaltyMask = getLoyaltyMask(opt);
+        uint32_t loyaltyMask = getLoyaltyMask(opt);
         int maxResults = opt.MaxResults;
         const GridCell* cells = Cells;
         int cellSize = CellSize;

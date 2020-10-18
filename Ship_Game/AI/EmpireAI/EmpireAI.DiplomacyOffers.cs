@@ -45,6 +45,7 @@ namespace Ship_Game.AI
                 themToUs.PreparingForWar = false;
                 themToUs.ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 themToUs.WarHistory.Add(themToUs.ActiveWar);
+                us.SignTreatyWith(them, TreatyType.Peace);
                 themToUs.ChangeToNeutral();
                 if (EmpireManager.Player != them)
                 {

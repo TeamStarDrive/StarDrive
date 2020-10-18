@@ -14,7 +14,7 @@ namespace Ship_Game.Debug.Page
             Screen = screen;
             Spatial = UniverseScreen.Spatial;
             
-            var list = AddList(50, 300);
+            var list = AddList(50, 200);
             list.AddCheckbox(() => Spatial.VisOpt.Enabled,
                     "Enable Overlay", "Enable Spatial Debug Overlay");
 
