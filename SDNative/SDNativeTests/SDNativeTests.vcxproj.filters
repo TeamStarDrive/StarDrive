@@ -70,6 +70,12 @@
     <ClCompile Include="TestSimulation.cpp">
       <Filter>tests</Filter>
     </ClCompile>
+    <ClCompile Include="TestCellLoyalty.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestPrimitiveMath.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ReCpp\rpp\collections.h">
