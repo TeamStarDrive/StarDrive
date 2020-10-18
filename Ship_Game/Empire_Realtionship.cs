@@ -17,9 +17,9 @@ namespace Ship_Game
         {
             if (TryGetRelations(them, out Relationship usToThem))
             {
-                usToThem.SetTreaty(type, value);
+                usToThem.SetTreaty(this, type, value);
                 if (them.TryGetRelations(this, out Relationship themToUs))
-                    themToUs.SetTreaty(type, value);
+                    themToUs.SetTreaty(them, type, value);
             }
         }
 
@@ -63,5 +63,11 @@ namespace Ship_Game
             BreakTreatyWith(them, TreatyType.Peace);
         }
 
+        public void LaunchTroopsAfterPeaceSigned(Empire them)
+        {
+            var theirPlanets = them.GetPlanets();
+            foreach (Planet planet in theirPlanets)
+                planet.ForceLaunchInvadingTroops(this);
+        }
     }
 }
