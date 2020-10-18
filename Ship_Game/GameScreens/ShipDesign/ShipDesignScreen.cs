@@ -58,6 +58,7 @@ namespace Ship_Game
         ModuleOrientation ActiveModState;
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
+        Map<ShipModule, float> WeaponAccuracyList = new Map<ShipModule, float>();
         public float FireControlLevel { get; private set; } = 0;
         
 

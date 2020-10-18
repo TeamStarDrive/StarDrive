@@ -70,6 +70,12 @@ namespace Ship_Game
             float radius = (focalPoint + shipSO.WorldBoundingSphere.Radius) * Camera.Zoom;
             float topEdge = y - radius;
 
+            if (shipSO.WorldBoundingSphere.Radius < Ship.TargetErrorFocalPoint * 0.3f)
+            {
+                DrawRangeCircle(x, y, 0.25f);
+            }
+
+            DrawRangeCircle(x, y, 0.5f);
             DrawRangeCircle(x, y, 1);
             DrawRangeCircle(x, y, 2);
             
@@ -83,25 +89,57 @@ namespace Ship_Game
         void DrawRangeCircle(float x, float y, float multiplier)
         {
             float focalPoint = Ship.TargetErrorFocalPoint * multiplier;
-            float radius = (focalPoint) * Camera.Zoom;
-            float topEdge = y - radius;
-            float rightEdge = x + radius;
-            float leftEdge = x - radius;
+            float radius     = (focalPoint) * Camera.Zoom;
+            float topEdge    = y - radius;
+            float rightEdge  = x + radius;
+            float leftEdge   = x - radius;
             float bottomEdge = y + radius;
-            float thickness = 0.5f + (multiplier / 7);
+            float thickness  = 0.5f + (multiplier / 7);
+
+            if (WeaponAccuracyList.Count > 0)
+            {
+                //Weapon weapon = WeaponAccuracyList.FirstOrDefault(k => k.Key.InstalledWeapon.UID == ActiveModule?.InstalledWeapon?.UID).Key?.InstalledWeapon;
+                Weapon weapon = ActiveModule?.InstalledWeapon;
+                if (weapon == null)
+                {
+                    weapon = WeaponAccuracyList.FindMax((k, v) => v).Key.InstalledWeapon;
+                }
+
+                float error = weapon.BaseTargetError((int)FireControlLevel, focalPoint, EmpireManager.Player);
+                DrawCircle(new Vector2(x, y - radius), error * Camera.Zoom, Color.White, 1);
+                DrawCircle(new Vector2(x, y + radius), error * Camera.Zoom, Color.White, 1);
+                DrawCircle(new Vector2(x - radius, y), error * Camera.Zoom, Color.White, 1);
+            }
 
             DrawCircle(new Vector2(x, y), radius, Color.Red, thickness);
             DrawString(new Vector2(rightEdge + 20, y), .95f, 1, Color.Red, $"Range {focalPoint}");
-            
-            DrawCircle(new Vector2(x, topEdge), 100 * 8 * Camera.Zoom, Color.Red);
-            DrawString(new Vector2(x, topEdge + 10), 0, 1, Color.Red,  new LocalizedText(GameText.Capital).Text);
-            
-            DrawCircle(new Vector2(leftEdge, y), 30 * 8 * Camera.Zoom, Color.Red);
-            DrawString(new Vector2(leftEdge + 10, y), 1, 1, Color.Red, new LocalizedText(GameText.Cruiser).Text);
+
+            if (multiplier > 1)
+            {
+                DrawCircle(new Vector2(x, topEdge), 100 * 8 * Camera.Zoom, Color.Red);
+                DrawString(new Vector2(x, topEdge + 30), 0, 1, Color.Red, new LocalizedText(GameText.Capital).Text);
+            }
+
+            if (multiplier > 0.25f)
+            {
+                DrawCircle(new Vector2(leftEdge, y), 30 * 8 * Camera.Zoom, Color.Red);
+                if (multiplier > 0.5 || Camera.Zoom > 0.2f)
+                    DrawString(new Vector2(leftEdge, y + 20), 0, 1, Color.Red, new LocalizedText(GameText.Cruiser).Text);
+            }
             
             DrawCircle(new Vector2(x, bottomEdge), 10 * 8 * Camera.Zoom, Color.Red);
             DrawString(new Vector2(x, bottomEdge + 10), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
-            
+
+            //if (WeaponAccuracyList.Count > 0)
+            //{
+            //    var weapon = WeaponAccuracyList.FindMax((k, v) => v);
+            //    float error = weapon.Key.InstalledWeapon.BaseTargetError((int)FireControlLevel, focalPoint, EmpireManager.Player);
+            //    DrawCircle(new Vector2(x, y - radius), error * Camera.Zoom, Color.White, 1);
+            //    DrawCircle(new Vector2(x, y + radius), error * Camera.Zoom, Color.White, 1);
+            //    DrawCircle(new Vector2(x - radius, y), error * Camera.Zoom, Color.White, 1);
+            //    //DrawString(new Vector2(x, bottomEdge + 10), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
+            //}
+
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -503,7 +541,8 @@ namespace Ship_Game
             bool canTargetCorvettes        = false;
             bool canTargetCapitals         = false;
             int pointDefenseValue          = 0;
-            var weaponAccuracy             = new Map<ShipModule, float>();
+            Map<ShipModule, float> weaponAccuracyList = new Map<ShipModule, float>();
+
             DesignIssues.Reset();
             var modules = new ModuleCache(ModuleGrid.CopyModulesList());
 
@@ -608,10 +647,9 @@ namespace Ship_Game
                 }
                 float accuracy = weapon.BaseTargetError((int)FireControlLevel);
                 if (accuracy > 0)
-                    weaponAccuracy[module] = accuracy / 16;
+                    weaponAccuracyList[module] = accuracy / 16;
             }
-
-            FireControlLevel = targets + 1;
+            WeaponAccuracyList = weaponAccuracyList;
             var stats        = new ShipStats();
             stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0, 1);
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
@@ -622,6 +660,7 @@ namespace Ship_Game
             // Other modification to the ship and draw values
             empResist += size; // FB: so the player will know the true EMP Tolerance
             targets   += fixedTargets;
+            FireControlLevel = targets + 1 + EmpireManager.Player.data.Traits.Militaristic;
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
@@ -681,7 +720,7 @@ namespace Ship_Game
                 DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons);
                 DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
                 DesignIssues.CheckTroops(troopCount, size);
-                DesignIssues.CheckAccuracy(weaponAccuracy);
+                DesignIssues.CheckAccuracy(WeaponAccuracyList);
                 UpdateDesignButton();
             }
         }
