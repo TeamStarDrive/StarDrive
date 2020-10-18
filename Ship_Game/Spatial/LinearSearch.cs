@@ -49,11 +49,8 @@ namespace Ship_Game.Spatial
 
                 if (useSearchRadius)
                 {
-                    float dx = searchFX - obj.Center.X;
-                    float dy = searchFY - obj.Center.Y;
-                    float rr = searchFR + obj.Radius;
-                    if ((dx*dx + dy*dy) > (rr*rr))
-                        continue; // not in squared radius
+                    if (!objectRect.Overlaps(searchFX, searchFY, searchFR))
+                        continue; // AABB not in SearchRadius
                 }
 
                 objectIds[resultCount++] = i;

@@ -68,23 +68,14 @@ namespace Ship_Game.Spatial
             for (int i = 0; i < idBitArraySize; ++i) // so we need to zero the idBitArray
                 idBitArray[i] = 0;
 
-            // NOTE: to avoid a few branches, we used pre-calculated masks
-            int excludeLoyaltyVal = (opt.ExcludeLoyalty?.Id ?? 0);
-            int onlyLoyaltyVal    = (opt.OnlyLoyalty?.Id ?? 0);
-
-            const byte MATCH_ALL = 0xff; // mask that passes any filter
-
-            byte loyaltyMask = MATCH_ALL;
-            if (onlyLoyaltyVal != 0)    loyaltyMask = (byte)onlyLoyaltyVal;
-            if (excludeLoyaltyVal != 0) loyaltyMask = (byte)~excludeLoyaltyVal;
-
-            int filterMask = opt.Type == GameObjectType.Any ? MATCH_ALL : (int)opt.Type;
+            uint loyaltyMask = NativeSpatialObject.GetLoyaltyMask(opt);
+            int typeMask = opt.Type == GameObjectType.Any ? 0xff : (int)opt.Type;
 
             float searchFX = opt.FilterOrigin.X;
             float searchFY = opt.FilterOrigin.Y;
             float searchFR = opt.FilterRadius;
             bool useSearchRadius = searchFR > 0f;
-            int objectMask = (opt.Exclude == null) ? MATCH_ALL : ~(opt.Exclude.SpatialIndex+1);
+            int objectMask = (opt.Exclude == null) ? 0x7fffffff : ~(opt.Exclude.SpatialIndex+1);
 
             QtreeNode root = Root;
             FindResultBuffer buffer = GetThreadLocalTraversalBuffer(root);
@@ -115,7 +106,7 @@ namespace Ship_Game.Spatial
 
                         // FLAGS: either 0x00 (failed) or some bits 0100 (success)
                         if ((so->Loyalty & loyaltyMask) != 0 &&
-                            ((int)so->Type & filterMask) != 0 &&
+                            ((int)so->Type & typeMask) != 0 &&
                             ((so->ObjectId+1) & objectMask) != 0)
                         {
                             if (!so->AABB.Overlaps(searchRect))
@@ -153,7 +144,8 @@ namespace Ship_Game.Spatial
 
         public GameplayObject[] FindLinear(in SearchOptions opt)
         {
-            return LinearSearch.FindNearby(opt, Objects.GetInternalArrayItems(), Objects.Count);
+            return LinearSearch.FindNearby(opt,
+                Objects.GetInternalArrayItems(), Objects.Count);
         }
     }
 }
