@@ -60,7 +60,7 @@ namespace Ship_Game.AI.ExpansionAI
         }
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
-        float ExpansionThreshold => (Owner.IsExpansionists ? 0.35f : 0.45f) + Owner.DifficultyModifiers.ExpansionModifier;
+        float ExpansionThreshold => (Owner.IsExpansionists ? 0.2f : 0.33f) + Owner.DifficultyModifiers.ExpansionModifier;
 
         public ExpansionPlanner(Empire empire)
         {
@@ -80,7 +80,15 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
-            if (currentColonizationGoals.Length >= DesiredColonyGoals)
+            int colonizationGoalsWithEnemy    = currentColonizationGoals.Count(
+                p => p.ParentSystem.DangerousForcesPresent(Owner));
+
+            // Adds 1 more goal if we are stuck with all colonization goals with enemy
+            int desiredGoals = colonizationGoalsWithEnemy >= DesiredColonyGoals
+                ? (colonizationGoalsWithEnemy + 1).UpperBound(DesiredColonyGoals * 2)
+                : DesiredColonyGoals;
+
+            if ( currentColonizationGoals.Length >= desiredGoals)
                 return;
 
             float ownerStrength       = Owner.CurrentMilitaryStrength;
@@ -129,28 +137,27 @@ namespace Ship_Game.AI.ExpansionAI
             RankedPlanets = allPlanetsRanker.SortedDescending(pr => pr.Value);
 
             // Take action on the found planets
-            CreateColonyGoals(currentColonizationGoals);
+            CreateColonyGoals(currentColonizationGoals, desiredGoals);
         }
 
         /// <summary>
         /// Send colony ships to best targets;
         /// </summary>
-        void CreateColonyGoals(Planet[] markedPlanets)
+        void CreateColonyGoals(Planet[] markedPlanets, int desiredGoals)
         {
-            int desired            = DesiredColonyGoals - markedPlanets.Length;
-            desired                = desired.UpperBound(RankedPlanets.Length);
+            int netDesired = (desiredGoals - markedPlanets.Length).UpperBound(RankedPlanets.Length);
 
-            if (desired < 1) 
+            if (netDesired < 1) 
                 return;
 
-            for (int i = 0; i < RankedPlanets.Length && desired > 0; i++)
+            for (int i = 0; i < RankedPlanets.Length && netDesired > 0; i++)
             {
                 Planet planet = RankedPlanets[i].Planet;
                 Log.Info(ConsoleColor.Magenta,
                     $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals} | {planet} | {Owner}");
 
                 Goals.Add(new MarkForColonization(planet, Owner));
-                desired--;
+                netDesired--;
             }
         }
         
@@ -180,8 +187,12 @@ namespace Ship_Game.AI.ExpansionAI
                 for (int j = 0; j < system.PlanetList.Count; j++)
                 {
                     Planet p = system.PlanetList[j];
-                    if (p.Habitable && (p.Owner == null || p.Owner.isFaction))
+                    if (Owner.KnownEnemyStrengthIn(p.ParentSystem) <= Owner.CurrentMilitaryStrength
+                        && p.Habitable
+                        && (p.Owner == null || p.Owner.isFaction))
+                    {
                         potentialPlanets.Add(p);
+                    }
                 }
             }
 
