@@ -127,13 +127,13 @@ namespace Ship_Game
             Color borderColor;
             switch (Planet.colonyType)
             {
-                default:                             borderColor = Color.White;                 break;
-                case Planet.ColonyType.TradeHub:     borderColor = Color.Yellow;                break;
-                case Planet.ColonyType.Colony:       borderColor = new Color(64, 64, 64);       break;
-                case Planet.ColonyType.Industrial:   borderColor = Color.Orange;                break;
-                case Planet.ColonyType.Agricultural: borderColor = Color.Green;                 break;
-                case Planet.ColonyType.Research:     borderColor = Color.CornflowerBlue;        break;
-                case Planet.ColonyType.Military:     borderColor = Color.Red;                   break;
+                default:                             borderColor = Color.White;           break;
+                case Planet.ColonyType.TradeHub:     borderColor = Color.Yellow;          break;
+                case Planet.ColonyType.Colony:       borderColor = new Color(64, 64, 64); break;
+                case Planet.ColonyType.Industrial:   borderColor = Color.Orange;          break;
+                case Planet.ColonyType.Agricultural: borderColor = Color.Green;           break;
+                case Planet.ColonyType.Research:     borderColor = Color.CornflowerBlue;  break;
+                case Planet.ColonyType.Military:     borderColor = Color.Red;             break;
             }
 
             Portrait.Border = borderColor;
