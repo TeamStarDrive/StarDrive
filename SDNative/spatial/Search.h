@@ -82,13 +82,23 @@ namespace spatial
         }
     };
 
-    const int MATCH_ALL = 0xffffffff; // mask that passes any filter
+    const uint32_t MATCH_ALL = 0xffff'ffff; // mask that passes any filter
 
-    inline int getLoyaltyMask(const SearchOptions& opt)
+    // Convert loyalty ID [1..32] to a loyalty bit mask
+    // Only up to 32 id-s are supported
+    // For loyalty > 32, mask MATCH_ALL is returned
+    SPATIAL_FINLINE uint32_t getLoyaltyMask(uint32_t loyaltyId)
     {
-        int loyaltyMask = MATCH_ALL;
-        if (opt.OnlyLoyalty)    loyaltyMask = opt.OnlyLoyalty;
-        if (opt.ExcludeLoyalty) loyaltyMask = ~opt.ExcludeLoyalty;
+        uint32_t id = (loyaltyId - 1);
+        return id < 32 ? (1 << id) : MATCH_ALL;
+    }
+
+    // Gets the loyalty mask from Search Options
+    SPATIAL_FINLINE uint32_t getLoyaltyMask(const SearchOptions& opt)
+    {
+        uint32_t loyaltyMask = MATCH_ALL;
+        if (opt.OnlyLoyalty)    loyaltyMask = getLoyaltyMask(opt.OnlyLoyalty);
+        if (opt.ExcludeLoyalty) loyaltyMask = ~getLoyaltyMask(opt.ExcludeLoyalty);
         return loyaltyMask;
     }
 

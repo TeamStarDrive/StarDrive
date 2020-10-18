@@ -39,6 +39,9 @@ namespace Ship_Game.Commands.Goals
                 ChangeToStep(OrderShipToColonize);
                 Evaluate();
             }
+
+            if (!AIControlsColonization) // Fast track for player colonization
+                ChangeToStep(OrderShipForColonization);
         }
 
         // Player ordered an existing colony ship to colonize
@@ -91,14 +94,21 @@ namespace Ship_Game.Commands.Goals
 
             if (TryGetClaimTask(out MilitaryTask task))
             {
-                if (!PositiveEnemyPresence(out _) || task.Fleet?.TaskStep == 7)
+                if (!PositiveEnemyPresence(out float enemyStr) || task.Fleet?.TaskStep == 7)
                     return GoalStep.GoToNextStep;
+
+                if (enemyStr > empire.CurrentMilitaryStrength)
+                {
+                    task.Fleet?.FleetTask.EndTask();
+                    task.EndTask();
+                    return GoalStep.GoalFailed;
+                }
 
                 return GoalStep.TryAgain; // Claim task still in progress
             }
 
             // Check if there is enemy presence without a claim task
-            if (PositiveEnemyPresence(out _))
+            if (PositiveEnemyPresence(out _) && AIControlsColonization)
             {
                 ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;

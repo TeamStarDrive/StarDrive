@@ -36,11 +36,6 @@ namespace Ship_Game.Spatial
         public float WorldSize { get; }
         public int Count { get; private set; }
 
-        /// <summary>
-        /// Current number of active QtreeNodes in the tree
-        /// </summary>
-        int NumActiveNodes;
-
         public string Name => "C#-Qtree";
 
         // Create a quadtree to fit the universe
@@ -223,7 +218,6 @@ namespace Ship_Game.Spatial
                 if (PinnedObjects.IsAllocated)
                     PinnedObjects.Free();
                 PinnedObjects = pinned;
-                NumActiveNodes = newBackBuffer.NumActiveNodes;
                 FrontBuffer = BackBuffer; // move backbuffer to front
                 BackBuffer = newBackBuffer;
             }
