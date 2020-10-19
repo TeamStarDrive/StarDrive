@@ -783,7 +783,7 @@ namespace Ship_Game
         {
             float currentStr = GaugeNeededStrForForce(targetShip);
             force = new Array<Ship>();
-            while (currentStr.Greater(0)) 
+            while (currentStr.Greater(0) && force.Count <= Level * 10) 
             {
                 Vector2 finalPos = pos.GenerateRandomPointOnCircle(radius);
                 if (SpawnShip(PirateShipType.Random, finalPos, out Ship ship))
@@ -825,7 +825,9 @@ namespace Ship_Game
                     Log.Warning($"Could not spawn required pirate ship named {shipName} for {Owner.Name}, check race xml");
             }
             else
+            {
                 Log.Warning($"Pirate ship name was empty for {Owner.Name}, check race xml for typos");
+            }
 
             return shipName.NotEmpty() && pirateShip != null;
         }
