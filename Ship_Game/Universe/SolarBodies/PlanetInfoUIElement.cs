@@ -261,11 +261,12 @@ namespace Ship_Game
             int numHabitableTile    = P.TotalHabitableTiles;
             int numUnhabitableTiles = P.TileArea - numHabitableTile;
             float popPerTile        = P.BasePopPerTile * fertEnvMultiplier;
-            float biospheredPop     = P.MaxPopulationBillionFor(EmpireManager.Player) + P.PopPerBiosphere * numUnhabitableTiles / 1000;
+            float biospherePop     = P.MaxPopulationBillionFor(EmpireManager.Player) 
+                                      + P.PopPerBiosphere(EmpireManager.Player) * numUnhabitableTiles / 1000;
 
             DrawPlanetStats(TilesRect, $"{numHabitableTile}", "NewUI/icon_tiles", Color.White, Color.White);
             DrawPlanetStats(PopPerTileRect, $"{popPerTile.String(0)}m", "NewUI/icon_poppertile", Color.White, Color.White);
-            DrawPlanetStats(BiospheredPopRect, biospheredPop.String(1), "NewUI/icon_biospheres", Color.White, Color.White);
+            DrawPlanetStats(BiospheredPopRect, biospherePop.String(1), "NewUI/icon_biospheres", Color.White, Color.White);
 
             if (EmpireManager.Player.IsBuildingUnlocked(Building.TerraformerId))
             {
