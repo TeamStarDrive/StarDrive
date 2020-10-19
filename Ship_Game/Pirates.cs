@@ -751,7 +751,7 @@ namespace Ship_Game
             for (int i = 0; i < force.Count; i++)
             {
                 Ship ship = force[i];
-                ship.AI.OrderAttackSpecificTarget(target);
+                ship.AI.OrderAttackPriorityTarget(target);
             }
         }
 
