@@ -487,26 +487,30 @@ namespace Ship_Game
 
         void CalculateShipCosts()
         {
-            AddShipCost(Owner.data.RemnantFighter,         RemnantShipType.Fighter);
-            AddShipCost(Owner.data.RemnantCorvette,        RemnantShipType.Corvette);
-            AddShipCost(Owner.data.RemnantSupportSmall,    RemnantShipType.SmallSupport);
-            AddShipCost(Owner.data.RemnantAssimilator,     RemnantShipType.Assimilator);
-            AddShipCost(Owner.data.RemnantTorpedoCruiser,  RemnantShipType.TorpedoCruiser);
-            AddShipCost(Owner.data.RemnantCruiser,         RemnantShipType.Cruiser);
-            AddShipCost(Owner.data.RemnantCarrier,         RemnantShipType.Carrier);
-            AddShipCost(Owner.data.RemnantMotherShip,      RemnantShipType.Mothership);
-            AddShipCost(Owner.data.RemnantExterminator,    RemnantShipType.Exterminator);
-            AddShipCost(Owner.data.RemnantInhibitor,       RemnantShipType.Inhibitor);
-            AddShipCost(Owner.data.RemnantBomber,          RemnantShipType.Bomber);
-            AddShipCost(Owner.data.RemnantFrigate,         RemnantShipType.Frigate);
-            AddShipCost(Owner.data.RemnantBomberLight,     RemnantShipType.BomberLight);
-            AddShipCost(Owner.data.RemnantBomberMedium,    RemnantShipType.BomberMedium);
+            AddShipCost(Owner.data.RemnantFighter,        RemnantShipType.Fighter);
+            AddShipCost(Owner.data.RemnantCorvette,       RemnantShipType.Corvette);
+            AddShipCost(Owner.data.RemnantSupportSmall,   RemnantShipType.SmallSupport);
+            AddShipCost(Owner.data.RemnantAssimilator,    RemnantShipType.Assimilator);
+            AddShipCost(Owner.data.RemnantTorpedoCruiser, RemnantShipType.TorpedoCruiser);
+            AddShipCost(Owner.data.RemnantCruiser,        RemnantShipType.Cruiser);
+            AddShipCost(Owner.data.RemnantCarrier,        RemnantShipType.Carrier);
+            AddShipCost(Owner.data.RemnantMotherShip,     RemnantShipType.Mothership);
+            AddShipCost(Owner.data.RemnantExterminator,   RemnantShipType.Exterminator);
+            AddShipCost(Owner.data.RemnantInhibitor,      RemnantShipType.Inhibitor);
+            AddShipCost(Owner.data.RemnantBomber,         RemnantShipType.Bomber);
+            AddShipCost(Owner.data.RemnantFrigate,        RemnantShipType.Frigate);
+            AddShipCost(Owner.data.RemnantBomberLight,    RemnantShipType.BomberLight);
+            AddShipCost(Owner.data.RemnantBomberMedium,   RemnantShipType.BomberMedium);
         }
 
         void AddShipCost(string shipName, RemnantShipType type)
         {
             if (shipName.IsEmpty() || !ResourceManager.GetShipTemplate(shipName, out Ship ship))
+            {
+                Log.Warning($"Could not find a ship named '{shipName}' in {Owner.Name}'s race xml.");
                 return;
+            }
+
             ShipCosts.Add(type, ship.BaseCost);
         }
 
