@@ -72,6 +72,9 @@ namespace Ship_Game
         public void AddGoalRaidOrbital(Empire victim) =>
             AddGoal(victim, GoalType.PirateRaidOrbital, null);
 
+        public void AddGoalRaidProjector(Empire victim) =>
+            AddGoal(victim, GoalType.PirateRaidProjector, null);
+
         public void AddGoalRaidCombatShip(Empire victim) =>
             AddGoal(victim, GoalType.PirateRaidCombatShip, null);
 
@@ -87,13 +90,14 @@ namespace Ship_Game
             {
                 case GoalType.PirateDirectorPayment: Goals.Add(new PirateDirectorPayment(Owner, victim));  break;
                 case GoalType.PirateDirectorRaid:    Goals.Add(new PirateDirectorRaid(Owner, victim));     break;
-                case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));              break;
+                case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));   break;
                 case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
                 case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));      break;
+                case GoalType.PirateRaidProjector:   Goals.Add(new PirateRaidProjector(Owner, victim));    break;
                 case GoalType.PirateRaidCombatShip:  Goals.Add(new PirateRaidCombatShip(Owner, victim));   break;
-                case GoalType.PirateDefendBase:      Goals.Add(new PirateDefendBase(Owner, ship));                    break;
+                case GoalType.PirateDefendBase:      Goals.Add(new PirateDefendBase(Owner, ship));         break;
                 case GoalType.PirateProtection:      Goals.Add(new PirateProtection(Owner, victim, ship)); break;
-                default:                             Log.Warning($"Goal type {type} invalid for Pirates");            break;
+                default:                             Log.Warning($"Goal type {type} invalid for Pirates"); break;
             }
         }
 
@@ -714,6 +718,8 @@ namespace Ship_Game
                     case TargetType.Shipyard         when ship.shipData.IsShipyard:
                     case TargetType.FreighterAtWarp  when (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) && ship.IsInWarp:
                     case TargetType.CombatShipAtWarp when !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp:
+                    case TargetType.Station          when ship.IsStation:
+                    case TargetType.Platform         when ship.IsPlatform:
                     case TargetType.Projector:       targets.Add(ship); break;
                 }
             }
@@ -734,6 +740,18 @@ namespace Ship_Game
             {
                 Ship ship = force[i];
                 ship.AI.AddEscortGoal(shipToEscort);
+            }
+        }
+
+        public void OrderAttackShip(Ship target, Array<Ship> force)
+        {
+            if (force.Count == 0 || target == null)
+                return;
+
+            for (int i = 0; i < force.Count; i++)
+            {
+                Ship ship = force[i];
+                ship.AI.OrderAttackSpecificTarget(target);
             }
         }
 
@@ -758,7 +776,7 @@ namespace Ship_Game
             float maxStrModifier       = ((int)CurrentGame.Difficulty + 1) * 0.15f; // easy will be 15%
             float availableStrModifier = (float)Level / MaxLevel;
 
-            return enemyStr * maxStrModifier * availableStrModifier;
+            return (enemyStr * maxStrModifier * availableStrModifier).LowerBound(Level * 500);
         }
 
         public bool SpawnForce(Ship targetShip, Vector2 pos, float radius, out Array<Ship> force)
@@ -987,7 +1005,8 @@ namespace Ship_Game
             CombatShipAtWarp,
             Projector,
             Shipyard,
-            Station
+            Station,
+            Platform
         }
     }
 
