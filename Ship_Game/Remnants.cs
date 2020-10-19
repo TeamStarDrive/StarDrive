@@ -505,9 +505,9 @@ namespace Ship_Game
 
         void AddShipCost(string shipName, RemnantShipType type)
         {
-            Ship ship  = ResourceManager.GetShipTemplate(shipName);
-            float cost = ship.BaseCost;
-            ShipCosts.Add(type, cost);
+            if (shipName.IsEmpty() || !ResourceManager.GetShipTemplate(shipName, out Ship ship))
+                return;
+            ShipCosts.Add(type, ship.BaseCost);
         }
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
