@@ -453,7 +453,7 @@ namespace Ship_Game.AI.Tasks
                             case 0:
                                 if (Owner.GetEmpireAI().TroopShuttleCapacity > 0)
                                 {
-                                    if (TargetPlanet.Owner != null)
+                                    if (TargetPlanet.Owner != null && TargetPlanet.Owner != EmpireManager.Unknown)
                                     {
                                         Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
 

@@ -80,7 +80,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (PositiveEnemyPresence(out float spaceStrength) && !empire.isPlayer)
             {
-                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
+                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * 2).LowerBound(100));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
 
