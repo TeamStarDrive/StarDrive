@@ -63,8 +63,7 @@ namespace Ship_Game.Spatial
         [DllImport(Lib)] static extern int SpatialFindNearby(IntPtr spatial, int* outResults, ref NativeSearchOptions opt);
 
         IntPtr Spat;
-        Array<GameplayObject> FrontObjects = new Array<GameplayObject>(capacity:512);
-        Array<GameplayObject> BackObjects  = new Array<GameplayObject>(capacity:512);
+        readonly Array<GameplayObject> Objects = new Array<GameplayObject>(capacity:512);
 
         public SpatialType Type { get; }
         public float WorldSize { get; }
@@ -105,9 +104,11 @@ namespace Ship_Game.Spatial
 
         public void Clear()
         {
-            SpatialClear(Spat);
-            FrontObjects.Clear();
-            BackObjects.Clear();
+            lock (Objects)
+            {
+                SpatialClear(Spat);
+                Objects.Clear();
+            }
         }
 
         public void UpdateAll(Array<GameplayObject> allObjects)
@@ -115,54 +116,50 @@ namespace Ship_Game.Spatial
             int count = allObjects.Count;
             int maxObjects = Math.Max(MaxObjects, count);
 
-            var objectsMap = BackObjects;
-            objectsMap.Clear(); // avoid any ref leaks
-            objectsMap.Resize(maxObjects);
-
-            GameplayObject[] objects = allObjects.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
+            lock (Objects)
             {
-                GameplayObject go = objects[i];
-                int objectId = go.SpatialIndex;
-                if (go.Active)
+                Objects.Resize(maxObjects);
+                GameplayObject[] gameObjects = allObjects.GetInternalArrayItems();
+                for (int i = 0; i < count; ++i)
                 {
-                    if (go.ReinsertSpatial) // if marked for reinsert, remove from Spat
+                    GameplayObject go = gameObjects[i];
+                    int objectId = go.SpatialIndex;
+                    if (go.Active)
                     {
-                        go.ReinsertSpatial = false;
-                        if (objectId != -1)
+                        if (go.ReinsertSpatial) // if marked for reinsert, remove from Spat
                         {
-                            SpatialRemove(Spat, objectId);
-                            go.SpatialIndex = -1;
-                            objectId = -1;
+                            go.ReinsertSpatial = false;
+                            if (objectId != -1)
+                            {
+                                SpatialRemove(Spat, objectId);
+                                go.SpatialIndex = -1;
+                                objectId = -1;
+                            }
+                        }
+
+                        if (objectId == -1) // insert new
+                        {
+                            var so = new NativeSpatialObject(go);
+                            objectId = SpatialInsert(Spat, ref so);
+                            go.SpatialIndex = objectId;
+                            Objects[objectId] = go;
+                        }
+                        else // update existing
+                        {
+                            var rect = new AABoundingBox2Di(go);
+                            SpatialUpdate(Spat, objectId, ref rect);
+                            Objects[objectId] = go;
                         }
                     }
-
-                    if (objectId == -1) // insert new
+                    else if (objectId != -1)
                     {
-                        var so = new NativeSpatialObject(go);
-                        objectId = SpatialInsert(Spat, ref so);
-                        go.SpatialIndex = objectId;
-                        objectsMap[objectId] = go;
-                    }
-                    else // update existing
-                    {
-                        var rect = new AABoundingBox2Di(go);
-                        SpatialUpdate(Spat, objectId, ref rect);
-                        objectsMap[objectId] = go;
+                        Objects[objectId] = null;
+                        SpatialRemove(Spat, objectId);
+                        go.SpatialIndex = -1;
                     }
                 }
-                else if (objectId != -1)
-                {
-                    SpatialRemove(Spat, objectId);
-                    go.SpatialIndex = -1;
-                }
+                SpatialRebuild(Spat);
             }
-
-            SpatialRebuild(Spat);
-
-            // now swap front and back
-            BackObjects = FrontObjects;
-            FrontObjects = objectsMap;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -188,11 +185,10 @@ namespace Ship_Game.Spatial
             };
 
             // get the collisions
-            CollisionPairs collisions = default;
-            SpatialCollideAll(Spat, ref p, ref collisions);
+            CollisionPairs results = default;
+            SpatialCollideAll(Spat, ref p, ref results);
             
-            int numCollisions = NarrowPhase.Collide(timeStep, 
-                collisions.Data, collisions.Size, FrontObjects);
+            int numCollisions = NarrowPhase.Collide(timeStep, results.Data, results.Size, Objects);
             return numCollisions;
         }
 
@@ -237,29 +233,34 @@ namespace Ship_Game.Spatial
                 EnableSearchDebugId = opt.DebugId,
             };
             
-            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
-
-            if (opt.FilterFunction != null)
+            lock (Objects)
             {
-                SearchFilterFunc filterFunc = opt.FilterFunction;
-                nso.FilterFunction = (int objectId) =>
+                if (opt.FilterFunction != null)
                 {
-                    GameplayObject go = objects[objectId];
-                    bool success = filterFunc(go);
-                    return success ? 1 : 0;
-                };
-            }
+                    SearchFilterFunc filterFunc = opt.FilterFunction;
+                    nso.FilterFunction = (int objectId) =>
+                    {
+                        GameplayObject go = Objects[objectId];
+                        bool success = filterFunc(go);
+                        return success ? 1 : 0;
+                    };
+                }
 
-            int* objectIds = stackalloc int[opt.MaxResults];
-            int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);
-            return LinearSearch.Copy(objectIds, resultCount, objects);
+                int* objectIds = stackalloc int[opt.MaxResults];
+                GameplayObject[] objects = Objects.GetInternalArrayItems();
+                int resultCount = SpatialFindNearby(Spat, objectIds, ref nso);
+                return LinearSearch.Copy(objectIds, resultCount, objects);
+            }
         }
 
         public GameplayObject[] FindLinear(in SearchOptions opt)
         {
-            GameplayObject[] objects = FrontObjects.GetInternalArrayItems();
-            int count = FrontObjects.Count;
-            return LinearSearch.FindNearby(opt, objects, count);
+            lock (Objects)
+            {
+                GameplayObject[] objects = Objects.GetInternalArrayItems();
+                int count = Objects.Count;
+                return LinearSearch.FindNearby(opt, objects, count);
+            }
         }
 
         struct Point
