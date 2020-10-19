@@ -93,7 +93,7 @@ namespace UnitTests.Planets
             ResourceManager.GetBuilding(Building.BiospheresId, out Building bioSpheres);
             bioTile.PlaceBuilding(bioSpheres, P);
             P.UpdateMaxPopulation();
-            float expectedMaxPop = P.MaxPopulation - P.PopPerBiosphere;
+            float expectedMaxPop = P.MaxPopulation - P.PopPerBiosphere(TestEmpire);
             P.DestroyTile(bioTile);
             Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
             Assert.IsFalse(bioTile.Biosphere);
