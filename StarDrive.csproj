@@ -240,6 +240,7 @@
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidCombatShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateProtection.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\PirateRaidProjector.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidTransport.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\GoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RefitOrbital.cs" />
