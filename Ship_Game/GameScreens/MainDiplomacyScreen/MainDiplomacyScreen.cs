@@ -184,7 +184,7 @@ namespace Ship_Game
                 }
                 else if (EmpireManager.Player != race.e && EmpireManager.Player.IsKnown(race.e))
                 {
-                    if (EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
+                    if (EmpireManager.Player.IsAtWarWith(race.e) && !race.e.data.Defeated)
                     {
                         Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
                         batch.FillRectangle(war, Color.Red);

@@ -196,8 +196,7 @@ namespace Ship_Game.AI
             ProcessOffer(us, them, ourOffer, attitude);
             ProcessOffer(them, us, theirOffer, attitude);
 
-            us.GetRelations(them).UpdateRelationship(us, them);
-            them.GetRelations(us).UpdateRelationship(them, us);
+            Empire.UpdateBilateralRelations(us, them);
         }
 
         bool AllianceAccepted(Offer theirOffer, Offer ourOffer, Relationship usToThem, Empire them, out string text)

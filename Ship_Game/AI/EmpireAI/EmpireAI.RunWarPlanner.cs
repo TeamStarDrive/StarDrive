@@ -50,7 +50,7 @@ namespace Ship_Game.AI
             const string dialogue = "HelpUS_War";
             var ourOffer = new Offer
             {
-                ValueToModify = new Ref<bool>(() => ally.GetRelations(enemy).AtWar, x =>
+                ValueToModify = new Ref<bool>(() => ally.IsAtWarWith(enemy), x =>
                 {
                     if (x)
                     {
@@ -216,7 +216,6 @@ namespace Ship_Game.AI
                 Relationship themToUs = them.GetRelations(us);
                 themToUs.Trust -= 50f;
                 themToUs.AddAngerDiplomaticConflict(50);
-                them.GetRelations(OwnerEmpire).UpdateRelationship(them, OwnerEmpire);
             }
 
             if (them.isPlayer && !usToThem.AtWar)

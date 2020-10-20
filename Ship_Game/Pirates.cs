@@ -911,7 +911,7 @@ namespace Ship_Game
         {
             foreach (Empire faction in EmpireManager.PirateFactions.Filter(f => f != Owner))
             {
-                if (victim.GetRelations(faction).Treaty_NAPact)
+                if (victim.IsNAPactWith(faction))
                 {
                     int executeChance = faction.Pirates.Level * 3;
                     if (RandomMath.RollDice(executeChance))
