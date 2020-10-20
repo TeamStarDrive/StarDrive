@@ -103,6 +103,7 @@ namespace Ship_Game.Gameplay
         [Serialize(59)] public float WeOweThem;
         [Serialize(60)] public int TurnsAtWar;
         [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
+        [Serialize(62)] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
 
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
@@ -510,6 +511,14 @@ namespace Ship_Game.Gameplay
             TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
             Risk.UpdateRiskAssessment(us);
 
+            bool canAttack = CanWeAttackThem(us, them);
+            if (CanAttack != canAttack)
+            {
+                CanAttack = canAttack;
+                if (canAttack) // make sure enemy can also attack us
+                    them.GetRelations(us).CanAttack = true;
+            }
+
             if (us.isFaction)
                 return;
 
@@ -541,6 +550,24 @@ namespace Ship_Game.Gameplay
             InitialStrength       += dt.NaturalRelChange;
             TurnsKnown            += 1;
             turnsSinceLastContact += 1;
+        }
+
+        bool CanWeAttackThem(Empire us, Empire them)
+        {
+            if (AtWar || us.isFaction || them.isFaction)
+                return true;
+
+            if (!Known || Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
+                return false;
+
+            if (!us.isPlayer)
+            {
+                float trustworthiness = them.data.DiplomaticPersonality?.Trustworthiness ?? 100;
+                float peacefulness    = 1.0f - them.Research.Strategy.MilitaryRatio;
+                if (TotalAnger > trustworthiness * peacefulness)
+                    return true;
+            }
+            return false;
         }
 
         void UpdateAnger(Empire us, Empire them, DTrait personality)
