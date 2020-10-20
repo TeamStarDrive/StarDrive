@@ -249,14 +249,20 @@ namespace Ship_Game
             data.Traits.Singular = data.RebelSing;
             data.Traits.Plural   = data.RebelPlur;
             empire.isFaction = true;
-            Add(empire);
-            foreach (Empire key in Empires)
-            {
-                key.AddRelation(empire);
-                empire.AddRelation(key);
-            }
-            data.RebellionLaunched = true;
 
+            Add(empire);
+
+            foreach (Empire otherEmpire in Empires)
+            {
+                if (otherEmpire != empire)
+                {
+                    otherEmpire.AddRelation(empire);
+                    empire.AddRelation(otherEmpire);
+                    Empire.UpdateBilateralRelations(empire, otherEmpire);
+                }
+            }
+
+            data.RebellionLaunched = true;
             return empire;
         }
 

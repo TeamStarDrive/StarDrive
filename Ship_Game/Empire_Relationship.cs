@@ -103,6 +103,12 @@ namespace Ship_Game
             AtWarCount = atWarCount;
         }
 
+        public static void UpdateBilateralRelations(Empire us, Empire them)
+        {
+            us.GetRelations(them).UpdateRelationship(us, them);
+            them.GetRelations(us).UpdateRelationship(them, us);
+        }
+
         // The FlatMap is used for fast lookup
         // Active relations are used for iteration
         readonly Array<OurRelationsToThem> RelationsMap = new Array<OurRelationsToThem>();

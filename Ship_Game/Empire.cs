@@ -2558,8 +2558,8 @@ namespace Ship_Game
                 Log.Info($"Rebellion for: {data.Traits.Name}");
 
                 Empire rebels = EmpireManager.GetEmpireByName(data.RebelName)
-                             ?? EmpireManager.FindRebellion(data.RebelName)
-                             ?? EmpireManager.CreateRebelsFromEmpireData(data, this);
+                                ?? EmpireManager.FindRebellion(data.RebelName)
+                                ?? EmpireManager.CreateRebelsFromEmpireData(data, this);
 
                 if (rebels != null)
                 {
@@ -3112,8 +3112,8 @@ namespace Ship_Game
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
-            if (!rel.CanAttack)
-                return false;
+            if (rel.CanAttack)
+                return true;
 
             if (target != null)
             {
@@ -3123,8 +3123,7 @@ namespace Ship_Game
                 //maybe its a freighter or something along those lines which might not be attackable.
                 return target.IsAttackable(this, rel);
             }
-
-            return true;
+            return false;
         }
 
         public bool IsEmpireHostile(Empire targetEmpire)
@@ -3182,7 +3181,7 @@ namespace Ship_Game
         /// <summary>
         /// Finds the nearest owned system to systems in list. Returns TRUE if found.
         /// </summary>
-        public bool FindNearestOwnedSystemTo(IEnumerable<SolarSystem>systems, out SolarSystem nearestSystem)
+        public bool FindNearestOwnedSystemTo(IEnumerable<SolarSystem> systems, out SolarSystem nearestSystem)
         {
             nearestSystem  = null;
             if (OwnedSolarSystems.Count == 0)
