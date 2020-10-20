@@ -1347,7 +1347,6 @@ namespace Ship_Game
                     if (ship.fleet != null)
                     {
                         if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
-
                         {
                             if (IsEmpireHostile(ship.loyalty))
                                 ssp.HasSeenEmpires.SetSeen(ship.loyalty);
@@ -3132,10 +3131,7 @@ namespace Ship_Game
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
-
-            if (rel == null) return false;
-            
-            return rel.AtWar || (isFaction || targetEmpire.isFaction) && !rel.Treaty_Peace && !rel.Treaty_NAPact;
+            return rel.IsHostile;
         }
 
         public Planet FindPlanet(Guid planetGuid)
