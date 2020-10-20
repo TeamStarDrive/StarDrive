@@ -232,7 +232,7 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            int maxRaids     = (Level < 7 ? 1 : 2) * NumPortals();
+            int maxRaids     = (Level / 5) + NumPortals();
             int ongoingRaids = Goals.Count(g => g.IsRaid);
             return ongoingRaids < maxRaids;
         }
