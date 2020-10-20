@@ -3111,32 +3111,19 @@ namespace Ship_Game
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
-
-            if (rel?.AtWar != false || !rel.Known)
-                return true;
-
-            if (rel.Treaty_Peace || rel.Treaty_NAPact || rel.Treaty_Alliance)
+            if (!rel.CanAttack)
                 return false;
 
-            if (isFaction || targetEmpire.isFaction)
-                return true;
-
-            if (!isPlayer)
+            if (target != null)
             {
-                float trustworthiness = targetEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 100;
-                float peacefulness    = 1 - targetEmpire.Research.Strategy.MilitaryRatio;
-
-                if (rel.TotalAnger > trustworthiness * peacefulness)
-                    return true;
+                //CG:there is an additional check that can be done for the ship itself.
+                //if no target is applied then it is assumed the target is attackable at this point.
+                //but an additional check can be done if a gameplay object is passed.
+                //maybe its a freighter or something along those lines which might not be attackable.
+                return target.IsAttackable(this, rel);
             }
 
-            if (target == null)
-                return true; // this is an inanimate check, so it won't cause trouble?
-            //CG:there is an additional check that can be done for the ship itself.
-            //if no target is applied then it is assumed the target is attackable at this point.
-            //but an additional check can be done if a gameplay object is passed.
-            //maybe its a freighter or something along those lines which might not be attackable.
-            return target.IsAttackable(this, rel);
+            return true;
         }
 
         public bool IsEmpireHostile(Empire targetEmpire)
