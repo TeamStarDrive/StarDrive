@@ -35,7 +35,7 @@ namespace Ship_Game
         void UpdateTradeTreaties()
         {
             var tradeTreaties = new Array<Empire>();
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
                 if (kv.Value.Treaty_Trade)
                     tradeTreaties.Add(kv.Key);
 
@@ -266,7 +266,7 @@ namespace Ship_Game
         public float TotalTradeTreatiesIncome()
         {
             float total = 0f;
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
                 if (kv.Value.Treaty_Trade) total += kv.Value.TradeIncome();
             return total;
         }
