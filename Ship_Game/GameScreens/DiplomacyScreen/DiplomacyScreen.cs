@@ -920,8 +920,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     if (!other.isFaction && rel.AtWar)
                         theirWarTargets.Add(other);
 
-                    if (!other.isFaction && rel.GetStrength() > 75f &&
-                        Us.GetRelations(other, out Relationship relations) && relations.AtWar)
+                    if (!other.isFaction && rel.GetStrength() > 75f && Us.IsAtWarWith(other))
                     {
                         ourWarTargets.Add(other);
                     }
@@ -971,7 +970,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             if (EmpireToDiscuss == null)
                 return;
 
-            if (!Us.GetRelations(EmpireToDiscuss).AtWar)
+            if (!Us.IsAtWarWith(EmpireToDiscuss))
             {
                 TheirText += GetDialogueByName("JoinWar_YouAreNotAtWar");
             }

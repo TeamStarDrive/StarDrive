@@ -705,11 +705,12 @@ namespace Ship_Game.Gameplay
             if (FedQuest == null) 
                 return;
 
+            Empire player = Empire.Universe.PlayerEmpire;
             Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
             if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
             {
-                DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
-                Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
+                DiplomacyScreen.ShowEndOnly(us, player, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
+                player.AbsorbEmpire(us);
                 FedQuest = null;
                 success  = true;
                 return;
@@ -721,9 +722,9 @@ namespace Ship_Game.Gameplay
                 {
                     FedQuest = null;
                 }
-                else if (Empire.Universe.PlayerEmpire.GetRelations(enemyEmpire).Treaty_Alliance)
+                else if (player.IsAlliedWith(enemyEmpire))
                 {
-                    DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_AllyFriend",
+                    DiplomacyScreen.ShowEndOnly(us, player, "Federation_YouDidIt_AllyFriend",
                         EmpireManager.GetEmpireByName(FedQuest.EnemyName));
                     Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
                     FedQuest = null;

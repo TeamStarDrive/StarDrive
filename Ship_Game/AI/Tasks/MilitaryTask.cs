@@ -167,15 +167,6 @@ namespace Ship_Game.AI.Tasks
 
         public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";
 
-        void DeclareWar()
-        {
-            Relationship r = Owner.GetRelations(TargetPlanet.Owner);
-            if (r.PreparingForWar)
-            {
-                Owner.GetEmpireAI().DeclareWarOn(TargetPlanet.Owner, r.PreparingForWarType);
-            }
-        }
-
         public void EndTask()
         {
             Debug_TallyFailedTasks();

@@ -168,7 +168,7 @@ namespace Ship_Game.Ships
             InhibitedByEnemy = false;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e != loyalty && !loyalty.GetRelations(e).Treaty_OpenBorders)
+                if (e != loyalty && !loyalty.IsOpenBordersTreaty(e))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {

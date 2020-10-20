@@ -143,11 +143,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
                 ContestedSystems[i] = solarSystem;
             }
-            Us                = EmpireManager.GetEmpireByName(UsName);
-            Them              = EmpireManager.GetEmpireByName(ThemName);
-
+            Us   = EmpireManager.GetEmpireByName(UsName);
+            Them = EmpireManager.GetEmpireByName(ThemName);
             // The Us == Them is used in EmpireDefense and relations should be null
-            OurRelationToThem = Us == Them ? null : Us.GetRelations(Them);
+            OurRelationToThem = Us.GetRelationsOrNull(Them);
             
             if (activeWar)
             {

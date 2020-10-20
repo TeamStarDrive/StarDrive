@@ -2462,7 +2462,7 @@ namespace Ship_Game
                                 if (leaders.Count > 0 && !GlobalStats.PreventFederations)
                                 {
                                     Empire strongest = leaders.FindMax(emp => biggest.GetRelations(emp).GetStrength());
-                                    if (!biggest.GetRelations(strongest).AtWar)
+                                    if (!biggest.IsAtWarWith(strongest))
                                         Universe.NotificationManager.AddPeacefulMergerNotification(biggest, strongest);
                                     else
                                         Universe.NotificationManager.AddSurrendered(biggest, strongest);
