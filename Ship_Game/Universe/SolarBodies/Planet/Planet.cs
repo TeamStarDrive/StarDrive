@@ -167,7 +167,7 @@ namespace Ship_Game
             if (bioSpheresResearched && !terraformResearched)
             {
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
+                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
                 return bioSphereMaxPop + naturalMaxPop;
             }
 
@@ -175,7 +175,7 @@ namespace Ship_Game
             {
                 int terraformableTiles  = TilesList.Count(t => t.CanTerraform);
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
+                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
                 naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * empire.RacialEnvModifer(empire.data.PreferredEnv);
                 return bioSphereMaxPop + naturalMaxPop;
             }
@@ -185,7 +185,12 @@ namespace Ship_Game
             return BasePopPerTile * potentialTiles * empire.RacialEnvModifer(empire.data.PreferredEnv);
         }
 
-        public float PopPerBiosphere => BasePopPerTile / 2;
+        public float PopPerBiosphere(Empire empire)
+        {
+            return empire != null 
+                ? BasePopPerTile / 2 * empire.RacialEnvModifer(empire.data.PreferredEnv)
+                : BasePopPerTile / 2;
+        }
 
         public float PotentialMaxFertilityFor(Empire empire)
         {
@@ -730,7 +735,7 @@ namespace Ship_Game
 
             int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
-                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere;
+                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere(Owner);
 
 
             MaxPopValFromTiles = Math.Max(BasePopPerTile, BasePopPerTile * numHabitableTiles);

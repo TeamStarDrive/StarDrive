@@ -576,7 +576,7 @@ namespace Ship_Game
                                 bCursor.Y += Font20.LineSpacing;
                             }
 
-                            batch.DrawString(Font12, $"{P.PopPerBiosphere.String(0)} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
+                            batch.DrawString(Font12, $"{P.PopPerBiosphere(Player).String(0)} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
                             return;
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
@@ -609,7 +609,7 @@ namespace Ship_Game
                             bCursor.Y += Font20.LineSpacing;
                         }
 
-                        batch.DrawString(Font12, $"{P.PopPerBiosphere.String(0)} {MultiLineFormat(1896)}", bCursor, Color.Gold);
+                        batch.DrawString(Font12, $"{P.PopPerBiosphere(Player).String(0)} {MultiLineFormat(1896)}", bCursor, Color.Gold);
                         return;
                     }
 
@@ -648,7 +648,7 @@ namespace Ship_Game
         void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch)
         {
             DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", Localizer.Token(1874));
-            DrawBuildingInfo(ref cursor, batch, P.PopPerBiosphere / 1000, "UI/icon_pop_22", Localizer.Token(1875));
+            DrawBuildingInfo(ref cursor, batch, P.PopPerBiosphere(Player) / 1000, "UI/icon_pop_22", Localizer.Token(1875));
             DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist, "NewUI/icon_food", Localizer.Token(1876), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", Localizer.Token(1877), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", Localizer.Token(1878), digits: 1);
