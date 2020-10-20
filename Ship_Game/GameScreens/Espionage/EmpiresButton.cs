@@ -63,7 +63,7 @@ namespace Ship_Game.GameScreens.Espionage
                     batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                 }
             }
-            else if (EmpireManager.Player == Empire || EmpireManager.Player.GetRelations(Empire).Known)
+            else if (EmpireManager.Player == Empire || EmpireManager.Player.IsKnown(Empire))
             {
                 DrawRacePortrait();
 
