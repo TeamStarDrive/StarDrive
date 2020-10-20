@@ -122,6 +122,7 @@ namespace UnitTests
 
             var data = new UniverseData();
             Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0]);
+            Player.isPlayer = true;
             Empire.Universe = Universe = new UniverseScreen(data, player);
             Universe.player = player;
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);

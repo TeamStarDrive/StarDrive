@@ -355,26 +355,29 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
+        public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
+            if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
                 && IsInBordersOf(attacker))
             {
                 return true;
             }
 
-            if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+            if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
                 return true;
             }
 
-            // temporary fix until threading issue is resolved. 
-            var system = System;
-            if (system != null && attackerRelationThis.WarnedSystemsList.Contains(system.guid))
-                return true;
+            SolarSystem system = System;
+            if (system != null)
+            {
+                if (attackerToUs.WarnedSystemsList.Contains(system.guid))
+                    return true;
 
-            if (DesignRole == ShipData.RoleName.troop && system != null && attacker.GetOwnedSystems().ContainsRef(system))
-                return true;
+                if (DesignRole == ShipData.RoleName.troop &&
+                    attacker.GetOwnedSystems().ContainsRef(system))
+                    return true;
+            }
 
             return false;
         }

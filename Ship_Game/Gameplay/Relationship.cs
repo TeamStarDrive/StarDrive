@@ -527,7 +527,7 @@ namespace Ship_Game.Gameplay
                 ActiveWar             = null;
             }
 
-            if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == them)
+            if (GlobalStats.RestrictAIPlayerInteraction && them.isPlayer)
                 return;
 
             TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
