@@ -1198,32 +1198,6 @@ namespace Ship_Game.Ships
             AI.ProcessResupply(resupplyReason);
 
         }
-
-        /// <summary>
-        /// Sets if ship can be "seen" by an empire.
-        /// this should be merged with scanForCombatTargets at some point. we effectively doing this check twice.
-        /// however this routine is on a fading timer. so while we are doing the check twice they do need to update at different intervals. 
-        /// </summary>
-        public void SetShipsVisible(float elapsedTime)
-        {
-            if (KnownByEmpires.KnownBy(loyalty)) return;
-            if (Empire.Universe.Debug)
-            {
-                KnownByEmpires.SetSeenByPlayer();
-            }
-            if (!Empire.Universe.Debug)
-            {
-                KnownByEmpires.SetSeen(loyalty);
-            
-
-                foreach(var rel in loyalty.AllRelations)
-                {
-                    if (!rel.Value.Treaty_Alliance) continue;
-                    KnownByEmpires.SetSeen(rel.Key);
-                }
-            }
-            SetOtherShipsInSensorRange();
-        }
         
         private void SetOtherShipsInSensorRange()
         {

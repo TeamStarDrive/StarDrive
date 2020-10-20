@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.GamerServices;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
@@ -76,7 +77,7 @@ namespace Ship_Game
         public void UpdateRelationships()
         {
             int atWarCount = 0;
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
             {
                 Empire them = kv.Key;
                 Relationship rel = kv.Value;
@@ -91,28 +92,67 @@ namespace Ship_Game
             AtWarCount = atWarCount;
         }
 
-        readonly Map<Empire, Relationship> Relationships = new Map<Empire, Relationship>();
-
-        public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
-        
-        public bool GetRelations(Empire empire, out Relationship relations)
+        public struct OurRelationsToThem
         {
-            return Relationships.TryGetValue(empire, out relations);
+            public Empire Them;
+            public Relationship Rel;
+        }
+
+        // The FlatMap is used for fast lookup
+        // Active relations are used for iteration
+        readonly Array<OurRelationsToThem> RelationsMap = new Array<OurRelationsToThem>();
+        readonly Array<KeyValuePair<Empire, Relationship>> ActiveRelations = new Array<KeyValuePair<Empire, Relationship>>();
+
+        public IReadOnlyList<KeyValuePair<Empire, Relationship>> AllRelations => ActiveRelations;
+        
+        public bool GetRelations(Empire withEmpire, out Relationship relations)
+        {
+            int index = withEmpire.Id - 1;
+            if (index < RelationsMap.Count)
+            {
+                OurRelationsToThem usToThem = RelationsMap[index];
+                if (usToThem.Them != null)
+                {
+                    relations = usToThem.Rel;
+                    return true;
+                }
+            }
+            relations = null;
+            return false;
         }
 
         public Relationship GetRelations(Empire withEmpire)
         {
-            if (GetRelations(withEmpire, out Relationship rel))
-                return rel;
+            int index = withEmpire.Id - 1;
+            if (index < RelationsMap.Count)
+            {
+                OurRelationsToThem usToThem = RelationsMap[index];
+                if (usToThem.Them != null)
+                    return usToThem.Rel;
+            }
             throw new KeyNotFoundException($"No relationship by us:'{Name}' with:{withEmpire.Name}");
         }
 
+        void AddNewRelationToThem(Empire them, Relationship rel)
+        {
+            int index = them.Id - 1;
+            if (index >= RelationsMap.Count)
+            {
+                RelationsMap.Resize(Math.Max(EmpireManager.NumEmpires, RelationsMap.Count));
+            }
+
+            if (RelationsMap[index].Them != null)
+                throw new InvalidOperationException($"Empire RelationsMap already contains '{them}'");
+            
+            RelationsMap[index] = new OurRelationsToThem{ Them = them, Rel = rel };
+            ActiveRelations.Add(new KeyValuePair<Empire, Relationship>(them, rel));
+        }
+        
         // TRUE if we know the other empire
         public bool IsKnown(Empire otherEmpire)
         {
-            return this == otherEmpire
-                || (GetRelations(otherEmpire, out Relationship rel)
-                    && rel.Known);
+            return GetRelations(otherEmpire, out Relationship rel)
+                && rel.Known;
         }
 
         public bool IsAtWarWith(Empire otherEmpire)
@@ -141,14 +181,16 @@ namespace Ship_Game
 
         public void AddRelation(Empire empire)
         {
-            if (empire == this) return;
             if (!GetRelations(empire, out _))
-                Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
+                AddNewRelationToThem(empire, new Relationship(empire.data.Traits.Name));
         }
 
-        void SetRelationship(Empire e, Relationship rel)
+        public void SetRelationsAsKnown(Empire empire)
         {
-            Relationships.Add(e, rel);
+            AddRelation(empire);
+            GetRelations(empire).Known = true;
+            if (!empire.IsKnown(this))
+                empire.SetRelationsAsKnown(this);
         }
 
         public static void InitializeRelationships(Array<Empire> empires,
@@ -163,7 +205,7 @@ namespace Ship_Game
 
                     var rel = new Relationship(them.data.Traits.Name);
 
-                    if (them.isPlayer && difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
+                    if (ourEmpire != them && them.isPlayer && difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
                     {
                         float difficultyRatio = (int) difficulty / 10f;
                         float trustMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
@@ -173,7 +215,16 @@ namespace Ship_Game
                         rel.AddAngerTerritorialConflict(territoryMod);
                     }
 
-                    ourEmpire.SetRelationship(them, rel);
+                    // We set a dummy relationship to ourselves
+                    // This follows the NullObject pattern. The relationship with ourselves is friendly :)
+                    //if (ourEmpire == them)
+                    //{
+                    //    rel.Known = true;
+                    //    rel.Treaty_NAPact = true;
+                    //    rel.ChangeToFriendly();
+                    //}
+
+                    ourEmpire.AddNewRelationToThem(them, rel);
                 }
             }
         }
@@ -188,25 +239,17 @@ namespace Ship_Game
                     Empire empire = EmpireManager.GetEmpireByName(relSave.Name);
                     relSave.ActiveWar?.SetCombatants(ourEmpire, empire);
                     relSave.Risk = new EmpireRiskAssessment(relSave);
-                    ourEmpire.SetRelationship(empire, relSave);
+                    ourEmpire.AddNewRelationToThem(empire, relSave);
                 }
             }
         }
 
-        public void SetRelationsAsKnown(Empire empire)
-        {
-            AddRelation(empire);
-            Relationships[empire].Known = true;
-            if (!empire.IsKnown(this))
-                empire.SetRelationsAsKnown(this);
-        }
-
         public void DamageRelationship(Empire e, string why, float amount, Planet p)
         {
-            if (GetRelations(e, out Relationship relationship))
+            if (GetRelations(e, out Relationship rel))
             {
                 if (why == "Colonized Owned System" || why == "Destroyed Ship")
-                    relationship.DamageRelationship(this, e, why, amount, p);
+                    rel.DamageRelationship(this, e, why, amount, p);
             }
         }
     }

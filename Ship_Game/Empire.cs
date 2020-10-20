@@ -633,7 +633,8 @@ namespace Ship_Game
             OwnedPlanets.Clear();
             OwnedSolarSystems.Clear();
             OwnedShips.Clear();
-            Relationships.Clear();
+            ActiveRelations.Clear();
+            RelationsMap.Clear();
             EmpireAI = null;
             HostilesLogged.Clear();
             Pool.ClearForcePools();
@@ -673,7 +674,7 @@ namespace Ship_Game
             if (isFaction)
                 return;
 
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
             {
                 Empire them = kv.Key;
                 BreakAllTreatiesWith(them, includingPeace: true);
@@ -715,7 +716,7 @@ namespace Ship_Game
             if (isFaction)
                 return;
 
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
                 BreakAllTreatiesWith(kv.Key, includingPeace: true);
 
             foreach (Ship ship in OwnedShips)
@@ -2530,7 +2531,7 @@ namespace Ship_Game
             if (Money > data.CounterIntelligenceBudget)
             {
                 Money -= data.CounterIntelligenceBudget;
-                foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+                foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
                 {
                     Relationship relWithUs = kv.Key.GetRelations(this);
                     relWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
@@ -3336,14 +3337,14 @@ namespace Ship_Game
                 SourceObject  = null;
                 DrewThisTurn  = false;
                 Radius        = 0;
-                KnownToPlayer         = false;
+                KnownToPlayer = false;
             }
         }
 
         public void RestoreUnserializableDataFromSave()
         {
             //restore relationShipData
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
             {
                 kv.Value.RestoreWarsFromSave();
             }
