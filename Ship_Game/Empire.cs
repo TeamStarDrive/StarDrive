@@ -674,9 +674,8 @@ namespace Ship_Game
             if (isFaction)
                 return;
 
-            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
+            foreach ((Empire them, Relationship rel) in ActiveRelations)
             {
-                Empire them = kv.Key;
                 BreakAllTreatiesWith(them, includingPeace: true);
                 GetRelations(them).AtWar = false;
                 them.GetRelations(this).AtWar = false;
@@ -716,8 +715,8 @@ namespace Ship_Game
             if (isFaction)
                 return;
 
-            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
-                BreakAllTreatiesWith(kv.Key, includingPeace: true);
+            foreach ((Empire them, Relationship rel) in ActiveRelations)
+                BreakAllTreatiesWith(them, includingPeace: true);
 
             foreach (Ship ship in OwnedShips)
             {
@@ -2531,9 +2530,9 @@ namespace Ship_Game
             if (Money > data.CounterIntelligenceBudget)
             {
                 Money -= data.CounterIntelligenceBudget;
-                foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
+                foreach ((Empire them, Relationship rel) in ActiveRelations)
                 {
-                    Relationship relWithUs = kv.Key.GetRelations(this);
+                    Relationship relWithUs = them.GetRelations(this);
                     relWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
                     if (relWithUs.IntelligencePenetration < 0.0f)
                         relWithUs.IntelligencePenetration = 0.0f;
@@ -3344,9 +3343,9 @@ namespace Ship_Game
         public void RestoreUnserializableDataFromSave()
         {
             //restore relationShipData
-            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
+            foreach ((Empire them, Relationship rel) in ActiveRelations)
             {
-                kv.Value.RestoreWarsFromSave();
+                rel.RestoreWarsFromSave();
             }
 
             EmpireAI.EmpireDefense?.RestoreFromSave(true);

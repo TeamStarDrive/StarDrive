@@ -6,6 +6,17 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
+    public struct OurRelationsToThem
+    {
+        public Empire Them;
+        public Relationship Rel;
+        public void Deconstruct(out Empire them, out Relationship rel)
+        {
+            them = Them;
+            rel = Rel;
+        }
+    }
+
     public partial class Empire
     {
         public PersonalityType Personality => data.DiplomaticPersonality.TraitName;
@@ -77,10 +88,8 @@ namespace Ship_Game
         public void UpdateRelationships()
         {
             int atWarCount = 0;
-            foreach (KeyValuePair<Empire, Relationship> kv in ActiveRelations)
+            foreach ((Empire them, Relationship rel) in ActiveRelations)
             {
-                Empire them = kv.Key;
-                Relationship rel = kv.Value;
                 if (rel.Known || isPlayer)
                 {
                     rel.UpdateRelationship(this, them);
@@ -92,18 +101,12 @@ namespace Ship_Game
             AtWarCount = atWarCount;
         }
 
-        public struct OurRelationsToThem
-        {
-            public Empire Them;
-            public Relationship Rel;
-        }
-
         // The FlatMap is used for fast lookup
         // Active relations are used for iteration
         readonly Array<OurRelationsToThem> RelationsMap = new Array<OurRelationsToThem>();
-        readonly Array<KeyValuePair<Empire, Relationship>> ActiveRelations = new Array<KeyValuePair<Empire, Relationship>>();
+        readonly Array<OurRelationsToThem> ActiveRelations = new Array<OurRelationsToThem>();
 
-        public IReadOnlyList<KeyValuePair<Empire, Relationship>> AllRelations => ActiveRelations;
+        public IReadOnlyList<OurRelationsToThem> AllRelations => ActiveRelations;
         
         public bool GetRelations(Empire withEmpire, out Relationship relations)
         {
@@ -144,8 +147,9 @@ namespace Ship_Game
             if (RelationsMap[index].Them != null)
                 throw new InvalidOperationException($"Empire RelationsMap already contains '{them}'");
             
-            RelationsMap[index] = new OurRelationsToThem{ Them = them, Rel = rel };
-            ActiveRelations.Add(new KeyValuePair<Empire, Relationship>(them, rel));
+            var usToThem = new OurRelationsToThem{ Them = them, Rel = rel };
+            RelationsMap[index] = usToThem;
+            ActiveRelations.Add(usToThem);
         }
         
         // TRUE if we know the other empire
@@ -205,7 +209,7 @@ namespace Ship_Game
 
                     var rel = new Relationship(them.data.Traits.Name);
 
-                    if (ourEmpire != them && them.isPlayer && difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
+                    if (them.isPlayer && difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
                     {
                         float difficultyRatio = (int) difficulty / 10f;
                         float trustMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
@@ -214,15 +218,6 @@ namespace Ship_Game
                         float territoryMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
                         rel.AddAngerTerritorialConflict(territoryMod);
                     }
-
-                    // We set a dummy relationship to ourselves
-                    // This follows the NullObject pattern. The relationship with ourselves is friendly :)
-                    //if (ourEmpire == them)
-                    //{
-                    //    rel.Known = true;
-                    //    rel.Treaty_NAPact = true;
-                    //    rel.ChangeToFriendly();
-                    //}
 
                     ourEmpire.AddNewRelationToThem(them, rel);
                 }

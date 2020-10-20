@@ -915,15 +915,15 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 var theirWarTargets = new Array<Empire>();
                 var ourWarTargets   = new Array<Empire>();
 
-                foreach (KeyValuePair<Empire, Relationship> keyValuePair in Them.AllRelations)
+                foreach ((Empire other, Relationship rel) in Them.AllRelations)
                 {
-                    if (!keyValuePair.Key.isFaction && keyValuePair.Value.AtWar)
-                        theirWarTargets.Add(keyValuePair.Key);
+                    if (!other.isFaction && rel.AtWar)
+                        theirWarTargets.Add(other);
 
-                    if (!keyValuePair.Key.isFaction && keyValuePair.Value.GetStrength() > 75f &&
-                        Us.GetRelations(keyValuePair.Key, out Relationship relations) && relations.AtWar)
+                    if (!other.isFaction && rel.GetStrength() > 75f &&
+                        Us.GetRelations(other, out Relationship relations) && relations.AtWar)
                     {
-                        ourWarTargets.Add(keyValuePair.Key);
+                        ourWarTargets.Add(other);
                     }
                 }
 
@@ -1013,14 +1013,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         {
             StatementsSL.Reset();
             int n1 = 1;
-            foreach (KeyValuePair<Empire, Relationship> rel in Them.AllRelations)
+            foreach ((Empire other, Relationship rel) in Them.AllRelations)
             {
-                if (rel.Value.Known && !rel.Key.isFaction && (rel.Key != Us && !rel.Key.data.Defeated) &&
-                    Us.GetRelations(rel.Key).Known)
+                if (other != Us && rel.Known && !other.isFaction
+                    && !other.data.Defeated && Us.IsKnown(other))
                 {
-                    var option = new DialogOption(n1, Localizer.Token(2220) + " " + rel.Key.data.Traits.Name)
+                    var option = new DialogOption(n1, Localizer.Token(2220) + " " + other.data.Traits.Name)
                     {
-                        Target = rel.Key
+                        Target = other
                     };
                     option.Words    = ParseTextDiplomacy(option.Words, DialogRect.Width - 25);
                     option.Response = "EmpireDiscuss";
