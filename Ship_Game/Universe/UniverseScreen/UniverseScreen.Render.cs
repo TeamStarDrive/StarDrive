@@ -316,7 +316,7 @@ namespace Ship_Game
 
                 foreach (Empire e in solarSystem.OwnerList)
                 {
-                    EmpireManager.Player.TryGetRelations(e, out Relationship ssRel);
+                    EmpireManager.Player.GetRelations(e, out Relationship ssRel);
                     wellKnown = Debug || EmpireManager.Player == e || ssRel.Treaty_Alliance;
                     if (wellKnown) break;
                     if (ssRel.Known) // (ssRel.Treaty_Alliance || ssRel.Treaty_Trade || ssRel.Treaty_OpenBorders))

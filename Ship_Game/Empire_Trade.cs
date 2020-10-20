@@ -34,12 +34,12 @@ namespace Ship_Game
 
         void UpdateTradeTreaties()
         {
-                var tradeTreaties = new Array<Empire>();
-                foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
-                    if (kv.Value.Treaty_Trade)
-                        tradeTreaties.Add(kv.Key);
+            var tradeTreaties = new Array<Empire>();
+            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
+                if (kv.Value.Treaty_Trade)
+                    tradeTreaties.Add(kv.Key);
 
-                TradeTreaties = tradeTreaties;
+            TradeTreaties = tradeTreaties;
         }
 
         public BatchRemovalCollection<Planet> TradingEmpiresPlanetList()

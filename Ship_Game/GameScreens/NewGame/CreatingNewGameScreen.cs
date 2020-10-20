@@ -233,7 +233,7 @@ namespace Ship_Game
             step.Start(0.15f, 0.20f, 0.30f, 0.35f); // proportions for each step
 
             CreateOpponents(step.NextStep());
-            PopulateRelations();
+            Empire.InitializeRelationships(Data.EmpireList, Difficulty);
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep()); // 240ms
             LoadEmpireStartingSystems(step.NextStep()); // 420ms
             GenerateRandomSystems(step.NextStep());    // 425ms
@@ -285,29 +285,6 @@ namespace Ship_Game
             {
                 Data.CreateEmpire(readOnlyData);
                 step.Advance();
-            }
-        }
-
-        void PopulateRelations()
-        {
-            foreach (Empire ourEmpire in Data.EmpireList)
-            {
-                foreach (Empire them in Data.EmpireList)
-                {
-                    if (ourEmpire == them)
-                        continue;
-
-                    var r = new Relationship(them.data.Traits.Name);
-                    ourEmpire.AddRelationships(them, r);
-                    if (them == Player && Difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
-                    {
-                        float trustMod = ((int) Difficulty / 10f) * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
-                        r.Trust       -= trustMod;
-
-                        float territoryMod = ((int) Difficulty / 10f) * (100 - ourEmpire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
-                        r.AddAngerTerritorialConflict(territoryMod);
-                    }
-                }
             }
         }
 
