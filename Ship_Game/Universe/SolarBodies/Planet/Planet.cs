@@ -422,8 +422,8 @@ namespace Ship_Game
     
         public float ColonyWarValueTo(Empire empire)
         {
-            if (Owner == null)                    return ColonyPotentialValue(empire);
-            if (Owner.GetRelations(empire)?.AtWar == true) return ColonyWorthTo(empire);
+            if (Owner == null)             return ColonyPotentialValue(empire);
+            if (Owner.IsAtWarWith(empire)) return ColonyWorthTo(empire);
             return 0;
         }
 
