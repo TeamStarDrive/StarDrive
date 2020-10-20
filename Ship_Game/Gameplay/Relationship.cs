@@ -104,6 +104,7 @@ namespace Ship_Game.Gameplay
         [Serialize(60)] public int TurnsAtWar;
         [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
         [Serialize(62)] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
+        [Serialize(63)] public bool IsHostile; // New: If target empire is hostile and might attack us
 
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
@@ -157,7 +158,6 @@ namespace Ship_Game.Gameplay
         public Relationship()
         {
         }
-
 
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
@@ -519,6 +519,8 @@ namespace Ship_Game.Gameplay
                     them.GetRelations(us).CanAttack = true;
             }
 
+            IsHostile = IsEmpireHostileToUs(us, them);
+
             if (us.isFaction)
                 return;
 
@@ -568,6 +570,17 @@ namespace Ship_Game.Gameplay
                     return true;
             }
             return false;
+        }
+
+        bool IsEmpireHostileToUs(Empire us, Empire them)
+        {
+            if (AtWar)
+                return true;
+
+            // if one of the parties is a Faction, there is hostility by default
+            // unless we have Peace or NA Pacts (which is actually impossible)
+            return (us.isFaction || them.isFaction)
+                && !Treaty_Peace && !Treaty_NAPact;
         }
 
         void UpdateAnger(Empire us, Empire them, DTrait personality)
