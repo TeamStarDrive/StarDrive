@@ -123,7 +123,7 @@ namespace Ship_Game
             for (int i = 0; i < Empires.Count; i++)
             {
                 Empire empire = Empires[i];
-                if (empire != e && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Alliance)
+                if (empire != e && e.IsAlliedWith(empire))
                     allies.Add(empire);
             }
 
@@ -150,7 +150,7 @@ namespace Ship_Game
                 return allies;
 
             foreach (Empire empire in Empires)
-                if (!empire.isPlayer && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Trade)
+                if (!empire.isPlayer && e.IsTradeTreaty(empire))
                     allies.Add(empire);
             return allies;
         }

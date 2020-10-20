@@ -646,13 +646,13 @@ namespace Ship_Game
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
-                Empire e = EmpireManager.GetEmpireByName(d.Name);
-                foreach (Relationship r in d.Relations)
+                Empire ourEmpire = EmpireManager.GetEmpireByName(d.Name);
+                foreach (Relationship relSave in d.Relations)
                 {
-                    Empire empire = EmpireManager.GetEmpireByName(r.Name);
-                    e.AddRelationships(empire, r);
-                    r.ActiveWar?.SetCombatants(e, empire);
-                    r.Risk = new EmpireRiskAssessment(r);
+                    Empire empire = EmpireManager.GetEmpireByName(relSave.Name);
+                    relSave.ActiveWar?.SetCombatants(ourEmpire, empire);
+                    relSave.Risk = new EmpireRiskAssessment(relSave);
+                    ourEmpire.AddRelationships(empire, relSave);
                 }
             }
         }

@@ -290,21 +290,21 @@ namespace Ship_Game
 
         void PopulateRelations()
         {
-            foreach (Empire empire in Data.EmpireList)
+            foreach (Empire ourEmpire in Data.EmpireList)
             {
-                foreach (Empire e in Data.EmpireList)
+                foreach (Empire them in Data.EmpireList)
                 {
-                    if (empire == e)
+                    if (ourEmpire == them)
                         continue;
 
-                    var r = new Relationship(e.data.Traits.Name);
-                    empire.AddRelationships(e, r);
-                    if (e == Player && Difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
+                    var r = new Relationship(them.data.Traits.Name);
+                    ourEmpire.AddRelationships(them, r);
+                    if (them == Player && Difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
                     {
-                        float trustMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
+                        float trustMod = ((int) Difficulty / 10f) * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
                         r.Trust       -= trustMod;
 
-                        float territoryMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
+                        float territoryMod = ((int) Difficulty / 10f) * (100 - ourEmpire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
                         r.AddAngerTerritorialConflict(territoryMod);
                     }
                 }

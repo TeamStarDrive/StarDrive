@@ -75,8 +75,8 @@ namespace Ship_Game.AI
                 {
                     Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(OwnerEmpire, them);
                 }
-                else if (Empire.Universe.PlayerEmpire.GetRelations(them).Known &&
-                         Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Known)
+                else if (Empire.Universe.PlayerEmpire.IsKnown(them) &&
+                         Empire.Universe.PlayerEmpire.IsKnown(OwnerEmpire))
                 {
                     Empire.Universe.NotificationManager.AddPeaceTreatyEnteredNotification(OwnerEmpire, them);
                 }

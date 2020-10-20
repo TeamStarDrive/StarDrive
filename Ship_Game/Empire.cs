@@ -117,7 +117,6 @@ namespace Ship_Game
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
         private readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
-        private readonly Map<Empire, Relationship> Relationships = new Map<Empire, Relationship>();
         public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
@@ -1359,60 +1358,11 @@ namespace Ship_Game
         }
 
 
-        public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
-        public Relationship GetRelations(Empire withEmpire)
-        {
-            Relationships.TryGetValue(withEmpire, out Relationship rel);
-            return rel;
-        }
-
-        public void AddRelation(Empire empire)
-        {
-            if (empire == this) return;
-            if (!TryGetRelations(empire, out _))
-                Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
-        }
-
-        public void SetRelationsAsKnown(Empire empire)
-        {
-            AddRelation(empire);
-            Relationships[empire].Known = true;
-            if (!empire.GetRelations(this).Known)
-                empire.SetRelationsAsKnown(this);
-        }
-
-        public bool TryGetRelations(Empire empire, out Relationship relations) => Relationships.TryGetValue(empire, out relations);
-
-        public void AddRelationships(Empire e, Relationship i) => Relationships.Add(e, i);
-
-        public void DamageRelationship(Empire e, string why, float amount, Planet p)
-        {
-            if (!Relationships.TryGetValue(e, out Relationship relationship))
-                return;
-            if (why == "Colonized Owned System" || why == "Destroyed Ship")
-                relationship.DamageRelationship(this, e, why, amount, p);
-        }
-
-        public War GetOldestWar()
-        {
-            War olderWar = null;
-            foreach(var kv in AllRelations)
-            {
-                if ( kv.Value.AtWar)
-                {
-                    var war = kv.Value.ActiveWar;
-                    if (olderWar == null || olderWar.StartDate > war.StartDate)
-                        olderWar = war;
-                }
-            }
-            return olderWar;
-        }
-
         void DoFirstContact(Empire e)
         {
             Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
             Relationships[e].Known = true;
-            if (!e.GetRelations(this).Known)
+            if (!e.IsKnown(this))
                 e.DoFirstContact(this);
 
             if (Universe.Debug)
@@ -2261,11 +2211,9 @@ namespace Ship_Game
             var tempBorderNodes = new Array<InfluenceNode>();
             var tempSensorNodes = new Array<InfluenceNode>();
 
-            bool wellKnown = EmpireManager.Player == this || EmpireManager.Player.TryGetRelations(this, out Relationship rel) && rel.Treaty_Alliance || 
+            bool wellKnown = EmpireManager.Player == this || EmpireManager.Player.IsAlliedWith(this) || 
                 Universe.Debug && (Universe.SelectedShip == null || Universe.SelectedShip.loyalty == this );
-            bool known     = wellKnown || EmpireManager.Player.TryGetRelations(this, out Relationship relKnown)
-                             && (relKnown.Treaty_Trade || relKnown.Treaty_OpenBorders);
-            var allies     = EmpireManager.GetAllies(this);
+            bool known = wellKnown || EmpireManager.Player.IsTradeOrOpenBorders(this);
 
             SetBordersKnownByAllies(tempSensorNodes);
             SetBordersByPlanet(known, tempBorderNodes, tempSensorNodes);
@@ -2503,7 +2451,7 @@ namespace Ship_Game
                                 var leaders = new Array<Empire>();
                                 foreach (Empire empire in aggressiveEmpires)
                                 {
-                                    if (empire != biggest && empire.GetRelations(biggest).Known
+                                    if (empire != biggest && empire.IsKnown(biggest)
                                                           && biggest.TotalScore * 0.6f > empire.TotalScore)
                                         leaders.Add(empire);
                                 }
@@ -2662,24 +2610,6 @@ namespace Ship_Game
             }
         }
 
-        public void InitRebellion(Empire origin)
-        {
-            data.IsRebelFaction  = true;
-            data.Traits.Name     = origin.data.RebelName;
-            data.Traits.Singular = origin.data.RebelSing;
-            data.Traits.Plural   = origin.data.RebelPlur;
-            isFaction            = true;
-
-            foreach (Empire e in EmpireManager.Empires)
-            {
-                e.AddRelation(this);
-                AddRelation(e);
-            }
-
-            EmpireManager.Add(this);
-            origin.data.RebellionLaunched = true;
-        }
-
         public bool IsEmpireDead()
         {
             if (isFaction) return false;
@@ -2692,7 +2622,7 @@ namespace Ship_Game
             SetAsDefeated();
             if (!isPlayer)
             {
-                if (EmpireManager.Player.TryGetRelations(this, out Relationship relationship) && relationship.Known)
+                if (EmpireManager.Player.IsKnown(this))
                     Universe.NotificationManager.AddEmpireDiedNotification(this);
                 return true;
             }
@@ -2717,18 +2647,6 @@ namespace Ship_Game
                 if (s.Name == ship.Name)
                     s.AI.OrderScrapShip();
             }
-        }
-
-        public void UpdateRelationships()
-        {
-            int atWarCount = 0;
-            foreach (var kv in Relationships)
-                if (kv.Value.Known || isPlayer)
-                {
-                    kv.Value.UpdateRelationship(this, kv.Key);
-                    if (kv.Value.AtWar && !kv.Key.isFaction) atWarCount++;
-                }
-            AtWarCount = atWarCount;
         }
 
         public void TryUnlockByScrap(Ship ship)
@@ -3347,7 +3265,7 @@ namespace Ship_Game
                 if (shipKnown)
                 {
                     currentlyKnown.Add(ship);
-                    if (ship.loyalty != this && GetRelations(ship.loyalty)?.Known == false)
+                    if (ship.loyalty != this && !IsKnown(ship.loyalty))
                         DoFirstContact(ship.loyalty);
                 }
             }
