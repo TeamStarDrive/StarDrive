@@ -623,7 +623,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
                     DState = DialogState.End;
                     TheirText = GetDialogueByName(TheirOffer.AcceptDL);
-                    Us.GetEmpireAI().AcceptOffer(TheirOffer, OurOffer, Us, Them);
+                    Us.GetEmpireAI().AcceptOffer(OurOffer, TheirOffer, Us, Them, Attitude);
                 }
                 if (Reject.HandleInput(input))
                 {
