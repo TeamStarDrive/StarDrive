@@ -387,14 +387,14 @@ namespace Ship_Game.Ships
             if (CombatDisabled)
                 return Vector2.Zero;
 
-            Vector2 jitter = Vector2.Zero;
+            Vector2 error = default;
             if (ECMValue > 0)
-                jitter += RandomMath2.Vector2D(ECMValue * 80f);
+                error += RandomMath2.Vector2D(ECMValue * 80f);
 
             if (loyalty.data.Traits.DodgeMod > 0)
-                jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
+                error += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
 
-            return jitter;
+            return error;
         }
 
         public bool CanBeScrapped  => Mothership == null && HomePlanet == null;
@@ -1197,26 +1197,6 @@ namespace Ship_Game.Ships
 
             AI.ProcessResupply(resupplyReason);
 
-        }
-        
-        private void SetOtherShipsInSensorRange()
-        {
-            var nearby =  AI.PotentialTargets; //UniverseScreen.SpaceManager.FindNearby(this, SensorRange, GameObjectType.Ship);
-
-            for (int i = 0; i < nearby.Count; i++)
-            {
-                var ship = nearby[i];
-                if (!ship.Active) continue;
-
-                ship.KnownByEmpires.SetSeen(loyalty);
-                var allies = EmpireManager.GetAllies(loyalty);
-
-                for (int x = 0; x < allies.Count; x++)
-                {
-                    var ally = allies[x];
-                    ship.KnownByEmpires.SetSeen(ally);
-                }
-            }
         }
 
         public bool IsSuitableForPlanetaryRearm()
