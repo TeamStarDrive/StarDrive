@@ -33,7 +33,7 @@ namespace Ship_Game.GameScreens.Espionage
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             // red background:
-            if (EmpireManager.Player != Empire && EmpireManager.Player.GetRelations(Empire).AtWar && !Empire.data.Defeated)
+            if (EmpireManager.Player != Empire && EmpireManager.Player.IsAtWarWith(Empire) && !Empire.data.Defeated)
             {
                 batch.FillRectangle(Rect.Bevel(2), Color.Red);
             }

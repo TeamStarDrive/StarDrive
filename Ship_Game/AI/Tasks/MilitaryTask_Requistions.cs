@@ -284,7 +284,7 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {type}");
 
             if (TargetPlanet.Owner == null || TargetPlanet.Owner == Owner ||
-                Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
+                Owner.IsPeaceTreaty(TargetPlanet.Owner))
             {
                 EndTask();
                 return;
@@ -307,7 +307,7 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {type}");
 
             if (!Owner.canBuildBombers || TargetPlanet.Owner == null || TargetPlanet.Owner == Owner ||
-                Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
+                Owner.IsPeaceTreaty(TargetPlanet.Owner))
             {
                 EndTask();
                 return;

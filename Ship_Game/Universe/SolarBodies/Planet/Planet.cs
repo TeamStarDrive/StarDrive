@@ -331,7 +331,7 @@ namespace Ship_Game
             if (Owner == null)
                 return GravityWellRadius;
 
-            if (Owner == empire || Owner.GetRelations(empire).Treaty_Alliance)
+            if (Owner == empire || Owner.IsAlliedWith(empire))
                 return 0;
 
             return GravityWellRadius;

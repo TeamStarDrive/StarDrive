@@ -116,25 +116,8 @@ namespace Ship_Game
 
         public IReadOnlyList<OurRelationsToThem> AllRelations => ActiveRelations;
         
-        /// <returns>Get relations with another empire. False if there is no relations</returns> 
-        public bool GetRelations(Empire withEmpire, out Relationship relations)
-        {
-            int index = withEmpire.Id - 1;
-            if (index < RelationsMap.Count)
-            {
-                OurRelationsToThem usToThem = RelationsMap[index];
-                if (usToThem.Them != null)
-                {
-                    relations = usToThem.Rel;
-                    return true;
-                }
-            }
-            relations = null;
-            return false;
-        }
-
-        /// <returns>Our relations with another empire. Throws if relation not found</returns>
-        public Relationship GetRelations(Empire withEmpire)
+        /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
+        public Relationship GetRelationsOrNull(Empire withEmpire)
         {
             int index = withEmpire.Id - 1;
             if (index < RelationsMap.Count)
@@ -143,7 +126,22 @@ namespace Ship_Game
                 if (usToThem.Them != null)
                     return usToThem.Rel;
             }
-            //return null;
+            return null;
+        }
+
+        /// <returns>Get relations with another empire. False if there is no relations</returns> 
+        public bool GetRelations(Empire withEmpire, out Relationship relations)
+        {
+            relations = GetRelationsOrNull(withEmpire);
+            return relations != null;
+        }
+
+        /// <returns>Our relations with another empire. Throws if relation not found</returns>
+        public Relationship GetRelations(Empire withEmpire)
+        {
+            Relationship relations = GetRelationsOrNull(withEmpire);
+            if (relations != null)
+                return relations;
             throw new KeyNotFoundException($"No relationship by us:'{Name}' with:{withEmpire.Name}");
         }
 
@@ -166,20 +164,27 @@ namespace Ship_Game
         // TRUE if we know the other empire
         public bool IsKnown(Empire otherEmpire)
         {
-            return GetRelations(otherEmpire, out Relationship rel)
-                && rel.Known;
+            return GetRelationsOrNull(otherEmpire)?.Known == true;
+        }
+
+        public bool IsNAPactWith(Empire otherEmpire)
+        {
+            return GetRelationsOrNull(otherEmpire)?.Treaty_NAPact == true;
         }
 
         public bool IsAtWarWith(Empire otherEmpire)
         {
-            return GetRelations(otherEmpire, out Relationship rel)
-                && rel.AtWar;
+            return GetRelationsOrNull(otherEmpire)?.AtWar == true;
         }
 
         public bool IsAlliedWith(Empire otherEmpire)
         {
-            return GetRelations(otherEmpire, out Relationship rel)
-                && rel.Treaty_Alliance;
+            return GetRelationsOrNull(otherEmpire)?.Treaty_Alliance == true;
+        }
+        
+        public bool IsPeaceTreaty(Empire otherEmpire)
+        {
+            return GetRelationsOrNull(otherEmpire)?.Treaty_Peace == true;
         }
 
         public bool IsTradeOrOpenBorders(Empire otherEmpire)
@@ -190,8 +195,12 @@ namespace Ship_Game
 
         public bool IsTradeTreaty(Empire otherEmpire)
         {
-            return GetRelations(otherEmpire, out Relationship rel)
-                && rel.Treaty_Trade;
+            return GetRelationsOrNull(otherEmpire)?.Treaty_Trade == true;
+        }
+
+        public bool IsOpenBordersTreaty(Empire otherEmpire)
+        {
+            return GetRelationsOrNull(otherEmpire)?.Treaty_OpenBorders == true;
         }
 
         public void AddRelation(Empire empire)
