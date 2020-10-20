@@ -147,10 +147,11 @@ namespace Ship_Game
                 sandbox.CreateEmpire(data);
             }
 
-            foreach (Empire empire in EmpireManager.Empires)
+            foreach (Empire ourEmpire in EmpireManager.Empires)
             {
-                foreach (Empire e in EmpireManager.Empires)
-                    if (empire != e) empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
+                foreach (Empire them in EmpireManager.Empires)
+                    if (ourEmpire != them)
+                        ourEmpire.AddRelationships(them, new Relationship(them.data.Traits.Name));
             }
 
             foreach(SolarSystem system in sandbox.SolarSystemsList)

@@ -184,7 +184,7 @@ namespace Ship_Game
                         batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                     }
                 }
-                else if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).Known)
+                else if (EmpireManager.Player != race.e && EmpireManager.Player.IsKnown(race.e))
                 {
                     if (EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
                     {
@@ -232,19 +232,13 @@ namespace Ship_Game
                 {
                     if (e.isFaction || e.data.Defeated)
                     {
-                        if (SelectedEmpire != e)
-                        {
-                            continue;
-                        }
-                        Sortlist.Add(e);
+                        if (SelectedEmpire == e)
+                            Sortlist.Add(e);
                     }
                     else if (e != EmpireManager.Player)
                     {
-                        if (!EmpireManager.Player.GetRelations(e).Known)
-                        {
-                            continue;
-                        }
-                        Sortlist.Add(e);
+                        if (EmpireManager.Player.IsKnown(e))
+                            Sortlist.Add(e);
                     }
                     else
                     {
@@ -385,24 +379,18 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y += Fonts.Arial12Bold.LineSpacing;
 
-                Array<Empire> Sortlist = new Array<Empire>();
+                var Sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
                 {
                     if (e.isFaction || e.data.Defeated)
                     {
-                        if (SelectedEmpire != e)
-                        {
-                            continue;
-                        }
-                        Sortlist.Add(e);
+                        if (SelectedEmpire == e)
+                            Sortlist.Add(e);
                     }
                     else if (e != EmpireManager.Player)
                     {
-                        if (!EmpireManager.Player.GetRelations(e).Known)
-                        {
-                            continue;
-                        }
-                        Sortlist.Add(e);
+                        if (EmpireManager.Player.IsKnown(e))
+                            Sortlist.Add(e);
                     }
                     else
                     {
@@ -823,7 +811,7 @@ namespace Ship_Game
             {
                 if (HelperFunctions.ClickedRect(race.container, input))
                 {
-                    if (EmpireManager.Player == race.e || !EmpireManager.Player.GetRelations(race.e).Known)
+                    if (EmpireManager.Player == race.e || !EmpireManager.Player.IsKnown(race.e))
                     {
                         if (EmpireManager.Player == race.e)
                             CreateArtifactsScrollList(race.e);

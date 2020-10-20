@@ -1,13 +1,10 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Ship_Game.GameScreens.Espionage;
-using Microsoft.Xna.Framework.GamerServices;
 
 namespace Ship_Game
 {
@@ -43,19 +40,17 @@ namespace Ship_Game
 
         public Pirates(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
-            Owner        = owner;
-            Goals        = goals;
+            Owner = owner;
+            Goals = goals;
 
             if (!fromSave)
                 goals.Add(new PirateAI(Owner));
         }
 
-        public HashSet<string> ShipsWeCanBuild          => Owner.ShipsWeCanBuild;
-        public Relationship GetRelations(Empire victim) => Owner.GetRelations(victim);
-        public void SetAsKnown(Empire victim)           => Owner.SetRelationsAsKnown(victim);
-        public int MinimumColoniesForPayment            => Owner.data.MinimumColoniesForStartPayment;
-        int PaymentPeriodTurns                          => Owner.data.PiratePaymentPeriodTurns;
-        public bool PaidBy(Empire victim)               => !GetRelations(victim).AtWar;
+        public HashSet<string> ShipsWeCanBuild => Owner.ShipsWeCanBuild;
+        public int MinimumColoniesForPayment   => Owner.data.MinimumColoniesForStartPayment;
+        int PaymentPeriodTurns                 => Owner.data.PiratePaymentPeriodTurns;
+        public bool PaidBy(Empire victim)      => !Owner.IsAtWarWith(victim);
 
         public void AddGoalDirectorPayment(Empire victim) => 
             AddGoal(victim, GoalType.PirateDirectorPayment, null);
@@ -267,7 +262,7 @@ namespace Ship_Game
 
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
         {
-            if (!GetRelations(EmpireManager.Player).Known)
+            if (!Owner.IsKnown(EmpireManager.Player))
                 return;
 
             float espionageStr = EmpireManager.Player.GetSpyDefense();

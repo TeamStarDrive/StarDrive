@@ -39,8 +39,7 @@ namespace Ship_Game.AI
             foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
             {
                 if (kv.Value.Treaty_Alliance 
-                    && kv.Key.GetRelations(enemy).Known
-                    && !kv.Key.GetRelations(enemy).AtWar)
+                    && kv.Key.IsKnown(enemy) && !kv.Key.IsAtWarWith(enemy))
                 {
                     allies.Add(kv.Key);
                 }
