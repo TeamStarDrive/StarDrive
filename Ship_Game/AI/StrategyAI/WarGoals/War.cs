@@ -145,7 +145,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
             Us                = EmpireManager.GetEmpireByName(UsName);
             Them              = EmpireManager.GetEmpireByName(ThemName);
-            OurRelationToThem = Us.GetRelations(Them);
+
+            // The Us == Them is used in EmpireDefense and relations should be null
+            OurRelationToThem = Us == Them ? null : Us.GetRelations(Them);
             
             if (activeWar)
             {
