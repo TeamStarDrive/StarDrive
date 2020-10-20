@@ -455,7 +455,7 @@ namespace Ship_Game
                     if (t.Loyalty == empire)
                         continue;
 
-                    if (!empire.TryGetRelations(t.Loyalty, out Relationship trouble) || trouble.AtWar)
+                    if (!empire.GetRelations(t.Loyalty, out Relationship trouble) || trouble.AtWar)
                     {
                         enemies = true;
                         break;

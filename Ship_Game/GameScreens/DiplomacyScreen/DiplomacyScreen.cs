@@ -921,7 +921,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                         theirWarTargets.Add(keyValuePair.Key);
 
                     if (!keyValuePair.Key.isFaction && keyValuePair.Value.GetStrength() > 75f &&
-                        Us.TryGetRelations(keyValuePair.Key, out Relationship relations) && relations.AtWar)
+                        Us.GetRelations(keyValuePair.Key, out Relationship relations) && relations.AtWar)
                     {
                         ourWarTargets.Add(keyValuePair.Key);
                     }

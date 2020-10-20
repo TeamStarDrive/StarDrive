@@ -363,7 +363,7 @@ namespace Ship_Game.AI
                 return;
 
             // targeting relation
-            if (Owner.loyalty.TryGetRelations(toAttack.loyalty, out Relationship relations))
+            if (Owner.loyalty.GetRelations(toAttack.loyalty, out Relationship relations))
             {
                 if (!relations.Treaty_Peace)
                 {

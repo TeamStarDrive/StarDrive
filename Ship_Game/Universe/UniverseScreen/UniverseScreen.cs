@@ -229,7 +229,6 @@ namespace Ship_Game
             PlayerLoyalty         = thePlayer.data.Traits.Name;
             PlayerEmpire          = thePlayer;
             player                = thePlayer;
-            PlayerEmpire.isPlayer = true;
 
             UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
