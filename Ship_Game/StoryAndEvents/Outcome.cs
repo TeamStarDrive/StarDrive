@@ -123,7 +123,8 @@ namespace Ship_Game
             Empire pirates = EmpireManager.PirateFactions.RandItem();
             foreach (string shipName in PirateShipsToSpawn)
             {
-                Ship.CreateShipAt(shipName, pirates, p, true);
+                Ship ship = Ship.CreateShipAt(shipName, pirates, p, true);
+                ship?.AI.OrderToOrbit(p);
             }
         }
 
