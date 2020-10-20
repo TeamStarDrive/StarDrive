@@ -268,6 +268,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsPlatformOrStation => shipData.Role == ShipData.RoleName.platform || shipData.Role == ShipData.RoleName.station;
+        public bool IsStation           => shipData.Role == ShipData.RoleName.station && !shipData.IsShipyard;
 
         public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
         {

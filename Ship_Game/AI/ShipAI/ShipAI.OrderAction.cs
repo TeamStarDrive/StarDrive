@@ -114,6 +114,13 @@ namespace Ship_Game.AI
             AddExterminateGoal(toBombard);
         }
 
+        public void OrderAttackPriorityTarget(Ship target)
+        {
+            HasPriorityTarget = true;
+            Target            = target;
+            AddShipGoal(Plan.DoCombat, AIState.AttackTarget);
+        }
+
         public void OrderFindExterminationTarget()
         {
             if (ExterminationTarget?.Owner == null)

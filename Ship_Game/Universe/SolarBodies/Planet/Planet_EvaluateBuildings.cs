@@ -379,6 +379,8 @@ namespace Ship_Game
             if (b.IsMilitary
                 || b.IsTerraformer
                 || b.IsBiospheres  // Different logic for the above
+                || Owner.isPlayer && b.BuildOnlyOnce
+                || !Owner.isPlayer && b.BuildOnlyOnce && Level < (int)DevelopmentLevel.MegaWorld
                 // If starving and this buildings does not produce food while we have food buildings available for build, filter it
                 || NonCybernetic && IsStarving && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
             {
@@ -399,6 +401,7 @@ namespace Ship_Game
                 || b.IsPlayerAdded && Owner.isPlayer
                 || b.IsTerraformer
                 || b.IsMilitary
+                || b.BuildOnlyOnce
                 || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
                 || IsStarving && b.ProducesFood && NonCybernetic // Dont scrap food buildings when starving
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
