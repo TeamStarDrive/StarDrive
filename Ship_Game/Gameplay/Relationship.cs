@@ -159,6 +159,28 @@ namespace Ship_Game.Gameplay
         {
         }
 
+        public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer = 0)
+        {
+            if (attitude != Offer.Attitude.Threaten)
+            {
+                TrustEntries.Add(new TrustEntry
+                {
+                    TrustCost = cost,
+                    TurnTimer = turnTimer,
+                    Type = type
+                });
+            }
+            else
+            {
+                FearEntries.Add(new FearEntry
+                {
+                    FearCost = cost,
+                    TurnTimer = turnTimer,
+                    Type = type
+                });
+            }
+        }
+
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
             switch (treatyType)
@@ -578,7 +600,7 @@ namespace Ship_Game.Gameplay
                 return true;
 
             // if one of the parties is a Faction, there is hostility by default
-            // unless we have Peace or NA Pacts (which is actually impossible)
+            // unless we have Peace or NA Pacts (such as paying off Pirates)
             return (us.isFaction || them.isFaction)
                 && !Treaty_Peace && !Treaty_NAPact;
         }
@@ -1578,24 +1600,19 @@ namespace Ship_Game.Gameplay
             Anger_TerritorialConflict = (Anger_TerritorialConflict + amount).Clamped(0, 100);
         }
 
-        void SetPosture(Posture posture)
-        {
-            Posture = posture;
-        }
-
         public void ChangeToFriendly()
         {
-            SetPosture(Posture.Friendly);
+            Posture = Posture.Friendly;
         }
 
         public void ChangeToNeutral()
         {
-            SetPosture(Posture.Neutral);
+            Posture = Posture.Neutral;
         }
 
         public void ChangeToHostile()
         {
-            SetPosture(Posture.Hostile);
+            Posture = Posture.Hostile;
         }
     }
 

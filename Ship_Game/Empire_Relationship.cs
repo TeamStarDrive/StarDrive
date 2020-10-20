@@ -28,7 +28,7 @@ namespace Ship_Game
         public bool IsHonorable  => Personality == PersonalityType.Honorable;
         public bool IsPacifist   => Personality == PersonalityType.Pacifist;
 
-        void SetTreatyWith(Empire them, TreatyType type, bool value)
+        void SignBilateralTreaty(Empire them, TreatyType type, bool value)
         {
             if (GetRelations(them, out Relationship usToThem))
             {
@@ -38,14 +38,16 @@ namespace Ship_Game
             }
         }
 
+        // Sign Bilateral treaty
         public void SignTreatyWith(Empire them, TreatyType type)
         {
-            SetTreatyWith(them, type, true);
+            SignBilateralTreaty(them, type, true);
         }
-
+        
+        // Break Bilateral treaty
         public void BreakTreatyWith(Empire them, TreatyType type)
         {
-            SetTreatyWith(them, type, false);
+            SignBilateralTreaty(them, type, false);
         }
 
         public void BreakAllTreatiesWith(Empire them, bool includingPeace = false)
@@ -108,6 +110,7 @@ namespace Ship_Game
 
         public IReadOnlyList<OurRelationsToThem> AllRelations => ActiveRelations;
         
+        /// <returns>Get relations with another empire. False if there is no relations</returns> 
         public bool GetRelations(Empire withEmpire, out Relationship relations)
         {
             int index = withEmpire.Id - 1;
@@ -124,6 +127,7 @@ namespace Ship_Game
             return false;
         }
 
+        /// <returns>Our relations with another empire. Throws if relation not found</returns>
         public Relationship GetRelations(Empire withEmpire)
         {
             int index = withEmpire.Id - 1;
@@ -133,6 +137,7 @@ namespace Ship_Game
                 if (usToThem.Them != null)
                     return usToThem.Rel;
             }
+            //return null;
             throw new KeyNotFoundException($"No relationship by us:'{Name}' with:{withEmpire.Name}");
         }
 
