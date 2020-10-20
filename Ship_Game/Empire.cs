@@ -673,10 +673,10 @@ namespace Ship_Game
             if (isFaction)
                 return;
 
-            foreach (var kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
             {
-                BreakAllTreatiesWith(kv.Key, includingPeace: true);
-                var them = kv.Key;
+                Empire them = kv.Key;
+                BreakAllTreatiesWith(them, includingPeace: true);
                 GetRelations(them).AtWar = false;
                 them.GetRelations(this).AtWar = false;
             }
@@ -715,7 +715,7 @@ namespace Ship_Game
             if (isFaction)
                 return;
 
-            foreach (var kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
                 BreakAllTreatiesWith(kv.Key, includingPeace: true);
 
             foreach (Ship ship in OwnedShips)
@@ -1358,12 +1358,13 @@ namespace Ship_Game
         }
 
 
-        void DoFirstContact(Empire e)
+        void DoFirstContact(Empire them)
         {
-            Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
-            Relationships[e].Known = true;
-            if (!e.IsKnown(this))
-                e.DoFirstContact(this);
+            Relationship usToThem = GetRelations(them);
+            usToThem.SetInitialStrength(them.data.Traits.DiplomacyMod * 100f);
+            usToThem.Known = true;
+            if (!them.IsKnown(this)) // do THEY know us?
+                them.DoFirstContact(this);
 
             if (Universe.Debug)
                 return;
@@ -1373,10 +1374,10 @@ namespace Ship_Game
 
             if (Universe.PlayerEmpire == this)
             {
-                if (e.isFaction)
-                    DoFactionFirstContact(e);
+                if (them.isFaction)
+                    DoFactionFirstContact(them);
                 else
-                    DiplomacyScreen.Show(e, "First Contact");
+                    DiplomacyScreen.Show(them, "First Contact");
             }
         }
 
@@ -2529,12 +2530,12 @@ namespace Ship_Game
             if (Money > data.CounterIntelligenceBudget)
             {
                 Money -= data.CounterIntelligenceBudget;
-                foreach (KeyValuePair<Empire, Relationship> keyValuePair in Relationships)
+                foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
                 {
-                    var relationWithUs = keyValuePair.Key.GetRelations(this);
-                    relationWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
-                    if (relationWithUs.IntelligencePenetration < 0.0f)
-                        relationWithUs.IntelligencePenetration = 0.0f;
+                    Relationship relWithUs = kv.Key.GetRelations(this);
+                    relWithUs.IntelligencePenetration -= data.CounterIntelligenceBudget / 10f;
+                    if (relWithUs.IntelligencePenetration < 0.0f)
+                        relWithUs.IntelligencePenetration = 0.0f;
                 }
             }
 
@@ -2963,14 +2964,14 @@ namespace Ship_Game
         public void TheyKilledOurShip(Empire they, Ship killedShip)
         {
             if (KillsForRemnantStory(they, killedShip)) return;
-            if (!TryGetRelations(they, out Relationship rel))
+            if (!GetRelations(they, out Relationship rel))
                 return;
             rel.LostAShip(killedShip);
         }
 
         public void WeKilledTheirShip(Empire they, Ship killedShip)
         {
-            if (!TryGetRelations(they, out Relationship rel))
+            if (!GetRelations(they, out Relationship rel))
                 return;
             rel.KilledAShip(killedShip);
         }
@@ -3342,10 +3343,9 @@ namespace Ship_Game
         public void RestoreUnserializableDataFromSave()
         {
             //restore relationShipData
-            foreach(var kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
             {
-                var relationship = kv.Value;
-                relationship.RestoreWarsFromSave();
+                kv.Value.RestoreWarsFromSave();
             }
 
             EmpireAI.EmpireDefense?.RestoreFromSave(true);

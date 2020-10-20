@@ -242,7 +242,7 @@ namespace Ship_Game.AI
                     {
                         if (others == OwnerEmpire
                             || others.isFaction
-                            || !OwnerEmpire.TryGetRelations(others, out Relationship usToThem)
+                            || !OwnerEmpire.GetRelations(others, out Relationship usToThem)
                             || !usToThem.Known
                             || usToThem.Treaty_Alliance)
                         {

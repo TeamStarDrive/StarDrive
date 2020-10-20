@@ -114,10 +114,9 @@ namespace Ship_Game
 
             foreach(Empire empire in Friends)
             {
-                Relationship rel;
-                if (!empire.TryGetRelations(e, out rel))
+                if (!empire.GetRelations(e, out Relationship rel))
                     continue;
-                if(rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted >3)
+                if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted >3)
                 {
                     intelligence = 1;                    
                 }
@@ -131,8 +130,7 @@ namespace Ship_Game
             {
                 foreach (Empire empire in Traders)
                 {
-                    Relationship rel;
-                    if (!empire.TryGetRelations(e, out rel))
+                    if (!empire.GetRelations(e, out Relationship rel))
                         continue;
                     if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted > 6)
                     {

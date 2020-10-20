@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework.GamerServices;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -16,10 +18,10 @@ namespace Ship_Game
 
         void SetTreatyWith(Empire them, TreatyType type, bool value)
         {
-            if (TryGetRelations(them, out Relationship usToThem))
+            if (GetRelations(them, out Relationship usToThem))
             {
                 usToThem.SetTreaty(this, type, value);
-                if (them.TryGetRelations(this, out Relationship themToUs))
+                if (them.GetRelations(this, out Relationship themToUs))
                     themToUs.SetTreaty(them, type, value);
             }
         }
@@ -74,12 +76,15 @@ namespace Ship_Game
         public void UpdateRelationships()
         {
             int atWarCount = 0;
-            foreach (var kv in Relationships)
+            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
             {
-                if (kv.Value.Known || isPlayer)
+                Empire them = kv.Key;
+                Relationship rel = kv.Value;
+                if (rel.Known || isPlayer)
                 {
-                    kv.Value.UpdateRelationship(this, kv.Key);
-                    if (kv.Value.AtWar && !kv.Key.isFaction) atWarCount++;
+                    rel.UpdateRelationship(this, them);
+                    if (rel.AtWar && !them.isFaction)
+                        atWarCount++;
                 }
             }
 
@@ -90,49 +95,102 @@ namespace Ship_Game
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
         
+        public bool GetRelations(Empire empire, out Relationship relations)
+        {
+            return Relationships.TryGetValue(empire, out relations);
+        }
+
+        public Relationship GetRelations(Empire withEmpire)
+        {
+            if (GetRelations(withEmpire, out Relationship rel))
+                return rel;
+            throw new KeyNotFoundException($"No relationship by us:'{Name}' with:{withEmpire.Name}");
+        }
+
         // TRUE if we know the other empire
         public bool IsKnown(Empire otherEmpire)
         {
             return this == otherEmpire
-                || (Relationships.TryGetValue(otherEmpire, out Relationship rel)
+                || (GetRelations(otherEmpire, out Relationship rel)
                     && rel.Known);
         }
 
         public bool IsAtWarWith(Empire otherEmpire)
         {
-            return Relationships.TryGetValue(otherEmpire, out Relationship rel)
+            return GetRelations(otherEmpire, out Relationship rel)
                 && rel.AtWar;
         }
 
         public bool IsAlliedWith(Empire otherEmpire)
         {
-            return Relationships.TryGetValue(otherEmpire, out Relationship rel)
+            return GetRelations(otherEmpire, out Relationship rel)
                 && rel.Treaty_Alliance;
         }
 
         public bool IsTradeOrOpenBorders(Empire otherEmpire)
         {
-            return Relationships.TryGetValue(otherEmpire, out Relationship rel)
+            return GetRelations(otherEmpire, out Relationship rel)
                 && (rel.Treaty_Trade || rel.Treaty_OpenBorders);
         }
 
         public bool IsTradeTreaty(Empire otherEmpire)
         {
-            return Relationships.TryGetValue(otherEmpire, out Relationship rel)
+            return GetRelations(otherEmpire, out Relationship rel)
                 && rel.Treaty_Trade;
-        }
-
-        public Relationship GetRelations(Empire withEmpire)
-        {
-            Relationships.TryGetValue(withEmpire, out Relationship rel);
-            return rel;
         }
 
         public void AddRelation(Empire empire)
         {
             if (empire == this) return;
-            if (!TryGetRelations(empire, out _))
+            if (!GetRelations(empire, out _))
                 Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
+        }
+
+        void SetRelationship(Empire e, Relationship rel)
+        {
+            Relationships.Add(e, rel);
+        }
+
+        public static void InitializeRelationships(Array<Empire> empires,
+                                                   UniverseData.GameDifficulty difficulty)
+        {
+            foreach (Empire ourEmpire in empires)
+            {
+                foreach (Empire them in empires)
+                {
+                    if (ourEmpire == them)
+                        continue;
+
+                    var rel = new Relationship(them.data.Traits.Name);
+
+                    if (them.isPlayer && difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
+                    {
+                        float difficultyRatio = (int) difficulty / 10f;
+                        float trustMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
+                        rel.Trust -= trustMod;
+
+                        float territoryMod = difficultyRatio * (100 - ourEmpire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
+                        rel.AddAngerTerritorialConflict(territoryMod);
+                    }
+
+                    ourEmpire.SetRelationship(them, rel);
+                }
+            }
+        }
+
+        public static void InitializeRelationships(Array<SavedGame.EmpireSaveData> savedEmpires)
+        {
+            foreach (SavedGame.EmpireSaveData d in savedEmpires)
+            {
+                Empire ourEmpire = EmpireManager.GetEmpireByName(d.Name);
+                foreach (Relationship relSave in d.Relations)
+                {
+                    Empire empire = EmpireManager.GetEmpireByName(relSave.Name);
+                    relSave.ActiveWar?.SetCombatants(ourEmpire, empire);
+                    relSave.Risk = new EmpireRiskAssessment(relSave);
+                    ourEmpire.SetRelationship(empire, relSave);
+                }
+            }
         }
 
         public void SetRelationsAsKnown(Empire empire)
@@ -143,17 +201,13 @@ namespace Ship_Game
                 empire.SetRelationsAsKnown(this);
         }
 
-        public bool TryGetRelations(Empire empire, out Relationship relations)
-            => Relationships.TryGetValue(empire, out relations);
-
-        public void AddRelationships(Empire e, Relationship i) => Relationships.Add(e, i);
-
         public void DamageRelationship(Empire e, string why, float amount, Planet p)
         {
-            if (!Relationships.TryGetValue(e, out Relationship relationship))
-                return;
-            if (why == "Colonized Owned System" || why == "Destroyed Ship")
-                relationship.DamageRelationship(this, e, why, amount, p);
+            if (GetRelations(e, out Relationship relationship))
+            {
+                if (why == "Colonized Owned System" || why == "Destroyed Ship")
+                    relationship.DamageRelationship(this, e, why, amount, p);
+            }
         }
     }
 }
