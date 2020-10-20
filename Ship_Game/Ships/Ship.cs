@@ -1405,7 +1405,7 @@ namespace Ship_Game.Ships
 
             return BaseStrength.LessOrEqual(0)
                    || IsFreighter
-                   || EmpireManager.Player.GetRelations(loyalty, out Relationship rel) && !rel.AtWar;
+                   || !EmpireManager.Player.IsAtWarWith(loyalty);
         }
 
         public void UpdateEmpiresOnKill(Ship killedShip)
