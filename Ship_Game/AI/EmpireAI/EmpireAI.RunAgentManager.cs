@@ -381,11 +381,11 @@ namespace Ship_Game.AI
         private Array<Empire> FindEmpireTargets()
         {
             var potentialTargets = new Array<Empire>();
-            foreach (var relation in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (relation.Value.Known && !relation.Key.isFaction && !relation.Key.data.Defeated &&
-                    (relation.Value.Posture == Posture.Neutral || relation.Value.Posture == Posture.Hostile))
-                    potentialTargets.Add(relation.Key);
+                if (rel.Known && !them.isFaction && !them.data.Defeated &&
+                    (rel.Posture == Posture.Neutral || rel.Posture == Posture.Hostile))
+                    potentialTargets.Add(them);
             }
 
             return potentialTargets;
