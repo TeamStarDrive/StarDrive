@@ -2964,10 +2964,10 @@ namespace Ship_Game
 
         public void TheyKilledOurShip(Empire they, Ship killedShip)
         {
-            if (KillsForRemnantStory(they, killedShip)) return;
-            if (!GetRelations(they, out Relationship rel))
+            if (KillsForRemnantStory(they, killedShip))
                 return;
-            rel.LostAShip(killedShip);
+            if (GetRelations(they, out Relationship rel))
+                rel.LostAShip(killedShip);
         }
 
         public void WeKilledTheirShip(Empire they, Ship killedShip)
