@@ -2332,8 +2332,10 @@ namespace Ship_Game
         {
             foreach(var empire in EmpireManager.Empires)
             {
-                var relation = GetRelations(empire);
-                if (relation == null || !relation.Treaty_Alliance && (!Universe.Debug || !isPlayer || Universe.SelectedShip != null)) continue;
+                if (!GetRelations(empire, out Relationship relation) || 
+                    !relation.Treaty_Alliance && (!Universe.Debug || !isPlayer || Universe.SelectedShip != null))
+                    continue;
+
                 bool wellKnown = true; // not a mistake. easier testing. 
                 Planet[] array = empire.OwnedPlanets.ToArray();
                 for (int y = 0; y < array.Length; y++)
@@ -3138,6 +3140,14 @@ namespace Ship_Game
         {
             foreach (Planet p in this.OwnedPlanets)
                 if (p.guid == planetGuid)
+                    return p;
+            return null;
+        }
+
+        public Planet FindPlanet(string planetName)
+        {
+            foreach (Planet p in this.OwnedPlanets)
+                if (p.Name == planetName)
                     return p;
             return null;
         }
