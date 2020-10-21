@@ -331,7 +331,7 @@ namespace Ship_Game
             if (Owner == null)
                 return GravityWellRadius;
 
-            if (Owner == empire || Owner.GetRelations(empire).Treaty_Alliance)
+            if (Owner == empire || Owner.IsAlliedWith(empire))
                 return 0;
 
             return GravityWellRadius;
@@ -422,8 +422,8 @@ namespace Ship_Game
     
         public float ColonyWarValueTo(Empire empire)
         {
-            if (Owner == null)                    return ColonyPotentialValue(empire);
-            if (Owner.GetRelations(empire)?.AtWar == true) return ColonyWorthTo(empire);
+            if (Owner == null)             return ColonyPotentialValue(empire);
+            if (Owner.IsAtWarWith(empire)) return ColonyWorthTo(empire);
             return 0;
         }
 

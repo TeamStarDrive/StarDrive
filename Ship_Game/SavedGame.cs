@@ -136,9 +136,9 @@ namespace Ship_Game
                     IsFaction = e.isFaction,
                     Relations = new Array<Relationship>()
                 };
-                foreach (KeyValuePair<Empire, Relationship> relation in e.AllRelations)
+                foreach (OurRelationsToThem relation in e.AllRelations)
                 {
-                    empireToSave.Relations.Add(relation.Value);
+                    empireToSave.Relations.Add(relation.Rel);
                 }
                 empireToSave.Name                 = e.data.Traits.Name;
                 empireToSave.empireData           = e.data.GetClone();

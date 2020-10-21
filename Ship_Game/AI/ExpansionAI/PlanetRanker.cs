@@ -49,7 +49,7 @@ namespace Ship_Game.AI.ExpansionAI
                 return false;
             }
 
-            bool atWar    = ownerEmpire.AllRelations.Any(war => war.Value.AtWar);
+            bool atWar    = ownerEmpire.AllRelations.Any(war => war.Rel.AtWar);
             bool trusting = ownerEmpire.data.DiplomaticPersonality.IsTrusting;
             bool careless = ownerEmpire.data.DiplomaticPersonality.Careless;
 

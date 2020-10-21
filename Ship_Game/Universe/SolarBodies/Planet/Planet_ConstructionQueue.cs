@@ -24,7 +24,11 @@ namespace Ship_Game
             {
                 if (!keyValuePair.Value)
                     continue;
-                Building b = ResourceManager.GetBuildingTemplate(keyValuePair.Key);
+
+                // when loading from savegames, unlocked BDict can contain invalid entries
+                if (!ResourceManager.GetBuilding(keyValuePair.Key, out Building b))
+                    continue;
+
                 // Skip adding + food buildings for cybernetic races
                 if (IsCybernetic && !b.ProducesProduction && !b.ProducesResearch && b.ProducesFood)
                     continue;
