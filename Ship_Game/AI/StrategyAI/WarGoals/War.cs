@@ -94,7 +94,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
             ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
-            OurRelationToThem           = us.GetRelations(them);
+            OurRelationToThem           = us.GetRelationsOrNull(them);
             Score                       = new WarScore(this, Us);
             PopulateHistoricLostSystems();
             WarTheaters = new TheatersOfWar(this);
