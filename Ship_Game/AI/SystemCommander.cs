@@ -1,3 +1,4 @@
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
@@ -331,12 +332,12 @@ namespace Ship_Game.AI
             if (planetOwner == null || !enemy)
                 return Value;
 
-            var them = Owner.GetRelations(planetOwner);
-            if (them == null || !them.Known) return Value;
-            if (them.Trust < 50f) Value += 10f;
-            if (them.Trust < 10f) Value += 10f;
-            if (them.TotalAnger > 2.5f) Value += 10f;
-            if (them.TotalAnger <= 30f) Value += 10f;
+            Relationship rel = Owner.GetRelationsOrNull(planetOwner);
+            if (rel == null || !rel.Known) return Value;
+            if (rel.Trust < 50f) Value += 10f;
+            if (rel.Trust < 10f) Value += 10f;
+            if (rel.TotalAnger > 2.5f) Value += 10f;
+            if (rel.TotalAnger <= 30f) Value += 10f;
 
             return Value;
         }

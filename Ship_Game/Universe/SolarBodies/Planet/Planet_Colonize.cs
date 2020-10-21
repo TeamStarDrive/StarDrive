@@ -50,7 +50,7 @@ namespace Ship_Game
                 if (p.Owner == null || p.Owner == Owner)
                     continue;
 
-                if (p.Owner.TryGetRelations(Owner, out Relationship rel) && !rel.Treaty_OpenBorders)
+                if (!p.Owner.IsOpenBordersTreaty(Owner))
                     p.Owner.DamageRelationship(Owner, "Colonized Owned System", 20f, p);
             }
         }
@@ -62,11 +62,11 @@ namespace Ship_Game
 
             for (int i = TroopsHere.Count - 1; i >= 0; i--)
             {
-                Troop t      = TroopsHere[i];
-                Empire owner = t?.Loyalty;
+                Troop t = TroopsHere[i];
+                Empire tLoyalty = t?.Loyalty;
 
-                if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != Owner &&
-                    Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
+                if (tLoyalty != null && !tLoyalty.isFaction && tLoyalty.data.DefaultTroopShip != null
+                    && tLoyalty != Owner && !Owner.IsAtWarWith(tLoyalty))
                 {
                     Ship troopship = t.Launch(ignoreMovement: true);
                     troopsRemoved  = true;
