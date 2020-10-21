@@ -80,7 +80,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void DeclareWarOnBombingEmpire(Bomb bomb)
         {
-            if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar
+            if (Owner != null && !Owner.IsAtWarWith(bomb.Owner)
                               && TurnsSinceTurnover > 10
                               && Empire.Universe.PlayerEmpire == bomb.Owner)
             {
