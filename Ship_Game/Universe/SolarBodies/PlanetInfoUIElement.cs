@@ -17,6 +17,7 @@ namespace Ship_Game
         readonly UniverseScreen Screen;
         Rectangle MoneyRect;
         Rectangle SendTroops;
+        Rectangle MarkedRect;
         Rectangle PopRect;
         string PlanetTypeRichness;
         Vector2 PlanetTypeCursor;
@@ -38,12 +39,13 @@ namespace Ship_Game
         readonly Rectangle BiospheredPopRect;
         readonly Rectangle TerraformedPopRect;
         readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
-        Rectangle Mark;
         AssignLaborComponent AssignLabor;
 
         readonly SpriteFont Font8  = Fonts.Arial8Bold;
         readonly SpriteFont Font12 = Fonts.Arial12Bold;
-
+        readonly Color ButtonTextColor  = new Color(174, 202, 255);
+        readonly Color ButtonHoverColor = new Color(88, 108, 146);
+                                                                                  
         public PlanetInfoUIElement(in Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
             this.Screen = screen;
@@ -79,6 +81,9 @@ namespace Ship_Game
             PopPerTileRect     = OffenseRect;
             BiospheredPopRect  = InjuryRect;
             TerraformedPopRect = ShieldRect;
+
+            MarkedRect = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
+            SendTroops = new Rectangle(RightRect.X - 10, Housing.Y + 120, 182, 25);
         }
 
         public override void Update(UpdateTimes elapsed)
@@ -169,6 +174,8 @@ namespace Ship_Game
             }
 
             DrawFertProdStats(batch);
+            DrawColonization(batch, MousePos);
+            DrawSendTroops(batch, MousePos);
             Inspect.Draw(batch);
             Invade.Draw(batch);
 
@@ -203,7 +210,7 @@ namespace Ship_Game
 
             batch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
             Vector2 TextCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
-                namePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
+                namePos.Y + Fonts.Arial20Bold.LineSpacing / 2f - Fonts.Arial12Bold.LineSpacing / 2f + 2f);
 
             string pop2 = P.PopulationStringForPlayer;
             TextCursor.X -= (Fonts.Arial12Bold.MeasureString(pop2).X + 5f);
@@ -239,85 +246,66 @@ namespace Ship_Game
                 DrawPlanetStats(TerraformedPopRect, terraformedPop.String(1),
                     "NewUI/icon_terraformer", Color.White, Color.White);
             }
-            Mark = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
-            Vector2 Text = new Vector2(RightRect.X + 25, Mark.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
-            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), Mark, Color.White);
-            if (GlobalStats.IsGermanOrPolish)
-            {
-                Text.X = Text.X - 9f;
-            }
 
-            bool marked = false;
-            foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
-            {
-                if (g.ColonizationTarget == null || g.ColonizationTarget != P)
-                {
-                    continue;
-                }
-
-                marked = true;
-            }
-
-            TippedItem ti;
-            if (marked)
-            {
-                if (!Mark.HitTest(mousePos))
-                {
-                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1426), Text,
-                        new Color(88, 108, 146));
-                }
-                else
-                {
-                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1426), Text,
-                        new Color(174, 202, 255));
-                }
-
-                ti = new TippedItem
-                {
-                    r = Mark,
-                    TIP_ID = 25
-                };
-                ToolTipItems.Add(ti);
-            }
-            else
-            {
-                if (!Mark.HitTest(mousePos))
-                {
-                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1425), Text,
-                        new Color(88, 108, 146));
-                }
-                else
-                {
-                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1425), Text,
-                        new Color(174, 202, 255));
-                }
-
-                ti = new TippedItem
-                {
-                    r = Mark,
-                    TIP_ID = 24
-                };
-                ToolTipItems.Add(ti);
-            }
-
-            //Ship troopShip
-            SendTroops = new Rectangle(Mark.X, Mark.Y - Mark.Height - 5, 182, 25);
-            Text = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
-            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
-            int troops = Screen.player
-                .GetShips()
-                .Where(troop => troop.HasOurTroops)
-                .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet == P));
-            if (!SendTroops.HitTest(mousePos))
-                batch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
-                    new Color(88, 108, 146)); // Localizer.Token(1425)
-            else
-                batch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
-                    new Color(174, 202, 255)); // Localizer.Token(1425)
-
+            DrawColonization(batch, mousePos);
+            DrawSendTroops(batch, mousePos);
             Inspect.Draw(batch);
             Invade.Draw(batch);
             return false;
+        }
+
+        void DrawSendTroops(SpriteBatch batch, Vector2 mousePos)
+        {
+            if (P.Owner == EmpireManager.Player)
+                return;
+
+            if (P.Owner != null && (EmpireManager.Player.IsNAPactWith(P.Owner) 
+                                    || EmpireManager.Player.IsAlliedWith(P.Owner)))
+            {
+                return; // Cannot send troops to this planet
+            }
+
+            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
+            Vector2 textPos    = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Font12.LineSpacing / 2 - 2);
+            int incomingTroops = IncomingTroops;
+            string text;
+            if (P.Owner != null)
+                text = incomingTroops > 0 ? $"Invading: {incomingTroops}" : "Invade";
+            else
+                text = incomingTroops > 0 ? $"Enroute: {incomingTroops}" : "Send Troops";
+
+            batch.DrawString(Font12, text, textPos, SendTroops.HitTest(mousePos) ? ButtonTextColor
+                                                                                 : ButtonHoverColor);
+        }
+
+        int IncomingTroops => Screen.player
+                              .GetShips()
+                              .Where(troop => troop.HasOurTroops)
+                              .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet == P));
+
+        void DrawColonization(SpriteBatch batch, Vector2 mousePos)
+        {
+            if (P.Owner != null)
+                return;
+
+            Vector2 textPos = new Vector2(RightRect.X + 25, MarkedRect.Y + 12 - Font12.LineSpacing / 2 - 2);
+            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), MarkedRect, Color.White);
+            if (GlobalStats.IsGermanOrPolish)
+                textPos.X -= 9f;
+
+
+            int tipId             = 24;
+            LocalizedText tipText = new LocalizedText(GameText.Colonize);
+            if (EmpireManager.Player.GetEmpireAI().Goals.Any(g => g.ColonizationTarget == P))
+            {
+                tipId   = 25;
+                tipText = new LocalizedText(GameText.Cancel2);
+            }
+
+            TippedItem ti = new TippedItem { r = MarkedRect, TIP_ID = tipId};
+            ToolTipItems.Add(ti);
+            batch.DrawString(Font12, tipText.Text, textPos, MarkedRect.HitTest(mousePos) ? ButtonTextColor 
+                                                                                         : ButtonHoverColor);
         }
 
         void DrawFertProdStats(SpriteBatch batch)
@@ -446,7 +434,7 @@ namespace Ship_Game
                 }
                 ToolTip.CreateTooltip(ti.TIP_ID);
             }
-            if (Mark.HitTest(input.CursorPosition) && input.InGameSelect)
+            if (MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 bool marked = false;
                 Goal markedGoal = null;
