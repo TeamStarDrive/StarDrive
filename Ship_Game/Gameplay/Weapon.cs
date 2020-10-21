@@ -495,8 +495,6 @@ namespace Ship_Game.Gameplay
                 return 0;
             
             // base error is based on module size or accuracyPercent.
-            // bother create a weapon variance value. 
-            // 
             float baseError;
             if (Module?.AccuracyPercent.AlmostEqual(-1) == false)
             {
@@ -519,7 +517,7 @@ namespace Ship_Game.Gameplay
                 // calculate at ship update
                 level = (Owner?.Level ?? 0) + (Owner?.TrackingPower ?? 0);
             }
-            // calculate at ship empire update
+            
             level += 5;
             level += loyalty?.data.Traits.Militaristic ?? 0;
 
@@ -527,6 +525,7 @@ namespace Ship_Game.Gameplay
             float adjust = (baseError / level).LowerBound(0);
             
             // reduce or increase error based on weapon and trait characteristics.
+            // this could be pre-calculated in the flyweight
             if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
             if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
             if (isTurret) adjust    *= 0.5f;
