@@ -147,13 +147,9 @@ namespace Ship_Game
                 sandbox.CreateEmpire(data);
             }
 
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                foreach (Empire e in EmpireManager.Empires)
-                    if (empire != e) empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
-            }
+            Empire.InitializeRelationships(EmpireManager.Empires, UniverseData.GameDifficulty.Normal);
 
-            foreach(SolarSystem system in sandbox.SolarSystemsList)
+            foreach (SolarSystem system in sandbox.SolarSystemsList)
             {
                 system.FiveClosestSystems = sandbox.SolarSystemsList.FindMinItemsFiltered(5,
                                             filter => filter != system,

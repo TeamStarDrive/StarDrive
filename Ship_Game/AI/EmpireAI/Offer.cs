@@ -119,7 +119,7 @@ namespace Ship_Game
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
-                if (!EmpireManager.Player.GetRelations(TheirOffer.Them).Treaty_Alliance)
+                if (!EmpireManager.Player.IsAlliedWith(TheirOffer.Them))
                 {
                     if (GetNumberOfDemands(this) > 0 && GetNumberOfDemands(TheirOffer) == 1)
                     {
@@ -301,7 +301,7 @@ namespace Ship_Game
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
-                if (!EmpireManager.Player.GetRelations(TheirOffer.Them).Treaty_Alliance)
+                if (!EmpireManager.Player.IsAlliedWith(TheirOffer.Them))
                 {
                     if (GetNumberOfDemands(this) > 0 && GetNumberOfDemands(TheirOffer) == 1)
                     {
@@ -515,7 +515,7 @@ namespace Ship_Game
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
-                if (!EmpireManager.Player.GetRelations(TheirOffer.Them).Treaty_Alliance)
+                if (!EmpireManager.Player.IsAlliedWith(TheirOffer.Them))
                 {
                     if (GetNumberOfDemands(this) > 0 && GetNumberOfDemands(TheirOffer) == 1)
                     {
