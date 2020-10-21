@@ -96,50 +96,59 @@ namespace Ship_Game
             float bottomEdge = y + radius;
             float thickness  = 0.5f + (multiplier / 7);
 
-            if (WeaponAccuracyList.Count > 0)
+            Weapon weapon = ActiveModule?.InstalledWeapon ?? HighlightedModule?.InstalledWeapon;
+            if (weapon == null && WeaponAccuracyList.Count > 0)
             {
-                //Weapon weapon = WeaponAccuracyList.FirstOrDefault(k => k.Key.InstalledWeapon.UID == ActiveModule?.InstalledWeapon?.UID).Key?.InstalledWeapon;
-                Weapon weapon = ActiveModule?.InstalledWeapon;
-                if (weapon == null)
-                {
-                    weapon = WeaponAccuracyList.FindMax((k, v) => v).Key.InstalledWeapon;
-                }
+                weapon = WeaponAccuracyList.FindMax((k, v) => v).Key.InstalledWeapon;
+            }
 
-                float error = weapon.BaseTargetError((int)FireControlLevel, focalPoint, EmpireManager.Player);
+            float weaponRange = weapon?.GetActualRange() ?? float.MaxValue;
+
+            // weapon range is exceeded by range circle so draw weapon range circle instead
+            if (weaponRange < focalPoint)
+            {
+                DrawCircle(new Vector2(x, y), weaponRange * Camera.Zoom, Color.OrangeRed.Alpha(0.5f), 1);
+                DrawString(new Vector2(x, y - weaponRange * Camera.Zoom - 10), 0, 1, Color.OrangeRed.Alpha(0.5f), new LocalizedText(GameText.Range3).Text + " : " + weaponRange);
+
+                radius = weaponRange * Camera.Zoom;
+            }
+
+            Vector2 source = new Vector2(x, y);
+            Vector2 target = new Vector2(x, y - focalPoint);
+            float error = weapon?.BaseTargetError((int)FireControlLevel, focalPoint, EmpireManager.Player) ?? 0;
+            error = (weapon?.AdjustedImpactPoint(source, target, new Vector2(error, error)) - source ?? Vector2.Zero).X;
+
+            if (weapon != null)
+            {
                 DrawCircle(new Vector2(x, y - radius), error * Camera.Zoom, Color.White, 1);
                 DrawCircle(new Vector2(x, y + radius), error * Camera.Zoom, Color.White, 1);
                 DrawCircle(new Vector2(x - radius, y), error * Camera.Zoom, Color.White, 1);
             }
 
-            DrawCircle(new Vector2(x, y), radius, Color.Red, thickness);
-            DrawString(new Vector2(rightEdge + 20, y), .95f, 1, Color.Red, $"Range {focalPoint}");
-
-            if (multiplier > 1)
+            // range circle is within weapon range. so draw it. 
+            if (weaponRange > focalPoint)
             {
-                DrawCircle(new Vector2(x, topEdge), 100 * 8 * Camera.Zoom, Color.Red);
-                DrawString(new Vector2(x, topEdge + 30), 0, 1, Color.Red, new LocalizedText(GameText.Capital).Text);
+                DrawCircle(new Vector2(x, y), radius, Color.Red, thickness);
+                DrawString(new Vector2(rightEdge + 20, y), .95f, 1, Color.Red, $"{new LocalizedText(GameText.Range).Text} {focalPoint}");
+
+                if (multiplier > 1)
+                {
+                    DrawCircle(new Vector2(x, topEdge), 100 * 8 * Camera.Zoom, Color.Red);
+                    DrawString(new Vector2(x, topEdge + (20 + 100 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Capital).Text);
+                }
+
+                if (multiplier > 0.25f)
+                {
+                    DrawCircle(new Vector2(leftEdge, y), 30 * 8 * Camera.Zoom, Color.Red);
+                    if (multiplier > 0.5 || Camera.Zoom > 0.2f)
+                    {
+                        DrawString(new Vector2(leftEdge, y + 20 + (30 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Cruiser).Text);
+                    }
+                }
+
+                DrawCircle(new Vector2(x, bottomEdge), 10 * 8 * Camera.Zoom, Color.Red);
+                DrawString(new Vector2(x, bottomEdge + (10 + 10 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
             }
-
-            if (multiplier > 0.25f)
-            {
-                DrawCircle(new Vector2(leftEdge, y), 30 * 8 * Camera.Zoom, Color.Red);
-                if (multiplier > 0.5 || Camera.Zoom > 0.2f)
-                    DrawString(new Vector2(leftEdge, y + 20), 0, 1, Color.Red, new LocalizedText(GameText.Cruiser).Text);
-            }
-            
-            DrawCircle(new Vector2(x, bottomEdge), 10 * 8 * Camera.Zoom, Color.Red);
-            DrawString(new Vector2(x, bottomEdge + 10), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
-
-            //if (WeaponAccuracyList.Count > 0)
-            //{
-            //    var weapon = WeaponAccuracyList.FindMax((k, v) => v);
-            //    float error = weapon.Key.InstalledWeapon.BaseTargetError((int)FireControlLevel, focalPoint, EmpireManager.Player);
-            //    DrawCircle(new Vector2(x, y - radius), error * Camera.Zoom, Color.White, 1);
-            //    DrawCircle(new Vector2(x, y + radius), error * Camera.Zoom, Color.White, 1);
-            //    DrawCircle(new Vector2(x - radius, y), error * Camera.Zoom, Color.White, 1);
-            //    //DrawString(new Vector2(x, bottomEdge + 10), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
-            //}
-
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -645,7 +654,7 @@ namespace Ship_Game
                 {
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
                 }
-                float accuracy = weapon.BaseTargetError((int)FireControlLevel);
+                float accuracy = 1 / weapon.BaseTargetError((int)FireControlLevel).LowerBound(1);
                 if (accuracy > 0)
                     weaponAccuracyList[module] = accuracy / 16;
             }
