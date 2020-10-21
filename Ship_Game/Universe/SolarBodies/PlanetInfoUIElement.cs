@@ -16,8 +16,9 @@ namespace Ship_Game
         Planet P;
         readonly UniverseScreen Screen;
         Rectangle MoneyRect;
-        Rectangle SendTroops;
-        Rectangle MarkedRect;
+        readonly Rectangle SendTroops;
+        readonly Rectangle MarkedRect;
+        readonly Rectangle CancelInvasionRect;
         Rectangle PopRect;
         string PlanetTypeRichness;
         Vector2 PlanetTypeCursor;
@@ -43,8 +44,8 @@ namespace Ship_Game
 
         readonly SpriteFont Font8  = Fonts.Arial8Bold;
         readonly SpriteFont Font12 = Fonts.Arial12Bold;
-        readonly Color ButtonTextColor  = new Color(174, 202, 255);
-        readonly Color ButtonHoverColor = new Color(88, 108, 146);
+        readonly Color ButtonTextColor   = new Color(174, 202, 255);
+        readonly Color ButtonHoverColor  = new Color(88, 108, 146);
                                                                                   
         public PlanetInfoUIElement(in Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
@@ -82,8 +83,10 @@ namespace Ship_Game
             BiospheredPopRect  = InjuryRect;
             TerraformedPopRect = ShieldRect;
 
-            MarkedRect = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
             SendTroops = new Rectangle(RightRect.X - 10, Housing.Y + 120, 182, 25);
+            MarkedRect = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
+            CancelInvasionRect = MarkedRect; // Replaces the colonization rect when invading
+
         }
 
         public override void Update(UpdateTimes elapsed)
@@ -265,17 +268,37 @@ namespace Ship_Game
                 return; // Cannot send troops to this planet
             }
 
-            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
-            Vector2 textPos    = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Font12.LineSpacing / 2 - 2);
-            int incomingTroops = IncomingTroops;
-            string text;
+            Vector2 textPos        = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Font12.LineSpacing / 2 - 2);
+            int incomingTroops     = IncomingTroops;
+            Color buttonBaseColor  = ButtonTextColor;
+            Color buttonHoverColor = ButtonHoverColor;
+            string texName         = "UI/dan_button_blue";
+            string text = "Invade"; ;
             if (P.Owner != null)
-                text = incomingTroops > 0 ? $"Invading: {incomingTroops}" : "Invade";
+            {
+                if (incomingTroops > 0)
+                {
+                    text             = $"Invading: {incomingTroops}";
+                    buttonBaseColor  = Color.Red;
+                    texName          = "UI/dan_button_red";
+                    buttonHoverColor = Color.White;
+                    DrawCancelInvasion(batch, mousePos);
+                }
+            }
             else
                 text = incomingTroops > 0 ? $"Enroute: {incomingTroops}" : "Send Troops";
 
-            batch.DrawString(Font12, text, textPos, SendTroops.HitTest(mousePos) ? ButtonTextColor
-                                                                                 : ButtonHoverColor);
+            batch.Draw(ResourceManager.Texture(texName), SendTroops, Color.White);
+            batch.DrawString(Font12, text, textPos, SendTroops.HitTest(mousePos) ? buttonHoverColor
+                                                                                 : buttonBaseColor);
+        }
+
+        void DrawCancelInvasion(SpriteBatch batch, Vector2 mousePos)
+        {
+            Vector2 textPos = new Vector2(RightRect.X, CancelInvasionRect.Y + 12 - Font12.LineSpacing / 2 - 2);
+            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), CancelInvasionRect, Color.White);
+            batch.DrawString(Font12, "Cancel Invasion", textPos, CancelInvasionRect.HitTest(mousePos) ? ButtonTextColor
+                                                                                                           : ButtonHoverColor);
         }
 
         int IncomingTroops => Screen.player
@@ -434,7 +457,7 @@ namespace Ship_Game
                 }
                 ToolTip.CreateTooltip(ti.TIP_ID);
             }
-            if (MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
+            if (P.Owner == null && MarkedRect.HitTest(input.CursorPosition) && input.InGameSelect)
             {
                 bool marked = false;
                 Goal markedGoal = null;
@@ -470,6 +493,18 @@ namespace Ship_Game
                 }
                 else
                     GameAudio.BlipClick();
+            }
+
+            if (P.Owner != null && P.Owner != EmpireManager.Player 
+                                && CancelInvasionRect.HitTest(input.CursorPosition) 
+                                && input.InGameSelect)
+            {
+                var shipList = EmpireManager.Player.GetShips();
+                foreach (Ship ship in shipList)
+                {
+                    if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))
+                        ship.AI.OrderRebaseToNearest();
+                }
             }
 
             if (Inspect.Hover)
