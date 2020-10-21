@@ -707,7 +707,6 @@ namespace Ship_Game.AI
             StartSensorScan(timeStep);
             ApplySensorScanResults();
         }
-        
 
         void ResetStateFlee()
         {

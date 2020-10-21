@@ -38,14 +38,12 @@ namespace UnitTests.AITests.Ships
         public void MoveShip()
         {
             CreateTestEnv();
-
             
             var enemySpawnLocation = new Vector2(30000, 0);
             var movePosition       = new Vector2(60000, 0);
             Ship ship  = CreateTestShip();
             Ship enemy = CreateEnemyTestShip(enemySpawnLocation);
             enemy.AI.OrderHoldPosition(enemySpawnLocation, new Vector2(0,1));
-            
 
             Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             ship.AI.OrderMoveDirectlyTo(movePosition, new Vector2(1,0),true
@@ -57,7 +55,8 @@ namespace UnitTests.AITests.Ships
                 ship.AI.DoManualSensorScan(new FixedSimTime(10f));
                 ship.Update(TestSimStep);                
             }
-            bool sawEnemyShip       = false;
+
+            bool sawEnemyShip = false;
 
             // wait for ship to exit warp
             while (ship.engineState == Ship.MoveState.Warp)

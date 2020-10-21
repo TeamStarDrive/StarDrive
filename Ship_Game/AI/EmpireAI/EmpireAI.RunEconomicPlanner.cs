@@ -3,6 +3,7 @@
 using Ship_Game.AI.Budget;
 using System;
 using System.Linq;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.AI
 {
@@ -223,12 +224,12 @@ namespace Ship_Game.AI
         public float GetRisk(float riskLimit = 2f)
         {
             float risk = 0;
-            foreach (var kv in OwnerEmpire.AllRelations)
+            foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                var totalRisk = kv.Value.Risk.Risk;
-                var maxRisk   = kv.Value.Risk.Risk;
+                var totalRisk = rel.Risk.Risk;
+                var maxRisk   = rel.Risk.Risk;
 
-                if (kv.Value.AtWar || kv.Value.PreparingForWar)
+                if (rel.AtWar || rel.PreparingForWar)
                 {
                     risk += totalRisk;
                 }
