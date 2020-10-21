@@ -167,6 +167,8 @@ namespace Ship_Game
                 else
                     DrawPlanetStats(DefenseShipsRect, currentDefenseShips + "/" + maxDefenseShips , "UI/icon_hangar", Color.Yellow, Color.White);
             }
+
+            DrawFertProdStats(batch);
             Inspect.Draw(batch);
             Invade.Draw(batch);
 
@@ -211,57 +213,20 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
             PlanetTypeRichness = P.LocalizedRichness;
-            PlanetTypeCursor =
-                new Vector2(
-                    PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f,
-                    PlanetIconRect.Y + PlanetIconRect.Height + 5);
+            PlanetTypeCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f,
+                                           PlanetIconRect.Y + PlanetIconRect.Height + 5);
+
             batch.Draw(P.PlanetTexture, PlanetIconRect,
                 Color.White);
             batch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
-            Rectangle fIcon = new Rectangle(200,
-                Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_food").Height,
-                ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
-            TippedItem ti = new TippedItem
-            {
-                r = fIcon,
-                TIP_ID = 20
-            };
-            ToolTipItems.Add(ti);
-            Vector2 tcurs = new Vector2(fIcon.X + 25, Housing.Y + 205);
-            float fertility   = P.FertilityFor(EmpireManager.Player);
-            float maxFert     = P.MaxFertilityFor(EmpireManager.Player);
-            string fertString = fertility.AlmostEqual(maxFert) ? fertility.String(2) : $"{fertility.String(2)}/{maxFert.String(2)}";
-            batch.DrawString(Fonts.Arial12Bold, fertString, tcurs, tColor);
-            
-            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
-            if (!fertEnvMultiplier.AlmostEqual(1) && !P.BaseFertility.AlmostZero())
-            {
-                Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
-                var fertMultiplier = new Vector2(tcurs.X + Font12.MeasureString(fertString).X + 3, tcurs.Y+2);
-                batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
-            }
-
-            Rectangle pIcon = new Rectangle(325,
-                Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
-                ResourceManager.Texture("NewUI/icon_production").Width,
-                ResourceManager.Texture("NewUI/icon_production").Height);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
-            ti = new TippedItem
-            {
-                r = pIcon,
-                TIP_ID = 21
-            };
-            ToolTipItems.Add(ti);
-
+            DrawFertProdStats(batch);
             AddUnExploredTips();
-            tcurs = new Vector2(350f, Housing.Y + 205);
-            batch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), tcurs, tColor);
 
+            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
             int numHabitableTile    = P.TotalHabitableTiles;
             int numUnhabitableTiles = P.TileArea - numHabitableTile;
             float popPerTile        = P.BasePopPerTile * fertEnvMultiplier;
-            float biospherePop     = P.MaxPopulationBillionFor(EmpireManager.Player) 
+            float biospherePop      = P.MaxPopulationBillionFor(EmpireManager.Player) 
                                       + P.PopPerBiosphere(EmpireManager.Player) * numUnhabitableTiles / 1000;
 
             DrawPlanetStats(TilesRect, $"{numHabitableTile}", "NewUI/icon_tiles", Color.White, Color.White);
@@ -293,6 +258,7 @@ namespace Ship_Game
                 marked = true;
             }
 
+            TippedItem ti;
             if (marked)
             {
                 if (!Mark.HitTest(mousePos))
@@ -335,13 +301,6 @@ namespace Ship_Game
             }
 
             //Ship troopShip
-            ti = new TippedItem
-            {
-                r = pIcon,
-                TIP_ID = 21
-            };
-            ToolTipItems.Add(ti);
-
             SendTroops = new Rectangle(Mark.X, Mark.Y - Mark.Height - 5, 182, 25);
             Text = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
@@ -359,6 +318,48 @@ namespace Ship_Game
             Inspect.Draw(batch);
             Invade.Draw(batch);
             return false;
+        }
+
+        void DrawFertProdStats(SpriteBatch batch)
+        {
+            Rectangle fIcon = new Rectangle(200,Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_food").Height,
+                ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+
+            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
+            TippedItem ti = new TippedItem
+            {
+                r = fIcon,
+                TIP_ID = 20
+            };
+            ToolTipItems.Add(ti);
+            Vector2 tcurs     = new Vector2(fIcon.X + 25, Housing.Y + 205);
+            float fertility   = P.FertilityFor(EmpireManager.Player);
+            float maxFert     = P.MaxFertilityFor(EmpireManager.Player);
+            string fertString = fertility.AlmostEqual(maxFert) ? fertility.String(2) : $"{fertility.String(2)}/{maxFert.String(2)}";
+            batch.DrawString(Fonts.Arial12Bold, fertString, tcurs, tColor);
+
+            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
+            if (!fertEnvMultiplier.AlmostEqual(1) && !P.BaseFertility.AlmostZero())
+            {
+                Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
+                var fertMultiplier = new Vector2(tcurs.X + Font12.MeasureString(fertString).X + 3, tcurs.Y + 2);
+                batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
+            }
+
+            Rectangle pIcon = new Rectangle(325, Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
+                ResourceManager.Texture("NewUI/icon_production").Width,
+                ResourceManager.Texture("NewUI/icon_production").Height);
+
+            batch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
+            ti = new TippedItem
+            {
+                r = pIcon,
+                TIP_ID = 21
+            };
+            ToolTipItems.Add(ti);
+
+            tcurs = new Vector2(350f, Housing.Y + 205);
+            batch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), tcurs, tColor);
         }
 
         void AddExploredTips()
