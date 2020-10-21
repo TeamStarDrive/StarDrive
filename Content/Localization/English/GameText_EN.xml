@@ -6752,7 +6752,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	</Token>
 	<Token>
 	  <Index>2574</Index>
-	  <Text>Improve Accuracy with higher FCS control systems or more accurate weapons. Check the module information for individual weapon accuracy.</Text>
+	  <Text>Improve Accuracy with higher FCS control systems or more accurate weapons. Check the module information for individual weapon accuracy or zoom out to see targeting display.</Text>
 	</Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
@@ -7771,7 +7771,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	  <!-- More Venus ToolTips-->
 	<Token>
 	  <Index>4114</Index>
-	  <Text>Weapon target error radius measured in ship slots at range 1500. An accuracy of -6 means the weapon will hit within a 6 slot radius of the target point. At range 3000 it would be -12 at 750 -3. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
+	  <Text>Weapon target error radius measured in ship slots. An accuracy of -6 means the weapon will hit within a 6 slot radius of the target point. Under range 2300 this error gradually reduces. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
 	</Token>
     <Token>
       <Index>5000</Index>
