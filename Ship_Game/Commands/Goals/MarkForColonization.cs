@@ -2,6 +2,7 @@
 using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -65,8 +66,8 @@ namespace Ship_Game.Commands.Goals
                 if (ColonizationTarget.Owner.isFaction) 
                     return FinishedShip != null ? GoalStep.GoalFailed : GoalStep.GoToNextStep;
 
-                foreach (var relationship in empire.AllRelations)
-                    empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
+                foreach ((Empire them, Relationship rel) in empire.AllRelations)
+                    empire.GetEmpireAI().ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
 
                 ReleaseShipFromGoal();
                 Log.Info($"Colonize: {ColonizationTarget.Owner.Name} got there first");
@@ -80,7 +81,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (PositiveEnemyPresence(out float spaceStrength) && !empire.isPlayer)
             {
-                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
+                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * 2).LowerBound(100));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
 

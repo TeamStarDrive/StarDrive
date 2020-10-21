@@ -114,6 +114,13 @@ namespace Ship_Game.AI
             AddExterminateGoal(toBombard);
         }
 
+        public void OrderAttackPriorityTarget(Ship target)
+        {
+            HasPriorityTarget = true;
+            Target            = target;
+            AddShipGoal(Plan.DoCombat, AIState.AttackTarget);
+        }
+
         public void OrderFindExterminationTarget()
         {
             if (ExterminationTarget?.Owner == null)
@@ -356,7 +363,7 @@ namespace Ship_Game.AI
                 return;
 
             // targeting relation
-            if (Owner.loyalty.TryGetRelations(toAttack.loyalty, out Relationship relations))
+            if (Owner.loyalty.GetRelations(toAttack.loyalty, out Relationship relations))
             {
                 if (!relations.Treaty_Peace)
                 {

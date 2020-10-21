@@ -180,7 +180,10 @@ namespace Ship_Game.AI
         private Array<AgentMission> PotentialAggressiveMissions(Agent agent, Empire target)
         {
             var potentialMissions = new Array<AgentMission>();
-            if (OwnerEmpire.GetRelations(target).AtWar)
+            if (!OwnerEmpire.GetRelations(target, out Relationship relations))
+                return potentialMissions;
+
+            if (relations.AtWar)
             {
                 if (agent.Level >= 8)
                 {
@@ -201,7 +204,7 @@ namespace Ship_Game.AI
                     potentialMissions.Add(AgentMission.Robbery);
                 }
             }
-            if (OwnerEmpire.GetRelations(target).Posture == Posture.Hostile)
+            if (relations.Posture == Posture.Hostile)
             {
                 if (agent.Level >= 8)
                 {
@@ -220,7 +223,7 @@ namespace Ship_Game.AI
             }
 
 
-            if (OwnerEmpire.GetRelations(target).SpiesDetected > 0)
+            if (relations.SpiesDetected > 0)
             {
                 if (agent.Level >= 4) potentialMissions.Add(AgentMission.Assassinate);
             }
@@ -230,7 +233,10 @@ namespace Ship_Game.AI
         private Array<AgentMission> PotentialCunningSpyMissions(Agent agent, Empire target)
         {
             var potentialMissions = new Array<AgentMission>();
-            if (OwnerEmpire.GetRelations(target).AtWar)
+            if (!OwnerEmpire.GetRelations(target, out Relationship relations))
+                return potentialMissions;
+
+            if (relations.AtWar)
             {
                 if (agent.Level >= 8)
                 {
@@ -260,7 +266,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (OwnerEmpire.GetRelations(target).Posture == Posture.Hostile)
+            if (relations.Posture == Posture.Hostile)
             {
                 if (agent.Level >= 8)
                 {
@@ -290,8 +296,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (OwnerEmpire.GetRelations(target).Posture == Posture.Neutral ||
-                OwnerEmpire.GetRelations(target).Posture == Posture.Friendly)
+            if (relations.Posture == Posture.Neutral || relations.Posture == Posture.Friendly)
             {
                 if (agent.Level >= 8)
                 {
@@ -321,7 +326,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (OwnerEmpire.GetRelations(target).SpiesDetected > 0)
+            if (relations.SpiesDetected > 0)
             {
                 if (agent.Level >= 4) potentialMissions.Add(AgentMission.Assassinate);
             }
@@ -331,8 +336,10 @@ namespace Ship_Game.AI
         private Array<AgentMission> PotentialPeacefulMissions(Agent agent, Empire target)
         {
             var potentialMissions = new Array<AgentMission>();
+            if (!OwnerEmpire.GetRelations(target, out Relationship relations))
+                return potentialMissions;
 
-            if (OwnerEmpire.GetRelations(target).AtWar)
+            if (relations.AtWar)
             {
                 if (agent.Level >= 8)
                 {
@@ -355,7 +362,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (OwnerEmpire.GetRelations(target).SpiesDetected > 0)
+            if (relations.SpiesDetected > 0)
             {
                 if (agent.Level >= 4) potentialMissions.Add(AgentMission.Assassinate);
             }
@@ -381,11 +388,11 @@ namespace Ship_Game.AI
         private Array<Empire> FindEmpireTargets()
         {
             var potentialTargets = new Array<Empire>();
-            foreach (var relation in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (relation.Value.Known && !relation.Key.isFaction && !relation.Key.data.Defeated &&
-                    (relation.Value.Posture == Posture.Neutral || relation.Value.Posture == Posture.Hostile))
-                    potentialTargets.Add(relation.Key);
+                if (rel.Known && !them.isFaction && !them.data.Defeated &&
+                    (rel.Posture == Posture.Neutral || rel.Posture == Posture.Hostile))
+                    potentialTargets.Add(them);
             }
 
             return potentialTargets;
@@ -399,7 +406,7 @@ namespace Ship_Game.AI
         void CreateAgent()
         {
             string[] spyNames = SpyNames();
-            Agent agent       = new Agent { Name = AgentComponent.GetName(spyNames) };
+            var agent = new Agent { Name = AgentComponent.GetName(spyNames) };
             OwnerEmpire.data.AgentList.Add(agent);
             OwnerEmpire.AddMoney(-ResourceManager.AgentMissionData.AgentCost);
             DeductSpyBudget(ResourceManager.AgentMissionData.AgentCost);
