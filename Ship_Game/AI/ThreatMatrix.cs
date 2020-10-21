@@ -209,7 +209,7 @@ namespace Ship_Game.AI
                     if (pin.Ship != null && pin.Position.InRadius(center, radius))
                     {
                         Empire pinEmp = pin.GetEmpire();
-                        if (pinEmp != us && (pinEmp.isFaction || us.GetRelations(pinEmp).AtWar))
+                        if (pinEmp != us && (pinEmp.isFaction || us.IsAtWarWith(pinEmp)))
                             str += pin.Strength;
                     }
                 }
@@ -469,7 +469,7 @@ namespace Ship_Game.AI
                 if (ship?.dying == false && ship.Active &&
                     ship.KnownByEmpires.KnownBy(owner))
                 {
-                    if (ship.loyalty != owner && owner.GetRelations(ship.loyalty).Treaty_Alliance != true)
+                    if (ship.loyalty != owner && !owner.IsAlliedWith(ship.loyalty))
                         threatCopy.AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true);
                 }
                 else

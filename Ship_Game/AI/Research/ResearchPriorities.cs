@@ -112,14 +112,12 @@ namespace Ship_Game.AI.Research
         float CalcShipHulls(float wars)
         {
             float maxBonus = 0;
-            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                Empire empire          = kv.Key;
-                Relationship relations = kv.Value;
-                if (!relations.Known && empire.isFaction)
+                if (!rel.Known && them.isFaction)
                     continue;
 
-                float empireBonus = CalcCanBuildHulls(empire);
+                float empireBonus = CalcCanBuildHulls(them);
                 if (empireBonus > maxBonus)
                     maxBonus = empireBonus;
             }

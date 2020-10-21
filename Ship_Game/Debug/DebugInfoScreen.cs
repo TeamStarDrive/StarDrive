@@ -654,20 +654,20 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine();
-                foreach (KeyValuePair<Empire, Relationship> relationship in e.AllRelations)
+                foreach ((Empire them, Relationship rel) in e.AllRelations)
                 {
-                    TextColor = relationship.Key.EmpireColor;
-                    if (relationship.Value.Treaty_NAPact)
-                        DrawString(15f, "NA Pact with "+ relationship.Key.data.Traits.Plural);
+                    TextColor = them.EmpireColor;
+                    if (rel.Treaty_NAPact)
+                        DrawString(15f, "NA Pact with "+ them.data.Traits.Plural);
 
-                    if (relationship.Value.Treaty_Trade)
-                        DrawString(15f, "Trade Pact with "+ relationship.Key.data.Traits.Plural);
+                    if (rel.Treaty_Trade)
+                        DrawString(15f, "Trade Pact with "+ them.data.Traits.Plural);
 
-                    if (relationship.Value.Treaty_OpenBorders)
-                        DrawString(15f, "Open Borders with "+ relationship.Key.data.Traits.Plural);
+                    if (rel.Treaty_OpenBorders)
+                        DrawString(15f, "Open Borders with "+ them.data.Traits.Plural);
 
-                    if (relationship.Value.AtWar)
-                        DrawString(15f, $"War with {relationship.Key.data.Traits.Plural} ({relationship.Value.ActiveWar?.WarType})");
+                    if (rel.AtWar)
+                        DrawString(15f, $"War with {them.data.Traits.Plural} ({rel.ActiveWar?.WarType})");
                 }
                 ++column;
                 if (Screen.SelectedSystem != null)

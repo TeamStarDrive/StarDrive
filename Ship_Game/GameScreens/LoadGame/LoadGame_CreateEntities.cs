@@ -644,17 +644,7 @@ namespace Ship_Game
 
         static void CreateRelations(SavedGame.UniverseSaveData saveData)
         {
-            foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
-            {
-                Empire e = EmpireManager.GetEmpireByName(d.Name);
-                foreach (Relationship r in d.Relations)
-                {
-                    Empire empire = EmpireManager.GetEmpireByName(r.Name);
-                    e.AddRelationships(empire, r);
-                    r.ActiveWar?.SetCombatants(e, empire);
-                    r.Risk = new EmpireRiskAssessment(r);
-                }
-            }
+            Empire.InitializeRelationships(saveData.EmpireDataList);
         }
     }
 }
