@@ -33,9 +33,9 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPos(EscortTarget.Center, timeStep);
+            ThrustOrWarpToPos(escortTarget.Center, timeStep);
             float distance = Owner.Center.Distance(escortTarget.Center);
-            if (distance < EscortTarget.Radius + 300f)
+            if (distance < escortTarget.Radius + 300f)
             {
                 Owner.TryLandSingleTroopOnShip(escortTarget);
                 OrderReturnToHangar();
