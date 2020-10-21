@@ -230,7 +230,7 @@ namespace Ship_Game
 
             foreach (Empire empire in EmpireManager.Empires.Sorted(e=> e.MilitaryScore))
             {
-                if (!Debug && empire != player && !player.GetRelations(empire).Known)
+                if (!Debug && empire != player && !player.IsKnown(empire))
                     continue;
 
                 var empireColor = empire.EmpireColor;
@@ -760,8 +760,8 @@ namespace Ship_Game
 
                 foreach (Empire e in solarSystem.OwnerList)
                 {
-                    EmpireManager.Player.TryGetRelations(e, out Relationship ssRel);
-                    wellKnown = Debug || EmpireManager.Player == e || ssRel.Treaty_Alliance;
+                    EmpireManager.Player.GetRelations(e, out Relationship ssRel);
+                    wellKnown = Debug || e.isPlayer || ssRel.Treaty_Alliance;
                     if (wellKnown) break;
 
                 }
@@ -770,13 +770,11 @@ namespace Ship_Game
 
                 foreach (Planet planet in solarSystem.PlanetList)
                 {
-
                     if (!wellKnown && planet.Owner != null)
                     {
                         Empire e = planet.Owner;
-                        if (EmpireManager.Player.TryGetRelations(e, out Relationship ssRel) && ssRel.Known)
+                        if (EmpireManager.Player.IsKnown(e))
                             wellKnown = true;
-
                     }
 
                     float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
@@ -1218,10 +1216,8 @@ namespace Ship_Game
 
                 foreach (Empire e in solarSystem.OwnerList)
                 {
-                    EmpireManager.Player.TryGetRelations(e, out Relationship ssRel);
-                    wellKnown = Debug || EmpireManager.Player == e || ssRel.Treaty_Alliance;
+                    wellKnown = Debug || EmpireManager.Player == e || EmpireManager.Player.IsAlliedWith(e);
                     if (wellKnown) break;
-
                 }
 
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
@@ -1229,13 +1225,7 @@ namespace Ship_Game
                     Planet planet = solarSystem.PlanetList[j];
                     if (!planet.IsExploredBy(player) && !wellKnown)
                         continue;
-                    if (planet.Owner != null && wellKnown)
-                    {
-                        Empire e = planet.Owner;
-                        if (EmpireManager.Player.TryGetRelations(e, out Relationship ssRel) && ssRel.Known)
-                            wellKnown = true;
 
-                    }
                     Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center, 2500f);
                     Vector2 posOffSet = screenPosPlanet;
                     posOffSet.X += 20f;

@@ -40,6 +40,7 @@ namespace Ship_Game.AI
         DeployFleetProjector,
         ScrapShip,
         RearmShipFromPlanet,
+        PirateRaidProjector,
         RemnantEngagements,
         RemnantBalancersEngage,
         RemnantInit
@@ -153,6 +154,8 @@ namespace Ship_Game.AI
                 case PirateDirectorRaid.ID:     return new PirateDirectorRaid();
                 case PirateRaidTransport.ID:    return new PirateRaidTransport();
                 case PirateRaidOrbital.ID:      return new PirateRaidOrbital();
+                case PirateRaidColonyShip.ID:   return new PirateRaidColonyShip(); // Save compatibility remove in 2021 :)
+                case PirateRaidProjector.ID:    return new PirateRaidProjector();
                 case PirateRaidCombatShip.ID:   return new PirateRaidCombatShip();
                 case PirateBase.ID:             return new PirateBase();
                 case PirateDefendBase.ID:       return new PirateDefendBase();

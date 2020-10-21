@@ -16,7 +16,7 @@ namespace Ship_Game
         public Array<string> TroopsToSpawn;
 
         public Array<string> FriendlyShipsToSpawn;
-
+        public Array<string> PirateShipsToSpawn;
         public Array<string> RemnantShipsToSpawn;
 
         public bool UnlockSecretBranch;
@@ -107,14 +107,24 @@ namespace Ship_Game
 
         private void ShipGrants(Empire triggerer ,Planet p)
         {
-            foreach (string ship in FriendlyShipsToSpawn)
+            foreach (string shipName in FriendlyShipsToSpawn)
             {
-                triggerer.Pool.ForcePoolAdd(Ship.CreateShipAt(ship, triggerer, p, true));
+                triggerer.Pool.ForcePoolAdd(Ship.CreateShipAt(shipName, triggerer, p, true));
             }
-            foreach (string ship in RemnantShipsToSpawn)
+            foreach (string shipName in RemnantShipsToSpawn)
             {
-                Ship tomake = Ship.CreateShipAt(ship, EmpireManager.Remnants, p, true);
-                tomake.AI.DefaultAIState = AIState.Exterminate;
+                Ship ship = Ship.CreateShipAt(shipName, EmpireManager.Remnants, p, true);
+                ship.AI.DefaultAIState = AIState.Exterminate;
+            }
+
+            if (PirateShipsToSpawn.Count == 0 || EmpireManager.PirateFactions.Length == 0)
+                return;
+
+            Empire pirates = EmpireManager.PirateFactions.RandItem();
+            foreach (string shipName in PirateShipsToSpawn)
+            {
+                Ship ship = Ship.CreateShipAt(shipName, pirates, p, true);
+                ship?.AI.OrderToOrbit(p);
             }
         }
 

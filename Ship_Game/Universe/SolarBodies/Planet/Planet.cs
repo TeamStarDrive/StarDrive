@@ -167,7 +167,7 @@ namespace Ship_Game
             if (bioSpheresResearched && !terraformResearched)
             {
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
+                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
                 return bioSphereMaxPop + naturalMaxPop;
             }
 
@@ -175,7 +175,7 @@ namespace Ship_Game
             {
                 int terraformableTiles  = TilesList.Count(t => t.CanTerraform);
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
+                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
                 naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * empire.RacialEnvModifer(empire.data.PreferredEnv);
                 return bioSphereMaxPop + naturalMaxPop;
             }
@@ -185,7 +185,12 @@ namespace Ship_Game
             return BasePopPerTile * potentialTiles * empire.RacialEnvModifer(empire.data.PreferredEnv);
         }
 
-        public float PopPerBiosphere => BasePopPerTile / 2;
+        public float PopPerBiosphere(Empire empire)
+        {
+            return empire != null 
+                ? BasePopPerTile / 2 * empire.RacialEnvModifer(empire.data.PreferredEnv)
+                : BasePopPerTile / 2;
+        }
 
         public float PotentialMaxFertilityFor(Empire empire)
         {
@@ -303,6 +308,21 @@ namespace Ship_Game
                 troop.Launch();
         }
 
+        public void ForceLaunchInvadingTroops(Empire loyaltyToLaunch)
+        {
+            for (int i = TroopsHere.Count - 1; i >= 0; i--)
+            {
+                Troop t      = TroopsHere[i];
+                Empire owner = t?.Loyalty;
+
+                if (owner == loyaltyToLaunch && owner?.data.DefaultTroopShip != null)
+                {
+                    Ship troopship = t.Launch(ignoreMovement: true);
+                    troopship?.AI.OrderRebaseToNearest();
+                }
+            }
+        }
+
         public float GravityWellForEmpire(Empire empire)
         {
             if (!Empire.Universe.GravityWells)
@@ -311,7 +331,7 @@ namespace Ship_Game
             if (Owner == null)
                 return GravityWellRadius;
 
-            if (Owner == empire || Owner.GetRelations(empire).Treaty_Alliance)
+            if (Owner == empire || Owner.IsAlliedWith(empire))
                 return 0;
 
             return GravityWellRadius;
@@ -402,8 +422,8 @@ namespace Ship_Game
     
         public float ColonyWarValueTo(Empire empire)
         {
-            if (Owner == null)                    return ColonyPotentialValue(empire);
-            if (Owner.GetRelations(empire)?.AtWar == true) return ColonyWorthTo(empire);
+            if (Owner == null)             return ColonyPotentialValue(empire);
+            if (Owner.IsAtWarWith(empire)) return ColonyWorthTo(empire);
             return 0;
         }
 
@@ -715,7 +735,7 @@ namespace Ship_Game
 
             int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
-                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere;
+                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere(Owner);
 
 
             MaxPopValFromTiles = Math.Max(BasePopPerTile, BasePopPerTile * numHabitableTiles);
