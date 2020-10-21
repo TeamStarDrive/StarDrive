@@ -1099,7 +1099,10 @@ namespace Ship_Game.Fleets
                         //    break;
 
                         Ship ship = availableShips[i];
-                        if (ship.AI.HasPriorityOrder || ship.InCombat || ship.AI.State == AIState.AssaultPlanet)
+                        if (ship.AI.HasPriorityOrder 
+                            || ship.InCombat 
+                            || ship.AI.State == AIState.AssaultPlanet 
+                            || ship.AI.State == AIState.Bombard)
                         {
                             availableShips.RemoveAtSwapLast(i);
                             continue;
