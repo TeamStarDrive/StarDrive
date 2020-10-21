@@ -42,7 +42,7 @@ namespace Ship_Game.GameScreens.Espionage
 
         void OnEmpireSelected(EmpireButton button)
         {
-            if (EmpireManager.Player == button.Empire || EmpireManager.Player.GetRelations(button.Empire).Known)
+            if (EmpireManager.Player == button.Empire || EmpireManager.Player.IsKnown(button.Empire))
             {
                 Screen.SelectedEmpire = button.Empire;
                 Screen.Agents.Reinitialize();

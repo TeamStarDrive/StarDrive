@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.Debug.Page
 {
@@ -48,12 +49,11 @@ namespace Ship_Game.Debug.Page
         {
             var text = new Array<DebugTextBlock>();
             if (EmpireAtWar.data.Defeated) return;
-            foreach (var kv in EmpireAtWar.AllRelations.Sorted(r=> r.Value.AtWar))
+            foreach ((Empire them, Relationship rel) in EmpireAtWar.AllRelations.Sorted(r=> r.Rel.AtWar))
             {
-                var relation = kv.Value;
-                if (relation.Known && !kv.Key.isFaction && kv.Key != EmpireAtWar && !kv.Key.data.Defeated)
+                if (rel.Known && !them.isFaction && them != EmpireAtWar && !them.data.Defeated)
                 {
-                    text.Add(relation.DebugWar());
+                    text.Add(rel.DebugWar());
                 }
             }
             SetTextColumns(text);
@@ -62,9 +62,9 @@ namespace Ship_Game.Debug.Page
 
         void DrawWarAOs()
         {
-            foreach(var rel in EmpireAtWar.AllRelations)
+            foreach((Empire them, Relationship rel) in EmpireAtWar.AllRelations)
             {
-                var war = rel.Value.ActiveWar;
+                var war = rel.ActiveWar;
                 if (war == null ||  war.Them.isFaction) continue;
                 for (int i = 0; i < war.WarTheaters.Theaters.Count; i++)
                 {

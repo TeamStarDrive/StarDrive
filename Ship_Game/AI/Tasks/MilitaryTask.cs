@@ -167,15 +167,6 @@ namespace Ship_Game.AI.Tasks
 
         public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";
 
-        void DeclareWar()
-        {
-            Relationship r = Owner.GetRelations(TargetPlanet.Owner);
-            if (r.PreparingForWar)
-            {
-                Owner.GetEmpireAI().DeclareWarOn(TargetPlanet.Owner, r.PreparingForWarType);
-            }
-        }
-
         public void EndTask()
         {
             Debug_TallyFailedTasks();
@@ -455,7 +446,7 @@ namespace Ship_Game.AI.Tasks
                                 {
                                     if (TargetPlanet.Owner != null && TargetPlanet.Owner != EmpireManager.Unknown)
                                     {
-                                        Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
+                                        Owner.GetRelations(TargetPlanet.Owner, out Relationship rel);
 
                                         if (rel != null && (!rel.AtWar && !rel.PreparingForWar))
                                         {
@@ -481,7 +472,7 @@ namespace Ship_Game.AI.Tasks
 
                                         if (TargetPlanet.Owner != null)
                                         {
-                                            Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
+                                            Owner.GetRelations(TargetPlanet.Owner, out Relationship rel);
                                             if (rel != null && (rel.AtWar || rel.PreparingForWar))
                                             {
                                                 if (Owner.GetFleetsDict()[WhichFleet].AveragePosition().Distance(TargetPlanet.Center) < AORadius)
@@ -522,7 +513,7 @@ namespace Ship_Game.AI.Tasks
                                         return;
                                     }
 
-                                    Owner.TryGetRelations(TargetPlanet.Owner, out Relationship rel);
+                                    Owner.GetRelations(TargetPlanet.Owner, out Relationship rel);
                                     if (rel != null && !(rel.AtWar || rel.PreparingForWar))
                                         EndTask();
 
