@@ -103,6 +103,8 @@ namespace Ship_Game.Gameplay
         [Serialize(59)] public float WeOweThem;
         [Serialize(60)] public int TurnsAtWar;
         [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
+        [Serialize(62)] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
+        [Serialize(63)] public bool IsHostile; // New: If target empire is hostile and might attack us
 
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
@@ -157,6 +159,27 @@ namespace Ship_Game.Gameplay
         {
         }
 
+        public void AddTrustEntry(Offer.Attitude attitude, TrustEntryType type, float cost, int turnTimer = 0)
+        {
+            if (attitude != Offer.Attitude.Threaten)
+            {
+                TrustEntries.Add(new TrustEntry
+                {
+                    TrustCost = cost,
+                    TurnTimer = turnTimer,
+                    Type = type
+                });
+            }
+            else
+            {
+                FearEntries.Add(new FearEntry
+                {
+                    FearCost = cost,
+                    TurnTimer = turnTimer,
+                    Type = type
+                });
+            }
+        }
 
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
@@ -504,11 +527,21 @@ namespace Ship_Game.Gameplay
                 ActiveWar             = null;
             }
 
-            if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == them)
+            if (GlobalStats.RestrictAIPlayerInteraction && them.isPlayer)
                 return;
 
             TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
             Risk.UpdateRiskAssessment(us);
+
+            bool canAttack = CanWeAttackThem(us, them);
+            if (CanAttack != canAttack)
+            {
+                CanAttack = canAttack;
+                if (canAttack) // make sure enemy can also attack us
+                    them.GetRelations(us).CanAttack = true;
+            }
+
+            IsHostile = IsEmpireHostileToUs(us, them);
 
             if (us.isFaction)
                 return;
@@ -541,6 +574,35 @@ namespace Ship_Game.Gameplay
             InitialStrength       += dt.NaturalRelChange;
             TurnsKnown            += 1;
             turnsSinceLastContact += 1;
+        }
+
+        bool CanWeAttackThem(Empire us, Empire them)
+        {
+            if (AtWar || us.isFaction || them.isFaction)
+                return true;
+
+            if (!Known || Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
+                return false;
+
+            if (!us.isPlayer)
+            {
+                float trustworthiness = them.data.DiplomaticPersonality?.Trustworthiness ?? 100;
+                float peacefulness    = 1.0f - them.Research.Strategy.MilitaryRatio;
+                if (TotalAnger > trustworthiness * peacefulness)
+                    return true;
+            }
+            return false;
+        }
+
+        bool IsEmpireHostileToUs(Empire us, Empire them)
+        {
+            if (AtWar)
+                return true;
+
+            // if one of the parties is a Faction, there is hostility by default
+            // unless we have Peace or NA Pacts (such as paying off Pirates)
+            return (us.isFaction || them.isFaction)
+                && !Treaty_Peace && !Treaty_NAPact;
         }
 
         void UpdateAnger(Empire us, Empire them, DTrait personality)
@@ -643,11 +705,12 @@ namespace Ship_Game.Gameplay
             if (FedQuest == null) 
                 return;
 
+            Empire player = Empire.Universe.PlayerEmpire;
             Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
             if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
             {
-                DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
-                Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
+                DiplomacyScreen.ShowEndOnly(us, player, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
+                player.AbsorbEmpire(us);
                 FedQuest = null;
                 success  = true;
                 return;
@@ -659,9 +722,9 @@ namespace Ship_Game.Gameplay
                 {
                     FedQuest = null;
                 }
-                else if (Empire.Universe.PlayerEmpire.GetRelations(enemyEmpire).Treaty_Alliance)
+                else if (player.IsAlliedWith(enemyEmpire))
                 {
-                    DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_AllyFriend",
+                    DiplomacyScreen.ShowEndOnly(us, player, "Federation_YouDidIt_AllyFriend",
                         EmpireManager.GetEmpireByName(FedQuest.EnemyName));
                     Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
                     FedQuest = null;
@@ -1538,24 +1601,19 @@ namespace Ship_Game.Gameplay
             Anger_TerritorialConflict = (Anger_TerritorialConflict + amount).Clamped(0, 100);
         }
 
-        void SetPosture(Posture posture)
-        {
-            Posture = posture;
-        }
-
         public void ChangeToFriendly()
         {
-            SetPosture(Posture.Friendly);
+            Posture = Posture.Friendly;
         }
 
         public void ChangeToNeutral()
         {
-            SetPosture(Posture.Neutral);
+            Posture = Posture.Neutral;
         }
 
         public void ChangeToHostile()
         {
-            SetPosture(Posture.Hostile);
+            Posture = Posture.Hostile;
         }
     }
 
