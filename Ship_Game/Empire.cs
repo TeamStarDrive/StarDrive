@@ -1990,7 +1990,9 @@ namespace Ship_Game
                 troopShips = new Array<Ship>(OwnedShips
                     .Filter(troopship => troopship.Name == data.DefaultTroopShip
                                         && troopship.HasOurTroops
-                                        && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
+                                        && (troopship.AI.State == AIState.AwaitingOrders 
+                                            || troopship.AI.State == AIState.Orbit
+                                            || troopship.AI.State == AIState.HoldPosition)
                                         && troopship.fleet == null && !troopship.InCombat)
                     .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
