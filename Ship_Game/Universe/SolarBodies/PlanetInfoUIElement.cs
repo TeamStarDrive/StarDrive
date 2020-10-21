@@ -176,6 +176,7 @@ namespace Ship_Game
                     DrawPlanetStats(DefenseShipsRect, currentDefenseShips + "/" + maxDefenseShips , "UI/icon_hangar", Color.Yellow, Color.White);
             }
 
+            DrawColonyType(batch);
             DrawFertProdStats(batch);
             DrawColonization(batch, MousePos);
             DrawSendTroops(batch, MousePos);
@@ -193,8 +194,6 @@ namespace Ship_Game
             {
                 batch.DrawString(Fonts.Arial20Bold,
                     Localizer.Token(1429) + P.LocalizedCategory, namePos, tColor);
-                var textCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
-                    namePos.Y + Fonts.Arial20Bold.LineSpacing / 2f - Fonts.Arial12Bold.LineSpacing / 2f + 2f);
 
                 string text = Localizer.Token(1430);
                 var cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
@@ -206,20 +205,20 @@ namespace Ship_Game
             {
                 batch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
                 string text = Localizer.Token(1427);
-                Vector2 Cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
-                batch.DrawString(Fonts.Arial12Bold, text, Cursor, tColor);
+                Vector2 cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
+                batch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
                 return true;
             }
 
             batch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
-            Vector2 TextCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
+            Vector2 textCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
                 namePos.Y + Fonts.Arial20Bold.LineSpacing / 2f - Fonts.Arial12Bold.LineSpacing / 2f + 2f);
 
             string pop2 = P.PopulationStringForPlayer;
-            TextCursor.X -= (Fonts.Arial12Bold.MeasureString(pop2).X + 5f);
-            batch.DrawString(Fonts.Arial12Bold, pop2, TextCursor, tColor);
+            textCursor.X -= (Fonts.Arial12Bold.MeasureString(pop2).X + 5f);
+            batch.DrawString(Fonts.Arial12Bold, pop2, textCursor, tColor);
 
-            PopRect = new Rectangle((int) TextCursor.X - 23, (int) TextCursor.Y - 3, 22, 22);
+            PopRect = new Rectangle((int)textCursor.X - 23, (int)textCursor.Y - 3, 22, 22);
             batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
             PlanetTypeRichness = P.LocalizedRichness;
@@ -300,6 +299,13 @@ namespace Ship_Game
             batch.DrawString(Font12, "Cancel Invasion", textPos, CancelInvasionRect.HitTest(mousePos) ? ButtonTextColor
                                                                                                            : ButtonHoverColor);
         }
+
+        void DrawColonyType(SpriteBatch batch)
+        {
+            Vector2 textPos = new Vector2(RightRect.X -15, RightRect.Y + 65);
+            batch.DrawString(Fonts.Arial10, P.WorldType, textPos, tColor);
+        }
+
 
         int IncomingTroops => Screen.player
                               .GetShips()
