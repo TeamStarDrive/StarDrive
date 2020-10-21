@@ -268,6 +268,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsPlatformOrStation => shipData.Role == ShipData.RoleName.platform || shipData.Role == ShipData.RoleName.station;
+        public bool IsStation           => shipData.Role == ShipData.RoleName.station && !shipData.IsShipyard;
 
         public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
         {
@@ -354,26 +355,29 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
+        public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
+            if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
                 && IsInBordersOf(attacker))
             {
                 return true;
             }
 
-            if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+            if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
                 return true;
             }
 
-            // temporary fix until threading issue is resolved. 
-            var system = System;
-            if (system != null && attackerRelationThis.WarnedSystemsList.Contains(system.guid))
-                return true;
+            SolarSystem system = System;
+            if (system != null)
+            {
+                if (attackerToUs.WarnedSystemsList.Contains(system.guid))
+                    return true;
 
-            if (DesignRole == ShipData.RoleName.troop && system != null && attacker.GetOwnedSystems().ContainsRef(system))
-                return true;
+                if (DesignRole == ShipData.RoleName.troop &&
+                    attacker.GetOwnedSystems().ContainsRef(system))
+                    return true;
+            }
 
             return false;
         }
@@ -386,14 +390,14 @@ namespace Ship_Game.Ships
             if (CombatDisabled)
                 return Vector2.Zero;
 
-            Vector2 jitter = Vector2.Zero;
+            Vector2 error = default;
             if (ECMValue > 0)
-                jitter += RandomMath2.Vector2D(ECMValue * 80f);
+                error += RandomMath2.Vector2D(ECMValue * 80f);
 
             if (loyalty.data.Traits.DodgeMod > 0)
-                jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
+                error += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
 
-            return jitter;
+            return error;
         }
 
         public bool CanBeScrapped  => Mothership == null && HomePlanet == null;
@@ -1198,52 +1202,6 @@ namespace Ship_Game.Ships
 
         }
 
-        /// <summary>
-        /// Sets if ship can be "seen" by an empire.
-        /// this should be merged with scanForCombatTargets at some point. we effectively doing this check twice.
-        /// however this routine is on a fading timer. so while we are doing the check twice they do need to update at different intervals. 
-        /// </summary>
-        public void SetShipsVisible(float elapsedTime)
-        {
-            if (KnownByEmpires.KnownBy(loyalty)) return;
-            if (Empire.Universe.Debug)
-            {
-                KnownByEmpires.SetSeenByPlayer();
-            }
-            if (!Empire.Universe.Debug)
-            {
-                KnownByEmpires.SetSeen(loyalty);
-            
-
-                foreach(var rel in loyalty.AllRelations)
-                {
-                    if (!rel.Value.Treaty_Alliance) continue;
-                    KnownByEmpires.SetSeen(rel.Key);
-                }
-            }
-            SetOtherShipsInSensorRange();
-        }
-        
-        private void SetOtherShipsInSensorRange()
-        {
-            var nearby =  AI.PotentialTargets; //UniverseScreen.SpaceManager.FindNearby(this, SensorRange, GameObjectType.Ship);
-
-            for (int i = 0; i < nearby.Count; i++)
-            {
-                var ship = nearby[i];
-                if (!ship.Active) continue;
-
-                ship.KnownByEmpires.SetSeen(loyalty);
-                var allies = EmpireManager.GetAllies(loyalty);
-
-                for (int x = 0; x < allies.Count; x++)
-                {
-                    var ally = allies[x];
-                    ship.KnownByEmpires.SetSeen(ally);
-                }
-            }
-        }
-
         public bool IsSuitableForPlanetaryRearm()
         {
             if (InCombat 
@@ -1447,7 +1405,7 @@ namespace Ship_Game.Ships
 
             return BaseStrength.LessOrEqual(0)
                    || IsFreighter
-                   || EmpireManager.Player.TryGetRelations(loyalty, out Relationship rel) && !rel.AtWar;
+                   || !EmpireManager.Player.IsAtWarWith(loyalty);
         }
 
         public void UpdateEmpiresOnKill(Ship killedShip)

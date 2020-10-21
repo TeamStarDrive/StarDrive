@@ -245,6 +245,7 @@
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidCombatShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateProtection.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\PirateRaidProjector.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidTransport.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\GoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RefitOrbital.cs" />
@@ -261,7 +262,7 @@
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\WarSupportShips.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
-    <Compile Include="Ship_Game\Empire_Realtionship.cs" />
+    <Compile Include="Ship_Game\Empire_Relationship.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\AABoundingBox2D.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadSafeRandom.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignStat.cs" />
@@ -411,7 +412,6 @@
     <Compile Include="Ship_Game\Sensors\BasicSensors.cs" />
     <Compile Include="Ship_Game\Sensors\TargetData.cs" />
     <Compile Include="Ship_Game\Sensors\TimedScanner.cs" />
-    <Compile Include="Ship_Game\ShipListScreenEntry.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
@@ -515,7 +515,6 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreenEntry.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_BuildDefenses.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Colonize.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />

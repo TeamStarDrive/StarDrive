@@ -232,7 +232,7 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            int maxRaids     = (Level < 7 ? 1 : 2) * NumPortals();
+            int maxRaids     = (Level / 5) + NumPortals();
             int ongoingRaids = Goals.Count(g => g.IsRaid);
             return ongoingRaids < maxRaids;
         }
@@ -487,27 +487,31 @@ namespace Ship_Game
 
         void CalculateShipCosts()
         {
-            AddShipCost(Owner.data.RemnantFighter,         RemnantShipType.Fighter);
-            AddShipCost(Owner.data.RemnantCorvette,        RemnantShipType.Corvette);
-            AddShipCost(Owner.data.RemnantSupportSmall,    RemnantShipType.SmallSupport);
-            AddShipCost(Owner.data.RemnantAssimilator,     RemnantShipType.Assimilator);
-            AddShipCost(Owner.data.RemnantTorpedoCruiser,  RemnantShipType.TorpedoCruiser);
-            AddShipCost(Owner.data.RemnantCruiser,         RemnantShipType.Cruiser);
-            AddShipCost(Owner.data.RemnantCarrier,         RemnantShipType.Carrier);
-            AddShipCost(Owner.data.RemnantMotherShip,      RemnantShipType.Mothership);
-            AddShipCost(Owner.data.RemnantExterminator,    RemnantShipType.Exterminator);
-            AddShipCost(Owner.data.RemnantInhibitor,       RemnantShipType.Inhibitor);
-            AddShipCost(Owner.data.RemnantBomber,          RemnantShipType.Bomber);
-            AddShipCost(Owner.data.RemnantFrigate,         RemnantShipType.Frigate);
-            AddShipCost(Owner.data.RemnantBomberLight,     RemnantShipType.BomberLight);
-            AddShipCost(Owner.data.RemnantBomberMedium,    RemnantShipType.BomberMedium);
+            AddShipCost(Owner.data.RemnantFighter,        RemnantShipType.Fighter);
+            AddShipCost(Owner.data.RemnantCorvette,       RemnantShipType.Corvette);
+            AddShipCost(Owner.data.RemnantSupportSmall,   RemnantShipType.SmallSupport);
+            AddShipCost(Owner.data.RemnantAssimilator,    RemnantShipType.Assimilator);
+            AddShipCost(Owner.data.RemnantTorpedoCruiser, RemnantShipType.TorpedoCruiser);
+            AddShipCost(Owner.data.RemnantCruiser,        RemnantShipType.Cruiser);
+            AddShipCost(Owner.data.RemnantCarrier,        RemnantShipType.Carrier);
+            AddShipCost(Owner.data.RemnantMotherShip,     RemnantShipType.Mothership);
+            AddShipCost(Owner.data.RemnantExterminator,   RemnantShipType.Exterminator);
+            AddShipCost(Owner.data.RemnantInhibitor,      RemnantShipType.Inhibitor);
+            AddShipCost(Owner.data.RemnantBomber,         RemnantShipType.Bomber);
+            AddShipCost(Owner.data.RemnantFrigate,        RemnantShipType.Frigate);
+            AddShipCost(Owner.data.RemnantBomberLight,    RemnantShipType.BomberLight);
+            AddShipCost(Owner.data.RemnantBomberMedium,   RemnantShipType.BomberMedium);
         }
 
         void AddShipCost(string shipName, RemnantShipType type)
         {
-            Ship ship  = ResourceManager.GetShipTemplate(shipName);
-            float cost = ship.BaseCost;
-            ShipCosts.Add(type, cost);
+            if (shipName.IsEmpty() || !ResourceManager.GetShipTemplate(shipName, out Ship ship))
+            {
+                Log.Warning($"Could not find a ship named '{shipName}' in {Owner.Name}'s race xml.");
+                return;
+            }
+
+            ShipCosts.Add(type, ship.BaseCost);
         }
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
@@ -844,13 +848,19 @@ namespace Ship_Game
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p);
-                    ActivationXpNeeded += ShipRole.GetExpSettings(ship).KillExp / 10;
+                    ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / 10) * StoryTurnsLevelUpModifier();
                 }
             }
         }
 
         RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
         {
+            if (GlobalStats.DisableRemnantStory)
+            {
+                goals.Add(new RemnantInit(Owner)); 
+                return RemnantStory.None;
+            }
+
             switch (RollDie(3)) // todo 3 is for testing  should be 6
             {
                 default:
@@ -859,7 +869,6 @@ namespace Ship_Game
                 case 3: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersRandom;
                 case 4: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersClosest;
                 case 5: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientColonizers;
-                case 6: goals.Add(new RemnantInit(Owner)); return RemnantStory.None;
             }
         }
 
