@@ -137,6 +137,12 @@ namespace Ship_Game
                 }
                 else if (targetTile.LockOnEnemyTroop(t.Loyalty, out Troop enemy))
                 {
+                    if (enemy.Strength.LessOrEqual(0))
+                    {
+                        // Workaround for negative troop health
+                        Log.Warning($"{enemy.Name} health is less or 0, on planet {Ground.Name}");
+                        enemy.DamageTroop(1, Ground, targetTile, out _);
+                    }
                     CombatScreen.StartCombat(t, enemy, targetTile, Ground);
                     if (t.ActualRange == 1)
                         MoveTowardsTarget(t, ourTile, targetTile); // enter the same tile 

@@ -1198,7 +1198,7 @@ namespace Ship_Game.Fleets
                         if (ship.AI.HasPriorityOrder 
                             || ship.InCombat 
                             || ship.AI.State == AIState.AssaultPlanet 
-                            || ship.AI.State != AIState.Bombard)
+                            || ship.AI.State == AIState.Bombard)
                         {
                             availableShips.RemoveAtSwapLast(i);
                             continue;
