@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Ship_Game.Audio;
 using System.Runtime.InteropServices.WindowsRuntime;
+using static Ship_Game.EmpireManager;
 
 namespace Ship_Game.Gameplay
 {
@@ -488,75 +489,50 @@ namespace Ship_Game.Gameplay
             return RandomMath2.Vector2D(adjust);
         }
 
-        public static float TraitTargetModifiers(Empire loyalty)
+        public float BaseTargetError(float level, float range = 0, Empire loyalty = null)
         {
-            float level = 0;
-            if (loyalty != null)
-            {
-                level += loyalty.data.Traits.Militaristic;
-            }
-            return level;
-        }
-
-        public float BaseTargetError(int level, float range = 0, Empire loyalty = null)
-        {
-            if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
+            if (Module == null)
                 return 0;
-
-           
-            // for situations where this is used outside of real combat
-            if (FireTarget != null)
+            
+            // base error is based on module size or accuracyPercent.
+            // bother create a weapon variance value. 
+            // 
+            float baseError;
+            if (Module?.AccuracyPercent.AlmostEqual(-1) == false)
             {
-                range = range < 1 ? Origin.Distance(FireTarget.Center).LowerBound(100) : range;
+                // should be calculated once. 
+                baseError = (float)Math.Pow(1000 , (1 - Module.AccuracyPercent));
             }
             else
             {
-                range = range < 1 ? Math.Min(3000, BaseRange).LowerBound(100) : range;
+                if (TruePD) baseError = 0;
+                //else baseError = (Module.Area + 16) * (Module.Area + 16);
+                else baseError = (float)Math.Pow(Module.Area * 16f + 640, 1.05f);
             }
 
-            float rangeRatioToSTLConstant = range / Ship.TargetErrorFocalPoint;
-
-            // calculate level
-            // if the level is less than 0 than the level is being forced.
-            // likely because its being used outside of the universe such as the shipyard.
+            // Skip all accuracy if weapon is 100% accurate
+            if (baseError.AlmostZero())
+                return 0;
 
             if (level < 0)
             {
+                // calculate at ship update
                 level = (Owner?.Level ?? 0) + (Owner?.TrackingPower ?? 0);
             }
-            level += 8 + (loyalty?.data.Traits.Militaristic ?? 0);
-
-            // base error is based on a fixed value + module size in slots
-            float baseError =  (Module.Area + 32) * (Module.Area +32 );
-            
-            // reduce error when relativistic effects stop causing an issue. 
-            if (rangeRatioToSTLConstant < 1) baseError *= rangeRatioToSTLConstant;
+            // calculate at ship empire update
+            level += 5;
+            level += loyalty?.data.Traits.Militaristic ?? 0;
 
             // reduce the error by level
             float adjust = (baseError / level).LowerBound(0);
             
             // reduce or increase error based on weapon and trait characteristics.
-            if (Tag_Cannon) adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
+            if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
             if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
-            adjust *= WeaponAccuracyModifiers();
+            if (isTurret) adjust    *= 0.5f;
+            if (Tag_PD) adjust      *= 0.5f;
+            if (TruePD) adjust      *= 0.5f;
             return adjust;
-        }
-
-        float WeaponAccuracyModifiers()
-        {
-            float accuracy = Module?.AccuracyPercent ?? 0f;
-            if (accuracy < 0)
-            {
-                accuracy = 1f;
-                if (isTurret) accuracy *= 0.5f;
-                if (Tag_PD)   accuracy *= 0.5f;
-                if (TruePD)   accuracy *= 0.5f;
-            }
-            else
-            {
-                accuracy = 1f - accuracy;
-            }
-            return accuracy;
         }
 
         // @note This is used for debugging
@@ -574,7 +550,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Applies correction to weapon target based on distance to target
-        Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
+        public Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
         {
             // once we get too close the angle error becomes too big, so move the target pos further
             float distance = source.Distance(target);
@@ -587,9 +563,9 @@ namespace Ship_Game.Gameplay
             
             // total error magnitude should get smaller as we get closer
             float errorMagnitude = 1f;
-            if (distance < 2000f)
+            if (distance < Ship.TargetErrorFocalPoint)
             {
-                errorMagnitude = (distance+minDistance) / 2000f;
+                errorMagnitude = (distance+minDistance) / Ship.TargetErrorFocalPoint;
             }
 
             Vector2 adjusted = target + error*errorMagnitude;
@@ -597,7 +573,6 @@ namespace Ship_Game.Gameplay
             return adjusted;
         }
 
-        
         public Vector2 Origin => Module?.Center ?? PlanetCenter;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
@@ -857,12 +832,13 @@ namespace Ship_Game.Gameplay
             actualShieldPenChance = Math.Max(shieldPenChance, actualShieldPenChance);
         }
 
-        public float GetActualRange()
+        public float GetActualRange(Empire owner = null)
         {
+            owner = owner ?? Owner?.loyalty ?? Player;
             float range = BaseRange;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {
-                WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[ ActiveWeaponTags[i] ];
+                WeaponTagModifier mod = owner.data.WeaponTags[ ActiveWeaponTags[i] ];
                 range += mod.Range * BaseRange;
             }
             return range;
