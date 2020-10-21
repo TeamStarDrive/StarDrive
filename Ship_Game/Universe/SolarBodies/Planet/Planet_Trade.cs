@@ -215,7 +215,7 @@ namespace Ship_Game
                 {
                     freighters.RemoveAtSwapLast(i);
                 }
-                else if (ship.loyalty != Owner && !Owner.GetRelations(ship.loyalty).Treaty_Trade)
+                else if (ship.loyalty != Owner && !Owner.IsTradeTreaty(ship.loyalty))
                 {
                     // cancel trade plan and remove from list if trade treaty was canceled
                     freighters.RemoveAtSwapLast(i);

@@ -20,37 +20,36 @@ namespace Ship_Game
         public int AverageFreighterFTLSpeed       { get; private set; } = 20000;
         public int  TotalProdExportSlots          { get; private set; }
 
-        [XmlIgnore][JsonIgnore] public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
-        [XmlIgnore][JsonIgnore] public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
-        [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue  => 1 + Research.Strategy.IndustryPriority;
-        [XmlIgnore][JsonIgnore] public int TotalFreighters       => OwnedShips.Count(s => s.IsFreighter);
-        [XmlIgnore][JsonIgnore] public Ship[] IdleFreighters     => OwnedShips.Filter(s => s.IsIdleFreighter);
-        [XmlIgnore][JsonIgnore] public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
-        [XmlIgnore][JsonIgnore] public bool ManualTrade          => isPlayer && !AutoFreighters;
-        [XmlIgnore][JsonIgnore] public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
-        [XmlIgnore][JsonIgnore] public int NumTradeTreaties      => TradeTreaties.Count;
+        public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
+        public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
+        public int MaxFreightersInQueue  => 1 + Research.Strategy.IndustryPriority;
+        public int TotalFreighters       => OwnedShips.Count(s => s.IsFreighter);
+        public Ship[] IdleFreighters     => OwnedShips.Filter(s => s.IsIdleFreighter);
+        public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
+        public bool ManualTrade          => isPlayer && !AutoFreighters;
+        public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
+        public int NumTradeTreaties      => TradeTreaties.Count;
 
-        [XmlIgnore][JsonIgnore] Array<Empire> TradeTreaties = new Array<Empire>();
+        Array<OurRelationsToThem> TradeTreaties = new Array<OurRelationsToThem>();
+        public IReadOnlyList<OurRelationsToThem> TradeRelations => TradeTreaties;
 
         void UpdateTradeTreaties()
         {
-                var tradeTreaties = new Array<Empire>();
-                foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
-                    if (kv.Value.Treaty_Trade)
-                        tradeTreaties.Add(kv.Key);
+            var tradeTreaties = new Array<OurRelationsToThem>();
+            foreach (OurRelationsToThem r in ActiveRelations)
+                if (r.Rel.Treaty_Trade)
+                    tradeTreaties.Add(r);
 
-                TradeTreaties = tradeTreaties;
+            TradeTreaties = tradeTreaties;
         }
 
         public BatchRemovalCollection<Planet> TradingEmpiresPlanetList()
         {
             var list = new BatchRemovalCollection<Planet>();
-            foreach (Empire empire in TradeTreaties)
+            foreach ((Empire them, Relationship rel) in TradeTreaties)
             {
-                foreach (Planet planet in empire.OwnedPlanets)
-                    list.Add(planet);
+                list.AddRange(them.OwnedPlanets);
             }
-
             return list;
         }
 
@@ -266,8 +265,8 @@ namespace Ship_Game
         public float TotalTradeTreatiesIncome()
         {
             float total = 0f;
-            foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
-                if (kv.Value.Treaty_Trade) total += kv.Value.TradeIncome();
+            foreach ((Empire them, Relationship rel) in ActiveRelations)
+                if (rel.Treaty_Trade) total += rel.TradeIncome();
             return total;
         }
 
