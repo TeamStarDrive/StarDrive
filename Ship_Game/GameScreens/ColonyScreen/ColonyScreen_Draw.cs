@@ -217,7 +217,7 @@ namespace Ship_Game
                 fertility = $"{P.FertilityFor(Player).String(2)} / {P.MaxFertilityFor(Player).LowerBound(0).String(2)}";
                 batch.DrawString(Font12, fertility, position3, fertColor);
             }
-            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
+            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
@@ -562,7 +562,7 @@ namespace Ship_Game
                     break;
 
                 case PlanetGridSquare pgs:
-                    float popPerTile = P.BasePopPerTile * Player.RacialEnvModifer(P.Category);
+                    float popPerTile = P.BasePopPerTile * Player.PlayerEnvModifier(P.Category);
                     switch (pgs.building)
                     {
                         case null when pgs.Habitable && pgs.Biosphere:
