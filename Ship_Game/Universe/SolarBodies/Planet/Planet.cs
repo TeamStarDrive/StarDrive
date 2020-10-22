@@ -150,9 +150,10 @@ namespace Ship_Game
 
         public float MaxPopulation => MaxPopulationFor(Owner);
 
-        public float PotentialMaxPopBillionsFor(Empire empire) => PotentialMaxPopFor(empire) / 1000;
+        public float PotentialMaxPopBillionsFor(Empire empire, bool forceOnlyBiospheres = false)
+            => PotentialMaxPopFor(empire, forceOnlyBiospheres) / 1000;
 
-        public float PotentialMaxPopFor(Empire empire)
+        float PotentialMaxPopFor(Empire empire, bool forceOnlyBiospheres = false)
         {
             bool bioSpheresResearched = empire.IsBuildingUnlocked(Building.BiospheresId);
             bool terraformResearched  = empire.IsBuildingUnlocked(Building.TerraformerId);
@@ -164,7 +165,8 @@ namespace Ship_Game
             if (!bioSpheresResearched && !terraformResearched)
                 return naturalMaxPop + PopulationBonus;
 
-            if (bioSpheresResearched && !terraformResearched)
+            // Only Biosphere researched ot we aer checking specifically for biospheres alone
+            if (bioSpheresResearched  && !terraformResearched || forceOnlyBiospheres)
             {
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
                 float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
@@ -203,11 +205,15 @@ namespace Ship_Game
             if (!Habitable)
                 return 0;
 
-            float minimumPop = BasePopPerTile/2 + PopulationBonus; // At least 1/2 tile's worth population and any max pop bonus buildings have
+            float minimumPop = BasePopPerTile/2; // At least 1/2 tile's worth population and any max pop bonus buildings have
             if (empire == null)
                 return (MaxPopValFromTiles + PopulationBonus).LowerBound(minimumPop);
 
-            return (MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus).LowerBound(minimumPop);
+            float maxPopValToUse = MaxPopValFromTiles;
+            if (TilesList.Count(t => t.Habitable && !t.Biosphere) == 0)
+                maxPopValToUse = minimumPop; // No Habitable tiles, so using the minimum pop
+
+            return (maxPopValToUse * empire.RacialEnvModifer(Category) + PopulationBonus).LowerBound(minimumPop);
         }
 
         public int FreeTilesWithRebaseOnTheWay(Empire empire)
