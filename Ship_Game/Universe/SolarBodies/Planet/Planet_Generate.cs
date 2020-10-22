@@ -186,7 +186,7 @@ namespace Ship_Game
         private void CreateHomeWorldPopulation(float preDefinedPop, int numHabitableTiles)
         {
             // Homeworld Pop is always 14 (or if defined else in the xml) multiplied by scale (homeworld size mod)
-            float envMultiplier = 1 /  Empire.PreferredEnvModifier(Owner);
+            float envMultiplier = 1 / Empire.PreferredEnvModifier(Owner);
             float maxPop        = preDefinedPop > 0 ? preDefinedPop * 1000 : 14000;
             BasePopPerTile      = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
             UpdateMaxPopulation();
