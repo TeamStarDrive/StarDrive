@@ -137,9 +137,8 @@ namespace Ship_Game
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
-        public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
-        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * empire?.RacialEnvModifer(Category) 
-                                                       ?? BaseMaxFertility + BuildingsFertility;
+        public float FertilityFor(Empire empire)    => BaseFertility * Empire.RacialEnvModifer(Category, empire);
+        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * Empire.RacialEnvModifer(Category, empire);
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -150,25 +149,28 @@ namespace Ship_Game
 
         public float MaxPopulation => MaxPopulationFor(Owner);
 
-        public float PotentialMaxPopBillionsFor(Empire empire) => PotentialMaxPopFor(empire) / 1000;
+        public float PotentialMaxPopBillionsFor(Empire empire, bool forceOnlyBiospheres = false)
+            => PotentialMaxPopFor(empire, forceOnlyBiospheres) / 1000;
 
-        public float PotentialMaxPopFor(Empire empire)
+        float PotentialMaxPopFor(Empire empire, bool forceOnlyBiospheres = false)
         {
             bool bioSpheresResearched = empire.IsBuildingUnlocked(Building.BiospheresId);
             bool terraformResearched  = empire.IsBuildingUnlocked(Building.TerraformerId);
 
             // We calculate this  and not using MaxPop since it might be an enemy planet with biospheres
             int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-            float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * empire.RacialEnvModifer(Category);
+            float racialEnvModifier      = Empire.RacialEnvModifer(Category, empire);
+            float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * racialEnvModifier;
 
-            if (!bioSpheresResearched && !terraformResearched)
-                return naturalMaxPop;
+            if (!forceOnlyBiospheres && !bioSpheresResearched && !terraformResearched)
+                return naturalMaxPop + PopulationBonus;
 
-            if (bioSpheresResearched && !terraformResearched)
+            // Only Biosphere researched ot we aer checking specifically for biospheres alone
+            if (bioSpheresResearched  && !terraformResearched || forceOnlyBiospheres)
             {
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
                 float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
-                return bioSphereMaxPop + naturalMaxPop;
+                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
             }
 
             if (bioSpheresResearched) // Biospheres and terraformers researched
@@ -176,20 +178,18 @@ namespace Ship_Game
                 int terraformableTiles  = TilesList.Count(t => t.CanTerraform);
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
                 float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
-                naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * empire.RacialEnvModifer(empire.data.PreferredEnv);
-                return bioSphereMaxPop + naturalMaxPop;
+                naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * racialEnvModifier;
+                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
             }
 
             // Only Terraformers researched
             int potentialTiles = TilesList.Count(t => t.Terraformable);
-            return BasePopPerTile * potentialTiles * empire.RacialEnvModifer(empire.data.PreferredEnv);
+            return BasePopPerTile*potentialTiles*racialEnvModifier + PopulationBonus;
         }
 
         public float PopPerBiosphere(Empire empire)
         {
-            return empire != null 
-                ? BasePopPerTile / 2 * empire.RacialEnvModifer(empire.data.PreferredEnv)
-                : BasePopPerTile / 2;
+            return BasePopPerTile / 2 * Empire.RacialEnvModifer(Category, empire);
         }
 
         public float PotentialMaxFertilityFor(Empire empire)
@@ -203,11 +203,15 @@ namespace Ship_Game
             if (!Habitable)
                 return 0;
 
-            float minimumPop = BasePopPerTile/2 + PopulationBonus; // At least 1/2 tile's worth population and any max pop bonus buildings have
+            float minimumPop = BasePopPerTile/2; // At least 1/2 tile's worth population and any max pop bonus buildings have
             if (empire == null)
                 return (MaxPopValFromTiles + PopulationBonus).LowerBound(minimumPop);
 
-            return (MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus).LowerBound(minimumPop);
+            float maxPopValToUse = MaxPopValFromTiles;
+            if (TilesList.Count(t => t.Habitable && !t.Biosphere) == 0)
+                maxPopValToUse = minimumPop; // No Habitable tiles, so using the minimum pop
+
+            return (maxPopValToUse * Empire.RacialEnvModifer(Category, empire) + PopulationBonus).LowerBound(minimumPop);
         }
 
         public int FreeTilesWithRebaseOnTheWay(Empire empire)
@@ -714,7 +718,7 @@ namespace Ship_Game
 
         private void UpdateColonyValue() => ColonyValue = Owner != null ? ColonyBaseValue(Owner) : 0;
 
-        public float PopPerTileFor(Empire empire) => BasePopPerTile * empire?.RacialEnvModifer(Category) ?? BasePopPerTile;
+        public float PopPerTileFor(Empire empire) => BasePopPerTile * Empire.RacialEnvModifer(Category, empire);
 
         // these are intentionally duplicated so we don't easily modify them...
         private float BasePopPerTileVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
@@ -1302,7 +1306,7 @@ namespace Ship_Game
             debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
             debug.AddLine($"Scale: {Scale}");
             debug.AddLine($"Population per Habitable Tile: {BasePopPerTile}");
-            debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.RacialEnvModifer(Category)}");
+            debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.PlayerEnvModifier(Category)}");
             debug.AddLine($"Habitable Tiles: {numHabitableTiles}");
             debug.AddLine("");
             debug.AddLine($"Incoming Freighters: {NumIncomingFreighters}");

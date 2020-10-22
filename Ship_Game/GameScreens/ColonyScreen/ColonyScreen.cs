@@ -218,7 +218,7 @@ namespace Ship_Game
         public float TerraformTargetFertility()
         {
             float fertilityOnBuild = P.BuildingList.Sum(b => b.MaxFertilityOnBuild);
-            return (1 + fertilityOnBuild*Player.RacialEnvModifer(Player.data.PreferredEnv)).LowerBound(0);
+            return (1 + fertilityOnBuild*Player.PlayerPreferredEnvModifier).LowerBound(0);
         }
 
         string TerraformPotential(out Color color)
