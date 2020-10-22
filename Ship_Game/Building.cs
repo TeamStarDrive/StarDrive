@@ -253,8 +253,9 @@ namespace Ship_Game
             return false;
         }
 
-        public float MaxFertilityOnBuildFor(Empire empire, PlanetCategory category) => empire?.RacialEnvModifer(category) * MaxFertilityOnBuild 
-                                                                                                                         ?? MaxFertilityOnBuild;
+        public float MaxFertilityOnBuildFor(Empire empire, PlanetCategory category) 
+            => Empire.RacialEnvModifer(category, empire) * MaxFertilityOnBuild;
+
         public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
 
         public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID);
