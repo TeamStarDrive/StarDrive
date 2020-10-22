@@ -231,9 +231,8 @@ namespace Ship_Game
             DrawFertProdStats(batch);
             AddUnExploredTips();
 
-            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
+            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
             int numHabitableTile    = P.TotalHabitableTiles;
-            int numUnhabitableTiles = P.TileArea - numHabitableTile;
             float popPerTile        = P.BasePopPerTile * fertEnvMultiplier;
             float biospherePop      = P.PotentialMaxPopBillionsFor(EmpireManager.Player, true);
 
@@ -354,8 +353,8 @@ namespace Ship_Game
             string fertString = fertility.AlmostEqual(maxFert) ? fertility.String(2) : $"{fertility.String(2)}/{maxFert.String(2)}";
             batch.DrawString(Fonts.Arial12Bold, fertString, tcurs, tColor);
 
-            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
-            if (!fertEnvMultiplier.AlmostEqual(1) && !P.BaseFertility.AlmostZero())
+            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
+            if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
                 var fertMultiplier = new Vector2(tcurs.X + Font12.MeasureString(fertString).X + 3, tcurs.Y + 2);
