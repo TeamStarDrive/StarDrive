@@ -162,13 +162,13 @@ namespace Ship_Game
             float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * empire.RacialEnvModifer(Category);
 
             if (!bioSpheresResearched && !terraformResearched)
-                return naturalMaxPop;
+                return naturalMaxPop + PopulationBonus;
 
             if (bioSpheresResearched && !terraformResearched)
             {
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
                 float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
-                return bioSphereMaxPop + naturalMaxPop;
+                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
             }
 
             if (bioSpheresResearched) // Biospheres and terraformers researched
@@ -177,18 +177,18 @@ namespace Ship_Game
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
                 float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
                 naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * empire.RacialEnvModifer(empire.data.PreferredEnv);
-                return bioSphereMaxPop + naturalMaxPop;
+                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
             }
 
             // Only Terraformers researched
             int potentialTiles = TilesList.Count(t => t.Terraformable);
-            return BasePopPerTile * potentialTiles * empire.RacialEnvModifer(empire.data.PreferredEnv);
+            return BasePopPerTile * potentialTiles * empire.RacialEnvModifer(empire.data.PreferredEnv) + PopulationBonus;
         }
 
         public float PopPerBiosphere(Empire empire)
         {
             return empire != null 
-                ? BasePopPerTile / 2 * empire.RacialEnvModifer(empire.data.PreferredEnv)
+                ? BasePopPerTile / 2 * empire.RacialEnvModifer(Category)
                 : BasePopPerTile / 2;
         }
 
