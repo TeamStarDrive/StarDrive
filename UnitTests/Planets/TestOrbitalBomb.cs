@@ -71,7 +71,6 @@ namespace UnitTests.Planets
         [TestMethod]
         public void TestPopKilledUnhabitable()
         {
-
             CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindUnhabitableTargetTile(P));
             float expectedPop = P.Population - B.PopKilled * 100; // 0.1 of pop killed potential. the usual is * 1000
             orbitalDrop.DamageColonySurface(B);
@@ -81,7 +80,7 @@ namespace UnitTests.Planets
         [TestMethod]
         public void TestTileDestruction()
         {
-            float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile * TestEmpire.RacialEnvModifer(P.Category);
+            float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile * Empire.RacialEnvModifer(P.Category, TestEmpire);
             P.DestroyTile(FindHabitableTargetTile(P));
             Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
         }
