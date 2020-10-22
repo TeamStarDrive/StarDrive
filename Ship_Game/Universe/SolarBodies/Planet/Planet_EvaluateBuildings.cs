@@ -549,7 +549,7 @@ namespace Ship_Game
                 if (TilesList.Any(t => t.BioCanTerraform))
                     num += 1;
 
-                if (Category != Owner.data.PreferredEnv || NonCybernetic && BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
+                if (Category != Owner.data.PreferredEnv || NonCybernetic && BaseMaxFertility.Less(1 / Empire.RacialEnvModifer(Category, Owner)))
                     num += 2;
 
                 if (num > 0)
