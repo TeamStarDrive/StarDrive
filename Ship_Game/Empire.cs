@@ -589,19 +589,40 @@ namespace Ship_Game
             return planets;
         }
 
-        public float RacialEnvModifer(PlanetCategory category)
+        /// <summary>
+        /// Returns the Player's Environment Modifier based on a planet's category.
+        /// </summary>
+        public float PlayerEnvModifier(PlanetCategory category) => RacialEnvModifer(category, EmpireManager.Player);
+
+        /// <summary>
+        /// Returns the Player's Preferred Environment Modifier.
+        /// </summary>
+        public float PlayerPreferredEnvModifier 
+            => RacialEnvModifer(EmpireManager.Player.data.PreferredEnv, EmpireManager.Player);
+
+
+        /// <summary>
+        /// Returns the preferred Environment Modifier of a given empire.
+        /// </summary>
+        public static float PreferredEnvModifier(Empire empire)
+            => empire == null ? 1 :  RacialEnvModifer(empire.data.PreferredEnv, empire);
+
+        public static float RacialEnvModifer(PlanetCategory category, Empire empire)
         {
             float modifer = 1f; // If no Env tags were found, the multiplier is 1.
+            if (empire == null)
+                return modifer;
+
             switch (category)
             {
-                case PlanetCategory.Terran:  modifer = data.EnvTerran;  break;
-                case PlanetCategory.Oceanic: modifer = data.EnvOceanic; break;
-                case PlanetCategory.Steppe:  modifer = data.EnvSteppe;  break;
-                case PlanetCategory.Tundra:  modifer = data.EnvTundra;  break;
-                case PlanetCategory.Swamp:   modifer = data.EnvSwamp;   break;
-                case PlanetCategory.Desert:  modifer = data.EnvDesert;  break;
-                case PlanetCategory.Ice:     modifer = data.EnvIce;     break;
-                case PlanetCategory.Barren:  modifer = data.EnvBarren;  break;
+                case PlanetCategory.Terran:  modifer = empire.data.EnvTerran;  break;
+                case PlanetCategory.Oceanic: modifer = empire.data.EnvOceanic; break;
+                case PlanetCategory.Steppe:  modifer = empire.data.EnvSteppe;  break;
+                case PlanetCategory.Tundra:  modifer = empire.data.EnvTundra;  break;
+                case PlanetCategory.Swamp:   modifer = empire.data.EnvSwamp;   break;
+                case PlanetCategory.Desert:  modifer = empire.data.EnvDesert;  break;
+                case PlanetCategory.Ice:     modifer = empire.data.EnvIce;     break;
+                case PlanetCategory.Barren:  modifer = empire.data.EnvBarren;  break;
             }
 
             return modifer;

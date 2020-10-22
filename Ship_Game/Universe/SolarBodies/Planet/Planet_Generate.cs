@@ -186,7 +186,7 @@ namespace Ship_Game
         private void CreateHomeWorldPopulation(float preDefinedPop, int numHabitableTiles)
         {
             // Homeworld Pop is always 14 (or if defined else in the xml) multiplied by scale (homeworld size mod)
-            float envMultiplier = 1 / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
+            float envMultiplier = 1 /  Empire.PreferredEnvModifier(Owner);
             float maxPop        = preDefinedPop > 0 ? preDefinedPop * 1000 : 14000;
             BasePopPerTile      = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
             UpdateMaxPopulation();
@@ -196,7 +196,7 @@ namespace Ship_Game
         private void CreateHomeWorldFertilityAndRichness()
         {
             // Set the base fertility so it always corresponds to preferred env plus any modifiers from traits
-            float baseMaxFertility = (2 + Owner.data.Traits.HomeworldFertMod) / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
+            float baseMaxFertility = (2 + Owner.data.Traits.HomeworldFertMod) / Empire.PreferredEnvModifier(Owner);
             SetBaseFertilityMinMax(baseMaxFertility);
 
             MineralRichness = 1f + Owner.data.Traits.HomeworldRichMod;
@@ -335,7 +335,7 @@ namespace Ship_Game
                 if (IsCybernetic)
                     return 0;
 
-                float racialEnvMultiplier = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1f;
+                float racialEnvMultiplier = 1 / Empire.PreferredEnvModifier(Owner);
                 return racialEnvMultiplier;
             }
         }
