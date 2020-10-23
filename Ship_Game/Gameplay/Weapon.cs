@@ -515,15 +515,24 @@ namespace Ship_Game.Gameplay
             if (level < 0)
             {
                 // calculate at ship update
-                level = (Owner?.Level ?? 0) + (Owner?.TrackingPower ?? 0);
+                level = (Owner?.Level ?? 0) + loyalty?.data.Traits.Militaristic ?? 0;
+                level = (float)Math.Pow(level, 2f);
+                level += (Owner?.TrackingPower ?? 0);
             }
             
             level += 5;
-            level += loyalty?.data.Traits.Militaristic ?? 0;
 
             // reduce the error by level
-            float adjust = (baseError / level).LowerBound(0);
+            float adjust = (baseError / level -16f).LowerBound(0);
             
+            if (FireTarget is ShipModule module)
+            {
+                Ship target = module.GetParent();
+                float speed = target.CurrentVelocity;
+                if (speed < 150)
+                    adjust *= (speed + 1 / 150f).Clamped(0f,1f);
+            }
+
             // reduce or increase error based on weapon and trait characteristics.
             // this could be pre-calculated in the flyweight
             if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
