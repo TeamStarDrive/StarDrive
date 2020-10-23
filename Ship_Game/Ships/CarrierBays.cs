@@ -198,6 +198,7 @@ namespace Ship_Game.Ships
 
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
 
+
         bool ScrambleAssaultShips(float strengthNeeded)
         {
             if (Owner == null || !Owner.HasOurTroops)
@@ -207,8 +208,7 @@ namespace Ship_Game.Ships
                 return false;
 
             bool limitAssaultSize = strengthNeeded > 0; // if Strength needed is 0,  this will be false and the ship will launch all troops
-
-            bool sentAssault = false;
+            bool sentAssault      = false;
             foreach (ShipModule hangar in AllActiveTroopBays)
             {
                 if (hangar.hangarTimer <= 0 && Owner.HasOurTroops)
@@ -217,14 +217,30 @@ namespace Ship_Game.Ships
                         break;
 
                     if (Owner.GetOurFirstTroop(out Troop troop) &&
-                        hangar.LaunchBoardingParty(troop))
+                        hangar.LaunchBoardingParty(troop, out _))
                     {
                         sentAssault = true;
                         strengthNeeded -= troop.Strength;
                     }
                 }
             }
+
             return sentAssault;
+        }
+
+        public bool TryScrambleSingleAssaultShuttle(Troop troop, out Ship assaultShuttle)
+        {
+            assaultShuttle = null;
+            foreach (ShipModule hangar in AllActiveTroopBays)
+            {
+                if (hangar.hangarTimer <= 0 && Owner.HasOurTroops)
+                {
+                    hangar.LaunchBoardingParty(troop, out assaultShuttle);
+                    break;
+                }
+            }
+
+            return assaultShuttle != null;
         }
 
         public void RecoverAssaultShips()
