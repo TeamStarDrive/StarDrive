@@ -409,6 +409,11 @@ namespace Ship_Game
             /*
             if (GlobalStats.RemnantArmageddon)
             {
+                ArmageddonCountdown(timeStep);
+            }
+
+             //this block contains master ship list and empire pool updates. 
+             //threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped. 
                 ArmageddonTimer -= timeStep.FixedTime;
                 if (ArmageddonTimer < 0f)
                 {
