@@ -36,8 +36,13 @@ namespace Ship_Game
 
             batch.Begin();
             if (ActiveModule != null && !ModuleSelectComponent.HitTest(Input))
+            {
                 DrawActiveModule(batch);
+            }
 
+            DrawTargetReference();
+
+            
             DrawUi(batch, elapsed);
             ArcsButton.DrawWithShadowCaps(batch);
             switch (DesignIssues.CurrentWarningLevel)
@@ -53,6 +58,97 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
             batch.End();
             ScreenManager.EndFrameRendering();
+        }
+
+        void DrawTargetReference()
+        {
+            if (Camera.Zoom > 0.4f) return;
+            float x = GlobalStats.XRES / 2f - CameraPosition.X * Camera.Zoom;
+            float y = GlobalStats.YRES / 2f - CameraPosition.Y * Camera.Zoom;
+
+            float focalPoint = Ship.TargetErrorFocalPoint;
+            float radius = (focalPoint + shipSO.WorldBoundingSphere.Radius) * Camera.Zoom;
+            float topEdge = y - radius;
+
+            if (shipSO.WorldBoundingSphere.Radius < Ship.TargetErrorFocalPoint * 0.3f)
+            {
+                DrawRangeCircle(x, y, 0.25f);
+            }
+
+            DrawRangeCircle(x, y, 0.5f);
+            DrawRangeCircle(x, y, 1);
+            DrawRangeCircle(x, y, 2);
+            
+            DrawRangeCircle(x, y, 4);
+            
+            
+            DrawRangeCircle(x, y, 6);
+
+        }
+
+        void DrawRangeCircle(float x, float y, float multiplier)
+        {
+            float focalPoint = Ship.TargetErrorFocalPoint * multiplier;
+            float radius     = (focalPoint) * Camera.Zoom;
+            float topEdge    = y - radius;
+            float rightEdge  = x + radius;
+            float leftEdge   = x - radius;
+            float bottomEdge = y + radius;
+            float thickness  = 0.5f + (multiplier / 7);
+
+            Weapon weapon = ActiveModule?.InstalledWeapon ?? HighlightedModule?.InstalledWeapon;
+            if (weapon == null && WeaponAccuracyList.Count > 0)
+            {
+                weapon = WeaponAccuracyList.FindMax((k, v) => v).Key.InstalledWeapon;
+            }
+
+            float weaponRange = weapon?.GetActualRange() ?? float.MaxValue;
+
+            // weapon range is exceeded by range circle so draw weapon range circle instead
+            if (weaponRange < focalPoint)
+            {
+                DrawCircle(new Vector2(x, y), weaponRange * Camera.Zoom, Color.OrangeRed.Alpha(0.5f), 1);
+                DrawString(new Vector2(x, y - weaponRange * Camera.Zoom - 10), 0, 1, Color.OrangeRed.Alpha(0.5f), new LocalizedText(GameText.Range3).Text + " : " + weaponRange);
+
+                radius = weaponRange * Camera.Zoom;
+            }
+
+            Vector2 source = new Vector2(x, y);
+            Vector2 target = new Vector2(x, y - focalPoint);
+            float error = weapon?.BaseTargetError((int)FireControlLevel, focalPoint, EmpireManager.Player) ?? 0;
+            error = (weapon?.AdjustedImpactPoint(source, target, new Vector2(error, error)) - source ?? Vector2.Zero).X;
+
+            if (weapon != null)
+            {
+                DrawCircle(new Vector2(x, y - radius), error * Camera.Zoom, Color.White, 1);
+                DrawCircle(new Vector2(x, y + radius), error * Camera.Zoom, Color.White, 1);
+                DrawCircle(new Vector2(x - radius, y), error * Camera.Zoom, Color.White, 1);
+            }
+
+            // range circle is within weapon range. so draw it. 
+            if (weaponRange > focalPoint)
+            {
+                DrawCircle(new Vector2(x, y), radius, Color.Red, thickness);
+                DrawString(new Vector2(rightEdge + 20, y), .95f, 1, Color.Red, $"{new LocalizedText(GameText.Range).Text} {focalPoint}");
+
+                if (multiplier > 1)
+                {
+                    DrawCircle(new Vector2(x, topEdge), 100 * 8 * Camera.Zoom, Color.Red);
+                    DrawString(new Vector2(x, topEdge + (20 + 100 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Capital).Text);
+                }
+
+                if (multiplier > 0.25f)
+                {
+                    DrawCircle(new Vector2(leftEdge, y), 30 * 8 * Camera.Zoom, Color.Red);
+                    if (multiplier > 0.5 || Camera.Zoom > 0.2f)
+                    {
+                        DrawString(new Vector2(leftEdge, y + 20 + (30 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Cruiser).Text);
+                    }
+                }
+
+                DrawCircle(new Vector2(x, bottomEdge), 10 * 8 * Camera.Zoom, Color.Red);
+                DrawString(new Vector2(x, bottomEdge + (10 + 10 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
+            }
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -186,7 +282,7 @@ namespace Ship_Game
                 if (s.Module.ModuleType == ShipModuleType.Hangar)
                     DrawHangarShipText(s);
 
-                DrawWeaponArcs(batch, s);
+                DrawWeaponArcs(batch, s, FireControlLevel);
 
                 if (IsSymmetricDesignMode && GetMirrorSlotStruct(s, out SlotStruct mirrored))
                 {
@@ -250,11 +346,12 @@ namespace Ship_Game
         }
 
         static void DrawArc(SpriteBatch batch, float shipFacing, Weapon w, ShipModule m,
-                            Vector2 posOnScreen, float sizeOnScreen, Color color)
+                            Vector2 posOnScreen, float sizeOnScreen, Color color, float level)
         {
             SubTexture arcTexture = Empire.Universe.GetArcTexture(m.FieldOfFire.ToDegrees());
 
             var texOrigin = new Vector2(250f, 250f);
+            
             Rectangle rect = posOnScreen.ToRect((int)sizeOnScreen, (int)sizeOnScreen);
 
             float radians = (shipFacing + m.FacingRadians);
@@ -262,9 +359,11 @@ namespace Ship_Game
 
             Vector2 direction = radians.RadiansToDirection();
             Vector2 start     = posOnScreen;
-            Vector2 end       = start + direction * sizeOnScreen;
-            batch.DrawLine(start, end, color.Alpha(0.1f), 5);
+            Vector2 end = start + direction * w.BaseRange;
 
+            batch.DrawLine(start, end, color.Alpha(0.25f), 5);
+
+            end = start + direction * sizeOnScreen;
             Vector2 textPos = start.LerpTo(end, 0.16f);
             float textRot   = radians + RadMath.HalfPI;
             Vector2 offset  = direction.RightVector() * 6f;
@@ -277,13 +376,13 @@ namespace Ship_Game
             string rangeText = $"Range: {w.BaseRange.String(0)}";
             float textWidth  = Fonts.Arial8Bold.TextWidth(rangeText);
             batch.DrawString(Fonts.Arial8Bold, rangeText,
-                textPos + offset, color.Alpha(0.4f),
+                textPos + offset, color.Alpha(0.3f),
                 textRot, new Vector2(textWidth / 2, 10f), 1f, SpriteEffects.None, 1f);
         }
 
         // @note This is reused in DebugInfoScreen as well
         public static void DrawWeaponArcs(SpriteBatch batch, float shipFacing, 
-            Weapon w, ShipModule module, Vector2 posOnScreen, float sizeOnScreen)
+            Weapon w, ShipModule module, Vector2 posOnScreen, float sizeOnScreen, float shipLevel)
         {
             Color color;
             if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
@@ -291,15 +390,16 @@ namespace Ship_Game
             else if (w.Tag_Cannon)                    color = new Color(0, 255, 0, 255);
             else if (!w.isBeam)                       color = new Color(255, 0, 0, 255);
             else                                      color = new Color(0, 0, 255, 255);
-            DrawArc(batch, shipFacing, w, module, posOnScreen, sizeOnScreen, color);
+            DrawArc(batch, shipFacing, w, module, posOnScreen, sizeOnScreen, color, shipLevel);
         }
 
-        public static void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot)
+        public static void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot, float shipLevel)
         {
             Weapon w = slot.Module.InstalledWeapon;
             if (w == null)
                 return;
-            DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f);
+            DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f, shipLevel);
+
         }
 
         void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 screenPos, float facing = 0f)
@@ -310,7 +410,8 @@ namespace Ship_Game
 
             int cx = (int)(8f * module.XSIZE * Camera.Zoom);
             int cy = (int)(8f * module.YSIZE * Camera.Zoom);
-            DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f);
+            DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f, FireControlLevel);
+            
         }
 
         void DrawActiveModule(SpriteBatch spriteBatch)
@@ -336,6 +437,7 @@ namespace Ship_Game
 
             center += normalizeShieldCircle;
             DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
+            DrawCircle(center, 1000, Color.Red);
             if (IsSymmetricDesignMode)
             {
                 Vector2 mirrorCenter = new Vector2(mirrorX, Input.CursorPosition.Y);
@@ -448,7 +550,8 @@ namespace Ship_Game
             bool canTargetCorvettes        = false;
             bool canTargetCapitals         = false;
             int pointDefenseValue          = 0;
-            var weaponAccuracy             = new Map<ShipModule, float>();
+            Map<ShipModule, float> weaponAccuracyList = new Map<ShipModule, float>();
+
             DesignIssues.Reset();
             var modules = new ModuleCache(ModuleGrid.CopyModulesList());
 
@@ -551,12 +654,11 @@ namespace Ship_Game
                 {
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
                 }
-                float accuracy = weapon.BaseTargetError((int)FireControlLevel);
+                float accuracy = 1 / weapon.BaseTargetError((int)FireControlLevel).LowerBound(1);
                 if (accuracy > 0)
-                    weaponAccuracy[module] = accuracy / 16;
+                    weaponAccuracyList[module] = accuracy / 16;
             }
-
-            FireControlLevel = targets + 1;
+            WeaponAccuracyList = weaponAccuracyList;
             var stats        = new ShipStats();
             stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0, 1);
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
@@ -567,6 +669,7 @@ namespace Ship_Game
             // Other modification to the ship and draw values
             empResist += size; // FB: so the player will know the true EMP Tolerance
             targets   += fixedTargets;
+            FireControlLevel = targets + 1 + EmpireManager.Player.data.Traits.Militaristic;
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
@@ -626,7 +729,7 @@ namespace Ship_Game
                 DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons);
                 DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
                 DesignIssues.CheckTroops(troopCount, size);
-                DesignIssues.CheckAccuracy(weaponAccuracy);
+                DesignIssues.CheckAccuracy(WeaponAccuracyList);
                 UpdateDesignButton();
             }
         }

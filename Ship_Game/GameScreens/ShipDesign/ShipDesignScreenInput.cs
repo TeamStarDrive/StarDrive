@@ -594,7 +594,7 @@ namespace Ship_Game
         {
             if (input.ScrollOut) TransitionZoom -= 0.1f;
             if (input.ScrollIn)  TransitionZoom += 0.1f;
-            TransitionZoom = TransitionZoom.Clamped(0.3f, 2.65f);
+            TransitionZoom = TransitionZoom.Clamped(0.03f, 2.65f);
         }
 
         bool HandleInputUndoRedo(InputState input)
@@ -737,7 +737,7 @@ namespace Ship_Game
             float desiredVisibleHeight = ScreenHeight * 0.75f;
             float currentVisibleHeight = GetHullScreenSize(CameraPosition, hullHeight);
             float newZoom = desiredVisibleHeight / currentVisibleHeight;
-            TransitionZoom = newZoom.Clamped(0.3f, 2.65f);
+            TransitionZoom = newZoom.Clamped(0.03f, 2.65f);
         }
 
         void ReallyExit()
