@@ -240,10 +240,6 @@ namespace Ship_Game
             FlatGrants(triggerer);
             TechGrants(triggerer);
             ShipGrants(triggerer, p);
-            if (BeginArmageddon)
-            {
-                GlobalStats.RemnantArmageddon = true;
-            }
             //planet triggered events
             if (p != null)
             {

@@ -10,7 +10,8 @@ namespace Ship_Game.Ships
         // This is the light speed threshold
         // Warp ships cannot go slower than this
         public const float LightSpeedConstant = 3000f;
-
+        /// <summary> This is point at which relativistic effects begin to reduce targeting ability </summary>
+        public const float TargetErrorFocalPoint = 2300;
         // This is the maximum STL speed that ships can achieve
         // This is both for balancing and for realism, since sub-light
         // ships should not get even close to light speed
@@ -110,6 +111,16 @@ namespace Ship_Game.Ships
                 SpeedLimit      = VelocityMaximum;
             }
 
+        }
+
+        // Used for Remnant portal exit
+        public void EmergeFromPortal()
+        {
+            if (Empire.Universe != null 
+                && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
+            }
         }
 
         Vector3 GetWarpEffectPosition() => Center.ToVec3();

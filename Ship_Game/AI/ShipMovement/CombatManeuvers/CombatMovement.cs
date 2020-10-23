@@ -298,7 +298,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             if (Owner.AI.HasPriorityOrder || Owner.AI.HasPriorityTarget) return chase;
             if (OwnerTarget.CombatDisabled || Owner.CurrentVelocity + OwnerTarget.CurrentVelocity < 100) return chase;
             
-            if (DeltaOurMovementToTheirMovement > 45f)        return ChaseState.None;
+            if (DeltaOurMovementToTheirMovement > 5f)        return ChaseState.None;
 
             if (DeltaOurMovementToOurDirectionToTarget < 20)  chase |= ChaseState.WeAreChasing;
             else
