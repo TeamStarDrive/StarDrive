@@ -21,11 +21,12 @@ namespace Ship_Game
         Rectangle SelectedItemRect;
         Rectangle HoveredItemRect;
         Rectangle AssetsRect;
-        readonly OrbitalAssetsUIElement assetsUI;
+        readonly OrbitalAssetsUIElement AssetsUI;
         readonly TroopInfoUIElement tInfo;
         readonly TroopInfoUIElement hInfo;
         readonly UIButton LandAll;
         readonly UIButton LaunchAll;
+        readonly UIButton Bombard;
         readonly Rectangle GridRect;
         readonly Array<PointSet> CenterPoints = new Array<PointSet>();
         readonly Array<PointSet> pointsList   = new Array<PointSet>();
@@ -45,28 +46,30 @@ namespace Ship_Game
 
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {
-            this.p                = p;
-            int screenWidth       = ScreenWidth;
-            GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
-            Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
-            TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            AssetsRect            = new Rectangle(10, 48, 225, 200);
-            SelectedItemRect      = new Rectangle(10, 250, 225, 250);
-            HoveredItemRect       = new Rectangle(10, 248, 225, 200);
-            assetsUI              = new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p);
-            tInfo                 = new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe);
-            hInfo                 = new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe);
-            var colonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
+            this.p              = p;
+            int screenWidth     = ScreenWidth;
+            GridRect            = new Rectangle(screenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
+            Rectangle titleRect = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
+            TitlePos            = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+            AssetsRect          = new Rectangle(10, 48, 225, 200);
+            SelectedItemRect    = new Rectangle(10, 250, 225, 250);
+            HoveredItemRect     = new Rectangle(10, 248, 225, 200);
+            AssetsUI            = new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p);
+            tInfo               = new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe);
+            hInfo               = new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe);
+            var colonyGrid      = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
             
-            int assetsX = AssetsRect.X + 240;
+            int assetsX = AssetsRect.X + 20;
 
-            LandAll   = Button(ButtonStyle.DanButtonBlue, assetsX, AssetsRect.Y, "Land All", OnLandAllClicked);
-            LaunchAll = Button(ButtonStyle.DanButtonBlue, assetsX, AssetsRect.Y + 30, "Launch All", OnLaunchAllClicked);
-            LandAll.TextAlign = LaunchAll.TextAlign = ButtonTextAlign.Left;
+            LandAll   = Button(ButtonStyle.DanButtonBlue, assetsX, AssetsRect.Y + 60, "Land All", OnLandAllClicked);
+            LaunchAll = Button(ButtonStyle.DanButtonBlue, assetsX, AssetsRect.Y + 90, "Launch All", OnLaunchAllClicked);
+            Bombard   = Button(ButtonStyle.DanButtonRed, assetsX, AssetsRect.Y + 120, "Bombard", OnBombardClicked);
             LandAll.Tooltip   = GameText.LandAllTroopsListedIn;
             LaunchAll.Tooltip = GameText.LaunchToSpaceAllTroops;
+            Bombard.Tooltip   = new LocalizedText(GameText.OrdersAllBombequippedShipsIn).Text;
+            LandAll.TextAlign = LaunchAll.TextAlign = Bombard.TextAlign = ButtonTextAlign.Left;
 
-            var orbitalAssetsTab = new Submenu(assetsX, AssetsRect.Y + 60, 200, AssetsRect.Height * 2, SubmenuStyle.Blue);
+            var orbitalAssetsTab = new Submenu(assetsX + 220, AssetsRect.Y, 200, AssetsRect.Height * 2, SubmenuStyle.Blue);
             orbitalAssetsTab.AddTab("In Orbit");
             OrbitSL = Add(new ScrollList2<CombatScreenOrbitListItem>(orbitalAssetsTab, ListStyle.Blue));
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
@@ -233,7 +236,7 @@ namespace Ship_Game
                 tInfo.Draw(batch, elapsed);
             }
 
-            assetsUI.Draw(batch, elapsed);
+            AssetsUI.Draw(batch, elapsed);
 
             DrawTroopDragDestinations();
             
@@ -451,6 +454,31 @@ namespace Ship_Game
             }
         }
 
+        void OnBombardClicked(UIButton b)
+        { /*
+            if (BombardButton.HandleInput(input))
+            {
+                if (!BombardButton.Toggled)
+                {
+                    foreach (Ship ship in P.ParentSystem.ShipList)
+                    {
+                        if (ship.loyalty == EmpireManager.Player && ship.AI.State == AIState.Bombard)
+                            ship.AI.ClearOrders();
+                    }
+                }
+                else
+                {
+                    foreach (Ship ship in P.ParentSystem.ShipList)
+                    {
+                        if (ship.loyalty == EmpireManager.Player && ship.BombBays.Count > 0 &&
+                            ship.Center.InRadius(P.Center, 15000f))
+                            ship.AI.OrderBombardPlanet(P);
+                    }
+                }
+            }
+        */
+        }
+
         void OnTroopItemDoubleClick(CombatScreenOrbitListItem item)
         {
             if (p.WeCanLandTroopsViaSpacePort(item.Troop.Loyalty))
@@ -511,7 +539,7 @@ namespace Ship_Game
         {
             bool selectedSomethingThisFrame = false;
 
-            assetsUI.HandleInput(input);
+            AssetsUI.HandleInput(input);
             if (Empire.Universe?.Debug == true && (input.SpawnRemnant || input.SpawnPlayerTroop))
             {
                 Empire spawnFor = input.SpawnRemnant ? EmpireManager.Remnants : EmpireManager.Player;
