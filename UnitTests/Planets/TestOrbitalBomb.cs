@@ -61,10 +61,11 @@ namespace UnitTests.Planets
                 //but make sure it dropped at least 1 bomb.
                 if (tile == null && i > 0)
                     break;
+
                 CreateOrbitalDrop(out OrbitalDrop orbitalDrop, tile);
                 float expectedPop = P.Population - B.PopKilled * 1000;
                 orbitalDrop.DamageColonySurface(B);
-                Assert.That.Equal(expectedPop, P.Population, $"At index {i}");
+                Assert.IsTrue(P.Population < expectedPop + 10 && P.Population > expectedPop - 10, $"At index {i}");
             }
         }
 
@@ -74,7 +75,7 @@ namespace UnitTests.Planets
             CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindUnhabitableTargetTile(P));
             float expectedPop = P.Population - B.PopKilled * 100; // 0.1 of pop killed potential. the usual is * 1000
             orbitalDrop.DamageColonySurface(B);
-            Assert.That.Equal(expectedPop, P.Population);
+            Assert.IsTrue(P.Population < expectedPop + 10 && P.Population > expectedPop - 10);
         }
 
         [TestMethod]

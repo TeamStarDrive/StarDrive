@@ -126,6 +126,20 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateRemnantEngagement(Planet planet, Empire owner)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                AO           = planet.Center,
+                AORadius     = 50000f,
+                TargetPlanet = planet
+            };
+
+            militaryTask.SetEmpire(owner);
+            militaryTask.type = TaskType.RemnantEngagement;
+            return militaryTask;
+        }
+
         public MilitaryTask(AO ao, Array<Vector2> patrolPoints)
         {
             AO              = ao.Center;
@@ -163,6 +177,18 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask(Empire owner)
         {
             Owner = owner;
+        }
+
+        public void ChangeTargetPlanet(Planet planet)
+        {
+            TargetPlanet     = planet;
+            TargetPlanetGuid = planet.guid;
+            AO               = planet.Center;
+        }
+
+        public void ChangeAO(Vector2 position)
+        {
+            AO = position;
         }
 
         public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";
@@ -257,7 +283,7 @@ namespace Ship_Game.AI.Tasks
             Fleet.FleetTask = null;
         }
 
-        private void DisbandFleet(Fleet fleet)
+        public void DisbandFleet(Fleet fleet)
         {
             Fleet.Reset();
             TaskForce.Clear();
@@ -710,7 +736,8 @@ namespace Ship_Game.AI.Tasks
             DefendPostInvasion,
             GlassPlanet,
             AssaultPirateBase,
-            Patrol
+            Patrol,
+            RemnantEngagement
         }
 
         [Flags]
