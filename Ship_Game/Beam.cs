@@ -53,9 +53,7 @@ namespace Ship_Game
             Owner                   = weapon.Owner;
             Source                  = source;
 
-            int crewLevel = Owner?.Level ?? -1;
-            Destination = destination + (DisableSpatialCollision ? Vector2.Zero :
-                                         Weapon.GetTargetError(target, crewLevel));
+            Destination = destination ;
             SetActualHitDestination(Destination);
             BeamCollidedThisFrame = true; 
 
