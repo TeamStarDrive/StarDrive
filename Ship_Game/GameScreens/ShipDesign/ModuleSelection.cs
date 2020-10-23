@@ -372,7 +372,7 @@ namespace Ship_Game
             {
                 DrawString(batch, ref modTitlePos, "Explodes", mod.explodes);
                 DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
-                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
+                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius / 16f, 239);
             }
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), mod.EnergyResist, 190,  true);
@@ -475,7 +475,8 @@ namespace Ship_Game
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
-            DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), w.BaseTargetError((int)Screen.FireControlLevel) / -16f, 4114);
+            float accuracy = w.BaseTargetError((int)Screen.FireControlLevel).LowerBound(1) / 16;
+            DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, 4114);
 
             if (isBeam)
             {
