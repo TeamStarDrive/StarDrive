@@ -83,8 +83,8 @@ namespace Ship_Game
             BiospheredPopRect  = InjuryRect;
             TerraformedPopRect = ShieldRect;
 
-            SendTroops = new Rectangle(RightRect.X - 10, Housing.Y + 120, 182, 25);
-            MarkedRect = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
+            SendTroops = new Rectangle(RightRect.X - 17, Housing.Y + 130, 182, 25);
+            MarkedRect = new Rectangle(RightRect.X - 17, Housing.Y + 160, 182, 25);
             CancelInvasionRect = MarkedRect; // Replaces the colonization rect when invading
 
         }
@@ -292,7 +292,7 @@ namespace Ship_Game
 
         void DrawCancelInvasion(SpriteBatch batch, Vector2 mousePos)
         {
-            Vector2 textPos = new Vector2(RightRect.X, CancelInvasionRect.Y + 12 - Font12.LineSpacing / 2 - 2);
+            Vector2 textPos = new Vector2(RightRect.X - 12, CancelInvasionRect.Y + 12 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), CancelInvasionRect, Color.White);
             batch.DrawString(Font12, "Cancel Invasion", textPos, CancelInvasionRect.HitTest(mousePos) ? ButtonTextColor
                                                                                                            : ButtonHoverColor);
@@ -307,15 +307,15 @@ namespace Ship_Game
 
         int IncomingTroops => Screen.player
                               .GetShips()
-                              .Where(troop => troop.HasOurTroops)
-                              .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet == P));
+                              .Where(s => s.HasOurTroops && s.AI.OrderQueue.Any(g => g.Plan == ShipAI.Plan.LandTroop && g.TargetPlanet == P))
+                              .Sum(s => s.TroopCount);
 
         void DrawColonization(SpriteBatch batch, Vector2 mousePos)
         {
             if (P.Owner != null)
                 return;
 
-            Vector2 textPos = new Vector2(RightRect.X + 25, MarkedRect.Y + 12 - Font12.LineSpacing / 2 - 2);
+            Vector2 textPos = new Vector2(RightRect.X + 18, MarkedRect.Y + 12 - Font12.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), MarkedRect, Color.White);
             if (GlobalStats.IsGermanOrPolish)
                 textPos.X -= 9f;
@@ -507,7 +507,12 @@ namespace Ship_Game
                 foreach (Ship ship in shipList)
                 {
                     if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrderQueue.Any(g => g.TargetPlanet == P))
-                        ship.AI.OrderRebaseToNearest();
+                    {
+                        if (ship.DesignRole == ShipData.RoleName.troopShip)
+                            ship.AI.OrderOrbitNearest(true);
+                        else
+                            ship.AI.OrderRebaseToNearest();
+                    }
                 }
             }
 
