@@ -1655,16 +1655,16 @@ namespace Ship_Game.Ships
         {
             switch (DesignRole)
             {
-                case ShipData.RoleName.bomber:    empire.canBuildBombers       = true; break;
-                case ShipData.RoleName.carrier:   empire.canBuildCarriers      = true; break;
-                case ShipData.RoleName.support:   empire.canBuildSupportShips  = true; break;
-                case ShipData.RoleName.troopShip: empire.canBuildTroopShips    = true; break;
-                case ShipData.RoleName.corvette:  empire.canBuildCorvettes     = true; break;
-                case ShipData.RoleName.frigate:   empire.canBuildFrigates      = true; break;
-                case ShipData.RoleName.cruiser:   empire.canBuildCruisers      = true; break;
-                case ShipData.RoleName.capital:   empire.canBuildCapitals      = true; break;
-                case ShipData.RoleName.platform:  empire.CanBuildPlatforms     = true; break;
-                case ShipData.RoleName.station:   empire.CanBuildStations      = true; break;
+                case ShipData.RoleName.bomber:    empire.canBuildBombers      = true; break;
+                case ShipData.RoleName.carrier:   empire.canBuildCarriers     = true; break;
+                case ShipData.RoleName.support:   empire.canBuildSupportShips = true; break;
+                case ShipData.RoleName.troopShip: empire.canBuildTroopShips   = true; break;
+                case ShipData.RoleName.corvette:  empire.canBuildCorvettes    = true; break;
+                case ShipData.RoleName.frigate:   empire.canBuildFrigates     = true; break;
+                case ShipData.RoleName.cruiser:   empire.canBuildCruisers     = true; break;
+                case ShipData.RoleName.capital:   empire.canBuildCapitals     = true; break;
+                case ShipData.RoleName.platform:  empire.CanBuildPlatforms    = true; break;
+                case ShipData.RoleName.station:   empire.CanBuildStations     = true; break;
             }
             if (shipData.IsShipyard)
                 empire.CanBuildShipyards = true;
