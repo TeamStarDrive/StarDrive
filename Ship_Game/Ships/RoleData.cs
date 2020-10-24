@@ -79,8 +79,11 @@ namespace Ship_Game.Ships
                 if (Modules.Any(ShipModuleType.Construction))
                     return ShipData.RoleName.construction;
 
-                if (SurfaceAreaPercentOf(m => m.IsTroopBay || m.TransporterTroopLanding > 0 || m.TroopCapacity > 0) > 0.1f)
+                if (SurfaceAreaPercentOf(m => m.IsTroopBay || m.TransporterTroopLanding > 0 || m.TroopCapacity > 0) > 0.1f
+                    && Modules.Any(m => m.IsTroopBay)) // At least 1 troop bay as well
+                {
                     return ShipData.RoleName.troopShip;
+                }
 
                 if (SurfaceAreaPercentOf(ShipModuleType.Bomb) > 0.05f)
                     return ShipData.RoleName.bomber;
