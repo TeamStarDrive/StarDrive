@@ -928,7 +928,7 @@
     </Token>
     <Token>
       <Index>230</Index>
-      <Text>Orders all bomb-equipped ships in the vicinity of this planet (Range 15000) to begin bombarding the planet. Or, if they are already bombarding the planet, to cancel their bombardment</Text>
+      <Text>Orders all bomb-equipped ships in the vicinity of this planet (Range 15000) to begin bombarding the planet. Or, if they are already bombarding the planet, to cancel their bombardment. The number in brackets is the available bombers for this action. The button's color will be Red if you are currently bombing the planet.</Text>
     </Token>
     <Token>
       <Index>231</Index>
