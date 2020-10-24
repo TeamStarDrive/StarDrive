@@ -199,7 +199,7 @@ namespace Ship_Game
         // graphics setting changes cause 
         bool IsUniverseInitialized;
 
-        public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
+        public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.P == p;
 
         public Array<Ship> GetMasterShipList() => Objects.Ships;
 

@@ -364,7 +364,7 @@ namespace Ship_Game
         {
             if (Empire.Universe.LookingAtPlanet 
                 && Empire.Universe.workersPanel is CombatScreen screen 
-                && screen.p == Ground)
+                && screen.P == Ground)
             {
                 ResolveTacticalCombats(timeStep, isViewing: true);
             }
