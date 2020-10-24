@@ -226,7 +226,7 @@ namespace Ship_Game.AI.Tasks
                 requiredTroopStrength = requiredTroopStrength.LowerBound(40);
 
             InitFleetRequirements(minFleetStrength: 100, minTroopStrength: requiredTroopStrength, minBombMinutes: 0);
-            float battleFleetSize = 0.3f;// + Owner.DifficultyModifiers.FleetCompletenessMin;
+            float battleFleetSize = 0.5f;// + Owner.DifficultyModifiers.FleetCompletenessMin;
 
             if (CreateTaskFleet("Scout Fleet", battleFleetSize, true) == RequisitionStatus.Complete)
                 Step = 1;
