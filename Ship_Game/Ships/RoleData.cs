@@ -79,8 +79,12 @@ namespace Ship_Game.Ships
                 if (Modules.Any(ShipModuleType.Construction))
                     return ShipData.RoleName.construction;
 
-                if (SurfaceAreaPercentOf(m => m.IsTroopBay || m.TransporterTroopLanding > 0 || m.TroopCapacity > 0) > 0.1f)
+                if (SurfaceAreaPercentOf(m => m.IsTroopBay || m.TransporterTroopLanding > 0 || m.TroopCapacity > 0) > 0.1f
+                    && Modules.Any(m => m.IsTroopBay) // At least 1 troop bay as well
+                    && Modules.Any(m => m.TroopCapacity > 0)) // At least 1 troop capacity
+                {
                     return ShipData.RoleName.troopShip;
+                }
 
                 if (SurfaceAreaPercentOf(ShipModuleType.Bomb) > 0.05f)
                     return ShipData.RoleName.bomber;
@@ -190,46 +194,46 @@ namespace Ship_Game.Ships
             return Modules.SurfaceArea(moduleType) / (float)SurfaceArea;
         }
 
-        public static void CreateDesignRoleToolTip(ShipData.RoleName designRole, Rectangle designRoleRect)
-            => CreateDesignRoleToolTip(designRole, Fonts.Arial12, designRoleRect);
-
-        public static void CreateDesignRoleToolTip(ShipData.RoleName role, SpriteFont roleFont, Rectangle designRoleRect)
+        public static void CreateDesignRoleToolTip(ShipData.RoleName role, Rectangle designRoleRect, bool floatingText = false)
         {
-            string text = $"Autoassigned Role Change\n{RoleDesignString(role)}";
-            Vector2 spacing = roleFont.MeasureString(text);
-            var pos = new Vector2(designRoleRect.Left,
-                designRoleRect.Y - spacing.Y - designRoleRect.Height - roleFont.LineSpacing);
-            ToolTip.CreateTooltip(text, "", pos);
+            SpriteFont roleFont = Fonts.Arial12;
+            string text         = $"Ship Role was Changed to {RoleDesignString(role)}";
+            float floatTime     = floatingText ? text.Length / 10 : 0;
+            Vector2 spacing     = roleFont.MeasureString(text);
+            float tipY          = designRoleRect.Y - spacing.Y * 2 - designRoleRect.Height - roleFont.LineSpacing;
+            var pos             = new Vector2(designRoleRect.Left, tipY);
+
+            ToolTip.CreateFloatingText(text, "", pos, floatTime.UpperBound(7));
         }
 
         private static string RoleDesignString(ShipData.RoleName role)
         {
             switch (role)
             {
+                default:
+                case ShipData.RoleName.troop:
                 case ShipData.RoleName.disabled:     return "";
-                case ShipData.RoleName.platform:     return "Has Platform hull";
-                case ShipData.RoleName.station:      return "Has Station hull";
-                case ShipData.RoleName.construction: return "Has construction role";
-                case ShipData.RoleName.colony:       return "Has Colony Module";
-                case ShipData.RoleName.supply:       return "Has supply role";
-                case ShipData.RoleName.freighter:    return "Has freighter hull";
-                case ShipData.RoleName.troop:        return "";
-                case ShipData.RoleName.troopShip: return "10% of the ship space taken by troop launch bays";
-                case ShipData.RoleName.support:   return "10% of ship space taken by support modules";
-                case ShipData.RoleName.bomber:    return "10% of ship space taken by bomb modules";
-                case ShipData.RoleName.carrier:   return "10% of ship space taken by hangar modules";
-                case ShipData.RoleName.fighter:   return "Has fighter hull";
-                case ShipData.RoleName.scout:     return "Fighter hull with no weapons";
-                case ShipData.RoleName.gunboat:   return "Not assigned";
-                case ShipData.RoleName.drone:     return "Has Drone hull";
-                case ShipData.RoleName.corvette:  return "Has corvette hull";
-                case ShipData.RoleName.frigate:   return "Has Frigate hull";
-                case ShipData.RoleName.destroyer: return "Has destroyer role";
-                case ShipData.RoleName.cruiser:   return "Has cruiser role";
-                case ShipData.RoleName.capital:   return "Has Capital hull";
-                case ShipData.RoleName.prototype: return "Has Colony Module";
+                case ShipData.RoleName.platform:     return "'Platform'";
+                case ShipData.RoleName.station:      return "'Station'";
+                case ShipData.RoleName.construction: return "'Construction'";
+                case ShipData.RoleName.colony:       return "'Colony' (has a Colony Module)";
+                case ShipData.RoleName.supply:       return "'Supply'";
+                case ShipData.RoleName.freighter:    return "'Freighter'";
+                case ShipData.RoleName.troopShip:    return "'Troop Ship', as 10% of the ship space is taken by troop launch bays or barracks";
+                case ShipData.RoleName.support:      return "'Support', as 10% of ship space is taken by support modules";
+                case ShipData.RoleName.bomber:       return "'Bomber', as 10% of ship space is taken by bomb modules";
+                case ShipData.RoleName.carrier:      return "'Carrier', as 10% of ship space is taken by hangar modules";
+                case ShipData.RoleName.fighter:      return "'Fighter'";
+                case ShipData.RoleName.scout:        return "'Scout' since it has";
+                case ShipData.RoleName.gunboat:      return "'Gunboat'";
+                case ShipData.RoleName.drone:        return "'Drone'";
+                case ShipData.RoleName.corvette:     return "'Corvette'";
+                case ShipData.RoleName.frigate:      return "'Frigate'";
+                case ShipData.RoleName.destroyer:    return "'Destroyer'";
+                case ShipData.RoleName.cruiser:      return "'Cruiser'";
+                case ShipData.RoleName.capital:      return "'Capital'";
+                case ShipData.RoleName.prototype:    return "'Prototype'";
             }
-            return "";
         }
     }
 }
