@@ -173,7 +173,7 @@ namespace Ship_Game.Ships
         public bool isPowerArmour                => Flyweight.isPowerArmour;
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
-        public int FixedTracking                 => Flyweight.FixedTracking;
+        public int TargetingAccuracy             => Flyweight.TargetAccuracy;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;

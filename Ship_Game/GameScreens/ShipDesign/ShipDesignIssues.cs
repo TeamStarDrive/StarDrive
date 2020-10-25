@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
@@ -356,6 +357,30 @@ namespace Ship_Game.ShipDesignIssues
                                                                + Math.Round(average, 1).ToString(CultureInfo.InvariantCulture));
         }
 
+        public void CheckTargets(Map<ShipModule, float> accuracyList, float maxTargets, bool isbase)
+        {
+            if (accuracyList.Count == 0 || maxTargets <1)
+                return;
+
+            var facings = accuracyList.GroupBy(kv=> (int)(kv.Key.FacingRadians +0.5f) );
+            float count = facings.Count();
+            float ratioToTargets = count / maxTargets;
+
+
+            WarningLevel severity;
+            if (ratioToTargets > 4) severity = WarningLevel.Critical;
+            else if (ratioToTargets > 3) severity = WarningLevel.Major;
+            else if (ratioToTargets > 2) severity = WarningLevel.Minor;
+            else if (ratioToTargets > 1) severity = WarningLevel.Informative;
+            else return;
+
+            string target     = " " + LocalizedText.ParseText("{6188}") + ": " + maxTargets.ToString(CultureInfo.InvariantCulture) + " ";
+            string firearcs   = LocalizedText.ParseText("{FireArc}" + ": " + count.ToString(CultureInfo.InvariantCulture)) + " ";
+            string baseString = !isbase ? "" : " " + LocalizedText.ParseText("{OrbitalTracking}") + " ";
+
+            AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + firearcs);
+        }
+
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
 
         public static Color IssueColor(WarningLevel severity)
@@ -396,7 +421,8 @@ namespace Ship_Game.ShipDesignIssues
         LowTroopsForBays,
         NotIdealCombatEfficiency,
         HighBurstOrdnance,
-        Accuracy
+        Accuracy,
+        Targets
     }
 
     public enum WarningLevel
@@ -563,6 +589,12 @@ namespace Ship_Game.ShipDesignIssues
                     Problem     = new LocalizedText(GameText.WeaponAccuracy).Text;
                     Remediation = new LocalizedText(GameText.ImproveAccuracy).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
+                    break;
+                case DesignIssueType.Targets:
+                    Title = new LocalizedText(GameText.LowTracking).Text;
+                    Problem = new LocalizedText(GameText.TrackingTargets).Text;
+                    Remediation = new LocalizedText(GameText.ImproveTracking).Text;
+                    Texture = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
                     break;
             }
 
