@@ -142,7 +142,7 @@ namespace Ship_Game.Ships
 
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
-        public int FixedTrackingPower;
+        public int TargetingAccuracy;
         public bool ShipInitialized;
         public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
@@ -1278,7 +1278,7 @@ namespace Ship_Game.Ships
             ECMValue                    = 0f;
             hasCommand                  = IsPlatform;
             TrackingPower               = 0;
-            FixedTrackingPower          = 0;
+            TargetingAccuracy           = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
@@ -1292,12 +1292,7 @@ namespace Ship_Game.Ships
                 if (module.Active && (module.Powered || module.PowerDraw <= 0f))
                 {
                     hasCommand |= module.IsCommandModule;
-
-                    //Doctor: For 'Fixed' tracking power modules - i.e. a system whereby a module provides a non-cumulative/non-stacking tracking power.
-                    //The normal stacking/cumulative tracking is added on after the for loop for mods that want to mix methods. The original cumulative function is unaffected.
-                    if (module.FixedTracking > 0 && module.FixedTracking > FixedTrackingPower)
-                        FixedTrackingPower = module.FixedTracking;
-
+                    
                     OrdinanceMax        += module.OrdinanceCapacity;
                     CargoSpaceMax       += module.Cargo_Capacity;
                     BonusEMP_Protection += module.EMP_Protection;
@@ -1306,29 +1301,24 @@ namespace Ship_Game.Ships
                     InhibitionRadius     = module.InhibitionRadius.LowerBound(InhibitionRadius);
                     SensorRange          = module.SensorRange.LowerBound(SensorRange);
                     sensorBonus          = module.SensorBonus.LowerBound(sensorBonus);
-                    TrackingPower        = module.TargetTracking.LowerBound(TrackingPower);
+                    TrackingPower       += module.TargetTracking;
+                    TargetingAccuracy    = module.TargetingAccuracy.LowerBound(TargetingAccuracy);
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
 
-            shield_max    = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
-            NetPower      = Power.Calculate(ModuleSlotList, loyalty);
-            PowerStoreMax = NetPower.PowerStoreMax;
-            PowerFlowMax  = NetPower.PowerFlowMax;
-
-            //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
-            TrackingPower += FixedTrackingPower;
-
+            shield_max     = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
+            NetPower       = Power.Calculate(ModuleSlotList, loyalty);
+            PowerStoreMax  = NetPower.PowerStoreMax;
+            PowerFlowMax   = NetPower.PowerFlowMax;
             shield_percent = (100.0 * shield_power / shield_max.LowerBound(0.1f)).LowerBound(0);
             SensorRange   += sensorBonus;
 
             // Apply modifiers to stats
-            RepairRate += (float)(RepairRate * Level * 0.05);
-            if (IsPlatform)
-                SensorRange = SensorRange.LowerBound(10000);
-            SensorRange   *= loyalty.data.SensorModifier;
-
+            if (IsPlatform) SensorRange = SensorRange.LowerBound(10000);
+            RepairRate     += (float)(RepairRate * Level * 0.05);
+            SensorRange    *= loyalty.data.SensorModifier;
             CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
