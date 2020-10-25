@@ -362,7 +362,12 @@ namespace Ship_Game.ShipDesignIssues
             if (accuracyList.Count == 0 || maxTargets <1)
                 return;
 
-            var facings = accuracyList.GroupBy(kv=> (int)(kv.Key.FacingRadians +0.5f) );
+            var facings = accuracyList.GroupBy(kv=>
+            {
+                int facing = (int)kv.Key.FacingDegrees;
+                facing = facing == 360 ? 0 : facing;
+                return (float)facing;
+            });
             float count = facings.Count();
             float ratioToTargets = count / maxTargets;
 
