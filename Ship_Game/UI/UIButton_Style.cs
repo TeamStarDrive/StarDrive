@@ -18,7 +18,7 @@ namespace Ship_Game
         ResearchQueueCancel, // "ResearchMenu/button_queue_cancel"
         DanButton,     // UI/dan_button
         DanButtonBlue, // UI/dan_button_blue
-        Formation,
+        DanButtonRed // UI/dan_button_red
     }
 
     public partial class UIButton
@@ -57,19 +57,26 @@ namespace Ship_Game
                 Pressed = Hover;
             }
 
-            public StyleTextures(string normal, bool danButtonBlue)
+            public StyleTextures(string normal, ButtonStyle style)
             {
                 Normal = Hover = Pressed = ResourceManager.Texture(normal);
-                if (danButtonBlue)
+                switch (style)
                 {
-                    DefaultTextColor = new Color(205, 229, 255);
-                    HoverTextColor   = new Color(174, 202, 255);
-                    PressTextColor   = new Color(174, 202, 255);
-                }
-                else
-                {
-                    HoverTextColor = new Color(255, 255, 255, 150);
-                    PressTextColor = new Color(255, 255, 255, 150);
+                    case ButtonStyle.DanButtonBlue:
+                        DefaultTextColor = new Color(205, 229, 255);
+                        HoverTextColor   = new Color(174, 202, 255);
+                        PressTextColor   = new Color(174, 202, 255);
+                        break;
+                    case ButtonStyle.DanButtonRed:
+                        DefaultTextColor = Color.Red;
+                        HoverTextColor   = Color.White;
+                        PressTextColor   = Color.Green;
+                        break;
+                    case ButtonStyle.DanButton:
+                    default:
+                        HoverTextColor = new Color(255, 255, 255, 150);
+                        PressTextColor = new Color(255, 255, 255, 150);
+                        break;
                 }
             }
         }
@@ -97,8 +104,9 @@ namespace Ship_Game
                 new StyleTextures("ResearchMenu/button_queue_up", "ResearchMenu/button_queue_up_hover"),
                 new StyleTextures("ResearchMenu/button_queue_down", "ResearchMenu/button_queue_down_hover"),
                 new StyleTextures("ResearchMenu/button_queue_cancel", "ResearchMenu/button_queue_cancel_hover"),
-                new StyleTextures("UI/dan_button", danButtonBlue: false),
-                new StyleTextures("UI/dan_button_blue", danButtonBlue: true),
+                new StyleTextures("UI/dan_button", ButtonStyle.DanButton),
+                new StyleTextures("UI/dan_button_blue", ButtonStyle.DanButtonBlue),
+                new StyleTextures("UI/dan_button_red", ButtonStyle.DanButtonRed)
             };
             return Styling[(int) style];
         }
