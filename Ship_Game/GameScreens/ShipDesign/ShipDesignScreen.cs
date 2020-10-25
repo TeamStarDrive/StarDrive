@@ -237,7 +237,8 @@ namespace Ship_Game
                     active.TryInstallTo(ModuleGrid);
                     mirror.TryInstallTo(ModuleGrid);
                 }
-                ModuleGrid.RecalculatePower();
+
+                RecalculatePower();
                 ShipSaved = false;
                 SpawnActiveModule(active.Mod, active.Ori, active.Slot.Facing);
             }
@@ -262,7 +263,8 @@ namespace Ship_Game
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
                 }
             }
-            ModuleGrid.RecalculatePower();
+
+            RecalculatePower();
             ShipSaved = false;
         }
 
@@ -282,7 +284,7 @@ namespace Ship_Game
                 }
             }
             ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
-            ModuleGrid.RecalculatePower();
+            RecalculatePower();
             GameAudio.SubBassWhoosh();
         }
 
@@ -308,7 +310,7 @@ namespace Ship_Game
                 ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
             }
 
-            ModuleGrid.RecalculatePower();
+            RecalculatePower();
         }
 
         DesignModuleGrid ModuleGrid;
@@ -333,8 +335,23 @@ namespace Ship_Game
                     slot.Module.hangarShipUID = slot.SlotOptions;
             }
 
-            ModuleGrid.RecalculatePower();
+            RecalculatePower(false);
             ResetActiveModule();
+        }
+
+        void RecalculatePower(bool showRoleChangeTip = true)
+        {
+            ModuleGrid.RecalculatePower();
+            RecalculateDesignRole(showRoleChangeTip);
+        }
+
+        void RecalculateDesignRole(bool showRoleChangeTip)
+        {
+            var oldRole = Role;
+            Role        = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
+
+            if (Role != oldRole && showRoleChangeTip)
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true);
         }
 
         public bool IsBadModuleSize(ShipModule module)
@@ -352,9 +369,6 @@ namespace Ship_Game
             if (Camera.Zoom < 0.03f) Camera.Zoom = 0.03f;
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
-            Role = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
-            //roleData.CreateDesignRoleToolTip(DesignRoleRect); FB: This was killing tool tips in ship design, disabled and should check this
-            
             CameraPosition.Z = OriginalZ / Camera.Zoom;
             UpdateViewMatrix(CameraPosition);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
