@@ -396,8 +396,8 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6161), mod.APResist, 208);
             DrawStat(ref modTitlePos, Localizer.Token(6175), mod.DamageThreshold, 221);
             DrawStat(ref modTitlePos, Localizer.Token(6174), mod.EMP_Protection, 219);
-            DrawStat(ref modTitlePos, Localizer.Token(6187), mod.FixedTracking, 231);
-            DrawStat(ref modTitlePos, $"+{Localizer.Token(6186)}", mod.TargetTracking, 226);
+            DrawStat(ref modTitlePos, Localizer.Token(6187), mod.TargetingAccuracy, 231);
+            DrawStat(ref modTitlePos, $"+{Localizer.Token(6188)}", mod.TargetTracking, 226);
             if (mod.RepairDifficulty > 0) DrawStat(ref modTitlePos, Localizer.Token(1992), mod.RepairDifficulty, 241); // Complexity
 
             if (mod.PermittedHangarRoles.Length == 0)

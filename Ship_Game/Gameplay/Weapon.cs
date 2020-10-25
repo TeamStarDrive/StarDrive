@@ -505,7 +505,7 @@ namespace Ship_Game.Gameplay
             {
                 if (TruePD) baseError = 0;
                 //else baseError = (Module.Area + 16) * (Module.Area + 16);
-                else baseError = (float)Math.Pow(Module.Area * 16f + 640, 1.05f);
+                else baseError = (float)Math.Pow(Module.Area * 16f + 160, 1.2f);
             }
 
             // Skip all accuracy if weapon is 100% accurate
@@ -517,7 +517,7 @@ namespace Ship_Game.Gameplay
                 // calculate at ship update
                 level = (Owner?.Level ?? 0) + loyalty?.data.Traits.Militaristic ?? 0;
                 level = (float)Math.Pow(level, 2f);
-                level += (Owner?.TrackingPower ?? 0);
+                level += (Owner?.TargetingAccuracy ?? 0);
             }
             
             level += 5;
@@ -530,7 +530,7 @@ namespace Ship_Game.Gameplay
                 Ship target = module.GetParent();
                 float speed = target.CurrentVelocity;
                 if (speed < 150)
-                    adjust *= (speed + 1 / 150f).Clamped(0f,1f);
+                    adjust *= (speed + 10 / 160f).Clamped(0f,1f);
             }
 
             // reduce or increase error based on weapon and trait characteristics.
@@ -569,16 +569,24 @@ namespace Ship_Game.Gameplay
                 target += (minDistance - distance)*source.DirectionToTarget(target);
             }
             
-            // total error magnitude should get smaller as we get closer
-            float errorMagnitude = 1f;
-            if (distance < Ship.TargetErrorFocalPoint)
-            {
-                errorMagnitude = (distance+minDistance) / Ship.TargetErrorFocalPoint;
-            }
+            // total error magnitude should adjust as target is faster or slower than light speed. 
+            float errorMagnitude = (float)Math.Pow((distance + minDistance) / Ship.TargetErrorFocalPoint, 0.25f);
 
+            // total error magnitude should get smaller as the target gets slower. 
+            if (FireTarget?.Type == GameObjectType.ShipModule)
+            {
+                float speed = ((ShipModule)FireTarget).GetParent().CurrentVelocity;
+                errorMagnitude *= speed < 150 ? speed / 150 : 1;
+            }
+            
             Vector2 adjusted = target + error*errorMagnitude;
             DebugLastImpactPredict = adjusted;
             return adjusted;
+        }
+
+        public float GetSpeedReduction(float targetSpeed)
+        {
+            return (targetSpeed + 25) / 175;
         }
 
         public Vector2 Origin => Module?.Center ?? PlanetCenter;
