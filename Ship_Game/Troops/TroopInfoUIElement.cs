@@ -34,9 +34,9 @@ namespace Ship_Game
             SoftAttackRect    = new Rectangle(LeftRect.X + 12, DefenseRect.Y + 22 + 5, 16, 16);
             HardAttackRect    = new Rectangle(LeftRect.X + 12, SoftAttackRect.Y + 16 + 5, 16, 16);
             RangeRect         = new Rectangle(LeftRect.X + 12, HardAttackRect.Y + 16 + 5, 16, 16);
-            DefenseRect.X     = DefenseRect.X - 3;
+            DefenseRect.X    -= 3;
             ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
-            Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y - 10, LeftRect.Width + 8, 95);
+            Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y, LeftRect.Width + 8, 110);
             Submenu sub       = new Submenu(desRect);
             DescriptionSL     = new ScrollList2<TextListItem>(sub, Fonts.Arial12.LineSpacing + 1);
 

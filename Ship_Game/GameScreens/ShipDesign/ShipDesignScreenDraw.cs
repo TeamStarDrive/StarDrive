@@ -75,18 +75,14 @@ namespace Ship_Game
                 DrawRangeCircle(x, y, 0.25f);
             }
 
-            DrawRangeCircle(x, y, 0.5f);
-            DrawRangeCircle(x, y, 1);
-            DrawRangeCircle(x, y, 2);
-            
-            DrawRangeCircle(x, y, 4);
-            
-            
-            DrawRangeCircle(x, y, 6);
-
+            float[] rangeCircles = new float[5] { 0.5f, 1, 2, 4, 6 };
+            foreach(float range in rangeCircles)
+            {
+                if (!DrawRangeCircle(x, y, range)) break;
+            }
         }
 
-        void DrawRangeCircle(float x, float y, float multiplier)
+        bool DrawRangeCircle(float x, float y, float multiplier)
         {
             float focalPoint = Ship.TargetErrorFocalPoint * multiplier;
             float radius     = (focalPoint) * Camera.Zoom;
@@ -148,7 +144,9 @@ namespace Ship_Game
 
                 DrawCircle(new Vector2(x, bottomEdge), 10 * 8 * Camera.Zoom, Color.Red);
                 DrawString(new Vector2(x, bottomEdge + (10 + 10 * 8) * Camera.Zoom), 0, 1, Color.Red, new LocalizedText(GameText.Fighter).Text);
+                return true;
             }
+            return false;
         }
 
         bool GetSlotForModule(ShipModule module, out SlotStruct slot)
@@ -538,7 +536,7 @@ namespace Ship_Game
             int numCommandModules          = 0;
             bool bEnergyWeapons            = false;
             int troopCount                 = 0;
-            int fixedTargets               = 0;
+            int accuracy                   = 0;
             int numTroopBays               = 0;
             int numSlots                   = 0;
             int numWeaponSlots             = 0;
@@ -592,12 +590,12 @@ namespace Ship_Game
                 totalShieldAmplify += module.AmplifyShields;
                 repairRate         += module.ActualBonusRepairRate;
                 ordnanceRecovered  += module.OrdnanceAddedPerSecond;
-                targets             = Math.Max(module.TargetTracking, targets);
+                accuracy            = module.TargetingAccuracy.LowerBound((int)accuracy);
+                targets            += module.TargetTracking;
                 avgOrdnanceUsed    += module.BayOrdnanceUsagePerSecond;
                 totalEcm            = module.ECM.LowerBound(totalEcm);
                 sensorRange         = module.SensorRange.LowerBound(sensorRange);
                 sensorBonus         = module.SensorBonus.LowerBound(sensorBonus);
-                fixedTargets        = module.FixedTracking.LowerBound(fixedTargets);
 
                 if (module.IsTroopBay)
                     numTroopBays += 1;
@@ -654,22 +652,23 @@ namespace Ship_Game
                 {
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
                 }
-                float accuracy = 1 / weapon.BaseTargetError((int)FireControlLevel).LowerBound(1);
-                if (accuracy > 0)
-                    weaponAccuracyList[module] = accuracy / 16;
+                weaponAccuracyList[module] = weapon.BaseTargetError((int)FireControlLevel).LowerBound(1) / 16;
             }
+            FireControlLevel   = accuracy;
             WeaponAccuracyList = weaponAccuracyList;
+            FireControlLevel  += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
+            targets           += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
+
             var stats        = new ShipStats();
             stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0, 1);
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
             shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
             bool mainShieldsPresent      = modules.Shields.Any(s => s.ModuleType == ShipModuleType.Shield);
-            Power netPower = Power.Calculate(modules.Modules, EmpireManager.Player);
+            Power netPower               = Power.Calculate(modules.Modules, EmpireManager.Player);
 
             // Other modification to the ship and draw values
             empResist += size; // FB: so the player will know the true EMP Tolerance
-            targets   += fixedTargets;
-            FireControlLevel = targets + 1 + EmpireManager.Player.data.Traits.Militaristic;
+            
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
@@ -730,6 +729,7 @@ namespace Ship_Game
                 DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
                 DesignIssues.CheckTroops(troopCount, size);
                 DesignIssues.CheckAccuracy(WeaponAccuracyList);
+                DesignIssues.CheckTargets(WeaponAccuracyList, targets, ActiveHull.Role == ShipData.RoleName.platform);
                 UpdateDesignButton();
             }
         }
@@ -933,14 +933,19 @@ namespace Ship_Game
             if (cargoSpace > 0) 
                 DrawStatColor(ref cursor, TintedValue(119, cargoSpace* bonus.CargoModifier, 109, Color.White));
 
+            if (FireControlLevel > 0)
+                DrawStatColor(ref cursor, TintedValue(6187, FireControlLevel, 275, Color.White));
+
             if (targets > 0)
-                DrawStatColor(ref cursor, TintedValue(6188, targets + 1f, 232, Color.White));
+                DrawStatColor(ref cursor, TintedValue(6188, targets, 232, Color.White));
 
             if (sensorRange > 0)
             {
                 float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
                 DrawStatColor(ref cursor, TintedValue(6130, modifiedSensorRange, 235, Color.White));
             }
+
+            
         }
 
         void DrawHullBonuses(ref Vector2 cursor, float cost, HullBonus bonus)
