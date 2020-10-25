@@ -173,7 +173,7 @@ namespace Ship_Game.Ships
         public bool isPowerArmour                => Flyweight.isPowerArmour;
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
-        public int FixedTracking                 => Flyweight.FixedTracking;
+        public int TargetingAccuracy             => Flyweight.TargetAccuracy;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
@@ -864,8 +864,9 @@ namespace Ship_Game.Ships
         }
 
         //added by gremlin boarding parties
-        public bool LaunchBoardingParty(Troop troop)
+        public bool LaunchBoardingParty(Troop troop, out Ship ship)
         {
+            ship = null;
             if (!IsTroopBay || !Powered)
                 return false;
 
@@ -879,24 +880,24 @@ namespace Ship_Game.Ships
                     return false;
                 }
                 hangarShip.DoEscort(Parent);
-                return false;
+                ship = hangarShip;
+                return true;
             }
 
             if (hangarTimer <= 0f && hangarShip == null) // launch the troopship
             {
-                hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty,
-                    Center, troop);
+                hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty, Center, troop);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
                 hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
-
-                HangarShipGuid = hangarShip.guid;
-                hangarTimer = hangarTimerConstant;
-
+                HangarShipGuid      = hangarShip.guid;
+                hangarTimer         = hangarTimerConstant;
+                ship                = hangarShip;
                 // transfer our troop onto the shuttle we just spawned
                 troop.LandOnShip(hangarShip);
                 return true;
             }
+
             return false;
         }
 
