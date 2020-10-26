@@ -1230,6 +1230,7 @@ namespace Ship_Game
         public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
         public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
+        public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
 
 
         private void RepairBuildings(int repairAmount)
