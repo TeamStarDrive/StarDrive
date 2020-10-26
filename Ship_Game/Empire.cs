@@ -3015,32 +3015,24 @@ namespace Ship_Game
             if (isPlayer && !AutoExplore)
                 return;
 
-            int unexplored =0;
-            bool haveUnexploredSystems = false;
-            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
-            {
-                SolarSystem solarSystem = UniverseScreen.SolarSystemList[i];
-                if (solarSystem.IsExploredBy(this)) 
-                    continue;
-
-                if (++unexplored > 20) 
-                    break;
-            }
-
-            haveUnexploredSystems = unexplored != 0;
-            int numScouts = 0;
+            int unexplored = UniverseScreen.SolarSystemList.Count(s => !s.IsExploredBy(this)).UpperBound(21);
+            int numScouts  = 0;
+            bool haveUnexploredSystems = unexplored != 0;
             if (!haveUnexploredSystems)
             {
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
                     Ship ship = OwnedShips[i];
                     if (ship.AI.State == AIState.Explore)
-                        ship.AI.OrderOrbitNearest(true);
+                        ship.AI.OrderScrapShip();
                 }
                 return;
             }
 
-            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * 0.75f;
+            float desiredScouts = unexplored * Research.Strategy.ExpansionRatio;
+            if (!isPlayer)
+                desiredScouts *= ((int)CurrentGame.Difficulty).LowerBound(1);
+
             for (int i = 0; i < OwnedShips.Count; i++)
             {
                 Ship ship = OwnedShips[i];
