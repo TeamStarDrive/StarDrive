@@ -419,10 +419,13 @@ namespace Ship_Game.AI
                 if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
-                    if (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
-                        Owner.EngageStarDrive();
-                    else if (distance > 15000f && Owner.InCombat)
-                        Owner.EngageStarDrive();
+                    if (distance > 7500f)
+                    {
+                        if (HasPriorityOrder || HasPriorityTarget || !Owner.InCombat)
+                            Owner.EngageStarDrive();
+                        else if (distance > Owner.WeaponsMaxRange && Owner.InCombat)
+                            Owner.EngageStarDrive();
+                    }
                 }
                 Owner.SubLightAccelerate(speedLimit);
             }

@@ -148,12 +148,12 @@ namespace Ship_Game.AI
             {
                 Vector2 prediction = target.Center;
                 Weapon fastestWeapon = Owner.FastestWeapon;
-                if (fastestWeapon != null) // if we have a weapon
+                if (fastestWeapon != null && target.CurrentVelocity > 0) // if we have a weapon
                 {
                     prediction = fastestWeapon.ProjectedImpactPointNoError(target);
                 }
+
                 ThrustOrWarpToPos(prediction, timeStep);
-                return;
             }
         }
 
