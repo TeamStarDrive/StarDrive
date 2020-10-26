@@ -3052,37 +3052,27 @@ namespace Ship_Game
             if (isPlayer && !AutoExplore)
                 return;
 
-            int unexplored =0;
-            bool haveUnexploredSystems = false;
-            for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
-            {
-                SolarSystem solarSystem = UniverseScreen.SolarSystemList[i];
-                if (solarSystem.IsExploredBy(this)) 
-                    continue;
-
-                if (++unexplored > 20) 
-                    break;
-            }
-
-            haveUnexploredSystems = unexplored != 0;
-            int numScouts = 0;
-            if (!haveUnexploredSystems)
+            int unexplored = UniverseScreen.SolarSystemList.Count(s => !s.IsExploredBy(this)).UpperBound(21);
+            if (unexplored == 0)
             {
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
                     Ship ship = OwnedShips[i];
-                    if (ship.AI.State == AIState.Explore)
-                        ship.AI.OrderOrbitNearest(true);
+                    if (IsScout(ship))
+                        ship.AI.OrderScrapShip();
                 }
                 return;
             }
 
-            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * 0.75f;
+            float desiredScouts = unexplored * Research.Strategy.ExpansionRatio;
+            if (!isPlayer)
+                desiredScouts *= ((int)CurrentGame.Difficulty).LowerBound(1);
+
+            int numScouts = 0;
             for (int i = 0; i < OwnedShips.Count; i++)
             {
                 Ship ship = OwnedShips[i];
-                if (isPlayer && ship.Name == data.CurrentAutoScout
-                    || !isPlayer && ship.DesignRole == ShipData.RoleName.scout && ship.fleet == null )
+                if (IsScout(ship))
                 {
                     ship.DoExplore();
                     if (++numScouts >= desiredScouts)
@@ -3095,8 +3085,15 @@ namespace Ship_Game
                 return;
 
             EmpireAI.Goals.Add(new BuildScout(this));
-        }
 
+
+            // local 
+            bool IsScout(Ship s)
+            {
+                return isPlayer && s.Name == data.CurrentAutoScout 
+                       || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null;
+            }
+        }
         private void ApplyFertilityChange(float amount)
         {
             if (amount.AlmostEqual(0)) return;
