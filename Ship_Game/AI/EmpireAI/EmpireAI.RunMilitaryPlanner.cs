@@ -475,7 +475,7 @@ namespace Ship_Game.AI
                         return 0;
 
                     // Higher is more important
-                    return RoleBuildBudget / CurrentMaintenance.LowerBound(1);
+                    return RoleBuildBudget / CurrentMaintenance.LowerBound(0.01f);
                 }
 
                 public void ScrapAsNeeded(Empire empire)
