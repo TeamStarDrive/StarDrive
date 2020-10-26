@@ -357,11 +357,12 @@ namespace Ship_Game
 
             Vector2 direction = radians.RadiansToDirection();
             Vector2 start     = posOnScreen;
-            Vector2 end = start + direction * w.BaseRange;
-
-            batch.DrawLine(start, end, color.Alpha(0.25f), 5);
+            Vector2 end = start + direction * sizeOnScreen;
+            batch.DrawLine(start, start.LerpTo(end, 0.45f), color.Alpha(0.25f), 3);
+            //
 
             end = start + direction * sizeOnScreen;
+            
             Vector2 textPos = start.LerpTo(end, 0.16f);
             float textRot   = radians + RadMath.HalfPI;
             Vector2 offset  = direction.RightVector() * 6f;
