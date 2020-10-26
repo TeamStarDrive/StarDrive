@@ -1311,7 +1311,7 @@ namespace Ship_Game.Ships
             if (IsTethered)
             {
                 var planet = TetheredTo;
-                if (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner))
+                if (planet != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
                 {
                     TrackingPower     = TrackingPower.LowerBound(GetTether().Level);
                     TargetingAccuracy = TrackingPower.LowerBound(GetTether().Level);
