@@ -364,12 +364,20 @@ namespace Ship_Game
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
-            //if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;
+            float zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
+
+            // this crappy fix is to try and prevent huge jumps in z axis when camera zoom becomes very small. 
+            // at about 0.1 the zoom zaxis change jumps uncontrollably. 
+            if (zoom < 0.1f)
+            {
+                TransitionZoom = Math.Max(zoom-0.01f, TransitionZoom);
+            }
+            
+            Camera.Zoom = zoom;
             if (Camera.Zoom < 0.03f) Camera.Zoom = 0.03f;
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
-            CameraPosition.Z = OriginalZ / Camera.Zoom;
+            CameraPosition.Z = (OriginalZ / Camera.Zoom);
             UpdateViewMatrix(CameraPosition);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
