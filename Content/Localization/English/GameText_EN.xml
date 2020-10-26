@@ -1695,7 +1695,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>462</Index>
-      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres will be removed to complete the process. The number of Terraformers which can be placed on a planet is directly affected by the number of habitable tiles the planet has.</Text>
+      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make terrformable parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres over tiles which were terraformed will be removed to complete the process. The number of Terraformers which can be placed on a planet is affected by the number of tiles which can be terraformed and it is dynamically reduced during the terraforming operation.</Text>
     </Token>
     <Token>
       <Index>463</Index>
