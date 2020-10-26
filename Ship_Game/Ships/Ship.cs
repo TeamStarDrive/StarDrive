@@ -1308,6 +1308,16 @@ namespace Ship_Game.Ships
                 }
             }
 
+            if (IsTethered)
+            {
+                var planet = TetheredTo;
+                if (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner))
+                {
+                    TrackingPower     = TrackingPower.LowerBound(GetTether().Level);
+                    TargetingAccuracy = TrackingPower.LowerBound(GetTether().Level);
+                }
+            }
+
             shield_max     = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
             NetPower       = Power.Calculate(ModuleSlotList, loyalty);
             PowerStoreMax  = NetPower.PowerStoreMax;
