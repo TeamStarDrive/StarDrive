@@ -158,8 +158,12 @@ namespace Ship_Game.Gameplay
         public static Projectile Create(in SavedGame.ProjectileSaveData pdata, UniverseData data)
         {
             ProjectileOwnership o = GetOwners(pdata.Owner, pdata.Weapon, false, data);
-            if (o.Weapon == null) // this owner or weapon no longer exists
+            if (o.Weapon == null || (o.Owner ==null && o.Planet == null)) // this owner or weapon no longer exists
+            {
+                if (o.Weapon != null & (o.Owner == null && o.Planet == null))
+                    Log.Error($"Projectile Owner GUID not found on save load. weapon: {o.Weapon} module: {o.Weapon.Module}");
                 return null;
+            }
 
             var p = new Projectile(o.Loyalty)
             {
@@ -169,11 +173,6 @@ namespace Ship_Game.Gameplay
 
             if      (o.Owner != null)  p.Owner = o.Owner;
             else if (o.Planet != null) p.Planet = o.Planet;
-            else
-            {
-                Log.Error($"Projectile Owner GUID not found on save load. weapon: {o.Weapon} module: {o.Weapon?.Module}");
-                return null;
-            }
 
             p.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
             p.Duration = pdata.Duration; // apply duration from save data
