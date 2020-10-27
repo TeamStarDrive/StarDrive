@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -83,6 +84,32 @@ namespace UnitTests.Ships
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips), "Fire PD at a projectile must succeed");
             Assert.AreEqual(1, GetProjectileCount(us), "Invalid projectile count");
             Assert.AreEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");
+        }
+
+        [TestMethod]
+        public void FiringWithError()
+        {
+            Ship ship = SpawnShip("Laserclaw", Player, Vector2.Zero);
+            Weapon weapon = ship.Weapons.Find(w => w.UID == "HeavyLaserBeam");
+            Ship target = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
+            target.AI.OrderMoveDirectlyTo(new Vector2(0, -2000), new Vector2(0, -1), false, AIState.AwaitingOrders);
+            
+            while (ship.Center.Distance(target.Center) < 2000)
+                target.Update(new FixedSimTime(0.1f));
+            Universe.Objects.Update(TestSimStep); // update ships
+            ship.AI.DoManualSensorScan(new FixedSimTime(10f));
+            target.AI.DoManualSensorScan(new FixedSimTime(10f));
+
+            weapon.CooldownTimer = 0;
+            Assert.IsTrue(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Fire at target must succeed");
+            Universe.Objects.Update(TestSimStep);
+            Beam[] beams = GetBeams(ship);
+            Assert.AreEqual(1, beams.Length, "Invalid projectile count");
+            float beamOffset = weapon.FireTarget.Center.Distance(beams[0].Destination);
+            float error = weapon.BaseTargetError(-1);
+            Assert.IsTrue(beamOffset <= error);
+            
+
         }
     }
 }
