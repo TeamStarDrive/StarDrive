@@ -796,8 +796,12 @@ namespace Ship_Game
 
         void AutoSaveCurrentGame()
         {
-            SavedGame savedGame = new SavedGame(this, "Autosave" + Auto);
-            if (++Auto > 3) Auto = 1;
+            // manual save should not need this lock. 
+            lock (ShipPoolLock)
+            {
+                SavedGame savedGame = new SavedGame(this, "Autosave" + Auto);
+                if (++Auto > 3) Auto = 1;
+            }
         }
 
         void ProjectPieMenu(Vector2 position, float z)
