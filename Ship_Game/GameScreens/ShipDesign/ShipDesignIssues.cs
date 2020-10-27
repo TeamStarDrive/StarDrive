@@ -596,10 +596,10 @@ namespace Ship_Game.ShipDesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
                     break;
                 case DesignIssueType.Targets:
-                    Title = new LocalizedText(GameText.LowTracking).Text;
-                    Problem = new LocalizedText(GameText.TrackingTargets).Text;
+                    Title       = new LocalizedText(GameText.LowTracking).Text;
+                    Problem     = new LocalizedText(GameText.TrackingTargets).Text;
                     Remediation = new LocalizedText(GameText.ImproveTracking).Text;
-                    Texture = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
+                    Texture     = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
                     break;
             }
 
