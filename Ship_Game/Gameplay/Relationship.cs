@@ -578,10 +578,13 @@ namespace Ship_Game.Gameplay
 
         bool CanWeAttackThem(Empire us, Empire them)
         {
-            if (AtWar || us.isFaction || them.isFaction)
+            if (!Known || AtWar || us.isFaction || them.isFaction
+                || Known && !Treaty_Peace && !Treaty_NAPact && !Treaty_Alliance)
+            {
                 return true;
+            }
 
-            if (!Known || Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
+            if (Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
                 return false;
 
             if (!us.isPlayer)
@@ -741,21 +744,23 @@ namespace Ship_Game.Gameplay
 
         }
 
-        public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader = true)
+        public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader)
         {
             if (Treaty_OpenBorders) 
                 return false;
 
             float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * 0.1f) + Anger_TerritorialConflict;
+
             if (isTrader)
             {
                 if (Treaty_Trade)
                     return false;
-                if (DoWeShareATradePartner(targetEmpire, attackingEmpire)) 
-                    borderAnger *= 0.1f;
+
+                if (DoWeShareATradePartner(targetEmpire, attackingEmpire))
+                    borderAnger *= 0.05f; // If the trader has str , this wont change anger
             }
 
-            return borderAnger + 10 > (personality?.Territorialism  ?? EmpireManager.Player.data.BorderTolerance);
+            return borderAnger + 10 > (personality?.Territorialism ?? EmpireManager.Player.data.BorderTolerance);
         }
 
         public bool AttackForTransgressions(DTrait personality)
