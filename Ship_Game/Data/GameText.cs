@@ -2257,6 +2257,8 @@ namespace Ship_Game
         Generalists = 1859,
         /// <summary>Expansionists</summary>
         Expansionists = 1860,
+        /// <summary>Million Colonists could be living on this land if you built Biospheres.</summary>
+        MillionColonistsCouldBeLiving = 1896,
         /// <summary>was destroyed while exploring</summary>
         WasDestroyedWhileExploringSystem = 1901,
         /// <summary>was destroyed in deep space while exploring the galaxy</summary>
