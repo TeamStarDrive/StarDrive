@@ -169,6 +169,11 @@ namespace Ship_Game.Gameplay
 
             if      (o.Owner != null)  p.Owner = o.Owner;
             else if (o.Planet != null) p.Planet = o.Planet;
+            else
+            {
+                Log.Error($"Projectile Owner GUID not found on save load. weapon: {o.Weapon} module: {o.Weapon?.Module}");
+                return null;
+            }
 
             p.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
             p.Duration = pdata.Duration; // apply duration from save data
