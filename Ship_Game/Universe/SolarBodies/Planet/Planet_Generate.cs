@@ -250,7 +250,7 @@ namespace Ship_Game
             if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
-            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming a tile is faster than the whole planet
+            TerraformPoints += TerraformToAdd * 3f; // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable));
 
@@ -288,7 +288,7 @@ namespace Ship_Game
                 return;
             }
 
-            TerraformPoints += TerraformToAdd * 2; // Terraforming Biospheres is much faster than the whole planet
+            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming Biospheres is more complex than terraforming a tile
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => t.BioCanTerraform));
         }
