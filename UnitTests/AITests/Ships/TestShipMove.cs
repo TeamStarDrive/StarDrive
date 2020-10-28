@@ -87,7 +87,6 @@ namespace UnitTests.AITests.Ships
             while (ship.engineState == Ship.MoveState.Warp)
             {
                 Universe.Objects.Update(TestSimStep); // update ships           
-                Universe.EmpireUpdateQueue.ManualUpdate();
                 ship.AI.StartSensorScan(new FixedSimTime(10f));
                 enemy.AI.StartSensorScan(new FixedSimTime(10f));
                 sawEnemyShip |= ship.AI.BadGuysNear;
