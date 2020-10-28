@@ -80,7 +80,7 @@ namespace spatial
                 for (int x = cell.x1; x <= cell.x2; ++x)
                 {
                     const GridCell& current = cells[x + y*width];
-                    if (current.size && (current.loyalty.mask & loyaltyMask))
+                    if (current.loyalty.mask & loyaltyMask) // empty cell mask is 0
                     {
                         Point pt = toWorldCellCenter(x,y,half,cellSize);
                         found.add(current.objects, current.size, pt, cellRadius);
@@ -102,7 +102,7 @@ namespace spatial
             auto addCell = [&found,cells,half,cellSize,width,cellRadius,loyaltyMask](int x, int y)
             {
                 const GridCell& current = cells[x + y*width];
-                if (current.size && (current.loyalty.mask & loyaltyMask))
+                if (current.loyalty.mask & loyaltyMask) // empty cell mask is 0
                 {
                     Point pt = toWorldCellCenter(x,y,half,cellSize);
                     found.add(current.objects, current.size, pt, cellRadius);
