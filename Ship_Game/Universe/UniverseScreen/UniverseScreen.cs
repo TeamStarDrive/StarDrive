@@ -796,12 +796,8 @@ namespace Ship_Game
 
         void AutoSaveCurrentGame()
         {
-            // manual save should not need this lock. 
-            lock (ShipPoolLock)
-            {
-                SavedGame savedGame = new SavedGame(this, "Autosave" + Auto);
-                if (++Auto > 3) Auto = 1;
-            }
+            var savedGame = new SavedGame(this, "Autosave" + Auto);
+            if (++Auto > 3) Auto = 1;
         }
 
         void ProjectPieMenu(Vector2 position, float z)
@@ -863,7 +859,6 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            EmpireUpdateQueue.Stop();
 
             RemoveLighting();
             ScreenManager.Music.Stop();
