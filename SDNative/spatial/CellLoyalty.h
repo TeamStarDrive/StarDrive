@@ -19,7 +19,7 @@ namespace spatial
             addLoyaltyMask(loyaltyMask);
         }
 
-        SPATIAL_FINLINE void addLoyaltyMask(uint8_t loyaltyMask)
+        SPATIAL_FINLINE void addLoyaltyMask(uint32_t loyaltyMask)
         {
             if ((mask & loyaltyMask) == 0) // this mask not present yet?
                 ++count;
