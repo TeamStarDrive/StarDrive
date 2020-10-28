@@ -78,7 +78,7 @@ namespace spatial
                 capacity = newCapacity;
             }
             objects[size++] = item;
-            loyalty.addLoyalty(item->loyalty);
+            loyalty.addLoyaltyMask(item->loyaltyMask);
         }
 
         // Converts a LEAF node into a BRANCH node which contains sub-QtreeNode's

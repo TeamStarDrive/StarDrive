@@ -307,7 +307,8 @@ struct Simulation final : spatial::Visualizer
                 mouseDragStart = screenToWorld(ImGui::GetMousePos());
             }
 
-            opt.OnlyLoyalty = 1;
+            opt.OnlyLoyalty = objects.empty() ? 0 : objects.front().loyalty;
+
             ImVec2 end = screenToWorld(ImGui::GetMousePos());
             opt.SearchRect = { (int)mouseDragStart.x, (int)mouseDragStart.y, (int)end.x, (int)end.y };
             opt.SearchRect = opt.SearchRect.normalized();
