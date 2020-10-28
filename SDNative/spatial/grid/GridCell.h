@@ -35,7 +35,7 @@ namespace spatial
                 capacity = newCapacity;
             }
             objects[size++] = item;
-            loyalty.addLoyalty(item->loyalty);
+            loyalty.addLoyaltyMask(item->loyaltyMask);
         }
     };
 
