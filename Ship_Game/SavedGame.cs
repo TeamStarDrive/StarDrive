@@ -700,6 +700,7 @@ namespace Ship_Game
             [Serialize(3)] public float Rotation;
             [Serialize(4)] public Vector2 Velocity;
             [Serialize(5)] public Vector2 Position;
+            [Serialize(6)] public int Loyalty;
         }
 
         public struct BeamSaveData
@@ -711,6 +712,7 @@ namespace Ship_Game
             [Serialize(4)] public Vector2 Destination;
             [Serialize(5)] public Vector2 ActualHitDestination;
             [Serialize(6)] public Guid Target; // Ship or Projectile
+            [Serialize(7)] public int Loyalty;
         }
 
         public class QueueItemSave
