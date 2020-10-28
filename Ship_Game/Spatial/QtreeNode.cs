@@ -68,13 +68,7 @@ namespace Ship_Game.Spatial
                 Count = count+1;
             }
 
-            AddLoyalty(obj->Loyalty);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void AddLoyalty(byte loyaltyId)
-        {
-            uint thisMask = NativeSpatialObject.GetLoyaltyMask(loyaltyId);
+            uint thisMask = obj->LoyaltyMask;
             if ((LoyaltyMask & thisMask) == 0) // this mask not present yet?
                 ++LoyaltyCount;
             LoyaltyMask |= thisMask;
