@@ -95,7 +95,10 @@ namespace Ship_Game
         {
             get
             {
-                float totalProdNeeded        = TotalProdNeededInQueue();
+                float totalProdNeeded = TotalProdNeededInQueue();
+                if (totalProdNeeded.AlmostZero())
+                    return 0;
+
                 float maxProductionWithInfra = MaxProductionToQueue.LowerBound(0.01f);
                 float turnsWithInfra         = ProdHere / InfraStructure.LowerBound(0.01f);
                 float totalProdWithInfra     = turnsWithInfra * maxProductionWithInfra;
