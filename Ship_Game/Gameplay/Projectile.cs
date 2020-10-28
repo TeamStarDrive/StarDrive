@@ -141,24 +141,28 @@ namespace Ship_Game.Gameplay
                     o.Weapon = o.Planet.BuildingList.Find(b => b.Weapon == weaponUID).TheWeapon;
             }
 
-            // fallback, the owner has died, or this is a Mirv warhead (owner is a projectile)
-            if (o.Weapon == null && !isBeam)
-                o.Weapon = ResourceManager.CreateWeapon(weaponUID);
-
-            if (o.Weapon == null)
-                return false;
-            
-            // Older saves don't have loyalty ID, so this is for compatibility
-            if (loyaltyId > 0)
+            if (loyaltyId > 0) // Older saves don't have loyalty ID, so this is for compatibility
                 o.Loyalty = EmpireManager.GetEmpireById(loyaltyId);
             else
                 o.Loyalty = o.Owner?.loyalty ?? o.Planet?.Owner;
 
             if (o.Loyalty == null || o.Owner == null && o.Planet == null)
             {
-                Log.Error($"Projectile Owner not found! guid={ownerGuid} weaponUid={weaponUID} loyalty={o.Loyalty}");
+                Log.Warning($"Projectile Owner not found! guid={ownerGuid} weaponUid={weaponUID} loyalty={o.Loyalty}");
                 return false;
             }
+
+            // fallback, the owner has died, or this is a Mirv warhead (owner is a projectile)
+            if (o.Weapon == null && !isBeam)
+            {
+                // This can fail if `weaponUID` no longer exists in game data
+                // in which case we abandon this projectile
+                ResourceManager.CreateWeapon(weaponUID, out o.Weapon);
+            }
+
+            if (o.Weapon == null)
+                return false;
+
             return true;
         }
 
