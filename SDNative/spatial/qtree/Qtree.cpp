@@ -251,7 +251,7 @@ namespace spatial
             }
             else
             {
-                if (current.size && (current.loyalty.mask & loyaltyMask))
+                if (current.loyalty.mask & loyaltyMask) // empty cell mask is 0
                 {
                     found.add(current.objects, current.size, {cx,cy}, cr);
                 }
