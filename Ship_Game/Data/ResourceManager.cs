@@ -1531,6 +1531,17 @@ namespace Ship_Game
             return template.Clone();
         }
 
+        public static bool CreateWeapon(string uid, out Weapon weapon)
+        {
+            if (WeaponsDict.TryGetValue(uid, out Weapon template))
+            {
+                weapon = template.Clone();
+                return true;
+            }
+            weapon = null;
+            return false;
+        }
+
         // WARNING: DO NOT MODIFY this Weapon instance! (wish C# has const refs like C++)
         public static Weapon GetWeaponTemplate(string uid)
         {

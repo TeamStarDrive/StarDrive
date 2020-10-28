@@ -48,12 +48,12 @@ namespace Ship_Game.AI
 
             if (Empire.Universe == null)
                 return;
-
-            if (Missile.Owner != null)
+            
+            Ship owningShip = Missile.Owner;
+            if (owningShip != null)
             {
-                TargetList = Missile.Owner.AI.PotentialTargets;
-                Level      = Missile.Owner.Level;
-
+                TargetList = owningShip.AI.PotentialTargets;
+                Level      = owningShip.Level;
             }
             else if (Missile.Planet != null)
             {
