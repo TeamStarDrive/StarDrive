@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
-using Ship_Game.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -11,8 +10,6 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        public readonly ActionQueue EmpireUpdateQueue = new ActionQueue();
-        readonly object ShipPoolLock = new object();
         readonly object SimTimeLock = new object();
 
         readonly AggregatePerfTimer EmpireUpdatePerf = new AggregatePerfTimer();
@@ -208,7 +205,8 @@ namespace Ship_Game
 
             if (ProcessTurnEmpires(timeStep))
             {
-                SubmitNextUpdateForASingleEmpire(timeStep);
+                FleetSpeed(timeStep);
+                UpdateSensorsForASingleEmpire(timeStep);
                 PostEmpireUpdates(timeStep);
 
                 Objects.Update(timeStep);
@@ -324,23 +322,17 @@ namespace Ship_Game
             PostEmpirePerf.Stop();
         }
 
-        int NextEmpireToUpdate = 0;
+        int NextEmpireToScan = 0;
         public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
 
-        void SubmitNextUpdateForASingleEmpire(FixedSimTime timeStep)
+        // sensor scan is heavy
+        void UpdateSensorsForASingleEmpire(FixedSimTime timeStep)
         {
-            Empire empireToUpdate = EmpireManager.Empires[NextEmpireToUpdate];
-            if (++NextEmpireToUpdate >= EmpireManager.Empires.Count)
-                NextEmpireToUpdate = 0;
+            Empire empireToUpdate = EmpireManager.Empires[NextEmpireToScan];
+            if (++NextEmpireToScan >= EmpireManager.Empires.Count)
+                NextEmpireToScan = 0;
 
-            EmpireUpdateQueue.SubmitWork(() =>
-            {
-                lock (ShipPoolLock)
-                {
-                    FleetSpeed(timeStep);
-                    UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
-                }
-            });
+            UpdateShipSensorsAndInfluence(timeStep, empireToUpdate);
         }
 
         void UpdateShipSensorsAndInfluence(FixedSimTime timeStep, Empire ourEmpire)
@@ -424,42 +416,34 @@ namespace Ship_Game
                         exterminator.AI.DefaultAIState = AIState.Exterminate;
                     }
                 }
-            }
-            ArmageddonCountdown(timeStep);
-            */
-            // this block contains master ship list and empire pool updates. 
-            // threads iterating the master ship list or empire owned ships should not run through this lock if it can be helped.
-            lock (ShipPoolLock)
-            {
-                // Execute all the actions submitted from UI thread
-                // into this Simulation / Empire thread
-                ScreenManager.InvokePendingEmpireThreadActions();
+            }*/
 
-                Parallel.For(EmpireManager.Empires.Count, (start, end) =>
+            // Execute all the actions submitted from UI thread
+            // into this Simulation / Empire thread
+            ScreenManager.InvokePendingEmpireThreadActions();
+
+            Parallel.For(EmpireManager.Empires.Count, (start, end) =>
+            {
+                for (int i = start; i < end; i++)
                 {
-                    for (int i = start; i < end; i++)
-                    {
-                        var empire = EmpireManager.Empires[i];
-                        empire.Pool.UpdatePools();
-                        empire.UpdateMilitaryStrengths();
-                    }
-                }, MaxTaskCores);
-            }
+                    var empire = EmpireManager.Empires[i];
+                    empire.Pool.UpdatePools();
+                    empire.UpdateMilitaryStrengths();
+                }
+            }, MaxTaskCores);
 
             PreEmpirePerf.Stop();
             
             if (!Paused && IsActive)
             {
                 EmpireUpdatePerf.Start();
-                lock (ShipPoolLock)
+
+                for (var i = 0; i < EmpireManager.NumEmpires; i++)
                 {
-                    for (var i = 0; i < EmpireManager.NumEmpires; i++)
+                    Empire empire = EmpireManager.Empires[i];
+                    if (!empire.data.Defeated)
                     {
-                        Empire empire = EmpireManager.Empires[i];
-                        if (!empire.data.Defeated)
-                        {
-                            empire.Update(timeStep);
-                        }
+                        empire.Update(timeStep);
                     }
                 }
 

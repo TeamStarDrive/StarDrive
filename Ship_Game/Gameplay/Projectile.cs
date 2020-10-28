@@ -124,51 +124,61 @@ namespace Ship_Game.Gameplay
             public Empire Loyalty;
         }
 
-        public static ProjectileOwnership GetOwners(in Guid ownerGuid, string weaponUID, bool isBeam, UniverseData data)
+        public static bool GetOwners(in Guid ownerGuid, int loyaltyId, string weaponUID, bool isBeam,
+                                     UniverseData data, out ProjectileOwnership o)
         {
-            Planet planet = null;
-            Weapon weapon = null;
-            Ship owner = data.FindShipOrNull(ownerGuid);
-            if (owner != null)
+            o = default;
+            o.Owner = data.FindShipOrNull(ownerGuid);
+            if (o.Owner != null)
             {
                 if (weaponUID.NotEmpty())
-                    weapon = owner.Weapons.Find(w => w.UID == weaponUID);
+                    o.Weapon = o.Owner.Weapons.Find(w => w.UID == weaponUID);
             }
             else
             {
-                planet = data.FindPlanetOrNull(ownerGuid);
-                if (planet != null)
-                    weapon = planet.BuildingList.Find(b => b.Weapon == weaponUID).TheWeapon;
+                o.Planet = data.FindPlanetOrNull(ownerGuid);
+                if (o.Planet != null)
+                    o.Weapon = o.Planet.BuildingList.Find(b => b.Weapon == weaponUID).TheWeapon;
+            }
+
+            if (loyaltyId > 0) // Older saves don't have loyalty ID, so this is for compatibility
+                o.Loyalty = EmpireManager.GetEmpireById(loyaltyId);
+            else
+                o.Loyalty = o.Owner?.loyalty ?? o.Planet?.Owner;
+
+            if (o.Loyalty == null || o.Owner == null && o.Planet == null)
+            {
+                Log.Warning($"Projectile Owner not found! guid={ownerGuid} weaponUid={weaponUID} loyalty={o.Loyalty}");
+                return false;
             }
 
             // fallback, the owner has died, or this is a Mirv warhead (owner is a projectile)
-            if (weapon == null && !isBeam)
-                weapon = ResourceManager.CreateWeapon(weaponUID);
-            
-            return new ProjectileOwnership
+            if (o.Weapon == null && !isBeam)
             {
-                Owner = owner,
-                Planet = planet,
-                Weapon = weapon,
-                Loyalty = owner?.loyalty ?? planet?.Owner ?? EmpireManager.Void
-            };
+                // This can fail if `weaponUID` no longer exists in game data
+                // in which case we abandon this projectile
+                ResourceManager.CreateWeapon(weaponUID, out o.Weapon);
+            }
+
+            if (o.Weapon == null)
+                return false;
+
+            return true;
         }
 
         // loading from savegame
         public static Projectile Create(in SavedGame.ProjectileSaveData pdata, UniverseData data)
         {
-            ProjectileOwnership o = GetOwners(pdata.Owner, pdata.Weapon, false, data);
-            if (o.Weapon == null) // this owner or weapon no longer exists
-                return null;
+            if (!GetOwners(pdata.Owner, pdata.Loyalty, pdata.Weapon, false, data, out ProjectileOwnership o))
+                return null; // this owner or weapon no longer exists
 
             var p = new Projectile(o.Loyalty)
             {
                 Weapon = o.Weapon,
-                Module = o.Weapon?.Module,
+                Module = o.Weapon.Module,
+                Owner = o.Owner,
+                Planet = o.Planet
             };
-
-            if      (o.Owner != null)  p.Owner = o.Owner;
-            else if (o.Planet != null) p.Planet = o.Planet;
 
             p.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
             p.Duration = pdata.Duration; // apply duration from save data
