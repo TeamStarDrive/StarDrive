@@ -86,12 +86,13 @@ namespace Ship_Game
             p => p.Active && p.Type == GameObjectType.Proj && (p.Owner != null || p.Planet != null),
             p => new SavedGame.ProjectileSaveData
             {
-                Owner = p.Owner?.guid ?? p.Planet.guid,
+                Owner    = p.Owner?.guid ?? p.Planet.guid,
                 Weapon   = p.Weapon.UID,
                 Duration = p.Duration,
                 Rotation = p.Rotation,
                 Velocity = p.Velocity,
                 Position = p.Center,
+                Loyalty  = p.Loyalty.Id,
             });
         }
         
@@ -104,13 +105,14 @@ namespace Ship_Game
                 var beam = (Beam)p;
                 return new SavedGame.BeamSaveData
                 {
-                    Owner = p.Owner?.guid ?? p.Planet.guid,
-                    Weapon = p.Weapon.UID,
+                    Owner    = p.Owner?.guid ?? p.Planet.guid,
+                    Weapon   = p.Weapon.UID,
                     Duration = p.Duration,
-                    Source = beam.Source,
+                    Source   = beam.Source,
                     Destination = beam.Destination,
                     ActualHitDestination = beam.ActualHitDestination,
-                    Target = beam.Target is Ship ship ? ship.guid : Guid.Empty,
+                    Target  = beam.Target is Ship ship ? ship.guid : Guid.Empty,
+                    Loyalty = p.Loyalty.Id,
                 };
             });
         }
