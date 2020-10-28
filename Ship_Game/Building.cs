@@ -172,7 +172,7 @@ namespace Ship_Game
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 0;
 
         static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
-                                              => ShipBuilder.PickFromCandidates(roleName, empire);
+                                              => ShipBuilder.PickFromCandidates(roleName, empire, normalizedStrength: false);
 
         void LaunchDefenseShips(Planet p, Ship target, Empire empire)
         {
