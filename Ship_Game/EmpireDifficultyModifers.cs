@@ -177,7 +177,7 @@
 
             if (empire.isPlayer)
             {
-                ShipBuildStrMin    = 0.9f;
+                ShipBuildStrMin    = 1f;
                 ShipBuildStrMax    = 1f;
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
