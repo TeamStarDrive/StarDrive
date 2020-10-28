@@ -129,10 +129,10 @@ namespace Ship_Game.AI.Research
         float CalcCanBuildHulls(Empire empire)
         {
             float canBuildBonus = 0;
-            if (empire.canBuildCorvettes) canBuildBonus += 1;
-            if (empire.canBuildFrigates)  canBuildBonus += 1f;
-            if (empire.canBuildCruisers)  canBuildBonus += 1f;
-            if (empire.canBuildCapitals)  canBuildBonus += 1f;
+            if (empire.canBuildCorvettes) canBuildBonus += 0.5f;
+            if (empire.canBuildFrigates)  canBuildBonus += 0.5f;
+            if (empire.canBuildCruisers)  canBuildBonus += 0.5f;
+            if (empire.canBuildCapitals)  canBuildBonus += 0.5f;
 
             return canBuildBonus;
         }
