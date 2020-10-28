@@ -238,7 +238,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            int dieRoll = Level * DifficultyMultiplier();
+            int dieRoll = Level * DifficultyMultiplier() * (int)CurrentGame.Pace;
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
@@ -837,7 +837,7 @@ namespace Ship_Game
 
         void SalvageFreighter(Ship freighter)
         {
-            TryLevelUp(freighter.isColonyShip);
+            TryLevelUp();
             freighter.QueueTotalRemoval();
         }
 
