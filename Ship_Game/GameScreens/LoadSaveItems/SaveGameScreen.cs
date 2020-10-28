@@ -17,7 +17,11 @@ namespace Ship_Game
 
         public override void DoSave()
         {
-            var savedGame = new SavedGame(Screen, EnterNameArea.Text);
+            // Save must run on the empire thread to ensure thread safety
+            RunOnEmpireThread(() =>
+            {
+                var savedGame = new SavedGame(Screen, EnterNameArea.Text);
+            });
             ExitScreen();
         }
 
