@@ -32,6 +32,7 @@ namespace Ship_Game.Debug
         Tech,
         Solar, // Sun timers, black hole data, pulsar radiation radius...
         RelationsWar,
+        Pirates,
         Last // dummy value
     }
 
@@ -198,12 +199,13 @@ namespace Ship_Game.Debug
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
                 {
-                    case DebugModes.Normal        : EmpireInfo(); break;
-                    case DebugModes.DefenseCo     : DefcoInfo(); break;
+                    case DebugModes.Normal        : EmpireInfo();       break;
+                    case DebugModes.DefenseCo     : DefcoInfo();        break;
                     case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
-                    case DebugModes.Targeting     : Targeting(); break;
-                    case DebugModes.input         : InputDebug(); break;
-                    case DebugModes.Tech          : Tech(); break;
+                    case DebugModes.Targeting     : Targeting();        break;
+                    case DebugModes.input         : InputDebug();       break;
+                    case DebugModes.Tech          : Tech();             break;
+                    case DebugModes.Pirates       : Pirates();          break;
                 }
                 base.Draw(batch, elapsed);
                 ShipInfo();
@@ -559,12 +561,90 @@ namespace Ship_Game.Debug
             }
         }
 
+        void Pirates()
+        {
+            int column = 0;
+            foreach (Empire e in EmpireManager.PirateFactions)
+            {
+                if (e.data.Defeated)
+                    continue;
+
+                var goals = e.Pirates.Goals;
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
+                DrawString("------------------------");
+                DrawString(e.Name);
+                DrawString("------------------------");
+                DrawString($"Level: {e.Pirates.Level}");
+                DrawString($"Pirate Bases Goals: {goals.Count(g => g.type == GoalType.PirateBase)}");
+                DrawString($"Pirate Payments Goals: {goals.Count(g => g.type == GoalType.PirateDirectorPayment)}");
+                DrawString($"Spawned Ships: {e.Pirates.SpawnedShips.Count}");
+                NewLine();
+                DrawString($"Raid Management Goals ({goals.Count(g => g.type == GoalType.PirateDirectorRaid)})");
+                DrawString("---------------------------------------------");
+                foreach (Goal g in goals)
+                {
+                    if (g.type == GoalType.PirateDirectorRaid)
+                    {
+                        Empire target     = g.TargetEmpire;
+                        string targetName = target.Name;
+                        int threatLevel   = e.Pirates.ThreatLevelFor(g.TargetEmpire);
+                        DrawString(target.EmpireColor, $"Raid Director For: {targetName}, Threat Level: {threatLevel}");
+                    }
+                }
+
+                NewLine();
+                DrawString($"Ongoing Raids ({goals.Count(g => g.IsRaid)}/{e.Pirates.Level})");
+                DrawString("---------------------------------------------");
+                foreach (Goal g in goals)
+                {
+                    if (g.IsRaid)
+                    {
+                        Empire target     = g.TargetEmpire;
+                        string targetName = target.Name;
+                        Ship targetShip   = g.TargetShip;
+                        string shipName   = targetShip?.Name ?? "None";
+                        DrawString(target.EmpireColor, $"{g.type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
+                    }
+                }
+
+                NewLine();
+
+                DrawString($"Base Defense Goals ({goals.Count(g => g.type == GoalType.PirateDefendBase)})");
+                DrawString("---------------------------------------------");
+                foreach (Goal g in goals)
+                {
+                    if (g.type == GoalType.PirateDefendBase)
+                    {
+                        Ship targetShip = g.TargetShip;
+                        string shipName = targetShip?.Name ?? "None";
+                        DrawString($"Defending {shipName} in {targetShip?.SystemName ?? "None"}");
+                    }
+                }
+
+                NewLine(1);
+
+                DrawString($"Fighter Designs We Can Launch ({e.Pirates.ShipsWeCanBuild.Count})");
+                DrawString("---------------------------------------------");
+                foreach (string shipName in e.Pirates.ShipsWeCanBuild)
+                    DrawString(shipName);
+
+                NewLine();
+
+                DrawString($"Ship Designs We Can Spawn ({e.Pirates.ShipsWeCanSpawn.Count})");
+                DrawString("---------------------------------------------");
+                foreach (string shipName in e.Pirates.ShipsWeCanSpawn)
+                    DrawString(shipName);
+
+                column += 3;
+            }
+        }
+
         void EmpireInfo()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in EmpireManager.MajorEmpires)
             {
-                if (e.isFaction || e.data.Defeated)
+                if (e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
