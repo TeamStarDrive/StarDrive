@@ -796,7 +796,7 @@ namespace Ship_Game
 
         void AutoSaveCurrentGame()
         {
-            SavedGame savedGame = new SavedGame(this, "Autosave" + Auto);
+            var savedGame = new SavedGame(this, "Autosave" + Auto);
             if (++Auto > 3) Auto = 1;
         }
 
@@ -859,7 +859,6 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            EmpireUpdateQueue.Stop();
 
             RemoveLighting();
             ScreenManager.Music.Stop();
