@@ -85,15 +85,15 @@ namespace Ship_Game
         // loading from savegame
         public static Beam Create(in SavedGame.BeamSaveData bdata, UniverseData data)
         {
-            ProjectileOwnership o = GetOwners(bdata.Owner, bdata.Weapon, true, data);
-            if (o.Weapon == null) // this owner or weapon no longer exists
-                return null;
+            if (!GetOwners(bdata.Owner, bdata.Loyalty, bdata.Weapon, true, data, out ProjectileOwnership o))
+                return null; // this owner or weapon no longer exists
             
             GameplayObject target = data.FindObjectOrNull(bdata.Target);
-            var beam = new Beam(o.Weapon, bdata.Source, bdata.Destination, target);
-
-            if      (o.Owner != null)  beam.Owner = o.Owner;
-            else if (o.Planet != null) beam.Planet = o.Planet;
+            var beam = new Beam(o.Weapon, bdata.Source, bdata.Destination, target)
+            {
+                Owner = o.Owner,
+                Planet = o.Planet
+            };
 
             beam.SetActualHitDestination(bdata.ActualHitDestination);
             beam.Duration = bdata.Duration;
