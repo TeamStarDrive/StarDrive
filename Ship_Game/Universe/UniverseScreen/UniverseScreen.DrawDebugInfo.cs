@@ -96,7 +96,6 @@ namespace Ship_Game
                 turn.AddSubItem(new DebugStatItem("PreEmp", PreEmpirePerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("Empire", EmpireUpdatePerf, TurnTimePerf));
                 turn.AddSubItem(new DebugStatItem("PostEmp", PostEmpirePerf, TurnTimePerf));
-                turn.AddSubItem(new DebugStatItem("Queue", EmpireUpdateQueue.Perf, TurnTimePerf));
 
                 var objects = DebugStats.AddItem(new DebugStatItem("Objects", Objects.TotalTime, true));
                 objects.AddSubItem(new DebugStatItem("List", Objects.ListTime, Objects.TotalTime));
