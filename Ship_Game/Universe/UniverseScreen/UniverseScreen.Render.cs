@@ -630,7 +630,7 @@ namespace Ship_Game
 
             RenderState rs = ScreenManager.GraphicsDevice.RenderState;
             DrawAnomalies(rs);
-            DrawSolarSystemsClose();
+            DrawPlanets();
             DrawAndUpdateParticles(elapsed, rs);
 
             ScreenManager.EndFrameRendering();
@@ -714,11 +714,12 @@ namespace Ship_Game
             MuzzleFlashManager.Draw(this);
         }
 
-        private void DrawSolarSystemsClose()
+        private void DrawPlanets()
         {
             DrawPlanetsPerf.Start();
             if (viewState < UnivScreenState.SectorView)
             {
+                GraphicsDevice device = ScreenManager.GraphicsDevice;
                 for (int i = 0; i < SolarSystemList.Count; i++)
                 {
                     SolarSystem solarSystem = SolarSystemList[i];
@@ -732,11 +733,14 @@ namespace Ship_Game
                         {
                             if (p.Type.EarthLike)
                             {
-                                DrawClouds(xnaPlanetModel, p.CloudMatrix, p);
-                                DrawAtmo(xnaPlanetModel, p.CloudMatrix, p);
+                                Matrix clouds = p.CloudMatrix;
+                                DrawClouds(device, xnaPlanetModel, clouds, p);
+                                DrawAtmo(device, xnaPlanetModel, clouds);
                             }
                             if (p.HasRings)
-                                DrawRings(p.RingWorld, p.Scale);
+                            {
+                                DrawRings(device, p.RingWorld, p.Scale);
+                            }
                         }
                     }
                 }
