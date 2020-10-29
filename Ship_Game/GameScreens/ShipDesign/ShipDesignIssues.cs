@@ -348,16 +348,19 @@ namespace Ship_Game.ShipDesignIssues
             var average = accuracyList.Average(kv=> kv.Value);
             WarningLevel severity;
             if      (average > 12) severity = WarningLevel.Critical;
-            else if (average > 6)  severity = WarningLevel.Major;
-            else if (average > 3)  severity = WarningLevel.Minor;
-            else if (average > 1)  severity = WarningLevel.Informative;
+            else if (average > 9)  severity = WarningLevel.Major;
+            else if (average > 6)  severity = WarningLevel.Minor;
+            else if (average > 3)  severity = WarningLevel.Informative;
             else                   return;
 
-            AddDesignIssue(DesignIssueType.Accuracy, severity, " " + LocalizedText.ParseText("{Average}") +" "+ LocalizedText.ParseText("{Accuracy}") + ": " 
-                                                               + Math.Round(average, 1).ToString(CultureInfo.InvariantCulture));
+            string remediation = $" {new LocalizedText(GameText.Average).Text}" +
+                                 $" {new LocalizedText(GameText.Accuracy).Text}:" +
+                                 $" {Math.Round(average, 1)}";
+
+            AddDesignIssue(DesignIssueType.Accuracy, severity, remediation);
         }
 
-        public void CheckTargets(Map<ShipModule, float> accuracyList, float maxTargets, bool isbase)
+        public void CheckTargets(Map<ShipModule, float> accuracyList, float maxTargets)
         {
             if (accuracyList.Count == 0 || maxTargets <1)
                 return;
@@ -365,25 +368,24 @@ namespace Ship_Game.ShipDesignIssues
             var facings = accuracyList.GroupBy(kv=>
             {
                 int facing = (int)kv.Key.FacingDegrees;
-                facing = facing == 360 ? 0 : facing;
+                facing     = facing == 360 ? 0 : facing;
                 return (float)facing;
             });
-            float count = facings.Count();
+            float count          = facings.Count();
             float ratioToTargets = count / maxTargets;
 
-
             WarningLevel severity;
-            if (ratioToTargets > 4) severity = WarningLevel.Critical;
+            if      (ratioToTargets > 4) severity = WarningLevel.Critical;
             else if (ratioToTargets > 3) severity = WarningLevel.Major;
             else if (ratioToTargets > 2) severity = WarningLevel.Minor;
             else if (ratioToTargets > 1) severity = WarningLevel.Informative;
             else return;
 
-            string target     = " " + LocalizedText.ParseText("{6188}") + ": " + maxTargets.ToString(CultureInfo.InvariantCulture) + " ";
-            string firearcs   = LocalizedText.ParseText("{FireArc}" + ": " + count.ToString(CultureInfo.InvariantCulture)) + " ";
-            string baseString = !isbase ? "" : " " + LocalizedText.ParseText("{OrbitalTracking}") + " ";
+            string target     = $" {new LocalizedText(GameText.FcsPower).Text}: {maxTargets.String(1)}, ";
+            string fireArcs   = $"{new LocalizedText(GameText.FireArc).Text}: {count.String(1)} ";
+            string baseString = !IsPlatform ? "" : $" {new LocalizedText(GameText.OrbitalTracking).Text}";
 
-            AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + firearcs);
+            AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + fireArcs);
         }
 
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);

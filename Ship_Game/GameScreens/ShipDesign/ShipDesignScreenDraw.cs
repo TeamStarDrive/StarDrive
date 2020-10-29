@@ -730,7 +730,7 @@ namespace Ship_Game
                 DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
                 DesignIssues.CheckTroops(troopCount, size);
                 DesignIssues.CheckAccuracy(WeaponAccuracyList);
-                DesignIssues.CheckTargets(WeaponAccuracyList, targets, ActiveHull.Role == ShipData.RoleName.platform);
+                DesignIssues.CheckTargets(WeaponAccuracyList, targets);
                 UpdateDesignButton();
             }
         }

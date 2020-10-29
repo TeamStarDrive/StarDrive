@@ -3984,26 +3984,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1456</Index>
       <Text>Oceanic</Text>
     </Token>
-	<Token>
-	  <Index>1457</Index>
-	  <Text>FCS Tracking</Text>
-	</Token>
-	<Token>
-	  <Index>1458</Index>
-	  <Text>Low Target Tracking</Text>
-	</Token>
-	<Token>
-	  <Index>1459</Index>
-	  <Text>FCS Target Tracking: having less tracking than weapon facings can leave the ship unable to fire simultaneously on targets in multiple directions.</Text>
-	</Token>
-	<Token>
-	  <Index>1460</Index>
-	  <Text>Improve target tracking by adding more systems with FCS Target Tracking power such as control systems, or try to group your weapons to face similar directions.</Text>
-	</Token>
-	<Token>
-	  <Index>1461</Index>
-	  <Text>Bases placed in orbit also use planet FCS.</Text>
-	</Token>
+  <Token>
+    <Index>1457</Index>
+    <Text>FCS Tracking</Text>
+  </Token>
+  <Token>
+    <Index>1458</Index>
+    <Text>Low Target Tracking</Text>
+  </Token>
+  <Token>
+    <Index>1459</Index>
+    <Text>FCS Target Tracking: having less tracking than weapon facings can leave the ship unable to fire simultaneously on targets in multiple directions.</Text>
+  </Token>
+  <Token>
+    <Index>1460</Index>
+    <Text>Improve target tracking by adding more systems with FCS Target Tracking power such as control systems, or try to group your weapons to face similar directions.</Text>
+  </Token>
+  <Token>
+    <Index>1461</Index>
+    <Text>Bases placed in orbit also use planet FCS.</Text>
+  </Token>
 
     <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side 
     of the screen when something happens. Usually these are split into 2 lines.  Keep formatting / spacing on these.-->
@@ -6787,7 +6787,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>3000</Index>
       <Text>We feel that the time for hostilities is at an end, and request a peace treaty. </Text>
     </Token>
-    <Token>
+    <Token>1
       <Index>3001</Index>
       <Text>Join us in friendship by creating an alliance with us. </Text>
     </Token>
