@@ -43,7 +43,7 @@ namespace Ship_Game.AI.CombatTactics
             }
 
             Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
-                                owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.GetRelations(owner.Owner).AtWar,
+                                owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.IsAtWarWith(owner.Owner),
                                 troops => troops.TroopsHere.Count);
             if (invadeThis != null)
                 Owner.Carrier.AssaultPlanet(invadeThis);

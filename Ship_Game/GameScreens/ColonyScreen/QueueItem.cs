@@ -31,6 +31,7 @@ namespace Ship_Game
         public float Cost;
         public float ProductionSpent;
         public Goal Goal;
+        public bool Rush;
         public bool NotifyOnEmpty = true;
         public bool IsPlayerAdded = false;
         public bool TransportingColonists  = true;
@@ -63,6 +64,7 @@ namespace Ship_Game
             var tCursor = new Vector2(at.X + 40f, at.Y);
             var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing + 4, 150, 18);
             var pb = new ProgressBar(pbRect, ActualCost, ProductionSpent);
+            var rushCursor = new Vector2(at.X + 200f, at.Y+18);
 
             if (isBuilding)
             {
@@ -84,6 +86,9 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, TroopType, tCursor, Color.White);
                 pb.Draw(batch);
             }
+
+            if (Rush)
+                batch.DrawString(Fonts.Arial12Bold, "Continuous Rush", rushCursor, Color.Red);
         }
 
         public float ActualCost
@@ -122,6 +127,7 @@ namespace Ship_Game
                 isShip      = isShip,
                 DisplayName = DisplayName,
                 isTroop     = isTroop,
+                Rush        = Rush,
                 ProgressTowards = ProductionSpent,
                 isPlayerAdded   = IsPlayerAdded,
                 TradeRoutes     = TradeRoutes,

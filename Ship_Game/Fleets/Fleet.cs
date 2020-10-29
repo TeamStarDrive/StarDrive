@@ -476,7 +476,7 @@ namespace Ship_Game.Fleets
                                              && ship.InRadius(ao, radius) 
                                              && ship.AI.Target.InRadius(ao, radius))
                 {
-                    ship.AI.ClearPriorityOrder();
+                    ship.AI.ClearPriorityOrderAndTarget();
                     clearedOrder = true;
                 }
             }
@@ -807,7 +807,7 @@ namespace Ship_Game.Fleets
 
         void DoGlassPlanet(MilitaryTask task)
         {
-            bool endTask  = task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.GetRelations(Owner).AtWar == false;
+            bool endTask  = task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.IsAtWarWith(Owner) == false;
             endTask      |= task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1;
             endTask      |= !Ships.Select(s => s.Bomb60SecStatus()).Any(bt=> bt != Status.NotApplicable && bt != Status.Critical);
             if (endTask)
@@ -945,7 +945,7 @@ namespace Ship_Game.Fleets
                     ship.AI.State == AIState.FormationWarp)
                 {
                     ship.AI.State = AIState.AwaitingOrders;
-                    ship.AI.ClearPriorityOrder();
+                    ship.AI.ClearPriorityOrderAndTarget();
                 }
             }
         }
@@ -1099,7 +1099,10 @@ namespace Ship_Game.Fleets
                         //    break;
 
                         Ship ship = availableShips[i];
-                        if (ship.AI.HasPriorityOrder || ship.InCombat || ship.AI.State == AIState.AssaultPlanet)
+                        if (ship.AI.HasPriorityOrder 
+                            || ship.InCombat 
+                            || ship.AI.State == AIState.AssaultPlanet 
+                            || ship.AI.State == AIState.Bombard)
                         {
                             availableShips.RemoveAtSwapLast(i);
                             continue;

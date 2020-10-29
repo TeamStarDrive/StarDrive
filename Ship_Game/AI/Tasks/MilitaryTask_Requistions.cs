@@ -221,9 +221,12 @@ namespace Ship_Game.AI.Tasks
                 AO = TargetPlanet.Center;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
             }
-            
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: requiredTroopStrength.LowerBound(40), minBombMinutes: 0);
-            float battleFleetSize = 0.3f;// + Owner.DifficultyModifiers.FleetCompletenessMin;
+
+            if (requiredTroopStrength > 0) // If we need troops, we must have a minimum
+                requiredTroopStrength = requiredTroopStrength.LowerBound(40);
+
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: requiredTroopStrength, minBombMinutes: 0);
+            float battleFleetSize = 0.5f;// + Owner.DifficultyModifiers.FleetCompletenessMin;
 
             if (CreateTaskFleet("Scout Fleet", battleFleetSize, true) == RequisitionStatus.Complete)
                 Step = 1;
@@ -284,7 +287,7 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {type}");
 
             if (TargetPlanet.Owner == null || TargetPlanet.Owner == Owner ||
-                Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
+                Owner.IsPeaceTreaty(TargetPlanet.Owner))
             {
                 EndTask();
                 return;
@@ -307,7 +310,7 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {type}");
 
             if (!Owner.canBuildBombers || TargetPlanet.Owner == null || TargetPlanet.Owner == Owner ||
-                Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
+                Owner.IsPeaceTreaty(TargetPlanet.Owner))
             {
                 EndTask();
                 return;

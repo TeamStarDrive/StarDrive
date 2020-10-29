@@ -81,7 +81,7 @@ namespace Ship_Game.AI
             ClearOrders(newState, priority);
         }
 
-        public void ClearPriorityOrder()
+        public void ClearPriorityOrderAndTarget()
         {
             SetPriorityOrder(false);
             Intercepting      = false;
@@ -228,6 +228,15 @@ namespace Ship_Game.AI
             Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
             OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.Rebase);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
+        }
+
+        public void OrderSupplyShipLand(Planet p)
+        {
+            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.SupplyReturnHome);
+            IgnoreCombat = true;
+            EscortTarget = null;
+            SetPriorityOrder(true);
         }
 
         public void OrderMoveAndRefit(Planet planet, Goal g)
@@ -501,7 +510,8 @@ namespace Ship_Game.AI
             ReturnHome,
             DeployOrbital,
             HoldPositionOffensive,
-            Escort
+            Escort,
+            RearmShipFromPlanet
         }
     }
 }

@@ -63,19 +63,11 @@ namespace Ship_Game.Debug
         public static DebugModes Mode { get; private set; }
         readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
         DebugPage Page;
-        readonly FloatSlider SpeedLimitSlider;
-        readonly FloatSlider DebugPlatformSpeed;
         bool CanDebugPlatformFire;
 
         public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
         {
             Screen = screen;
-            if (screen is DeveloperSandbox.DeveloperUniverse)
-            {
-                SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
-                DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
-                Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", 0);
-            }
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -169,34 +161,11 @@ namespace Ship_Game.Debug
                     case DebugModes.Planets: Page = Add(new PlanetDebug(Screen,this)); break;
                     case DebugModes.Solar:   Page = Add(new SolarDebug(Screen, this)); break;
                     case DebugModes.RelationsWar: Page = Add(new DebugWar(Screen, this)); break;
+                    case DebugModes.SpatialManager: Page = Add(new SpatialDebug(Screen, this)); break;
                 }
             }
 
-            UpdateDebugShips();
             base.Update(fixedDeltaTime);
-        }
-
-        void UpdateDebugShips()
-        {
-            if (DebugPlatformSpeed == null) // platform is only enabled in sandbox universe
-                return;
-            float platformSpeed = DebugPlatformSpeed.AbsoluteValue;
-            float speedLimiter = SpeedLimitSlider.RelativeValue;
-
-            if (Screen.SelectedShip != null)
-            {
-                Ship ship = Screen.SelectedShip;
-                ship.SetSpeedLimit(speedLimiter * ship.VelocityMaximum);
-            }
-
-            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
-            {
-                platform.CanFire = CanDebugPlatformFire;
-                if (platformSpeed.NotZero())
-                {
-                    platform.Velocity.X = platformSpeed;
-                }
-            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -233,7 +202,6 @@ namespace Ship_Game.Debug
                     case DebugModes.DefenseCo     : DefcoInfo(); break;
                     case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
                     case DebugModes.Targeting     : Targeting(); break;
-                    case DebugModes.SpatialManager: SpatialManagement(); break;
                     case DebugModes.input         : InputDebug(); break;
                     case DebugModes.Tech          : Tech(); break;
                 }
@@ -300,9 +268,10 @@ namespace Ship_Game.Debug
 
         void Targeting()
         {
-            for (int i = 0; i < Screen.MasterShipList.Count; ++i)
+            Array<Ship> masterShipList = Screen.GetMasterShipList();
+            for (int i = 0; i < masterShipList.Count; ++i)
             {
-                Ship ship = Screen.MasterShipList[i];
+                Ship ship = masterShipList[i];
                 if (ship == null || !ship.InFrustum || ship.AI.Target == null)
                     continue;
 
@@ -323,11 +292,12 @@ namespace Ship_Game.Debug
                         Screen.DrawLineProjected(impactNoError, weapon.DebugLastImpactPredict, Color.DarkKhaki, 2f);
                     }
 
-                    Projectile projectile = ship.CopyProjectiles.FirstOrDefault(p => p.Weapon == weapon);
-                    if (projectile != null)
-                    {
-                        Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
-                    }
+                    // TODO: re-implement this
+                    //Projectile projectile = ship.CopyProjectiles.FirstOrDefault(p => p.Weapon == weapon);
+                    //if (projectile != null)
+                    //{
+                    //    Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
+                    //}
                     break;
                 }
             }
@@ -513,27 +483,6 @@ namespace Ship_Game.Debug
                 DrawString($"SelectedShips: {ships.Count} ");
                 DrawString($"Total Str: {ships.Sum(s => s.BaseStrength).String(1)} ");
             }
-            VisualizePredictionDebugger();
-        }
-
-        IEnumerable<PredictionDebugPlatform> GetPredictionDebugPlatforms()
-        {
-            for (int i = 0; i < Screen.MasterShipList.Count; ++i)
-                if (Screen.MasterShipList[i] is PredictionDebugPlatform platform)
-                    yield return platform;
-        }
-
-        void VisualizePredictionDebugger()
-        {
-            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
-            {
-                DrawString($"Platform Accuracy: {(int)(platform.AccuracyPercent*100)}%");
-                foreach (PredictedLine line in platform.Predictions)
-                {
-                    DrawLineImm(line.Start, line.End, Color.YellowGreen);
-                    //DrawCircleImm(line.End, 75f, Color.Red);
-                }
-            }
         }
 
         void VisualizeShipGoal(Ship ship, bool detailed = true)
@@ -705,20 +654,20 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine();
-                foreach (KeyValuePair<Empire, Relationship> relationship in e.AllRelations)
+                foreach ((Empire them, Relationship rel) in e.AllRelations)
                 {
-                    TextColor = relationship.Key.EmpireColor;
-                    if (relationship.Value.Treaty_NAPact)
-                        DrawString(15f, "NA Pact with "+ relationship.Key.data.Traits.Plural);
+                    TextColor = them.EmpireColor;
+                    if (rel.Treaty_NAPact)
+                        DrawString(15f, "NA Pact with "+ them.data.Traits.Plural);
 
-                    if (relationship.Value.Treaty_Trade)
-                        DrawString(15f, "Trade Pact with "+ relationship.Key.data.Traits.Plural);
+                    if (rel.Treaty_Trade)
+                        DrawString(15f, "Trade Pact with "+ them.data.Traits.Plural);
 
-                    if (relationship.Value.Treaty_OpenBorders)
-                        DrawString(15f, "Open Borders with "+ relationship.Key.data.Traits.Plural);
+                    if (rel.Treaty_OpenBorders)
+                        DrawString(15f, "Open Borders with "+ them.data.Traits.Plural);
 
-                    if (relationship.Value.AtWar)
-                        DrawString(15f, $"War with {relationship.Key.data.Traits.Plural} ({relationship.Value.ActiveWar?.WarType})");
+                    if (rel.AtWar)
+                        DrawString(15f, $"War with {them.data.Traits.Plural} ({rel.ActiveWar?.WarType})");
                 }
                 ++column;
                 if (Screen.SelectedSystem != null)
@@ -772,11 +721,6 @@ namespace Ship_Game.Debug
                         increaser + pin.Ship.Radius, 3, e.EmpireColor);
                 }
             }
-        }
-
-        void SpatialManagement()
-        {
-            UniverseScreen.SpaceManager.DebugVisualize(Screen);
         }
 
         void InputDebug()

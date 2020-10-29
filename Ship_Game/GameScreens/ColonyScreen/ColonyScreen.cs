@@ -218,7 +218,7 @@ namespace Ship_Game
         public float TerraformTargetFertility()
         {
             float fertilityOnBuild = P.BuildingList.Sum(b => b.MaxFertilityOnBuild);
-            return (1 + fertilityOnBuild*Player.RacialEnvModifer(Player.data.PreferredEnv)).LowerBound(0);
+            return (1 + fertilityOnBuild*Player.PlayerPreferredEnvModifier).LowerBound(0);
         }
 
         string TerraformPotential(out Color color)
@@ -228,8 +228,9 @@ namespace Ship_Game
             int numUninhabitableTiles   = P.TilesList.Count(t => t.CanTerraform && !t.Biosphere);
             int numBiospheres           = P.TilesList.Count(t => t.BioCanTerraform);
             float minEstimatedMaxPop    = P.PotentialMaxPopBillionsFor(Player);
+            float maxPopWithBiospheres  = P.PotentialMaxPopBillionsFor(Player, true);
 
-            string text = "Terraformer Process Stages:\n";
+            string text        = "Terraformer Process Stages:\n";
             string initialText = text;
 
             if (numUninhabitableTiles > 0)
@@ -255,14 +256,17 @@ namespace Ship_Game
                 text += $"  * Max Fertility will be changed to {targetFertility}.\n";
             }
 
-            if (minEstimatedMaxPop > P.MaxPopulationBillionFor(Player))
+            if (minEstimatedMaxPop > maxPopWithBiospheres)
                 text += $"  * Expected Max Population will be {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
 
-            text += $"  * Current Maximum Terraformers: {P.TerraformerLimit}\n";
             if (text == initialText)
             {
                 color = Color.Yellow;
                 text = "Terraformers will have no effect on this planet.";
+            }
+            else
+            {
+                text += $"  * Current Maximum Terraformers: {P.TerraformerLimit}\n";
             }
 
             return text;

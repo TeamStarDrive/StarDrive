@@ -316,8 +316,8 @@ namespace Ship_Game
 
                 foreach (Empire e in solarSystem.OwnerList)
                 {
-                    EmpireManager.Player.TryGetRelations(e, out Relationship ssRel);
-                    wellKnown = Debug || EmpireManager.Player == e || ssRel.Treaty_Alliance;
+                    EmpireManager.Player.GetRelations(e, out Relationship ssRel);
+                    wellKnown = Debug || e.isPlayer || ssRel.Treaty_Alliance;
                     if (wellKnown) break;
                     if (ssRel.Known) // (ssRel.Treaty_Alliance || ssRel.Treaty_Trade || ssRel.Treaty_OpenBorders))
                         owners.Add(e);
@@ -579,9 +579,7 @@ namespace Ship_Game
                 {
                     SceneObjBackQueue.RemoveAtSwapLast(i);
                 }
-                else if (ship.inSensorRange && viewState <= UnivScreenState.SystemView
-                     && (ship.System == null || ship.System.isVisible) 
-                     && Frustum.Contains(ship.Center, 2000f))
+                else if (ship.IsVisibleToPlayer)
                 {
                     ship.CreateSceneObject();
                     SceneObjBackQueue.RemoveAtSwapLast(i);
@@ -609,19 +607,6 @@ namespace Ship_Game
 
             DrawBombs();
             ScreenManager.RenderSceneObjects();
-
-            if (viewState < UnivScreenState.SectorView)
-            {
-                using (player.KnownShips.AcquireReadLock())
-                    for (int j = player.KnownShips.Count - 1; j >= 0; j--)
-                    {
-                        Ship ship = player.KnownShips[j];
-                        if (ship?.InFrustum != true || ship?.Active != true)
-                            continue;
-                        ship.DrawDroneBeams(this);
-                        ship.DrawBeams(this);                        
-                    }
-            }
 
             var rs = ScreenManager.GraphicsDevice.RenderState;
             rs.DepthBufferWriteEnable = true;

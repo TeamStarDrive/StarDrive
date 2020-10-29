@@ -24,7 +24,11 @@ namespace Ship_Game
             {
                 if (!keyValuePair.Value)
                     continue;
-                Building b = ResourceManager.GetBuildingTemplate(keyValuePair.Key);
+
+                // when loading from savegames, unlocked BDict can contain invalid entries
+                if (!ResourceManager.GetBuilding(keyValuePair.Key, out Building b))
+                    continue;
+
                 // Skip adding + food buildings for cybernetic races
                 if (IsCybernetic && !b.ProducesProduction && !b.ProducesResearch && b.ProducesFood)
                     continue;
@@ -65,6 +69,7 @@ namespace Ship_Game
 
         public bool MilitaryBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && b.IsMilitary);
         public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && !b.IsMilitary);
+        public bool MilitaryBaseInTheWorks     => ConstructionQueue.Any(b => b.isBuilding && !b.Building.AllowInfantry);
 
         public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);
         public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
@@ -90,7 +95,10 @@ namespace Ship_Game
         {
             get
             {
-                float totalProdNeeded        = TotalProdNeededInQueue();
+                float totalProdNeeded = TotalProdNeededInQueue();
+                if (totalProdNeeded.AlmostZero())
+                    return 0;
+
                 float maxProductionWithInfra = MaxProductionToQueue.LowerBound(0.01f);
                 float turnsWithInfra         = ProdHere / InfraStructure.LowerBound(0.01f);
                 float totalProdWithInfra     = turnsWithInfra * maxProductionWithInfra;

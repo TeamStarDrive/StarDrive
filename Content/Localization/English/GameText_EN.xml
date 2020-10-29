@@ -928,7 +928,7 @@
     </Token>
     <Token>
       <Index>230</Index>
-      <Text>Orders all bomb-equipped ships in the vicinity of this planet (Range 15000) to begin bombarding the planet. Or, if they are already bombarding the planet, to cancel their bombardment</Text>
+      <Text>Orders all bomb-equipped ships in the vicinity of this planet (Range 15000) to begin bombarding the planet. Or, if they are already bombarding the planet, to cancel their bombardment. The number in brackets is the available bombers for this action. The button's color will be Red if you are currently bombing the planet.</Text>
     </Token>
     <Token>
       <Index>231</Index>
@@ -1456,7 +1456,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>393</Index>
-      <Text>TradeHub</Text>
+      <Text>Trade Hub</Text>
     </Token>
     <Token>
       <Index>394</Index>
@@ -1695,7 +1695,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>462</Index>
-      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres will be removed to complete the process. The number of Terraformers which can be placed on a planet is directly affected by the number of habitable tiles the planet has.</Text>
+      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make terrformable parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres over tiles which were terraformed will be removed to complete the process. The number of Terraformers which can be placed on a planet is affected by the number of tiles which can be terraformed and it is dynamically reduced during the terraforming operation.</Text>
     </Token>
     <Token>
       <Index>463</Index>
@@ -4658,6 +4658,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1822</Index>
       <Text>One of your ships was lost during a mutiny\n The mutiny was incited by</Text>
     </Token>
+    <Token>
+      <Index>1823</Index>
+      <Text>Maximum imprecision angle (in degrees) this weapon has. This is used in weapons such as vulcan cannons and plasma throwers. Gives the weapon a spray of shots.</Text>
+    </Token>
+    <Token>
+      <Index>1824</Index>
+      <Text>Continuous Rush</Text>
+    </Token>
+    <Token>
+      <Index>1825</Index>
+      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items.\. WARNING: This will quickly spend your treasury and may cause high tax rates.</Text>
+    </Token>
+    <Token>
+      <Index>1826</Index>
+      <Text>build all ships now, prioritize them to be first in queue and apply continuous rush.\n \nWARNING: This might drain your Treasury in an alarming rate.</Text>
+    </Token>
     <!-- Personality traits-->
     <Token>
       <Index>1850</Index>
@@ -5042,7 +5058,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1957</Index>
-      <Text>Create a Garrison force for the planet, based on the Garrison size you set. It will allow troops to be off-loaded below the Garrison size, and will train new troops to replace them.</Text>
+      <Text>Create a Garrison force for the planet, based on the Garrison size you set. It will allow troops to be off-loaded below the Garrison size, and will train new troops to replace them. It will also auto build the cheapest building which can build Infantry, if able.</Text>
     </Token>
     <Token>
       <Index>1958</Index>g
@@ -5104,6 +5120,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1972</Index>
       <Text>Terraforming A Tile</Text>
     </Token>
+	  <Token>
+		  <Index>1973</Index>
+		  <Text>Accuracy</Text>
+	  </Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
       <Index>1974</Index>
@@ -5111,7 +5131,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1975</Index>
-      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has revocered from the EMP overload.</Text>
+      <Text>EMP overload. Ship is disabled. When the number goes below 1, the ship has recovered from the EMP overload.</Text>
     </Token>
     <Token>
       <Index>1976</Index>
@@ -6703,6 +6723,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2571</Index>
       <Text>Add ordnance storage to support burst Ordnance usage. Current Ordnance Weapon Efficiency is</Text>
     </Token>
+	<Token>
+	  <Index>2572</Index>
+	  <Text>Low Weapon Accuracy</Text>
+	</Token>
+	<Token>
+	  <Index>2573</Index>
+	  <Text>Low Weapon Accuracy can make smaller targets hard to hit such as fighters, corvettes, frigates, and critical ship systems. </Text>
+	</Token>
+	<Token>
+	  <Index>2574</Index>
+	  <Text>Improve Accuracy with higher FCS control systems or more accurate weapons. Check the module information for individual weapon accuracy.</Text>
+	</Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>
@@ -6962,7 +6994,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>248</Index>
-      <Text>Click to rush production from this colony's storage. \n \nA single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available.\mThe amount of production rushed will be also deducted from your Empire's Treasury.\nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
+      <Text>Click to rush production from this colony's storage.\n \nA single click will apply 10 production from storage to current production.\n \nCTRL-Click to add as much production currently available.\n \nShift-Click will try to rush this item until completed while draining your Treasury.\nThe amount of production rushed will be also deducted from your Empire's Treasury.\n \nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
     </Token>
     <Token>
       <Index>215</Index>
@@ -7717,6 +7749,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4113</Index>
       <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\n meteor was comprised mostly of useful minerals.</Text>
     </Token>
+	  <!-- More Venus ToolTips-->
+	<Token>
+	  <Index>4114</Index>
+	  <Text>Weapon target error radius measured in ship slots. Ex. an value of -6 means the weapon will hit within a 6 slot radius of the target point. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
+	</Token>
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>

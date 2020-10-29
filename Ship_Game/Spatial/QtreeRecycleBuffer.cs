@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
     /// <summary>
     /// Utility buffer for recycling QtreeNodes
@@ -19,22 +15,27 @@ namespace Ship_Game
 
         int NodeIds;
 
+        /// <summary>
+        /// Number of active nodes
+        /// </summary>
+        public int NumActiveNodes => Active.Count;
+
         public QtreeRecycleBuffer(int idStart)
         {
             NodeIds = idStart;
         }
 
-        public QtreeNode Create(float x, float y, float lastX, float lastY)
+        public QtreeNode Create(float x1, float y1, float x2, float y2)
         {
+            var bounds = new AABoundingBox2D(x1, y1, x2, y2);
             // Reuse existing node from front buffer
             if (Inactive.TryPopLast(out QtreeNode node))
             {
-                node.InitializeForReuse(x, y, lastX, lastY);
+                node.InitializeForReuse(bounds);
             }
             else // create a new node
             {
-                node = new QtreeNode(x, y, lastX, lastY);
-                node.Id = ++NodeIds;
+                node = new QtreeNode(bounds);
             }
 
             // always add this frame's node to the back buffer

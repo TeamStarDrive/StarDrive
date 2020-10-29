@@ -35,9 +35,9 @@ namespace UnitTests.Ships
         {
             CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
             Ship target = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
-            
+
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Fire at target must succeed");
-            Assert.AreEqual(1, ship.CopyProjectiles.Length, "Invalid projectile count");
+            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
         }
 
         [TestMethod]
@@ -45,9 +45,9 @@ namespace UnitTests.Ships
         {
             CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
             Ship target = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
-            
+
             Assert.IsFalse(weapon.UpdateAndFireAtTarget(target, NoProjectiles, NoShips), "Weapon cannot shoot behind its firing ARC!");
-            Assert.AreEqual(0, ship.CopyProjectiles.Length, "No projectiles should launch");
+            Assert.AreEqual(0, GetProjectileCount(ship), "No projectiles should launch");
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@ namespace UnitTests.Ships
 
             var otherShips = new Array<Ship>(new[]{ opportune });
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(main, NoProjectiles, otherShips), "Fire at target must succeed");
-            Assert.AreEqual(1, ship.CopyProjectiles.Length, "Invalid projectile count");
+            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
             Assert.AreEqual(((ShipModule)weapon.FireTarget).GetParent(), opportune, "Weapon must have fired at target of opportunity");
         }
 
@@ -79,9 +79,9 @@ namespace UnitTests.Ships
             enemy.AI.OrderHoldPosition(enemy.Center, enemy.Direction);
             enemy.Update(new FixedSimTime(0.01f)); // update weapons & projectiles
 
-            var projectiles = new Array<Projectile>(enemy.CopyProjectiles);
+            Array<Projectile> projectiles = GetProjectiles(enemy);
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips), "Fire PD at a projectile must succeed");
-            Assert.AreEqual(1, us.CopyProjectiles.Length, "Invalid projectile count");
+            Assert.AreEqual(1, GetProjectileCount(us), "Invalid projectile count");
             Assert.AreEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");
         }
     }

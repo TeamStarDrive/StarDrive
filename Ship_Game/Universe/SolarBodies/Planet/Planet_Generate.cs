@@ -186,7 +186,7 @@ namespace Ship_Game
         private void CreateHomeWorldPopulation(float preDefinedPop, int numHabitableTiles)
         {
             // Homeworld Pop is always 14 (or if defined else in the xml) multiplied by scale (homeworld size mod)
-            float envMultiplier = 1 / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
+            float envMultiplier = 1 / Empire.PreferredEnvModifier(Owner);
             float maxPop        = preDefinedPop > 0 ? preDefinedPop * 1000 : 14000;
             BasePopPerTile      = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
             UpdateMaxPopulation();
@@ -196,7 +196,7 @@ namespace Ship_Game
         private void CreateHomeWorldFertilityAndRichness()
         {
             // Set the base fertility so it always corresponds to preferred env plus any modifiers from traits
-            float baseMaxFertility = (2 + Owner.data.Traits.HomeworldFertMod) / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
+            float baseMaxFertility = (2 + Owner.data.Traits.HomeworldFertMod) / Empire.PreferredEnvModifier(Owner);
             SetBaseFertilityMinMax(baseMaxFertility);
 
             MineralRichness = 1f + Owner.data.Traits.HomeworldRichMod;
@@ -240,16 +240,17 @@ namespace Ship_Game
             TerraformBioSpheres();
         }
 
-        public bool TilesToTerraform      => TilesList.Any(t => t.CanTerraform);
+        public bool HasTilesToTerraform   => TilesList.Any(t => t.CanTerraform);
         public bool BioSpheresToTerraform => TilesList.Any(t => t.BioCanTerraform);
+        public int TerraformerLimit       => TilesList.Count(t => t.CanTerraform)/2 + 2;
 
         private bool TerraformTiles()
         {
 
-            if (!TilesToTerraform)
+            if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
-            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming a tile is faster than the whole planet
+            TerraformPoints += TerraformToAdd * 3f; // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable));
 
@@ -287,7 +288,7 @@ namespace Ship_Game
                 return;
             }
 
-            TerraformPoints += TerraformToAdd * 2; // Terraforming Biospheres is much faster than the whole planet
+            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming Biospheres is more complex than terraforming a tile
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => t.BioCanTerraform));
         }
@@ -299,6 +300,9 @@ namespace Ship_Game
                 PlanetGridSquare tile = RandItem(possibleTiles);
                 MakeTileHabitable(tile);
             }
+
+            if (TerraformersHere > TerraformerLimit)
+                RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
 
             UpdateTerraformPoints(0); // Start terraforming a new tile
         }
@@ -335,17 +339,21 @@ namespace Ship_Game
                 if (IsCybernetic)
                     return 0;
 
-                float racialEnvMultiplier = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1f;
+                float racialEnvMultiplier = 1 / Empire.PreferredEnvModifier(Owner);
                 return racialEnvMultiplier;
             }
         }
 
-        private void RemoveTerraformers()
+        private void RemoveTerraformers(bool removeOne = false)
         {
             foreach (PlanetGridSquare tile in TilesList)
             {
                 if (tile.building?.PlusTerraformPoints > 0)
+                {
                     ScrapBuilding(tile.building);
+                    if (removeOne)
+                        return;
+                }
             }
         }
 

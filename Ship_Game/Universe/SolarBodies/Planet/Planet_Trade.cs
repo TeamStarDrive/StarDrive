@@ -215,7 +215,7 @@ namespace Ship_Game
                 {
                     freighters.RemoveAtSwapLast(i);
                 }
-                else if (ship.loyalty != Owner && !Owner.GetRelations(ship.loyalty).Treaty_Trade)
+                else if (ship.loyalty != Owner && !Owner.IsTradeTreaty(ship.loyalty))
                 {
                     // cancel trade plan and remove from list if trade treaty was canceled
                     freighters.RemoveAtSwapLast(i);
@@ -291,9 +291,9 @@ namespace Ship_Game
             float limit = 0; // it is a multiplier
             switch (goods)
             {
-                case Goods.Food:       limit = FoodHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods); break;
-                case Goods.Production: limit = ProdHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods); break;
-                case Goods.Colonists:  limit = Population * 0.2f;                                                 break;
+                case Goods.Food:       limit = FoodHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
+                case Goods.Production: limit = ProdHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
+                case Goods.Colonists:  limit = Population * 0.2f;                                                               break;
             }
             return limit;
         }

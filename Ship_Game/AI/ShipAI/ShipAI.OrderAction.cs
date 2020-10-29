@@ -114,6 +114,13 @@ namespace Ship_Game.AI
             AddExterminateGoal(toBombard);
         }
 
+        public void OrderAttackPriorityTarget(Ship target)
+        {
+            HasPriorityTarget = true;
+            Target            = target;
+            AddShipGoal(Plan.DoCombat, AIState.AttackTarget);
+        }
+
         public void OrderFindExterminationTarget()
         {
             if (ExterminationTarget?.Owner == null)
@@ -356,7 +363,7 @@ namespace Ship_Game.AI
                 return;
 
             // targeting relation
-            if (Owner.loyalty.TryGetRelations(toAttack.loyalty, out Relationship relations))
+            if (Owner.loyalty.GetRelations(toAttack.loyalty, out Relationship relations))
             {
                 if (!relations.Treaty_Peace)
                 {
@@ -469,14 +476,15 @@ namespace Ship_Game.AI
             Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner);
         }
 
-        public void AddSupplyShipGoal(Ship supplyTarget)
+        public void AddSupplyShipGoal(Ship supplyTarget, Plan plan = Plan.SupplyShip)
         {
             ClearOrders();
             IgnoreCombat = true;
             //Clearorders wipes stored ordnance data if state is ferrying.
             EscortTarget = supplyTarget;
-            AddShipGoal(Plan.SupplyShip, AIState.Ferrying);
+            AddShipGoal(plan, AIState.Ferrying);
         }
+
         public void OrderSystemDefense(SolarSystem system)
         {
             ShipGoal goal = OrderQueue.PeekLast;
@@ -555,15 +563,18 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForFaction()
         {
-            if (!Owner.loyalty.isFaction) return false;
-            AwaitClosest = Owner.System?.PlanetList.FindMax(p => p.GetNearByShips().Length);
+            if (!Owner.loyalty.isFaction)
+                return false;
+
+            AwaitClosest = Owner.System?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
 
             if (AwaitClosest == null)
             {
                 var solarSystem = Owner.loyalty.GetShips()
                     .FindMinFiltered(ship => ship.System != null,
-                                    ship => Owner.Center.SqDist(ship.Center))?.System;
-                AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.GetNearByShips().Length);
+                                     ship => Owner.Center.SqDist(ship.Center))?.System;
+
+                AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
                 if (AwaitClosest == null)
                 {
                     var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>

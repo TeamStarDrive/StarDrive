@@ -187,14 +187,14 @@ namespace Ship_Game
             Planet p = Screen.P;
             if (b.MaxFertilityOnBuild.NotZero())
             {
-                string fertilityChange = $"{b.MaxFertilityOnBuild * Screen.Player.RacialEnvModifer(p.Category)}";
+                string fertilityChange = $"{b.MaxFertilityOnBuild * Screen.Player.PlayerEnvModifier(p.Category)}";
                 if (b.MaxFertilityOnBuild.Greater(0))
                     fertilityChange = $"+{fertilityChange}";
                 description = $"{fertilityChange} {description}";
             }
 
             if (b.IsBiospheres)
-                description = $"{(p.PopPerBiosphere/1000).String(2) } {description}";
+                description = $"{(p.PopPerBiosphere(EmpireManager.Player)/1000).String(2) } {description}";
             
             return description;
         }

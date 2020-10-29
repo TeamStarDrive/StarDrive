@@ -100,10 +100,10 @@ namespace Ship_Game
             }
 
             isVisible = universe.Frustum.Contains(Position, Radius)
-                    && (universe.viewState <= UniverseScreen.UnivScreenState.SectorView)
+                    && (universe.IsSectorViewOrCloser)
                     && IsExploredBy(player);
 
-            if (isVisible && universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (isVisible && universe.IsSystemViewOrCloser)
             {
                 WasVisibleLastFrame = true;
                 for (int i = 0; i < AsteroidsList.Count; i++)

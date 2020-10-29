@@ -199,22 +199,17 @@ namespace Ship_Game.AI
         public void ProcessResupply(ResupplyReason resupplyReason)
         {
             Planet nearestRallyPoint = null;
-            Ship supplyShip = null;
             switch (resupplyReason)
             {
                 case ResupplyReason.LowOrdnanceCombat:
-
-                    supplyShip = NearBySupplyShip;
-                    if (supplyShip != null)
+                case ResupplyReason.LowOrdnanceNonCombat:
+                    if (Owner.IsPlatformOrStation)
                     {
-                        SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
+                        RequestResupplyFromPlanet();
                         return;
                     }
 
-                    nearestRallyPoint = Owner.loyalty.FindNearestSafeRallyPoint(Owner.Center);
-                    break;
-                case ResupplyReason.LowOrdnanceNonCombat:
-                    supplyShip = NearBySupplyShip;
+                    Ship supplyShip = NearBySupplyShip;
                     if (supplyShip != null)
                     {
                         SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
@@ -249,6 +244,9 @@ namespace Ship_Game.AI
                     TerminateResupplyIfDone();
                     return;
             }
+
+            if (Owner.IsPlatformOrStation)
+                return;
 
             SetPriorityOrder(true);
             DecideWhereToResupply(nearestRallyPoint);
@@ -300,6 +298,23 @@ namespace Ship_Game.AI
                     Owner.fleet.FinalDirection, true, State);
         }
 
+        void RequestResupplyFromPlanet()
+        {
+            if (Owner.InCombat || Owner.loyalty.isFaction || Owner.GetTether()?.Owner == Owner.loyalty)
+                return;
+
+            EmpireAI ai = Owner.loyalty.GetEmpireAI();
+            if (ai.Goals.Any(g => g.type == GoalType.RearmShipFromPlanet && g.TargetShip == Owner))
+                return; // Supply ship is on the way
+
+            var possiblePlanets = Owner.loyalty.GetPlanets().Filter(p => p.NumSupplyShuttlesCanLaunch() > 0);
+            if (possiblePlanets.Length == 0)
+                return;
+
+            Planet planet = possiblePlanets.FindMin(p => p.Center.SqDist(Owner.Center));
+            ai.AddPlanetaryRearmGoal(Owner, planet);
+        }
+
         public void FireWeapons(FixedSimTime timeStep)
         {
             TriggerDelay -= timeStep.FixedTime;
@@ -324,45 +339,35 @@ namespace Ship_Game.AI
                     {
                         switch (OrderQueue.PeekFirst?.Plan)
                         {
-                            case null:
-                                OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
-                                break;
+                            default: OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State)); break;
                             case Plan.DoCombat:
                             case Plan.Bombard:
-                            case Plan.BoardShip:
-                                break;
-                            default:
-                                OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
-                                break;
+                            case Plan.BoardShip: break;
                         }
                     }
                 }
             }
-            else
+            else if (!BadGuysNear)
             {
-                int count = Owner.Weapons.Count;
+                int count            = Owner.Weapons.Count;
                 FireOnMainTargetTime = 0;
-                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
+                Weapon[] items       = Owner.Weapons.GetInternalArrayItems();
                 for (int x = 0; x < count; x++)
                     items[x].ClearFireTarget();
 
-                if (Owner.Carrier.HasHangars && Owner.loyalty != Empire.Universe.player)
+                if (Owner.Carrier.HasHangars)
                 {
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
                         Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip != null && hangarShip.Active)
-                            hangarShip.AI.OrderReturnToHangar();
-                    }
-                }
-                else if (Owner.Carrier.HasHangars)
-                {
-                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
-                    {
-                        Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip != null && hangarShip.AI.State != AIState.ReturnToHangar &&
-                            !hangarShip.AI.HasPriorityTarget && !hangarShip.AI.HasPriorityOrder)
+                        if (hangarShip != null && hangarShip.Active && hangarShip.AI.State != AIState.ReturnToHangar)
                         {
+                            if (Owner.loyalty == Empire.Universe.player
+                                && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
+                            {
+                                continue;
+                            }
+
                             if (Owner.Carrier.FightersLaunched)
                                 hangarShip.DoEscort(Owner);
                             else
@@ -440,6 +445,7 @@ namespace Ship_Game.AI
                 case Plan.TroopToShip:              DoTroopToShip(timeStep, goal);            break;
                 case Plan.BoardShip:                DoBoardShip(timeStep);                    break;
                 case Plan.SupplyShip:               DoSupplyShip(timeStep);                   break;
+                case Plan.RearmShipFromPlanet:      DoRearmShip(timeStep);                    break;
                 case Plan.Refit:                    DoRefit(goal);                            break;
                 case Plan.LandTroop:                DoLandTroop(timeStep, goal);              break;
                 case Plan.ResupplyEscort:           DoResupplyEscort(timeStep, goal);         break;
@@ -691,7 +697,6 @@ namespace Ship_Game.AI
             StartSensorScan(timeStep);
             ApplySensorScanResults();
         }
-        
 
         void ResetStateFlee()
         {
