@@ -154,7 +154,7 @@ namespace Ship_Game.AI
             {
                 if (Empire.Universe.SelectedShip == null || Empire.Universe.SelectedShip == Owner)
                 {
-                    Owner.KnownByEmpires.SetSeen(EmpireManager.Player);
+                    Owner.KnownByEmpires.SetSeenByPlayer();
                 }
             }
             BadGuysNear = false;
@@ -206,13 +206,10 @@ namespace Ship_Game.AI
 
                 nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
 
-                // in debug show all ships except when one is selected. 
+                // in debug show all ships
                 if (Empire.Universe?.Debug == true)
                 {
-                    if (Empire.Universe.SelectedShip == null || Empire.Universe.SelectedShip == Owner)
-                    {
-                        nearbyShip.KnownByEmpires.SetSeen(EmpireManager.Player);
-                    }
+                    nearbyShip.KnownByEmpires.SetSeenByPlayer();
                 }
 
                 // do not process dead and dying any further. Let them be visibilbe but not show up in any target lists. 
