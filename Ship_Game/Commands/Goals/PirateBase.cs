@@ -47,7 +47,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
             }
 
-            Base.ChangeOrdnance(1); // Slowly replenish the base's ordnance stores
+            Base.ChangeOrdnance(Base.OrdinanceMax / 10); // Slowly replenish the base's ordnance stores
             var friendlies = Base.AI.FriendliesNearby;
             using (friendlies.AcquireReadLock())
             {
@@ -57,9 +57,9 @@ namespace Ship_Game.Commands.Goals
                     if (ship.IsPlatformOrStation || ship.Mothership != null)
                         continue; // Do not mess with our own structures
 
-                    if (ship.InRadius(Base.Center, 2000))
+                    if (ship.InRadius(Base.Center, Base.Radius + 3000))
                     {
-                        ship.ChangeOrdnance(1);
+                        ship.ChangeOrdnance(ship.OrdinanceMax / 10);
                         Pirates.ProcessShip(ship, Base);
                     }
                 }

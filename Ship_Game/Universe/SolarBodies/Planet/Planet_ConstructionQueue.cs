@@ -95,7 +95,10 @@ namespace Ship_Game
         {
             get
             {
-                float totalProdNeeded        = TotalProdNeededInQueue();
+                float totalProdNeeded = TotalProdNeededInQueue();
+                if (totalProdNeeded.AlmostZero())
+                    return 0;
+
                 float maxProductionWithInfra = MaxProductionToQueue.LowerBound(0.01f);
                 float turnsWithInfra         = ProdHere / InfraStructure.LowerBound(0.01f);
                 float totalProdWithInfra     = turnsWithInfra * maxProductionWithInfra;
@@ -154,7 +157,7 @@ namespace Ship_Game
             {
                 var scrapGoalsTargetingThis = scrapGoals.Filter(g => g.type == GoalType.ScrapShip && g.PlanetBuildingAt == this);
                 if (scrapGoalsTargetingThis.Length > 0)
-                    effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip.GetScrapCost());
+                    effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip?.GetScrapCost() ?? 0);
             }
 
             return Storage.Max - effectiveProd; // Negative means we have excess prod

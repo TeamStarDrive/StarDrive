@@ -123,16 +123,16 @@ namespace Ship_Game.AI.Research
             }
 
             maxBonus = (maxBonus - CalcCanBuildHulls(OwnerEmpire)).LowerBound(0);
-            return maxBonus + wars;
+            return maxBonus + wars * 2;
         }
 
         float CalcCanBuildHulls(Empire empire)
         {
             float canBuildBonus = 0;
-            if (empire.canBuildCorvettes) canBuildBonus += 0.25f;
-            if (empire.canBuildFrigates)  canBuildBonus += 0.25f;
-            if (empire.canBuildCruisers)  canBuildBonus += 0.25f;
-            if (empire.canBuildCapitals)  canBuildBonus += 0.25f;
+            if (empire.canBuildCorvettes) canBuildBonus += 0.5f;
+            if (empire.canBuildFrigates)  canBuildBonus += 0.5f;
+            if (empire.canBuildCruisers)  canBuildBonus += 0.5f;
+            if (empire.canBuildCapitals)  canBuildBonus += 0.5f;
 
             return canBuildBonus;
         }

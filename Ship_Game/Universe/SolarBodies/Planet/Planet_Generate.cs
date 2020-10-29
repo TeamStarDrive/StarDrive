@@ -240,16 +240,17 @@ namespace Ship_Game
             TerraformBioSpheres();
         }
 
-        public bool TilesToTerraform      => TilesList.Any(t => t.CanTerraform);
+        public bool HasTilesToTerraform   => TilesList.Any(t => t.CanTerraform);
         public bool BioSpheresToTerraform => TilesList.Any(t => t.BioCanTerraform);
+        public int TerraformerLimit       => TilesList.Count(t => t.CanTerraform)/2 + 2;
 
         private bool TerraformTiles()
         {
 
-            if (!TilesToTerraform)
+            if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
-            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming a tile is faster than the whole planet
+            TerraformPoints += TerraformToAdd * 3f; // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable));
 
@@ -287,7 +288,7 @@ namespace Ship_Game
                 return;
             }
 
-            TerraformPoints += TerraformToAdd * 2; // Terraforming Biospheres is much faster than the whole planet
+            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming Biospheres is more complex than terraforming a tile
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => t.BioCanTerraform));
         }
@@ -299,6 +300,9 @@ namespace Ship_Game
                 PlanetGridSquare tile = RandItem(possibleTiles);
                 MakeTileHabitable(tile);
             }
+
+            if (TerraformersHere > TerraformerLimit)
+                RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
 
             UpdateTerraformPoints(0); // Start terraforming a new tile
         }
@@ -340,12 +344,16 @@ namespace Ship_Game
             }
         }
 
-        private void RemoveTerraformers()
+        private void RemoveTerraformers(bool removeOne = false)
         {
             foreach (PlanetGridSquare tile in TilesList)
             {
                 if (tile.building?.PlusTerraformPoints > 0)
+                {
                     ScrapBuilding(tile.building);
+                    if (removeOne)
+                        return;
+                }
             }
         }
 

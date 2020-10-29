@@ -475,20 +475,21 @@ namespace Ship_Game.Ships
         }
 
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
-        public void UpdateEveryFrame(FixedSimTime timeStep, float cos, float sin, float tan)
+        public void UpdateEveryFrame(FixedSimTime timeStep, float parentX, float parentY, float parentRotation,
+                                     float cos, float sin, float tan)
         {
             Vector2 offset = LocalCenter;
-            Vector2 pcenter = Parent.Center;
-            float cx = offset.X * cos - offset.Y * sin + pcenter.X;
-            float cy = offset.X * sin + offset.Y * cos + pcenter.Y;
+            float cx = parentX + offset.X * cos - offset.Y * sin;
+            float cy = parentY + offset.X * sin + offset.Y * cos;
             Center.X   = cx;
             Center.Y   = cy;
             Center3D.X = cx;
             Center3D.Y = cy;
             Center3D.Z = tan * (256f - XMLPosition.X);
+            Rotation = parentRotation; // assume parent rotation is already normalized
 
-            UpdateDamageVisualization(timeStep);
-            Rotation = Parent.Rotation; // assume parent rotation is already normalized
+            if (CanVisualizeDamage)
+                UpdateDamageVisualization(timeStep);
         }
 
         // radius padding for collision detection
@@ -865,8 +866,9 @@ namespace Ship_Game.Ships
         }
 
         //added by gremlin boarding parties
-        public bool LaunchBoardingParty(Troop troop)
+        public bool LaunchBoardingParty(Troop troop, out Ship ship)
         {
+            ship = null;
             if (!IsTroopBay || !Powered)
                 return false;
 
@@ -880,24 +882,24 @@ namespace Ship_Game.Ships
                     return false;
                 }
                 hangarShip.DoEscort(Parent);
-                return false;
+                ship = hangarShip;
+                return true;
             }
 
             if (hangarTimer <= 0f && hangarShip == null) // launch the troopship
             {
-                hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty,
-                    Center, troop);
+                hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty, Center, troop);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
                 hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
-
-                HangarShipGuid = hangarShip.guid;
-                hangarTimer = hangarTimerConstant;
-
+                HangarShipGuid      = hangarShip.guid;
+                hangarTimer         = hangarTimerConstant;
+                ship                = hangarShip;
                 // transfer our troop onto the shuttle we just spawned
                 troop.LandOnShip(hangarShip);
                 return true;
             }
+
             return false;
         }
 
@@ -1083,9 +1085,6 @@ namespace Ship_Game.Ships
         // @note This is called every frame for every module for every ship in the universe
         void UpdateDamageVisualization(FixedSimTime timeStep)
         {
-            if (!CanVisualizeDamage)
-                return; // bail out for modules that are never visualized
-
             if (OnFire && Parent.InFrustum && Empire.Universe.IsSystemViewOrCloser)
             {
                 if (DamageVisualizer == null)
@@ -1102,7 +1101,8 @@ namespace Ship_Game.Ships
         public void UpdateWhileDying(FixedSimTime timeStep)
         {
             Center3D = Parent.Center.ToVec3(UniverseRandom.RandomBetween(-25f, 25f));
-            UpdateDamageVisualization(timeStep);
+            if (CanVisualizeDamage)
+                UpdateDamageVisualization(timeStep);
         }
 
         public float Repair(float repairAmount)

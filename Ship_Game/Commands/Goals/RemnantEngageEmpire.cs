@@ -64,7 +64,7 @@ namespace Ship_Game.Commands.Goals
             {
                 case 0:                                                                                  return;
                 case 1:  tasks[0].ChangeTargetPlanet(TargetPlanet);                                      break;
-                default: Log.Warning($"Found multiple Remnant tasks with the tame fleet: {Fleet.Name}"); break;
+                default: Log.Warning($"Found multiple Remnant tasks with the same fleet: {Fleet.Name}"); break;
             }
         }
 
@@ -72,9 +72,9 @@ namespace Ship_Game.Commands.Goals
         {
             float str;
             if (TargetEmpire.isPlayer)
-                str = TargetEmpire.CurrentMilitaryStrength / 5 * ((int)CurrentGame.Difficulty).LowerBound(1);
+                str = TargetEmpire.CurrentMilitaryStrength / 2 * ((int)CurrentGame.Difficulty + 1);
             else
-                str = TargetEmpire.CurrentMilitaryStrength / (TargetEmpire.GetPlanets().Count / 3f).LowerBound(1);
+                str = TargetEmpire.CurrentMilitaryStrength / 5;
 
             str = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
             return str.LowerBound(Remnants.Level * Remnants.Level * 200);

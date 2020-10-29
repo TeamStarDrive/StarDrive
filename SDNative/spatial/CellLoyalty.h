@@ -15,10 +15,15 @@ namespace spatial
 
         SPATIAL_FINLINE void addLoyalty(uint8_t loyalty)
         {
-            uint32_t thisMask = getLoyaltyMask(loyalty);
-            if ((mask & thisMask) == 0) // this mask not present yet?
+            uint32_t loyaltyMask = getLoyaltyMask(loyalty);
+            addLoyaltyMask(loyaltyMask);
+        }
+
+        SPATIAL_FINLINE void addLoyaltyMask(uint32_t loyaltyMask)
+        {
+            if ((mask & loyaltyMask) == 0) // this mask not present yet?
                 ++count;
-            mask |= thisMask;
+            mask |= loyaltyMask;
         }
     };
 }
