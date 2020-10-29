@@ -532,12 +532,9 @@ namespace Ship_Game.Ships
         {
             switch (hangarType)
             {
-                case DynamicHangarOptions.DynamicInterceptor:
-                    return ShipData.HangarOptions.Interceptor;
-                case DynamicHangarOptions.DynamicAntiShip:
-                    return ShipData.HangarOptions.AntiShip;
-                default:
-                    return ShipData.HangarOptions.General;
+                case DynamicHangarOptions.DynamicInterceptor: return ShipData.HangarOptions.Interceptor;
+                case DynamicHangarOptions.DynamicAntiShip:    return ShipData.HangarOptions.AntiShip;
+                default:                                      return ShipData.HangarOptions.General;
             }
         }
 
@@ -565,25 +562,18 @@ namespace Ship_Game.Ships
             return bestShip;
         }
 
-        /// <summary>
-        /// Assaults the target ship.
-        /// </summary>
         public bool AssaultTargetShip(Ship targetShip)
         {
             if (Owner.SecondsAlive < 2)
-                return true;
+                return true; // Initial Delay in launching shuttles if spawned
 
-            if (Owner == null
-                || targetShip == null
-                || targetShip.loyalty == Owner.loyalty
-                || Owner.SecondsAlive < 2)
+            if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
                 return false;
 
             if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange))
                 return false;
 
-            bool sendingTroops = false;
-
+            bool sendingTroops               = false;
             float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
             float enemyStrength              = targetShip.BoardingDefenseTotal/2;
 
