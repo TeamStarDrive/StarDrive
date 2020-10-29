@@ -147,7 +147,7 @@ namespace Ship_Game
                 return;
             }
      
-            if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.SystemView 
+            if (!Empire.Universe.IsSystemViewOrCloser 
                 || !Empire.Universe.Frustum.Contains(Position, 10f))
                 return;
 
@@ -173,7 +173,6 @@ namespace Ship_Game
         public void DestroySceneObject()
         {
             Empire.Universe.RemoveObject(So);
-            So?.Clear();
             So = null;
             FlameTrail = null;
             ProjTrail = null;

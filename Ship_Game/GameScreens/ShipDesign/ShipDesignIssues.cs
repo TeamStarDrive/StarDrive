@@ -1,5 +1,9 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using System.Globalization;
+using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Linq;
 
 namespace Ship_Game.ShipDesignIssues
 {
@@ -335,6 +339,23 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.LowTroops, severity, troopsMissing);
         }
 
+        public void CheckAccuracy(Map<ShipModule,float> accuracyList)
+        {
+            if (accuracyList.Count == 0)
+                return;
+
+            var average = accuracyList.Average(kv=> kv.Value);
+            WarningLevel severity;
+            if      (average > 12) severity = WarningLevel.Critical;
+            else if (average > 6)  severity = WarningLevel.Major;
+            else if (average > 3)  severity = WarningLevel.Minor;
+            else if (average > 1)  severity = WarningLevel.Informative;
+            else                   return;
+
+            AddDesignIssue(DesignIssueType.Accuracy, severity, " " + LocalizedText.ParseText("{Average}") +" "+ LocalizedText.ParseText("{Accuracy}") + ": " 
+                                                               + Math.Round(average, 1).ToString(CultureInfo.InvariantCulture));
+        }
+
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
 
         public static Color IssueColor(WarningLevel severity)
@@ -374,7 +395,8 @@ namespace Ship_Game.ShipDesignIssues
         LowTroops,
         LowTroopsForBays,
         NotIdealCombatEfficiency,
-        HighBurstOrdnance
+        HighBurstOrdnance,
+        Accuracy
     }
 
     public enum WarningLevel
@@ -447,10 +469,10 @@ namespace Ship_Game.ShipDesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssueNoWarp");
                     break;
                 case DesignIssueType.SlowWarp:
-                    Title                  = new LocalizedText(2525).Text;
-                    Problem                = new LocalizedText(2526).Text;
-                    Remediation            = new LocalizedText(2527).Text; 
-                    Texture                = ResourceManager.Texture("NewUI/IssueSlowWarp");
+                    Title       = new LocalizedText(2525).Text;
+                    Problem     = new LocalizedText(2526).Text;
+                    Remediation = new LocalizedText(2527).Text; 
+                    Texture     = ResourceManager.Texture("NewUI/IssueSlowWarp");
                     break;
                 case DesignIssueType.NegativeRecharge:
                     Title       = new LocalizedText(2519).Text;
@@ -535,6 +557,12 @@ namespace Ship_Game.ShipDesignIssues
                     Problem     = new LocalizedText(2570).Text;
                     Remediation = new LocalizedText(2571).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueHighBurstOrdnance");
+                    break;
+                case DesignIssueType.Accuracy:
+                    Title       = new LocalizedText(GameText.LowAccuracy).Text;
+                    Problem     = new LocalizedText(GameText.WeaponAccuracy).Text;
+                    Remediation = new LocalizedText(GameText.ImproveAccuracy).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
                     break;
             }
 

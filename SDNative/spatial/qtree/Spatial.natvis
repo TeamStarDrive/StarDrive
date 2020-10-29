@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  
+    <Type Name="spatial::Rect">
+        <DisplayString>cx={(right+left)/2} cy={(bottom+top)/2} w={right-left} h={bottom-top}</DisplayString>
+        <Expand>
+            <Item Name="[cx]" ExcludeView="simple">(right+left)/2</Item>
+            <Item Name="[cy]" ExcludeView="simple">(bottom+top)/2</Item>
+            <Item Name="[width]" ExcludeView="simple">right-left</Item>
+            <Item Name="[height]" ExcludeView="simple">bottom-top</Item>
+            <Item Name="[left]" ExcludeView="simple">left</Item>
+            <Item Name="[top]" ExcludeView="simple">top</Item>
+            <Item Name="[right]" ExcludeView="simple">right</Item>
+            <Item Name="[bottom]" ExcludeView="simple">bottom</Item>
+        </Expand>
+    </Type>
+
+    <Type Name="spatial::SlabAllocator::SlabArray">
+	    <DisplayString>SlabArray size={Size}</DisplayString>
+	    <Expand>
+			<Item Name="[size]" ExcludeView="simple">Size</Item>
+			<Item Name="[capacity]" ExcludeView="simple">Capacity</Item>
+		    <ArrayItems>
+			    <Size>Size</Size>
+			    <ValuePointer>Data</ValuePointer>
+		    </ArrayItems>
+	    </Expand>
+    </Type>
+	
+    <Type Name="spatial::SpatialObject">
+        <DisplayString Condition="active!=0">{tree::ObjectType(type)} active id={objectId} loy={(int)loyalty} x={x} y={y} r={radius}</DisplayString>
+        <DisplayString Condition="active==0">{tree::ObjectType(type)} dead   id={objectId} loy={(int)loyalty} x={x} y={y} r={radius}</DisplayString>
+        <Expand>
+            <Item Name="[active]" ExcludeView="simple">active != 0</Item>
+            <Item Name="[loyalty]" ExcludeView="simple">(int)loyalty</Item>
+            <Item Name="[type]" ExcludeView="simple">tree::ObjectType(type)</Item>
+            <Item Name="[id]" ExcludeView="simple">objectId</Item>
+            <Item Name="[x]" ExcludeView="simple">x</Item>
+            <Item Name="[y]" ExcludeView="simple">y</Item>
+            <Item Name="[radius]" ExcludeView="simple">radius</Item>
+        </Expand>
+    </Type>
+
+  <Type Name="spatial::SpatialObjectArray">
+      <DisplayString>size={size}</DisplayString>
+      <Expand>
+          <Item Name="[size]" ExcludeView="simple">size</Item>
+          <Item Name="[capacity]" ExcludeView="simple">capacity</Item>
+          <ArrayItems>
+              <Size>size</Size>
+              <ValuePointer>objects</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+
+  <Type Name="spatial::SpatialIdArray">
+      <DisplayString>size={size}</DisplayString>
+      <Expand>
+          <ArrayItems>
+              <Size>size</Size>
+              <ValuePointer>ids</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+
+  <Type Name="spatial::QtreeNode">
+      <DisplayString Condition="size == -1">[BRANCH NW={*(nodes+0)} NE={*(nodes+1)} SE={*(nodes+2)} SW={*(nodes+3)}]</DisplayString>
+      <DisplayString Condition="size != -1">[LEAF size={size}]</DisplayString>
+      <Expand>
+          <Item Name="[id]" Optional="true">id</Item>
+          <Item Condition="size == -1" Name="[BRANCH]" ExcludeView="simple">true</Item>
+          <Item Condition="size == -1" Name="[NW]" ExcludeView="simple">*(nodes+0)</Item>
+          <Item Condition="size == -1" Name="[NE]" ExcludeView="simple">*(nodes+1)</Item>
+          <Item Condition="size == -1" Name="[SE]" ExcludeView="simple">*(nodes+2)</Item>
+          <Item Condition="size == -1" Name="[SW]" ExcludeView="simple">*(nodes+3)</Item>
+ 
+          <Item Condition="size != -1" Name="[LEAF]" ExcludeView="simple">true</Item>
+          <Item Condition="size != -1" Name="[size]" ExcludeView="simple">size</Item>
+          <ArrayItems Condition="size != -1" >
+              <Size>size</Size>
+              <ValuePointer>objects</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+
+  <Type Name="spatial::GridCell">
+      <DisplayString>[CELL size={size}]</DisplayString>
+      <Expand>
+          <ArrayItems>
+              <Size>size</Size>
+              <ValuePointer>objects</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+
+</AutoVisualizer>

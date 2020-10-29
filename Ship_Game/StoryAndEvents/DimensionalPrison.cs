@@ -36,7 +36,6 @@ namespace Ship_Game
             {
                 Weapon = ResourceManager.GetWeaponTemplate("AncientRepulsor")
             };
-            repulsor.AddBeam(beam);
             beam.Infinite     = true;
             beam.Range        = 2500f;
             beam.PowerCost    = 0f;

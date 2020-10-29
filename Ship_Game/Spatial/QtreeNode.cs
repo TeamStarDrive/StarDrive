@@ -1,32 +1,34 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
+using System.Runtime.CompilerServices;
 
-namespace Ship_Game
+namespace Ship_Game.Spatial
 {
-    public class QtreeNode
+    public unsafe class QtreeNode
     {
-        public float X, Y, LastX, LastY;
+        public static readonly SpatialObj*[] NoObjects = new SpatialObj*[0];
+
+        public AABoundingBox2D AABB;
         public QtreeNode NW, NE, SE, SW;
         public int Count;
-        public SpatialObj[] Items;
-        public int Id;
+        public SpatialObj*[] Items;
 
-        public QtreeNode(float x, float y, float lastX, float lastY)
+        public uint LoyaltyMask; // matches up to 32 loyalties
+        public int LoyaltyCount;
+
+        public QtreeNode(in AABoundingBox2D bounds)
         {
-            X = x; Y = y;
-            LastX = lastX; LastY = lastY;
-            Items = Quadtree.NoObjects;
+            AABB = bounds;
+            Items = NoObjects;
         }
 
         public override string ToString()
         {
-            return $"Id:{Id} Count:{Count} X:{X} LX:{LastX} Y:{Y} LastY:{LastY}";
+            return $"N={Count} {AABB}";
         }
 
-        public void InitializeForReuse(float x, float y, float lastX, float lastY)
+        public void InitializeForReuse(in AABoundingBox2D bounds)
         {
-            X = x; Y = y;
-            LastX = lastX; LastY = lastY;
+            AABB = bounds;
             NW = NE = SE = SW = null;
 
             if (Count != 0)
@@ -36,48 +38,40 @@ namespace Ship_Game
             }
         }
 
-        public void Add(ref SpatialObj obj)
+        public void Add(SpatialObj* obj)
         {
             int count = Count;
-            SpatialObj[] oldItems = Items;
+            SpatialObj*[] oldItems = Items;
             if (oldItems.Length == count)
             {
                 if (count == 0)
                 {
-                    var newItems = new SpatialObj[Quadtree.CellThreshold];
+                    var newItems = new SpatialObj*[Qtree.CellThreshold];
                     newItems[count] = obj;
                     Items = newItems;
-                    ++Count;
+                    Count = 1;
                 }
                 else // oldItems.Length == Count
                 {
                     //Array.Resize(ref Items, Count * 2);
-                    var newItems = new SpatialObj[oldItems.Length * 2];
-                    int i = 0;
-                    for (; i < oldItems.Length; ++i)
+                    var newItems = new SpatialObj*[oldItems.Length * 2];
+                    for (int i = 0; i < oldItems.Length; ++i)
                         newItems[i] = oldItems[i];
                     newItems[count] = obj;
                     Items = newItems;
-                    ++Count;
+                    Count = count+1;
                 }
             }
             else
             {
                 oldItems[count] = obj;
-                ++Count;
+                Count = count+1;
             }
-        }
 
-        public bool Overlaps(in Vector2 topLeft, in Vector2 botRight)
-        {
-            return X <= botRight.X && LastX > topLeft.X
-                && Y <= botRight.Y && LastY > topLeft.Y;
-        }
-
-        public bool Overlaps(in SpatialObj o)
-        {
-            return X <= o.LastX && LastX > o.X
-                && Y <= o.LastY && LastY > o.Y;
+            uint thisMask = obj->LoyaltyMask;
+            if ((LoyaltyMask & thisMask) == 0) // this mask not present yet?
+                ++LoyaltyCount;
+            LoyaltyMask |= thisMask;
         }
     }
 }

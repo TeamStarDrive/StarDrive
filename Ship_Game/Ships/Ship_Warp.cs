@@ -99,9 +99,7 @@ namespace Ship_Game.Ships
                 // stop the SFX and always reset the replay timeout
                 JumpSfx.Stop();
 
-                if (engineState == MoveState.Warp && InFrustum &&
-                    Empire.Universe != null &&
-                    Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (engineState == MoveState.Warp && InFrustum && IsVisibleToPlayer)
                 {
                     GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
                     FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
@@ -146,8 +144,7 @@ namespace Ship_Game.Ships
 
             if (JumpTimer <= 4.0f)
             {
-                if (InFrustum
-                    && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
+                if (IsVisibleToPlayer
                     && !Empire.Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
                 {
                     JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout:4.0f);
@@ -171,7 +168,7 @@ namespace Ship_Game.Ships
             InhibitedByEnemy = false;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e != loyalty && !loyalty.GetRelations(e).Treaty_OpenBorders)
+                if (e != loyalty && !loyalty.IsOpenBordersTreaty(e))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {

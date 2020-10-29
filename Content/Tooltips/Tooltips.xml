@@ -1370,5 +1370,15 @@
       <Title>MIRV</Title>
       <Data>1818</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>273</TIP_ID>
+      <Title>Imprecision</Title>
+      <Data>1823</Data>
+    </ToolTip>
+	<ToolTip>
+	  <TIP_ID>274</TIP_ID>
+	  <Title>Accuracy</Title>
+	  <Data>1824</Data>
+	</ToolTip>
   </ToolTipsList>
 </Tooltips>

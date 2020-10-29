@@ -156,8 +156,8 @@ namespace Ship_Game.AI
                 if (node.Platform?.Active != true)
                 {
                     bool nodeExists = NodeAlreadyExistsAt(node.Position);
-                    if (OwnerEmpire.isPlayer) // DEBUG
-                        Log.Info($"NodeAlreadyExists? {node.Position}: {nodeExists}");
+                    //if (OwnerEmpire.isPlayer) // DEBUG
+                    //    Log.Info($"NodeAlreadyExists? {node.Position}: {nodeExists}");
 
                     if (!nodeExists)
                     {

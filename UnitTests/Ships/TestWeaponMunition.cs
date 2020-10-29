@@ -12,7 +12,9 @@ namespace UnitTests.Ships
     {
         public TestWeaponMunition()
         {
+            CreateGameInstance();
             LoadStarterShipVulcan();
+            CreateUniverseAndPlayerEmpire(out _);
         }
 
         static bool FireAtVisiblePoint(Weapon weapon)
@@ -22,8 +24,7 @@ namespace UnitTests.Ships
 
         void CreateWeapon(out Ship ship, out Weapon weapon, float ordCost, float pwrCost)
         {
-            Empire empire = EmpireManager.CreateNewEmpire("TargetingEmpire");
-            ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
+            ship = Ship.CreateShipAtPoint("Vulcan Scout", Player, Vector2.Zero);
             weapon = ship.Weapons.Find(w => w.UID == "VulcanCannon");
 
             weapon.SalvoCount = 1;
@@ -40,7 +41,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(62, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
-            Assert.AreEqual(1, ship.CopyProjectiles.Length, "Invalid projectile count");
+            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
             Assert.AreEqual(61, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
         }
@@ -53,7 +54,7 @@ namespace UnitTests.Ships
             Assert.AreEqual(62, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(20, ship.PowerCurrent, "ship.PowerCurrent");
             Assert.IsTrue(FireAtVisiblePoint(weapon), "Fire must be successful");
-            Assert.AreEqual(1, ship.CopyProjectiles.Length, "Invalid projectile count");
+            Assert.AreEqual(1, GetProjectileCount(ship), "Invalid projectile count");
             Assert.AreEqual(62, ship.Ordinance, "ship.Ordinance");
             Assert.AreEqual(19, ship.PowerCurrent, "ship.PowerCurrent");
         }

@@ -354,7 +354,9 @@ namespace Ship_Game.AI
                 foreach(ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
                 {
                     var combatRole = RoleCounts.ShipRoleToCombatRole(role);
-                    if (combatRole == RoleCounts.CombatRole.Disabled) continue;
+                    if (combatRole == RoleCounts.CombatRole.Disabled) 
+                        continue;
+
                     float priority = ShipCounts[combatRole].BuildPriority();
                     if (priority > 0)
                         priorities.Add(role, priority);
@@ -471,7 +473,9 @@ namespace Ship_Game.AI
                 {
                     if (WeAreScrapping || CurrentMaintenance + PerUnitMaintenanceMax > RoleBuildBudget)
                         return 0;
-                    return CurrentMaintenance.LowerBound(.00001f) / RoleBuildBudget;
+
+                    // Higher is more important
+                    return RoleBuildBudget / CurrentMaintenance.LowerBound(0.01f);
                 }
 
                 public void ScrapAsNeeded(Empire empire)
@@ -521,6 +525,7 @@ namespace Ship_Game.AI
                     Support,
                     TroopShip
                 }
+
                 public static CombatRole ShipRoleToCombatRole(ShipData.RoleName role)
                 {
                     switch (role)
@@ -535,34 +540,33 @@ namespace Ship_Game.AI
                         case ShipData.RoleName.supply:
                         case ShipData.RoleName.freighter:
                         case ShipData.RoleName.troop:
-                        case ShipData.RoleName.troopShip:
                         case ShipData.RoleName.prototype:
-                        case ShipData.RoleName.scout:    return CombatRole.Disabled;
-                        case ShipData.RoleName.support:  return CombatRole.Support;
-                        case ShipData.RoleName.bomber:   return CombatRole.Bomber;
-                        case ShipData.RoleName.carrier:  return CombatRole.Carrier;
-                        case ShipData.RoleName.fighter:  return CombatRole.Fighter;
-                        case ShipData.RoleName.gunboat:  return CombatRole.Corvette;
-                        case ShipData.RoleName.drone:    return CombatRole.Fighter;
-                        case ShipData.RoleName.corvette: return CombatRole.Corvette;
-                        case ShipData.RoleName.frigate:  return CombatRole.Frigate;
-                        case ShipData.RoleName.destroyer:return CombatRole.Frigate;
-                        case ShipData.RoleName.cruiser:  return CombatRole.Cruiser;
-                        case ShipData.RoleName.capital:  return CombatRole.Capital;
-                        default:                         return CombatRole.Disabled;
+                        case ShipData.RoleName.drone:
+                        case ShipData.RoleName.scout:     return CombatRole.Disabled;
+                        case ShipData.RoleName.troopShip: return CombatRole.TroopShip;
+                        case ShipData.RoleName.support:   return CombatRole.Support;
+                        case ShipData.RoleName.bomber:    return CombatRole.Bomber;
+                        case ShipData.RoleName.carrier:   return CombatRole.Carrier;
+                        case ShipData.RoleName.fighter:   return CombatRole.Fighter;
+                        case ShipData.RoleName.gunboat:   return CombatRole.Corvette;
+                        case ShipData.RoleName.corvette:  return CombatRole.Corvette;
+                        case ShipData.RoleName.frigate:   return CombatRole.Frigate;
+                        case ShipData.RoleName.destroyer: return CombatRole.Frigate;
+                        case ShipData.RoleName.cruiser:   return CombatRole.Cruiser;
+                        case ShipData.RoleName.capital:   return CombatRole.Capital;
+                        default:                          return CombatRole.Disabled;
                     }
                 }
             }
         }
 
-        // fbedard: Build a ship with a random role
-
+        // Pick a ship by role priority based on build ratios and maintenance 
         public string GetAShip(RoleBuildInfo buildRatios)
         {
-            //Find ship to build
+            // Find ship to build
             Map<ShipData.RoleName, float> pickRoles = buildRatios.CreateBuildPriorities();
 
-            foreach (var kv in pickRoles.OrderBy(val => val.Value))
+            foreach (var kv in pickRoles.OrderByDescending(val => val.Value))
             {
                 Ship ship = PickFromCandidates(kv.Key, OwnerEmpire);
                 if (ship == null)

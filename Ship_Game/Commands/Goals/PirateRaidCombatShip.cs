@@ -45,7 +45,7 @@ namespace Ship_Game.Commands.Goals
             {
                 combatShip.HyperspaceReturn();
                 TargetShip = combatShip;
-                if (Pirates.Level > TargetShip.TroopCount * 3 / ((int)CurrentGame.Difficulty).LowerBound(1))
+                if (Pirates.Level > TargetShip.TroopCount * 5 / ((int)CurrentGame.Difficulty).LowerBound(1) + TargetShip.Level)
                 {
                     TargetShip.loyalty.AddMutinyNotification(TargetShip, GameText.MutinySucceeded, Pirates.Owner);
                     TargetShip.ChangeLoyalty(Pirates.Owner, notification: false);
@@ -57,7 +57,7 @@ namespace Ship_Game.Commands.Goals
                 }
 
                 Pirates.ExecuteVictimRetaliation(TargetEmpire);
-                KillMutinyDefenseTroops(Pirates.Level / 2);
+                KillMutinyDefenseTroops(Pirates.Level / 2 - TargetShip.Level);
                 return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.GoalFailed;
             }
 

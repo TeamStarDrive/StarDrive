@@ -148,12 +148,12 @@ namespace Ship_Game.AI
             {
                 Vector2 prediction = target.Center;
                 Weapon fastestWeapon = Owner.FastestWeapon;
-                if (fastestWeapon != null) // if we have a weapon
+                if (fastestWeapon != null && target.CurrentVelocity > 0) // if we have a weapon
                 {
                     prediction = fastestWeapon.ProjectedImpactPointNoError(target);
                 }
+
                 ThrustOrWarpToPos(prediction, timeStep);
-                return;
             }
         }
 
@@ -350,8 +350,8 @@ namespace Ship_Game.AI
             // this is a balance feature
             ThrustOrWarpToPos(landingSpot, timeStep, warpExitDistance: Owner.WarpOutDistance);
             if (Owner.IsDefaultAssaultShuttle)      LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
-            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot,timeStep);
-            else                                    LandTroopsViaTroopShip(timeStep, planet, landingSpot);
+            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
+            else                                    LandTroopsViaTroopShip(timeStep, planet);
         }
 
         // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
@@ -360,12 +360,16 @@ namespace Ship_Game.AI
         {
             if (landingSpot.InRadius(Owner.Center, Owner.Radius + 40f))
             {
-                bool troopsLanded = Owner.LandTroopsOnPlanet(planet) > 0; // This will vanish default single Troop Ship
+                // This will vanish default single Troop Ship or order Assault shuttle to return to hangar
+                bool troopsLanded = Owner.LandTroopsOnPlanet(planet) > 0; 
 
                 if (troopsLanded)
                 {
-                    Owner.QueueTotalRemoval();
                     DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
+                    if (Owner.Mothership != null && Owner.Mothership.Active)
+                        OrderReturnToHangar();
+                    else
+                        Owner.QueueTotalRemoval();
                 }
 
                 if (Owner.Active)
@@ -374,9 +378,9 @@ namespace Ship_Game.AI
         }
 
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
-        void LandTroopsViaTroopShip(FixedSimTime timeStep, Planet planet, Vector2 landingSpot)
+        void LandTroopsViaTroopShip(FixedSimTime timeStep, Planet planet)
         {
-            if (landingSpot.InRadius(Owner.Center, Owner.Radius + 100f))
+            if (Owner.Center.InRadius(planet.Center, Owner.Radius + planet.ObjectRadius * 2))
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
                     Owner.LandTroopsOnPlanet(planet); // We can land all our troops without assault bays since its our planet with space port
@@ -568,6 +572,17 @@ namespace Ship_Game.AI
 
                 Owner.TryLandSingleTroopOnShip(EscortTarget);
             }
+        }
+
+        void DoRearmShip(FixedSimTime timeStep)
+        {
+            if (EscortTarget == null)
+            {
+                ClearOrders();
+                return;
+            }
+
+            ThrustOrWarpToPos(EscortTarget.Center, timeStep);
         }
 
         void DoSupplyShip(FixedSimTime timeStep)

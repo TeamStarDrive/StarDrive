@@ -172,7 +172,7 @@ namespace Ship_Game
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 0;
 
         static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
-                                              => ShipBuilder.PickFromCandidates(roleName, empire);
+                                              => ShipBuilder.PickFromCandidates(roleName, empire, normalizedStrength: false);
 
         void LaunchDefenseShips(Planet p, Ship target, Empire empire)
         {
@@ -253,8 +253,9 @@ namespace Ship_Game
             return false;
         }
 
-        public float MaxFertilityOnBuildFor(Empire empire, PlanetCategory category) => empire?.RacialEnvModifer(category) * MaxFertilityOnBuild 
-                                                                                                                         ?? MaxFertilityOnBuild;
+        public float MaxFertilityOnBuildFor(Empire empire, PlanetCategory category) 
+            => Empire.RacialEnvModifer(category, empire) * MaxFertilityOnBuild;
+
         public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
 
         public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID);
