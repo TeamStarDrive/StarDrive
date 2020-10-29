@@ -395,7 +395,6 @@ namespace Ship_Game.Ships
             ShipStatusChange();
             InitializeThrusters();
             DesignRole = GetDesignRole();
-            ShipInitialized = true;
         }
 
         void InitDefendingTroopStrength()
