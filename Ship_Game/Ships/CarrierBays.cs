@@ -570,7 +570,13 @@ namespace Ship_Game.Ships
         /// </summary>
         public bool AssaultTargetShip(Ship targetShip)
         {
-            if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
+            if (Owner.SecondsAlive < 2)
+                return true;
+
+            if (Owner == null
+                || targetShip == null
+                || targetShip.loyalty == Owner.loyalty
+                || Owner.SecondsAlive < 2)
                 return false;
 
             if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange))

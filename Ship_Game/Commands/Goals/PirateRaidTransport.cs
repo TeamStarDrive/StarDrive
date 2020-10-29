@@ -49,6 +49,7 @@ namespace Ship_Game.Commands.Goals
                 if (Pirates.SpawnBoardingShip(freighter, where, out _))
                 {
                     TargetShip = freighter;
+                    TargetShip.CauseEmpDamage(1000);
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                     Pirates.ExecuteVictimRetaliation(TargetEmpire);
                     return GoalStep.GoToNextStep;
