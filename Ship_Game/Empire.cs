@@ -3012,7 +3012,7 @@ namespace Ship_Game
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
                     Ship ship = OwnedShips[i];
-                    if (IsScout(ship))
+                    if (IsScout(ship) && ship.AI.State != AIState.Scrap)
                         ship.AI.OrderScrapShip();
                 }
                 return;

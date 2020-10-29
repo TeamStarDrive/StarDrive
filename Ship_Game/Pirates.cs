@@ -253,11 +253,11 @@ namespace Ship_Game
 
         int DifficultyMultiplier()
         {
-            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 2;
-            if (Level >= 10)
-                max++;
+            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
+            if (Level < 10)
+                --max;
 
-            return max - (int)CurrentGame.Difficulty;
+            return (max - (int)CurrentGame.Difficulty).LowerBound(1);
         }
 
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
@@ -711,11 +711,11 @@ namespace Ship_Game
                 switch (type)
                 {
                     case TargetType.Shipyard         when ship.shipData.IsShipyard:
-                    case TargetType.FreighterAtWarp  when (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) && ship.IsInWarp:
-                    case TargetType.CombatShipAtWarp when !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp:
+                    case TargetType.FreighterAtWarp  when IsFreighterAtWarpNoOwnedSystem(ship):
+                    case TargetType.CombatShipAtWarp when IsCombatShipAtWarp(ship):
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
-                    case TargetType.Projector:       targets.Add(ship); break;
+                    case TargetType.Projector: targets.Add(ship); break; // Add all of above cases in to targets
                 }
             }
 
@@ -724,6 +724,18 @@ namespace Ship_Game
 
             target = targets.RandItem();
             return target != null;
+
+            bool IsFreighterAtWarpNoOwnedSystem(Ship ship)
+            {
+                return (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
+                       && ship.IsInWarp 
+                       && (ship.System == null || !ship.System.IsOwnedBy(ship.loyalty));
+            }
+
+            bool IsCombatShipAtWarp(Ship ship)
+            {
+                return !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp;
+            }
         }
 
         public void OrderEscortShip(Ship shipToEscort, Array<Ship> force)
