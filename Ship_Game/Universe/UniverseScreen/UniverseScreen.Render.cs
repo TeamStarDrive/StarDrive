@@ -33,6 +33,8 @@ namespace Ship_Game
 
         void RenderBackdrop(SpriteBatch batch)
         {
+            DrawBackdropPerf.Start();
+
             if (GlobalStats.DrawStarfield)
                 bg.Draw(this, StarField);
 
@@ -95,6 +97,8 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = true;
             rs.MultiSampleAntiAlias = true;            
             batch.End();
+
+            DrawBackdropPerf.Stop();
         }
 
         void UpdateKnownShipsScreenState()
@@ -228,6 +232,17 @@ namespace Ship_Game
 
         void RenderOverFog(SpriteBatch batch)
         {
+            DrawOverFog.Start();
+            if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+            {
+                // set the alpha value depending on camera height
+                int alpha = (int) (90.0f * CamHeight / 1800000.0f);
+                if (alpha > 90) alpha = 90;
+                else if (alpha < 10) alpha = 0;
+                var color = new Color(255, 255, 255, (byte) alpha);
+                batch.Draw(BorderRT.GetTexture(), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
+            }
+
             foreach (SolarSystem sys in SolarSystemList)
             {
                 if (viewState >= UnivScreenState.SectorView)
@@ -239,6 +254,7 @@ namespace Ship_Game
                     sys.Sun.DrawLowResSun(batch, sys, View, Projection);
                 }
             }
+
             if (viewState > UnivScreenState.SectorView)
             {
                 var currentEmpire = SelectedShip?.loyalty ?? player;
@@ -263,6 +279,7 @@ namespace Ship_Game
                     }
                 }
             }
+            DrawOverFog.Stop();
         }
 
         void DrawSolarSystemSectorView(SolarSystem solarSystem)
@@ -606,9 +623,24 @@ namespace Ship_Game
             batch.End();
 
             DrawBombs();
-            ScreenManager.RenderSceneObjects();
 
-            var rs = ScreenManager.GraphicsDevice.RenderState;
+            DrawSOPerf.Start();
+            ScreenManager.RenderSceneObjects();
+            DrawSOPerf.Stop();
+
+            RenderState rs = ScreenManager.GraphicsDevice.RenderState;
+            DrawAnomalies(rs);
+            DrawSolarSystemsClose();
+            DrawAndUpdateParticles(elapsed, rs);
+
+            ScreenManager.EndFrameRendering();
+            DrawShields();
+
+            rs.DepthBufferWriteEnable = true;
+        }
+
+        private void DrawAnomalies(RenderState rs)
+        {
             rs.DepthBufferWriteEnable = true;
             rs.SourceBlend = Blend.SourceAlpha;
             rs.DestinationBlend = Blend.One;
@@ -617,17 +649,22 @@ namespace Ship_Game
                 Anomaly anomaly = anomalyManager.AnomaliesList[x];
                 anomaly.Draw();
             }
-            DrawSolarSystemsClose();
+        }
+
+        private void DrawAndUpdateParticles(DrawTimes elapsed, RenderState rs)
+        {
+            DrawParticles.Start();
+
             rs.AlphaBlendEnable = true;
             rs.SourceBlend = Blend.SourceAlpha;
             rs.DestinationBlend = Blend.One;
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.None;
+
             if (viewState < UnivScreenState.SectorView)
             {
                 RenderThrusters();
                 RenderParticles();
-
                 DrawWarpFlash();
 
                 beamflashes.Draw();
@@ -647,6 +684,7 @@ namespace Ship_Game
                 lightning.Draw();
                 flash.Draw();
             }
+
             if (!Paused) // Particle pools need to be updated
             {
                 beamflashes.Update(elapsed);
@@ -666,10 +704,8 @@ namespace Ship_Game
                 lightning.Update(elapsed);
                 flash.Update(elapsed);
             }
-            ScreenManager.EndFrameRendering();
-            if (viewState < UnivScreenState.SectorView)
-                DrawShields();
-            rs.DepthBufferWriteEnable = true;
+
+            DrawParticles.Stop();
         }
 
         private void DrawWarpFlash()
@@ -680,27 +716,32 @@ namespace Ship_Game
 
         private void DrawSolarSystemsClose()
         {
-            if (viewState >= UnivScreenState.SectorView) return;
-            for (int i = 0; i < SolarSystemList.Count; i++)
+            DrawPlanetsPerf.Start();
+            if (viewState < UnivScreenState.SectorView)
             {
-                SolarSystem solarSystem = SolarSystemList[i];
-                if (!solarSystem.IsExploredBy(player)) continue;
-
-                for (int j = 0; j < solarSystem.PlanetList.Count; j++)
+                for (int i = 0; i < SolarSystemList.Count; i++)
                 {
-                    Planet p = solarSystem.PlanetList[j];
-                    if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
+                    SolarSystem solarSystem = SolarSystemList[i];
+                    if (!solarSystem.IsExploredBy(player))
+                        continue;
+
+                    for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                     {
-                        if (p.Type.EarthLike)
+                        Planet p = solarSystem.PlanetList[j];
+                        if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
                         {
-                            DrawClouds(xnaPlanetModel, p.CloudMatrix, p);
-                            DrawAtmo(xnaPlanetModel, p.CloudMatrix, p);
+                            if (p.Type.EarthLike)
+                            {
+                                DrawClouds(xnaPlanetModel, p.CloudMatrix, p);
+                                DrawAtmo(xnaPlanetModel, p.CloudMatrix, p);
+                            }
+                            if (p.HasRings)
+                                DrawRings(p.RingWorld, p.Scale);
                         }
-                        if (p.HasRings)
-                            DrawRings(p.RingWorld, p.Scale);
                     }
                 }
             }
+            DrawPlanetsPerf.Stop();
         }
 
         private void SelectShipLinesToDraw()
