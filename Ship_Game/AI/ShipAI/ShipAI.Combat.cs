@@ -61,7 +61,7 @@ namespace Ship_Game.AI
                 for (int x = PotentialTargets.Count - 1; x >= 0; x--)
                 {
                     var target = PotentialTargets[x];
-                    if (target == null || !target.Active || target.Health <= 0.0f || target.dying)
+                    if (target == null || !target.Active || target.Health <= 0.0f || target.dying || target.TroopsAreBoardingShip)
                         PotentialTargets.RemoveAtSwapLast(x);
                 }
 
@@ -72,6 +72,9 @@ namespace Ship_Game.AI
                         TrackProjectiles.RemoveAtSwapLast(x);
                 }
             }
+
+            if (Target?.TroopsAreBoardingShip == true)
+                return;
 
             if (Target?.Active == false || Target?.Health <= 0.0f || Target is Ship ship && ship.dying)
             {

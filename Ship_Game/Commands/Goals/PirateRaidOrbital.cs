@@ -83,8 +83,8 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalComplete; // Target was boarded
             }
 
-            // 50 turns to try finish the job
-            return Empire.Universe.StarDate.Greater(StarDateAdded + 5) ? GoalStep.GoalFailed : GoalStep.TryAgain;
+            // 25 turns to try finish the job
+            return Empire.Universe.StarDate.Greater(StarDateAdded + 2.5f) ? GoalStep.GoalFailed : GoalStep.TryAgain;
         }
 
         Pirates.TargetType GetOrbital()

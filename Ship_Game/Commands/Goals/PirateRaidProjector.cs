@@ -24,8 +24,9 @@ namespace Ship_Game.Commands.Goals
 
         public PirateRaidProjector(Empire owner, Empire targetEmpire) : this()
         {
-            empire       = owner;
-            TargetEmpire = targetEmpire;
+            empire        = owner;
+            TargetEmpire  = targetEmpire;
+            StarDateAdded = Empire.Universe.StarDate;
 
             PostInit();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} SSP Raid vs. {targetEmpire.Name} ----");
@@ -54,9 +55,9 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoToNextStep;
                 }
             }
-            
+
             // Try locating viable SSP for maximum of 1 year (10 turns), else just give up
-            return (Empire.Universe.StarDate % 1).Greater(0) ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            return Empire.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()
