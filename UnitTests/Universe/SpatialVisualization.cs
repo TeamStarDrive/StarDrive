@@ -152,9 +152,7 @@ namespace UnitTests.Universe
 
             if (input.RightMouseHeldDown)
             {
-                SearchArea = new AABoundingBox2D(
-                    UnprojectToWorldPosition(input.StartRightHold),
-                    UnprojectToWorldPosition(input.EndRightHold));
+                SearchArea = AABoundingBox2D.FromIrregularPoints(input.StartRightHold, input.EndRightHold);
 
                 var opt = new SearchOptions(SearchArea)
                 {
