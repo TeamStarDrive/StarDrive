@@ -107,7 +107,23 @@ namespace Ship_Game
                 objects.AddSubItem(new DebugStatItem("Collide", Spatial.CollisionTime, Objects.TotalTime));
 
                 var draw = DebugStats.AddItem(new DebugStatItem("Draw", DrawPerf, true));
-                draw.AddSubItem(new DebugStatItem("Sync", DrawSyncPerf, DrawPerf));
+
+                draw.AddSubItem(new DebugStatItem("Main3D", DrawMain3D, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("Backdrop", DrawBackdropPerf, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("SceneObj", DrawSOPerf, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("Planets", DrawPlanetsPerf, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("Shields", DrawShieldsPerf, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("Particles", DrawParticles, DrawPerf));
+
+                draw.AddSubItem(new DebugStatItem("Influence", DrawFogInfluence, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("Borders", DrawBorders, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("FogOfWar", DrawFogOfWar, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("OverFog", DrawOverFog, DrawPerf));
+
+                draw.AddSubItem(new DebugStatItem("Projectiles", DrawProj, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("ShipOveray", DrawShips, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("Icons", DrawIcons, DrawPerf));
+                draw.AddSubItem(new DebugStatItem("UI", DrawUI, DrawPerf));
             }
         }
     }
