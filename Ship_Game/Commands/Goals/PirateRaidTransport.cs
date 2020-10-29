@@ -47,10 +47,11 @@ namespace Ship_Game.Commands.Goals
             {
                 Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
                 freighter.HyperspaceReturn();
-                if (Pirates.SpawnBoardingShip(freighter, where, out _))
+                if (Pirates.SpawnBoardingShip(freighter, where, out Ship boardingShip))
                 {
                     TargetShip = freighter;
                     TargetShip.CauseEmpDamage(1000);
+                    boardingShip.AI.OrderAttackSpecificTarget(TargetShip);
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                     Pirates.ExecuteVictimRetaliation(TargetEmpire);
                     return GoalStep.GoToNextStep;
