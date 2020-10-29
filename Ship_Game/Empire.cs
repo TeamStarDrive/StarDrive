@@ -1332,22 +1332,13 @@ namespace Ship_Game
             if (node.SourceObject is Ship)
                 return;
 
-            bool debug = Universe?.Debug == true;
-
             // find ships in radius of node. 
             GameplayObject[] targets = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
                                                         node.Position, node.Radius, maxResults:1024);
             for (int i = 0; i < targets.Length; i++)
             {
-                var target = (Ship)targets[i];
-                target.KnownByEmpires.SetSeen(this);
-                if (debug)
-                {
-                    if (Universe?.SelectedPlanet != null || Universe?.SelectedPlanet == node.SourceObject)
-                    {
-                        target.KnownByEmpires.SetSeenByPlayer();
-                    }
-                }
+                var targetShip = (Ship)targets[i];
+                targetShip.KnownByEmpires.SetSeen(this);
             }
         }	
 
