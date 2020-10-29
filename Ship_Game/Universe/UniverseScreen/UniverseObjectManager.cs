@@ -60,6 +60,10 @@ namespace Ship_Game
 
             Objects.AddRange(Ships);
             Objects.AddRange(Projectiles);
+
+            foreach (GameplayObject go in Objects)
+                if (!go.Active)
+                    Log.Warning($"Inactive object added from savegame: {go}");
         }
 
         public Ship FindShip(in Guid guid)
@@ -195,7 +199,7 @@ namespace Ship_Game
         {
             TotalTime.Start();
 
-            UpdateLists();
+            UpdateLists(timeStep);
             UpdateAllSystems(timeStep, Ships);
             UpdateAllShips(timeStep, Ships);
             UpdateAllProjectiles(timeStep, Projectiles);
@@ -218,7 +222,7 @@ namespace Ship_Game
         }
 
         /// <summary>Updates master objects lists, removing inactive objects</summary>
-        void UpdateLists()
+        void UpdateLists(FixedSimTime timeStep)
         {
             ListTime.Start();
 
@@ -235,33 +239,38 @@ namespace Ship_Game
                 PendingProjectiles.Clear();
             }
 
-            for (int i = 0; i < Ships.Count; ++i)
+            // only remove and kill objects if game is not paused
+            if (timeStep.FixedTime > 0)
             {
-                Ship ship = Ships[i];
-                if (!ship.Active)
+                for (int i = 0; i < Ships.Count; ++i)
                 {
-                    OnShipRemoved?.Invoke(ship);
-                    ship.RemoveFromUniverseUnsafe();
-                }
-            }
-            Ships.RemoveInActiveObjects();
-
-            for (int i = 0; i < Projectiles.Count; ++i)
-            {
-                Projectile proj = Projectiles[i];
-                if (proj.Active && proj.DieNextFrame)
-                {
-                    proj.Die(proj, false);
-                }
-                else if (proj is Beam beam)
-                {
-                    if (beam.Owner?.Active == false)
+                    Ship ship = Ships[i];
+                    if (!ship.Active)
                     {
-                        beam.Die(beam, false);
+                        Log.Info($"Removing inactive ship: {ship}");
+                        OnShipRemoved?.Invoke(ship);
+                        ship.RemoveFromUniverseUnsafe();
                     }
                 }
+                Ships.RemoveInActiveObjects();
+
+                for (int i = 0; i < Projectiles.Count; ++i)
+                {
+                    Projectile proj = Projectiles[i];
+                    if (proj.Active && proj.DieNextFrame)
+                    {
+                        proj.Die(proj, false);
+                    }
+                    else if (proj is Beam beam)
+                    {
+                        if (beam.Owner?.Active == false)
+                        {
+                            beam.Die(beam, false);
+                        }
+                    }
+                }
+                Projectiles.RemoveInActiveObjects();
             }
-            Projectiles.RemoveInActiveObjects();
 
             ListTime.Stop();
         }
@@ -323,14 +332,15 @@ namespace Ship_Game
 
             Parallel.For(ships.Count, (start, end) =>
             {
+                bool debug = Universe.Debug;
                 for (int i = start; i < end; ++i)
                 {
                     Ship ship = allShips[i];
                     ship.Update(timeStep);
                     ship.UpdateModulePositions(timeStep, isSystemView);
 
-                    // make sure dead and dying ships can be seen.
-                    if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
+                    // make sure dying ships can be seen. and show all ships in DEBUG
+                    if ((ship.dying && ship.KnownByEmpires.KnownByPlayer) || debug)
                         ship.KnownByEmpires.SetSeenByPlayer();
                 }
             }, Universe.MaxTaskCores);
@@ -342,16 +352,19 @@ namespace Ship_Game
         {
             ProjPerf.Start();
 
-            Projectile[] allProjectiles = projectiles.GetInternalArrayItems();
-
-            Parallel.For(projectiles.Count, (start, end) =>
+            if (timeStep.FixedTime > 0)
             {
-                for (int i = start; i < end; ++i)
+                Projectile[] allProjectiles = projectiles.GetInternalArrayItems();
+
+                Parallel.For(projectiles.Count, (start, end) =>
                 {
-                    Projectile proj = allProjectiles[i];
-                    proj.Update(timeStep);
-                }
-            }, Universe.MaxTaskCores);
+                    for (int i = start; i < end; ++i)
+                    {
+                        Projectile proj = allProjectiles[i];
+                        proj.Update(timeStep);
+                    }
+                }, Universe.MaxTaskCores);
+            }
 
             ProjPerf.Stop();
         }
