@@ -92,8 +92,8 @@ namespace Ship_Game.Commands.Goals
             // They Paid at least once  (or it's our first demand), so we can continue milking money fom them
             Log.Info(ConsoleColor.Green,$"Pirates: {empire.Name} Payment Director - Demanding payment from {TargetEmpire.Name}");
 
-            if (!Pirates.GetRelations(TargetEmpire).Known)
-                Pirates.SetAsKnown(TargetEmpire);
+            if (!Pirates.Owner.IsKnown(TargetEmpire))
+                Pirates.Owner.SetRelationsAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
                 Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe);

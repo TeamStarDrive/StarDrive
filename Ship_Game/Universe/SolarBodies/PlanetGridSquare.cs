@@ -29,7 +29,7 @@ namespace Ship_Game
         public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
         public bool EventOnTile          => BuildingOnTile && building.EventHere;
         public bool BioCanTerraform      => Biosphere && Terraformable;
-        public bool CanTerraform         => !Habitable && Terraformable;
+        public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
 
         public bool IsTileFree(Empire empire)
         {

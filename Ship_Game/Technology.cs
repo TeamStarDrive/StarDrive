@@ -160,7 +160,9 @@ namespace Ship_Game
             var buildings = new HashSet<Building>();
             foreach (UnlockedBuilding buildingName in BuildingsUnlocked)
             {
-                buildings.Add(ResourceManager.GetBuildingTemplate(buildingName.Name));
+                // NOTE: BuildingsUnlocked may have invalid entries after loading from save
+                if (ResourceManager.GetBuilding(buildingName.Name, out Building b))
+                    buildings.Add(b);
             }
             return buildings.ToArray();
         }

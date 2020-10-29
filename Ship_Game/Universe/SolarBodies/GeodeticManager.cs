@@ -80,7 +80,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void DeclareWarOnBombingEmpire(Bomb bomb)
         {
-            if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar
+            if (Owner != null && !Owner.IsAtWarWith(bomb.Owner)
                               && TurnsSinceTurnover > 10
                               && Empire.Universe.PlayerEmpire == bomb.Owner)
             {
@@ -90,7 +90,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void DamageColonyShields(Bomb bomb)
         {
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
+            if (Empire.Universe.IsSystemViewOrCloser
                 && Empire.Universe.Frustum.Contains(P.Center, P.OrbitalRadius * 2))
             {
                 Shield.HitShield(P, bomb, Center, SO.WorldBoundingSphere.Radius + 100f);
@@ -99,16 +99,27 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             P.ShieldStrengthCurrent = Math.Max(P.ShieldStrengthCurrent - bomb.HardDamageMax, 0);
         }
 
+        void AssignPlanetarySupply()
+        {
+            int remainingSupplyShuttles = P.NumSupplyShuttlesCanLaunch();
+            if (remainingSupplyShuttles <= 0)
+                return; // Maximum supply ships launched
+
+            if (!P.TryGetShipsNeedRearm(out Ship[] ourShipsNeedRearm, Owner))
+                return;
+
+            for (int i = 0; i < ourShipsNeedRearm.Length && remainingSupplyShuttles-- > 0; i++)
+               Owner.GetEmpireAI().AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
+        }
+
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
+            AssignPlanetarySupply();
             float repairPool = CalcRepairPool();
             bool spaceCombat = P.SpaceCombatNearPlanet;
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
-                if (ship == null)
-                    continue; // Todo: this null check should be removed once ShipList is safe
-
                 bool loyaltyMatch = ship.loyalty == Owner;
 
                 if (ship.loyalty.isFaction)

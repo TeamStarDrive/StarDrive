@@ -11,7 +11,8 @@ namespace Ship_Game.AI
         private float ThinkTimer;
         public Weapon DroneWeapon;
         private float OrbitalAngle;
-        readonly Ship.ProjectileCollection<DroneBeam> Beams = new Ship.ProjectileCollection<DroneBeam>();
+        readonly Array<DroneBeam> Beams = new Array<DroneBeam>();
+
         public DroneAI(Projectile drone)
         {
             Drone = drone;
@@ -67,40 +68,39 @@ namespace Ship_Game.AI
 
             if (DroneTarget == null)
             {
-                Beams.KillActive(true, true);
+                if (Beams.NotEmpty)
+                {
+                    for (int i = 0; i < Beams.Count; ++i)
+                    {
+                        Beam beam = Beams[i];
+                        if (beam.Active)
+                            beam.Die(null, false);
+                    }
+                    Beams.Clear();
+                }
+
                 if (Drone.Owner != null)
                     OrbitShip(Drone.Owner, timeStep);
             }
             else
             {
                 TryFireDroneBeam();
-                if (Beams.NotEmpty) 
-                    Beams.Update(timeStep);
                 OrbitShip(DroneTarget, timeStep);
             }
         }
 
         void TryFireDroneBeam()
         {
-            if (Beams.Count == 0 && DroneTarget.Health < DroneTarget.HealthMax
-                                 && DroneWeapon.CooldownTimer <= 0f
-                                 && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.BaseRange)
+            if (Beams.Count == 0 &&
+                DroneTarget.Health < DroneTarget.HealthMax &&
+                DroneWeapon.CooldownTimer <= 0f &&
+                DroneTarget != null &&
+                Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.BaseRange)
             {
+                // NOTE: Beam projectile is updated by universe
                 DroneBeam droneBeam = DroneWeapon.FireDroneBeam(this);
                 Beams.Add(droneBeam);
             }
         }
-
-        public void KillAllBeams() => Beams.KillActive(true, true);
-
-        public void DrawBeams(GameScreen screen)
-        {
-            for (int i = 0; i < Beams.Count; i++)
-            {
-                DroneBeam beam = Beams[i];
-                if (beam != null && beam.Active)
-                    beam.Draw(screen);
-            }
-        }      
     }
 }

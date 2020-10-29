@@ -599,8 +599,8 @@ namespace Ship_Game
 
         bool HandleInputUndoRedo(InputState input)
         {
-            if (input.Undo) { ModuleGrid.Undo(); return true; }
-            if (input.Redo) { ModuleGrid.Redo(); return true; }
+            if (input.Undo) { ModuleGrid.Undo(); RecalculateDesignRole(true); return true; }
+            if (input.Redo) { ModuleGrid.Redo(); RecalculateDesignRole(true); return true; }
             return false;
         }
 

@@ -114,10 +114,9 @@ namespace Ship_Game
 
             foreach(Empire empire in Friends)
             {
-                Relationship rel;
-                if (!empire.TryGetRelations(e, out rel))
+                if (!empire.GetRelations(e, out Relationship rel))
                     continue;
-                if(rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted >3)
+                if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted >3)
                 {
                     intelligence = 1;                    
                 }
@@ -131,8 +130,7 @@ namespace Ship_Game
             {
                 foreach (Empire empire in Traders)
                 {
-                    Relationship rel;
-                    if (!empire.TryGetRelations(e, out rel))
+                    if (!empire.GetRelations(e, out Relationship rel))
                         continue;
                     if (rel.Treaty_Trade && rel.Treaty_Trade_TurnsExisted > 6)
                     {
@@ -184,9 +182,9 @@ namespace Ship_Game
                         batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                     }
                 }
-                else if (EmpireManager.Player != race.e && EmpireManager.Player.GetRelations(race.e).Known)
+                else if (EmpireManager.Player != race.e && EmpireManager.Player.IsKnown(race.e))
                 {
-                    if (EmpireManager.Player.GetRelations(race.e).AtWar && !race.e.data.Defeated)
+                    if (EmpireManager.Player.IsAtWarWith(race.e) && !race.e.data.Defeated)
                     {
                         Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
                         batch.FillRectangle(war, Color.Red);
@@ -232,19 +230,13 @@ namespace Ship_Game
                 {
                     if (e.isFaction || e.data.Defeated)
                     {
-                        if (SelectedEmpire != e)
-                        {
-                            continue;
-                        }
-                        Sortlist.Add(e);
+                        if (SelectedEmpire == e)
+                            Sortlist.Add(e);
                     }
                     else if (e != EmpireManager.Player)
                     {
-                        if (!EmpireManager.Player.GetRelations(e).Known)
-                        {
-                            continue;
-                        }
-                        Sortlist.Add(e);
+                        if (EmpireManager.Player.IsKnown(e))
+                            Sortlist.Add(e);
                     }
                     else
                     {
@@ -338,7 +330,8 @@ namespace Ship_Game
             }
             else if (!SelectedEmpire.data.Defeated)
             {
-                float intelligencePenetration = EmpireManager.Player.GetRelations(SelectedEmpire).IntelligencePenetration;
+                Relationship relation = EmpireManager.Player.GetRelations(SelectedEmpire);
+                float intelligencePenetration = relation.IntelligencePenetration;
                 if (IntelligenceLevel(SelectedEmpire) > 0)
                 {
                     batch.DrawString(Fonts.Arial12Bold, string.Concat(SelectedEmpire.data.DiplomaticPersonality.Name, " ", SelectedEmpire.data.EconomicPersonality.Name), textCursor, Color.White);
@@ -349,34 +342,34 @@ namespace Ship_Game
                     batch.DrawString(Fonts.Arial12Bold, string.Concat("Unknown", " ", "Unknown"), textCursor, Color.White);
                     textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (EmpireManager.Player.GetRelations(SelectedEmpire).AtWar)
+                if (relation.AtWar)
                 {
                     batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1608), textCursor, Color.LightPink);
                 }
-                else if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_Peace)
+                else if (relation.Treaty_Peace)
                 {
                     SpriteBatch spriteBatch2 = batch;
                     SpriteFont arial12Bold = Fonts.Arial12Bold;
-                    object[] objArray = { Localizer.Token(1213), " (", EmpireManager.Player.GetRelations(SelectedEmpire).PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
+                    object[] objArray = { Localizer.Token(1213), " (", relation.PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
                     spriteBatch2.DrawString(arial12Bold, string.Concat(objArray), textCursor, Color.LightGreen);
                     textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_OpenBorders)
+                if (relation.Treaty_OpenBorders)
                 {
                     batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1609), textCursor, Color.LightGreen);
                     textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_Trade)
+                if (relation.Treaty_Trade)
                 {
                     batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1610), textCursor, Color.LightGreen);
                     textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_NAPact)
+                if (relation.Treaty_NAPact)
                 {
                     batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1611), textCursor, Color.LightGreen);
                     textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
-                if (EmpireManager.Player.GetRelations(SelectedEmpire).Treaty_Alliance)
+                if (relation.Treaty_Alliance)
                 {
                     batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1612), textCursor, Color.LightGreen);
                 }
@@ -385,24 +378,18 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y += Fonts.Arial12Bold.LineSpacing;
 
-                Array<Empire> Sortlist = new Array<Empire>();
+                var Sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
                 {
                     if (e.isFaction || e.data.Defeated)
                     {
-                        if (SelectedEmpire != e)
-                        {
-                            continue;
-                        }
-                        Sortlist.Add(e);
+                        if (SelectedEmpire == e)
+                            Sortlist.Add(e);
                     }
                     else if (e != EmpireManager.Player)
                     {
-                        if (!EmpireManager.Player.GetRelations(e).Known)
-                        {
-                            continue;
-                        }
-                        Sortlist.Add(e);
+                        if (EmpireManager.Player.IsKnown(e))
+                            Sortlist.Add(e);
                     }
                     else
                     {
@@ -524,47 +511,50 @@ namespace Ship_Game
             }
             batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), GetPop(SelectedEmpire).ToString("0.0"), Localizer.Token(6101)), textCursor, Color.White);
             //Diplomatic Relations
-            foreach (KeyValuePair<Empire, Relationship> Relation in SelectedEmpire.AllRelations)
+            foreach ((Empire other, Relationship rel) in SelectedEmpire.AllRelations)
             {
-                if (!Relation.Value.Known || Relation.Key.isFaction)
+                if (!rel.Known || other.isFaction)
                     continue;
-                if (Relation.Key.data.Defeated)
+                if (other.data.Defeated)
                 {
                     textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                    batch.DrawString(Fonts.Arial12, Relation.Key.data.Traits.Name+Localizer.Token(6102), textCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12, other.data.Traits.Name+Localizer.Token(6102), textCursor, Color.White);
                     continue;
                 }
                 if (IntelligenceLevel(SelectedEmpire) >0)
                 {
-                    if (Relation.Value.Treaty_Alliance)
+                    // "and Trade"
+                    string andTrade = rel.Treaty_Trade ? Localizer.Token(GameText.AndTrade) : ""; 
+                    
+                    if (rel.Treaty_Alliance)
                     {
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1612), (Relation.Value.Treaty_Trade) ? Localizer.Token(6103) : ""), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.Alliance), andTrade), textCursor, Color.White);
                     }
-                    else if (Relation.Value.Treaty_OpenBorders)
+                    else if (rel.Treaty_OpenBorders)
                     {
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1609), (Relation.Value.Treaty_Trade) ? Localizer.Token(6103) : ""), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.OpenBorders), andTrade), textCursor, Color.White);
                     }
-                    else if (Relation.Value.Treaty_NAPact)
+                    else if (rel.Treaty_NAPact)
                     {
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1611), (Relation.Value.Treaty_Trade) ? Localizer.Token(6103) : ""), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.NonaggressionPact2), andTrade), textCursor, Color.White);
                     }
-                    else if (Relation.Value.Treaty_Peace)
+                    else if (rel.Treaty_Peace)
                     {
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1213), (Relation.Value.Treaty_Trade) ? Localizer.Token(6103) : ""), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.PeaceTreaty), andTrade), textCursor, Color.White);
                     }
-                    else if (Relation.Value.AtWar)
+                    else if (rel.AtWar)
                     {
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, ": ", Localizer.Token(1608)), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.AtWar)), textCursor, Color.White);
                     }
                     else
                     {
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, Relation.Key.data.Traits.Name+((Relation.Value.Treaty_Trade) ? Localizer.Token(6104) : Localizer.Token(6105)), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, other.data.Traits.Name+(rel.Treaty_Trade ? Localizer.Token(GameText.None2) : Localizer.Token(GameText.MilitaryStrength)), textCursor, Color.White);
                     }
                 }
             }
@@ -823,7 +813,7 @@ namespace Ship_Game
             {
                 if (HelperFunctions.ClickedRect(race.container, input))
                 {
-                    if (EmpireManager.Player == race.e || !EmpireManager.Player.GetRelations(race.e).Known)
+                    if (EmpireManager.Player == race.e || !EmpireManager.Player.IsKnown(race.e))
                     {
                         if (EmpireManager.Player == race.e)
                             CreateArtifactsScrollList(race.e);

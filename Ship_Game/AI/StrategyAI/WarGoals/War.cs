@@ -94,7 +94,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
             ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
-            OurRelationToThem           = us.GetRelations(them);
+            OurRelationToThem           = us.GetRelationsOrNull(them);
             Score                       = new WarScore(this, Us);
             PopulateHistoricLostSystems();
             WarTheaters = new TheatersOfWar(this);
@@ -143,9 +143,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
                 ContestedSystems[i] = solarSystem;
             }
-            Us                = EmpireManager.GetEmpireByName(UsName);
-            Them              = EmpireManager.GetEmpireByName(ThemName);
-            OurRelationToThem = Us.GetRelations(Them);
+            Us   = EmpireManager.GetEmpireByName(UsName);
+            Them = EmpireManager.GetEmpireByName(ThemName);
+            // The Us == Them is used in EmpireDefense and relations should be null
+            OurRelationToThem = Us.GetRelationsOrNull(Them);
             
             if (activeWar)
             {

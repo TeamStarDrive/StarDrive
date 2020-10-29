@@ -379,6 +379,8 @@ namespace Ship_Game
             if (b.IsMilitary
                 || b.IsTerraformer
                 || b.IsBiospheres  // Different logic for the above
+                || Owner.isPlayer && b.BuildOnlyOnce
+                || !Owner.isPlayer && b.BuildOnlyOnce && Level < (int)DevelopmentLevel.MegaWorld
                 // If starving and this buildings does not produce food while we have food buildings available for build, filter it
                 || NonCybernetic && IsStarving && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
             {
@@ -399,6 +401,7 @@ namespace Ship_Game
                 || b.IsPlayerAdded && Owner.isPlayer
                 || b.IsTerraformer
                 || b.IsMilitary
+                || b.BuildOnlyOnce
                 || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
                 || IsStarving && b.ProducesFood && NonCybernetic // Dont scrap food buildings when starving
                 || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
@@ -513,10 +516,16 @@ namespace Ship_Game
 
         void TryBuildTerraformers(float budget)
         {
-            if (IsStarving || NumWantedTerraformers <= 0 || TerraformerInTheWorks)
+            if (!AreTerraformersNeeded
+                || IsStarving
+                || TerraformerInTheWorks)
+            {
                 return;
+            }
 
             Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+            if (terraformer.ActualMaintenance(this) > budget)
+                return;
 
             var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
             if (unHabitableTiles.Length > 0) // try to build a terraformer on an unhabitable tile first
@@ -532,27 +541,22 @@ namespace Ship_Game
                     Construction.Enqueue(terraformer);
             }}
         
-        int NumWantedTerraformers
+        bool AreTerraformersNeeded
         {
             get
             {
-                if (!Owner.IsBuildingUnlocked(Building.TerraformerId))
-                    return 0;
+                if (!Owner.IsBuildingUnlocked(Building.TerraformerId) || TerraformersHere >= TerraformerLimit)
+                    return false;
 
-                int num = 0;
-                if (TilesList.Any(t => t.CanTerraform))
-                    num += 1;
+                if (TilesList.Any(t => t.CanTerraform)
+                    || TilesList.Any(t => t.BioCanTerraform)
+                    || Category != Owner.data.PreferredEnv 
+                    || NonCybernetic && BaseMaxFertility.Less(1 / Empire.RacialEnvModifer(Category, Owner)))
+                {
+                    return true;
+                }
 
-                if (TilesList.Any(t => t.BioCanTerraform))
-                    num += 1;
-
-                if (Category != Owner.data.PreferredEnv || NonCybernetic && BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
-                    num += 2;
-
-                if (num > 0)
-                    num = (num - TerraformersHere).LowerBound(0);
-
-                return num.UpperBound(TerraformerLimit);
+                return false;
             }
         }
 

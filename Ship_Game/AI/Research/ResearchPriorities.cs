@@ -112,29 +112,27 @@ namespace Ship_Game.AI.Research
         float CalcShipHulls(float wars)
         {
             float maxBonus = 0;
-            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                Empire empire          = kv.Key;
-                Relationship relations = kv.Value;
-                if (!relations.Known && empire.isFaction)
+                if (!rel.Known && them.isFaction)
                     continue;
 
-                float empireBonus = CalcCanBuildHulls(empire);
+                float empireBonus = CalcCanBuildHulls(them);
                 if (empireBonus > maxBonus)
                     maxBonus = empireBonus;
             }
 
             maxBonus = (maxBonus - CalcCanBuildHulls(OwnerEmpire)).LowerBound(0);
-            return maxBonus + wars;
+            return maxBonus + wars * 2;
         }
 
         float CalcCanBuildHulls(Empire empire)
         {
             float canBuildBonus = 0;
-            if (empire.canBuildCorvettes) canBuildBonus += 0.25f;
-            if (empire.canBuildFrigates)  canBuildBonus += 0.25f;
-            if (empire.canBuildCruisers)  canBuildBonus += 0.25f;
-            if (empire.canBuildCapitals)  canBuildBonus += 0.25f;
+            if (empire.canBuildCorvettes) canBuildBonus += 0.5f;
+            if (empire.canBuildFrigates)  canBuildBonus += 0.5f;
+            if (empire.canBuildCruisers)  canBuildBonus += 0.5f;
+            if (empire.canBuildCapitals)  canBuildBonus += 0.5f;
 
             return canBuildBonus;
         }

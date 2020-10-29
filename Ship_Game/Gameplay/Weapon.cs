@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 
 namespace Ship_Game.Gameplay
@@ -483,32 +482,38 @@ namespace Ship_Game.Gameplay
 
         Vector2 GetLevelBasedError(int level = -1)
         {
-            if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
-                return Vector2.Zero; //|| Tag_PD
-
-            if (level == -1)
-            {
-                level = (Owner?.Level ?? 0)
-                      + (Owner?.TrackingPower ?? 0)
-                      + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
-            }
-
-            // reduce error by level cubed. if error is less than a module radius stop.
-            float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
-            float adjust    = (baseError - level * level * level).LowerBound(0);
-            if (adjust < 8)
-                return Vector2.Zero;
-
-            // reduce or increase error based on weapon and trait characteristics.
-            if (Tag_Cannon)  adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
-            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
-
-            adjust *= CalculateBaseAccuracy();
+            float adjust = BaseTargetError(level);
 
             return RandomMath2.Vector2D(adjust);
         }
 
-        float CalculateBaseAccuracy()
+        public float BaseTargetError(int level)
+        {
+            if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
+                return 0;
+
+            if (level == -1)
+            {
+                level = (Owner?.Level ?? 0)
+                        + (Owner?.TrackingPower ?? 0)
+                        + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
+            }
+
+            // reduce error by level cubed. if error is less than a module radius stop.
+            float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
+            float adjust = (baseError - level * level * level).LowerBound(0);
+            
+            if (adjust < 8)
+                return adjust;
+
+            // reduce or increase error based on weapon and trait characteristics.
+            if (Tag_Cannon) adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
+            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
+            adjust *= WeaponAccuracyModifiers();
+            return adjust;
+        }
+
+        float WeaponAccuracyModifiers()
         {
             float accuracy = (Module?.AccuracyPercent ?? 0f);
             if (accuracy.AlmostEqual(-1f))
@@ -738,7 +743,6 @@ namespace Ship_Game.Gameplay
 
             PrepareToFire();
             var beam = new Beam(this, source, destination, target);
-            Module.GetParent().AddBeam(beam);
             return true;
         }
 
