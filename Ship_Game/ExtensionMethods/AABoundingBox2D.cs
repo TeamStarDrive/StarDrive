@@ -44,6 +44,8 @@ namespace Ship_Game
             Y2 = center.Y + radius;
         }
 
+        // WARNING: The vector order must be correct, there is no validation!
+        // Use AABoundingBox2D.FromIrregularPoints() if the points are random
         public AABoundingBox2D(in Vector2 topLeft, in Vector2 botRight)
         {
             X1 = topLeft.X;
@@ -92,6 +94,18 @@ namespace Ship_Game
             float dx = nearestX - cx;
             float dy = nearestY - cy;
             return (dx*dx + dy*dy) <= (radius*radius);
+        }
+
+        // Create a rectangle from 2 points that don't need to be sorted in screen space
+        // This is ideal for user selection cases where Start and End points can be anywhere on screen
+        public static AABoundingBox2D FromIrregularPoints(in Vector2 a, in Vector2 b)
+        {
+            AABoundingBox2D r;
+            r.X1 = Math.Min(a.X, b.X);
+            r.X2 = Math.Max(a.X, b.X);
+            r.Y1 = Math.Min(a.Y, b.Y);
+            r.Y2 = Math.Max(a.Y, b.Y);
+            return r;
         }
     }
 

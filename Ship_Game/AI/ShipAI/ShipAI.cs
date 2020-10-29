@@ -339,45 +339,35 @@ namespace Ship_Game.AI
                     {
                         switch (OrderQueue.PeekFirst?.Plan)
                         {
-                            case null:
-                                OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
-                                break;
+                            default: OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State)); break;
                             case Plan.DoCombat:
                             case Plan.Bombard:
-                            case Plan.BoardShip:
-                                break;
-                            default:
-                                OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
-                                break;
+                            case Plan.BoardShip: break;
                         }
                     }
                 }
             }
-            else
+            else if (!BadGuysNear)
             {
-                int count = Owner.Weapons.Count;
+                int count            = Owner.Weapons.Count;
                 FireOnMainTargetTime = 0;
-                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
+                Weapon[] items       = Owner.Weapons.GetInternalArrayItems();
                 for (int x = 0; x < count; x++)
                     items[x].ClearFireTarget();
 
-                if (Owner.Carrier.HasHangars && Owner.loyalty != Empire.Universe.player)
+                if (Owner.Carrier.HasHangars)
                 {
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
                         Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip != null && hangarShip.Active)
-                            hangarShip.AI.OrderReturnToHangar();
-                    }
-                }
-                else if (Owner.Carrier.HasHangars)
-                {
-                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
-                    {
-                        Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip != null && hangarShip.AI.State != AIState.ReturnToHangar &&
-                            !hangarShip.AI.HasPriorityTarget && !hangarShip.AI.HasPriorityOrder)
+                        if (hangarShip != null && hangarShip.Active && hangarShip.AI.State != AIState.ReturnToHangar)
                         {
+                            if (Owner.loyalty == Empire.Universe.player
+                                && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
+                            {
+                                continue;
+                            }
+
                             if (Owner.Carrier.FightersLaunched)
                                 hangarShip.DoEscort(Owner);
                             else

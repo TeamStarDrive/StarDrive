@@ -206,21 +206,19 @@ namespace Ship_Game.Spatial
             var ship = (Ship)victim;
             float velocity = proj.Velocity.Length();
             float maxDistPerFrame = velocity * simTimeStep;
+            Vector2 center = proj.Center;
 
             // if this projectile will move more than 15 units (1 module grid = 16x16) within one simulation step
             // we have to use ray-casting to avoid projectiles clipping through objects
             if (maxDistPerFrame > 15f)
             {
                 Vector2 dir = proj.Velocity / velocity;
-                float cx = proj.Center.X;
-                float cy = proj.Center.Y;
-                var prevPos = new Vector2(cx - dir.X*maxDistPerFrame, cy - dir.Y*maxDistPerFrame);
-                var center = new Vector2(cx, cy);
+                var prevPos = new Vector2(center.X - dir.X*maxDistPerFrame, center.Y - dir.Y*maxDistPerFrame);
                 hitModule = ship.RayHitTestSingle(prevPos, center, proj.Radius, proj.IgnoresShields);
             }
             else
             {
-                hitModule = ship.HitTestSingle(proj.Center, proj.Radius, proj.IgnoresShields);
+                hitModule = ship.HitTestSingle(center, proj.Radius, proj.IgnoresShields);
             }
             return hitModule != null;
         }

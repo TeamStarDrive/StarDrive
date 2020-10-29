@@ -111,11 +111,6 @@ namespace Ship_Game
             Empire.Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
         }
 
-        public void GenerateStoryActivationThreshold()
-        {
-            
-        }
-
         public bool TryLevelUpByDate(out int newLevel)
         {
             newLevel = 0;
@@ -370,34 +365,56 @@ namespace Ship_Game
             }
         }
 
-        public bool SelectTargetClosestPlanet(Ship portal, Empire targetEmpire, out Planet targetPlanet)
-        {
-            targetPlanet = null;
-            var potentialPlanets = targetEmpire.GetPlanets();
-            if (potentialPlanets.Count == 0) // No planets - might be defeated
-                return false;
-
-            targetPlanet = potentialPlanets.FindMin(p => p.Center.Distance(portal.Center));
-            return targetPlanet != null;
-        }
-
         public bool TargetNextPlanet(Empire targetEmpire, Planet currentPlanet, int numBombers, out Planet nextPlanet)
         {
             nextPlanet = null;
             if (numBombers > 0 && currentPlanet.ParentSystem.IsOwnedBy(targetEmpire))
             {
+                // Choose another planet owned by target empire in the same system
                 nextPlanet = currentPlanet.ParentSystem.PlanetList.Filter(p => p.Owner == targetEmpire).RandItem();
                 return true;
             }
 
+            // Find a planet in another system
             var potentialPlanets = targetEmpire.GetPlanets().Filter(p => p.ParentSystem != currentPlanet.ParentSystem);
             if (potentialPlanets.Length == 0)
                 return false;
 
-            int numPlanets     = 10.UpperBound(potentialPlanets.Length);
-            var closestPlanets = potentialPlanets.Sorted(p => p.Center.Distance(currentPlanet.Center)).Take(numPlanets).ToArray();
-            nextPlanet         = closestPlanets.RandItem();
+            int numPlanetsToTake = Level <= 10 
+                ? Level.UpperBound(5)  // Increase distance spread of checks by level
+                : (MaxLevel - Level).Clamped(2, 10); // Decrease spread to focus on quality targets
+
+            if (Level == 10) // Level 10 Remnants will go for home worlds
+                nextPlanet = GetTargetPlanetHomeWorlds(potentialPlanets, numPlanetsToTake);
+            else if (Level <= 5) // Level 5 or below will go for closest planets to the portal
+                nextPlanet = GetTargetPlanetByDistance(potentialPlanets, currentPlanet.Center, numPlanetsToTake);
+            else // Remnants higher than level 4 will go after high level planets
+                nextPlanet = GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
+
             return nextPlanet != null;
+        }
+
+        Planet GetTargetPlanetByPop(Planet[] potentialPlanets, int numPlanetsToTake)
+        {
+            var filteredList = potentialPlanets.SortedDescending(p => p.MaxPopulation).Take(numPlanetsToTake).ToArray();
+
+            return filteredList.Length > 0 ? filteredList.RandItem() : null;
+        }
+
+        Planet GetTargetPlanetHomeWorlds(Planet[] potentialPlanets, int numPlanetsToTake)
+        {
+            var filteredList = potentialPlanets.Filter(p => p.HasCapital);
+
+            return filteredList.Length > 0
+                ? filteredList.RandItem()
+                : GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
+        }
+
+        Planet GetTargetPlanetByDistance(Planet[] potentialPlanets, Vector2 pos, int numPlanetsToTake)
+        {
+            var filteredList = potentialPlanets.Sorted(p => p.Center.Distance(pos)).Take(numPlanetsToTake).ToArray();
+
+            return filteredList.Length > 0 ? filteredList.RandItem() : null;
         }
 
         public void CallGuardians(Ship portal) // One guarding from each relevant system
@@ -842,13 +859,14 @@ namespace Ship_Game
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
         {
+            int divider = 10 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
                 Vector2 pos = p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p);
-                    ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / 10) * StoryTurnsLevelUpModifier();
+                    ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
                 }
             }
         }

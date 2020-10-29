@@ -143,7 +143,6 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int FixedTrackingPower;
-        public bool ShipInitialized;
         public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
@@ -1070,9 +1069,12 @@ namespace Ship_Game.Ships
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
                 float tan = (float)Math.Tan(yRotation);
+                float parentX = Center.X;
+                float parentY = Center.Y;
+                float rotation = Rotation;
                 for (int i = 0; i < ModuleSlotList.Length; ++i)
                 {
-                    ModuleSlotList[i].UpdateEveryFrame(timeStep, cos, sin, tan);
+                    ModuleSlotList[i].UpdateEveryFrame(timeStep, parentX, parentY, rotation, cos, sin, tan);
                 }
                 GlobalStats.ModuleUpdates += ModuleSlotList.Length;
             }
@@ -1655,16 +1657,16 @@ namespace Ship_Game.Ships
         {
             switch (DesignRole)
             {
-                case ShipData.RoleName.bomber:    empire.canBuildBombers       = true; break;
-                case ShipData.RoleName.carrier:   empire.canBuildCarriers      = true; break;
-                case ShipData.RoleName.support:   empire.canBuildSupportShips  = true; break;
-                case ShipData.RoleName.troopShip: empire.canBuildTroopShips    = true; break;
-                case ShipData.RoleName.corvette:  empire.canBuildCorvettes     = true; break;
-                case ShipData.RoleName.frigate:   empire.canBuildFrigates      = true; break;
-                case ShipData.RoleName.cruiser:   empire.canBuildCruisers      = true; break;
-                case ShipData.RoleName.capital:   empire.canBuildCapitals      = true; break;
-                case ShipData.RoleName.platform:  empire.CanBuildPlatforms     = true; break;
-                case ShipData.RoleName.station:   empire.CanBuildStations      = true; break;
+                case ShipData.RoleName.bomber:    empire.canBuildBombers      = true; break;
+                case ShipData.RoleName.carrier:   empire.canBuildCarriers     = true; break;
+                case ShipData.RoleName.support:   empire.canBuildSupportShips = true; break;
+                case ShipData.RoleName.troopShip: empire.canBuildTroopShips   = true; break;
+                case ShipData.RoleName.corvette:  empire.canBuildCorvettes    = true; break;
+                case ShipData.RoleName.frigate:   empire.canBuildFrigates     = true; break;
+                case ShipData.RoleName.cruiser:   empire.canBuildCruisers     = true; break;
+                case ShipData.RoleName.capital:   empire.canBuildCapitals     = true; break;
+                case ShipData.RoleName.platform:  empire.CanBuildPlatforms    = true; break;
+                case ShipData.RoleName.station:   empire.CanBuildStations     = true; break;
             }
             if (shipData.IsShipyard)
                 empire.CanBuildShipyards = true;
