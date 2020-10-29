@@ -308,6 +308,7 @@ struct Simulation final : spatial::Visualizer
             }
 
             opt.OnlyLoyalty = objects.empty() ? 0 : objects.front().loyalty;
+            opt.Type = ObjectType::ObjectType_Ship;
 
             ImVec2 end = screenToWorld(ImGui::GetMousePos());
             opt.SearchRect = { (int)mouseDragStart.x, (int)mouseDragStart.y, (int)end.x, (int)end.y };
