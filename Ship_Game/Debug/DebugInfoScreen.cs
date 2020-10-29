@@ -32,6 +32,7 @@ namespace Ship_Game.Debug
         Tech,
         Solar, // Sun timers, black hole data, pulsar radiation radius...
         RelationsWar,
+        Pirates,
         Remnants,
         Last // dummy value
     }
@@ -199,13 +200,14 @@ namespace Ship_Game.Debug
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
                 {
-                    case DebugModes.Normal:         EmpireInfo();        break;
-                    case DebugModes.DefenseCo:      DefcoInfo();         break;
-                    case DebugModes.ThreatMatrix:   ThreatMatrixInfo();  break;
-                    case DebugModes.Targeting:      Targeting();         break;
-                    case DebugModes.input:          InputDebug();        break;
-                    case DebugModes.Tech:           Tech();              break;
-                    case DebugModes.Remnants:       RemnantInfo();       break;
+                    case DebugModes.Normal:       EmpireInfo();       break;
+                    case DebugModes.DefenseCo:    DefcoInfo();        break;
+                    case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
+                    case DebugModes.Targeting:    Targeting();        break;
+                    case DebugModes.input:        InputDebug();       break;
+                    case DebugModes.Tech:         Tech();             break;
+                    case DebugModes.Pirates:      Pirates();          break;
+                    case DebugModes.Remnants:     RemnantInfo();      break;
                 }
                 base.Draw(batch, elapsed);
                 ShipInfo();
@@ -356,7 +358,7 @@ namespace Ship_Game.Debug
 
         void ShipInfo()
         {
-            float y = (ScreenHeight - 700f).Clamped(100, 400);
+            float y = (ScreenHeight - 700f).Clamped(100, 450);
             SetTextCursor(Win.X + 10, y, Color.White);
 
             if (Screen.SelectedFleet != null)
@@ -561,6 +563,84 @@ namespace Ship_Game.Debug
             }
         }
 
+        void Pirates()
+        {
+            int column = 0;
+            foreach (Empire e in EmpireManager.PirateFactions)
+            {
+                if (e.data.Defeated)
+                    continue;
+
+                var goals = e.Pirates.Goals;
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
+                DrawString("------------------------");
+                DrawString(e.Name);
+                DrawString("------------------------");
+                DrawString($"Level: {e.Pirates.Level}");
+                DrawString($"Pirate Bases Goals: {goals.Count(g => g.type == GoalType.PirateBase)}");
+                DrawString($"Pirate Payments Goals: {goals.Count(g => g.type == GoalType.PirateDirectorPayment)}");
+                DrawString($"Spawned Ships: {e.Pirates.SpawnedShips.Count}");
+                NewLine();
+                DrawString($"Raid Management Goals ({goals.Count(g => g.type == GoalType.PirateDirectorRaid)})");
+                DrawString("---------------------------------------------");
+                foreach (Goal g in goals)
+                {
+                    if (g.type == GoalType.PirateDirectorRaid)
+                    {
+                        Empire target = g.TargetEmpire;
+                        string targetName = target.Name;
+                        int threatLevel = e.Pirates.ThreatLevelFor(g.TargetEmpire);
+                        DrawString(target.EmpireColor, $"Raid Director For: {targetName}, Threat Level: {threatLevel}");
+                    }
+                }
+
+                NewLine();
+                DrawString($"Ongoing Raids ({goals.Count(g => g.IsRaid)}/{e.Pirates.Level})");
+                DrawString("---------------------------------------------");
+                foreach (Goal g in goals)
+                {
+                    if (g.IsRaid)
+                    {
+                        Empire target = g.TargetEmpire;
+                        string targetName = target.Name;
+                        Ship targetShip = g.TargetShip;
+                        string shipName = targetShip?.Name ?? "None";
+                        DrawString(target.EmpireColor, $"{g.type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
+                    }
+                }
+
+                NewLine();
+
+                DrawString($"Base Defense Goals ({goals.Count(g => g.type == GoalType.PirateDefendBase)})");
+                DrawString("---------------------------------------------");
+                foreach (Goal g in goals)
+                {
+                    if (g.type == GoalType.PirateDefendBase)
+                    {
+                        Ship targetShip = g.TargetShip;
+                        string shipName = targetShip?.Name ?? "None";
+                        DrawString($"Defending {shipName} in {targetShip?.SystemName ?? "None"}");
+                    }
+                }
+
+                NewLine(1);
+
+                DrawString($"Fighter Designs We Can Launch ({e.Pirates.ShipsWeCanBuild.Count})");
+                DrawString("---------------------------------------------");
+                foreach (string shipName in e.Pirates.ShipsWeCanBuild)
+                    DrawString(shipName);
+
+                NewLine();
+
+                DrawString($"Ship Designs We Can Spawn ({e.Pirates.ShipsWeCanSpawn.Count})");
+                DrawString("---------------------------------------------");
+                foreach (string shipName in e.Pirates.ShipsWeCanSpawn)
+                    DrawString(shipName);
+
+                column += 3;
+            }
+        }
+
         void RemnantInfo()
         {
             Empire e = EmpireManager.Remnants;
@@ -571,11 +651,11 @@ namespace Ship_Game.Debug
                 : $"Level Up Stardate: {e.Remnants.NextLevelUpDate}");
 
             DrawString(!e.Remnants.Hibernating
-                ? $"Next Hibernation in: {e.Remnants.NextLevelUpDate - e.Remnants.NeededHibernationTurns/10f}"
+                ? $"Next Hibernation in: {e.Remnants.NextLevelUpDate - e.Remnants.NeededHibernationTurns / 10f}"
                 : $"Hibernating for: {e.Remnants.HibernationTurns} turns");
 
             string activatedString = e.Remnants.Activated ? "Yes" : "No";
-            activatedString        = e.data.Defeated ? "Defeated" : activatedString;
+            activatedString = e.data.Defeated ? "Defeated" : activatedString;
             DrawString($"Activated: {activatedString}");
             DrawString($"Level: {e.Remnants.Level}");
 
@@ -587,26 +667,26 @@ namespace Ship_Game.Debug
             for (int i = 0; i < EmpireManager.MajorEmpires.Length; i++)
             {
                 Empire empire = EmpireManager.MajorEmpires[i];
-                DrawString(empire.EmpireColor,$"{empire.data.Name} - Score: {empire.TotalScore}, Strength: {empire.CurrentMilitaryStrength}");
+                DrawString(empire.EmpireColor, $"{empire.data.Name} - Score: {empire.TotalScore}, Strength: {empire.CurrentMilitaryStrength}");
             }
 
             var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires
                                                                       : EmpireManager.MajorEmpires;
             NewLine();
             float averageScore = (float)empiresList.Average(empire => empire.TotalScore);
-            float averageStr   = empiresList.Average(empire => empire.CurrentMilitaryStrength);
+            float averageStr = empiresList.Average(empire => empire.CurrentMilitaryStrength);
             DrawString($"AI Empire Average Score:     {averageScore.String(0)}");
             DrawString($"AI Empire Average Strength: {averageStr.String(0)}");
 
             NewLine();
             Empire bestScore = empiresList.FindMax(empire => empire.TotalScore);
-            Empire bestStr   = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
+            Empire bestStr = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
 
             float diffFromAverageScore = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
-            float diffFromAverageStr   = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+            float diffFromAverageStr = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
 
-            DrawString(bestScore.EmpireColor, $"Highest Score Empire: {bestScore.data.Name} ({(diffFromAverageScore-100).String(1)}% above average)");
-            DrawString(bestStr.EmpireColor,  $"Highest Str Empire:     {bestStr.data.Name} ({(diffFromAverageStr-100).String(1)}% above average)");
+            DrawString(bestScore.EmpireColor, $"Highest Score Empire: {bestScore.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
+            DrawString(bestStr.EmpireColor, $"Highest Str Empire:     {bestStr.data.Name} ({(diffFromAverageStr - 100).String(1)}% above average)");
 
             NewLine();
             DrawString("Goals:");
@@ -619,10 +699,10 @@ namespace Ship_Game.Debug
                 else
                 {
                     Color color = goal.ColonizationTarget?.Owner?.EmpireColor ?? e.EmpireColor;
-                    DrawString(color,$"{goal.type}, Target Planet: {goal.ColonizationTarget?.Name}, Bombers Wanted: {goal.ShipLevel}");
+                    DrawString(color, $"{goal.type}, Target Planet: {goal.ColonizationTarget?.Name}, Bombers Wanted: {goal.ShipLevel}");
                 }
             }
-            
+
             NewLine();
             DrawString("Fleets:");
             foreach (Fleet fleet in e.GetFleetsDict().Values)
@@ -638,9 +718,9 @@ namespace Ship_Game.Debug
         void EmpireInfo()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.Empires)
+            foreach (Empire e in EmpireManager.MajorEmpires)
             {
-                if (e.isFaction || e.data.Defeated)
+                if (e.data.Defeated)
                     continue;
 
                 SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);

@@ -810,11 +810,6 @@ namespace Ship_Game
             int fleetShips     = 0;
             fleet              = null;
 
-            if (Debug && DebugInfoScreen.Mode == DebugModes.SpatialManager)
-            {
-                AABoundingBox2D search = UnprojectToWorldRect(screenArea);
-                Spatial.FindNearby(GameObjectType.Ship, search, 1024, debugId:1);
-            }
             foreach (ClickableShip clickableShip in ClickableShipsList)
             {
                 Ship ship = clickableShip.shipToClick;
