@@ -60,6 +60,10 @@ namespace Ship_Game
 
             Objects.AddRange(Ships);
             Objects.AddRange(Projectiles);
+
+            foreach (GameplayObject go in Objects)
+                if (!go.Active)
+                    Log.Warning($"Inactive object added from savegame: {go}");
         }
 
         public Ship FindShip(in Guid guid)
@@ -240,6 +244,7 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 if (!ship.Active)
                 {
+                    Log.Info($"Removing inactive ship: {ship}");
                     OnShipRemoved?.Invoke(ship);
                     ship.RemoveFromUniverseUnsafe();
                 }
@@ -323,14 +328,15 @@ namespace Ship_Game
 
             Parallel.For(ships.Count, (start, end) =>
             {
+                bool debug = Universe.Debug;
                 for (int i = start; i < end; ++i)
                 {
                     Ship ship = allShips[i];
                     ship.Update(timeStep);
                     ship.UpdateModulePositions(timeStep, isSystemView);
 
-                    // make sure dead and dying ships can be seen.
-                    if (!ship.Active && ship.KnownByEmpires.KnownByPlayer)
+                    // make sure dying ships can be seen. and show all ships in DEBUG
+                    if ((ship.dying && ship.KnownByEmpires.KnownByPlayer) || debug)
                         ship.KnownByEmpires.SetSeenByPlayer();
                 }
             }, Universe.MaxTaskCores);

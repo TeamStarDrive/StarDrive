@@ -150,13 +150,6 @@ namespace Ship_Game.AI
         public Ship ScanForCombatTargets(Ship sensorShip, float radius)
         {
             Owner.KnownByEmpires.SetSeen(Owner.loyalty);
-            if (Empire.Universe?.Debug == true)
-            {
-                if (Empire.Universe.SelectedShip == null || Empire.Universe.SelectedShip == Owner)
-                {
-                    Owner.KnownByEmpires.SetSeen(EmpireManager.Player);
-                }
-            }
             BadGuysNear = false;
             ScannedFriendlies.Clear();
             ScannedTargets.Clear();
@@ -205,15 +198,6 @@ namespace Ship_Game.AI
                 var nearbyShip = (Ship) go;
 
                 nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
-
-                // in debug show all ships except when one is selected. 
-                if (Empire.Universe?.Debug == true)
-                {
-                    if (Empire.Universe.SelectedShip == null || Empire.Universe.SelectedShip == Owner)
-                    {
-                        nearbyShip.KnownByEmpires.SetSeen(EmpireManager.Player);
-                    }
-                }
 
                 // do not process dead and dying any further. Let them be visibilbe but not show up in any target lists. 
                 if (!nearbyShip.Active || nearbyShip.dying)                 
