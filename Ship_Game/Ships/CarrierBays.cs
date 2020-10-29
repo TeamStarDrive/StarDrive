@@ -386,7 +386,7 @@ namespace Ship_Game.Ships
 
             bool recallFighters       = false;
             float jumpDistance        = Owner.Center.Distance(moveTo);
-            float slowestFighterSpeed = Owner.SpeedLimit * 2;
+            float slowestFighterSpeed = 3000;
 
             RecallingShipsBeforeWarp = true;
             if (jumpDistance > 25000f) // allows the carrier to jump small distances and then recall fighters
@@ -400,7 +400,7 @@ namespace Ship_Game.Ships
                         recallFighters = false;
                         continue;
                     }
-                    slowestFighterSpeed = Math.Min(slowestFighterSpeed, hangarShip.SpeedLimit);
+                    slowestFighterSpeed = hangarShip.SpeedLimit.UpperBound(slowestFighterSpeed);
 
                     float rangeToCarrier = hangarShip.Center.Distance(Owner.Center);
                     if (hangarShip.EMPdisabled
@@ -431,9 +431,8 @@ namespace Ship_Game.Ships
                 RecallingShipsBeforeWarp = false;
                 return false;
             }
-            if (Owner.SpeedLimit * 2 > slowestFighterSpeed)
-                Owner.SetSpeedLimit(slowestFighterSpeed * 0.25f);
 
+            Owner.SetSpeedLimit((slowestFighterSpeed * 0.25f).UpperBound(Owner.SpeedLimit));
             return true;
         }
 
@@ -532,12 +531,9 @@ namespace Ship_Game.Ships
         {
             switch (hangarType)
             {
-                case DynamicHangarOptions.DynamicInterceptor:
-                    return ShipData.HangarOptions.Interceptor;
-                case DynamicHangarOptions.DynamicAntiShip:
-                    return ShipData.HangarOptions.AntiShip;
-                default:
-                    return ShipData.HangarOptions.General;
+                case DynamicHangarOptions.DynamicInterceptor: return ShipData.HangarOptions.Interceptor;
+                case DynamicHangarOptions.DynamicAntiShip:    return ShipData.HangarOptions.AntiShip;
+                default:                                      return ShipData.HangarOptions.General;
             }
         }
 
@@ -565,19 +561,18 @@ namespace Ship_Game.Ships
             return bestShip;
         }
 
-        /// <summary>
-        /// Assaults the target ship.
-        /// </summary>
         public bool AssaultTargetShip(Ship targetShip)
         {
+            if (Owner.SecondsAlive < 2)
+                return true; // Initial Delay in launching shuttles if spawned
+
             if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
                 return false;
 
-            if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange))
+            if (!Owner.Carrier.AnyAssaultOpsAvailable || !targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange*2))
                 return false;
 
-            bool sendingTroops = false;
-
+            bool sendingTroops               = false;
             float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
             float enemyStrength              = targetShip.BoardingDefenseTotal/2;
 
