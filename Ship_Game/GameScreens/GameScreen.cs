@@ -480,6 +480,12 @@ namespace Ship_Game
         {
             return UnprojectToWorldPosition3D(screenSpace).ToVec2();
         }
+        public AABoundingBox2D UnprojectToWorldRect(in AABoundingBox2D screenR)
+        {
+            Vector2 topLeft  = UnprojectToWorldPosition(new Vector2(screenR.X1, screenR.Y1));
+            Vector2 botRight = UnprojectToWorldPosition(new Vector2(screenR.X2, screenR.Y2));
+            return new AABoundingBox2D(topLeft, botRight);
+        }
 
         public AABoundingBox2D UnprojectToWorldRect(in Rectangle screenR)
         {

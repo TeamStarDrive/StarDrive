@@ -354,7 +354,7 @@ namespace Ship_Game.Debug
 
         void ShipInfo()
         {
-            float y = (ScreenHeight - 700f).Clamped(100, 400);
+            float y = (ScreenHeight - 700f).Clamped(100, 450);
             SetTextCursor(Win.X + 10, y, Color.White);
 
             if (Screen.SelectedFleet != null)

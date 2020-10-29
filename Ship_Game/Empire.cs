@@ -1345,7 +1345,7 @@ namespace Ship_Game
                 {
                     if (Universe?.SelectedPlanet != null || Universe?.SelectedPlanet == node.SourceObject)
                     {
-                        target.KnownByEmpires.SetSeen(EmpireManager.Player);
+                        target.KnownByEmpires.SetSeenByPlayer();
                     }
                 }
             }

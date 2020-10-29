@@ -60,6 +60,10 @@ namespace Ship_Game
 
             Objects.AddRange(Ships);
             Objects.AddRange(Projectiles);
+
+            foreach (GameplayObject go in Objects)
+                if (!go.Active)
+                    Log.Warning($"Inactive object added from savegame: {go}");
         }
 
         public Ship FindShip(in Guid guid)
@@ -240,6 +244,7 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 if (!ship.Active)
                 {
+                    Log.Info($"Removing inactive ship: {ship}");
                     OnShipRemoved?.Invoke(ship);
                     ship.RemoveFromUniverseUnsafe();
                 }
