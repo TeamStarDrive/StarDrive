@@ -703,66 +703,43 @@ namespace Ship_Game
 
         private float GetPop(Empire e)
         {
-            float pop = 0f;
-            var planets = new HashSet<Planet>();
+            if (Traders.Contains(e) || e.isPlayer)
+                return e.GetTotalPop(out _);
 
-            if (Traders.Contains(e))
-            {
-                foreach (Planet p in e.GetPlanets())
-                    pop += p.Population;
-                return pop / 1000f;
-            }
-            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
-            {
-                if (!system.IsExploredBy(PlayerEmpire))
-                    continue;
-                foreach (Planet p in system.PlanetList)
-                {
-                    if (p.Owner == e && p.IsExploredBy(PlayerEmpire))
-                        planets.Add(p);
-                }
-            }
-            foreach (Empire ally in Traders)
-            {
-                foreach (SolarSystem system in UniverseScreen.SolarSystemList)
-                {
-                    if (!system.IsExploredBy(ally))
-                        continue;
-                    foreach (Planet p in system.PlanetList)
-                    {
-                        if (p.Owner == e && p.IsExploredBy(ally))
-                            planets.Add(p);
-                    }
-                }
-            }
+            float pop = GetPopInPlayerExploredPlanetsFor(PlayerEmpire, e);
+            foreach (Empire tradePartner in Traders)
+                pop += GetPopInPlayerExploredPlanetsFor(tradePartner, e);
 
-            foreach (Planet p in planets)
-                pop += p.Population;
-            return pop / 1000f;
+            return pop;
+        }
+
+        float GetPopInPlayerExploredPlanetsFor(Empire exploringEmpire, Empire empire)
+        {
+            float pop = 0;
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(exploringEmpire)))
+                foreach (Planet p in system.PlanetList.Filter(p => p.Owner == empire && p.IsExploredBy(exploringEmpire)))
+                    pop += p.PopulationBillion;
+
+            return pop;
         }
 
         float GetScientificStr(Empire e)
         {
             float scientificStr = 0f;
+            if (Friends.Contains(e))
+            {
+                var techs = e.TechEntries.Filter(t => t.Unlocked);
+                return techs.Length == 0 ? 0 : techs.Sum(t => t.Tech.Cost);
+            }
 
-            if (Traders.Contains(e) || Friends.Contains(e))
-            {
-                foreach (TechEntry tech in e.TechEntries)
-                {
-                    if (tech.Unlocked) scientificStr += tech.Tech.ActualCost;
-                }
-                return scientificStr;
-            }
-            var techs = new HashSet<string>();
-            PlayerEmpire.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techs, e);
+            var techList = new HashSet<string>();
+            PlayerEmpire.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techList, e);
             foreach (Empire ally in Friends)
-            {
-                ally.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techs, e);
-            }
-            foreach (string tech in techs)
-            {
+                ally.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techList, e);
+
+            foreach (string tech in techList)
                 scientificStr += ResourceManager.Tech(tech).ActualCost;
-            }
+
             return scientificStr;
         }
 

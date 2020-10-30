@@ -91,7 +91,7 @@ namespace Ship_Game.AI.ExpansionAI
             if ( currentColonizationGoals.Length >= desiredGoals)
                 return;
 
-            float ownerStrength       = Owner.CurrentMilitaryStrength;
+            float ownerStrength       = Owner.OffensiveStrength;
             int ourPlanets            = Owner.GetPlanets().Count;
 
             if (!Owner.isPlayer && PopulationRatio < ExpansionThreshold 
@@ -187,7 +187,7 @@ namespace Ship_Game.AI.ExpansionAI
                 for (int j = 0; j < system.PlanetList.Count; j++)
                 {
                     Planet p = system.PlanetList[j];
-                    if (Owner.KnownEnemyStrengthIn(p.ParentSystem) <= Owner.CurrentMilitaryStrength
+                    if (Owner.KnownEnemyStrengthIn(p.ParentSystem) <= Owner.OffensiveStrength
                         && p.Habitable
                         && (p.Owner == null || p.Owner.isFaction))
                     {
