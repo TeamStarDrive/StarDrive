@@ -157,7 +157,7 @@ namespace Ship_Game
             {
                 var scrapGoalsTargetingThis = scrapGoals.Filter(g => g.type == GoalType.ScrapShip && g.PlanetBuildingAt == this);
                 if (scrapGoalsTargetingThis.Length > 0)
-                    effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip.GetScrapCost());
+                    effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip?.GetScrapCost() ?? 0);
             }
 
             return Storage.Max - effectiveProd; // Negative means we have excess prod
