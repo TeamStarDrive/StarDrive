@@ -359,8 +359,9 @@ namespace Ship_Game.AI
                 {
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
-                        Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip != null && hangarShip.Active && hangarShip.AI.State != AIState.ReturnToHangar)
+                        if (hangar.TryGetHangarShip(out Ship hangarShip) 
+                            && hangarShip.Active 
+                            && hangarShip.AI.State != AIState.ReturnToHangar)
                         {
                             if (Owner.loyalty == Empire.Universe.player
                                 && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))

@@ -706,14 +706,14 @@ namespace Ship_Game
             if (Traders.Contains(e) || e.isPlayer)
                 return e.GetTotalPop(out _);
 
-            float pop = GetPopInPlayerExploredPlanetsFor(PlayerEmpire, e);
+            float pop = GetPopInExploredPlanetsFor(PlayerEmpire, e);
             foreach (Empire tradePartner in Traders)
-                pop += GetPopInPlayerExploredPlanetsFor(tradePartner, e);
+                pop += GetPopInExploredPlanetsFor(tradePartner, e);
 
             return pop;
         }
 
-        float GetPopInPlayerExploredPlanetsFor(Empire exploringEmpire, Empire empire)
+        float GetPopInExploredPlanetsFor(Empire exploringEmpire, Empire empire)
         {
             float pop = 0;
             foreach (SolarSystem system in UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(exploringEmpire)))
