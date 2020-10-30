@@ -280,13 +280,6 @@ namespace Ship_Game.AI
                         var sw = new ShipWeight(nearbyShip, 1);
                         ScannedNearby.Add(sw);
 
-                        // these are used later for weights when calculating weights.
-                        // so the effect of target weighting is dynamic for the targets available. 
-                        armorAvg  += nearbyShip.armor_max;
-                        shieldAvg += nearbyShip.shield_max;
-                        dpsAvg    += nearbyShip.GetDPS();
-                        sizeAvg   += nearbyShip.SurfaceArea;
-
                         // bonus weight to secort targets
                         if (BadGuysNear && nearbyShip.AI.Target is Ship ScannedNearbyTarget &&
                             ScannedNearbyTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
@@ -321,22 +314,11 @@ namespace Ship_Game.AI
 
             SetTargetWeights(targetPrefs);
 
-            //if (Target is Ship shipTarget)
-            //{
-            //    if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
-            //    {
-            //        var sw = new ShipWeight(shipTarget, 1);
-            //        ScannedNearby.Add(sw);
-            //    }
-            //}
             if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
             {
                 var sw = new ShipWeight(EscortTarget.AI.Target, 1f);
                 ScannedNearby.Add(sw);
             }
-
-            // process combat taget weight preferences. 
-            SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
             // limiting combat targets to the arbitrary -100 weight. Poor explained here. 
             ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > -100)
