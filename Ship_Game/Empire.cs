@@ -184,6 +184,7 @@ namespace Ship_Game
         public bool CanBuildStations;
         public bool CanBuildShipyards;
         public float CurrentMilitaryStrength;
+        public float OffensiveStrength; // No Orbitals
         public ShipPool Pool;
         public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
@@ -611,11 +612,15 @@ namespace Ship_Game
 
 
         /// <summary>
-        /// Returns the preferred Environment Modifier of a given empire.
+        /// Returns the preferred Environment Modifier of a given empire.This is null Safe.
         /// </summary>
         public static float PreferredEnvModifier(Empire empire)
             => empire == null ? 1 :  RacialEnvModifer(empire.data.PreferredEnv, empire);
 
+
+        /// <summary>
+        /// Returns the preferred Environment Modifier of a given empire. This is null Safe.
+        /// </summary>
         public static float RacialEnvModifer(PlanetCategory category, Empire empire)
         {
             float modifer = 1f; // If no Env tags were found, the multiplier is 1.
@@ -1579,14 +1584,18 @@ namespace Ship_Game
         {
             CurrentMilitaryStrength = 0;
             CurrentTroopStrength    = 0;
+            OffensiveStrength       = 0;
 
             for (int i = 0; i < OwnedShips.Count; ++i)
             {
                 Ship ship = OwnedShips[i];
                 if (ship != null)
                 {
-                    CurrentTroopStrength += ship.Carrier.MaxTroopStrengthInShipToCommit;
-                    CurrentMilitaryStrength += ship.GetStrength();
+                    float str                = ship.GetStrength();
+                    CurrentMilitaryStrength += str;
+                    CurrentTroopStrength    += ship.Carrier.MaxTroopStrengthInShipToCommit;
+                    if (!ship.IsPlatformOrStation)
+                        OffensiveStrength += str;
                 }
             }
 
@@ -2572,7 +2581,9 @@ namespace Ship_Game
             if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
 
-            CalculateScore();
+            if ((Universe.StarDate % 1).AlmostZero())
+                CalculateScore();
+
             UpdateRelationships();
 
             if (Money > data.CounterIntelligenceBudget)
@@ -2809,25 +2820,38 @@ namespace Ship_Game
 
         private void CalculateScore()
         {
-            TotalScore = 0;
-            TechScore = 0.0f;
-            IndustrialScore = 0.0f;
-            ExpansionScore = 0.0f;
-            foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
-            {
-                if (keyValuePair.Value.Unlocked)
-                    TechScore += ResourceManager.Tech(keyValuePair.Key).ActualCost / 100;
-            }
-            foreach (Planet planet in OwnedPlanets)
-            {
-                ExpansionScore += (float)(planet.FertilityFor(this) + (double)planet.MineralRichness + planet.PopulationBillion);
-                foreach (Building building in planet.BuildingList)
-                    IndustrialScore += building.ActualCost / 20f;
-            }
+            TotalScore      = 0;
+            TechScore       = 0;
+            IndustrialScore = 0;
+            ExpansionScore  = 0;
 
-
+            CalcTechScore();
+            CalcExpansionIndustrialScore();
             MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
-            TotalScore    = (int)(MilitaryScore/100 + IndustrialScore + TechScore + ExpansionScore);
+            TotalScore    = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
+
+            void CalcTechScore()
+            {
+                foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
+                {
+                    if (keyValuePair.Value.Unlocked)
+                        TechScore += ResourceManager.Tech(keyValuePair.Key).Cost;
+                }
+
+                TechScore /= 100;
+            }
+
+            void CalcExpansionIndustrialScore()
+            {
+                for (int i = 0; i < OwnedPlanets.Count; i++)
+                {
+                    Planet planet    = OwnedPlanets[i];
+                    ExpansionScore  += planet.Fertility*10 + planet.MineralRichness*10 + planet.PopulationBillion;
+                    IndustrialScore += planet.BuildingList.Sum(b => b.ActualCost);
+                }
+
+                IndustrialScore /= 20;
+            }
         }
 
         private void AbsorbAllEnvPreferences(Empire target)
