@@ -2793,7 +2793,7 @@ namespace Ship_Game
             CalcTechScore();
             CalcExpansionIndustrialScore();
             MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
-            TotalScore    = (int)(MilitaryScore/1000 + IndustrialScore + TechScore + ExpansionScore);
+            TotalScore    = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
 
             void CalcTechScore()
             {
