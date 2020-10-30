@@ -23,7 +23,6 @@ namespace Ship_Game.AI
             
             if (ThreatTimer < 0) ThreatTimer = 2f;
 
-            float ownerStr = Owner.CurrentMilitaryStrength;
             for (int index = AreasOfOperations.Count - 1; index >= 0; index--)
             {
                 AO areasOfOperation = AreasOfOperations[index];
