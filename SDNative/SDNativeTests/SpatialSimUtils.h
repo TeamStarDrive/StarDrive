@@ -44,7 +44,7 @@ static std::vector<MyGameObject> createObjects(SimParams p)
         MyGameObject o;
         o.pos = sys.pos + getRandomOffset(p.solarRadius);
         o.radius = p.objectRadius;
-        o.loyalty = (i % 2) == 0 ? 7 : 2; // 0b0111 : 0b0010, overlap for debugging
+        o.loyalty = (i % 2) != 0 ? p.loyaltyA : p.loyaltyB;
         o.type = ObjectType_Ship;
         objects.push_back(o);
     }
