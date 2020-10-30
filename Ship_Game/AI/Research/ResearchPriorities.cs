@@ -85,7 +85,7 @@ namespace Ship_Game.AI.Research
 
             var priority = new Map<string, int>
             {
-                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars)        },
+                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars * 2)    },
                 { "ShipHull",     Randomizer(strat.MilitaryRatio,  ShipHulls)   },
                 { "Research",     Randomizer(strat.ResearchRatio,  ResearchDebt)},
                 { "Colonization", Randomizer(strat.ExpansionRatio, FoodNeeds)   },
@@ -102,7 +102,7 @@ namespace Ship_Game.AI.Research
         {
             float enemyThreats = empire.GetEmpireAI().ThreatMatrix.HighestStrengthOfAllEmpireThreats(empire);
             enemyThreats      += empire.TotalRemnantStrTryingToClear();
-            float wars         = enemyThreats / empire.CurrentMilitaryStrength.LowerBound(1);
+            float wars         = enemyThreats / empire.OffensiveStrength.LowerBound(1);
             wars              += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f
                                                                                                                    : 0;
 
