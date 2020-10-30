@@ -388,7 +388,7 @@ namespace Ship_Game
             if (NormalizedMilitaryScore.Count == maxItems)
                 NormalizedMilitaryScore.RemoveAt(0);
 
-            NormalizedMilitaryScore.Add(currentStr);
+            NormalizedMilitaryScore.Add(currentStr / 1000);
             return NormalizedMilitaryScore.Sum() / NormalizedMilitaryScore.Count;
         }
     }
