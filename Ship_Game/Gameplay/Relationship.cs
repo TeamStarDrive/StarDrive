@@ -696,8 +696,10 @@ namespace Ship_Game.Gameplay
             float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(us, them);
             if (strShipsInBorders > 0)
             {
-                int multiplier = Treaty_NAPact ? 1 : 2; // We are less concerned if we have NAP with them
-                float borderAnger = (100f - Trust) / 100f * strShipsInBorders / (us.MilitaryScore * multiplier);
+                float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength 
+                                             : us.CurrentMilitaryStrength * 2 ; // We are less concerned if we have NAP with them
+
+                float borderAnger = (100f - Trust) / 100f * strShipsInBorders / ourStr.LowerBound(1);
                 AddAngerShipsInOurBorders(borderAnger);
             }
         }
@@ -738,8 +740,8 @@ namespace Ship_Game.Gameplay
 
         void UpdateThreat(Empire us, Empire them)
         {
-            float ourMilScore   = 2300f + us.MilitaryScore; // The 2300 is to reduce fluctuations for small numbers
-            float theirMilScore = 2300f + them.MilitaryScore;
+            float ourMilScore   = 2.3f + us.MilitaryScore; // The 2.3 is to reduce fluctuations for small numbers
+            float theirMilScore = 2.3f + them.MilitaryScore;
             Threat              = (theirMilScore - ourMilScore) / ourMilScore * 100; // This will give a threat of -100 to 100
 
         }
@@ -1185,7 +1187,7 @@ namespace Ship_Game.Gameplay
                 return;
 
             int territorialism = us.data.DiplomaticPersonality.Territorialism;
-            if (them.CurrentMilitaryStrength < us.CurrentMilitaryStrength * (1f - territorialism * 0.01f) && !Treaty_Peace)
+            if (them.OffensiveStrength < us.OffensiveStrength * (1f - territorialism * 0.01f) && !Treaty_Peace)
                 us.GetEmpireAI().DeclareWarOn(them, WarType.ImperialistWar);
         }
 
