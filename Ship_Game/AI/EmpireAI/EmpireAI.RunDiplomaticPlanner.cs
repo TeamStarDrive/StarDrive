@@ -158,7 +158,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackClosest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.OffensiveStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
@@ -182,7 +182,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackXenophobic(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
@@ -199,7 +199,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackWeakest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
                 Empire weakest       = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(weakest);
