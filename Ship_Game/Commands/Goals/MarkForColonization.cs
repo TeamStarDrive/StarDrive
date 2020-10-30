@@ -98,7 +98,7 @@ namespace Ship_Game.Commands.Goals
                 if (!PositiveEnemyPresence(out float enemyStr) || task.Fleet?.TaskStep == 7)
                     return GoalStep.GoToNextStep;
 
-                if (enemyStr > empire.CurrentMilitaryStrength)
+                if (enemyStr > empire.OffensiveStrength)
                 {
                     task.Fleet?.FleetTask.EndTask();
                     task.EndTask();
