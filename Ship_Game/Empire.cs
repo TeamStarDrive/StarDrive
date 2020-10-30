@@ -2548,7 +2548,9 @@ namespace Ship_Game
             if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
 
-            CalculateScore();
+            if ((Universe.StarDate % 1).AlmostZero())
+                CalculateScore();
+
             UpdateRelationships();
 
             if (Money > data.CounterIntelligenceBudget)
