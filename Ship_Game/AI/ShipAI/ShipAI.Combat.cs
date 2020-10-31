@@ -350,47 +350,49 @@ namespace Ship_Game.AI
                     continue;
                 }
 
+
+                // Initially we are setting up the ships own targeting pref. After that we setup fleet rules for targeting. 
+                // the way i am planing to do this is very ratios. 
+                // adding up these ratios and using that as a weight. 
+                // one step further would be to normalize the weights by averaging the ratios. 
+
+
                 // standard ship targeting:
-                // within max weapons range
-                // within desired range
-                // pirate scavenging
-                // Size desire / hit chance
-                // speed / turnrate difference
-                // damaged by
-                // 
+                // this should cover individual targeting needs. 
 
-                CombatAI.ShipCommandTargeting(copyWeight, targetPrefs);
+                copyWeight = CombatAI.ShipCommandTargeting(copyWeight, targetPrefs);
 
-                if (copyWeight.Ship.Weapons.Count == 0)
-                    copyWeight += CombatAI.PirateWeight;
-
-                copyWeight += CombatAI.SizeAttackWeight(copyWeight.Ship, targetPrefs);
-
-                if (Owner.fleet == null || FleetNode == null)
-                {
-                    copyWeight += CombatAI.ApplyWeight(copyWeight.Ship, targetPrefs);
-                }
-                else
-                {
-                    Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-
-                    float orderRatio = fleetPos.Distance(copyWeight.Ship.Center) / FleetNode.OrdersRadius;
-                    // if outside ordersRatio drop a heavy weight. 
-                    orderRatio = orderRatio > 1 ? orderRatio : 1;
-
-                    // 1- ordersRatio makes closer targets better.
-                    copyWeight += (1 - orderRatio);
-                    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.GetDPS(), targetPrefs.DPS, FleetNode.DPSWeight);
-                    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.shield_power, targetPrefs.Shield, FleetNode.AttackShieldedWeight);
-                    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.armor_max, targetPrefs.Armor, FleetNode.ArmoredWeight);
-                    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.SurfaceArea, targetPrefs.Size, FleetNode.SizeWeight);
-                    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.HealthPercent, targetPrefs.Health, FleetNode.VultureWeight);
-                    copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship);
-                    copyWeight.SetWeight(copyWeight.Weight / 9);
-                    
-                }
-                //ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
                 ScannedNearby[i] = copyWeight;
+                //if (copyWeight.Ship.Weapons.Count == 0)
+                //    copyWeight += CombatAI.PirateWeight;
+
+                //copyWeight += CombatAI.SizeAttackWeight(copyWeight.Ship, targetPrefs);
+
+                //if (Owner.fleet == null || FleetNode == null)
+                //{
+                //    copyWeight += CombatAI.ApplyWeight(copyWeight.Ship, targetPrefs);
+                //}
+                //else
+                //{
+                //    Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+
+                //    float orderRatio = fleetPos.Distance(copyWeight.Ship.Center) / FleetNode.OrdersRadius;
+                //    // if outside ordersRatio drop a heavy weight. 
+                //    orderRatio = orderRatio > 1 ? orderRatio : 1;
+
+                //    // 1- ordersRatio makes closer targets better.
+                //    copyWeight += (1 - orderRatio);
+                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.GetDPS(), targetPrefs.DPS, FleetNode.DPSWeight);
+                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.shield_power, targetPrefs.Shield, FleetNode.AttackShieldedWeight);
+                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.armor_max, targetPrefs.Armor, FleetNode.ArmoredWeight);
+                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.SurfaceArea, targetPrefs.Size, FleetNode.SizeWeight);
+                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.HealthPercent, targetPrefs.Health, FleetNode.VultureWeight);
+                //    copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship);
+                //    copyWeight.SetWeight(copyWeight.Weight / 9);
+
+                //}
+                ////ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
+                //ScannedNearby[i] = copyWeight;
             }
         }
         
