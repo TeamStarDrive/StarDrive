@@ -83,7 +83,7 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
-        public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip)
+        public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, float minStrength)
         {
             var militaryTask = new MilitaryTask
             {
@@ -93,7 +93,7 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = 20000,
                 EnemyStrength            = targetShip.BaseStrength,
                 TargetShipGuid           = targetShip.guid,
-                MinimumTaskForceStrength = 100
+                MinimumTaskForceStrength = minStrength
             };
             return militaryTask;
         }
@@ -106,8 +106,7 @@ namespace Ship_Game.AI.Tasks
                 AO                       = targetPlanet.Center,
                 type                     = TaskType.GlassPlanet,
                 AORadius                 = targetPlanet.GravityWellRadius,
-                EnemyStrength            = minStrength,
-                MinimumTaskForceStrength = 100
+                MinimumTaskForceStrength = minStrength
             };
             return militaryTask;
         }
@@ -153,6 +152,7 @@ namespace Ship_Game.AI.Tasks
             AO                       = center;
             AORadius                 = radius;
             type                     = taskType;
+            MinimumTaskForceStrength = strengthWanted;
             EnemyStrength            = strengthWanted;
             TargetSystem             = system;
         }
@@ -162,7 +162,7 @@ namespace Ship_Game.AI.Tasks
             var threatMatrix = owner.GetEmpireAI().ThreatMatrix;
             float radius     = 3500f;
             float strWanted  = threatMatrix.PingRadarStr(target.Center, radius, owner);
-            strWanted       += target.TotalGeodeticOffense;
+            strWanted       += target.BuildingGeodeticCount;
 
             type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
@@ -170,8 +170,7 @@ namespace Ship_Game.AI.Tasks
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
-            EnemyStrength            = strWanted;
-            MinimumTaskForceStrength = 100;
+            MinimumTaskForceStrength = strWanted * owner.DifficultyModifiers.TaskForceStrength;
         }
 
         public MilitaryTask(Empire owner)
@@ -415,7 +414,6 @@ namespace Ship_Game.AI.Tasks
                         if (Step == 0)
                         {
                             RequisitionAssaultForces();
-
                             if (Step == 0) Step = -1;
                         }
                         else
