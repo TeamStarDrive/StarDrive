@@ -822,7 +822,7 @@ namespace Ship_Game.Debug
                                         + "/" + e.GetTotalPopPotential().String(1));
 
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
-                DrawString("Military Str: "+ (int)e.MilitaryScore);
+                DrawString("Military Str: "+ (int)e.CurrentMilitaryStrength);
                 DrawString($"Fleets: Str: {(int)e.Pool.InitialStrength} Avail: {e.Pool.InitialReadyFleets}");
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
                 {

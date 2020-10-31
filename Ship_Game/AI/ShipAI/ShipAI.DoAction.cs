@@ -513,7 +513,7 @@ namespace Ship_Game.AI
                 Owner.QueueTotalRemoval();
                 foreach (ShipModule hangar in Owner.Mothership.Carrier.AllActiveHangars)
                 {
-                    if (hangar.GetHangarShip() != Owner)
+                    if (hangar.TryGetHangarShip(out Ship hangarShip) && hangarShip != Owner)
                         continue;
 
                     hangar.SetHangarShip(null);
