@@ -57,7 +57,8 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateTask()
         {
-            var task      = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip);
+            float minStr = TargetShip.GetStrength() * empire.DifficultyModifiers.TaskForceStrength;
+            var task     = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip, minStr);
             empire.GetEmpireAI().AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
