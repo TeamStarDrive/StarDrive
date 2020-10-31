@@ -931,11 +931,16 @@ namespace Ship_Game
                 Ship ship = ships[i];
                 if (ship == null || ship.fleet != null)
                     continue;
+
                 if (ship.AI.State == AIState.Resupply
+                    || ship.AI.State == AIState.ResupplyEscort
                     || ship.AI.State == AIState.Refit
                     || ship.AI.State == AIState.Scrap
                     || ship.AI.State == AIState.Scuttle)
+                {
                     continue;
+                }
+
                 readyShips.Add(ship);
             }
 
@@ -947,7 +952,7 @@ namespace Ship_Game
             if (ClaimFleetStrMultiplier.ContainsKey(planet.guid))
                 ClaimFleetStrMultiplier[planet.guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
             else
-                ClaimFleetStrMultiplier.Add(planet.guid, 2);
+                ClaimFleetStrMultiplier.Add(planet.guid, 1);
 
             updatedMultiplier = ClaimFleetStrMultiplier[planet.guid];
         }

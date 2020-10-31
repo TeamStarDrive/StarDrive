@@ -378,6 +378,7 @@ namespace Ship_Game.Debug
                     DrawString("Ready For Warp: " + fleet.ReadyForWarp);
                     DrawString("In Formation Warp: " + fleet.InFormationWarp);
                     DrawString("Ships: " + fleet.Ships.Count);
+                    DrawString("Strength: " + fleet.GetStrength());
                 }
                 else
                 {
