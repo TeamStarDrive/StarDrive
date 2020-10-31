@@ -764,8 +764,9 @@ namespace Ship_Game.Debug
                 if (fleet.FleetTask == null)
                     continue;
 
-                DrawString($"Target Planet: {fleet.FleetTask.TargetPlanet.Name}, Ships: {fleet.Ships.Count}" +
-                               $", str: {fleet.GetStrength().String()}, Task Step: {fleet.TaskStep}");
+                Color color = fleet.FleetTask.TargetPlanet.Owner?.EmpireColor ?? e.EmpireColor;
+                DrawString(color,$"Target Planet: {fleet.FleetTask.TargetPlanet.Name}, Ships: {fleet.Ships.Count}" +
+                                  $", str: {fleet.GetStrength().String()}, Task Step: {fleet.TaskStep}");
             }
         }
 
