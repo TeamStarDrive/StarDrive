@@ -129,7 +129,6 @@ namespace Ship_Game
         public SystemInfoUIElement sInfoUI;
         public ShipListInfoUIElement shipListInfoUI;
         public VariableUIElement vuiElement;
-        float ArmageddonTimer;
         public Empire player;
         MiniMap minimap;
         bool loading;
@@ -143,7 +142,6 @@ namespace Ship_Game
         bool ShowingSysTooltip;
         bool ShowingPlanetToolTip;
         float MusicCheckTimer;
-        int ArmageddonCounter;
         public Ship ShipToView;
         public float AdjustCamTimer;
         public AutomationWindow aw;
@@ -456,9 +454,10 @@ namespace Ship_Game
 
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
+                /*
                 SpawnRemnantsInSolarSystem(solarSystem);
                 foreach (Planet p in solarSystem.PlanetList)
-                {
+                {   
                     if (p.Owner != null)
                     {
                         foreach (string key in p.Guardians)
@@ -479,19 +478,7 @@ namespace Ship_Game
                                 Ship.CreateShipAt(ship, empire, p, true);
                         }
                     }
-                    else
-                    {
-                        // Remnants may be null if Mods disable default Races
-                        if (EmpireManager.Remnants != null)
-                        {
-                            foreach (string key in p.Guardians)
-                            {
-                                Ship guardian = Ship.CreateShipAt(key, EmpireManager.Remnants, p, RandomMath.Vector2D(p.ObjectRadius * 2), true);
-                                guardian.IsGuardian = true;
-                            }
-                        }
-                    }
-                }
+                }*/
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
                 {
                     if (anomaly.type == "DP")

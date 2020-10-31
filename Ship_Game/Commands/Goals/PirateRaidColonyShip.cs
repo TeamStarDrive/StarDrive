@@ -9,7 +9,7 @@ namespace Ship_Game.Commands.Goals
         public override string UID => ID;
         private Pirates Pirates;
 
-        public PirateRaidColonyShip() : base(GoalType.PirateRaidColonyShip)
+        public PirateRaidColonyShip() : base(GoalType.PirateRaidTransport)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -21,7 +21,7 @@ namespace Ship_Game.Commands.Goals
 
         public PirateRaidColonyShip(Empire owner, Empire targetEmpire) : this()
         {
-            empire = owner;
+            empire       = owner;
             TargetEmpire = targetEmpire;
 
             PostInit();

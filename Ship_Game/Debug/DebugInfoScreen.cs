@@ -33,6 +33,7 @@ namespace Ship_Game.Debug
         Solar, // Sun timers, black hole data, pulsar radiation radius...
         RelationsWar,
         Pirates,
+        Remnants,
         Last // dummy value
     }
 
@@ -64,11 +65,19 @@ namespace Ship_Game.Debug
         public static DebugModes Mode { get; private set; }
         readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
         DebugPage Page;
+        readonly FloatSlider SpeedLimitSlider;
+        readonly FloatSlider DebugPlatformSpeed;
         bool CanDebugPlatformFire;
 
         public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
         {
             Screen = screen;
+            if (screen is DeveloperSandbox.DeveloperUniverse)
+            {
+                SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
+                DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
+                Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", 0);
+            }
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -162,11 +171,34 @@ namespace Ship_Game.Debug
                     case DebugModes.Planets: Page = Add(new PlanetDebug(Screen,this)); break;
                     case DebugModes.Solar:   Page = Add(new SolarDebug(Screen, this)); break;
                     case DebugModes.RelationsWar: Page = Add(new DebugWar(Screen, this)); break;
-                    case DebugModes.SpatialManager: Page = Add(new SpatialDebug(Screen, this)); break;
                 }
             }
 
+            UpdateDebugShips();
             base.Update(fixedDeltaTime);
+        }
+
+        void UpdateDebugShips()
+        {
+            if (DebugPlatformSpeed == null) // platform is only enabled in sandbox universe
+                return;
+            float platformSpeed = DebugPlatformSpeed.AbsoluteValue;
+            float speedLimiter = SpeedLimitSlider.RelativeValue;
+
+            if (Screen.SelectedShip != null)
+            {
+                Ship ship = Screen.SelectedShip;
+                ship.SetSpeedLimit(speedLimiter * ship.VelocityMaximum);
+            }
+
+            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
+            {
+                platform.CanFire = CanDebugPlatformFire;
+                if (platformSpeed.NotZero())
+                {
+                    platform.Velocity.X = platformSpeed;
+                }
+            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -199,13 +231,14 @@ namespace Ship_Game.Debug
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
                 {
-                    case DebugModes.Normal        : EmpireInfo();       break;
-                    case DebugModes.DefenseCo     : DefcoInfo();        break;
-                    case DebugModes.ThreatMatrix  : ThreatMatrixInfo(); break;
-                    case DebugModes.Targeting     : Targeting();        break;
-                    case DebugModes.input         : InputDebug();       break;
-                    case DebugModes.Tech          : Tech();             break;
-                    case DebugModes.Pirates       : Pirates();          break;
+                    case DebugModes.Normal:       EmpireInfo();       break;
+                    case DebugModes.DefenseCo:    DefcoInfo();        break;
+                    case DebugModes.ThreatMatrix: ThreatMatrixInfo(); break;
+                    case DebugModes.Targeting:    Targeting();        break;
+                    case DebugModes.input:        InputDebug();       break;
+                    case DebugModes.Tech:         Tech();             break;
+                    case DebugModes.Pirates:      Pirates();          break;
+                    case DebugModes.Remnants:     RemnantInfo();      break;
                 }
                 base.Draw(batch, elapsed);
                 ShipInfo();
@@ -316,7 +349,7 @@ namespace Ship_Game.Debug
                 Screen.ProjectToScreenCoords(m.Center, size, 
                                       out Vector2 posOnScreen, out float sizeOnScreen);
                 ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch,
-                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f);
+                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f, ship.TrackingPower);
 
                 DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
 
@@ -486,6 +519,28 @@ namespace Ship_Game.Debug
                 DrawString($"SelectedShips: {ships.Count} ");
                 DrawString($"Total Str: {ships.Sum(s => s.BaseStrength).String(1)} ");
             }
+            VisualizePredictionDebugger();
+        }
+
+        IEnumerable<PredictionDebugPlatform> GetPredictionDebugPlatforms()
+        {
+            Array<Ship> ships = Screen.GetMasterShipList();
+            for (int i = 0; i < ships.Count; ++i)
+                if (ships[i] is PredictionDebugPlatform platform)
+                    yield return platform;
+        }
+
+        void VisualizePredictionDebugger()
+        {
+            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
+            {
+                DrawString($"Platform Accuracy: {(int)(platform.AccuracyPercent*100)}%");
+                foreach (PredictedLine line in platform.Predictions)
+                {
+                    DrawLineImm(line.Start, line.End, Color.YellowGreen);
+                    //DrawCircleImm(line.End, 75f, Color.Red);
+                }
+            }
         }
 
         void VisualizeShipGoal(Ship ship, bool detailed = true)
@@ -586,9 +641,9 @@ namespace Ship_Game.Debug
                 {
                     if (g.type == GoalType.PirateDirectorRaid)
                     {
-                        Empire target     = g.TargetEmpire;
+                        Empire target = g.TargetEmpire;
                         string targetName = target.Name;
-                        int threatLevel   = e.Pirates.ThreatLevelFor(g.TargetEmpire);
+                        int threatLevel = e.Pirates.ThreatLevelFor(g.TargetEmpire);
                         DrawString(target.EmpireColor, $"Raid Director For: {targetName}, Threat Level: {threatLevel}");
                     }
                 }
@@ -600,10 +655,10 @@ namespace Ship_Game.Debug
                 {
                     if (g.IsRaid)
                     {
-                        Empire target     = g.TargetEmpire;
+                        Empire target = g.TargetEmpire;
                         string targetName = target.Name;
-                        Ship targetShip   = g.TargetShip;
-                        string shipName   = targetShip?.Name ?? "None";
+                        Ship targetShip = g.TargetShip;
+                        string shipName = targetShip?.Name ?? "None";
                         DrawString(target.EmpireColor, $"{g.type} vs. {targetName}, Target Ship: {shipName} in {targetShip?.SystemName ?? "None"}");
                     }
                 }
@@ -637,6 +692,81 @@ namespace Ship_Game.Debug
                     DrawString(shipName);
 
                 column += 3;
+            }
+        }
+
+        void RemnantInfo()
+        {
+            Empire e = EmpireManager.Remnants;
+            SetTextCursor(Win.X + 10 + 255, Win.Y + 150, e.EmpireColor);
+            DrawString($"Remnant Story: {e.Remnants.Story}");
+            DrawString(!e.Remnants.Activated
+                ? $"Trigger Progress: {e.Remnants.StoryTriggerKillsXp}/{e.Remnants.ActivationXpNeeded.String()}"
+                : $"Level Up Stardate: {e.Remnants.NextLevelUpDate}");
+
+            DrawString(!e.Remnants.Hibernating
+                ? $"Next Hibernation in: {e.Remnants.NextLevelUpDate - e.Remnants.NeededHibernationTurns / 10f}"
+                : $"Hibernating for: {e.Remnants.HibernationTurns} turns");
+
+            string activatedString = e.Remnants.Activated ? "Yes" : "No";
+            activatedString = e.data.Defeated ? "Defeated" : activatedString;
+            DrawString($"Activated: {activatedString}");
+            DrawString($"Level: {e.Remnants.Level}");
+
+
+
+            DrawString($"Resources: {e.Remnants.Production.String()}");
+            NewLine();
+            DrawString("Empires Score and Strength:");
+            for (int i = 0; i < EmpireManager.MajorEmpires.Length; i++)
+            {
+                Empire empire = EmpireManager.MajorEmpires[i];
+                DrawString(empire.EmpireColor, $"{empire.data.Name} - Score: {empire.TotalScore}, Strength: {empire.CurrentMilitaryStrength}");
+            }
+
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires
+                                                                      : EmpireManager.MajorEmpires;
+            NewLine();
+            float averageScore = (float)empiresList.Average(empire => empire.TotalScore);
+            float averageStr = empiresList.Average(empire => empire.CurrentMilitaryStrength);
+            DrawString($"AI Empire Average Score:     {averageScore.String(0)}");
+            DrawString($"AI Empire Average Strength: {averageStr.String(0)}");
+
+            NewLine();
+            Empire bestScore = empiresList.FindMax(empire => empire.TotalScore);
+            Empire bestStr = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
+
+            float diffFromAverageScore = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
+            float diffFromAverageStr = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+
+            DrawString(bestScore.EmpireColor, $"Highest Score Empire: {bestScore.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
+            DrawString(bestStr.EmpireColor, $"Highest Str Empire:     {bestStr.data.Name} ({(diffFromAverageStr - 100).String(1)}% above average)");
+
+            NewLine();
+            DrawString("Goals:");
+            foreach (Goal goal in e.GetEmpireAI().Goals)
+            {
+                if (goal.type != GoalType.RemnantBalancersEngage)
+                {
+                    DrawString($"{goal.type}");
+                }
+                else
+                {
+                    Color color = goal.ColonizationTarget?.Owner?.EmpireColor ?? e.EmpireColor;
+                    DrawString(color, $"{goal.type}, Target Planet: {goal.ColonizationTarget?.Name}, Bombers Wanted: {goal.ShipLevel}");
+                }
+            }
+
+            NewLine();
+            DrawString("Fleets:");
+            foreach (Fleet fleet in e.GetFleetsDict().Values)
+            {
+                if (fleet.FleetTask == null)
+                    continue;
+
+                Color color = fleet.FleetTask.TargetPlanet.Owner?.EmpireColor ?? e.EmpireColor;
+                DrawString(color,$"Target Planet: {fleet.FleetTask.TargetPlanet.Name}, Ships: {fleet.Ships.Count}" +
+                                  $", str: {fleet.GetStrength().String()}, Task Step: {fleet.TaskStep}");
             }
         }
 
@@ -812,6 +942,16 @@ namespace Ship_Game.Debug
                         increaser + pin.Ship.Radius, 3, e.EmpireColor);
                 }
             }
+        }
+
+        void SpatialManagement()
+        {
+            SetTextCursor(50f, 150f, Color.White);
+            SpatialManager manager = UniverseScreen.Spatial;
+            DrawString($"Spatial.Type: {manager.Name}");
+            DrawString($"Spatial.Collisions: {manager.Collisions}");
+            DrawString($"Spatial.ActiveObjects: {manager.Count}");
+            manager.DebugVisualize(Screen);
         }
 
         void InputDebug()

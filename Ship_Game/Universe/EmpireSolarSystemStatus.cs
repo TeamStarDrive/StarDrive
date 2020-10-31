@@ -41,7 +41,6 @@ namespace Ship_Game.Universe
                 if (ship == null || ship.loyalty == Owner)
                     continue; // Todo: the null check should be removed once ShipList is safe
 
-
                 if (ship.loyalty.isFaction || Owner.IsEmpireAttackable(ship.loyalty, ship))
                 {
                     HostileForcesPresent = true;
