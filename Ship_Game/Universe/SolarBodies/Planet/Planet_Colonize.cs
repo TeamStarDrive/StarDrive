@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -14,6 +9,7 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             Owner = colonyShip.loyalty;
+            Owner.RemoveClaimTargetStrMultiplier(this);
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
             Owner.AddPlanet(this);
