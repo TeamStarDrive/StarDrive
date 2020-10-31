@@ -216,16 +216,22 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             int requiredTroopStrength = 0;
+            float minStrength = MinimumTaskForceStrength;
             if (TargetPlanet != null)
             {
-                AO = TargetPlanet.Center;
+                AO                    = TargetPlanet.Center;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
+                minStrength           = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center,
+                                         TargetPlanet.ParentSystem.Radius, Owner, true).LowerBound(100);
+
+                minStrength *= Owner.DifficultyModifiers.TaskForceStrength * Owner.GetClaimTargetStrMultiplier(TargetPlanet.guid);
             }
 
             if (requiredTroopStrength > 0) // If we need troops, we must have a minimum
                 requiredTroopStrength = requiredTroopStrength.LowerBound(40);
 
-            InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: requiredTroopStrength, minBombMinutes: 0);
+
+            InitFleetRequirements(minFleetStrength: minStrength, minTroopStrength: requiredTroopStrength, minBombMinutes: 0);
             float battleFleetSize = 0.5f;// + Owner.DifficultyModifiers.FleetCompletenessMin;
 
             if (CreateTaskFleet("Scout Fleet", battleFleetSize, true) == RequisitionStatus.Complete)

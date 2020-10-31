@@ -704,7 +704,9 @@ namespace Ship_Game.Debug
 
                     NewLine();
                     string held = g.Held ? "(Held" : "";
-                    DrawString($"{held}{g.UID} {g.ColonizationTarget.Name}");
+                    DrawString($"{held}{g.UID} {g.ColonizationTarget.Name}" +
+                               $" (x {e.GetClaimTargetStrMultiplier(g.ColonizationTarget.guid).String(1)})");
+
                     DrawString(15f, $"Step: {g.StepName}");
                     if (g.FinishedShip != null && g.FinishedShip.Active)
                         DrawString(15f, "Has ship");
