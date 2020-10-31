@@ -1,0 +1,12 @@
+﻿<ExplorationEvent>
+  <Name>Remnant History</Name>
+  <StoryStep>5</StoryStep>
+  <Story>AncientRaidersRandom</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Remnant History - Ancient Keepers</TitleText>
+      <DescriptionText>We now know a significant part of the Remnant history. The Remnant was a peaceful race which lived Eons ago. They are now long gone. They were the only race in their galaxy. Therefore they created a robotic system which was designed to probe promising worlds, seek new sentient life and help them advanced. It seems that their program malfunctioned and the probes are now attacking random empires within our sector. It is unclear how the Remnant acquired the knowledge of inter-galactic travel, but their portals are capable of doing so, using vast amount of radiation, absorbed from nearby radiating stars. We think the only way to cut the reinforcements is to utterly destroy this portal. We also believe the portal can harness more and more energy as time passes by, so it is important we remove it sooner than later.</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

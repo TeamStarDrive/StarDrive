@@ -70,15 +70,13 @@ namespace Ship_Game
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/MyMod/MyMod.xml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         public static string ResearchRootUIDToDisplay = "Colonization";
-        public static int RemnantKills;
-        public static int RemnantActivation;
-        public static bool RemnantArmageddon          = false;
         public static int CordrazinePlanetsCaptured;
 
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;
         public static int ExtraPlanets;
         public static bool DisablePirates;
+        public static bool DisableRemnantStory;
         public static float ShipMaintenanceMulti = 1;
         public static float MinimumWarpRange;
 
@@ -435,31 +433,6 @@ namespace Ship_Game
             if (CordrazinePlanetsCaptured == 1)
             {
                 Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
-            }
-        }
-
-        // @todo Why is this here??
-        public static void IncrementRemnantKills(int exp, Empire empire)
-        {
-            RemnantKills = RemnantKills + exp;
-            float expTrigger = ShipRole.GetMaxExpValue();
-            if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
-            {
-                if (RemnantKills >= (expTrigger + empire.DifficultyModifiers.RemnantStory) &&
-                    RemnantActivation < ActiveModInfo.RemnantTechCount)
-                {
-                    RemnantActivation += 1;
-                    Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
-                    RemnantKills = 0;
-                }
-            }
-            else
-            {
-                if (RemnantKills >= expTrigger && RemnantActivation == 0)    //Edited by Gretman, to make sure the remnant event only appears once
-                {
-                    Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["RemnantTech1"]);
-                    RemnantActivation = 1;
-                }
             }
         }
     }

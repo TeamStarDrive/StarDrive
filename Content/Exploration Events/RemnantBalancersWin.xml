@@ -1,0 +1,12 @@
+﻿<ExplorationEvent>
+  <Name>Remnant Fury</Name>
+  <TriggerWhenOnlyRemnantsLeft>true</TriggerWhenOnlyRemnantsLeft>
+  <Story>AncientBalancers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Remnant Fury!</TitleText>
+      <DescriptionText>Since we came to the conclusion that the Remnants see themselves as Balancers of the galaxy, we have every reason to believe they are not pleased by the fact we are the only race left in this sector. Moreover, recent analysis of Remnant radiation patterns indicates a massive increase in their activity. It seems we will need to destroy all their portals to finally rule this sector.</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>
