@@ -81,7 +81,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (PositiveEnemyPresence(out float spaceStrength) && !empire.isPlayer)
             {
-                empire.UpdateClaimTargetsStrMultiplier(ColonizationTarget, out float strMultiplier);
+                empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, out float strMultiplier);
                 spaceStrength *= strMultiplier;
                 var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(100));
                 empire.GetEmpireAI().AddPendingTask(task);
