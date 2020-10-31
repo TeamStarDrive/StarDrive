@@ -350,6 +350,17 @@ namespace Ship_Game.AI
                     continue;
                 }
 
+                // standard ship targeting:
+                // within max weapons range
+                // within desired range
+                // pirate scavenging
+                // Size desire / hit chance
+                // speed / turnrate difference
+                // damaged by
+                // 
+
+                CombatAI.ShipCommandTargeting(copyWeight, targetPrefs);
+
                 if (copyWeight.Ship.Weapons.Count == 0)
                     copyWeight += CombatAI.PirateWeight;
 
