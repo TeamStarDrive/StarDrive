@@ -199,8 +199,8 @@ namespace Ship_Game
             float multiplier         = victim.DifficultyModifiers.PiratePayModifier;
             float minimumPayment     = Level * 100 * multiplier;
             float victimNetPotential = (victim.PotentialIncome - victim.AllSpending).LowerBound(0) * multiplier;
-            float payment            = (victim.Money + victimNetPotential*PaymentPeriodTurns) * basePercentage/100;
-            payment                 *= (Level / 3f).LowerBound(1);
+            float payment            = (victimNetPotential*PaymentPeriodTurns) * basePercentage/100;
+            payment                 *= (Level / 2).LowerBound(1);
 
             return (payment * multiplier).LowerBound(minimumPayment).RoundTo10();
         }
@@ -839,7 +839,7 @@ namespace Ship_Game
             return shipName.NotEmpty() && pirateShip != null;
         }
 
-        public void SalvageShip(Ship ship, Ship pirateBase)
+        void SalvageShip(Ship ship, Ship pirateBase)
         {
             if (ship.IsFreighter || ship.isColonyShip)
                 SalvageFreighter(ship);
@@ -862,6 +862,7 @@ namespace Ship_Game
                     ShipsWeCanSpawn.AddUnique(ship.Name);
 
                 ship.QueueTotalRemoval();
+                TryLevelUp();
             }
             else
             {
@@ -871,7 +872,6 @@ namespace Ship_Game
                     || ship.AI.State != AIState.Resupply)
                 {
                     ship.AI.AddEscortGoal(pirateBase);
-                    TryLevelUp();
                 }
             }
         }
