@@ -967,6 +967,11 @@ namespace Ship_Game
             ClaimFleetStrMultiplier = claims;
         }
 
+        public float GetClaimTargetStrMultiplier(Guid guid)
+        {
+            return ClaimFleetStrMultiplier.ContainsKey(guid) ? ClaimFleetStrMultiplier[guid] : 1;
+        }
+
         public FleetShips AllFleetsReady()
         {
             var ships = AllFleetReadyShips();
