@@ -1378,7 +1378,12 @@
 	<ToolTip>
 	  <TIP_ID>274</TIP_ID>
 	  <Title>Accuracy</Title>
-	  <Data>1824</Data>
+	  <Data>4114</Data>
+	</ToolTip>
+	<ToolTip>
+	  <TIP_ID>275</TIP_ID>
+	  <Title>TargetTracking</Title>
+	  <Data>5088</Data>
 	</ToolTip>
   </ToolTipsList>
 </Tooltips>
