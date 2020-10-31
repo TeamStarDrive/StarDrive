@@ -341,8 +341,6 @@ namespace Ship_Game.AI.Tasks
 
             MinimumTaskForceStrength = EnemyStrength + buildingsSpaceOffense;
             MinimumTaskForceStrength *= Owner.GetTargetsStrMultiplier(targetGuid);
-            if (MinimumTaskForceStrength < 0)
-                Log.Info("lala");
         }
 
         /// <summary>
