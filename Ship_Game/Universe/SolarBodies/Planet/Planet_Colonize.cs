@@ -9,7 +9,7 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             Owner = colonyShip.loyalty;
-            RemoveClaimStrNeededMultiplier();
+            RemovePlanetStrNeededMultiplier();
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
             Owner.AddPlanet(this);
@@ -25,10 +25,10 @@ namespace Ship_Game
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
         }
 
-        void RemoveClaimStrNeededMultiplier()
+        void RemovePlanetStrNeededMultiplier()
         {
             foreach (Empire e in EmpireManager.MajorEmpires)
-                e.RemoveClaimTargetStrMultiplier(this);
+                e.RemoveTargetsStrMultiplier(guid);
         }
 
         void SetupColonyType()

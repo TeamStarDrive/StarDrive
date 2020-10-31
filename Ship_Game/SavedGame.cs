@@ -161,7 +161,7 @@ namespace Ship_Game
                 empireToSave.WeightedCenter           = e.WeightedCenter;
                 empireToSave.RushAllConstruction      = e.RushAllConstruction;
 
-                empireToSave.ClaimTargetsStrMultiplier = e.ClaimFleetStrMultiplier;
+                empireToSave.TargetsStrMultiplier = e.TargetsFleetStrMultiplier;
 
                 if (e.WeArePirates)
                 {
@@ -579,7 +579,7 @@ namespace Ship_Game
             [Serialize(29)] public int AverageFreighterFTLSpeed;
             [Serialize(30)] public Vector2 WeightedCenter;
             [Serialize(31)] public bool RushAllConstruction;
-            [Serialize(32)] public Map<Guid,float> ClaimTargetsStrMultiplier;
+            [Serialize(32)] public Map<Guid,float> TargetsStrMultiplier;
         }
 
         public class FleetSave
