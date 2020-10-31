@@ -59,7 +59,10 @@ namespace Ship_Game
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
 
-                e.RushAllConsturction = sdata.RushAllConstruction;
+                if (sdata.TargetsStrMultiplier != null)
+                    e.RestoreTargetsStrMultiplier(sdata.TargetsStrMultiplier);
+
+                e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
             }
 

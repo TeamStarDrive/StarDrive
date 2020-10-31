@@ -8,12 +8,10 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Empires;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
-using System.Threading;
 
 namespace Ship_Game
 {
@@ -184,6 +182,7 @@ namespace Ship_Game
         public bool CanBuildStations;
         public bool CanBuildShipyards;
         public float CurrentMilitaryStrength;
+        public float OffensiveStrength; // No Orbitals
         public ShipPool Pool;
         public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
@@ -196,7 +195,8 @@ namespace Ship_Game
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
-        public bool RushAllConsturction;
+        public bool RushAllConstruction;
+        public Map<Guid, float> TargetsFleetStrMultiplier { get; private set; } = new Map<Guid, float>();
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -225,9 +225,9 @@ namespace Ship_Game
         public bool IsMilitarists             => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists           => data.EconomicPersonality?.Name == "Technologists";
 
-        public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -611,11 +611,15 @@ namespace Ship_Game
 
 
         /// <summary>
-        /// Returns the preferred Environment Modifier of a given empire.
+        /// Returns the preferred Environment Modifier of a given empire.This is null Safe.
         /// </summary>
         public static float PreferredEnvModifier(Empire empire)
             => empire == null ? 1 :  RacialEnvModifer(empire.data.PreferredEnv, empire);
 
+
+        /// <summary>
+        /// Returns the preferred Environment Modifier of a given empire. This is null Safe.
+        /// </summary>
         public static float RacialEnvModifer(PlanetCategory category, Empire empire)
         {
             float modifer = 1f; // If no Env tags were found, the multiplier is 1.
@@ -936,15 +940,45 @@ namespace Ship_Game
                 Ship ship = ships[i];
                 if (ship == null || ship.fleet != null)
                     continue;
+
                 if (ship.AI.State == AIState.Resupply
+                    || ship.AI.State == AIState.ResupplyEscort
                     || ship.AI.State == AIState.Refit
                     || ship.AI.State == AIState.Scrap
                     || ship.AI.State == AIState.Scuttle)
+                {
                     continue;
+                }
+
                 readyShips.Add(ship);
             }
 
             return readyShips.ToArray();
+        }
+
+        public void UpdateTargetsStrMultiplier(Guid guid, out float updatedMultiplier)
+        {
+            if (TargetsFleetStrMultiplier.ContainsKey(guid))
+                TargetsFleetStrMultiplier[guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
+            else
+                TargetsFleetStrMultiplier.Add(guid, DifficultyModifiers.TaskForceStrength);
+
+            updatedMultiplier = TargetsFleetStrMultiplier[guid];
+        }
+
+        public void RemoveTargetsStrMultiplier(Guid guid)
+        {
+            TargetsFleetStrMultiplier.Remove(guid);
+        }
+
+        public void RestoreTargetsStrMultiplier(Map<Guid,float> claims)
+        {
+            TargetsFleetStrMultiplier = claims;
+        }
+
+        public float GetTargetsStrMultiplier(Guid guid)
+        {
+            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
         }
 
         public FleetShips AllFleetsReady()
@@ -1579,14 +1613,18 @@ namespace Ship_Game
         {
             CurrentMilitaryStrength = 0;
             CurrentTroopStrength    = 0;
+            OffensiveStrength       = 0;
 
             for (int i = 0; i < OwnedShips.Count; ++i)
             {
                 Ship ship = OwnedShips[i];
                 if (ship != null)
                 {
-                    CurrentTroopStrength += ship.Carrier.MaxTroopStrengthInShipToCommit;
-                    CurrentMilitaryStrength += ship.GetStrength();
+                    float str                = ship.GetStrength();
+                    CurrentMilitaryStrength += str;
+                    CurrentTroopStrength    += ship.Carrier.MaxTroopStrengthInShipToCommit;
+                    if (!ship.IsPlatformOrStation)
+                        OffensiveStrength += str;
                 }
             }
 
@@ -2572,7 +2610,9 @@ namespace Ship_Game
             if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
 
-            CalculateScore();
+            if ((Universe.StarDate % 1).AlmostZero())
+                CalculateScore();
+
             UpdateRelationships();
 
             if (Money > data.CounterIntelligenceBudget)
@@ -2809,25 +2849,38 @@ namespace Ship_Game
 
         private void CalculateScore()
         {
-            TotalScore = 0;
-            TechScore = 0.0f;
-            IndustrialScore = 0.0f;
-            ExpansionScore = 0.0f;
-            foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
-            {
-                if (keyValuePair.Value.Unlocked)
-                    TechScore += ResourceManager.Tech(keyValuePair.Key).ActualCost / 100;
-            }
-            foreach (Planet planet in OwnedPlanets)
-            {
-                ExpansionScore += (float)(planet.FertilityFor(this) + (double)planet.MineralRichness + planet.PopulationBillion);
-                foreach (Building building in planet.BuildingList)
-                    IndustrialScore += building.ActualCost / 20f;
-            }
+            TotalScore      = 0;
+            TechScore       = 0;
+            IndustrialScore = 0;
+            ExpansionScore  = 0;
 
-
+            CalcTechScore();
+            CalcExpansionIndustrialScore();
             MilitaryScore = data.NormalizeMilitaryScore(CurrentMilitaryStrength); // Avoid fluctuations
-            TotalScore    = (int)(MilitaryScore/100 + IndustrialScore + TechScore + ExpansionScore);
+            TotalScore    = (int)(MilitaryScore + IndustrialScore + TechScore + ExpansionScore);
+
+            void CalcTechScore()
+            {
+                foreach (KeyValuePair<string, TechEntry> keyValuePair in TechnologyDict)
+                {
+                    if (keyValuePair.Value.Unlocked)
+                        TechScore += ResourceManager.Tech(keyValuePair.Key).Cost;
+                }
+
+                TechScore /= 100;
+            }
+
+            void CalcExpansionIndustrialScore()
+            {
+                for (int i = 0; i < OwnedPlanets.Count; i++)
+                {
+                    Planet planet    = OwnedPlanets[i];
+                    ExpansionScore  += planet.Fertility*10 + planet.MineralRichness*10 + planet.PopulationBillion;
+                    IndustrialScore += planet.BuildingList.Sum(b => b.ActualCost);
+                }
+
+                IndustrialScore /= 20;
+            }
         }
 
         private void AbsorbAllEnvPreferences(Empire target)
