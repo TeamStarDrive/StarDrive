@@ -4256,7 +4256,13 @@ namespace Ship_Game
         LowAccuracy = 2572,
         WeaponAccuracy = 2573,
         ImproveAccuracy = 2574,
-        WeaponTargetError = 4114
+        WeaponTargetError = 4114,
+
+        Tracking = 1457,
+        LowTracking = 1458,
+        TrackingTargets = 1459,
+        ImproveTracking = 1460,
+        OrbitalTracking =1461
 
     }
 }

@@ -173,7 +173,7 @@ namespace Ship_Game.Ships
         public bool isPowerArmour                => Flyweight.isPowerArmour;
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
-        public int FixedTracking                 => Flyweight.FixedTracking;
+        public int TargetingAccuracy             => Flyweight.TargetAccuracy;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
@@ -198,10 +198,9 @@ namespace Ship_Game.Ships
         public bool ShieldsAreActive => Active && ShieldPower > 1f;
 
         /// <summary>
-        /// This is a modifier for the base accuracy of a weapon. <see cref="Weapon.BaseTargetError(int)"/>
-        /// basically this multiplies the base error. error * (1-accuracy)
+        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
+        /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
         /// an accuracy percent of 1 removes all target error.
-        /// an accuracy pf 0.5f reduces the error by 50%
         /// the default of -1 means ignore this value
         /// </summary>
         public float AccuracyPercent = -1;
@@ -283,8 +282,16 @@ namespace Ship_Game.Ships
 
         public bool IsAmplified => ActualShieldPowerMax > shield_power_max * Bonuses.ShieldMod;
 
-        [Pure] public Ship GetHangarShip() => hangarShip;
-        [Pure] public Ship GetParent()     => Parent;
+        [Pure] public Ship GetParent() => Parent;
+
+        [Pure] public bool TryGetHangarShip(out Ship ship)
+        {
+            ship = hangarShip;
+            return hangarShip != null;
+        }
+
+        public bool IsHangarShipActive => TryGetHangarShip(out Ship ship) && ship.Active;
+        public bool TryGetHangarShipActive(out Ship ship) => TryGetHangarShip(out ship) && ship.Active;
 
         public override bool ParentIsThis(Ship ship) => Parent == ship;
 
@@ -908,13 +915,17 @@ namespace Ship_Game.Ships
         {
             if (IsTroopBay || IsSupplyBay || !Powered)
                 return;
+
             if (hangarShip != null && hangarShip.Active)
             {
                 if (hangarShip.AI.HasPriorityTarget
                     || hangarShip.AI.IgnoreCombat
                     || hangarShip.AI.Target != null
                     || (hangarShip.Center.InRadius(Parent.Center, Parent.SensorRange) && hangarShip.AI.State != AIState.ReturnToHangar))
+                {
                     return;
+                }
+
                 hangarShip.DoEscort(Parent);
                 return;
             }
@@ -929,12 +940,10 @@ namespace Ship_Game.Ships
                 }
 
                 hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * GetHangarShip().SpeedLimit;
-
+                hangarShip.Velocity   = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
                 hangarShip.Mothership = Parent;
-                HangarShipGuid = GetHangarShip().guid;
-
-                hangarTimer = hangarTimerConstant;
+                HangarShipGuid        = hangarShip.guid;
+                hangarTimer           = hangarTimerConstant;
                 Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
             }
         }
@@ -943,30 +952,13 @@ namespace Ship_Game.Ships
         {
             switch (ModuleType)
             {
-                case ShipModuleType.Turret:
-                    InstallWeapon();
-                    InstalledWeapon.isTurret = true;
-                    break;
-                case ShipModuleType.MainGun:
-                    InstallWeapon();
-                    InstalledWeapon.isMainGun = true;
-                    break;
-                case ShipModuleType.MissileLauncher:
-                    InstallWeapon();
-                    break;
-                case ShipModuleType.Colony:
-                    if (Parent != null)
-                        Parent.isColonyShip = true;
-                    break;
-                case ShipModuleType.Bomb:
-                    InstallBomb();
-                    break;
                 case ShipModuleType.Drone:
-                    InstallWeapon();
-                    break;
                 case ShipModuleType.Spacebomb:
-                    InstallWeapon();
-                    break;
+                case ShipModuleType.MissileLauncher: InstallWeapon();                                   break;
+                case ShipModuleType.Turret:          InstallWeapon(); InstalledWeapon.isTurret  = true; break;
+                case ShipModuleType.MainGun:         InstallWeapon(); InstalledWeapon.isMainGun = true; break;
+                case ShipModuleType.Colony:          if (Parent != null) Parent.isColonyShip    = true; break;
+                case ShipModuleType.Bomb:            InstallBomb();                                     break;
             }
 
             if (IsSupplyBay && Parent != null)
