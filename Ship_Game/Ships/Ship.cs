@@ -784,8 +784,8 @@ namespace Ship_Game.Ships
                     Restrictions       = module.Restrictions
                 };
 
-                if (module.GetHangarShip() != null)
-                    data.HangarshipGuid = module.GetHangarShip().guid;
+                if (module.TryGetHangarShip(out Ship hangarShip))
+                    data.HangarshipGuid = hangarShip.guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
                     data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
@@ -1553,14 +1553,14 @@ namespace Ship_Game.Ships
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
-                    if (shipModule.GetHangarShip() == this)
+                    if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
 
             foreach (ShipModule hangar in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
             {
-                if (hangar.GetHangarShip() != null)
-                    hangar.GetHangarShip().Mothership = null;
+                if (hangar.TryGetHangarShip(out Ship hangarShip))
+                    hangarShip.Mothership = null; // Todo - Setting this to null might be risky
             }
 
             foreach (Empire empire in EmpireManager.Empires)
