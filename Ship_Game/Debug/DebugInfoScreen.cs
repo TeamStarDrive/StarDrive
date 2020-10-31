@@ -705,7 +705,7 @@ namespace Ship_Game.Debug
                     NewLine();
                     string held = g.Held ? "(Held" : "";
                     DrawString($"{held}{g.UID} {g.ColonizationTarget.Name}" +
-                               $" (x {e.GetClaimTargetStrMultiplier(g.ColonizationTarget.guid).String(1)})");
+                               $" (x{e.GetTargetsStrMultiplier(g.ColonizationTarget.guid).String(1)})");
 
                     DrawString(15f, $"Step: {g.StepName}");
                     if (g.FinishedShip != null && g.FinishedShip.Active)
@@ -723,12 +723,20 @@ namespace Ship_Game.Debug
                         if (task.AO.InRadius(sys.Position, sys.Radius))
                             sysName = sys.Name;
                     }
+
                     NewLine();
                     var planet =task.TargetPlanet?.Name ?? "";
                     DrawString($"FleetTask: {task.type} {sysName} {planet}");
                     DrawString(15f, $"Step:  {task.Step} - Priority:{task.Priority}");
                     float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
-                    DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength}");
+                    string strMultiplier = task.TargetPlanet != null 
+                        ? $" (x{e.GetTargetsStrMultiplier(task.TargetPlanet.guid).String(1)})" 
+                        : "";
+                    
+                    if (task.type == MilitaryTask.TaskType.AssaultPirateBase && task.TargetShip != null)
+                        strMultiplier = $" (x{e.GetTargetsStrMultiplier(task.TargetShip.guid).String(1)})";
+
+                    DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength} {strMultiplier}");
                     if (task.WhichFleet != -1)
                     {
                         DrawString(15f, "Fleet: " + task.Fleet.Name);

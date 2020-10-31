@@ -193,7 +193,7 @@ namespace Ship_Game
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
-        public Map<Guid, float> ClaimFleetStrMultiplier { get; private set; } = new Map<Guid, float>();
+        public Map<Guid, float> TargetsFleetStrMultiplier { get; private set; } = new Map<Guid, float>();
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -947,29 +947,29 @@ namespace Ship_Game
             return readyShips.ToArray();
         }
 
-        public void UpdateClaimTargetsStrMultiplier(Planet planet, out float updatedMultiplier)
+        public void UpdateTargetsStrMultiplier(Guid guid, out float updatedMultiplier)
         {
-            if (ClaimFleetStrMultiplier.ContainsKey(planet.guid))
-                ClaimFleetStrMultiplier[planet.guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
+            if (TargetsFleetStrMultiplier.ContainsKey(guid))
+                TargetsFleetStrMultiplier[guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
             else
-                ClaimFleetStrMultiplier.Add(planet.guid, 1);
+                TargetsFleetStrMultiplier.Add(guid, DifficultyModifiers.TaskForceStrength);
 
-            updatedMultiplier = ClaimFleetStrMultiplier[planet.guid];
+            updatedMultiplier = TargetsFleetStrMultiplier[guid];
         }
 
-        public void RemoveClaimTargetStrMultiplier(Planet planet)
+        public void RemoveTargetsStrMultiplier(Guid guid)
         {
-            ClaimFleetStrMultiplier.Remove(planet.guid);
+            TargetsFleetStrMultiplier.Remove(guid);
         }
 
-        public void RestoreClaimTargetStrMultiplier(Map<Guid,float> claims)
+        public void RestoreTargetsStrMultiplier(Map<Guid,float> claims)
         {
-            ClaimFleetStrMultiplier = claims;
+            TargetsFleetStrMultiplier = claims;
         }
 
-        public float GetClaimTargetStrMultiplier(Guid guid)
+        public float GetTargetsStrMultiplier(Guid guid)
         {
-            return ClaimFleetStrMultiplier.ContainsKey(guid) ? ClaimFleetStrMultiplier[guid] : 1;
+            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
         }
 
         public FleetShips AllFleetsReady()
