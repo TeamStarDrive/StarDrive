@@ -8,12 +8,10 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Empires;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
-using System.Threading;
 
 namespace Ship_Game
 {
@@ -197,7 +195,8 @@ namespace Ship_Game
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
-        public bool RushAllConsturction;
+        public bool RushAllConstruction;
+        public Map<Guid, float> TargetsFleetStrMultiplier { get; private set; } = new Map<Guid, float>();
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -226,9 +225,9 @@ namespace Ship_Game
         public bool IsMilitarists             => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists           => data.EconomicPersonality?.Name == "Technologists";
 
-        public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -941,15 +940,45 @@ namespace Ship_Game
                 Ship ship = ships[i];
                 if (ship == null || ship.fleet != null)
                     continue;
+
                 if (ship.AI.State == AIState.Resupply
+                    || ship.AI.State == AIState.ResupplyEscort
                     || ship.AI.State == AIState.Refit
                     || ship.AI.State == AIState.Scrap
                     || ship.AI.State == AIState.Scuttle)
+                {
                     continue;
+                }
+
                 readyShips.Add(ship);
             }
 
             return readyShips.ToArray();
+        }
+
+        public void UpdateTargetsStrMultiplier(Guid guid, out float updatedMultiplier)
+        {
+            if (TargetsFleetStrMultiplier.ContainsKey(guid))
+                TargetsFleetStrMultiplier[guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
+            else
+                TargetsFleetStrMultiplier.Add(guid, DifficultyModifiers.TaskForceStrength);
+
+            updatedMultiplier = TargetsFleetStrMultiplier[guid];
+        }
+
+        public void RemoveTargetsStrMultiplier(Guid guid)
+        {
+            TargetsFleetStrMultiplier.Remove(guid);
+        }
+
+        public void RestoreTargetsStrMultiplier(Map<Guid,float> claims)
+        {
+            TargetsFleetStrMultiplier = claims;
+        }
+
+        public float GetTargetsStrMultiplier(Guid guid)
+        {
+            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
         }
 
         public FleetShips AllFleetsReady()
