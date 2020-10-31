@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
+    using static HelperFunctions;
     public class Pirates // Created by Fat Bastard April 2020
     {
         // Pirates Class is created for factions which are defined as pirates in their XML
@@ -535,28 +536,6 @@ namespace Ship_Game
             {
                 return goals.Any(g => g.TargetShip == ship);
             }
-        }
-
-        bool GetUnownedSystems(out SolarSystem[] systems)
-        {
-            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 
-                                                                 && s.RingList.Count > 0 
-                                                                 && !s.PiratePresence
-                                                                 && !s.PlanetList.Any(p => p.Guardians.Count > 0));
-
-            return systems.Length > 0;
-        }
-
-        bool GetLoneSystem(out SolarSystem system)
-        {
-            system = null;
-            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 
-                                                                     && !s.PiratePresence);
-
-            if (systems.Length > 0)
-                system = systems.RandItem();
-
-            return system != null;
         }
 
         void RemovePiratePresenceFromSystem()

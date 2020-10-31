@@ -173,7 +173,7 @@ namespace Ship_Game.Ships
         public bool isPowerArmour                => Flyweight.isPowerArmour;
         public bool isBulkhead                   => Flyweight.isBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
-        public int FixedTracking                 => Flyweight.FixedTracking;
+        public int TargetingAccuracy             => Flyweight.TargetAccuracy;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
@@ -198,10 +198,9 @@ namespace Ship_Game.Ships
         public bool ShieldsAreActive => Active && ShieldPower > 1f;
 
         /// <summary>
-        /// This is a modifier for the base accuracy of a weapon. <see cref="Weapon.BaseTargetError(int)"/>
-        /// basically this multiplies the base error. error * (1-accuracy)
+        /// This is an override of default weapon accuracy. <see cref="Weapon.BaseTargetError(int)"/>
+        /// it is uniform to all weapons. 50% accuracy creates the same base error for all weapons. 
         /// an accuracy percent of 1 removes all target error.
-        /// an accuracy pf 0.5f reduces the error by 50%
         /// the default of -1 means ignore this value
         /// </summary>
         public float AccuracyPercent = -1;
