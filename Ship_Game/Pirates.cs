@@ -200,8 +200,8 @@ namespace Ship_Game
             float multiplier         = victim.DifficultyModifiers.PiratePayModifier;
             float minimumPayment     = Level * 100 * multiplier;
             float victimNetPotential = (victim.PotentialIncome - victim.AllSpending).LowerBound(0) * multiplier;
-            float payment            = (victim.Money + victimNetPotential*PaymentPeriodTurns) * basePercentage/100;
-            payment                 *= (Level / 3f).LowerBound(1);
+            float payment            = (victimNetPotential*PaymentPeriodTurns) * basePercentage/100;
+            payment                 *= (Level / 2).LowerBound(1);
 
             return (payment * multiplier).LowerBound(minimumPayment).RoundTo10();
         }
@@ -239,7 +239,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            int dieRoll = Level * DifficultyMultiplier();
+            int dieRoll = Level * DifficultyMultiplier() * (int)CurrentGame.Pace;
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
@@ -254,11 +254,11 @@ namespace Ship_Game
 
         int DifficultyMultiplier()
         {
-            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 2;
-            if (Level >= 10)
-                max++;
+            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
+            if (Level < 10)
+                --max;
 
-            return max - (int)CurrentGame.Difficulty;
+            return (max - (int)CurrentGame.Difficulty).LowerBound(1);
         }
 
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
@@ -690,11 +690,11 @@ namespace Ship_Game
                 switch (type)
                 {
                     case TargetType.Shipyard         when ship.shipData.IsShipyard:
-                    case TargetType.FreighterAtWarp  when (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) && ship.IsInWarp:
-                    case TargetType.CombatShipAtWarp when !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp:
+                    case TargetType.FreighterAtWarp  when IsFreighterAtWarpNoOwnedSystem(ship):
+                    case TargetType.CombatShipAtWarp when IsCombatShipAtWarp(ship):
                     case TargetType.Station          when ship.IsStation:
                     case TargetType.Platform         when ship.IsPlatform:
-                    case TargetType.Projector:       targets.Add(ship); break;
+                    case TargetType.Projector: targets.Add(ship); break; // Add all of above cases in to targets
                 }
             }
 
@@ -703,6 +703,18 @@ namespace Ship_Game
 
             target = targets.RandItem();
             return target != null;
+
+            bool IsFreighterAtWarpNoOwnedSystem(Ship ship)
+            {
+                return (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
+                       && ship.IsInWarp 
+                       && (ship.System == null || !ship.System.IsOwnedBy(ship.loyalty));
+            }
+
+            bool IsCombatShipAtWarp(Ship ship)
+            {
+                return !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp;
+            }
         }
 
         public void OrderEscortShip(Ship shipToEscort, Array<Ship> force)
@@ -806,7 +818,7 @@ namespace Ship_Game
             return shipName.NotEmpty() && pirateShip != null;
         }
 
-        public void SalvageShip(Ship ship, Ship pirateBase)
+        void SalvageShip(Ship ship, Ship pirateBase)
         {
             if (ship.IsFreighter || ship.isColonyShip)
                 SalvageFreighter(ship);
@@ -816,7 +828,7 @@ namespace Ship_Game
 
         void SalvageFreighter(Ship freighter)
         {
-            TryLevelUp(freighter.isColonyShip);
+            TryLevelUp();
             freighter.QueueTotalRemoval();
         }
 
@@ -829,6 +841,7 @@ namespace Ship_Game
                     ShipsWeCanSpawn.AddUnique(ship.Name);
 
                 ship.QueueTotalRemoval();
+                TryLevelUp();
             }
             else
             {
@@ -838,7 +851,6 @@ namespace Ship_Game
                     || ship.AI.State != AIState.Resupply)
                 {
                     ship.AI.AddEscortGoal(pirateBase);
-                    TryLevelUp();
                 }
             }
         }

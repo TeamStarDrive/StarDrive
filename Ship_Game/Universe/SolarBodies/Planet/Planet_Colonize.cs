@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -14,6 +9,7 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             Owner = colonyShip.loyalty;
+            RemovePlanetStrNeededMultiplier();
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
             Owner.AddPlanet(this);
@@ -27,6 +23,12 @@ namespace Ship_Game
             NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
+        }
+
+        void RemovePlanetStrNeededMultiplier()
+        {
+            foreach (Empire e in EmpireManager.MajorEmpires)
+                e.RemoveTargetsStrMultiplier(guid);
         }
 
         void SetupColonyType()

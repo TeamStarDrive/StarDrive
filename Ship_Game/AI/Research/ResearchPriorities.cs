@@ -85,7 +85,7 @@ namespace Ship_Game.AI.Research
 
             var priority = new Map<string, int>
             {
-                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars)        },
+                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars * 2)    },
                 { "ShipHull",     Randomizer(strat.MilitaryRatio,  ShipHulls)   },
                 { "Research",     Randomizer(strat.ResearchRatio,  ResearchDebt)},
                 { "Colonization", Randomizer(strat.ExpansionRatio, FoodNeeds)   },
@@ -102,7 +102,7 @@ namespace Ship_Game.AI.Research
         {
             float enemyThreats = empire.GetEmpireAI().ThreatMatrix.HighestStrengthOfAllEmpireThreats(empire);
             enemyThreats      += empire.TotalRemnantStrTryingToClear();
-            float wars         = enemyThreats / empire.CurrentMilitaryStrength.LowerBound(1);
+            float wars         = enemyThreats / empire.OffensiveStrength.LowerBound(1);
             wars              += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f
                                                                                                                    : 0;
 
@@ -129,10 +129,10 @@ namespace Ship_Game.AI.Research
         float CalcCanBuildHulls(Empire empire)
         {
             float canBuildBonus = 0;
-            if (empire.canBuildCorvettes) canBuildBonus += 1;
-            if (empire.canBuildFrigates)  canBuildBonus += 1f;
-            if (empire.canBuildCruisers)  canBuildBonus += 1f;
-            if (empire.canBuildCapitals)  canBuildBonus += 1f;
+            if (empire.canBuildCorvettes) canBuildBonus += 0.5f;
+            if (empire.canBuildFrigates)  canBuildBonus += 0.5f;
+            if (empire.canBuildCruisers)  canBuildBonus += 0.5f;
+            if (empire.canBuildCapitals)  canBuildBonus += 0.5f;
 
             return canBuildBonus;
         }
