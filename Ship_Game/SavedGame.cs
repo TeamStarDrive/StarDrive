@@ -159,7 +159,9 @@ namespace Ship_Game
                 empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
                 empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
                 empireToSave.WeightedCenter           = e.WeightedCenter;
-                empireToSave.RushAllConstruction      = e.RushAllConsturction;
+                empireToSave.RushAllConstruction      = e.RushAllConstruction;
+
+                empireToSave.ClaimTargetsStrMultiplier = e.ClaimFleetStrMultiplier;
 
                 if (e.WeArePirates)
                 {
@@ -169,7 +171,6 @@ namespace Ship_Game
                     empireToSave.SpawnedShips        = e.Pirates.SpawnedShips;
                     empireToSave.ShipsWeCanSpawn     = e.Pirates.ShipsWeCanSpawn;
                 }
-
 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
                 {
@@ -578,6 +579,7 @@ namespace Ship_Game
             [Serialize(29)] public int AverageFreighterFTLSpeed;
             [Serialize(30)] public Vector2 WeightedCenter;
             [Serialize(31)] public bool RushAllConstruction;
+            [Serialize(32)] public Map<Guid,float> ClaimTargetsStrMultiplier;
         }
 
         public class FleetSave
