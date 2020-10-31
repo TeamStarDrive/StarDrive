@@ -225,7 +225,7 @@ namespace Ship_Game.AI.Tasks
             if (requiredTroopStrength > 0) // If we need troops, we must have a minimum
                 requiredTroopStrength = requiredTroopStrength.LowerBound(40);
 
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: requiredTroopStrength, minBombMinutes: 0);
+            InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: requiredTroopStrength, minBombMinutes: 0);
             float battleFleetSize = 0.5f;// + Owner.DifficultyModifiers.FleetCompletenessMin;
 
             if (CreateTaskFleet("Scout Fleet", battleFleetSize, true) == RequisitionStatus.Complete)
@@ -248,8 +248,7 @@ namespace Ship_Game.AI.Tasks
                 return;
 
 
-            InitFleetRequirements(minFleetStrength: (int)EnemyStrength, minTroopStrength: 0, minBombMinutes: 0);
-            EnemyStrength = GetEnemyShipStrengthInAO().LowerBound(TargetShip.BaseStrength);
+            InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
             if (CreateTaskFleet("Assault Fleet", 1) == RequisitionStatus.Complete)
                 Step = 1;
         }
@@ -266,11 +265,11 @@ namespace Ship_Game.AI.Tasks
             }
 
             AO = TargetPlanet.Center;
-            float minStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center
-                                , TargetPlanet.ParentSystem.Radius
-                                , Owner
-                                , true).LowerBound(100);
-            InitFleetRequirements((int)minStrength, minTroopStrength: 40, minBombMinutes: 0);
+            float minStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center, 
+                TargetPlanet.ParentSystem.Radius, Owner, true).LowerBound(100);
+
+            minStrength *= Owner.DifficultyModifiers.TaskForceStrength;
+            InitFleetRequirements(minStrength, minTroopStrength: 40, minBombMinutes: 0);
 
             float battleFleetSize = 0.3f;// + Owner.DifficultyModifiers.FleetCompletenessMin;
 
@@ -292,12 +291,12 @@ namespace Ship_Game.AI.Tasks
                 EndTask();
                 return;
             }
-            EnemyStrength = GetEnemyShipStrengthInAO();
-            AO = TargetPlanet.Center;
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 100 ,minBombMinutes: 3);
+
+            AO            = TargetPlanet.Center;
+            EnemyStrength = GetEnemyShipStrengthInAO() + TargetPlanet.BuildingGeodeticCount;
+            InitFleetRequirements(MinimumTaskForceStrength.LowerBound(EnemyStrength), minTroopStrength: 100 ,minBombMinutes: 3);
 
             float battleFleetSize = 0.4f;// + Owner.DifficultyModifiers.FleetCompletenessMin;
-
             if (CreateTaskFleet("Invasion Fleet", battleFleetSize, true) == RequisitionStatus.Complete)
             {
                 Step = 1;
@@ -404,11 +403,12 @@ namespace Ship_Game.AI.Tasks
                 strengthIncrease += wantedNumberOfFleets - 3;
                 wantedNumberOfFleets =3;
             }
-            float strengthNeeded = Math.Max(MinimumTaskForceStrength, EnemyStrength) * strengthIncrease;
+
+            float strengthNeeded = MinimumTaskForceStrength.LowerBound(EnemyStrength) * strengthIncrease;
 
             // All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(strengthNeeded, TaskBombTimeNeeded
-                , NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets, rallyCenter: rallyPoint.Center);
+            TaskForce = fleetShips.ExtractShipSet(strengthNeeded, TaskBombTimeNeeded,
+                NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets, rallyCenter: rallyPoint.Center);
 
             if (TaskForce.IsEmpty)
                 return RequisitionStatus.FailedToCreateAFleet;
@@ -419,7 +419,7 @@ namespace Ship_Game.AI.Tasks
 
         Planet GetRallyPlanet() => RallyAO?.GetPlanet() ?? Owner.FindNearestRallyPoint(AO);
 
-        void InitFleetRequirements(int minFleetStrength, int minTroopStrength, int minBombMinutes)
+        void InitFleetRequirements(float minFleetStrength, int minTroopStrength, int minBombMinutes)
         {
             if (minTroopStrength > 0 || minBombMinutes > 0)
             {
@@ -438,10 +438,8 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            EnemyStrength = GetEnemyShipStrengthInAO();
-            MinimumTaskForceStrength = Math.Max(minFleetStrength, EnemyStrength);
-            if (!Owner.isPlayer)
-                MinimumTaskForceStrength *= Owner.DifficultyModifiers.TaskForceStrength;
+            EnemyStrength            = GetEnemyShipStrengthInAO();
+            MinimumTaskForceStrength = minFleetStrength.LowerBound(EnemyStrength);
         }
 
         enum RequisitionStatus
