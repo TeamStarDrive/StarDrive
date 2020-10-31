@@ -59,7 +59,10 @@ namespace Ship_Game
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
 
-                e.RushAllConsturction = sdata.RushAllConstruction;
+                if (sdata.TargetsStrMultiplier != null)
+                    e.RestoreTargetsStrMultiplier(sdata.TargetsStrMultiplier);
+
+                e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
             }
 
@@ -162,7 +165,9 @@ namespace Ship_Game
                 if (pgs.building == null)
                     continue;
 
-                var template = ResourceManager.GetBuildingTemplate(pgs.building.Name);
+                if (!ResourceManager.GetBuilding(pgs.building.Name, out Building template))
+                    continue; // this can happen if savegame contains a building which no longer exists in game files
+
                 pgs.building.AssignBuildingId(template.BID);
                 pgs.building.Scrappable = template.Scrappable;
                 pgs.building.CalcMilitaryStrength();
