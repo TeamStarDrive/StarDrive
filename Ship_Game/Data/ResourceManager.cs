@@ -1238,10 +1238,10 @@ namespace Ship_Game
                         Log.Warning($"{data.UID} missing NameIndex: {data.NameIndex}");
 
                 }
-                if (data.IsCommandModule && data.TargetTracking == 0 && data.FixedTracking == 0)
-                {
-                    data.TargetTracking = (sbyte)((data.XSIZE * data.YSIZE) / 3);
-                }
+                // if the values
+                if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
+                if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
+
 
                 if (data.IsRotable == null)
                 {

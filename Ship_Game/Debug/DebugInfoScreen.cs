@@ -65,11 +65,19 @@ namespace Ship_Game.Debug
         public static DebugModes Mode { get; private set; }
         readonly Array<DebugPrimitive> Primitives = new Array<DebugPrimitive>();
         DebugPage Page;
+        readonly FloatSlider SpeedLimitSlider;
+        readonly FloatSlider DebugPlatformSpeed;
         bool CanDebugPlatformFire;
 
         public DebugInfoScreen(UniverseScreen screen) : base(screen, pause:false)
         {
             Screen = screen;
+            if (screen is DeveloperSandbox.DeveloperUniverse)
+            {
+                SpeedLimitSlider = Slider(RelativeToAbsolute(-200f, 400f), 200, 40, "Debug SpeedLimit", 0f, 1f, 1f);
+                DebugPlatformSpeed = Slider(RelativeToAbsolute(-200f, 440f), 200, 40, "Platform Speed", -500f, 500f, 0f);
+                Checkbox(RelativeToAbsolute(-200f, 480f), () => CanDebugPlatformFire, "Start Firing", 0);
+            }
 
             foreach (Empire empire in EmpireManager.Empires)
             {
@@ -163,11 +171,34 @@ namespace Ship_Game.Debug
                     case DebugModes.Planets: Page = Add(new PlanetDebug(Screen,this)); break;
                     case DebugModes.Solar:   Page = Add(new SolarDebug(Screen, this)); break;
                     case DebugModes.RelationsWar: Page = Add(new DebugWar(Screen, this)); break;
-                    case DebugModes.SpatialManager: Page = Add(new SpatialDebug(Screen, this)); break;
                 }
             }
 
+            UpdateDebugShips();
             base.Update(fixedDeltaTime);
+        }
+
+        void UpdateDebugShips()
+        {
+            if (DebugPlatformSpeed == null) // platform is only enabled in sandbox universe
+                return;
+            float platformSpeed = DebugPlatformSpeed.AbsoluteValue;
+            float speedLimiter = SpeedLimitSlider.RelativeValue;
+
+            if (Screen.SelectedShip != null)
+            {
+                Ship ship = Screen.SelectedShip;
+                ship.SetSpeedLimit(speedLimiter * ship.VelocityMaximum);
+            }
+
+            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
+            {
+                platform.CanFire = CanDebugPlatformFire;
+                if (platformSpeed.NotZero())
+                {
+                    platform.Velocity.X = platformSpeed;
+                }
+            }
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -318,7 +349,7 @@ namespace Ship_Game.Debug
                 Screen.ProjectToScreenCoords(m.Center, size, 
                                       out Vector2 posOnScreen, out float sizeOnScreen);
                 ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch,
-                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f);
+                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f, ship.TrackingPower);
 
                 DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
 
@@ -380,6 +411,7 @@ namespace Ship_Game.Debug
                     DrawString("Ready For Warp: " + fleet.ReadyForWarp);
                     DrawString("In Formation Warp: " + fleet.InFormationWarp);
                     DrawString("Ships: " + fleet.Ships.Count);
+                    DrawString("Strength: " + fleet.GetStrength());
                 }
                 else
                 {
@@ -486,6 +518,28 @@ namespace Ship_Game.Debug
 
                 DrawString($"SelectedShips: {ships.Count} ");
                 DrawString($"Total Str: {ships.Sum(s => s.BaseStrength).String(1)} ");
+            }
+            VisualizePredictionDebugger();
+        }
+
+        IEnumerable<PredictionDebugPlatform> GetPredictionDebugPlatforms()
+        {
+            Array<Ship> ships = Screen.GetMasterShipList();
+            for (int i = 0; i < ships.Count; ++i)
+                if (ships[i] is PredictionDebugPlatform platform)
+                    yield return platform;
+        }
+
+        void VisualizePredictionDebugger()
+        {
+            foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
+            {
+                DrawString($"Platform Accuracy: {(int)(platform.AccuracyPercent*100)}%");
+                foreach (PredictedLine line in platform.Predictions)
+                {
+                    DrawLineImm(line.Start, line.End, Color.YellowGreen);
+                    //DrawCircleImm(line.End, 75f, Color.Red);
+                }
             }
         }
 
@@ -769,7 +823,7 @@ namespace Ship_Game.Debug
                                         + "/" + e.GetTotalPopPotential().String(1));
 
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
-                DrawString("Military Str: "+ (int)e.MilitaryScore);
+                DrawString("Military Str: "+ (int)e.CurrentMilitaryStrength);
                 DrawString($"Fleets: Str: {(int)e.Pool.InitialStrength} Avail: {e.Pool.InitialReadyFleets}");
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)
                 {
@@ -779,7 +833,9 @@ namespace Ship_Game.Debug
 
                     NewLine();
                     string held = g.Held ? "(Held" : "";
-                    DrawString($"{held}{g.UID} {g.ColonizationTarget.Name}");
+                    DrawString($"{held}{g.UID} {g.ColonizationTarget.Name}" +
+                               $" (x{e.GetTargetsStrMultiplier(g.ColonizationTarget.guid).String(1)})");
+
                     DrawString(15f, $"Step: {g.StepName}");
                     if (g.FinishedShip != null && g.FinishedShip.Active)
                         DrawString(15f, "Has ship");
@@ -796,12 +852,20 @@ namespace Ship_Game.Debug
                         if (task.AO.InRadius(sys.Position, sys.Radius))
                             sysName = sys.Name;
                     }
+
                     NewLine();
                     var planet =task.TargetPlanet?.Name ?? "";
                     DrawString($"FleetTask: {task.type} {sysName} {planet}");
                     DrawString(15f, $"Step:  {task.Step} - Priority:{task.Priority}");
                     float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
-                    DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength}");
+                    string strMultiplier = task.TargetPlanet != null 
+                        ? $" (x{e.GetTargetsStrMultiplier(task.TargetPlanet.guid).String(1)})" 
+                        : "";
+                    
+                    if (task.type == MilitaryTask.TaskType.AssaultPirateBase && task.TargetShip != null)
+                        strMultiplier = $" (x{e.GetTargetsStrMultiplier(task.TargetShip.guid).String(1)})";
+
+                    DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength} {strMultiplier}");
                     if (task.WhichFleet != -1)
                     {
                         DrawString(15f, "Fleet: " + task.Fleet.Name);
@@ -877,6 +941,16 @@ namespace Ship_Game.Debug
                         increaser + pin.Ship.Radius, 3, e.EmpireColor);
                 }
             }
+        }
+
+        void SpatialManagement()
+        {
+            SetTextCursor(50f, 150f, Color.White);
+            SpatialManager manager = UniverseScreen.Spatial;
+            DrawString($"Spatial.Type: {manager.Name}");
+            DrawString($"Spatial.Collisions: {manager.Collisions}");
+            DrawString($"Spatial.ActiveObjects: {manager.Count}");
+            manager.DebugVisualize(Screen);
         }
 
         void InputDebug()
