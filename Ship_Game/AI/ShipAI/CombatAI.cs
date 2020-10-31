@@ -121,6 +121,39 @@ namespace Ship_Game.AI
             return weight.Clamped(-1f, 1);
         }
 
+        public ShipWeight ShipCommandTargeting(ShipWeight weight, TargetParameterTotals targetPrefs)
+        {
+            // standard ship targeting:
+            // within max weapons range
+            // within desired range
+            // pirate scavenging
+            // Size desire / hit chance
+            // speed / turnrate difference
+            // damaged by
+            // 
+            Ship target = weight.Ship;
+            float weightTotal = 0;
+            float distanceToTarget = Owner.Center.Distance(weight.Ship.Center);
+            bool inWeaponsRange    = Owner.WeaponsMaxRange > distanceToTarget;
+            bool inDesiredCombatRange = Owner.DesiredCombatRange > distanceToTarget;
+            bool isTargetingUs       = weight.Ship.AI.Target == Owner;
+            bool isDamagingUs        = weight.Ship == Owner.LastDamagedBy;
+
+            float turnRate = Owner.RotationRadiansPerSecond;
+
+            // stl ratio
+            float stlRatio = 0;
+            float ourSTL = Owner.MaxSTLSpeed;
+            float theirSTL = target.MaxSTLSpeed;
+            if (ourSTL > 0 && theirSTL >0)
+            {
+                stlRatio = ourSTL / theirSTL;
+            }
+
+
+            bool isPirate = Owner.loyalty.WeArePirates;
+
+        }
         public float SizeAttackWeight(Ship target, TargetParameterTotals nearbyAverages)
         {
             float avgNearBySize = nearbyAverages.Size;
