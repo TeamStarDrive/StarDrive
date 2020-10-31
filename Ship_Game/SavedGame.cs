@@ -156,7 +156,9 @@ namespace Ship_Game
                 empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
                 empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
                 empireToSave.WeightedCenter           = e.WeightedCenter;
-                empireToSave.RushAllConstruction      = e.RushAllConsturction;
+                empireToSave.RushAllConstruction      = e.RushAllConstruction;
+
+                empireToSave.TargetsStrMultiplier = e.TargetsFleetStrMultiplier;
 
                 if (e.WeArePirates)
                 {
@@ -589,17 +591,18 @@ namespace Ship_Game
             [Serialize(29)] public int AverageFreighterFTLSpeed;
             [Serialize(30)] public Vector2 WeightedCenter;
             [Serialize(31)] public bool RushAllConstruction;
-            [Serialize(32)] public float RemnantStoryTriggerKillsXp;
-            [Serialize(33)] public bool RemnantStoryActivated;
-            [Serialize(34)] public int RemnantStoryType;
-            [Serialize(35)] public float RemnantProduction;
-            [Serialize(36)] public int RemnantLevel;
-            [Serialize(37)] public int RemnantStoryStep;
-            [Serialize(38)] public float RemnantPlayerStepTriggerXp;
-            [Serialize(39)] public bool OnlyRemnantLeft;
-            [Serialize(40)] public float RemnantNextLevelUpDate;
-            [Serialize(41)] public int RemnantHibernationTurns;
-            [Serialize(42)] public float RemnantActivationXpNeeded;
+            [Serialize(32)] public Map<Guid, float> TargetsStrMultiplier;
+            [Serialize(33)] public float RemnantStoryTriggerKillsXp;
+            [Serialize(34)] public bool RemnantStoryActivated;
+            [Serialize(35)] public int RemnantStoryType;
+            [Serialize(36)] public float RemnantProduction;
+            [Serialize(37)] public int RemnantLevel;
+            [Serialize(38)] public int RemnantStoryStep;
+            [Serialize(39)] public float RemnantPlayerStepTriggerXp;
+            [Serialize(40)] public bool OnlyRemnantLeft;
+            [Serialize(41)] public float RemnantNextLevelUpDate;
+            [Serialize(42)] public int RemnantHibernationTurns;
+            [Serialize(43)] public float RemnantActivationXpNeeded;
         }
 
         public class FleetSave
@@ -722,6 +725,7 @@ namespace Ship_Game
             [Serialize(3)] public float Rotation;
             [Serialize(4)] public Vector2 Velocity;
             [Serialize(5)] public Vector2 Position;
+            [Serialize(6)] public int Loyalty;
         }
 
         public struct BeamSaveData
@@ -733,6 +737,7 @@ namespace Ship_Game
             [Serialize(4)] public Vector2 Destination;
             [Serialize(5)] public Vector2 ActualHitDestination;
             [Serialize(6)] public Guid Target; // Ship or Projectile
+            [Serialize(7)] public int Loyalty;
         }
 
         public class QueueItemSave

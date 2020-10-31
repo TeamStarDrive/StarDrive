@@ -286,8 +286,8 @@ namespace Ship_Game
                 text = incomingTroops > 0 ? $"Enroute: {incomingTroops}" : "Send Troops";
 
             batch.Draw(ResourceManager.Texture(texName), SendTroops, Color.White);
-            batch.DrawString(Font12, text, textPos, SendTroops.HitTest(mousePos) ? buttonHoverColor
-                                                                                 : buttonBaseColor);
+            batch.DrawString(Font12, text, textPos, SendTroops.HitTest(mousePos) ? buttonBaseColor
+                                                                                 : buttonHoverColor);
         }
 
         void DrawCancelInvasion(SpriteBatch batch, Vector2 mousePos)

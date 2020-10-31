@@ -15,7 +15,6 @@
         public readonly bool HideTacticalData;
         public readonly float MaxDesiredPlanets;
         public readonly float CreditsMultiplier;
-        public readonly float FleetCompletenessMin;
         public readonly float EnemyTroopStrength;
         public readonly int MineralDecayDivider;
         public readonly float PiratePayModifier;
@@ -59,7 +58,6 @@
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.25f;
-                    FleetCompletenessMin = 0f;
                     CreditsMultiplier    = empire.isPlayer ? 0.1f : 0.25f;
                     EnemyTroopStrength   = 1f;
                     MineralDecayDivider  = 100;
@@ -88,7 +86,6 @@
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
-                    FleetCompletenessMin = 0.05f;
                     CreditsMultiplier    = 0.2f;
                     EnemyTroopStrength   = 1.1f;
                     MineralDecayDivider  = 50;
@@ -107,7 +104,6 @@
                     ShipLevel            = 2;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
-                    FleetCompletenessMin = 0.1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     EnemyTroopStrength   = 1.25f;
                     MineralDecayDivider  = 25;
@@ -137,7 +133,6 @@
                     ShipLevel            = 3;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
-                    FleetCompletenessMin = 0.15f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     EnemyTroopStrength   = 1.5f;
                     MineralDecayDivider  = 15;
@@ -177,7 +172,7 @@
 
             if (empire.isPlayer)
             {
-                ShipBuildStrMin    = 0.9f;
+                ShipBuildStrMin    = 1f;
                 ShipBuildStrMax    = 1f;
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;

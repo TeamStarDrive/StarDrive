@@ -143,7 +143,6 @@ namespace Ship_Game.Ships
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int TargetingAccuracy;
-        public bool ShipInitialized;
         public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
@@ -785,8 +784,8 @@ namespace Ship_Game.Ships
                     Restrictions       = module.Restrictions
                 };
 
-                if (module.GetHangarShip() != null)
-                    data.HangarshipGuid = module.GetHangarShip().guid;
+                if (module.TryGetHangarShip(out Ship hangarShip))
+                    data.HangarshipGuid = hangarShip.guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
                     data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
@@ -1070,9 +1069,12 @@ namespace Ship_Game.Ships
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
                 float tan = (float)Math.Tan(yRotation);
+                float parentX = Center.X;
+                float parentY = Center.Y;
+                float rotation = Rotation;
                 for (int i = 0; i < ModuleSlotList.Length; ++i)
                 {
-                    ModuleSlotList[i].UpdateEveryFrame(timeStep, cos, sin, tan);
+                    ModuleSlotList[i].UpdateEveryFrame(timeStep, parentX, parentY, rotation, cos, sin, tan);
                 }
                 GlobalStats.ModuleUpdates += ModuleSlotList.Length;
             }
@@ -1311,10 +1313,10 @@ namespace Ship_Game.Ships
             if (IsTethered)
             {
                 var planet = TetheredTo;
-                if (planet != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
+                if (planet?.Owner != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
                 {
-                    TrackingPower     = TrackingPower.LowerBound(GetTether().Level);
-                    TargetingAccuracy = TrackingPower.LowerBound(GetTether().Level);
+                    TrackingPower     = TrackingPower.LowerBound(planet.Level);
+                    TargetingAccuracy = TrackingPower.LowerBound(planet.Level);
                 }
             }
 
@@ -1551,14 +1553,14 @@ namespace Ship_Game.Ships
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
-                    if (shipModule.GetHangarShip() == this)
+                    if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
 
             foreach (ShipModule hangar in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
             {
-                if (hangar.GetHangarShip() != null)
-                    hangar.GetHangarShip().Mothership = null;
+                if (hangar.TryGetHangarShip(out Ship hangarShip))
+                    hangarShip.Mothership = null; // Todo - Setting this to null might be risky
             }
 
             foreach (Empire empire in EmpireManager.Empires)
