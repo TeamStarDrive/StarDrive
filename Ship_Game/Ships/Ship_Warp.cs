@@ -10,7 +10,8 @@ namespace Ship_Game.Ships
         // This is the light speed threshold
         // Warp ships cannot go slower than this
         public const float LightSpeedConstant = 3000f;
-
+        /// <summary> This is point at which relativistic effects begin to reduce targeting ability </summary>
+        public const float TargetErrorFocalPoint = 2300;
         // This is the maximum STL speed that ships can achieve
         // This is both for balancing and for realism, since sub-light
         // ships should not get even close to light speed
@@ -99,9 +100,7 @@ namespace Ship_Game.Ships
                 // stop the SFX and always reset the replay timeout
                 JumpSfx.Stop();
 
-                if (engineState == MoveState.Warp && InFrustum &&
-                    Empire.Universe != null &&
-                    Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                if (engineState == MoveState.Warp && InFrustum && IsVisibleToPlayer)
                 {
                     GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
                     FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
@@ -112,6 +111,16 @@ namespace Ship_Game.Ships
                 SpeedLimit      = VelocityMaximum;
             }
 
+        }
+
+        // Used for Remnant portal exit
+        public void EmergeFromPortal()
+        {
+            if (Empire.Universe != null 
+                && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            {
+                FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
+            }
         }
 
         Vector3 GetWarpEffectPosition() => Center.ToVec3();
@@ -146,8 +155,7 @@ namespace Ship_Game.Ships
 
             if (JumpTimer <= 4.0f)
             {
-                if (InFrustum
-                    && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
+                if (IsVisibleToPlayer
                     && !Empire.Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
                 {
                     JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout:4.0f);
@@ -171,7 +179,7 @@ namespace Ship_Game.Ships
             InhibitedByEnemy = false;
             foreach (Empire e in EmpireManager.Empires)
             {
-                if (e != loyalty && !loyalty.GetRelations(e).Treaty_OpenBorders)
+                if (e != loyalty && !loyalty.IsOpenBordersTreaty(e))
                 {
                     for (int i = 0; i < e.Inhibitors.Count; ++i)
                     {

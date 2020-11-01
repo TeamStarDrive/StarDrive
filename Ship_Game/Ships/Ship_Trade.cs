@@ -32,7 +32,7 @@ namespace Ship_Game.Ships
             if (planet.Owner == null)
                 return false;
 
-            if (planet.Owner == loyalty || loyalty.GetRelations(planet.Owner).Treaty_Trade)
+            if (planet.Owner == loyalty || loyalty.IsTradeTreaty(planet.Owner))
             {
                 TradeRoutes.AddUnique(planet.guid);
                 return true;
@@ -57,7 +57,7 @@ namespace Ship_Game.Ships
                 if (planet.Owner == loyalty)
                     continue;
 
-                if (planet.Owner == null || !loyalty.GetRelations(planet.Owner).Treaty_Trade)
+                if (planet.Owner == null || !loyalty.IsTradeTreaty(planet.Owner))
                     RemoveTradeRoute(planet);
             }
         }

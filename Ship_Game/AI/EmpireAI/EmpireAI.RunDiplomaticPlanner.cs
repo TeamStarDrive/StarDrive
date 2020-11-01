@@ -23,10 +23,10 @@ namespace Ship_Game.AI
                 case PersonalityType.Ruthless:   DoRuthlessRelations();     break;
             }
 
-            foreach (KeyValuePair<Empire, Relationship> relationship in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (!relationship.Key.isFaction && !OwnerEmpire.isFaction && !relationship.Key.data.Defeated)
-                    CheckColonizationClaims(relationship.Key, relationship.Value);
+                if (!them.isFaction && !OwnerEmpire.isFaction && !them.data.Defeated)
+                    CheckColonizationClaims(them, rel);
             }
         }
 
@@ -36,13 +36,12 @@ namespace Ship_Game.AI
                 return;
 
             var allies = new Array<Empire>();
-            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (kv.Value.Treaty_Alliance 
-                    && kv.Key.GetRelations(enemy).Known
-                    && !kv.Key.GetRelations(enemy).AtWar)
+                if (rel.Treaty_Alliance 
+                    && them.IsKnown(enemy) && !them.IsAtWarWith(enemy))
                 {
-                    allies.Add(kv.Key);
+                    allies.Add(them);
                 }
             }
             foreach (Empire ally in allies)
@@ -60,30 +59,24 @@ namespace Ship_Game.AI
         {
             float territorialDiv = OwnerEmpire.Personality == PersonalityType.Pacifist ? 50 : 10;
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / territorialDiv);
-            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                Relationship relations = kv.Value;
-                Empire them            = kv.Key;
-                if (DoNotInteract(relations, them))
-                    continue;
-
-                relations.DoConservative(OwnerEmpire, them);
+                if (!DoNotInteract(rel, them))
+                    rel.DoConservative(OwnerEmpire, them);
             }
         }
 
         void DoRuthlessRelations()
         {
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 5f);
-            Array<Empire> potentialTargets = new Array<Empire>();
+            var potentialTargets = new Array<Empire>();
 
-            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                Relationship relations = kv.Value;
-                Empire them            = kv.Key;
-                if (DoNotInteract(relations, them))
+                if (DoNotInteract(rel, them))
                     continue;
 
-                relations.DoRuthless(OwnerEmpire, them, out bool theyArePotentialTargets);
+                rel.DoRuthless(OwnerEmpire, them, out bool theyArePotentialTargets);
                 if (theyArePotentialTargets)
                     potentialTargets.Add(them);
             }
@@ -93,17 +86,15 @@ namespace Ship_Game.AI
 
         void DoAggressiveRelations()
         {
-            Array<Empire> potentialTargets = new Array<Empire>();
+            var potentialTargets = new Array<Empire>();
 
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
-            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                Relationship relations = kv.Value;
-                Empire them            = kv.Key;
-                if (DoNotInteract(relations, them))
+                if (DoNotInteract(rel, them))
                     continue;
 
-                relations.DoAggressive(OwnerEmpire, them, out bool theyArePotentialTargets);
+                rel.DoAggressive(OwnerEmpire, them, out bool theyArePotentialTargets);
                 if (theyArePotentialTargets)
                     potentialTargets.Add(them);
             }
@@ -113,16 +104,14 @@ namespace Ship_Game.AI
 
         void DoXenophobicRelations()
         {
-            Array<Empire> potentialTargets = new Array<Empire>();
+            var potentialTargets = new Array<Empire>();
             AssessTerritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
-            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                Relationship relations = kv.Value;
-                Empire them            = kv.Key;
-                if (DoNotInteract(relations, them))
+                if (DoNotInteract(rel, them))
                     continue;
 
-                relations.DoXenophobic(OwnerEmpire, them, out bool theyArePotentialTargets);
+                rel.DoXenophobic(OwnerEmpire, them, out bool theyArePotentialTargets);
                 if (theyArePotentialTargets)
                     potentialTargets.Add(them);
             }
@@ -154,13 +143,13 @@ namespace Ship_Game.AI
         int TotalEnemiesStrength()
         {
             int enemyStr = 0;
-            foreach (KeyValuePair<Empire, Relationship> relationship in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (!relationship.Key.isFaction
-                    &&!relationship.Key.data.Defeated 
-                    && (relationship.Value.AtWar || relationship.Value.PreparingForWar))
+                if (!them.isFaction
+                    &&!them.data.Defeated 
+                    && (rel.AtWar || rel.PreparingForWar))
                 {
-                    enemyStr += (int)relationship.Key.CurrentMilitaryStrength;
+                    enemyStr += (int)them.CurrentMilitaryStrength;
                 }
             }
 
@@ -169,7 +158,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackClosest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() * 1.5f < OwnerEmpire.OffensiveStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
@@ -193,7 +182,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackXenophobic(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
                 Empire closest = potentialTargets.Sorted(e => e.WeightedCenter.Distance(OwnerEmpire.WeightedCenter)).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(closest);
@@ -210,7 +199,7 @@ namespace Ship_Game.AI
 
         void PrepareToAttackWeakest(Array<Empire> potentialTargets)
         {
-            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.CurrentMilitaryStrength)
+            if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
                 Empire weakest       = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(weakest);
@@ -243,7 +232,7 @@ namespace Ship_Game.AI
                     {
                         if (others == OwnerEmpire
                             || others.isFaction
-                            || !OwnerEmpire.TryGetRelations(others, out Relationship usToThem)
+                            || !OwnerEmpire.GetRelations(others, out Relationship usToThem)
                             || !usToThem.Known
                             || usToThem.Treaty_Alliance)
                         {

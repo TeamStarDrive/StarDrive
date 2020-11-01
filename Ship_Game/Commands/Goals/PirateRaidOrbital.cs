@@ -16,9 +16,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                DetectAndSpawnRaidForce,
-               CheckIfHijacked,
-               FleeFromOrbital,
-               WaitForDestruction
+               CheckSuccess
             };
         }
 
@@ -29,6 +27,7 @@ namespace Ship_Game.Commands.Goals
 
             PostInit();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Orbital Raid vs. {targetEmpire.Name} ----");
+            Evaluate();
         }
 
         public sealed override void PostInit()
@@ -43,77 +42,65 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
                 return GoalStep.GoalFailed; // They paid or dead
 
+            StarDateAdded = Empire.Universe.StarDate;
             var orbitalType = GetOrbital();
             // orbitalType = Pirates.TargetType.Projector; // TODO for testing
-            if (Pirates.GetTarget(TargetEmpire, orbitalType, out Ship orbital))
-            {
-                Vector2 where = orbital.Center.GenerateRandomPointOnCircle(1500);
-                if (Pirates.SpawnBoardingShip(orbital, where, out Ship boardingShip))
-                {
-                    TargetShip = orbital; // This is the main target, we want this to be boarded
-                    if (orbitalType != Pirates.TargetType.Projector &&
-                        Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force))
-                    {
-                        Pirates.OrderEscortShip(boardingShip, force);
-                    }
+            if (!Pirates.GetTarget(TargetEmpire, orbitalType, out Ship orbital))
+                return Empire.Universe.StarDate.Greater(StarDateAdded + 1) ? GoalStep.GoalFailed : GoalStep.TryAgain;
 
-                    Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
-                    Pirates.ExecuteVictimRetaliation(TargetEmpire);
-                    return GoalStep.GoToNextStep;
-                }
-            }
-            
-            // Try locating viable orbital for maximum of 1 year (10 turns), else just give up
-            return (Empire.Universe.StarDate % 1).Greater(0) ? GoalStep.TryAgain : GoalStep.GoalFailed;
-        }
+            TargetShip           = orbital; // This is the main target, we want this dead or possibly boarded
+            float spawnDistance  = TargetShip.System?.Radius ?? 80000;
+            Vector2 where        = orbital.Center.GenerateRandomPointOnCircle(spawnDistance);
+            int numBoardingShips = (TargetShip.TroopCount / 2).LowerBound(1);
 
-        GoalStep CheckIfHijacked()
-        {
-            if (TargetShip == null
-                || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
+            if (Pirates.SpawnForce(TargetShip, where, 5000, out Array<Ship> force))
+                Pirates.OrderAttackShip(TargetShip, force);
+
+            for (int i = 0; i < numBoardingShips; i++)
             {
-                return GoalStep.GoalFailed; // Target or our forces were destroyed 
+                Vector2 pos = where.GenerateRandomPointInsideCircle(2000);
+                if (Pirates.SpawnBoardingShip(orbital, pos, out Ship boardingShip))
+                    boardingShip.AI.OrderAttackSpecificTarget(TargetShip);
             }
 
-            return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.TryAgain;
-        }
-
-        GoalStep FleeFromOrbital()
-        {
-            if (TargetShip == null || !TargetShip.Active || TargetShip.loyalty != Pirates.Owner)
-                return GoalStep.GoalFailed; // Target destroyed or they took it from us
-
-            TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
-            TargetShip.DisengageExcessTroops(TargetShip.TroopCount); // She's gonna blow!
+            Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
+            Pirates.ExecuteVictimRetaliation(TargetEmpire);
             return GoalStep.GoToNextStep;
         }
 
-        GoalStep WaitForDestruction()
+        GoalStep CheckSuccess()
         {
             if (TargetShip == null || !TargetShip.Active)
             {
                 Pirates.TryLevelUp();
-                return GoalStep.GoalComplete;
+                return GoalStep.GoalComplete; // Target was destroyed
             }
 
-            return TargetShip.loyalty == Pirates.Owner ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            if (TargetShip.loyalty == Pirates.Owner)
+            {
+                Pirates.TryLevelUp();
+                TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
+                return GoalStep.GoalComplete; // Target was boarded
+            }
+
+            // 25 turns to try finish the job
+            return Empire.Universe.StarDate.Greater(StarDateAdded + 2.5f) ? GoalStep.GoalFailed : GoalStep.TryAgain;
         }
 
         Pirates.TargetType GetOrbital()
         {
             int divider = (Pirates.MaxLevel / 5).LowerBound(1); // so the bonus will be 1 to 5
-            int roll = RandomMath.RollDie(10 + Pirates.Level/divider);
+            int roll    = RandomMath.RollDie(10 + Pirates.Level/divider);
             switch (roll)
             {
-                default: return Pirates.TargetType.Projector;
+                default: return Pirates.TargetType.Platform;
                 case 7:  return Pirates.TargetType.Shipyard;
-                case 8:  return Pirates.TargetType.Projector;
+                case 8:  return Pirates.TargetType.Station;
                 case 9:  return Pirates.TargetType.Shipyard;
-                case 10: return Pirates.TargetType.Projector;
+                case 10: return Pirates.TargetType.Platform;
                 case 11: return Pirates.TargetType.Station;
                 case 12: return Pirates.TargetType.Shipyard;
-                case 13: return Pirates.TargetType.Projector;
+                case 13: return Pirates.TargetType.Platform;
                 case 14: return Pirates.TargetType.Station;
                 case 15: return Pirates.TargetType.Shipyard;
             }

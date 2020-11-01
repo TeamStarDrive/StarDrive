@@ -1,26 +1,24 @@
+using System.Diagnostics.Contracts;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System;
-using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
+using System;
 
 namespace Ship_Game
 {
     [Flags]
     public enum GameObjectType : byte
     {
-        None       = 0,
+        // Can be used as a search filter to match all object types
+        Any        = 0,
         Ship       = 1,
         ShipModule = 2,
-        Proj       = 4,
-        Beam       = 8,
+        Proj       = 4, // this is a projectile, NOT a beam
+        Beam       = 8, // this is a BEAM, not a projectile
         Asteroid   = 16,
         Moon       = 32,
-        // Can be used as a search filter to match all object types
-        Any = 255,
     }
 
     public abstract class GameplayObject
@@ -50,14 +48,10 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
 
-        // -2: pending, -1: not in spatial, >= 0: in spatial
         [XmlIgnore][JsonIgnore] public int SpatialIndex = -1;
-        [XmlIgnore][JsonIgnore] public bool NotInSpatial   => SpatialIndex == -1;
-        [XmlIgnore][JsonIgnore] public bool InSpatial      => SpatialIndex != -1;
-        [XmlIgnore][JsonIgnore] public bool SpatialPending => SpatialIndex == -2;
-
-        [XmlIgnore][JsonIgnore] public bool InDeepSpace => System == null;
         [XmlIgnore][JsonIgnore] public bool DisableSpatialCollision = false; // if true, object is never added to spatial manager
+        [XmlIgnore][JsonIgnore] public bool ReinsertSpatial = false; // if true, this object should be reinserted to spatial manager
+        [XmlIgnore][JsonIgnore] public bool InFrustum; // Updated by UniverseObjectManager
 
         // current rotation converted into a direction vector
         [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();
@@ -73,18 +67,13 @@ namespace Ship_Game
             set => Rotation = value.ToRadians();
         }
 
-        [XmlIgnore][JsonIgnore] public bool QueuedForRemoval;
-
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
-        protected GameplayObject(GameObjectType typeFlags)
+        protected GameplayObject(GameObjectType type)
         {
-            Type = typeFlags;
+            Type = type;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Is(GameObjectType flags) => (Type & flags) != 0;
 
         [XmlIgnore][JsonIgnore] public virtual IDamageModifier DamageMod => InternalDamageModifier.Instance;
 
@@ -99,21 +88,15 @@ namespace Ship_Game
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {
             Active = false;
-            Empire.Universe?.QueueGameplayObjectRemoval(this);
         }
 
         public virtual void RemoveFromUniverseUnsafe()
         {
-            SetSystem(null);
-            if (InSpatial)
-            {
-                UniverseScreen.SpaceManager.Remove(this);
-            }
         }
 
         [XmlIgnore][JsonIgnore]
         public bool IsInFrustum =>
-            Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView &&
+            Empire.Universe.IsSystemViewOrCloser &&
             Empire.Universe.Frustum.Contains(Center, 2000f);
 
         [XmlIgnore][JsonIgnore]
@@ -121,48 +104,21 @@ namespace Ship_Game
 
         public void SetSystem(SolarSystem system)
         {
-            // SetSystem means this GameplayObject is used somewhere in the universe
-            // Regardless whether the system itself is null, we insert self to SpaceManager
-            if (!DisableSpatialCollision && Active && NotInSpatial)
-                UniverseScreen.SpaceManager.Add(this);
-
-            if (System == system)
-                return;
-
-            // if we keep this system shiplist thing we should protect it. 
-            // this is unmanagable. 
-            // i believe even with the locks this should be faster in parallel
-            // being as the number of hits per frame per system ought to be relativly low
-            if (this is Ship ship && ship.ShipInitialized)
-            {
-                if (ship.System != null)
-                {
-                    lock (ship.System.ShipList)                    
-                        System.ShipList.RemoveSwapLast(ship);                                            
-                }
-
-                if (system != null)
-                {
-                        system.ShipList.AddUnique(ship);
-                }
-                System = system;
-            }            
+            System = system;
         }
 
         public void ChangeLoyalty(Empire changeTo, bool notification = true)
         {
-            // spatial collisions are filtered by loyalty,
-            // so we need to remove and re-insert after the loyalty change
-            if (InSpatial)
-            {
-                UniverseScreen.SpaceManager.Remove(this);
-            }
-
-            if ((Type & GameObjectType.Proj) != 0)
+            // TODO: Should we allow projectiles to change loyalty? They are short lived anyway
+            if (Type == GameObjectType.Proj)
             {
                 ((Projectile) this).Loyalty = changeTo;
             }
-            else if ((Type & GameObjectType.Ship) != 0)
+            else if (Type == GameObjectType.Beam)
+            {
+                ((Beam)this).Loyalty = changeTo;
+            }
+            else if (Type == GameObjectType.Ship)
             {
                 var ship = (Ship) this;
                 Empire oldLoyalty = ship.loyalty;
@@ -182,29 +138,31 @@ namespace Ship_Game
                 ship.ScuttleTimer = -1f; // Cancel any active self destruct 
                 changeTo.AddShip(ship);
                 ship.PiratePostChangeLoyalty();
+                ship.IsGuardian = changeTo.WeAreRemnants;
                 if (notification)
                 {
                     changeTo.AddBoardSuccessNotification(ship);
                     oldLoyalty.AddBoardedNotification(ship);
                 }
             }
-
-            // this resets the spatial management
-            SetSystem(null);
+            ReinsertSpatial = true;
         }
 
         public int GetLoyaltyId()
         {
-            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty?.Id ?? 0;
-            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty.Id;
+            if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty?.Id ?? 0;
+            if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty?.Id ?? 0;
+            if (Type == GameObjectType.Ship) return ((Ship)this).loyalty.Id;
             return 0;
         }
 
+        [Pure]
         public Empire GetLoyalty()
         {
-            if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty;
-            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty;
-            if ((Type & GameObjectType.ShipModule) != 0) return ((ShipModule)this).GetParent().loyalty;
+            if (Type == GameObjectType.Proj) return ((Projectile)this).Loyalty;
+            if (Type == GameObjectType.Beam) return ((Beam)this).Loyalty;
+            if (Type == GameObjectType.Ship) return ((Ship)this).loyalty;
+            if (Type == GameObjectType.ShipModule) return ((ShipModule)this).GetParent().loyalty;
             return null;
         }
 

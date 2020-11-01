@@ -322,8 +322,8 @@ namespace Ship_Game.Ships
                 ShipModule shield = Shields[i];
                 if (shield.ShieldsAreActive && shield.HitTestShield(worldHitPos, hitRadius))
                 {
-                    if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
-                        DebugDrawShieldHit(shield);
+                    //if (DebugInfoScreen.Mode == DebugModes.SpatialManager)
+                    //    DebugDrawShieldHit(shield);
                     return shield;
                 }
             }
@@ -350,7 +350,7 @@ namespace Ship_Game.Ships
             }
             if (hit != null && DebugInfoScreen.Mode == DebugModes.SpatialManager)
             {
-                DebugDrawShieldHit(hit, worldStartPos, worldEndPos);
+                //DebugDrawShieldHit(hit, worldStartPos, worldEndPos);
             }
             hitDistance = minD;
             return hit;

@@ -36,6 +36,7 @@ namespace Ship_Game
         bool isScuttle;
         bool isCombat;  //fbedard
         public bool Selected = false;  //fbedard: for multi-select
+        private string SystemName;
 
         public ShipListScreenItem(Ship s, int x, int y, int width1, int height, ShipListScreen caller)
         {
@@ -54,7 +55,8 @@ namespace Ship_Game
             STLRect = new Rectangle(FTLRect.X + FTLRect.Width, y, 60, height);
             Status_Text = GetStatusText(ship);
             ShipIconRect = new Rectangle(ShipNameRect.X + 5, ShipNameRect.Y + 2, 28, 28);
-            string shipName = (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name);
+            string shipName = !string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name;
+            SystemName = ship.System?.Name ?? new LocalizedText(GameText.DeepSpace).Text;
             ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
             ShipNameEntry.Text = shipName;
             float width = (int)(OrdersRect.Width * 0.8f);
@@ -95,30 +97,29 @@ namespace Ship_Game
                 batch.FillRectangle(TotalEntrySize, Color.DarkGreen);
             }
 
-            var TextColor = Colors.Cream;
+            var textColor = Colors.Cream;
 
-            string sysname = ship.System?.Name ?? Localizer.Token(150);
-            if (Fonts.Arial20Bold.MeasureString(sysname).X <= SysNameRect.Width)
+            if (Fonts.Arial20Bold.MeasureString(SystemName).X <= SysNameRect.Width)
             {
-                var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
+                var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(SystemName).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+                batch.DrawString(Fonts.Arial12Bold, SystemName, sysNameCursor, textColor);
             }
             else
             {
-                var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
+                var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(SystemName).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+                batch.DrawString(Fonts.Arial12Bold, SystemName, sysNameCursor, textColor);
             }
 
             batch.Draw(ship.shipData.Icon, ShipIconRect, Color.White);
-            ShipNameEntry.Draw(batch, elapsed, Fonts.Arial12Bold, ShipNameEntry.ClickableArea.PosVec(), TextColor);
+            ShipNameEntry.Draw(batch, elapsed, Fonts.Arial12Bold, ShipNameEntry.ClickableArea.PosVec(), textColor);
 
             var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, TextColor);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, textColor);
             
             var StatusPos = new Vector2(OrdersRect.X + OrdersRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Status_Text).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.MeasureString(Status_Text).Y / 2f);
             HelperFunctions.ClampVectorToInt(ref StatusPos);
-            batch.DrawString(Fonts.Arial12, Status_Text, StatusPos, TextColor);
+            batch.DrawString(Fonts.Arial12, Status_Text, StatusPos, textColor);
 
             float maint = ship.GetMaintCost();
 

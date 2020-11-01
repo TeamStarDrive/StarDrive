@@ -16,16 +16,16 @@ namespace Ship_Game
         static readonly Vector2 FleetNameOffset = new Vector2(10f, -6f);
 
 
-        private void DrawRings(in Matrix world, float scale)
+        private void DrawRings(GraphicsDevice device, in Matrix world, float scale)
         {
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU          = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV          = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.RenderState.AlphaBlendEnable       = true;
-            ScreenManager.GraphicsDevice.RenderState.AlphaBlendOperation    = BlendFunction.Add;
-            ScreenManager.GraphicsDevice.RenderState.SourceBlend            = Blend.SourceAlpha;
-            ScreenManager.GraphicsDevice.RenderState.DestinationBlend       = Blend.InverseSourceAlpha;
-            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
-            ScreenManager.GraphicsDevice.RenderState.CullMode               = CullMode.None;
+            device.SamplerStates[0].AddressU          = TextureAddressMode.Wrap;
+            device.SamplerStates[0].AddressV          = TextureAddressMode.Wrap;
+            device.RenderState.AlphaBlendEnable       = true;
+            device.RenderState.AlphaBlendOperation    = BlendFunction.Add;
+            device.RenderState.SourceBlend            = Blend.SourceAlpha;
+            device.RenderState.DestinationBlend       = Blend.InverseSourceAlpha;
+            device.RenderState.DepthBufferWriteEnable = false;
+            device.RenderState.CullMode               = CullMode.None;
             foreach (BasicEffect basicEffect in xnaPlanetModel.Meshes[1].Effects)
             {
                 basicEffect.World = Matrix.CreateScale(3f) * Matrix.CreateScale(scale) * world;
@@ -36,47 +36,47 @@ namespace Ship_Game
                 basicEffect.Projection = Projection;
             }
             xnaPlanetModel.Meshes[1].Draw();
-            ScreenManager.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
+            device.RenderState.DepthBufferWriteEnable = true;
         }
 
-        private void DrawAtmo(Model model, in Matrix world, Planet planet)
+        private void DrawAtmo(GraphicsDevice device, Model model, in Matrix world)
         {
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.InverseSourceAlpha;
-            renderState.DepthBufferWriteEnable = false;
-            renderState.CullMode = CullMode.CullClockwiseFace;
+            device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            RenderState rs = device.RenderState;
+            rs.AlphaBlendEnable = true;
+            rs.AlphaBlendOperation = BlendFunction.Add;
+            rs.SourceBlend = Blend.SourceAlpha;
+            rs.DestinationBlend = Blend.InverseSourceAlpha;
+            rs.DepthBufferWriteEnable = false;
+            rs.CullMode = CullMode.CullClockwiseFace;
 
             ModelMesh modelMesh = model.Meshes[0];
             SubTexture atmosphere = ResourceManager.Texture("Atmos");
 
-            foreach (BasicEffect basicEffect in modelMesh.Effects)
+            foreach (BasicEffect effect in modelMesh.Effects)
             {
-                basicEffect.World = Matrix.CreateScale(4.1f) * world;
-                basicEffect.View = View;
+                effect.World = Matrix.CreateScale(4.1f) * world;
+                effect.View = View;
                 // @todo 3D Texture Atlas support?
-                basicEffect.Texture = atmosphere.Texture;
-                basicEffect.TextureEnabled = true;
-                basicEffect.Projection = Projection;
-                basicEffect.LightingEnabled = true;
-                basicEffect.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
-                basicEffect.DirectionalLight0.Enabled = true;
-                basicEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
-                basicEffect.DirectionalLight0.Direction = new Vector3(0.98f, -0.025f, 0.2f);
-                basicEffect.DirectionalLight1.DiffuseColor = new Vector3(1f, 1f, 1f);
-                basicEffect.DirectionalLight1.Enabled = true;
-                basicEffect.DirectionalLight1.SpecularColor = new Vector3(1f, 1f, 1f);
-                basicEffect.DirectionalLight1.Direction = new Vector3(0.98f, -0.025f, 0.2f);
+                effect.Texture = atmosphere.Texture;
+                effect.TextureEnabled = true;
+                effect.Projection = Projection;
+                effect.LightingEnabled = true;
+                effect.DirectionalLight0.DiffuseColor = new Vector3(1f, 1f, 1f);
+                effect.DirectionalLight0.Enabled = true;
+                effect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
+                effect.DirectionalLight0.Direction = new Vector3(0.98f, -0.025f, 0.2f);
+                effect.DirectionalLight1.DiffuseColor = new Vector3(1f, 1f, 1f);
+                effect.DirectionalLight1.Enabled = true;
+                effect.DirectionalLight1.SpecularColor = new Vector3(1f, 1f, 1f);
+                effect.DirectionalLight1.Direction = new Vector3(0.98f, -0.025f, 0.2f);
             }
             modelMesh.Draw();
             DrawAtmo1(world);
-            renderState.DepthBufferWriteEnable = true;
-            renderState.CullMode = CullMode.CullCounterClockwiseFace;
-            renderState.AlphaBlendEnable = false;
+            rs.DepthBufferWriteEnable = true;
+            rs.CullMode = CullMode.CullCounterClockwiseFace;
+            rs.AlphaBlendEnable = false;
         }
 
         private void DrawAtmo1(in Matrix world)
@@ -98,42 +98,43 @@ namespace Ship_Game
             }
         }
 
-        private void DrawClouds(Model model, in Matrix world, Planet p)
+        private void DrawClouds(GraphicsDevice device, Model model, in Matrix world, Planet p)
         {
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
-            ScreenManager.GraphicsDevice.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            var renderState                                             = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable                                = true;
-            renderState.AlphaBlendOperation                             = BlendFunction.Add;
-            renderState.SourceBlend                                     = Blend.SourceAlpha;
-            renderState.DestinationBlend                                = Blend.InverseSourceAlpha;
-            renderState.DepthBufferWriteEnable                          = false;
-            ModelMesh modelMesh                                         = model.Meshes[0];
-            foreach (BasicEffect basicEffect in modelMesh.Effects)
+            device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
+            device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
+            RenderState rs = device.RenderState;
+            rs.AlphaBlendEnable       = true;
+            rs.AlphaBlendOperation    = BlendFunction.Add;
+            rs.SourceBlend            = Blend.SourceAlpha;
+            rs.DestinationBlend       = Blend.InverseSourceAlpha;
+            rs.DepthBufferWriteEnable = false;
+
+            ModelMesh modelMesh = model.Meshes[0];
+            foreach (BasicEffect effect in modelMesh.Effects)
             {
-                basicEffect.World                           = Matrix.CreateScale(4.05f) * world;
-                basicEffect.View                            = View;
-                basicEffect.Texture                         = cloudTex;
-                basicEffect.TextureEnabled                  = true;
-                basicEffect.Projection                      = Projection;
-                basicEffect.LightingEnabled                 = true;
-                basicEffect.DirectionalLight0.DiffuseColor  = new Vector3(1f, 1f, 1f);
-                basicEffect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
-                basicEffect.SpecularPower                   = 4;
+                effect.World                           = Matrix.CreateScale(4.05f) * world;
+                effect.View                            = View;
+                effect.Texture                         = cloudTex;
+                effect.TextureEnabled                  = true;
+                effect.Projection                      = Projection;
+                effect.LightingEnabled                 = true;
+                effect.DirectionalLight0.DiffuseColor  = new Vector3(1f, 1f, 1f);
+                effect.DirectionalLight0.SpecularColor = new Vector3(1f, 1f, 1f);
+                effect.SpecularPower                   = 4;
                 if (UseRealLights)
                 {
                     Vector2 sunToPlanet = p.Center - p.ParentSystem.Position;
-                    basicEffect.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
+                    effect.DirectionalLight0.Direction = sunToPlanet.ToVec3().Normalized();
                 }
                 else
                 {
                     Vector2 universeCenterToPlanet = p.Center - new Vector2(0, 0);
-                    basicEffect.DirectionalLight0.Direction = universeCenterToPlanet.ToVec3().Normalized();
+                    effect.DirectionalLight0.Direction = universeCenterToPlanet.ToVec3().Normalized();
                 }
-                basicEffect.DirectionalLight0.Enabled = true;
+                effect.DirectionalLight0.Enabled = true;
             }
             modelMesh.Draw();
-            renderState.DepthBufferWriteEnable = true;
+            rs.DepthBufferWriteEnable = true;
         }
 
         private void DrawToolTip()
@@ -214,11 +215,13 @@ namespace Ship_Game
 
 
 
-        private void DrawColoredEmpireBorders()
+        private void DrawColoredEmpireBorders(SpriteBatch batch, GraphicsDevice graphics)
         {
-            var spriteBatch = ScreenManager.SpriteBatch;
-            var graphics = ScreenManager.GraphicsDevice;
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
+            DrawBorders.Start();
+
+            graphics.SetRenderTarget(0, BorderRT);
+            graphics.Clear(Color.TransparentBlack);
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None);
             graphics.RenderState.SeparateAlphaBlendEnabled = true;
             graphics.RenderState.AlphaBlendOperation = BlendFunction.Add;
             graphics.RenderState.AlphaSourceBlend = Blend.One;
@@ -230,7 +233,7 @@ namespace Ship_Game
 
             foreach (Empire empire in EmpireManager.Empires.Sorted(e=> e.MilitaryScore))
             {
-                if (!Debug && empire != player && !player.GetRelations(empire).Known)
+                if (!Debug && empire != player && !player.IsKnown(empire))
                     continue;
 
                 var empireColor = empire.EmpireColor;
@@ -249,8 +252,7 @@ namespace Ship_Game
                             ProjectToScreenPosition(influ.Position.PointFromAngle(90f, influ.Radius)).X - nodePos.X);
 
                         Rectangle rect = new Rectangle((int) nodePos.X, (int) nodePos.Y, size * 5, size * 5);
-                        spriteBatch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF,
-                            SpriteEffects.None, 1f);
+                        batch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF, SpriteEffects.None, 1f);
 
                         for (int i = 0; i < nodes.Length; i++)
                         {
@@ -265,13 +267,14 @@ namespace Ship_Game
                             float rotation = nodePos.RadiansToTarget(endPos);
                             rect = new Rectangle((int) endPos.X, (int) endPos.Y, size * 3 / 2,
                                 (int) nodePos.Distance(endPos));
-                            spriteBatch.Draw(nodeConnect, rect, empireColor, rotation, new Vector2(2f, 2f),
-                                SpriteEffects.None, 1f);
+                            batch.Draw(nodeConnect, rect, empireColor, rotation, new Vector2(2f, 2f), SpriteEffects.None, 1f);
                         }
                     }
                 }
             }
-            spriteBatch.End();
+            batch.End();
+
+            DrawBorders.Stop();
         }
 
         void DrawDebugPlanetBudgets()
@@ -291,6 +294,8 @@ namespace Ship_Game
 
         void DrawMain(SpriteBatch batch, DrawTimes elapsed)
         {
+            DrawMain3D.Start();
+
             Render(batch, elapsed);
 
             batch.Begin(SpriteBlendMode.Additive);
@@ -306,11 +311,14 @@ namespace Ship_Game
                     if (clickable.shipToClick.InFrustum)
                         clickable.shipToClick.DrawShieldBubble(this);
             }
+
+            DrawMain3D.Stop();
         }
 
-        void DrawLights(SpriteBatch batch)
+        void DrawLights(SpriteBatch batch, GraphicsDevice device)
         {
-            var device = ScreenManager.GraphicsDevice;
+            DrawFogInfluence.Start();
+
             device.SetRenderTarget(0, FogMapTarget);
             device.Clear(Color.TransparentWhite);
             batch.Begin(SpriteBlendMode.Additive);
@@ -347,15 +355,14 @@ namespace Ship_Game
             DrawFogNodes();
             DrawInfluenceNodes();
             batch.End();
-            ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
+            device.SetRenderTarget(0, null);
+
+            DrawFogInfluence.Stop();
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            // Wait for ProcessTurns to finish before we start drawing
-            if (ProcessTurnsThread != null && ProcessTurnsThread.IsAlive) // check if thread is alive to avoid deadlock
-                if (!ProcessTurnsCompletedEvt.WaitOne(100))
-                    Log.Warning("Universe ProcessTurns Wait timed out: ProcessTurns was taking too long!");
+            DrawPerf.Start();
 
             lock (GlobalStats.BeamEffectLocker)
             {
@@ -372,34 +379,19 @@ namespace Ship_Game
                        new Vector3(-CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
             Matrix matrix = View;
 
-            var graphics = ScreenManager.GraphicsDevice;
+            GraphicsDevice graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
             DrawMain(batch, elapsed);
             graphics.SetRenderTarget(0, null);
-            DrawLights(batch);
+
+            DrawLights(batch, graphics);
 
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
-                graphics.SetRenderTarget(0, BorderRT);
-                graphics.Clear(Color.TransparentBlack);
-                DrawColoredEmpireBorders();
+                DrawColoredEmpireBorders(batch, graphics);
             }
 
-            graphics.SetRenderTarget(0, null);
-            Texture2D texture1 = MainTarget.GetTexture();
-            Texture2D texture2 = LightsTarget.GetTexture();
-            graphics.SetRenderTarget(0, null);
-            graphics.Clear(Color.Black);
-            basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
-
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,  SaveStateMode.SaveState);
-            basicFogOfWarEffect.Begin();
-            basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
-            batch.Draw(texture1, new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
-                    graphics.PresentationParameters.BackBufferHeight), Color.White);
-            basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
-            basicFogOfWarEffect.End();
-            batch.End();
+            DrawFogOfWarEffect(batch, graphics);
 
             View = matrix;
             if (GlobalStats.RenderBloom)
@@ -408,33 +400,34 @@ namespace Ship_Game
             }
 
             batch.Begin(SpriteBlendMode.AlphaBlend);
-
-            if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
-            {
-                // set the alpha value depending on camera height
-                int alpha = (int) (90.0f * CamHeight / 1800000.0f);
-                if (alpha > 90) alpha = 90;
-                else if (alpha < 10) alpha = 0;
-                var color = new Color(255, 255, 255, (byte) alpha);
-
-                batch.Draw(BorderRT.GetTexture(),
-                    new Rectangle(0, 0,
-                        graphics.PresentationParameters.BackBufferWidth,
-                        graphics.PresentationParameters.BackBufferHeight), color);
-            }
-
             RenderOverFog(batch);
             batch.End();
 
+             // these are all background elements, such as ship overlays, fleet icons, etc..
             batch.Begin();
-            
-            // these are all background elements, such as ship overlays, fleet icons, etc..
-            DrawShipsInRange(batch);
-            DrawPlanetProjectiles(batch);
-            DrawTacticalPlanetIcons(batch);
-            DrawFTLInhibitionNodes();
-            DrawShipRangeOverlay();
-            DrawFleetIcons();
+            {
+                DrawShipsAndProjectiles(batch);
+                DrawShipAndPlanetIcons(batch);
+                DrawGeneralUI(batch, elapsed);
+            }
+            batch.End();
+
+            // Advance the simulation time just before we Notify
+            if (!Paused && IsActive)
+            {
+                AdvanceSimulationTargetTime(elapsed.RealTime.Seconds);
+            }
+
+            // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
+            // the game logic can be updated
+            DrawCompletedEvt.Set();
+
+            DrawPerf.Stop();
+        }
+
+        private void DrawGeneralUI(SpriteBatch batch, DrawTimes elapsed)
+        {
+            DrawUI.Start();
 
             // in cinematic mode we disable all of these GUI elements
             bool showGeneralUI = !IsCinematicModeEnabled;
@@ -479,21 +472,47 @@ namespace Ship_Game
             DrawGeneralStatusText(batch, elapsed);
 
             if (Debug) ShowDebugGameInfo();
-            else       HideDebugGameInfo();
+            else HideDebugGameInfo();
 
             base.Draw(batch, elapsed);  // UIElementV2 Draw
 
+            DrawUI.Stop();
+        }
+
+        private void DrawFogOfWarEffect(SpriteBatch batch, GraphicsDevice graphics)
+        {
+            DrawFogOfWar.Start();
+
+            Texture2D texture1 = MainTarget.GetTexture();
+            Texture2D texture2 = LightsTarget.GetTexture();
+            graphics.SetRenderTarget(0, null);
+            graphics.Clear(Color.Black);
+            basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
+
+
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.SaveState);
+            basicFogOfWarEffect.Begin();
+            basicFogOfWarEffect.CurrentTechnique.Passes[0].Begin();
+            batch.Draw(texture1, new Rectangle(0, 0, graphics.PresentationParameters.BackBufferWidth,
+                    graphics.PresentationParameters.BackBufferHeight), Color.White);
+            basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
+            basicFogOfWarEffect.End();
             batch.End();
 
-            // Advance the simulation time just before we Notify
-            if (!Paused && IsActive)
-            {
-                AdvanceSimulationTargetTime(elapsed.RealTime.Seconds);
-            }
+            DrawFogOfWar.Stop();
+        }
 
-            // Notify ProcessTurns that Drawing has finished and while SwapBuffers is blocking,
-            // the game logic can be updated
-            DrawCompletedEvt.Set();
+        private void DrawShipAndPlanetIcons(SpriteBatch batch)
+        {
+            DrawIcons.Start();
+            DrawProjectedGroup();
+            if (!LookingAtPlanet)
+                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
+            DrawTacticalPlanetIcons(batch);
+            DrawFTLInhibitionNodes();
+            DrawShipRangeOverlay();
+            DrawFleetIcons();
+            DrawIcons.Stop();
         }
 
         void DrawTopCenterStatusText(SpriteBatch batch, in LocalizedText status, Color color, int lineOffset)
@@ -550,12 +569,13 @@ namespace Ship_Game
                             : new Color(200, 0, 0, 30);
                         byte edgeAlpha = 40;
                         DrawCircleProjected(ship.Position, ship.WeaponsMaxRange, new Color(Color.Red, edgeAlpha));
-                        if (Empire.Universe.SelectedShip != ship) continue;
-
-                        edgeAlpha = 70;
-                        DrawTextureProjected(shipRangeTex, ship.Position, ship.WeaponsMaxRange, color);
-                        DrawCircleProjected(ship.Position, ship.WeaponsAvgRange, new Color(Color.Orange, edgeAlpha));
-                        DrawCircleProjected(ship.Position, ship.WeaponsMinRange, new Color(Color.Yellow, edgeAlpha));
+                        if (SelectedShip == ship)
+                        {
+                            edgeAlpha = 70;
+                            DrawTextureProjected(shipRangeTex, ship.Position, ship.WeaponsMaxRange, color);
+                            DrawCircleProjected(ship.Position, ship.WeaponsAvgRange, new Color(Color.Orange, edgeAlpha));
+                            DrawCircleProjected(ship.Position, ship.WeaponsMinRange, new Color(Color.Yellow, edgeAlpha));
+                        }
                     }
 
                     if ((ship?.SensorRange ?? 0) > 0)
@@ -676,96 +696,6 @@ namespace Ship_Game
         }
 
 
-        UILabel DebugGameStats;
-        UILabel DebugGameStatValues;
-        UILabel DebugGamePerf;
-        UILabel DebugGamePerfValues;
-
-        void HideDebugGameInfo()
-        {
-            DebugGameStats?.Hide();
-            DebugGameStatValues?.Hide();
-            DebugGamePerf?.Hide();
-            DebugGamePerfValues?.Hide();
-        }
-
-        void ShowDebugGameInfo()
-        {
-            if (DebugGameStats == null)
-            {
-                DebugGameStats = Label(150f, 44f, "");
-                DebugGameStatValues = Label(150f, 44f, "");
-                DebugGamePerf =Label(150f, 44f, "");
-                DebugGamePerfValues =Label(150f, 44f, "");
-            }
-            
-            DebugGameStats.Show();
-            DebugGameStats.MultilineText = new Array<string>
-            {
-                "Comparisons:      " ,
-                "Dis Check Avg:    " ,
-                "Modules Updated:  " ,
-                "Arc Checks:       " ,
-                "Beam Tests:       "
-            };
-            DebugGameStatValues.SetAbsPos(DebugGameStats.TopLeft.X + DebugGameStats.Size.X , DebugGameStats.Y);
-            DebugGameStatValues.Show();
-            DebugGameStatValues.MultilineText = new Array<string>
-            {
-                GlobalStats.Comparisons.ToString(),
-                (GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter).ToString(),
-                GlobalStats.ModuleUpdates.ToString(),
-                GlobalStats.WeaponArcChecks.ToString(),
-                GlobalStats.BeamTests.ToString(),
-            };
-
-            DebugGamePerf.SetAbsPos(DebugGameStatValues.TopLeft.X + DebugGameStatValues.Size.X + 50, DebugGameStatValues.Y);
-            DebugGamePerf.Show();
-            DebugGamePerf.MultilineText = new Array<string>
-            {
-                "Time:             ",
-                "ShipCount:        ",
-                
-                "Turn.Systems:     ",
-                "Turn.Ships:       ",
-                "Turn.PreEmpire:   ",
-                "Turn.Empire:      ",
-                "Turn.PostEmpire:  ",
-                "Turn.Collision:   ",
-                "Turn.EmpireQue:   ",
-
-                " Sim.TurnTime:    ",
-                " Sim.TurnPerSec:  ",
-
-                "  UpdateSim.Time:  ",
-                "  UpdateSim.NTurns: "
-            };
-            
-            DebugGamePerf.Align = TextAlign.Default;
-
-            DebugGamePerfValues.X = DebugGamePerf.TopLeft.X + DebugGamePerf.Size.X;
-            DebugGamePerfValues.Show();
-            DebugGamePerfValues.MultilineText = new Array<string>
-            {
-                $"real {GameBase.Base.TotalElapsed:0.00}s   sim.time {CurrentSimTime:0.00}s/{TargetSimTime:0.00}s  lag:{(TargetSimTime-CurrentSimTime)*1000:0.0}ms",
-                MasterShipList.Count.ToString(),
-
-                UpdateSysPerf.String(TurnTimePerf),
-                UpdateShipsPerf.String(TurnTimePerf),
-                PreEmpirePerf.String(TurnTimePerf),
-                EmpireUpdatePerf.String(TurnTimePerf),
-                PostEmpirePerf.String(TurnTimePerf),
-                CollisionTime.String(TurnTimePerf),
-                EmpireUpdateQueue.Perf.String(TurnTimePerf),
-
-                TurnTimePerf.ToString(),
-                $"actual:{ActualSimFPS}  target:{CurrentSimFPS}",
-
-                ProcessSimTurnsPerf.ToString(),
-                ProcessSimTurnsPerf.MeasuredSamples.ToString(),
-            };
-        }
-
         void DrawFleetIcons()
         {
             ClickableFleetsList.Clear();
@@ -836,8 +766,8 @@ namespace Ship_Game
 
                 foreach (Empire e in solarSystem.OwnerList)
                 {
-                    EmpireManager.Player.TryGetRelations(e, out Relationship ssRel);
-                    wellKnown = Debug || EmpireManager.Player == e || ssRel.Treaty_Alliance;
+                    EmpireManager.Player.GetRelations(e, out Relationship ssRel);
+                    wellKnown = Debug || e.isPlayer || ssRel.Treaty_Alliance;
                     if (wellKnown) break;
 
                 }
@@ -846,13 +776,11 @@ namespace Ship_Game
 
                 foreach (Planet planet in solarSystem.PlanetList)
                 {
-
                     if (!wellKnown && planet.Owner != null)
                     {
                         Empire e = planet.Owner;
-                        if (EmpireManager.Player.TryGetRelations(e, out Relationship ssRel) && ssRel.Known)
+                        if (EmpireManager.Player.IsKnown(e))
                             wellKnown = true;
-
                     }
 
                     float fIconScale = 0.1875f * (0.7f + ((float) (Math.Log(planet.Scale)) / 2.75f));
@@ -993,10 +921,8 @@ namespace Ship_Game
             }
         }
 
-        void DrawShipsInRange(SpriteBatch batch)
+        void DrawShipsAndProjectiles(SpriteBatch batch)
         {
-            var currentlyKnown = player.KnownShips.AtomicCopy();
-
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
             var rs = Device.RenderState;
@@ -1007,88 +933,57 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.None;
 
-            int projectileDrawCap = 10;
+            Ship[] ships = Objects.VisibleShips;
 
-            for (int i = 0; i < currentlyKnown.Length; i++)
+            if (viewState <= UnivScreenState.PlanetView)
             {
-                Ship ship = currentlyKnown[i];
-                if (viewState <= UnivScreenState.PlanetView && ship != null &&
-                    (ship.InFrustum || ship.AI.Target?.InFrustum == true))
-                {
-                    if (viewState > UnivScreenState.ShipView &&
-                        --projectileDrawCap < 0)
-                    {
-                        projectileDrawCap = 2;
-                        continue;
-                    }
+                DrawProj.Start();
 
-                    ship.DrawProjectiles(batch, this);
+                Projectile[] projectiles = Objects.VisibleProjectiles;
+                Beam[] beams = Objects.VisibleBeams;
+                for (int i = 0; i < projectiles.Length; ++i)
+                {
+                    Projectile proj = projectiles[i];
+                    proj.Draw(batch, this);
                 }
+                for (int i = 0; i < beams.Length; ++i)
+                {
+                    Beam beam = beams[i];
+                    beam.Draw(this);
+                }
+
+                DrawProj.Stop();
             }
 
             Device.SamplerStates[0].AddressU = TextureAddressMode.Wrap;
             Device.SamplerStates[0].AddressV = TextureAddressMode.Wrap;
-            rs.AlphaBlendEnable                           = true;
-            rs.AlphaBlendOperation                        = BlendFunction.Add;
-            rs.SourceBlend                                = Blend.SourceAlpha;
-            rs.DestinationBlend                           = Blend.InverseSourceAlpha;
-            rs.DepthBufferWriteEnable                     = false;
-            rs.CullMode                                   = CullMode.None;
+            rs.AlphaBlendEnable       = true;
+            rs.AlphaBlendOperation    = BlendFunction.Add;
+            rs.SourceBlend            = Blend.SourceAlpha;
+            rs.DestinationBlend       = Blend.InverseSourceAlpha;
+            rs.DepthBufferWriteEnable = false;
+            rs.CullMode               = CullMode.None;
 
-            // @todo This should make use of spatial manager's quadtree
-            //       We can select all ships inside screen area and check if those ships are Known
-
-            for (int i = 0; i < currentlyKnown.Length; i++)
+            DrawShips.Start();
+            for (int i = 0; i < ships.Length; ++i)
             {
-                Ship ship = currentlyKnown[i];
-                if (!ship.Active || !ship.inSensorRange ||
-                    !ScreenRectangle.HitTest(ship.ScreenPosition))
-                    continue;
-
-                if (!IsCinematicModeEnabled)
-                    DrawTacticalIcon(ship);
-                DrawOverlay(ship);
-
-                if (SelectedShip != ship &&
-                    !SelectedShipList.Contains(ship))
-                    continue;
-
-                Color color = Color.LightGreen;
-                if (player != ship.loyalty)
-                    color = player.IsEmpireAttackable(ship.loyalty)
-                        ? Color.Red
-                        : Color.Gray;
-                batch.BracketRectangle(ship.ScreenPosition,
-                    ship.ScreenRadius, color);
-            }
-
-            DrawProjectedGroup();
-
-            if (!LookingAtPlanet)
-                DeepSpaceBuildWindow.DrawBlendedBuildIcons();
-        }
-
-        void DrawPlanetProjectiles(SpriteBatch batch)
-        {
-            foreach (SolarSystem sys in SolarSystemList)
-            {
-                if (!sys.isVisible)
-                    continue;
-
-                Array<Planet> planets = sys.PlanetList;
-                for (int i = 0; i < planets.Count; i++)
+                Ship ship = ships[i];
+                if (ship.inSensorRange)
                 {
-                    Planet planet = planets[i];
-                    using (planet.Projectiles.AcquireReadLock())
+                    if (!IsCinematicModeEnabled)
+                        DrawTacticalIcon(ship);
+                    DrawOverlay(ship);
+
+                    if (SelectedShip == ship || SelectedShipList.Contains(ship))
                     {
-                        for (int x = 0; x < planet.Projectiles.Count; x++)
-                        {
-                            Projectile p = planet.Projectiles[x];
-                            if (p?.Active == true) p.Draw(batch, this);
-                        }
+                        Color color = Color.LightGreen;
+                        if (player != ship.loyalty)
+                            color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
+                        batch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius, color);
                     }
                 }
             }
+            DrawShips.Stop();
         }
 
         void DrawProjectedGroup()
@@ -1304,13 +1199,18 @@ namespace Ship_Game
 
         private void DrawShields()
         {
-            var renderState = ScreenManager.GraphicsDevice.RenderState;
-            renderState.AlphaBlendEnable = true;
-            renderState.AlphaBlendOperation = BlendFunction.Add;
-            renderState.SourceBlend = Blend.SourceAlpha;
-            renderState.DestinationBlend = Blend.One;
-            renderState.DepthBufferWriteEnable = false;
-            ShieldManager.Draw(View, Projection);
+            DrawShieldsPerf.Start();
+            if (viewState < UnivScreenState.SectorView)
+            {
+                var renderState = ScreenManager.GraphicsDevice.RenderState;
+                renderState.AlphaBlendEnable = true;
+                renderState.AlphaBlendOperation = BlendFunction.Add;
+                renderState.SourceBlend = Blend.SourceAlpha;
+                renderState.DestinationBlend = Blend.One;
+                renderState.DepthBufferWriteEnable = false;
+                ShieldManager.Draw(View, Projection);
+            }
+            DrawShieldsPerf.Stop();
         }
 
         private void DrawPlanetInfo()
@@ -1333,10 +1233,8 @@ namespace Ship_Game
 
                 foreach (Empire e in solarSystem.OwnerList)
                 {
-                    EmpireManager.Player.TryGetRelations(e, out Relationship ssRel);
-                    wellKnown = Debug || EmpireManager.Player == e || ssRel.Treaty_Alliance;
+                    wellKnown = Debug || EmpireManager.Player == e || EmpireManager.Player.IsAlliedWith(e);
                     if (wellKnown) break;
-
                 }
 
                 for (int j = 0; j < solarSystem.PlanetList.Count; j++)
@@ -1344,13 +1242,7 @@ namespace Ship_Game
                     Planet planet = solarSystem.PlanetList[j];
                     if (!planet.IsExploredBy(player) && !wellKnown)
                         continue;
-                    if (planet.Owner != null && wellKnown)
-                    {
-                        Empire e = planet.Owner;
-                        if (EmpireManager.Player.TryGetRelations(e, out Relationship ssRel) && ssRel.Known)
-                            wellKnown = true;
 
-                    }
                     Vector2 screenPosPlanet = ProjectToScreenPosition(planet.Center, 2500f);
                     Vector2 posOffSet = screenPosPlanet;
                     posOffSet.X += 20f;

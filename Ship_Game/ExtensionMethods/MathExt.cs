@@ -654,6 +654,12 @@ namespace Ship_Game
             return (int)Ceiling(value * 0.1f) * 10;
         }
 
+        // For example: 75.5f.RoundDownTo(40)  -->  40
+        public static int RoundDownTo(this float value, int multipleOf)
+        {
+            return (int)Floor(value / multipleOf) * multipleOf;
+        }
+
         // For example: 75.5f.RoundTo10()  -->  70
         public static int RoundDownTo10(this float value)
         {

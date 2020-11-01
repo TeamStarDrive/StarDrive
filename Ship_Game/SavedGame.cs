@@ -77,10 +77,10 @@ namespace Ship_Game
 
         public SavedGame(UniverseScreen screenToSave, string saveAs)
         {
+            // clean up and submit objects before saving
+            screenToSave.Objects.Update(FixedSimTime.Zero);
+
             SaveData.SaveGameVersion       = SaveGameVersion;
-            SaveData.RemnantKills          = GlobalStats.RemnantKills;
-            SaveData.RemnantActivation     = GlobalStats.RemnantActivation;
-            SaveData.RemnantArmageddon     = GlobalStats.RemnantArmageddon;
             SaveData.gameDifficulty        = CurrentGame.Difficulty;
             SaveData.GalaxySize            = CurrentGame.GalaxySize;
             SaveData.StarsModifier         = CurrentGame.StarsModifier;
@@ -133,9 +133,9 @@ namespace Ship_Game
                     IsFaction = e.isFaction,
                     Relations = new Array<Relationship>()
                 };
-                foreach (KeyValuePair<Empire, Relationship> relation in e.AllRelations)
+                foreach (OurRelationsToThem relation in e.AllRelations)
                 {
-                    empireToSave.Relations.Add(relation.Value);
+                    empireToSave.Relations.Add(relation.Rel);
                 }
                 empireToSave.Name                 = e.data.Traits.Name;
                 empireToSave.empireData           = e.data.GetClone();
@@ -156,7 +156,9 @@ namespace Ship_Game
                 empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
                 empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
                 empireToSave.WeightedCenter           = e.WeightedCenter;
-                empireToSave.RushAllConstruction      = e.RushAllConsturction;
+                empireToSave.RushAllConstruction      = e.RushAllConstruction;
+
+                empireToSave.TargetsStrMultiplier = e.TargetsFleetStrMultiplier;
 
                 if (e.WeArePirates)
                 {
@@ -167,6 +169,20 @@ namespace Ship_Game
                     empireToSave.ShipsWeCanSpawn     = e.Pirates.ShipsWeCanSpawn;
                 }
 
+                if (e.WeAreRemnants)
+                {
+                    empireToSave.RemnantStoryActivated      = e.Remnants.Activated;
+                    empireToSave.RemnantStoryTriggerKillsXp = e.Remnants.StoryTriggerKillsXp;
+                    empireToSave.RemnantStoryType           = (int)e.Remnants.Story;
+                    empireToSave.RemnantProduction          = e.Remnants.Production;
+                    empireToSave.RemnantLevel               = e.Remnants.Level;
+                    empireToSave.RemnantStoryStep           = e.Remnants.StoryStep;
+                    empireToSave.RemnantPlayerStepTriggerXp = e.Remnants.PlayerStepTriggerXp;
+                    empireToSave.OnlyRemnantLeft            = e.Remnants.OnlyRemnantLeft;
+                    empireToSave.RemnantNextLevelUpDate     = e.Remnants.NextLevelUpDate;
+                    empireToSave.RemnantHibernationTurns    = e.Remnants.HibernationTurns;
+                    empireToSave.RemnantActivationXpNeeded  = e.Remnants.ActivationXpNeeded;
+                }
 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
                 {
@@ -258,7 +274,7 @@ namespace Ship_Game
                 });
                 empireToSave.GSAIData = gsaidata;
 
-                empireToSave.TechTree.AddRange(e.TechEntries);
+                empireToSave.TechTree.AddRange(e.TechEntries.ToArray());
 
                 foreach (Ship ship in e.GetShips())
                 {
@@ -373,16 +389,6 @@ namespace Ship_Game
                     {
                         sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
                     }
-
-                    sdata.Projectiles = ship.CopyProjectiles.Select(p => new ProjectileSaveData
-                    {
-                        Velocity = p.Velocity,
-                        Rotation = p.Rotation,
-                        Weapon   = p.Weapon.UID,
-                        Position = p.Center,
-                        Duration = p.Duration
-                    });
-
                     empireToSave.OwnedShips.Add(sdata);
                 }
 
@@ -418,12 +424,14 @@ namespace Ship_Game
                         WayPoints       = new Array<WayPoint>(),
                         ShipGoalsList   = new Array<ShipGoalSave>()
                     };
-                    sd.Projectiles = Empty<ProjectileSaveData>.Array;
                     empireToSave.OwnedShips.Add(sd);
                 }
 
                 SaveData.EmpireDataList.Add(empireToSave);
             }
+
+            SaveData.Projectiles = screenToSave.Objects.GetProjectileSaveData();
+            SaveData.Beams       = screenToSave.Objects.GetBeamSaveData();
 
             SaveData.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
             foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> e in StatTracker.SnapshotsMap)
@@ -583,6 +591,18 @@ namespace Ship_Game
             [Serialize(29)] public int AverageFreighterFTLSpeed;
             [Serialize(30)] public Vector2 WeightedCenter;
             [Serialize(31)] public bool RushAllConstruction;
+            [Serialize(32)] public Map<Guid, float> TargetsStrMultiplier;
+            [Serialize(33)] public float RemnantStoryTriggerKillsXp;
+            [Serialize(34)] public bool RemnantStoryActivated;
+            [Serialize(35)] public int RemnantStoryType;
+            [Serialize(36)] public float RemnantProduction;
+            [Serialize(37)] public int RemnantLevel;
+            [Serialize(38)] public int RemnantStoryStep;
+            [Serialize(39)] public float RemnantPlayerStepTriggerXp;
+            [Serialize(40)] public bool OnlyRemnantLeft;
+            [Serialize(41)] public float RemnantNextLevelUpDate;
+            [Serialize(42)] public int RemnantHibernationTurns;
+            [Serialize(43)] public float RemnantActivationXpNeeded;
         }
 
         public class FleetSave
@@ -699,11 +719,25 @@ namespace Ship_Game
 
         public struct ProjectileSaveData
         {
-            [Serialize(0)] public string Weapon;
-            [Serialize(1)] public float Duration;
-            [Serialize(2)] public float Rotation;
-            [Serialize(3)] public Vector2 Velocity;
-            [Serialize(4)] public Vector2 Position;
+            [Serialize(0)] public Guid Owner; // Ship or Planet
+            [Serialize(1)] public string Weapon;
+            [Serialize(2)] public float Duration;
+            [Serialize(3)] public float Rotation;
+            [Serialize(4)] public Vector2 Velocity;
+            [Serialize(5)] public Vector2 Position;
+            [Serialize(6)] public int Loyalty;
+        }
+
+        public struct BeamSaveData
+        {
+            [Serialize(0)] public Guid Owner; // Ship or Planet
+            [Serialize(1)] public string Weapon;
+            [Serialize(2)] public float Duration;
+            [Serialize(3)] public Vector2 Source;
+            [Serialize(4)] public Vector2 Destination;
+            [Serialize(5)] public Vector2 ActualHitDestination;
+            [Serialize(6)] public Guid Target; // Ship or Projectile
+            [Serialize(7)] public int Loyalty;
         }
 
         public class QueueItemSave
@@ -808,18 +842,17 @@ namespace Ship_Game
             [Serialize(20)] public float PopCount;
             [Serialize(21)] public Guid TetheredTo;
             [Serialize(22)] public Vector2 TetherOffset;
-            [Serialize(23)] public ProjectileSaveData[] Projectiles;
-            [Serialize(24)] public bool FightersLaunched;
-            [Serialize(25)] public bool TroopsLaunched;
-            [Serialize(26)] public Guid HomePlanetGuid;
-            [Serialize(27)] public bool TransportingFood;
-            [Serialize(28)] public bool TransportingProduction;
-            [Serialize(29)] public bool TransportingColonists;
-            [Serialize(30)] public bool AllowInterEmpireTrade;
-            [Serialize(31)] public Array<Guid> TradeRoutes;
-            [Serialize(32)] public bool SendTroopsToShip;
-            [Serialize(33)] public bool RecallFightersBeforeFTL;
-            [Serialize(34)] public float MechanicalBoardingDefense;
+            [Serialize(23)] public bool FightersLaunched;
+            [Serialize(24)] public bool TroopsLaunched;
+            [Serialize(25)] public Guid HomePlanetGuid;
+            [Serialize(26)] public bool TransportingFood;
+            [Serialize(27)] public bool TransportingProduction;
+            [Serialize(28)] public bool TransportingColonists;
+            [Serialize(29)] public bool AllowInterEmpireTrade;
+            [Serialize(30)] public Array<Guid> TradeRoutes;
+            [Serialize(31)] public bool SendTroopsToShip;
+            [Serialize(32)] public bool RecallFightersBeforeFTL;
+            [Serialize(33)] public float MechanicalBoardingDefense;
         }
 
         public class SolarSystemSaveData
@@ -882,6 +915,9 @@ namespace Ship_Game
             [Serialize(35)] public GalSize GalaxySize;
             [Serialize(36)] public float StarsModifier = 1;
             [Serialize(37)] public int ExtraPlanets;
+
+            [Serialize(38)] public ProjectileSaveData[] Projectiles; // New global projectile list
+            [Serialize(39)] public BeamSaveData[] Beams; // new global beam list
         }
     }
 }
