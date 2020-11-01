@@ -237,7 +237,7 @@ namespace Ship_Game
 
         /// <summary>
         /// Look in Undoable actions and see if there are 3 repeated actions,
-        ///  meaning bulk replaceCould be handy
+        ///  meaning bulk replace could be handy
         /// </summary>
         /// <param name="threshold"></param>
         /// <returns></returns>
