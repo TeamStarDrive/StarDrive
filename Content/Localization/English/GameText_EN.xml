@@ -4695,6 +4695,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>build all ships now, prioritize them to be first in queue and apply continuous rush.\n \nWARNING: This might drain your Treasury in an alarming rate.</Text>
     </Token>
     <Token>
+      <Index>1827</Index>
+      <Text>Use Shift + Click to bulk replace all similar modules. It is useful if you are upgrading your ship. It will also keep your old weapons' facing when bulk replacing weapons.</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
