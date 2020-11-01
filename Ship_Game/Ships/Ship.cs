@@ -27,16 +27,12 @@ namespace Ship_Game.Ships
             var ships = new Array<Ship>();
             for (int i = 0; i < guids.Count; i++)
             {
-                var guid = guids[i];
-                var ship = GetShipFromGuid(guid);
+                Ship ship = Empire.Universe.Objects.FindShip(guids[i]);
                 if (ship != null)
                     ships.AddUnique(ship);
             }
-
             return ships;
         }
-
-        public static Ship GetShipFromGuid(Guid guid) => Empire.Universe.MasterShipList.Find(s => s.guid == guid);
 
         public string VanityName                = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
@@ -121,7 +117,6 @@ namespace Ship_Game.Ships
         public bool InCombat;
         public float xRotation;
         public float ScreenRadius;
-        public bool InFrustum;
         public bool ShouldRecalculatePower;
         public bool Deleted;
         private float BonusEMP_Protection;
@@ -147,8 +142,7 @@ namespace Ship_Game.Ships
 
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
-        public int FixedTrackingPower;
-        public bool ShipInitialized;
+        public int TargetingAccuracy;
         public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
@@ -273,6 +267,7 @@ namespace Ship_Game.Ships
         }
 
         public bool IsPlatformOrStation => shipData.Role == ShipData.RoleName.platform || shipData.Role == ShipData.RoleName.station;
+        public bool IsStation           => shipData.Role == ShipData.RoleName.station && !shipData.IsShipyard;
 
         public void CauseEmpDamage(float empDamage) // FB - also used for recover EMP
         {
@@ -349,7 +344,7 @@ namespace Ship_Game.Ships
                     // again, damage also depends on module radius and their energy resistance
                     float damageAbsorb = 1 - module.EnergyResist;
                     module.Damage(damageCauser, damage * damageAbsorb * module.Radius);
-                    if (InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
+                    if (InFrustum && Empire.Universe?.IsShipViewOrCloser == true)
                     {
                         // visualize radiation hits on external modules
                         for (int j = 0; j < 50; j++)
@@ -359,25 +354,29 @@ namespace Ship_Game.Ships
             }
         }
 
-        public override bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
+        public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (attackerRelationThis.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
+            if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
                 && IsInBordersOf(attacker))
             {
                 return true;
             }
 
-            if (attackerRelationThis.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+            if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
             {
-                //if (!InCombat) Log.Info($"{attacker.Name} : Has filed transgressions against : {loyalty.Name} ");
                 return true;
             }
 
-            if (System != null && attackerRelationThis.WarnedSystemsList.Contains(System.guid))
-                return true;
+            SolarSystem system = System;
+            if (system != null)
+            {
+                if (attackerToUs.WarnedSystemsList.Contains(system.guid))
+                    return true;
 
-            if (DesignRole == ShipData.RoleName.troop && System != null && attacker.GetOwnedSystems().ContainsRef(System))
-                return true;
+                if (DesignRole == ShipData.RoleName.troop &&
+                    attacker.GetOwnedSystems().ContainsRef(system))
+                    return true;
+            }
 
             return false;
         }
@@ -390,14 +389,14 @@ namespace Ship_Game.Ships
             if (CombatDisabled)
                 return Vector2.Zero;
 
-            Vector2 jitter = Vector2.Zero;
+            Vector2 error = default;
             if (ECMValue > 0)
-                jitter += RandomMath2.Vector2D(ECMValue * 80f);
+                error += RandomMath2.Vector2D(ECMValue * 80f);
 
             if (loyalty.data.Traits.DodgeMod > 0)
-                jitter += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
+                error += RandomMath2.Vector2D(loyalty.data.Traits.DodgeMod * 80f);
 
-            return jitter;
+            return error;
         }
 
         public bool CanBeScrapped  => Mothership == null && HomePlanet == null;
@@ -785,8 +784,8 @@ namespace Ship_Game.Ships
                     Restrictions       = module.Restrictions
                 };
 
-                if (module.GetHangarShip() != null)
-                    data.HangarshipGuid = module.GetHangarShip().guid;
+                if (module.TryGetHangarShip(out Ship hangarShip))
+                    data.HangarshipGuid = hangarShip.guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
                     data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
@@ -1070,9 +1069,12 @@ namespace Ship_Game.Ships
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
                 float tan = (float)Math.Tan(yRotation);
+                float parentX = Center.X;
+                float parentY = Center.Y;
+                float rotation = Rotation;
                 for (int i = 0; i < ModuleSlotList.Length; ++i)
                 {
-                    ModuleSlotList[i].UpdateEveryFrame(timeStep, cos, sin, tan);
+                    ModuleSlotList[i].UpdateEveryFrame(timeStep, parentX, parentY, rotation, cos, sin, tan);
                 }
                 GlobalStats.ModuleUpdates += ModuleSlotList.Length;
             }
@@ -1202,52 +1204,6 @@ namespace Ship_Game.Ships
 
         }
 
-        /// <summary>
-        /// Sets if ship can be "seen" by an empire.
-        /// this should be merged with scanForCombatTargets at some point. we effectively doing this check twice.
-        /// however this routine is on a fading timer. so while we are doing the check twice they do need to update at different intervals. 
-        /// </summary>
-        public void SetShipsVisible(float elapsedTime)
-        {
-            if (KnownByEmpires.KnownBy(loyalty)) return;
-            if (Empire.Universe.Debug)
-            {
-                KnownByEmpires.SetSeenByPlayer();
-            }
-            if (!Empire.Universe.Debug)
-            {
-                KnownByEmpires.SetSeen(loyalty);
-            
-
-                foreach(var rel in loyalty.AllRelations)
-                {
-                    if (!rel.Value.Treaty_Alliance) continue;
-                    KnownByEmpires.SetSeen(rel.Key);
-                }
-            }
-            SetOtherShipsInSensorRange();
-        }
-        
-        private void SetOtherShipsInSensorRange()
-        {
-            var nearby =  AI.PotentialTargets; //UniverseScreen.SpaceManager.FindNearby(this, SensorRange, GameObjectType.Ship);
-
-            for (int i = 0; i < nearby.Count; i++)
-            {
-                var ship = nearby[i];
-                if (!ship.Active) continue;
-
-                ship.KnownByEmpires.SetSeen(loyalty);
-                var allies = EmpireManager.GetAllies(loyalty);
-
-                for (int x = 0; x < allies.Count; x++)
-                {
-                    var ally = allies[x];
-                    ship.KnownByEmpires.SetSeen(ally);
-                }
-            }
-        }
-
         public bool IsSuitableForPlanetaryRearm()
         {
             if (InCombat 
@@ -1324,7 +1280,7 @@ namespace Ship_Game.Ships
             ECMValue                    = 0f;
             hasCommand                  = IsPlatform;
             TrackingPower               = 0;
-            FixedTrackingPower          = 0;
+            TargetingAccuracy           = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
@@ -1338,12 +1294,7 @@ namespace Ship_Game.Ships
                 if (module.Active && (module.Powered || module.PowerDraw <= 0f))
                 {
                     hasCommand |= module.IsCommandModule;
-
-                    //Doctor: For 'Fixed' tracking power modules - i.e. a system whereby a module provides a non-cumulative/non-stacking tracking power.
-                    //The normal stacking/cumulative tracking is added on after the for loop for mods that want to mix methods. The original cumulative function is unaffected.
-                    if (module.FixedTracking > 0 && module.FixedTracking > FixedTrackingPower)
-                        FixedTrackingPower = module.FixedTracking;
-
+                    
                     OrdinanceMax        += module.OrdinanceCapacity;
                     CargoSpaceMax       += module.Cargo_Capacity;
                     BonusEMP_Protection += module.EMP_Protection;
@@ -1352,29 +1303,34 @@ namespace Ship_Game.Ships
                     InhibitionRadius     = module.InhibitionRadius.LowerBound(InhibitionRadius);
                     SensorRange          = module.SensorRange.LowerBound(SensorRange);
                     sensorBonus          = module.SensorBonus.LowerBound(sensorBonus);
-                    TrackingPower        = module.TargetTracking.LowerBound(TrackingPower);
+                    TrackingPower       += module.TargetTracking;
+                    TargetingAccuracy    = module.TargetingAccuracy.LowerBound(TargetingAccuracy);
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
 
-            shield_max    = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
-            NetPower      = Power.Calculate(ModuleSlotList, loyalty);
-            PowerStoreMax = NetPower.PowerStoreMax;
-            PowerFlowMax  = NetPower.PowerFlowMax;
+            if (IsTethered)
+            {
+                var planet = TetheredTo;
+                if (planet?.Owner != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
+                {
+                    TrackingPower     = TrackingPower.LowerBound(planet.Level);
+                    TargetingAccuracy = TrackingPower.LowerBound(planet.Level);
+                }
+            }
 
-            //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
-            TrackingPower += FixedTrackingPower;
-
+            shield_max     = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
+            NetPower       = Power.Calculate(ModuleSlotList, loyalty);
+            PowerStoreMax  = NetPower.PowerStoreMax;
+            PowerFlowMax   = NetPower.PowerFlowMax;
             shield_percent = (100.0 * shield_power / shield_max.LowerBound(0.1f)).LowerBound(0);
             SensorRange   += sensorBonus;
 
             // Apply modifiers to stats
-            RepairRate += (float)(RepairRate * Level * 0.05);
-            if (IsPlatform)
-                SensorRange = SensorRange.LowerBound(10000);
-            SensorRange   *= loyalty.data.SensorModifier;
-
+            if (IsPlatform) SensorRange = SensorRange.LowerBound(10000);
+            RepairRate     += (float)(RepairRate * Level * 0.05);
+            SensorRange    *= loyalty.data.SensorModifier;
             CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
@@ -1451,7 +1407,7 @@ namespace Ship_Game.Ships
 
             return BaseStrength.LessOrEqual(0)
                    || IsFreighter
-                   || EmpireManager.Player.TryGetRelations(loyalty, out Relationship rel) && !rel.AtWar;
+                   || !EmpireManager.Player.IsAtWarWith(loyalty);
         }
 
         public void UpdateEmpiresOnKill(Ship killedShip)
@@ -1482,7 +1438,7 @@ namespace Ship_Game.Ships
                 ExplosionManager.AddExplosion(position, Velocity,
                     size*1.75f, 12f, ExplosionType.Warp);
             }
-            UniverseScreen.SpaceManager.ShipExplode(this, size * 50, Center, Radius);
+            UniverseScreen.Spatial.ShipExplode(this, size * 50, Center, Radius);
         }
 
         // cleanupOnly: for tumbling ships that are already dead
@@ -1495,8 +1451,6 @@ namespace Ship_Game.Ships
                 psource?.Module?.GetParent().UpdateEmpiresOnKill(this);
                 psource?.Module?.GetParent().AddKill(this);
             }
-
-            RemoveBeams();
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
@@ -1587,40 +1541,32 @@ namespace Ship_Game.Ships
 
         public void QueueTotalRemoval()
         {
-            Empire.Universe?.QueueGameplayObjectRemoval(this);
+            Active = false;
             TetheredTo?.RemoveFromOrbitalStations(this);
-            AI.ClearOrdersAndWayPoints();
+            AI.ClearOrdersAndWayPoints(); // This calls immediate Dispose() on Orders that require cleanup
         }
 
         public override void RemoveFromUniverseUnsafe()
         {
             AI.Reset();
 
-            Empire.Universe.MasterShipList.QueuePendingRemoval(this);
-            if (Empire.Universe.SelectedShip == this)
-                Empire.Universe.SelectedShip = null;
-            Empire.Universe.SelectedShipList.RemoveRef(this);
-
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
-                    if (shipModule.GetHangarShip() == this)
+                    if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
 
             foreach (ShipModule hangar in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
             {
-                if (hangar.GetHangarShip() != null)
-                    hangar.GetHangarShip().Mothership = null;
+                if (hangar.TryGetHangarShip(out Ship hangarShip))
+                    hangarShip.Mothership = null; // Todo - Setting this to null might be risky
             }
 
             foreach (Empire empire in EmpireManager.Empires)
             {
                 empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
-
-            RemoveProjectiles();
-            RemoveBeams();
 
             ModuleSlotList     = Empty<ShipModule>.Array;
             SparseModuleGrid   = Empty<ShipModule>.Array;
@@ -1634,7 +1580,6 @@ namespace Ship_Game.Ships
             RepairBeams.Clear();
 
             loyalty.RemoveShip(this);
-            SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
 
             RemoveSceneObject();
@@ -1712,16 +1657,16 @@ namespace Ship_Game.Ships
         {
             switch (DesignRole)
             {
-                case ShipData.RoleName.bomber:    empire.canBuildBombers       = true; break;
-                case ShipData.RoleName.carrier:   empire.canBuildCarriers      = true; break;
-                case ShipData.RoleName.support:   empire.canBuildSupportShips  = true; break;
-                case ShipData.RoleName.troopShip: empire.canBuildTroopShips    = true; break;
-                case ShipData.RoleName.corvette:  empire.canBuildCorvettes     = true; break;
-                case ShipData.RoleName.frigate:   empire.canBuildFrigates      = true; break;
-                case ShipData.RoleName.cruiser:   empire.canBuildCruisers      = true; break;
-                case ShipData.RoleName.capital:   empire.canBuildCapitals      = true; break;
-                case ShipData.RoleName.platform:  empire.CanBuildPlatforms     = true; break;
-                case ShipData.RoleName.station:   empire.CanBuildStations      = true; break;
+                case ShipData.RoleName.bomber:    empire.canBuildBombers      = true; break;
+                case ShipData.RoleName.carrier:   empire.canBuildCarriers     = true; break;
+                case ShipData.RoleName.support:   empire.canBuildSupportShips = true; break;
+                case ShipData.RoleName.troopShip: empire.canBuildTroopShips   = true; break;
+                case ShipData.RoleName.corvette:  empire.canBuildCorvettes    = true; break;
+                case ShipData.RoleName.frigate:   empire.canBuildFrigates     = true; break;
+                case ShipData.RoleName.cruiser:   empire.canBuildCruisers     = true; break;
+                case ShipData.RoleName.capital:   empire.canBuildCapitals     = true; break;
+                case ShipData.RoleName.platform:  empire.CanBuildPlatforms    = true; break;
+                case ShipData.RoleName.station:   empire.CanBuildStations     = true; break;
             }
             if (shipData.IsShipyard)
                 empire.CanBuildShipyards = true;
@@ -1886,7 +1831,7 @@ namespace Ship_Game.Ships
             if (maxValue <= 0) return Status.NotApplicable;
             if (valueToCheck > maxValue)
             {
-                Log.Info("MaxValue of check as greater than value to check");
+                //Log.Info("MaxValue of check as greater than value to check");
                 return Status.NotApplicable;
             }
 

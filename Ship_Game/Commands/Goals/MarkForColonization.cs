@@ -2,6 +2,7 @@
 using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -39,6 +40,9 @@ namespace Ship_Game.Commands.Goals
                 ChangeToStep(OrderShipToColonize);
                 Evaluate();
             }
+
+            if (!AIControlsColonization) // Fast track for player colonization
+                ChangeToStep(OrderShipForColonization);
         }
 
         // Player ordered an existing colony ship to colonize
@@ -62,8 +66,8 @@ namespace Ship_Game.Commands.Goals
                 if (ColonizationTarget.Owner.isFaction) 
                     return FinishedShip != null ? GoalStep.GoalFailed : GoalStep.GoToNextStep;
 
-                foreach (var relationship in empire.AllRelations)
-                    empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
+                foreach ((Empire them, Relationship rel) in empire.AllRelations)
+                    empire.GetEmpireAI().ExpansionAI.CheckClaim(them, rel, ColonizationTarget);
 
                 ReleaseShipFromGoal();
                 Log.Info($"Colonize: {ColonizationTarget.Owner.Name} got there first");
@@ -77,7 +81,9 @@ namespace Ship_Game.Commands.Goals
         {
             if (PositiveEnemyPresence(out float spaceStrength) && !empire.isPlayer)
             {
-                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
+                empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, out float strMultiplier);
+                spaceStrength *= strMultiplier;
+                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(100));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
 
@@ -91,14 +97,21 @@ namespace Ship_Game.Commands.Goals
 
             if (TryGetClaimTask(out MilitaryTask task))
             {
-                if (!PositiveEnemyPresence(out _) || task.Fleet?.TaskStep == 7)
+                if (!PositiveEnemyPresence(out float enemyStr) || task.Fleet?.TaskStep == 7)
                     return GoalStep.GoToNextStep;
+
+                if (enemyStr > empire.OffensiveStrength)
+                {
+                    task.Fleet?.FleetTask.EndTask();
+                    task.EndTask();
+                    return GoalStep.GoalFailed;
+                }
 
                 return GoalStep.TryAgain; // Claim task still in progress
             }
 
             // Check if there is enemy presence without a claim task
-            if (PositiveEnemyPresence(out _))
+            if (PositiveEnemyPresence(out _) && AIControlsColonization)
             {
                 ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;

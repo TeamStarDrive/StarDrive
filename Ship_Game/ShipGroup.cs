@@ -372,6 +372,19 @@ namespace Ship_Game
             return Strength;
         }
 
+        public float GetBomberStrength()
+        {
+            float str = 0f;
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                if (ship.Active && ship.DesignRole == ShipData.RoleName.bomber)
+                    str += ship.GetStrength();
+            }
+
+            return str;
+        }
+
         public Ship GetClosestShipTo(Vector2 worldPos)
         {
             return Ships.FindMin(ship => ship.Center.SqDist(worldPos));

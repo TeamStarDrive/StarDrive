@@ -1,0 +1,12 @@
+﻿<ExplorationEvent>
+  <Name>Remnant History</Name>
+  <StoryStep>5</StoryStep>
+  <Story>AncientBalancers</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Remnant History - Ancient Balancers</TitleText>
+      <DescriptionText>We now know a significant part of the Remnant history. The Remnant was a peaceful race which lived Eons ago. Their part of the galaxy was a heaven for many alien empires, until one empire decided they need to expand and destroy all other races. The Remnants were the last race remaining in the end. Eventually, they had to move from defense to attack and the final war destroyed both empires' homeworlds. before the final destruction, the remnant send their own robotic sentinels to other parts of the galaxy, with instructions to preserve all sentient races, but keep them on check, so what happened in the Remnant sector will not repeat itself again. Destroying all Remnant portals will ensure they will not longer have access to our sector and we will be free to conquer it, or live peacefully with our neighbors. The choice is ours. Good Luck!</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

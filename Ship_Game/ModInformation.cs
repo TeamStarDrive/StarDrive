@@ -56,10 +56,8 @@ namespace Ship_Game
         public float UpkeepStation;
         public float UpkeepDrone;
         public float Spaceportscale = 0.8f;
-        
-        public int RemnantTechCount;
 
-        //added by Fat Bastard
+        // added by Fat Bastard
         public bool UseResearchableShipTechs; // Use short term researchable techs with no best ship
 
         // Doctor: Planet generation: % chance of each tile on this planet type being habitable. Default values as vanilla.

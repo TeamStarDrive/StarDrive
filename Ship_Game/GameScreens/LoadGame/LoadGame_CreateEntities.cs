@@ -59,7 +59,10 @@ namespace Ship_Game
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
 
-                e.RushAllConsturction = sdata.RushAllConstruction;
+                if (sdata.TargetsStrMultiplier != null)
+                    e.RestoreTargetsStrMultiplier(sdata.TargetsStrMultiplier);
+
+                e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
             }
 
@@ -81,6 +84,9 @@ namespace Ship_Game
 
             if (e.WeArePirates)
                 e.Pirates.RestoreFromSave(sdata);
+
+            if (e.WeAreRemnants)
+                e.Remnants.RestoreFromSave(sdata);
 
             return e;
         }
@@ -159,7 +165,9 @@ namespace Ship_Game
                 if (pgs.building == null)
                     continue;
 
-                var template = ResourceManager.GetBuildingTemplate(pgs.building.Name);
+                if (!ResourceManager.GetBuilding(pgs.building.Name, out Building template))
+                    continue; // this can happen if savegame contains a building which no longer exists in game files
+
                 pgs.building.AssignBuildingId(template.BID);
                 pgs.building.Scrappable = template.Scrappable;
                 pgs.building.CalcMilitaryStrength();
@@ -601,13 +609,32 @@ namespace Ship_Game
                 }
         }
 
-        static void CreateAllShips(SavedGame.UniverseSaveData saveData, UniverseData data)
+        static void CreateAllObjects(SavedGame.UniverseSaveData saveData, UniverseData data)
         {
             foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
             {
                 Empire e = EmpireManager.GetEmpireByName(d.empireData.Traits.Name);
                 foreach (SavedGame.ShipSaveData shipData in d.OwnedShips)
                     CreateShipFromSave(data, shipData, e);
+            }
+
+            if (saveData.Projectiles != null) // NULL check: backwards compatibility
+            {
+                foreach (SavedGame.ProjectileSaveData projData in saveData.Projectiles)
+                {
+                    var p = Projectile.Create(projData, data);
+                    if (p != null) // invalid projectile data, maybe savegame issue
+                        data.MasterProjectileList.Add(p);
+                }
+            }
+            if (saveData.Beams != null) // NULL check: backwards compatibility
+            {
+                foreach (SavedGame.BeamSaveData beamData in saveData.Beams)
+                {
+                    var b = Beam.Create(beamData, data);
+                    if (b != null) // invalid beam data, maybe savegame issue
+                        data.MasterProjectileList.Add(b);
+                }
             }
         }
 
@@ -625,17 +652,7 @@ namespace Ship_Game
 
         static void CreateRelations(SavedGame.UniverseSaveData saveData)
         {
-            foreach (SavedGame.EmpireSaveData d in saveData.EmpireDataList)
-            {
-                Empire e = EmpireManager.GetEmpireByName(d.Name);
-                foreach (Relationship r in d.Relations)
-                {
-                    Empire empire = EmpireManager.GetEmpireByName(r.Name);
-                    e.AddRelationships(empire, r);
-                    r.ActiveWar?.SetCombatants(e, empire);
-                    r.Risk = new EmpireRiskAssessment(r);
-                }
-            }
+            Empire.InitializeRelationships(saveData.EmpireDataList);
         }
     }
 }

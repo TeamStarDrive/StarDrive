@@ -1,0 +1,12 @@
+﻿<ExplorationEvent>
+  <Name>Remnant Software Bugs</Name>
+  <TriggerWhenOnlyRemnantsLeft>true</TriggerWhenOnlyRemnantsLeft>
+  <Story>AncientRaidersRandom</Story>
+  <PotentialOutcomes>
+    <Outcome>
+      <Chance>100</Chance>
+      <TitleText>Remnant Software Bugs</TitleText>
+      <DescriptionText>We know the remnants sentinel software has malfunctioned. We are the only race left in this sector. In order to be safe, we will need to remove their portals. Good Luck!</DescriptionText>
+    </Outcome>
+  </PotentialOutcomes>
+</ExplorationEvent>

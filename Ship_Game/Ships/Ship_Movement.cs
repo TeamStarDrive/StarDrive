@@ -204,7 +204,8 @@ namespace Ship_Game.Ships
             ThrustThisFrame = Ships.Thrust.AllStop;
         }
 
-        void UpdateVelocityAndPosition(FixedSimTime timeStep)
+        // NOTE: do not call outside of unit tests or Ship.Update !
+        public void UpdateVelocityAndPosition(FixedSimTime timeStep)
         {
             Vector2 newAcc = GetNewAccelerationForThisFrame();
             if (newAcc.AlmostZero())
@@ -221,7 +222,7 @@ namespace Ship_Game.Ships
         //     -- using previous frames' velocity
         // 3. Update the velocity using old and new acceleration
         // @param dt Delta Time for the Simulation
-        void IntegratePosVelocityVerlet(float dt, Vector2 newAcc)
+        public void IntegratePosVelocityVerlet(float dt, Vector2 newAcc)
         {
             // integrate position using Velocity Verlet method:
             // x' = x + v*dt + (a*dt^2)/2

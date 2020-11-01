@@ -203,9 +203,7 @@ namespace Ship_Game.AI
             {
                 case ResupplyReason.LowOrdnanceCombat:
                 case ResupplyReason.LowOrdnanceNonCombat:
-                    // should this check for the range of planets?
-                    // if the nearest planet is very far it could take quite a while to resupply. 
-                    if (Owner.IsPlatformOrStation && Owner.loyalty.GetPlanets().Count > 0)
+                    if (Owner.IsPlatformOrStation)
                     {
                         RequestResupplyFromPlanet();
                         return;
@@ -302,7 +300,7 @@ namespace Ship_Game.AI
 
         void RequestResupplyFromPlanet()
         {
-            if (Owner.InCombat || Owner.GetTether()?.Owner == Owner.loyalty)
+            if (Owner.InCombat || Owner.loyalty.isFaction || Owner.GetTether()?.Owner == Owner.loyalty)
                 return;
 
             EmpireAI ai = Owner.loyalty.GetEmpireAI();
@@ -310,9 +308,11 @@ namespace Ship_Game.AI
                 return; // Supply ship is on the way
 
             var possiblePlanets = Owner.loyalty.GetPlanets().Filter(p => p.NumSupplyShuttlesCanLaunch() > 0);
-            Planet planet       = possiblePlanets.FindMin(p => p.Center.SqDist(Owner.Center));
-            if (planet != null)
-                ai.AddPlanetaryRearmGoal(Owner, planet);
+            if (possiblePlanets.Length == 0)
+                return;
+
+            Planet planet = possiblePlanets.FindMin(p => p.Center.SqDist(Owner.Center));
+            ai.AddPlanetaryRearmGoal(Owner, planet);
         }
 
         public void FireWeapons(FixedSimTime timeStep)
@@ -339,45 +339,36 @@ namespace Ship_Game.AI
                     {
                         switch (OrderQueue.PeekFirst?.Plan)
                         {
-                            case null:
-                                OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
-                                break;
+                            default: OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State)); break;
                             case Plan.DoCombat:
                             case Plan.Bombard:
-                            case Plan.BoardShip:
-                                break;
-                            default:
-                                OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
-                                break;
+                            case Plan.BoardShip: break;
                         }
                     }
                 }
             }
-            else
+            else if (!BadGuysNear)
             {
-                int count = Owner.Weapons.Count;
+                int count            = Owner.Weapons.Count;
                 FireOnMainTargetTime = 0;
-                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
+                Weapon[] items       = Owner.Weapons.GetInternalArrayItems();
                 for (int x = 0; x < count; x++)
                     items[x].ClearFireTarget();
 
-                if (Owner.Carrier.HasHangars && Owner.loyalty != Empire.Universe.player)
+                if (Owner.Carrier.HasHangars)
                 {
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
-                        Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip != null && hangarShip.Active)
-                            hangarShip.AI.OrderReturnToHangar();
-                    }
-                }
-                else if (Owner.Carrier.HasHangars)
-                {
-                    foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
-                    {
-                        Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip != null && hangarShip.AI.State != AIState.ReturnToHangar &&
-                            !hangarShip.AI.HasPriorityTarget && !hangarShip.AI.HasPriorityOrder)
+                        if (hangar.TryGetHangarShip(out Ship hangarShip) 
+                            && hangarShip.Active 
+                            && hangarShip.AI.State != AIState.ReturnToHangar)
                         {
+                            if (Owner.loyalty == Empire.Universe.player
+                                && (hangarShip.AI.HasPriorityTarget || hangarShip.AI.HasPriorityOrder))
+                            {
+                                continue;
+                            }
+
                             if (Owner.Carrier.FightersLaunched)
                                 hangarShip.DoEscort(Owner);
                             else
@@ -707,7 +698,6 @@ namespace Ship_Game.AI
             StartSensorScan(timeStep);
             ApplySensorScanResults();
         }
-        
 
         void ResetStateFlee()
         {

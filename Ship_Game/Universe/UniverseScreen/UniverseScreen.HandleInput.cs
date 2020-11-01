@@ -132,6 +132,9 @@ namespace Ship_Game
                     Ship.CreateShipAtPoint(input.EmpireToggle ? "Remnant Mothership" : "Target Dummy", EmpireManager.Remnants, mouseWorldPos);
             }
 
+            if (input.ToggleSpatialManagerType)
+                Spatial.ToggleSpatialType();
+
             if (input.IsShiftKeyDown && input.KeyPressed(Keys.B))
                 StressTestShipLoading();
         }
@@ -252,6 +255,10 @@ namespace Ship_Game
                 return true;
 
             if (HandleTradeRoutesDefinition(input))
+                return true;
+
+            // Handle new UIElementV2 items
+            if (base.HandleInput(input))
                 return true;
 
             for (int i = SelectedShipList.Count - 1; i >= 0; --i)
@@ -377,7 +384,7 @@ namespace Ship_Game
                         cState = CursorState.Orbit;
                 }
             }
-            return base.HandleInput(input);
+            return false;
         }
 
         static int InputFleetSelection(InputState input)
