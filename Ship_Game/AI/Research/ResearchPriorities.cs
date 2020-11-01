@@ -85,7 +85,7 @@ namespace Ship_Game.AI.Research
 
             var priority = new Map<string, int>
             {
-                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars)        },
+                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars * 2)    },
                 { "ShipHull",     Randomizer(strat.MilitaryRatio,  ShipHulls)   },
                 { "Research",     Randomizer(strat.ResearchRatio,  ResearchDebt)},
                 { "Colonization", Randomizer(strat.ExpansionRatio, FoodNeeds)   },
@@ -102,7 +102,7 @@ namespace Ship_Game.AI.Research
         {
             float enemyThreats = empire.GetEmpireAI().ThreatMatrix.HighestStrengthOfAllEmpireThreats(empire);
             enemyThreats      += empire.TotalRemnantStrTryingToClear();
-            float wars         = enemyThreats / empire.CurrentMilitaryStrength.LowerBound(1);
+            float wars         = enemyThreats / empire.OffensiveStrength.LowerBound(1);
             wars              += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f
                                                                                                                    : 0;
 
@@ -112,29 +112,27 @@ namespace Ship_Game.AI.Research
         float CalcShipHulls(float wars)
         {
             float maxBonus = 0;
-            foreach (KeyValuePair<Empire, Relationship> kv in OwnerEmpire.AllRelations)
+            foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                Empire empire          = kv.Key;
-                Relationship relations = kv.Value;
-                if (!relations.Known && empire.isFaction)
+                if (!rel.Known && them.isFaction)
                     continue;
 
-                float empireBonus = CalcCanBuildHulls(empire);
+                float empireBonus = CalcCanBuildHulls(them);
                 if (empireBonus > maxBonus)
                     maxBonus = empireBonus;
             }
 
             maxBonus = (maxBonus - CalcCanBuildHulls(OwnerEmpire)).LowerBound(0);
-            return maxBonus + wars;
+            return maxBonus + wars * 2;
         }
 
         float CalcCanBuildHulls(Empire empire)
         {
             float canBuildBonus = 0;
-            if (empire.canBuildCorvettes) canBuildBonus += 0.25f;
-            if (empire.canBuildFrigates)  canBuildBonus += 0.25f;
-            if (empire.canBuildCruisers)  canBuildBonus += 0.25f;
-            if (empire.canBuildCapitals)  canBuildBonus += 0.25f;
+            if (empire.canBuildCorvettes) canBuildBonus += 0.5f;
+            if (empire.canBuildFrigates)  canBuildBonus += 0.5f;
+            if (empire.canBuildCruisers)  canBuildBonus += 0.5f;
+            if (empire.canBuildCapitals)  canBuildBonus += 0.5f;
 
             return canBuildBonus;
         }

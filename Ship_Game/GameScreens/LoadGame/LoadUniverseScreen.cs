@@ -27,8 +27,6 @@ namespace Ship_Game
         public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
         {
             CanEscapeFromScreen = false;
-            GlobalStats.RemnantKills = 0;
-            GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
 
             BackgroundTask = Parallel.Run(() =>
@@ -131,9 +129,6 @@ namespace Ship_Game
             if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
                 Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);
 
-            GlobalStats.RemnantKills         = usData.RemnantKills;
-            GlobalStats.RemnantActivation    = usData.RemnantActivation;
-            GlobalStats.RemnantArmageddon    = usData.RemnantArmageddon;
             GlobalStats.GravityWellRange     = usData.GravityWellRange;
             GlobalStats.IconSize             = usData.IconSize;
             GlobalStats.MinimumWarpRange     = usData.MinimumWarpRange;
@@ -149,10 +144,10 @@ namespace Ship_Game
             return usData;
         }
 
-
+        // Universe does not exist yet !
         UniverseData LoadEverything(SavedGame.UniverseSaveData saveData, ProgressCounter step)
         {
-            step.Start(8); // arbitrary count... check # of calls below:
+            step.Start(9); // arbitrary count... check # of calls below:
 
             ScreenManager.RemoveAllObjects();
             var data = new UniverseData
@@ -170,14 +165,13 @@ namespace Ship_Game
             CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets);
             
             EmpireManager.Clear();
-            if (Empire.Universe != null && Empire.Universe.MasterShipList != null)
-                Empire.Universe.MasterShipList.Clear();
+            Empire.Universe?.Objects.Clear();
             
             CreateEmpires(saveData, data);                     step.Advance();
             GiftShipsFromServantEmpire(data);                  step.Advance();
             CreateRelations(saveData);                         step.Advance();
             CreateSolarSystems(saveData, data);                step.Advance();
-            CreateAllShips(saveData, data);                    step.Advance();
+            CreateAllObjects(saveData, data);                  step.Advance();
             CreateFleetsFromSave(saveData, data);              step.Advance();
             CreateTasksGoalsRoads(saveData, data);             step.Advance();
             CreatePlanetImportExportShipLists(saveData, data); step.Advance();
@@ -224,13 +218,10 @@ namespace Ship_Game
 
         static void FinalizeShips(UniverseScreen us)
         {
-            foreach (Ship ship in us.MasterShipList)
+            foreach (Ship ship in us.GetMasterShipList())
             {
                 if (!ship.Active)
-                {
-                    us.MasterShipList.QueuePendingRemoval(ship);
                     continue;
-                }
 
                 if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
                 {
@@ -242,7 +233,6 @@ namespace Ship_Game
                     ship.AddedOnLoad = true;
                 }
             }
-            us.MasterShipList.ApplyPendingRemovals();
         }
 
         void CreateSceneObjects(UniverseData data)

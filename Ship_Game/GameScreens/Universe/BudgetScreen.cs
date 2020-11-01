@@ -164,10 +164,7 @@ namespace Ship_Game.GameScreens
             trade.AddItem(322, () => Player.AverageTradeIncome); // "Mercantilism (Avg)"
             trade.AddItem(323, () => Player.TotalTradeTreatiesIncome()); // "Trade Treaties"
 
-            var traders = Player.AllRelations.Where(kv => kv.Value.Treaty_Trade)
-                .Select(kv => (Empire: kv.Key, Relation: kv.Value));
-
-            foreach ((Empire e, Relationship r) in traders)
+            foreach ((Empire e, Relationship r) in Player.TradeRelations)
                 trade.AddItem($"   {e.data.Traits.Plural}", () => r.TradeIncome(), e.EmpireColor);
 
             trade.SetTotalFooter(() => Player.TotalAvgTradeIncome); // "Total"

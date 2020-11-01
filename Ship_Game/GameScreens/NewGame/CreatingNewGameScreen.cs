@@ -35,9 +35,6 @@ namespace Ship_Game
                 float pace, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
         {
             CanEscapeFromScreen = false;
-            GlobalStats.RemnantArmageddon = false;
-            GlobalStats.RemnantKills = 0;
-            GlobalStats.RemnantActivation = 0;
             MainMenu = mainMenu;
             foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
                 art.Discovered = false;
@@ -233,7 +230,7 @@ namespace Ship_Game
             step.Start(0.15f, 0.20f, 0.30f, 0.35f); // proportions for each step
 
             CreateOpponents(step.NextStep());
-            PopulateRelations();
+            Empire.InitializeRelationships(Data.EmpireList, Difficulty);
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep()); // 240ms
             LoadEmpireStartingSystems(step.NextStep()); // 420ms
             GenerateRandomSystems(step.NextStep());    // 425ms
@@ -285,29 +282,6 @@ namespace Ship_Game
             {
                 Data.CreateEmpire(readOnlyData);
                 step.Advance();
-            }
-        }
-
-        void PopulateRelations()
-        {
-            foreach (Empire empire in Data.EmpireList)
-            {
-                foreach (Empire e in Data.EmpireList)
-                {
-                    if (empire == e)
-                        continue;
-
-                    var r = new Relationship(e.data.Traits.Name);
-                    empire.AddRelationships(e, r);
-                    if (e == Player && Difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
-                    {
-                        float trustMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
-                        r.Trust       -= trustMod;
-
-                        float territoryMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
-                        r.AddAngerTerritorialConflict(territoryMod);
-                    }
-                }
             }
         }
 
@@ -757,9 +731,9 @@ namespace Ship_Game
 
             ScreenManager.AddScreen(us);
 
-            Log.Info("CreatingNewGameScreen.UpdateAllSystems(0.01)");
-            us.UpdateAllSystems(new FixedSimTime(0.01f));
-            us.UpdateAllShips(new FixedSimTime(0.01f));
+            Log.Info("CreatingNewGameScreen.Objects.Update(0.01)");
+            us.Objects.Update(new FixedSimTime(0.01f));
+
             ScreenManager.Music.Stop();
             ScreenManager.RemoveScreen(MainMenu);
  

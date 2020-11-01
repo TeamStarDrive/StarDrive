@@ -1,5 +1,10 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using System.Linq;
 
 namespace Ship_Game.ShipDesignIssues
 {
@@ -335,6 +340,54 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.LowTroops, severity, troopsMissing);
         }
 
+        public void CheckAccuracy(Map<ShipModule,float> accuracyList)
+        {
+            if (accuracyList.Count == 0)
+                return;
+
+            var average = accuracyList.Average(kv=> kv.Value);
+            WarningLevel severity;
+            if      (average > 12) severity = WarningLevel.Critical;
+            else if (average > 9)  severity = WarningLevel.Major;
+            else if (average > 6)  severity = WarningLevel.Minor;
+            else if (average > 3)  severity = WarningLevel.Informative;
+            else                   return;
+
+            string remediation = $" {new LocalizedText(GameText.Average).Text}" +
+                                 $" {new LocalizedText(GameText.Accuracy).Text}:" +
+                                 $" {Math.Round(average, 1)}";
+
+            AddDesignIssue(DesignIssueType.Accuracy, severity, remediation);
+        }
+
+        public void CheckTargets(Map<ShipModule, float> accuracyList, float maxTargets)
+        {
+            if (accuracyList.Count == 0 || maxTargets <1)
+                return;
+
+            var facings = accuracyList.GroupBy(kv=>
+            {
+                int facing = (int)kv.Key.FacingDegrees;
+                facing     = facing == 360 ? 0 : facing;
+                return (float)facing;
+            });
+            float count          = facings.Count();
+            float ratioToTargets = count / maxTargets;
+
+            WarningLevel severity;
+            if      (ratioToTargets > 4) severity = WarningLevel.Critical;
+            else if (ratioToTargets > 3) severity = WarningLevel.Major;
+            else if (ratioToTargets > 2) severity = WarningLevel.Minor;
+            else if (ratioToTargets > 1) severity = WarningLevel.Informative;
+            else return;
+
+            string target     = $" {new LocalizedText(GameText.FcsPower).Text}: {maxTargets.String(1)}, ";
+            string fireArcs   = $"{new LocalizedText(GameText.FireArc).Text}: {count.String(1)} ";
+            string baseString = !IsPlatform ? "" : $" {new LocalizedText(GameText.OrbitalTracking).Text}";
+
+            AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + fireArcs);
+        }
+
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
 
         public static Color IssueColor(WarningLevel severity)
@@ -374,7 +427,9 @@ namespace Ship_Game.ShipDesignIssues
         LowTroops,
         LowTroopsForBays,
         NotIdealCombatEfficiency,
-        HighBurstOrdnance
+        HighBurstOrdnance,
+        Accuracy,
+        Targets
     }
 
     public enum WarningLevel
@@ -447,10 +502,10 @@ namespace Ship_Game.ShipDesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssueNoWarp");
                     break;
                 case DesignIssueType.SlowWarp:
-                    Title                  = new LocalizedText(2525).Text;
-                    Problem                = new LocalizedText(2526).Text;
-                    Remediation            = new LocalizedText(2527).Text; 
-                    Texture                = ResourceManager.Texture("NewUI/IssueSlowWarp");
+                    Title       = new LocalizedText(2525).Text;
+                    Problem     = new LocalizedText(2526).Text;
+                    Remediation = new LocalizedText(2527).Text; 
+                    Texture     = ResourceManager.Texture("NewUI/IssueSlowWarp");
                     break;
                 case DesignIssueType.NegativeRecharge:
                     Title       = new LocalizedText(2519).Text;
@@ -535,6 +590,18 @@ namespace Ship_Game.ShipDesignIssues
                     Problem     = new LocalizedText(2570).Text;
                     Remediation = new LocalizedText(2571).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueHighBurstOrdnance");
+                    break;
+                case DesignIssueType.Accuracy:
+                    Title       = new LocalizedText(GameText.LowAccuracy).Text;
+                    Problem     = new LocalizedText(GameText.WeaponAccuracy).Text;
+                    Remediation = new LocalizedText(GameText.ImproveAccuracy).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssuesLowAccuracy");
+                    break;
+                case DesignIssueType.Targets:
+                    Title       = new LocalizedText(GameText.LowTracking).Text;
+                    Problem     = new LocalizedText(GameText.TrackingTargets).Text;
+                    Remediation = new LocalizedText(GameText.ImproveTracking).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowTracking");
                     break;
             }
 

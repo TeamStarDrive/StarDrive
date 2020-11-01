@@ -92,7 +92,7 @@ namespace Ship_Game
 
         static void AddLight(ExplosionState newExp, Vector3 position, float intensity)
         {
-            if (Empire.Universe.viewState > UniverseScreen.UnivScreenState.SectorView)
+            if (!Empire.Universe.IsSectorViewOrCloser)
                 return;
 
             newExp.Light = new PointLight

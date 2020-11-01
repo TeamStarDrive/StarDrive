@@ -1,64 +1,151 @@
 using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
+using Ship_Game.Spatial;
 
 namespace Ship_Game.Gameplay
 {
     public sealed class SpatialManager
     {
-        Quadtree QuadTree;
+        SpatialType Type = SpatialType.Qtree;
+        ISpatial Spatial;
+        ISpatial ResetToNewSpatial;
+        int UniverseWidth;
+
+        public readonly AggregatePerfTimer UpdateTime = new AggregatePerfTimer();
+        public readonly AggregatePerfTimer CollisionTime = new AggregatePerfTimer();
+
+        public string Name => Spatial?.Name ?? "";
+        public int Collisions { get; private set; }
+        public int Count => Spatial?.Count ?? 0;
+
+        public VisualizerOptions VisOpt = new VisualizerOptions();
 
         public void Setup(float universeRadius)
         {
-            float universeWidth = universeRadius * 2f;
-            QuadTree = new Quadtree(universeWidth);
-            Log.Info($"SpatialManager Width: {(int)universeWidth}  QTSize: {(int)QuadTree.FullSize}  QTLevels: {QuadTree.Levels}");
+            UniverseWidth = (int)(universeRadius * 2f);
+            Spatial = Create(Type);
+            ResetToNewSpatial = null;
+        }
+
+        ISpatial Create(SpatialType type)
+        {
+            Type = type;
+            ISpatial newSpatial;
+            switch (type)
+            {
+                default:
+                case SpatialType.Grid:         newSpatial = new NativeSpatial(type, UniverseWidth, 10_000); break;
+                case SpatialType.Qtree:        newSpatial = new NativeSpatial(type, UniverseWidth, 1024); break;
+                case SpatialType.GridL2:       newSpatial = new NativeSpatial(type, UniverseWidth, 20_000, 1000); break;
+                case SpatialType.ManagedQtree: newSpatial = new Qtree(UniverseWidth, 1024); break;
+            }
+            Log.Info($"SpatialManager {newSpatial.Name} Width: {UniverseWidth}  FullSize: {(int)newSpatial.FullSize}");
+            return newSpatial;
+        }
+
+        public void ToggleSpatialType()
+        {
+            ResetToNewSpatial = Create( Type.IncrementWithWrap(1) );
         }
 
         public void Destroy()
         {
-            QuadTree = null;
+            Spatial = null;
         }
 
         public void DebugVisualize(UniverseScreen screen)
         {
-            QuadTree.DebugVisualize(screen);
+            Spatial.DebugVisualize(screen, VisOpt);
         }
 
-        static bool IsSpatialType(GameplayObject obj)
-            => obj.Is(GameObjectType.Ship) || obj.Is(GameObjectType.Proj)/*also Beam*/;
-        
-        public void Add(GameplayObject obj)
+        public void Update(Array<GameplayObject> allObjects)
         {
-            if (!IsSpatialType(obj) || QuadTree == null)
-                return; // not a supported spatial manager type. just ignore it
+            if (ResetToNewSpatial != null)
+            {
+                // wipe all objects from spatial
+                for (int i = 0; i < allObjects.Count; ++i)
+                    allObjects[i].SpatialIndex = -1;
 
-            QuadTree.Insert(obj);
+                Spatial.Clear();
+                Spatial = ResetToNewSpatial;
+                ResetToNewSpatial = null;
+            }
+
+            UpdateTime.Start();
+            Spatial.UpdateAll(allObjects);
+            UpdateTime.Stop();
         }
 
-        public void Remove(GameplayObject obj)
+        public void CollideAll(FixedSimTime timeStep)
         {
-            QuadTree.Remove(obj);
+            CollisionTime.Start();
+            Collisions = Spatial.CollideAll(timeStep);
+            CollisionTime.Stop();
         }
 
-        public void Update(FixedSimTime timeStep)
+        public GameplayObject[] FindNearby(in SearchOptions opt)
         {
-            QuadTree.UpdateAll(timeStep);
-            QuadTree.CollideAll();
+            return Spatial.FindNearby(opt);
         }
 
-        public GameplayObject[] FindNearby(GameplayObject obj, float radius,
-                                           GameObjectType filter = GameObjectType.Any,
-                                           Empire loyaltyFilter = null)
+        public T[] FindNearby<T>(in SearchOptions opt) where T : GameplayObject
         {
-            return QuadTree.FindNearby(obj.Center, radius, filter, toIgnore:obj, loyaltyFilter);
+            GameplayObject[] objects = Spatial.FindNearby(opt);
+            return objects.FastCast<GameplayObject, T>();
         }
 
-        public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
-                                           GameObjectType filter = GameObjectType.Any,
-                                           Empire loyaltyFilter = null)
+        public GameplayObject[] FindNearby(GameObjectType type, GameplayObject obj, float radius,
+                                           int maxResults,
+                                           Empire excludeLoyalty = null,
+                                           Empire onlyLoyalty = null,
+                                           int debugId = 0)
         {
-            return QuadTree.FindNearby(worldPos, radius, filter, toIgnore:null, loyaltyFilter);
+            var opt = new SearchOptions(obj.Center, radius, type)
+            {
+                MaxResults = maxResults,
+                Exclude = obj,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
+                DebugId = debugId
+            };
+
+            return Spatial.FindNearby(opt);
+        }
+
+        public GameplayObject[] FindNearby(GameObjectType type, Vector2 worldPos, float radius,
+                                           int maxResults,
+                                           Empire excludeLoyalty = null,
+                                           Empire onlyLoyalty = null,
+                                           int debugId = 0)
+        {
+            var opt = new SearchOptions(worldPos, radius, type)
+            {
+                MaxResults = maxResults,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
+                DebugId = debugId
+            };
+
+            return Spatial.FindNearby(opt);
+        }
+
+        public GameplayObject[] FindNearby(GameObjectType type, 
+                                           in AABoundingBox2D searchArea,
+                                           int maxResults,
+                                           Empire excludeLoyalty = null,
+                                           Empire onlyLoyalty = null,
+                                           int debugId = 0)
+        {
+            var opt = new SearchOptions(searchArea, type)
+            {
+                MaxResults = maxResults,
+                ExcludeLoyalty = excludeLoyalty,
+                OnlyLoyalty = onlyLoyalty,
+                DebugId = debugId
+            };
+
+            return Spatial.FindNearby(opt);
         }
 
 
@@ -72,19 +159,19 @@ namespace Ship_Game.Gameplay
 
             // min search radius of 512. problem was that at very small search radius neighbors would not be found.
             // I tried to make the min to a the smallest cell size. 
-            GameplayObject[] ships = FindNearby(source, Math.Max(damageRadius, 512), GameObjectType.Ship);
+            GameplayObject[] ships = FindNearby(GameObjectType.Ship, source, Math.Max(damageRadius, 512),
+                                                    maxResults:32, excludeLoyalty:source.Owner?.loyalty);
             ships.SortByDistance(source.Center);
 
             foreach (GameplayObject go in ships)
             {
                 var ship = (Ship)go;
+                if (!ship.Active)
+                    continue;
+
                 // Doctor: Up until now, the 'Reactive Armour' bonus used in the vanilla tech tree did exactly nothing. Trying to fix - is meant to reduce effective explosion radius.
                 // Doctor: Reset the radius on every foreach loop in case ships of different loyalty are to be affected:
                 float modifiedRadius = damageRadius;
-                
-                // Check if valid target
-                if (source.Owner?.loyalty == ship.loyalty || !ship.Active)
-                    continue;
 
                 // Doctor: Reduces the effective explosion radius on ships with the 'Reactive Armour' type radius reduction in their empire traits.
                 if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
@@ -113,18 +200,15 @@ namespace Ship_Game.Gameplay
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
 
-            Vector2 explosionCenter = thisShip.Center;
-            GameplayObject[] nearby = FindNearby(thisShip, thisShip.Radius);
+            Vector2 explosionCenter = position;
+
+            // find any nearby ship -- even allies
+            GameplayObject[] nearby = FindNearby(GameObjectType.Ship, thisShip, damageRadius + 64, maxResults:32);
 
             for (int i = 0; i < nearby.Length; ++i)
             {
-                GameplayObject otherObj = nearby[i];
-                if (otherObj == thisShip || !otherObj.Active) continue;
-                if (otherObj is Projectile) continue;
-                if (!otherObj.Center.InRadius(thisShip.Center, damageRadius + otherObj.Radius))
-                    continue;
-
-                if (otherObj is Ship otherShip && RandomMath.RollDice(12 - otherShip.Level))
+                var otherShip = (Ship)nearby[i];
+                if (RandomMath.RollDice(12 - otherShip.Level))
                 {
                     // FB: Ships will be lucky to not get caught in the explosion, based on their level as well
                     ShipModule nearest = otherShip.FindClosestUnshieldedModule(explosionCenter);
@@ -149,13 +233,14 @@ namespace Ship_Game.Gameplay
                     Vector2 impulse = 3f * (otherShip.Center - explosionCenter);
                     if (impulse.Length() > 200f)
                         impulse = impulse.Normalized() * 200f;
+
                     if (!float.IsNaN(impulse.X))
                         otherShip.ApplyForce(impulse);
                 }
                 else
                 {
-                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherObj.Center, damageRadius, otherObj.Radius, 0.25f);
-                    otherObj.Damage(thisShip, damageAmount * damageFalloff);
+                    float damageFalloff = ShipModule.DamageFalloff(explosionCenter, otherShip.Center, damageRadius, otherShip.Radius, 0.25f);
+                    otherShip.Damage(thisShip, damageAmount * damageFalloff);
                 }
             }
         }

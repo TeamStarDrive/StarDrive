@@ -22,8 +22,9 @@ namespace Ship_Game.Commands.Goals
 
         public PirateRaidCombatShip(Empire owner, Empire targetEmpire) : this()
         {
-            empire = owner;
-            TargetEmpire = targetEmpire;
+            empire        = owner;
+            TargetEmpire  = targetEmpire;
+            StarDateAdded = Empire.Universe.StarDate;
 
             PostInit();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Combat Ship Raid vs. {targetEmpire.Name} ----");
@@ -45,7 +46,7 @@ namespace Ship_Game.Commands.Goals
             {
                 combatShip.HyperspaceReturn();
                 TargetShip = combatShip;
-                if (Pirates.Level > TargetShip.TroopCount * 3 / ((int)CurrentGame.Difficulty).LowerBound(1))
+                if (Pirates.Level > TargetShip.TroopCount * 5 / ((int)CurrentGame.Difficulty).LowerBound(1) + TargetShip.Level)
                 {
                     TargetShip.loyalty.AddMutinyNotification(TargetShip, GameText.MutinySucceeded, Pirates.Owner);
                     TargetShip.ChangeLoyalty(Pirates.Owner, notification: false);
@@ -57,12 +58,12 @@ namespace Ship_Game.Commands.Goals
                 }
 
                 Pirates.ExecuteVictimRetaliation(TargetEmpire);
-                KillMutinyDefenseTroops(Pirates.Level / 2);
+                KillMutinyDefenseTroops(Pirates.Level / 2 - TargetShip.Level);
                 return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.GoalFailed;
             }
 
-            // Try locating viable combat ships for maximum of 1 year (10 turns), else just give up
-            return (Empire.Universe.StarDate % 1).Greater(0) ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            // Try locating viable freighters for 1 year (10 turns), else just give up
+            return Empire.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()

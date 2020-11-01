@@ -48,19 +48,22 @@ namespace Ship_Game.AI
 
             if (Empire.Universe == null)
                 return;
-
-            if (Missile.Owner != null)
+            
+            Ship owningShip = Missile.Owner;
+            if (owningShip != null)
             {
-                TargetList = Missile.Owner.AI.PotentialTargets;
-                Level      = Missile.Owner.Level;
-
+                TargetList = owningShip.AI.PotentialTargets;
+                Level      = owningShip.Level;
             }
             else if (Missile.Planet != null)
             {
                 Level = missile.Planet.Level;
                 TargetList = new Array<Ship>();
-                GameplayObject[] nearbyShips = UniverseScreen.SpaceManager.FindNearby(
-                            Missile, Missile.Planet.GravityWellRadius, GameObjectType.Ship);
+
+                // find nearby enemy ships
+                GameplayObject[] nearbyShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
+                            Missile, Missile.Planet.GravityWellRadius, maxResults:32, excludeLoyalty:Missile.Loyalty);
+
                 foreach (GameplayObject go in nearbyShips)
                 {
                     if (missile.Weapon.TargetValid(go))

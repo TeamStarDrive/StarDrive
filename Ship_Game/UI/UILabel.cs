@@ -178,7 +178,7 @@ namespace Ship_Game
         public UILabel(in LocalizedText text, SpriteFont font, Color color)
         {
             LabelFont = font;
-            Text = text;
+            Text = text; // NOTE: triggers UpdateSizeFromText 
             Color = color;
         }
 

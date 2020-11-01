@@ -80,7 +80,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void DeclareWarOnBombingEmpire(Bomb bomb)
         {
-            if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar
+            if (Owner != null && !Owner.IsAtWarWith(bomb.Owner)
                               && TurnsSinceTurnover > 10
                               && Empire.Universe.PlayerEmpire == bomb.Owner)
             {
@@ -90,7 +90,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void DamageColonyShields(Bomb bomb)
         {
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
+            if (Empire.Universe.IsSystemViewOrCloser
                 && Empire.Universe.Frustum.Contains(P.Center, P.OrbitalRadius * 2))
             {
                 Shield.HitShield(P, bomb, Center, SO.WorldBoundingSphere.Radius + 100f);
@@ -120,9 +120,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
-                bool loyaltyMatch = ship.loyalty == Owner;
+                bool loyaltyMatch = ship?.loyalty == Owner; // todo remove null check after new quad tree is merged
 
-                if (ship.loyalty.isFaction)
+                if (ship != null && ship.loyalty.isFaction) // todo remove null check after new quad tree is merged
                     AddTroopsForFactions(ship);
 
                 if (loyaltyMatch)

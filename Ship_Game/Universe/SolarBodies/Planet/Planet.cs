@@ -129,16 +129,14 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
             => TroopManager.EmpireTroops(empire, maxToTake);
 
-        public int TerraformerLimit => ((int)(TilesList.Count(t => t.Habitable && !t.Biosphere) * 0.25f)).LowerBound(1);
-
-        public GameplayObject[] GetNearByShips() => GetNearByShips(GravityWellRadius);
-        public GameplayObject[] GetNearByShips(float radius) => UniverseScreen.SpaceManager.FindNearby(Center, radius,GameObjectType.Ship, Owner);
+        public GameplayObject[] FindNearbyFriendlyShips()
+            => UniverseScreen.Spatial.FindNearby(GameObjectType.Ship, Center, GravityWellRadius,
+                                                      maxResults:128, onlyLoyalty:Owner);
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
-        public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
-        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * empire?.RacialEnvModifer(Category) 
-                                                       ?? BaseMaxFertility + BuildingsFertility;
+        public float FertilityFor(Empire empire)    => BaseFertility * Empire.RacialEnvModifer(Category, empire);
+        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * Empire.RacialEnvModifer(Category, empire);
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -149,42 +147,48 @@ namespace Ship_Game
 
         public float MaxPopulation => MaxPopulationFor(Owner);
 
-        public float PotentialMaxPopBillionsFor(Empire empire) => PotentialMaxPopFor(empire) / 1000;
+        public float PotentialMaxPopBillionsFor(Empire empire, bool forceOnlyBiospheres = false)
+            => PotentialMaxPopFor(empire, forceOnlyBiospheres) / 1000;
 
-        public float PotentialMaxPopFor(Empire empire)
+        float PotentialMaxPopFor(Empire empire, bool forceOnlyBiospheres = false)
         {
             bool bioSpheresResearched = empire.IsBuildingUnlocked(Building.BiospheresId);
             bool terraformResearched  = empire.IsBuildingUnlocked(Building.TerraformerId);
 
             // We calculate this  and not using MaxPop since it might be an enemy planet with biospheres
             int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-            float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * empire.RacialEnvModifer(Category);
+            float racialEnvModifier      = Empire.RacialEnvModifer(Category, empire);
+            float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * racialEnvModifier;
+            if (!forceOnlyBiospheres && !bioSpheresResearched && !terraformResearched)
+                return naturalMaxPop + PopulationBonus;
 
-            if (!bioSpheresResearched && !terraformResearched)
-                return naturalMaxPop;
-
-            if (bioSpheresResearched && !terraformResearched)
+            // Only Biosphere researched so we are checking specifically for biospheres alone
+            if (bioSpheresResearched  && !terraformResearched || forceOnlyBiospheres)
             {
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
-                return bioSphereMaxPop + naturalMaxPop;
+                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
+                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
             }
 
             if (bioSpheresResearched) // Biospheres and terraformers researched
             {
                 int terraformableTiles  = TilesList.Count(t => t.CanTerraform);
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
-                naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * empire.RacialEnvModifer(empire.data.PreferredEnv);
-                return bioSphereMaxPop + naturalMaxPop;
+                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
+                float preferredEnvMod   = empire.PlayerPreferredEnvModifier;
+                naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * preferredEnvMod;
+                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
             }
 
             // Only Terraformers researched
             int potentialTiles = TilesList.Count(t => t.Terraformable);
-            return BasePopPerTile * potentialTiles * empire.RacialEnvModifer(empire.data.PreferredEnv);
+            return BasePopPerTile*potentialTiles*racialEnvModifier + PopulationBonus;
         }
 
-        public float PopPerBiosphere => BasePopPerTile / 2;
+        public float PopPerBiosphere(Empire empire)
+        {
+            return BasePopPerTile / 2 * Empire.RacialEnvModifer(Category, empire);
+        }
 
         public float PotentialMaxFertilityFor(Empire empire)
         {
@@ -197,11 +201,15 @@ namespace Ship_Game
             if (!Habitable)
                 return 0;
 
-            float minimumPop = BasePopPerTile/2 + PopulationBonus; // At least 1/2 tile's worth population and any max pop bonus buildings have
+            float minimumPop = BasePopPerTile/2; // At least 1/2 tile's worth population and any max pop bonus buildings have
             if (empire == null)
                 return (MaxPopValFromTiles + PopulationBonus).LowerBound(minimumPop);
 
-            return (MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus).LowerBound(minimumPop);
+            float maxPopValToUse = MaxPopValFromTiles;
+            if (TilesList.Count(t => t.Habitable && !t.Biosphere) == 0)
+                maxPopValToUse = minimumPop; // No Habitable tiles, so using the minimum pop
+
+            return (maxPopValToUse * Empire.RacialEnvModifer(Category, empire) + PopulationBonus).LowerBound(minimumPop);
         }
 
         public int FreeTilesWithRebaseOnTheWay(Empire empire)
@@ -302,6 +310,21 @@ namespace Ship_Game
                 troop.Launch();
         }
 
+        public void ForceLaunchInvadingTroops(Empire loyaltyToLaunch)
+        {
+            for (int i = TroopsHere.Count - 1; i >= 0; i--)
+            {
+                Troop t      = TroopsHere[i];
+                Empire owner = t?.Loyalty;
+
+                if (owner == loyaltyToLaunch && owner?.data.DefaultTroopShip != null)
+                {
+                    Ship troopship = t.Launch(ignoreMovement: true);
+                    troopship?.AI.OrderRebaseToNearest();
+                }
+            }
+        }
+
         public float GravityWellForEmpire(Empire empire)
         {
             if (!Empire.Universe.GravityWells)
@@ -310,7 +333,7 @@ namespace Ship_Game
             if (Owner == null)
                 return GravityWellRadius;
 
-            if (Owner == empire || Owner.GetRelations(empire).Treaty_Alliance)
+            if (Owner == empire || Owner.IsAlliedWith(empire))
                 return 0;
 
             return GravityWellRadius;
@@ -401,14 +424,9 @@ namespace Ship_Game
     
         public float ColonyWarValueTo(Empire empire)
         {
-            if (Owner == null)                    return ColonyPotentialValue(empire);
-            if (Owner.GetRelations(empire)?.AtWar == true) return ColonyWorthTo(empire);
+            if (Owner == null)             return ColonyPotentialValue(empire);
+            if (Owner.IsAtWarWith(empire)) return ColonyWorthTo(empire);
             return 0;
-        }
-
-        public void AddProjectile(Projectile projectile)
-        {
-            Projectiles.Add(projectile);
         }
 
         // added by gremlin deveks drop bomb
@@ -416,7 +434,8 @@ namespace Ship_Game
 
         public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
         {
-            Population -= 1000f * amount;
+            float netPopKill = (amount * PopulationRatio).LowerBound(0.01f); // harder to kill sparse pop
+            Population      -= 1000f * netPopKill;
             AddBaseFertility(amount * -0.25f); // environment suffers temp damage
             if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 200))
                 AddMaxBaseFertility(-0.02f); // permanent damage to Max Fertility
@@ -446,7 +465,6 @@ namespace Ship_Game
 
             TroopManager.Update(timeStep);
             GeodeticManager.Update(timeStep);
-            UpdatePlanetaryProjectiles(timeStep);
             // this needs some work
             UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
         }
@@ -505,44 +523,40 @@ namespace Ship_Game
 
         public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
         {
-            weaponRange     = weaponRange.UpperBound(SensorRange);
-            float previousT = weaponRange;
-            float previousD = weaponRange;
-            Ship troop      = null;
-            Ship target     = null;
+            weaponRange = weaponRange.UpperBound(SensorRange);
+            float closestTroop = weaponRange;
+            float closestShip = weaponRange;
+            Ship troop = null;
+            Ship closest = null;
 
-            var nearBy = UniverseScreen.SpaceManager.FindNearby(Center, weaponRange, GameObjectType.Ship);
+            GameplayObject[] enemyShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
+                                                 Center, weaponRange, maxResults:64, excludeLoyalty:Owner);
 
-
-            for (int j = 0; j < nearBy.Length; ++j)
+            for (int j = 0; j < enemyShips.Length; ++j)
             {
-                Ship ship = (Ship)nearBy[j];
-
-                if (ship.loyalty == Owner || ship.engineState == Ship.MoveState.Warp)
+                var ship = (Ship)enemyShips[j];
+                if (ship.engineState == Ship.MoveState.Warp || !Owner.IsEmpireAttackable(ship.loyalty))
                     continue;
 
-                if (!Owner.IsEmpireAttackable(ship.loyalty))
-                    continue;
-
-                float currentD = Vector2.Distance(Center, ship.Center);
-                if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
+                float dist = Center.Distance(ship.Center);
+                if (ship.shipData.Role == ShipData.RoleName.troop && dist < closestTroop)
                 {
-                    previousT = currentD;
+                    closestTroop = dist;
                     troop = ship;
-                    continue;
                 }
-
-                if (currentD < previousD && troop == null)
+                else if (dist < closestShip && troop == null)
                 {
-                    previousD = currentD;
-                    target = ship;
+                    closestShip = dist;
+                    closest = ship;
                 }
             }
 
+            // always prefer to target troop ships first (so evil!)
             if (troop != null)
-                target = troop;
+                closest = troop;
 
-            return target;
+            SpaceCombatNearPlanet = closest != null;
+            return closest;
         }
 
         public void LandDefenseShip(Ship ship)
@@ -557,26 +571,6 @@ namespace Ship_Game
             Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
-
-        void UpdatePlanetaryProjectiles(FixedSimTime timeStep)
-        {
-            if (timeStep.FixedTime <= 0f)
-                return;
-            
-            using (Projectiles.AcquireReadLock())
-            {
-                for (int i = Projectiles.Count - 1; i >= 0; --i)
-                {
-                    Projectile p = Projectiles[i];
-                    if (p.Active) p.Update(timeStep);
-                }
-            }
-            using (Projectiles.AcquireWriteLock())
-            {
-                Projectiles.RemoveInActiveObjects();
-            }
-        }
-
         public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
 
         public void DestroyBioSpheres(PlanetGridSquare tile)
@@ -587,7 +581,7 @@ namespace Ship_Game
             if (tile.Biosphere)
                 ClearBioSpheresFromList(tile);
             else
-                tile.Terraformable = false;
+                tile.Terraformable = RandomMath.RollDice(50);
 
             UpdateMaxPopulation();
         }
@@ -722,7 +716,7 @@ namespace Ship_Game
 
         private void UpdateColonyValue() => ColonyValue = Owner != null ? ColonyBaseValue(Owner) : 0;
 
-        public float PopPerTileFor(Empire empire) => BasePopPerTile * empire?.RacialEnvModifer(Category) ?? BasePopPerTile;
+        public float PopPerTileFor(Empire empire) => BasePopPerTile * Empire.RacialEnvModifer(Category, empire);
 
         // these are intentionally duplicated so we don't easily modify them...
         private float BasePopPerTileVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
@@ -742,11 +736,11 @@ namespace Ship_Game
                 return;
 
             int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-            PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
-                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere;
+            PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease);
+            MaxPopValFromTiles    = (BasePopPerTile * numHabitableTiles) 
+                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere(Owner);
 
-
-            MaxPopValFromTiles = Math.Max(BasePopPerTile, BasePopPerTile * numHabitableTiles);
+            MaxPopValFromTiles = MaxPopValFromTiles.LowerBound(BasePopPerTile / 2);
             MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
         }
 
@@ -1235,6 +1229,7 @@ namespace Ship_Game
         public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
         public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
+        public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
 
 
         private void RepairBuildings(int repairAmount)
@@ -1293,7 +1288,6 @@ namespace Ship_Game
             Storage   = null;
             TroopManager    = null;
             GeodeticManager = null;
-            Projectiles?.Dispose(ref Projectiles);
             TroopsHere?.Dispose(ref TroopsHere);
         }
 
@@ -1311,7 +1305,7 @@ namespace Ship_Game
             debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
             debug.AddLine($"Scale: {Scale}");
             debug.AddLine($"Population per Habitable Tile: {BasePopPerTile}");
-            debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.RacialEnvModifer(Category)}");
+            debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.PlayerEnvModifier(Category)}");
             debug.AddLine($"Habitable Tiles: {numHabitableTiles}");
             debug.AddLine("");
             debug.AddLine($"Incoming Freighters: {NumIncomingFreighters}");
