@@ -4241,6 +4241,8 @@ namespace Ship_Game
         RushAllConstruction = 1824,
         /// <summary>Rush All Construction</summary>
         RushAllConstructionTip = 1825,
+        /// <summary>BulkReplacement</summary>
+        YouCanUseShiftClick = 1827,
         /// <summary>Big Clusters Game Mode</summary>
         BigClustersGame = 1892,
         /// <summary>Small Clusters Game Mode</summary>
@@ -4256,7 +4258,13 @@ namespace Ship_Game
         LowAccuracy = 2572,
         WeaponAccuracy = 2573,
         ImproveAccuracy = 2574,
-        WeaponTargetError = 4114
+        WeaponTargetError = 4114,
+
+        Tracking = 1457,
+        LowTracking = 1458,
+        TrackingTargets = 1459,
+        ImproveTracking = 1460,
+        OrbitalTracking =1461
 
     }
 }

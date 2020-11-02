@@ -3281,6 +3281,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1089</Index>
       <Text>This Bomb launcher delivers an energy-based explosive to planetary surfaces, foregoing the need for Ordnance. </Text>
     </Token>
+
   
   <!-- 1200 + Diplomacy-->
     <Token>
@@ -3983,7 +3984,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1456</Index>
       <Text>Oceanic</Text>
     </Token>
-
+  <Token>
+    <Index>1457</Index>
+    <Text>FCS Tracking</Text>
+  </Token>
+  <Token>
+    <Index>1458</Index>
+    <Text>Low Target Tracking</Text>
+  </Token>
+  <Token>
+    <Index>1459</Index>
+    <Text>FCS Target Tracking: having less tracking than weapon facings can leave the ship unable to fire simultaneously on targets in multiple directions.</Text>
+  </Token>
+  <Token>
+    <Index>1460</Index>
+    <Text>Improve target tracking by adding more systems with FCS Target Tracking power such as control systems, or try to group your weapons to face similar directions.</Text>
+  </Token>
+  <Token>
+    <Index>1461</Index>
+    <Text>Bases placed in orbit also use planet FCS.</Text>
+  </Token>
 
     <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side 
     of the screen when something happens. Usually these are split into 2 lines.  Keep formatting / spacing on these.-->
@@ -4668,11 +4688,39 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1825</Index>
-      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items.\. WARNING: This will quickly spend your treasury and may cause high tax rates.</Text>
+      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items.\n \nWARNING: This will quickly spend your treasury and may cause high tax rates.</Text>
     </Token>
     <Token>
       <Index>1826</Index>
       <Text>build all ships now, prioritize them to be first in queue and apply continuous rush.\n \nWARNING: This might drain your Treasury in an alarming rate.</Text>
+    </Token>
+    <Token>
+      <Index>1827</Index>
+      <Text>Use Shift + Click to bulk replace all similar modules. It is useful if you are upgrading your ship. It will also keep your old weapons' facing when bulk replacing weapons.</Text>
+    </Token>
+    <Token>
+      <Index>1844</Index>
+      <Text>Disable Remnant Story</Text>
+    </Token>
+    <Token>
+      <Index>1845</Index>
+      <Text>If checked, Remnant forces in the game will act as passive planet Guardians only.</Text>
+    </Token>
+    <Token>
+      <Index>1846</Index>
+      <Text>Remnant Titan Engine</Text>
+    </Token>
+    <Token>
+      <Index>1847</Index>
+      <Text>Remnant Capital Engine</Text>
+    </Token>
+    <Token>
+      <Index>1848</Index>
+      <Text>Remnant Medium Engine</Text>
+    </Token>
+    <Token>
+      <Index>1849</Index>
+      <Text>Remnant Small Engine</Text>
     </Token>
     <!-- Personality traits-->
     <Token>
@@ -5120,10 +5168,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1972</Index>
       <Text>Terraforming A Tile</Text>
     </Token>
-	  <Token>
-		  <Index>1973</Index>
-		  <Text>Accuracy</Text>
-	  </Token>
+	<Token>
+	  <Index>1973</Index>
+	  <Text>Accuracy</Text>
+	</Token>
     <!-- Data added in Texas Alpha2 -->
     <Token>
       <Index>1974</Index>
@@ -5827,7 +5875,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2147</Index>
-      <Text>Our study of Remnant Computing technology has led us to believe that ships we have encountered are drones. If we want to discover the location of their masters we need to build a device to discover the source of the control signal. </Text>
+      <Text>Our study of Remnant Ships has led us to believe we can build a structure that will detect incoming Remnant ships, should they every target us.</Text>
+      <!--<Text>Our study of Remnant Computing technology has led us to believe that ships we have encountered are drones. If we want to discover the location of their masters we need to build a device to discover the source of the control signal. </Text>-->
     </Token>
     <Token>
       <Index>2148</Index>
@@ -5835,11 +5884,13 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2149</Index>
-      <Text>Our scientists believe that this building will allow us to detect the origin of the signal that controls the Remnant drones in our galaxy. </Text>
+      <Text>Our scientists believe that this building will allow us to detect any remnant fleet targeting a system if this building in built on any of it's planets. it will also ETA.</Text>
+      <!--  <Text>Our scientists believe that this building will allow us to detect the origin of the signal that controls the Remnant drones in our galaxy. </Text> -->
     </Token>
     <Token>
       <Index>2150</Index>
-      <Text>Special building</Text>
+      <!--<Text>Special Building</Text> -->
+      <Text>Remnant Fleet Detector</Text>
     </Token>
     <Token>
       <Index>2151</Index>
@@ -6733,14 +6784,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	</Token>
 	<Token>
 	  <Index>2574</Index>
-	  <Text>Improve Accuracy with higher FCS control systems or more accurate weapons. Check the module information for individual weapon accuracy.</Text>
+	  <Text>Improve Accuracy with higher FCS control systems or more accurate weapons. Check the module information for individual weapon accuracy or zoom out to see targeting display.</Text>
 	</Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>
       <Text>We feel that the time for hostilities is at an end, and request a peace treaty. </Text>
     </Token>
-    <Token>
+    <Token>1
       <Index>3001</Index>
       <Text>Join us in friendship by creating an alliance with us. </Text>
     </Token>
@@ -7752,7 +7803,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 	  <!-- More Venus ToolTips-->
 	<Token>
 	  <Index>4114</Index>
-	  <Text>Weapon target error radius measured in ship slots. Ex. an value of -6 means the weapon will hit within a 6 slot radius of the target point. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
+	  <Text>Weapon target error radius measured in ship slots. An accuracy of -6 means the weapon will hit within a 6 slot radius of the target point. above or below range 2300 The error will gradually increase or decrease. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
 	</Token>
     <Token>
       <Index>5000</Index>
@@ -8102,7 +8153,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>5087</Index>
       <Text>Trade Hub</Text>
     </Token>
-  
+  <Token>
+	  <Index>5088</Index>
+	  <Text>Fire Control Systems or FCS. This indicates how powerful weapon fire control is on the ship. Higher FCS increases weapon accuracy and target tracking. Weapon accuracy is the highest FCS of any module except where noted. Tacking systems is accumulated FCS.</Text>
+  </Token>
 
 
   <!-- SD Code Mod, UI ELEMENT TEXT -->	
@@ -8851,11 +8905,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>	
   <Token>
   <Index>6182</Index>
-  <Text>FTL Overlay: visualises subspace projection and FTL inhibiting gravity wells and fields.</Text>
+  <Text>FTL Overlay: visualizes subspace projection and FTL inhibiting gravity wells and fields.</Text>
   </Token>		
   <Token>
     <Index>6183</Index>
-    <Text>Weapons Range Overlay: visualises ships' maximum weapon range.</Text>
+    <Text>Weapons Range Overlay: visualizes ships' maximum weapon range.</Text>
   </Token>
   <Token>
     <Index>6184</Index>
@@ -8871,11 +8925,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>6187</Index>
-      <Text>Fire Control</Text>
+      <Text>FCS Accuracy</Text>
     </Token>
   <Token>
       <Index>6188</Index>
-      <Text>FCS Power</Text>
+      <Text>FCS Tracking</Text>
     </Token>
   <Token>
       <Index>6189</Index>
@@ -9240,7 +9294,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7087</Index>
-      <Text>This is the total number of targets this ship's fire control systems can track, and fire upon at a time. Higher values allow for greater weapon autonomy, while lower values can limit defenses and make them more prone to being overwhelmed.</Text>
+      <Text>Total number of ships the scanners can track and total number incoming seeking weapons the scanners can track. Weapons can fire at any item in tracked ships or tracked seekers as is possible. Scanners attempt to track the best targets for the ship. if you plan on being surrounded this number should be high.</Text>
     </Token>
   <Token>
       <Index>7088</Index>

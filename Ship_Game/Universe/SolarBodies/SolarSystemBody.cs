@@ -147,8 +147,6 @@ namespace Ship_Game
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;
         public int NumConstructing => Construction.Count;
-        //public Array<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
-        public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
         public Array<Ship> OrbitalStations = new Array<Ship>();
         public Matrix RingWorld;
