@@ -243,6 +243,7 @@ namespace Ship_Game.AI
                 Priority = 20
 
             };
+            OwnerEmpire.UpdateTargetsStrMultiplier(p.guid, out _);
             militaryTask.SetTargetPlanet(p);
             militaryTask.SetEmpire(OwnerEmpire);
             AddPendingTask(militaryTask);

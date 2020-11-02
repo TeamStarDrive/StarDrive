@@ -83,7 +83,7 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
-        public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip)
+        public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, float minStrength)
         {
             var militaryTask = new MilitaryTask
             {
@@ -93,7 +93,7 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = 20000,
                 EnemyStrength            = targetShip.BaseStrength,
                 TargetShipGuid           = targetShip.guid,
-                MinimumTaskForceStrength = 100
+                MinimumTaskForceStrength = minStrength
             };
             return militaryTask;
         }
@@ -106,8 +106,7 @@ namespace Ship_Game.AI.Tasks
                 AO                       = targetPlanet.Center,
                 type                     = TaskType.GlassPlanet,
                 AORadius                 = targetPlanet.GravityWellRadius,
-                EnemyStrength            = minStrength,
-                MinimumTaskForceStrength = 100
+                MinimumTaskForceStrength = minStrength
             };
             return militaryTask;
         }
@@ -126,6 +125,20 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateRemnantEngagement(Planet planet, Empire owner)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                AO           = planet.Center,
+                AORadius     = 50000f,
+                TargetPlanet = planet
+            };
+
+            militaryTask.SetEmpire(owner);
+            militaryTask.type = TaskType.RemnantEngagement;
+            return militaryTask;
+        }
+
         public MilitaryTask(AO ao, Array<Vector2> patrolPoints)
         {
             AO              = ao.Center;
@@ -139,6 +152,7 @@ namespace Ship_Game.AI.Tasks
             AO                       = center;
             AORadius                 = radius;
             type                     = taskType;
+            MinimumTaskForceStrength = strengthWanted;
             EnemyStrength            = strengthWanted;
             TargetSystem             = system;
         }
@@ -148,7 +162,7 @@ namespace Ship_Game.AI.Tasks
             var threatMatrix = owner.GetEmpireAI().ThreatMatrix;
             float radius     = 3500f;
             float strWanted  = threatMatrix.PingRadarStr(target.Center, radius, owner);
-            strWanted       += target.TotalGeodeticOffense;
+            strWanted       += target.BuildingGeodeticCount;
 
             type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
@@ -156,13 +170,24 @@ namespace Ship_Game.AI.Tasks
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
-            EnemyStrength            = strWanted;
-            MinimumTaskForceStrength = 100;
+            MinimumTaskForceStrength = strWanted * owner.DifficultyModifiers.TaskForceStrength;
         }
 
         public MilitaryTask(Empire owner)
         {
             Owner = owner;
+        }
+
+        public void ChangeTargetPlanet(Planet planet)
+        {
+            TargetPlanet     = planet;
+            TargetPlanetGuid = planet.guid;
+            AO               = planet.Center;
+        }
+
+        public void ChangeAO(Vector2 position)
+        {
+            AO = position;
         }
 
         public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";
@@ -257,7 +282,7 @@ namespace Ship_Game.AI.Tasks
             Fleet.FleetTask = null;
         }
 
-        private void DisbandFleet(Fleet fleet)
+        public void DisbandFleet(Fleet fleet)
         {
             Fleet.Reset();
             TaskForce.Clear();
@@ -389,7 +414,6 @@ namespace Ship_Game.AI.Tasks
                         if (Step == 0)
                         {
                             RequisitionAssaultForces();
-
                             if (Step == 0) Step = -1;
                         }
                         else
@@ -710,7 +734,8 @@ namespace Ship_Game.AI.Tasks
             DefendPostInvasion,
             GlassPlanet,
             AssaultPirateBase,
-            Patrol
+            Patrol,
+            RemnantEngagement
         }
 
         [Flags]

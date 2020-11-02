@@ -8,12 +8,10 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Empires;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
-using System.Threading;
 
 namespace Ship_Game
 {
@@ -133,6 +131,9 @@ namespace Ship_Game
         // For Pirate Factions. This will allow the Empire to be pirates
         public Pirates Pirates { get; private set; }
 
+        // For Remnants Factions. This will allow the Empire to be Remnants
+        public Remnants Remnants { get; private set; }
+
         public Color EmpireColor;
         public static UniverseScreen Universe;
         private EmpireAI EmpireAI;
@@ -194,7 +195,8 @@ namespace Ship_Game
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
-        public bool RushAllConsturction;
+        public bool RushAllConstruction;
+        public Map<Guid, float> TargetsFleetStrMultiplier { get; private set; } = new Map<Guid, float>();
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -207,6 +209,7 @@ namespace Ship_Game
         public bool IsCybernetic             => data.Traits.Cybernetic != 0;
         public bool NonCybernetic            => data.Traits.Cybernetic == 0;
         public bool WeArePirates             => Pirates != null; // Use this to figure out if this empire is pirate faction
+        public bool WeAreRemnants            => Remnants != null; // Use this to figure out if this empire is pirate faction
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
@@ -222,9 +225,9 @@ namespace Ship_Game
         public bool IsMilitarists             => data.EconomicPersonality?.Name == "Militarists";
         public bool IsTechnologists           => data.EconomicPersonality?.Name == "Technologists";
 
-        public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -271,6 +274,11 @@ namespace Ship_Game
         public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)
         {
             Pirates = new Pirates(this, fromSave, goals);
+        }
+
+        public void SetAsRemnants(bool fromSave, BatchRemovalCollection<Goal> goals)
+        {
+            Remnants = new Remnants(this, fromSave, goals);
         }
 
         public void AddMoney(float moneyDiff)
@@ -438,8 +446,8 @@ namespace Ship_Game
             for (int i = 0; i < fleets.Length; ++i)
             {
                 Fleet fleet = fleets[i];
-                if (fleet.FleetTask?.TargetPlanet?.Guardians.Count > 0)
-                    str += fleet.FleetTask.EnemyStrength;
+                if (fleet.FleetTask?.TargetPlanet?.ParentSystem.ShipList.Any(s => s != null && s.IsGuardian) == true)
+                    str += fleet.FleetTask.EnemyStrength; // Todo: Remove the null check above once ShipList is safe again
             }
 
             return str;
@@ -932,15 +940,45 @@ namespace Ship_Game
                 Ship ship = ships[i];
                 if (ship == null || ship.fleet != null)
                     continue;
+
                 if (ship.AI.State == AIState.Resupply
+                    || ship.AI.State == AIState.ResupplyEscort
                     || ship.AI.State == AIState.Refit
                     || ship.AI.State == AIState.Scrap
                     || ship.AI.State == AIState.Scuttle)
+                {
                     continue;
+                }
+
                 readyShips.Add(ship);
             }
 
             return readyShips.ToArray();
+        }
+
+        public void UpdateTargetsStrMultiplier(Guid guid, out float updatedMultiplier)
+        {
+            if (TargetsFleetStrMultiplier.ContainsKey(guid))
+                TargetsFleetStrMultiplier[guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
+            else
+                TargetsFleetStrMultiplier.Add(guid, DifficultyModifiers.TaskForceStrength);
+
+            updatedMultiplier = TargetsFleetStrMultiplier[guid];
+        }
+
+        public void RemoveTargetsStrMultiplier(Guid guid)
+        {
+            TargetsFleetStrMultiplier.Remove(guid);
+        }
+
+        public void RestoreTargetsStrMultiplier(Map<Guid,float> claims)
+        {
+            TargetsFleetStrMultiplier = claims;
+        }
+
+        public float GetTargetsStrMultiplier(Guid guid)
+        {
+            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
         }
 
         public FleetShips AllFleetsReady()
@@ -2075,7 +2113,8 @@ namespace Ship_Game
             using (OwnedShips.AcquireReadLock())
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
-                    num += OwnedShips[i].GetCargo(Goods.Colonists) / 1000;
+                    Ship ship = OwnedShips[i];
+                    num += ship.GetCargo(Goods.Colonists) / 1000;
                 }
 
             return num;
@@ -2287,6 +2326,7 @@ namespace Ship_Game
             }
 
             SetPirateBorders(tempBorderNodes);
+            SetRemnantPortalBorders(tempBorderNodes);
 
             SensorNodes.ClearPendingRemovals();
             SensorNodes.ClearAndRecycle();
@@ -2310,6 +2350,23 @@ namespace Ship_Game
                 influenceNode.Radius        = pirateBase.SensorRange;
                 influenceNode.SourceObject  = pirateBase;
                 influenceNode.KnownToPlayer = IsSensorNodeVisible(false, pirateBase);
+                borderNodes.Add(influenceNode);
+            }
+        }
+
+        private void SetRemnantPortalBorders(ICollection<InfluenceNode> borderNodes)
+        {
+            if (!WeAreRemnants || !Remnants.GetPortals(out Ship[] portals))
+                return;
+
+            for (int i = 0; i < portals.Length; i++)
+            {
+                Ship portal                 = portals[i];
+                InfluenceNode influenceNode = BorderNodes.RecycleObject(n => n.Wipe()) ?? new InfluenceNode();
+                influenceNode.Position      = portal.Center;
+                influenceNode.Radius        = portal.SensorRange;
+                influenceNode.SourceObject  = portal;
+                influenceNode.KnownToPlayer = IsSensorNodeVisible(false, portal);
                 borderNodes.Add(influenceNode);
             }
         }
@@ -2519,7 +2576,12 @@ namespace Ship_Game
                     }
                     if (allEmpiresDead)
                     {
-                        Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
+                        Empire remnants = EmpireManager.Remnants;
+                        if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
+                            Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
+                        else
+                            remnants.Remnants.TriggerOnlyRemnantsLeftEvent();
+
                         return;
                     }
                 }
@@ -3004,6 +3066,7 @@ namespace Ship_Game
         {
             if (KillsForRemnantStory(they, killedShip))
                 return;
+
             if (GetRelations(they, out Relationship rel))
                 rel.LostAShip(killedShip);
         }
@@ -3017,11 +3080,14 @@ namespace Ship_Game
 
         public bool KillsForRemnantStory(Empire they, Ship killedShip)
         {
-            if (!isFaction || this != EmpireManager.Remnants) return false;
-            if (!they.isPlayer) return false;
-            if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) return false;
+            if (!WeAreRemnants) 
+                return false;
+
+            if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) 
+                return false;
+
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
-            GlobalStats.IncrementRemnantKills((int)killedExpSettings.KillExp, they);
+            Remnants.IncrementKills(they, (int)killedExpSettings.KillExp);
             return true;
         }
 

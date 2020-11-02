@@ -124,7 +124,7 @@ namespace Ship_Game.Universe.SolarBodies
             // this is the inverse square law with a min multiplier
             // to create a dead zone where damage is 1.0
 
-            float intensity = ((100f * RadiationRadius) / (distFromSun * distFromSun)) - 0.002f;
+            float intensity = ((200f * RadiationRadius) / (distFromSun * distFromSun)) - 0.002f;
 
             // it's very similar to inverse square law, but the curve is less forgiving
             // there's a % radius where intensity is 1.0

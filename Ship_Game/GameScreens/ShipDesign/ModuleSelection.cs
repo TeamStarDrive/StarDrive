@@ -372,7 +372,7 @@ namespace Ship_Game
             {
                 DrawString(batch, ref modTitlePos, "Explodes", mod.explodes);
                 DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
-                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
+                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius / 16f, 239);
             }
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), mod.EnergyResist, 190,  true);
@@ -396,8 +396,8 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6161), mod.APResist, 208);
             DrawStat(ref modTitlePos, Localizer.Token(6175), mod.DamageThreshold, 221);
             DrawStat(ref modTitlePos, Localizer.Token(6174), mod.EMP_Protection, 219);
-            DrawStat(ref modTitlePos, Localizer.Token(6187), mod.FixedTracking, 231);
-            DrawStat(ref modTitlePos, $"+{Localizer.Token(6186)}", mod.TargetTracking, 226);
+            DrawStat(ref modTitlePos, Localizer.Token(6187), mod.TargetingAccuracy, 231);
+            DrawStat(ref modTitlePos, $"+{Localizer.Token(6188)}", mod.TargetTracking, 226);
             if (mod.RepairDifficulty > 0) DrawStat(ref modTitlePos, Localizer.Token(1992), mod.RepairDifficulty, 241); // Complexity
 
             if (mod.PermittedHangarRoles.Length == 0)
@@ -475,7 +475,8 @@ namespace Ship_Game
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
-            DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), w.BaseTargetError((int)Screen.FireControlLevel) / -16f, 4114);
+            float accuracy = w.BaseTargetError((int)Screen.FireControlLevel).LowerBound(1) / 16;
+            DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, 4114);
 
             if (isBeam)
             {

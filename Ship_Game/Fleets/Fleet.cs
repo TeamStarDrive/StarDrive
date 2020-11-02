@@ -9,6 +9,7 @@ using System.Linq;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
+using Ship_Game.AI.CombatTactics;
 
 namespace Ship_Game.Fleets
 {
@@ -411,6 +412,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask);        break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask);                break;
                 case MilitaryTask.TaskType.AssaultPirateBase:          DoAssaultPirateBase(FleetTask);          break;
+                case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
             }
         }
 
@@ -729,6 +731,91 @@ namespace Ship_Game.Fleets
             }
         }
 
+        void DoRemnantEngagement(MilitaryTask task)
+        {
+            switch (TaskStep)
+            {
+                case 1:
+                    GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
+                    if (TryCalcEtaToPlanet(task, out float eta))
+                        Owner.Remnants.WarnPlayerFleetIncoming(FleetTask.TargetPlanet, eta);
+
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
+                        break;
+
+                    TaskStep = 3;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    break;
+                case 3:
+                    FleetMoveToPosition(task.AO, FleetTask.TargetPlanet.GravityWellRadius * 1.5f, false);
+                    TaskStep = 4;
+                    break;
+                case 4:
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
+                    {
+                        BombPlanet(FleetTask);
+                        break;
+                    }
+
+                    TaskStep = 5;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    break;
+                case 5:
+                    if (FleetInAreaInCombat(task.AO, task.AORadius) == CombatStatus.InCombat)
+                    {
+                        BombPlanet(FleetTask);
+                        AttackEnemyStrengthClumpsInAO(task);
+                        if (FleetTask.TargetPlanet.Owner == null)
+                            TaskStep = 7;
+                        break;
+                    }
+
+                    OrderFleetOrbit(FleetTask.TargetPlanet);
+                    TaskStep = 6;
+                    break;
+                case 6:
+                    if (BombPlanet(FleetTask))
+                        break;
+
+                    TaskStep = 7;
+                    break;
+                case 7:
+                    OrderFleetOrbit(FleetTask.TargetPlanet);
+                    break; // Change in task step is done from Remnant goals
+                case 8: // Go back to portal, this step is set from the Remnant goal
+                    GatherAtAO(task, 20000);
+                    TaskStep = 9;
+                    break;
+                case 9:
+                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
+                        break;
+
+                    TaskStep = 10;
+                    break;
+            }
+        }
+
+        bool TryCalcEtaToPlanet(MilitaryTask task, out float starDateEta)
+        {
+            starDateEta = 0;
+            if (task.TargetPlanet == null)
+                return false;
+
+            if (AveragePosition().InRadius(task.TargetPlanet.ParentSystem.Position, task.TargetPlanet.ParentSystem.Radius))
+                return false; // The Fleet is already there
+
+            float distanceToPlanet = AveragePosition().Distance(task.TargetPlanet.Center);
+            float slowestWarpSpeed = Ships.Min(s => s.MaxFTLSpeed).LowerBound(1000);
+            float secondsToTarget  = distanceToPlanet / slowestWarpSpeed;
+            float turnsToTarget    = secondsToTarget / GlobalStats.TurnTimer;
+            starDateEta            = (Empire.Universe.StarDate + turnsToTarget / 10).RoundToFractionOf10();
+
+            return starDateEta.Greater(0);
+        }
+
         void DoAssaultPirateBase(MilitaryTask task)
         {
             if (EndInvalidTask(task.TargetShip == null || !task.TargetShip.Active))
@@ -900,6 +987,15 @@ namespace Ship_Game.Fleets
             FleetTask = null;
             TaskStep = 0;
             return true;
+        }
+
+        void OrderFleetOrbit(Planet planet)
+        {
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                ship.OrderToOrbit(planet);
+            }
         }
 
         void AddFleetProjectorGoal()
@@ -1351,6 +1447,9 @@ namespace Ship_Game.Fleets
 
         bool StartBombing(Planet planet)
         {
+            if (planet.Owner == null)
+                return false; // colony was destroyed
+
             bool anyShipsBombing = false;
             Ship[] ships = Ships.Filter(ship => ship.HasBombs 
                            && ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm) >= Status.Critical);

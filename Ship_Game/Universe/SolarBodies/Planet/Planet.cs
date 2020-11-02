@@ -159,7 +159,6 @@ namespace Ship_Game
             int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             float racialEnvModifier      = Empire.RacialEnvModifer(Category, empire);
             float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * racialEnvModifier;
-
             if (!forceOnlyBiospheres && !bioSpheresResearched && !terraformResearched)
                 return naturalMaxPop + PopulationBonus;
 
@@ -435,7 +434,8 @@ namespace Ship_Game
 
         public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
         {
-            Population -= 1000f * amount;
+            float netPopKill = (amount * PopulationRatio).LowerBound(0.01f); // harder to kill sparse pop
+            Population      -= 1000f * netPopKill;
             AddBaseFertility(amount * -0.25f); // environment suffers temp damage
             if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 200))
                 AddMaxBaseFertility(-0.02f); // permanent damage to Max Fertility
@@ -1229,6 +1229,7 @@ namespace Ship_Game
         public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
         public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
+        public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
 
 
         private void RepairBuildings(int repairAmount)

@@ -9,6 +9,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Ship_Game.Audio;
+using System.Runtime.InteropServices.WindowsRuntime;
+using static Ship_Game.EmpireManager;
 
 namespace Ship_Game.Gameplay
 {
@@ -76,6 +78,7 @@ namespace Ship_Game.Gameplay
         public bool Tag_Tractor   { get => Tag(WeaponTag.Tractor);   set => Tag(WeaponTag.Tractor, value);   }
 
         [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
+
         public float HitPoints;
         public bool isBeam;
         public float EffectVsArmor = 1f;
@@ -109,7 +112,6 @@ namespace Ship_Game.Gameplay
         public bool isTurret;
         public bool isMainGun;
         public float OrdinanceRequiredToFire;
-
         // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
         public Vector2 PlanetCenter;
         
@@ -487,47 +489,58 @@ namespace Ship_Game.Gameplay
             return RandomMath2.Vector2D(adjust);
         }
 
-        public float BaseTargetError(int level)
+        public float BaseTargetError(float level, float range = 0, Empire loyalty = null)
         {
-            if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
+            if (Module == null)
                 return 0;
-
-            if (level == -1)
-            {
-                level = (Owner?.Level ?? 0)
-                        + (Owner?.TrackingPower ?? 0)
-                        + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
-            }
-
-            // reduce error by level cubed. if error is less than a module radius stop.
-            float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
-            float adjust = (baseError - level * level * level).LowerBound(0);
             
-            if (adjust < 8)
-                return adjust;
-
-            // reduce or increase error based on weapon and trait characteristics.
-            if (Tag_Cannon) adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
-            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
-            adjust *= WeaponAccuracyModifiers();
-            return adjust;
-        }
-
-        float WeaponAccuracyModifiers()
-        {
-            float accuracy = (Module?.AccuracyPercent ?? 0f);
-            if (accuracy.AlmostEqual(-1f))
+            // base error is based on module size or accuracyPercent.
+            float baseError;
+            if (Module?.AccuracyPercent.AlmostEqual(-1) == false)
             {
-                accuracy = 1f;
-                if (isTurret) accuracy *= 0.5f;
-                if (Tag_PD)   accuracy *= 0.5f;
-                if (TruePD)   accuracy *= 0.5f;
+                // should be calculated once. 
+                baseError = (float)Math.Pow(1000 , (1 - Module.AccuracyPercent));
             }
             else
             {
-                accuracy = 1f - accuracy;
+                if (TruePD) baseError = 0;
+                //else baseError = (Module.Area + 16) * (Module.Area + 16);
+                else baseError = (float)Math.Pow(Module.Area * 16f + 160, 1.2f);
             }
-            return accuracy;
+
+            // Skip all accuracy if weapon is 100% accurate
+            if (baseError.AlmostZero())
+                return 0;
+
+            if (level < 0)
+            {
+                // calculate at ship update
+                level = (Owner?.Level ?? 0) + loyalty?.data.Traits.Militaristic ?? 0;
+                level = (float)Math.Pow(level, 2f);
+                level += (Owner?.TargetingAccuracy ?? 0);
+            }
+            
+            level += 5;
+
+            // reduce the error by level
+            float adjust = (baseError / level -16f).LowerBound(0);
+            
+            if (FireTarget is ShipModule module)
+            {
+                Ship target = module.GetParent();
+                float speed = target.CurrentVelocity;
+                if (speed < 150)
+                    adjust *= (speed + 10 / 160f).Clamped(0f,1f);
+            }
+
+            // reduce or increase error based on weapon and trait characteristics.
+            // this could be pre-calculated in the flyweight
+            if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
+            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
+            if (isTurret) adjust    *= 0.5f;
+            if (Tag_PD) adjust      *= 0.5f;
+            if (TruePD) adjust      *= 0.5f;
+            return adjust;
         }
 
         // @note This is used for debugging
@@ -545,7 +558,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Applies correction to weapon target based on distance to target
-        Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
+        public Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
         {
             // once we get too close the angle error becomes too big, so move the target pos further
             float distance = source.Distance(target);
@@ -556,19 +569,26 @@ namespace Ship_Game.Gameplay
                 target += (minDistance - distance)*source.DirectionToTarget(target);
             }
             
-            // total error magnitude should get smaller as we get closer
-            float errorMagnitude = 1f;
-            if (distance < 2000f)
-            {
-                errorMagnitude = (distance+minDistance) / 2000f;
-            }
+            // total error magnitude should adjust as target is faster or slower than light speed. 
+            float errorMagnitude = (float)Math.Pow((distance + minDistance) / Ship.TargetErrorFocalPoint, 0.25f);
 
+            // total error magnitude should get smaller as the target gets slower. 
+            if (FireTarget?.Type == GameObjectType.ShipModule)
+            {
+                float speed = ((ShipModule)FireTarget).GetParent().CurrentVelocity;
+                errorMagnitude *= speed < 150 ? speed / 150 : 1;
+            }
+            
             Vector2 adjusted = target + error*errorMagnitude;
             DebugLastImpactPredict = adjusted;
             return adjusted;
         }
 
-        
+        public float GetSpeedReduction(float targetSpeed)
+        {
+            return (targetSpeed + 25) / 175;
+        }
+
         public Vector2 Origin => Module?.Center ?? PlanetCenter;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
@@ -828,12 +848,13 @@ namespace Ship_Game.Gameplay
             actualShieldPenChance = Math.Max(shieldPenChance, actualShieldPenChance);
         }
 
-        public float GetActualRange()
+        public float GetActualRange(Empire owner = null)
         {
+            owner = owner ?? Owner?.loyalty ?? Player;
             float range = BaseRange;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {
-                WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[ ActiveWeaponTags[i] ];
+                WeaponTagModifier mod = owner.data.WeaponTags[ ActiveWeaponTags[i] ];
                 range += mod.Range * BaseRange;
             }
             return range;
