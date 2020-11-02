@@ -144,6 +144,11 @@ namespace Ship_Game
             return projectiles;
         }
 
+        /// <summary> Only for test </summary>
+        public Beam[] GetBeams(Ship ship) => Projectiles.FilterSelect(
+            p => p.Active && p.Type == GameObjectType.Beam && p.Owner == ship,
+            p => (Beam)p);
+
         /// <summary>Thread-safely Adds a new Object to the Universe</summary>
         public void Add(GameplayObject go)
         {
