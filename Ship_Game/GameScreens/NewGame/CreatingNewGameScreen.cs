@@ -35,9 +35,6 @@ namespace Ship_Game
                 float pace, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
         {
             CanEscapeFromScreen = false;
-            GlobalStats.RemnantArmageddon = false;
-            GlobalStats.RemnantKills = 0;
-            GlobalStats.RemnantActivation = 0;
             MainMenu = mainMenu;
             foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
                 art.Discovered = false;

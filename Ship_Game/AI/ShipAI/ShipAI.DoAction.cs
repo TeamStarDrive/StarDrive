@@ -19,8 +19,8 @@ namespace Ship_Game.AI
         {
             HasPriorityTarget = true;
             State = AIState.Boarding;
-
-            if (EscortTarget == null || !EscortTarget.Active || EscortTarget.loyalty == Owner.loyalty)
+            var escortTarget = EscortTarget;
+            if (escortTarget == null || !escortTarget.Active || escortTarget.loyalty == Owner.loyalty)
             {
                 ClearOrders(State);
                 if (Owner.Mothership != null)
@@ -33,11 +33,11 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPos(EscortTarget.Center, timeStep);
-            float distance = Owner.Center.Distance(EscortTarget.Center);
-            if (distance < EscortTarget.Radius + 300f)
+            ThrustOrWarpToPos(escortTarget.Center, timeStep);
+            float distance = Owner.Center.Distance(escortTarget.Center);
+            if (distance < escortTarget.Radius + 300f)
             {
-                Owner.TryLandSingleTroopOnShip(EscortTarget);
+                Owner.TryLandSingleTroopOnShip(escortTarget);
                 OrderReturnToHangar();
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)

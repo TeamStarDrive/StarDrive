@@ -240,7 +240,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             QueueItem item = ConstructionQueue[0];
-            if (item.Rush || Owner.RushAllConsturction)
+            if (item.Rush || Owner.RushAllConstruction)
                 RushProduction(0, item.ProductionNeeded, true);
         }
 
@@ -264,7 +264,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Cost            = b.ActualCost,
                 ProductionSpent = 0.0f,
                 NotifyOnEmpty   = false,
-                Rush            = P.Owner.RushAllConsturction,
+                Rush            = P.Owner.RushAllConstruction,
                 QueueNumber     = ConstructionQueue.Count
 
             };
@@ -293,7 +293,7 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueNumber   = ConstructionQueue.Count,
                 sData         = constructor.shipData,
                 Cost          = platform.GetCost(Owner),
-                Rush          = P.Owner.RushAllConsturction
+                Rush          = P.Owner.RushAllConstruction
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
@@ -311,7 +311,7 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueNumber   = ConstructionQueue.Count,
                 sData         = constructor.shipData,
                 Cost          = refitCost,
-                Rush          = P.Owner.RushAllConsturction,
+                Rush          = P.Owner.RushAllConstruction,
             };
             
             ConstructionQueue.Add(qi);
@@ -328,7 +328,7 @@ namespace Ship_Game.Universe.SolarBodies
                 Cost          = ship.GetCost(Owner),
                 NotifyOnEmpty = notifyOnEmpty,
                 QueueNumber   = ConstructionQueue.Count,
-                Rush          = P.Owner.RushAllConsturction
+                Rush          = P.Owner.RushAllConstruction
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
@@ -343,7 +343,7 @@ namespace Ship_Game.Universe.SolarBodies
                 TroopType   = template.Name,
                 Goal        = goal,
                 Cost        = template.ActualCost,
-                Rush        = P.Owner.RushAllConsturction,
+                Rush        = P.Owner.RushAllConstruction,
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
