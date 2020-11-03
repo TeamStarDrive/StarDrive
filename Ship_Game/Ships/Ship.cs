@@ -151,6 +151,7 @@ namespace Ship_Game.Ships
         public Planet HomePlanet { get; private set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
+        public float MaxWeaponError = 0;
 
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
         public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
@@ -944,6 +945,7 @@ namespace Ship_Game.Ships
 
             DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges, AI?.CombatState ?? CombatState.AttackRuns);
             InterceptSpeed     = CalcInterceptSpeed(weapons);
+            MaxWeaponError     = Weapons.FindMax(w => w.BaseTargetError(Level, TargetErrorFocalPoint))?.BaseTargetError(Level, TargetErrorFocalPoint) ?? 0;
         }
 
         // This is used for previewing range during CombatState change

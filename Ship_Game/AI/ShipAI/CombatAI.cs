@@ -132,28 +132,52 @@ namespace Ship_Game.AI
             // damaged by
             // 
             Ship target = weight.Ship;
-            float weightTotal = 0;
+            float thierDPS = target.GetDPS();
             float distanceToTarget = Owner.Center.Distance(weight.Ship.Center);
-            bool inWeaponsRange    = Owner.WeaponsMaxRange > distanceToTarget;
-            bool inDesiredCombatRange = Owner.DesiredCombatRange > distanceToTarget;
-            bool isTargetingUs       = weight.Ship.AI.Target == Owner;
-            bool isDamagingUs        = weight.Ship == Owner.LastDamagedBy;
+            float errorRatio = (Owner.MaxWeaponError) / target.Radius;
+            
+            float danger = (thierDPS - targetPrefs.DPS) / thierDPS.LowerBound(1);
 
-            float turnRate = Owner.RotationRadiansPerSecond;
+            float targetDanger = (danger * errorRatio).Clamped(-1,1);
 
-            // stl ratio
+            // closer is higher
+            float weaponsRange = Owner.WeaponsMaxRange * 2;
+            float inWeaponsRange = (weaponsRange - distanceToTarget) / weaponsRange;
+            float inDesiredCombatRange = (Owner.DesiredCombatRange * 2 - distanceToTarget ) / (Owner.DesiredCombatRange * 2);
+
+            float targetingUs          = weight.Ship.AI.Target == Owner ? targetDanger : 0;
+            float damagingUs           = weight.Ship == Owner.LastDamagedBy ? targetDanger : 0;
+
+            // more agile than us the less they are valued. 
+            float turnRatio = 0;
+            if (target.RotationRadiansPerSecond > 0 && Owner.RotationRadiansPerSecond >0)
+                turnRatio = (Owner.RotationRadiansPerSecond  - target.RotationRadiansPerSecond) / Owner.RotationRadiansPerSecond;
+
             float stlRatio = 0;
-            float ourSTL = Owner.MaxSTLSpeed;
-            float theirSTL = target.MaxSTLSpeed;
-            if (ourSTL > 0 && theirSTL >0)
-            {
-                stlRatio = ourSTL / theirSTL;
-            }
+            if (target.MaxSTLSpeed > 0 )
+                stlRatio = (Owner.MaxSTLSpeed - target.MaxSTLSpeed) / target.MaxSTLSpeed;
+
+            float pirate = Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
 
 
-            bool isPirate = Owner.loyalty.WeArePirates;
+            float weightTotal = inDesiredCombatRange + targetingUs + damagingUs + turnRatio + stlRatio + pirate;
+            float normalizer = 0;
+            //normalizer += errorRatio != 0 ? 1 : 0;
+            //normalizer += targetDanger != 0 ? 1 : 0;
+            normalizer += inDesiredCombatRange != 0 ? 1 : 0;
+            normalizer += targetingUs != 0 ? 1 : 0;
+            normalizer += damagingUs != 0 ? 1 : 0;
+            normalizer += Owner.AI.Target != weight.Ship && Owner.AI.Target != null ? 1 : 0;
+            normalizer += turnRatio != 0 ? 1 : 0;
+            normalizer += stlRatio != 0 ? 1 : 0;
+
+            weightTotal /= normalizer;
+
+            weight.SetWeight(weightTotal);
+            return weight;
 
         }
+
         public float SizeAttackWeight(Ship target, TargetParameterTotals nearbyAverages)
         {
             float avgNearBySize = nearbyAverages.Size;
