@@ -185,6 +185,7 @@ namespace Ship_Game.Gameplay
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
+        [XmlIgnore][JsonIgnore] public int DamagePerSecond { get; private set; }
 
         // Number of salvos that will be sequentially spawned.
         // For example, Vulcan Cannon fires a salvo of 20
@@ -259,6 +260,24 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
+        public void CalcDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
+        {
+            Weapon wOrMirv = this; 
+            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            {
+                Weapon warhead = ResourceManager.CreateWeapon(MirvWeapon);
+                wOrMirv        = warhead;
+            }
+
+            int salvos           = SalvoCount.LowerBound(1);
+            float beamMultiplier = isBeam && !isRepairBeam ? BeamDuration * 60f : 0f;
+            float dps            = isBeam 
+                ? DamageAmount * beamMultiplier / NetFireDelay
+                : (salvos / NetFireDelay) * wOrMirv.ProjectileCount * wOrMirv.DamageAmount * MirvWarheads.LowerBound(1);
+
+            DamagePerSecond = (int)dps;
+        }
+
         // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
         public float GetDamageWithBonuses(Ship owner)
         {
@@ -278,7 +297,6 @@ namespace Ship_Game.Gameplay
 
             return damageAmount;
         }
-
 
         public void PlayToggleAndFireSfx(AudioEmitter emitter = null)
         {
