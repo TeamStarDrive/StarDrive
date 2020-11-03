@@ -164,7 +164,7 @@ namespace Ship_Game.AI
             {
                 Armor  += ship.armor_max;
                 Shield += ship.shield_max;
-                DPS    += ship.GetDPS();
+                DPS    += ship.TotalDps;
                 Size   += ship.SurfaceArea;
                 Speed  += ship.MaxSTLSpeed;
                 Health += ship.HealthPercent; 
@@ -268,7 +268,6 @@ namespace Ship_Game.AI
                         ScannedNearby.Add(sw);
 
                         targetPrefs.AddTargetValue(nearbyShip);
-                        
                         ScannedNearby[ScannedNearby.Count - 1] = sw;
                     }
                 }
@@ -370,8 +369,8 @@ namespace Ship_Game.AI
                     else
                         copyWeight.SetWeight(float.MinValue);
                 }
-                ////ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
 
+                ////ShipWeight is a struct so we are working with a copy. Need to overwrite existing value.
                 ScannedNearby[i] = copyWeight;
             }
         }
