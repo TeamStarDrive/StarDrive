@@ -58,9 +58,8 @@ namespace Ship_Game.Commands.Goals
 
         void ChangeTaskTargetPlanet()
         {
-            var tasks = empire.GetEmpireAI().GetTasks();
-            tasks.Filter(t => t.Fleet == Fleet);
-            switch (tasks.Count)
+            var tasks = empire.GetEmpireAI().GetTasks().Filter(t => t.Fleet == Fleet);
+            switch (tasks.Length)
             {
                 case 0:                                                                                  return;
                 case 1:  tasks[0].ChangeTargetPlanet(TargetPlanet);                                      break;
@@ -70,13 +69,10 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float str;
-            if (TargetEmpire.isPlayer)
-                str = TargetEmpire.CurrentMilitaryStrength / 2 * ((int)CurrentGame.Difficulty + 1);
-            else
-                str = TargetEmpire.CurrentMilitaryStrength / 5;
+            float strDiv = TargetEmpire.isPlayer ? 2 : 5;
+            float str    = TargetEmpire.CurrentMilitaryStrength / strDiv * ((int)CurrentGame.Difficulty + 1);
+            str          = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
 
-            str = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
             return str.LowerBound(Remnants.Level * Remnants.Level * 200);
         }
 
