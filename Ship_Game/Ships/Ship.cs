@@ -515,31 +515,35 @@ namespace Ship_Game.Ships
             }
         }
 
-        // calculates estimated trip time by turns
+        // Calculates estimated trip time by turns
         public float GetAstrograteTimeTo(Planet destination)
         {
             float distance    = Center.Distance(destination.Center);
             float distanceSTL = destination.GravityWellForEmpire(loyalty);
-            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner
-            if (planet != null)
+            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner if the ship is in one
+
+            if (planet != null && !IsInFriendlyProjectorRange)
                 distanceSTL += planet.GravityWellRadius;
 
-            return GetAstrogateTime(distance, distanceSTL);
+            return GetAstrogateTime(distance, distanceSTL, destination.Center);
         }
 
         public float GetAstrogateTimeBetween(Planet origin, Planet destination)
         {
             float distance    = origin.Center.Distance(destination.Center);
             float distanceSTL = destination.GravityWellForEmpire(loyalty) + origin.GravityWellForEmpire(loyalty);
-            return GetAstrogateTime(distance, distanceSTL);
+
+            return GetAstrogateTime(distance, distanceSTL, destination.Center);
         }
 
-        private float GetAstrogateTime(float distance, float distanceSTL)
+        private float GetAstrogateTime(float distance, float distanceSTL, Vector2 targetPos)
         {
-            float distanceFTL = Math.Max(distance - distanceSTL, 0);
-            float travelSTL   = distanceSTL / MaxSTLSpeed;
-            float travelFTL   = distanceFTL / MaxFTLSpeed;
-            return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
+            float rotationTime = Direction.AngleToTarget(targetPos) / (RotationDegrees / GlobalStats.TurnTimer);
+            float distanceFTL  = Math.Max(distance - distanceSTL, 0);
+            float travelSTL    = distanceSTL / MaxSTLSpeed;
+            float travelFTL    = distanceFTL / MaxFTLSpeed;
+
+            return (travelFTL + travelSTL + rotationTime + FTLSpoolTime) / GlobalStats.TurnTimer;
         }
 
 
