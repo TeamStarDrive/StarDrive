@@ -264,15 +264,10 @@ namespace Ship_Game.AI
                         if (radius < 1)
                             continue;
 
-                        var sw = new ShipWeight(nearbyShip, 1);
+                        var sw = new ShipWeight(nearbyShip, 0);
                         ScannedNearby.Add(sw);
 
-                        // bonus weight to secort targets
-                        if (BadGuysNear && nearbyShip.AI.Target is Ship ScannedNearbyTarget &&
-                            ScannedNearbyTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
-                        {
-                            sw += 3f;
-                        }
+                        targetPrefs.AddTargetValue(nearbyShip);
                         
                         ScannedNearby[ScannedNearby.Count - 1] = sw;
                     }
@@ -296,7 +291,7 @@ namespace Ship_Game.AI
             }
 
             // non combat ships dont process combat weight concepts. 
-            if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
+            if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero() || ScannedNearby.Count == 0)
                 return Target;
 
             SetTargetWeights(targetPrefs);
@@ -362,37 +357,22 @@ namespace Ship_Game.AI
 
                 copyWeight = CombatAI.ShipCommandTargeting(copyWeight, targetPrefs);
 
-                ScannedNearby[i] = copyWeight;
-                //if (copyWeight.Ship.Weapons.Count == 0)
-                //    copyWeight += CombatAI.PirateWeight;
+                if (Owner.fleet != null && FleetNode != null)
+                {
+                    Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
 
-                //copyWeight += CombatAI.SizeAttackWeight(copyWeight.Ship, targetPrefs);
-
-                //if (Owner.fleet == null || FleetNode == null)
-                //{
-                //    copyWeight += CombatAI.ApplyWeight(copyWeight.Ship, targetPrefs);
-                //}
-                //else
-                //{
-                //    Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-
-                //    float orderRatio = fleetPos.Distance(copyWeight.Ship.Center) / FleetNode.OrdersRadius;
-                //    // if outside ordersRatio drop a heavy weight. 
-                //    orderRatio = orderRatio > 1 ? orderRatio : 1;
-
-                //    // 1- ordersRatio makes closer targets better.
-                //    copyWeight += (1 - orderRatio);
-                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.GetDPS(), targetPrefs.DPS, FleetNode.DPSWeight);
-                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.shield_power, targetPrefs.Shield, FleetNode.AttackShieldedWeight);
-                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.armor_max, targetPrefs.Armor, FleetNode.ArmoredWeight);
-                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.SurfaceArea, targetPrefs.Size, FleetNode.SizeWeight);
-                //    copyWeight += FleetDataNode.ApplyTargetWeight(copyWeight.Ship.HealthPercent, targetPrefs.Health, FleetNode.VultureWeight);
-                //    copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship);
-                //    copyWeight.SetWeight(copyWeight.Weight / 9);
-
-                //}
+                    // if outside ordersRatio drop a heavy weight.
+                    bool orderRatio = fleetPos.InRadius(copyWeight.Ship.Center, FleetNode.OrdersRadius);
+                    if (orderRatio)
+                    {
+                        copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship, targetPrefs) / 2;
+                    }
+                    else
+                        copyWeight.SetWeight(float.MinValue);
+                }
                 ////ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
-                //ScannedNearby[i] = copyWeight;
+
+                ScannedNearby[i] = copyWeight;
             }
         }
         

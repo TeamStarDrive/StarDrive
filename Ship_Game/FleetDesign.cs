@@ -48,7 +48,7 @@ namespace Ship_Game
             // 0.5 * -0.25 = -0.125
         }
 
-        public float ApplyFleetWeight(Array<Ship> fleetShips, Ship potential)
+        public float ApplyFleetWeight(Array<Ship> fleetShips, Ship potential, ShipAI.TargetParameterTotals targetParameterTotals)
         {
             float weight = 0;
 
@@ -67,13 +67,19 @@ namespace Ship_Game
                 if (defend && assist) 
                     break;
             }
+            int normalizer = 0;
+            if (defend) {weight += DefenderWeight; normalizer++;}
+            if (assist) {weight += AssistWeight; normalizer++;}
 
-            if (defend)
-                weight += DefenderWeight;
-            if (assist)
-                weight += AssistWeight;
-            
-            return weight;
+
+            weight += ApplyTargetWeight(potential.GetDPS(), targetParameterTotals.DPS, DPSWeight);
+            weight += ApplyTargetWeight(potential.shield_power, targetParameterTotals.Shield, AttackShieldedWeight);
+            weight += ApplyTargetWeight(potential.armor_max, targetParameterTotals.Armor, ArmoredWeight);
+            weight += ApplyTargetWeight(potential.SurfaceArea, targetParameterTotals.Size, SizeWeight);
+            weight += ApplyTargetWeight(potential.HealthPercent, targetParameterTotals.Health, VultureWeight);
+            normalizer += 5;
+
+            return weight / normalizer;
         }
 
         public FleetDataNode Clone()

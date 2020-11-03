@@ -525,14 +525,6 @@ namespace Ship_Game.Gameplay
             // reduce the error by level
             float adjust = (baseError / level -16f).LowerBound(0);
             
-            if (FireTarget is ShipModule module)
-            {
-                Ship target = module.GetParent();
-                float speed = target.CurrentVelocity;
-                if (speed < 150)
-                    adjust *= (speed + 10 / 160f).Clamped(0f,1f);
-            }
-
             // reduce or increase error based on weapon and trait characteristics.
             // this could be pre-calculated in the flyweight
             if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
@@ -950,7 +942,7 @@ namespace Ship_Game.Gameplay
 
             off *= TruePD ? 0.2f : 1f;
             off *= Tag_Intercept && (Tag_Missile || Tag_Torpedo) ? 0.8f : 1f;
-            off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
+            off *= ProjectileSpeed > 1 ? ProjectileSpeed / BaseRange : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
             off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.LowerBound(2) : 1;
