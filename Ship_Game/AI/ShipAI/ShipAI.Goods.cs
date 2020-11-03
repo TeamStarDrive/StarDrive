@@ -67,8 +67,8 @@ namespace Ship_Game.AI
                         return;
                     }
 
-                    exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
-                    freighterTooSmall        = Owner.CargoSpaceMax.Less(maxProdLoad);
+                    exportPlanet.ProdHere -= Owner.LoadProduction(maxProdLoad);
+                    freighterTooSmall      = Owner.CargoSpaceMax.Less(maxProdLoad);
                     break;
                 case Goods.Colonists:
                     exportPlanet.ProdHere += Owner.UnloadProduction();

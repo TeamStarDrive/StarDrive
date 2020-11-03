@@ -131,14 +131,12 @@ namespace Ship_Game.AI
             // speed / turnrate difference
             // damaged by
             // 
-            Ship target = weight.Ship;
-            float thierDPS = target.GetDPS();
+            Ship target            = weight.Ship;
+            float theirDPS         = target.TotalDps;
             float distanceToTarget = Owner.Center.Distance(weight.Ship.Center);
-            float errorRatio = (Owner.MaxWeaponError) / target.Radius;
-            
-            float danger = (thierDPS - targetPrefs.DPS) / thierDPS.LowerBound(1);
-
-            float targetDanger = (danger * errorRatio).Clamped(-1,1);
+            float errorRatio       = (Owner.MaxWeaponError) / target.Radius;
+            float danger           = (theirDPS - targetPrefs.DPS) / theirDPS.LowerBound(1);
+            float targetDanger     = (danger * errorRatio).Clamped(-1,1);
 
             // closer is higher
             float weaponsRange = Owner.WeaponsMaxRange * 2;

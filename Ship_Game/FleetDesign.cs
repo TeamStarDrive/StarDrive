@@ -72,7 +72,7 @@ namespace Ship_Game
             if (assist) {weight += AssistWeight; normalizer++;}
 
 
-            weight += ApplyTargetWeight(potential.GetDPS(), targetParameterTotals.DPS, DPSWeight);
+            weight += ApplyTargetWeight(potential.TotalDps, targetParameterTotals.DPS, DPSWeight);
             weight += ApplyTargetWeight(potential.shield_power, targetParameterTotals.Shield, AttackShieldedWeight);
             weight += ApplyTargetWeight(potential.armor_max, targetParameterTotals.Armor, ArmoredWeight);
             weight += ApplyTargetWeight(potential.SurfaceArea, targetParameterTotals.Size, SizeWeight);
