@@ -447,7 +447,7 @@ namespace Ship_Game.Ships
 
             // initialize strength for our empire:
             CurrentStrength = CalculateShipStrength();
-            BaseStrength = CurrentStrength; // save base strength for later
+            BaseStrength    = CurrentStrength; // save base strength for later
             if (shipData.BaseStrength <= 0f)
                 shipData.BaseStrength = BaseStrength;
         }

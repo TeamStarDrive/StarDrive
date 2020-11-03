@@ -497,12 +497,13 @@ namespace Ship_Game.Debug
                     DrawString("Target: "+ shipTarget.Name);
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
-                DrawString($"Strength: {ship.BaseStrength}");
-                DrawString($"VelocityMax: {ship.VelocityMaximum}  FTLMax: {ship.MaxFTLSpeed}");
-                DrawString($"HP: {ship.Health} / {ship.HealthMax}");
-                DrawString("Ship Mass: " + ship.Mass);
+                DrawString($"Strength: {ship.GetStrength().String(0)} / {ship.BaseStrength.String(0)}");
+                DrawString($"VelocityMax: {ship.VelocityMaximum.String(0)}  FTLMax: {ship.MaxFTLSpeed.String(0)}");
+                DrawString($"HP: {ship.Health.String(0)} / {ship.HealthMax.String(0)}");
+                DrawString("Ship Mass: " + ship.Mass.String(0));
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
+                DrawString($"Total DPS: {ship.TotalDps}");
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.OurShips) {

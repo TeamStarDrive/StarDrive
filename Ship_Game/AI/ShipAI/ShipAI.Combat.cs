@@ -238,7 +238,7 @@ namespace Ship_Game.AI
                         // so the effect of target weighting is dynamic for the targets available. 
                         armorAvg  += nearbyShip.armor_max;
                         shieldAvg += nearbyShip.shield_max;
-                        dpsAvg    += nearbyShip.GetDPS();
+                        dpsAvg    += nearbyShip.TotalDps;
                         sizeAvg   += nearbyShip.SurfaceArea;
 
                         // bonus weight to secort targets
@@ -346,7 +346,7 @@ namespace Ship_Game.AI
                 Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
                 float distanceToFleet = fleetPos.Distance(copyWeight.Ship.Center);
                 copyWeight += FleetNode.OrdersRadius <= distanceToFleet ? 0 : -distanceToFleet / FleetNode.OrdersRadius;
-                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);
+                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.TotalDps, dpsAvg, FleetNode.DPSWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.shield_power, shieldAvg,
                     FleetNode.AttackShieldedWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
