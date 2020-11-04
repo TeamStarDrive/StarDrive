@@ -34,6 +34,8 @@ namespace Ship_Game.Debug
         RelationsWar,
         Pirates,
         Remnants,
+        Agents,
+        Relationship,
         Last // dummy value
     }
 
@@ -239,7 +241,10 @@ namespace Ship_Game.Debug
                     case DebugModes.Tech:         Tech();             break;
                     case DebugModes.Pirates:      Pirates();          break;
                     case DebugModes.Remnants:     RemnantInfo();      break;
+                    case DebugModes.Agents:       AgentsInfo();       break;
+                    case DebugModes.Relationship: Relationships();    break;
                 }
+
                 base.Draw(batch, elapsed);
                 ShipInfo();
             }
@@ -695,6 +700,80 @@ namespace Ship_Game.Debug
             }
         }
 
+        void AgentsInfo()
+        {
+            int column = 0;
+            foreach (Empire e in EmpireManager.MajorEmpires)
+            {
+                if (e.data.Defeated)
+                    continue;
+
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
+                DrawString("------------------------");
+                DrawString(e.Name);
+                DrawString("------------------------");
+
+                NewLine();
+                DrawString($"Agent list ({e.data.AgentList.Count}):");
+                DrawString("------------------------");
+                foreach (Agent agent in e.data.AgentList.Sorted(a => a.Level))
+                {
+                    Empire target = EmpireManager.GetEmpireByName(agent.TargetEmpire);
+                    Color color   = target?.EmpireColor ?? e.EmpireColor;
+                    DrawString(color, $"Level: {agent.Level}, Mission: {agent.Mission}, Turns: {agent.TurnsRemaining}");
+                }
+
+                column += 1;
+            }
+        }
+
+        void Relationships()
+        {
+            int column = 0;
+            foreach (Empire e in EmpireManager.NonPlayerEmpires)
+            {
+                if (e.data.Defeated)
+                    continue;
+
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
+                DrawString("--------------------------");
+                DrawString(e.Name);
+                DrawString($"{e.Personality}");
+                DrawString("----------------------------");
+                foreach ((Empire them, Relationship rel) in e.AllRelations)
+                {
+                    if (them.isFaction || GlobalStats.RestrictAIPlayerInteraction && them.isPlayer)
+                        continue;
+
+                    DrawString(them.EmpireColor, $"{them.Name}");
+                    DrawString(them.EmpireColor, $"Posture: {rel.Posture}");
+                    DrawString(them.EmpireColor, $"Trust (A/U/T)   : {rel.AvailableTrust.String(2)}/{rel.TrustUsed.String(2)}/{rel.Trust.String(2)}");
+                    DrawString(them.EmpireColor, $"Anger Diplomatic: {rel.Anger_DiplomaticConflict.String(2)}");
+                    DrawString(them.EmpireColor, $"Anger Border    : {rel.Anger_FromShipsInOurBorders.String(2)}");
+                    DrawString(them.EmpireColor, $"Anger Military  : {rel.Anger_MilitaryConflict.String(2)}");
+                    DrawString(them.EmpireColor, $"Anger Territory : {rel.Anger_TerritorialConflict.String(2)}");
+                    string nap   = rel.Treaty_NAPact      ? "NAP "      : "";
+                    string trade = rel.Treaty_Trade       ? ",Trade "   : "";
+                    string open  = rel.Treaty_OpenBorders ? ",Borders " : "";
+                    string ally  = rel.Treaty_Alliance    ? ",Allied "  : "";
+                    string peace = rel.Treaty_Peace       ? "Peace"     : "";
+                    DrawString(them.EmpireColor, $"Treaties: {nap}{trade}{open}{ally}{peace}");
+                    if (rel.NumTechsWeGave > 0)
+                        DrawString(them.EmpireColor, $"Techs We Game Them: {rel.NumTechsWeGave}");
+
+                    if (rel.ActiveWar != null)
+                        DrawString(them.EmpireColor, "*** At War! ***");
+
+                    if (rel.PreparingForWar)
+                        DrawString(them.EmpireColor, "*** Preparing for War! ***");
+
+                    DrawString(e.EmpireColor, "----------------------------");
+                }
+
+                column += 1;
+            }
+        }
+
         void RemnantInfo()
         {
             Empire e = EmpireManager.Remnants;
@@ -709,12 +788,9 @@ namespace Ship_Game.Debug
                 : $"Hibernating for: {e.Remnants.HibernationTurns} turns");
 
             string activatedString = e.Remnants.Activated ? "Yes" : "No";
-            activatedString = e.data.Defeated ? "Defeated" : activatedString;
+            activatedString        = e.data.Defeated ? "Defeated" : activatedString;
             DrawString($"Activated: {activatedString}");
             DrawString($"Level: {e.Remnants.Level}");
-
-
-
             DrawString($"Resources: {e.Remnants.Production.String()}");
             NewLine();
             DrawString("Empires Score and Strength:");
@@ -726,18 +802,19 @@ namespace Ship_Game.Debug
 
             var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires
                                                                       : EmpireManager.MajorEmpires;
+
             NewLine();
             float averageScore = (float)empiresList.Average(empire => empire.TotalScore);
-            float averageStr = empiresList.Average(empire => empire.CurrentMilitaryStrength);
+            float averageStr   = empiresList.Average(empire => empire.CurrentMilitaryStrength);
             DrawString($"AI Empire Average Score:     {averageScore.String(0)}");
             DrawString($"AI Empire Average Strength: {averageStr.String(0)}");
 
             NewLine();
             Empire bestScore = empiresList.FindMax(empire => empire.TotalScore);
-            Empire bestStr = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
+            Empire bestStr   = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
 
             float diffFromAverageScore = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
-            float diffFromAverageStr = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+            float diffFromAverageStr   = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
 
             DrawString(bestScore.EmpireColor, $"Highest Score Empire: {bestScore.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
             DrawString(bestStr.EmpireColor, $"Highest Str Empire:     {bestStr.data.Name} ({(diffFromAverageStr - 100).String(1)}% above average)");

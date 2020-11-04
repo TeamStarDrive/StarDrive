@@ -105,6 +105,7 @@ namespace Ship_Game.Gameplay
         [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
         [Serialize(62)] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
         [Serialize(63)] public bool IsHostile; // New: If target empire is hostile and might attack us
+        [Serialize(64)] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
 
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
@@ -1069,6 +1070,10 @@ namespace Ship_Game.Gameplay
             if (them == Player || ActiveWar != null || turnsSinceLastContact < TechTradeTurns || Posture == Posture.Hostile)
                 return;
 
+            Relationship themToUs = them.GetRelations(us);
+            if (themToUs.Anger_DiplomaticConflict > 20)
+                return;
+
             // Get techs we can offer them
             if (!TechsToOffer(us, them, out Array<TechEntry> ourTechs))
                 return;
@@ -1368,6 +1373,7 @@ namespace Ship_Game.Gameplay
             {
                 case Posture.Friendly:
                     OfferTrade(us);
+                    TradeTech(us);
                     ChangeToNeutralIfPossible(us);
                     break;
                 case Posture.Neutral:
@@ -1382,8 +1388,7 @@ namespace Ship_Game.Gameplay
                     break;
                 case Posture.Hostile:
                     if (them.isPlayer)
-                        DemandTech(us)
-                            ;
+                        DemandTech(us);
                     ChangeToNeutralIfPossible(us);
                     break;
             }
