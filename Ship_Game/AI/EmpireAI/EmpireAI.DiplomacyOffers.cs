@@ -50,6 +50,7 @@ namespace Ship_Game.AI
             foreach (string tech in techs)
             {
                 them.UnlockTech(tech, TechUnlockType.Diplomacy, us);
+                usToThem.NumTechsWeGave += 1;
                 Log.Info(System.ConsoleColor.White, $"{us.Name} gave {tech} to {them.Name}");
                 if (Empire.Universe.PlayerEmpire != us)
                 {
@@ -363,6 +364,7 @@ namespace Ship_Game.AI
             }
             valueToUs -= valueToUs * usToThem.Anger_DiplomaticConflict / 100f;
             OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out float offerDifferential);
+            bool canImproveRelations  = themToUs.turnsSinceLastContact >= themToUs.SecondDemand; // So it wont be exploited by the player
             switch (attitude)
             {
                 case Offer.Attitude.Pleading:
@@ -371,7 +373,9 @@ namespace Ship_Game.AI
                         if (offerQuality != OfferQuality.Great)
                             return "OfferResponse_InsufficientTrust";
 
-                        usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                        if (canImproveRelations)
+                            usToThem.ImproveRelations(4f.UpperBound(valueToUs), 8);
+
                         AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                         return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
@@ -384,11 +388,15 @@ namespace Ship_Game.AI
                         case OfferQuality.Poor:
                             return "OfferResponse_Reject_PoorOffer_EnoughTrust";
                         case OfferQuality.Fair:
-                            usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                            if (canImproveRelations)
+                                usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+
                             AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                             return "OfferResponse_Accept_Fair_Pleading";
                         case OfferQuality.Good:
-                            usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                            if (canImproveRelations)
+                                usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+
                             AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                             return "OfferResponse_Accept_Good";
                         case OfferQuality.Great:
@@ -405,19 +413,26 @@ namespace Ship_Game.AI
                         {
                             case OfferQuality.Insulting:
                                 usToThem.DamageRelationship(us, them, "Insulted", valueToThem - valueToUs, null);
+
                                 return "OfferResponse_Reject_Insulting";
                             case OfferQuality.Poor:
                                 return "OfferResponse_Reject_PoorOffer_EnoughTrust";
                             case OfferQuality.Fair:
-                                usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                                if (canImproveRelations)
+                                    usToThem.ImproveRelations(2f.UpperBound(valueToUs), 4f);
+
                                 AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                                 return "OfferResponse_Accept_Fair";
                             case OfferQuality.Good:
-                                usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                                if (canImproveRelations)
+                                    usToThem.ImproveRelations(3f.UpperBound(valueToUs), 6f);
+
                                 AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                                 return "OfferResponse_Accept_Good";
                             case OfferQuality.Great:
-                                usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                                if (canImproveRelations)
+                                    usToThem.ImproveRelations(4f.UpperBound(valueToUs), 8f);
+
                                 AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                                 return "OfferResponse_Accept_Great";
                         }
@@ -431,17 +446,17 @@ namespace Ship_Game.AI
                         case OfferQuality.Poor:
                             return "OfferResponse_Reject_PoorOffer_LowTrust";
                         case OfferQuality.Fair:
-                            if (themToUs.turnsSinceLastContact >= themToUs.SecondDemand) // So it wont be exploited by the player
+                            if (canImproveRelations)
                                 usToThem.ImproveRelations(2f.UpperBound(valueToUs), 4);
 
                             return "OfferResponse_InsufficientTrust";
                         case OfferQuality.Good:
-                            if (themToUs.turnsSinceLastContact >= themToUs.SecondDemand)
+                            if (canImproveRelations)
                                 usToThem.ImproveRelations(3f.UpperBound(valueToUs), 6);
 
                             return "OfferResponse_InsufficientTrust";
                         case OfferQuality.Great:
-                            if (themToUs.turnsSinceLastContact >= themToUs.SecondDemand)
+                            if (canImproveRelations)
                                 usToThem.ImproveRelations(4f.UpperBound(valueToUs), 8);
 
                             AcceptOffer(ourOffer, theirOffer, us, them, attitude);
