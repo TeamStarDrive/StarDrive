@@ -786,6 +786,10 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
+            Empire them = Them;
+            if (them.isPlayer && HaveRejected_TRADE)
+                return;
+
             Offer offer1 = new Offer
             {
                 TradeTreaty   = true,
@@ -795,7 +799,6 @@ namespace Ship_Game.Gameplay
                                                x => HaveRejected_TRADE = x)
             };
 
-            Empire them  = Them;
             Offer offer2 = new Offer { TradeTreaty = true };
             if (them == Player)
                 DiplomacyScreen.Show(us, "Offer Trade", offer2, offer1);
@@ -815,6 +818,10 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
+            Empire them = Them;
+            if (them.isPlayer && HaveRejectedNaPact)
+                return;
+
             Offer offer1 = new Offer
             {
                 NAPact        = true,
@@ -824,7 +831,6 @@ namespace Ship_Game.Gameplay
                                                x => HaveRejectedNaPact = x)
             };
 
-            Empire them  = Them;
             Offer offer2 = new Offer { NAPact = true };
             if (them == Empire.Universe.PlayerEmpire)
                 DiplomacyScreen.Show(us, "Offer NAPact", offer2, offer1);
@@ -840,7 +846,6 @@ namespace Ship_Game.Gameplay
             if (turnsSinceLastContact < SecondDemand
                 || AtWar
                 || Trust < 20f
-                || HaveRejected_OpenBorders
                 || !Treaty_NAPact
                 || !Treaty_Trade
                 || Treaty_OpenBorders
@@ -849,6 +854,10 @@ namespace Ship_Game.Gameplay
             {
                 return;
             }
+
+            Empire them = Them;
+            if (them.isPlayer && HaveRejected_OpenBorders)
+                return;
 
             bool friendlyOpen      = Trust > 50f;
             Offer openBordersOffer = new Offer
@@ -860,7 +869,6 @@ namespace Ship_Game.Gameplay
                                                x => HaveRejected_OpenBorders = x)
             };
 
-            Empire them    = Them;
             Offer ourOffer = new Offer { OpenBorders = true };
             if (them.isPlayer)
                 DiplomacyScreen.Show(us, friendlyOpen ? "Offer Open Borders Friends" : "Offer Open Borders", ourOffer, openBordersOffer);
@@ -877,13 +885,16 @@ namespace Ship_Game.Gameplay
                 || Treaty_Alliance
                 || !Treaty_Trade
                 || !Treaty_NAPact
-                || HaveRejected_Alliance
+                || !Treaty_OpenBorders
                 || TotalAnger >= 20)
             {
                 return;
             }
 
-            Empire them  = Them;
+            Empire them = Them;
+            if (them.isPlayer && HaveRejected_Alliance)
+                return;
+
             Offer offer1 = new Offer
             {
                 Alliance      = true,
