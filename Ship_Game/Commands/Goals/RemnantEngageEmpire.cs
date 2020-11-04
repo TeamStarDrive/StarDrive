@@ -69,11 +69,12 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float strDiv = TargetEmpire.isPlayer ? 2 : 5;
-            float str    = TargetEmpire.CurrentMilitaryStrength / strDiv * ((int)CurrentGame.Difficulty + 1);
-            str          = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
+            float strDiv        = TargetEmpire.isPlayer ? 1 : 5;
+            float strMultiplier = ((int)CurrentGame.Difficulty + 1) * 0.5f;
+            float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv;
+            str                 = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
 
-            return str.LowerBound(Remnants.Level * Remnants.Level * 200);
+            return str.LowerBound(Remnants.Level * Remnants.Level * 200 * strMultiplier);
         }
 
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
