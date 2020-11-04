@@ -50,6 +50,7 @@ namespace Ship_Game.AI
             foreach (string tech in techs)
             {
                 them.UnlockTech(tech, TechUnlockType.Diplomacy, us);
+                Log.Info(System.ConsoleColor.White, $"{us.Name} gave {tech} to {them.Name}");
                 if (Empire.Universe.PlayerEmpire != us)
                 {
                     float cost = ResourceManager.Tech(tech).DiplomaticValueTo(us);
@@ -306,11 +307,11 @@ namespace Ship_Game.AI
             }
 
             if (ourOffer.OpenBorders)   valueToThem += 5f;
-            if (theirOffer.OpenBorders) valueToUs   += 0.01f;
+            if (theirOffer.OpenBorders) valueToUs   += them.isPlayer ? 2f : 5f;
             if (ourOffer.NAPact)        valueToThem += 10f;
             if (theirOffer.NAPact)      valueToUs   += 10f;
-            if (ourOffer.TradeTreaty)   valueToThem += them.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 20f : 10f;
-            if (theirOffer.TradeTreaty) valueToUs   += OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 20f : 10f;
+            if (ourOffer.TradeTreaty)   valueToThem += them.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
+            if (theirOffer.TradeTreaty) valueToUs   += OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 5 ? 15f : 12f;
 
             valueToThem += ourOffer.ArtifactsOffered.Count * 15f;
             valueToUs   += theirOffer.ArtifactsOffered.Count * 15f;
@@ -351,7 +352,9 @@ namespace Ship_Game.AI
                     valueToUs += worth;
                 }
             }
-            valueToUs += them.data.Traits.DiplomacyMod * valueToUs;
+            if (!theirOffer.TradeTreaty && !theirOffer.NAPact || them.isPlayer)
+                valueToUs += them.data.Traits.DiplomacyMod * valueToUs;
+
             if (valueToThem.AlmostZero() && valueToUs > 0f)
             {
                 usToThem.ImproveRelations(valueToUs, valueToUs);
@@ -428,14 +431,19 @@ namespace Ship_Game.AI
                         case OfferQuality.Poor:
                             return "OfferResponse_Reject_PoorOffer_LowTrust";
                         case OfferQuality.Fair:
+                            if (themToUs.turnsSinceLastContact >= themToUs.SecondDemand) // So it wont be exploited by the player
+                                usToThem.ImproveRelations(2f.UpperBound(valueToUs), 4);
+
                             return "OfferResponse_InsufficientTrust";
                         case OfferQuality.Good:
-                            if (themToUs.turnsSinceLastContact >= themToUs.TechTradeTurns) // So it wont be exploited by the player
-                                usToThem.ImproveRelations(2f.UpperBound(valueToUs), 5);
+                            if (themToUs.turnsSinceLastContact >= themToUs.SecondDemand)
+                                usToThem.ImproveRelations(3f.UpperBound(valueToUs), 6);
 
                             return "OfferResponse_InsufficientTrust";
                         case OfferQuality.Great:
-                            usToThem.ImproveRelations(valueToUs - valueToThem, valueToUs);
+                            if (themToUs.turnsSinceLastContact >= themToUs.SecondDemand)
+                                usToThem.ImproveRelations(4f.UpperBound(valueToUs), 8);
+
                             AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                             return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
