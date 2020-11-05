@@ -797,11 +797,12 @@ namespace Ship_Game.Debug
             for (int i = 0; i < EmpireManager.MajorEmpires.Length; i++)
             {
                 Empire empire = EmpireManager.MajorEmpires[i];
-                DrawString(empire.EmpireColor, $"{empire.data.Name} - Score: {empire.TotalScore}, Strength: {empire.CurrentMilitaryStrength}");
+                if (!empire.data.Defeated)
+                    DrawString(empire.EmpireColor, $"{empire.data.Name} - Score: {empire.TotalScore}, Strength: {empire.CurrentMilitaryStrength}");
             }
 
-            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires
-                                                                      : EmpireManager.MajorEmpires;
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires.Filter(emp => !emp.data.Defeated)
+                                                                      : EmpireManager.MajorEmpires.Filter(emp => !emp.data.Defeated);
 
             NewLine();
             float averageScore = (float)empiresList.Average(empire => empire.TotalScore);
