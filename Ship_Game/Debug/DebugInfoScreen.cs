@@ -742,7 +742,7 @@ namespace Ship_Game.Debug
                 DrawString("----------------------------");
                 foreach ((Empire them, Relationship rel) in e.AllRelations)
                 {
-                    if (them.isFaction || GlobalStats.RestrictAIPlayerInteraction && them.isPlayer)
+                    if (them.isFaction || GlobalStats.RestrictAIPlayerInteraction && them.isPlayer || them.data.Defeated)
                         continue;
 
                     DrawString(them.EmpireColor, $"{them.Name}");
@@ -759,7 +759,7 @@ namespace Ship_Game.Debug
                     string peace = rel.Treaty_Peace       ? "Peace"     : "";
                     DrawString(them.EmpireColor, $"Treaties: {nap}{trade}{open}{ally}{peace}");
                     if (rel.NumTechsWeGave > 0)
-                        DrawString(them.EmpireColor, $"Techs We Game Them: {rel.NumTechsWeGave}");
+                        DrawString(them.EmpireColor, $"Techs We Gave Them: {rel.NumTechsWeGave}");
 
                     if (rel.ActiveWar != null)
                         DrawString(them.EmpireColor, "*** At War! ***");
