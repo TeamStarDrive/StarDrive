@@ -5,6 +5,7 @@ using Ship_Game.AI.ShipMovement;
 using System;
 using static Ship_Game.AI.ShipAI;
 using static Ship_Game.AI.ShipAI.TargetParameterTotals;
+using SynapseGaming.LightingSystem.Shadows;
 
 namespace Ship_Game.AI
 {
@@ -130,48 +131,54 @@ namespace Ship_Game.AI
             // Size desire / hit chance
             // speed / turnrate difference
             // damaged by
-            // 
-            Ship target            = weight.Ship;
-            float theirDPS         = target.TotalDps;
+
+            // Target of opportunity
+            // target is threat. 
+            // target is objective
+             
+            Ship target = weight.Ship;
+            float theirDps = target.TotalDps;
             float distanceToTarget = Owner.Center.Distance(weight.Ship.Center);
-            float errorRatio       = (Owner.MaxWeaponError) / target.Radius;
-            float danger           = (theirDPS - targetPrefs.DPS) / theirDPS.LowerBound(1);
-            float targetDanger     = (danger * errorRatio).Clamped(-1,1);
+            float errorRatio = (target.Radius - Owner.MaxWeaponError) / target.Radius;
+            bool inTheirRange = distanceToTarget < target.WeaponsMaxRange;
+            bool inOurRange = distanceToTarget < Owner.WeaponsMaxRange;
 
-            // closer is higher
-            float weaponsRange = Owner.WeaponsMaxRange * 2;
-            float inWeaponsRange = (weaponsRange - distanceToTarget) / weaponsRange;
-            float inDesiredCombatRange = (Owner.DesiredCombatRange * 2 - distanceToTarget ) / (Owner.DesiredCombatRange * 2);
-
-            float targetingUs          = weight.Ship.AI.Target == Owner ? targetDanger : 0;
-            float damagingUs           = weight.Ship == Owner.LastDamagedBy ? targetDanger : 0;
 
             // more agile than us the less they are valued. 
             float turnRatio = 0;
-            if (target.RotationRadiansPerSecond > 0 && Owner.RotationRadiansPerSecond >0)
-                turnRatio = (Owner.RotationRadiansPerSecond  - target.RotationRadiansPerSecond) / Owner.RotationRadiansPerSecond;
+            if (target.RotationRadiansPerSecond > 0 && Owner.RotationRadiansPerSecond > 0)
+                turnRatio = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond) / Owner.RotationRadiansPerSecond;
 
             float stlRatio = 0;
-            if (target.MaxSTLSpeed > 0 )
+            if (target.MaxSTLSpeed > 0)
                 stlRatio = (Owner.MaxSTLSpeed - target.MaxSTLSpeed) / target.MaxSTLSpeed;
 
+            float baseThreat = theirDps / targetPrefs.DPS.LowerBound(1);
+            baseThreat += turnRatio;
+            baseThreat += stlRatio;
+            baseThreat += errorRatio;
+
+            float weaponsRange = Owner.WeaponsMaxRange * 2;
+            float targetValue = 0;
+
+            if (inTheirRange || inOurRange)
+            {
+                targetValue = baseThreat;
+                targetValue += weight.Ship.AI.Target == Owner ? 0.25f : 0;
+                targetValue += weight.Ship == Owner.LastDamagedBy ? 0.25f : 0;
+                targetValue += (weaponsRange / distanceToTarget.LowerBound(1)).UpperBound(1);
+
+            }
+            else
+            {
+                targetValue = turnRatio + stlRatio + errorRatio;
+                targetValue += (weaponsRange - distanceToTarget) / weaponsRange;
+            }
+
+            
             float pirate = Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
 
-
-            float weightTotal = inDesiredCombatRange + targetingUs + damagingUs + turnRatio + stlRatio + pirate;
-            float normalizer = 0;
-            //normalizer += errorRatio != 0 ? 1 : 0;
-            //normalizer += targetDanger != 0 ? 1 : 0;
-            normalizer += inDesiredCombatRange != 0 ? 1 : 0;
-            normalizer += targetingUs != 0 ? 1 : 0;
-            normalizer += damagingUs != 0 ? 1 : 0;
-            normalizer += Owner.AI.Target != weight.Ship && Owner.AI.Target != null ? 1 : 0;
-            normalizer += turnRatio != 0 ? 1 : 0;
-            normalizer += stlRatio != 0 ? 1 : 0;
-
-            weightTotal /= normalizer;
-
-            weight.SetWeight(weightTotal);
+            weight.SetWeight(targetValue);
             return weight;
 
         }
