@@ -64,7 +64,7 @@
                     PiratePayModifier    = 0.5f;
                     ExpansionModifier    = 0.2f;
                     MinStartingColonies  = 3;
-                    ExpandSearchTurns    = 150;
+                    ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.2f;
 
@@ -92,7 +92,7 @@
                     PiratePayModifier    = 0.75f;
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
-                    ExpandSearchTurns    = 100;
+                    ExpandSearchTurns    = 75;
                     RemnantTurnsLevelUp  = 300;
                     RemnantResourceMod   = 0.35f;
                     break;
@@ -110,7 +110,7 @@
                     PiratePayModifier    = 1f;
                     ExpansionModifier    = 0.05f;
                     MinStartingColonies  = 5;
-                    ExpandSearchTurns    = 75;
+                    ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 240;
                     RemnantResourceMod   = 0.5f;
 
@@ -139,7 +139,7 @@
                     PiratePayModifier    = 1.5f;
                     ExpansionModifier    = 0f;
                     MinStartingColonies  = 6;
-                    ExpandSearchTurns    = 50;
+                    ExpandSearchTurns    = 25;
                     RemnantTurnsLevelUp  = 180;
                     RemnantResourceMod   = 0.75f;
 
