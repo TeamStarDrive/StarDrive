@@ -1,8 +1,10 @@
 using Microsoft.Xna.Framework;
+using Newtonsoft.Json;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
+
 
 namespace Ship_Game.AI
 {
@@ -36,6 +38,7 @@ namespace Ship_Game.AI
         bool ScanComplete = true;
         bool ScanDataProcessed = true;
         bool ScanTargetUpdated = true;
+        public static FleetDataNode DefaultFleetNode = new FleetDataNode();
 
         public void CancelIntercept()
         {
@@ -150,6 +153,40 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public struct  TargetParameterTotals
+        {
+            // target characteristics 
+            public float Armor, Shield, DPS, Size, Speed, Health;
+
+            int count;
+
+            public void AddTargetValue(Ship ship)
+            {
+                Armor  += ship.armor_max;
+                Shield += ship.shield_max;
+                DPS    += ship.TotalDps;
+                Size   += ship.SurfaceArea;
+                Speed  += ship.MaxSTLSpeed;
+                Health += ship.HealthPercent; 
+                count++;
+
+            }
+
+            public TargetParameterTotals GetAveragedValues()
+            {
+                var returnValue = new TargetParameterTotals
+                {
+                    Armor  = this.Armor / count,
+                    Shield = this.Shield / count,
+                    DPS    = this.DPS / count,
+                    Size   = this.Size / count,
+                    Speed  = this.Speed / count,
+                    Health = this.Health / count
+                };
+                return returnValue;
+            }
+        }
+
         public Ship ScanForCombatTargets(Ship sensorShip, float radius)
         {
             Owner.KnownByEmpires.SetSeen(Owner.loyalty);
@@ -157,7 +194,7 @@ namespace Ship_Game.AI
             ScannedFriendlies.Clear();
             ScannedTargets.Clear();
             ScannedNearby.Clear();
-
+            var targetPrefs = new TargetParameterTotals();
             if (HasPriorityTarget)
             {
                 if (Target == null)
@@ -174,10 +211,6 @@ namespace Ship_Game.AI
             UpdateTrackedProjectiles();
 
             SolarSystem thisSystem = Owner.System;
-            float armorAvg = 0;
-            float shieldAvg = 0;
-            float dpsAvg = 0;
-            float sizeAvg = 0;
 
             if (thisSystem != null)
             {
@@ -198,7 +231,7 @@ namespace Ship_Game.AI
             for (int x = 0; x < scannedShips.Length; x++)
             {
                 var go = scannedShips[x];
-                var nearbyShip = (Ship) go;
+                var nearbyShip = (Ship)go;
 
                 nearbyShip.KnownByEmpires.SetSeen(Owner.loyalty);
 
@@ -231,23 +264,10 @@ namespace Ship_Game.AI
                         if (radius < 1)
                             continue;
 
-                        var sw = new ShipWeight(nearbyShip, 1);
+                        var sw = new ShipWeight(nearbyShip, 0);
                         ScannedNearby.Add(sw);
 
-                        // these are used later for weights when calculating weights.
-                        // so the effect of target weighting is dynamic for the targets available. 
-                        armorAvg  += nearbyShip.armor_max;
-                        shieldAvg += nearbyShip.shield_max;
-                        dpsAvg    += nearbyShip.GetDPS();
-                        sizeAvg   += nearbyShip.SurfaceArea;
-
-                        // bonus weight to secort targets
-                        if (BadGuysNear && nearbyShip.AI.Target is Ship ScannedNearbyTarget &&
-                            ScannedNearbyTarget == EscortTarget && nearbyShip.engineState != Ship.MoveState.Warp)
-                        {
-                            sw += 3f;
-                        }
-                        
+                        targetPrefs.AddTargetValue(nearbyShip);
                         ScannedNearby[ScannedNearby.Count - 1] = sw;
                     }
                 }
@@ -270,25 +290,16 @@ namespace Ship_Game.AI
             }
 
             // non combat ships dont process combat weight concepts. 
-            if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero())
+            if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero() || ScannedNearby.Count == 0)
                 return Target;
 
-            if (Target is Ship shipTarget)
-            {
-                if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
-                {
-                    var sw = new ShipWeight(shipTarget, 1);
-                    ScannedNearby.AddUnique(sw);
-                }
-            }
+            SetTargetWeights(targetPrefs);
+
             if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
             {
-                var sw = new ShipWeight(EscortTarget.AI.Target, 2f);
-                ScannedNearby.AddUnique(sw);
+                var sw = new ShipWeight(EscortTarget.AI.Target, 1f);
+                ScannedNearby.Add(sw);
             }
-
-            // process combat taget weight preferences. 
-            SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
             // limiting combat targets to the arbitrary -100 weight. Poor explained here. 
             ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > -100)
@@ -318,11 +329,9 @@ namespace Ship_Game.AI
             return null;
         }
 
-        private void SetTargetWeights(float armorAvg, float shieldAvg, float dpsAvg, float sizeAvg)
+        void SetTargetWeights(TargetParameterTotals targetPrefs)
         {
-            armorAvg  /= ScannedNearby.Count + .01f;
-            shieldAvg /= ScannedNearby.Count + .01f;
-            dpsAvg    /= ScannedNearby.Count + .01f;
+            targetPrefs     = targetPrefs.GetAveragedValues();
 
             for (int i = ScannedNearby.Count - 1; i >= 0; i--)
             {
@@ -335,24 +344,33 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                copyWeight += CombatAI.ApplyWeight(copyWeight.Ship);
 
-                if (Owner.fleet == null || FleetNode == null)
+                // Initially we are setting up the ships own targeting pref. After that we setup fleet rules for targeting. 
+                // the way i am planing to do this is very ratios. 
+                // adding up these ratios and using that as a weight. 
+                // one step further would be to normalize the weights by averaging the ratios. 
+
+
+                // standard ship targeting:
+                // this should cover individual targeting needs. 
+
+                copyWeight = CombatAI.ShipCommandTargeting(copyWeight, targetPrefs);
+
+                if (Owner.fleet != null && FleetNode != null)
                 {
-                    ScannedNearby[i] = copyWeight;//update stored weight from copy
-                    continue;
+                    Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+
+                    // if outside ordersRatio drop a heavy weight.
+                    bool orderRatio = fleetPos.InRadius(copyWeight.Ship.Center, FleetNode.OrdersRadius);
+                    if (orderRatio)
+                    {
+                        copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship, targetPrefs) / 2;
+                    }
+                    else
+                        copyWeight.SetWeight(float.MinValue);
                 }
 
-                Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                float distanceToFleet = fleetPos.Distance(copyWeight.Ship.Center);
-                copyWeight += FleetNode.OrdersRadius <= distanceToFleet ? 0 : -distanceToFleet / FleetNode.OrdersRadius;
-                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.GetDPS(), dpsAvg, FleetNode.DPSWeight);
-                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.shield_power, shieldAvg,
-                    FleetNode.AttackShieldedWeight);
-                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
-                copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.SurfaceArea, sizeAvg, FleetNode.SizeWeight);
-                copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet, copyWeight.Ship);
-                //ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
+                ////ShipWeight is a struct so we are working with a copy. Need to overwrite existing value.
                 ScannedNearby[i] = copyWeight;
             }
         }

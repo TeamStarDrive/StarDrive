@@ -1559,6 +1559,11 @@ namespace Ship_Game
                 WeaponsDict[wep.UID] = wep;
                 wep.InitializeTemplate();
             }
+
+            foreach (Weapon w in WeaponsDict.Values)
+            {
+                w.CalcDamagePerSecond();
+            }
         }
 
         static void LoadShipRoles()
