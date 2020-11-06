@@ -516,7 +516,8 @@ namespace Ship_Game
 
         void TryBuildTerraformers(float budget)
         {
-            if (!AreTerraformersNeeded
+            if (PopulationRatio < 0.95f
+                || !AreTerraformersNeeded
                 || IsStarving
                 || TerraformerInTheWorks)
             {

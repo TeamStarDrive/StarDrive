@@ -57,7 +57,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep NotifyPlayer()
         {
-            // todo notify player of story development
+            // todo need to remove this step in next remnant iteration
             return GoalStep.GoToNextStep;
         }
 
