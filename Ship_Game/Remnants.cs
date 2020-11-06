@@ -106,7 +106,7 @@ namespace Ship_Game
         {
             float espionageStr = EmpireManager.Player.GetSpyDefense();
             if (espionageStr <= Level * 3)
-                return; // not enough espionage strength to learn about pirate activities
+                return; // not enough espionage strength to learn about Remnant activities
 
             Empire.Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
         }
@@ -160,7 +160,7 @@ namespace Ship_Game
         }
 
         int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort            => (Level-1) * 25 + NeededHibernationTurns;
+        int ExtraLevelUpEffort            => (Level-1) * 10 + NeededHibernationTurns;
         public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
 
         void SetInitialLevelUpDate()
