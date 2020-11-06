@@ -105,7 +105,7 @@ namespace Ship_Game.AI.ExpansionAI
             var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
                                                                          && !s.IsOwnedBy(Owner)
                                                                          && s.PlanetList.Any(p => p.Habitable)
-                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength));
+                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/2));
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
