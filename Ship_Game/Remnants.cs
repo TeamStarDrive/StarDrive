@@ -160,7 +160,7 @@ namespace Ship_Game
         }
 
         int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort            => (Level-1) * 10 + NeededHibernationTurns;
+        int ExtraLevelUpEffort            => (Level-1) * 20 + NeededHibernationTurns;
         public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
 
         void SetInitialLevelUpDate()
@@ -533,7 +533,7 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet / 5;
+            int fleetModifier  = shipsInFleet / 7;
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
             switch (roll)
