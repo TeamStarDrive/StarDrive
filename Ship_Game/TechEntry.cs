@@ -170,6 +170,11 @@ namespace Ship_Game
                 || Tech.BonusUnlocked.NotEmpty;
         }
 
+        public bool ContainsHullTech()
+        {
+            return IsTechnologyType(TechnologyType.ShipHull);
+        }
+
         public float CostOfNextTechWithType(TechnologyType techType) => TechTypeCostLookAhead[techType];
 
         public void SetLookAhead(Empire empire)
