@@ -153,14 +153,14 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 1.5f;
-                case RemnantStory.AncientRaidersRandom: return 0.75f;
+                case RemnantStory.AncientExterminators: return 1.35f;
+                case RemnantStory.AncientRaidersRandom: return 0.9f;
                 default:                                return 1;
             }
         }
 
         int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort            => (Level-1) * 20 + NeededHibernationTurns;
+        int ExtraLevelUpEffort            => (Level-1) * 25 + NeededHibernationTurns;
         public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
 
         void SetInitialLevelUpDate()
@@ -234,26 +234,27 @@ namespace Ship_Game
 
         public bool FindValidTarget(Ship portal, out Empire target)
         {
-            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires
-                                                                      : EmpireManager.MajorEmpires;
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction 
+                                 ? EmpireManager.NonPlayerEmpires.Filter(e => !e.data.Defeated)
+                                 : EmpireManager.MajorEmpires.Filter(e => !e.data.Defeated);
 
             target = null;
+            if (empiresList.Length == 0)
+                return false;
+
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
                     target = FindStrongestByAverageScore(empiresList);
                     break;
                 case RemnantStory.AncientExterminators: 
-                    target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.CurrentMilitaryStrength);
+                    target = empiresList.FindMin(e => e.CurrentMilitaryStrength);
                     break;
                 case RemnantStory.AncientRaidersClosest:
-                    target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
+                    target = empiresList.FindMax(e => portal.Center.Distance(e.WeightedCenter));
                     break;
                 case RemnantStory.AncientRaidersRandom:
-                    var potentialEmpires = empiresList.Filter(e => !e.data.Defeated);
-                    if (potentialEmpires.Length > 0)
-                        target = potentialEmpires.RandItem();
-
+                    target = empiresList.RandItem();
                     break;
                 default: 
                     return false;
@@ -276,6 +277,9 @@ namespace Ship_Game
 
         Empire FindStrongestByAverageScore(Empire[] empiresList)
         {
+            if (empiresList.Length == 1)
+                return empiresList.First();
+
             var averageScore  = empiresList.Average(e => e.TotalScore);
             Empire bestEmpire = empiresList.FindMax(e => e.TotalScore);
 
