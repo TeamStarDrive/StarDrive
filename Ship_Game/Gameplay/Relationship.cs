@@ -186,7 +186,7 @@ namespace Ship_Game.Gameplay
         {
             switch (treatyType)
             {
-                case TreatyType.Alliance:      Treaty_Alliance    = value;                                break;
+                case TreatyType.Alliance:      Treaty_Alliance    = value; PreparingForWar = false;       break;
                 case TreatyType.NonAggression: Treaty_NAPact      = value;                                break;
                 case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                break;
                 case TreatyType.Peace:         Treaty_Peace       = value; SetPeace();                    break;
@@ -881,12 +881,12 @@ namespace Ship_Game.Gameplay
         void OfferAlliance(Empire us)
         {
             if (TurnsAbove95 < 100
-                || turnsSinceLastContact < FirstDemand
+                || turnsSinceLastContact < 100
                 || Treaty_Alliance
                 || !Treaty_Trade
                 || !Treaty_NAPact
                 || !Treaty_OpenBorders
-                || TotalAnger >= 20)
+                || Anger_DiplomaticConflict >= 20)
             {
                 return;
             }
@@ -910,9 +910,18 @@ namespace Ship_Game.Gameplay
 
             Offer offer2 = new Offer();
             if (them == Empire.Universe.PlayerEmpire)
+            {
                 DiplomacyScreen.Show(us, "OFFER_ALLIANCE", offer2, offer1);
+            }
             else
+            {
+                offer2.Alliance      = true;
+                offer2.AcceptDL      = "ALLIANCE_ACCEPTED";
+                offer2.RejectDL      = "ALLIANCE_REJECTED";
+                offer2.ValueToModify = new Ref<bool>(() => HaveRejected_Alliance,
+                    x => { HaveRejected_Alliance = x; });
                 them.GetEmpireAI().AnalyzeOffer(offer2, offer1, us, Offer.Attitude.Respectful);
+            }
 
             turnsSinceLastContact = 0;
         }
