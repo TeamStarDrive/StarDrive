@@ -182,6 +182,20 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        int TurnsAbove95Federation(Empire us)
+        {
+            switch (us.Personality)
+            {
+                default:
+                case PersonalityType.Aggressive: return 700;
+                case PersonalityType.Xenophobic: return 1000;
+                case PersonalityType.Ruthless:   return 850;
+                case PersonalityType.Honorable:  return 500;
+                case PersonalityType.Cunning:    return 650;
+                case PersonalityType.Pacifist:   return 600;
+            }
+        }
+
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
             switch (treatyType)
@@ -926,6 +940,29 @@ namespace Ship_Game.Gameplay
             turnsSinceLastContact = 0;
         }
 
+        void Federate(Empire us, Empire them)
+        {
+            if (them.isPlayer
+                || TurnsAbove95 < TurnsAbove95Federation(us)
+                || turnsSinceLastContact < 100
+                || !Treaty_Alliance
+                || TotalAnger > 0
+                || Trust < 150
+                || us.TotalScore * 1.5f < them.TotalScore)
+            {
+                return;
+            }
+
+            Relationship themToUs = us.GetRelations(them);
+            if (themToUs.Trust >= 150 
+                || themToUs.Trust >= 100 && them.GetPlanets().Count < us.GetPlanets().Count / 5)
+            {
+                turnsSinceLastContact = 0;
+                Empire.Universe.NotificationManager.AddPeacefulMergerNotification(us, them);
+                us.AbsorbEmpire(them);
+            }
+        }
+
         void ReferToMilitary(Empire us, float threatForInsult, bool compliment = true)
         {
             Empire them = Them;
@@ -1300,6 +1337,7 @@ namespace Ship_Game.Gameplay
                     TradeTech(us);
                     OfferOpenBorders(us);
                     OfferAlliance(us);
+                    Federate(us, them);
                     ChangeToNeutralIfPossible(us);
                     break;
                 case Posture.Neutral:
@@ -1329,6 +1367,7 @@ namespace Ship_Game.Gameplay
                     OfferNonAggression(us);
                     OfferTrade(us);
                     TradeTech(us);
+                    Federate(us, them);
                     ChangeToNeutralIfPossible(us);
                     break;
                 case Posture.Neutral:
@@ -1367,6 +1406,7 @@ namespace Ship_Game.Gameplay
                     TradeTech(us);
                     OfferOpenBorders(us);
                     OfferAlliance(us);
+                    Federate(us, them);
                     ChangeToNeutralIfPossible(us);
                     break;
                 case Posture.Neutral:
