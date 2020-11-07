@@ -153,7 +153,7 @@ namespace Ship_Game
             for (int i = 0; i < freighterList.Count; i++)
             {
                 Ship freighter = freighterList[i];
-                if (freighter.Active
+                if (freighter?.Active == true
                     && freighter.AI.FindGoal(ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal)
                     && goal.Trade.Goods == goods)
                 {
