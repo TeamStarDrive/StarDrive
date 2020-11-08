@@ -64,9 +64,9 @@
                     PiratePayModifier    = 0.5f;
                     ExpansionModifier    = 0.2f;
                     MinStartingColonies  = 3;
-                    ExpandSearchTurns    = 150;
-                    RemnantTurnsLevelUp  = 400;
-                    RemnantResourceMod   = 0.2f;
+                    ExpandSearchTurns    = 100;
+                    RemnantTurnsLevelUp  = 440;
+                    RemnantResourceMod   = 0.15f;
 
                     if (!empire.isPlayer)
                     {
@@ -92,9 +92,9 @@
                     PiratePayModifier    = 0.75f;
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
-                    ExpandSearchTurns    = 100;
-                    RemnantTurnsLevelUp  = 300;
-                    RemnantResourceMod   = 0.35f;
+                    ExpandSearchTurns    = 75;
+                    RemnantTurnsLevelUp  = 360;
+                    RemnantResourceMod   = 0.3f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -110,9 +110,9 @@
                     PiratePayModifier    = 1f;
                     ExpansionModifier    = 0.05f;
                     MinStartingColonies  = 5;
-                    ExpandSearchTurns    = 75;
-                    RemnantTurnsLevelUp  = 240;
-                    RemnantResourceMod   = 0.5f;
+                    ExpandSearchTurns    = 50;
+                    RemnantTurnsLevelUp  = 300;
+                    RemnantResourceMod   = 0.45f;
 
                     if (!empire.isPlayer)
                     {
@@ -139,9 +139,9 @@
                     PiratePayModifier    = 1.5f;
                     ExpansionModifier    = 0f;
                     MinStartingColonies  = 6;
-                    ExpandSearchTurns    = 50;
-                    RemnantTurnsLevelUp  = 180;
-                    RemnantResourceMod   = 0.75f;
+                    ExpandSearchTurns    = 25;
+                    RemnantTurnsLevelUp  = 240;
+                    RemnantResourceMod   = 0.65f;
 
                     if (!empire.isPlayer)
                     {

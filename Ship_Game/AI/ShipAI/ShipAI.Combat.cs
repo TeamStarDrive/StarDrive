@@ -157,6 +157,7 @@ namespace Ship_Game.AI
         {
             // target characteristics 
             public float Armor, Shield, DPS, Size, Speed, Health;
+            public Vector2 Center;
 
             int count;
 
@@ -167,7 +168,8 @@ namespace Ship_Game.AI
                 DPS    += ship.TotalDps;
                 Size   += ship.SurfaceArea;
                 Speed  += ship.MaxSTLSpeed;
-                Health += ship.HealthPercent; 
+                Health += ship.HealthPercent;
+                Center += ship.Center;
                 count++;
 
             }
@@ -181,7 +183,8 @@ namespace Ship_Game.AI
                     DPS    = this.DPS / count,
                     Size   = this.Size / count,
                     Speed  = this.Speed / count,
-                    Health = this.Health / count
+                    Health = this.Health / count,
+                    Center = this.Center / count
                 };
                 return returnValue;
             }
@@ -302,14 +305,14 @@ namespace Ship_Game.AI
             }
 
             // limiting combat targets to the arbitrary -100 weight. Poor explained here. 
-            ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > -100)
-                .OrderByDescending(weight => weight.Weight).ToArray();
+            ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > -100).SortedDescending(weight => weight.Weight);
 
             ScannedTargets.AddRange(SortedTargets.Select(ship => ship.Ship));
 
             // check target validity
             if (Target?.Active != true)
             {
+                Target = null;
                 ScannedTarget = null;
                 HasPriorityTarget = false;
             }
@@ -320,12 +323,10 @@ namespace Ship_Game.AI
                 return Target;
             }
 
-            Ship targetShip = null;
-            if (SortedTargets.Length > 0)
-                targetShip = SortedTargets[0].Ship;
-
-            if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars)
-                return targetShip;
+            if (SortedTargets.Length > 0 && (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars))
+            {
+                return SortedTargets[0].Ship;
+            }
             return null;
         }
 
@@ -367,7 +368,7 @@ namespace Ship_Game.AI
                         copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship, targetPrefs) / 2;
                     }
                     else
-                        copyWeight.SetWeight(float.MinValue);
+                        copyWeight.SetWeight(-50);
                 }
 
                 ////ShipWeight is a struct so we are working with a copy. Need to overwrite existing value.
