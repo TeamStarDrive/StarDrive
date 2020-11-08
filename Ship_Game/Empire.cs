@@ -2503,61 +2503,7 @@ namespace Ship_Game
 
             if (isPlayer)
             {
-                if (Universe.StarDate > 1005.0f)
-                {
-                    float aiTotalScore = 0.0f;
-                    float score = 0.0f;
-                    var aggressiveEmpires = new Array<Empire>();
-                    foreach (Empire empire in EmpireManager.Empires)
-                    {
-                        if (!empire.isFaction && !empire.data.Defeated && empire != EmpireManager.Player)
-                        {
-                            aiTotalScore += empire.TotalScore;
-                            if (empire.TotalScore > score)
-                                score = empire.TotalScore;
-                            if (empire.IsAggressive || empire.IsRuthless || empire.IsXenophobic)
-                                aggressiveEmpires.Add(empire);
-                        }
-                    }
-
-                    float playerTotalScore = EmpireManager.Player.TotalScore;
-                    float allEmpireScore = aiTotalScore + playerTotalScore;
-
-                    if (playerTotalScore > 0.5f * allEmpireScore)
-                    {
-                        if (playerTotalScore > score * 2.0)
-                        {
-                            if (aggressiveEmpires.Count >= 2)
-                            {
-                                Empire biggest = aggressiveEmpires.FindMax(emp => emp.TotalScore);
-                                var leaders = new Array<Empire>();
-                                foreach (Empire empire in aggressiveEmpires)
-                                {
-                                    if (empire != biggest && empire.IsKnown(biggest)
-                                                          && biggest.TotalScore * 0.6f > empire.TotalScore)
-                                        leaders.Add(empire);
-                                }
-
-                                //Added by McShooterz: prevent AI from automatically merging together
-                                if (leaders.Count > 0 && !GlobalStats.PreventFederations)
-                                {
-                                    Empire strongest = leaders.FindMax(emp => biggest.GetRelations(emp).GetStrength());
-                                    if (!biggest.IsAtWarWith(strongest))
-                                        Universe.NotificationManager.AddPeacefulMergerNotification(biggest, strongest);
-                                    else
-                                        Universe.NotificationManager.AddSurrendered(biggest, strongest);
-
-                                    biggest.AbsorbEmpire(strongest);
-                                    if (biggest.GetRelations(this).ActiveWar == null)
-                                        biggest.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
-                                    else
-                                        biggest.GetRelations(this).ActiveWar.WarTheaters.AddCaptureAll();
-                                }
-                            }
-                        }
-                    }
-                }
-
+                CheckFederationVsPlayer();
                 RandomEventManager.UpdateEvents();
 
                 if ((Money / AllSpending.LowerBound(1)) < 2)
@@ -2574,6 +2520,7 @@ namespace Ship_Game
                             break;
                         }
                     }
+
                     if (allEmpiresDead)
                     {
                         Empire remnants = EmpireManager.Remnants;
@@ -2585,16 +2532,7 @@ namespace Ship_Game
                         return;
                     }
                 }
-            }
 
-            if (!data.IsRebelFaction)
-            {
-                if (StatTracker.GetSnapshot(Universe.StarDate, this, out Snapshot snapshot))
-                    snapshot.Population = OwnedPlanets.Sum(p => p.Population);
-            }
-
-            if (isPlayer)
-            {
                 foreach (Planet planet in OwnedPlanets)
                 {
                     if (planet.HasWinBuilding)
@@ -2603,6 +2541,12 @@ namespace Ship_Game
                         return;
                     }
                 }
+            }
+
+            if (!data.IsRebelFaction)
+            {
+                if (StatTracker.GetSnapshot(Universe.StarDate, this, out Snapshot snapshot))
+                    snapshot.Population = OwnedPlanets.Sum(p => p.Population);
             }
 
             Research.Update();
@@ -2633,6 +2577,44 @@ namespace Ship_Game
                 CalcWeightedCenter();
                 DispatchBuildAndScrapFreighters();
                 AssignExplorationTasks();
+            }
+        }
+
+        void CheckFederationVsPlayer()
+        {
+            if (Universe.StarDate < 1050f || (Universe.StarDate % 1).NotZero() || GlobalStats.PreventFederations)
+                return;
+
+            float playerScore    = TotalScore;
+            var aiEmpires        = EmpireManager.ActiveNonPlayerEmpires;
+            float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
+            float allEmpireScore = aiTotalScore + playerScore;
+            Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
+            float biggestAIScore = biggestAI.TotalScore;
+
+            if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 1.5f || aiEmpires.Length < 2)
+                return;
+
+            var leaders = new Array<Empire>();
+            foreach (Empire e in aiEmpires)
+            {
+                if (e != biggestAI && e.IsKnown(biggestAI) && biggestAIScore * 0.6f > e.TotalScore)
+                    leaders.Add(e);
+            }
+
+            if (leaders.Count > 0)
+            {
+                Empire strongest = leaders.FindMax(emp => biggestAI.GetRelations(emp).GetStrength());
+                if (!biggestAI.IsAtWarWith(strongest))
+                    Universe.NotificationManager.AddPeacefulMergerNotification(biggestAI, strongest);
+                else
+                    Universe.NotificationManager.AddSurrendered(biggestAI, strongest);
+
+                biggestAI.AbsorbEmpire(strongest);
+                if (biggestAI.GetRelations(this).ActiveWar == null)
+                    biggestAI.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
+                else
+                    biggestAI.GetRelations(this).ActiveWar.WarTheaters.AddCaptureAll();
             }
         }
 
