@@ -948,7 +948,7 @@ namespace Ship_Game.Gameplay
                 || !Treaty_Alliance
                 || TotalAnger > 0
                 || Trust < 150
-                || us.TotalScore * 1.5f < them.TotalScore)
+                || us.TotalScore * 1.25f < them.TotalScore)
             {
                 return;
             }
