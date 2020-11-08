@@ -136,12 +136,12 @@ namespace Ship_Game.AI
             // target is threat. 
             // target is objective
              
-            Ship target = weight.Ship;
-            float theirDps = target.TotalDps;
-            float distanceToTarget = Owner.Center.Distance(weight.Ship.Center);
-            float errorRatio = (target.Radius - Owner.MaxWeaponError) / target.Radius;
-            bool inTheirRange = distanceToTarget < target.WeaponsMaxRange;
-            bool inOurRange = distanceToTarget < Owner.WeaponsMaxRange;
+            Ship target            = weight.Ship;
+            float theirDps         = target.TotalDps;
+            float distanceToTarget = Owner.Center.Distance(weight.Ship.Center).LowerBound(1);
+            float errorRatio       = (target.Radius - Owner.MaxWeaponError) / target.Radius;
+            bool inTheirRange      = distanceToTarget < target.WeaponsMaxRange;
+            bool inOurRange        = distanceToTarget < Owner.WeaponsMaxRange;
 
 
             // more agile than us the less they are valued. 
@@ -166,7 +166,7 @@ namespace Ship_Game.AI
                 targetValue = baseThreat;
                 targetValue += weight.Ship.AI.Target == Owner ? 0.25f : 0;
                 targetValue += weight.Ship == Owner.LastDamagedBy ? 0.25f : 0;
-                targetValue += (weaponsRange / distanceToTarget.LowerBound(1)).UpperBound(1);
+                targetValue += (weaponsRange / distanceToTarget).UpperBound(1);
 
             }
             else
@@ -175,12 +175,29 @@ namespace Ship_Game.AI
                 targetValue += (weaponsRange - distanceToTarget) / weaponsRange;
             }
 
+            float rangeToEnemyCenter = 0;
+            Ship motherShip = Owner.Mothership ?? Owner.AI.EscortTarget;
+            if (motherShip != null)
+            {
+                targetValue += target.AI.Target == motherShip ? 0.1f : 0;
+                targetValue += motherShip.LastDamagedBy == target ? 0.1f : 0;
+                targetValue += motherShip.Center.InRadius(target.Center, motherShip.SensorRange) ? 0.25f :0;
+                targetValue += motherShip.Center.InRadius(target.Center, target.WeaponsMaxRange) ? 0.1f : 0;
+                rangeToEnemyCenter = motherShip.Center.Distance(targetPrefs.Center);
+                float rangeValue = (float)Math.Round((1 - (rangeToEnemyCenter / motherShip.WeaponsMaxRange)), 1);
+                targetValue += rangeValue;
+            }
+            else
+            {
+                rangeToEnemyCenter = Owner.Center.Distance(targetPrefs.Center);
+                float rangeValue   = (float)Math.Round((1 - (rangeToEnemyCenter / Owner.WeaponsMaxRange)), 1);
+                targetValue       += rangeValue;
+            }
             
             float pirate = Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
 
             weight.SetWeight(targetValue);
             return weight;
-
         }
 
         public float SizeAttackWeight(Ship target, TargetParameterTotals nearbyAverages)
