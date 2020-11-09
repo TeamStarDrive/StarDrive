@@ -539,6 +539,7 @@ namespace Ship_Game
         {
             int fleetModifier  = shipsInFleet / 7;
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
+            effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
             switch (roll)
             {
