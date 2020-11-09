@@ -1238,10 +1238,10 @@ namespace Ship_Game
                         Log.Warning($"{data.UID} missing NameIndex: {data.NameIndex}");
 
                 }
-                if (data.IsCommandModule && data.TargetTracking == 0 && data.FixedTracking == 0)
-                {
-                    data.TargetTracking = (sbyte)((data.XSIZE * data.YSIZE) / 3);
-                }
+                // if the values
+                if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
+                if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
+
 
                 if (data.IsRotable == null)
                 {
@@ -1529,6 +1529,17 @@ namespace Ship_Game
         {
             Weapon template = WeaponsDict[uid];
             return template.Clone();
+        }
+
+        public static bool CreateWeapon(string uid, out Weapon weapon)
+        {
+            if (WeaponsDict.TryGetValue(uid, out Weapon template))
+            {
+                weapon = template.Clone();
+                return true;
+            }
+            weapon = null;
+            return false;
         }
 
         // WARNING: DO NOT MODIFY this Weapon instance! (wish C# has const refs like C++)

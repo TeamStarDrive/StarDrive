@@ -209,10 +209,10 @@ namespace Ship_Game
 
         bool RushConstruction
         {
-            get => EmpireManager.Player.RushAllConsturction;
+            get => EmpireManager.Player.RushAllConstruction;
             set // used in the rush construction checkbox at start
             {
-                EmpireManager.Player.RushAllConsturction = value;
+                EmpireManager.Player.RushAllConstruction = value;
                 RunOnEmpireThread(() => EmpireManager.Player.SwitchRushAllConstruction(value));
             }
         }
