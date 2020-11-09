@@ -21,7 +21,7 @@ namespace Ship_Game
         int IncomingProd;
         float IncomingPop;
         int UpdateTimer;
-        bool TerraformResearched;
+        bool BioSpheresResearched;
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
             string toolTip, bool percent = false, bool signs = true, int digits = 2)
@@ -73,10 +73,15 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, Color.White);
             }
 
-            if (TerraformResearched && (pgs.CanTerraform || pgs.BioCanTerraform))
+            if (BioSpheresResearched && (pgs.CanTerraform || pgs.BioCanTerraform))
             {
                 var terraform = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 20, pgs.ClickRect.Y, 20, 20);
                 batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraform, Color.White);
+                if (pgs.BioCanTerraform)
+                {
+                    var terraformHarder = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 30, pgs.ClickRect.Y, 20, 20);
+                    batch.Draw(ResourceManager.Texture("Buildings/icon_terraformer_48x48"), terraformHarder, Color.White);
+                }
             }
 
             if (pgs.TroopsAreOnTile)
@@ -228,7 +233,7 @@ namespace Ship_Game
             {
                 Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
                 string terraformText = Localizer.Token(683); // Terraform Planet is the default text
-                if (P.TilesToTerraform)
+                if (P.HasTilesToTerraform)
                 {
                     terraformText  = Localizer.Token(1972);
                 }
@@ -570,13 +575,19 @@ namespace Ship_Game
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             bCursor.Y += Font20.LineSpacing * 5;
-                            if (TerraformResearched && pgs.BioCanTerraform)
+                            batch.DrawString(Font12, $"{P.PopPerBiosphere(Player).String(0)}" +
+                                                     $" {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
+
+                            bCursor.Y += Font20.LineSpacing;
+                            if (pgs.BioCanTerraform)
                             {
-                                batch.DrawString(Font12, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
-                                bCursor.Y += Font20.LineSpacing;
+                                batch.DrawString(Font12, MultiLineFormat("This tile can be terraformed " +
+                                        "as part of terraforming operations. The process will take more time due to " +
+                                        "Biosphere Terraforming complexity."), bCursor, Player.EmpireColor);
+
+                                bCursor.Y += Font20.LineSpacing*2;
                             }
 
-                            batch.DrawString(Font12, $"{P.PopPerBiosphere(Player).String(0)} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
                             return;
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
@@ -603,13 +614,15 @@ namespace Ship_Game
                         }
 
                         bCursor.Y += Font20.LineSpacing * 5;
-                        if (TerraformResearched && pgs.CanTerraform)
+                        string bioText = new LocalizedText(GameText.MillionColonistsCouldBeLiving).Text;
+                        if (BioSpheresResearched && pgs.CanTerraform)
                         {
                             batch.DrawString(Font12, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
                             bCursor.Y += Font20.LineSpacing;
+                            bioText   += " However, building Biospheres here will complicate future terraforming efforts on the tile.";
                         }
 
-                        batch.DrawString(Font12, $"{P.PopPerBiosphere(Player).String(0)} {MultiLineFormat(1896)}", bCursor, Color.Gold);
+                        batch.DrawString(Font12, $"{P.PopPerBiosphere(Player).String(0)} {MultiLineFormat(bioText)}", bCursor, Color.Gold);
                         return;
                     }
 
@@ -738,7 +751,7 @@ namespace Ship_Game
                 OutgoingFoodFreighters = P.OutgoingFoodFreighters;
                 OutgoingProdFreighters = P.OutgoingProdFreighters;
                 OutgoingColoFreighters = P.OutGoingColonistsFreighters;
-                TerraformResearched    = Player.IsBuildingUnlocked(Building.TerraformerId);
+                BioSpheresResearched   = Player.IsBuildingUnlocked(Building.BiospheresId);
                 IncomingFood           = TotalIncomingCargo(Goods.Food).RoundUpTo(1);
                 IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
                 IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();

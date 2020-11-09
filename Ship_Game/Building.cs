@@ -73,6 +73,7 @@ namespace Ship_Game
         [Serialize(61)] public int DefenseShipsCapacity;
         [Serialize(62)] public ShipData.RoleName DefenseShipsRole;
         [Serialize(63)] public int Infrastructure;
+        [Serialize(64)] public bool DetectsRemnantFleet;
 
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
@@ -172,7 +173,7 @@ namespace Ship_Game
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 0;
 
         static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
-                                              => ShipBuilder.PickFromCandidates(roleName, empire);
+                                              => ShipBuilder.PickFromCandidates(roleName, empire, normalizedStrength: false);
 
         void LaunchDefenseShips(Planet p, Ship target, Empire empire)
         {
@@ -378,7 +379,7 @@ namespace Ship_Game
             if (CanAttack)
             {
                 score += Strength + Defense + CombatStrength + SoftAttack + HardAttack;
-                score += PlanetaryShieldStrengthAdded / 100;
+                score += PlanetaryShieldStrengthAdded / 50;
                 score += InvadeInjurePoints * 10;
                 if (AllowInfantry)
                     score += 50;

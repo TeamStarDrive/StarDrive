@@ -108,13 +108,6 @@ namespace Ship_Game.Ships
             if (AI.FindGoal(ShipAI.Plan.DropOffGoods, out _))
                 return GetCargo(goods);
 
-            if (AI.FindGoal(ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal))
-            {
-                Planet exportFrom = goal.Trade.ExportFrom;
-                float numGoods    = exportFrom.ExportGoodsLimit(goods);
-                return numGoods.UpperBound(CargoSpaceMax);
-            }
-
             return 0;
         }
     }

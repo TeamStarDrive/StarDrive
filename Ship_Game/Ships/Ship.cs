@@ -142,8 +142,7 @@ namespace Ship_Game.Ships
 
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
-        public int FixedTrackingPower;
-        public bool ShipInitialized;
+        public int TargetingAccuracy;
         public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => MechanicalBoardingDefense + TroopBoardingDefense;
 
@@ -507,7 +506,7 @@ namespace Ship_Game.Ships
             get
             {
                 // friendly projectors disable gravity wells
-                if (IsInFriendlyProjectorRange)
+                if (loyalty.WeAreRemnants || IsInFriendlyProjectorRange)
                     return false;
 
                 Planet planet = System?.IdentifyGravityWell(this);
@@ -515,31 +514,35 @@ namespace Ship_Game.Ships
             }
         }
 
-        // calculates estimated trip time by turns
+        // Calculates estimated trip time by turns
         public float GetAstrograteTimeTo(Planet destination)
         {
             float distance    = Center.Distance(destination.Center);
             float distanceSTL = destination.GravityWellForEmpire(loyalty);
-            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner
-            if (planet != null)
+            Planet planet     = System?.IdentifyGravityWell(this); // Get the gravity well owner if the ship is in one
+
+            if (planet != null && !IsInFriendlyProjectorRange)
                 distanceSTL += planet.GravityWellRadius;
 
-            return GetAstrogateTime(distance, distanceSTL);
+            return GetAstrogateTime(distance, distanceSTL, destination.Center);
         }
 
         public float GetAstrogateTimeBetween(Planet origin, Planet destination)
         {
             float distance    = origin.Center.Distance(destination.Center);
             float distanceSTL = destination.GravityWellForEmpire(loyalty) + origin.GravityWellForEmpire(loyalty);
-            return GetAstrogateTime(distance, distanceSTL);
+
+            return GetAstrogateTime(distance, distanceSTL, destination.Center);
         }
 
-        private float GetAstrogateTime(float distance, float distanceSTL)
+        private float GetAstrogateTime(float distance, float distanceSTL, Vector2 targetPos)
         {
-            float distanceFTL = Math.Max(distance - distanceSTL, 0);
-            float travelSTL   = distanceSTL / MaxSTLSpeed;
-            float travelFTL   = distanceFTL / MaxFTLSpeed;
-            return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
+            float rotationTime = Direction.AngleToTarget(targetPos) / (RotationDegrees / GlobalStats.TurnTimer);
+            float distanceFTL  = Math.Max(distance - distanceSTL, 0);
+            float travelSTL    = distanceSTL / MaxSTLSpeed;
+            float travelFTL    = distanceFTL / MaxFTLSpeed;
+
+            return (travelFTL + travelSTL + rotationTime + FTLSpoolTime) / GlobalStats.TurnTimer;
         }
 
 
@@ -785,8 +788,8 @@ namespace Ship_Game.Ships
                     Restrictions       = module.Restrictions
                 };
 
-                if (module.GetHangarShip() != null)
-                    data.HangarshipGuid = module.GetHangarShip().guid;
+                if (module.TryGetHangarShip(out Ship hangarShip))
+                    data.HangarshipGuid = hangarShip.guid;
 
                 if (module.ModuleType == ShipModuleType.Hangar)
                     data.SlotOptions = module.DynamicHangar == DynamicHangarOptions.Static
@@ -1070,9 +1073,12 @@ namespace Ship_Game.Ships
                 float cos = RadMath.Cos(Rotation);
                 float sin = RadMath.Sin(Rotation);
                 float tan = (float)Math.Tan(yRotation);
+                float parentX = Center.X;
+                float parentY = Center.Y;
+                float rotation = Rotation;
                 for (int i = 0; i < ModuleSlotList.Length; ++i)
                 {
-                    ModuleSlotList[i].UpdateEveryFrame(timeStep, cos, sin, tan);
+                    ModuleSlotList[i].UpdateEveryFrame(timeStep, parentX, parentY, rotation, cos, sin, tan);
                 }
                 GlobalStats.ModuleUpdates += ModuleSlotList.Length;
             }
@@ -1278,7 +1284,7 @@ namespace Ship_Game.Ships
             ECMValue                    = 0f;
             hasCommand                  = IsPlatform;
             TrackingPower               = 0;
-            FixedTrackingPower          = 0;
+            TargetingAccuracy           = 0;
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
@@ -1292,12 +1298,7 @@ namespace Ship_Game.Ships
                 if (module.Active && (module.Powered || module.PowerDraw <= 0f))
                 {
                     hasCommand |= module.IsCommandModule;
-
-                    //Doctor: For 'Fixed' tracking power modules - i.e. a system whereby a module provides a non-cumulative/non-stacking tracking power.
-                    //The normal stacking/cumulative tracking is added on after the for loop for mods that want to mix methods. The original cumulative function is unaffected.
-                    if (module.FixedTracking > 0 && module.FixedTracking > FixedTrackingPower)
-                        FixedTrackingPower = module.FixedTracking;
-
+                    
                     OrdinanceMax        += module.OrdinanceCapacity;
                     CargoSpaceMax       += module.Cargo_Capacity;
                     BonusEMP_Protection += module.EMP_Protection;
@@ -1306,29 +1307,34 @@ namespace Ship_Game.Ships
                     InhibitionRadius     = module.InhibitionRadius.LowerBound(InhibitionRadius);
                     SensorRange          = module.SensorRange.LowerBound(SensorRange);
                     sensorBonus          = module.SensorBonus.LowerBound(sensorBonus);
-                    TrackingPower        = module.TargetTracking.LowerBound(TrackingPower);
+                    TrackingPower       += module.TargetTracking;
+                    TargetingAccuracy    = module.TargetingAccuracy.LowerBound(TargetingAccuracy);
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
 
-            shield_max    = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
-            NetPower      = Power.Calculate(ModuleSlotList, loyalty);
-            PowerStoreMax = NetPower.PowerStoreMax;
-            PowerFlowMax  = NetPower.PowerFlowMax;
+            if (IsTethered)
+            {
+                var planet = TetheredTo;
+                if (planet?.Owner != null && (planet.Owner == loyalty || loyalty.IsAlliedWith(planet.Owner)))
+                {
+                    TrackingPower     = TrackingPower.LowerBound(planet.Level);
+                    TargetingAccuracy = TrackingPower.LowerBound(planet.Level);
+                }
+            }
 
-            //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
-            TrackingPower += FixedTrackingPower;
-
+            shield_max     = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
+            NetPower       = Power.Calculate(ModuleSlotList, loyalty);
+            PowerStoreMax  = NetPower.PowerStoreMax;
+            PowerFlowMax   = NetPower.PowerFlowMax;
             shield_percent = (100.0 * shield_power / shield_max.LowerBound(0.1f)).LowerBound(0);
             SensorRange   += sensorBonus;
 
             // Apply modifiers to stats
-            RepairRate += (float)(RepairRate * Level * 0.05);
-            if (IsPlatform)
-                SensorRange = SensorRange.LowerBound(10000);
-            SensorRange   *= loyalty.data.SensorModifier;
-
+            if (IsPlatform) SensorRange = SensorRange.LowerBound(10000);
+            RepairRate     += (float)(RepairRate * Level * 0.05);
+            SensorRange    *= loyalty.data.SensorModifier;
             CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
@@ -1551,14 +1557,14 @@ namespace Ship_Game.Ships
             if (Mothership != null)
             {
                 foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
-                    if (shipModule.GetHangarShip() == this)
+                    if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)
                         shipModule.SetHangarShip(null);
             }
 
             foreach (ShipModule hangar in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
             {
-                if (hangar.GetHangarShip() != null)
-                    hangar.GetHangarShip().Mothership = null;
+                if (hangar.TryGetHangarShip(out Ship hangarShip))
+                    hangarShip.Mothership = null; // Todo - Setting this to null might be risky
             }
 
             foreach (Empire empire in EmpireManager.Empires)

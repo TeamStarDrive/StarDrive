@@ -8,19 +8,22 @@ namespace Ship_Game.Spatial
     public struct NativeSpatialObject
     {
         public byte Active;  //1 if this item is active, 0 if this item is DEAD and REMOVED from world
-        public byte Loyalty; // if loyalty == 0xff, then this is a STATIC world object !!!
         public byte Type;    // object type used in filtering findNearby queries
         public byte CollisionMask; // mask which matches objects this object can collide with
+        public byte Loyalty; // Loyalty ID
+        public uint LoyaltyMask; // mask for matching loyalty, see GetLoyaltyMask
         public int ObjectId; // the object ID
         public AABoundingBox2Di AABB;
 
         public NativeSpatialObject(GameplayObject go)
         {
-            Active   = 1;
-            Loyalty  = (byte)go.GetLoyaltyId();
+            Active = 1;
             GameObjectType type = go.Type;
-            Type     = (byte)type;
+            Type = (byte)type;
             CollisionMask = go.DisableSpatialCollision ? (byte)0 : GetCollisionMask(type);
+            int loyaltyId = go.GetLoyaltyId();
+            Loyalty = (byte)loyaltyId;
+            LoyaltyMask = GetLoyaltyMask(loyaltyId);
             ObjectId = -1; // ObjectId will be assigned by Native Spatial system
             AABB = new AABoundingBox2Di(go);
         }

@@ -39,13 +39,12 @@ namespace Ship_Game.Ships
             // Its Better!
             foreach (ShipModule hangar in Owner.Carrier.SupplyHangarsAlive)
             {
-                Ship supplyShipInSpace = hangar.GetHangarShip();
                 Ship supplyTarget = null;
 
                 if (shipInNeedIndex < shipsNeedingSupply.Length)
                     supplyTarget = shipsNeedingSupply[shipInNeedIndex];
 
-                if (supplyShipInSpace != null && supplyShipInSpace.Active)
+                if (hangar.TryGetHangarShipActive(out Ship supplyShipInSpace))
                     OrderIdleSupplyShips(supplyShipInSpace, supplyTarget);
                 else if (canLaunchShuttle)
                     canLaunchShuttle = LaunchShipSupplyShuttle(hangar, supplyTarget);
@@ -54,6 +53,7 @@ namespace Ship_Game.Ships
                     shipInNeedIndex++;
             }
         }
+
         bool LaunchShipSupplyShuttle(ShipModule hangar, Ship supplyTarget)
         {
             if (!hangar.Active || hangar.hangarTimer > 0f)
@@ -64,8 +64,7 @@ namespace Ship_Game.Ships
 
             if (supplyTarget != null || SupplyShipNeedsResupply(0,false))
             {
-                CreateShuttle(hangar);
-                Ship supplyShuttle = hangar.GetHangarShip();
+                CreateShuttle(hangar, out Ship supplyShuttle);
                 supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax);
                 if (!SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax, supplyTarget != null))
                 {
@@ -73,8 +72,10 @@ namespace Ship_Game.Ships
                     supplyShuttle.ChangeOrdnance(supplyShuttle.OrdinanceMax);
                     SetSupplyTarget(supplyShuttle, supplyTarget);
                 }
-                else 
+                else
+                {
                     return false;
+                }
             }
 
             return true;
@@ -95,9 +96,10 @@ namespace Ship_Game.Ships
 
             return shuttleStorage > Owner.Ordinance;
         }
-        void CreateShuttle(ShipModule hangar)
+
+        void CreateShuttle(ShipModule hangar, out Ship supplyShuttle)
         {
-            Ship supplyShuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
+            supplyShuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
             supplyShuttle.Velocity = Owner.Velocity + UniverseRandom.RandomDirection() * supplyShuttle.SpeedLimit;
             Owner.ChangeOrdnance(-supplyShuttle.ShipOrdLaunchCost);
             hangar.SetHangarShip(supplyShuttle);

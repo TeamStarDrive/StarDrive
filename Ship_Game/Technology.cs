@@ -170,7 +170,7 @@ namespace Ship_Game
         // @param baseValue base value per research point
         public float DiplomaticValueTo(Empire them, float valuePerTechCost = 0.01f)
         {
-            float value = ActualCost * valuePerTechCost;
+            float value = Cost * valuePerTechCost;
             // Technologists appreciate tech scores +25% higher:
             if (them.data.EconomicPersonality.Name == "Technologists")
                 value *= 1.25f;
