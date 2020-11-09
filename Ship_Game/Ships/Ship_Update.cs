@@ -77,9 +77,6 @@ namespace Ship_Game.Ships
 
         public override void Update(FixedSimTime timeStep)
         {
-            if (!ShipInitialized)
-                return;
-
             if (Active && (ModuleSlotsDestroyed || Health <= 0))
             {
                 if (Health <= 0)

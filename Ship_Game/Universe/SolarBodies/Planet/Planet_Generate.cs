@@ -240,16 +240,17 @@ namespace Ship_Game
             TerraformBioSpheres();
         }
 
-        public bool TilesToTerraform      => TilesList.Any(t => t.CanTerraform);
+        public bool HasTilesToTerraform   => TilesList.Any(t => t.CanTerraform);
         public bool BioSpheresToTerraform => TilesList.Any(t => t.BioCanTerraform);
+        public int TerraformerLimit       => TilesList.Count(t => t.CanTerraform)/2 + 2;
 
         private bool TerraformTiles()
         {
 
-            if (!TilesToTerraform)
+            if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
-            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming a tile is faster than the whole planet
+            TerraformPoints += TerraformToAdd * 3f; // Terraforming a tile is faster than the whole planet
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && t.Terraformable));
 
@@ -287,7 +288,7 @@ namespace Ship_Game
                 return;
             }
 
-            TerraformPoints += TerraformToAdd * 2; // Terraforming Biospheres is much faster than the whole planet
+            TerraformPoints += TerraformToAdd * 1.5f; // Terraforming Biospheres is more complex than terraforming a tile
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => t.BioCanTerraform));
         }
@@ -299,6 +300,9 @@ namespace Ship_Game
                 PlanetGridSquare tile = RandItem(possibleTiles);
                 MakeTileHabitable(tile);
             }
+
+            if (TerraformersHere > TerraformerLimit)
+                RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
 
             UpdateTerraformPoints(0); // Start terraforming a new tile
         }
@@ -340,12 +344,16 @@ namespace Ship_Game
             }
         }
 
-        private void RemoveTerraformers()
+        private void RemoveTerraformers(bool removeOne = false)
         {
             foreach (PlanetGridSquare tile in TilesList)
             {
                 if (tile.building?.PlusTerraformPoints > 0)
+                {
                     ScrapBuilding(tile.building);
+                    if (removeOne)
+                        return;
+                }
             }
         }
 
@@ -431,236 +439,9 @@ namespace Ship_Game
             AddTileEvents();
         }
 
-        float QualityForRemnants()
-        {
-            float fertilityMod = 1;
-            float richnessMod  = 1;
-            if (EmpireManager.Player.IsCybernetic)
-            {
-                fertilityMod = 0.5f;
-                richnessMod  = IsBarrenType ? 6f : 3f;
-            }
-
-            float quality = BaseFertility*fertilityMod + MineralRichness* richnessMod + MaxPopulationBillionFor(EmpireManager.Remnants);
-
-            // Boost the quality score for planets that are very rich
-            if (MineralRichness > 1.5f)
-                quality += 2;
-
-            if (BaseFertility > 1.5f)
-                quality += 2;
-
-            return quality;
-        }
-
         public void RecreateSceneObject()
         {
             CreatePlanetSceneObject(Empire.Universe);
-        }
-
-        public void GenerateRemnantPresence()
-        {
-            if (ParentSystem.isStartingSystem)
-                return; // Don't create Remnants on starting systems
-
-            float quality   = QualityForRemnants();
-            int dieModifier = (int)CurrentGame.Difficulty*5 - 5; // easy -5, brutal +10
-            int d100        = RollDie(100) + dieModifier;
-
-            switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
-            {
-                case ExtraRemnantPresence.VeryRare:   VeryRareRemnantPresence(quality, d100);   break;
-                case ExtraRemnantPresence.Rare:       RareRemnantPresence(quality, d100);       break;
-                case ExtraRemnantPresence.Normal:     NormalRemnantPresence(quality, d100);     break;
-                case ExtraRemnantPresence.More:       MoreRemnantPresence(quality, d100);       break;
-                case ExtraRemnantPresence.MuchMore:   MuchMoreRemnantPresence(quality, d100);   break;
-                case ExtraRemnantPresence.Everywhere: EverywhereRemnantPresence(quality, d100); break;
-            }
-        }
-
-        void VeryRareRemnantPresence(float quality, int d100)
-        {
-            if (quality > 12f && d100 >= 70)
-                AddMinorRemnantShips();
-        }
-
-        void RareRemnantPresence(float quality, int d100)
-        {
-            if (quality > 12f && d100 >= 60)
-                AddMajorRemnantShips(); // RedFox, changed the rare remnant to Major
-        }
-
-        void NormalRemnantPresence(float quality, int d100)
-        {
-            if (quality > 15f)
-            {
-                if (d100 >= 30) AddMinorRemnantShips();
-                if (d100 >= 50) AddMajorRemnantShips();
-                if (d100 >= 70) AddSupportRemnantShips();
-                if (d100 >= 90) AddTorpedoRemnantShips();
-            }
-            else if (quality > 10f)
-            {
-                if (d100 >= 50) AddMinorRemnantShips();
-                if (d100 >= 60) AddMiniRemnantShips();
-                if (d100 >= 70) AddSupportRemnantShips();
-                if (d100 >= 85) AddMajorRemnantShips();
-            }
-            else if (quality > 6f)
-            {
-                if (d100 >= 50) AddMiniRemnantShips();
-                if (d100 >= 60) AddMinorRemnantShips();
-                if (d100 >= 70) AddSupportRemnantShips();
-                if (d100 >= 85) AddMinorRemnantShips();
-            }
-        }
-
-        void MoreRemnantPresence(float quality, int d100)
-        {
-            NormalRemnantPresence(quality, RollDie(100));
-            if (quality >= 15f)
-            {
-                if (d100 >= 25) AddMinorRemnantShips();
-                if (d100 >= 45) AddMajorRemnantShips();
-                if (d100 >= 65) AddSupportRemnantShips();
-                if (d100 >= 95) AddCarrierRemnantShips();
-            }
-            else if (quality >= 10f)
-            {
-                if (d100 >= 45) AddMinorRemnantShips();
-                if (d100 >= 65) AddSupportRemnantShips();
-                if (d100 >= 95) AddMajorRemnantShips();
-            }
-            else if (quality >= 8f && d100 >= 50)
-                AddMinorRemnantShips();
-        }
-
-        void MuchMoreRemnantPresence(float quality, int d100)
-        {
-            MoreRemnantPresence(quality, RollDie(100));
-            if (quality >= 15f)
-            {
-                AddMajorRemnantShips();
-                if (d100 > 10) AddMinorRemnantShips();
-                if (d100 > 20) AddSupportRemnantShips();
-                if (d100 > 75) AddCarrierRemnantShips();
-                if (d100 > 90) AddTorpedoRemnantShips();
-            }
-            else if (quality >= 12f)
-            {
-                if (d100 >= 25) AddMinorRemnantShips();
-                if (d100 >= 30) AddSupportRemnantShips();
-                if (d100 >= 45) AddMinorRemnantShips();
-                if (d100 >= 80) AddMiniRemnantShips();
-            }
-            else if (quality >= 10f)
-            {
-                if (d100 >= 25) AddMinorRemnantShips();
-                if (d100 >= 50) AddSupportRemnantShips();
-                if (d100 >= 75) AddMajorRemnantShips();
-            }
-            else if (quality >= 8f)
-            {
-                if (d100 >= 50) AddMinorRemnantShips();
-                if (d100 >= 75) AddMiniRemnantShips();
-            }
-        }
-
-        void EverywhereRemnantPresence(float quality, int d100)
-        {
-            MuchMoreRemnantPresence(quality, RollDie(100));
-            if (quality >= 18f)
-            {
-                AddMajorRemnantShips();
-                AddMinorRemnantShips();
-                AddSupportRemnantShips();
-                if (d100 >= 50) AddCarrierRemnantShips();
-                if (d100 >= 70) AddTorpedoRemnantShips();
-                if (d100 >= 90) AddCarrierRemnantShips();
-            }
-            else if (quality >= 15f)
-            {
-                AddMajorRemnantShips();
-                if (d100 >= 40) AddSupportRemnantShips();
-                if (d100 >= 60) AddCarrierRemnantShips();
-                if (d100 >= 80) AddTorpedoRemnantShips();
-                if (d100 >= 95) AddCarrierRemnantShips();
-            }
-            else if (quality >= 12f)
-            {
-                AddMinorRemnantShips();
-                if (d100 >= 50) AddSupportRemnantShips();
-                if (d100 >= 90) AddCarrierRemnantShips();
-            }
-            else if (quality >= 10f)
-            {
-                if (d100 >= 30) AddMinorRemnantShips();
-                if (d100 >= 50) AddMiniRemnantShips();
-                if (d100 >= 70) AddSupportRemnantShips();
-            }
-            else if (quality >= 8f)
-            {
-                if (d100 >= 50) AddMiniRemnantShips();
-                if (d100 >= 90) AddMiniRemnantShips();
-            }
-            if (quality > 6f && d100 > 50)
-                AddMiniRemnantShips();
-        }
-
-        void AddMajorRemnantShips()
-        {
-            AddMinorRemnantShips();
-            if (RollDice(50))
-                AddMinorRemnantShips();
-
-            if (RollDice(25))
-                AddMinorRemnantShips();
-
-            if (RollDice(10)) 
-                AddRemnantGuardians(1, "Ancient Assimilator");
-        }
-
-        void AddMinorRemnantShips()
-        {
-            int numXenoFighters = RollDie(5) + 1;
-            int numDrones       = RollDie(3);
-
-            AddRemnantGuardians(numXenoFighters, "Xeno Fighter");
-            AddRemnantGuardians(numDrones, "Heavy Drone");
-        }
-
-        void AddMiniRemnantShips()  //Added by Gretman
-        {
-            int numXenoFighters = RollDie(3);
-
-            AddRemnantGuardians(numXenoFighters, "Xeno Fighter");
-            AddRemnantGuardians(1, "Heavy Drone");
-        }
-
-        void AddSupportRemnantShips()  //Added by Gretman
-        {
-            int numSupportDrones = RollDie(4);
-            AddRemnantGuardians(numSupportDrones, "Support Drone");
-        }
-
-        void AddCarrierRemnantShips()  //Added by Gretman
-        {
-            AddRemnantGuardians(1, "Ancient Carrier");
-            if (RollDice(20)) // 20% chance for another carrier
-                AddRemnantGuardians(1, "Ancient Carrier");
-        }
-
-        void AddTorpedoRemnantShips()  //Added by Gretman
-        {
-            AddRemnantGuardians(1, "Ancient Torpedo Cruiser");
-            if (RollDice(10)) // 10% chance for another torpedo cruiser
-                AddRemnantGuardians(1, "Ancient Torpedo Cruiser");
-        }
-
-        void AddRemnantGuardians(int numShips, string shipName)
-        {
-            for (int i = 0; i < numShips; ++i)
-                Guardians.Add(shipName);
         }
     }
 }

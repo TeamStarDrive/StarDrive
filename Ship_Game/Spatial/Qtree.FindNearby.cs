@@ -69,7 +69,7 @@ namespace Ship_Game.Spatial
                 idBitArray[i] = 0;
 
             uint loyaltyMask = NativeSpatialObject.GetLoyaltyMask(opt);
-            int typeMask = opt.Type == GameObjectType.Any ? 0xff : (int)opt.Type;
+            uint typeMask = opt.Type == GameObjectType.Any ? 0xff : (uint)opt.Type;
 
             float searchFX = opt.FilterOrigin.X;
             float searchFY = opt.FilterOrigin.Y;
@@ -105,8 +105,8 @@ namespace Ship_Game.Spatial
                         SpatialObj* so = items[i];
 
                         // FLAGS: either 0x00 (failed) or some bits 0100 (success)
-                        if ((so->Loyalty & loyaltyMask) != 0 &&
-                            ((int)so->Type & typeMask) != 0 &&
+                        if ((so->LoyaltyMask & loyaltyMask) != 0 &&
+                            ((uint)so->Type & typeMask) != 0 &&
                             ((so->ObjectId+1) & objectMask) != 0)
                         {
                             if (!so->AABB.Overlaps(searchRect))

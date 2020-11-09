@@ -20,7 +20,10 @@ struct SimParams
     int gridL2CellSize = 80'000;
     int gridL2CellSize2 = 5000;
 
-	bool useRandomVelocity = true;
-
-	rpp::Vector2 singleSystemPos; // if solarSystems == 1
+    bool useRandomVelocity = true;
+    rpp::Vector2 singleSystemPos; // if solarSystems == 1
+    
+    // debug loyalty values
+    int loyaltyA = 4;
+    int loyaltyB = 7;
 };

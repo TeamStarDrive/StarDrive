@@ -207,6 +207,9 @@ namespace Ship_Game.Ships
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
 
+            if (loyalty.WeAreRemnants)
+                IsGuardian = true;
+
             if (!ResourceManager.ShipTemplateExists(save.Name))
             {
                 save.data.Hull = save.Hull;
@@ -395,7 +398,6 @@ namespace Ship_Game.Ships
             ShipStatusChange();
             InitializeThrusters();
             DesignRole = GetDesignRole();
-            ShipInitialized = true;
         }
 
         void InitDefendingTroopStrength()
@@ -467,10 +469,12 @@ namespace Ship_Game.Ships
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
 
-                if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
-                if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
-                if (module.ECM > ECMValue)            ECMValue    = module.ECM.Clamped(0f, 1f);
-                if (module.Regenerate > 0) HasRegeneratingModules = true;
+                if (module.SensorRange > SensorRange)           SensorRange            = module.SensorRange;
+                if (module.SensorBonus > sensorBonus)           sensorBonus            = module.SensorBonus;
+                if (module.ECM > ECMValue)                      ECMValue               = module.ECM.Clamped(0f, 1f);
+                if (module.InhibitionRadius > InhibitionRadius) InhibitionRadius       = module.InhibitionRadius;
+                if (module.Regenerate > 0)                      HasRegeneratingModules = true;
+
 
                 switch (module.ModuleType)
                 {
@@ -524,6 +528,9 @@ namespace Ship_Game.Ships
 
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
+
+            if (InhibitionRadius.Greater(0))
+                loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
             (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
             Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, OrdnancePercent);

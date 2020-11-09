@@ -113,7 +113,7 @@ namespace Ship_Game.Gameplay
         public readonly bool isPowerArmour;
         public readonly bool isBulkhead;
         public readonly int TargetTracking;
-        public readonly int FixedTracking;
+        public readonly int TargetAccuracy;
         public readonly bool IsRotable;
         public readonly float AmplifyShields;
         public readonly int ExplosionDamage;
@@ -238,7 +238,7 @@ namespace Ship_Game.Gameplay
             isPowerArmour               = s.isPowerArmour;
             isBulkhead                  = s.isBulkhead;
             TargetTracking              = s.TargetTracking;
-            FixedTracking               = s.FixedTracking;
+            TargetAccuracy              = s.TargetAccuracy;
             IsRotable                   = s.IsRotable == true;
             UID                         = s.UID;    
         }
@@ -385,7 +385,7 @@ namespace Ship_Game.Gameplay
         public bool isBulkhead;
         public int quadrant = -1;
         public int TargetTracking;
-        public int FixedTracking;
+        public int TargetAccuracy;
         public bool? IsRotable = null;
         public int ExplosionRadius;
         public int ExplosionDamage;

@@ -27,8 +27,6 @@ namespace Ship_Game
         public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
         {
             CanEscapeFromScreen = false;
-            GlobalStats.RemnantKills = 0;
-            GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
 
             BackgroundTask = Parallel.Run(() =>
@@ -131,9 +129,6 @@ namespace Ship_Game
             if (usData.SaveGameVersion != SavedGame.SaveGameVersion)
                 Log.Error("Incompatible savegame version! Got v{0} but expected v{1}", usData.SaveGameVersion, SavedGame.SaveGameVersion);
 
-            GlobalStats.RemnantKills         = usData.RemnantKills;
-            GlobalStats.RemnantActivation    = usData.RemnantActivation;
-            GlobalStats.RemnantArmageddon    = usData.RemnantArmageddon;
             GlobalStats.GravityWellRange     = usData.GravityWellRange;
             GlobalStats.IconSize             = usData.IconSize;
             GlobalStats.MinimumWarpRange     = usData.MinimumWarpRange;

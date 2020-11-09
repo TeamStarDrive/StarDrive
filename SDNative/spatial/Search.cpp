@@ -14,8 +14,8 @@ namespace spatial
         memset(idBitArray, 0, idBitArraySize);
 
         uint32_t loyaltyMask = getLoyaltyMask(opt);
-        int filterMask = (opt.Type == 0)     ? MATCH_ALL : opt.Type;
-        int objectMask = (opt.Exclude == -1) ? MATCH_ALL : ~(opt.Exclude+1);
+        uint32_t typeMask   = (opt.Type == 0)     ? MATCH_ALL : opt.Type;
+        uint32_t objectMask = (opt.Exclude == -1) ? MATCH_ALL : ~(opt.Exclude+1);
 
         Rect searchRect = opt.SearchRect;
         CircleF radialFilter = opt.RadialFilter;
@@ -52,8 +52,8 @@ namespace spatial
             for (int i = 0; i < size; ++i)
             {
                 const SpatialObject& o = *objects[i];
-                if ((o.loyalty & loyaltyMask) &&
-                    (o.type    & filterMask) && 
+                if ((o.loyaltyMask & loyaltyMask) &&
+                    (o.type & typeMask) && 
                     ((o.objectId+1) & objectMask))
                 {
                     if (!searchRect.overlaps(o.rect))

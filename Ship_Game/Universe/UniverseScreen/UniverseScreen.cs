@@ -58,8 +58,7 @@ namespace Ship_Game
         public Map<Guid, Planet> PlanetsDict          = new Map<Guid, Planet>();
         public Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
         public BatchRemovalCollection<Bomb> BombList  = new BatchRemovalCollection<Bomb>();
-        readonly AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
-        readonly AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
+        readonly AutoResetEvent DrawCompletedEvt = new AutoResetEvent(false);
         public float CamHeight = 2550f;
         public Vector3 CamPos = Vector3.Zero;
         float TooltipTimer = 0.5f;
@@ -130,7 +129,6 @@ namespace Ship_Game
         public SystemInfoUIElement sInfoUI;
         public ShipListInfoUIElement shipListInfoUI;
         public VariableUIElement vuiElement;
-        float ArmageddonTimer;
         public Empire player;
         MiniMap minimap;
         bool loading;
@@ -144,7 +142,6 @@ namespace Ship_Game
         bool ShowingSysTooltip;
         bool ShowingPlanetToolTip;
         float MusicCheckTimer;
-        int ArmageddonCounter;
         public Ship ShipToView;
         public float AdjustCamTimer;
         public AutomationWindow aw;
@@ -457,9 +454,10 @@ namespace Ship_Game
 
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
+                /*
                 SpawnRemnantsInSolarSystem(solarSystem);
                 foreach (Planet p in solarSystem.PlanetList)
-                {
+                {   
                     if (p.Owner != null)
                     {
                         foreach (string key in p.Guardians)
@@ -480,19 +478,7 @@ namespace Ship_Game
                                 Ship.CreateShipAt(ship, empire, p, true);
                         }
                     }
-                    else
-                    {
-                        // Remnants may be null if Mods disable default Races
-                        if (EmpireManager.Remnants != null)
-                        {
-                            foreach (string key in p.Guardians)
-                            {
-                                Ship guardian = Ship.CreateShipAt(key, EmpireManager.Remnants, p, RandomMath.Vector2D(p.ObjectRadius * 2), true);
-                                guardian.IsGuardian = true;
-                            }
-                        }
-                    }
-                }
+                }*/
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
                 {
                     if (anomaly.type == "DP")
@@ -796,7 +782,7 @@ namespace Ship_Game
 
         void AutoSaveCurrentGame()
         {
-            SavedGame savedGame = new SavedGame(this, "Autosave" + Auto);
+            var savedGame = new SavedGame(this, "Autosave" + Auto);
             if (++Auto > 3) Auto = 1;
         }
 
@@ -859,7 +845,6 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            EmpireUpdateQueue.Stop();
 
             RemoveLighting();
             ScreenManager.Music.Stop();
