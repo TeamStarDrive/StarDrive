@@ -2590,7 +2590,7 @@ namespace Ship_Game
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
-            float biggestAIScore = biggestAI.TotalScore;
+            float biggestAIScore = biggestAI?.TotalScore ?? playerScore;
 
             if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 1.5f || aiEmpires.Length < 2)
                 return;
