@@ -16,7 +16,6 @@ namespace Ship_Game.AI
         public float SmallAttackWeight;
         public float MediumAttackWeight;
         public float LargeAttackWeight;
-        public float PreferredEngagementDistance;
         public float PirateWeight;
         private float AssistWeight = 0.5f;
         public Ship Owner;
@@ -30,7 +29,6 @@ namespace Ship_Game.AI
         public CombatAI(Ship ship)
         {
             Owner = ship;
-            UpdateTargetPriorities();
             CurrentCombatStance = ship.AI.CombatState;
             SetCombatTactics(ship.AI.CombatState);
         }
@@ -39,87 +37,6 @@ namespace Ship_Game.AI
         {
             Owner.AI.Target = null;
             Owner.AI.PotentialTargets.Clear();
-        }
-
-        public void UpdateTargetPriorities()
-        {
-            var ship = Owner;
-            if (ship.SurfaceArea <= 0)
-                return;
-
-            float pd    = 0;
-            float mains = 0;
-            float other = 0;
-
-            for (int i = 0; i < ship.Weapons.Count; i++)
-            {
-                Weapon w = ship.Weapons[i];
-                if (w.Module.XSIZE * w.Module.YSIZE > 4)
-                {
-                    mains += w.Module.XSIZE * w.Module.YSIZE;
-                }
-                else if (w.SalvoCount > 2 || w.Tag_PD || w.Tag_Flak || w.Module.XSIZE + w.Module.YSIZE < 3)
-                {
-                    pd += w.Module.XSIZE * w.Module.YSIZE;
-                }
-                else if (w.DamageAmount > 0)
-                    other += w.Module.XSIZE * w.Module.YSIZE;
-            }
-
-            other += Owner.Carrier.AllFighterHangars.Length;
-
-            float totalSizeWeight = mains + pd + other;
-
-            LargeAttackWeight  = mains / totalSizeWeight; ;
-            SmallAttackWeight  = (pd - mains) / totalSizeWeight;
-            MediumAttackWeight = (other - mains) / totalSizeWeight;
-
-            if (ship.loyalty.isFaction || ship.VelocityMaximum > 500)
-                VultureWeight  = 1;
-            if (ship.loyalty.WeArePirates)
-                PirateWeight   = 1;
-            AssistWeight = Owner.Mothership != null ? 1 : 0;
-            PreferredEngagementDistance = Owner.WeaponsMaxRange > 0 ? Owner.WeaponsMaxRange : Owner.AI.GetSensorRadius().LowerBound(1);
-        }
-
-        public float ApplyWeight(Ship nearbyShip, TargetParameterTotals nearbyTotals)
-        {
-            if (Owner == null) 
-                return 0;
-            float weight = 0;
-            if (nearbyShip == null) 
-                return weight;
-
-            if (Owner.AI.Target == nearbyShip)
-                weight += 1;
-
-            weight += VultureWeight * (1 - nearbyShip.HealthPercent);
-            weight += RangeWeight(nearbyShip);
-
-            if (nearbyShip.AI.Target == Owner)
-                weight += SelfDefenseWeight;
-
-            if (nearbyShip.AI.Target?.GetLoyalty() == Owner.loyalty) 
-                weight += AssistWeight;
-
-            return weight / 5;
-        }
-
-        public float RangeWeight(Ship nearbyShip)
-        {
-            float rangeToTarget = Owner.Center.Distance(nearbyShip.Center);
-            float weight = 0;
-            if (Owner.Mothership != null)            
-                rangeToTarget = Owner.Mothership.Center.Distance(nearbyShip.Center).UpperBound(Owner.Mothership.AI.CombatAI.PreferredEngagementDistance);
-            
-            if (Owner.AI.EscortTarget != null)
-            {
-                rangeToTarget = Owner.AI.EscortTarget.Center.Distance(nearbyShip.Center).UpperBound(PreferredEngagementDistance);
-            }
-            weight += 1 - (int)Math.Ceiling(rangeToTarget / PreferredEngagementDistance);
-
-
-            return weight.Clamped(-1f, 1);
         }
 
         public ShipWeight ShipCommandTargeting(ShipWeight weight, TargetParameterTotals targetPrefs)
@@ -135,14 +52,14 @@ namespace Ship_Game.AI
             // Target of opportunity
             // target is threat. 
             // target is objective
-             
+
+            Vector2 center = Owner.fleet != null ? Owner.fleet.AveragePosition() + Owner.AI.FleetNode.FleetOffset : Owner.AI.FriendliesSwarmCenter;
             Ship target            = weight.Ship;
             float theirDps         = target.TotalDps;
-            float distanceToTarget = Owner.Center.Distance(weight.Ship.Center).LowerBound(1);
+            float distanceToTarget = center.Distance(weight.Ship.Center).LowerBound(1);
             float errorRatio       = (target.Radius - Owner.MaxWeaponError) / target.Radius;
             bool inTheirRange      = distanceToTarget < target.WeaponsMaxRange;
             bool inOurRange        = distanceToTarget < Owner.WeaponsMaxRange;
-
 
             // more agile than us the less they are valued. 
             float turnRatio = 0;
@@ -189,29 +106,15 @@ namespace Ship_Game.AI
             }
             else
             {
-                rangeToEnemyCenter = Owner.Center.Distance(targetPrefs.Center);
+                rangeToEnemyCenter = center.Distance(targetPrefs.Center);
                 float rangeValue   = (float)Math.Round((1 - (rangeToEnemyCenter / Owner.WeaponsMaxRange)), 1);
                 targetValue       += rangeValue;
             }
             
-            float pirate = Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
+            targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
 
             weight.SetWeight(targetValue);
             return weight;
-        }
-
-        public float SizeAttackWeight(Ship target, TargetParameterTotals nearbyAverages)
-        {
-            float avgNearBySize = nearbyAverages.Size;
-            int surfaceArea     = target.SurfaceArea;
-            float priority      = MediumAttackWeight;
-
-            if (surfaceArea < avgNearBySize * 0.75f)
-                priority = SmallAttackWeight;
-            else if (surfaceArea > avgNearBySize * 1.25f)
-                priority = LargeAttackWeight;
-
-            return priority;
         }
 
         public void SetCombatTactics(CombatState combatState)
