@@ -76,7 +76,7 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float strDiv        = TargetEmpire.isPlayer ? 1 : 5;
+            float strDiv        = TargetEmpire.isPlayer ? 3 : 6;
             float strMultiplier = ((int)CurrentGame.Difficulty + 1) * 0.5f;
             float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv;
             str                 = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
@@ -103,9 +103,11 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal, checkOnlyDefeated))
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
-            int missingBombers = BombersLevel > 0 ? BombersLevel - Remnants.NumBombersInFleet(Fleet): 0;
+            int numBombersInFleet = Remnants.NumBombersInFleet(Fleet);
+            int missingBombers    = BombersLevel > 0 ? BombersLevel - numBombersInFleet : 0;
+            int numShipsNoBombers = Remnants.NumShipsInFleet(Fleet) - numBombersInFleet;
             if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, out Ship ship))
-                if (!Remnants.CreateShip(Portal, missingBombers > 0, Remnants.NumShipsInFleet(Fleet), out ship))
+                if (!Remnants.CreateShip(Portal, missingBombers > 0, numShipsNoBombers, out ship))
                     return GoalStep.TryAgain;
 
             if (Fleet == null)
