@@ -240,7 +240,7 @@ namespace Ship_Game
             TerraformBioSpheres();
         }
 
-        public bool HasTilesToTerraform   => TilesList.Any(t => t.CanTerraform);
+        public bool HasTilesToTerraform   => TilesList.Any(t => t.CanTerraform && !t.Biosphere);
         public bool BioSpheresToTerraform => TilesList.Any(t => t.BioCanTerraform);
         public int TerraformerLimit       => TilesList.Count(t => t.CanTerraform)/2 + 2;
 
