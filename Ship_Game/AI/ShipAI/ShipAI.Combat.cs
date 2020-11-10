@@ -33,12 +33,13 @@ namespace Ship_Game.AI
         readonly Array<Ship> ScannedTargets           = new Array<Ship>();
         readonly Array<Ship> ScannedFriendlies        = new Array<Ship>();
         readonly Array<Projectile> ScannedProjectiles = new Array<Projectile>();
+        public Vector2 FriendliesSwarmCenter { get; private set; }
+        public Vector2 ProjectileSwarmCenter { get; private set; }
         Ship ScannedTarget = null;
         
         bool ScanComplete = true;
         bool ScanDataProcessed = true;
         bool ScanTargetUpdated = true;
-        public static FleetDataNode DefaultFleetNode = new FleetDataNode();
 
         public void CancelIntercept()
         {
@@ -136,9 +137,14 @@ namespace Ship_Game.AI
                         continue;
                     var missile = (Projectile) go;
                     if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
+                    {
                         ScannedProjectiles.AddUniqueRef(missile);
+                        ProjectileSwarmCenter += missile.Center;
+                    }
                 }
             }
+            if (ScannedProjectiles.Count > 0)
+                ProjectileSwarmCenter /= ScannedProjectiles.Count;
             ScannedProjectiles.Sort(missile => Owner.Center.SqDist(missile.Center));
         }
 
@@ -197,6 +203,7 @@ namespace Ship_Game.AI
             ScannedFriendlies.Clear();
             ScannedTargets.Clear();
             ScannedNearby.Clear();
+            FriendliesSwarmCenter = Owner.Center;
             var targetPrefs = new TargetParameterTotals();
             if (HasPriorityTarget)
             {
@@ -247,6 +254,7 @@ namespace Ship_Game.AI
                 if (empire == Owner.loyalty)
                 {
                     ScannedFriendlies.Add(nearbyShip);
+                    FriendliesSwarmCenter += nearbyShip.Center;
                     continue;
                 }
 
@@ -276,6 +284,9 @@ namespace Ship_Game.AI
                 }
             }
 
+            if (ScannedFriendlies.Count > 0)
+                FriendliesSwarmCenter /= ScannedFriendlies.Count;
+
             if (Target is Ship target)
             {
                 if (target.loyalty == Owner.loyalty)
@@ -296,16 +307,16 @@ namespace Ship_Game.AI
             if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero() || ScannedNearby.Count == 0)
                 return Target;
 
-            SetTargetWeights(targetPrefs);
-
-            if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null)
+            if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null && !scannedShips.Contains(EscortTarget))
             {
-                var sw = new ShipWeight(EscortTarget.AI.Target, 1f);
+                var sw = new ShipWeight(EscortTarget.AI.Target, 0);
                 ScannedNearby.Add(sw);
             }
+            SetTargetWeights(targetPrefs);
+
 
             // limiting combat targets to the arbitrary -100 weight. Poor explained here. 
-            ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > -100).SortedDescending(weight => weight.Weight);
+            ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > float.MinValue).SortedDescending(weight => weight.Weight);
 
             ScannedTargets.AddRange(SortedTargets.Select(ship => ship.Ship));
 
