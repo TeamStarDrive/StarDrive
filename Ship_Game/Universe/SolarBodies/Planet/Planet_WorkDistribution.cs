@@ -115,11 +115,11 @@ namespace Ship_Game
             switch (colonyType)
             {
                 default:
-                case ColonyType.Core:         minCut = 0.25f; maxCut = 0.75f; break;
-                case ColonyType.Research:     minCut = 0.5f;  maxCut = 1f;   break;
-                case ColonyType.Agricultural: minCut = 0f;    maxCut = 0.4f; break;
+                case ColonyType.Core:         minCut = 0.4f;  maxCut = 0.9f;  break;
+                case ColonyType.Research:     minCut = 0.75f; maxCut = 1f;    break;
+                case ColonyType.Agricultural: minCut = 0f;    maxCut = 0.4f;  break;
                 case ColonyType.Military:
-                case ColonyType.Industrial:   minCut = 0f;    maxCut = 0.1f; break;
+                case ColonyType.Industrial:   minCut = 0f;    maxCut = 0.25f; break;
             }
 
             return (Storage.ProdRatio / wantedStoragePercent).Clamped(minCut, maxCut) * availableWork;
@@ -208,7 +208,7 @@ namespace Ship_Game
 
             // colony level ranges from 1 worst to 5 best.
             // Gives a base line from .3 to about .1 depending on research wants
-            float colonyDevelopmentBonus = ((6 + buildDesire) - Level * Owner.Research.Strategy.ResearchRatio) * 0.05f;
+            float colonyDevelopmentBonus = ((6 + buildDesire) - Level * Owner.Research.Strategy.ResearchRatio) * 0.03f;
             float colonyTypeBonus        = 0;
             switch (colonyType)
             {
