@@ -141,7 +141,7 @@ namespace Ship_Game
                     // If we increase GameSpeed, also do less simulation steps to speed things up
                     // And at 0.5x speed, do twice as many steps.
                     // Note: beyond 2x step we suffer major precision issues, so we use clamp
-                    float gameSpeed = GameSpeed.UpperBound(2);
+                    float gameSpeed = GameSpeed.UpperBound(1);
                     float fixedTimeStep = (1f / CurrentSimFPS) * gameSpeed;
                     var fixedSimStep = new FixedSimTime(fixedTimeStep);
 
