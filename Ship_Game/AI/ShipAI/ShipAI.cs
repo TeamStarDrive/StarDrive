@@ -775,7 +775,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
+            if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.DesiredCombatRange))
             {
                 Owner.AI.SetPriorityOrder(true);
                 Orbit.Orbit(EscortTarget, timeStep);
