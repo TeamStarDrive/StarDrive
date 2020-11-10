@@ -244,6 +244,10 @@ namespace Ship_Game
                 {
                     PassengerBonus = trait.PassengerBonus;
                 }
+                if (HistoryTraitManifestDestiny &&  trait.PassengerModifier > 1)
+                {
+                    PassengerModifier = trait.PassengerModifier;
+                }
                 if (HistoryTraitNavalTraditions && trait.ShipCostMod < 0)
                 {
                     ShipCostMod = trait.ShipCostMod;
