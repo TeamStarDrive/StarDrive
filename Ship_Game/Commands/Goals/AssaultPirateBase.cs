@@ -22,10 +22,11 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public AssaultPirateBase(Empire e, Empire pirateEmpire) : this()
+        public AssaultPirateBase(Empire e, Empire pirateEmpire, Ship targetBase = null) : this()
         {
             empire       = e;
             TargetEmpire = pirateEmpire;
+            TargetShip   = targetBase; // TargetShip is the pirate base
 
             PostInit();
             Log.Info(ConsoleColor.Green, $"---- Retaliation vs. Pirates: New {empire.Name} Assault Base vs. {TargetEmpire.Name} ----");
@@ -38,6 +39,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FindPirateBase()
         {
+            if (TargetShip != null)
+                return GoalStep.GoToNextStep;
+
             if (!Pirates.GetBases(out Array<Ship> bases))
                 return GoalStep.GoalFailed;
 
@@ -54,7 +58,7 @@ namespace Ship_Game.Commands.Goals
         {
             empire.UpdateTargetsStrMultiplier(TargetShip.guid, out float multiplier);
             float minStr = TargetShip.GetStrength() * empire.DifficultyModifiers.TaskForceStrength;
-            var task     = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip, minStr * multiplier);
+            var task     = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip, minStr * multiplier * 2);
             empire.GetEmpireAI().AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
