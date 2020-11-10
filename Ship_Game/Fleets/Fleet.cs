@@ -413,6 +413,7 @@ namespace Ship_Game.Fleets
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask);                break;
                 case MilitaryTask.TaskType.AssaultPirateBase:          DoAssaultPirateBase(FleetTask);          break;
                 case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
+                case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(FleetTask);            break;
             }
         }
 
@@ -733,12 +734,13 @@ namespace Ship_Game.Fleets
 
         void DoRemnantEngagement(MilitaryTask task)
         {
+            Planet target = FleetTask.TargetPlanet;
             switch (TaskStep)
             {
                 case 1:
-                    GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
-                    if (TryCalcEtaToPlanet(task, out float eta))
-                        Owner.Remnants.WarnPlayerFleetIncoming(FleetTask.TargetPlanet, eta);
+                    GatherAtAO(task, target.ParentSystem.Radius);
+                    if (TryCalcEtaToPlanet(task, target.Owner, out float eta))
+                        Owner.Remnants.InitTargetEmpireDefenseActions(target, eta, GetStrength());
 
                     TaskStep = 2;
                     break;
@@ -750,7 +752,7 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
-                    FleetMoveToPosition(task.AO, FleetTask.TargetPlanet.GravityWellRadius * 1.5f, false);
+                    FleetMoveToPosition(task.AO, target.GravityWellRadius * 1.5f, false);
                     TaskStep = 4;
                     break;
                 case 4:
@@ -768,12 +770,12 @@ namespace Ship_Game.Fleets
                     {
                         BombPlanet(FleetTask);
                         AttackEnemyStrengthClumpsInAO(task);
-                        if (FleetTask.TargetPlanet.Owner == null)
+                        if (target.Owner == null)
                             TaskStep = 7;
                         break;
                     }
 
-                    OrderFleetOrbit(FleetTask.TargetPlanet);
+                    OrderFleetOrbit(target);
                     TaskStep = 6;
                     break;
                 case 6:
@@ -783,7 +785,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 7;
                     break;
                 case 7:
-                    OrderFleetOrbit(FleetTask.TargetPlanet);
+                    OrderFleetOrbit(target);
                     break; // Change in task step is done from Remnant goals
                 case 8: // Go back to portal, this step is set from the Remnant goal
                     GatherAtAO(task, 20000);
@@ -798,14 +800,20 @@ namespace Ship_Game.Fleets
             }
         }
 
-        bool TryCalcEtaToPlanet(MilitaryTask task, out float starDateEta)
+        bool TryCalcEtaToPlanet(MilitaryTask task, Empire targetEmpire, out float starDateEta)
         {
             starDateEta = 0;
             if (task.TargetPlanet == null)
                 return false;
 
             if (AveragePosition().InRadius(task.TargetPlanet.ParentSystem.Position, task.TargetPlanet.ParentSystem.Radius))
-                return false; // The Fleet is already there
+            {
+                if (targetEmpire?.isPlayer == true)
+                    return false; // The Fleet is already there
+
+                starDateEta = Empire.Universe.StarDate;
+                return true; // AI might retaliate even if its the same system
+            }
 
             float distanceToPlanet = AveragePosition().Distance(task.TargetPlanet.Center);
             float slowestWarpSpeed = Ships.Min(s => s.MaxFTLSpeed).LowerBound(1000);
@@ -814,6 +822,44 @@ namespace Ship_Game.Fleets
             starDateEta            = (Empire.Universe.StarDate + turnsToTarget / 10).RoundToFractionOf10();
 
             return starDateEta.Greater(0);
+        }
+
+        void DoDefendVsRemnant(MilitaryTask task)
+        {
+            if (EndInvalidTask(task.TargetPlanet.Owner != Owner ||
+                               EmpireManager.Remnants.Remnants.Goals
+                                   .Any(g => g.Fleet?.FleetTask?.TargetPlanet == task.TargetPlanet)))
+            {
+                ClearOrders();
+                return;
+            }
+
+            switch (TaskStep)
+            {
+                case 0:
+                    FleetTaskGatherAtRally(task);
+                    TaskStep = 1;
+                    break;
+                case 1:
+                    if (!HasArrivedAtRallySafely(task.RallyPlanet.ParentSystem.Radius))
+                        break;
+
+                    GatherAtAO(task, 3000);
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(task.AO, GetRelativeSize().Length() / 2))
+                        break;
+
+                    TaskStep = 3;
+                    CancelFleetMoveInArea(task.AO, task.AORadius * 2);
+                    break;
+                case 3:
+                    if (!CanTakeThisFight(task.EnemyStrength))
+                        FleetTask?.EndTask();
+
+                    break;
+            }
         }
 
         void DoAssaultPirateBase(MilitaryTask task)
