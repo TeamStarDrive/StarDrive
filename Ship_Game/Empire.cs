@@ -2150,18 +2150,20 @@ namespace Ship_Game
 
         public Planet.ColonyType AssessColonyNeeds2(Planet p)
         {
-            float fertility = p.FertilityFor(this);
-            float richness = p.MineralRichness;
-            float pop = p.MaxPopulationBillionFor(this);
-            if (IsCybernetic)
-                 fertility = richness;
-            if (richness >= 1.0f && fertility >= 1 && pop > 7)
+            float richness  = p.MineralRichness;
+            float fertility = IsCybernetic ? richness : p.FertilityFor(this);
+            float maxPop    = p.MaxPopulationBillionFor(this);
+
+            if (richness >= 1 && fertility >= 1 && maxPop >= 7)
                 return Planet.ColonyType.Core;
-            if (fertility > 0.5f && fertility <= 1 && richness <= 1 && pop < 8 && pop > 3)
+
+            if (fertility > 0.5f && fertility <= 1 && richness <= 1 && maxPop > 3)
                  return Planet.ColonyType.Research;
-            if (fertility > 1.0f && richness < 1 && pop >=2)
+
+            if (fertility > 1 && richness < 1 && maxPop >= 2)
                  return Planet.ColonyType.Agricultural;
-            if (richness >= 1.0f )
+
+            if (richness >= 1 )
                  return Planet.ColonyType.Industrial;
 
             return Planet.ColonyType.Colony;
