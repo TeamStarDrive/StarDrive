@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Fleets;
+using Ship_Game.AI.Tasks;
 
 namespace Ship_Game
 {
@@ -355,17 +356,25 @@ namespace Ship_Game
             }
         }
 
-        public void WarnPlayerFleetIncoming(Planet planet, float starDateEta)
+        public void InitTargetEmpireDefenseActions(Planet planet, float starDateEta, float str)
         {
-            if (planet.Owner == null || !planet.Owner.isPlayer)
+            if (planet.Owner == null || planet.Owner.isFaction)
                 return;
 
-            SolarSystem system = planet.ParentSystem;
-            if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player 
-                                           && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
+            if (planet.Owner.isPlayer) // Warn the player is able
             {
-                string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
-                Empire.Universe.NotificationManager.AddIncomingRemnants(planet, message);
+                SolarSystem system = planet.ParentSystem;
+                if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player
+                                               && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
+                {
+                    string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
+                    Empire.Universe.NotificationManager.AddIncomingRemnants(planet, message);
+                }
+            }
+            else  // AI scramble defense
+            {
+                var task = MilitaryTask.CreateDefendVsRemnant(planet, planet.Owner, str);
+                planet.Owner.GetEmpireAI().AddPendingTask(task);
             }
         }
 
@@ -864,7 +873,7 @@ namespace Ship_Game
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
         {
-            int divider = 10 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
+            int divider = 7 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
                 Vector2 pos = p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);
