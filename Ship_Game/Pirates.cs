@@ -951,11 +951,16 @@ namespace Ship_Game
             if (!GetBases(out Array<Ship> bases))
                 return false;
 
+            var goals = victim.GetEmpireAI().Goals;
             for (int i = 0; i < bases.Count; i++)
             {
-                pirateBase = bases[i];
-                if (victimSystems.Contains(pirateBase.System))
+                Ship checkedBase = bases[i];
+                if (victimSystems.Contains(checkedBase.System)
+                    && !goals.Any(g => g.type == GoalType.AssaultPirateBase && g.TargetShip == checkedBase))
+                {
+                    pirateBase = checkedBase;
                     return true;
+                }
             }
 
             return false;
