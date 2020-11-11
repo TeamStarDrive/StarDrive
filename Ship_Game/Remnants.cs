@@ -434,7 +434,7 @@ namespace Ship_Game
         {
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                var guardians = system.ShipList.Filter(s => s != null && s.IsGuardian && !s.InCombat);
+                var guardians = system.ShipList.Filter(s => s != null && s.IsGuardian && !s.InCombat && s.BaseStrength < 1000);
                 if (guardians.Length > 0)
                 {
                     Ship chosenGuardian = guardians.RandItem();
@@ -852,9 +852,6 @@ namespace Ship_Game
         {
             int numSupportDrones = RollDie(4);
             AddGuardians(numSupportDrones, RemnantShipType.SmallSupport, p);
-
-            if (RollDice(10 + (int)CurrentGame.Difficulty))
-                AddGuardians(1, RemnantShipType.Inhibitor, p);
         }
 
         void AddCarriers(Planet p)  //Added by Gretman
