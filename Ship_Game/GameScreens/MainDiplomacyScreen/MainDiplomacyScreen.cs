@@ -708,7 +708,7 @@ namespace Ship_Game
 
             float pop = GetPopInExploredPlanetsFor(PlayerEmpire, e);
             foreach (Empire tradePartner in Traders)
-                pop += GetPopInExploredPlanetsFor(tradePartner, e);
+                pop = GetPopInExploredPlanetsFor(tradePartner, e).LowerBound(pop);
 
             return pop;
         }
@@ -717,8 +717,13 @@ namespace Ship_Game
         {
             float pop = 0;
             foreach (SolarSystem system in UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(exploringEmpire)))
-                foreach (Planet p in system.PlanetList.Filter(p => p.Owner == empire && p.IsExploredBy(exploringEmpire)))
-                    pop += p.PopulationBillion;
+            {
+                foreach (Planet p in system.PlanetList)
+                {
+                    if (p.Owner == empire && p.IsExploredBy(exploringEmpire))
+                        pop += p.PopulationBillion;
+                }
+            }
 
             return pop;
         }

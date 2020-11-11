@@ -184,16 +184,19 @@ namespace Ship_Game.Gameplay
 
         int TurnsAbove95Federation(Empire us)
         {
+            int turns;
             switch (us.Personality)
             {
                 default:
-                case PersonalityType.Aggressive: return 700;
-                case PersonalityType.Xenophobic: return 1000;
-                case PersonalityType.Ruthless:   return 850;
-                case PersonalityType.Honorable:  return 500;
-                case PersonalityType.Cunning:    return 650;
-                case PersonalityType.Pacifist:   return 600;
+                case PersonalityType.Aggressive: turns = 350;  break;
+                case PersonalityType.Xenophobic: turns = 500;  break;
+                case PersonalityType.Ruthless:   turns = 425;  break;
+                case PersonalityType.Honorable:  turns = 250;  break;
+                case PersonalityType.Cunning:    turns = 320;  break;
+                case PersonalityType.Pacifist:   turns = 300;  break;
             }
+
+            return turns * (int)(CurrentGame.GalaxySize + 1);
         }
 
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
