@@ -827,7 +827,7 @@ namespace Ship_Game.Fleets
         void DoDefendVsRemnant(MilitaryTask task)
         {
             if (EndInvalidTask(task.TargetPlanet.Owner != Owner ||
-                               EmpireManager.Remnants.Remnants.Goals
+                               !EmpireManager.Remnants.Remnants.Goals
                                    .Any(g => g.Fleet?.FleetTask?.TargetPlanet == task.TargetPlanet)))
             {
                 ClearOrders();
