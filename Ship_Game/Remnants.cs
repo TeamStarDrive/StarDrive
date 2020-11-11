@@ -161,7 +161,7 @@ namespace Ship_Game
         }
 
         int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort            => (Level-1) * 30 + NeededHibernationTurns;
+        int ExtraLevelUpEffort            => (Level-1) * 20 + NeededHibernationTurns;
         public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
 
         void SetInitialLevelUpDate()
