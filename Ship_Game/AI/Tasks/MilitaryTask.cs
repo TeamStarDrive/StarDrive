@@ -139,6 +139,23 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateDefendVsRemnant(Planet planet, Empire owner, float str)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                AO                       = planet.Center,
+                AORadius                 = 50000f,
+                TargetPlanet             = planet,
+                MinimumTaskForceStrength = str,
+                EnemyStrength            = str,
+                Priority                 = 1
+            };
+
+            militaryTask.SetEmpire(owner);
+            militaryTask.type = TaskType.DefendVsRemnants;
+            return militaryTask;
+        }
+
         public MilitaryTask(AO ao, Array<Vector2> patrolPoints)
         {
             AO              = ao.Center;
@@ -384,6 +401,15 @@ namespace Ship_Game.AI.Tasks
                     {
                         case 0:
                             RequisitionAssaultPirateBase();
+                            break;
+                    }
+
+                    break;
+                case TaskType.DefendVsRemnants:
+                    switch (Step)
+                    {
+                        case 0:
+                            RequisitionDefendVsRemnants();
                             break;
                     }
 
@@ -735,7 +761,8 @@ namespace Ship_Game.AI.Tasks
             GlassPlanet,
             AssaultPirateBase,
             Patrol,
-            RemnantEngagement
+            RemnantEngagement,
+            DefendVsRemnants
         }
 
         [Flags]
