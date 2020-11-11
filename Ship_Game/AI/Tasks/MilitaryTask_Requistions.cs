@@ -285,7 +285,7 @@ namespace Ship_Game.AI.Tasks
 
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
             EnemyStrength = MinimumTaskForceStrength;
-            if (CreateTaskFleet("Defense Fleet", 1) == RequisitionStatus.Complete)
+            if (CreateTaskFleet("Defense Task Force", 1) == RequisitionStatus.Complete)
                 Step = 1;
         }
 
