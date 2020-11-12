@@ -131,8 +131,7 @@ namespace Ship_Game.AI
             float numAgents       = OwnerEmpire.data.AgentList.Count;
             float spyNeeds        = 1 + EmpireSpyLimit - numAgents;
             spyNeeds              = spyNeeds.LowerBound(0);
-            float overSpend       = OverSpendRatio(money, treasuryToSave,  spyNeeds);
-
+            float overSpend       = OverSpendRatio(money, treasuryToSave,  spyNeeds).LowerBound(1);
             float budget          = money * percentOfMoney * overSpend;
 
             return budget;
@@ -176,7 +175,7 @@ namespace Ship_Game.AI
             float treasury = treasuryGoal.LowerBound(1);
             float minMoney = money - treasury * percentageOfTreasuryToSave;
             float ratio    = (money + minMoney) / treasury.LowerBound(1);
-            return ratio.Clamped(1f, maxRatio.LowerBound(1));
+            return ratio.Clamped(0f, maxRatio);
         }
 
         /// <summary>
