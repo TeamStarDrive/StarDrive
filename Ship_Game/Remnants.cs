@@ -154,8 +154,8 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 1.35f;
-                case RemnantStory.AncientRaidersRandom: return 0.9f;
+                case RemnantStory.AncientExterminators: return 1.25f;
+                case RemnantStory.AncientBalancers:     return 0.75f;
                 default:                                return 1;
             }
         }
@@ -459,13 +459,13 @@ namespace Ship_Game
             bomberNumMultiplier = 1;
             if (Level < 5)
             {
-                bomberNumMultiplier = 3 * Level;
+                bomberNumMultiplier = 4 * Level;
                 return RemnantShipType.BomberLight;
             }
 
             if (Level < 10)
             {
-                bomberNumMultiplier = (int)(1.5f * Level);
+                bomberNumMultiplier = 2 * Level;
                 return RemnantShipType.BomberMedium;
             }
 
@@ -546,7 +546,7 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet / 10;
+            int fleetModifier  = shipsInFleet / 8;
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
             effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
@@ -629,7 +629,8 @@ namespace Ship_Game
 
         void GenerateProduction(float amount)
         {
-            Production = (Production + amount).UpperBound(Level * Level * 500); // Level 20 - 400k
+            int limit = 500 * ((int)CurrentGame.Difficulty).LowerBound(1);
+            Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 400k-1200K 
         }
 
         public int NumPortals()
