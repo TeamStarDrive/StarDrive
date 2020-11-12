@@ -44,9 +44,9 @@ namespace Ship_Game.AI
 
         public void CreateMissionsByTrait()
         {
-            int freeAgents      = CalculateSpyUsage(out int defenders);
-            int desiredMissions = (int)(OwnerEmpire.data.AgentList.Count * GetSpyModifier());
-            AssignSpyMissions(freeAgents, desiredMissions);
+            int currentMissions = CalculateSpyUsage();
+            int wantedMissions  = (int)(OwnerEmpire.data.AgentList.Count * GetSpyModifier());
+            AssignSpyMissions(currentMissions, wantedMissions);
         }
 
         float GetSpyModifier()
@@ -71,17 +71,14 @@ namespace Ship_Game.AI
             if (!TryFindEmpireTargets(out Array<Empire> potentialTargets))
                 return;
 
-            foreach (Agent agent in OwnerEmpire.data.AgentList)
-            {
-                if (agent.Mission != AgentMission.Defending  && agent.Mission != AgentMission.Undercover 
-                    || currentMissions >= wantedMissions)
 
-                {
-                    continue;
-                }
+            var freeAgents = OwnerEmpire.data.AgentList.Filter(a => a.Mission == AgentMission.Defending);
+            foreach (Agent agent in freeAgents)
+            {
+                if (currentMissions >= wantedMissions)
+                    return;
 
                 Empire target = potentialTargets.RandItem();
-
                 Array<AgentMission> potentialMissions;
                 switch (OwnerEmpire.Personality)
                 {
@@ -349,16 +346,17 @@ namespace Ship_Game.AI
             return potentialMissions;
         }
 
-        private int CalculateSpyUsage(out int defenders)
+        private int CalculateSpyUsage()
         {
-            defenders   = 0;
             int offense = 0;
             foreach (Agent a in OwnerEmpire.data.AgentList)
             {
-                if (a.Mission == AgentMission.Defending)
-                    defenders++;
-                else if (a.Mission != AgentMission.Undercover && a.Mission != AgentMission.Recovering) 
+                if (a.Mission != AgentMission.Undercover
+                    && a.Mission != AgentMission.Recovering
+                    && a.Mission != AgentMission.Defending)
+                {
                     offense++;
+                }
             }
 
             return offense;
