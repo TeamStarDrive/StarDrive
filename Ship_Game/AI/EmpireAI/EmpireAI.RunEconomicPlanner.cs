@@ -131,8 +131,7 @@ namespace Ship_Game.AI
             float numAgents       = OwnerEmpire.data.AgentList.Count;
             float spyNeeds        = 1 + EmpireSpyLimit - numAgents;
             spyNeeds              = spyNeeds.LowerBound(0);
-            float overSpend       = OverSpendRatio(money, treasuryToSave,  spyNeeds);
-
+            float overSpend       = OverSpendRatio(money, treasuryToSave,  spyNeeds).LowerBound(1);
             float budget          = money * percentOfMoney * overSpend;
 
             return budget;
@@ -158,7 +157,8 @@ namespace Ship_Game.AI
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full years) of total income.
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
                                  + OwnerEmpire.data.FlatMoneyBonus;
-            float timeSpan = 150 * OwnerEmpire.data.treasuryGoal;
+            
+            float timeSpan = (200 - OwnerEmpire.Money/1000).UpperBound(200) * OwnerEmpire.data.treasuryGoal;
             treasuryGoal *= timeSpan;
             return treasuryGoal.LowerBound(100);
         }

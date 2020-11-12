@@ -136,9 +136,10 @@ namespace Ship_Game.Gameplay
             }
             else
             {
-                o.Planet = data.FindPlanetOrNull(ownerGuid);
-                if (o.Planet != null)
-                    o.Weapon = o.Planet.BuildingList.Find(b => b.Weapon == weaponUID).TheWeapon;
+                o.Planet          = data.FindPlanetOrNull(ownerGuid);
+                Building building = o.Planet?.BuildingList.Find(b => b.Weapon == weaponUID);
+                if (building != null)
+                    o.Weapon = building.TheWeapon;
             }
 
             if (loyaltyId > 0) // Older saves don't have loyalty ID, so this is for compatibility

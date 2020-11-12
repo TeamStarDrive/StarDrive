@@ -673,10 +673,10 @@ namespace Ship_Game.Ships
         bool TryDamageModule(GameplayObject source, float modifiedDamage)
         {
             if (source != null)
-                Parent.LastDamagedBy = source;
+                Parent.LastDamagedBy = LastDamagedBy = source;
 
-            Parent.InCombatTimer        = 15f;
-            Parent.ShieldRechargeTimer  = 0f;
+            Parent.InCombatTimer       = 15f;
+            Parent.ShieldRechargeTimer = 0f;
 
             var beam = source as Beam;
             var proj = source as Projectile;
