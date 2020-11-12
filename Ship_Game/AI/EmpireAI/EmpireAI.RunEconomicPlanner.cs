@@ -176,7 +176,7 @@ namespace Ship_Game.AI
             float treasury = treasuryGoal.LowerBound(1);
             float minMoney = money - treasury * percentageOfTreasuryToSave;
             float ratio    = (money + minMoney) / treasury.LowerBound(1);
-            return ratio.Clamped(0f, maxRatio);
+            return ratio.Clamped(1f, maxRatio.LowerBound(1));
         }
 
         /// <summary>
