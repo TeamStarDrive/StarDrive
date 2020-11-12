@@ -25,6 +25,10 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             HandleDetailInfo();
+
+            if (HandlePlanetNameChangeTextBox(input))
+                return true;
+
             pFacilities.HandleInput(input);
             if (FilterBuildableItems.HandlingInput)
                 return base.HandleInput(input);
@@ -34,15 +38,12 @@ namespace Ship_Game
 
             P.UpdateIncomes(false);
 
-
             // We are monitoring AI Colonies
             if (P.Owner != EmpireManager.Player && !Log.HasDebugger)
             {
                 // Input not captured, let Universe Screen manager what happens
                 return false;
             }
-
-            HandlePlanetNameChangeTextBox(input);
 
             if (HandleTroopSelect(input))
                 return true;
@@ -169,7 +170,7 @@ namespace Ship_Game
             return false;
         }
 
-        void HandlePlanetNameChangeTextBox(InputState input)
+        bool HandlePlanetNameChangeTextBox(InputState input)
         {
             if (!EditNameButton.HitTest(input.CursorPosition))
             {
@@ -184,45 +185,43 @@ namespace Ship_Game
                 }
             }
 
-            if (!PlanetName.HandlingInput)
+            if (PlanetName.HandlingInput)
             {
-                GlobalStats.TakingInput = false;
-                bool empty = true;
-                string text = PlanetName.Text;
-                int num = 0;
-                while (num < text.Length)
-                {
-                    if (text[num] == ' ')
-                    {
-                        num++;
-                    }
-                    else
-                    {
-                        empty = false;
-                        break;
-                    }
-                }
-
-                if (empty)
-                {
-                    int ringnum = 1;
-                    foreach (SolarSystem.Ring ring in P.ParentSystem.RingList)
-                    {
-                        if (ring.planet == P)
-                        {
-                            PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
-                                RomanNumerals.ToRoman(ringnum));
-                        }
-
-                        ringnum++;
-                    }
-                }
-            }
-            else
-            {
-                GlobalStats.TakingInput = true;
                 PlanetName.HandleTextInput(ref PlanetName.Text, input);
+                return true;
             }
+
+            bool empty = true;
+            string text = PlanetName.Text;
+            int num = 0;
+            while (num < text.Length)
+            {
+                if (text[num] == ' ')
+                {
+                    num++;
+                }
+                else
+                {
+                    empty = false;
+                    break;
+                }
+            }
+
+            if (empty)
+            {
+                int ringnum = 1;
+                foreach (SolarSystem.Ring ring in P.ParentSystem.RingList)
+                {
+                    if (ring.planet == P)
+                    {
+                        PlanetName.Text = string.Concat(P.ParentSystem.Name, " ",
+                            RomanNumerals.ToRoman(ringnum));
+                    }
+
+                    ringnum++;
+                }
+            }
+            return false;
         }
 
         void HandleExportImportButtons(InputState input)
