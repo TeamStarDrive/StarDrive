@@ -481,7 +481,8 @@ namespace Ship_Game
                 if (ship.AI.State == AIState.Orbit || !ship.Center.InRadius(position, radius))
                     continue;
 
-                ship.OrderToOrbit(planet);
+                if (planet != null)
+                    ship.OrderToOrbit(planet);
             }
         }
 
@@ -585,7 +586,7 @@ namespace Ship_Game
         {
             float combatRadius = Math.Min(radius, ship.AI.FleetNode.OrdersRadius);
             if (!ship.CanTakeFleetOrders || ship.Center.OutsideRadius(position + ship.FleetOffset, combatRadius))
-                return CombatStatus.ClearSpace;
+                return CombatStatus.NotApplicable;
 
             if (ship.InCombat) return CombatStatus.InCombat;
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
