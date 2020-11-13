@@ -160,11 +160,11 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.Ships.Count == 0)
                 return GoalStep.GoalFailed; // fleet is dead
 
-            if (Remnants.Hibernating)
-                return ReturnToPortal();
-
             if (Fleet.TaskStep == 10) // Arrived back to portal
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
+
+            if (Remnants.Hibernating)
+                return ReturnToPortal();
 
             int numBombers = Remnants.NumBombersInFleet(Fleet);
             if (BombersLevel > 0 && numBombers == 0)
