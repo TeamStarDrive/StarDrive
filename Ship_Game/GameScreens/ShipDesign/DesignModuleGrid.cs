@@ -176,7 +176,6 @@ namespace Ship_Game
         private readonly Array<Array<ChangedModule>> Undoable = new Array<Array<ChangedModule>>();
         private readonly Array<Array<ChangedModule>> Redoable = new Array<Array<ChangedModule>>();
 
-
         public void StartUndoableAction()
         {
             if (Undoable.IsEmpty || !Undoable.Last.IsEmpty) // only start new if we actually need to
@@ -234,6 +233,64 @@ namespace Ship_Game
             {
                 At = slot, Module = module, Orientation = orientation, Type = type
             });
+        }
+
+        /// <summary>
+        /// Look in Undoable actions and see if there are 3 repeated actions,
+        ///  meaning bulk replace could be handy
+        /// </summary>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        public bool RepeatedReplaceActionsThreshold(int threshold = 3)
+        {
+            ShipModule oldModule = null;
+            ShipModule newModule = null;
+            int counter          = 0;
+
+            for (int i = Undoable.Count - 1; i >= 0; i--)
+            {
+                Array<ChangedModule> actions = Undoable[i];
+                if (actions.Count < 2)
+                    return false;
+
+                ChangedModule action2 = actions[actions.Count - 1]; // Last Action
+                ChangedModule action1 = actions[actions.Count - 2]; // Before Last Action
+
+                if (!ReplaceAble(action1.Module, action2.Module) || action1.Type != ChangeType.Removed || action2.Type != ChangeType.Added) 
+                    return false;
+
+                if (i == Undoable.Count - 1) // First check
+                {
+                    oldModule = action1.Module;
+                    newModule = action2.Module;
+                    counter   = 1;
+                }
+                else
+                {
+                    if (oldModule?.UID == action1.Module.UID
+                        && newModule?.UID == action2.Module.UID)
+                    {
+                        counter += 1;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                if (counter == threshold)
+                    return true;
+            }
+
+            return false;
+        }
+
+
+        bool ReplaceAble(ShipModule module1, ShipModule module2)
+        {
+            return module1.XSIZE == module2.XSIZE 
+                   && module1.YSIZE == module2.YSIZE 
+                   && module1.Restrictions == module2.Restrictions;
         }
 
 

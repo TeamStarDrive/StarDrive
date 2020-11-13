@@ -283,21 +283,6 @@ namespace Ship_Game.Ships
             }
         }
 
-
-        public int ReadyPlanetAssaultTroops
-        {
-            get
-            {
-                if (Owner == null || !Owner.HasOurTroops)
-                    return 0;
-
-                int assaultSpots = AllActiveHangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
-                assaultSpots    += AllTransporters.Sum(sm => sm.TransporterTimer > 0 ? 0 : sm.TransporterTroopLanding);
-                assaultSpots    += Owner.shipData.Role == ShipData.RoleName.troop ? 1 : 0;
-                return Math.Min(Owner.TroopCount, assaultSpots);
-            }
-        }
-
         public bool AnyAssaultOpsAvailable
         {
             get
@@ -510,8 +495,8 @@ namespace Ship_Game.Ships
                 // If the ship we want cant be built, will try to launch the best we have by proceeding this method as if the hangar is dynamic
                 string selectedShip = GetDynamicShipName(hangar, empire);
                 hangar.hangarShipUID = selectedShip ?? defaultShip;
-                if (Empire.Universe?.Debug == true)
-                    Log.Info($"Chosen ship for Hangar launch: {hangar.hangarShipUID}");
+                //if (Empire.Universe?.Debug == true)
+                //    Log.Info($"Chosen ship for Hangar launch: {hangar.hangarShipUID}");
             }
         }
 

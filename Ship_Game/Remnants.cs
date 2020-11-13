@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Fleets;
+using Ship_Game.AI.Tasks;
 
 namespace Ship_Game
 {
@@ -106,7 +107,7 @@ namespace Ship_Game
         {
             float espionageStr = EmpireManager.Player.GetSpyDefense();
             if (espionageStr <= Level * 3)
-                return; // not enough espionage strength to learn about pirate activities
+                return; // not enough espionage strength to learn about Remnant activities
 
             Empire.Universe.NotificationManager.AddRemnantsAreGettingStronger(Owner);
         }
@@ -153,14 +154,14 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 1.5f;
-                case RemnantStory.AncientRaidersRandom: return 0.75f;
+                case RemnantStory.AncientExterminators: return 1.25f;
+                case RemnantStory.AncientBalancers:     return 0.75f;
                 default:                                return 1;
             }
         }
 
         int TurnsLevelUp                  => Owner.DifficultyModifiers.RemnantTurnsLevelUp;
-        int ExtraLevelUpEffort            => (Level-1) * 25 + NeededHibernationTurns;
+        int ExtraLevelUpEffort            => (Level-1) * 20 + NeededHibernationTurns;
         public int NeededHibernationTurns => TurnsLevelUp / ((int)CurrentGame.Difficulty + 2);
 
         void SetInitialLevelUpDate()
@@ -234,26 +235,27 @@ namespace Ship_Game
 
         public bool FindValidTarget(Ship portal, out Empire target)
         {
-            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires
-                                                                      : EmpireManager.MajorEmpires;
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction 
+                                 ? EmpireManager.NonPlayerEmpires.Filter(e => !e.data.Defeated)
+                                 : EmpireManager.MajorEmpires.Filter(e => !e.data.Defeated);
 
             target = null;
+            if (empiresList.Length == 0)
+                return false;
+
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
                     target = FindStrongestByAverageScore(empiresList);
                     break;
                 case RemnantStory.AncientExterminators: 
-                    target = empiresList.FindMinFiltered(e => !e.data.Defeated, e => e.CurrentMilitaryStrength);
+                    target = empiresList.FindMin(e => e.CurrentMilitaryStrength);
                     break;
                 case RemnantStory.AncientRaidersClosest:
-                    target = empiresList.FindMaxFiltered(e => !e.data.Defeated, e => portal.Center.Distance(e.WeightedCenter));
+                    target = empiresList.FindMax(e => portal.Center.Distance(e.WeightedCenter));
                     break;
                 case RemnantStory.AncientRaidersRandom:
-                    var potentialEmpires = empiresList.Filter(e => !e.data.Defeated);
-                    if (potentialEmpires.Length > 0)
-                        target = potentialEmpires.RandItem();
-
+                    target = empiresList.RandItem();
                     break;
                 default: 
                     return false;
@@ -276,6 +278,9 @@ namespace Ship_Game
 
         Empire FindStrongestByAverageScore(Empire[] empiresList)
         {
+            if (empiresList.Length == 1)
+                return empiresList.First();
+
             var averageScore  = empiresList.Average(e => e.TotalScore);
             Empire bestEmpire = empiresList.FindMax(e => e.TotalScore);
 
@@ -351,17 +356,25 @@ namespace Ship_Game
             }
         }
 
-        public void WarnPlayerFleetIncoming(Planet planet, float starDateEta)
+        public void InitTargetEmpireDefenseActions(Planet planet, float starDateEta, float str)
         {
-            if (planet.Owner == null || !planet.Owner.isPlayer)
+            if (planet.Owner == null || planet.Owner.isFaction)
                 return;
 
-            SolarSystem system = planet.ParentSystem;
-            if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player 
-                                           && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
+            if (planet.Owner.isPlayer) // Warn the player is able
             {
-                string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
-                Empire.Universe.NotificationManager.AddIncomingRemnants(planet, message);
+                SolarSystem system = planet.ParentSystem;
+                if (system.PlanetList.Any(p => p.Owner == EmpireManager.Player
+                                               && p.BuildingList.Any(b => b.DetectsRemnantFleet)))
+                {
+                    string message = $"Remnant Fleet is targeting {planet.Name}\nETA - Stardate {starDateEta.String(1)}";
+                    Empire.Universe.NotificationManager.AddIncomingRemnants(planet, message);
+                }
+            }
+            else  // AI scramble defense
+            {
+                var task = MilitaryTask.CreateDefendVsRemnant(planet, planet.Owner, str);
+                planet.Owner.GetEmpireAI().AddPendingTask(task);
             }
         }
 
@@ -421,7 +434,7 @@ namespace Ship_Game
         {
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                var guardians = system.ShipList.Filter(s => s != null && s.IsGuardian && !s.InCombat);
+                var guardians = system.ShipList.Filter(s => s != null && s.IsGuardian && !s.InCombat && s.BaseStrength < 1000);
                 if (guardians.Length > 0)
                 {
                     Ship chosenGuardian = guardians.RandItem();
@@ -432,13 +445,15 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
+            if (Level == 1)
+                return 0;
 
             var numBombers = Level > 10 ? 2 : 1;
             numBombers    += NumPortals()-1;
             numBombers    += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
 
             GetBomberType(out int multiplier);
-            return (numBombers * multiplier).UpperBound(Level-1);
+            return (numBombers * multiplier).UpperBound(Level*2);
         }
 
         RemnantShipType GetBomberType(out int bomberNumMultiplier)
@@ -446,13 +461,13 @@ namespace Ship_Game
             bomberNumMultiplier = 1;
             if (Level < 5)
             {
-                bomberNumMultiplier = 3 * Level;
+                bomberNumMultiplier = 4 * Level;
                 return RemnantShipType.BomberLight;
             }
 
             if (Level < 10)
             {
-                bomberNumMultiplier = (int)(1.5f * Level);
+                bomberNumMultiplier = 2 * Level;
                 return RemnantShipType.BomberMedium;
             }
 
@@ -533,8 +548,9 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet / 5;
+            int fleetModifier  = shipsInFleet / 8;
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
+            effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
             switch (roll)
             {
@@ -615,7 +631,8 @@ namespace Ship_Game
 
         void GenerateProduction(float amount)
         {
-            Production = (Production + amount).UpperBound(Level * Level * 500); // Level 20 - 400k
+            int limit = 500 * ((int)CurrentGame.Difficulty).LowerBound(1);
+            Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 400k-1200K 
         }
 
         public int NumPortals()
@@ -838,9 +855,6 @@ namespace Ship_Game
         {
             int numSupportDrones = RollDie(4);
             AddGuardians(numSupportDrones, RemnantShipType.SmallSupport, p);
-
-            if (RollDice(10 + (int)CurrentGame.Difficulty))
-                AddGuardians(1, RemnantShipType.Inhibitor, p);
         }
 
         void AddCarriers(Planet p)  //Added by Gretman
@@ -859,7 +873,7 @@ namespace Ship_Game
 
         void AddGuardians(int numShips, RemnantShipType type, Planet p)
         {
-            int divider = 10 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
+            int divider = 7 * ((int)CurrentGame.Difficulty).LowerBound(1); // harder game = earlier activation
             for (int i = 0; i < numShips; ++i)
             {
                 Vector2 pos = p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius * 2);

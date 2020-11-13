@@ -44,80 +44,56 @@ namespace Ship_Game.AI
 
         public void CreateMissionsByTrait()
         {
+            int currentMissions = CalculateSpyUsage();
+            int wantedMissions  = (int)(OwnerEmpire.data.AgentList.Count * GetSpyModifier());
+            AssignSpyMissions(currentMissions, wantedMissions);
+        }
+
+        float GetSpyModifier()
+        {
+            float modifier;
             switch (OwnerEmpire.Personality)
             {
                 default:
                 case PersonalityType.Cunning:
-                case PersonalityType.Xenophobic:
-                    DoCunningAgentManager();
-                    break;
-
+                case PersonalityType.Xenophobic: modifier = 0.13f;  break;
                 case PersonalityType.Ruthless:
-                case PersonalityType.Aggressive:
-                    DoAggRuthAgentManager();
-                    break;
-
+                case PersonalityType.Aggressive: modifier = 0.115f; break;
                 case PersonalityType.Honorable:
-                case PersonalityType.Pacifist:
-                    DoHonPacAgentManager();
-                    break;
+                case PersonalityType.Pacifist:   modifier = 0.1f;   break;
             }
+
+            return (1 + (int)CurrentGame.Difficulty) * modifier;
         }
 
-        private void DoAggRuthAgentManager()
+        void AssignSpyMissions(int currentMissions, int wantedMissions)
         {
-            int offense          = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.115f;
-            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
-            AssignSpyMissions(offense, desiredOffense, PersonalityType.Aggressive);
-        }
+            if (!TryFindEmpireTargets(out Array<Empire> potentialTargets))
+                return;
 
-        private void DoCunningAgentManager()
-        {
-            int offense          = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.13f;
-            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
-            AssignSpyMissions(offense, desiredOffense, PersonalityType.Cunning);
-        }
 
-        private void DoHonPacAgentManager()
-        {
-            int offense          = CalculateSpyUsage(out int defenders);
-            float offSpyModifier = (1 + (int)CurrentGame.Difficulty) * 0.1f;
-            int desiredOffense   = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
-            AssignSpyMissions(offense, desiredOffense, PersonalityType.Honorable);
-        }
-
-        private void AssignSpyMissions(int offense, int desiredOffense, PersonalityType traitType)
-        {
-            Array<Empire> potentialTargets = FindEmpireTargets();
-            if (potentialTargets.Count <= 0) return;
-            foreach (Agent agent in OwnerEmpire.data.AgentList)
+            var freeAgents = OwnerEmpire.data.AgentList.Filter(a => a.Mission == AgentMission.Defending);
+            foreach (Agent agent in freeAgents)
             {
-                if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover ||
-                    offense >= desiredOffense)
-                {
-                    continue;
-                }
+                if (currentMissions >= wantedMissions)
+                    return;
 
                 Empire target = potentialTargets.RandItem();
-
                 Array<AgentMission> potentialMissions;
-                switch (traitType)
+                switch (OwnerEmpire.Personality)
                 {
-                    case PersonalityType.Honorable:
-                        potentialMissions = PotentialPeacefulMissions(agent, target);
-                        break;
+                    case PersonalityType.Pacifist:
+                    case PersonalityType.Honorable:  potentialMissions = PotentialPeacefulMissions(agent, target);   break;
                     case PersonalityType.Cunning:
-                        potentialMissions = PotentialCunningSpyMissions(agent, target);
-                        break;
-                    case PersonalityType.Aggressive:
-                        potentialMissions = PotentialAggressiveMissions(agent, target);
-                        break;
-                    default:
-                        return;
+                    case PersonalityType.Xenophobic: potentialMissions = PotentialCunningSpyMissions(agent, target); break;
+                    case PersonalityType.Ruthless:
+                    case PersonalityType.Aggressive: potentialMissions = PotentialAggressiveMissions(agent, target); break;
+                    default: return;
+
                 }
-                if (potentialMissions.IsEmpty) continue;
+
+                if (potentialMissions.IsEmpty) 
+                    continue;
 
                 for (int x = potentialMissions.Count - 1; x >= 0; x--)
                 {
@@ -172,7 +148,7 @@ namespace Ship_Game.AI
                 {
                     AgentMission am = potentialMissions.RandItem();
                     agent.AssignMission(am, OwnerEmpire, target.data.Traits.Name);
-                    offense++;
+                    currentMissions++;
                 }
             }
         }
@@ -370,32 +346,38 @@ namespace Ship_Game.AI
             return potentialMissions;
         }
 
-        private int CalculateSpyUsage(out int defenders)
+        private int CalculateSpyUsage()
         {
-            defenders   = 0;
             int offense = 0;
             foreach (Agent a in OwnerEmpire.data.AgentList)
             {
-                if (a.Mission == AgentMission.Defending)
-                    defenders++;
-                else if (a.Mission != AgentMission.Undercover) 
+                if (a.Mission != AgentMission.Undercover
+                    && a.Mission != AgentMission.Recovering
+                    && a.Mission != AgentMission.Defending)
+                {
                     offense++;
+                }
             }
 
             return offense;
         }
 
-        private Array<Empire> FindEmpireTargets()
+        bool TryFindEmpireTargets(out Array<Empire> targets)
         {
-            var potentialTargets = new Array<Empire>();
+            targets = new Array<Empire>();
             foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (rel.Known && !them.isFaction && !them.data.Defeated &&
-                    (rel.Posture == Posture.Neutral || rel.Posture == Posture.Hostile))
-                    potentialTargets.Add(them);
+                if (rel.Known
+                    && !them.isFaction
+                    && !them.data.Defeated
+                    && (rel.Posture == Posture.Hostile 
+                        || !OwnerEmpire.IsHonorable && !OwnerEmpire.IsPacifist && rel.Posture == Posture.Neutral))
+                {
+                    targets.Add(them);
+                }
             }
 
-            return potentialTargets;
+            return targets.Count > 0;
         }
 
         public bool CanEmpireAffordSpy() // TODO - do we need agents?

@@ -1392,10 +1392,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMission.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\StoryAndEvents\Agents\Agent.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -1888,6 +1884,9 @@
     </Content>
     <Content Include="Content\Cursors\Cursor.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Diplomacy\DiplomaticTraits.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Encounter Dialogs\Corsairs001_ToPlayerDemandtMoneyKnown.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

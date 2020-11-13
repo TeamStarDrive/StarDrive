@@ -377,18 +377,12 @@ namespace Ship_Game.AI.Research
             HashSet<string> goodShipTechs = new HashSet<string>();
             foreach (var ship in researchableShips)
             {
-                if (!OwnerEmpire.IsHullUnlocked(ship.shipData.Hull))
+                if (TryExtractNeedTechs(ship, out HashSet<string> techs))
                 {
-                    var hullTechs = FilterHullTech(ship);
-                    for (int i = 0; i < hullTechs.Count; i++)
-                        goodShipTechs.Add(hullTechs[i]);
-
-                    continue;
+                    var researchableTechs = shipTechs.Intersect(techs);
+                    foreach (var techName in researchableTechs)
+                        goodShipTechs.Add(techName);
                 }
-
-                var researchableTechs = shipTechs.Intersect(ship.shipData.TechsNeeded);
-                foreach (var tech in researchableTechs)
-                    goodShipTechs.Add(tech);
             }
             return UseOnlyWantedShipTechs(goodShipTechs, nonShipTechs);
         }
@@ -422,18 +416,42 @@ namespace Ship_Game.AI.Research
             return bestShipTechs;
         }
 
-        private Array<string> FilterHullTech(Ship ship)
+        bool TryExtractNeedTechs(Ship ship, out HashSet<string> techsToAdd)
         {
-            Array<string> hullTechs = new Array<string>();
-            var shipTechs = ConvertStringToTech(ship.shipData.TechsNeeded);
+            if (OwnerEmpire.IsHullUnlocked(ship.shipData.Hull))
+            {
+                techsToAdd = ship.shipData.TechsNeeded;
+                return true;
+            }
+
+            string hullTech = "";
+            techsToAdd = new HashSet<string>();
+            var shipTechs      = ConvertStringToTech(ship.shipData.TechsNeeded);
             for (int i = 0; i < shipTechs.Count; i++)
             {
                 TechEntry tech = shipTechs[i];
-                if (!tech.Unlocked && tech.GetUnlockableHulls(OwnerEmpire).Count > 0)
-                    hullTechs.Add(tech.UID);
+                if (!tech.Unlocked)
+                {
+                    if (tech.GetUnlockableHulls(OwnerEmpire).Count > 0)
+                    {
+                        if (hullTech.IsEmpty())
+                            hullTech = tech.UID;
+                        else  // we are looking for a ship which is only one hull away
+                            return false;
+                    }
+                    else
+                    {
+                        techsToAdd.Add(tech.UID);
+                    }
+                }
             }
 
-            return hullTechs;
+
+            // If there are no new  tech to reseach besides the hull, its time to research the hull
+            if (techsToAdd.Count == 0 && hullTech.NotEmpty())
+                techsToAdd.Add(hullTech);
+
+            return techsToAdd.Count > 0;
         }
 
         public bool BestShipNeedsHull(Array<TechEntry> availableTechs) => ShipHullTech(BestCombatShip, availableTechs) != null;

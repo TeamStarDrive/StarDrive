@@ -64,8 +64,8 @@
                     PiratePayModifier    = 0.5f;
                     ExpansionModifier    = 0.2f;
                     MinStartingColonies  = 3;
-                    ExpandSearchTurns    = 150;
-                    RemnantTurnsLevelUp  = 500;
+                    ExpandSearchTurns    = 100;
+                    RemnantTurnsLevelUp  = 540;
                     RemnantResourceMod   = 0.2f;
 
                     if (!empire.isPlayer)
@@ -92,8 +92,8 @@
                     PiratePayModifier    = 0.75f;
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
-                    ExpandSearchTurns    = 100;
-                    RemnantTurnsLevelUp  = 400;
+                    ExpandSearchTurns    = 75;
+                    RemnantTurnsLevelUp  = 510;
                     RemnantResourceMod   = 0.35f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
@@ -110,8 +110,8 @@
                     PiratePayModifier    = 1f;
                     ExpansionModifier    = 0.05f;
                     MinStartingColonies  = 5;
-                    ExpandSearchTurns    = 75;
-                    RemnantTurnsLevelUp  = 350;
+                    ExpandSearchTurns    = 50;
+                    RemnantTurnsLevelUp  = 450;
                     RemnantResourceMod   = 0.5f;
 
                     if (!empire.isPlayer)
@@ -139,9 +139,9 @@
                     PiratePayModifier    = 1.5f;
                     ExpansionModifier    = 0f;
                     MinStartingColonies  = 6;
-                    ExpandSearchTurns    = 50;
-                    RemnantTurnsLevelUp  = 300;
-                    RemnantResourceMod   = 0.75f;
+                    ExpandSearchTurns    = 25;
+                    RemnantTurnsLevelUp  = 400;
+                    RemnantResourceMod   = 0.7f;
 
                     if (!empire.isPlayer)
                     {

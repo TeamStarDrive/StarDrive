@@ -255,9 +255,6 @@ namespace Ship_Game
         int DifficultyMultiplier()
         {
             int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
-            if (Level < 10)
-                --max;
-
             return (max - (int)CurrentGame.Difficulty).LowerBound(1);
         }
 
@@ -925,10 +922,9 @@ namespace Ship_Game
             if (currentAssaultGoals >= maxAssaultGoals || victim.data.TaxRate > 0.8f) 
                 return;
 
-            int chanceMultiplier = FoundPirateBaseInSystemOf(victim, out _) ? 8 : 4;
-            if (RandomMath.RollDice(Level * chanceMultiplier))
+            if (FoundPirateBaseInSystemOf(victim, out Ship pirateBase) || RandomMath.RollDice(Level * 4))
             {
-                Goal goal = new AssaultPirateBase(victim, Owner);
+                Goal goal = new AssaultPirateBase(victim, Owner, pirateBase);
                 victim.GetEmpireAI().AddGoal(goal);
             }
         }
@@ -955,14 +951,19 @@ namespace Ship_Game
             if (!GetBases(out Array<Ship> bases))
                 return false;
 
+            var goals = victim.GetEmpireAI().Goals;
             for (int i = 0; i < bases.Count; i++)
             {
-                pirateBase = bases[i];
-                if (victimSystems.Contains(pirateBase.System))
-                    break;
+                Ship checkedBase = bases[i];
+                if (victimSystems.Contains(checkedBase.System)
+                    && !goals.Any(g => g.type == GoalType.AssaultPirateBase && g.TargetShip == checkedBase))
+                {
+                    pirateBase = checkedBase;
+                    return true;
+                }
             }
 
-            return pirateBase != null;
+            return false;
         }
 
         public bool CanDoAnotherRaid(out int numRaids)
