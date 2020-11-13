@@ -88,7 +88,7 @@ namespace Ship_Game
         // returns a specific die size roll, like 1d20, 1d6, etc. Minimum value can be changed
         public static int RollDie(int dieSize, int minimum = 1)
         {
-            return Random.Int(minimum, dieSize);
+            return Random.Int(1, dieSize).LowerBound(minimum);
         }
 
         public static bool Roll3DiceAvg(float percent)
