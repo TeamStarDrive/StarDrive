@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting.Messaging;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
@@ -85,6 +86,15 @@ namespace Ship_Game.Commands.Goals
 
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
 
+        GoalStep ReturnToPortal()
+        {
+            Fleet.FleetTask.ChangeAO(Portal.Center);
+            if (Fleet.TaskStep < 8)
+                Fleet.TaskStep = 8; // Order fleet to go back to portal
+
+            return GoalStep.TryAgain;
+        }
+
         void RequestBombers()
         {
             if (Fleet == null)
@@ -153,8 +163,15 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.TaskStep == 10) // Arrived back to portal
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
-            if (BombersLevel > 0 && Remnants.NumBombersInFleet(Fleet) == 0)
+            if (Remnants.Hibernating)
+                return ReturnToPortal();
+
+            int numBombers = Remnants.NumBombersInFleet(Fleet);
+            if (BombersLevel > 0 && numBombers == 0)
                 RequestBombers();
+
+            if (numBombers == Fleet.Ships.Count)
+                return ReturnToPortal();
 
             if (Fleet.TaskStep != 7 && TargetPlanet.Owner != null) // Cleared enemy at target planet
                 return GoalStep.TryAgain;
@@ -164,11 +181,7 @@ namespace Ship_Game.Commands.Goals
                 if (!Remnants.GetClosestPortal(Fleet.AveragePosition(), out Ship closestPortal))
                     return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
-                Fleet.FleetTask.ChangeAO(closestPortal.Center);
-                if (Fleet.TaskStep < 8)
-                    Fleet.TaskStep = 8; // Order fleet to go back to portal
-
-                return GoalStep.TryAgain;
+                return ReturnToPortal();
             }
 
             // Select a new closest planet

@@ -788,11 +788,11 @@ namespace Ship_Game.Fleets
                     OrderFleetOrbit(target);
                     break; // Change in task step is done from Remnant goals
                 case 8: // Go back to portal, this step is set from the Remnant goal
-                    GatherAtAO(task, 20000);
+                    GatherAtAO(task, 500);
                     TaskStep = 9;
                     break;
                 case 9:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
+                    if (!ArrivedAtCombatRally(FinalPosition, 50000))
                         break;
 
                     TaskStep = 10;
