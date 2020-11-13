@@ -4241,6 +4241,8 @@ namespace Ship_Game
         RushAllConstruction = 1824,
         /// <summary>Rush All Construction</summary>
         RushAllConstructionTip = 1825,
+        /// <summary>BulkReplacement</summary>
+        YouCanUseShiftClick = 1827,
         /// <summary>Big Clusters Game Mode</summary>
         BigClustersGame = 1892,
         /// <summary>Small Clusters Game Mode</summary>
