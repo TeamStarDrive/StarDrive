@@ -87,6 +87,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected CombatMovement(ShipAI ai) : base(ai)
         {
             DesiredCombatRange = ai.Owner.DesiredCombatRange;
+            DesiredCombatRange = DesiredCombatRange > 0 ? DesiredCombatRange : Owner.WeaponsMaxRange;
            // OwnerTarget = new AttackPosition(target: ai.Target, owner: ai.Owner);
         }
 
@@ -283,9 +284,9 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             if (OwnerTarget.CombatDisabled) return false;
             
             float distanceRatio = DistanceToTarget / DesiredCombatRange;
-            float maxSpeedRatio = Owner.VelocityMaximum / OwnerTarget.VelocityMaximum.LowerBound(0.1f);
-            float currentSpeedRatio = Owner.CurrentVelocity.LowerBound(50) / OwnerTarget.CurrentVelocity.LowerBound(75);
-            return maxSpeedRatio < 1f && currentSpeedRatio < 1.5f && distanceRatio > 0.9f;
+            //float maxSpeedRatio = Owner.VelocityMaximum / OwnerTarget.VelocityMaximum.LowerBound(0.1f);
+            float currentSpeedRatio = Owner.MaxSTLSpeed.LowerBound(75) / OwnerTarget.CurrentVelocity.LowerBound(75);
+            return currentSpeedRatio < 1f && distanceRatio > 0.9f; //maxSpeedRatio < 1f && 
         }
         protected bool TheyCantCatchUs(float distanceToTarget)
         {
