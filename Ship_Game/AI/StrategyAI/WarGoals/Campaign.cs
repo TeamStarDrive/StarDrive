@@ -312,7 +312,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = 0; i < currentTargets.Count; i++)
             {
                 if (sentToTask.Contains(i)) continue;
-                var closestSystem = currentTargets.FindClosestTo(RallyAO.Center);
+                var closestSystem = currentTargets[i]; // currentTargets.FindClosestTo(RallyAO.Center);
                 int closestIndex  = currentTargets.IndexOf(closestSystem);
                 sentToTask.Add(closestIndex);
                 if (priority > 10) break;
