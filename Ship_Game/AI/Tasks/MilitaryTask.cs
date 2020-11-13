@@ -418,6 +418,11 @@ namespace Ship_Game.AI.Tasks
                     {
                         if (Step == 0)
                         {
+                            if (EnemyStrength < 1)
+                            {
+                                EndTask();
+                                break;
+                            }
                             RequisitionDefenseForce();
                         }
                         break;
