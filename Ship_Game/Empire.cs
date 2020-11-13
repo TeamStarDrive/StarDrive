@@ -867,6 +867,7 @@ namespace Ship_Game
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
+        public Array<SolarSystem> GetCopyOfOwnedSystems() => new Array<SolarSystem>(OwnedSolarSystems);
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
         public int NumPlanets                               => OwnedPlanets.Count;
 
@@ -1401,7 +1402,7 @@ namespace Ship_Game
                     ssp.HasSeenEmpires.Update(timeStep);
                     if (ship.fleet != null)
                     {
-                        if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
+                        //if (isPlayer || Universe.Debug && Universe.SelectedShip?.loyalty == this)
                         {
                             if (IsEmpireHostile(ship.loyalty))
                                 ssp.HasSeenEmpires.SetSeen(ship.loyalty);
@@ -2592,7 +2593,7 @@ namespace Ship_Game
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
-            float biggestAIScore = biggestAI.TotalScore;
+            float biggestAIScore = biggestAI?.TotalScore ?? playerScore;
 
             if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 1.5f || aiEmpires.Length < 2)
                 return;
