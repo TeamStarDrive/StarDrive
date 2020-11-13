@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -20,6 +18,7 @@ namespace Ship_Game
     {
         Vector2 ClassifCursor;
         UICheckBox CarrierOnlyCheckBox;
+        bool DisplayedBulkReplacementHint;
 
         public void ChangeHull(ShipData hull)
         {
@@ -548,6 +547,7 @@ namespace Ship_Game
             {
                 GameAudio.SubBassMouseOver();
                 InstallActiveModule(new SlotInstall(slot, ActiveModule, ActiveModState));
+                DisplayBulkReplacementTip();
             }
             else if (slot.ModuleUID != ActiveModule.UID || slot.Module?.hangarShipUID != ActiveModule.hangarShipUID)
             {
@@ -560,6 +560,16 @@ namespace Ship_Game
             }
         }
 
+        void DisplayBulkReplacementTip()
+        {
+            if (!DisplayedBulkReplacementHint && ModuleGrid.RepeatedReplaceActionsThreshold())
+            {
+                Vector2 pos = new Vector2(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
+                ToolTip.CreateFloatingText(new LocalizedText(GameText.YouCanUseShiftClick).Text, "", pos, 10);
+                DisplayedBulkReplacementHint = true;
+            }
+        }
+
         void HandleDeleteModule(InputState input)
         {
             if (!input.RightMouseClick)
@@ -569,7 +579,6 @@ namespace Ship_Game
                 DeleteModuleAtSlot(slot);
             else
                 ActiveModule = null;
-
         }
 
         void HandleInputDebug(InputState input)
