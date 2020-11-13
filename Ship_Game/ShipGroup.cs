@@ -481,8 +481,7 @@ namespace Ship_Game
                 if (ship.AI.State == AIState.Orbit || !ship.Center.InRadius(position, radius))
                     continue;
 
-                if (planet != null)
-                    ship.OrderToOrbit(planet);
+                ship.OrderToOrbit(planet);
             }
         }
 
