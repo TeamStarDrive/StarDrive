@@ -586,7 +586,7 @@ namespace Ship_Game
         {
             float combatRadius = Math.Min(radius, ship.AI.FleetNode.OrdersRadius);
             if (!ship.CanTakeFleetOrders || ship.Center.OutsideRadius(position + ship.FleetOffset, combatRadius))
-                return CombatStatus.NotApplicable;
+                return CombatStatus.ClearSpace;
 
             if (ship.InCombat) return CombatStatus.InCombat;
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
