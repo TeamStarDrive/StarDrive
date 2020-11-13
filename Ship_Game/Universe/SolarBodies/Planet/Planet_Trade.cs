@@ -143,7 +143,7 @@ namespace Ship_Game
 
         public int FreighterTraffic(Array<Ship> freighterList, Goods goods)
         {
-            return freighterList.Count(s => s.AI.HasTradeGoal(goods));
+            return freighterList.Count(s => s?.AI.HasTradeGoal(goods) == true);
         }
 
         // Freighters on the way to pick up from us
