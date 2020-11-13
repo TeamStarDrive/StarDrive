@@ -154,7 +154,7 @@ namespace Ship_Game.Ships
 
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
         public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name;
-        public bool IsDefaultTroopTransport => DesignRole == ShipData.RoleName.troop;// IsDefaultTroopShip || IsDefaultAssaultShuttle;
+        public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
         public bool IsSubspaceProjector => Name == "Subspace Projector";
         public bool HasBombs => BombBays.Count > 0;
 
