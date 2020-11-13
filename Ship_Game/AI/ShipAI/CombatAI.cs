@@ -53,7 +53,7 @@ namespace Ship_Game.AI
             // target is threat. 
             // target is objective
 
-            Vector2 center = Owner.fleet != null ? Owner.fleet.AveragePosition() + Owner.AI.FleetNode.FleetOffset : Owner.AI.FriendliesSwarmCenter;
+            Vector2 center = Owner.fleet != null ? Owner.fleet.AveragePosition() : Owner.AI.FriendliesSwarmCenter;
             Ship target            = weight.Ship;
             float theirDps         = target.TotalDps;
             float distanceToTarget = center.Distance(weight.Ship.Center).LowerBound(1);
@@ -64,11 +64,11 @@ namespace Ship_Game.AI
             // more agile than us the less they are valued. 
             float turnRatio = 0;
             if (target.RotationRadiansPerSecond > 0 && Owner.RotationRadiansPerSecond > 0)
-                turnRatio = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond) / Owner.RotationRadiansPerSecond;
+                turnRatio = (Owner.RotationRadiansPerSecond ) / target.RotationRadiansPerSecond;
 
             float stlRatio = 0;
             if (target.MaxSTLSpeed > 0)
-                stlRatio = (Owner.MaxSTLSpeed - target.MaxSTLSpeed) / target.MaxSTLSpeed;
+                stlRatio = (Owner.MaxSTLSpeed / target.MaxSTLSpeed);
 
             float baseThreat = theirDps / targetPrefs.DPS.LowerBound(1);
             baseThreat += turnRatio;
@@ -83,13 +83,13 @@ namespace Ship_Game.AI
                 targetValue = baseThreat;
                 targetValue += weight.Ship.AI.Target == Owner ? 0.25f : 0;
                 targetValue += weight.Ship == Owner.LastDamagedBy ? 0.25f : 0;
-                targetValue += (weaponsRange / distanceToTarget).UpperBound(1);
+                targetValue += 0.25f;
 
             }
             else
             {
-                targetValue = turnRatio + stlRatio + errorRatio;
-                targetValue += (weaponsRange - distanceToTarget) / weaponsRange;
+                targetValue += turnRatio + stlRatio + errorRatio;
+                targetValue += (float)Math.Round((weaponsRange - distanceToTarget) / weaponsRange, 1);
             }
 
             float rangeToEnemyCenter = 0;
@@ -97,11 +97,11 @@ namespace Ship_Game.AI
             if (motherShip != null)
             {
                 targetValue += target.AI.Target == motherShip ? 0.1f : 0;
-                targetValue += motherShip.LastDamagedBy == target ? 0.1f : 0;
-                targetValue += motherShip.Center.InRadius(target.Center, motherShip.SensorRange) ? 0.25f :0;
-                targetValue += motherShip.Center.InRadius(target.Center, target.WeaponsMaxRange) ? 0.1f : 0;
-                rangeToEnemyCenter = motherShip.Center.Distance(targetPrefs.Center);
-                float rangeValue = (float)Math.Round((1 - (rangeToEnemyCenter / motherShip.WeaponsMaxRange)), 1);
+                targetValue += motherShip.AI.Target == target ? 0.1f : 0;
+                targetValue += motherShip.LastDamagedBy == target ? 0.25f : 0;
+                targetValue += motherShip.Center.InRadius(target.Center, target.WeaponsMaxRange) ? 0.1f :0;
+                rangeToEnemyCenter = motherShip.Center.SqDist(targetPrefs.Center) - motherShip.Center.SqDist(target.Center);
+                float rangeValue = (float)Math.Round((rangeToEnemyCenter / motherShip.WeaponsMaxRange), 1);
                 targetValue += rangeValue;
             }
             else
