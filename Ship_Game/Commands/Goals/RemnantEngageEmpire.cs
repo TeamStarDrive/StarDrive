@@ -88,7 +88,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep ReturnToPortal()
         {
-            if (Fleet.TaskStep >= 8)
+            if (Fleet.TaskStep < 8)
             {
                 if (!Remnants.GetClosestPortal(Fleet.AveragePosition(), out Ship closestPortal))
                     return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
