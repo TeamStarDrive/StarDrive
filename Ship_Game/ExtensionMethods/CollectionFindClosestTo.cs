@@ -161,7 +161,7 @@ namespace Ship_Game
         {
             return FindClosestTo(systems, systems.Length, toShip.Center);
         }
-
+        
         public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, Ship toShip)
         {
             return FindClosestTo(systems.GetInternalArrayItems(), systems.Count, toShip.Center);
