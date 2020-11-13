@@ -1000,7 +1000,7 @@ namespace Ship_Game.Fleets
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
-            if (EndInvalidTask((enemyStrength < 1 && TaskStep > 2)|| !CanTakeThisFight(enemyStrength))) return;
+            if (EndInvalidTask((enemyStrength < 1 && TaskStep > 3)|| !CanTakeThisFight(enemyStrength))) return;
 
             switch (TaskStep)
             {
@@ -1025,13 +1025,14 @@ namespace Ship_Game.Fleets
                     }
                     else
                     {
-                        if (DoCombatMoveToTaskArea(task, true))
-                            TaskStep++;
+                        DoCombatMoveToTaskArea(task, true);
+                        TaskStep++;
                     }
                     break;
                 default:
-                    if (TaskCombatStatus != CombatStatus.InCombat) TaskStep = 2;
-                    else if (TaskStep++ > 10) TaskStep = 2;
+                    TaskStep++;
+                    if (TaskStep > 3 && TaskCombatStatus != CombatStatus.InCombat) TaskStep = 2;
+                    else if (TaskStep++ > 5) TaskStep = 2;
                     break;
             }
         }
@@ -1565,7 +1566,7 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship              = Ships[i];
-                planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; ;
+                planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; 
 
                 if (ship.AI.State == AIState.AssaultPlanet) shipsInvading++;
             }

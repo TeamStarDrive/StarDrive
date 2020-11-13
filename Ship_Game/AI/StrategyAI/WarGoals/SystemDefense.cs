@@ -88,11 +88,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             
 
             DefendSystemsInList(systems, strengths);
-            //if (systems.IsEmpty && pinsNotInSystems.NotEmpty)
-            //{
-            //    var pin = pinsNotInSystems.FindMax(p => p.Strength);
-            //    AttackArea(pin.Position, 100000, pin.Strength);
-            //}
+            foreach(var pin in pinsNotInSystems)
+                AttackArea(pin.Position, 100000, pin.Strength);
+
             return GoalStep.GoToNextStep;
         }
     }
