@@ -1091,8 +1091,6 @@ namespace Ship_Game.Ships
         {
             if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
             {
-                AI.CombatAI.UpdateTargetPriorities();
-
                 foreach (Weapon weapon in Weapons)
                 {
                     if (GlobalStats.HasMod)
