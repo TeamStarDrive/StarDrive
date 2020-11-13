@@ -85,6 +85,22 @@ namespace Ship_Game.Commands.Goals
 
         float FleetStrNoBombers => (Fleet.GetStrength() - Fleet.GetBomberStrength()).LowerBound(0);
 
+        void RequestBombers()
+        {
+            if (Fleet == null)
+                return;
+
+            for (int i = 1; i <= BombersLevel; i++)
+            {
+                if (Remnants.CreateShip(Portal, true, 0, out Ship ship))
+                {
+                    ship.Position = Portal.Center.GenerateRandomPointInsideCircle(3000);
+                    ship.EmergeFromPortal();
+                    Fleet.AddShip(ship);
+                }
+            }
+        }
+
         GoalStep SelectFirstTargetPlanet()
         {
             return SelectTargetPlanet() ? GoalStep.GoToNextStep : GoalStep.GoalComplete;
@@ -136,6 +152,9 @@ namespace Ship_Game.Commands.Goals
 
             if (Fleet.TaskStep == 10) // Arrived back to portal
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
+
+            if (BombersLevel > 0 && Remnants.NumBombersInFleet(Fleet) == 0)
+                RequestBombers();
 
             if (Fleet.TaskStep != 7 && TargetPlanet.Owner != null) // Cleared enemy at target planet
                 return GoalStep.TryAgain;
