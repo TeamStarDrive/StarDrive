@@ -1000,7 +1000,7 @@ namespace Ship_Game.Fleets
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
-            if (EndInvalidTask((enemyStrength < 1 && TaskStep > 2)|| !CanTakeThisFight(enemyStrength))) return;
+            if (EndInvalidTask(enemyStrength < 1 || !CanTakeThisFight(enemyStrength))) return;
 
             switch (TaskStep)
             {
@@ -1014,20 +1014,10 @@ namespace Ship_Game.Fleets
                     TaskStep++;
                     break;
                 case 2:
-                    if (AttackEnemyStrengthClumpsInAO(task, Ships))
-                    {
+                    if(AttackEnemyStrengthClumpsInAO(task, Ships))
                         TaskStep++;
-                    }
-                    else if (task.TargetPlanet != null)
-                    {
-                        if (DoOrbitTaskArea(task))
-                            TaskStep++;
-                    }
                     else
-                    {
-                        if (DoCombatMoveToTaskArea(task, true))
-                            TaskStep++;
-                    }
+                        DoOrbitTaskArea(task);
                     break;
                 default:
                     if (TaskCombatStatus != CombatStatus.InCombat) TaskStep = 2;
@@ -1087,20 +1077,6 @@ namespace Ship_Game.Fleets
 
             DoOrbitAreaRestricted(task.TargetPlanet, task.AO, task.AORadius, excludeInvade);
             return true;
-        }
-
-        bool DoCombatMoveToTaskArea(MilitaryTask task, bool excludeInvade = false)
-        {
-            TaskCombatStatus = FleetInAreaInCombat(task.AO, task.AORadius);
-
-            if (TaskCombatStatus < CombatStatus.ClearSpace)
-                return false;
-
-            if (ArrivedAtCombatRally(task.AO))
-                return true;
-            CombatMoveToAO(task, 0);
-
-            return false;
         }
 
         void CancelFleetMoveInArea(Vector2 pos, float radius)
