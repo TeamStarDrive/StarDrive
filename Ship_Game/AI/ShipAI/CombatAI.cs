@@ -53,7 +53,7 @@ namespace Ship_Game.AI
             // target is threat. 
             // target is objective
 
-            Vector2 center = Owner.fleet != null ? Owner.fleet.AveragePosition() : Owner.AI.FriendliesSwarmCenter;
+            Vector2 center = Owner.fleet?.AveragePosition() ?? Owner.AI.FriendliesSwarmCenter;
             Ship target            = weight.Ship;
             float theirDps         = target.TotalDps;
             float distanceToTarget = center.Distance(weight.Ship.Center).LowerBound(1);
