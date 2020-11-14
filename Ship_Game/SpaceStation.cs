@@ -38,7 +38,7 @@ namespace Ship_Game
         {
             float scale = 0.8f;
             if (GlobalStats.HasMod) // The Doctor: Mod defined spaceport 'station' art scaling
-                scale = GlobalStats.ActiveModInfo.Spaceportscale;
+                scale = GlobalStats.ActiveModInfo.SpaceportScale;
 
             Vector2 position = Planet.Center;
 
