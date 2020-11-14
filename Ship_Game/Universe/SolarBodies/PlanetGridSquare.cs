@@ -327,7 +327,7 @@ namespace Ship_Game
                 NumTroopsSurvived = numTroopsSurvived;
 
                 if (!fromSave)
-                    NotifyPlayer(p);
+                    NotifyPlayerAndAi(p);
             }
 
             bool TryCreateCrashSite(Planet p, PlanetGridSquare tile)
@@ -340,18 +340,22 @@ namespace Ship_Game
                 return true;
             }
 
-            void NotifyPlayer(Planet p)
+            void NotifyPlayerAndAi(Planet p)
             {
                 if (p.Owner == null && p.IsExploredBy(EmpireManager.Player) || p.Owner == EmpireManager.Player)
                     Empire.Universe.NotificationManager.AddShipCrashed(p);
+
+                foreach (Empire e in EmpireManager.ActiveNonPlayerEmpires)
+                {
+                    if (p.Owner == null && p.IsExploredBy(e))
+                        e.GetEmpireAI().SendExplorationFleet(p);
+                }
             }
 
             public void ActivateSite(Planet p, Empire activatingEmpire, PlanetGridSquare tile)
             {
-                Active              = false;
-                float recoverChance = 10 * (1 + activatingEmpire.data.Traits.ModHpModifier);
-
-                SpawnShip(p, activatingEmpire, out string message); // TODO recoverChance
+                Active = false;
+                SpawnShip(p, activatingEmpire, out string message);
                 SpawnSurvivingTroops(p, activatingEmpire, tile, out string troopMessage);
                 Empire.Universe.NotificationManager.AddShipRecovered(p, $"{message}{troopMessage}");
                 p.ScrapBuilding(tile.building);
@@ -359,8 +363,9 @@ namespace Ship_Game
 
             void SpawnShip(Planet p, Empire activatingEmpire, out string message)
             {
+                float recoverChance = 20 * (1 + activatingEmpire.data.Traits.ModHpModifier);
                 Ship ship = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
-                if (RandomMath.RollDice(100))
+                if (RandomMath.RollDice(recoverChance))
                 {
                     ship.DamageByRecoveredFromCrash();
                     message = $"Ship ({ship.Name}) was\nrecovered from the surface of {p.Name}.\n";

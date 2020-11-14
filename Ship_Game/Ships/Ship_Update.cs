@@ -195,22 +195,19 @@ namespace Ship_Game.Ships
                     if (p.Center.OutsideRadius(Center, 3000f))
                         continue;
 
-                    if (loyalty == EmpireManager.Player)
+                    for (int i = 0; i < p.TilesList.Count; i++)
                     {
-                        for (int index = 0; index < p.BuildingList.Count; index++)
+                        PlanetGridSquare tile = p.TilesList[i];
+                        if (tile.EventOnTile)
                         {
-                            Building building = p.BuildingList[index];
-                            if (building.EventHere)
+                            if (loyalty == EmpireManager.Player)
+                            {
                                 Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < p.BuildingList.Count; i++)
-                        {
-                            Building building = p.BuildingList[i];
-                            if (building.EventHere && loyalty != EmpireManager.Player && p.Owner == null)
+                            }
+                            else if (p.Owner == null)
+                            {
                                 loyalty.GetEmpireAI().SendExplorationFleet(p);
+                            }
                         }
                     }
 
