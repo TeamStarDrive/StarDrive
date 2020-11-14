@@ -739,7 +739,8 @@ namespace Ship_Game.AI
         void AIStateEscort(FixedSimTime timeStep)
         {
             Owner.AI.SetPriorityOrder(false);
-            if (EscortTarget == null || !EscortTarget.Active)
+            var escortTarget = EscortTarget;
+            if (escortTarget == null || !escortTarget.Active)
             {
                 EscortTarget = null;
                 ClearOrders();
@@ -756,12 +757,12 @@ namespace Ship_Game.AI
                 return;
             }
             if (Owner.GetStrength() <=0 
-                || Owner.Mothership == null && EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
+                || Owner.Mothership == null && escortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
                 || Owner.Mothership == null 
                 || !Owner.Mothership.AI.BadGuysNear 
-                || EscortTarget != Owner.Mothership)
+                || escortTarget != Owner.Mothership)
             {
-                Orbit.Orbit(EscortTarget, timeStep);
+                Orbit.Orbit(escortTarget, timeStep);
                 return;
             }
             // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position

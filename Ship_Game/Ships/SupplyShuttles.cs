@@ -108,7 +108,7 @@ namespace Ship_Game.Ships
         void SetSupplyTarget(Ship supplySource, Ship supplyTarget)
         {
             supplySource.AI.AddSupplyShipGoal(supplyTarget);          
-            supplyTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, supplySource.Ordinance);            
+            supplyTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, supplySource.Ordinance);            
         }
 
         static bool SupplyShipIdle(Ship supplyShip)

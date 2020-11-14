@@ -306,18 +306,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
         {
             int priority = OwnerTheater.Priority + 1;
-
-            Array<int> sentToTask = new Array<int>();
+            int fleetCount = Owner.Pool.InitialReadyFleets / 2;
 
             for (int i = 0; i < currentTargets.Count; i++)
             {
-                if (sentToTask.Contains(i)) continue;
-                var closestSystem = currentTargets.FindClosestTo(RallyAO.Center);
+                if (--fleetCount < 1)
+                    break;
+                var closestSystem = currentTargets[i];
                 int closestIndex  = currentTargets.IndexOf(closestSystem);
-                sentToTask.Add(closestIndex);
-                if (priority > 10) break;
                 Tasks.StandardSystemDefense(closestSystem, priority, strengths[closestIndex]);
-                priority += 2;
             }
         }
 
