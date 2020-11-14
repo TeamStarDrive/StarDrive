@@ -892,6 +892,7 @@ namespace Ship_Game.Gameplay
             else if (Tag_Energy)  damageModifier *= (1f - module.shield_energy_resist);
             else if (Tag_Beam)    damageModifier *= (1f - module.shield_beam_resist);
             else if (Tag_Missile) damageModifier *= (1f - module.shield_missile_resist);
+            else if (Tag_Hybrid)  damageModifier *= (1f - module.shield_hybrid_resist);
             return damageModifier;
         }
 
@@ -900,6 +901,7 @@ namespace Ship_Game.Gameplay
             float damageModifier = 1f;
             if (module.Is(ShipModuleType.Armor)) damageModifier *= EffectVsArmor;
             if (Tag_Explosive)                   damageModifier *= (1f - module.ExplosiveResist);
+            if (Tag_Hybrid)                      damageModifier *= (1f - module.HybridResist);
             if (Tag_Kinetic)                     damageModifier *= (1f - module.KineticResist);
             else if (Tag_Beam)                   damageModifier *= (1f - module.BeamResist);
             else if (Tag_Energy)                 damageModifier *= (1f - module.EnergyResist);
