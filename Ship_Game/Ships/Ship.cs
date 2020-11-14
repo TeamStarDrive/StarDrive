@@ -1545,7 +1545,7 @@ namespace Ship_Game.Ships
             if (proj != null && proj.Explodes && proj.DamageAmount > SurfaceArea.LowerBound(200))
                 return true;
 
-            if (RandomMath.RollDice(100) && !IsPlatform) // TODO 35%
+            if (RandomMath.RollDice(35) && !IsPlatform)
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
@@ -1567,7 +1567,7 @@ namespace Ship_Game.Ships
 
         Planet TryCrashOnPlanet(int etaSeconds)
         {
-            if (IsStation || System == null)
+            if (IsStation || System == null || HomePlanet != null)
                 return null;
 
             for (int i = 0; i < System.PlanetList.Count; i++)

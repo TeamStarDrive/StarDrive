@@ -1045,12 +1045,13 @@ namespace Ship_Game
             survivalChance += ship.SurfaceArea / 200f;
             survivalChance  = survivalChance.Clamped(1, 100);
 
-            if (!RandomMath.RollDice(100)) // TODO survivalChance
+            if (!RandomMath.RollDice(survivalChance))
                 return;  // Ship did not make it
 
             int numTroopsSurvived = 0;
             var ourTroops         = ship.GetOurTroops();
             string troopName      = "";
+
             for (int i = 0; i < ourTroops.Count; i++)
             {
                 Troop troop         = ourTroops[i];
