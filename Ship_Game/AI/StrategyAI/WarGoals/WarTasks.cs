@@ -57,7 +57,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     if (task.Step == 0)
                         task.EndTask();
 
-                    if (task.TargetPlanet != null && task.TargetPlanet.Owner?.IsAtWarWith(Owner) == true)
+                    if (task.TargetPlanet != null && !task.TargetPlanet.Owner?.IsAtWarWith(Owner) == true)
                     {
                         task.EndTask();
                     }
