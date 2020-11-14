@@ -283,6 +283,14 @@ namespace Ship_Game.Ships
             // for a cool death effect, make the ship accelerate out of control:
             ApplyThrust(100f, Ships.Thrust.Forward);
             UpdateVelocityAndPosition(timeStep);
+            if (CrashingOnPlanetPos != Vector2.Zero)
+            {
+                if (!Center.InRadius(CrashingOnPlanetPos, 10))
+                {
+                    Vector2 dir = Center.DirectionToTarget(CrashingOnPlanetPos);
+                    Position += dir.Normalized() * 100 * timeStep.FixedTime;
+                }
+            }
 
             int num1 = UniverseRandom.IntBetween(0, 60);
             if (num1 >= 57 && InFrustum)
@@ -303,7 +311,7 @@ namespace Ship_Game.Ships
 
             if (inSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
-                float scale = CrashingOnPlanet != null ? (dietimer.UpperBound(6) / 6).LowerBound(0.001f) : 1;
+                float scale = CrashingOnPlanetPos != Vector2.Zero ? (dietimer.UpperBound(6) / 6).LowerBound(0.001f) : 1;
                 ShipSO.World = Matrix.CreateScale(scale) 
                              * Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
