@@ -1027,6 +1027,40 @@ namespace Ship_Game
             }
         }
 
+        public void TryCrashOn(Ship ship)
+        {
+            if (!Habitable)
+                return;
+
+            var freeTiles = TilesList.Filter(t => !t.BuildingOnTile && !t.TroopsAreOnTile && t.QItem == null);
+            if (freeTiles.Length == 0)
+                return;
+
+            PlanetGridSquare crashTile = freeTiles.RandItem();
+            float survivalChance       = 10 + ship.Level * 2;
+            if (!Type.EarthLike)
+                survivalChance *= 2; // No atmosphere, not able to burn during planet fall
+
+            survivalChance *= 1 + ship.loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
+            survivalChance += ship.SurfaceArea / 200f;
+            survivalChance  = survivalChance.Clamped(1, 100);
+
+            if (!RandomMath.RollDice(100))
+                return;  // Ship did not make it
+
+            int numTroopsSurvived = 0;
+            var ourTroops         = ship.GetOurTroops();
+            for (int i = 0; i < ourTroops.Count; i++)
+            {
+                Troop troop         = ourTroops[i];
+                float troopSurvival = 50 * Empire.PreferredEnvModifier(troop.Loyalty);
+                if (RandomMath.RollDice(troopSurvival))
+                    numTroopsSurvived += 1; 
+            }
+
+            crashTile.DynamicCrash.CrashShip(ship.loyalty, ship.Name, numTroopsSurvived, this, crashTile);
+        }
+
         private void ApplyResources()
         {
             float foodRemainder = Storage.AddFoodWithRemainder(Food.NetIncome);
@@ -1193,12 +1227,12 @@ namespace Ship_Game
             Owner = null;
         }
 
-        public bool EventsOnBuildings()
+        public bool EventsOnTiles()
         {
             bool events = false;
-            foreach (Building building in BuildingList)
+            foreach (PlanetGridSquare tile in TilesList)
             {
-                if (building.EventHere && !building.EventWasTriggered)
+                if (tile.EventOnTile  && !tile.building.EventWasTriggered)
                 {
                     events = true;
                     break;
