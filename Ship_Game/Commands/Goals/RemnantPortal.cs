@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
         void UpdatePosition()
         {
-            if (Portal.InCombat)
+            if (Portal.InCombat && Portal.System != null)
                 JumpToEnemy();
             else
                 ReturnToSpawnPos();
