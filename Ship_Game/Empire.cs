@@ -439,16 +439,20 @@ namespace Ship_Game
         public Fleet GetFleetOrNull(int key) => FleetsDict.TryGetValue(key, out Fleet fleet) ? fleet : null;
         public Fleet GetFleet(int key) => FleetsDict[key];
 
-        public float TotalRemnantStrTryingToClear()
+        public float TotalFactionsStrTryingToClear()
         {
-            Fleet[] fleets = FleetsDict.Values.ToArray();
+            var claimTasks = EmpireAI.GetClaimTasks();
             float str = 0;
-            for (int i = 0; i < fleets.Length; ++i)
+            for (int i = 0; i < claimTasks.Length; ++i)
             {
-                Fleet fleet = fleets[i];
-                if (fleet.FleetTask?.TargetPlanet?.ParentSystem.ShipList.Any(s => s != null && s.IsGuardian) == true)
-                    str += fleet.FleetTask.EnemyStrength; // Todo: Remove the null check above once ShipList is safe again
+                var task = claimTasks[i];
+                if (task.TargetPlanet.Owner == null) // indicates its remnant infested and not another empire
+                    str += task.MinimumTaskForceStrength;
             }
+
+            var assaultPirateTasks = EmpireAI.GetAssaultPirateTasks();
+            if (assaultPirateTasks.Length > 0)
+                str += assaultPirateTasks.Sum(t => t.MinimumTaskForceStrength);
 
             return str;
         }
