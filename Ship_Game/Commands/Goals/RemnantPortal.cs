@@ -46,7 +46,7 @@ namespace Ship_Game.Commands.Goals
         void JumpToEnemy()
         {
             float desiredRange = Portal.DesiredCombatRange;
-            Ship nearest       = Portal.System.ShipList.FindMinFiltered(s => s != null 
+            Ship nearest       = Portal.System?.ShipList.FindMinFiltered(s => s != null 
                                                                              && s.loyalty != empire 
                                                                              && s.GetStrength() > 100
                                                                              && !s.IsInWarp, s => s.Center.Distance(Portal.Center));

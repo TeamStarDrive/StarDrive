@@ -303,7 +303,7 @@ namespace Ship_Game.Ships
 
             if (inSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
-                float scale = CrashingOnPlanet ? (dietimer.UpperBound(6) / 6).LowerBound(0.001f) : 1;
+                float scale = CrashingOnPlanet != null ? (dietimer.UpperBound(6) / 6).LowerBound(0.001f) : 1;
                 ShipSO.World = Matrix.CreateScale(scale) 
                              * Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)

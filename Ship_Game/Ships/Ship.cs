@@ -131,7 +131,7 @@ namespace Ship_Game.Ships
         private float dietimer;
         public float BaseStrength;
         public bool dying;
-        public bool CrashingOnPlanet { get; private set; }
+        public Planet CrashingOnPlanet { get; private set; }
         private bool reallyDie;
         private bool HasExploded;
         public float FTLSpoolTime;
@@ -1439,9 +1439,9 @@ namespace Ship_Game.Ships
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
             ExplosionManager.AddExplosion(position, Velocity,  
-                CrashingOnPlanet ? size * 0.1f : size * boost, 12f, ExplosionType.Ship);
+                CrashingOnPlanet != null ? size * 0.1f : size * boost, 12f, ExplosionType.Ship);
 
-            if (CrashingOnPlanet)
+            if (CrashingOnPlanet != null )
                 return;
 
             if (addWarpExplode)
@@ -1505,7 +1505,7 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
-                    if (CrashingOnPlanet)
+                    if (CrashingOnPlanet != null)
                         return;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
@@ -1536,7 +1536,7 @@ namespace Ship_Game.Ships
 
         bool WillShipDieNow(Projectile proj)
         {
-            if (proj != null && proj.Explodes && proj.DamageAmount > SurfaceArea)
+            if (proj != null && proj.Explodes && proj.DamageAmount > SurfaceArea.LowerBound(200))
                 return true;
 
             if (RandomMath.RollDice(100) && !IsPlatform)
@@ -1548,9 +1548,9 @@ namespace Ship_Game.Ships
                 if (InFrustum)
                 {
                     dying         = true;
-                    DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                    DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                    DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
+                    DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
                     dietimer      = tumbleSeconds;
                     return false;
                 }
@@ -1559,10 +1559,10 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        bool TryCrashOnPlanet(int etaSeconds)
+        Planet TryCrashOnPlanet(int etaSeconds)
         {
             if (IsStation || System == null)
-                return false;
+                return null;
 
             Vector2 crashPos = Position + Direction.Normalized() * CurrentVelocity * etaSeconds;
             for (int i = 0; i < System.PlanetList.Count; i++)
@@ -1571,11 +1571,11 @@ namespace Ship_Game.Ships
                 if (Center.InRadius(p.Center, p.ObjectRadius + CurrentVelocity * (etaSeconds + Level)))
                 {
                     // planet.tryCrashOn
-                    return true;
+                    return p;
                 }
             }
 
-            return false;
+            return null;
         }
 
         public void QueueTotalRemoval()
