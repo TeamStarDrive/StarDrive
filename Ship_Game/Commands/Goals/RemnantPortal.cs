@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
         void UpdatePosition()
         {
-            if (Portal.InCombat)
+            if (Portal.InCombat && Portal.System != null)
                 JumpToEnemy();
             else
                 ReturnToSpawnPos();
@@ -63,7 +63,10 @@ namespace Ship_Game.Commands.Goals
             if (TetherOffset == Vector2.Zero)
                 return; // save support - can be removed in 2021
 
-            Vector2 desiredPos = Portal.Position = Portal.System.Position + TetherOffset;
+            Vector2 systemPos = Portal.System?.Position 
+                                ?? Empire.Universe.SolarSystemDict.Values.ToArray().FindMin(s => s.Position.SqDist(Portal.Center)).Position;
+
+            Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
             if (!Portal.Center.InRadius(desiredPos, 1000))
                 MoveToPos(desiredPos);
         }
