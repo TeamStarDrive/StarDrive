@@ -148,8 +148,15 @@ namespace Ship_Game
                 {
                     Biosphere = d.Biosphere
                 };
+
                 if (pgs.Biosphere)
                     p.BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
+
+                if (d.CrashSiteActive)
+                {
+                    Empire e = EmpireManager.GetEmpireById(d.CrashSiteEmpireId);
+                    pgs.DynamicCrash.CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, p, pgs, true);
+                }
 
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
