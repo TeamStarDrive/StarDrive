@@ -41,9 +41,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var task = NewTasks[i];
 
                 if (task.Step == 0)
-                    task.QueuedForRemoval = true;
+                    task.EndTask();
                 if (task.TargetPlanet != null && !task.TargetPlanet.Owner?.IsAtWarWith(Owner) == true)
-                    task.QueuedForRemoval = true;
+                    task.EndTask();
 
                 if (task.QueuedForRemoval)
                 {
