@@ -23,7 +23,7 @@ namespace Ship_Game.AI.Research
             ResearchDebt  = CalcResearchDebt(empire, out Array<TechEntry> availableTechs);
             Wars          = CalcWars(empire, availableTechs);
             Economics     = CalcEconomics(empire);
-            ShipHulls     = CalcShipHulls(Wars);
+            ShipHulls     = CalcShipHulls();
 
             CalcFoodAndIndustry(empire, out FoodNeeds, out Industry);
             Map<string, int> priority = CreatePriorityMap(empire);
@@ -60,6 +60,18 @@ namespace Ship_Game.AI.Research
             return techCategoryPrioritized;
         }
 
+        float CalcEnemyThreats()
+        {
+            float score = 0;
+            foreach (Empire empire in EmpireManager.ActiveMajorEmpires)
+            {
+                if (OwnerEmpire.IsEmpireAttackable(empire))
+                    score += empire.TotalScore;
+            }
+
+            return score;
+        }
+
         void AddDebugLog(Map<string, int> priority)
         {
             int maxNameLength = priority.Keys.Max(name => name.Length);
@@ -71,11 +83,11 @@ namespace Ship_Game.AI.Research
         Map<string, int> CreatePriorityMap(Empire empire)
         {
             EconomicResearchStrategy strat = empire.Research.Strategy;
-
-            var priority = new Map<string, int>
+            float shipHullsWithWars = ShipHulls + Wars * (int)(CurrentGame.Difficulty + 1);
+            var priority            = new Map<string, int>
             {
-                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars * 2)    },
-                { "ShipHull",     Randomizer(strat.MilitaryRatio,  ShipHulls)   },
+                { "SHIPTECH",     Randomizer(strat.MilitaryRatio,  Wars + ShipHulls)},
+                { "ShipHull",     Randomizer(strat.MilitaryRatio,  shipHullsWithWars)},
                 { "Research",     Randomizer(strat.ResearchRatio,  ResearchDebt)},
                 { "Colonization", Randomizer(strat.ExpansionRatio, FoodNeeds)   },
                 { "Economic",     Randomizer(strat.ExpansionRatio, Economics)   },
@@ -89,16 +101,17 @@ namespace Ship_Game.AI.Research
 
         float CalcWars(Empire empire, Array<TechEntry> availableTechs)
         {
-            float enemyThreats = empire.GetEmpireAI().ThreatMatrix.HighestStrengthOfAllEmpireThreats(empire);
-            enemyThreats      += empire.TotalRemnantStrTryingToClear();
-            float wars         = enemyThreats / empire.OffensiveStrength.LowerBound(1);
-            wars              += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f
-                                                                                                                   : 0;
+            float enemyThreats   = CalcEnemyThreats();
+            float factionThreats = empire.TotalFactionsStrTryingToClear() / empire.OffensiveStrength.LowerBound(1);
+            float wars           = factionThreats / empire.OffensiveStrength.LowerBound(1) 
+                                   + enemyThreats / OwnerEmpire.TotalScore.LowerBound(1);
 
-            return wars.Clamped(0, 1);
+            wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f
+                                                                                                      : 0;
+            return wars.Clamped(0, 3);
         }
 
-        float CalcShipHulls(float wars)
+        float CalcShipHulls()
         {
             float maxBonus = 0;
             foreach ((Empire them, Relationship rel) in OwnerEmpire.AllRelations)
@@ -112,7 +125,7 @@ namespace Ship_Game.AI.Research
             }
 
             maxBonus = (maxBonus - CalcCanBuildHulls(OwnerEmpire)).LowerBound(0);
-            return maxBonus + wars * (int)(CurrentGame.Difficulty+1);
+            return maxBonus;
         }
 
         float CalcCanBuildHulls(Empire empire)
