@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using static Ship_Game.AI.ThreatMatrix;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
@@ -26,11 +24,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected override GoalStep SetupShipTargets()
         {
             //var fleets         = new Array<Fleet>();
-            Pin[] pins           = OwnerTheater.GetPins();
+            Pin[] pins = OwnerTheater.GetPins();
             //var ships          = new Array<Ship>();
-            var systems          = new Array<SolarSystem>();
-            var strengths        = new Array<int>();
-            var ownedSystems     = Owner.GetOwnedSystems();
+            var systems = new Array<SolarSystem>();
+            var strengths = new Array<int>();
+            var ownedSystems = Owner.GetOwnedSystems();
             var pinsNotInSystems = new Array<Pin>();
             for (int i = 0; i < pins.Length; i++)
             {
@@ -54,12 +52,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var ssps = Owner.GetProjectors().Filter(s =>
             {
                 foreach (var e in enemies)
-                    if (s.HasSeenEmpires.KnownBy(e)) 
+                    if (s.HasSeenEmpires.KnownBy(e))
                         return true;
                 return false;
             });
 
-            var ourSystems = Owner.GetCopyOfOwnedSystems();//.ToArray();
+            var ourSystems = Owner.GetOwnedSystems().ToArray();
 
             foreach (var s in ssps)
             {
@@ -83,16 +81,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             foreach (var system in borders)
             {
                 systems.Add(system);
-                strengths.Add((int)system.WarValueTo(Owner) );
+                strengths.Add((int)system.WarValueTo(Owner));
             }
-            
+
+            foreach (var pin in pinsNotInSystems)
+                AttackArea(pin.Position, 100000, pin.Strength);
 
             DefendSystemsInList(systems, strengths);
-            //if (systems.IsEmpty && pinsNotInSystems.NotEmpty)
-            //{
-            //    var pin = pinsNotInSystems.FindMax(p => p.Strength);
-            //    AttackArea(pin.Position, 100000, pin.Strength);
-            //}
+
             return GoalStep.GoToNextStep;
         }
     }

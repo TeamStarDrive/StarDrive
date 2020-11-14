@@ -355,7 +355,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < pins.Length; i++)
             {
                 Pin pin = pins[i];
-                if (pin?.Position.InRadius(position, radius) == true)
+                if (pin.Position.InRadius(position, radius))
                 {
                     Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
                     if (!hostileOnly)

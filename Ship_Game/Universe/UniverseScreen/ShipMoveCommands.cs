@@ -122,17 +122,14 @@ namespace Ship_Game.Universe
             if (ship?.Active != true) return;
 
             Empire player    = Universe.player;
-            float enemies    = planet.GetGroundStrengthOther(player) * 1.5f;
-            float friendlies = planet.GetGroundStrength(player);
-
             if (planet.Owner != player)
             {
-                if (player.IsEmpireAttackable(planet.Owner) && (enemies > friendlies || planet.Population > 0f))
+                if (player.IsEmpireAttackable(planet.Owner))
                     ship.AI.OrderBombardPlanet(planet);
                 else
                     ship.AI.OrderToOrbit(planet);
             }
-            else if (enemies > friendlies && Input.IsShiftKeyDown)
+            else if (Input.IsShiftKeyDown) // Owner is player
             {
                 ship.AI.OrderBombardPlanet(planet);
             }

@@ -788,11 +788,11 @@ namespace Ship_Game.Fleets
                     OrderFleetOrbit(target);
                     break; // Change in task step is done from Remnant goals
                 case 8: // Go back to portal, this step is set from the Remnant goal
-                    GatherAtAO(task, 20000);
+                    GatherAtAO(task, 500);
                     TaskStep = 9;
                     break;
                 case 9:
-                    if (!ArrivedAtCombatRally(FinalPosition, GetRelativeSize().Length() * 2))
+                    if (!ArrivedAtCombatRally(FinalPosition, 50000))
                         break;
 
                     TaskStep = 10;
@@ -1000,7 +1000,7 @@ namespace Ship_Game.Fleets
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
-            if (EndInvalidTask((enemyStrength < 1 && TaskStep > 2)|| !CanTakeThisFight(enemyStrength))) return;
+            if (EndInvalidTask((enemyStrength < 1 && TaskStep > 5)|| !CanTakeThisFight(enemyStrength))) return;
 
             switch (TaskStep)
             {
@@ -1025,13 +1025,12 @@ namespace Ship_Game.Fleets
                     }
                     else
                     {
-                        if (DoCombatMoveToTaskArea(task, true))
-                            TaskStep++;
+                        DoCombatMoveToTaskArea(task, true);
+                        TaskStep++;
                     }
                     break;
                 default:
-                    if (TaskCombatStatus != CombatStatus.InCombat) TaskStep = 2;
-                    else if (TaskStep++ > 10) TaskStep = 2;
+                    if (TaskStep++ > 6) TaskStep = 2;
                     break;
             }
         }
@@ -1565,7 +1564,7 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship              = Ships[i];
-                planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; ;
+                planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; 
 
                 if (ship.AI.State == AIState.AssaultPlanet) shipsInvading++;
             }
