@@ -445,13 +445,15 @@ namespace Ship_Game
 
         public int GetNumBombersNeeded(Planet planet)
         {
+            if (Level == 1)
+                return 0;
 
             var numBombers = Level > 10 ? 2 : 1;
             numBombers    += NumPortals()-1;
             numBombers    += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
 
             GetBomberType(out int multiplier);
-            return (numBombers * multiplier).UpperBound(Level-1);
+            return (numBombers * multiplier).UpperBound(Level*2);
         }
 
         RemnantShipType GetBomberType(out int bomberNumMultiplier)

@@ -151,15 +151,31 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 Priority = 0;
                 return;
             }
+
+            if (!TheaterAO.GetAoSystems().Any(s => s.OwnerList.Contains(Them)))
+            {
+                Priority = 10;
+                return;
+            }
             Vector2 position = RallyAO?.Center ?? Us.WeightedCenter;
             // trying to figure out how to incorporate planet value but all it does is attack homeworlds right now. 
             // so remarking that code and just going by distance. 
             //float totalWarValue          = OwnerWar.WarTheaters.WarValue.LowerBound(1); 
             //float theaterValue           = WarValue.Clamped(1, totalWarValue);
-            
-            float distanceFromPosition   = TheaterAO.Center.Distance(position);
+
+            int outCloseSystems = 1;
+            float distanceToThem = float.MaxValue;
+            foreach(var system in Them.GetOwnedSystems())
+            {
+                float distance = system.Position.Distance(position);
+                distanceToThem = Math.Min(distanceToThem,distance);
+                if (distance <= baseDistance)
+                    outCloseSystems++;
+            }
+
+            float distanceFromPosition   = TheaterAO.Center.Distance(position) + distanceToThem - WarValue;
             float distanceMod            =  distanceFromPosition - baseDistance;
-            distanceMod                 /= (TheaterAO.Radius / 2);
+            distanceMod                 /= (TheaterAO.Radius / (1f + outCloseSystems));
             Priority                     = (int)distanceMod.LowerBound(1);
         }
 
