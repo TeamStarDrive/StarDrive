@@ -355,24 +355,28 @@ namespace Ship_Game
             public void ActivateSite(Planet p, Empire activatingEmpire, PlanetGridSquare tile)
             {
                 Active = false;
-                SpawnShip(p, activatingEmpire, out string message);
-                SpawnSurvivingTroops(p, activatingEmpire, tile, out string troopMessage);
-                Empire.Universe.NotificationManager.AddShipRecovered(p, $"{message}{troopMessage}");
+                Empire owner = p.Owner ?? activatingEmpire;
+                SpawnShip(p, activatingEmpire, owner, out string message);
+                SpawnSurvivingTroops(p, owner, tile, out string troopMessage);
                 p.ScrapBuilding(tile.building);
+
+                if (owner.isPlayer || !owner.isPlayer && Empire.isPlayer && NumTroopsSurvived > 0)
+                    Empire.Universe.NotificationManager.AddShipRecovered(p, $"{message}{troopMessage}");
             }
 
-            void SpawnShip(Planet p, Empire activatingEmpire, out string message)
+            void SpawnShip(Planet p, Empire activatingEmpire, Empire owner, out string message)
             {
                 float recoverChance = 20 * (1 + activatingEmpire.data.Traits.ModHpModifier);
                 Ship ship = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
                 if (RandomMath.RollDice(recoverChance))
                 {
+                    string otherOwners = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
                     ship.DamageByRecoveredFromCrash();
-                    message = $"Ship ({ship.Name}) was\nrecovered from the surface of {p.Name}.\n";
+                    message = $"Ship ({ship.Name}) was recovered from the\nsurface of {p.Name}{otherOwners}";
                 }
                 else
                 {
-                    if (p.Owner == activatingEmpire)
+                    if (owner == activatingEmpire)
                     {
                         p.ProdHere = (p.ProdHere + ship.BaseCost / 10).UpperBound(p.Storage.Max);
                         message = "We were able to recover some scrap metal from\n" +
@@ -387,34 +391,52 @@ namespace Ship_Game
                 }
             }
 
-            void SpawnSurvivingTroops(Planet p, Empire activatingEmpire, PlanetGridSquare tile, out string message)
+            void SpawnSurvivingTroops(Planet p, Empire owner, PlanetGridSquare tile, out string message)
             {
-                Empire owner     = p.Owner ?? activatingEmpire;
                 Relationship rel = null;
+                message          = "The Crew was perished.";
+
                 if (Empire != owner)
                     rel = owner.GetRelations(Empire);
 
+                if (rel?.AtWar == false && rel.CanAttack)
+                {
+                    NumTroopsSurvived = 0;
+                    return; // Dont spawn troops, risking war
+                }
+
+                bool shouldLandTroop = Empire == owner || rel?.AtWar == true;
                 for (int i = 1; i <= NumTroopsSurvived; i++)
                 {
                     Troop t = ResourceManager.CreateTroop(TroopName, Empire);
                     t.SetOwner(Empire);
-                    if (Empire != owner && !rel?.AtWar == true || !t.TryLandTroop(p, tile))
+                    if (!shouldLandTroop || !t.TryLandTroop(p, tile))
                     {
                         Ship ship = t.Launch(p);
                         ship.AI.OrderRebaseToNearest();
                     }
                 }
 
-                message = "The Crew was perished.";
                 if (NumTroopsSurvived == 0)
                     return;
 
+                bool playerTroopsRecovered = Empire == EmpireManager.Player && owner != EmpireManager.Player;
                 if (Empire == owner)
-                    message = "Some Friendly Troops Survived.";
+                {
+                    message = "Friendly Troops have Survived.";
+                }
                 else if (rel?.AtWar == true)
-                    message = "Hostile troops survived and are\nattacking!";
+                {
+                    message = playerTroopsRecovered 
+                        ? "Our Troops are in combat there!."
+                        : "Hostile troops survived and are\nattacking!";
+                }
                 else
-                    message = "Neutral troops survived and are\nheading home.";
+                {
+                    message = playerTroopsRecovered 
+                        ? "Our Troops and are heading home." 
+                        : "Neutral troops survived and are\nheading home.";
+                }
             }
         }
 

@@ -148,7 +148,7 @@ namespace Ship_Game.AI.Tasks
                 TargetPlanet             = planet,
                 MinimumTaskForceStrength = str,
                 EnemyStrength            = str,
-                Priority                 = 1
+                Priority                 = 0
             };
 
             militaryTask.SetEmpire(owner);

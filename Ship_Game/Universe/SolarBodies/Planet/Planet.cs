@@ -1037,12 +1037,12 @@ namespace Ship_Game
                 return;
 
             PlanetGridSquare crashTile = freeTiles.RandItem();
-            float survivalChance       = 10 + ship.Level * 2;
+            float survivalChance       = 20 + ship.Level * 2;
             if (!Type.EarthLike)
                 survivalChance *= 2; // No atmosphere, not able to burn during planet fall
 
             survivalChance *= 1 + ship.loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
-            survivalChance += ship.SurfaceArea / 200f;
+            survivalChance += ship.SurfaceArea / 100f;
             survivalChance  = survivalChance.Clamped(1, 100);
 
             if (!RandomMath.RollDice(survivalChance))
