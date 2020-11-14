@@ -1564,13 +1564,12 @@ namespace Ship_Game.Ships
             if (IsStation || System == null)
                 return Vector2.Zero;
 
-            Vector2 crashPos = Position + Direction.Normalized() * CurrentVelocity * etaSeconds;
             for (int i = 0; i < System.PlanetList.Count; i++)
             {
                 Planet p = System.PlanetList[i];
                 if (Center.InRadius(p.Center, p.ObjectRadius + CurrentVelocity * (etaSeconds + Level)))
                 {
-                    // planet.tryCrashOn
+                    p.TryCrashOn(this);
                     return p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius);
                 }
             }

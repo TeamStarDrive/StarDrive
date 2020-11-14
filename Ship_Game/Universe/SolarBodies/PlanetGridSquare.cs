@@ -6,7 +6,7 @@ namespace Ship_Game
 {
     // Refactored by Fat Bastard, Feb 6, 2019
     // Converted to 2 troops per tile support by Fat Bastard, Feb 28, 2020
-    public sealed class PlanetGridSquare 
+    public sealed class PlanetGridSquare
     {
         public int x;
         public int y;
@@ -18,7 +18,7 @@ namespace Ship_Game
         public Building building;
         public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
-        public Rectangle ClickRect       = new Rectangle();
+        public Rectangle ClickRect = new Rectangle();
         public bool Highlighted;
         public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
         public bool TroopsAreOnTile      => TroopsHere.NotEmpty;
@@ -27,9 +27,11 @@ namespace Ship_Game
         public bool CombatBuildingOnTile => BuildingOnTile && building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
         public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
-        public bool EventOnTile          => BuildingOnTile && building.EventHere;
+        public bool EventOnTile          => BuildingOnTile && (building.EventHere || DynamicCrash.Active);
         public bool BioCanTerraform      => Biosphere && Terraformable;
         public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
+
+        public DynamicCrashSite DynamicCrash = new DynamicCrashSite(false);
 
         public bool IsTileFree(Empire empire)
         {
@@ -247,7 +249,12 @@ namespace Ship_Game
         public void CheckAndTriggerEvent(Planet planet, Empire empire)
         {
             if (EventOnTile && LockOnOurTroop(empire, out _))
-                ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
+            {
+                if (DynamicCrash.Active)
+                    DynamicCrash.ActivateSite(planet, empire);
+                else
+                    ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
+            }
         }
 
         public TileDirection GetDirectionTo(PlanetGridSquare target)
@@ -257,14 +264,14 @@ namespace Ship_Game
             int yDiff = (target.y - y).Clamped(-1, 1);
             switch (xDiff)
             {
-                case 0 when yDiff == -1:  return TileDirection.North;
-                case 0 when yDiff == 1:   return TileDirection.South;
-                case 1 when yDiff == 0:   return TileDirection.East;
-                case -1 when yDiff == 0:  return TileDirection.West;
-                case 1 when yDiff == -1:  return TileDirection.NorthEast;
+                case 0  when yDiff == -1: return TileDirection.North;
+                case 0  when yDiff ==  1: return TileDirection.South;
+                case 1  when yDiff ==  0: return TileDirection.East;
+                case -1 when yDiff ==  0: return TileDirection.West;
+                case 1  when yDiff == -1: return TileDirection.NorthEast;
                 case -1 when yDiff == -1: return TileDirection.NorthWest;
-                case 1 when yDiff == 1:   return TileDirection.SouthEast;
-                case -1 when yDiff == 1:  return TileDirection.SouthWest;
+                case 1  when yDiff ==  1: return TileDirection.SouthEast;
+                case -1 when yDiff ==  1: return TileDirection.SouthWest;
                 default: return TileDirection.None;
             }
         }
@@ -287,6 +294,59 @@ namespace Ship_Game
             }
             return p;
         }
+
+        public struct DynamicCrashSite
+        {
+            public Empire Empire;
+            public string ShipName;
+            public int NumTroopsSurvived;
+            public bool Active;
+
+            public DynamicCrashSite(bool active)
+            {
+                Active            = active;
+                Empire            = null;
+                ShipName          = "";
+                NumTroopsSurvived = 0;
+            }
+
+            public void CrashShip(Empire empire, string shipName, int numTroopsSurvived,
+                Planet p, PlanetGridSquare tile,  bool fromSave = false)
+            {
+                if (!TryCreateCrashSite(p, tile))
+                    return;
+
+                Active            = true;
+                Empire            = empire;
+                ShipName          = shipName;
+                NumTroopsSurvived = numTroopsSurvived;
+
+                if (!fromSave)
+                    NotifyPlayer(p);
+            }
+
+            bool TryCreateCrashSite(Planet p, PlanetGridSquare tile)
+            {
+                Building b = ResourceManager.CreateBuilding("Dynamic Crash Site");
+                if (b == null)
+                    return false;
+
+                tile.PlaceBuilding(b, p);
+                return true;
+            }
+
+            void NotifyPlayer(Planet p)
+            {
+                if (p.Owner == null && p.IsExploredBy(EmpireManager.Player) || p.Owner == EmpireManager.Player)
+                    Empire.Universe.NotificationManager.AddShipCrashed(p);
+            }
+
+            public void ActivateSite(Planet p, Empire activatingEmpire)
+            {
+                Active = false;
+            }
+        }
+
 
         public SavedGame.PGSData Serialize()
         {
