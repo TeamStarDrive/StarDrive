@@ -259,7 +259,7 @@ namespace Ship_Game
 
         public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
 
-        public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID);
+        public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID) || Name == "Dynamic Crash Site";
         public bool IsAttackable       => CombatStrength > 0;
         public bool CanAttack          => CombatStrength > 0 && AvailableAttackActions > 0;
         public bool IsMoneyBuilding    => CreditsPerColonist > 0 || PlusTaxPercentage > 0;
