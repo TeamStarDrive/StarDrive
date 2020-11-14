@@ -1000,7 +1000,7 @@ namespace Ship_Game.Fleets
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
-            if (EndInvalidTask((enemyStrength < 1 && TaskStep > 3)|| !CanTakeThisFight(enemyStrength))) return;
+            if (EndInvalidTask((enemyStrength < 1 && TaskStep > 5)|| !CanTakeThisFight(enemyStrength))) return;
 
             switch (TaskStep)
             {
@@ -1030,9 +1030,7 @@ namespace Ship_Game.Fleets
                     }
                     break;
                 default:
-                    TaskStep++;
-                    if (TaskStep > 3 && TaskCombatStatus != CombatStatus.InCombat) TaskStep = 2;
-                    else if (TaskStep++ > 5) TaskStep = 2;
+                    if (TaskStep++ > 6) TaskStep = 2;
                     break;
             }
         }

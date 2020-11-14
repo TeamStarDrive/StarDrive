@@ -24,11 +24,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         protected override GoalStep SetupShipTargets()
         {
             //var fleets         = new Array<Fleet>();
-            Pin[] pins           = OwnerTheater.GetPins();
+            Pin[] pins = OwnerTheater.GetPins();
             //var ships          = new Array<Ship>();
-            var systems          = new Array<SolarSystem>();
-            var strengths        = new Array<int>();
-            var ownedSystems     = Owner.GetOwnedSystems();
+            var systems = new Array<SolarSystem>();
+            var strengths = new Array<int>();
+            var ownedSystems = Owner.GetOwnedSystems();
             var pinsNotInSystems = new Array<Pin>();
             for (int i = 0; i < pins.Length; i++)
             {
@@ -40,28 +40,55 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 int systemIndex = systems.IndexOf(pin.System);
                 if (strengths.Count < systems.Count)
                 {
-                    strengths.Add((int) pin.Strength);
+                    strengths.Add((int)pin.Strength);
                 }
                 else
                 {
-                    strengths[systemIndex] += (int) pin.Strength;
+                    strengths[systemIndex] += (int)pin.Strength;
                 }
             }
 
-            DefendSystemsInList(systems, strengths);
-            if (systems.IsEmpty && pinsNotInSystems.NotEmpty)
+            var enemies = Owner == Them ? EmpireManager.GetEnemies(Owner) : new Array<Empire> { Them };
+            var ssps = Owner.GetProjectors().Filter(s =>
             {
-                var pin = pinsNotInSystems.FindMax(p => p.Strength);
-                AttackArea(pin.Position, 100000, pin.Strength);
+                foreach (var e in enemies)
+                    if (s.HasSeenEmpires.KnownBy(e))
+                        return true;
+                return false;
+            });
+
+            var ourSystems = Owner.GetOwnedSystems().ToArray();
+
+            foreach (var s in ssps)
+            {
+                var system = ourSystems.FindClosestTo(s);
+                if (system != null)
+                {
+                    systems.Add(system);
+                    strengths.Add((int)system.WarValueTo(Owner) * 10);
+                }
             }
-            
+
+            Array<SolarSystem> borders = new Array<SolarSystem>();
+            foreach (var e in enemies)
+            {
+                var border = Owner.GetBorderSystems(e, true);
+                var aoSystems = OwnerTheater.TheaterAO.GetAoSystems();
+                var borderSystems = border.Filter(s => aoSystems.Contains(s));
+                borders.AddRange(borderSystems);
+            }
+
+            foreach (var system in borders)
+            {
+                systems.Add(system);
+                strengths.Add((int)system.WarValueTo(Owner));
+            }
+
+            foreach (var pin in pinsNotInSystems)
+                AttackArea(pin.Position, 100000, pin.Strength);
 
             DefendSystemsInList(systems, strengths);
-            foreach(var pin in pinsNotInSystems)
-                AttackArea(pin.Position, 100000, pin.Strength);
 
-            //    AttackArea(pin.Position, 100000, pin.Strength);
-            //}
             return GoalStep.GoToNextStep;
         }
     }

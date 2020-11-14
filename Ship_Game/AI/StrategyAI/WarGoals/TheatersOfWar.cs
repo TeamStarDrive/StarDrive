@@ -66,8 +66,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = 0; i < Theaters.Count; i++)
             {
                 var theater      = Theaters[i];
-                Vector2 position = theater.RallyAO?.Center ?? default;
-                float distance   = theater.TheaterAO.Center.Distance(position);
+                Vector2 position = theater.RallyAO?.Center ?? defaultPosition;
+                float distanceToThem = float.MaxValue;
+                foreach (var p in Them.GetPlanets())
+                {
+                    float theaterDistance = p.Center.Distance(theater.TheaterAO.Center);
+                    distanceToThem = Math.Min(distanceToThem, theaterDistance);
+                }
+
+                float distance   = theater.TheaterAO.Center.Distance(position) + distanceToThem - theater.WarValue;
                 closest          = Math.Min(closest, distance);
             }
 
@@ -226,9 +233,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             debug.AddLine($"Theaters : {Theaters.Count}");
             debug.AddLine($"WarValue : {WarValue}");
+            int minPriority = Theaters.FindMin(t => t.Priority)?.Priority ?? 10;
             for (int i = 0; i < Theaters.Count; i++)
             {
                 var theater = Theaters[i];
+                if (theater.Priority > minPriority) continue;
                 debug.AddLine($"Theater : {i} WarValue : {theater.WarValue}");
                 debug = theater.DebugText(debug, pad1, pad2);
             }

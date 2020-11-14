@@ -974,7 +974,7 @@ namespace Ship_Game.Debug
                     SetTextCursor(Win.X + 10, 600f, Color.White);
                     foreach (Ship ship in Screen.SelectedSystem.ShipList)
                     {
-                        DrawString(ship.Active ? ship.Name : ship.Name + " (inactive)");
+                        DrawString(ship?.Active == true ? ship.Name : ship?.Name + " (inactive)");
                     }
 
                     SetTextCursor(Win.X + 300, 600f, Color.White);
