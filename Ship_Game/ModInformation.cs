@@ -55,7 +55,7 @@ namespace Ship_Game
         public float UpkeepPlatform;
         public float UpkeepStation;
         public float UpkeepDrone;
-        public float Spaceportscale = 0.8f;
+        public float SpaceportScale = 0.8f;
 
         // added by Fat Bastard
         public bool UseResearchableShipTechs; // Use short term researchable techs with no best ship

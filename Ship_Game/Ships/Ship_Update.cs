@@ -195,22 +195,19 @@ namespace Ship_Game.Ships
                     if (p.Center.OutsideRadius(Center, 3000f))
                         continue;
 
-                    if (loyalty == EmpireManager.Player)
+                    for (int i = 0; i < p.TilesList.Count; i++)
                     {
-                        for (int index = 0; index < p.BuildingList.Count; index++)
+                        PlanetGridSquare tile = p.TilesList[i];
+                        if (tile.EventOnTile)
                         {
-                            Building building = p.BuildingList[index];
-                            if (building.EventHere)
+                            if (loyalty == EmpireManager.Player)
+                            {
                                 Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < p.BuildingList.Count; i++)
-                        {
-                            Building building = p.BuildingList[i];
-                            if (building.EventHere && loyalty != EmpireManager.Player && p.Owner == null)
+                            }
+                            else if (p.Owner == null)
+                            {
                                 loyalty.GetEmpireAI().SendExplorationFleet(p);
+                            }
                         }
                     }
 
@@ -272,6 +269,7 @@ namespace Ship_Game.Ships
             }
             if (dietimer <= 0.0f)
             {
+                PlanetCrashingOn?.TryCrashOn(this);
                 reallyDie = true;
                 Die(LastDamagedBy, true);
                 return;
@@ -283,6 +281,14 @@ namespace Ship_Game.Ships
             // for a cool death effect, make the ship accelerate out of control:
             ApplyThrust(100f, Ships.Thrust.Forward);
             UpdateVelocityAndPosition(timeStep);
+            if (PlanetCrashingOn != null)
+            {
+                if (!Center.InRadius(PlanetCrashingOn.Center, 100))
+                {
+                    Vector2 dir = Center.DirectionToTarget(PlanetCrashingOn.Center);
+                    Position += dir.Normalized() * 100 * timeStep.FixedTime;
+                }
+            }
 
             int num1 = UniverseRandom.IntBetween(0, 60);
             if (num1 >= 57 && InFrustum)
@@ -303,7 +309,9 @@ namespace Ship_Game.Ships
 
             if (inSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
-                ShipSO.World = Matrix.CreateRotationY(yRotation)
+                float scale = PlanetCrashingOn != null ? (dietimer.UpperBound(6) / 6).LowerBound(0.001f) : 1;
+                ShipSO.World = Matrix.CreateScale(scale) 
+                             * Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
                              * Matrix.CreateRotationZ(Rotation)
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
