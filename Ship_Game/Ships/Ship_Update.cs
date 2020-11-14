@@ -269,7 +269,7 @@ namespace Ship_Game.Ships
             }
             if (dietimer <= 0.0f)
             {
-                PlanetCrashingOn.TryCrashOn(this);
+                PlanetCrashingOn?.TryCrashOn(this);
                 reallyDie = true;
                 Die(LastDamagedBy, true);
                 return;
