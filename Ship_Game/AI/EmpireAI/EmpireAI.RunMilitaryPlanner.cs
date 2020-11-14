@@ -155,6 +155,11 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
+        public MilitaryTask[] GetAssaultPirateTasks()
+        {
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase);
+        }
+
         public MilitaryTask[] GetExpansionTasks()
         {
             return TaskList.Filter(task => task.TargetPlanet != null &&
