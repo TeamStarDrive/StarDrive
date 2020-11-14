@@ -131,7 +131,7 @@ namespace Ship_Game.Ships
         private float dietimer;
         public float BaseStrength;
         public bool dying;
-        public Vector2 CrashingOnPlanetPos { get; private set; }
+        public Planet PlanetCrashingOn { get; private set; }
         private bool reallyDie;
         private bool HasExploded;
         public float FTLSpoolTime;
@@ -236,6 +236,12 @@ namespace Ship_Game.Ships
             percent = percent.Clamped(0f, 1f);
             foreach (ShipModule module in ModuleSlotList)
                 module.DebugDamage(percent);
+        }
+
+        public void DamageByRecoveredFromCrash()
+        {
+            foreach (ShipModule module in ModuleSlotList)
+                module.DamageByRecoveredFromCrash();
         }
 
         public ShipData.RoleName DesignRole { get; private set; }
@@ -1439,9 +1445,9 @@ namespace Ship_Game.Ships
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
             ExplosionManager.AddExplosion(position, Velocity,
-                CrashingOnPlanetPos != Vector2.Zero ? size * 0.1f : size * boost, 12f, ExplosionType.Ship);
+                PlanetCrashingOn != null ? size * 0.05f : size * boost, 12f, ExplosionType.Ship);
 
-            if (CrashingOnPlanetPos != Vector2.Zero)
+            if (PlanetCrashingOn != null)
                 return;
 
             if (addWarpExplode)
@@ -1505,7 +1511,7 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
-                    if (CrashingOnPlanetPos != Vector2.Zero)
+                    if (PlanetCrashingOn != null)
                         return;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
@@ -1539,12 +1545,12 @@ namespace Ship_Game.Ships
             if (proj != null && proj.Explodes && proj.DamageAmount > SurfaceArea.LowerBound(200))
                 return true;
 
-            if (RandomMath.RollDice(100) && !IsPlatform)
+            if (RandomMath.RollDice(100) && !IsPlatform) // TODO 35%
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
                 int tumbleSeconds   = UniverseRandom.IntBetween(4, 8);
-                CrashingOnPlanetPos = TryCrashOnPlanet(tumbleSeconds);
+                PlanetCrashingOn = TryCrashOnPlanet(tumbleSeconds);
                 if (InFrustum)
                 {
                     dying         = true;
@@ -1559,22 +1565,21 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        Vector2 TryCrashOnPlanet(int etaSeconds)
+        Planet TryCrashOnPlanet(int etaSeconds)
         {
             if (IsStation || System == null)
-                return Vector2.Zero;
+                return null;
 
             for (int i = 0; i < System.PlanetList.Count; i++)
             {
                 Planet p = System.PlanetList[i];
                 if (Center.InRadius(p.Center, p.ObjectRadius + CurrentVelocity * (etaSeconds + Level)))
                 {
-                    p.TryCrashOn(this);
-                    return p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius);
+                    return p;
                 }
             }
 
-            return Vector2.Zero;
+            return null;
         }
 
         public void QueueTotalRemoval()

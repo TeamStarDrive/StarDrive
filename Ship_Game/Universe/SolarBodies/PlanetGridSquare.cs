@@ -362,6 +362,7 @@ namespace Ship_Game
                 Ship ship = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
                 if (RandomMath.RollDice(100))
                 {
+                    ship.DamageByRecoveredFromCrash();
                     message = $"Ship ({ship.Name}) was\nrecovered from the surface of {p.Name}.\n";
                 }
                 else
@@ -399,7 +400,7 @@ namespace Ship_Game
                     }
                 }
 
-                message = "";
+                message = "The Crew was perished.";
                 if (NumTroopsSurvived == 0)
                     return;
 
@@ -423,7 +424,12 @@ namespace Ship_Game
                 Biosphere     = Biosphere,
                 building      = building,
                 TroopsHere    = TroopsHere,
-                Terraformable = Terraformable
+                Terraformable = Terraformable,
+                CrashSiteActive    = DynamicCrash.Active,
+                CrashSiteShipName  = DynamicCrash.ShipName,
+                CrashSiteTroopName = DynamicCrash.TroopName,
+                CrashSiteTroops    = DynamicCrash.NumTroopsSurvived,
+                CrashSiteEmpireId  = DynamicCrash.Empire?.Id ?? -1
             };
         }
     }
