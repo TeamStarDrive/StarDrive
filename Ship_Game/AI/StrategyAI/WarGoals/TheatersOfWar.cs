@@ -186,7 +186,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var theirAo     = Them.EmpireAO();
             var UsAO        = Us.WeightedCenter;
             float minAoSize = 600000;
-            float maxAoSize = (Empire.Universe.UniverseSize).LowerBound(minAoSize);
+            float maxAoSize = (Empire.Universe.UniverseSize / 4).LowerBound(minAoSize);
             var aoSize      = (theirAo.Radius / 2).Clamped(minAoSize, maxAoSize);
             var aos         = new Array<AO>();
             foreach (var theater in Theaters)
