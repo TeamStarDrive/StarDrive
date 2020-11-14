@@ -169,7 +169,7 @@ namespace Ship_Game
                     p.AddTroop(t, pgs);
                 }
 
-                if (pgs.building == null)
+                if (pgs.building == null || pgs.DynamicCrash.Active)
                     continue;
 
                 if (!ResourceManager.GetBuilding(pgs.building.Name, out Building template))
