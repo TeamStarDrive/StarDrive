@@ -71,11 +71,13 @@ namespace Ship_Game.Ships
                 movePosition = Owner.fleet.FinalPosition;
             }
 
-            float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);
-
-            if (facingFleetDirection > 0.02) 
-                warpStatus = Status.Poor;
-
+            if (!Owner.Center.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 1000))
+            {
+                float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);
+                if (facingFleetDirection > 0.02)
+                    warpStatus = Status.Poor;
+            }
+            
             return warpStatus;
         }
 
