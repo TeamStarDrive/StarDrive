@@ -1045,20 +1045,25 @@ namespace Ship_Game
             survivalChance += ship.SurfaceArea / 200f;
             survivalChance  = survivalChance.Clamped(1, 100);
 
-            if (!RandomMath.RollDice(100))
+            if (!RandomMath.RollDice(100)) // TODO survivalChance
                 return;  // Ship did not make it
 
             int numTroopsSurvived = 0;
             var ourTroops         = ship.GetOurTroops();
+            string troopName      = "";
             for (int i = 0; i < ourTroops.Count; i++)
             {
                 Troop troop         = ourTroops[i];
                 float troopSurvival = 50 * Empire.PreferredEnvModifier(troop.Loyalty);
                 if (RandomMath.RollDice(troopSurvival))
-                    numTroopsSurvived += 1; 
+                {
+                    numTroopsSurvived += 1;
+                    if (troopName.IsEmpty())
+                        troopName = troop.Name;
+                }
             }
 
-            crashTile.DynamicCrash.CrashShip(ship.loyalty, ship.Name, numTroopsSurvived, this, crashTile);
+            crashTile.DynamicCrash.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile);
         }
 
         private void ApplyResources()
