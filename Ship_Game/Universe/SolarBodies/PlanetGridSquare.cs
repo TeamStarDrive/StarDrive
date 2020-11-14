@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -251,7 +253,7 @@ namespace Ship_Game
             if (EventOnTile && LockOnOurTroop(empire, out _))
             {
                 if (DynamicCrash.Active)
-                    DynamicCrash.ActivateSite(planet, empire);
+                    DynamicCrash.ActivateSite(planet, empire, this);
                 else
                     ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
             }
@@ -301,16 +303,18 @@ namespace Ship_Game
             public string ShipName;
             public int NumTroopsSurvived;
             public bool Active;
+            public string TroopName;
 
             public DynamicCrashSite(bool active)
             {
                 Active            = active;
                 Empire            = null;
                 ShipName          = "";
+                TroopName         = "";
                 NumTroopsSurvived = 0;
             }
 
-            public void CrashShip(Empire empire, string shipName, int numTroopsSurvived,
+            public void CrashShip(Empire empire, string shipName, string troopName, int numTroopsSurvived,
                 Planet p, PlanetGridSquare tile,  bool fromSave = false)
             {
                 if (!TryCreateCrashSite(p, tile))
@@ -319,6 +323,7 @@ namespace Ship_Game
                 Active            = true;
                 Empire            = empire;
                 ShipName          = shipName;
+                TroopName         = troopName;
                 NumTroopsSurvived = numTroopsSurvived;
 
                 if (!fromSave)
@@ -341,9 +346,69 @@ namespace Ship_Game
                     Empire.Universe.NotificationManager.AddShipCrashed(p);
             }
 
-            public void ActivateSite(Planet p, Empire activatingEmpire)
+            public void ActivateSite(Planet p, Empire activatingEmpire, PlanetGridSquare tile)
             {
-                Active = false;
+                Active              = false;
+                float recoverChance = 10 * (1 + activatingEmpire.data.Traits.ModHpModifier);
+
+                SpawnShip(p, activatingEmpire, out string message); // TODO recoverChance
+                SpawnSurvivingTroops(p, activatingEmpire, tile, out string troopMessage);
+                Empire.Universe.NotificationManager.AddShipRecovered(p, $"{message}{troopMessage}");
+                p.ScrapBuilding(tile.building);
+            }
+
+            void SpawnShip(Planet p, Empire activatingEmpire, out string message)
+            {
+                Ship ship = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
+                if (RandomMath.RollDice(100))
+                {
+                    message = $"Ship ({ship.Name}) was\nrecovered from the surface of {p.Name}.\n";
+                }
+                else
+                {
+                    if (p.Owner == activatingEmpire)
+                    {
+                        p.ProdHere = (p.ProdHere + ship.BaseCost / 10).UpperBound(p.Storage.Max);
+                        message = "We were able to recover some scrap metal from\n" +
+                                     $"a crashed ships on {p.Name}.\n";
+                    }
+                    else
+                    {
+                        activatingEmpire.AddMoney(ship.BaseCost / 10);
+                        message = "We were able to recover some credit worth scrap metal\n" +
+                                    $"from a crashed ships on {p.Name}.\n";
+                    }
+                }
+            }
+
+            void SpawnSurvivingTroops(Planet p, Empire activatingEmpire, PlanetGridSquare tile, out string message)
+            {
+                Empire owner     = p.Owner ?? activatingEmpire;
+                Relationship rel = null;
+                if (Empire != owner)
+                    rel = owner.GetRelations(Empire);
+
+                for (int i = 1; i <= NumTroopsSurvived; i++)
+                {
+                    Troop t = ResourceManager.CreateTroop(TroopName, Empire);
+                    t.SetOwner(Empire);
+                    if (Empire != owner && !rel?.AtWar == true || !t.TryLandTroop(p, tile))
+                    {
+                        Ship ship = t.Launch(p);
+                        ship.AI.OrderRebaseToNearest();
+                    }
+                }
+
+                message = "";
+                if (NumTroopsSurvived == 0)
+                    return;
+
+                if (Empire == owner)
+                    message = "Some Friendly Troops Survived.";
+                else if (rel?.AtWar == true)
+                    message = "Hostile troops survived and are\nattacking!";
+                else
+                    message = "Neutral troops survived and are\nheading home.";
             }
         }
 
