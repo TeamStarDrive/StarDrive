@@ -53,6 +53,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 else
                 {
                     task.RallyAO   = OwnerCampaign.RallyAO;
+
+                    if (task.Step == 0)
+                        task.EndTask();
+
+                    if (task.TargetPlanet != null && !task.TargetPlanet.Owner?.IsAtWarWith(Owner) == true)
+                    {
+                        task.EndTask();
+                    }
                 }
             }
 
@@ -60,7 +68,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 
             for (var i = 0; i < NewTasks.Count; i++)
             {
-                NewTasks[i].Evaluate(Owner);
+                var task = NewTasks[i];
+                if (!task.QueuedForRemoval)
+                    task.Evaluate(Owner);
             }
         }
 
