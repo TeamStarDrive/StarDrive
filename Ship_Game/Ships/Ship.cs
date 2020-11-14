@@ -131,7 +131,7 @@ namespace Ship_Game.Ships
         private float dietimer;
         public float BaseStrength;
         public bool dying;
-        public Planet CrashingOnPlanet { get; private set; }
+        public Vector2 CrashingOnPlanetPos { get; private set; }
         private bool reallyDie;
         private bool HasExploded;
         public float FTLSpoolTime;
@@ -1438,10 +1438,10 @@ namespace Ship_Game.Ships
             if (GlobalStats.HasMod)
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
-            ExplosionManager.AddExplosion(position, Velocity,  
-                CrashingOnPlanet != null ? size * 0.1f : size * boost, 12f, ExplosionType.Ship);
+            ExplosionManager.AddExplosion(position, Velocity,
+                CrashingOnPlanetPos != Vector2.Zero ? size * 0.1f : size * boost, 12f, ExplosionType.Ship);
 
-            if (CrashingOnPlanet != null )
+            if (CrashingOnPlanetPos != Vector2.Zero)
                 return;
 
             if (addWarpExplode)
@@ -1505,7 +1505,7 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
-                    if (CrashingOnPlanet != null)
+                    if (CrashingOnPlanetPos != Vector2.Zero)
                         return;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
@@ -1543,8 +1543,8 @@ namespace Ship_Game.Ships
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
-                int tumbleSeconds = UniverseRandom.IntBetween(4, 8);
-                CrashingOnPlanet  = TryCrashOnPlanet(tumbleSeconds);
+                int tumbleSeconds   = UniverseRandom.IntBetween(4, 8);
+                CrashingOnPlanetPos = TryCrashOnPlanet(tumbleSeconds);
                 if (InFrustum)
                 {
                     dying         = true;
@@ -1559,10 +1559,10 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        Planet TryCrashOnPlanet(int etaSeconds)
+        Vector2 TryCrashOnPlanet(int etaSeconds)
         {
             if (IsStation || System == null)
-                return null;
+                return Vector2.Zero;
 
             Vector2 crashPos = Position + Direction.Normalized() * CurrentVelocity * etaSeconds;
             for (int i = 0; i < System.PlanetList.Count; i++)
@@ -1571,11 +1571,11 @@ namespace Ship_Game.Ships
                 if (Center.InRadius(p.Center, p.ObjectRadius + CurrentVelocity * (etaSeconds + Level)))
                 {
                     // planet.tryCrashOn
-                    return p;
+                    return p.Center.GenerateRandomPointInsideCircle(p.ObjectRadius);
                 }
             }
 
-            return null;
+            return Vector2.Zero;
         }
 
         public void QueueTotalRemoval()
