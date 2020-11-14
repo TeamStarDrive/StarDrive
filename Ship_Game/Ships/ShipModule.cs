@@ -667,6 +667,28 @@ namespace Ship_Game.Ships
             Damage(source, damage);
         }
 
+        public void DamageByRecoveredFromCrash()
+        {
+            float percent = 0.95f;
+            if (Is(ShipModuleType.Command)
+                || Is(ShipModuleType.PowerPlant)
+                || Is(ShipModuleType.Command))
+            {
+                percent = 0.9f;
+            }
+
+            if (Is(ShipModuleType.Armor))
+                percent = 1;
+
+            if (Is(ShipModuleType.Engine))
+                percent = RandomMath.RollDice(33) ? 0.75f : 1;
+
+            Ship source  = GetParent();
+            float health = Health * percent + ShieldPower;
+            float damage = health.Clamped(0, Health + ShieldPower);
+            Damage(source, damage);
+        }
+
         public override void Damage(GameplayObject source, float damageAmount)
             => Damage(source, damageAmount, out float _);
 

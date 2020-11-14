@@ -669,6 +669,11 @@ namespace Ship_Game
             [Serialize(4)] public Building building;
             [Serialize(5)] public bool Habitable;
             [Serialize(6)] public bool Terraformable;
+            [Serialize(7)] public bool CrashSiteActive;
+            [Serialize(8)] public int CrashSiteTroops;
+            [Serialize(9)] public string CrashSiteShipName;
+            [Serialize(10)] public string CrashSiteTroopName;
+            [Serialize(11)] public int CrashSiteEmpireId;
         }
 
         public class PlanetSaveData
