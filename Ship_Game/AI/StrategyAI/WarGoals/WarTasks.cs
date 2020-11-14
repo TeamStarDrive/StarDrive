@@ -39,6 +39,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = 0; i < NewTasks.Count; i++)
             {
                 var task = NewTasks[i];
+
+                if (task.Step == 0)
+                    task.QueuedForRemoval = true;
+                if (task.TargetPlanet != null && !task.TargetPlanet.Owner?.IsAtWarWith(Owner) == true)
+                    task.QueuedForRemoval = true;
+
                 if (task.QueuedForRemoval)
                 {
                     CreateTaskAfterActionReport(task);
@@ -126,7 +132,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         bool IsAlreadyDefendingSystem(SolarSystem system)
         {
             bool defending    = NewTasks.Any(t => t.IsDefendingSystem(system));
-            return defending;// || Owner.GetEmpireAI().IsClearingArea(system.Position, system.Radius, OwnerCampaign);
+            return defending;
                                         
         }
 
