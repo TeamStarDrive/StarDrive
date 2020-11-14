@@ -348,7 +348,7 @@ namespace Ship_Game
                 foreach (Empire e in EmpireManager.ActiveNonPlayerEmpires)
                 {
                     if (p.Owner == null && p.IsExploredBy(e))
-                        e.GetEmpireAI().SendExplorationFleet(p);
+                        e.GetEmpireAI().TrySendExplorationFleetToCrashSite(p);
                 }
             }
 
