@@ -421,7 +421,8 @@ namespace Ship_Game.Fleets
         {
             bool eventBuildingFound = task.TargetPlanet.EventsOnBuildings();
 
-            if (EndInvalidTask(!StillInvasionEffective(task)) || !StillCombatEffective(task))                                      return;
+            if (EndInvalidTask(!StillInvasionEffective(task) || !StillCombatEffective(task))) 
+                return;
             if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null&& task.TargetPlanet.Owner != Owner)) return;
 
             switch (TaskStep)
@@ -1210,7 +1211,6 @@ namespace Ship_Game.Fleets
             radius = radius.AlmostZero() ? GetRelativeSize().Length() / 1.5f : radius;
             MoveStatus status = FleetMoveStatus(radius, position);
 
-            if (status.HasFlag(MoveStatus.MajorityAssembled)) return true;
             if (status.HasFlag(MoveStatus.AssembledInCombat))
             {
                 ClearPriorityOrderForShipsInAO(Ships, position, radius);
@@ -1234,7 +1234,7 @@ namespace Ship_Game.Fleets
                         , true, AIState.AwaitingOrders, null, true);
                 }
             }
-            return false;
+            return status.HasFlag(MoveStatus.MajorityAssembled);
         }
 
         Ship[] AvailableShips => AllButRearShips.Filter(ship => !ship.AI.HasPriorityOrder);

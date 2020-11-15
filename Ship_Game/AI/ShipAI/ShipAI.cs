@@ -183,7 +183,7 @@ namespace Ship_Game.AI
 
             if (ScanTargetUpdated)
             {
-                if (!HasPriorityTarget || Target?.Active == false)
+                if (!HasPriorityOrder && (!HasPriorityTarget || Target?.Active == false))
                     Target = ScannedTarget;
                 ScanTargetUpdated = false;
             }
@@ -380,7 +380,14 @@ namespace Ship_Game.AI
 
             // fbedard: civilian ships will evade combat (nice target practice)
             if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear)
-                CombatState = CombatState.Evade;
+            {
+                if (Owner.WeaponsMaxRange <= 0 || PotentialTargets.Sum(o => o.GetStrength()) < Owner.GetStrength())
+                {
+                    CombatState = CombatState.Evade;
+                }
+                
+
+            }
         }
 
         void AIStateRebase()
@@ -524,6 +531,7 @@ namespace Ship_Game.AI
 
         void IdleFleetAI(FixedSimTime timeStep)
         {
+
             if (DoNearFleetOffset(timeStep))
             {
                 if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
@@ -539,7 +547,7 @@ namespace Ship_Game.AI
                     SetPriorityOrder(true);  // FB this might cause serious issues that make orbiting ships stuck with PO and not available anymore for the AI.
                     State = AIState.AwaitingOrders;
                     AddShipGoal(Plan.MakeFinalApproach,
-                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
+                        Owner.fleet.GetFormationPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
                 }
                 else
                 {
