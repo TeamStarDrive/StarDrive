@@ -89,7 +89,8 @@ namespace Ship_Game.AI
             else
             {
                 targetValue += turnRatio + stlRatio + errorRatio;
-                targetValue += (float)Math.Round((weaponsRange - distanceToTarget) / weaponsRange, 1);
+                if (weaponsRange > 0)
+                    targetValue += (float)Math.Round((weaponsRange - distanceToTarget) / weaponsRange, 1);
             }
 
             float rangeToEnemyCenter = 0;
@@ -101,19 +102,24 @@ namespace Ship_Game.AI
                 targetValue += motherShip.LastDamagedBy == target ? 0.25f : 0;
                 targetValue += motherShip.Center.InRadius(target.Center, target.WeaponsMaxRange) ? 0.1f :0;
                 rangeToEnemyCenter = motherShip.Center.SqDist(targetPrefs.Center) - motherShip.Center.SqDist(target.Center);
-                float rangeValue = (float)Math.Round((rangeToEnemyCenter / motherShip.WeaponsMaxRange), 1);
+                float rangeValue = (float)Math.Round(1 - rangeToEnemyCenter / motherShip.WeaponsMaxRange.LowerBound(1000), 1);
                 targetValue += rangeValue;
             }
             else
             {
                 rangeToEnemyCenter = center.Distance(targetPrefs.Center);
-                float rangeValue   = (float)Math.Round((1 - (rangeToEnemyCenter / Owner.WeaponsMaxRange)), 1);
+                float rangeValue   = (float)Math.Round(1 - rangeToEnemyCenter / Owner.WeaponsMaxRange.LowerBound(1000), 1);
                 targetValue       += rangeValue;
             }
             
             targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
 
             weight.SetWeight(targetValue);
+
+            if (float.IsNaN(weight.Weight))
+                Log.Error($"ship weight NaN for {weight.Ship}");
+            if (float.IsInfinity(weight.Weight))
+                Log.Error($"ship weight infinite for {weight.Ship}");
             return weight;
         }
 
