@@ -618,7 +618,7 @@ namespace Ship_Game
         /// Returns the preferred Environment Modifier of a given empire.This is null Safe.
         /// </summary>
         public static float PreferredEnvModifier(Empire empire)
-            => empire == null ? 1 :  RacialEnvModifer(empire.data.PreferredEnv, empire);
+            => empire == null ? 1 : RacialEnvModifer(empire.data.PreferredEnv, empire);
 
 
         /// <summary>
