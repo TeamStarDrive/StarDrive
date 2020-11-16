@@ -357,16 +357,28 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter"); ;
         }
 
-        public void AddShipRecovered(Planet p, string message)
+        public void AddShipRecovered(Planet p, Ship s, string message)
         {
-            AddNotification(new Notification
+            var recover = new Notification
             {
-                Pause           = false,
-                Message         = message,
-                ReferencedItem1 = p,
-                IconPath        = p.IconPath,
-                Action          = "SnapToPlanet"
-            }, "sd_ui_notification_encounter"); ;
+                Pause   = false,
+                Message = message
+            };
+
+            if (s != null)
+            {
+                recover.ReferencedItem1 = s;
+                recover.IconPath        = s.shipData.BaseHull.ActualIconPath;
+                recover.Action          = "SnapToShip";
+            }
+            else
+            {
+                recover.ReferencedItem1 = p;
+                recover.IconPath        = p.IconPath;
+                recover.Action          = "SnapToPlanet";
+            }
+
+            AddNotification(recover, "sd_ui_notification_encounter");
         }
 
         public void AddMoneyWarning()
