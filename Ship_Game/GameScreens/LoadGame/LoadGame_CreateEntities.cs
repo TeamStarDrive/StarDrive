@@ -155,7 +155,7 @@ namespace Ship_Game
                 if (d.CrashSiteActive)
                 {
                     Empire e = EmpireManager.GetEmpireById(d.CrashSiteEmpireId);
-                    pgs.DynamicCrash.CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, p, pgs, true);
+                    pgs.CrashSite.CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, p, pgs, true);
                 }
 
                 p.TilesList.Add(pgs);
@@ -169,7 +169,7 @@ namespace Ship_Game
                     p.AddTroop(t, pgs);
                 }
 
-                if (pgs.building == null || pgs.DynamicCrash.Active)
+                if (pgs.building == null || pgs.CrashSite.Active)
                     continue;
 
                 if (!ResourceManager.GetBuilding(pgs.building.Name, out Building template))
