@@ -131,6 +131,7 @@ namespace Ship_Game.Ships
         private float dietimer;
         public float BaseStrength;
         public bool dying;
+        public Planet PlanetCrashingOn { get; private set; }
         private bool reallyDie;
         private bool HasExploded;
         public float FTLSpoolTime;
@@ -235,6 +236,15 @@ namespace Ship_Game.Ships
             percent = percent.Clamped(0f, 1f);
             foreach (ShipModule module in ModuleSlotList)
                 module.DebugDamage(percent);
+        }
+
+        public void DamageByRecoveredFromCrash()
+        {
+            foreach (ShipModule module in ModuleSlotList)
+                module.DamageByRecoveredFromCrash();
+
+            Carrier.ResetAllHangarTimers();
+            KillAllTroops();
         }
 
         public ShipData.RoleName DesignRole { get; private set; }
@@ -1428,7 +1438,9 @@ namespace Ship_Game.Ships
 
         void ExplodeShip(float size, bool addWarpExplode)
         {
-            if (!InFrustum) return;
+            if (!InFrustum) 
+                return;
+
             var position = new Vector3(Center.X, Center.Y, -100f);
 
             float boost = 1f;
@@ -1436,12 +1448,14 @@ namespace Ship_Game.Ships
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
             ExplosionManager.AddExplosion(position, Velocity,
-                size * boost, 12f, ExplosionType.Ship);
+                PlanetCrashingOn != null ? size * 0.05f : size * boost, 12f, ExplosionType.Ship);
+
+            if (PlanetCrashingOn != null)
+                return;
+
             if (addWarpExplode)
-            {
-                ExplosionManager.AddExplosion(position, Velocity,
-                    size*1.75f, 12f, ExplosionType.Warp);
-            }
+                ExplosionManager.AddExplosion(position, Velocity, size*1.75f, 12f, ExplosionType.Warp);
+
             UniverseScreen.Spatial.ShipExplode(this, size * 50, Center, Radius);
         }
 
@@ -1449,39 +1463,23 @@ namespace Ship_Game.Ships
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
             ++DebugInfoScreen.ShipsDied;
-            Projectile psource = source as Projectile;
+            Projectile pSource = source as Projectile;
             if (!cleanupOnly)
             {
-                psource?.Module?.GetParent().UpdateEmpiresOnKill(this);
-                psource?.Module?.GetParent().AddKill(this);
+                pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
+                pSource?.Module?.GetParent().AddKill(this);
             }
 
-            // 35% the ship will not explode immediately, but will start tumbling out of control
-            // we mark the ship as dying and the main update loop will set reallyDie
-            if (UniverseRandom.IntBetween(0, 100) > 65.0 && !IsPlatform && InFrustum)
-            {
-                dying         = true;
-                DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                dietimer      = UniverseRandom.RandomBetween(4f, 6f);
-                if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
-                    reallyDie = true;
-            }
-            else
-            {
-                reallyDie = true;
-            }
-
+            reallyDie = cleanupOnly || WillShipDieNow(pSource);
             if (dying && !reallyDie)
                 return;
 
-            if (psource?.Owner != null)
+            if (pSource?.Owner != null)
             {
                 float amount = 1f;
                 if (ResourceManager.ShipRoles.ContainsKey(shipData.Role))
                     amount = ResourceManager.ShipRoles[shipData.Role].DamageRelations;
-                loyalty.DamageRelationship(psource.Owner.loyalty, "Destroyed Ship", amount, null);
+                loyalty.DamageRelationship(pSource.Owner.loyalty, "Destroyed Ship", amount, null);
             }
             if (!cleanupOnly && InFrustum)
             {
@@ -1516,6 +1514,8 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
+                    if (PlanetCrashingOn != null)
+                        return;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
                     float radSqrt   = (float)Math.Sqrt(Radius);
@@ -1531,6 +1531,7 @@ namespace Ship_Game.Ships
                     }
                 }
             }
+
             if (BaseHull.EventOnDeath != null)
             {
                 var evt = ResourceManager.EventsDict[BaseHull.EventOnDeath];
@@ -1539,8 +1540,49 @@ namespace Ship_Game.Ships
             }
 
             QueueTotalRemoval();
-
             base.Die(source, cleanupOnly);
+        }
+
+        bool WillShipDieNow(Projectile proj)
+        {
+            if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
+                return true;
+
+            if (RandomMath.RollDice(35) && !IsPlatform)
+            {
+                // 35% the ship will not explode immediately, but will start tumbling out of control
+                // we mark the ship as dying and the main update loop will set reallyDie
+                int tumbleSeconds   = UniverseRandom.IntBetween(4, 8);
+                PlanetCrashingOn = TryCrashOnPlanet(tumbleSeconds*2);
+                if (InFrustum)
+                {
+                    dying         = true;
+                    DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    dietimer      = tumbleSeconds;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        Planet TryCrashOnPlanet(int etaSeconds)
+        {
+            if (IsStation || System == null || HomePlanet != null)
+                return null;
+
+            for (int i = 0; i < System.PlanetList.Count; i++)
+            {
+                Planet p = System.PlanetList[i];
+                if (Center.InRadius(p.Center, p.ObjectRadius * p.Scale * 1.2f + CurrentVelocity * (etaSeconds + Level)))
+                {
+                    return p;
+                }
+            }
+
+            return null;
         }
 
         public void QueueTotalRemoval()

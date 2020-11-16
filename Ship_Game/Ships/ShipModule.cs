@@ -667,6 +667,36 @@ namespace Ship_Game.Ships
             Damage(source, damage);
         }
 
+        public void DamageByRecoveredFromCrash()
+        {
+            float percent;
+            switch (Restrictions)
+            {
+                case Restrictions.E:
+                case Restrictions.OE:
+                case Restrictions.O:
+                case Restrictions.xO: percent = 1; break;
+                default:              percent = 0.95f; break; // contains I
+            }
+
+            if (Is(ShipModuleType.Engine))
+                percent = RandomMath.RollDice(20) ? 0.75f : 1;
+
+            if (Is(ShipModuleType.Command)
+                || Is(ShipModuleType.PowerPlant)
+                || Is(ShipModuleType.Command)
+                || explodes)
+            {
+                percent = 0.95f;
+            }
+
+            Ship source  = GetParent();
+            if (ActualShieldPowerMax > 0)
+                Damage(source, ActualShieldPowerMax); // Kill shield power first
+
+            Damage(source, Health * percent);
+        }
+
         public override void Damage(GameplayObject source, float damageAmount)
             => Damage(source, damageAmount, out float _);
 
@@ -946,6 +976,12 @@ namespace Ship_Game.Ships
                 hangarTimer           = hangarTimerConstant;
                 Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
             }
+        }
+
+        public void ResetHangarTimer()
+        {
+            if (hangarTimerConstant.Greater(0))
+                hangarTimer = hangarTimerConstant;
         }
 
         public void SetAttributes()

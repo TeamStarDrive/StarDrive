@@ -225,6 +225,15 @@ namespace Ship_Game.Ships
             return sentAssault;
         }
 
+        public void ResetAllHangarTimers()
+        {
+            if (Owner == null)
+                return;
+
+            foreach (ShipModule m in AllHangars)
+                m.ResetHangarTimer();
+        }
+
         public bool TryScrambleSingleAssaultShuttle(Troop troop, out Ship assaultShuttle)
         {
             assaultShuttle = null;

@@ -373,9 +373,11 @@ namespace Ship_Game.Universe.SolarBodies
             return item != null;
         }
 
-        public void Cancel(QueueItem q)
+        public void Cancel(QueueItem q, bool refund = true)
         {
-            P.ProdHere += q.ProductionSpent;
+            if (refund)
+                P.ProdHere += q.ProductionSpent / 2;
+
             if (q.pgs != null)
             {
                 q.pgs.QItem = null;
