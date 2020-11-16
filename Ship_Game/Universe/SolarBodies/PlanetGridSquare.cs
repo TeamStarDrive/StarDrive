@@ -96,7 +96,7 @@ namespace Ship_Game
         {
             using (TroopsHere.AcquireWriteLock())
             {
-                for (int i = 0; i < TroopsHere.Count; ++i)
+                for (int i = TroopsHere.Count - 1; i >= 0; --i)
                 {
                     Troop t = TroopsHere[i];
                     t.KillTroop(p, this);

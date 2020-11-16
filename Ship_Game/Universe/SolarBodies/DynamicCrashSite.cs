@@ -14,7 +14,7 @@ namespace Ship_Game.Universe.SolarBodies
         public DynamicCrashSite(bool active)
         {
             Active            = active;
-            Loyalty            = null;
+            Loyalty           = null;
             ShipName          = "";
             TroopName         = "";
             NumTroopsSurvived = 0;
@@ -27,7 +27,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             Active            = true;
-            Loyalty            = empire;
+            Loyalty           = empire;
             ShipName          = shipName;
             TroopName         = troopName;
             NumTroopsSurvived = numTroopsSurvived;
