@@ -592,6 +592,11 @@ namespace Ship_Game
             ProdHere += b.ActualCost / 2f;
         }
 
+        public void DestroyBuildingOn(PlanetGridSquare tile)
+        {
+            RemoveBuildingFromPlanet(tile, true);
+        }
+
         private void RemoveBuildingFromPlanet(Building b)
         {
             BuildingList.Remove(b);
@@ -604,7 +609,7 @@ namespace Ship_Game
             PostBuildingRemoval(b);
         }
 
-        private void RemoveBuildingFromPlanet(PlanetGridSquare tile)
+        private void RemoveBuildingFromPlanet(PlanetGridSquare tile, bool destroy = false)
         {
             if (tile?.building == null)
                 return;
@@ -612,10 +617,10 @@ namespace Ship_Game
             Building b = tile.building;
             BuildingList.Remove(b);
             tile.building = null;
-            PostBuildingRemoval(b);
+            PostBuildingRemoval(b, destroy);
         }
 
-        private void PostBuildingRemoval(Building b)
+        private void PostBuildingRemoval(Building b, bool destroy = false)
         {
             // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
             // environment buildings can be scrapped and the planet will slowly recover
@@ -624,7 +629,8 @@ namespace Ship_Game
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
 
-            Owner?.RefundCreditsPostRemoval(b);
+            if (!destroy)
+                Owner?.RefundCreditsPostRemoval(b);
         }
 
         public void ClearBioSpheresFromList(PlanetGridSquare tile)
@@ -1032,39 +1038,61 @@ namespace Ship_Game
             if (!Habitable)
                 return;
 
-            var freeTiles = TilesList.Filter(t => !t.BuildingOnTile && !t.TroopsAreOnTile && t.QItem == null);
-            if (freeTiles.Length == 0)
-                return;
-
-            PlanetGridSquare crashTile = freeTiles.RandItem();
-            float survivalChance       = 20 + ship.Level * 2;
-            if (!Type.EarthLike)
-                survivalChance *= 2; // No atmosphere, not able to burn during planet fall
-
-            survivalChance *= 1 + ship.loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
-            survivalChance += ship.SurfaceArea / 100f;
-            survivalChance  = survivalChance.Clamped(1, 100);
-
-            if (!RandomMath.RollDice(survivalChance))
-                return;  // Ship did not make it
-
-            int numTroopsSurvived = 0;
-            var ourTroops         = ship.GetOurTroops();
-            string troopName      = "";
-
-            for (int i = 0; i < ourTroops.Count; i++)
+            float survivalChance = GetSurvivalChance();
+            if (RandomMath.RollDice(survivalChance) && TryGetCrashTile(out PlanetGridSquare crashTile))
             {
-                Troop troop         = ourTroops[i];
-                float troopSurvival = 50 * Empire.PreferredEnvModifier(troop.Loyalty);
-                if (RandomMath.RollDice(troopSurvival))
-                {
-                    numTroopsSurvived += 1;
-                    if (troopName.IsEmpty())
-                        troopName = troop.Name;
-                }
+                int numTroopsSurvived = GetNumTroopSurvived(out string troopName);
+                crashTile.CrashSite.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile);
             }
 
-            crashTile.DynamicCrash.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile);
+            // Local Functions
+            float GetSurvivalChance()
+            {
+                float chance = 20 + ship.Level * 2;
+                chance      *= Scale; // Gravity affects how hard is a crash
+                if (!Type.EarthLike)
+                    chance *= 2; // No atmosphere, not able to burn during planet fall
+
+                chance *= 1 + ship.loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
+                chance += ship.SurfaceArea / 100f;
+                return chance.Clamped(1, 100);
+            }
+
+            bool TryGetCrashTile(out PlanetGridSquare tile)
+            {
+                tile = null;
+                float destroyBuildingChance = ship.SurfaceArea / 100f;
+                var potentialTiles = RandomMath.RollDice(destroyBuildingChance)
+                                     ? TilesList.Filter(t => t.CanCrashHere) 
+                                     : TilesList.Filter(t => t.NoBuildingOnTile);
+
+                if (potentialTiles.Length == 0)
+                    return false;
+
+                tile = potentialTiles.RandItem();
+                return tile != null;
+            }
+
+            int GetNumTroopSurvived(out string name)
+            {
+                int numTroops = 0;
+                var ourTroops = ship.GetOurTroops();
+                name          = "";
+
+                for (int i = 0; i < ourTroops.Count; i++)
+                {
+                    Troop troop = ourTroops[i];
+                    float troopSurvival = 50 * Empire.PreferredEnvModifier(troop.Loyalty);
+                    if (RandomMath.RollDice(troopSurvival))
+                    {
+                        numTroops += 1;
+                        if (name.IsEmpty())
+                            name = troop.Name;
+                    }
+                }
+
+                return numTroops;
+            }
         }
 
         private void ApplyResources()
