@@ -152,7 +152,8 @@ namespace Ship_Game.AI.Tasks
 
         AO FindClosestAO(float strWanted = 100)
         {
-            if (RallyAO != null) return RallyAO;
+            if (RallyAO != null) 
+                return RallyAO;
             var aos =  Owner.GetEmpireAI().AreasOfOperations;
             if (aos.Count == 0)
             {
@@ -402,7 +403,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             // where the fleet will gather after requisition before moving to target AO.
-            Planet rallyPoint = GetRallyPlanet();
+            Planet rallyPoint = TargetPlanet ?? GetRallyPlanet();
             if (rallyPoint == null)
                 return RequisitionStatus.NoRallyPoint;
 
@@ -456,6 +457,7 @@ namespace Ship_Game.AI.Tasks
             float strengthNeeded = MinimumTaskForceStrength.LowerBound(EnemyStrength) * strengthIncrease;
 
             // All's Good... Make a fleet
+
             TaskForce = fleetShips.ExtractShipSet(strengthNeeded, TaskBombTimeNeeded,
                 NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets, rallyCenter: rallyPoint.Center);
 

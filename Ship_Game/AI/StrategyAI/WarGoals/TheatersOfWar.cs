@@ -18,6 +18,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public Array<Theater> Theaters = new Array<Theater>();
         public War GetWar() => OwnerWar;
         int TheirSystemCount = 0;
+        public Theater[] ActiveTheaters;
         [XmlIgnore][JsonIgnore] public float WarValue => Theaters.Sum(t => t.TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us));
         
         public TheatersOfWar (War war)
@@ -37,6 +38,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 theater.RestoreFromSave(this);
         }
 
+        void SetActiveTheaters()
+        {
+            ActiveTheaters = new Theater[0];
+            if (OwnerWar.GetPriority() <= Us.GetEmpireAI().MinWarPriority)
+            {
+                Theater[] theaters = Theaters.Filter(t => t.Priority <= OwnerWar.LowestTheaterPriority);
+
+                if (theaters.Length > 0)
+                    ActiveTheaters = new Theater[1] { theaters.SortedDescending(t => t.WarValue)[0] };
+            }
+        }
+
         public void Evaluate()
         {
             float baseDistance = TheaterClosestToItsRally();
@@ -46,9 +59,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 theater.SetTheaterPriority(baseDistance);
             }
 
-            Theater[] theaters = Theaters.SortedDescending(t=> t.Priority);
-            for (int i = 0; i < theaters.Length; i++) 
-                theaters[i].Evaluate();
+            SetActiveTheaters();
+
+            for (int i = 0; i < Theaters.Count; i++)
+            {
+                Theaters[i].Evaluate();
+            }
 
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
@@ -233,11 +249,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             debug.AddLine($"Theaters : {Theaters.Count}");
             debug.AddLine($"WarValue : {WarValue}");
-            int minPriority = Theaters.FindMin(t => t.Priority)?.Priority ?? 10;
-            for (int i = 0; i < Theaters.Count; i++)
+            
+            for (int i = 0; i < (ActiveTheaters?.Length ?? 0); i++)
             {
-                var theater = Theaters[i];
-                if (theater.Priority > minPriority) continue;
+                var theater = ActiveTheaters[i];
                 debug.AddLine($"Theater : {i} WarValue : {theater.WarValue}");
                 debug = theater.DebugText(debug, pad1, pad2);
             }

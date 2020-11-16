@@ -162,7 +162,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public override GoalStep Evaluate()
         {
             RallyAO   = RallyAO ?? OwnerTheater.RallyAO;
-            var state = base.Evaluate();
+            GoalStep state = GoalStep.TryAgain;
+            if (OwnerWar.WarTheaters.ActiveTheaters.Contains(OwnerTheater))
+                state = base.Evaluate();
             Tasks.Update();
             return state;
         }
@@ -303,24 +305,24 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return GoalStep.GoToNextStep;
         }
 
-        protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
+        protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> priorities)
         {
             int priority = OwnerTheater.Priority + 1;
-            int fleetCount = Owner.Pool.InitialReadyFleets / 2;
+            //int fleetCount = Owner.Pool.InitialReadyFleets / 2;
 
             for (int i = 0; i < currentTargets.Count; i++)
             {
-                if (--fleetCount < 1)
-                    break;
-                var closestSystem = currentTargets[i];
-                int closestIndex  = currentTargets.IndexOf(closestSystem);
-                Tasks.StandardSystemDefense(closestSystem, priority, strengths[closestIndex]);
+                //if (--fleetCount < 1)
+                //    break;
+                var currentTarget = currentTargets[i];
+                int targetIndex  = currentTargets.IndexOf(currentTarget);
+                Tasks.StandardSystemDefense(currentTarget, priorities[targetIndex], 1);
             }
         }
 
         protected void AttackArea(Vector2 center, float radius, float strength)
         {
-            int priority = OwnerTheater.Priority + 2;
+            int priority = 0;
             if (priority > 10) return;
             Tasks.StandardAreaClear(center, radius, priority, strength);
         }

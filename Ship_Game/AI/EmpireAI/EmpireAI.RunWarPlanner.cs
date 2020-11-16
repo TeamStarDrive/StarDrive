@@ -17,6 +17,7 @@ namespace Ship_Game.AI
         public War EmpireDefense;
         public float TotalWarValue { get; private set; }
         public float WarStrength = 0;
+        public int MinWarPriority { get; private set; }
         
         public void SetTotalWarValue()
         {
@@ -297,8 +298,8 @@ namespace Ship_Game.AI
 
             foreach((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
             {
-                if (GlobalStats.RestrictAIPlayerInteraction && other.isPlayer) 
-                    continue;
+                //if (GlobalStats.RestrictAIPlayerInteraction && other.isPlayer) 
+                //    continue;
 
                 if (other.data.Defeated && rel.ActiveWar != null)
                 {
@@ -319,10 +320,16 @@ namespace Ship_Game.AI
             }
 
             // Process wars by their success.
-            foreach(War war in activeWars.SortedDescending(w=> w.GetPriority()))
+            MinWarPriority = 10;
+            if (activeWars.Count > 0)
+            {
+                MinWarPriority = activeWars.Min(w => w.Them.isFaction ? 8 : w.GetPriority());
+            }
+
+            foreach (War war in activeWars.SortedDescending(w => w.GetPriority()))
             {
                 var currentWar = war.ConductWar();
-                worstWar       = worstWar > currentWar ? currentWar : worstWar;
+                worstWar = worstWar > currentWar ? currentWar : worstWar;
             }
 
             WarStrength = OwnerEmpire.Pool.EmpireReadyFleets.AccumulatedStrength;

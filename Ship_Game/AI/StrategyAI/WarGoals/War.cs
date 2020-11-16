@@ -66,7 +66,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var warState = Score.GetWarScoreState();
             if (Us != Them)
             {
-                float strengthMod = Us.CurrentMilitaryStrength / Them.CurrentMilitaryStrength;
+                float strengthMod = Us.CurrentMilitaryStrength / Them.CurrentMilitaryStrength.LowerBound(1);
                 return 8 - (int)((int)warState * strengthMod).UpperBound(8);
             }
             return 0;

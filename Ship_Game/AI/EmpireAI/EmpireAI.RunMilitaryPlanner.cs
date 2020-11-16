@@ -23,7 +23,6 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer)
                 return;
-
             RunGroundPlanner();
             NumberOfShipGoals   = 3;
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
@@ -38,7 +37,7 @@ namespace Ship_Game.AI
             Toughnuts = 0;
 
             var tasks = TaskList.SortedDescending(t=> t.Priority);
-
+            
             foreach (MilitaryTask task in tasks)
             {
                 if (!task.QueuedForRemoval)
