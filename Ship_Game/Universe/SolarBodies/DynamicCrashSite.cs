@@ -3,9 +3,9 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies
 {
-    public struct DynamicCrashSite
+    public struct DynamicCrashSite // Created by Fat Bastard, Nov 2020
     {
-        public Empire Empire;
+        public Empire Loyalty;
         public string ShipName;
         public int NumTroopsSurvived;
         public bool Active;
@@ -14,7 +14,7 @@ namespace Ship_Game.Universe.SolarBodies
         public DynamicCrashSite(bool active)
         {
             Active            = active;
-            Empire            = null;
+            Loyalty            = null;
             ShipName          = "";
             TroopName         = "";
             NumTroopsSurvived = 0;
@@ -27,7 +27,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             Active            = true;
-            Empire            = empire;
+            Loyalty            = empire;
             ShipName          = shipName;
             TroopName         = troopName;
             NumTroopsSurvived = numTroopsSurvived;
@@ -46,8 +46,16 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (tile.BuildingOnTile)
             {
-                message = $"{message}\n Unfortunately, it crashed on {tile.building.TranslatedName.Text}.";
+                message = $"{message}\n Unfortunately, it crashed on the {tile.building.TranslatedName.Text}.";
                 p.DestroyBuildingOn(tile);
+            }
+
+            if (tile.QItem?.isBuilding == true)
+            {
+                message = $"{message}\nUnfortunately, it crashed on the {tile.QItem.Building.TranslatedName.Text}\n" +
+                          "Construction site.";
+
+                p.Construction.Cancel(tile.QItem, refund: false);
             }
 
             if (tile.TroopsAreOnTile)
@@ -81,7 +89,7 @@ namespace Ship_Game.Universe.SolarBodies
             SpawnSurvivingTroops(p, owner, tile, out string troopMessage);
             p.DestroyBuildingOn(tile);
 
-            if (owner.isPlayer || !owner.isPlayer && Empire.isPlayer && NumTroopsSurvived > 0)
+            if (owner.isPlayer || !owner.isPlayer && Loyalty.isPlayer && NumTroopsSurvived > 0)
                 Empire.Universe.NotificationManager.AddShipRecovered(p, $"{message}{troopMessage}");
         }
 
@@ -90,13 +98,13 @@ namespace Ship_Game.Universe.SolarBodies
             Ship template       = ResourceManager.GetShipTemplate(ShipName);
             float recoverChance = CalcRecoverChance(template, activatingEmpire);
 
-            if (RandomMath.RollDice(100))
+            if (RandomMath.RollDice(recoverChance))
             {
                 string otherOwners = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
-                Ship ship = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
+                Ship ship          = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
+                message            = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
 
                 ship.DamageByRecoveredFromCrash();
-                message = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
             }
             else
             {
@@ -120,20 +128,20 @@ namespace Ship_Game.Universe.SolarBodies
             Relationship rel = null;
             message          = "The Crew was perished.";
 
-            if (Empire != owner)
-                rel = owner.GetRelations(Empire);
+            if (Loyalty != owner)
+                rel = owner.GetRelations(Loyalty);
 
-            if (rel?.AtWar == false && rel.CanAttack && !Empire.isFaction)
+            if (rel?.AtWar == false && rel.CanAttack && !Loyalty.isFaction)
             {
                 NumTroopsSurvived = 0;
                 return; // Dont spawn troops, risking war
             }
 
-            bool shouldLandTroop = Empire == owner || rel?.AtWar == true || Empire.isFaction;
+            bool shouldLandTroop = Loyalty == owner || rel?.AtWar == true || Loyalty.isFaction;
             for (int i = 1; i <= NumTroopsSurvived; i++)
             {
-                Troop t = ResourceManager.CreateTroop(TroopName, Empire);
-                t.SetOwner(Empire);
+                Troop t = ResourceManager.CreateTroop(TroopName, Loyalty);
+                t.SetOwner(Loyalty);
                 if (!shouldLandTroop || !t.TryLandTroop(p, tile))
                 {
                     Ship ship = t.Launch(p);
@@ -144,8 +152,8 @@ namespace Ship_Game.Universe.SolarBodies
             if (NumTroopsSurvived == 0)
                 return;
 
-            bool playerTroopsRecovered = Empire == EmpireManager.Player && owner != EmpireManager.Player;
-            if (Empire == owner)
+            bool playerTroopsRecovered = Loyalty == EmpireManager.Player && owner != EmpireManager.Player;
+            if (Loyalty == owner)
             {
                 message = "Friendly Troops have Survived.";
             }
@@ -166,9 +174,9 @@ namespace Ship_Game.Universe.SolarBodies
         float CalcRecoverChance(Ship template, Empire activatingEmpire)
         {
             float chance = 20 * (1 + activatingEmpire.data.Traits.ModHpModifier);
-            if (Empire == activatingEmpire)
+            if (Loyalty == activatingEmpire)
                 chance += 5; // Familiarity with our ships
-            else if (Empire.WeAreRemnants)
+            else if (Loyalty.WeAreRemnants)
                 chance -= template.SurfaceArea / 15f; // Remnants tend to self destruct
 
             return chance.Clamped(1, 50);

@@ -45,8 +45,8 @@ namespace Ship_Game.Commands.Goals
                 && PlanetBuildingAt.Storage.ProdRatio > 0.75f 
                 && empire.data.TaxRate < 0.25f) 
             {
-                const float rush = 10;
-                PlanetBuildingAt.Construction.RushProduction(0, rush.UpperBound(PlanetBuildingAt.ProdHere), rush: true);
+                float rush = 10f.UpperBound(PlanetBuildingAt.ProdHere);
+                PlanetBuildingAt.Construction.RushProduction(0, rush, rush: true);
             }
             return GoalStep.TryAgain;
         }
