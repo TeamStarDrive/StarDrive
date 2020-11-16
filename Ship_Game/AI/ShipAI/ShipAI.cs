@@ -784,10 +784,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.DesiredCombatRange))
+            if (Owner.InCombat && Owner.Center.OutsideRadius(escortTarget.Center, Owner.DesiredCombatRange))
             {
                 Owner.AI.SetPriorityOrder(true);
-                Orbit.Orbit(EscortTarget, timeStep);
+                Orbit.Orbit(escortTarget, timeStep);
             }
         }
 

@@ -943,13 +943,25 @@ namespace Ship_Game.Fleets
         {
             bool endTask  = task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.IsAtWarWith(Owner) == false;
             endTask      |= task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1;
-            endTask      |= !Ships.Select(s => s.Bomb60SecStatus()).Any(bt=> bt != Status.NotApplicable && bt != Status.Critical);
-            if (endTask)
+            bool bombOK   = Ships.Select(s => s.Bomb60SecStatus()).Any(bt=> bt != Status.NotApplicable && bt != Status.Critical);
+            if (!bombOK)
             {
                 EndInvalidTask(!TryOrderPostBombFleet(task, 3));
                 return;
             }
-            
+            if (endTask)
+                TaskStep = 5;
+
+            if (TaskStep < 2)
+            {
+                bool targetCloser = AveragePos.SqDist(task.RallyPlanet.Center) > AveragePos.SqDist(task.TargetPlanet.Center);
+                if (bombOK && targetCloser)
+                {
+                    TaskStep = 2;
+                    GatherAtAO(task, 400000);
+                }
+            }
+
             task.AO = task.TargetPlanet.Center;
             switch (TaskStep)
             {
@@ -965,10 +977,6 @@ namespace Ship_Game.Fleets
                         TaskStep = 2;
                         break;
                     }
-                    else if (moveStatus.HasFlag(MoveStatus.AssembledInCombat))
-                    {
-                        task.Step = 5;
-                    }
                     break;
                 case 2:
                     if (!ArrivedAtCombatRally(FinalPosition))
@@ -983,17 +991,25 @@ namespace Ship_Game.Fleets
                 case 4:
                     if (ShipsOffMission(task))
                         TaskStep = 3;
+                    StartBombing(task.TargetPlanet);
                     break;
                 case 5:
+
+                    bool inSystem = AveragePos.InRadius(task.TargetPlanet.Center, task.TargetPlanet.ParentSystem.Radius);
                     var currentSystem = task.RallyPlanet.ParentSystem;
-                    if (currentSystem.OwnerList.Any(e=> Owner.IsEmpireHostile(e))) 
+
+                    var newTarget = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
+                    if (EndInvalidTask(newTarget == null || !inSystem))
                     {
-                        var newTarget = currentSystem.PlanetList.Find(p => Owner.IsEmpireHostile(p.Owner));
-                        EngageCombatToPlanet(newTarget.Center, true);
-                        StartBombing(newTarget);
-                        FinalPosition = task.RallyPlanet.Center;
+                        break;
                     }
-                    task.Step = 1;
+
+                    task.SetTargetPlanet(newTarget);
+                    EngageCombatToPlanet(newTarget.Center, true);
+                    StartBombing(newTarget);
+                    FinalPosition = task.TargetPlanet.Center;
+                    task.AO = newTarget.Center;
+                    task.Step = 3;
                     break;
             }
         }

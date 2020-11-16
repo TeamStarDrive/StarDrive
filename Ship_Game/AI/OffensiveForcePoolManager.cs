@@ -98,7 +98,7 @@ namespace Ship_Game.AI
 
         public AO GetAOContaining(Planet planetToCheck)
         {
-            return AreasOfOperations.Find(ao=> ao.CoreWorld == planetToCheck || ao.GetPlanets().Contains(planetToCheck));
+            return AreasOfOperations.Find(ao=> ao.CoreWorld == planetToCheck || ao.CoreWorld.ParentSystem == planetToCheck.ParentSystem || ao.GetPlanets().Contains(planetToCheck));
         }
 
         public AO GetAOContaining(Vector2 point)
