@@ -58,6 +58,12 @@ namespace Ship_Game.Ships
             RemoveAnyTroop(troop);
         }
 
+        public void KillAllTroops()
+        {
+            for (int i = OurTroops.Count - 1; i >= 0; i--)
+                OurTroops.RemoveAt(i);
+        }
+
         public float GetOurTroopStrength(int maxTroops)
         {
             float strength = 0;
