@@ -345,12 +345,12 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddShipCrashed(Planet p)
+        public void AddShipCrashed(Planet p, string message)
         {
             AddNotification(new Notification
             {
                 Pause           = false,
-                Message         = $"A ship has crashed landed on {p.Name}",
+                Message         = message,
                 ReferencedItem1 = p,
                 IconPath        = p.IconPath,
                 Action          = "SnapToPlanet"
