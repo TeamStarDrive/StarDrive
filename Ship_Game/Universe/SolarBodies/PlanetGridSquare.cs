@@ -328,7 +328,7 @@ namespace Ship_Game
                 CrashSiteShipName  = CrashSite.ShipName,
                 CrashSiteTroopName = CrashSite.TroopName,
                 CrashSiteTroops    = CrashSite.NumTroopsSurvived,
-                CrashSiteEmpireId  = CrashSite.Empire?.Id ?? -1
+                CrashSiteEmpireId  = CrashSite.Loyalty?.Id ?? -1
             };
         }
     }

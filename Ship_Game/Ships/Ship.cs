@@ -1542,10 +1542,10 @@ namespace Ship_Game.Ships
 
         bool WillShipDieNow(Projectile proj)
         {
-            if (proj != null && proj.Explodes && proj.DamageAmount > SurfaceArea.LowerBound(200))
+            if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
                 return true;
 
-            if (RandomMath.RollDice(100) && !IsPlatform)
+            if (RandomMath.RollDice(35) && !IsPlatform)
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
@@ -1573,7 +1573,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < System.PlanetList.Count; i++)
             {
                 Planet p = System.PlanetList[i];
-                if (Center.InRadius(p.Center, p.ObjectRadius + CurrentVelocity * (etaSeconds + Level)))
+                if (Center.InRadius(p.Center, p.ObjectRadius * p.Scale * 1.2f + CurrentVelocity * (etaSeconds + Level)))
                 {
                     return p;
                 }
