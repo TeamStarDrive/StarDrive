@@ -22,6 +22,7 @@
         public readonly int ExpandSearchTurns; // For Expansion
         public readonly int RemnantTurnsLevelUp; // How many turns should pass before Remnants level up
         public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
+        public readonly float RemnantNumBombers; // Multiplier to Remnant bombers wanted
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -67,6 +68,7 @@
                     ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 540;
                     RemnantResourceMod   = 0.2f;
+                    RemnantNumBombers    = 1; 
 
                     if (!empire.isPlayer)
                     {
@@ -95,6 +97,7 @@
                     ExpandSearchTurns    = 75;
                     RemnantTurnsLevelUp  = 480;
                     RemnantResourceMod   = 0.35f;
+                    RemnantNumBombers    = 1.5f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -113,6 +116,7 @@
                     ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.5f;
+                    RemnantNumBombers    = 2;
 
                     if (!empire.isPlayer)
                     {
@@ -142,6 +146,7 @@
                     ExpandSearchTurns    = 25;
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.7f;
+                    RemnantNumBombers    = 2.5f;
 
                     if (!empire.isPlayer)
                     {
