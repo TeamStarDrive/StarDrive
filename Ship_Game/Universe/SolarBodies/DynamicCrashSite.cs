@@ -85,15 +85,15 @@ namespace Ship_Game.Universe.SolarBodies
             Active       = false;
             Empire owner = p.Owner ?? activatingEmpire;
 
-            SpawnShip(p, activatingEmpire, owner, out string message);
+            Ship ship = SpawnShip(p, activatingEmpire, owner, out string message);
             SpawnSurvivingTroops(p, owner, tile, out string troopMessage);
             p.DestroyBuildingOn(tile);
 
             if (owner.isPlayer || !owner.isPlayer && Loyalty.isPlayer && NumTroopsSurvived > 0)
-                Empire.Universe.NotificationManager.AddShipRecovered(p, $"{message}{troopMessage}");
+                Empire.Universe.NotificationManager.AddShipRecovered(p, ship, $"{message}{troopMessage}");
         }
 
-        void SpawnShip(Planet p, Empire activatingEmpire, Empire owner, out string message)
+        Ship SpawnShip(Planet p, Empire activatingEmpire, Empire owner, out string message)
         {
             Ship template       = ResourceManager.GetShipTemplate(ShipName);
             float recoverChance = CalcRecoverChance(template, activatingEmpire);
@@ -107,23 +107,24 @@ namespace Ship_Game.Universe.SolarBodies
                 message            = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
 
                 ship.DamageByRecoveredFromCrash();
+                return ship;
+            }
+
+            float recoverAmount = template.BaseCost / 10;
+            if (owner == activatingEmpire)
+            {
+                p.ProdHere  = (p.ProdHere + recoverAmount).UpperBound(p.Storage.Max);
+                message     = $"We were able to recover {recoverAmount.String(0)} production\n" +
+                              $"from a crashed ship on {p.Name}.\n";
             }
             else
             {
-                float recoverAmount = template.BaseCost / 10;
-                if (owner == activatingEmpire)
-                {
-                    p.ProdHere  = (p.ProdHere + recoverAmount).UpperBound(p.Storage.Max);
-                    message     = $"We were able to recover {recoverAmount.String(0)} production\n" +
-                                  $"from a crashed ship on {p.Name}.\n";
-                }
-                else
-                {
-                    activatingEmpire.AddMoney(template.BaseCost / 10);
-                    message = $"We were able to recover {recoverAmount.String(0)} credits\n" +
-                              $"from a crashed ship on {p.Name}.\n";
-                }
+                activatingEmpire.AddMoney(template.BaseCost / 10);
+                message = $"We were able to recover {recoverAmount.String(0)} credits\n" +
+                          $"from a crashed ship on {p.Name}.\n";
             }
+
+            return null;
         }
 
         void SpawnSurvivingTroops(Planet p, Empire owner, PlanetGridSquare tile, out string message)
