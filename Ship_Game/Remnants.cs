@@ -401,7 +401,7 @@ namespace Ship_Game
                 nextPlanet = GetTargetPlanetHomeWorlds(potentialPlanets, numPlanetsToTake);
             else if (Level <= 5) // Level 5 or below will go for closest planets to the portal
                 nextPlanet = GetTargetPlanetByDistance(potentialPlanets, currentPlanet.Center, numPlanetsToTake);
-            else // Remnants higher than level 4 will go after high level planets
+            else // Remnants higher than level 5 will go after high level planets
                 nextPlanet = GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
 
             return nextPlanet != null;
@@ -448,29 +448,35 @@ namespace Ship_Game
             if (Level == 1)
                 return 0;
 
-            var numBombers = Level > 10 ? 2 : 1;
-            numBombers    += NumPortals()-1;
-            numBombers    += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
+            RemnantShipType bomberType = GetBomberType(out int numBombers);
+            int shieldDiv;
+            switch (bomberType)
+            {
+                default:
+                case RemnantShipType.BomberLight:  shieldDiv = 100; break;
+                case RemnantShipType.BomberMedium: shieldDiv = 200; break;
+                case RemnantShipType.Bomber:       shieldDiv = 400; break;
+            }
 
-            GetBomberType(out int multiplier);
-            return (numBombers * multiplier).UpperBound(Level*2);
+            int extraBombers = (int)(planet.ShieldStrengthMax / shieldDiv);
+            return (numBombers + extraBombers).UpperBound(Level*2);
         }
 
-        RemnantShipType GetBomberType(out int bomberNumMultiplier)
+        RemnantShipType GetBomberType(out int numBombers)
         {
-            bomberNumMultiplier = 1;
-            if (Level < 5)
+            numBombers = (int)(Level * Owner.DifficultyModifiers.RemnantNumBombers);
+
+            if (Level <= 5)
             {
-                bomberNumMultiplier = 4 * Level;
+                numBombers *= 2;
                 return RemnantShipType.BomberLight;
             }
 
-            if (Level < 10)
-            {
-                bomberNumMultiplier = 2 * Level;
+            if (Level <= 10)
                 return RemnantShipType.BomberMedium;
-            }
 
+            // Level 11 and above
+            numBombers /= 2;
             return RemnantShipType.Bomber;
         }
 
