@@ -202,6 +202,8 @@ namespace Ship_Game
         /// <param name="timeStep"></param>
         public void Update(FixedSimTime timeStep)
         {
+            // crash in findnearby when on game over screen
+            if (StarDriveGame.Instance?.GameOver ?? false) return;
             TotalTime.Start();
 
             UpdateLists(timeStep);
