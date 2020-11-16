@@ -326,7 +326,26 @@ namespace Ship_Game.AI
             return ships;
         }
 
-        void SortShipsByDistanceToPoint(Vector2 point) => Ships.Sort(s => s.Center.SqDist(point));
+        void SortShipsByDistanceToPoint(Vector2 point)
+        {
+            bool inWarTheater = OwnerEmpire.AllActiveWarTheaters.Any(t => t.TheaterAO.Center.InRadius(point, t.TheaterAO.Radius * 2));
+
+            Ships.Sort(s =>
+            {
+                bool shipInTheater =OwnerEmpire.AllActiveWarTheaters.Any(t =>
+                {
+                    bool inTheater = t.TheaterAO.Center.InRadius(s.Center, t.TheaterAO.Radius * 2);
+                    AO rallyAO = t.RallyAO;
+                    bool  inTheaterRally = rallyAO?.Center.InRadius(s.Center, rallyAO.Radius * 2) ?? false;
+
+                    return inTheater || inTheaterRally;
+                });
+                if (!inWarTheater && shipInTheater)
+                    return s.Center.SqDist(point) + Empire.Universe.UniverseSize;
+                return s.Center.SqDist(point);
+
+            });
+        }
 
         static void CheckForShipErrors(Array<Ship> ships)
         {

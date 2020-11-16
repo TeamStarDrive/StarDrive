@@ -67,13 +67,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateWantedCampaigns();
             RemoveUnwantedCampaigns();
 
-            if (Priority <= OwnerWar.LowestTheaterPriority)
+
+            for (int i = 0; i < Campaigns.Count; i++)
             {
-                for (int i = 0; i < Campaigns.Count; i++)
-                {
-                    var campaign = Campaigns[i];
-                    campaign.Evaluate();
-                }
+                var campaign = Campaigns[i];
+                campaign.Evaluate();
             }
         }
 
@@ -148,7 +146,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // empire defense
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
-                Priority = 0;
+                Priority = 2;
                 return;
             }
 
@@ -173,7 +171,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     outCloseSystems++;
             }
 
-            float distanceFromPosition   = TheaterAO.Center.Distance(position) + distanceToThem - WarValue;
+            float distanceFromPosition   = TheaterAO.Center.Distance(position) + distanceToThem - (int)WarValue / 10;
             float distanceMod            =  distanceFromPosition - baseDistance;
             distanceMod                 /= (TheaterAO.Radius / (1f + outCloseSystems));
             Priority                     = (int)distanceMod.LowerBound(1);
@@ -220,18 +218,21 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             var aoManager = Us.GetEmpireAI().OffensiveForcePoolManager;
             Planet rallyPlanet = Us.FindNearestRallyPoint(TheaterAO.Center) ?? Us.Capital;
+            //if (RallyAO?.CoreWorld?.Owner != Us)
+                RallyAO = null;
+
 
             // createEmpire AO
-            if (rallyPlanet.Owner == Us)
+            if (rallyPlanet?.Owner == Us)
             {
                 if (!aoManager.IsPlanetCoreWorld(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
                 {
                     var newAO = aoManager.CreateAO(rallyPlanet, Us.GetProjectorRadius(rallyPlanet));
                     RallyAO = newAO;
                 }
-                if (RallyAO == null)
-                    RallyAO = aoManager.GetAOContaining(rallyPlanet);       
             }
+            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Us)
+                RallyAO = aoManager.GetAOContaining(rallyPlanet);
         }
     }
 }
