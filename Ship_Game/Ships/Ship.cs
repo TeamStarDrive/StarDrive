@@ -242,6 +242,9 @@ namespace Ship_Game.Ships
         {
             foreach (ShipModule module in ModuleSlotList)
                 module.DamageByRecoveredFromCrash();
+
+            Carrier.ResetAllHangarTimers();
+            KillAllTroops();
         }
 
         public ShipData.RoleName DesignRole { get; private set; }

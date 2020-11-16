@@ -98,7 +98,9 @@ namespace Ship_Game.Universe.SolarBodies
             Ship template       = ResourceManager.GetShipTemplate(ShipName);
             float recoverChance = CalcRecoverChance(template, activatingEmpire);
 
-            if (RandomMath.RollDice(recoverChance))
+            if (RandomMath.RollDice(recoverChance) 
+                && !template.IsConstructor
+                && !template.IsDefaultTroopTransport)
             {
                 string otherOwners = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
                 Ship ship          = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
@@ -108,17 +110,18 @@ namespace Ship_Game.Universe.SolarBodies
             }
             else
             {
+                float recoverAmount = template.BaseCost / 10;
                 if (owner == activatingEmpire)
                 {
-                    p.ProdHere = (p.ProdHere + template.BaseCost / 10).UpperBound(p.Storage.Max);
-                    message = "We were able to recover some production from\n" +
-                                 $"a crashed ships on {p.Name}.\n";
+                    p.ProdHere  = (p.ProdHere + recoverAmount).UpperBound(p.Storage.Max);
+                    message     = $"We were able to recover {recoverAmount.String(0)} production\n" +
+                                  $"from a crashed ship on {p.Name}.\n";
                 }
                 else
                 {
                     activatingEmpire.AddMoney(template.BaseCost / 10);
-                    message = "We were able to recover some credit worth scrap metal\n" +
-                                $"from a crashed ships on {p.Name}.\n";
+                    message = $"We were able to recover {recoverAmount.String(0)} credits\n" +
+                              $"from a crashed ship on {p.Name}.\n";
                 }
             }
         }
@@ -161,7 +164,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 message = playerTroopsRecovered
                     ? "Our Troops are in combat there!."
-                    : "Hostile troops survived and are\nattacking!";
+                    : "Hostile troops survived and are attacking!";
             }
             else
             {
