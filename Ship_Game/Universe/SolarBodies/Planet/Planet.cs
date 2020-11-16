@@ -1039,8 +1039,7 @@ namespace Ship_Game
                 return;
 
             float survivalChance = GetSurvivalChance();
-
-            if (RandomMath.RollDice(100) && TryGetCrashTile(out PlanetGridSquare crashTile))
+            if (RandomMath.RollDice(survivalChance) && TryGetCrashTile(out PlanetGridSquare crashTile))
             {
                 int numTroopsSurvived = GetNumTroopSurvived(out string troopName);
                 crashTile.CrashSite.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile);
@@ -1050,6 +1049,7 @@ namespace Ship_Game
             float GetSurvivalChance()
             {
                 float chance = 20 + ship.Level * 2;
+                chance      *= Scale; // Gravity affects how hard is a crash
                 if (!Type.EarthLike)
                     chance *= 2; // No atmosphere, not able to burn during planet fall
 
@@ -1061,11 +1061,10 @@ namespace Ship_Game
             bool TryGetCrashTile(out PlanetGridSquare tile)
             {
                 tile = null;
-                PlanetGridSquare[] potentialTiles = null;
-                float destroyBuildingChance = ship.SurfaceArea / 150f;
-                potentialTiles = RandomMath.RollDice(destroyBuildingChance) 
-                    ? TilesList.Filter(t => t.CanCrashHere) 
-                    : TilesList.Filter(t => t.NoBuildingOnTile);
+                float destroyBuildingChance = ship.SurfaceArea / 100f;
+                var potentialTiles = RandomMath.RollDice(destroyBuildingChance)
+                                     ? TilesList.Filter(t => t.CanCrashHere) 
+                                     : TilesList.Filter(t => t.NoBuildingOnTile);
 
                 if (potentialTiles.Length == 0)
                     return false;
