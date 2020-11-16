@@ -348,8 +348,8 @@ namespace Ship_Game
         public void DamageTroop(float amount, Planet planet, PlanetGridSquare tile, out bool dead)
         {
             dead = false;
-            Strength = (Strength - amount).UpperBound(ActualStrengthMax);
-            if (Strength.LessOrEqual(0))
+            Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
+            if (Strength.AlmostZero())
             {
                 planet.TroopsHere.Remove(this);
                 tile.TroopsHere.Remove(this);
@@ -373,6 +373,11 @@ namespace Ship_Game
         public void HealTroop(float amount)
         {
             Strength = (Strength + amount).UpperBound(ActualStrengthMax);
+        }
+
+        public void KillTroop(Planet planet, PlanetGridSquare tile)
+        {
+            DamageTroop(ActualStrengthMax, planet, tile, out _);
         }
 
         public float ActualStrengthMax
