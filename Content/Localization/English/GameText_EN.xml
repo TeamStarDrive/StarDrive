@@ -880,7 +880,7 @@
     </Token>
     <Token>
       <Index>217</Index>
-      <Text>Send Troops to this ship if it's troop number is less than 50% of the maximum. If you toggle this off, the ship will go to resupply when it has no troops. A ship set to Kamikaze will not retreat to resupply, but will request troops if the button is on.</Text>
+      <Text>Send Troops to this ship if it's troop number is less than the maximum or less than 25% if in combat. If you toggle this off, the ship will go to resupply when it has no troops left. A ship set to Kamikaze will not retreat to resupply, but will request troops if the button is on.</Text>
     </Token>
     <Token>
       <Index>218</Index>
