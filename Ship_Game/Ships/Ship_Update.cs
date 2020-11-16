@@ -286,7 +286,7 @@ namespace Ship_Game.Ships
                 if (!Center.InRadius(PlanetCrashingOn.Center, 100))
                 {
                     Vector2 dir = Center.DirectionToTarget(PlanetCrashingOn.Center);
-                    Position += dir.Normalized() * 100 * timeStep.FixedTime;
+                    Position += dir.Normalized() * 100 * PlanetCrashingOn.Scale * timeStep.FixedTime;
                 }
             }
 
