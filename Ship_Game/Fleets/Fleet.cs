@@ -419,7 +419,7 @@ namespace Ship_Game.Fleets
 
         void DoExplorePlanet(MilitaryTask task)
         {
-            bool eventBuildingFound = task.TargetPlanet.EventsOnBuildings();
+            bool eventBuildingFound = task.TargetPlanet.EventsOnTiles();
 
             if (EndInvalidTask(!StillInvasionEffective(task)) || !StillCombatEffective(task))                                      return;
             if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null&& task.TargetPlanet.Owner != Owner)) return;
@@ -1040,6 +1040,7 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
+                ship.AI.SetPriorityOrder(false);
                 ship.OrderToOrbit(planet);
             }
         }

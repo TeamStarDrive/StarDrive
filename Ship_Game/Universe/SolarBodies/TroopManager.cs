@@ -70,7 +70,7 @@ namespace Ship_Game
 
         private void MakeCombatDecisions()
         {
-            if (!ForeignTroopHere(Owner) && !Ground.EventsOnBuildings())
+            if (!ForeignTroopHere(Owner) && !Ground.EventsOnTiles())
                 return;
 
             for (int i = 0; i < TilesList.Count; ++i)
