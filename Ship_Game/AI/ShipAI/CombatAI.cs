@@ -64,11 +64,11 @@ namespace Ship_Game.AI
             // more agile than us the less they are valued. 
             float turnRatio = 0;
             if (target.RotationRadiansPerSecond > 0 && Owner.RotationRadiansPerSecond > 0)
-                turnRatio = (Owner.RotationRadiansPerSecond ) / target.RotationRadiansPerSecond;
+                turnRatio = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond) / Owner.RotationRadiansPerSecond;
 
             float stlRatio = 0;
-            if (target.MaxSTLSpeed > 0)
-                stlRatio = (Owner.MaxSTLSpeed / target.MaxSTLSpeed);
+            if (Owner.MaxSTLSpeed > 0)
+                stlRatio = (Owner.MaxSTLSpeed - target.MaxSTLSpeed) / Owner.MaxSTLSpeed;
 
             float baseThreat = theirDps / targetPrefs.DPS.LowerBound(1);
             baseThreat += turnRatio;
@@ -89,8 +89,8 @@ namespace Ship_Game.AI
             else
             {
                 targetValue += turnRatio + stlRatio + errorRatio;
-                if (weaponsRange > 0)
-                    targetValue += (float)Math.Round((weaponsRange - distanceToTarget) / weaponsRange, 1);
+                //if (weaponsRange > 0)
+                //    targetValue += (float)Math.Round((weaponsRange - distanceToTarget) / weaponsRange, 1);
             }
 
             float rangeToEnemyCenter = 0;
@@ -101,7 +101,7 @@ namespace Ship_Game.AI
                 targetValue += motherShip.AI.Target == target ? 0.1f : 0;
                 targetValue += motherShip.LastDamagedBy == target ? 0.25f : 0;
                 targetValue += motherShip.Center.InRadius(target.Center, target.WeaponsMaxRange) ? 0.1f :0;
-                rangeToEnemyCenter = motherShip.Center.SqDist(targetPrefs.Center) - motherShip.Center.SqDist(target.Center);
+                rangeToEnemyCenter = Math.Abs(motherShip.Center.Distance(targetPrefs.Center) - motherShip.Center.Distance(target.Center));
                 float rangeValue = (float)Math.Round(1 - rangeToEnemyCenter / motherShip.WeaponsMaxRange.LowerBound(1000), 1);
                 targetValue += rangeValue;
             }

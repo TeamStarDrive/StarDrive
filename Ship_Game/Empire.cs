@@ -536,7 +536,7 @@ namespace Ship_Game
             for (int i = 0; i < EmpireAI.AreasOfOperations.Count; i++)
             {
                 var ao      = EmpireAI.AreasOfOperations[i];
-                var planets = ao.GetPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
+                var planets = ao.GetOurPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
                 safeWorlds.AddRange(planets);
             }
 
@@ -567,7 +567,7 @@ namespace Ship_Game
             if (home == null)
             {
                 var nearestAO = ship.loyalty.GetEmpireAI().FindClosestAOTo(ship.Center);
-                home = nearestAO.GetPlanets().FindClosestTo(ship);
+                home = nearestAO.GetOurPlanets().FindClosestTo(ship);
             }
 
             if (home == null)
@@ -2531,7 +2531,10 @@ namespace Ship_Game
                     {
                         Empire remnants = EmpireManager.Remnants;
                         if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
+                        {
                             Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
+                            Universe.GameOver = true;
+                        }
                         else
                             remnants.Remnants.TriggerOnlyRemnantsLeftEvent();
 
@@ -2705,7 +2708,7 @@ namespace Ship_Game
             }
 
             StarDriveGame.Instance?.EndingGame(true);
-
+            Empire.Universe.GameOver = true;
             Universe.Objects.Clear();
             Universe.Paused = true;
             HelperFunctions.CollectMemory();

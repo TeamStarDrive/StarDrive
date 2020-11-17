@@ -30,6 +30,8 @@ namespace Ship_Game
         /// </summary>
         public UniverseObjectManager Objects;
 
+        public bool GameOver = false;
+
         // TODO: Encapsulate
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
 

@@ -29,35 +29,52 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             //var ships          = new Array<Ship>();
             var systems = new Array<SolarSystem>();
             var priorities = new Array<int>();
+            int basePriority = OwnerTheater.Priority + 2;
+            int important = basePriority - 1;
+            int normal = basePriority;
+            int casual = basePriority + 1;
+            int unImportant = basePriority + 2;
+
             var ownedSystems = Owner.GetOwnedSystems();
 
             foreach (var theater in Owner.AllActiveWarTheaters)
             {
-                if (theater.RallyAO?.CoreWorld?.ParentSystem != null)
+                var rallySystem = theater.RallyAO?.CoreWorld?.ParentSystem;
+
+                if (rallySystem != null)
                 {
-                    systems.Add(theater.RallyAO.CoreWorld.ParentSystem);
-                    priorities.Add(0);
+                    systems.Add(rallySystem);
+                    int priority = casual - rallySystem.OwnerList.Count;
+                    priorities.Add(priority);
                 }
 
-                if (theater.RallyAO?.CoreWorld?.ParentSystem.OwnerList.Count > 1)
+                foreach (var planet in theater.TheaterAO.GetOurPlanets())
                 {
-                    systems.Add(theater.RallyAO.CoreWorld.ParentSystem);
-                    priorities.Add(0);
-                }
+                    int priority = casual - planet.ParentSystem.OwnerList.Count;
 
-                foreach (var planet in theater.TheaterAO.GetPlanets())
-                {
+                    if (Owner.RallyPoints.Contains(planet))
+                    {
+                        priority -= 1;
+                    }
                     if (planet.ParentSystem.OwnerList.Contains(Them))
                     {
                         systems.Add(planet.ParentSystem);
-                        priorities.Add(0);
+                        priorities.Add(priority);
                     }
-                    if (planet.ParentSystem.OwnerList.Contains(Owner))
+                    else if (planet.ParentSystem.OwnerList.Contains(Owner))
                     {
                         systems.Add(planet.ParentSystem);
-                        priorities.Add(OwnerTheater.Priority);
+                        priorities.Add(priority);
                     }
                 }
+            }
+
+            foreach(var planet in Owner.RallyPoints)
+            {
+                var system = planet.ParentSystem;
+                systems.Add(system);
+                int priority = casual - system.OwnerList.Count;
+                priorities.Add(priority);
             }
 
             var pinsNotInSystems = new Array<Pin>();
@@ -74,7 +91,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
                 systems.AddUnique(pin.System);
                 int systemIndex = systems.IndexOf(pin.System);
-                int priority = pin.Strength > 0 ? 0 : OwnerTheater.Priority;
+                int priority = pin.Strength > 0 ? normal : unImportant;
                 if (priorities.Count < systems.Count)
                 {
                     priorities.Add(priority);
@@ -98,7 +115,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (system != null)
                 {
                     systems.Add(system);
-                    priorities.Add(0);
+                    priorities.Add(normal);
                 }
             }
 
@@ -116,7 +133,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 foreach (var system in borders)
                 {
                     systems.Add(system);
-                    priorities.Add((int)system.WarValueTo(Owner));
+                    priorities.Add(unImportant);
                 }
             }
 

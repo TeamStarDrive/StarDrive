@@ -459,6 +459,8 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
+                ship.AI.SetPriorityOrder(true);
+                
                 ship.AI.ResetPriorityOrder(false);
                 ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, 
                     AIState.MoveTo, null, offensiveMove);

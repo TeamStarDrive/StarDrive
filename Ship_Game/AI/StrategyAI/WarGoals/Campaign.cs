@@ -43,7 +43,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public AO RallyAO;
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
-        public WarTasks Tasks;
+        WarTasks Tasks => Owner.GetEmpireAI().WarTasks;
         public Campaign() { }
         public int GetPriority()      => OwnerTheater.Priority;
         public bool WarMatch(War war) => war == OwnerWar;
@@ -73,15 +73,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             IsCoreCampaign = campaign.IsCoreCampaign;
             OwnerTheater   = theater;
             RestoreFromSave(theater);
-            Tasks          = campaign.Tasks;
-            if (campaign.Tasks == null)
-            {
-                Tasks = new WarTasks(Owner, Them, this);
-            }
-            else
-            {
-                Tasks.RestoreFromSave(Owner, Them, this);
-            }
         }
 
         /// <summary>
@@ -96,15 +87,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them         = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
             UID          = campaignType.ToString();
             OwnerTheater = theater;
-            
-            if (Tasks == null)
-            {
-                Tasks = new WarTasks(Owner, Them, this);
-            }
-            else
-            {
-                Tasks.RestoreFromSave(Owner, Them, this);
-            }
         }
 
         /// <summary>
@@ -165,12 +147,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             GoalStep state = GoalStep.TryAgain;
             if (OwnerWar.WarTheaters.ActiveTheaters.Contains(OwnerTheater))
                 state = base.Evaluate();
-            Tasks.Update();
             return state;
-        }
-        public void PurgeTasks()
-        {
-            Tasks.PurgeAllTasks();
         }
 
         protected override void RemoveThisGoal() => OwnerTheater.RemoveCampaign(this);
@@ -291,8 +268,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 int contestedSystemMod = system.OwnerList.Contains(Them) ? 2 : 0;
 
-                if (priority > 10) break;
-                Tasks.StandardAssault(system, priority - contestedSystemMod,  fleetsPerTarget);
+                Tasks.StandardAssault(system, priority - contestedSystemMod, Them,  fleetsPerTarget);
                 if (OwnerWar.WarType != WarType.EmpireDefense)
                     priority += 4;
             }

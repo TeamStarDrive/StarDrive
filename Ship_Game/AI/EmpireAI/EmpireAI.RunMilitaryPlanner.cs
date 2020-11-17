@@ -229,12 +229,16 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet != null)
                     task.TargetPlanetGuid = task.TargetPlanet.guid;
             }
+            aiSave.WarTaskClass = WarTasks;
+
+
         }
 
         public void ReadFromSave(SavedGame.GSAISAVE aiSave)
         {
             TaskList.Clear();
             TaskList.AddRange(aiSave.MilitaryTaskList);
+            WarTasks = aiSave.WarTaskClass?? new WarTasks(OwnerEmpire);
         }
 
         public void TrySendExplorationFleetToCrashSite(Planet p)
