@@ -780,7 +780,7 @@ namespace Ship_Game.AI
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own.
             if(!Owner.InCombat )
             {
-                Orbit.Orbit(EscortTarget, timeStep);
+                Orbit.Orbit(escortTarget, timeStep);
                 return;
             }
 

@@ -28,7 +28,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Us       = EmpireManager.GetEmpireByName(OwnerWar.UsName);
         }
 
-        public int MinPriority() => Theaters.FindMin(t=>t.Priority)?.Priority ?? 100;
+        public int MinPriority() => Theaters.FindMinFiltered(t=>t.Active(), t=> t.Priority)?.Priority ?? 100;
 
         public void RestoreFromSave(War war)
         {
@@ -43,7 +43,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             ActiveTheaters = new Theater[0];
             if (OwnerWar.GetPriority() <= Us.GetEmpireAI().MinWarPriority)
             {
-                Theater[] theaters = Theaters.Filter(t => t.Priority <= OwnerWar.LowestTheaterPriority);
+                Theater[] theaters = Theaters.Filter(t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
 
                 if (theaters.Length > 0)
                     ActiveTheaters = new Theater[1] { theaters.SortedDescending(t => t.WarValue)[0] };
@@ -63,7 +63,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             for (int i = 0; i < Theaters.Count; i++)
             {
-                Theaters[i].Evaluate();
+                var theater = Theaters[i];
+                if (theater.Active())
+                    Theaters[i].Evaluate();
             }
 
             // if there system count changes rebuild the AO

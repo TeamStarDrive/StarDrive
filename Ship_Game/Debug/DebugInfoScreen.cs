@@ -551,7 +551,7 @@ namespace Ship_Game.Debug
 
         void VisualizeShipGoal(Ship ship, bool detailed = true)
         {
-            if (ship.AI.OrderQueue.NotEmpty)
+            if (ship?.AI.OrderQueue.NotEmpty == true)
             {
                 ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
                 Vector2 pos = ship.AI.GoalTarget;
@@ -578,13 +578,13 @@ namespace Ship_Game.Debug
                 // ship direction arrow
                 DrawArrowImm(ship.Position, ship.Position+ship.Direction*200f, Color.GhostWhite);
             }
-            if (ship.AI.HasWayPoints)
+            if (ship?.AI.HasWayPoints == true)
             {
                 WayPoint[] wayPoints = ship.AI.CopyWayPoints();
                 for (int i = 1; i < wayPoints.Length; ++i) // draw WayPoints chain
                     DrawLineImm(wayPoints[i-1].Position, wayPoints[i].Position, Color.ForestGreen);
             }
-            if (ship.fleet != null)
+            if (ship?.fleet != null)
             {
                 Vector2 formationPos = ship.fleet.GetFormationPos(ship);
                 Color color = Color.Magenta.Alpha(0.5f);
