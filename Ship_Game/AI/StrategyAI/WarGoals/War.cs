@@ -216,7 +216,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 bool ourForcesPresent   = system.OwnerList.Contains(Us);
                 bool theirForcesPresent = system.OwnerList.Contains(Them);
                 int value               = (int)system.PlanetList.Sum(p => p.ColonyBaseValue(Us));
-                bool hasFleetTask       = WarTheaters.Theaters.Any(t=> t.Campaigns.Any(c=>c.Tasks.IsAlreadyAssaultingSystem(system)));
+                bool hasFleetTask = Us.GetEmpireAI().WarTasks.IsAlreadyAssaultingSystem(system);
                 debug.AddLine($"{pad2}System: {system.Name}  value:{value}  task:{hasFleetTask}");
                 debug.AddLine($"{pad2}OurForcesPresent:{ourForcesPresent}  TheirForcesPresent:{theirForcesPresent}");
             }

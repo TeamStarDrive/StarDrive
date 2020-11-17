@@ -68,6 +68,7 @@ namespace Ship_Game
 
         public Ship FindShip(in Guid guid)
         {
+            if (guid == Guid.Empty) return null;
             lock (Ships)
             {
                 for (int i = 0; i < Ships.Count; ++i)
@@ -203,7 +204,8 @@ namespace Ship_Game
         public void Update(FixedSimTime timeStep)
         {
             // crash in findnearby when on game over screen
-            if (StarDriveGame.Instance?.GameOver ?? false) return;
+            if (Empire.Universe.GameOver) return;
+
             TotalTime.Start();
 
             UpdateLists(timeStep);

@@ -64,8 +64,6 @@ namespace Ship_Game.AI
             }
 
             if (ship.IsPlatformOrStation
-                || ship.InCombat
-                || ship.engineState == Ship.MoveState.Warp
                 || ship.fleet != null
                 || ship.Mothership != null
                 || ship.AI.State == AIState.Scrap
@@ -163,9 +161,9 @@ namespace Ship_Game.AI
             int maxCombatIndex = Ratios.MaxCombatRoleIndex();
             var ships = new Array<Ship>();
             int role = 1;
-            ships.AddRange(ExtractShips(Ships, Ratios.MinFighters, ShipData.RoleName.fighter, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
+             ships.AddRange(ExtractShips(Ships, Ratios.MinFighters, ShipData.RoleName.fighter, role <= maxCombatIndex + 1 && role >= maxCombatIndex - 1));
             role++;
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCorvettes, ShipData.RoleName.corvette, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCorvettes, ShipData.RoleName.corvette, role <= maxCombatIndex + 1 && role > maxCombatIndex - 1));
             role++;
             ships.AddRange(ExtractShips(Ships, Ratios.MinFrigates, ShipData.RoleName.frigate, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
             role++;
