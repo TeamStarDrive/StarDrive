@@ -14,7 +14,7 @@ namespace Ship_Game.Universe.SolarBodies
         public DynamicCrashSite(bool active)
         {
             Active            = active;
-            Loyalty            = null;
+            Loyalty           = null;
             ShipName          = "";
             TroopName         = "";
             NumTroopsSurvived = 0;
@@ -27,7 +27,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return;
 
             Active            = true;
-            Loyalty            = empire;
+            Loyalty           = empire;
             ShipName          = shipName;
             TroopName         = troopName;
             NumTroopsSurvived = numTroopsSurvived;
@@ -85,42 +85,46 @@ namespace Ship_Game.Universe.SolarBodies
             Active       = false;
             Empire owner = p.Owner ?? activatingEmpire;
 
-            SpawnShip(p, activatingEmpire, owner, out string message);
+            Ship ship = SpawnShip(p, activatingEmpire, owner, out string message);
             SpawnSurvivingTroops(p, owner, tile, out string troopMessage);
             p.DestroyBuildingOn(tile);
 
             if (owner.isPlayer || !owner.isPlayer && Loyalty.isPlayer && NumTroopsSurvived > 0)
-                Empire.Universe.NotificationManager.AddShipRecovered(p, $"{message}{troopMessage}");
+                Empire.Universe.NotificationManager.AddShipRecovered(p, ship, $"{message}{troopMessage}");
         }
 
-        void SpawnShip(Planet p, Empire activatingEmpire, Empire owner, out string message)
+        Ship SpawnShip(Planet p, Empire activatingEmpire, Empire owner, out string message)
         {
             Ship template       = ResourceManager.GetShipTemplate(ShipName);
             float recoverChance = CalcRecoverChance(template, activatingEmpire);
 
-            if (RandomMath.RollDice(recoverChance))
+            if (RandomMath.RollDice(recoverChance) 
+                && !template.IsConstructor
+                && !template.IsDefaultTroopTransport)
             {
                 string otherOwners = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
                 Ship ship          = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
                 message            = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
 
                 ship.DamageByRecoveredFromCrash();
+                return ship;
+            }
+
+            float recoverAmount = template.BaseCost / 10;
+            if (owner == activatingEmpire)
+            {
+                p.ProdHere  = (p.ProdHere + recoverAmount).UpperBound(p.Storage.Max);
+                message     = $"We were able to recover {recoverAmount.String(0)} production\n" +
+                              $"from a crashed ship on {p.Name}.\n";
             }
             else
             {
-                if (owner == activatingEmpire)
-                {
-                    p.ProdHere = (p.ProdHere + template.BaseCost / 10).UpperBound(p.Storage.Max);
-                    message = "We were able to recover some production from\n" +
-                                 $"a crashed ships on {p.Name}.\n";
-                }
-                else
-                {
-                    activatingEmpire.AddMoney(template.BaseCost / 10);
-                    message = "We were able to recover some credit worth scrap metal\n" +
-                                $"from a crashed ships on {p.Name}.\n";
-                }
+                activatingEmpire.AddMoney(template.BaseCost / 10);
+                message = $"We were able to recover {recoverAmount.String(0)} credits\n" +
+                          $"from a crashed ship on {p.Name}.\n";
             }
+
+            return null;
         }
 
         void SpawnSurvivingTroops(Planet p, Empire owner, PlanetGridSquare tile, out string message)
@@ -161,7 +165,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 message = playerTroopsRecovered
                     ? "Our Troops are in combat there!."
-                    : "Hostile troops survived and are\nattacking!";
+                    : "Hostile troops survived and are attacking!";
             }
             else
             {
