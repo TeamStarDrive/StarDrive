@@ -814,12 +814,15 @@ namespace Ship_Game.Debug
             NewLine();
             Empire bestScore = empiresList.FindMax(empire => empire.TotalScore);
             Empire bestStr   = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
+            Empire worstStr  = empiresList.FindMin(empire => empire.CurrentMilitaryStrength);
 
-            float diffFromAverageScore = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
-            float diffFromAverageStr   = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+            float diffFromAverageScore    = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
+            float diffFromAverageStrBest  = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+            float diffFromAverageStrWorst = worstStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
 
             DrawString(bestScore.EmpireColor, $"Highest Score Empire: {bestScore.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
-            DrawString(bestStr.EmpireColor, $"Highest Str Empire:     {bestStr.data.Name} ({(diffFromAverageStr - 100).String(1)}% above average)");
+            DrawString(bestStr.EmpireColor, $"Strongest Empire:   {bestStr.data.Name} ({(diffFromAverageStrBest - 100).String(1)}% above average)");
+            DrawString(worstStr.EmpireColor, $"Weakest Empire:     {worstStr.data.Name} ({(diffFromAverageStrWorst - 100).String(1)}% below average)");
 
             NewLine();
             DrawString("Goals:");

@@ -978,6 +978,12 @@ namespace Ship_Game.Ships
             }
         }
 
+        public void ResetHangarTimer()
+        {
+            if (hangarTimerConstant.Greater(0))
+                hangarTimer = hangarTimerConstant;
+        }
+
         public void SetAttributes()
         {
             switch (ModuleType)
