@@ -140,7 +140,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             foreach (var pin in pinsNotInSystems)
                 AttackArea(pin.Position, 100000, pin.Strength);
 
-            DefendSystemsInList(systems, priorities);
+            //DefendSystemsInList(systems, priorities);
 
             return GoalStep.GoToNextStep;
         }
