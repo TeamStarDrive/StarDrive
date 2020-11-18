@@ -534,7 +534,7 @@ namespace Ship_Game.AI.Tasks
                                     else
                                         EndTask();
 
-                                    if (TargetPlanet.Owner == null)
+                                    if (TargetPlanet.Owner == null || TargetPlanet.Owner == EmpireManager.Unknown)
                                         return;
 
                                     EndTask();

@@ -121,7 +121,7 @@ namespace Ship_Game.AI
             return (int)filledRoles;
         }
 
-        public int ExtractFleetShipsUpToStrength(float strengthNeeded, float setCompletePercent, int wantedFleetCount,
+        public int ExtractFleetShipsUpToStrength(float strengthNeeded, int wantedFleetCount,
             out Array<Ship> ships)
         {
             float extractedShipStrength = 0;
@@ -131,7 +131,7 @@ namespace Ship_Game.AI
             var utilityShips            = new Array<Ship>();
             do
             {
-                var gatheredShips = GetCoreFleet(setCompletePercent, out bool goodSet);
+                var gatheredShips = GetCoreFleet(out bool goodSet);
                 if (gatheredShips.IsEmpty)
                     break;
 
@@ -157,28 +157,33 @@ namespace Ship_Game.AI
             return completeFleets;
         }
 
-        public Array<Ship> GetCoreFleet(float setCompletePercent, out bool goodSet)
+        public Array<Ship> GetCoreFleet(out bool goodSet)
         {
             var ships = new Array<Ship>();
-            goodSet = false;
-
-            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter, setCompletePercent,  out goodSet));
-            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, setCompletePercent, out goodSet));
-            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, setCompletePercent, out goodSet));
-            ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, setCompletePercent, out goodSet));
-            ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, setCompletePercent, out goodSet));
-            ships.AddRange(ExtractCoreFleetRole(RoleName.capital, setCompletePercent, out goodSet));
+            goodSet = true;
+            bool roleGood = false;
+            bool badSet = false;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter,  out  roleGood)); badSet = !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, out roleGood)); badSet = badSet || !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, out roleGood)); badSet = badSet || !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, out roleGood)); badSet = badSet || !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, out roleGood)); badSet = badSet || !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.capital, out roleGood)); badSet = badSet || !roleGood;
+            goodSet = !badSet;
             return ships;
         }
 
-        public Array<Ship> ExtractCoreFleetRole(RoleName role, float setCompletePercent, out bool fullFilled)
+        public Array<Ship> ExtractCoreFleetRole(RoleName role, out bool fullFilled)
         {
             int combatIndex = FleetRatios.CombatRoleToRatio(role);
             int maxIndex = Ratios.MaxCombatRoleIndex();
-            bool required =  combatIndex + 1 >= maxIndex ;
-            float wanted = Ratios.GetWanted(role) * setCompletePercent;
+            float wanted = Ratios.GetWanted(role);
+            int requirementSpread = 0;
+            if (maxIndex > 2) requirementSpread += 1;
+            bool required =  maxIndex > 2 && wanted >= 1 && combatIndex + requirementSpread >= maxIndex;
 
-            var ships = ExtractShips(Ships, wanted, role, required);
+
+            var ships = ExtractShips(Ships,  wanted, role, required);
             fullFilled = !required || ships.NotEmpty;
             return ships;
         }
@@ -191,10 +196,10 @@ namespace Ship_Game.AI
             return ships;
         }
 
-        public Array<Ship> ExtractSetsOfCombatShips(float strength, float setCompletePercentage, int wantedFleetCount , out int fleetCount)
+        public Array<Ship> ExtractSetsOfCombatShips(float strength, int wantedFleetCount , out int fleetCount)
         {
             Array<Ship> ships = new Array<Ship>();
-            fleetCount = ExtractFleetShipsUpToStrength(strength, setCompletePercentage, wantedFleetCount, out Array<Ship> fleetShips);
+            fleetCount = ExtractFleetShipsUpToStrength(strength, wantedFleetCount, out Array<Ship> fleetShips);
             
             if (fleetCount > 0 && fleetShips.Sum(s=> s.GetStrength()) >= strength)
             {
@@ -241,7 +246,7 @@ namespace Ship_Game.AI
         private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, Func<Ship, bool> shipFilter, bool required)
         {
             var shipSet = new Array<Ship>();
-            
+            int setWanted = (int)(wanted * WantedFleetCompletePercentage);
             if (wanted > 0)
                 for (int x = ships.Count - 1; x >= 0; x--)
                 {
@@ -253,10 +258,10 @@ namespace Ship_Game.AI
                     Ships.RemoveSwapLast(ship);
                     AccumulatedStrength += ship.GetStrength();
 
-                    if (shipSet.Count >= wanted * WantedFleetCompletePercentage)
+                    if (shipSet.Count >= setWanted)
                         break;
                 }
-            if (!required || shipSet.Count >= wanted * WantedFleetCompletePercentage)
+            if (!required || shipSet.Count >= setWanted)
                 return shipSet;
             AddShips(shipSet);
             shipSet.Clear();
@@ -312,7 +317,7 @@ namespace Ship_Game.AI
 
             SortShipsByDistanceToPoint(rallyCenter);
 
-            Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, WantedFleetCompletePercentage, minimumFleetSize, out int fleetCount);
+            Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, minimumFleetSize, out int fleetCount);
             
             if (ships.IsEmpty)
                 return new Array<Ship>();
