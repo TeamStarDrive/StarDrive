@@ -114,7 +114,7 @@ namespace Ship_Game.AI
             {
                 max = CountIndexed[x] > 0 ? x : max;
             }
-            return max + 1;
+            return max;
         }
 
         public static int CombatRoleToRatio(ShipData.RoleName role)

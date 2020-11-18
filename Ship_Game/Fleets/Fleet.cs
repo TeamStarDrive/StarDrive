@@ -1241,6 +1241,7 @@ namespace Ship_Game.Fleets
         bool ArrivedAtCombatRally(Vector2 position, float radius = 0)
         {
             radius = radius.AlmostZero() ? GetRelativeSize().Length() / 1.5f : radius;
+            radius = Math.Max(1000, radius);
             MoveStatus status = FleetMoveStatus(radius, position);
 
             if (status.HasFlag(MoveStatus.AssembledInCombat))
