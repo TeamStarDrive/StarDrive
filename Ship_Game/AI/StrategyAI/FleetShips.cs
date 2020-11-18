@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.Ships;
+using static Ship_Game.Ships.ShipData;
 
 namespace Ship_Game.AI
 {
@@ -79,12 +80,12 @@ namespace Ship_Game.AI
             
             Ships.Add(ship);
 
-            if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Troop)
+            if (ShipRoleToRoleType(ship.DesignRole) == RoleType.Troop)
             {
                 InvasionTroops += ship.Carrier.PlanetAssaultCount;
                 InvasionTroopStrength += ship.Carrier.PlanetAssaultStrength;
             }
-            if (ship.DesignRole == ShipData.RoleName.bomber)
+            if (ship.DesignRole == RoleName.bomber)
                 BombSecsAvailable += ship.BombsGoodFor60Secs;
 
             return true;
@@ -120,34 +121,34 @@ namespace Ship_Game.AI
             return (int)filledRoles;
         }
 
-        public int ExtractFleetShipsUpToStrength(float strength, float setCompletePercent, int wantedFleetCount,
+        public int ExtractFleetShipsUpToStrength(float strengthNeeded, float setCompletePercent, int wantedFleetCount,
             out Array<Ship> ships)
         {
             float extractedShipStrength = 0;
             int completeFleets          = 0;
             ships                       = new Array<Ship>();
-            int fleetCount              = wantedFleetCount.LowerBound(1);
+            int neededFleets              = wantedFleetCount.LowerBound(1);
             var utilityShips            = new Array<Ship>();
             do
             {
-                var gatheredShips = GetCoreFleet();
+                var gatheredShips = GetCoreFleet(setCompletePercent, out bool goodSet);
                 if (gatheredShips.IsEmpty)
                     break;
 
                 extractedShipStrength += gatheredShips.Sum(s => s.GetStrength());
                 ships.AddRange(gatheredShips);
 
-                if (ships.Count >= Ratios.MinCombatFleet * setCompletePercent)
+                if (goodSet)
                 {
                     completeFleets++;
-                    fleetCount--;
+                    neededFleets--;
                 }
      
             }
-            while (fleetCount > 0 || extractedShipStrength < strength);
+            while (neededFleets > 0 || extractedShipStrength < strengthNeeded);
 
-            if (extractedShipStrength >= strength && fleetCount <= 0)
-                completeFleets = wantedFleetCount;
+            if (extractedShipStrength >= strengthNeeded && neededFleets <= 0)
+                completeFleets = wantedFleetCount + 1;
 
             for (int x =0; x< (wantedFleetCount + completeFleets).LowerBound(1); x++)
                 utilityShips.AddRange(GetSupplementalFleet());
@@ -156,28 +157,37 @@ namespace Ship_Game.AI
             return completeFleets;
         }
 
-        public Array<Ship> GetCoreFleet()
+        public Array<Ship> GetCoreFleet(float setCompletePercent, out bool goodSet)
         {
-            int maxCombatIndex = Ratios.MaxCombatRoleIndex();
             var ships = new Array<Ship>();
-            int role = 1;
-             ships.AddRange(ExtractShips(Ships, Ratios.MinFighters, ShipData.RoleName.fighter, role <= maxCombatIndex + 1 && role >= maxCombatIndex - 1));
-            role++;
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCorvettes, ShipData.RoleName.corvette, role <= maxCombatIndex + 1 && role > maxCombatIndex - 1));
-            role++;
-            ships.AddRange(ExtractShips(Ships, Ratios.MinFrigates, ShipData.RoleName.frigate, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
-            role++;
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCruisers, ShipData.RoleName.cruiser, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
-            role++;
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCapitals, ShipData.RoleName.capital, role < maxCombatIndex + 1 && role > maxCombatIndex - 1));
+            goodSet = false;
+
+            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter, setCompletePercent,  out goodSet));
+            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, setCompletePercent, out goodSet));
+            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, setCompletePercent, out goodSet));
+            ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, setCompletePercent, out goodSet));
+            ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, setCompletePercent, out goodSet));
+            ships.AddRange(ExtractCoreFleetRole(RoleName.capital, setCompletePercent, out goodSet));
+            return ships;
+        }
+
+        public Array<Ship> ExtractCoreFleetRole(RoleName role, float setCompletePercent, out bool fullFilled)
+        {
+            int combatIndex = FleetRatios.CombatRoleToRatio(role);
+            int maxIndex = Ratios.MaxCombatRoleIndex();
+            bool required =  combatIndex + 1 >= maxIndex ;
+            float wanted = Ratios.GetWanted(role) * setCompletePercent;
+
+            var ships = ExtractShips(Ships, wanted, role, required);
+            fullFilled = !required || ships.NotEmpty;
             return ships;
         }
 
         public Array<Ship> GetSupplementalFleet()
         {
             var ships = new Array<Ship>();
-            ships.AddRange(ExtractShips(Ships, Ratios.MinCarriers, ShipData.RoleName.carrier, false));
-            ships.AddRange(ExtractShips(Ships, Ratios.MinSupport, ShipData.RoleName.support,false));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCarriers, RoleName.carrier, false));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinSupport, RoleName.support,false));
             return ships;
         }
 
@@ -203,7 +213,7 @@ namespace Ship_Game.AI
             var ships = ExtractShipsByFeatures(Ships, planetAssaultTroopsWanted, 1, 1
                                 , s =>
                                     {
-                                        if (s.DesignRoleType == ShipData.RoleType.Troop)
+                                        if (s.DesignRoleType == RoleType.Troop)
                                             return s.Carrier.PlanetAssaultCount;
                                         return 0;
                                     });
@@ -218,14 +228,14 @@ namespace Ship_Game.AI
                                     , fleetCount * (int)Ratios.MinBombers
                                     , s =>
                                     {
-                                        if (s.DesignRole == ShipData.RoleName.bomber)
+                                        if (s.DesignRole == RoleName.bomber)
                                             return s.BombsGoodFor60Secs;
                                         return 0;
                                     });
             return ships;
         }
 
-        private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, ShipData.RoleName role, bool required)
+        private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, RoleName role, bool required)
             => ExtractShips(ships, wanted, s => s.DesignRole == role, required);
 
         private Array<Ship> ExtractShips(Array<Ship> ships, float wanted, Func<Ship, bool> shipFilter, bool required)
