@@ -64,13 +64,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = 0; i < Theaters.Count; i++)
             {
                 var theater = Theaters[i];
-                if (theater.Active())
-                    Theaters[i].Evaluate();
+                Theaters[i].Evaluate();
             }
 
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
-            if (!Initialized || theirSystems > 0 && theirSystems != TheirSystemCount)
+            if (!Initialized || theirSystems > 0 && theirSystems != TheirSystemCount )
             {
                 TheirSystemCount = theirSystems;
                 Initialize();
@@ -156,6 +155,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 //    break;
                 case WarType.SkirmishWar:
                     campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
+                    campaignTypes.AddUnique(Campaign.CampaignType.Defense);
+                    campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
                     aos                = CreateBorderAOs();
                     break;
                 case WarType.EmpireDefense:
@@ -170,6 +171,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
 
             if (replaceExistingAOs) Theaters = new Array<Theater>();
+
+            if (TheirSystemCount == 0)
+            {
+                var theirBases = Us.GetEmpireAI().ThreatMatrix.GetPins().Filter(p => p.Ship?.IsPlatformOrStation == true && p.Ship?.loyalty == Them);
+                foreach (var theirBase in theirBases)
+                {
+                    var ao = new AO(Them, theirBase.Ship.Center, Us.GetProjectorRadius() * 2);
+                    aos.Add(ao);
+                }
+            }
 
             foreach (var ao in aos)
             {
