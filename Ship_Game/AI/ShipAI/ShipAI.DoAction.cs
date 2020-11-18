@@ -599,7 +599,7 @@ namespace Ship_Game.AI
 
             
             ThrustOrWarpToPos(EscortTarget.Center, timeStep);
-            if (Owner.Center.InRadius(escortTarget.Center, EscortTarget.Radius + 300f))
+            if (Owner.Center.InRadius(escortTarget.Center, escortTarget.Radius + 300f))
             {
                 // how much the target did not take.
                 float leftOverOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);

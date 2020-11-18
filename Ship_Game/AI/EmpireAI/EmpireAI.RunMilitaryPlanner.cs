@@ -33,7 +33,7 @@ namespace Ship_Game.AI
 
             Goals.ApplyPendingRemovals();
 
-            // Empire Military needs not directly related to war. 
+            // Empire Military needs. War has its own task list in the WarTasks class
             Toughnuts = 0;
 
             var tasks = TaskList.SortedDescending(t=> t.Priority);
@@ -439,8 +439,8 @@ namespace Ship_Game.AI
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
                     DesiredCount = (int)(RoleBuildBudget.LowerBound(.001f) / PerUnitMaintenanceMax.LowerBound(0.001f)); // MinimumMaintenance));
-                    if (Role < CombatRole.Frigate)
-                        DesiredCount = Math.Min(50, DesiredCount);
+                    //if (Role < CombatRole.Frigate)
+                    //    DesiredCount = Math.Min(50, DesiredCount);
                 }
 
                 private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)
