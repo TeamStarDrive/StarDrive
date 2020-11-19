@@ -2078,7 +2078,7 @@ namespace Ship_Game
             var troops = candidatePlanets.First().TroopsHere;
             using (troops.AcquireWriteLock())
             {
-                troopShip = troops.First(t => t.Loyalty == this).Launch();
+                troopShip = troops.FirstOrDefault(t => t.Loyalty == this).Launch();
                 return troopShip != null;
             }
         }

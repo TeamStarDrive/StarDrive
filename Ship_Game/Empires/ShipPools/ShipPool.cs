@@ -240,7 +240,7 @@ namespace Ship_Game.Empires.ShipPools
             {
                 Ship s = ShipsToAdd[i];
                 Owner.AddShip(s);
-                if (!Owner.isPlayer && !Owner.isFaction && s.Active && s.Mothership == null && s.HomePlanet == null) 
+                if (!Owner.isPlayer && !Owner.isFaction && s.Active && s.Mothership == null && s.HomePlanet == null && s.HomePlanet == null) 
                     ForcePoolAdd(s);
             }
 
