@@ -129,7 +129,7 @@ namespace Ship_Game.Ships
 
         private bool ResupplyNeededOrdnanceNotFull()
         {
-            if (Ship.OrdinanceMax < 1 || Ship.IsPlatformOrStation || Ship.HomePlanet != null)
+            if (Ship.OrdinanceMax < 1 || Ship.loyalty.isFaction || Ship.IsPlatformOrStation || Ship.HomePlanet != null)
                 return false; // orbitals are handled in ResupplyNeededLowOrdnance
 
             return !Ship.InCombat && Ship.OrdAddedPerSecond.AlmostZero() && Ship.OrdnancePercent < 0.99f;

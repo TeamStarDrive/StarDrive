@@ -185,6 +185,16 @@ namespace Ship_Game.Commands.Goals
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
                 return ReturnToPortal();
 
+            if (TargetPlanet == null)
+            {
+                Log.Warning("Goal Target Planet for active Remnant Goal and Fleet was null, selecting new target.");
+                if (!SelectTargetPlanet())
+                {
+                    Log.Warning($"Could not find a new Remnant target planet vs {TargetEmpire.Name}. Remnant fleet will return home.");
+                    return ReturnToPortal();
+                }
+            }
+
             // Select a new closest planet
             if (!Remnants.TargetNextPlanet(TargetEmpire, TargetPlanet, Remnants.NumBombersInFleet(Fleet), out Planet nextPlanet))
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
