@@ -582,7 +582,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPos(EscortTarget.Center, timeStep);
+            if (!Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
+                ThrustOrWarpToPos(EscortTarget.Center, timeStep);
+            else
+                ReverseThrustUntilStopped(timeStep);
         }
 
         void DoSupplyShip(FixedSimTime timeStep)
