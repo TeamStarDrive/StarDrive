@@ -54,6 +54,7 @@ namespace Ship_Game.AI
                 OwnerEmpire.SetAsRemnants(fromSave, Goals);
 
             EmpireDefense?.RestoreFromSave(true);
+            WarTasks = new StrategyAI.WarGoals.WarTasks(e);
         }
 
         void RunManagers()

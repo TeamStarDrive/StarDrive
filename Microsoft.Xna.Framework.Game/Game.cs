@@ -110,6 +110,7 @@ namespace Microsoft.Xna.Framework
         public ContentManager Content { get; set; }
         internal bool IsActiveIgnoringGuide { get; private set; }
         bool ShouldExit { get; set; }
+        public bool GameOver => ShouldExit;
 
         public event EventHandler Activated;
         public event EventHandler Deactivated;
