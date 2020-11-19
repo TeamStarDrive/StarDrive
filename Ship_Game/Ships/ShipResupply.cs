@@ -84,6 +84,9 @@ namespace Ship_Game.Ships
             if (ResupplyNeededLowTroops())
                 return ResupplyReason.LowTroops;
 
+            if (ResupplyNeededOrdnanceNotFull())
+                return ResupplyReason.RequestResupplyFromPlanet;
+
             return ResupplyReason.NotNeeded;
         }
 
@@ -122,6 +125,14 @@ namespace Ship_Game.Ships
 
             return OrdnanceLow() && HighKineticToEnergyRatio()
                                  && InsufficientOrdnanceProduction();
+        }
+
+        private bool ResupplyNeededOrdnanceNotFull()
+        {
+            if (Ship.OrdinanceMax < 1 || Ship.IsPlatformOrStation || Ship.HomePlanet != null)
+                return false; // orbitals are handled in ResupplyNeededLowOrdnance
+
+            return !Ship.InCombat && Ship.OrdAddedPerSecond.AlmostZero() && Ship.OrdnancePercent < 0.99f;
         }
 
         private bool ResupplyNeededLowTroops()
@@ -268,7 +279,8 @@ namespace Ship_Game.Ships
         LowOrdnanceNonCombat,
         LowTroops,
         FighterReactorsDamaged,
-        NoCommand
+        NoCommand,
+        RequestResupplyFromPlanet
     }
 
     public enum SupplyType
