@@ -1,4 +1,5 @@
 using System;
+using System.Data.Common;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -29,33 +30,56 @@ namespace Ship_Game
         [Serialize(13)] public Vector2 OrdersOffset;
         [Serialize(14)] public float OrdersRadius = 500000;//0.5f;
 
-        public float ApplyWeight(float shipStat, float statAvg, float fleetWeight)
+        public static float ApplyTargetWeight(float targetValue, float avgTargetsValue, float weightTypeValue)
         {
-            if (fleetWeight > 0.49f && fleetWeight < 0.51f)
-                return 0;
+            // if fleet setting is above 0.5 then a ship with higher than average value will have more weightTypeValue. 
 
-            return shipStat > statAvg
-                ? 2 * (-0.5f + fleetWeight)
-                : 4 * ( 0.5f - fleetWeight);
+            // range between -ratio under and postive ratio over average          
+            float rawWeight = (targetValue - avgTargetsValue) / avgTargetsValue.LowerBound(1);
+
+            // above or below average * fleet weightTypeValue should give a positive value when both are the same sign. 
+            // and negative when opposite. 
+            float weight = (weightTypeValue - 0.5f) * rawWeight;
+            return weight.UpperBound(1);
+
+            // ex.
+            // fleet value weightTypeValue is 0.5
+            // target value is under average by -.25f
+            // 0.5 * -0.25 = -0.125
         }
 
-        public float ApplyFleetWeight(Fleet fleet, Ship potential)
+        public float ApplyFleetWeight(Array<Ship> fleetShips, Ship potential, ShipAI.TargetParameterTotals targetParameterTotals)
         {
-            float weight = 0;           
-            if ((DefenderWeight > 0.49f && DefenderWeight < 0.51f) ||
-                (AssistWeight > 0.49f && AssistWeight < 0.51f))
-                return weight;
-            for (int i = 0; i < fleet.Ships.Count; i++)
-            {
-                Ship ship = fleet.Ships[i];
-                if (ship == null) continue;
-                if (potential.AI.Target == ship)
-                    weight -= 0.5f + DefenderWeight;
-                if (ship.AI.Target == potential)
-                    weight -= 5.0f + AssistWeight;
-            }
+            float weight = 0;
 
-            return weight;
+            bool defend = false;
+            bool assist = false;
+
+            for (int i = 0; i < fleetShips.Count; i++)
+            {
+                Ship ship = fleetShips[i];
+                if (ship?.Active != true || ship.AI.Target == null || ship.DesignRoleType != ShipData.RoleType.Warship) 
+                    continue;
+
+                if (potential.AI.Target == ship) defend = true;
+                if (ship.AI.Target == potential) assist = true;
+                
+                if (defend && assist) 
+                    break;
+            }
+            int normalizer = 0;
+            if (defend) {weight += DefenderWeight; normalizer++;}
+            if (assist) {weight += AssistWeight; normalizer++;}
+
+
+            weight += ApplyTargetWeight(potential.TotalDps, targetParameterTotals.DPS, DPSWeight);
+            weight += ApplyTargetWeight(potential.shield_power, targetParameterTotals.Shield, AttackShieldedWeight);
+            weight += ApplyTargetWeight(potential.armor_max, targetParameterTotals.Armor, ArmoredWeight);
+            weight += ApplyTargetWeight(potential.SurfaceArea, targetParameterTotals.Size, SizeWeight);
+            weight += ApplyTargetWeight(potential.HealthPercent, targetParameterTotals.Health, VultureWeight);
+            normalizer += 5;
+
+            return weight / normalizer;
         }
 
         public FleetDataNode Clone()

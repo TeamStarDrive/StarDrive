@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 
@@ -658,6 +659,7 @@ namespace Ship_Game
             [Serialize(2)] public Array<MilitaryTask> MilitaryTaskList;
             [Serialize(3)] public Array<Guid> PinGuids;
             [Serialize(4)] public Array<ThreatMatrix.Pin> PinList;
+            [Serialize(5)] public WarTasks WarTaskClass;
         }
 
         public class PGSData

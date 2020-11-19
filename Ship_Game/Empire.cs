@@ -536,7 +536,7 @@ namespace Ship_Game
             for (int i = 0; i < EmpireAI.AreasOfOperations.Count; i++)
             {
                 var ao      = EmpireAI.AreasOfOperations[i];
-                var planets = ao.GetPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
+                var planets = ao.GetOurPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
                 safeWorlds.AddRange(planets);
             }
 
@@ -567,7 +567,7 @@ namespace Ship_Game
             if (home == null)
             {
                 var nearestAO = ship.loyalty.GetEmpireAI().FindClosestAOTo(ship.Center);
-                home = nearestAO.GetPlanets().FindClosestTo(ship);
+                home = nearestAO.GetOurPlanets().FindClosestTo(ship);
             }
 
             if (home == null)
@@ -870,11 +870,15 @@ namespace Ship_Game
         public int TechCost(Ship ship)       => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
+        /// <summary>
+        /// this appears to be broken. 
+        /// </summary>
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
         public int NumPlanets                               => OwnedPlanets.Count;
+        public int NumSystems                               => OwnedSolarSystems.Count;
 
-        public Array<SolarSystem> GetBorderSystems(Empire them, bool hideUnexplored)
+        public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored)
         {
             var solarSystems = new Array<SolarSystem>();
             Vector2 theirCenter = them.WeightedCenter;
@@ -2078,7 +2082,7 @@ namespace Ship_Game
             var troops = candidatePlanets.First().TroopsHere;
             using (troops.AcquireWriteLock())
             {
-                troopShip = troops.First(t => t.Loyalty == this).Launch();
+                troopShip = troops.FirstOrDefault(t => t.Loyalty == this).Launch();
                 return troopShip != null;
             }
         }
@@ -2531,7 +2535,10 @@ namespace Ship_Game
                     {
                         Empire remnants = EmpireManager.Remnants;
                         if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
+                        {
                             Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
+                            Universe.GameOver = true;
+                        }
                         else
                             remnants.Remnants.TriggerOnlyRemnantsLeftEvent();
 
@@ -2596,7 +2603,7 @@ namespace Ship_Game
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
-            float biggestAIScore = biggestAI.TotalScore;
+            float biggestAIScore = biggestAI?.TotalScore ?? playerScore;
 
             if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 1.5f || aiEmpires.Length < 2)
                 return;
@@ -2705,7 +2712,7 @@ namespace Ship_Game
             }
 
             StarDriveGame.Instance?.EndingGame(true);
-
+            Empire.Universe.GameOver = true;
             Universe.Objects.Clear();
             Universe.Paused = true;
             HelperFunctions.CollectMemory();

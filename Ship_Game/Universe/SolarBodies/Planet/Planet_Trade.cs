@@ -143,7 +143,7 @@ namespace Ship_Game
 
         public int FreighterTraffic(Array<Ship> freighterList, Goods goods)
         {
-            return freighterList.Count(s => s.AI.HasTradeGoal(goods));
+            return freighterList.Count(s => s?.AI.HasTradeGoal(goods) == true);
         }
 
         // Freighters on the way to pick up from us
@@ -203,7 +203,12 @@ namespace Ship_Game
 
         public void RemoveFromOutgoingFreighterList(Ship ship)
         {
-            OutgoingFreighters.Remove(ship);
+            for (int i = 0; i < OutgoingFreighters.Count; i++)
+            {
+                var freight = OutgoingFreighters[i];
+                if (freight == ship)
+                    OutgoingFreighters.RemoveAt(i);
+            }
         }
 
         private void RemoveInvalidFreighters(Array<Ship> freighters)

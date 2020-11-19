@@ -357,6 +357,10 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter"); ;
         }
 
+        /// <summary>
+        /// Message the player regarding recovered ship on a planet.
+        /// Null ship is safe here.
+        /// </summary>
         public void AddShipRecovered(Planet p, Ship s, string message)
         {
             var recover = new Notification

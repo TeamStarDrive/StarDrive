@@ -165,7 +165,8 @@ namespace Ship_Game.AI
         public void OrderLandAllTroops(Planet target)
         {
             ResetPriorityOrderWithClear();
-            if (Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
+            // anyassaultops is broken and doesnt work with troop shuttles. 
+            if (Owner.DesignRole == ShipData.RoleName.troop ||  Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
                 AddLandTroopGoal(target);
         }
 
