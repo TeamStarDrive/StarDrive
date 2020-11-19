@@ -45,8 +45,8 @@ namespace Ship_Game.Ships
             Ordinance = newOrdnance.Clamped(0, OrdinanceMax);
         }
 
-        public float ShipOrdLaunchCost => Mass / 5f;
-        public float ShipRetrievalOrd  => Mass / 5f * HealthPercent;
+        public float ShipOrdLaunchCost => Mass / 5f * (GlobalStats.HasMod ? GlobalStats.ActiveModInfo.HangarCombatShipCostMultiplier : 1);
+        public float ShipRetrievalOrd  => ShipOrdLaunchCost * HealthPercent;
 
         private sealed class CargoContainer
         {
