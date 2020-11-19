@@ -218,6 +218,9 @@ namespace Ship_Game.AI
 
                     nearestRallyPoint = Owner.loyalty.FindNearestSafeRallyPoint(Owner.Center);
                     break;
+                case ResupplyReason.RequestResupplyFromPlanet:
+                    RequestResupplyFromPlanet();
+                    return;
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
                     Ship repairShip = NearByRepairShip;
@@ -300,7 +303,7 @@ namespace Ship_Game.AI
 
         void RequestResupplyFromPlanet()
         {
-            if (Owner.InCombat || Owner.loyalty.isFaction || Owner.GetTether()?.Owner == Owner.loyalty)
+            if (Owner.GetTether()?.Owner == Owner.loyalty)
                 return;
 
             EmpireAI ai = Owner.loyalty.GetEmpireAI();
