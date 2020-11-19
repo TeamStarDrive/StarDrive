@@ -402,6 +402,7 @@ namespace Ship_Game
 
             if (mod.PermittedHangarRoles.Length == 0)
                 return;
+
             DynamicHangarOptions hangarOption = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
             if (hangarOption != DynamicHangarOptions.Static)
             {
@@ -413,7 +414,9 @@ namespace Ship_Game
                 return;
             }
             Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
-            if (ship == null) return;
+            if (ship == null) 
+                return;
+
             modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
             Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
             string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
