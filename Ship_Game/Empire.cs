@@ -870,11 +870,15 @@ namespace Ship_Game
         public int TechCost(Ship ship)       => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
+        /// <summary>
+        /// this appears to be broken. 
+        /// </summary>
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
         public int NumPlanets                               => OwnedPlanets.Count;
+        public int NumSystems                               => OwnedSolarSystems.Count;
 
-        public Array<SolarSystem> GetBorderSystems(Empire them, bool hideUnexplored)
+        public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored)
         {
             var solarSystems = new Array<SolarSystem>();
             Vector2 theirCenter = them.WeightedCenter;
