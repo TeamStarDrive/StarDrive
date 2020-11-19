@@ -1314,7 +1314,9 @@ namespace Ship_Game.Ships
                 return off;
 
             if (ShipBuilder.IsDynamicHangar(hangarShipUID))
-                off += MaximumHangarShipSize * 10;
+            {
+                off += MaximumHangarShipSize * 100 * PermittedHangarRoles.Length / hangarTimerConstant.LowerBound(1);
+            }
             else
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hShip))
