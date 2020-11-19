@@ -18,6 +18,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public Array<Theater> Theaters = new Array<Theater>();
         public War GetWar() => OwnerWar;
         int TheirSystemCount = 0;
+        [XmlIgnore] [JsonIgnore]
+        public Theater[] ActiveTheaters;
         [XmlIgnore][JsonIgnore] public float WarValue => Theaters.Sum(t => t.TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us));
         
         public TheatersOfWar (War war)
@@ -27,7 +29,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Us       = EmpireManager.GetEmpireByName(OwnerWar.UsName);
         }
 
-        public int MinPriority() => Theaters.FindMin(t=>t.Priority)?.Priority ?? 100;
+        public int MinPriority() => Theaters.FindMinFiltered(t=>t.Active(), t=> t.Priority)?.Priority ?? 100;
 
         public void RestoreFromSave(War war)
         {
@@ -35,6 +37,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Us       = EmpireManager.GetEmpireByName(OwnerWar.UsName);
             foreach (var theater in Theaters)
                 theater.RestoreFromSave(this);
+        }
+
+        void SetActiveTheaters()
+        {
+            ActiveTheaters = new Theater[0];
+            if (OwnerWar.GetPriority() <= Us.GetEmpireAI().MinWarPriority)
+            {
+                Theater[] theaters = Theaters.Filter(t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
+
+                if (theaters.Length > 0)
+                    ActiveTheaters = new Theater[1] { theaters.SortedDescending(t => t.WarValue)[0] };
+            }
         }
 
         public void Evaluate()
@@ -46,13 +60,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 theater.SetTheaterPriority(baseDistance);
             }
 
-            Theater[] theaters = Theaters.SortedDescending(t=> t.Priority);
-            for (int i = 0; i < theaters.Length; i++) 
-                theaters[i].Evaluate();
+            SetActiveTheaters();
+
+            for (int i = 0; i < Theaters.Count; i++)
+            {
+                var theater = Theaters[i];
+                Theaters[i].Evaluate();
+            }
 
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
-            if (!Initialized || theirSystems > 0 && theirSystems != TheirSystemCount)
+            if (!Initialized || theirSystems > 0 && theirSystems != TheirSystemCount )
             {
                 TheirSystemCount = theirSystems;
                 Initialize();
@@ -66,8 +84,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int i = 0; i < Theaters.Count; i++)
             {
                 var theater      = Theaters[i];
-                Vector2 position = theater.RallyAO?.Center ?? default;
-                float distance   = theater.TheaterAO.Center.Distance(position);
+                Vector2 position = theater.RallyAO?.Center ?? defaultPosition;
+                float distanceToThem = float.MaxValue;
+                foreach (var p in Them.GetPlanets())
+                {
+                    float theaterDistance = p.Center.Distance(theater.TheaterAO.Center);
+                    distanceToThem = Math.Min(distanceToThem, theaterDistance);
+                }
+
+                float distance   = theater.TheaterAO.Center.Distance(position) + distanceToThem - theater.WarValue;
                 closest          = Math.Min(closest, distance);
             }
 
@@ -131,6 +156,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 //    break;
                 case WarType.SkirmishWar:
                     campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
+                    campaignTypes.AddUnique(Campaign.CampaignType.Defense);
+                    campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
                     aos                = CreateBorderAOs();
                     break;
                 case WarType.EmpireDefense:
@@ -145,6 +172,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
 
             if (replaceExistingAOs) Theaters = new Array<Theater>();
+
+            if (TheirSystemCount == 0)
+            {
+                var theirBases = Us.GetEmpireAI().ThreatMatrix.GetPins().Filter(p => p.Ship?.IsPlatformOrStation == true && p.Ship?.loyalty == Them);
+                foreach (var theirBase in theirBases)
+                {
+                    var ao = new AO(Them, theirBase.Ship.Center, Us.GetProjectorRadius() * 2);
+                    aos.Add(ao);
+                }
+            }
 
             foreach (var ao in aos)
             {
@@ -179,7 +216,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var theirAo     = Them.EmpireAO();
             var UsAO        = Us.WeightedCenter;
             float minAoSize = 600000;
-            float maxAoSize = (Empire.Universe.UniverseSize).LowerBound(minAoSize);
+            float maxAoSize = (Empire.Universe.UniverseSize / 4).LowerBound(minAoSize);
             var aoSize      = (theirAo.Radius / 2).Clamped(minAoSize, maxAoSize);
             var aos         = new Array<AO>();
             foreach (var theater in Theaters)
@@ -226,9 +263,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             debug.AddLine($"Theaters : {Theaters.Count}");
             debug.AddLine($"WarValue : {WarValue}");
-            for (int i = 0; i < Theaters.Count; i++)
+            
+            for (int i = 0; i < (ActiveTheaters?.Length ?? 0); i++)
             {
-                var theater = Theaters[i];
+                var theater = ActiveTheaters[i];
                 debug.AddLine($"Theater : {i} WarValue : {theater.WarValue}");
                 debug = theater.DebugText(debug, pad1, pad2);
             }

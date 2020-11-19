@@ -3,19 +3,21 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.AI.ShipMovement;
 using System;
+using static Ship_Game.AI.ShipAI;
+using static Ship_Game.AI.ShipAI.TargetParameterTotals;
+using SynapseGaming.LightingSystem.Shadows;
 
 namespace Ship_Game.AI
 {
     public sealed class CombatAI
     {
-        public float VultureWeight               = 1;
-        public float SelfDefenseWeight           = 1f;
-        public float SmallAttackWeight           = 1f;
-        public float MediumAttackWeight          = 1f;
-        public float LargeAttackWeight           = 3f;
-        public float PreferredEngagementDistance = 1500f;
+        public float VultureWeight = 0.5f;
+        public float SelfDefenseWeight = 0.5f;
+        public float SmallAttackWeight;
+        public float MediumAttackWeight;
+        public float LargeAttackWeight;
         public float PirateWeight;
-        private float AssistWeight;
+        private float AssistWeight = 0.5f;
         public Ship Owner;
         ShipAIPlan CombatTactic;
         CombatState CurrentCombatStance;
@@ -27,7 +29,6 @@ namespace Ship_Game.AI
         public CombatAI(Ship ship)
         {
             Owner = ship;
-            UpdateTargetPriorities(ship);
             CurrentCombatStance = ship.AI.CombatState;
             SetCombatTactics(ship.AI.CombatState);
         }
@@ -38,124 +39,87 @@ namespace Ship_Game.AI
             Owner.AI.PotentialTargets.Clear();
         }
 
-        public void UpdateTargetPriorities(Ship ship)
+        public ShipWeight ShipCommandTargeting(ShipWeight weight, TargetParameterTotals targetPrefs)
         {
-            if (ship.SurfaceArea <= 0)
-                return;
+            // standard ship targeting:
+            // within max weapons range
+            // within desired range
+            // pirate scavenging
+            // Size desire / hit chance
+            // speed / turnrate difference
+            // damaged by
 
-            byte pd        = 0;
-            byte mains     = 0;
-            float fireRate = 0;
-            foreach(Weapon w in ship.Weapons)
+            // Target of opportunity
+            // target is threat. 
+            // target is objective
+
+            Vector2 center = Owner.fleet?.AveragePosition() ?? Owner.AI.FriendliesSwarmCenter;
+            Ship target            = weight.Ship;
+            float theirDps         = target.TotalDps;
+            float distanceToTarget = center.Distance(weight.Ship.Center).LowerBound(1);
+            float errorRatio       = (target.Radius - Owner.MaxWeaponError) / target.Radius;
+            bool inTheirRange      = distanceToTarget < target.WeaponsMaxRange;
+            bool inOurRange        = distanceToTarget < Owner.WeaponsMaxRange;
+
+            // more agile than us the less they are valued. 
+            float turnRatio = 0;
+            if (target.RotationRadiansPerSecond > 0 && Owner.RotationRadiansPerSecond > 0)
+                turnRatio = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond) / Owner.RotationRadiansPerSecond;
+
+            float stlRatio = 0;
+            if (Owner.MaxSTLSpeed > 0)
+                stlRatio = (Owner.MaxSTLSpeed - target.MaxSTLSpeed) / Owner.MaxSTLSpeed;
+
+            float baseThreat = theirDps / targetPrefs.DPS.LowerBound(1);
+            baseThreat += turnRatio;
+            baseThreat += stlRatio;
+            baseThreat += errorRatio;
+
+            float weaponsRange = Owner.WeaponsMaxRange * 2;
+            float targetValue = 0;
+
+            if (inTheirRange || inOurRange)
             {
-                if(w.isBeam || w.isMainGun || w.Module.XSIZE*w.Module.YSIZE > 4)
-                    mains++;
-                if(w.SalvoCount > 2 || w.Tag_PD )
-                    pd++;
-                fireRate += w.fireDelay;
+                targetValue = baseThreat;
+                targetValue += weight.Ship.AI.Target == Owner ? 0.25f : 0;
+                targetValue += weight.Ship == Owner.LastDamagedBy ? 0.25f : 0;
+                targetValue += 0.25f;
+
             }
-            if (ship.Weapons.Count > 0)
-                fireRate /= ship.Weapons.Count;
-
-            LargeAttackWeight  = mains > 2 ? 3 : fireRate > 0.5 ? 2 : 0;
-            SmallAttackWeight  = mains == 0 && fireRate < .1 && pd > 1 ? 3 : 0;
-            MediumAttackWeight = mains < 3 && fireRate > .1 ? 3 : 0;
-            if (ship.loyalty.isFaction || ship.VelocityMaximum > 500)
-                VultureWeight  = 2;
-            if (ship.loyalty.isFaction)
-                PirateWeight   = 3;
-            AssistWeight = 0;
-        }
-
-        public float ApplyWeight(Ship nearbyShip)
-        {
-            if (Owner == null) 
-                return 0;
-            float weight = 0;
-            if (nearbyShip == null) 
-                return weight;
-
-            if (Owner.AI.Target == nearbyShip)
-                weight += 1.5f;
-
-            if (nearbyShip?.Weapons.Count == 0) 
-                weight += PirateWeight;
-            float healthRatio = 1 -(nearbyShip.Health / nearbyShip.HealthMax);
-            weight += VultureWeight * healthRatio;
-
-            weight += SizeAttackWeight(weight, nearbyShip);
-            weight += RangeWeight(nearbyShip, weight);
-           
-            if (nearbyShip.Weapons.Count < 1)
-                weight -= 3;
-
-            if (nearbyShip.AI.Target == Owner)
-                weight += SelfDefenseWeight;
-
-            if (nearbyShip.AI.Target?.GetLoyalty() == Owner.loyalty) 
-                weight += AssistWeight;
-
-            return weight;
-        }
-
-        private float RangeWeight(Ship nearbyShip, float weight)
-        {
-            float rangeToTarget = Vector2.Distance(nearbyShip.Center, Owner.Center);
-
-            if (rangeToTarget <= PreferredEngagementDistance)
+            else
             {
-                weight += (int) Math.Ceiling(5 * ((PreferredEngagementDistance -
-                                                   Vector2.Distance(Owner.Center, nearbyShip.Center))
-                                                  / PreferredEngagementDistance));
+                targetValue += turnRatio + stlRatio + errorRatio;
+                //if (weaponsRange > 0)
+                //    targetValue += (float)Math.Round((weaponsRange - distanceToTarget) / weaponsRange, 1);
             }
-            else if (rangeToTarget > PreferredEngagementDistance + Owner.VelocityMaximum * 5)
-            {
-                weight += weight - 2.5f * (rangeToTarget /
-                                           (PreferredEngagementDistance +
-                                            Owner.VelocityMaximum * 5));
-            }
-            if (Owner.Mothership != null)
-            {
-                rangeToTarget = Vector2.Distance(nearbyShip.Center, Owner.Mothership.Center);
-                if (rangeToTarget < PreferredEngagementDistance)
-                    weight += 1;
-            }
-            if (Owner.AI.EscortTarget != null)
-            {
-                rangeToTarget = Vector2.Distance(nearbyShip.Center, Owner.AI.EscortTarget.Center);
-                if (rangeToTarget < 5000)
-                    weight += 1;
-                else
-                    weight -= 2;
-                if (nearbyShip.AI.Target == Owner.AI.EscortTarget)
-                    weight += 1;
-            }
-            return weight;
-        }
 
-        float SizeAttackWeight(float weight, Ship target)
-        {
-            int surfaceArea = target.SurfaceArea;
-            float priority = MediumAttackWeight;
-            if (surfaceArea < 30)
-                priority = SmallAttackWeight;
-            else if (surfaceArea > 100)
-                priority = LargeAttackWeight;
-
-
-            switch (Owner.shipData.ShipCategory)
+            float rangeToEnemyCenter = 0;
+            Ship motherShip = Owner.Mothership ?? Owner.AI.EscortTarget;
+            if (motherShip != null)
             {
-                case ShipData.Category.Reckless:
-                    weight += priority / 2f;
-                    break;
-                case ShipData.Category.Neutral:
-                    weight += priority * 2f;
-                    break;
-                default:
-                    weight += priority;
-                    break;
+                targetValue += target.AI.Target == motherShip ? 0.1f : 0;
+                targetValue += motherShip.AI.Target == target ? 0.1f : 0;
+                targetValue += motherShip.LastDamagedBy == target ? 0.25f : 0;
+                targetValue += motherShip.Center.InRadius(target.Center, target.WeaponsMaxRange) ? 0.1f :0;
+                rangeToEnemyCenter = Math.Abs(motherShip.Center.Distance(targetPrefs.Center) - motherShip.Center.Distance(target.Center));
+                float rangeValue = (float)Math.Round(1 - rangeToEnemyCenter / motherShip.WeaponsMaxRange.LowerBound(1000), 1);
+                targetValue += rangeValue;
             }
-            weight *= target.DesignRole < ShipData.RoleName.troop ? 0.2f : 1;
+            else
+            {
+                rangeToEnemyCenter = center.Distance(targetPrefs.Center);
+                float rangeValue   = (float)Math.Round(1 - rangeToEnemyCenter / Owner.WeaponsMaxRange.LowerBound(1000), 1);
+                targetValue       += rangeValue;
+            }
+            
+            targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
+
+            weight.SetWeight(targetValue);
+
+            if (float.IsNaN(weight.Weight))
+                Log.Error($"ship weight NaN for {weight.Ship}");
+            if (float.IsInfinity(weight.Weight))
+                Log.Error($"ship weight infinite for {weight.Ship}");
             return weight;
         }
 

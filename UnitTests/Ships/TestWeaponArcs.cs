@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
+using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -83,6 +84,16 @@ namespace UnitTests.Ships
             Assert.IsTrue(weapon.UpdateAndFireAtTarget(enemy, projectiles, NoShips), "Fire PD at a projectile must succeed");
             Assert.AreEqual(1, GetProjectileCount(us), "Invalid projectile count");
             Assert.AreEqual(weapon.FireTarget.Type, GameObjectType.Proj, "TruePD must only fire at projectiles");
+        }
+
+        [TestMethod]
+        public void FiringWithError()
+        {
+            Ship ship = SpawnShip("Laserclaw", Player, Vector2.Zero);
+            Weapon weapon = ship.Weapons.Find(w => w.UID == "HeavyLaserBeam");
+            float error = weapon.BaseTargetError(-1);
+            Assert.IsTrue(error > 112 & error < 114);
+            // I am embarrassed by this unit test.
         }
     }
 }

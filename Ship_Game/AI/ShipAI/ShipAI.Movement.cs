@@ -238,6 +238,11 @@ namespace Ship_Game.AI
                 return;
             }
 
+            if (distance > 1000)
+            {
+                OrderQueue.PushToFront(new ShipGoal(Plan.MoveToWithin1000, targetPos, goal.Direction, AIState.AwaitingOrders, MoveTypes.LastWayPoint, 0, null));
+            }
+
             if (distance > 75)
             {
                 // prediction to enhance movement precision
