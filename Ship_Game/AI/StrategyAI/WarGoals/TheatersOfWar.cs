@@ -18,6 +18,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public Array<Theater> Theaters = new Array<Theater>();
         public War GetWar() => OwnerWar;
         int TheirSystemCount = 0;
+        [XmlIgnore] [JsonIgnore]
         public Theater[] ActiveTheaters;
         [XmlIgnore][JsonIgnore] public float WarValue => Theaters.Sum(t => t.TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us));
         

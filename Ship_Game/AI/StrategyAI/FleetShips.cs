@@ -70,7 +70,7 @@ namespace Ship_Game.AI
                 || ship.AI.State == AIState.Scrap
                 || ship.AI.State == AIState.Resupply
                 || ship.AI.State == AIState.Refit
-                || ship.fleet != null)
+                || ship.HomePlanet != null)
                 return false;
 
             int roleIndex            = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);

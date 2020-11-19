@@ -575,8 +575,6 @@ namespace Ship_Game.Fleets
                 case 1:
                     if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
                     {
-                        SetAllShipsPriorityOrder();
-                        //TaskStep = 0;
                         break;
                     }
                     GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 1.5f);
