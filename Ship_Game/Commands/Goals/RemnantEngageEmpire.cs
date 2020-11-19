@@ -179,7 +179,7 @@ namespace Ship_Game.Commands.Goals
             if (numBombers == Fleet.Ships.Count)
                 return ReturnToPortal();
 
-            if (Fleet.TaskStep != 7 && TargetPlanet.Owner == TargetEmpire) // Cleared enemy at target planet
+            if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Cleared enemy at target planet
                     return GoalStep.TryAgain;
 
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
