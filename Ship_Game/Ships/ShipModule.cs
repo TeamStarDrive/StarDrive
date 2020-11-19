@@ -464,19 +464,16 @@ namespace Ship_Game.Ships
             get
             {
                 float ordnancePerSecond = 0;
-                if (IsSupplyBay && hangarTimerConstant > 0)
-                    ordnancePerSecond = (OrdinanceCapacity + 8) / hangarTimerConstant; //8 because shuttle mass is 40
-                else if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
+                if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
                 {
-                    if (ShipBuilder.IsDynamicHangar(hangarShipUID))
-                        ordnancePerSecond = MaximumHangarShipSize / hangarTimerConstant;
-                    else
-                    {
+                    string hangarShipName = ShipBuilder.IsDynamicHangar(hangarShipUID)
+                        ? CarrierBays.GetDynamicShipNameShipDesign(this)
+                        : hangarShipUID;
 
-                        ResourceManager.ShipsDict.TryGetValue(hangarShipUID, out Ship template);
-                        ordnancePerSecond = (template?.Mass / 5 ?? 0) / hangarTimerConstant;
-                    }
+                    if (ResourceManager.ShipsDict.TryGetValue(hangarShipName, out Ship template))
+                        ordnancePerSecond = (template.ShipOrdLaunchCost) / hangarTimerConstant;
                 }
+
                 return ordnancePerSecond;
             }
         }

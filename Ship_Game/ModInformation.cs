@@ -73,6 +73,7 @@ namespace Ship_Game
         public int CostBasedOnSizeThreshold = 2500;  // Allow tuning the change up/down
 
         public int DefaultNumOpponents = 7; // Default AIs to start on default settings
+        public float HangarCombatShipCostMultiplier = 1;
 
         public int ChanceForCategory(PlanetCategory category)
         {
