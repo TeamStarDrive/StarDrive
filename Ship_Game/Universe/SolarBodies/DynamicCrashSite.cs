@@ -82,20 +82,28 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void ActivateSite(Planet p, Empire activatingEmpire, PlanetGridSquare tile)
         {
-            Active       = false;
-            Empire owner = p.Owner ?? activatingEmpire;
+            Active              = false;
+            Empire owner        = p.Owner ?? activatingEmpire;
+            string troopMessage = "";
+            Ship ship           = SpawnShip(p, activatingEmpire, owner, out string message);
 
-            Ship ship = SpawnShip(p, activatingEmpire, owner, out string message);
-            SpawnSurvivingTroops(p, owner, tile, out string troopMessage);
+            if (ship != null)
+                SpawnSurvivingTroops(p, owner, tile, out troopMessage);
+
             p.DestroyBuildingOn(tile);
-
             if (owner.isPlayer || !owner.isPlayer && Loyalty.isPlayer && NumTroopsSurvived > 0)
                 Empire.Universe.NotificationManager.AddShipRecovered(p, ship, $"{message}{troopMessage}");
         }
 
         Ship SpawnShip(Planet p, Empire activatingEmpire, Empire owner, out string message)
         {
-            Ship template       = ResourceManager.GetShipTemplate(ShipName);
+            message = $"Recover efforts of a crashed ship on {p.Name} were futile.\n" +
+                      "It was completely wrecked.";
+
+            Ship template = ResourceManager.GetShipTemplate(ShipName, false);
+            if (template == null)
+                return null;
+
             float recoverChance = CalcRecoverChance(template, activatingEmpire);
 
             if (RandomMath.RollDice(recoverChance) 

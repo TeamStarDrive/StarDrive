@@ -135,6 +135,7 @@ namespace Ship_Game.Ships
         private bool reallyDie;
         private bool HasExploded;
         public float FTLSpoolTime;
+        public int TotalDps { get; private set; }
 
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasRepairBeam;
@@ -152,12 +153,13 @@ namespace Ship_Game.Ships
         public Planet HomePlanet { get; private set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
+        public float MaxWeaponError = 0;
 
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
         public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == ShipData.RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
-        public bool IsSubspaceProjector => Name == "Subspace Projector";
-        public bool HasBombs => BombBays.Count > 0;
+        public bool IsSubspaceProjector     => Name == "Subspace Projector";
+        public bool HasBombs                => BombBays.Count > 0;
 
         public bool IsConstructor
         {
@@ -958,6 +960,7 @@ namespace Ship_Game.Ships
 
             DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges, AI?.CombatState ?? CombatState.AttackRuns);
             InterceptSpeed     = CalcInterceptSpeed(weapons);
+            MaxWeaponError     = Weapons.FindMax(w => w.BaseTargetError(Level, TargetErrorFocalPoint))?.BaseTargetError(Level, TargetErrorFocalPoint) ?? 0;
         }
 
         // This is used for previewing range during CombatState change
@@ -1098,8 +1101,6 @@ namespace Ship_Game.Ships
         {
             if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
             {
-                AI.CombatAI.UpdateTargetPriorities(this);
-
                 foreach (Weapon weapon in Weapons)
                 {
                     if (GlobalStats.HasMod)
@@ -1363,14 +1364,16 @@ namespace Ship_Game.Ships
 
         private float CurrentStrength = -1.0f;
 
+        /// <summary>
+        /// Gets the current strength of the ship, which is dynamic (active modules)
+        /// </summary>
+        /// <returns></returns>
         public float GetStrength()
         {
             return CurrentStrength;
         }
 
         public float NormalizedStrength => BaseStrength / shipData.ModuleSlots.Length;
-
-        public float GetDPS() => DPS;
 
         //Added by McShooterz: Refactored by CG
         public void AddKill(Ship killed)
@@ -1729,45 +1732,46 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        // @todo autocalculate during ship instance init
-        private int DPS;
         public float CalculateShipStrength()
         {
-            float offense      = 0f;
-            float defense      = 0f;
-            bool fighters      = false;
-            bool weapons       = false;
-            int numWeaponSlots = 0;
-            float turnThrust   = 0;
+            float offense   = 0f;
+            float defense   = 0f;
+            int weaponArea  = 0;
+            bool hasWeapons = false;
+            TotalDps        = 0;
 
-            foreach (ShipModule slot in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; i++ )
             {
-                //ShipModule template = GetModuleTemplate(slot.UID);
-                if (slot.InstalledWeapon != null)
+                ShipModule m = ModuleSlotList[i];
+                if (m.Active)
                 {
-                    weapons         = true;
-                    numWeaponSlots += slot.Area;
+                    if (m.InstalledWeapon != null)
+                    {
+                        weaponArea += m.Area;
+                        TotalDps += m.InstalledWeapon.DamagePerSecond;
+                        hasWeapons = true;
+                    }
+
+                    offense += m.CalculateModuleOffense();
+                    defense += m.CalculateModuleDefense(SurfaceArea);
+                    BaseCanWarp |= m.WarpThrust > 0;
                 }
-                fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
-
-                offense    += slot.CalculateModuleOffense();
-                defense    += slot.CalculateModuleDefense(SurfaceArea);
-                turnThrust += slot.TurnThrust;
-
-                BaseCanWarp |= slot.WarpThrust > 0;
             }
-            DPS = (int)offense;
-            if (IsPlatformOrStation) offense  /= 2;
-            if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea, numWeaponSlots, offense, defense);
+            if (IsPlatformOrStation) 
+                offense /= 2;
+
+            if (!Carrier.HasFighterBays && !hasWeapons) 
+                offense = 0f;
+
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, weaponArea, offense, defense);
         }
 
         private void ApplyRepairToShields(float repairPool)
         {
-            float shieldrepair = 0.2f * repairPool;
-            if (shield_max - shield_power > shieldrepair)
-                shield_power += shieldrepair;
+            float shieldRepair = 0.2f * repairPool;
+            if (shield_max - shield_power > shieldRepair)
+                shield_power += shieldRepair;
             else
                 shield_power = shield_max;
         }

@@ -587,17 +587,19 @@ namespace Ship_Game.AI
 
         void DoSupplyShip(FixedSimTime timeStep)
         {
-            if (EscortTarget == null || !EscortTarget.Active
-                                     || EscortTarget.AI.State == AIState.Resupply
-                                     || EscortTarget.AI.State == AIState.Scrap
-                                     || EscortTarget.AI.State == AIState.Refit)
+            var escortTarget = EscortTarget;
+            if (EscortTarget == null || !escortTarget.Active
+                                     || escortTarget.AI.State == AIState.Resupply
+                                     || escortTarget.AI.State == AIState.Scrap
+                                     || escortTarget.AI.State == AIState.Refit)
             {
                 OrderReturnToHangar();
                 return;
             }
 
+            
             ThrustOrWarpToPos(EscortTarget.Center, timeStep);
-            if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
+            if (Owner.Center.InRadius(escortTarget.Center, escortTarget.Radius + 300f))
             {
                 // how much the target did not take.
                 float leftOverOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);

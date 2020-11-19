@@ -23,7 +23,6 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer)
                 return;
-
             RunGroundPlanner();
             NumberOfShipGoals   = 3;
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
@@ -34,11 +33,11 @@ namespace Ship_Game.AI
 
             Goals.ApplyPendingRemovals();
 
-            // Empire Military needs not directly related to war. 
+            // Empire Military needs. War has its own task list in the WarTasks class
             Toughnuts = 0;
 
             var tasks = TaskList.SortedDescending(t=> t.Priority);
-
+            
             foreach (MilitaryTask task in tasks)
             {
                 if (!task.QueuedForRemoval)
@@ -230,12 +229,16 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet != null)
                     task.TargetPlanetGuid = task.TargetPlanet.guid;
             }
+            aiSave.WarTaskClass = WarTasks;
+
+
         }
 
         public void ReadFromSave(SavedGame.GSAISAVE aiSave)
         {
             TaskList.Clear();
             TaskList.AddRange(aiSave.MilitaryTaskList);
+            WarTasks = aiSave.WarTaskClass?? new WarTasks(OwnerEmpire);
         }
 
         public void TrySendExplorationFleetToCrashSite(Planet p)
@@ -436,8 +439,8 @@ namespace Ship_Game.AI
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
                     DesiredCount = (int)(RoleBuildBudget.LowerBound(.001f) / PerUnitMaintenanceMax.LowerBound(0.001f)); // MinimumMaintenance));
-                    if (Role < CombatRole.Frigate)
-                        DesiredCount = Math.Min(50, DesiredCount);
+                    //if (Role < CombatRole.Frigate)
+                    //    DesiredCount = Math.Min(50, DesiredCount);
                 }
 
                 private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)

@@ -72,7 +72,9 @@ namespace Ship_Game.AI
         public Fleet GetCoreFleet()                           => CoreFleet;
         public Planet GetPlanet()                             => CoreWorld;
 
-        public Planet[] GetPlanets()                       => OurPlanetsInAo;
+        public Planet[] GetOurPlanets()                       => OurPlanetsInAo;
+        public Planet[] GetAllPlanets()                       => PlanetsInAo;
+
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
         [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; }           = true;
 
