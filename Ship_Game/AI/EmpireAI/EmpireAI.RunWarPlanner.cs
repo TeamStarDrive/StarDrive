@@ -370,7 +370,7 @@ namespace Ship_Game.AI
                             // they have planets in our AO
                             else if (rel.PreparingForWarType == WarType.BorderConflict)
                             {
-                                bool theirBorderSystems = them.GetBorderSystems(OwnerEmpire, true)
+                                bool theirBorderSystems = them.GetOurBorderSystemsTo(OwnerEmpire, true)
                                     .Any(s => IsInOurAOs(s.Position));
                                 if (theirBorderSystems)
                                     DeclareWarOn(them, rel.PreparingForWarType);
@@ -378,7 +378,7 @@ namespace Ship_Game.AI
                             // we have planets in their AO. Skirmish War.
                             else if (rel.PreparingForWarType != WarType.DefensiveWar)
                             {
-                                bool ourBorderSystem = OwnerEmpire.GetBorderSystems(them, false)
+                                bool ourBorderSystem = OwnerEmpire.GetOurBorderSystemsTo(them, false)
                                     .Any(s => them.GetEmpireAI().IsInOurAOs(s.Position));
                                 if (ourBorderSystem)
                                 {
