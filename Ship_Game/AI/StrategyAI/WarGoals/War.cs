@@ -116,9 +116,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        public SolarSystem[] GetTheirBorderSystems() => Them.GetBorderSystems(Us, true)
+        public SolarSystem[] GetTheirBorderSystems() => Them.GetOurBorderSystemsTo(Us, true)
                                 .Filter(s => Us.GetEmpireAI().IsInOurAOs(s.Position));
-        public SolarSystem[] GetTheirNearSystems() => Them.GetBorderSystems(Us, true).ToArray();
+        public SolarSystem[] GetTheirNearSystems() => Them.GetOurBorderSystemsTo(Us, true).ToArray();
 
         Array<Guid> FindContestedSystemGUIDs()
         {

@@ -124,17 +124,18 @@ namespace Ship_Game.AI
             bool notKnown = !OwnerEmpire.AllRelations.Any(r => r.Rel.Known && !r.Them.isFaction);
             if (notKnown) return 0;
 
+            float spyCost = ResourceManager.AgentMissionData.AgentCost;
             float trustworthiness = OwnerEmpire.data.DiplomaticPersonality?.Trustworthiness ?? 0;
             trustworthiness      /= 100f;
             float militaryRatio   = OwnerEmpire.Research.Strategy.MilitaryRatio;
             float agentRatio =  OwnerEmpire.data.AgentList.Count / (float)EmpireSpyLimit;
             // here we want to make sure that even if they arent trust worthy that the value they put on war machines will 
             // get more money.
-            float treasuryToSave  = (0.5f + agentRatio + trustworthiness + militaryRatio) / 2;
+            float treasuryToSave  = (0.5f + agentRatio + trustworthiness + militaryRatio) * 0.6f;
             float numAgents       = OwnerEmpire.data.AgentList.Count;
             float spyNeeds        = 1 + EmpireSpyLimit - numAgents;
             spyNeeds              = spyNeeds.LowerBound(0);
-            float overSpend       = OverSpendRatio(money, treasuryToSave,  spyNeeds).LowerBound(1);
+            float overSpend = OverSpendRatio(money, treasuryToSave, spyNeeds);//.LowerBound(1);
             float budget          = money * percentOfMoney * overSpend;
 
             return budget;
