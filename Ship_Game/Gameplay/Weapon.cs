@@ -185,6 +185,7 @@ namespace Ship_Game.Gameplay
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
+        [XmlIgnore][JsonIgnore] public int DamagePerSecond { get; private set; }
 
         // Number of salvos that will be sequentially spawned.
         // For example, Vulcan Cannon fires a salvo of 20
@@ -259,6 +260,24 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
+        public void CalcDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
+        {
+            Weapon wOrMirv = this; 
+            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            {
+                Weapon warhead = ResourceManager.CreateWeapon(MirvWeapon);
+                wOrMirv        = warhead;
+            }
+
+            int salvos           = SalvoCount.LowerBound(1);
+            float beamMultiplier = isBeam && !isRepairBeam ? BeamDuration * 60f : 0f;
+            float dps            = isBeam 
+                ? DamageAmount * beamMultiplier / NetFireDelay
+                : (salvos / NetFireDelay) * wOrMirv.ProjectileCount * wOrMirv.DamageAmount * MirvWarheads.LowerBound(1);
+
+            DamagePerSecond = (int)dps;
+        }
+
         // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
         public float GetDamageWithBonuses(Ship owner)
         {
@@ -278,7 +297,6 @@ namespace Ship_Game.Gameplay
 
             return damageAmount;
         }
-
 
         public void PlayToggleAndFireSfx(AudioEmitter emitter = null)
         {
@@ -525,14 +543,6 @@ namespace Ship_Game.Gameplay
             // reduce the error by level
             float adjust = (baseError / level -16f).LowerBound(0);
             
-            if (FireTarget is ShipModule module)
-            {
-                Ship target = module.GetParent();
-                float speed = target.CurrentVelocity;
-                if (speed < 150)
-                    adjust *= (speed + 10 / 160f).Clamped(0f,1f);
-            }
-
             // reduce or increase error based on weapon and trait characteristics.
             // this could be pre-calculated in the flyweight
             if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
@@ -952,7 +962,7 @@ namespace Ship_Game.Gameplay
 
             off *= TruePD ? 0.2f : 1f;
             off *= Tag_Intercept && (Tag_Missile || Tag_Torpedo) ? 0.8f : 1f;
-            off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
+            off *= ProjectileSpeed > 1 ? ProjectileSpeed / BaseRange : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
             off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.LowerBound(2) : 1;

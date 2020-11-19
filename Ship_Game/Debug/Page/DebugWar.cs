@@ -66,11 +66,22 @@ namespace Ship_Game.Debug.Page
             {
                 var war = rel.ActiveWar;
                 if (war == null ||  war.Them.isFaction) continue;
-                for (int i = 0; i < war.WarTheaters.Theaters.Count; i++)
+                int minPri = EmpireAtWar.GetEmpireAI().MinWarPriority;
+                int warPri = war.GetPriority();
+                if (warPri > minPri) 
+                    continue;
+
+                for (int i = 0; i < EmpireAtWar.AllActiveWarTheaters.Length; i++)
                 {
-                    var theater = war.WarTheaters.Theaters[i];
+                    var theater = EmpireAtWar.AllActiveWarTheaters[i];
+                    float thickness = 10;
                     var ao      = theater.TheaterAO;
-                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, (float) war.GetWarScoreState() * 2 + 1);
+                    var rallyAo = theater.RallyAO;
+                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, thickness);
+                    if (rallyAo == null) continue;
+                    Screen.DrawLineWideProjected(ao.Center, rallyAo.Center, Colors.Attack(), 2);
+                    Screen.DrawCircleProjected(rallyAo.Center, rallyAo.Radius, war.Them.EmpireColor, 2);
+                    Screen.DrawCircleProjected(rallyAo.Center, rallyAo.Radius, war.Them.EmpireColor, 2);
                 }
             }
         }

@@ -459,6 +459,8 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
+                ship.AI.SetPriorityOrder(true);
+                
                 ship.AI.ResetPriorityOrder(false);
                 ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, 
                     AIState.MoveTo, null, offensiveMove);
@@ -605,7 +607,7 @@ namespace Ship_Game
 
         public float GetSpeedLimitFor(Ship ship)
         {
-            if (ship.Center.InRadius(AveragePos, 15000))
+            if (ship.Center.InRadius(AveragePos + ship.FleetOffset, 1000))
                 return SpeedLimit;
             return 0;
         }
