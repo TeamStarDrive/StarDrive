@@ -309,7 +309,6 @@ namespace Ship_Game.AI
                         rel.ActiveWar.EndStarDate = Empire.Universe.StarDate;
                         rel.WarHistory.Add(rel.ActiveWar);
                         rel.Posture = Posture.Neutral;
-                        rel.ActiveWar = null;
                         continue;
                     }
 
