@@ -40,9 +40,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 var task = tasks[i];
                 if (!task.QueuedForRemoval)
+                {
+                    if (task.Fleet != null)
+                    {
+                        int extraFleets = task.TargetPlanet != null ? HardTargets.Count(g => g == task.TargetPlanet.guid) : 0;
+                        task.FleetCount += extraFleets;
+                    }
                     task.Evaluate(Owner);
+                }
             }
-
+             
             for (int i = 0; i < NewTasks.Count; i++)
             {
                 var task = NewTasks[i];
@@ -132,7 +139,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return clearing;
         }
 
-        public void StandardSystemDefense(SolarSystem system, int priority, float strengthWanted)
+        public void StandardSystemDefense(SolarSystem system, int priority, float strengthWanted, int fleetCount)
         {
             if (IsAlreadyDefendingSystem(system)) return;
             
@@ -140,7 +147,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             float radius   = system.Radius * 1.5f;
             CreateTask(new MilitaryTask(center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
-                Priority      = priority
+                Priority      = priority,
+                FleetCount    = fleetCount
             });
         }
 
