@@ -1027,7 +1027,9 @@ namespace Ship_Game.Fleets
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
-            if (EndInvalidTask((enemyStrength < 1 && TaskStep > 5) || !CanTakeThisFight(enemyStrength))) return;
+            bool threatIncoming = Owner.SystemWithThreat.Any(t=> !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
+            bool stillThreats = threatIncoming || (enemyStrength > 1 || TaskStep < 5);
+            if (EndInvalidTask(!stillThreats || !CanTakeThisFight(enemyStrength))) return;
 
             switch (TaskStep)
             {
@@ -1238,7 +1240,7 @@ namespace Ship_Game.Fleets
 
         bool ArrivedAtCombatRally(Vector2 position, float radius = 0)
         {
-            radius = radius.AlmostZero() ? GetRelativeSize().Length() / 1.5f : radius;
+            radius = radius.AlmostZero() ? GetRelativeSize().Length() * 1.5f : radius;
             radius = Math.Max(1000, radius);
             MoveStatus status = FleetMoveStatus(radius, position);
 

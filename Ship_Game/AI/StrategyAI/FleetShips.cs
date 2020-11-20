@@ -180,7 +180,7 @@ namespace Ship_Game.AI
             float wanted = Ratios.GetWanted(role);
             int requirementSpread = 0;
             if (maxIndex > 2) requirementSpread += 1;
-            bool required =  maxIndex > 2 && wanted >= 1 && combatIndex + requirementSpread >= maxIndex;
+            bool required =  maxIndex > 0 && wanted >= 1 && combatIndex + requirementSpread >= maxIndex;
 
 
             var ships = ExtractShips(Ships,  wanted, role, required);

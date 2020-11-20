@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Ship_Game.Empires.DataPackets;
 using static Ship_Game.AI.ThreatMatrix;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
@@ -36,113 +37,29 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             int unImportant = basePriority + 2;
 
             var ownedSystems = Owner.GetOwnedSystems();
-
-            //foreach (var theater in Owner.AllActiveWarTheaters)
-            //{
-            //    var rallySystem = theater.RallyAO?.CoreWorld?.ParentSystem;
-
-            //    if (rallySystem != null)
-            //    {
-            //        systems.Add(rallySystem);
-            //        int priority = casual - rallySystem.OwnerList.Count;
-            //        priorities.Add(priority);
-            //    }
-
-            //    foreach (var planet in theater.TheaterAO.GetOurPlanets())
-            //    {
-            //        int priority = casual - planet.ParentSystem.OwnerList.Count;
-
-            //        if (Owner.RallyPoints.Contains(planet))
-            //        {
-            //            priority -= 1;
-            //        }
-            //        if (planet.ParentSystem.OwnerList.Contains(Them))
-            //        {
-            //            systems.Add(planet.ParentSystem);
-            //            priorities.Add(priority);
-            //        }
-            //        else if (planet.ParentSystem.OwnerList.Contains(Owner))
-            //        {
-            //            systems.Add(planet.ParentSystem);
-            //            priorities.Add(priority);
-            //        }
-            //    }
-            //}
-
-            //foreach(var planet in Owner.RallyPoints)
-            //{
-            //    var system = planet.ParentSystem;
-            //    systems.Add(system);
-            //    int priority = casual - system.OwnerList.Count;
-            //    priorities.Add(priority);
-            //}
-
-            //var pinsNotInSystems = new Array<Pin>();
-            //for (int i = 0; i < pins.Length; i++)
-            //{
-            //    var pin = pins[i];
-            //    if (pin.Ship?.Active != true) continue;
-            //    if (pin.System == null)
-            //    {
-            //        if (pin.Ship?.IsPlatformOrStation == true)
-            //            pinsNotInSystems.AddUnique(pin);
-            //        continue;
-            //    }
-
-            //    systems.AddUnique(pin.System);
-            //    int systemIndex = systems.IndexOf(pin.System);
-            //    int priority = pin.Strength > 0 ? normal : unImportant;
-            //    if (priorities.Count < systems.Count)
-            //    {
-            //        priorities.Add(priority);
-            //    }
-            //}
-
-            var enemies = Owner == Them ? EmpireManager.GetEnemies(Owner) : new Array<Empire> { Them };
-            var ssps = Owner.GetProjectors().Filter(s =>
+            if (OwnerWar.WarType == WarType.EmpireDefense)
             {
-                foreach (var e in enemies)
-                    if (s.HasSeenEmpires.KnownBy(e))
-                        return true;
-                return false;
-            });
-
-            var ourSystems = Owner.GetOwnedSystems().ToArray();
-
-            foreach (var s in ssps)
-            {
-                var system = ourSystems.FindClosestTo(s);
-                if (system != null)
+                foreach (IncomingThreat threatenedSystem in Owner.SystemWithThreat)
                 {
-                    systems.Add(system);
-                    priorities.Add(normal);
+                    if (threatenedSystem.ThreatTimedOut) continue;
+                    systems.Add(threatenedSystem.TargetSystem);
+                    var priority = basePriority / threatenedSystem.TargetSystem.PlanetList.Sum(p => p.Owner == Owner ? p.Level : 0).LowerBound(1);
+                    Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1);
                 }
             }
 
-            //Array<SolarSystem> borders = new Array<SolarSystem>();
-            //foreach (var e in enemies)
-            //{
-            //    var border = Owner.GetBorderSystems(e, true);
-            //    var aoSystems = OwnerTheater.TheaterAO.GetAoSystems();
-            //    var borderSystems = border.Filter(s => aoSystems.Contains(s));
-            //    borders.AddRange(borderSystems);
-            //}
 
-            //if (systems.IsEmpty)
-            //{
-            //    foreach (var system in borders)
-            //    {
-            //        systems.Add(system);
-            //        priorities.Add(unImportant);
-            //    }
-            //}
-
-            //foreach (var pin in pinsNotInSystems)
-            //    AttackArea(pin.Position, 100000, pin.Strength);
-
-            DefendSystemsInList(systems, priorities);
+            foreach (var system in Owner.GetOwnedSystems())
+            {
+                if (!system.HostileForcesPresent(Owner)) continue;
+                var priority = basePriority / system.PlanetList.Sum(p => p.Owner == Owner ? p.Level : 0).LowerBound(1);
+                var strength = system.GetKnownStrengthHostileTo(Owner);
+                Tasks.StandardSystemDefense(system, priority, strength, 1);
+            }
 
             return GoalStep.GoToNextStep;
+           
+
         }
     }
 }
