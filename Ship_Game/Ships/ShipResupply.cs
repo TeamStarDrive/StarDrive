@@ -84,6 +84,10 @@ namespace Ship_Game.Ships
             if (ResupplyNeededLowTroops())
                 return ResupplyReason.LowTroops;
 
+            /*
+            if (ResupplyNeededOrdnanceNotFull())
+                return ResupplyReason.RequestResupplyFromPlanet; */
+
             return ResupplyReason.NotNeeded;
         }
 
@@ -124,6 +128,24 @@ namespace Ship_Game.Ships
                                  && InsufficientOrdnanceProduction();
         }
 
+        // FB - Disabled for now - done in systems by geodetic manager
+        private bool ResupplyNeededOrdnanceNotFull() 
+        {
+            if (Ship.InCombat
+                || Ship.OrdinanceMax < 1
+                || Ship.loyalty.isFaction
+                || Ship.IsPlatformOrStation
+                || Ship.HomePlanet != null
+                || Ship.Mothership != null
+                || Ship.OrdAddedPerSecond > 0
+                || Ship.OrdnancePercent > 0.99f)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private bool ResupplyNeededLowTroops()
         {
             // Logic shortcuts
@@ -133,11 +155,15 @@ namespace Ship_Game.Ships
                 return false;
             }
 
-            float resupplyTroopThreshold = Ship.Carrier.SendTroopsToShip ? 0.5f : 0f;
-            if (Ship.Carrier.HasTroopBays)
+            float resupplyTroopThreshold = 0;
+            if (Ship.Carrier.SendTroopsToShip)
+                resupplyTroopThreshold = Ship.InCombat ? 0.25f : 0.99f;
+
+            if (Ship.Carrier.HasTroopBays) // Counting troops in missions as well for troop carriers
                 return (Ship.Carrier.TroopsMissingVsTroopCapacity).LessOrEqual(resupplyTroopThreshold);
 
-            return (float)Ship.TroopCount / Ship.TroopCapacity < resupplyTroopThreshold;
+            // Ships with Barracks only
+            return ((float)Ship.TroopCount / Ship.TroopCapacity).LessOrEqual(resupplyTroopThreshold) && !Ship.InCombat;
         }
 
         private bool OrdnanceLow()
@@ -264,7 +290,8 @@ namespace Ship_Game.Ships
         LowOrdnanceNonCombat,
         LowTroops,
         FighterReactorsDamaged,
-        NoCommand
+        NoCommand,
+        RequestResupplyFromPlanet
     }
 
     public enum SupplyType

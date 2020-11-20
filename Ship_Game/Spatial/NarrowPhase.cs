@@ -210,7 +210,7 @@ namespace Ship_Game.Spatial
 
             // if this projectile will move more than 15 units (1 module grid = 16x16) within one simulation step
             // we have to use ray-casting to avoid projectiles clipping through objects
-            if (maxDistPerFrame > 15f)
+            if (maxDistPerFrame > 1f)
             {
                 Vector2 dir = proj.Velocity / velocity;
                 var prevPos = new Vector2(center.X - dir.X*maxDistPerFrame, center.Y - dir.Y*maxDistPerFrame);
@@ -218,7 +218,7 @@ namespace Ship_Game.Spatial
             }
             else
             {
-                hitModule = ship.HitTestSingle(center, proj.Radius, proj.IgnoresShields);
+                  hitModule = ship.HitTestSingle(center, proj.Radius, proj.IgnoresShields);
             }
             return hitModule != null;
         }

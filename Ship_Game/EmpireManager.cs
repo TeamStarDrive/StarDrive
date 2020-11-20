@@ -38,6 +38,9 @@ namespace Ship_Game
         public static Empire[] ActiveNonPlayerEmpires =>
             Empires.Filter(empire => !empire.isFaction && !empire.isPlayer && !empire.data.Defeated);
 
+        public static Empire[] ActiveMajorEmpires => 
+            Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated);
+
         public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.isFaction);
         public static Empire[] Factions       => Empires.Filter(empire => empire.isFaction);
         public static Empire[] PirateFactions => Empires.Filter(empire => empire.WeArePirates);
@@ -294,6 +297,7 @@ namespace Ship_Game
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
                 empire.Pool.UpdatePools();
+                empire.GetEmpireAI().WarTasks.RestoreFromSave(empire);
             }
         }
     }

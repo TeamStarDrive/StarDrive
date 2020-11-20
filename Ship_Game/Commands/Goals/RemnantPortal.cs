@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
         void UpdatePosition()
         {
-            if (Portal.InCombat)
+            if (Portal.InCombat && Portal.System != null && RandomMath.RollDice(50))
                 JumpToEnemy();
             else
                 ReturnToSpawnPos();
@@ -46,14 +46,14 @@ namespace Ship_Game.Commands.Goals
         void JumpToEnemy()
         {
             float desiredRange = Portal.DesiredCombatRange;
-            Ship nearest       = Portal.System.ShipList.FindMinFiltered(s => s != null 
+            Ship nearest       = Portal.System?.ShipList.FindMinFiltered(s => s != null 
                                                                              && s.loyalty != empire 
                                                                              && s.GetStrength() > 100
                                                                              && !s.IsInWarp, s => s.Center.Distance(Portal.Center));
 
             if (nearest!= null && !nearest.Center.InRadius(Portal.Center, desiredRange))
             {
-                Vector2 pos = nearest.Center - nearest.Center.DirectionToTarget(Portal.Center).Normalized() * desiredRange;
+                Vector2 pos = nearest.Center - nearest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + nearest.Radius);
                 MoveToPos(pos);
             }
         }
@@ -63,7 +63,10 @@ namespace Ship_Game.Commands.Goals
             if (TetherOffset == Vector2.Zero)
                 return; // save support - can be removed in 2021
 
-            Vector2 desiredPos = Portal.Position = Portal.System.Position + TetherOffset;
+            Vector2 systemPos = Portal.System?.Position 
+                                ?? Empire.Universe.SolarSystemDict.Values.ToArray().FindMin(s => s.Position.SqDist(Portal.Center)).Position;
+
+            Vector2 desiredPos = Portal.Position = systemPos + TetherOffset;
             if (!Portal.Center.InRadius(desiredPos, 1000))
                 MoveToPos(desiredPos);
         }

@@ -23,7 +23,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         bool Remove = false;
         public AO RallyAO { get; private set; }
         public War GetWar() => OwnerWar;
-
+        public bool Active() => !Remove;
         [XmlIgnore] [JsonIgnore] public float WarValue => TheaterAO.GetWarAttackValueOfSystemsInAOTo(Us);
 
         Empire Them => OwnerWar.Them;
@@ -45,36 +45,29 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void Evaluate()
         {
-            if (Remove)
-            {
-                for (int i = Campaigns.Count - 1; i >= 0; i--)
-                {
-                    var campaign = Campaigns[i];
-                    campaign.PurgeTasks();
-                }
-                Campaigns.Clear();
-                return;
-            }
-
             TheaterAO.Update();
-            SetupRallyPoint();
 
-            if (CampaignsWanted.Contains(Campaign.CampaignType.SystemDefense))
+            if (TheaterAO.GetAllPlanets().Any(p => p.Owner == Them))
             {
-                Pins    = Us.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(TheaterAO, Us).ToArray();
-            }
+                Remove = false;
+                SetupRallyPoint();
+                if (CampaignsWanted.Contains(Campaign.CampaignType.SystemDefense))
+                {
+                    Pins = Us.GetEmpireAI().ThreatMatrix.GetEnemyPinsInAO(TheaterAO, Us).ToArray();
+                }
 
-            CreateWantedCampaigns();
-            RemoveUnwantedCampaigns();
+                CreateWantedCampaigns();
+                RemoveUnwantedCampaigns();
 
-            if (Priority <= OwnerWar.LowestTheaterPriority)
-            {
+
                 for (int i = 0; i < Campaigns.Count; i++)
                 {
                     var campaign = Campaigns[i];
                     campaign.Evaluate();
                 }
             }
+            else
+                Remove = true;
         }
 
         public void MarkForRemoval()
@@ -148,7 +141,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // empire defense
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
-                Priority = 0;
+                int pri = Us.AllActiveWars.FindMin(w => w.LowestTheaterPriority)?.LowestTheaterPriority ?? 0;
+                Priority = (int)(pri * 1.5f);
+                return;
+            }
+
+            if (!TheaterAO.GetAoSystems().Any(s => s.OwnerList.Contains(Them)))
+            {
+                Priority = 10;
                 return;
             }
             Vector2 position = RallyAO?.Center ?? Us.WeightedCenter;
@@ -156,10 +156,22 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // so remarking that code and just going by distance. 
             //float totalWarValue          = OwnerWar.WarTheaters.WarValue.LowerBound(1); 
             //float theaterValue           = WarValue.Clamped(1, totalWarValue);
+
+            int ourCloseSystems = 1;
+            float distanceToThem = float.MaxValue;
+            foreach(var system in Them.GetOwnedSystems())
+            {
+                float distance = system.Position.Distance(position);
+                distanceToThem = Math.Min(distanceToThem,distance);
+                if (distance <= baseDistance)
+                    ourCloseSystems++;
+            }
+
+            // setting priority by the nearness to rally.
+            float distanceFromPosition = TheaterAO.Center.Distance(position) + distanceToThem;
             
-            float distanceFromPosition   = TheaterAO.Center.Distance(position);
             float distanceMod            =  distanceFromPosition - baseDistance;
-            distanceMod                 /= (TheaterAO.Radius / 2);
+            distanceMod /= Us.GetProjectorRadius() + (WarValue * 100);
             Priority                     = (int)distanceMod.LowerBound(1);
         }
 
@@ -204,18 +216,21 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             var aoManager = Us.GetEmpireAI().OffensiveForcePoolManager;
             Planet rallyPlanet = Us.FindNearestRallyPoint(TheaterAO.Center) ?? Us.Capital;
+            //if (RallyAO?.CoreWorld?.Owner != Us)
+                RallyAO = null;
+
 
             // createEmpire AO
-            if (rallyPlanet.Owner == Us)
+            if (rallyPlanet?.Owner == Us)
             {
                 if (!aoManager.IsPlanetCoreWorld(rallyPlanet) && RallyAO?.CoreWorld?.ParentSystem != rallyPlanet.ParentSystem)
                 {
                     var newAO = aoManager.CreateAO(rallyPlanet, Us.GetProjectorRadius(rallyPlanet));
                     RallyAO = newAO;
                 }
-                if (RallyAO == null)
-                    RallyAO = aoManager.GetAOContaining(rallyPlanet);       
             }
+            if (RallyAO == null || RallyAO.CoreWorld?.Owner != Us)
+                RallyAO = aoManager.GetAOContaining(rallyPlanet);
         }
     }
 }

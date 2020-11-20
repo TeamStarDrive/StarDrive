@@ -231,6 +231,7 @@
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngagements.cs" />
+    <Compile Include="Ship_Game\Empires\DataPackets\IncomingThreat.cs" />
     <Compile Include="Ship_Game\Remnants.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
@@ -512,6 +513,7 @@
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\DynamicCrashSite.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
@@ -1853,6 +1855,9 @@
   <ItemGroup>
     <Content Include="blackbox drop.ico" />
     <Content Include="Content\Buildings\Capital.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Buildings\Dynamic Crash Site.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Buildings\Gun Emplacement.xml">

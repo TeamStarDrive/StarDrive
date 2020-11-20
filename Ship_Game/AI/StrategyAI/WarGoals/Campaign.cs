@@ -43,7 +43,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public AO RallyAO;
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
-        public WarTasks Tasks;
+        protected WarTasks Tasks => Owner.GetEmpireAI().WarTasks;
         public Campaign() { }
         public int GetPriority()      => OwnerTheater.Priority;
         public bool WarMatch(War war) => war == OwnerWar;
@@ -73,15 +73,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             IsCoreCampaign = campaign.IsCoreCampaign;
             OwnerTheater   = theater;
             RestoreFromSave(theater);
-            Tasks          = campaign.Tasks;
-            if (campaign.Tasks == null)
-            {
-                Tasks = new WarTasks(Owner, Them, this);
-            }
-            else
-            {
-                Tasks.RestoreFromSave(Owner, Them, this);
-            }
         }
 
         /// <summary>
@@ -96,15 +87,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             Them         = EmpireManager.GetEmpireByName(OwnerWar.ThemName);
             UID          = campaignType.ToString();
             OwnerTheater = theater;
-            
-            if (Tasks == null)
-            {
-                Tasks = new WarTasks(Owner, Them, this);
-            }
-            else
-            {
-                Tasks.RestoreFromSave(Owner, Them, this);
-            }
         }
 
         /// <summary>
@@ -162,13 +144,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public override GoalStep Evaluate()
         {
             RallyAO   = RallyAO ?? OwnerTheater.RallyAO;
-            var state = base.Evaluate();
-            Tasks.Update();
+            GoalStep state = GoalStep.TryAgain;
+            if (OwnerWar.WarTheaters.ActiveTheaters.Contains(OwnerTheater))
+                state = base.Evaluate();
             return state;
-        }
-        public void PurgeTasks()
-        {
-            Tasks.PurgeAllTasks();
         }
 
         protected override void RemoveThisGoal() => OwnerTheater.RemoveCampaign(this);
@@ -289,8 +268,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 int contestedSystemMod = system.OwnerList.Contains(Them) ? 2 : 0;
 
-                if (priority > 10) break;
-                Tasks.StandardAssault(system, priority - contestedSystemMod,  fleetsPerTarget);
+                Tasks.StandardAssault(system, priority - contestedSystemMod, Them,  fleetsPerTarget);
                 if (OwnerWar.WarType != WarType.EmpireDefense)
                     priority += 4;
             }
@@ -303,27 +281,24 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return GoalStep.GoToNextStep;
         }
 
-        protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> strengths)
+        protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> priorities, float strength, int fleetCount)
         {
             int priority = OwnerTheater.Priority + 1;
-
-            Array<int> sentToTask = new Array<int>();
+            //int fleetCount = Owner.Pool.InitialReadyFleets / 2;
 
             for (int i = 0; i < currentTargets.Count; i++)
             {
-                if (sentToTask.Contains(i)) continue;
-                var closestSystem = currentTargets.FindClosestTo(RallyAO.Center);
-                int closestIndex  = currentTargets.IndexOf(closestSystem);
-                sentToTask.Add(closestIndex);
-                if (priority > 10) break;
-                Tasks.StandardSystemDefense(closestSystem, priority, strengths[closestIndex]);
-                priority += 2;
+                //if (--fleetCount < 1)
+                //    break;
+                var currentTarget = currentTargets[i];
+                int targetIndex  = currentTargets.IndexOf(currentTarget);
+                Tasks.StandardSystemDefense(currentTarget, priorities[targetIndex], strength, fleetCount);
             }
         }
 
         protected void AttackArea(Vector2 center, float radius, float strength)
         {
-            int priority = OwnerTheater.Priority + 2;
+            int priority = 0;
             if (priority > 10) return;
             Tasks.StandardAreaClear(center, radius, priority, strength);
         }

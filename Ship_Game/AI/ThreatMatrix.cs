@@ -145,7 +145,7 @@ namespace Ship_Game.AI
             return str;
         }
 
-        public float HighestStrengthOfAllEmpireThreats(Empire empire)
+        public float KnownStrengthOfAllEmpireThreats(Empire empire)
         {
             Map<Empire, float> empireStrTable = new Map<Empire, float>();
             for (int i = 0; i < EmpireManager.Empires.Count; ++i)
@@ -157,15 +157,15 @@ namespace Ship_Game.AI
             foreach (Pin pin in Pins.Values)
             {
                 Empire pinEmpire = pin.GetEmpire();
-                if (pinEmpire != null && !pinEmpire.isFaction)
+                if (pinEmpire != null && !pinEmpire.WeAreRemnants)
                 {
                     float str = empire.IsEmpireAttackable(pinEmpire) ? pin.Strength : pin.Strength / 2;
                     empireStrTable[pinEmpire] += str;
                 }
             }
 
-            float highestStr = empireStrTable.FindMaxValue(v => v);
-            return highestStr;
+            float knownStr = empireStrTable.Values.Sum();
+            return knownStr;
         }
 
         public float StrengthOfEmpire(Empire empire)
@@ -355,7 +355,7 @@ namespace Ship_Game.AI
             for (int i = 0; i < pins.Length; i++)
             {
                 Pin pin = pins[i];
-                if (pin.Position.InRadius(position, radius))
+                if (pin?.Position.InRadius(position, radius) == true)
                 {
                     Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
                     if (!hostileOnly)

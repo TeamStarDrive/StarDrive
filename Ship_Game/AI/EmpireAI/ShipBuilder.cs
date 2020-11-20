@@ -214,7 +214,7 @@ namespace Ship_Game.AI
                 case DynamicHangarOptions.DynamicLaunch:      return Color.Gold;
                 case DynamicHangarOptions.DynamicInterceptor: return Color.Cyan;
                 case DynamicHangarOptions.DynamicAntiShip:    return Color.OrangeRed;
-                default:                                      return Color.White;
+                default:                                      return Color.Wheat;
             }
         }
 

@@ -345,6 +345,46 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        public void AddShipCrashed(Planet p, string message)
+        {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = message,
+                ReferencedItem1 = p,
+                IconPath        = p.IconPath,
+                Action          = "SnapToPlanet"
+            }, "sd_ui_notification_encounter"); ;
+        }
+
+        /// <summary>
+        /// Message the player regarding recovered ship on a planet.
+        /// Null ship is safe here.
+        /// </summary>
+        public void AddShipRecovered(Planet p, Ship s, string message)
+        {
+            var recover = new Notification
+            {
+                Pause   = false,
+                Message = message
+            };
+
+            if (s != null)
+            {
+                recover.ReferencedItem1 = s;
+                recover.IconPath        = s.shipData.BaseHull.ActualIconPath;
+                recover.Action          = "SnapToShip";
+            }
+            else
+            {
+                recover.ReferencedItem1 = p;
+                recover.IconPath        = p.IconPath;
+                recover.Action          = "SnapToPlanet";
+            }
+
+            AddNotification(recover, "sd_ui_notification_encounter");
+        }
+
         public void AddMoneyWarning()
         {
             string message = LocalizedText.Parse("{LowMoneyWarning}").Text;  // Localizer.Token(2296);

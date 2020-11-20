@@ -140,7 +140,8 @@ namespace UnitTests
             LoadStarterShips(new[]
             {
                 "Vulcan Scout",
-                "Rocket Scout"
+                "Rocket Scout",
+                "Laserclaw"
             });
         }
         
@@ -204,6 +205,10 @@ namespace UnitTests
         public int GetProjectileCount(Ship ship)
         {
             return GetProjectiles(ship).Count;
+        }
+        public Beam[] GetBeams(Ship ship)
+        {
+            return Universe.Objects.GetBeams(ship);
         }
     }
 }
