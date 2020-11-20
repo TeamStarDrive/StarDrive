@@ -995,8 +995,7 @@ namespace Ship_Game
                 return false;
 
             shipsNeedRearm = ParentSystem.ShipList.Filter(s => s.loyalty == empire
-                                                               && s.IsSuitableForPlanetaryRearm()
-                                                               && s.AI.OrbitTarget?.Owner == s.loyalty);
+                                                               && s.IsSuitableForPlanetaryRearm());
 
             shipsNeedRearm = shipsNeedRearm.SortedDescending(s => s.OrdinanceMax - s.Ordinance);
             return shipsNeedRearm.Length > 0;
