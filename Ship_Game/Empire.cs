@@ -3129,6 +3129,9 @@ namespace Ship_Game
             // local 
             bool IsScout(Ship s)
             {
+                if (s.shipData.Role == ShipData.RoleName.supply)
+                    return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
+
                 return isPlayer && s.Name == data.CurrentAutoScout 
                        || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null;
             }
