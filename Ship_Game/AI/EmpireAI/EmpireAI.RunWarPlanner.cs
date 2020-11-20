@@ -398,5 +398,19 @@ namespace Ship_Game.AI
             }
             WarTasks.Update();
         }
+
+        //bool ShouldGoToWar(Relationship rel, Empire them)
+        //{
+        //    if (!rel.PreparingForWar) return false;
+        //    float anger = (rel.TotalAnger - rel.Trust);
+        //    if (anger < 0) return false;
+
+        //    int averageWarStatus = rel.WarHistory
+
+
+        //    if (anger > 99) return true;
+        //    float risk = rel.Risk.Risk;
+
+        //}
     }
 }
