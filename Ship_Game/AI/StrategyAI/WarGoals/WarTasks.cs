@@ -49,7 +49,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     task.Evaluate(Owner);
                 }
             }
-
+             
             for (int i = 0; i < NewTasks.Count; i++)
             {
                 var task = NewTasks[i];
