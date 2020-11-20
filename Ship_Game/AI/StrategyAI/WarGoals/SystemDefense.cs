@@ -43,7 +43,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 {
                     if (threatenedSystem.ThreatTimedOut) continue;
                     systems.Add(threatenedSystem.TargetSystem);
-                    var priority = basePriority / threatenedSystem.TargetSystem.PlanetList.Sum(p => p.Owner == Owner ? p.Level : 0).LowerBound(1);
+                    var priority = basePriority / threatenedSystem.TargetSystem.PlanetList.Sum(p => p.Owner == Owner ? p.Level -2 : 0).LowerBound(1);
                     Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1);
                 }
             }
@@ -52,7 +52,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             foreach (var system in Owner.GetOwnedSystems())
             {
                 if (!system.HostileForcesPresent(Owner)) continue;
-                var priority = basePriority / system.PlanetList.Sum(p => p.Owner == Owner ? p.Level : 0).LowerBound(1);
+                var priority = normal;
                 var strength = system.GetKnownStrengthHostileTo(Owner);
                 Tasks.StandardSystemDefense(system, priority, strength, 1);
             }
