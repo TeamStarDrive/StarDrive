@@ -84,8 +84,9 @@ namespace Ship_Game.Ships
             if (ResupplyNeededLowTroops())
                 return ResupplyReason.LowTroops;
 
+            /*
             if (ResupplyNeededOrdnanceNotFull())
-                return ResupplyReason.RequestResupplyFromPlanet;
+                return ResupplyReason.RequestResupplyFromPlanet; */
 
             return ResupplyReason.NotNeeded;
         }
@@ -127,12 +128,22 @@ namespace Ship_Game.Ships
                                  && InsufficientOrdnanceProduction();
         }
 
-        private bool ResupplyNeededOrdnanceNotFull()
+        // FB - Disabled for now - done in systems by geodetic manager
+        private bool ResupplyNeededOrdnanceNotFull() 
         {
-            if (Ship.OrdinanceMax < 1 || Ship.loyalty.isFaction || Ship.IsPlatformOrStation || Ship.HomePlanet != null)
-                return false; // orbitals are handled in ResupplyNeededLowOrdnance
+            if (Ship.InCombat
+                || Ship.OrdinanceMax < 1
+                || Ship.loyalty.isFaction
+                || Ship.IsPlatformOrStation
+                || Ship.HomePlanet != null
+                || Ship.Mothership != null
+                || Ship.OrdAddedPerSecond > 0
+                || Ship.OrdnancePercent > 0.99f)
+            {
+                return false;
+            }
 
-            return !Ship.InCombat && Ship.OrdAddedPerSecond.AlmostZero() && Ship.OrdnancePercent < 0.99f;
+            return true;
         }
 
         private bool ResupplyNeededLowTroops()

@@ -126,7 +126,8 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         bool SupplyAlive   => SupplyShip != null && SupplyShip.Active; // todo also returning home
         bool TargetValid   => TargetShip != null
                               && TargetShip.loyalty == empire
-                              && TargetShip.IsSuitableForPlanetaryRearm();
+                              && TargetShip.IsSuitableForPlanetaryRearm()
+                              && TargetShip.System == PlanetBuildingAt.ParentSystem;
 
         Ship SupplyShip
         {

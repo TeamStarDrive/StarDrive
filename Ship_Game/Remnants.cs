@@ -155,7 +155,7 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientExterminators: return 1.15f;
-                case RemnantStory.AncientBalancers:     return 0.7f;
+                case RemnantStory.AncientBalancers:     return 0.85f;
                 default:                                return 1;
             }
         }
@@ -228,7 +228,7 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            int maxRaids     = (Level / 5) + NumPortals();
+            int maxRaids     = NumPortals();
             int ongoingRaids = Goals.Count(g => g.IsRaid);
             return ongoingRaids < maxRaids;
         }
@@ -466,16 +466,16 @@ namespace Ship_Game
         {
             numBombers = (int)(Level * Owner.DifficultyModifiers.RemnantNumBombers);
 
-            if (Level <= 5)
+            if (Level <= 6)
             {
                 numBombers *= 2;
                 return RemnantShipType.BomberLight;
             }
 
-            if (Level <= 10)
+            if (Level <= 11)
                 return RemnantShipType.BomberMedium;
 
-            // Level 11 and above
+            // Level 12 and above
             numBombers /= 2;
             return RemnantShipType.Bomber;
         }

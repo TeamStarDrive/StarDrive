@@ -203,7 +203,7 @@ namespace Ship_Game.AI
             {
                 case ResupplyReason.LowOrdnanceCombat:
                 case ResupplyReason.LowOrdnanceNonCombat:
-                    if (Owner.IsPlatformOrStation)
+                    if (Owner.IsPlatformOrStation) // Mostly for Orbitals in Deep Space
                     {
                         RequestResupplyFromPlanet();
                         return;
