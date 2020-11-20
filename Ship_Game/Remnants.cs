@@ -93,14 +93,17 @@ namespace Ship_Game
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
 
             // Todo None story does not have a goal or maybe the old goal
-
-            if (Story != RemnantStory.AncientColonizers)
+            switch (Story)
             {
-                Goals.Add(new RemnantEngagements(Owner));
-                Empire.Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
+                // Todo create colonization story  
+                case RemnantStory.AncientBalancers:
+                case RemnantStory.AncientExterminators:
+                case RemnantStory.AncientRaidersRandom:
+                    Goals.Add(new RemnantEngagements(Owner));
+                    Empire.Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
+                    break;
             }
-            //else
-            // Todo create colonization story  
+
         }
 
         void NotifyPlayerOnLevelUp()
@@ -638,7 +641,7 @@ namespace Ship_Game
         void GenerateProduction(float amount)
         {
             int limit = 200 * ((int)CurrentGame.Difficulty).LowerBound(1);
-            Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 400k-1200K 
+            Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 240K 
         }
 
         public int NumPortals()
@@ -899,14 +902,14 @@ namespace Ship_Game
                 return RemnantStory.None;
             }
 
-            switch (RollDie(3)) // todo 3 is for testing  should be 6
+            switch (RollDie(4)) // todo 3 is for testing  should be 6
             {
-                default:
-                case 1: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientBalancers;
-                case 2: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientExterminators;
-                case 3: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersRandom;
-                case 4: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersClosest;
-                case 5: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientColonizers;
+                default: // 1 is no story
+                case 2: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientBalancers;
+                case 3: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientExterminators;
+                case 4: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersRandom;
+                case 5: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersClosest;
+                case 6: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientColonizers;
             }
         }
 
