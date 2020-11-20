@@ -38,7 +38,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoToNextStep;
 
             if (PlanetBuildingAt == null || PlanetBuildingAt.NotConstructing)
-                return GoalStep.TryAgain;
+                return GoalStep.RestartGoal;
 
             if (empire.IsMilitarists 
                 && PlanetBuildingAt.ConstructionQueue[0].Goal == this
