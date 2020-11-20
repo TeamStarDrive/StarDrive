@@ -68,6 +68,7 @@ namespace Ship_Game
 
         public Ship FindShip(in Guid guid)
         {
+            if (guid == Guid.Empty) return null;
             lock (Ships)
             {
                 for (int i = 0; i < Ships.Count; ++i)
@@ -144,6 +145,11 @@ namespace Ship_Game
             return projectiles;
         }
 
+        /// <summary> Only for test </summary>
+        public Beam[] GetBeams(Ship ship) => Projectiles.FilterSelect(
+            p => p.Active && p.Type == GameObjectType.Beam && p.Owner == ship,
+            p => (Beam)p);
+
         /// <summary>Thread-safely Adds a new Object to the Universe</summary>
         public void Add(GameplayObject go)
         {
@@ -197,6 +203,9 @@ namespace Ship_Game
         /// <param name="timeStep"></param>
         public void Update(FixedSimTime timeStep)
         {
+            // crash in findnearby when on game over screen
+            if (Empire.Universe.GameOver) return;
+
             TotalTime.Start();
 
             UpdateLists(timeStep);

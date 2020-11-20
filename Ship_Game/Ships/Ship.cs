@@ -131,9 +131,11 @@ namespace Ship_Game.Ships
         private float dietimer;
         public float BaseStrength;
         public bool dying;
+        public Planet PlanetCrashingOn { get; private set; }
         private bool reallyDie;
         private bool HasExploded;
         public float FTLSpoolTime;
+        public int TotalDps { get; private set; }
 
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasRepairBeam;
@@ -151,12 +153,13 @@ namespace Ship_Game.Ships
         public Planet HomePlanet { get; private set; }
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
+        public float MaxWeaponError = 0;
 
         public bool IsDefaultAssaultShuttle => loyalty.data.DefaultAssaultShuttle == Name || loyalty.BoardingShuttle.Name == Name;
-        public bool IsDefaultTroopShip      => loyalty.data.DefaultTroopShip == Name || DesignRole == ShipData.RoleName.troop;
+        public bool IsDefaultTroopShip      => !IsDefaultAssaultShuttle && (loyalty.data.DefaultTroopShip == Name || DesignRole == ShipData.RoleName.troop);
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
-        public bool IsSubspaceProjector => Name == "Subspace Projector";
-        public bool HasBombs => BombBays.Count > 0;
+        public bool IsSubspaceProjector     => Name == "Subspace Projector";
+        public bool HasBombs                => BombBays.Count > 0;
 
         public bool IsConstructor
         {
@@ -235,6 +238,15 @@ namespace Ship_Game.Ships
             percent = percent.Clamped(0f, 1f);
             foreach (ShipModule module in ModuleSlotList)
                 module.DebugDamage(percent);
+        }
+
+        public void DamageByRecoveredFromCrash()
+        {
+            foreach (ShipModule module in ModuleSlotList)
+                module.DamageByRecoveredFromCrash();
+
+            Carrier.ResetAllHangarTimers();
+            KillAllTroops();
         }
 
         public ShipData.RoleName DesignRole { get; private set; }
@@ -948,6 +960,7 @@ namespace Ship_Game.Ships
 
             DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges, AI?.CombatState ?? CombatState.AttackRuns);
             InterceptSpeed     = CalcInterceptSpeed(weapons);
+            MaxWeaponError     = Weapons.FindMax(w => w.BaseTargetError(Level, TargetErrorFocalPoint))?.BaseTargetError(Level, TargetErrorFocalPoint) ?? 0;
         }
 
         // This is used for previewing range during CombatState change
@@ -1088,8 +1101,6 @@ namespace Ship_Game.Ships
         {
             if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
             {
-                AI.CombatAI.UpdateTargetPriorities(this);
-
                 foreach (Weapon weapon in Weapons)
                 {
                     if (GlobalStats.HasMod)
@@ -1353,14 +1364,16 @@ namespace Ship_Game.Ships
 
         private float CurrentStrength = -1.0f;
 
+        /// <summary>
+        /// Gets the current strength of the ship, which is dynamic (active modules)
+        /// </summary>
+        /// <returns></returns>
         public float GetStrength()
         {
             return CurrentStrength;
         }
 
         public float NormalizedStrength => BaseStrength / shipData.ModuleSlots.Length;
-
-        public float GetDPS() => DPS;
 
         //Added by McShooterz: Refactored by CG
         public void AddKill(Ship killed)
@@ -1428,7 +1441,9 @@ namespace Ship_Game.Ships
 
         void ExplodeShip(float size, bool addWarpExplode)
         {
-            if (!InFrustum) return;
+            if (!InFrustum) 
+                return;
+
             var position = new Vector3(Center.X, Center.Y, -100f);
 
             float boost = 1f;
@@ -1436,12 +1451,14 @@ namespace Ship_Game.Ships
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
             ExplosionManager.AddExplosion(position, Velocity,
-                size * boost, 12f, ExplosionType.Ship);
+                PlanetCrashingOn != null ? size * 0.05f : size * boost, 12f, ExplosionType.Ship);
+
+            if (PlanetCrashingOn != null)
+                return;
+
             if (addWarpExplode)
-            {
-                ExplosionManager.AddExplosion(position, Velocity,
-                    size*1.75f, 12f, ExplosionType.Warp);
-            }
+                ExplosionManager.AddExplosion(position, Velocity, size*1.75f, 12f, ExplosionType.Warp);
+
             UniverseScreen.Spatial.ShipExplode(this, size * 50, Center, Radius);
         }
 
@@ -1449,39 +1466,23 @@ namespace Ship_Game.Ships
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
             ++DebugInfoScreen.ShipsDied;
-            Projectile psource = source as Projectile;
+            Projectile pSource = source as Projectile;
             if (!cleanupOnly)
             {
-                psource?.Module?.GetParent().UpdateEmpiresOnKill(this);
-                psource?.Module?.GetParent().AddKill(this);
+                pSource?.Module?.GetParent().UpdateEmpiresOnKill(this);
+                pSource?.Module?.GetParent().AddKill(this);
             }
 
-            // 35% the ship will not explode immediately, but will start tumbling out of control
-            // we mark the ship as dying and the main update loop will set reallyDie
-            if (UniverseRandom.IntBetween(0, 100) > 65.0 && !IsPlatform && InFrustum)
-            {
-                dying         = true;
-                DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 40f / SurfaceArea;
-                dietimer      = UniverseRandom.RandomBetween(4f, 6f);
-                if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
-                    reallyDie = true;
-            }
-            else
-            {
-                reallyDie = true;
-            }
-
+            reallyDie = cleanupOnly || WillShipDieNow(pSource);
             if (dying && !reallyDie)
                 return;
 
-            if (psource?.Owner != null)
+            if (pSource?.Owner != null)
             {
                 float amount = 1f;
                 if (ResourceManager.ShipRoles.ContainsKey(shipData.Role))
                     amount = ResourceManager.ShipRoles[shipData.Role].DamageRelations;
-                loyalty.DamageRelationship(psource.Owner.loyalty, "Destroyed Ship", amount, null);
+                loyalty.DamageRelationship(pSource.Owner.loyalty, "Destroyed Ship", amount, null);
             }
             if (!cleanupOnly && InFrustum)
             {
@@ -1516,6 +1517,8 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
+                    if (PlanetCrashingOn != null)
+                        return;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
                     float radSqrt   = (float)Math.Sqrt(Radius);
@@ -1531,6 +1534,7 @@ namespace Ship_Game.Ships
                     }
                 }
             }
+
             if (BaseHull.EventOnDeath != null)
             {
                 var evt = ResourceManager.EventsDict[BaseHull.EventOnDeath];
@@ -1539,8 +1543,49 @@ namespace Ship_Game.Ships
             }
 
             QueueTotalRemoval();
-
             base.Die(source, cleanupOnly);
+        }
+
+        bool WillShipDieNow(Projectile proj)
+        {
+            if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
+                return true;
+
+            if (RandomMath.RollDice(35) && !IsPlatform)
+            {
+                // 35% the ship will not explode immediately, but will start tumbling out of control
+                // we mark the ship as dying and the main update loop will set reallyDie
+                int tumbleSeconds   = UniverseRandom.IntBetween(4, 8);
+                PlanetCrashingOn = TryCrashOnPlanet(tumbleSeconds*2);
+                if (InFrustum)
+                {
+                    dying         = true;
+                    DieRotation.X = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Y = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    DieRotation.Z = UniverseRandom.RandomBetween(-1f, 1f) * 50f / SurfaceArea;
+                    dietimer      = tumbleSeconds;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        Planet TryCrashOnPlanet(int etaSeconds)
+        {
+            if (IsStation || System == null || HomePlanet != null)
+                return null;
+
+            for (int i = 0; i < System.PlanetList.Count; i++)
+            {
+                Planet p = System.PlanetList[i];
+                if (Center.InRadius(p.Center, p.ObjectRadius * p.Scale * 1.2f + CurrentVelocity * (etaSeconds + Level)))
+                {
+                    return p;
+                }
+            }
+
+            return null;
         }
 
         public void QueueTotalRemoval()
@@ -1687,45 +1732,46 @@ namespace Ship_Game.Ships
             return null;
         }
 
-        // @todo autocalculate during ship instance init
-        private int DPS;
         public float CalculateShipStrength()
         {
-            float offense      = 0f;
-            float defense      = 0f;
-            bool fighters      = false;
-            bool weapons       = false;
-            int numWeaponSlots = 0;
-            float turnThrust   = 0;
+            float offense   = 0f;
+            float defense   = 0f;
+            int weaponArea  = 0;
+            bool hasWeapons = false;
+            TotalDps        = 0;
 
-            foreach (ShipModule slot in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; i++ )
             {
-                //ShipModule template = GetModuleTemplate(slot.UID);
-                if (slot.InstalledWeapon != null)
+                ShipModule m = ModuleSlotList[i];
+                if (m.Active)
                 {
-                    weapons         = true;
-                    numWeaponSlots += slot.Area;
+                    if (m.InstalledWeapon != null)
+                    {
+                        weaponArea += m.Area;
+                        TotalDps += m.InstalledWeapon.DamagePerSecond;
+                        hasWeapons = true;
+                    }
+
+                    offense += m.CalculateModuleOffense();
+                    defense += m.CalculateModuleDefense(SurfaceArea);
+                    BaseCanWarp |= m.WarpThrust > 0;
                 }
-                fighters |= slot.hangarShipUID   != null && !slot.IsSupplyBay && !slot.IsTroopBay;
-
-                offense    += slot.CalculateModuleOffense();
-                defense    += slot.CalculateModuleDefense(SurfaceArea);
-                turnThrust += slot.TurnThrust;
-
-                BaseCanWarp |= slot.WarpThrust > 0;
             }
-            DPS = (int)offense;
-            if (IsPlatformOrStation) offense  /= 2;
-            if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea, numWeaponSlots, offense, defense);
+            if (IsPlatformOrStation) 
+                offense /= 2;
+
+            if (!Carrier.HasFighterBays && !hasWeapons) 
+                offense = 0f;
+
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, weaponArea, offense, defense);
         }
 
         private void ApplyRepairToShields(float repairPool)
         {
-            float shieldrepair = 0.2f * repairPool;
-            if (shield_max - shield_power > shieldrepair)
-                shield_power += shieldrepair;
+            float shieldRepair = 0.2f * repairPool;
+            if (shield_max - shield_power > shieldRepair)
+                shield_power += shieldRepair;
             else
                 shield_power = shield_max;
         }

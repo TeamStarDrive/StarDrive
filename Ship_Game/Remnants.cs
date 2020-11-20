@@ -93,14 +93,17 @@ namespace Ship_Game
             Log.Info(ConsoleColor.Green, $"---- Remnants: Activation Level: {Level} ----");
 
             // Todo None story does not have a goal or maybe the old goal
-
-            if (Story != RemnantStory.AncientColonizers)
+            switch (Story)
             {
-                Goals.Add(new RemnantEngagements(Owner));
-                Empire.Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
+                // Todo create colonization story  
+                case RemnantStory.AncientBalancers:
+                case RemnantStory.AncientExterminators:
+                case RemnantStory.AncientRaidersRandom:
+                    Goals.Add(new RemnantEngagements(Owner));
+                    Empire.Universe.NotificationManager.AddRemnantsStoryActivation(Owner);
+                    break;
             }
-            //else
-            // Todo create colonization story  
+
         }
 
         void NotifyPlayerOnLevelUp()
@@ -154,8 +157,8 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 1.25f;
-                case RemnantStory.AncientBalancers:     return 0.75f;
+                case RemnantStory.AncientExterminators: return 1.15f;
+                case RemnantStory.AncientBalancers:     return 0.85f;
                 default:                                return 1;
             }
         }
@@ -228,7 +231,7 @@ namespace Ship_Game
             if (Hibernating)
                 return false;
 
-            int maxRaids     = (Level / 5) + NumPortals();
+            int maxRaids     = NumPortals();
             int ongoingRaids = Goals.Count(g => g.IsRaid);
             return ongoingRaids < maxRaids;
         }
@@ -284,7 +287,7 @@ namespace Ship_Game
             var averageScore  = empiresList.Average(e => e.TotalScore);
             Empire bestEmpire = empiresList.FindMax(e => e.TotalScore);
 
-            return bestEmpire.TotalScore > averageScore * 1.2f ? bestEmpire : null;
+            return bestEmpire.TotalScore > averageScore * 1.5f ? bestEmpire : null;
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
@@ -401,7 +404,7 @@ namespace Ship_Game
                 nextPlanet = GetTargetPlanetHomeWorlds(potentialPlanets, numPlanetsToTake);
             else if (Level <= 5) // Level 5 or below will go for closest planets to the portal
                 nextPlanet = GetTargetPlanetByDistance(potentialPlanets, currentPlanet.Center, numPlanetsToTake);
-            else // Remnants higher than level 4 will go after high level planets
+            else // Remnants higher than level 5 will go after high level planets
                 nextPlanet = GetTargetPlanetByPop(potentialPlanets, numPlanetsToTake);
 
             return nextPlanet != null;
@@ -448,29 +451,35 @@ namespace Ship_Game
             if (Level == 1)
                 return 0;
 
-            var numBombers = Level > 10 ? 2 : 1;
-            numBombers    += NumPortals()-1;
-            numBombers    += (planet.ShieldStrengthMax / 250).RoundDownTo(1);
+            RemnantShipType bomberType = GetBomberType(out int numBombers);
+            int shieldDiv;
+            switch (bomberType)
+            {
+                default:
+                case RemnantShipType.BomberLight:  shieldDiv = 100; break;
+                case RemnantShipType.BomberMedium: shieldDiv = 200; break;
+                case RemnantShipType.Bomber:       shieldDiv = 400; break;
+            }
 
-            GetBomberType(out int multiplier);
-            return (numBombers * multiplier).UpperBound(Level*2);
+            int extraBombers = (int)(planet.ShieldStrengthMax / shieldDiv);
+            return (numBombers + extraBombers).UpperBound(Level*2);
         }
 
-        RemnantShipType GetBomberType(out int bomberNumMultiplier)
+        RemnantShipType GetBomberType(out int numBombers)
         {
-            bomberNumMultiplier = 1;
-            if (Level < 5)
+            numBombers = (int)(Level * Owner.DifficultyModifiers.RemnantNumBombers);
+
+            if (Level <= 6)
             {
-                bomberNumMultiplier = 4 * Level;
+                numBombers *= 2;
                 return RemnantShipType.BomberLight;
             }
 
-            if (Level < 10)
-            {
-                bomberNumMultiplier = 2 * Level;
+            if (Level <= 11)
                 return RemnantShipType.BomberMedium;
-            }
 
+            // Level 12 and above
+            numBombers /= 2;
             return RemnantShipType.Bomber;
         }
 
@@ -548,7 +557,7 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet / 8;
+            int fleetModifier  = shipsInFleet / 10;
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
             effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
@@ -631,8 +640,8 @@ namespace Ship_Game
 
         void GenerateProduction(float amount)
         {
-            int limit = 500 * ((int)CurrentGame.Difficulty).LowerBound(1);
-            Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 400k-1200K 
+            int limit = 200 * ((int)CurrentGame.Difficulty).LowerBound(1);
+            Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 240K 
         }
 
         public int NumPortals()
@@ -893,14 +902,14 @@ namespace Ship_Game
                 return RemnantStory.None;
             }
 
-            switch (RollDie(3)) // todo 3 is for testing  should be 6
+            switch (RollDie(4)) // todo 3 is for testing  should be 6
             {
-                default:
-                case 1: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientBalancers;
-                case 2: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientExterminators;
-                case 3: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersRandom;
-                case 4: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersClosest;
-                case 5: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientColonizers;
+                default: // 1 is no story
+                case 2: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientBalancers;
+                case 3: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientExterminators;
+                case 4: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersRandom;
+                case 5: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersClosest;
+                case 6: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientColonizers;
             }
         }
 

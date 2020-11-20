@@ -77,8 +77,9 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
+            float strDiv        = TargetEmpire.isPlayer ? 3 : 5;
             float strMultiplier = ((int)CurrentGame.Difficulty + 1) * 0.5f;
-            float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / 3;
+            float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv;
             str                 = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
 
             return str.LowerBound(Remnants.Level * Remnants.Level * 200 * strMultiplier);
@@ -178,11 +179,21 @@ namespace Ship_Game.Commands.Goals
             if (numBombers == Fleet.Ships.Count)
                 return ReturnToPortal();
 
-            if (Fleet.TaskStep != 7 && TargetPlanet.Owner == TargetEmpire) // Cleared enemy at target planet
+            if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Cleared enemy at target planet
                     return GoalStep.TryAgain;
 
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
                 return ReturnToPortal();
+
+            if (TargetPlanet == null)
+            {
+                Log.Warning("Goal Target Planet for active Remnant Goal and Fleet was null, selecting new target.");
+                if (!SelectTargetPlanet())
+                {
+                    Log.Warning($"Could not find a new Remnant target planet vs {TargetEmpire.Name}. Remnant fleet will return home.");
+                    return ReturnToPortal();
+                }
+            }
 
             // Select a new closest planet
             if (!Remnants.TargetNextPlanet(TargetEmpire, TargetPlanet, Remnants.NumBombersInFleet(Fleet), out Planet nextPlanet))

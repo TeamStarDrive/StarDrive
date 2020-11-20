@@ -31,6 +31,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep FindPlanetToScrapAndOrderScrap()
         {
+            if (OldShip == null) return GoalStep.GoalFailed;
             if (OldShip.AI.State == AIState.Scrap)
                 RemoveOldScrapGoal(); // todo test this
 

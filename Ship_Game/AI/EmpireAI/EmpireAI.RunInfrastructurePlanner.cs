@@ -57,12 +57,13 @@ namespace Ship_Game.AI
 
         public static bool InfluenceNodeExistsAt(Vector2 pos, Empire empire)
         {
+            float nodeRadius = empire.GetProjectorRadius();
             using (empire.BorderNodes.AcquireReadLock())
             {
                 for (int i = 0; i < empire.BorderNodes.Count; i++)
                 {
                     Empire.InfluenceNode border = empire.BorderNodes[i];
-                    float nodeRadius = Math.Max(empire.GetProjectorRadius(), border.Radius);
+                    nodeRadius = Math.Max(nodeRadius, border.Radius);
                     if (pos.InRadius(border.Position, nodeRadius * 0.75f))
                         return true;
                 }

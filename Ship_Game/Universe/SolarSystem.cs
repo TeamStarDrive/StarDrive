@@ -578,6 +578,22 @@ namespace Ship_Game
             return strength;
         }
 
+        public float GetKnownStrengthHostileTo(Empire e)
+        {
+            float strength = 0f;
+            for (int i = 0; i < ShipList.Count; i++)
+            {
+                Ship ship = ShipList[i];
+                if (ship?.Active != true || !ship.KnownByEmpires.KnownBy(e)) continue;
+                if (!ship.loyalty.IsAtWarWith(e))
+                    continue;
+                strength += ship.GetStrength();
+            }
+
+            return strength;
+        }
+
+
         bool NoAsteroidProximity(Vector2 pos)
         {
             for (int i = 0; i < AsteroidsList.Count; i++)

@@ -66,7 +66,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var warState = Score.GetWarScoreState();
             if (Us != Them)
             {
-                float strengthMod = Us.CurrentMilitaryStrength / Them.CurrentMilitaryStrength;
+                float strengthMod = Us.CurrentMilitaryStrength / Them.CurrentMilitaryStrength.LowerBound(1);
                 return 8 - (int)((int)warState * strengthMod).UpperBound(8);
             }
             return 0;
@@ -116,9 +116,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
         }
 
-        public SolarSystem[] GetTheirBorderSystems() => Them.GetBorderSystems(Us, true)
+        public SolarSystem[] GetTheirBorderSystems() => Them.GetOurBorderSystemsTo(Us, true)
                                 .Filter(s => Us.GetEmpireAI().IsInOurAOs(s.Position));
-        public SolarSystem[] GetTheirNearSystems() => Them.GetBorderSystems(Us, true).ToArray();
+        public SolarSystem[] GetTheirNearSystems() => Them.GetOurBorderSystemsTo(Us, true).ToArray();
 
         Array<Guid> FindContestedSystemGUIDs()
         {
@@ -216,7 +216,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 bool ourForcesPresent   = system.OwnerList.Contains(Us);
                 bool theirForcesPresent = system.OwnerList.Contains(Them);
                 int value               = (int)system.PlanetList.Sum(p => p.ColonyBaseValue(Us));
-                bool hasFleetTask       = WarTheaters.Theaters.Any(t=> t.Campaigns.Any(c=>c.Tasks.IsAlreadyAssaultingSystem(system)));
+                bool hasFleetTask = Us.GetEmpireAI().WarTasks.IsAlreadyAssaultingSystem(system);
                 debug.AddLine($"{pad2}System: {system.Name}  value:{value}  task:{hasFleetTask}");
                 debug.AddLine($"{pad2}OurForcesPresent:{ourForcesPresent}  TheirForcesPresent:{theirForcesPresent}");
             }

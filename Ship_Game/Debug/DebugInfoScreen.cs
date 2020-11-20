@@ -502,12 +502,13 @@ namespace Ship_Game.Debug
                     DrawString("Target: "+ shipTarget.Name);
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
-                DrawString($"Strength: {ship.BaseStrength}");
-                DrawString($"VelocityMax: {ship.VelocityMaximum}  FTLMax: {ship.MaxFTLSpeed}");
-                DrawString($"HP: {ship.Health} / {ship.HealthMax}");
-                DrawString("Ship Mass: " + ship.Mass);
+                DrawString($"Strength: {ship.GetStrength().String(0)} / {ship.BaseStrength.String(0)}");
+                DrawString($"VelocityMax: {ship.VelocityMaximum.String(0)}  FTLMax: {ship.MaxFTLSpeed.String(0)}");
+                DrawString($"HP: {ship.Health.String(0)} / {ship.HealthMax.String(0)}");
+                DrawString("Ship Mass: " + ship.Mass.String(0));
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
                 DrawString("ActiveIntSlots: " + ship.ActiveInternalSlotCount + " / " + ship.InternalSlotCount + " (" + Math.Round((decimal)ship.ActiveInternalSlotCount / ship.InternalSlotCount * 100,1) + "%)");
+                DrawString($"Total DPS: {ship.TotalDps}");
                 SetTextCursor(Win.X + 250, 600f, Color.White);
                 foreach (KeyValuePair<SolarSystem, SystemCommander> entry in ship.loyalty.GetEmpireAI().DefensiveCoordinator.DefenseDict)
                     foreach (var defender in entry.Value.OurShips) {
@@ -550,7 +551,7 @@ namespace Ship_Game.Debug
 
         void VisualizeShipGoal(Ship ship, bool detailed = true)
         {
-            if (ship.AI.OrderQueue.NotEmpty)
+            if (ship?.AI.OrderQueue.NotEmpty == true)
             {
                 ShipGoal goal = ship.AI.OrderQueue.PeekFirst;
                 Vector2 pos = ship.AI.GoalTarget;
@@ -577,13 +578,13 @@ namespace Ship_Game.Debug
                 // ship direction arrow
                 DrawArrowImm(ship.Position, ship.Position+ship.Direction*200f, Color.GhostWhite);
             }
-            if (ship.AI.HasWayPoints)
+            if (ship?.AI.HasWayPoints == true)
             {
                 WayPoint[] wayPoints = ship.AI.CopyWayPoints();
                 for (int i = 1; i < wayPoints.Length; ++i) // draw WayPoints chain
                     DrawLineImm(wayPoints[i-1].Position, wayPoints[i].Position, Color.ForestGreen);
             }
-            if (ship.fleet != null)
+            if (ship?.fleet != null)
             {
                 Vector2 formationPos = ship.fleet.GetFormationPos(ship);
                 Color color = Color.Magenta.Alpha(0.5f);
@@ -813,12 +814,15 @@ namespace Ship_Game.Debug
             NewLine();
             Empire bestScore = empiresList.FindMax(empire => empire.TotalScore);
             Empire bestStr   = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
+            Empire worstStr  = empiresList.FindMin(empire => empire.CurrentMilitaryStrength);
 
-            float diffFromAverageScore = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
-            float diffFromAverageStr   = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+            float diffFromAverageScore    = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
+            float diffFromAverageStrBest  = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
+            float diffFromAverageStrWorst = worstStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
 
             DrawString(bestScore.EmpireColor, $"Highest Score Empire: {bestScore.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
-            DrawString(bestStr.EmpireColor, $"Highest Str Empire:     {bestStr.data.Name} ({(diffFromAverageStr - 100).String(1)}% above average)");
+            DrawString(bestStr.EmpireColor, $"Strongest Empire:   {bestStr.data.Name} ({(diffFromAverageStrBest - 100).String(1)}% above average)");
+            DrawString(worstStr.EmpireColor, $"Weakest Empire:     {worstStr.data.Name} ({(diffFromAverageStrWorst - 100).String(1)}% below average)");
 
             NewLine();
             DrawString("Goals:");
@@ -974,7 +978,7 @@ namespace Ship_Game.Debug
                     SetTextCursor(Win.X + 10, 600f, Color.White);
                     foreach (Ship ship in Screen.SelectedSystem.ShipList)
                     {
-                        DrawString(ship.Active ? ship.Name : ship.Name + " (inactive)");
+                        DrawString(ship?.Active == true ? ship.Name : ship?.Name + " (inactive)");
                     }
 
                     SetTextCursor(Win.X + 300, 600f, Color.White);

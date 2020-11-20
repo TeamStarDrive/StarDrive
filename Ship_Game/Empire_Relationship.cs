@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.GamerServices;
 using Ship_Game.AI;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -27,6 +28,10 @@ namespace Ship_Game
         public bool IsAggressive => Personality == PersonalityType.Aggressive;
         public bool IsHonorable  => Personality == PersonalityType.Honorable;
         public bool IsPacifist   => Personality == PersonalityType.Pacifist;
+
+        public War[] AllActiveWars { get; private set; } = new War[0];
+        public Theater[] AllActiveWarTheaters { get; private set; } = new Theater[0];
+
 
         void SignBilateralTreaty(Empire them, TreatyType type, bool value)
         {
@@ -90,17 +95,29 @@ namespace Ship_Game
         public void UpdateRelationships()
         {
             int atWarCount = 0;
+            var wars = new Array<War>();
             foreach ((Empire them, Relationship rel) in ActiveRelations)
             {
                 if (rel.Known || isPlayer)
                 {
                     rel.UpdateRelationship(this, them);
-                    if (rel.AtWar && !them.isFaction)
-                        atWarCount++;
+                    if (rel.AtWar)
+                    {
+                        if (!them.isFaction)
+                            atWarCount++;
+                        wars.Add(rel.ActiveWar);
+                    }
                 }
             }
-
+            AllActiveWars = wars.ToArray();
             AtWarCount = atWarCount;
+            var theaters = new Array<Theater>();
+            foreach (var war in AllActiveWars)
+            {
+                if (war.WarTheaters.ActiveTheaters != null)
+                    theaters.AddRange(war.WarTheaters.ActiveTheaters);
+            }
+            AllActiveWarTheaters = theaters.ToArray();
         }
 
         public static void UpdateBilateralRelations(Empire us, Empire them)
@@ -119,7 +136,8 @@ namespace Ship_Game
         /// <returns>Get relations with another empire. NULL if there is no relations</returns> 
         public Relationship GetRelationsOrNull(Empire withEmpire)
         {
-            int index = withEmpire.Id - 1;
+
+            int index = (withEmpire?.Id ?? int.MaxValue) - 1;
             if (index < RelationsMap.Count)
             {
                 OurRelationsToThem usToThem = RelationsMap[index];
@@ -174,7 +192,7 @@ namespace Ship_Game
 
         public bool IsAtWarWith(Empire otherEmpire)
         {
-            return GetRelationsOrNull(otherEmpire)?.AtWar == true;
+            return GetRelationsOrNull(otherEmpire)?.AtWar == true || isFaction && !IsNAPactWith(otherEmpire);
         }
 
         public bool IsAlliedWith(Empire otherEmpire)

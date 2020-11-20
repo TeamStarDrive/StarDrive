@@ -22,6 +22,7 @@
         public readonly int ExpandSearchTurns; // For Expansion
         public readonly int RemnantTurnsLevelUp; // How many turns should pass before Remnants level up
         public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
+        public readonly float RemnantNumBombers; // Multiplier to Remnant bombers wanted
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -67,6 +68,7 @@
                     ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 540;
                     RemnantResourceMod   = 0.2f;
+                    RemnantNumBombers    = 0.5f; 
 
                     if (!empire.isPlayer)
                     {
@@ -93,8 +95,9 @@
                     ExpansionModifier    = 0.1f;
                     MinStartingColonies  = 4;
                     ExpandSearchTurns    = 75;
-                    RemnantTurnsLevelUp  = 510;
+                    RemnantTurnsLevelUp  = 480;
                     RemnantResourceMod   = 0.35f;
+                    RemnantNumBombers    = 0.75f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -111,8 +114,9 @@
                     ExpansionModifier    = 0.05f;
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 50;
-                    RemnantTurnsLevelUp  = 450;
-                    RemnantResourceMod   = 0.5f;
+                    RemnantTurnsLevelUp  = 400;
+                    RemnantResourceMod   = 0.45f;
+                    RemnantNumBombers    = 1f;
 
                     if (!empire.isPlayer)
                     {
@@ -141,7 +145,8 @@
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 25;
                     RemnantTurnsLevelUp  = 400;
-                    RemnantResourceMod   = 0.7f;
+                    RemnantResourceMod   = 0.6f;
+                    RemnantNumBombers    = 1.5f;
 
                     if (!empire.isPlayer)
                     {
