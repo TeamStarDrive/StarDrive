@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Empires;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
@@ -115,6 +116,7 @@ namespace Ship_Game
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
         private readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
+        public Array<IncomingThreat> SystemWithThreat = new Array<IncomingThreat>();
         public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
@@ -439,16 +441,20 @@ namespace Ship_Game
         public Fleet GetFleetOrNull(int key) => FleetsDict.TryGetValue(key, out Fleet fleet) ? fleet : null;
         public Fleet GetFleet(int key) => FleetsDict[key];
 
-        public float TotalRemnantStrTryingToClear()
+        public float TotalFactionsStrTryingToClear()
         {
-            Fleet[] fleets = FleetsDict.Values.ToArray();
+            var claimTasks = EmpireAI.GetClaimTasks();
             float str = 0;
-            for (int i = 0; i < fleets.Length; ++i)
+            for (int i = 0; i < claimTasks.Length; ++i)
             {
-                Fleet fleet = fleets[i];
-                if (fleet.FleetTask?.TargetPlanet?.ParentSystem.ShipList.Any(s => s != null && s.IsGuardian) == true)
-                    str += fleet.FleetTask.EnemyStrength; // Todo: Remove the null check above once ShipList is safe again
+                var task = claimTasks[i];
+                if (task.TargetPlanet.Owner == null) // indicates its remnant infested and not another empire
+                    str += task.MinimumTaskForceStrength;
             }
+
+            var assaultPirateTasks = EmpireAI.GetAssaultPirateTasks();
+            if (assaultPirateTasks.Length > 0)
+                str += assaultPirateTasks.Sum(t => t.MinimumTaskForceStrength);
 
             return str;
         }
@@ -532,7 +538,7 @@ namespace Ship_Game
             for (int i = 0; i < EmpireAI.AreasOfOperations.Count; i++)
             {
                 var ao      = EmpireAI.AreasOfOperations[i];
-                var planets = ao.GetPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
+                var planets = ao.GetOurPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
                 safeWorlds.AddRange(planets);
             }
 
@@ -563,7 +569,7 @@ namespace Ship_Game
             if (home == null)
             {
                 var nearestAO = ship.loyalty.GetEmpireAI().FindClosestAOTo(ship.Center);
-                home = nearestAO.GetPlanets().FindClosestTo(ship);
+                home = nearestAO.GetOurPlanets().FindClosestTo(ship);
             }
 
             if (home == null)
@@ -614,7 +620,7 @@ namespace Ship_Game
         /// Returns the preferred Environment Modifier of a given empire.This is null Safe.
         /// </summary>
         public static float PreferredEnvModifier(Empire empire)
-            => empire == null ? 1 :  RacialEnvModifer(empire.data.PreferredEnv, empire);
+            => empire == null ? 1 : RacialEnvModifer(empire.data.PreferredEnv, empire);
 
 
         /// <summary>
@@ -866,11 +872,15 @@ namespace Ship_Game
         public int TechCost(Ship ship)       => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
         public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
+        /// <summary>
+        /// this appears to be broken. 
+        /// </summary>
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
         public int NumPlanets                               => OwnedPlanets.Count;
+        public int NumSystems                               => OwnedSolarSystems.Count;
 
-        public Array<SolarSystem> GetBorderSystems(Empire them, bool hideUnexplored)
+        public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored)
         {
             var solarSystems = new Array<SolarSystem>();
             Vector2 theirCenter = them.WeightedCenter;
@@ -1635,6 +1645,43 @@ namespace Ship_Game
             }
         }
 
+        public void AssessSystemsInDanger(FixedSimTime timeStep)
+        {
+            for (int i = 0; i < SystemWithThreat.Count; i++)
+            {
+                var threat = SystemWithThreat[i];
+                threat.UpdateTimer(timeStep);
+            }
+
+            var knownFleets = new Array<Fleet>();
+            for ( int i = 0; i < AllRelations.Count; i++)
+            {
+                var war = AllRelations[i];
+                if (!IsAtWarWith(war.Them)) continue;
+                var enemy = war.Them;
+
+                foreach (var fleet in enemy.FleetsDict)
+                {
+                    if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
+                    {
+                        knownFleets.Add(fleet.Value);
+                    }
+                }
+            }
+
+            for (int i = 0; i < OwnedSolarSystems.Count; i++)
+            {
+                var system = OwnedSolarSystems[i];
+                var fleets = knownFleets.Filter(f => f.FinalPosition.InRadius(system.Position, system.Radius * 2));
+                if (fleets.Length > 0)
+                {
+
+                    if (!SystemWithThreat.Any(s => s.UpdateThreat(system, fleets)))
+                        SystemWithThreat.Add(new IncomingThreat(system, fleets));
+                }
+            }
+        }
+
         //Using memory to save CPU time. the question is how often is the value used and
         //How often would it be calculated.
         private void UpdateMaxColonyValue()
@@ -2074,7 +2121,7 @@ namespace Ship_Game
             var troops = candidatePlanets.First().TroopsHere;
             using (troops.AcquireWriteLock())
             {
-                troopShip = troops.First(t => t.Loyalty == this).Launch();
+                troopShip = troops.FirstOrDefault(t => t.Loyalty == this).Launch();
                 return troopShip != null;
             }
         }
@@ -2527,7 +2574,10 @@ namespace Ship_Game
                     {
                         Empire remnants = EmpireManager.Remnants;
                         if (remnants.Remnants.Story == Remnants.RemnantStory.None || remnants.data.Defeated || !remnants.Remnants.Activated)
+                        {
                             Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
+                            Universe.GameOver = true;
+                        }
                         else
                             remnants.Remnants.TriggerOnlyRemnantsLeftEvent();
 
@@ -2592,7 +2642,7 @@ namespace Ship_Game
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
-            float biggestAIScore = biggestAI.TotalScore;
+            float biggestAIScore = biggestAI?.TotalScore ?? playerScore;
 
             if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 1.5f || aiEmpires.Length < 2)
                 return;
@@ -2701,7 +2751,7 @@ namespace Ship_Game
             }
 
             StarDriveGame.Instance?.EndingGame(true);
-
+            Empire.Universe.GameOver = true;
             Universe.Objects.Clear();
             Universe.Paused = true;
             HelperFunctions.CollectMemory();
@@ -3118,6 +3168,9 @@ namespace Ship_Game
             // local 
             bool IsScout(Ship s)
             {
+                if (s.shipData.Role == ShipData.RoleName.supply)
+                    return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
+
                 return isPlayer && s.Name == data.CurrentAutoScout 
                        || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null;
             }

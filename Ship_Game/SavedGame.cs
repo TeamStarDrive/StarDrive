@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Ships.AI;
 using Ship_Game.Fleets;
 
@@ -658,6 +659,7 @@ namespace Ship_Game
             [Serialize(2)] public Array<MilitaryTask> MilitaryTaskList;
             [Serialize(3)] public Array<Guid> PinGuids;
             [Serialize(4)] public Array<ThreatMatrix.Pin> PinList;
+            [Serialize(5)] public WarTasks WarTaskClass;
         }
 
         public class PGSData
@@ -669,6 +671,11 @@ namespace Ship_Game
             [Serialize(4)] public Building building;
             [Serialize(5)] public bool Habitable;
             [Serialize(6)] public bool Terraformable;
+            [Serialize(7)] public bool CrashSiteActive;
+            [Serialize(8)] public int CrashSiteTroops;
+            [Serialize(9)] public string CrashSiteShipName;
+            [Serialize(10)] public string CrashSiteTroopName;
+            [Serialize(11)] public int CrashSiteEmpireId;
         }
 
         public class PlanetSaveData

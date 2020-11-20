@@ -464,19 +464,16 @@ namespace Ship_Game.Ships
             get
             {
                 float ordnancePerSecond = 0;
-                if (IsSupplyBay && hangarTimerConstant > 0)
-                    ordnancePerSecond = (OrdinanceCapacity + 8) / hangarTimerConstant; //8 because shuttle mass is 40
-                else if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
+                if (ModuleType == ShipModuleType.Hangar && hangarTimerConstant > 0)
                 {
-                    if (ShipBuilder.IsDynamicHangar(hangarShipUID))
-                        ordnancePerSecond = MaximumHangarShipSize / hangarTimerConstant;
-                    else
-                    {
+                    string hangarShipName = ShipBuilder.IsDynamicHangar(hangarShipUID)
+                        ? CarrierBays.GetDynamicShipNameShipDesign(this)
+                        : hangarShipUID;
 
-                        ResourceManager.ShipsDict.TryGetValue(hangarShipUID, out Ship template);
-                        ordnancePerSecond = (template?.Mass / 5 ?? 0) / hangarTimerConstant;
-                    }
+                    if (ResourceManager.ShipsDict.TryGetValue(hangarShipName, out Ship template))
+                        ordnancePerSecond = (template.ShipOrdLaunchCost) / hangarTimerConstant;
                 }
+
                 return ordnancePerSecond;
             }
         }
@@ -665,6 +662,36 @@ namespace Ship_Game.Ships
             float damage = health.Clamped(0, Health + ShieldPower);
             Ship source = GetParent();
             Damage(source, damage);
+        }
+
+        public void DamageByRecoveredFromCrash()
+        {
+            float percent;
+            switch (Restrictions)
+            {
+                case Restrictions.E:
+                case Restrictions.OE:
+                case Restrictions.O:
+                case Restrictions.xO: percent = 1; break;
+                default:              percent = 0.95f; break; // contains I
+            }
+
+            if (Is(ShipModuleType.Engine))
+                percent = RandomMath.RollDice(20) ? 0.75f : 1;
+
+            if (Is(ShipModuleType.Command)
+                || Is(ShipModuleType.PowerPlant)
+                || Is(ShipModuleType.Command)
+                || explodes)
+            {
+                percent = 0.95f;
+            }
+
+            Ship source  = GetParent();
+            if (ActualShieldPowerMax > 0)
+                Damage(source, ActualShieldPowerMax); // Kill shield power first
+
+            Damage(source, Health * percent);
         }
 
         public override void Damage(GameplayObject source, float damageAmount)
@@ -946,6 +973,12 @@ namespace Ship_Game.Ships
                 hangarTimer           = hangarTimerConstant;
                 Parent.ChangeOrdnance(-hangarShip.ShipOrdLaunchCost);
             }
+        }
+
+        public void ResetHangarTimer()
+        {
+            if (hangarTimerConstant.Greater(0))
+                hangarTimer = hangarTimerConstant;
         }
 
         public void SetAttributes()
@@ -1281,7 +1314,9 @@ namespace Ship_Game.Ships
                 return off;
 
             if (ShipBuilder.IsDynamicHangar(hangarShipUID))
-                off += MaximumHangarShipSize * 10;
+            {
+                off += MaximumHangarShipSize * 100 * PermittedHangarRoles.Length / hangarTimerConstant.LowerBound(1);
+            }
             else
             {
                 if (ResourceManager.GetShipTemplate(hangarShipUID, out Ship hShip))

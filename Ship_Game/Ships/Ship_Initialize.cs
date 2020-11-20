@@ -447,7 +447,7 @@ namespace Ship_Game.Ships
 
             // initialize strength for our empire:
             CurrentStrength = CalculateShipStrength();
-            BaseStrength = CurrentStrength; // save base strength for later
+            BaseStrength    = CurrentStrength; // save base strength for later
             if (shipData.BaseStrength <= 0f)
                 shipData.BaseStrength = BaseStrength;
         }
@@ -503,8 +503,8 @@ namespace Ship_Game.Ships
                     InternalSlotCount += module.XSIZE * module.YSIZE;
                 HasRepairModule |= module.IsRepairModule;
 
-                Health     += module.Health;
-
+                Health    += module.Health;
+                HealthMax += module.Health;
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
                 PowerStoreMax += module.ActualPowerStoreMax;
                 PowerCurrent  += module.ActualPowerStoreMax;

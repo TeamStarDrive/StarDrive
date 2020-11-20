@@ -183,7 +183,7 @@ namespace Ship_Game.AI
 
             if (ScanTargetUpdated)
             {
-                if (!HasPriorityTarget || Target?.Active == false)
+                if (!HasPriorityOrder && (!HasPriorityTarget || Target?.Active == false))
                     Target = ScannedTarget;
                 ScanTargetUpdated = false;
             }
@@ -203,7 +203,7 @@ namespace Ship_Game.AI
             {
                 case ResupplyReason.LowOrdnanceCombat:
                 case ResupplyReason.LowOrdnanceNonCombat:
-                    if (Owner.IsPlatformOrStation)
+                    if (Owner.IsPlatformOrStation) // Mostly for Orbitals in Deep Space
                     {
                         RequestResupplyFromPlanet();
                         return;
@@ -218,6 +218,9 @@ namespace Ship_Game.AI
 
                     nearestRallyPoint = Owner.loyalty.FindNearestSafeRallyPoint(Owner.Center);
                     break;
+                case ResupplyReason.RequestResupplyFromPlanet:
+                    RequestResupplyFromPlanet();
+                    return;
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
                     Ship repairShip = NearByRepairShip;
@@ -300,7 +303,7 @@ namespace Ship_Game.AI
 
         void RequestResupplyFromPlanet()
         {
-            if (Owner.InCombat || Owner.loyalty.isFaction || Owner.GetTether()?.Owner == Owner.loyalty)
+            if (Owner.GetTether()?.Owner == Owner.loyalty)
                 return;
 
             EmpireAI ai = Owner.loyalty.GetEmpireAI();
@@ -380,7 +383,14 @@ namespace Ship_Game.AI
 
             // fbedard: civilian ships will evade combat (nice target practice)
             if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear)
-                CombatState = CombatState.Evade;
+            {
+                if (Owner.WeaponsMaxRange <= 0 || PotentialTargets.Sum(o => o.GetStrength()) < Owner.GetStrength())
+                {
+                    CombatState = CombatState.Evade;
+                }
+                
+
+            }
         }
 
         void AIStateRebase()
@@ -524,6 +534,7 @@ namespace Ship_Game.AI
 
         void IdleFleetAI(FixedSimTime timeStep)
         {
+
             if (DoNearFleetOffset(timeStep))
             {
                 if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
@@ -539,7 +550,7 @@ namespace Ship_Game.AI
                     SetPriorityOrder(true);  // FB this might cause serious issues that make orbiting ships stuck with PO and not available anymore for the AI.
                     State = AIState.AwaitingOrders;
                     AddShipGoal(Plan.MakeFinalApproach,
-                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
+                        Owner.fleet.GetFormationPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
                 }
                 else
                 {
@@ -739,7 +750,8 @@ namespace Ship_Game.AI
         void AIStateEscort(FixedSimTime timeStep)
         {
             Owner.AI.SetPriorityOrder(false);
-            if (EscortTarget == null || !EscortTarget.Active)
+            var escortTarget = EscortTarget;
+            if (escortTarget == null || !escortTarget.Active)
             {
                 EscortTarget = null;
                 ClearOrders();
@@ -756,12 +768,12 @@ namespace Ship_Game.AI
                 return;
             }
             if (Owner.GetStrength() <=0 
-                || Owner.Mothership == null && EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
+                || Owner.Mothership == null && escortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
                 || Owner.Mothership == null 
                 || !Owner.Mothership.AI.BadGuysNear 
-                || EscortTarget != Owner.Mothership)
+                || escortTarget != Owner.Mothership)
             {
-                Orbit.Orbit(EscortTarget, timeStep);
+                Orbit.Orbit(escortTarget, timeStep);
                 return;
             }
             // Doctor: This should make carrier-launched fighters scan for their own combat targets, except using the mothership's position
@@ -771,14 +783,14 @@ namespace Ship_Game.AI
             // i thought i had added that in somewhere but i cant remember where. I think i made it so that in the scan it takes the motherships target list and adds it to its own.
             if(!Owner.InCombat )
             {
-                Orbit.Orbit(EscortTarget, timeStep);
+                Orbit.Orbit(escortTarget, timeStep);
                 return;
             }
 
-            if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
+            if (Owner.InCombat && Owner.Center.OutsideRadius(escortTarget.Center, Owner.DesiredCombatRange))
             {
                 Owner.AI.SetPriorityOrder(true);
-                Orbit.Orbit(EscortTarget, timeStep);
+                Orbit.Orbit(escortTarget, timeStep);
             }
         }
 

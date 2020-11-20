@@ -402,44 +402,51 @@ namespace Ship_Game
 
             if (mod.PermittedHangarRoles.Length == 0)
                 return;
-            DynamicHangarOptions hangarOption = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
-            if (hangarOption != DynamicHangarOptions.Static)
-            {
-                modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
-                Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 145f, modTitlePos.Y);
-                string bestShip = Fonts.Arial12Bold.ParseText(GetDynamicHangarText(), ActiveModSubMenu.Width - 20);
-                Color color = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
-                DrawString(batch, ref bestShipSelectionPos, bestShip, color, Fonts.Arial12Bold);
+
+            var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
+            string hangerShip = hangarOption != DynamicHangarOptions.Static
+                    ? CarrierBays.GetDynamicShipNameShipDesign(mod)
+                    : mod.hangarShipUID;
+
+            Ship ship = ResourceManager.GetShipTemplate(hangerShip, false);
+            if (ship == null)
                 return;
-            }
-            Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
-            if (ship == null) return;
+
+            Color color   = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
             modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
-            Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+            Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y + 5);
             string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
-            DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
-            shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-            shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing *2;
-            DrawStat(ref shipSelectionPos, "LaunchCost", ship.ShipOrdLaunchCost, -1);
+            DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), color, Fonts.Arial12Bold);
+            shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y-20);
+            shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
+            DrawStat(ref shipSelectionPos, "Ord. Cost", ship.ShipOrdLaunchCost, -1);
             DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, -1);
             DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, -1);
             DrawStat(ref shipSelectionPos, "FTL", ship.MaxFTLSpeed, -1);
 
-            string GetDynamicHangarText()
+            if (hangarOption != DynamicHangarOptions.Static)
             {
-                switch (hangarOption)
-                {
-                    case DynamicHangarOptions.DynamicLaunch:
-                        return "Hangar will launch more advanced ships, as they become available in your empire";
-                    case DynamicHangarOptions.DynamicInterceptor:
-                        return "Hangar will launch more advanced ships which their designated ship category is 'Interceptor', " +
-                               "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
-                    case DynamicHangarOptions.DynamicAntiShip:
-                        return "Hangar will launch more advanced ships which their designated ship category is 'Anti-Ship', " +
-                               "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
-                    default:
-                        return "";
-                }
+                modTitlePos.Y = Math.Max(shipSelectionPos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 5;
+                Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 145f, modTitlePos.Y);
+                string bestShip = Fonts.Arial10.ParseText(GetDynamicHangarText(hangarOption), ActiveModSubMenu.Width - 20);
+                DrawString(batch, ref bestShipSelectionPos, bestShip, color, Fonts.Arial10);
+            }
+        }
+
+        string GetDynamicHangarText(DynamicHangarOptions hangarOption)
+        {
+            switch (hangarOption)
+            {
+                case DynamicHangarOptions.DynamicLaunch:
+                    return "Hangar will launch more advanced ships, as they become available in your empire";
+                case DynamicHangarOptions.DynamicInterceptor:
+                    return "Hangar will launch more advanced ships which their designated ship category is 'Interceptor', " +
+                           "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
+                case DynamicHangarOptions.DynamicAntiShip:
+                    return "Hangar will launch more advanced ships which their designated ship category is 'Anti-Ship', " +
+                           "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
+                default:
+                    return "";
             }
         }
 

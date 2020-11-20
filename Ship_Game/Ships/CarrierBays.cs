@@ -225,6 +225,15 @@ namespace Ship_Game.Ships
             return sentAssault;
         }
 
+        public void ResetAllHangarTimers()
+        {
+            if (Owner == null)
+                return;
+
+            foreach (ShipModule m in AllHangars)
+                m.ResetHangarTimer();
+        }
+
         public bool TryScrambleSingleAssaultShuttle(Troop troop, out Ship assaultShuttle)
         {
             assaultShuttle = null;
@@ -500,7 +509,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private ShipData.HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
+        private static ShipData.HangarOptions GetCategoryFromHangarType(DynamicHangarOptions hangarType)
         {
             switch (hangarType)
             {
@@ -510,7 +519,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        string GetDynamicShipName(ShipModule hangar, Empire empire)
+        public static string GetDynamicShipNameShipDesign(ShipModule hangar) => GetDynamicShipName(hangar, EmpireManager.Player);
+
+        static string GetDynamicShipName(ShipModule hangar, Empire empire)
         {
             ShipData.HangarOptions desiredShipCategory = GetCategoryFromHangarType(hangar.DynamicHangar);
             float strongest = 0;
