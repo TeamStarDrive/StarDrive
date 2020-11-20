@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Empires;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
@@ -115,6 +116,7 @@ namespace Ship_Game
         public BatchRemovalCollection<InfluenceNode> BorderNodes = new BatchRemovalCollection<InfluenceNode>();
         public BatchRemovalCollection<InfluenceNode> SensorNodes = new BatchRemovalCollection<InfluenceNode>();
         private readonly Map<SolarSystem, bool> HostilesLogged = new Map<SolarSystem, bool>(); // Only for Player warnings
+        public Array<IncomingThreat> SystemWithThreat = new Array<IncomingThreat>();
         public HashSet<string> ShipsWeCanBuild = new HashSet<string>();
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
@@ -1640,6 +1642,43 @@ namespace Ship_Game
             {
                 var planet = OwnedPlanets[x];
                 CurrentTroopStrength += planet.TroopManager.OwnerTroopStrength;
+            }
+        }
+
+        public void AssessSystemsInDanger(FixedSimTime timeStep)
+        {
+            for (int i = 0; i < SystemWithThreat.Count; i++)
+            {
+                var threat = SystemWithThreat[i];
+                threat.UpdateTimer(timeStep);
+            }
+
+            var knownFleets = new Array<Fleet>();
+            for ( int i = 0; i < AllRelations.Count; i++)
+            {
+                var war = AllRelations[i];
+                if (!IsAtWarWith(war.Them)) continue;
+                var enemy = war.Them;
+
+                foreach (var fleet in enemy.FleetsDict)
+                {
+                    if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
+                    {
+                        knownFleets.Add(fleet.Value);
+                    }
+                }
+            }
+
+            for (int i = 0; i < OwnedSolarSystems.Count; i++)
+            {
+                var system = OwnedSolarSystems[i];
+                var fleets = knownFleets.Filter(f => f.FinalPosition.InRadius(system.Position, system.Radius * 2));
+                if (fleets.Length > 0)
+                {
+
+                    if (!SystemWithThreat.Any(s => s.UpdateThreat(system, fleets)))
+                        SystemWithThreat.Add(new IncomingThreat(system, fleets));
+                }
             }
         }
 

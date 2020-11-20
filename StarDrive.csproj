@@ -231,6 +231,7 @@
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngagements.cs" />
+    <Compile Include="Ship_Game\Empires\DataPackets\IncomingThreat.cs" />
     <Compile Include="Ship_Game\Remnants.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
