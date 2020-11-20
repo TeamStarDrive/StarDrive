@@ -284,7 +284,7 @@ namespace Ship_Game
             var averageScore  = empiresList.Average(e => e.TotalScore);
             Empire bestEmpire = empiresList.FindMax(e => e.TotalScore);
 
-            return bestEmpire.TotalScore > averageScore * 1.2f ? bestEmpire : null;
+            return bestEmpire.TotalScore > averageScore * 1.5f ? bestEmpire : null;
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
@@ -637,7 +637,7 @@ namespace Ship_Game
 
         void GenerateProduction(float amount)
         {
-            int limit = 500 * ((int)CurrentGame.Difficulty).LowerBound(1);
+            int limit = 200 * ((int)CurrentGame.Difficulty).LowerBound(1);
             Production = (Production + amount).UpperBound(Level * Level * limit); // Level 20 - 400k-1200K 
         }
 
