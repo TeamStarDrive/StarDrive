@@ -554,7 +554,7 @@ namespace Ship_Game
 
         RemnantShipType SelectShipForCreation(int shipsInFleet) // Note Bombers are created exclusively 
         {
-            int fleetModifier  = shipsInFleet / 8;
+            int fleetModifier  = shipsInFleet / 10;
             int effectiveLevel = Level + (int)CurrentGame.Difficulty + fleetModifier;
             effectiveLevel     = effectiveLevel.UpperBound(Level * 2);
             int roll           = RollDie(effectiveLevel, (fleetModifier + Level / 2).LowerBound(1));
