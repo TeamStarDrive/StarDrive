@@ -53,7 +53,7 @@ namespace Ship_Game.Commands.Goals
 
             if (nearest!= null && !nearest.Center.InRadius(Portal.Center, desiredRange))
             {
-                Vector2 pos = nearest.Center - nearest.Center.DirectionToTarget(Portal.Center).Normalized() * desiredRange;
+                Vector2 pos = nearest.Center - nearest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + nearest.Radius);
                 MoveToPos(pos);
             }
         }
