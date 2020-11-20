@@ -43,7 +43,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public AO RallyAO;
         public bool IsCoreCampaign                 = true;
         protected Theater OwnerTheater;
-        WarTasks Tasks => Owner.GetEmpireAI().WarTasks;
+        protected WarTasks Tasks => Owner.GetEmpireAI().WarTasks;
         public Campaign() { }
         public int GetPriority()      => OwnerTheater.Priority;
         public bool WarMatch(War war) => war == OwnerWar;
@@ -281,7 +281,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return GoalStep.GoToNextStep;
         }
 
-        protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> priorities)
+        protected void DefendSystemsInList(Array<SolarSystem> currentTargets, Array<int> priorities, float strength, int fleetCount)
         {
             int priority = OwnerTheater.Priority + 1;
             //int fleetCount = Owner.Pool.InitialReadyFleets / 2;
@@ -292,7 +292,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 //    break;
                 var currentTarget = currentTargets[i];
                 int targetIndex  = currentTargets.IndexOf(currentTarget);
-                Tasks.StandardSystemDefense(currentTarget, priorities[targetIndex], 1);
+                Tasks.StandardSystemDefense(currentTarget, priorities[targetIndex], strength, fleetCount);
             }
         }
 
