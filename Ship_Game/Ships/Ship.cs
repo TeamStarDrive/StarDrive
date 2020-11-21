@@ -1734,9 +1734,10 @@ namespace Ship_Game.Ships
 
         public float CalculateShipStrength()
         {
-            float offense   = 0f;
-            float defense   = 0f;
+            float offense   = 0;
+            float defense   = 0;
             int weaponArea  = 0;
+            int hangarArea  = 0;
             bool hasWeapons = false;
             TotalDps        = 0;
 
@@ -1748,9 +1749,12 @@ namespace Ship_Game.Ships
                     if (m.InstalledWeapon != null)
                     {
                         weaponArea += m.Area;
-                        TotalDps += m.InstalledWeapon.DamagePerSecond;
+                        TotalDps   += m.InstalledWeapon.DamagePerSecond;
                         hasWeapons = true;
                     }
+
+                    if (m.IsTroopBay || m.IsSupplyBay || m.MaximumHangarShipSize > 0)
+                        hangarArea += m.Area;
 
                     offense += m.CalculateModuleOffense();
                     defense += m.CalculateModuleDefense(SurfaceArea);
@@ -1764,7 +1768,7 @@ namespace Ship_Game.Ships
             if (!Carrier.HasFighterBays && !hasWeapons) 
                 offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea, weaponArea, offense, defense);
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, weaponArea + hangarArea, offense, defense);
         }
 
         private void ApplyRepairToShields(float repairPool)
