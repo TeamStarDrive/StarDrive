@@ -75,7 +75,7 @@ namespace Ship_Game
         public float RepairPerTurn;
         public float SensorRange { get; private set; }
         public float ProjectorRange { get; private set; }
-        public bool SpaceCombatNearPlanet { get; private set; }
+        public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
         public float OrbitalsMaintenance { get; private set; }
@@ -476,8 +476,11 @@ namespace Ship_Game
 
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
         {
-            if (Owner == null) 
+            if (Owner == null)
+            {
+                SpaceCombatNearPlanet = false;
                 return;
+            }
 
             bool enemyInRange = ParentSystem.DangerousForcesPresent(Owner);
             if (NoSpaceCombatTargetsFoundDelay.Less(2) || enemyInRange)
