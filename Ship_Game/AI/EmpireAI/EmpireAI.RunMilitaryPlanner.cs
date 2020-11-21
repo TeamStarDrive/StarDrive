@@ -24,7 +24,8 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
             RunGroundPlanner();
-            NumberOfShipGoals   = 3;
+
+            NumberOfShipGoals = 2 + OwnerEmpire.GetBestPortsForShipBuilding()?.Count ?? 0;
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
             var planetsBuilding = new Array<Planet>();
             foreach (var goal in offensiveGoals) planetsBuilding.AddUnique(goal.PlanetBuildingAt);
@@ -88,7 +89,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void RemoveMilitaryTasksTargeting(Empire empire)
+        public void RemoveMilitaryTasksTargeting(Empire empire)
         {
             for (int i = TaskList.Count - 1; i >= 0; i--)
             {
@@ -96,6 +97,8 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet?.Owner == empire)
                     task.EndTask();
             }
+
+            WarTasks.PurgeAllTasksTargeting(empire);
         }
 
         public MilitaryTask[] GetAtomicTasksCopy()

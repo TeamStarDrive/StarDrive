@@ -378,6 +378,14 @@ namespace Ship_Game
             return null;
         }
 
+        public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding() => GetBestPortsForShipBuilding(OwnedPlanets);
+        public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(IReadOnlyList<Planet> ports)
+        {
+            if (ports == null) return Empty<Planet>.Array;
+            GetBestPorts(ports, out Planet[] bestPorts); 
+            return bestPorts?.Filter(p=> p.HasSpacePort || p.NumShipyards > 0) ?? Empty<Planet>.Array;
+        }
+
         bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts)
         {
             bestPorts = null;
@@ -756,7 +764,9 @@ namespace Ship_Game
                 return;
 
             foreach ((Empire them, Relationship rel) in ActiveRelations)
+            {
                 BreakAllTreatiesWith(them, includingPeace: true);
+            }
 
             foreach (Ship ship in OwnedShips)
             {
