@@ -41,10 +41,11 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var task = tasks[i];
                 if (!task.QueuedForRemoval)
                 {
-                    if (task.Fleet != null)
+                    if (task.Fleet == null)
                     {
-                        int extraFleets = task.TargetPlanet != null ? HardTargets.Count(g => g == task.TargetPlanet.guid) : 0;
-                        task.FleetCount += extraFleets;
+                        int extraFleets = 0;
+                        extraFleets = task.TargetPlanet != null ? HardTargets.Count(g => g == task.TargetPlanet.guid) : 0;
+                        task.FleetCount += extraFleets > 0 ?1 :0;
                     }
                     task.Evaluate(Owner);
                 }
@@ -159,6 +160,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 Priority      = priority
             });
+        }
+
+        public void PurgeAllTasksTargeting(Empire empire)
+        {
+            for (int i = 0; i < NewTasks.Count; i++)
+            {
+                var task = NewTasks[i];
+                if (task.TargetPlanet?.Owner == empire)
+                    task.EndTask();
+            }
         }
 
         public void PurgeAllTasks()

@@ -147,7 +147,7 @@ namespace Ship_Game.AI
             }
             while (neededFleets > 0 || extractedShipStrength < strengthNeeded);
 
-            if (extractedShipStrength >= strengthNeeded && neededFleets <= 0)
+            if (extractedShipStrength >= strengthNeeded && completeFleets > 0)
                 completeFleets = wantedFleetCount + 1;
 
             for (int x =0; x< (wantedFleetCount + completeFleets).LowerBound(1); x++)
