@@ -60,7 +60,7 @@ namespace Ship_Game.AI.ExpansionAI
         }
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
-        float ExpansionThreshold => (Owner.IsExpansionists ? 0.2f : 0.33f) + Owner.DifficultyModifiers.ExpansionModifier;
+        float ExpansionThreshold => (Owner.IsExpansionists ? 0.2f : 0.33f) * Owner.DifficultyModifiers.ExpansionMultiplier;
 
         public ExpansionPlanner(Empire empire)
         {

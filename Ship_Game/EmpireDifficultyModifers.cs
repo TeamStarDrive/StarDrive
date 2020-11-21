@@ -34,9 +34,9 @@
         public readonly float ModHpModifier;
 
         /// <summary>
-        /// Higher number will decrease colonization pace
+        /// Higher than 1 will decrease colonization pace and vice versa
         /// </summary>
-        public readonly float ExpansionModifier; 
+        public readonly float ExpansionMultiplier; 
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
@@ -63,7 +63,7 @@
                     EnemyTroopStrength   = 1f;
                     MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
-                    ExpansionModifier    = 0.2f;
+                    ExpansionMultiplier  = 1.25f;
                     MinStartingColonies  = 3;
                     ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 540;
@@ -92,7 +92,7 @@
                     EnemyTroopStrength   = 1.1f;
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 0.75f;
-                    ExpansionModifier    = 0.1f;
+                    ExpansionMultiplier  = 0.75f;
                     MinStartingColonies  = 4;
                     ExpandSearchTurns    = 75;
                     RemnantTurnsLevelUp  = 480;
@@ -111,7 +111,7 @@
                     EnemyTroopStrength   = 1.25f;
                     MineralDecayDivider  = 25;
                     PiratePayModifier    = 1f;
-                    ExpansionModifier    = 0.05f;
+                    ExpansionMultiplier  = 0.25f;
                     MinStartingColonies  = 5;
                     ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 400;
@@ -141,7 +141,7 @@
                     EnemyTroopStrength   = 1.5f;
                     MineralDecayDivider  = 15;
                     PiratePayModifier    = 1.5f;
-                    ExpansionModifier    = 0f;
+                    ExpansionMultiplier  = 0.1f;
                     MinStartingColonies  = 6;
                     ExpandSearchTurns    = 25;
                     RemnantTurnsLevelUp  = 400;
