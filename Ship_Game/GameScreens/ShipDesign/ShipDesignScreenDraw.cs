@@ -543,6 +543,7 @@ namespace Ship_Game
             int numWeaponSlots             = 0;
             int numWeapons                 = 0;
             int numOrdnanceWeapons         = 0;
+            int numHangarSlots             = 0;
             float totalShieldAmplify       = 0;
             bool unpoweredModules          = false;
             bool canTargetFighters         = false;
@@ -603,6 +604,9 @@ namespace Ship_Game
 
                 if (module.IsCommandModule)
                     numCommandModules += 1;
+
+                if (module.IsTroopBay || module.IsSupplyBay || module.MaximumHangarShipSize > 0)
+                    numHangarSlots += module.Area;
 
                 if (!wasOffenseDefenseAdded)
                 {
@@ -699,7 +703,7 @@ namespace Ship_Game
             WriteLine(ref cursor);
 
             DrawCargoTargetsAndSensors(ref cursor, cargoSpace, targets, sensorRange, sensorBonus, ActiveHull.Bonuses);
-            DrawOffense(ref cursor, offense, defense, size, numWeaponSlots);
+            DrawOffense(ref cursor, offense, defense, size, numWeaponSlots + numHangarSlots);
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
 
