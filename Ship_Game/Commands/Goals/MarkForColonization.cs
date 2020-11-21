@@ -79,13 +79,23 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CreateClaimTask()
         {
-            if (PositiveEnemyPresence(out float spaceStrength) && !empire.isPlayer)
+            if (empire.isPlayer)
+                return GoalStep.GoToNextStep;
+
+            if (PositiveEnemyPresence(out float spaceStrength))
             {
                 empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, out float strMultiplier);
                 spaceStrength *= strMultiplier;
                 var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(100));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
+            else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire) 
+                     && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet == ColonizationTarget).Length == 0)
+            {
+                var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);
+                empire.GetEmpireAI().AddPendingTask(task);
+            }
+
 
             return GoalStep.GoToNextStep;
         }
