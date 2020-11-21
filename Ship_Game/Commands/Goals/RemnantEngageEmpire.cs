@@ -77,7 +77,7 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float strDiv        = TargetEmpire.isPlayer ? 3 : 5;
+            float strDiv        = TargetEmpire.isPlayer ? 3 : 4;
             float strMultiplier = ((int)CurrentGame.Difficulty + 1) * 0.5f;
             float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv;
             str                 = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
@@ -101,12 +101,12 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.TryAgain;
         }
 
-        void RequestBombers()
+        void RequestBombers(int currentBombers)
         {
             if (Fleet == null)
                 return;
 
-            for (int i = 1; i <= BombersLevel; i++)
+            for (int i = 1; i <= BombersLevel - currentBombers; i++)
             {
                 if (Remnants.CreateShip(Portal, true, 0, out Ship ship))
                 {
@@ -173,8 +173,8 @@ namespace Ship_Game.Commands.Goals
                 return ReturnToPortal();
 
             int numBombers = Remnants.NumBombersInFleet(Fleet);
-            if (BombersLevel > 0 && numBombers == 0)
-                RequestBombers();
+            if (BombersLevel > 0 && numBombers < BombersLevel / 2)
+                RequestBombers(numBombers);
 
             if (numBombers == Fleet.Ships.Count)
                 return ReturnToPortal();
@@ -200,6 +200,7 @@ namespace Ship_Game.Commands.Goals
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
 
             Fleet.FleetTask.ChangeTargetPlanet(nextPlanet);
+            Fleet.ClearOrders();
             int changeToStep = TargetPlanet.ParentSystem == nextPlanet.ParentSystem ? 5 : 1;
             TargetPlanet     = nextPlanet;
             Fleet.Name       = $"Ancient Fleet - {TargetPlanet.Name}";

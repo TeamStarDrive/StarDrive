@@ -287,7 +287,7 @@ namespace Ship_Game
             var averageScore  = empiresList.Average(e => e.TotalScore);
             Empire bestEmpire = empiresList.FindMax(e => e.TotalScore);
 
-            return bestEmpire.TotalScore > averageScore * 1.5f ? bestEmpire : null;
+            return bestEmpire.TotalScore > averageScore * 1.25f ? bestEmpire : null;
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
