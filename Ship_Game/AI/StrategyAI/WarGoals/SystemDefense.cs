@@ -25,36 +25,42 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected override GoalStep SetupShipTargets()
         {
-            //var fleets         = new Array<Fleet>();
-            Pin[] pins = OwnerTheater.GetPins();
-            //var ships          = new Array<Ship>();
-            var systems = new Array<SolarSystem>();
-            var priorities = new Array<int>();
-            int basePriority = OwnerTheater.Priority * 2;
-            int important = basePriority - 1;
-            int normal = basePriority;
-            int casual = basePriority + 1;
-            int unImportant = basePriority + 2;
-
+            int basePriority     = OwnerTheater.Priority;
+            int important        = basePriority - 1;
+            int normal           = basePriority;
+            int casual           = basePriority + 1;
+            int unImportant      = basePriority + 2;
+            var systems = new Array<IncomingThreat>();
             var ownedSystems = Owner.GetOwnedSystems();
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
                 foreach (IncomingThreat threatenedSystem in Owner.SystemWithThreat)
                 {
                     if (threatenedSystem.ThreatTimedOut) continue;
-                    systems.Add(threatenedSystem.TargetSystem);
-                    var priority = basePriority / threatenedSystem.TargetSystem.PlanetList.Sum(p => p.Owner == Owner ? p.Level -2 : 0).LowerBound(1);
-                    Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1);
+                    systems.Add(threatenedSystem);
                 }
+
+                //foreach (var system in Owner.GetOwnedSystems())
+                //{
+                //    if (!system.HostileForcesPresent(Owner)) continue;
+                //    var priority = unImportant - system.PlanetList.FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
+                //    var strength = system.GetKnownStrengthHostileTo(Owner);
+                //    Tasks.StandardSystemDefense(system, priority, strength, 1);
+                //}
             }
 
+            var highValueSystems = systems.Filter(s => s.TargetSystem.PlanetList.Any(p => p.Owner == Owner && p.Level > 3));
 
-            foreach (var system in Owner.GetOwnedSystems())
+            highValueSystems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
+
+            //int fleets = Owner.AllFleetsReady().CountFleets(out _);
+
+            for (int i = 0; i < highValueSystems.Length; i++)// Math.Min(highValueSystems.Length, fleets); i++)
             {
-                if (!system.HostileForcesPresent(Owner)) continue;
-                var priority = normal;
-                var strength = system.GetKnownStrengthHostileTo(Owner);
-                Tasks.StandardSystemDefense(system, priority, strength, 1);
+                var threatenedSystem = highValueSystems[i];
+                var priority = casual - threatenedSystem.TargetSystem.PlanetList
+                    .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
+                Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1);
             }
 
             return GoalStep.GoToNextStep;

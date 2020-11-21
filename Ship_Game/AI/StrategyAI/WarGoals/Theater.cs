@@ -148,7 +148,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             if (!TheaterAO.GetAoSystems().Any(s => s.OwnerList.Contains(Them)))
             {
-                Priority = 10;
+                Priority = int.MaxValue;
                 return;
             }
             Vector2 position = RallyAO?.Center ?? Us.WeightedCenter;
