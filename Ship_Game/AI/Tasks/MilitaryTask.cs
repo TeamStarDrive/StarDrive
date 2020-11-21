@@ -83,7 +83,23 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
-        public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, float minStrength)
+        public static MilitaryTask CreateGuardTask(Empire owner, Planet targetPlanet)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                TargetPlanet             = targetPlanet,
+                AO                       = targetPlanet.Center,
+                type                     = TaskType.GuardBeforeColonize,
+                AORadius                 = targetPlanet.ParentSystem.Radius,
+                MinimumTaskForceStrength = (owner.CurrentMilitaryStrength / 1000).LowerBound(100),
+                Owner                    = owner,
+                Priority                 = 0
+            };
+
+            return militaryTask;
+        }
+
+            public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, float minStrength)
         {
             var militaryTask = new MilitaryTask
             {
@@ -396,6 +412,15 @@ namespace Ship_Game.AI.Tasks
             }
             switch (type)
             {
+                case TaskType.GuardBeforeColonize:
+                    switch (Step)
+                    {
+                        case 0:
+                            RequisitionGuardBeforeColonize();
+                            break;
+                    }
+
+                    break;
                 case TaskType.AssaultPirateBase:
                     switch (Step)
                     {
@@ -762,7 +787,8 @@ namespace Ship_Game.AI.Tasks
             AssaultPirateBase,
             Patrol,
             RemnantEngagement,
-            DefendVsRemnants
+            DefendVsRemnants,
+            GuardBeforeColonize
         }
 
         [Flags]

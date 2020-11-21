@@ -2644,7 +2644,7 @@ namespace Ship_Game
 
         void CheckFederationVsPlayer()
         {
-            if (Universe.StarDate < 1050f || (Universe.StarDate % 1).NotZero() || GlobalStats.PreventFederations)
+            if (Universe.StarDate < 1100f || (Universe.StarDate % 1).NotZero() || GlobalStats.PreventFederations)
                 return;
 
             float playerScore    = TotalScore;
