@@ -309,11 +309,12 @@ namespace Ship_Game
 
         void OnLaunchSingleTroopClicked(UIButton b)
         {
-            if (P.TroopsHere.Count == 0)
+            var potentialTroops = P.TroopsHere.Filter(t => t.Loyalty == EmpireManager.Player && t.CanMove);
+            if (potentialTroops.Length == 0)
                 GameAudio.NegativeClick();
             else
             {
-                Troop troop = P.TroopsHere.Filter(t => t.Loyalty == EmpireManager.Player).RandItem();
+                Troop troop = potentialTroops.RandItem();
                 troop.Launch();
                 GameAudio.TroopTakeOff();
                 UpdateButtons();
