@@ -2654,7 +2654,7 @@ namespace Ship_Game
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
             float biggestAIScore = biggestAI?.TotalScore ?? playerScore;
 
-            if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 1.5f || aiEmpires.Length < 2)
+            if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 2 || aiEmpires.Length < 2)
                 return;
 
             var leaders = new Array<Empire>();
