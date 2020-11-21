@@ -403,17 +403,18 @@ namespace Ship_Game.Fleets
 
             switch (FleetTask.type)
             {
-                case MilitaryTask.TaskType.ClearAreaOfEnemies: DoClearAreaOfEnemies(FleetTask); break;
-                case MilitaryTask.TaskType.AssaultPlanet: DoAssaultPlanet(FleetTask); break;
+                case MilitaryTask.TaskType.ClearAreaOfEnemies:         DoClearAreaOfEnemies(FleetTask);         break;
+                case MilitaryTask.TaskType.AssaultPlanet:              DoAssaultPlanet(FleetTask);              break;
                 case MilitaryTask.TaskType.CohesiveClearAreaOfEnemies: DoCohesiveClearAreaOfEnemies(FleetTask); break;
-                case MilitaryTask.TaskType.Exploration: DoExplorePlanet(FleetTask); break;
-                case MilitaryTask.TaskType.DefendSystem: DoDefendSystem(FleetTask); break;
-                case MilitaryTask.TaskType.DefendClaim: DoClaimDefense(FleetTask); break;
-                case MilitaryTask.TaskType.DefendPostInvasion: DoPostInvasionDefense(FleetTask); break;
-                case MilitaryTask.TaskType.GlassPlanet: DoGlassPlanet(FleetTask); break;
-                case MilitaryTask.TaskType.AssaultPirateBase: DoAssaultPirateBase(FleetTask); break;
-                case MilitaryTask.TaskType.RemnantEngagement: DoRemnantEngagement(FleetTask); break;
-                case MilitaryTask.TaskType.DefendVsRemnants: DoDefendVsRemnant(FleetTask); break;
+                case MilitaryTask.TaskType.Exploration:                DoExplorePlanet(FleetTask);              break;
+                case MilitaryTask.TaskType.DefendSystem:               DoDefendSystem(FleetTask);               break;
+                case MilitaryTask.TaskType.DefendClaim:                DoClaimDefense(FleetTask);               break;
+                case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask);        break;
+                case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask);                break;
+                case MilitaryTask.TaskType.AssaultPirateBase:          DoAssaultPirateBase(FleetTask);          break;
+                case MilitaryTask.TaskType.RemnantEngagement:          DoRemnantEngagement(FleetTask);          break;
+                case MilitaryTask.TaskType.DefendVsRemnants:           DoDefendVsRemnant(FleetTask);            break;
+                case MilitaryTask.TaskType.GuardBeforeColonize:        DoPreColonizationGuard(FleetTask);       break;
             }
         }
 
@@ -799,6 +800,7 @@ namespace Ship_Game.Fleets
                     OrderFleetOrbit(target);
                     break; // Change in task step is done from Remnant goals
                 case 8: // Go back to portal, this step is set from the Remnant goal
+                    ClearOrders();
                     GatherAtAO(task, 500);
                     TaskStep = 9;
                     break;
@@ -806,7 +808,7 @@ namespace Ship_Game.Fleets
                     if (!ArrivedAtCombatRally(FinalPosition, 50000))
                         break;
 
-                    TaskStep = 10;
+                    TaskStep = 10; // Goal will wait for fleet to be in this task to disband it.
                     break;
             }
         }
@@ -833,6 +835,31 @@ namespace Ship_Game.Fleets
             starDateEta = (Empire.Universe.StarDate + turnsToTarget / 10).RoundToFractionOf10();
 
             return starDateEta.Greater(0);
+        }
+
+        void DoPreColonizationGuard(MilitaryTask task)
+        {
+            if (EndInvalidTask(task.TargetPlanet.Owner != null))
+            {
+                ClearOrders();
+                return;
+            }
+
+            switch (TaskStep)
+            {
+                case 1:
+                    GatherAtAO(task, 500);
+                    TaskStep = 2;
+                    break;
+                case 2:
+                    if (!ArrivedAtCombatRally(task.AO, 20000))
+                        break;
+
+                    TaskStep = 3;
+                    break;
+            }
+
+            OrderFleetOrbit(task.TargetPlanet);
         }
 
         void DoDefendVsRemnant(MilitaryTask task)
@@ -1148,7 +1175,7 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void ClearOrders()
+        public void ClearOrders()
         {
             for (int i = 0; i < Ships.Count; i++)
             {
