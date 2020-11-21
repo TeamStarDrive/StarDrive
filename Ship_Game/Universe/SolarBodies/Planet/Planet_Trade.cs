@@ -203,12 +203,7 @@ namespace Ship_Game
 
         public void RemoveFromOutgoingFreighterList(Ship ship)
         {
-            for (int i = 0; i < OutgoingFreighters.Count; i++)
-            {
-                var freight = OutgoingFreighters[i];
-                if (freight == ship)
-                    OutgoingFreighters.RemoveAt(i);
-            }
+            OutgoingFreighters.Remove(ship);
         }
 
         private void RemoveInvalidFreighters(Array<Ship> freighters)
@@ -284,7 +279,7 @@ namespace Ship_Game
             for (int i = 0; i < IncomingFreighters.Count; i++)
             {
                 Ship freighter = IncomingFreighters[i];
-                if (freighter.Active && freighter.AI.HasTradeGoal(goods))
+                if (freighter?.Active == true && freighter.AI.HasTradeGoal(goods))
                    numGoods += freighter.CheckExpectedGoods(goods);
             }
 
