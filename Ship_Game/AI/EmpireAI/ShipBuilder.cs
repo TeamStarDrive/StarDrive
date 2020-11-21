@@ -193,12 +193,12 @@ namespace Ship_Game.AI
             return freighter;
         }
 
-        public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense)
+        public static float GetModifiedStrength(int shipSize, int numOffensiveSlots, float offense, float defense)
         {
-            float weaponRatio = (float)numWeaponSlots / shipSize;
+            float offenseRatio = (float)numOffensiveSlots / shipSize;
             float modifiedStrength;
 
-            if (defense > offense && weaponRatio < 0.2f)
+            if (defense > offense && offenseRatio < 0.2f)
                 modifiedStrength = offense * 2;
             else
                 modifiedStrength = offense + defense;

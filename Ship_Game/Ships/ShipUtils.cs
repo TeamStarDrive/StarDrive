@@ -17,7 +17,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < shields.Length; i++)
             {
                 ShipModule shield = shields[i];
-                if (shield.Active)
+                if (shield.Active && shield.Powered)
                 {
                     shield.UpdateShieldPowerMax(shieldAmplify);
                     shieldMax += shield.ActualShieldPowerMax;
@@ -41,7 +41,7 @@ namespace Ship_Game.Ships
             for (int i = 0; i < amplifiers.Length; i++)
             {
                 ShipModule amplifier = amplifiers[i];
-                if (amplifier.Active)
+                if (amplifier.Active && amplifier.Powered)
                     totalAmplifyPower += amplifier.AmplifyShields;
             }
 
