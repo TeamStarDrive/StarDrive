@@ -54,6 +54,7 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.PaidBy(TargetEmpire))
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
+                Pirates.TryLevelUp();
                 Pirates.ResetThreatLevelFor(TargetEmpire);
                 Pirates.Owner.SignTreatyWith(TargetEmpire, Gameplay.TreatyType.NonAggression);
             }
