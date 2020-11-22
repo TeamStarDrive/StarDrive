@@ -250,6 +250,20 @@ namespace Ship_Game.AI.Tasks
                 Step = 1;
         }
 
+        void RequisitionGuardBeforeColonize()
+        {
+            if (AO.AlmostZero())
+                Log.Error($"no area of operation set for task: {type}");
+
+            AO closestAO = FindClosestAO(EnemyStrength);
+            if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
+                return;
+
+            InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
+            if (CreateTaskFleet("Pre-Colonization Force", 0.1f, false) == RequisitionStatus.Complete)
+                Step = 1;
+        }
+
         void RequisitionAssaultPirateBase()
         {
             if (AO.AlmostZero())
