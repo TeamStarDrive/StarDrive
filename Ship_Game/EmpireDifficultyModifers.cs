@@ -94,7 +94,7 @@
                     PiratePayModifier    = 0.75f;
                     ExpansionMultiplier  = 0.75f;
                     MinStartingColonies  = 4;
-                    ExpandSearchTurns    = 75;
+                    ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 480;
                     RemnantResourceMod   = 0.35f;
                     RemnantNumBombers    = 0.75f;
@@ -113,7 +113,7 @@
                     PiratePayModifier    = 1f;
                     ExpansionMultiplier  = 0.25f;
                     MinStartingColonies  = 5;
-                    ExpandSearchTurns    = 50;
+                    ExpandSearchTurns    = 25;
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.45f;
                     RemnantNumBombers    = 1f;
@@ -143,7 +143,7 @@
                     PiratePayModifier    = 1.5f;
                     ExpansionMultiplier  = 0.1f;
                     MinStartingColonies  = 6;
-                    ExpandSearchTurns    = 25;
+                    ExpandSearchTurns    = 10;
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.6f;
                     RemnantNumBombers    = 1.5f;
@@ -163,12 +163,12 @@
 
             if (empire.isPlayer)
             {
-                BaseColonyGoals = 3;
+                BaseColonyGoals = 5;
             }
             else
             {
                 EconomicResearchStrategy strategy = ResourceManager.GetEconomicStrategy(empire.data.EconomicPersonality.Name);
-                BaseColonyGoals                   = (float)difficulty * 2.5f * strategy.ExpansionRatio;
+                BaseColonyGoals                   = (int)(difficulty+1) * 4f * strategy.ExpansionRatio;
             }
 
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
