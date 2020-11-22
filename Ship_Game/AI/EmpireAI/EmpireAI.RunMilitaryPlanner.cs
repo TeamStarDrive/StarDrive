@@ -168,6 +168,11 @@ namespace Ship_Game.AI
                 (task.type == MilitaryTask.TaskType.DefendClaim || task.type == MilitaryTask.TaskType.Exploration));
         }
 
+        public int GetNumClaimTasks()
+        {
+            return TaskList.Filter(t => t.type == MilitaryTask.TaskType.DefendClaim).Length;
+        }
+
         public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)
         {
             militaryTask = null;
