@@ -427,8 +427,7 @@ namespace Ship_Game.AI
 
         public bool UpdateAllPins(Empire owner)
         {
-            if (PendingThreadActions.NotEmpty || UpdateTimer-- > 0) return false;
-            UpdateTimer = UpdateTickTimerReset + owner.Id;
+            if (PendingThreadActions.NotEmpty ) return false;
 
             ThreatMatrix threatCopy;
             using (PinsMutex.AcquireReadLock())
