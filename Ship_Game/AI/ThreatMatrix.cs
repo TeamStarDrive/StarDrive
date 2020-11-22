@@ -31,6 +31,7 @@ namespace Ship_Game.AI
             [Serialize(6)] public Guid PinGuid;
             [XmlIgnore][JsonIgnore] public Ship Ship;
             [XmlIgnore][JsonIgnore] public SolarSystem System;
+            
             public Pin(Ship ship, bool inBorders)
             {
                 Position   = ship.Center;
@@ -95,11 +96,16 @@ namespace Ship_Game.AI
             public Guid GetGuid() => Ship?.guid ?? PinGuid;
         }
 
-        public ThreatMatrix(){}
+        public ThreatMatrix(Empire empire)
+        {
+            Owner = empire;
+        }
+        Empire Owner;
 
-        public ThreatMatrix(Dictionary<Guid,Pin> matrix)
+        public ThreatMatrix(Dictionary<Guid,Pin> matrix, Empire empire)
         {
             Pins = new Map<Guid, Pin>(matrix);
+            Owner = empire;
         }
         // not sure we need this.
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
@@ -109,7 +115,6 @@ namespace Ship_Game.AI
         int UpdateTickTimerReset = 1 ;
 
         [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingThreadActions = new SafeQueue<Action>();
-        [XmlIgnore][JsonIgnore] readonly Array<Action> PendingGameThreadActions = new Array<Action>();
 
         public Pin[] PinValues
         {
@@ -375,6 +380,32 @@ namespace Ship_Game.AI
             return str;
         }
 
+        public float AnyEnemies(Vector2 position, float radius, Empire us, bool netStrength = false, bool hostileOnly = false)
+        {
+            float str = 0f;
+            Pin[] pins = GetPins();
+            for (int i = 0; i < pins.Length; i++)
+            {
+                Pin pin = pins[i];
+                if (pin?.Position.InRadius(position, radius) == true)
+                {
+                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                    if (!hostileOnly)
+                    {
+                        str += us.IsEmpireAttackable(pinEmpire) ? pin.Strength : 0;
+                    }
+                    else
+                    {
+                        str += us.IsEmpireHostile(pinEmpire) ? pin.Strength : 0;
+                    }
+
+                    if (netStrength)
+                        str -= pinEmpire == us ? pin.Strength : 0;
+                }
+            }
+
+            return str;
+        }
 
         public Array<Pin> GetEnemyPinsInAO(AO ao, Empire us) => GetEnemyPinsInRadius(ao.Center, ao.Radius, us);
         public Array<Pin> GetEnemyPinsInRadius(Vector2 position, float radius, Empire us)
@@ -433,7 +464,7 @@ namespace Ship_Game.AI
             using (PinsMutex.AcquireReadLock())
             {
                 var pins = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
-                threatCopy = new ThreatMatrix(pins);
+                threatCopy = new ThreatMatrix(pins, owner);
             }
 
             var ships      = owner.GetShips().Clone();
