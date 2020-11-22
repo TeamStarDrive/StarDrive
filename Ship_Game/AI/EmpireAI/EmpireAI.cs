@@ -27,7 +27,7 @@ namespace Ship_Game.AI
         public string EmpireName;
         public DefensiveCoordinator DefensiveCoordinator;
         public BatchRemovalCollection<Goal> Goals            = new BatchRemovalCollection<Goal>();
-        public ThreatMatrix ThreatMatrix                     = new ThreatMatrix();
+        public ThreatMatrix ThreatMatrix;                     
         public Array<AO> AreasOfOperations                   = new Array<AO>();
         public Array<int> UsedFleets                         = new Array<int>();
         public float Toughnuts = 0;
@@ -39,6 +39,7 @@ namespace Ship_Game.AI
         {
             EmpireName                = e.data.Traits.Name;
             OwnerEmpire               = e;
+            ThreatMatrix              = new ThreatMatrix(e);
             DefensiveCoordinator      = new DefensiveCoordinator(e);
             OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
             TechChooser               = new Research.ChooseTech(e);
