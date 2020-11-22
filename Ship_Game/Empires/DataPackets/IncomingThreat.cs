@@ -11,11 +11,14 @@ namespace Ship_Game.Empires.DataPackets
     {
         public SolarSystem TargetSystem { get; private set; }
         public float ThreatTimer { get; private set; }
-        const float ThreatResetTime = 5;
+        const float ThreatResetTime = 1;
         public bool ThreatTimedOut => ThreatTimer <= 0;
         bool Notified;
         public float Strength { get; private set; } = 0;
         Fleet[] Fleets;
+        public Fleet NearestFleet { get; private set; }
+        public float ThreatDistance { get; private set; }
+        public float PulseTime { get; private set; } = 5;
 
         public Empire[] Enemies => Fleets?.FilterSelect(f => f != null, f=>f.Owner);
 
@@ -40,8 +43,14 @@ namespace Ship_Game.Empires.DataPackets
 
         public void UpdateTimer(FixedSimTime simTime)
         {
-            ThreatTimer -= simTime.FixedTime;
-            if (ThreatTimedOut) Fleets = null;
+            ThreatTimer      -= simTime.FixedTime;
+            if (ThreatTimedOut) {Fleets = null; return; }
+
+            NearestFleet      = Fleets.FindMin(f => f.AveragePosition().SqDist(TargetSystem.Position));
+            ThreatDistance    = NearestFleet.AveragePosition().Distance(TargetSystem.Position);
+            PulseTime        -= simTime.FixedTime;
+            
+            if (PulseTime <= 0) PulseTime = 1;
         }
     }
 }

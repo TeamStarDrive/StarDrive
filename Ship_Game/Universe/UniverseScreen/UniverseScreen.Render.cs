@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -277,6 +278,24 @@ namespace Ship_Game
                             spacing++;
                         }
                     }
+                }
+                foreach (IncomingThreat threat in player.SystemWithThreat)
+                {
+                    if (threat.ThreatTimedOut) continue;
+
+                    var system = threat.TargetSystem;
+                    float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f );
+
+                    var red = new Color(Color.Red, 40);
+                    var black = new Color(Color.Black, 40);
+
+                    DrawCircleProjected(system.Position, pulseRad, red, 10);
+                    DrawCircleProjected(system.Position, pulseRad * 1.001f, black, 5);
+                    DrawCircleProjected(system.Position, pulseRad * 1.3f, red, 10);
+                    DrawCircleProjected(system.Position, pulseRad * 1.301f, black, 5);
+
+                    //batch.DrawCircle(system.Position, pulseRad, new Color(Color.Red, 255 - 255 * threat.PulseTime), pulseRad);
+                    //batch.DrawCircle(system.Position, pulseRad, new Color(Color.Red, 40 * threat.PulseTime), pulseRad);
                 }
             }
             DrawOverFog.Stop();
