@@ -2644,7 +2644,7 @@ namespace Ship_Game
 
         void CheckFederationVsPlayer()
         {
-            if (Universe.StarDate < 1050f || (Universe.StarDate % 1).NotZero() || GlobalStats.PreventFederations)
+            if (Universe.StarDate < 1100f || (Universe.StarDate % 1).NotZero() || GlobalStats.PreventFederations)
                 return;
 
             float playerScore    = TotalScore;
@@ -2654,7 +2654,7 @@ namespace Ship_Game
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
             float biggestAIScore = biggestAI?.TotalScore ?? playerScore;
 
-            if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 1.5f || aiEmpires.Length < 2)
+            if (playerScore < allEmpireScore / 2 || playerScore < biggestAIScore * 2 || aiEmpires.Length < 2)
                 return;
 
             var leaders = new Array<Empire>();
