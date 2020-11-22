@@ -14,7 +14,7 @@ namespace Ship_Game
     {
         static readonly Color FleetLineColor    = new Color(255, 255, 255, 20);
         static readonly Vector2 FleetNameOffset = new Vector2(10f, -6f);
-
+        public static float PulseTimer { get; private set; }
 
         private void DrawRings(GraphicsDevice device, in Matrix world, float scale)
         {
@@ -363,6 +363,9 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             DrawPerf.Start();
+
+            PulseTimer -= elapsed.RealTime.Seconds;
+            if (PulseTimer < 0) PulseTimer = 1;
 
             lock (GlobalStats.BeamEffectLocker)
             {
