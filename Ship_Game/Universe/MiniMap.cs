@@ -233,7 +233,7 @@ namespace Ship_Game
                                 intensity += 0.001f;
                             }
                             if (planet.SpaceCombatNearPlanet) combat = true;
-                            if (!combat && system.OwnerList.Contains(Player) && system.HostileForcesPresent(Player)) warning = true;
+                            //if (!combat && system.OwnerList.Contains(Player) && system.DangerousForcesPresent(Player)) warning = true;
                         }
                     }
                     float nodeRad = WorldToMiniRadius(node.Radius);
