@@ -233,6 +233,10 @@ namespace Ship_Game
                                 intensity += 0.001f;
                             }
                             if (planet.SpaceCombatNearPlanet) combat = true;
+                            else
+                            {
+                                empire.GetEmpireAI().ThreatMatrix.PingHostileStr(planet.ParentSystem.Position, planet.ParentSystem.Radius, empire);
+                            }
                             //if (!combat && system.OwnerList.Contains(Player) && system.DangerousForcesPresent(Player)) warning = true;
                         }
                     }
