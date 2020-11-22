@@ -44,23 +44,42 @@ namespace Ship_Game.AI.ExpansionAI
             return list;
         }
 
-        int DesiredColonyGoals
+        int DesiredColonyGoals()
         {
-            get
-            {
-                float baseColonyGoals = Owner.DifficultyModifiers.BaseColonyGoals;
-                if (Owner.isPlayer) 
-                    return (int)baseColonyGoals; // BaseColonyGoals for player
+            float goals = Owner.DifficultyModifiers.BaseColonyGoals;
+            if (Owner.isPlayer) 
+                return (int)goals; // BaseColonyGoals for player
 
-                float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
-                int plusGoals   = Owner.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
-                float goals     = (float)Math.Round(baseValue + baseColonyGoals + plusGoals, 0);
-                return (int)goals.Clamped(1f, 8f);
-            }
+            goals += Owner.data.DiplomaticPersonality.Territorialism / 100f 
+                     + Owner.data.DiplomaticPersonality.Opportunism
+                     + ExpansionRatio;
+
+            if (Owner.IsCybernetic)
+                goals += 2;
+
+            goals += GoalsModifierByRank();
+            return (int)goals;
         }
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
         float ExpansionThreshold => (Owner.IsExpansionists ? 0.2f : 0.33f) * Owner.DifficultyModifiers.ExpansionMultiplier;
+        float ExpansionRatio     => ResourceManager.GetEconomicStrategy(Owner.data.EconomicPersonality.Name).ExpansionRatio;
+
+        int GoalsModifierByRank() // increase goals if we are behind other empires
+        {
+            if (Empire.Universe.StarDate < 1002)
+                return 0;
+
+            float modifier = 0;
+            var empires = EmpireManager.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
+            for (int i = 0; 0 < empires.Length; i++)
+            {
+                if (empires[i] == Owner)
+                    return (int)(i * Owner.DifficultyModifiers.ColonyGoalMultiplier);
+            }
+
+            return 0;
+        }
 
         public ExpansionPlanner(Empire empire)
         {
@@ -79,28 +98,26 @@ namespace Ship_Game.AI.ExpansionAI
             if (Owner.isPlayer && !Owner.AutoColonize)
                 return;
 
-            Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
-            int colonizationGoalsWithEnemy    = currentColonizationGoals.Count(
-                p => p.ParentSystem.DangerousForcesPresent(Owner));
-
-            // Adds 1 more goal if we are stuck with all colonization goals with enemy
-            int desiredGoals = colonizationGoalsWithEnemy >= DesiredColonyGoals
-                ? (colonizationGoalsWithEnemy + 1).UpperBound(DesiredColonyGoals * 2)
-                : DesiredColonyGoals;
-
-            if ( currentColonizationGoals.Length >= desiredGoals)
-                return;
-
-            float ownerStrength       = Owner.OffensiveStrength;
-            int ourPlanets            = Owner.GetPlanets().Count;
-
-            if (!Owner.isPlayer && PopulationRatio < ExpansionThreshold 
-                && ourPlanets >= Owner.DifficultyModifiers.MinStartingColonies)
+            int ourPlanetsNum = Owner.GetPlanets().Count;
+            if (!Owner.isPlayer && PopulationRatio < ExpansionThreshold
+                && ourPlanetsNum >= Owner.DifficultyModifiers.MinStartingColonies)
             {
                 return; // We have not reached our pop capacity threshold (for AI only) 
             }
+            
+            Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
+            int claimTasks                    = Owner.GetEmpireAI().GetNumClaimTasks(); 
 
-            Log.Info(ConsoleColor.Magenta,$"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
+            // Adds 1 more goal if we are stuck with all colonization goals with enemy
+            int desiredGoals = DesiredColonyGoals();
+            if (claimTasks >= desiredGoals)
+                desiredGoals = (claimTasks + 1).UpperBound(desiredGoals * 2);
+
+            if (currentColonizationGoals.Length >= desiredGoals)
+                return;
+
+            Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
+            float ownerStrength  = Owner.OffensiveStrength;
             var ownedSystems     = Owner.GetOwnedSystems();
             var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
                                                                          && !s.IsOwnedBy(Owner)
@@ -154,7 +171,7 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 Planet planet = RankedPlanets[i].Planet;
                 Log.Info(ConsoleColor.Magenta,
-                    $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals} | {planet} | {Owner}");
+                    $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals()} | {planet} | {Owner}");
 
                 Goals.Add(new MarkForColonization(planet, Owner));
                 netDesired--;
