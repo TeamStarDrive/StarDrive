@@ -55,7 +55,7 @@ namespace Ship_Game.AI.ExpansionAI
                 float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
                 int plusGoals   = Owner.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
                 float goals     = (float)Math.Round(baseValue + baseColonyGoals + plusGoals, 0);
-                return (int)goals.Clamped(1f, 5f);
+                return (int)goals.Clamped(1f, 8f);
             }
         }
 
