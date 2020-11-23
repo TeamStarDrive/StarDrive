@@ -381,6 +381,9 @@ namespace Ship_Game.AI.Tasks
             EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(center,
                                radius, Owner, true).LowerBound(100);
 
+            if (EnemyStrength.AlmostEqual(100) && TargetShip != null)
+                EnemyStrength += TargetShip.BaseStrength;
+
             MinimumTaskForceStrength = EnemyStrength + buildingsSpaceOffense;
             float multiplier = Owner.GetTargetsStrMultiplier(targetGuid);
 

@@ -180,9 +180,10 @@ namespace Ship_Game.Commands.Goals
                 return ReturnToPortal();
 
             if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Cleared enemy at target planet
-                    return GoalStep.TryAgain;
+                return GoalStep.TryAgain;
 
-            if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
+
+            if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal) && !Remnants.FindValidTarget(Portal, out TargetEmpire))
                 return ReturnToPortal();
 
             if (TargetPlanet == null)
