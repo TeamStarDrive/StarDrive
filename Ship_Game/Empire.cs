@@ -3371,8 +3371,8 @@ namespace Ship_Game
             return distance;
         }
 
-        int ResetBorderTicks = 0;
-        int ResetBorderTicksReset =5;
+        int ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
+        const int ResetThreatMatrixTicks =5;
         
         public void UpdateContactsAndBorders(FixedSimTime timeStep)
         {
@@ -3385,10 +3385,10 @@ namespace Ship_Game
                 PopulateKnownShips();
             }
 
-            if (--ResetBorderTicks < 0)
+            if (--ThreatMatrixUpdateTicks < 0)
             {
-                EmpireAI.ThreatMatrix.UpdateAllPins(this);
-                ResetBorderTicks = ResetBorderTicksReset;
+                Parallel.Run(()=> EmpireAI.ThreatMatrix.UpdateAllPins(this));
+                ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
             }
         }
 
