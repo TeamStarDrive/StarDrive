@@ -160,43 +160,30 @@ namespace Ship_Game
                 batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, radius , SpriteEffects.None, 1f);
             }
 
-            //var pins = Player.GetEmpireAI().ThreatMatrix.FilterPins(p =>
-            //{
-            //return (p.Ship.IsPlatformOrStation || p.System != null) && p.Strength > 0 && Player.IsEmpireHostile(p.GetEmpire());
-            //});
-            //if (pins.NotEmpty)
             foreach (var system in Screen.SolarSystemDict)
             {
                 if (!system.Value.IsExploredBy(Player) || !system.Value.DangerousForcesPresent(Player) || system.Value.OwnerList.Count > 0) continue;
                 var pin = system.Value;
-
-                //var points = pins.GroupBy(p => WorldToMiniPos(p.Position)).Keys;
-                //foreach(var pin in pins)
-                {
-                    var point = WorldToMiniPos(pin.Position);
-                    radius = 0.025f * pulseTime;
-                    var color = Color.Yellow;
-                    batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime , SpriteEffects.None, 1f);
-                    batch.Draw(Node1, point, color, 0f, Node.CenterF, radius * pulseTime - 0.0055f, SpriteEffects.None, 1f);
-                    batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime - 0.0055f * 2, SpriteEffects.None, 1f);
-                }
+                var point = WorldToMiniPos(pin.Position);
+                radius = 0.025f * pulseTime;
+                var color = Color.Yellow;
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, color, 0f, Node.CenterF, radius * pulseTime - 0.0055f, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime - 0.0055f * 2,
+                    SpriteEffects.None, 1f);
             }
 
             var badBases = Player.GetEmpireAI().ThreatMatrix.GetAllHostileBases();
             foreach(ThreatMatrix.Pin badBase in badBases)
             {
                 var pin = badBase;
-
-                //var points = pins.GroupBy(p => WorldToMiniPos(p.Position)).Keys;
-                //foreach(var pin in pins)
-                {
-                    var point = WorldToMiniPos(pin.Position);
-                    radius = 0.025f * pulseTime;
-                    var color = Color.Yellow;
-                    batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime, SpriteEffects.None, 1f);
-                    batch.Draw(Node1, point, color, 0f, Node.CenterF, radius * pulseTime - 0.0055f, SpriteEffects.None, 1f);
-                    batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime - 0.0055f * 2, SpriteEffects.None, 1f);
-                }
+                var point = WorldToMiniPos(pin.Position);
+                radius = 0.025f * pulseTime;
+                var color = Color.Yellow;
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, color, 0f, Node.CenterF, radius * pulseTime - 0.0055f, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime - 0.0055f * 2,
+                    SpriteEffects.None, 1f);
             }
         }
 
