@@ -864,9 +864,8 @@ namespace Ship_Game.Fleets
 
         void DoDefendVsRemnant(MilitaryTask task)
         {
-            if (EndInvalidTask(task.TargetPlanet.Owner != Owner ||
-                               !EmpireManager.Remnants.Remnants.Goals
-                                   .Any(g => g.Fleet?.FleetTask?.TargetPlanet == task.TargetPlanet)))
+            if (EndInvalidTask(TaskStep == 3 && (task.TargetPlanet.Owner != Owner 
+                               || !EmpireManager.Remnants.Remnants.Goals.Any(g => g.Fleet?.FleetTask?.TargetPlanet == task.TargetPlanet))))
             {
                 ClearOrders();
                 return;
@@ -1108,8 +1107,8 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                ship.AI.SetPriorityOrder(false);
                 ship.OrderToOrbit(planet);
+                ship.AI.SetPriorityOrder(false);
             }
         }
 
