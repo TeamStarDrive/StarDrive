@@ -407,6 +407,69 @@ namespace Ship_Game.AI
             return str;
         }
 
+
+        public bool AnyThreatInSystem(SolarSystem system)
+        {
+            var b = FindAnyPin(p =>
+            {
+            if (p.Ship.loyalty.WeArePirates && p.Ship.System == system && p.Strength > 0 && Owner.IsEmpireHostile(p.GetEmpire()))
+                    return true;
+            return false;
+
+            });
+            if (b == null) 
+                return false;
+            return true;
+        }
+
+        public Array<Pin> GetAllHostileBases()
+        {
+            return FilterPins(p => p.Ship.IsPlatformOrStation && p.System == null && Owner.IsEmpireHostile(p.GetEmpire()));
+        }
+
+        public SolarSystem[] GetAllSystemsWithHostiles(Predicate<Pin> predicate)
+        {
+            using (PinsMutex.AcquireReadLock())
+                return Pins.GroupByFiltered(p => p.Value.System,
+                    p =>
+                    {
+                        return p.Value.System != null && p.Value.System == null && Owner.IsEmpireHostile(p.Value.GetEmpire());
+                    }).Keys.ToArray();
+        }
+
+        public Pin FindAnyPin(Predicate<Pin> predicate)
+        {
+            using (PinsMutex.AcquireReadLock())
+            {
+                var pins = Pins.AtomicValuesArray();
+
+                for (int i = 0; i < pins.Length; i++)
+                {
+                    var pin = pins[i];
+                    if (predicate(pin)) return pin;
+                }
+            }
+            return null;
+        }
+
+        public Array<Pin> FilterPins(Predicate<Pin> predicate)
+        {
+            var foundPins = new Array<Pin>();
+            using (PinsMutex.AcquireReadLock())
+            {
+                var pins = Pins.AtomicValuesArray();
+
+                for (int i = 0; i < pins.Length; i++)
+                {
+                    var pin = pins[i];
+                    if (predicate(pin))
+                        foundPins.Add(pin);
+                }
+            }
+            return foundPins;
+        }
+
+
         public Array<Pin> GetEnemyPinsInAO(AO ao, Empire us) => GetEnemyPinsInRadius(ao.Center, ao.Radius, us);
         public Array<Pin> GetEnemyPinsInRadius(Vector2 position, float radius, Empire us)
         {
@@ -459,20 +522,23 @@ namespace Ship_Game.AI
         public bool UpdateAllPins(Empire owner)
         {
             if (PendingThreadActions.NotEmpty ) return false;
-
+            
             ThreatMatrix threatCopy;
             using (PinsMutex.AcquireReadLock())
             {
                 var pins = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
                 threatCopy = new ThreatMatrix(pins, owner);
             }
-
+            //var sy2s = Pins.FilterValues(p => p.System == null && p.Ship.System?.Name.Contains("Mil") == true);
             var ships      = owner.GetShips().Clone();
-            var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
             ships.AddRange(owner.GetProjectors());
 
-            foreach (var empire in EmpireManager.GetAllies(owner))
+            var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
+            
+            var array = EmpireManager.GetAllies(owner);
+            for (int i = 0; i < array.Count; i++)
             {
+                var empire = array[i];
                 ships.AddRange(empire.GetShips());
                 ships.AddRange(empire.GetProjectors());
             }
@@ -492,32 +558,31 @@ namespace Ship_Game.AI
                 }
             }
 
-            // separate pins with ships unseen ships.
+            // separate seen pins with pin.ship that arent seen. 
             foreach (var kv in threatCopy.Pins)
             {
-                var ship = kv.Value?.Ship;
-                if (ship?.dying == false && ship.Active &&
-                    ship.KnownByEmpires.KnownBy(owner))
+                var pinShip = kv.Value?.Ship;
+                // not dead or dying and seen
+                if (pinShip?.dying == false && pinShip.Active &&
+                    pinShip.KnownByEmpires.KnownBy(owner))
                 {
-                    if (ship.loyalty != owner && !owner.IsAlliedWith(ship.loyalty))
-                        threatCopy.AddOrUpdatePin(ship, ship.IsInBordersOf(owner), true);
+                    if (pinShip.loyalty != owner && !owner.IsAlliedWith(pinShip.loyalty))
+                        threatCopy.AddOrUpdatePin(pinShip, pinShip.IsInBordersOf(owner), true);
                 }
                 else
                     pinsWithNotSeenShips.Add(kv);
             }
-
-            // remove seen pins with not seen ships. 
+           // var sys = Pins.FilterValues(p => p.System == null && p.Ship.System?.Name.Contains("Mil") == true);
+            
+            // remove seen pins with pin.ship that arent seen. 
             for (int i = 0; i < ships.Count; i++)
             {
                 var ship = ships[i];
+                if (ship?.Active != true) continue;
                 for (int x = 0; x < pinsWithNotSeenShips.Count; x++)
                 {
                     var pin = pinsWithNotSeenShips[x];
                     if (pin.Value?.Ship?.Active != true)
-                    {
-                        threatCopy.Pins.Remove(pin.Key);
-                    }
-                    else if (!pin.Value.Ship.Active)
                     {
                         threatCopy.Pins.Remove(pin.Key);
                     }
@@ -527,7 +592,21 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            PendingThreadActions.Enqueue(()=> this.Pins = threatCopy.Pins);
+            using (PinsMutex.AcquireWriteLock())
+                Pins = threatCopy.Pins;
+
+            //var PinsWithSystems = Pins.FilterValues(p => p.System != null && p.Ship.System?.Name.Contains("Mil") == true);
+            
+            //Empire.Universe.RunOnEmpireThread(() =>
+
+            //    {
+            //        var oldPinsWithSystems = Pins.FilterValues(p => p.System == null && p.Ship.System?.Name.Contains("Mil") == true);
+                    
+            //           var test = threatCopy.Pins;
+
+            //        var newPinsWithSystems = threatCopy.Pins.FilterValues(p => p.System != null && p.Ship.System?.Name.Contains("Mil") == true);
+
+            //    });
             return true;
         }
 

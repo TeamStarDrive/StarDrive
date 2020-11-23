@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Empires.DataPackets;
 using Ship_Game.Gameplay;
@@ -154,19 +155,49 @@ namespace Ship_Game
                 var system            = threat.TargetSystem;
                 Vector2 miniSystemPos = WorldToMiniPos(system.Position);
                 float pulseRad = radius + ringRad;
-
-                //batch.DrawCircle(miniSystemPos, pulseRad, new Color(Color.Red, 255 - 255 * pulseTime), pulseRad);
-                //batch.DrawCircle(system.Position, pulseRad, new Color(Color.Red, 40 * pulseTime), pulseTime);
-
-                //batch.Draw(Node1, miniSystemPos, Color.Black, 0f, Node.CenterF, radius * pulseTime, SpriteEffects.None, 1f);
                 batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, pulseRad + 0.009f, SpriteEffects.None, 1f);
                 batch.Draw(Node1, miniSystemPos, Color.Black, 0f, Node.CenterF, pulseRad + 0.002f, SpriteEffects.None, 1f);
                 batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, radius , SpriteEffects.None, 1f);
-                
-                //batch.Draw(Node1, miniSystemPos, Color.Black, 0f, Node.CenterF, radius * pulseTime, SpriteEffects.None, 1f);
-
             }
 
+            //var pins = Player.GetEmpireAI().ThreatMatrix.FilterPins(p =>
+            //{
+            //return (p.Ship.IsPlatformOrStation || p.System != null) && p.Strength > 0 && Player.IsEmpireHostile(p.GetEmpire());
+            //});
+            //if (pins.NotEmpty)
+            foreach (var system in Screen.SolarSystemDict)
+            {
+                if (!system.Value.IsExploredBy(Player) || !system.Value.DangerousForcesPresent(Player) || system.Value.OwnerList.Count > 0) continue;
+                var pin = system.Value;
+
+                //var points = pins.GroupBy(p => WorldToMiniPos(p.Position)).Keys;
+                //foreach(var pin in pins)
+                {
+                    var point = WorldToMiniPos(pin.Position);
+                    radius = 0.025f * pulseTime;
+                    var color = Color.Yellow;
+                    batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime , SpriteEffects.None, 1f);
+                    batch.Draw(Node1, point, color, 0f, Node.CenterF, radius * pulseTime - 0.0055f, SpriteEffects.None, 1f);
+                    batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime - 0.0055f * 2, SpriteEffects.None, 1f);
+                }
+            }
+
+            var badBases = Player.GetEmpireAI().ThreatMatrix.GetAllHostileBases();
+            foreach(ThreatMatrix.Pin badBase in badBases)
+            {
+                var pin = badBase;
+
+                //var points = pins.GroupBy(p => WorldToMiniPos(p.Position)).Keys;
+                //foreach(var pin in pins)
+                {
+                    var point = WorldToMiniPos(pin.Position);
+                    radius = 0.025f * pulseTime;
+                    var color = Color.Yellow;
+                    batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime, SpriteEffects.None, 1f);
+                    batch.Draw(Node1, point, color, 0f, Node.CenterF, radius * pulseTime - 0.0055f, SpriteEffects.None, 1f);
+                    batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius * pulseTime - 0.0055f * 2, SpriteEffects.None, 1f);
+                }
+            }
         }
 
         void DrawSelected(SpriteBatch batch, Empire empire)
@@ -195,8 +226,6 @@ namespace Ship_Game
 
                 batch.Draw(Node1, nodePos, new Color(Color.Black, (byte)(255 * quickPulseTime)), 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 batch.Draw(Node1, nodePos, new Color(Color.LightGray, (byte)(255 * quickPulseTime)), 0f, Node.CenterF, radius * quickPulseTime, SpriteEffects.None, 1f);
-
-
             }
         }
 
@@ -232,12 +261,10 @@ namespace Ship_Game
                                 combat = true;
                                 intensity += 0.001f;
                             }
-                            if (planet.SpaceCombatNearPlanet) combat = true;
-                            else
+                            else if (planet.SpaceCombatNearPlanet)
                             {
-                                empire.GetEmpireAI().ThreatMatrix.PingHostileStr(planet.ParentSystem.Position, planet.ParentSystem.Radius, empire);
+                                combat = true;
                             }
-                            //if (!combat && system.OwnerList.Contains(Player) && system.DangerousForcesPresent(Player)) warning = true;
                         }
                     }
                     float nodeRad = WorldToMiniRadius(node.Radius);
@@ -250,9 +277,8 @@ namespace Ship_Game
                         warning = !combat;
                         float radius = Math.Max(0.02f, nodeRad) * pulseTime;
                         var color = warning ? Color.Yellow : Color.Red;
-                        //batch.Draw(Node1, nodePos, ec, 0f, Node.CenterF, radius * pulseTime, SpriteEffects.None, 1f);
                         batch.Draw(Node1, nodePos, Color.Black, 0f, Node.CenterF, radius * pulseTime - intensity, SpriteEffects.None, 1f);
-                        batch.Draw(Node1, nodePos, Color.Red, 0f, Node.CenterF, radius * pulseTime,SpriteEffects.None, 1f);
+                        batch.Draw(Node1, nodePos, color, 0f, Node.CenterF, radius * pulseTime,SpriteEffects.None, 1f);
                         batch.Draw(Node1, nodePos, Color.Black, 0f, Node.CenterF, radius * pulseTime - intensity * 2, SpriteEffects.None, 1f);
                     }
                     
