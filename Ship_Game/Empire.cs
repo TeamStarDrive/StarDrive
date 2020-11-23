@@ -3387,7 +3387,7 @@ namespace Ship_Game
 
             if (--ThreatMatrixUpdateTicks < 0)
             {
-                EmpireAI.ThreatMatrix.UpdateAllPins(this);
+                Parallel.Run(()=> EmpireAI.ThreatMatrix.UpdateAllPins(this));
                 ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
             }
         }
