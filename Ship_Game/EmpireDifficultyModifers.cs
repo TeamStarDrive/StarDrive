@@ -5,6 +5,7 @@
         public readonly int SysComModifier;
         public readonly int DiploWeightVsPlayer;
         public readonly float BaseColonyGoals;
+        public readonly float ColonyGoalMultiplier; // Multiplier to the colony goals by rank
         public readonly float ShipBuildStrMin;
         public readonly float ShipBuildStrMax;
         public readonly int ColonyRankModifier;
@@ -40,7 +41,7 @@
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
-            DataVisibleToPlayer = false;
+            DataVisibleToPlayer   = false;
             FlatMoneyBonus        = 0;
             ProductionMod         = 0;
             ResearchMod           = 0;
@@ -68,7 +69,9 @@
                     ExpandSearchTurns    = 100;
                     RemnantTurnsLevelUp  = 540;
                     RemnantResourceMod   = 0.2f;
-                    RemnantNumBombers    = 0.5f; 
+                    RemnantNumBombers    = 0.5f;
+                    BaseColonyGoals      = 2;
+                    ColonyGoalMultiplier = 0;
 
                     if (!empire.isPlayer)
                     {
@@ -98,6 +101,8 @@
                     RemnantTurnsLevelUp  = 480;
                     RemnantResourceMod   = 0.35f;
                     RemnantNumBombers    = 0.75f;
+                    BaseColonyGoals      = 3;
+                    ColonyGoalMultiplier = 0.5f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -117,6 +122,8 @@
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.45f;
                     RemnantNumBombers    = 1f;
+                    BaseColonyGoals      = 4;
+                    ColonyGoalMultiplier = 0.75f;
 
                     if (!empire.isPlayer)
                     {
@@ -147,6 +154,8 @@
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.6f;
                     RemnantNumBombers    = 1.5f;
+                    BaseColonyGoals      = 5;
+                    ColonyGoalMultiplier = 1;
 
                     if (!empire.isPlayer)
                     {
@@ -161,26 +170,18 @@
                     break;
             }
 
-            if (empire.isPlayer)
-            {
-                BaseColonyGoals = 5;
-            }
-            else
-            {
-                EconomicResearchStrategy strategy = ResourceManager.GetEconomicStrategy(empire.data.EconomicPersonality.Name);
-                BaseColonyGoals                   = (int)(difficulty+1) * 4f * strategy.ExpansionRatio;
-            }
-
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
             DiploWeightVsPlayer = (int)difficulty + 1;
             Anger               = 1 + ((int)difficulty + 1) * 0.2f;
 
             if (empire.isPlayer)
             {
+                BaseColonyGoals    = 5;
                 ShipBuildStrMin    = 1f;
                 ShipBuildStrMax    = 1f;
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
+
                 if (GlobalStats.FixedPlayerCreditCharge && difficulty > UniverseData.GameDifficulty.Easy)
                     CreditsMultiplier = 0.2f;
             }

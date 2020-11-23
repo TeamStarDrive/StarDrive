@@ -144,7 +144,7 @@ namespace Ship_Game
         void CheckHibernation() // Start Hibernation some time before leveling up
         {
             float hibernationDate = (NextLevelUpDate - NeededHibernationTurns / 10f).RoundToFractionOf10();
-            if (Empire.Universe.StarDate.RoundToFractionOf10().AlmostEqual(hibernationDate))
+            if (Empire.Universe.StarDate.AlmostEqual(hibernationDate))
                 HibernationTurns = NeededHibernationTurns;
         }
 
