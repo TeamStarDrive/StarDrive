@@ -529,7 +529,7 @@ namespace Ship_Game.AI
                 var pins = Pins.ToDictionary(key=> key.Key, pin=> pin.Value);
                 threatCopy = new ThreatMatrix(pins, owner);
             }
-            //var sy2s = Pins.FilterValues(p => p.System == null && p.Ship.System?.Name.Contains("Mil") == true);
+
             var ships      = owner.GetShips().Clone();
             ships.AddRange(owner.GetProjectors());
 
@@ -572,7 +572,6 @@ namespace Ship_Game.AI
                 else
                     pinsWithNotSeenShips.Add(kv);
             }
-           // var sys = Pins.FilterValues(p => p.System == null && p.Ship.System?.Name.Contains("Mil") == true);
             
             // remove seen pins with pin.ship that arent seen. 
             for (int i = 0; i < ships.Count; i++)
@@ -594,7 +593,7 @@ namespace Ship_Game.AI
             }
             using (PinsMutex.AcquireWriteLock())
                 Pins = threatCopy.Pins;
-
+            // threat matrix testing. 
             //var PinsWithSystems = Pins.FilterValues(p => p.System != null && p.Ship.System?.Name.Contains("Mil") == true);
             
             //Empire.Universe.RunOnEmpireThread(() =>
