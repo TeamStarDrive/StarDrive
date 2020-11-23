@@ -62,7 +62,7 @@ namespace Ship_Game.AI.ExpansionAI
         }
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
-        float ExpansionThreshold => (Owner.IsExpansionists ? 0.2f : 0.33f) * Owner.DifficultyModifiers.ExpansionMultiplier;
+        float ExpansionThreshold => (Owner.IsExpansionists ? 0.1f : 0.15f) * Owner.DifficultyModifiers.ExpansionMultiplier;
         float ExpansionRatio     => ResourceManager.GetEconomicStrategy(Owner.data.EconomicPersonality.Name).ExpansionRatio;
 
         int GoalsModifierByRank() // increase goals if we are behind other empires
@@ -72,13 +72,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             float modifier = 0;
             var empires = EmpireManager.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
-            for (int i = 0; 0 < empires.Length; i++)
-            {
-                if (empires[i] == Owner)
-                    return (int)(i * Owner.DifficultyModifiers.ColonyGoalMultiplier);
-            }
-
-            return 0;
+            return (int)(empires.IndexOf(Owner) * Owner.DifficultyModifiers.ColonyGoalMultiplier);
         }
 
         public ExpansionPlanner(Empire empire)
