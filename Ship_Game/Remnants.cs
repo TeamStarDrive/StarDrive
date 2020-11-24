@@ -296,9 +296,9 @@ namespace Ship_Game
             return bestEmpire.TotalScore > averageScore * 1.25f ? bestEmpire : null;
         }
 
-        public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, out Ship ship)
+        public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, float neededStr, out Array<Ship> ships)
         {
-            ship = null;
+            ships = new Array<Ship>();
             if (portal.System == null)
                 return false;
 
@@ -307,19 +307,30 @@ namespace Ship_Game
                                                                     && s.IsGuardian
                                                                     && !s.IsPlatformOrStation
                                                                     && !s.InCombat);
-            if (availableShips.Length > 0)
-                if (bombersNeeded > 0)
+            if (availableShips.Length == 0)
+                return false;
+
+            if (bombersNeeded > 0)
+            {
+                var bombers = availableShips.Filter(s => s.DesignRole == ShipData.RoleName.bomber);
+                if (bombers.Length > 0)
+                    ships = bombers.Take(bombersNeeded).ToArrayList();
+            }
+            else
+            {
+                float totalStr = 0;
+                var nonBombers = availableShips.Filter(s => s.DesignRole != ShipData.RoleName.bomber);
+                for (int i = 0; i < nonBombers.Length; i++)
                 {
-                    var bombers = availableShips.Filter(s => s.DesignRole == ShipData.RoleName.bomber);
-                    if (bombers.Length > 0)
-                        ship = bombers.First();
+                    Ship s = nonBombers[i];
+                    ships.Add(s);
+                    totalStr += s.BaseStrength;
+                    if (totalStr > neededStr)
+                        break;
                 }
-                else if (availableShips.Length <= 60 || RollDice(50)) // if there are too many ship, 50% to not assign
-                {
-                    ship = availableShips.RandItem();
-                }
+            }
             
-            return ship != null;
+            return ships.Count > 0;
         }
 
         public int NumShipsInFleet(Fleet fleet)

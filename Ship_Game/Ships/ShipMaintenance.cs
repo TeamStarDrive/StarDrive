@@ -9,7 +9,7 @@ namespace Ship_Game.Ships
 
         private static bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire, Ship ship)
         {
-            return ship.shipData.ShipStyle == "Remnant"
+            return ship.loyalty.WeAreRemnants
                    || empire?.data == null
                    || ship.loyalty.data.PrototypeShip == ship.Name
                    || (ship.Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
@@ -44,7 +44,7 @@ namespace Ship_Game.Ships
         private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, float surfaceArea, Empire empire)
         {
             bool realism = GlobalStats.ActiveModInfo != null
-                           && GlobalStats.ActiveModInfo.useProportionalUpkeep;
+                           && GlobalStats.ActiveModInfo.UseProportionalUpkeep;
 
             float maint = realism ? shipCost * MaintModifierRealism : surfaceArea * MaintModifierBySize;
 
