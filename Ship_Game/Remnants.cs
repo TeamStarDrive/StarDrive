@@ -330,7 +330,7 @@ namespace Ship_Game
                 }
             }
             
-            return ships != null;
+            return ships.Count > 0;
         }
 
         public int NumShipsInFleet(Fleet fleet)

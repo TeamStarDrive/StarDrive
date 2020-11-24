@@ -894,13 +894,8 @@ namespace Ship_Game.Fleets
                     if (!ArrivedAtCombatRally(task.AO, GetRelativeSize().Length() / 2))
                         break;
 
-                    TaskStep = 3;
+                    TaskStep = 3; // Defend till death!
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
-                    break;
-                case 3:
-                    if (!CanTakeThisFight(task.EnemyStrength))
-                        FleetTask?.EndTask();
-
                     break;
             }
         }
