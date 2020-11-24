@@ -3,6 +3,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.AI.ShipMovement;
 using System;
+using Microsoft.Xna.Framework.Graphics;
 using static Ship_Game.AI.ShipAI;
 using static Ship_Game.AI.ShipAI.TargetParameterTotals;
 using SynapseGaming.LightingSystem.Shadows;
@@ -53,66 +54,71 @@ namespace Ship_Game.AI
             // target is threat. 
             // target is objective
 
-            Vector2 center = Owner.fleet?.AveragePosition() ?? Owner.AI.FriendliesSwarmCenter;
-            Ship target            = weight.Ship;
-            float theirDps         = target.TotalDps;
-            float distanceToTarget = center.Distance(weight.Ship.Center).LowerBound(1);
-            float errorRatio       = (target.Radius - Owner.MaxWeaponError) / target.Radius;
-            bool inTheirRange      = distanceToTarget < target.WeaponsMaxRange;
-            bool inOurRange        = distanceToTarget < Owner.WeaponsMaxRange;
+            Vector2 friendlyCenter = Owner.fleet != null ? Owner.FleetOffset : Owner.AI.FriendliesSwarmCenter;
+            Ship target = weight.Ship;
+            float theirDps = target.TotalDps;
+            float distanceToTarget = Owner.Center.Distance(weight.Ship.Center).LowerBound(1);
+            float distanceToMass = friendlyCenter.Distance(targetPrefs.Center);
+            float enemyMassDistance = Owner.Center.Distance(targetPrefs.Center);
+            float errorRatio = 1 - (target.Radius - Owner.MaxWeaponError) / target.Radius;
+            bool inTheirRange = distanceToTarget < target.WeaponsMaxRange;
+            bool inOurRange = distanceToTarget < Owner.WeaponsMaxRange;
 
             // more agile than us the less they are valued. 
-            float turnRatio = 0;
-            if (target.RotationRadiansPerSecond > 0 && Owner.RotationRadiansPerSecond > 0)
-                turnRatio = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond) / Owner.RotationRadiansPerSecond;
+            float turnRatio = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond).Clamped(-1, 1);
+            float stlRatio = (Owner.MaxSTLSpeed - target.MaxSTLSpeed).Clamped(-1,0);
+            float errorValue = ((Owner.MaxWeaponError * 2) - target.Radius / 8).Clamped(-1, 1);
+            float massDPSValue = (target.TotalDps - targetPrefs.DPS).Clamped(-1, 1);
+            float targetDPSValue = (Owner.TotalDps - target.TotalDps) > 0 ? -1 : 0;
+            float massTargetValue = (distanceToMass - distanceToTarget) > 0 ? 1 : -1;
+            float ownerTargetValue = (Owner.WeaponsMaxRange - distanceToTarget) > 0 ? 1 : 0;
 
-            float stlRatio = 0;
-            if (Owner.MaxSTLSpeed > 0)
-                stlRatio = (Owner.MaxSTLSpeed - target.MaxSTLSpeed) / Owner.MaxSTLSpeed;
-
-            float baseThreat = theirDps / targetPrefs.DPS.LowerBound(1);
-            baseThreat += turnRatio;
-            baseThreat += stlRatio;
-            baseThreat += errorRatio;
-
-            float weaponsRange = Owner.WeaponsMaxRange * 2;
             float targetValue = 0;
-
-            if (inTheirRange || inOurRange)
-            {
-                targetValue = baseThreat;
-                targetValue += weight.Ship.AI.Target == Owner ? 0.25f : 0;
-                targetValue += weight.Ship == Owner.LastDamagedBy ? 0.25f : 0;
-                targetValue += 0.25f;
-
-            }
-            else
-            {
-                targetValue += turnRatio + stlRatio + errorRatio;
-                //if (weaponsRange > 0)
-                //    targetValue += (float)Math.Round((weaponsRange - distanceToTarget) / weaponsRange, 1);
-            }
-
-            float rangeToEnemyCenter = 0;
             Ship motherShip = Owner.Mothership ?? Owner.AI.EscortTarget;
             if (motherShip != null)
             {
-                targetValue += target.AI.Target == motherShip ? 0.1f : 0;
-                targetValue += motherShip.AI.Target == target ? 0.1f : 0;
-                targetValue += motherShip.LastDamagedBy == target ? 0.25f : 0;
-                targetValue += motherShip.Center.InRadius(target.Center, target.WeaponsMaxRange) ? 0.1f :0;
-                rangeToEnemyCenter = Math.Abs(motherShip.Center.Distance(targetPrefs.Center) - motherShip.Center.Distance(target.Center));
-                float rangeValue = (float)Math.Round(1 - rangeToEnemyCenter / motherShip.WeaponsMaxRange.LowerBound(1000), 1);
-                targetValue += rangeValue;
+                bool targetingMothership = target.AI.Target == motherShip;
+                bool targetOfMothership = target == motherShip.AI.Target;
+                bool damagingMotherShip = motherShip.LastDamagedBy == target;
+                float motherShipDistanceValue = (motherShip.Center.Distance(target.Center) - distanceToTarget).Clamped(-1, 1);
+
+                targetValue += motherShipDistanceValue;
+                switch (Owner.shipData.HangarDesignation)
+                {
+                    case ShipData.HangarOptions.General:
+                        break;
+                    case ShipData.HangarOptions.AntiShip:
+                        {
+                            targetValue += targetOfMothership ? 1 : 0;
+                            break;
+                        }
+                    case ShipData.HangarOptions.Interceptor:
+                        {
+                            targetValue += targetingMothership ? 1 : 0;
+                            targetValue += damagingMotherShip ? 1 : 0;
+                            targetValue += target.Mothership != null ? 1 : 0;
+                            targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
+                            break;
+                        }
+                    default:
+                        break;
+                }
             }
-            else
-            {
-                rangeToEnemyCenter = center.Distance(targetPrefs.Center);
-                float rangeValue   = (float)Math.Round(1 - rangeToEnemyCenter / Owner.WeaponsMaxRange.LowerBound(1000), 1);
-                targetValue       += rangeValue;
-            }
-            
+            targetValue += turnRatio;
+            targetValue += stlRatio;
+            targetValue += errorValue;
+            targetValue += massDPSValue;
+            targetValue += targetDPSValue;
+            targetValue += massTargetValue;
+            targetValue += ownerTargetValue;
+            targetValue += inTheirRange ? 1 : 0;
+            targetValue += inOurRange ? 1 : 0;
+            targetValue += target == Owner.AI.Target ? 0.5f : 0;
             targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
+            targetValue += target.AI.State == AIState.Resupply ? -1 : 0;
+            targetValue += target.Mothership != null ? -1 : 0;
+            targetValue += target.HomePlanet != null ? -1 : 0;
+            targetValue += target.MaxSTLSpeed == 0 ? -1 : 0;
 
             weight.SetWeight(targetValue);
 
@@ -120,6 +126,9 @@ namespace Ship_Game.AI
                 Log.Error($"ship weight NaN for {weight.Ship}");
             if (float.IsInfinity(weight.Weight))
                 Log.Error($"ship weight infinite for {weight.Ship}");
+            Vector2 debugOffset = new Vector2(target.Radius + 50);
+            if (Empire.Universe.SelectedShip == Owner)
+                Empire.Universe.DebugWin?.DrawText(target.Center + debugOffset, $"TargetValue : {targetValue.ToString()}", Color.Yellow, 0.1f);
             return weight;
         }
 
