@@ -30,8 +30,14 @@ namespace Ship_Game.AI
             [Serialize(5)] public Guid SystemGuid = Guid.Empty;
             [Serialize(6)] public Guid PinGuid;
             [XmlIgnore][JsonIgnore] public Ship Ship;
-            [XmlIgnore][JsonIgnore] public SolarSystem System;
+            [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
             
+            public void SetSystem(SolarSystem system)
+            {
+                SystemGuid = system?.guid ?? Guid.Empty;
+                System     = system;
+            }
+
             public Pin(Ship ship, bool inBorders)
             {
                 Position   = ship.Center;
@@ -39,9 +45,8 @@ namespace Ship_Game.AI
                 EmpireName = ship.loyalty.data.Traits.Name;
                 InBorders  = inBorders;
                 Ship       = ship;
-                SystemGuid = ship.System?.guid ?? Guid.Empty;
-                System     = ship.System;
                 PinGuid    = ship.guid;
+                SetSystem(ship.System);
             }
 
             public Pin(){}
@@ -73,9 +78,9 @@ namespace Ship_Game.AI
                     Strength   = ship.GetStrength();
                     EmpireName = ship.loyalty.data.Traits.Name;
                     EmpireId   = ship.loyalty.Id;
-                    System     = ship.System;
-                    SystemGuid = ship.System?.guid ?? Guid.Empty;
                     InBorders  = shipInBorders;
+                    var system = ship.System;
+                    SetSystem(system);
                 }
                 Ship = ship;
             }
@@ -101,6 +106,13 @@ namespace Ship_Game.AI
             Owner = empire;
         }
         Empire Owner;
+
+        Pin[] KnownBases = new Pin[0];
+        SolarSystem[] KnownSystemsWithEnemies = new SolarSystem[0];
+
+        public Pin[] GetKnownBases() => KnownBases;
+
+        public SolarSystem[] GetHostileSystems() => KnownSystemsWithEnemies;
 
         public ThreatMatrix(Dictionary<Guid,Pin> matrix, Empire empire)
         {
@@ -424,16 +436,16 @@ namespace Ship_Game.AI
 
         public Array<Pin> GetAllHostileBases()
         {
-            return FilterPins(p => p.Ship.IsPlatformOrStation && p.System == null && Owner.IsEmpireHostile(p.GetEmpire()));
+            return FilterPins(p => p.Ship.IsPlatformOrStation && Owner.IsEmpireHostile(p.GetEmpire()));
         }
 
-        public SolarSystem[] GetAllSystemsWithHostiles(Predicate<Pin> predicate)
+        public SolarSystem[] GetAllSystemsWithHostiles()
         {
             using (PinsMutex.AcquireReadLock())
                 return Pins.GroupByFiltered(p => p.Value.System,
                     p =>
                     {
-                        return p.Value.System != null && p.Value.System == null && Owner.IsEmpireHostile(p.Value.GetEmpire());
+                        return p.Value.System != null && p.Value.GetEmpire().isFaction  && Owner.IsEmpireHostile(p.Value.GetEmpire());
                     }).Keys.ToArray();
         }
 
@@ -591,16 +603,22 @@ namespace Ship_Game.AI
                     }
                 }
             }
+
+
             using (PinsMutex.AcquireWriteLock())
+            {
                 Pins = threatCopy.Pins;
+            }
+            KnownBases = GetAllHostileBases().ToArray();
+            KnownSystemsWithEnemies = GetAllSystemsWithHostiles();
             // threat matrix testing. 
             //var PinsWithSystems = Pins.FilterValues(p => p.System != null && p.Ship.System?.Name.Contains("Mil") == true);
-            
+
             //Empire.Universe.RunOnEmpireThread(() =>
 
             //    {
             //        var oldPinsWithSystems = Pins.FilterValues(p => p.System == null && p.Ship.System?.Name.Contains("Mil") == true);
-                    
+
             //           var test = threatCopy.Pins;
 
             //        var newPinsWithSystems = threatCopy.Pins.FilterValues(p => p.System != null && p.Ship.System?.Name.Contains("Mil") == true);
