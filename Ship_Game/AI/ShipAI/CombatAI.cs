@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using Ship_Game.AI.ShipMovement;
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Debug;
 using static Ship_Game.AI.ShipAI;
 using static Ship_Game.AI.ShipAI.TargetParameterTotals;
 using SynapseGaming.LightingSystem.Shadows;
@@ -129,9 +130,12 @@ namespace Ship_Game.AI
                 Log.Error($"ship weight NaN for {weight.Ship}");
             if (float.IsInfinity(weight.Weight))
                 Log.Error($"ship weight infinite for {weight.Ship}");
-            Vector2 debugOffset = new Vector2(target.Radius + 50);
-            if (Empire.Universe.SelectedShip == Owner)
-                Empire.Universe.DebugWin?.DrawText(target.Center + debugOffset, $"TargetValue : {targetValue.ToString()}", Color.Yellow, 0.1f);
+            
+            if (Empire.Universe.SelectedShip == Owner && Empire.Universe.DebugWin != null)
+            {
+                Vector2 debugOffset = new Vector2(target.Radius + 50);
+                Empire.Universe.DebugWin?.DrawText(DebugModes.Targeting, target.Center + debugOffset, $"TargetValue : {targetValue.ToString()}", Color.Yellow, 0.1f);
+            }
             return weight;
         }
 
