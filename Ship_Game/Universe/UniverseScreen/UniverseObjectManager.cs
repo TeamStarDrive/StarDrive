@@ -291,9 +291,6 @@ namespace Ship_Game
             
             SysPerf.Start();
 
-            for (int i = 0; i < ships.Count; ++i)
-                ships[i].SetSystem(null);
-
             void UpdateSystems(int start, int end)
             {
                 for (int i = start; i < end; ++i)
@@ -309,11 +306,13 @@ namespace Ship_Game
                     {
                         var ship = (Ship)shipsInSystem[j];
                         system.ShipList.Add(ship);
-                        ship.SetSystem(system);
+                        ship.SetSystemBackBuffer(system);
                         system.SetExploredBy(ship.loyalty);
                     }
                 }
             }
+            for (int i = 0; i < ships.Count; ++i)
+                ships[i].SetSystemFromBackBuffer();
 
             UpdateSystems(0, UniverseScreen.SolarSystemList.Count);
 
