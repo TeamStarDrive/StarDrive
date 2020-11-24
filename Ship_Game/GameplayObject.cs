@@ -30,6 +30,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
+        [XmlIgnore] [JsonIgnore] public SolarSystem SystemBackBuffer { get; private set; }
 
         // TODO: Position and Center are duplicates. One of them should be removed eventually.
         [Serialize(0)] public Vector2 Position;
@@ -105,6 +106,17 @@ namespace Ship_Game
         public void SetSystem(SolarSystem system)
         {
             System = system;
+        }
+        
+        public void SetSystemBackBuffer(SolarSystem system)
+        {
+            SystemBackBuffer = system;
+        }
+
+        public void SetSystemFromBackBuffer()
+        {
+            System           = SystemBackBuffer;
+            SystemBackBuffer = null;
         }
 
         public void ChangeLoyalty(Empire changeTo, bool notification = true)
