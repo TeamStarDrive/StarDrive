@@ -436,7 +436,7 @@ namespace Ship_Game.AI
 
         public Array<Pin> GetAllHostileBases()
         {
-            return FilterPins(p => p.Ship.IsPlatformOrStation && p.System == null && Owner.IsEmpireHostile(p.GetEmpire()));
+            return FilterPins(p => p.Ship.IsPlatformOrStation && Owner.IsEmpireHostile(p.GetEmpire()));
         }
 
         public SolarSystem[] GetAllSystemsWithHostiles()
@@ -445,7 +445,7 @@ namespace Ship_Game.AI
                 return Pins.GroupByFiltered(p => p.Value.System,
                     p =>
                     {
-                        return p.Value.System != null && p.Value.GetEmpire().isFaction && !p.Value.GetEmpire().WeArePirates && Owner.IsEmpireHostile(p.Value.GetEmpire());
+                        return p.Value.System != null && p.Value.GetEmpire().isFaction  && Owner.IsEmpireHostile(p.Value.GetEmpire());
                     }).Keys.ToArray();
         }
 
