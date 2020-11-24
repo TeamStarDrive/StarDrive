@@ -72,6 +72,12 @@ namespace Ship_Game.Fleets
             Name = index + suffix + " fleet";
         }
 
+        public void AddShips(Array<Ship> ships)
+        {
+            for (int i = 0; i < ships.Count; i++)
+                AddShip(ships[i]);
+        }
+
         public override void AddShip(Ship newShip)
         {
             if (newShip == null) // Added ship should never be null

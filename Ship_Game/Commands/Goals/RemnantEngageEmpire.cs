@@ -117,6 +117,23 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
+        void CreateFleet(Array<Ship> ships)
+        {
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                if (i == 0)
+                {
+                    var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, empire);
+                    empire.GetEmpireAI().AddPendingTask(task);
+                    task.CreateRemnantFleet(empire, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
+                    continue;
+                }
+
+                Fleet.AddShip(ship);
+            }
+        }
+
         GoalStep SelectFirstTargetPlanet()
         {
             return SelectTargetPlanet() ? GoalStep.GoToNextStep : GoalStep.GoalComplete;
@@ -137,22 +154,22 @@ namespace Ship_Game.Commands.Goals
             int numBombersInFleet = Remnants.NumBombersInFleet(Fleet);
             int missingBombers    = BombersLevel > 0 ? BombersLevel - numBombersInFleet : 0;
             int numShipsNoBombers = Remnants.NumShipsInFleet(Fleet) - numBombersInFleet;
-            if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, out Ship ship))
-                if (!Remnants.CreateShip(Portal, missingBombers > 0, numShipsNoBombers, out ship))
+            Ship singleShip       = null;
+            if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, RequiredFleetStr(), out Array<Ship> ships))
+                if (!Remnants.CreateShip(Portal, missingBombers > 0, numShipsNoBombers, out singleShip))
                     return GoalStep.TryAgain;
 
-            if (Fleet == null)
-            {
-                var task = MilitaryTask.CreateRemnantEngagement(TargetPlanet, empire);
-                empire.GetEmpireAI().AddPendingTask(task);
-                task.CreateRemnantFleet(empire, ship, $"Ancient Fleet - {TargetPlanet.Name}", out Fleet);
-            }
-            else
-            {
-                Fleet.AddShip(ship);
-            }
+            if (ships.Count == 0 && singleShip != null)
+                ships.Add(singleShip);
 
-            ship.AI.AddEscortGoal(Portal);
+            if (Fleet == null)
+                CreateFleet(ships);
+            else
+                Fleet.AddShips(ships);
+
+            for (int i = 0; i < ships.Count; i++)
+                ships[i].AI.AddEscortGoal(Portal);
+
             if (FleetStrNoBombers < RequiredFleetStr())
                 return GoalStep.TryAgain;
 
