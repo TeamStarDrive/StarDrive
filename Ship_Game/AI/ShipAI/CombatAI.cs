@@ -88,18 +88,24 @@ namespace Ship_Game.AI
                 switch (Owner.shipData.HangarDesignation)
                 {
                     case ShipData.HangarOptions.General:
-                        break;
+                    {
+                            targetValue += targetOfMothership ? 1 : 0;
+                            targetValue += targetingMothership ? 1 : 0;
+                            targetValue += damagingMotherShip ? 1 : 0;
+                            break;
+                    }
                     case ShipData.HangarOptions.AntiShip:
                         {
                             targetValue += targetOfMothership ? 1 : 0;
+                            targetValue += target.Mothership != null ? -1 : 0;
+                            targetValue += errorRatio < 0.2f ? errorRatio : 0;
                             break;
                         }
                     case ShipData.HangarOptions.Interceptor:
                         {
                             targetValue += motherShip.Carrier.AllFighterHangars.Any(h => h.HangarShipGuid == target.AI.Target.guid) ? 1 : 0;
                             targetValue += target.shipData.HangarDesignation == ShipData.HangarOptions.AntiShip ? 1 : 0;
-                            targetValue += targetingMothership ? 1 : 0;
-                            targetValue += damagingMotherShip ? 1 : 0;
+                            targetValue += errorRatio > 0.2f ? 1 : 0;
                             targetValue += target.Mothership != null ? 1 : 0;
                             targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
                             break;
@@ -117,12 +123,14 @@ namespace Ship_Game.AI
             targetValue += ownerTargetValue;
             targetValue += inTheirRange ? 1 : 0;
             targetValue += inOurRange ? 1 : 0;
-            targetValue += target == Owner.AI.Target ? 0.5f : 0;
+            targetValue += target == Owner.AI.Target ? 0.25f : 0;
             targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
             targetValue += target.AI.State == AIState.Resupply ? -1 : 0;
             targetValue += target.Mothership != null ? -1 : 0;
             targetValue += target.HomePlanet != null ? -1 : 0;
             targetValue += target.MaxSTLSpeed == 0 ? -1 : 0;
+            targetValue += target.LastDamagedBy == Owner ? 0.25f : 0;
+            targetValue += target.TotalDps < 1 ? -1 : 0;
 
             weight.SetWeight(targetValue);
 
