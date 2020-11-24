@@ -17,6 +17,9 @@ namespace Ship_Game
     {
         public InputState Input;
         bool OtherScreenHasFocus;
+        public float SlowFlashTimer { get; private set; } = 1;
+        public float NormalFlashTimer { get; private set; } =1;
+        public float FastFlashTimer { get; private set; } = 1;
 
         public bool IsActive => Enabled && !IsExiting && (!OtherScreenHasFocus || (GlobalStats.RestrictAIPlayerInteraction || System.Diagnostics.Debugger.IsAttached )) && 
             (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
@@ -237,6 +240,13 @@ namespace Ship_Game
                         : ScreenState.Active;
                 }
             }
+            SlowFlashTimer   -= elapsed.RealTime.Seconds / 4;            
+            NormalFlashTimer -= elapsed.RealTime.Seconds;
+            FastFlashTimer   -= elapsed.RealTime.Seconds * 2;
+
+            FastFlashTimer   = FastFlashTimer < elapsed.RealTime.Seconds ? 1 : FastFlashTimer;
+            NormalFlashTimer = NormalFlashTimer < elapsed.RealTime.Seconds ? 1 : NormalFlashTimer;
+            SlowFlashTimer   = SlowFlashTimer < elapsed.RealTime.Seconds ? 1 : SlowFlashTimer;
 
             DidLoadContent = false;
         }
