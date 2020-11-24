@@ -54,26 +54,27 @@ namespace Ship_Game.AI
             // target is threat. 
             // target is objective
 
-            Vector2 friendlyCenter = Owner.fleet != null ? Owner.FleetOffset : Owner.AI.FriendliesSwarmCenter;
-            Ship target = weight.Ship;
-            float theirDps = target.TotalDps;
-            float distanceToTarget = Owner.Center.Distance(weight.Ship.Center).LowerBound(1);
-            float distanceToMass = friendlyCenter.Distance(targetPrefs.Center);
+            Vector2 friendlyCenter  = Owner.fleet != null ? Owner.FleetOffset : Owner.AI.FriendliesSwarmCenter;
+            Ship target             = weight.Ship;
+            float theirDps          = target.TotalDps;
+            float distanceToTarget  = Owner.Center.Distance(weight.Ship.Center).LowerBound(1);
+            float distanceToMass    = friendlyCenter.Distance(targetPrefs.Center);
             float enemyMassDistance = Owner.Center.Distance(targetPrefs.Center);
-            float errorRatio = 1 - (target.Radius - Owner.MaxWeaponError) / target.Radius;
-            bool inTheirRange = distanceToTarget < target.WeaponsMaxRange;
-            bool inOurRange = distanceToTarget < Owner.WeaponsMaxRange;
+            float errorRatio        = 1 - (target.Radius - Owner.MaxWeaponError) / target.Radius;
+            bool inTheirRange       = distanceToTarget < target.WeaponsMaxRange;
+            bool inOurRange         = distanceToTarget < Owner.WeaponsMaxRange;
 
             // more agile than us the less they are valued. 
-            float turnRatio = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond).Clamped(-1, 1);
-            float stlRatio = (Owner.MaxSTLSpeed - target.MaxSTLSpeed).Clamped(-1,0);
-            float errorValue = ((Owner.MaxWeaponError * 2) - target.Radius / 8).Clamped(-1, 1);
-            float massDPSValue = (target.TotalDps - targetPrefs.DPS).Clamped(-1, 1);
-            float targetDPSValue = (Owner.TotalDps - target.TotalDps) > 0 ? -1 : 0;
-            float massTargetValue = (distanceToMass - distanceToTarget) > 0 ? 1 : -1;
+            float turnRatio        = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond).Clamped(-1, 1);
+            float stlRatio         = (Owner.MaxSTLSpeed - target.MaxSTLSpeed).Clamped(-1,0);
+            float errorValue       = ((Owner.MaxWeaponError * 2) - target.Radius / 8).Clamped(-1, 1);
+            float massDPSValue     = (target.TotalDps - targetPrefs.DPS).Clamped(-1, 1);
+            float targetDPSValue   = (Owner.TotalDps - target.TotalDps) > 0 ? -1 : 0;
+            float massTargetValue  = (distanceToMass - distanceToTarget) > 0 ? 1 : -1;
             float ownerTargetValue = (Owner.WeaponsMaxRange - distanceToTarget) > 0 ? 1 : 0;
 
             float targetValue = 0;
+
             Ship motherShip = Owner.Mothership ?? Owner.AI.EscortTarget;
             if (motherShip != null)
             {
@@ -94,6 +95,8 @@ namespace Ship_Game.AI
                         }
                     case ShipData.HangarOptions.Interceptor:
                         {
+                            targetValue += motherShip.Carrier.AllFighterHangars.Any(h => h.HangarShipGuid == target.AI.Target.guid) ? 1 : 0;
+                            targetValue += target.shipData.HangarDesignation == ShipData.HangarOptions.AntiShip ? 1 : 0;
                             targetValue += targetingMothership ? 1 : 0;
                             targetValue += damagingMotherShip ? 1 : 0;
                             targetValue += target.Mothership != null ? 1 : 0;
