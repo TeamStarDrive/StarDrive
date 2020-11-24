@@ -39,7 +39,7 @@ namespace Ship_Game
         public bool expandedWeaponCats;
         public bool overrideSecretsTree;
         public bool usePlanetaryProjection;
-        public bool useProportionalUpkeep;
+        public bool UseProportionalUpkeep;
         public bool reconDropDown;
         public bool ColoniserMenu;
 
