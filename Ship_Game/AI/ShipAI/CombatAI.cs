@@ -92,7 +92,7 @@ namespace Ship_Game.AI
                         }
                     case ShipData.HangarOptions.Interceptor:
                         {
-                            targetValue += motherShip.Carrier.AllFighterHangars.Any(h => h.HangarShipGuid == target.AI.Target.guid) ? 1 : 0;
+                            targetValue += motherShip.Carrier.AllFighterHangars.Any(h => h.HangarShipGuid == target.AI.Target?.guid) ? 1 : 0;
                             targetValue += target.shipData.HangarDesignation == ShipData.HangarOptions.AntiShip ? 1 : 0;
                             targetValue += errorRatio > 0.2f ? 1 : 0;
                             targetValue += target.Mothership != null ? 1 : 0;
