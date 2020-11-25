@@ -198,8 +198,6 @@ namespace Ship_Game
             var system        = Screen.SelectedSystem;
             Ship[] containsShip = Screen.SelectedShipList.AtomicCopy();
             var fleet         = Screen.SelectedFleet;
-            bool inCombat = false;
-            bool warning = false;
 
             Array<Vector2> centers = new Array<Vector2>();
 
@@ -213,7 +211,6 @@ namespace Ship_Game
             foreach (var center in centers)
             {
                 var nodePos = WorldToMiniPos(center);
-                float intensity = 0.003f;
 
                 batch.Draw(Node1, nodePos, new Color(Color.Black, (byte)(255 * quickPulseTime)), 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 batch.Draw(Node1, nodePos, new Color(Color.LightGray, (byte)(255 * quickPulseTime)), 0f, Node.CenterF, radius * quickPulseTime, SpriteEffects.None, 1f);
