@@ -51,10 +51,10 @@ namespace Ship_Game
             SelectedSystem = null;
             SelectedPlanet = null;
             snappingToShip = true;
-            CamDestination.Z = 3500f;
+            CamDestination.Z = GetZfromScreenState(UniverseScreen.UnivScreenState.DetailView);
             AdjustCamTimer = 1.0f;
             transitionElapsedTime = 0.0f;
-            CamDestination.Z = 4500f;
+            CamDestination.Z = GetZfromScreenState(UniverseScreen.UnivScreenState.PlanetView); ;
             snappingToShip = true;
             ViewingShip = true;
         }
