@@ -50,7 +50,7 @@ namespace Ship_Game.AI
             float distanceToTarget  = Owner.Center.Distance(weight.Ship.Center).LowerBound(1);
             float distanceToMass    = friendlyCenter.Distance(targetPrefs.Center);
             float enemyMassDistance = Owner.Center.Distance(targetPrefs.Center);
-            float errorRatio        = 1 - (target.Radius - Owner.MaxWeaponError) / target.Radius;
+            float errorRatio        = 0.5f - (target.Radius - Owner.MaxWeaponError) / target.Radius;
             bool inTheirRange       = distanceToTarget < target.WeaponsMaxRange;
             bool inOurRange         = distanceToTarget < Owner.WeaponsMaxRange;
 
@@ -59,9 +59,9 @@ namespace Ship_Game.AI
             float stlRatio         = (Owner.MaxSTLSpeed - target.MaxSTLSpeed).Clamped(-1,0);
             float errorValue       = ((Owner.MaxWeaponError * 2) - target.Radius / 8).Clamped(-1, 1);
             float massDPSValue     = (target.TotalDps - targetPrefs.DPS).Clamped(-1, 1);
-            float targetDPSValue   = (Owner.TotalDps - target.TotalDps) > 0 ? -1 : 0;
-            float massTargetValue  = (distanceToMass - distanceToTarget) > 0 ? 1 : -1;
-            float ownerTargetValue = (Owner.WeaponsMaxRange - distanceToTarget) > 0 ? 1 : 0;
+            float targetDPSValue   = Owner.TotalDps < target.TotalDps  ? -1 : 0;
+            float massTargetValue  = distanceToMass < distanceToTarget ? 1 : -1;
+            float ownerTargetValue = Owner.WeaponsMaxRange < distanceToTarget  ? 1 : 0;
 
             float targetValue = 0;
 
@@ -77,12 +77,12 @@ namespace Ship_Game.AI
                 switch (Owner.shipData.HangarDesignation)
                 {
                     case ShipData.HangarOptions.General:
-                    {
+                        {
                             targetValue += targetOfMothership ? 1 : 0;
                             targetValue += targetingMothership ? 1 : 0;
                             targetValue += damagingMotherShip ? 1 : 0;
                             break;
-                    }
+                        }
                     case ShipData.HangarOptions.AntiShip:
                         {
                             targetValue += targetOfMothership ? 1 : 0;
@@ -115,12 +115,12 @@ namespace Ship_Game.AI
             targetValue += inTheirRange ? 1 : 0;
             targetValue += inOurRange ? 1 : 0;
             targetValue += target == Owner.AI.Target ? 0.25f : 0;
+            targetValue += target.LastDamagedBy == Owner ? 0.25f : 0;
             targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
             targetValue += target.AI.State == AIState.Resupply ? -1 : 0;
             targetValue += target.Mothership != null ? -1 : 0;
             targetValue += target.HomePlanet != null ? -1 : 0;
             targetValue += target.MaxSTLSpeed == 0 ? -1 : 0;
-            targetValue += target.LastDamagedBy == Owner ? 0.25f : 0;
             targetValue += target.TotalDps < 1 ? -1 : 0;
 
             weight.SetWeight(targetValue);
@@ -134,6 +134,9 @@ namespace Ship_Game.AI
             {
                 Vector2 debugOffset = new Vector2(target.Radius + 50);
                 Empire.Universe.DebugWin?.DrawText(DebugModes.Targeting, target.Center + debugOffset, $"TargetValue : {targetValue.ToString()}", Color.Yellow, 0.1f);
+                Empire.Universe.DebugWin?.DrawText(targetPrefs.Center, $"Enemy Center", Color.Yellow, 0.1f);
+                Empire.Universe.DebugWin?.DrawText(friendlyCenter, $"FriendlyCenter", Color.Green, 0.1f);
+
             }
             return weight;
         }
