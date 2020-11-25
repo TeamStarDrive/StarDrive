@@ -190,7 +190,7 @@ namespace Ship_Game.AI
                     Size   = this.Size / count,
                     Speed  = this.Speed / count,
                     Health = this.Health / count,
-                    Center = this.Center / count
+                    Center = Vector2.Divide(this.Center, count)
                 };
                 return returnValue;
             }
@@ -284,8 +284,10 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (ScannedFriendlies.Count > 0)
-                FriendliesSwarmCenter /= ScannedFriendlies.Count;
+             if (ScannedFriendlies.Count > 0)
+            {
+                FriendliesSwarmCenter = Vector2.Divide(FriendliesSwarmCenter, ScannedFriendlies.Count + 1);
+            }
 
             if (Target is Ship target)
             {
