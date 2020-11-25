@@ -43,21 +43,10 @@ namespace Ship_Game.AI
 
         public ShipWeight ShipCommandTargeting(ShipWeight weight, TargetParameterTotals targetPrefs)
         {
-            // standard ship targeting:
-            // within max weapons range
-            // within desired range
-            // pirate scavenging
-            // Size desire / hit chance
-            // speed / turnrate difference
-            // damaged by
-
-            // Target of opportunity
-            // target is threat. 
-            // target is objective
+            // target prefs is a collection of averages from all targets. 
 
             Vector2 friendlyCenter  = Owner.fleet != null ? Owner.FleetOffset : Owner.AI.FriendliesSwarmCenter;
             Ship target             = weight.Ship;
-            float theirDps          = target.TotalDps;
             float distanceToTarget  = Owner.Center.Distance(weight.Ship.Center).LowerBound(1);
             float distanceToMass    = friendlyCenter.Distance(targetPrefs.Center);
             float enemyMassDistance = Owner.Center.Distance(targetPrefs.Center);
@@ -108,6 +97,8 @@ namespace Ship_Game.AI
                             targetValue += errorRatio > 0.2f ? 1 : 0;
                             targetValue += target.Mothership != null ? 1 : 0;
                             targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
+                            targetValue += target.DesignRoleType == ShipData.RoleType.EmpireSupport ? 1 : 0;
+                            targetValue += target.DesignRole == ShipData.RoleName.colony  ? 1 : 0;
                             break;
                         }
                     default:
