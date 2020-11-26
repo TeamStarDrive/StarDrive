@@ -380,14 +380,14 @@ namespace Ship_Game
                                                              new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
 
                 Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
-                Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
+                Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize * 1.25f, UniverseSize * 1.25f, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
                 univSizeOnScreen = univBotRight.X - univTopLeft.X;
                 if (univSizeOnScreen < (ScreenWidth + 50))
                     MaxCamHeight -= 0.1f * MaxCamHeight;
             }
 
-            if (MaxCamHeight > 11000000)
-                MaxCamHeight = 11000000;
+            if (MaxCamHeight > 15000000)
+                MaxCamHeight = 15000000;
 
             if (!loading)
             {
@@ -664,6 +664,9 @@ namespace Ship_Game
                 ShipsInCombat.Style = player.empireShipCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
                 return $"Ships: {player.empireShipCombat}";
             };
+            ShipsInCombat.Tooltip = "Cycle through ships not in fleet that are in combat";
+            ShipsInCombat.OnClick = ShipsInCombatClick;
+            Add(ShipsInCombat);
 
             PlanetsInCombat = ButtonMediumMenu(width - 135, height - 280, "Planets: 0");
             PlanetsInCombat.DynamicText = () =>
@@ -671,6 +674,32 @@ namespace Ship_Game
                 PlanetsInCombat.Style = player.empirePlanetCombat > 0 ? ButtonStyle.Medium : ButtonStyle.MediumMenu;
                 return $"Planets: {player.empirePlanetCombat}";
             };
+            PlanetsInCombat.OnClick = CyclePlanetsInCombat;
+            PlanetsInCombat.Tooltip = "Cycle through planets that are in combat";
+        }
+
+        void ShipsInCombatClick(UIButton b)
+        {
+            int nbrship = 0;
+            if (lastshipcombat >= player.empireShipCombat)
+                lastshipcombat = 0;
+            foreach (Ship ship in EmpireManager.Player.GetShips())
+            {
+                if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active)
+                    continue;
+                if (nbrship == lastshipcombat)
+                {
+                    if (SelectedShip != null && SelectedShip != previousSelection && SelectedShip != ship)
+                        previousSelection = SelectedShip;
+                    SelectedShip = ship;
+                    ViewToShip();
+                    SelectedShipList.Add(SelectedShip);
+                    lastshipcombat++;
+                    break;
+                }
+
+                nbrship++;
+            }
         }
 
         void CreateFogMap(Data.GameContentManager content, GraphicsDevice device, SurfaceFormat backBufferFormat)
