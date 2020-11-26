@@ -284,7 +284,7 @@ namespace Ship_Game.AI
                 }
             }
 
-             if (ScannedFriendlies.Count > 0)
+            if (ScannedFriendlies.Count > 0)
             {
                 FriendliesSwarmCenter = Vector2.Divide(FriendliesSwarmCenter, ScannedFriendlies.Count + 1);
             }
