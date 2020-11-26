@@ -43,7 +43,8 @@ namespace Ship_Game.AI
         PirateRaidProjector,
         RemnantEngagements,
         RemnantBalancersEngage,
-        RemnantInit
+        RemnantInit,
+        DefendVsRemnants
     }
 
     public enum GoalStep
@@ -168,6 +169,7 @@ namespace Ship_Game.AI
                 case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
                 case ScrapShip.ID:              return new ScrapShip();
                 case RearmShipFromPlanet.ID:    return new RearmShipFromPlanet();
+                case DefendVsRemnants.ID:       return new DefendVsRemnants();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
