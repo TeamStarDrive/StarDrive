@@ -357,7 +357,6 @@ namespace Ship_Game
             ExecuteShipSensorScans(ourShips, timeStep);
             var ourSSPs = ourEmpire.GetProjectors().ToArray();
             ExecuteShipSensorScans(ourSSPs, timeStep);
-
             ourEmpire.UpdateContactsAndBorders(timeStep);
         }
 
