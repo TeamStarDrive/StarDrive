@@ -162,20 +162,24 @@ namespace Ship_Game.AI
         public struct  TargetParameterTotals
         {
             // target characteristics 
-            public float Armor, Shield, DPS, Size, Speed, Health;
+            public float Armor, Shield, DPS, Size, Speed, Health, Largest, MostFirePower;
             public Vector2 Center;
 
             int count;
 
             public void AddTargetValue(Ship ship)
             {
+                Largest = Math.Max(Largest, ship.SurfaceArea);
+                MostFirePower = Math.Max(MostFirePower, ship.TotalDps);
+
                 Armor  += ship.armor_max;
                 Shield += ship.shield_max;
                 DPS    += ship.TotalDps;
                 Size   += ship.SurfaceArea;
                 Speed  += ship.MaxSTLSpeed;
                 Health += ship.HealthPercent;
-                Center += ship.Center;
+                if (ship.SurfaceArea >= Largest && ship.TotalDps >= MostFirePower)
+                    Center = ship.Center;
                 count++;
 
             }
@@ -189,8 +193,7 @@ namespace Ship_Game.AI
                     DPS    = this.DPS / count,
                     Size   = this.Size / count,
                     Speed  = this.Speed / count,
-                    Health = this.Health / count,
-                    Center = Vector2.Divide(this.Center, count)
+                    Health = this.Health / count
                 };
                 return returnValue;
             }
