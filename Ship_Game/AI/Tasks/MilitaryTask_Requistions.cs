@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using Ship_Game.Commands.Goals;
 
 namespace Ship_Game.AI.Tasks
 {
@@ -299,7 +300,10 @@ namespace Ship_Game.AI.Tasks
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
             EnemyStrength = MinimumTaskForceStrength;
             if (CreateTaskFleet("Defense Task Force", Completeness) == RequisitionStatus.Complete)
+            {
+                Owner.GetEmpireAI().Goals.Add(new DefendVsRemnants(TargetPlanet, TargetPlanet.Owner, Fleet));
                 Step = 1;
+            }
         }
 
         void RequisitionExplorationForce()

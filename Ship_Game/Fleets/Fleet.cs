@@ -894,7 +894,7 @@ namespace Ship_Game.Fleets
                     if (!ArrivedAtCombatRally(task.AO, GetRelativeSize().Length() / 2))
                         break;
 
-                    TaskStep = 3; // Defend till death!
+                    TaskStep = 3; // Defend till death (or until the DefenseVsRemnant goal redirects us)!
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
             }
