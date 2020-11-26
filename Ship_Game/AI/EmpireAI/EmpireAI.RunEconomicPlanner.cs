@@ -233,7 +233,6 @@ namespace Ship_Game.AI
             float risk = 0;
             float maxRisk = 0;
             int totalRels = 0;
-            int wars = 0;
             foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
             {
                 if (other.data.Defeated || !rel.Known) continue;
