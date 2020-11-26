@@ -157,6 +157,17 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
+        public MilitaryTask[] GetDefendVsRemnantTasks()
+        {
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendVsRemnants);
+        }
+
+        public MilitaryTask[] GetRemnantEngagementTasksFor(Planet p)
+        {
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.RemnantEngagement
+                                        && task.TargetPlanet == p);
+        }
+
         public MilitaryTask[] GetAssaultPirateTasks()
         {
             return TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase);
