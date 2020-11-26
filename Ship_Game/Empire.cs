@@ -440,7 +440,7 @@ namespace Ship_Game
         }
 
         public float KnownEnemyStrengthIn(SolarSystem system)
-                     => EmpireAI.ThreatMatrix.PingHostileStr(system.Position, system.Radius, this);
+                     => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p => p.Strength > 0);
         public float KnownEnemyStrengthIn(AO ao)
              => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
 

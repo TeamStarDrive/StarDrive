@@ -164,9 +164,9 @@ namespace Ship_Game
             }
 
             //foreach (var system in Screen.SolarSystemDict)
-            foreach (var system in Player.GetEmpireAI().ThreatMatrix.GetHostileSystems())
+            foreach (var system in Player.GetEmpireAI().ThreatMatrix.GetAllSystemsWithFactions())
             {
-                if (system.OwnerList.Count > 0) continue; //!system.IsExploredBy(Player) || !system.DangerousForcesPresent(Player)
+                if (system.OwnerList.Count > 0) continue;
                 var pin = system;
                 var point = WorldToMiniPos(pin.Position);
                 radius = 0.025f * Screen.SlowFlashTimer;
@@ -177,7 +177,7 @@ namespace Ship_Game
                     SpriteEffects.None, 1f);
             }
 
-            foreach (ThreatMatrix.Pin badBase in Player.GetEmpireAI().ThreatMatrix.GetKnownBases())
+            foreach (ThreatMatrix.Pin badBase in Player.GetEmpireAI().ThreatMatrix.GetAllFactionBases())
             {
                 var pin = badBase;
                 var point = WorldToMiniPos(pin.Position);
