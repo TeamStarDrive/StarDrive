@@ -238,8 +238,7 @@ namespace Ship_Game.AI.Tasks
             {
                 AO                    = TargetPlanet.Center;
                 requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
-                UpdateMinimumTaskForceStrength(TargetPlanet.Center, TargetPlanet.ParentSystem.Radius,
-                    TargetPlanet.guid, TargetPlanet.BuildingGeodeticOffense);
+                UpdateMinimumTaskForceStrength(TargetPlanet.ParentSystem, TargetPlanet.guid, TargetPlanet.BuildingGeodeticOffense);
             }
 
             if (requiredTroopStrength > 0) // If we need troops, we must have a minimum
@@ -280,7 +279,10 @@ namespace Ship_Game.AI.Tasks
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
                 return;
 
-            UpdateMinimumTaskForceStrength(TargetShip.Center, AORadius, TargetShip.guid);
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetShip.Center,
+                   40000, Owner, true).LowerBound(100);
+
+            UpdateMinimumTaskForceStrength(TargetShip.guid);
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
             if (CreateTaskFleet("Assault Fleet", Completeness, false) == RequisitionStatus.Complete)
                 Step = 1;
@@ -318,10 +320,12 @@ namespace Ship_Game.AI.Tasks
             }
 
             AO = TargetPlanet.Center;
-            float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
-            UpdateMinimumTaskForceStrength(TargetPlanet.Center, TargetPlanet.ParentSystem.Radius,
-                TargetPlanet.guid, buildingGeodeticOffense);
 
+            float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center,
+                               TargetPlanet.ParentSystem.Radius, Owner, true).LowerBound(100);
+
+            UpdateMinimumTaskForceStrength(TargetPlanet.guid, buildingGeodeticOffense);
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 40, minBombMinutes: 0);
             
             if (CreateTaskFleet("Exploration Force", Completeness * 0.2f, true) 
@@ -344,8 +348,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             AO            = TargetPlanet.Center;
-            UpdateMinimumTaskForceStrength(TargetPlanet.Center, TargetPlanet.ParentSystem.Radius,
-                TargetPlanet.guid, TargetPlanet.BuildingGeodeticOffense);
+            UpdateMinimumTaskForceStrength(TargetPlanet.ParentSystem, TargetPlanet.guid, TargetPlanet.BuildingGeodeticOffense);
 
             EnemyStrength = GetEnemyShipStrengthInAO() + TargetPlanet.BuildingGeodeticCount;
             InitFleetRequirements(MinimumTaskForceStrength.LowerBound(EnemyStrength), minTroopStrength: 100 ,minBombMinutes: 3);
@@ -369,8 +372,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             AO = TargetPlanet.Center;
-            UpdateMinimumTaskForceStrength(TargetPlanet.Center, TargetPlanet.ParentSystem.Radius,
-                TargetPlanet.guid, TargetPlanet.BuildingGeodeticOffense);
+            UpdateMinimumTaskForceStrength(TargetPlanet.ParentSystem, TargetPlanet.guid, TargetPlanet.BuildingGeodeticOffense);
 
             int bombTimeNeeded = (TargetPlanet.TotalDefensiveStrength / 5).LowerBound(5) + (int)Math.Ceiling(TargetPlanet.PopulationBillion) * 2;
             InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: bombTimeNeeded);
@@ -381,11 +383,14 @@ namespace Ship_Game.AI.Tasks
             }
         }
 
-        void UpdateMinimumTaskForceStrength(Vector2 center, float radius, Guid targetGuid, float buildingsSpaceOffense = 0)
+        void UpdateMinimumTaskForceStrength(SolarSystem targetSystem, Guid targetGuid, float buildingsSpaceOffense = 0)
         {
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(center,
-                               radius, Owner, true).LowerBound(100);
+            EnemyStrength = Owner.KnownEnemyStrengthIn(targetSystem);
+            UpdateMinimumTaskForceStrength(targetGuid, buildingsSpaceOffense);
+        }
 
+        void UpdateMinimumTaskForceStrength(Guid targetGuid, float buildingsSpaceOffense = 0)
+        {
             if (EnemyStrength.AlmostEqual(100) && TargetShip != null)
                 EnemyStrength += TargetShip.BaseStrength;
 

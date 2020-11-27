@@ -88,7 +88,7 @@ namespace Ship_Game.AI
 
             if (!Them.isFaction)
             {
-                risk = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpire(Them) / strength;
+                risk = us.GetEmpireAI().ThreatMatrix.KnownEmpireStrength(Them, p=> p.Ship != null) / strength;
                 return risk; 
             }
 

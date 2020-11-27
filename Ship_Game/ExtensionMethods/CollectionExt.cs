@@ -536,16 +536,18 @@ namespace Ship_Game
         /// <summary>
         /// Group items by selector with filter
         /// </summary>
-        public static Map<TKey, T> GroupByFiltered<T, TKey>(this ICollection<T> items, Func<T, TKey> groupBy, Predicate<T> include)
+        public static Map<TKey, Array<T>> GroupByFiltered<T, TKey>(this ICollection<T> items, Func<T, TKey> groupBy, Predicate<T> include)
         {
-            var unique = new Map<TKey, T>();
+            var unique = new Map<TKey, Array<T>>();
             foreach (T item in items)
             {
                 if (include(item))
                 {
                     TKey key = groupBy(item);
-                    if (!unique.ContainsKey(key))
-                        unique.Add(key, item);
+                    if (!unique.TryGetValue(key, out Array<T> existingKey))
+                        unique.Add(key, new Array<T> { item });
+                    else
+                        existingKey.Add(item);
                 }
             }
             return unique;
