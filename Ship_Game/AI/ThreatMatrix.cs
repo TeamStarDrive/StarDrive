@@ -109,9 +109,10 @@ namespace Ship_Game.AI
 
         Pin[] KnownBases = new Pin[0];
         SolarSystem[] KnownSystemsWithEnemies = new SolarSystem[0];
+        Map<SolarSystem, Pin[]> SystemThreatMap = new Map<SolarSystem, Pin[]>();
+        Map<Empire, Pin[]> KnownEmpireStrengths = new Map<Empire, Pin[]>();
 
         public Pin[] GetKnownBases() => KnownBases;
-
         public SolarSystem[] GetHostileSystems() => KnownSystemsWithEnemies;
 
         public ThreatMatrix(Dictionary<Guid,Pin> matrix, Empire empire)
@@ -200,21 +201,7 @@ namespace Ship_Game.AI
             return str;
         }
 
-        public float StrengthOfEmpireInSystem(Empire empire, SolarSystem system)
-        {
-            float str = 0f;
-            using (PinsMutex.AcquireReadLock())
-            {
-                foreach (Pin pin in Pins.Values)
-                {
-                    var pinEmpire = pin.GetEmpire();
-                    if (pinEmpire == empire)
-                        if (pin.Position.InRadius(system.Position, system.Radius))
-                            str += pin.Strength;
-                }
-            }
-            return str;
-        }
+        public float StrengthOfEmpireInSystem(Empire empire, SolarSystem system) => GetStrengthInSystem(system, p => p.GetEmpire() == empire);
 
         public float StrengthOfHostilesInRadius(Empire us, Vector2 center, float radius)
         {
@@ -434,19 +421,94 @@ namespace Ship_Game.AI
             return true;
         }
 
-        public Array<Pin> GetAllHostileBases()
-        {
-            return FilterPins(p => p.Ship.IsPlatformOrStation && Owner.IsEmpireHostile(p.GetEmpire()));
-        }
-
-        public SolarSystem[] GetAllSystemsWithHostiles()
+        /// <summary> ThreadSafe </summary>
+        public Pin[] GetAllFactionBases()
         {
             using (PinsMutex.AcquireReadLock())
-                return Pins.GroupByFiltered(p => p.Value.System,
-                    p =>
-                    {
-                        return p.Value.System != null && p.Value.GetEmpire().isFaction  && Owner.IsEmpireHostile(p.Value.GetEmpire());
-                    }).Keys.ToArray();
+                return KnownBases.Filter(b => b.GetEmpire().isFaction) ?? Empty<Pin>.Array;
+        }
+
+        Pin[] GetAllHostileBases() => FilterPins(p => p.Ship.IsPlatformOrStation && Owner.IsEmpireHostile(p.GetEmpire()));
+
+        /// <summary> Return the ship strength of filtered ships in a system. It will not tell you if no pins were in the system. </summary>
+        public float GetStrengthInSystem(SolarSystem system, Predicate<Pin> filter)
+        {
+            using (PinsMutex.AcquireReadLock())
+                if (SystemThreatMap.TryGetValue(system, out Pin[] pins))
+                {
+                    return pins.Filter(filter).Sum(p => p.Strength);
+                }
+            return 0;
+        }
+
+        /// <summary> Returns true if there are any pins in the target system </summary>
+        public bool AnyKnownThreatsInSystem(SolarSystem system) => SystemThreatMap.Keys.Contains(system);
+
+        public SolarSystem[] GetAllSystemsWithFactions() => GetAllSystemsWith(pins => 
+            pins.Any(p=>p.GetEmpire().isFaction && Owner.IsEmpireHostile(p.GetEmpire())));
+
+        SolarSystem[] GetAllSystemsWith(Predicate<Pin[]> filter)
+        {
+            Array<SolarSystem> systems = new Array<SolarSystem>();
+            using (PinsMutex.AcquireReadLock())
+            {
+                foreach(var kv in SystemThreatMap)
+                {
+                    if (filter(kv.Value)) 
+                        systems.AddUnique(kv.Key);
+                }
+                return systems.ToArray();
+            }
+        }
+
+        Map<SolarSystem, Pin[]> GetSystemPinMap()
+        {
+            var map = new Map<SolarSystem, Array<KeyValuePair<Guid, Pin>>>();
+            using (PinsMutex.AcquireReadLock())
+                map = Pins.GroupByFiltered(p => p.Value.System,
+                p => p.Value.System != null && Owner.IsEmpireHostile(p.Value.GetEmpire()));
+
+            var newMap = new Map<SolarSystem, Pin[]>();
+            foreach (var pair in map)
+            {
+                var key = pair.Key;
+                Pin[] values = pair.Value.Select(v=> v.Value);
+                newMap.Add(pair.Key, values);
+            }
+            return newMap;
+        }
+
+        public float KnownEmpireStrength(Empire empire, Predicate<Pin> filter)
+        {
+            float str = 0;
+            if (KnownEmpireStrengths.TryGetValue(empire, out var pins))
+            {
+                for (int i = 0; i < pins.Length; i++)
+                {
+                    var pin = pins[i];
+                    if (filter(pin))
+                        str += pin.Strength;
+                }
+            }
+
+            return str;
+        }
+
+        Map<Empire, Pin[]> GetEmpirePinMap()
+        {
+            var map = new Map<Empire, Array<KeyValuePair<Guid, Pin>>>();
+            using (PinsMutex.AcquireReadLock())
+                map = Pins.GroupByFiltered(p => p.Value.GetEmpire(),
+                p => p.Value.Strength > 0);
+
+            var newMap = new Map<Empire, Pin[]>();
+            foreach (var pair in map)
+            {
+                var key = pair.Key;
+                Pin[] values = pair.Value.Select(v => v.Value);
+                newMap.Add(pair.Key, values);
+            }
+            return newMap;
         }
 
         public Pin FindAnyPin(Predicate<Pin> predicate)
@@ -464,21 +526,10 @@ namespace Ship_Game.AI
             return null;
         }
 
-        public Array<Pin> FilterPins(Predicate<Pin> predicate)
+        public Pin[] FilterPins(Predicate<Pin> predicate)
         {
-            var foundPins = new Array<Pin>();
             using (PinsMutex.AcquireReadLock())
-            {
-                var pins = Pins.AtomicValuesArray();
-
-                for (int i = 0; i < pins.Length; i++)
-                {
-                    var pin = pins[i];
-                    if (predicate(pin))
-                        foundPins.Add(pin);
-                }
-            }
-            return foundPins;
+                return Pins.Values.Filter(predicate);
         }
 
 
@@ -609,8 +660,10 @@ namespace Ship_Game.AI
             {
                 Pins = threatCopy.Pins;
             }
-            KnownBases = GetAllHostileBases().ToArray();
-            KnownSystemsWithEnemies = GetAllSystemsWithHostiles();
+            KnownBases              = GetAllHostileBases();
+            SystemThreatMap         = GetSystemPinMap();
+            KnownSystemsWithEnemies = GetAllSystemsWith(pins => pins.Any(p => Owner.IsEmpireHostile(p.GetEmpire())));
+            KnownEmpireStrengths    = GetEmpirePinMap();
             // threat matrix testing. 
             //var PinsWithSystems = Pins.FilterValues(p => p.System != null && p.Ship.System?.Name.Contains("Mil") == true);
 
