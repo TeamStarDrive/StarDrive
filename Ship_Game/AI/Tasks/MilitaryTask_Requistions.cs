@@ -311,15 +311,16 @@ namespace Ship_Game.AI.Tasks
             if (AO.AlmostZero())
                 Log.Error($"no area of operation set for task: {type}");
 
-            if (TargetPlanet.Owner != null && !Owner.IsEmpireAttackable(TargetPlanet.Owner))
+            if (TargetPlanet.Owner != null && TargetPlanet.Owner != Owner && !Owner.IsEmpireAttackable(TargetPlanet.Owner))
             {
                 EndTask();
                 return;
             }
 
             AO = TargetPlanet.Center;
+            float buildingGeodeticOffense = TargetPlanet.Owner != Owner ? TargetPlanet.BuildingGeodeticOffense : 0;
             UpdateMinimumTaskForceStrength(TargetPlanet.Center, TargetPlanet.ParentSystem.Radius,
-                TargetPlanet.guid, TargetPlanet.BuildingGeodeticOffense);
+                TargetPlanet.guid, buildingGeodeticOffense);
 
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 40, minBombMinutes: 0);
             
