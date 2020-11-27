@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using Ship_Game.AI.ExpansionAI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
@@ -120,8 +122,7 @@ namespace Ship_Game
                     foreach (Planet p in planet.ParentSystem.PlanetList)
                     {
                         p.SetExploredBy(empire);
-                        if (!empire.isPlayer && p.TilesList.Any(t => t.EventOnTile))
-                            empire.GetEmpireAI().SendExplorationFleet(p);
+                        TrySendInitialFleets(p, empire);
                     }
 
                     if (planet.ParentSystem.OwnerList.Count == 0)
@@ -154,10 +155,27 @@ namespace Ship_Game
                     foreach (Planet planet in ss.PlanetList)
                     {
                         planet.SetExploredBy(e);
-                        if (!e.isPlayer && planet.TilesList.Any(t => t.EventOnTile))
-                            e.GetEmpireAI().SendExplorationFleet(planet);
+                        TrySendInitialFleets(planet, e);
                     }
                 }
+            }
+        }
+
+        void TrySendInitialFleets(Planet p, Empire empire)
+        {
+            if (empire.isPlayer)
+                return;
+
+            if (p.TilesList.Any(t => t.EventOnTile))
+                empire.GetEmpireAI().SendExplorationFleet(p);
+
+            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(empire))
+                return;
+
+            if (PlanetRanker.IsGoodValueForUs(p, empire))
+            {
+                var task = MilitaryTask.CreateGuardTask(empire, p);
+                empire.GetEmpireAI().AddPendingTask(task);
             }
         }
 
