@@ -162,10 +162,10 @@ namespace Ship_Game.AI
             return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendVsRemnants);
         }
 
-        public MilitaryTask[] GetRemnantEngagementTasksFor(Planet p)
+        public Goal[] GetRemnantEngagementGoalsFor(Planet p)
         {
-            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.RemnantEngagement
-                                        && task.TargetPlanet == p);
+            return Goals.Filter(g => g.type == GoalType.RemnantBalancersEngage
+                                        && g.ColonizationTarget == p);
         }
 
         public MilitaryTask[] GetAssaultPirateTasks()

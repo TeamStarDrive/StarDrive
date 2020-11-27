@@ -34,10 +34,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             TargetPlanet = ColonizationTarget;
         }
 
-        bool RemnantTaskExists()
+        bool RemnantGoalExists()
         {
-            var tasks = empire.GetEmpireAI().GetRemnantEngagementTasksFor(TargetPlanet);
-            return tasks.Length != 0;
+            var goals = TargetEmpire.GetEmpireAI().GetRemnantEngagementGoalsFor(TargetPlanet);
+            return goals.Length != 0;
         }
 
         bool TryChangeTargetPlanet()
@@ -67,13 +67,18 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep WaitForFleet()
         {
-            if (Fleet == null)
+            if (Fleet == null || Fleet.Ships.Count == 0)
+            {
+                float str = TargetPlanet.ParentSystem.GetKnownStrengthHostileTo(empire);
+                var task  = MilitaryTask.CreateDefendVsRemnant(TargetPlanet, empire, str);
+                empire.GetEmpireAI().AddPendingTask(task); // Try creating a new fleet to defend
                 return GoalStep.GoalFailed;
+            }
 
             if (TargetPlanet.Owner != empire && !TryChangeTargetPlanet())
                 return GoalStep.GoalComplete;
 
-            return RemnantTaskExists() ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            return RemnantGoalExists() ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }
     }
 }

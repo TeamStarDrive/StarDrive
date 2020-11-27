@@ -118,7 +118,11 @@ namespace Ship_Game
                     planet.SetExploredBy(empire);
 
                     foreach (Planet p in planet.ParentSystem.PlanetList)
+                    {
                         p.SetExploredBy(empire);
+                        if (!empire.isPlayer && p.TilesList.Any(t => t.EventOnTile))
+                            empire.GetEmpireAI().SendExplorationFleet(p);
+                    }
 
                     if (planet.ParentSystem.OwnerList.Count == 0)
                     {
@@ -148,7 +152,11 @@ namespace Ship_Game
                     SolarSystem ss = closestSystems[i];
                     ss.SetExploredBy(e);
                     foreach (Planet planet in ss.PlanetList)
+                    {
                         planet.SetExploredBy(e);
+                        if (!e.isPlayer && planet.TilesList.Any(t => t.EventOnTile))
+                            e.GetEmpireAI().SendExplorationFleet(planet);
+                    }
                 }
             }
         }
