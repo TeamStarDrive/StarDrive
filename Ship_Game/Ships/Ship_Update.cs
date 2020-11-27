@@ -3,6 +3,8 @@ using Ship_Game.AI;
 using SynapseGaming.LightingSystem.Core;
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI.ExpansionAI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -204,6 +206,13 @@ namespace Ship_Game.Ships
                         else if (p.Owner == null)
                         {
                             loyalty.GetEmpireAI().SendExplorationFleet(p);
+                            if (CurrentGame.Difficulty > UniverseData.GameDifficulty.Normal 
+                                && PlanetRanker.IsGoodValueForUs(p, loyalty)
+                                && p.ParentSystem.GetKnownStrengthHostileTo(loyalty).AlmostZero())
+                            {
+                                var task = MilitaryTask.CreateGuardTask(loyalty, p);
+                                loyalty.GetEmpireAI().AddPendingTask(task);
+                            }
                         }
                     }
 

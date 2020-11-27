@@ -17,6 +17,15 @@ namespace Ship_Game.AI.ExpansionAI
             return $"{Planet.Name} Value={Value} DistanceMod={DistanceMod} EnemyStrMod={EnemyStrMod}";
         }
 
+        public static bool IsGoodValueForUs(Planet p, Empire us)
+        {
+            if (IsColonizeBlockedByMorals(p.ParentSystem, us))
+                return false;
+
+            float value = p.ColonyPotentialValue(us);
+            return value > 20 || us.IsCybernetic && p.MineralRichness > 0.9f;
+        }
+
         public PlanetRanker(Empire empire, Planet planet, float longestDistance, Vector2 empireCenter)
         {
             Planet                = planet;
@@ -39,7 +48,7 @@ namespace Ship_Game.AI.ExpansionAI
             CanColonize =  !moralityBlock && (rawValue > 20 || empire.IsCybernetic && planet.MineralRichness > 0.9);
         }
 
-        private bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
+        private static bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
         {
             if (s.OwnerList.Count == 0
                 || s.IsOnlyOwnedBy(ownerEmpire)

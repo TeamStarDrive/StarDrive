@@ -907,6 +907,12 @@ namespace Ship_Game
                 {
                     ship.OrderToOrbit(p);
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
+
+                    foreach (Empire e in EmpireManager.NonPlayerEmpires)
+                    {
+                        if (p.IsExploredBy(e))
+                            e.GetEmpireAI().ThreatMatrix.AddOrUpdatePin(ship, false, true);
+                    }
                 }
             }
         }
