@@ -430,7 +430,8 @@ namespace Ship_Game.Fleets
 
             if (EndInvalidTask(!StillInvasionEffective(task) || !StillCombatEffective(task)))
                 return;
-            if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null && task.TargetPlanet.Owner != Owner)) return;
+            if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null && task.TargetPlanet.Owner != Owner)) 
+                return;
 
             switch (TaskStep)
             {
@@ -870,31 +871,23 @@ namespace Ship_Game.Fleets
 
         void DoDefendVsRemnant(MilitaryTask task)
         {
-            if (EndInvalidTask(TaskStep == 3 && (task.TargetPlanet.Owner != Owner 
-                               || !EmpireManager.Remnants.Remnants.Goals.Any(g => g.Fleet?.FleetTask?.TargetPlanet == task.TargetPlanet))))
+            if (EndInvalidTask(!Owner.GetEmpireAI().Goals.Any(g => g.Fleet == this)))
             {
                 ClearOrders();
                 return;
             }
-
+            
             switch (TaskStep)
             {
                 case 0:
-                    FleetTaskGatherAtRally(task);
+                    GatherAtAO(task, 3000);
                     TaskStep = 1;
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely(task.RallyPlanet.ParentSystem.Radius))
-                        break;
-
-                    GatherAtAO(task, 3000);
-                    TaskStep = 2;
-                    break;
-                case 2:
                     if (!ArrivedAtCombatRally(task.AO, GetRelativeSize().Length() / 2))
                         break;
 
-                    TaskStep = 3; // Defend till death (or until the DefenseVsRemnant goal redirects us)!
+                    TaskStep = 2; // Defend till death (or until the DefenseVsRemnant goal redirects us)!
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
             }
