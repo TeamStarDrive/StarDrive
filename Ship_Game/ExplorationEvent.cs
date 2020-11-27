@@ -21,7 +21,13 @@ namespace Ship_Game
             UniverseScreen screen)
         {
             int random = 0;
-            foreach (Outcome outcome in PotentialOutcomes)
+            // do not include hostile ship spawns in systems with a capital, these just mess up the game.
+            var potentialOutcomes = p.ParentSystem.PlanetList.Any(planet => planet.Habitable && planet.HasCapital)
+                ? PotentialOutcomes.Filter(o => o.PirateShipsToSpawn.Count == 0 && o.RemnantShipsToSpawn.Count == 0)
+                : PotentialOutcomes.ToArray();
+
+
+            foreach (Outcome outcome in potentialOutcomes)
             {
                 if (outcome.InValidOutcome(triggeredBy)) continue;
                 random += outcome.Chance;
@@ -29,7 +35,7 @@ namespace Ship_Game
             random = RandomMath.InRange(random);
             Outcome triggeredOutcome = null;
             int cursor = 0;
-            foreach (Outcome outcome in PotentialOutcomes)
+            foreach (Outcome outcome in potentialOutcomes)
             {
                 if (outcome.InValidOutcome(triggeredBy)) continue;
                 cursor = cursor + outcome.Chance;

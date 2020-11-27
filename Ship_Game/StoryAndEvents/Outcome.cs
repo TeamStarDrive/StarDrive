@@ -111,6 +111,7 @@ namespace Ship_Game
             {
                 triggerer.Pool.ForcePoolAdd(Ship.CreateShipAt(shipName, triggerer, p, true));
             }
+
             foreach (string shipName in RemnantShipsToSpawn)
             {
                 Ship ship = Ship.CreateShipAt(shipName, EmpireManager.Remnants, p, true);
