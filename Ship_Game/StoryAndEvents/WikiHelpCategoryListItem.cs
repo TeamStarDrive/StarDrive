@@ -14,9 +14,9 @@ namespace Ship_Game
         public WikiHelpCategoryListItem(string headerText) : base(headerText) { }
         public WikiHelpCategoryListItem(HelpTopic topic) { Topic = topic; }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             if (Topic != null)
             {
                 Vector2 cursor = Pos;

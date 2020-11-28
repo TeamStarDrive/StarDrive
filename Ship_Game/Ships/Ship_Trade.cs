@@ -23,14 +23,16 @@ namespace Ship_Game.Ships
                                        && (!AI.HasPriorityOrder || !AI.HasWayPoints)
                                        && AI.State != AIState.SystemTrader
                                        && AI.State != AIState.Flee
-                                       && AI.State != AIState.Refit;
+                                       && AI.State != AIState.Refit
+                                       && AI.State != AIState.Scrap
+                                       && AI.State != AIState.Scuttle;
 
         public bool AddTradeRoute(Planet planet)
         {
             if (planet.Owner == null)
                 return false;
 
-            if (planet.Owner == loyalty || loyalty.GetRelations(planet.Owner).Treaty_Trade)
+            if (planet.Owner == loyalty || loyalty.IsTradeTreaty(planet.Owner))
             {
                 TradeRoutes.AddUnique(planet.guid);
                 return true;
@@ -55,7 +57,7 @@ namespace Ship_Game.Ships
                 if (planet.Owner == loyalty)
                     continue;
 
-                if (planet.Owner == null || !loyalty.GetRelations(planet.Owner).Treaty_Trade)
+                if (planet.Owner == null || !loyalty.IsTradeTreaty(planet.Owner))
                     RemoveTradeRoute(planet);
             }
         }
@@ -105,13 +107,6 @@ namespace Ship_Game.Ships
         {
             if (AI.FindGoal(ShipAI.Plan.DropOffGoods, out _))
                 return GetCargo(goods);
-
-            if (AI.FindGoal(ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal))
-            {
-                Planet exportFrom = goal.Trade.ExportFrom;
-                float numGoods    = exportFrom.ExportGoodsLimit(goods);
-                return numGoods.UpperBound(CargoSpaceMax);
-            }
 
             return 0;
         }

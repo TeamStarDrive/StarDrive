@@ -18,14 +18,14 @@ namespace Ship_Game
 			underheader = new Rectangle(r.X, r.Y + r.Height, r.Width, 10);
 		}
 
-		public void Draw(ScreenManager ScreenManager)
+		public void Draw(SpriteBatch batch, DrawTimes elapsed)
 		{
-			ScreenManager.SpriteBatch.End();
-			ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/body_grade"), BodyRect, Color.White);
-			ScreenManager.SpriteBatch.End();
-			ScreenManager.SpriteBatch.Begin();
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/under_header"), underheader, Color.White);
+			batch.End();
+			batch.Begin(SpriteBlendMode.Additive);
+			batch.Draw(ResourceManager.Texture("OliveUI/body_grade"), BodyRect, Color.White);
+			batch.End();
+			batch.Begin();
+			batch.Draw(ResourceManager.Texture("OliveUI/under_header"), underheader, Color.White);
 		}
 
 		public void DrawRightTab(ScreenManager ScreenManager)

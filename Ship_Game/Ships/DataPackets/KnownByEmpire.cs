@@ -33,21 +33,28 @@ namespace Ship_Game.Ships.DataPackets
             Owner = ship;
         }
 
+        float[] GetSeenByID()
+        {
+            float[] seenById = SeenByID;
+            if (seenById.Length != EmpireManager.NumEmpires)
+            {
+                var newArray = new float[EmpireManager.NumEmpires];
+                Array.Copy(seenById, newArray, seenById.Length);
+                SeenByID = newArray;
+                return newArray;
+            }
+            return seenById;
+        }
+
         /// <summary>
         /// Updates visibility timers of all known empires
         /// </summary>
         public void Update(FixedSimTime timeStep)
         {
-            if (SeenByID.Length != EmpireManager.NumEmpires)
+            float[] seenById = GetSeenByID();
+            for (int i = 0; i < seenById.Length; i++)
             {
-                var newArray = new float[EmpireManager.NumEmpires];
-                Array.Copy(SeenByID, newArray, SeenByID.Length);
-                SeenByID = newArray;
-            }
-
-            for (int i = 0; i < EmpireManager.NumEmpires; i++)
-            {
-                SeenByID[i] -= timeStep.FixedTime;
+                seenById[i] -= timeStep.FixedTime;
             }
         }
 
@@ -55,14 +62,17 @@ namespace Ship_Game.Ships.DataPackets
         /// Sets if the ship has been seen by an empire;
         /// </summary>
         /// <param name="empire">The empire.</param>
-        /// <param name="timer">The timer.</param>
-        
         public void SetSeen(Empire empire)
         {
-            SeenByID[empire.Id - 1] = KnownDuration;
+            float[] seenById = GetSeenByID();
+            seenById[empire.Id-1] = KnownDuration;
         }
 
-        public bool KnownBy(Empire empire) => SeenByID[empire.Id-1] + KnownDuration > 0;
+        public bool KnownBy(Empire empire)
+        {
+            float[] seenById = GetSeenByID();
+            return seenById[empire.Id-1] + KnownDuration > 0;
+        }
 
         /// <summary>
         /// Sets the ship as seen by player. Unlike "knownByPlayer" this can be used anywhere. 

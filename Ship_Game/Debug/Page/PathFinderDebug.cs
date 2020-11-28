@@ -15,13 +15,13 @@ namespace Ship_Game.Debug.Page
                 TextColumns.Add(Label(Rect.X, Rect.Y + 300, ""));
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
 
             DrawPathInfo();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public override bool HandleInput(InputState input)

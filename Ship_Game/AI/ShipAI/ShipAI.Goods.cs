@@ -13,7 +13,7 @@ namespace Ship_Game.AI
         {
             Planet exportPlanet = g.Trade.ExportFrom;
             Planet importPlanet = g.Trade.ImportTo;
-            if (exportPlanet.Owner == null) // colony was wiped out
+            if (exportPlanet.Owner == null || importPlanet.Owner == null) // colony was wiped out
             {
                 AI.CancelTradePlan();
                 return;
@@ -67,15 +67,22 @@ namespace Ship_Game.AI
                         return;
                     }
 
-                    exportPlanet.ProdHere   -= Owner.LoadProduction(maxProdLoad);
-                    freighterTooSmall        = Owner.CargoSpaceMax.Less(maxProdLoad);
+                    exportPlanet.ProdHere -= Owner.LoadProduction(maxProdLoad);
+                    freighterTooSmall      = Owner.CargoSpaceMax.Less(maxProdLoad);
                     break;
                 case Goods.Colonists:
                     exportPlanet.ProdHere += Owner.UnloadProduction();
                     exportPlanet.FoodHere += Owner.UnloadFood();
 
-                    // load everyone we can :P
-                    exportPlanet.Population -= Owner.LoadColonists(exportPlanet.Population * 0.2f);
+                    float maxPopLoad        = exportPlanet.ExportablePop(exportPlanet, importPlanet);
+                    if (maxPopLoad.AlmostZero())
+                    {
+                        AI.CancelTradePlan(exportPlanet); // No pop to load
+                        return;
+                    }
+
+                    exportPlanet.Population -= Owner.LoadColonists(maxPopLoad);
+                    freighterTooSmall        = Owner.CargoSpaceMax.Less(maxPopLoad);
                     break;
             }
 

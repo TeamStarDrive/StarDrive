@@ -14,9 +14,10 @@ namespace Ship_Game
     {
         bool HandleGUIClicks(InputState input)
         {
-            bool flag = dsbw != null && showingDSBW && dsbw.HandleInput(input);
-            if (aw.IsOpen && aw.HandleInput(input))
+            bool captured = DeepSpaceBuildWindow.HandleInput(input);
+            if (aw.HandleInput(input))
                 return true;
+
             if (MinimapDisplayRect.HitTest(input.CursorPosition) && !SelectingWithBox)
             {
                 HandleScrolls(input);
@@ -29,15 +30,15 @@ namespace Ship_Game
                     snappingToShip = false;
                     ViewingShip = false;
                 }
-                flag = true;
+                captured = true;
             }
 
             // @note Make sure HandleInputs are called here
             if (!LookingAtPlanet)
             {
-                flag |= SelectedShip != null && ShipInfoUIElement.HandleInput(input);
-                flag |= SelectedPlanet != null && pInfoUI.HandleInput(input);
-                flag |= SelectedShipList != null && shipListInfoUI.HandleInput(input);
+                captured |= SelectedShip != null && ShipInfoUIElement.HandleInput(input);
+                captured |= SelectedPlanet != null && pInfoUI.HandleInput(input);
+                captured |= SelectedShipList != null && shipListInfoUI.HandleInput(input);
             }
 
             if (SelectedSystem == null)
@@ -46,17 +47,20 @@ namespace Ship_Game
             }
             else
             {
-                flag |= sInfoUI.HandleInput(input) && !LookingAtPlanet;
+                captured |= !LookingAtPlanet && sInfoUI.HandleInput(input);
             }
 
-            if (minimap.HandleInput(input, this)) return true;
-            if (NotificationManager.HandleInput(input)) return true;
+            if (minimap.HandleInput(input, this))
+                return true;
+
+            if (NotificationManager.HandleInput(input))
+                return true;
 
             // @todo Why are these needed??
-            flag |= ShipsInCombat.Rect.HitTest(input.CursorPosition);
-            flag |= PlanetsInCombat.Rect.HitTest(input.CursorPosition);
+            captured |= ShipsInCombat.Rect.HitTest(input.CursorPosition);
+            captured |= PlanetsInCombat.Rect.HitTest(input.CursorPosition);
 
-            return flag;
+            return captured;
         }
 
         void HandleInputNotLookingAtPlanet(InputState input)
@@ -127,6 +131,9 @@ namespace Ship_Game
                 else
                     Ship.CreateShipAtPoint(input.EmpireToggle ? "Remnant Mothership" : "Target Dummy", EmpireManager.Remnants, mouseWorldPos);
             }
+
+            if (input.ToggleSpatialManagerType)
+                Spatial.ToggleSpatialType();
 
             if (input.IsShiftKeyDown && input.KeyPressed(Keys.B))
                 StressTestShipLoading();
@@ -250,6 +257,10 @@ namespace Ship_Game
             if (HandleTradeRoutesDefinition(input))
                 return true;
 
+            // Handle new UIElementV2 items
+            if (base.HandleInput(input))
+                return true;
+
             for (int i = SelectedShipList.Count - 1; i >= 0; --i)
             {
                 Ship ship = SelectedShipList[i];
@@ -264,6 +275,9 @@ namespace Ship_Game
             // fbedard: Set camera chase on ship
             if (input.ChaseCam)
                 ChaseCam();
+
+            if (input.CinematicMode)
+                ToggleCinematicMode();
 
             ShowTacticalCloseup = input.TacticalIcons;
 
@@ -284,21 +298,6 @@ namespace Ship_Game
             }
 
             HandleGameSpeedChange(input);
-
-            // fbedard: Click button to Cycle through ships in Combat
-            if (!ShipsInCombat.Rect.HitTest(input.CursorPosition))
-            {
-                ShipsInCombat.State = UIButton.PressState.Default;
-            }
-            else CycleShipsInCombat(input);
-
-
-            // fbedard: Click button to Cycle through Planets in Combat
-            if (!PlanetsInCombat.Rect.HitTest(input.CursorPosition))
-            {
-                PlanetsInCombat.State = UIButton.PressState.Default;
-            }
-            else CyclePlanetsInCombat(input);
 
             if (!LookingAtPlanet)
             {
@@ -370,7 +369,7 @@ namespace Ship_Game
                         cState = CursorState.Orbit;
                 }
             }
-            return base.HandleInput(input);
+            return false;
         }
 
         static int InputFleetSelection(InputState input)
@@ -817,32 +816,83 @@ namespace Ship_Game
             purgeType    = nonCombatShips != 0 && nonCombatShips != ships.Count && !isFleet;
 
             return ships.Count > 0;
-
         }
+
+        bool IsMouseHoveringOverPlanet;
+        bool IsMouseHoveringOverSystem;
 
         public void UpdateClickableItems()
         {
             lock (GlobalStats.ClickableItemLocker)
                 ItemsToBuild.Clear();
-            for (int index = 0; index < EmpireManager.Player.GetEmpireAI().Goals.Count; ++index)
+
+            EmpireAI playerAI = player.GetEmpireAI();
+            for (int index = 0; index < playerAI.Goals.Count; ++index)
             {
-                Goal goal = player.GetEmpireAI().Goals[index];
-                if (!goal.IsDeploymentGoal)
-                    continue;
-                const float radius = 100f;
-                Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), Projection, View, Matrix.Identity).ToVec2();
-                Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointFromAngle(90f, radius), 0.0f), Projection, View, Matrix.Identity);
-                float num = Vector2.Distance(new Vector2(buildOffSet.X, buildOffSet.Y), buildPos) + 10f;
-                var underConstruction = new ClickableItemUnderConstruction
+                Goal goal = playerAI.Goals[index];
+                if (goal.IsDeploymentGoal)
                 {
-                    Radius         = num,
-                    BuildPos       = goal.BuildPosition,
-                    ScreenPos      = buildPos,
-                    UID            = goal.ToBuildUID,
-                    AssociatedGoal = goal
-                };
-                lock (GlobalStats.ClickableItemLocker)
-                    ItemsToBuild.Add(underConstruction);
+                    const float radius = 100f;
+                    Vector2 buildPos    = ProjectToScreenPosition(goal.BuildPosition);
+                    Vector2 buildOffSet = ProjectToScreenPosition(goal.BuildPosition.PointFromAngle(90f, radius));
+                    float clickableRadius = buildOffSet.Distance(buildPos) + 10f;
+                    var underConstruction = new ClickableItemUnderConstruction
+                    {
+                        Radius = clickableRadius, BuildPos = goal.BuildPosition, ScreenPos = buildPos,
+                        UID = goal.ToBuildUID, AssociatedGoal = goal
+                    };
+
+                    lock (GlobalStats.ClickableItemLocker)
+                        ItemsToBuild.Add(underConstruction);
+                }
+            }
+
+            IsMouseHoveringOverPlanet = false;
+            lock (GlobalStats.ClickableSystemsLock)
+            {
+                for (int i = 0; i < ClickPlanetList.Count; ++i)
+                {
+                    ClickablePlanets planet = ClickPlanetList[i];
+                    if (Input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius))
+                    {
+                        IsMouseHoveringOverPlanet = true;
+                        TooltipTimer -= 0.01666667f;
+                        tippedPlanet = planet;
+                    }
+                }
+            }
+
+            IsMouseHoveringOverSystem = false;
+            if (viewState > UnivScreenState.SectorView)
+            {
+                lock (GlobalStats.ClickableSystemsLock)
+                {
+                    for (int i = 0; i < ClickableSystems.Count; ++i)
+                    {
+                        ClickableSystem system = ClickableSystems[i];
+                        if (Input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
+                        {
+                            sTooltipTimer -= 0.01666667f;
+                            tippedSystem = system;
+                            IsMouseHoveringOverSystem = true;
+                        }
+                    }
+                }
+                if (sTooltipTimer <= 0f)
+                    sTooltipTimer = 0.5f;
+            }
+
+            ShowingSysTooltip = IsMouseHoveringOverSystem;
+
+            if (TooltipTimer <= 0f && !LookingAtPlanet)
+            {
+                TooltipTimer = 0.5f;
+            }
+
+            if (!IsMouseHoveringOverPlanet)
+            {
+                ShowingPlanetToolTip = false;
+                TooltipTimer = 0.5f;
             }
         }
 
@@ -1043,116 +1093,72 @@ namespace Ship_Game
             else
                 previousSelection = null;  //fbedard: remove inactive ship
         }
-
-        void CycleShipsInCombat(InputState input)
+        
+        void CyclePlanetsInCombat(UIButton b)
         {
-            ShipsInCombat.State = UIButton.PressState.Hover;
-            ToolTip.CreateTooltip("Cycle through ships not in fleet that are in combat");
-            if (input.InGameSelect)
+            if (player.empirePlanetCombat > 0)
             {
-                if (player.empireShipCombat > 0)
+                Planet planetToView = null;
+                int nbrplanet = 0;
+                if (lastplanetcombat >= player.empirePlanetCombat)
+                    lastplanetcombat = 0;
+                bool flagPlanet;
+
+                foreach (SolarSystem system in SolarSystemList)
                 {
-                    GameAudio.EchoAffirmative();
-                    int nbrship = 0;
-                    if (lastshipcombat >= player.empireShipCombat)
-                        lastshipcombat = 0;
-                    foreach (Ship ship in EmpireManager.Player.GetShips())
+                    foreach (Planet p in system.PlanetList)
                     {
-                        if (ship.fleet != null || !ship.InCombat || ship.Mothership != null || !ship.Active)
-                            continue;
-                        if (nbrship == lastshipcombat)
+                        if (!p.IsExploredBy(EmpireManager.Player) || !p.RecentCombat) continue;
+                        if (p.Owner == Empire.Universe.PlayerEmpire)
                         {
-                            if (SelectedShip != null && SelectedShip != previousSelection && SelectedShip != ship)
-                                previousSelection = SelectedShip;
-                            SelectedShip = ship;
-                            ViewToShip();
-                            SelectedShipList.Add(SelectedShip);
-                            lastshipcombat++;
-                            break;
+                            if (nbrplanet == lastplanetcombat)
+                                planetToView = p;
+                            nbrplanet++;
                         }
-
-                        nbrship++;
-                    }
-                }
-                else
-                {
-                    GameAudio.BlipClick();
-                }
-            }
-        }
-
-        void CyclePlanetsInCombat(InputState input)
-        {
-            PlanetsInCombat.State = UIButton.PressState.Hover;
-            ToolTip.CreateTooltip("Cycle through planets that are in combat");
-            if (input.InGameSelect)
-            {
-                if (player.empirePlanetCombat > 0)
-                {
-                    GameAudio.EchoAffirmative();
-                    Planet planetToView = null;
-                    int nbrplanet = 0;
-                    if (lastplanetcombat >= player.empirePlanetCombat)
-                        lastplanetcombat = 0;
-                    bool flagPlanet;
-
-                    foreach (SolarSystem system in SolarSystemList)
-                    {
-                        foreach (Planet p in system.PlanetList)
+                        else
                         {
-                            if (!p.IsExploredBy(EmpireManager.Player) || !p.RecentCombat) continue;
-                            if (p.Owner == Empire.Universe.PlayerEmpire)
+                            flagPlanet = false;
+                            foreach (Troop troop in p.TroopsHere)
                             {
-                                if (nbrplanet == lastplanetcombat)
-                                    planetToView = p;
-                                nbrplanet++;
-                            }
-                            else
-                            {
-                                flagPlanet = false;
-                                foreach (Troop troop in p.TroopsHere)
+                                if (troop.Loyalty != null && troop.Loyalty == Empire.Universe.PlayerEmpire)
                                 {
-                                    if (troop.Loyalty != null && troop.Loyalty == Empire.Universe.PlayerEmpire)
-                                    {
-                                        flagPlanet = true;
-                                        break;
-                                    }
+                                    flagPlanet = true;
+                                    break;
                                 }
-                                if (!flagPlanet) continue;
-                                if (nbrplanet == lastplanetcombat)
-                                    planetToView = p;
-                                nbrplanet++;
                             }
+
+                            if (!flagPlanet) continue;
+                            if (nbrplanet == lastplanetcombat)
+                                planetToView = p;
+                            nbrplanet++;
                         }
                     }
-                    if (planetToView == null) return;
-                    if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
-                        previousSelection = SelectedShip;
-                    SelectedShip   = null;
-                    SelectedFleet  = null;
-                    SelectedItem   = null;
-                    SelectedSystem = null;
-                    SelectedPlanet = planetToView;
-                    SelectedShipList.Clear();
-                    pInfoUI.SetPlanet(planetToView);
-                    lastplanetcombat++;
+                }
 
-                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000f);
-                    transitionStartPosition = CamPos;
-                    transitionElapsedTime   = 0.0f;
-                    LookingAtPlanet = false;
-                    AdjustCamTimer  = 2f;
-                    transDuration   = 5f;
-                    returnToShip    = false;
-                    ViewingShip     = false;
-                    snappingToShip  = false;
-                    SelectedItem    = null;
-                }
-                else
-                {
-                    GameAudio.BlipClick();
-                }
+                if (planetToView == null) return;
+                if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
+                    previousSelection = SelectedShip;
+                SelectedShip = null;
+                SelectedFleet = null;
+                SelectedItem = null;
+                SelectedSystem = null;
+                SelectedPlanet = planetToView;
+                SelectedShipList.Clear();
+                pInfoUI.SetPlanet(planetToView);
+                lastplanetcombat++;
+
+                CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y, 9000f);
+                transitionStartPosition = CamPos;
+                transitionElapsedTime = 0.0f;
+                LookingAtPlanet = false;
+                AdjustCamTimer = 2f;
+                transDuration = 5f;
+                returnToShip = false;
+                ViewingShip = false;
+                snappingToShip = false;
+                SelectedItem = null;
             }
+  
         }
 
         void ResetToolTipTimer(ref bool toolTipToReset, float timer = 0.5f)
@@ -1222,12 +1228,7 @@ namespace Ship_Game
             {
                 ship.ClearFleet();
                 if (ship.loyalty == player && !ship.IsConstructor && ship.Mothership == null)
-                    //fbedard: cannot add ships from hangar in fleet
-                {
-                    ship.AI.ClearOrdersAndWayPoints();
-                    ship.AI.ClearPriorityOrder();
                     fleet.AddShip(ship);
-                }
             }
             fleet.SetCommandShip(null);
             fleet.Update(FixedSimTime.Zero/*paused during init*/);

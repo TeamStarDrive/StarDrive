@@ -30,9 +30,9 @@ namespace Ship_Game
             public ModelData Model;
             public LoadModelListItem(ModelData model) { Model = model; }
             public LoadModelListItem(string headerText) : base(headerText) {}
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                base.Draw(batch);
+                base.Draw(batch, elapsed);
                 if (Model != null)
                 {
                     batch.Draw(ResourceManager.Texture("ShipIcons/Wisp"),
@@ -82,10 +82,10 @@ namespace Ship_Game
             LoadModel(item.Model);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             batch.Begin();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 

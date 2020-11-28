@@ -15,9 +15,9 @@ namespace Ship_Game.GameScreens.MainMenu
             Align = TextAlign.Right;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.Draw(VersionBar, new Rectangle((int)X, (int)Y, 318, 12), Color);
         }
     }

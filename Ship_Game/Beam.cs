@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -14,6 +15,11 @@ namespace Ship_Game
         public Vector2 Source;
         public Vector2 Destination;
         public Vector2 ActualHitDestination; // actual location where beam hits another ship
+        
+        // for spatial manager:
+        public int RadiusX;
+        public int RadiusY;
+
         public int Thickness { get; private set; }
         public static Effect BeamEffect;
         public VertexPositionNormalTexture[] Vertices = new VertexPositionNormalTexture[4];
@@ -46,16 +52,16 @@ namespace Ship_Game
             Emitter.Position        = new Vector3(source, 0f);
             Owner                   = weapon.Owner;
             Source                  = source;
-            Destination             = destination + (DisableSpatialCollision ? Vector2.Zero :
-                                                    Weapon.GetTargetError(target, Owner.Level));
-            ActualHitDestination = Destination;
+
+            Destination = destination ;
+            SetActualHitDestination(Destination);
             BeamCollidedThisFrame = true; 
 
             weapon.ApplyDamageModifiers(this);
 
             Initialize();
 
-            if (Owner != null && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && Owner.InFrustum)
+            if (Owner != null && Owner.InFrustum && Empire.Universe.IsSystemViewOrCloser)
             {
                 weapon.PlayToggleAndFireSfx(Emitter);
             }
@@ -74,18 +80,43 @@ namespace Ship_Game
             Initialize();
         }
 
+        // loading from savegame
+        public static Beam Create(in SavedGame.BeamSaveData bdata, UniverseData data)
+        {
+            if (!GetOwners(bdata.Owner, bdata.Loyalty, bdata.Weapon, true, data, out ProjectileOwnership o))
+                return null; // this owner or weapon no longer exists
+            
+            GameplayObject target = data.FindObjectOrNull(bdata.Target);
+            var beam = new Beam(o.Weapon, bdata.Source, bdata.Destination, target)
+            {
+                Owner = o.Owner,
+                Planet = o.Planet
+            };
+
+            beam.SetActualHitDestination(bdata.ActualHitDestination);
+            beam.Duration = bdata.Duration;
+            beam.FirstRun = false;
+            return beam;
+        }
+
         public override void Initialize()
         {
             base.Initialize();
             if (Owner != null)
             {
-                Loyalty = Owner?.loyalty ?? DroneAI?.Drone?.Loyalty; // set loyalty before adding to spatial manager
+                Loyalty = Owner?.loyalty ?? DroneAI?.Drone?.Loyalty;
                 SetSystem(Owner?.System ?? DroneAI?.Drone?.System);
             }
+
             InitBeamMeshIndices();
             UpdateBeamMesh();
+            UpdatePosition();
 
-            QuadVertexDecl = new VertexDeclaration(Empire.Universe.ScreenManager.GraphicsDevice, VertexPositionNormalTexture.VertexElements);
+            if (QuadVertexDecl == null)
+                QuadVertexDecl = new VertexDeclaration(GameBase.Base.GraphicsDevice,
+                                        VertexPositionNormalTexture.VertexElements);
+
+            Empire.Universe?.Objects.Add(this);
         }
 
         public override void Die(GameplayObject source, bool cleanupOnly)
@@ -214,6 +245,37 @@ namespace Ship_Game
             return true;
         }
 
+        // This is a bugfix for broken Hit Destinations
+        public void SetActualHitDestination(Vector2 hit)
+        {
+            Vector2 delta = hit - Source;
+            float distance = delta.Length();
+            if (distance > (Range+10)) // if distance is ridiculous, normalize it to something meaningful
+            {
+                ActualHitDestination = Source + delta.Normalized() * Range;
+            }
+            else
+            {
+                ActualHitDestination = hit;
+            }
+        }
+
+        void UpdatePosition()
+        {
+            Vector2 source = Source;
+            Vector2 target = ActualHitDestination;
+            int x1 = (int)Math.Min(source.X, target.X);
+            int y1 = (int)Math.Min(source.Y, target.Y);
+            int x2 = (int)Math.Max(source.X, target.X);
+            int y2 = (int)Math.Max(source.Y, target.Y);
+
+            // These are used by Spatial management
+            Center = new Vector2((x1 + x2) >> 1,
+                                 (y1 + y2) >> 1);
+            RadiusX = (x2 - x1) >> 1;
+            RadiusY = (y2 - y1) >> 1;
+        }
+
         public override void Update(FixedSimTime timeStep)
         {
             if (Module == null)
@@ -251,7 +313,6 @@ namespace Ship_Game
             Source = muzzleOrigin;
 
             // always update Destination to ensure beam stays in range
-            
             Vector2 newDestination = (Target?.Center ?? Destination);
 
             // old destination adjusted to same distance as newDestination,
@@ -265,12 +326,19 @@ namespace Ship_Game
                 Destination = Source.OffsetTowards(newPosition, Range);
             }
 
-            if (!BeamCollidedThisFrame)
-                ActualHitDestination = Destination;
-            else
-                BeamCollidedThisFrame = false;
+            // only RESET ActualHitDestination if game is unpaused
+            if (timeStep.FixedTime > 0f)
+            {
+                if (!BeamCollidedThisFrame)
+                    ActualHitDestination = Destination; // will be validated below
+                else
+                    BeamCollidedThisFrame = false;
+            }
 
+            SetActualHitDestination(ActualHitDestination); // validate hit destination
+            UpdatePosition();
             UpdateBeamMesh();
+            
             if (Duration < 0f && !Infinite)
             {
                 Die(null, true);
@@ -298,8 +366,9 @@ namespace Ship_Game
             }
         }
 
-        private static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
+        static bool HasParticleHitEffect(float chance) => RandomMath.RandomBetween(0f, 100f) <= chance;
     }
+
     public sealed class DroneBeam : Beam
     {
         readonly DroneAI AI;
@@ -314,7 +383,7 @@ namespace Ship_Game
         {
             Duration -= timeStep.FixedTime;
             Source = AI.Drone.Center;
-            ActualHitDestination = AI.DroneTarget.Center;
+            SetActualHitDestination(AI.DroneTarget?.Center ?? Source);
             // apply drone repair effect, 5 times more if not in combat
             if (DamageAmount < 0f && Source.InRadius(Destination, Range + 10f) && Target is Ship targetShip)
             {
@@ -323,15 +392,8 @@ namespace Ship_Game
             }
 
             UpdateBeamMesh();
-            if (Duration < 0f && !Infinite)
+            if (Active && Duration < 0f && !Infinite)
                 Die(null, true);
-        }
-        public override void Die(GameplayObject source, bool cleanupOnly)
-        {
-            //im confused on this setsystem. why are we doing this?
-            //pretty sure its going to be set to null later int he die process.
-            SetSystem(AI.Drone.Owner.System);
-            base.Die(source, cleanupOnly);
         }
     }
 }

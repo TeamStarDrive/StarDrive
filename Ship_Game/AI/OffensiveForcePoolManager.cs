@@ -23,7 +23,6 @@ namespace Ship_Game.AI
             
             if (ThreatTimer < 0) ThreatTimer = 2f;
 
-            float ownerStr = Owner.CurrentMilitaryStrength;
             for (int index = AreasOfOperations.Count - 1; index >= 0; index--)
             {
                 AO areasOfOperation = AreasOfOperations[index];
@@ -83,11 +82,11 @@ namespace Ship_Game.AI
             systems = new HashSet<SolarSystem>();
             int planetCount = 0;
             foreach (AO ao in AreasOfOperations)
-                planetCount += ao.GetPlanets().Length;            
+                planetCount += ao.GetOurPlanets().Length;            
             Planet[] allPlanets = new Planet[planetCount];
             int x = 0;
             foreach (AO ao in AreasOfOperations)
-                foreach (Planet planet in ao.GetPlanets())
+                foreach (Planet planet in ao.GetOurPlanets())
                 {
                     systems.Add(planet.ParentSystem);
                     allPlanets[x++] = planet;
@@ -99,7 +98,7 @@ namespace Ship_Game.AI
 
         public AO GetAOContaining(Planet planetToCheck)
         {
-            return AreasOfOperations.Find(ao=> ao.CoreWorld == planetToCheck || ao.GetPlanets().Contains(planetToCheck));
+            return AreasOfOperations.Find(ao=> ao.CoreWorld == planetToCheck || ao.CoreWorld.ParentSystem == planetToCheck.ParentSystem || ao.GetOurPlanets().Contains(planetToCheck));
         }
 
         public AO GetAOContaining(Vector2 point)

@@ -41,7 +41,7 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (CreateTask != null)
             {
@@ -55,13 +55,13 @@ namespace Ship_Game
                 }
             }
             ScreenState = ScreenState.Active;
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             batch.Begin();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 
@@ -147,13 +147,9 @@ namespace Ship_Game
                 sandbox.CreateEmpire(data);
             }
 
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                foreach (Empire e in EmpireManager.Empires)
-                    if (empire != e) empire.AddRelationships(e, new Relationship(e.data.Traits.Name));
-            }
+            Empire.InitializeRelationships(EmpireManager.Empires, UniverseData.GameDifficulty.Normal);
 
-            foreach(SolarSystem system in sandbox.SolarSystemsList)
+            foreach (SolarSystem system in sandbox.SolarSystemsList)
             {
                 system.FiveClosestSystems = sandbox.SolarSystemsList.FindMinItemsFiltered(5,
                                             filter => filter != system,

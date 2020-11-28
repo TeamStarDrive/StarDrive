@@ -61,27 +61,27 @@ namespace UnitTests.Planets
                 //but make sure it dropped at least 1 bomb.
                 if (tile == null && i > 0)
                     break;
+
                 CreateOrbitalDrop(out OrbitalDrop orbitalDrop, tile);
                 float expectedPop = P.Population - B.PopKilled * 1000;
                 orbitalDrop.DamageColonySurface(B);
-                Assert.That.Equal(expectedPop, P.Population, $"At index {i}");
+                Assert.IsTrue(P.Population < expectedPop + 10 && P.Population > expectedPop - 10, $"At index {i}");
             }
         }
 
         [TestMethod]
         public void TestPopKilledUnhabitable()
         {
-
             CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindUnhabitableTargetTile(P));
             float expectedPop = P.Population - B.PopKilled * 100; // 0.1 of pop killed potential. the usual is * 1000
             orbitalDrop.DamageColonySurface(B);
-            Assert.That.Equal(expectedPop, P.Population);
+            Assert.IsTrue(P.Population < expectedPop + 10 && P.Population > expectedPop - 10);
         }
 
         [TestMethod]
         public void TestTileDestruction()
         {
-            float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile * TestEmpire.RacialEnvModifer(P.Category);
+            float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile * Empire.RacialEnvModifer(P.Category, TestEmpire);
             P.DestroyTile(FindHabitableTargetTile(P));
             Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
         }
@@ -93,7 +93,7 @@ namespace UnitTests.Planets
             ResourceManager.GetBuilding(Building.BiospheresId, out Building bioSpheres);
             bioTile.PlaceBuilding(bioSpheres, P);
             P.UpdateMaxPopulation();
-            float expectedMaxPop = P.MaxPopulation - P.PopPerBiosphere;
+            float expectedMaxPop = P.MaxPopulation - P.PopPerBiosphere(TestEmpire);
             P.DestroyTile(bioTile);
             Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
             Assert.IsFalse(bioTile.Biosphere);

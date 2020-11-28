@@ -100,8 +100,8 @@
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
     <Compile Include="Serialization\TestSerialization.cs" />
-    <Compile Include="Universe\QuadTreeVisualization.cs" />
-    <Compile Include="Universe\TestQuadtree.cs" />
+    <Compile Include="Universe\SpatialVisualization.cs" />
+    <Compile Include="Universe\TestManagedQuadTree.cs" />
     <Compile Include="TestThreadExt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestTextureAtlas.cs" />
@@ -116,6 +116,8 @@
     <Compile Include="UI\TestScrollList.cs" />
     <Compile Include="UI\TestUIElement.cs" />
     <Compile Include="TestGameDummy.cs" />
+    <Compile Include="Universe\TestNativeSpatial.cs" />
+    <Compile Include="Universe\TestSpatialCommon.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -142,7 +144,7 @@
     </Content>
     <Content Include="..\StarDrive\SDNative.dll">
       <Link>SDNative.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\XnaNative.dll">
       <Link>XnaNative.dll</Link>

@@ -73,6 +73,7 @@ namespace Ship_Game
         [Serialize(61)] public int DefenseShipsCapacity;
         [Serialize(62)] public ShipData.RoleName DefenseShipsRole;
         [Serialize(63)] public int Infrastructure;
+        [Serialize(64)] public bool DetectsRemnantFleet;
 
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
@@ -172,7 +173,7 @@ namespace Ship_Game
         bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 0;
 
         static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
-                                              => ShipBuilder.PickFromCandidates(roleName, empire);
+                                              => ShipBuilder.PickFromCandidates(roleName, empire, normalizedStrength: false);
 
         void LaunchDefenseShips(Planet p, Ship target, Empire empire)
         {
@@ -253,11 +254,12 @@ namespace Ship_Game
             return false;
         }
 
-        public float MaxFertilityOnBuildFor(Empire empire, PlanetCategory category) => empire?.RacialEnvModifer(category) * MaxFertilityOnBuild 
-                                                                                                                         ?? MaxFertilityOnBuild;
+        public float MaxFertilityOnBuildFor(Empire empire, PlanetCategory category) 
+            => Empire.RacialEnvModifer(category, empire) * MaxFertilityOnBuild;
+
         public float ActualMaintenance(Planet p) => Maintenance * p.Owner.data.Traits.MaintMultiplier;
 
-        public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID);
+        public bool EventHere          => !string.IsNullOrEmpty(EventTriggerUID) || Name == "Dynamic Crash Site";
         public bool IsAttackable       => CombatStrength > 0;
         public bool CanAttack          => CombatStrength > 0 && AvailableAttackActions > 0;
         public bool IsMoneyBuilding    => CreditsPerColonist > 0 || PlusTaxPercentage > 0;
@@ -366,7 +368,7 @@ namespace Ship_Game
             {
                 UniverseScreen u = Empire.Universe;
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
-                u.ScreenManager.AddScreenDeferred(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true));
+                u.ScreenManager.AddScreenDeferred(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true, p));
             }
         }
 
@@ -377,7 +379,7 @@ namespace Ship_Game
             if (CanAttack)
             {
                 score += Strength + Defense + CombatStrength + SoftAttack + HardAttack;
-                score += PlanetaryShieldStrengthAdded / 100;
+                score += PlanetaryShieldStrengthAdded / 50;
                 score += InvadeInjurePoints * 10;
                 if (AllowInfantry)
                     score += 50;

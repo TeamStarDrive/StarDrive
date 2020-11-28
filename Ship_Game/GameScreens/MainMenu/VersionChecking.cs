@@ -64,17 +64,17 @@ namespace Ship_Game.GameScreens.MainMenu
                 ModVersionCheck.PopulateVersions(modVersionText, drawLoc);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (BlackBoxVersionCheck.FilesAvailable == null)
             {
                 ExitScreen();
                 return;
             }
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.Begin();
-            BlackBoxVersionCheck.Draw(batch);
-            ModVersionCheck.Draw(batch);
+            BlackBoxVersionCheck.Draw(batch, elapsed);
+            ModVersionCheck.Draw(batch, elapsed);
             batch.End();
         }
 

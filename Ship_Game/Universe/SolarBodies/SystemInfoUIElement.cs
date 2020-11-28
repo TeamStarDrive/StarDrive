@@ -64,15 +64,15 @@ namespace Ship_Game
             RightRect = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
         }
 
-        public override void Draw(FrameTimes elapsed)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            DrawInPosition(elapsed);
+            DrawInPosition(batch, elapsed);
         }
 
-        void DrawInPosition(FrameTimes elapsed)
+        void DrawInPosition(SpriteBatch batch, DrawTimes elapsed)
         {
-            SpriteBatch batch = ScreenManager.SpriteBatch;
-
+            s = this.s;
+            if (s == null) return;
             ClickTimer += elapsed.RealTime.Seconds;
             SelectionTimer += elapsed.RealTime.Seconds;
             Vector2 pPos = screen.ProjectTo2D(s.Position.ToVec3());
@@ -222,11 +222,11 @@ namespace Ship_Game
                         }
                         if (p.Owner == null)
                         {
-                            HelperFunctions.DrawDropShadowText1(batch, p.Name, PlanetTypeCursor, SysFont, (p.Habitable ? tColor : Color.LightPink));
+                            batch.DrawDropShadowText1(p.Name, PlanetTypeCursor, SysFont, p.Habitable ? tColor : Color.LightPink);
                         }
                         else
                         {
-                            HelperFunctions.DrawDropShadowText1(batch, p.Name, PlanetTypeCursor, SysFont, (p.Habitable ? p.Owner.EmpireColor : Color.LightPink));
+                            batch.DrawDropShadowText1(p.Name, PlanetTypeCursor, SysFont, (p.Habitable ? p.Owner.EmpireColor : Color.LightPink));
                         }
                         if (p.Habitable)
                         {

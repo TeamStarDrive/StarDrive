@@ -17,12 +17,15 @@ namespace Ship_Game
         Rectangle FlagRight;
         Menu2 TitleBar;
         Menu1 NameMenu;
+        Menu1 EnvMenu;
         Submenu Traits;
         ScrollList2<TraitsListItem> TraitsList;
         UIColorPicker Picker;
 
         UIButton ModeBtn;
-
+        UILabel EnvPerfTitle;
+        UILabel EnvPerfBest;
+        UIPanel BestPlanetIcon;
         Rectangle FlagRect;
         ScrollList2<RaceArchetypeListItem> ChooseRaceList;
         ScrollList2<TextListItem> DescriptionTextList;
@@ -49,6 +52,25 @@ namespace Ship_Game
         string Plural      { get => PlurEntry.Text; set => PlurEntry.Text = value; }
         string HomeSysName { get => SysEntry.Text;  set => SysEntry.Text  = value; }
         string HomeWorldName = "Earth";
+
+        UILabel TerranEnvEntry;
+        UILabel SteppeEnvEntry;
+        UILabel OceanicEnvEntry;
+        UILabel SwampEnvEntry;
+        UILabel TundraEnvEntry;
+        UILabel IceEnvEntry;
+        UILabel DesertEnvEntry;
+        UILabel BarrenEnvEntry;
+
+        string TerranEnvPerf  { set => TerranEnvEntry.Text  = value; }
+        string SteppeEnvPerf  { set => SteppeEnvEntry.Text  = value; }
+        string OceanicEnvPerf { set => OceanicEnvEntry.Text = value; }
+        string SwampEnvPerf   { set => SwampEnvEntry.Text   = value; }
+        string TundraEnvPerf  { set => TundraEnvEntry.Text  = value; }
+        string IceEnvPerf     { set => IceEnvEntry.Text     = value; }
+        string DesertEnvPerf  { set => DesertEnvEntry.Text  = value; }
+        string BarrenEnvPerf  { set => BarrenEnvEntry.Text  = value; }
+
         int PreferredEnvDescription;
 
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu)
@@ -125,10 +147,10 @@ namespace Ship_Game
                 if (e.Singular == "Human")
                     SelectedData = e;
 
-            NameEntry  = AddSplitter("{EmpireName}: ", SelectedData.Name);
-            SingEntry = AddSplitter("{RaceNameSingular}: ", SelectedData.Singular);
-            PlurEntry = AddSplitter("{RaceNamePlural}: ", SelectedData.Plural);
-            SysEntry = AddSplitter("{HomeSystemName}: ", SelectedData.HomeSystemName);
+            NameEntry     = AddSplitter("{EmpireName}: ", SelectedData.Name);
+            SingEntry     = AddSplitter("{RaceNameSingular}: ", SelectedData.Singular);
+            PlurEntry     = AddSplitter("{RaceNamePlural}: ", SelectedData.Plural);
+            SysEntry      = AddSplitter("{HomeSystemName}: ", SelectedData.HomeSystemName);
             HomeWorldName = SelectedData.HomeWorldName;
 
             var traitsList = new Rectangle(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
@@ -213,10 +235,43 @@ namespace Ship_Game
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
 
-            ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked).SetRelPos(ChooseRaceList.Width/2 - 142, -40);
-            ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked).SetRelPos(ChooseRaceList.Width/2 + 10, -40);
+            EnvMenu = Add(new Menu1(5, (int)TitleBar.Bottom + 5, (int)ChooseRaceList.Width+5, 150, withSub: false));
+            var envTitlePos  = new Vector2(40, TitleBar.Bottom + 20);
+            EnvPerfTitle     = Add(new UILabel(envTitlePos, "Environment Preferences", LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold, Color.BurlyWood));
+            EnvPerfBest      = Add(new UILabel(envTitlePos, "Best Planet Type", LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold, Color.BurlyWood));
+            EnvPerfBest.SetRelPos(envTitlePos.X + (LowRes ? 175 : 275), envTitlePos.Y);
+            CreatePlanetIcon();
+
+            UIList envPerf1  = AddList(new Vector2(envTitlePos.X-20, envTitlePos.Y + 30));
+            envPerf1.Padding = new Vector2(4, 4);
+            UIList envPerf2  = AddList(new Vector2(envTitlePos.X + (LowRes ? 60 : 120), envTitlePos.Y + 30));
+            envPerf2.Padding = envPerf1.Padding;
+            UILabel AddEnvSplitter(string title, float envPerfInput, UIList list)
+            {
+                var font    = LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
+                Color color = Color.White;
+                if (envPerfInput.Greater(1)) color = Color.Green;
+                if (envPerfInput.Less(1))    color = Color.Red;
+
+                var input = new UILabel(envPerfInput.String(2)) { Color = color, Font = font };
+                var label = new UILabel(LocalizedText.Parse(title), font, Color.Wheat);
+                list.AddSplit(label, input).Split = LowRes ? 50 :80;
+                return input;
+            }
+
+            TerranEnvEntry  = AddEnvSplitter("{Terran}: ", SelectedData.EnvPerfTerran, envPerf1);
+            SteppeEnvEntry  = AddEnvSplitter("{Steppe}: ", SelectedData.EnvPerfSteppe, envPerf1);
+            OceanicEnvEntry = AddEnvSplitter("{Oceanic}: ", SelectedData.EnvPerfOceanic, envPerf1);
+            SwampEnvEntry   = AddEnvSplitter("{Swamp}: ", SelectedData.EnvPerfSwamp, envPerf1);
+
+            TundraEnvEntry  = AddEnvSplitter("{Tundra}: ", SelectedData.EnvPerfTundra, envPerf2);
+            IceEnvEntry     = AddEnvSplitter("{Ice}: ", SelectedData.EnvPerfIce, envPerf2);
+            DesertEnvEntry  = AddEnvSplitter("{Desert}: ", SelectedData.EnvPerfDesert, envPerf2);
+            BarrenEnvEntry  = AddEnvSplitter("{Barren}: ", SelectedData.EnvPerfBarren, envPerf2);
 
             var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + 10);
+
+            SetEnvPerfVisibility(envPerf1, envPerf2);
 
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
@@ -224,14 +279,61 @@ namespace Ship_Game
 
             ChooseRaceList.StartTransitionFrom(ChooseRaceList.Pos - new Vector2(ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.StartTransitionFrom(DescriptionTextList.Pos + new Vector2(DescriptionTextList.Width, 0), TransitionOnTime);
+            EnvMenu.StartTransitionFrom(EnvMenu.Pos - new Vector2(EnvMenu.Width, 0), TransitionOnTime);
+            envPerf1.StartTransitionFrom(envPerf1.Pos - new Vector2(EnvMenu.Width, 0), TransitionOnTime);
+            envPerf2.StartTransitionFrom(envPerf2.Pos - new Vector2(EnvMenu.Width, 0), TransitionOnTime);
+            BestPlanetIcon.StartTransitionFrom(BestPlanetIcon.Pos - new Vector2(EnvMenu.Width, 0), TransitionOnTime);
+            EnvPerfTitle.StartTransitionFrom(EnvPerfTitle.Pos - new Vector2(EnvMenu.Width, 0), TransitionOnTime);
+            EnvPerfBest.StartTransitionFrom(EnvPerfBest.Pos - new Vector2(EnvMenu.Width, 0), TransitionOnTime);
 
             OnExit += () =>
             {
                 ChooseRaceList.StartTransitionTo(ChooseRaceList.Pos - new Vector2(ChooseRaceList.Width, 0), TransitionOffTime);
                 DescriptionTextList.StartTransitionTo(DescriptionTextList.Pos + new Vector2(DescriptionTextList.Width, 0), TransitionOffTime);
+                EnvMenu.StartTransitionTo(EnvMenu.Pos - new Vector2(EnvMenu.Width, 0), TransitionOffTime);
+                envPerf1.StartTransitionTo(envPerf1.Pos - new Vector2(EnvMenu.Width, 0), TransitionOffTime);
+                envPerf2.StartTransitionTo(envPerf2.Pos - new Vector2(EnvMenu.Width, 0), TransitionOffTime);
+                BestPlanetIcon.StartTransitionTo(BestPlanetIcon.Pos - new Vector2(EnvMenu.Width, 0), TransitionOffTime);
+                EnvPerfTitle.StartTransitionTo(EnvPerfTitle.Pos - new Vector2(EnvMenu.Width, 0), TransitionOffTime);
+                EnvPerfBest.StartTransitionTo(EnvPerfBest.Pos - new Vector2(EnvMenu.Width, 0), TransitionOffTime);
             };
 
             base.LoadContent();
+        }
+
+        void SetEnvPerfVisibility(UIList list1, UIList list2)
+        {
+            bool visible = GlobalStats.HasMod && GlobalStats.ActiveModInfo.DisplayEnvPerfInRaceDesign;
+            float raceLoadSaveY = visible ? -190 : - 40;
+
+            ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked).SetRelPos(ChooseRaceList.Width / 2 - 142, raceLoadSaveY);
+            ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked).SetRelPos(ChooseRaceList.Width / 2 + 10, raceLoadSaveY);
+
+            list1.Visible          = visible;
+            list2.Visible          = visible;
+            EnvPerfTitle.Visible   = visible;
+            EnvMenu.Visible        = visible;
+            EnvPerfBest.Visible    = visible;
+            BestPlanetIcon.Visible = visible;
+        }
+
+        SubTexture GetBestPlanetTex(IEmpireData data)
+        {
+            string path;
+            switch (data.PreferredEnvPlanet)
+            {
+                default:
+                case PlanetCategory.Terran:  path = "Planets/25"; break;
+                case PlanetCategory.Steppe:  path = "Planets/18"; break;
+                case PlanetCategory.Oceanic: path = "Planets/21"; break;
+                case PlanetCategory.Swamp:   path = "Planets/19"; break;
+                case PlanetCategory.Tundra:  path = "Planets/11"; break;
+                case PlanetCategory.Ice:     path = "Planets/17"; break;
+                case PlanetCategory.Desert:  path = "Planets/14"; break;
+                case PlanetCategory.Barren:  path = "Planets/16"; break;
+            }
+
+            return ResourceManager.Texture(path);
         }
 
         public void OnTraitsTabChanged(int tabIndex)
@@ -361,6 +463,16 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (EnvPerfTitle.Visible && EnvPerfTitle.HitTest(input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("Some races have modifiers to their Max Population and Fertility based on the planet type.");
+            }
+
+            if (EnvPerfBest.Visible && EnvPerfBest.HitTest(input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("This is the best suited environment for this race, Terraforming a planet will transform it to this planet type.");
+            }
+
             if (Picker.Visible)
                 return Picker.HandleInput(input);
 
@@ -436,6 +548,49 @@ namespace Ship_Game
         {
             SelectedData = item.EmpireData;
             SetRacialTraits(SelectedData.Traits);
+            RefreshEnvPerf(SelectedData);
+        }
+
+        void RefreshEnvPerf(IEmpireData data)
+        {
+            TerranEnvPerf  = data.EnvPerfTerran.String(2);
+            SteppeEnvPerf  = data.EnvPerfSteppe.String(2);
+            OceanicEnvPerf = data.EnvPerfOceanic.String(2);
+            SwampEnvPerf   = data.EnvPerfSwamp.String(2);
+            TundraEnvPerf  = data.EnvPerfTundra.String(2);
+            IceEnvPerf     = data.EnvPerfIce.String(2);
+            DesertEnvPerf  = data.EnvPerfDesert.String(2);
+            BarrenEnvPerf  = data.EnvPerfBarren.String(2);
+            RefreshEnvColors(TerranEnvEntry, data.EnvPerfTerran);
+            RefreshEnvColors(SteppeEnvEntry, data.EnvPerfSteppe);
+            RefreshEnvColors(OceanicEnvEntry, data.EnvPerfOceanic);
+            RefreshEnvColors(SwampEnvEntry, data.EnvPerfSwamp);
+            RefreshEnvColors(TundraEnvEntry, data.EnvPerfTundra);
+            RefreshEnvColors(IceEnvEntry, data.EnvPerfIce);
+            RefreshEnvColors(DesertEnvEntry, data.EnvPerfDesert);
+            RefreshEnvColors(BarrenEnvEntry, data.EnvPerfBarren);
+            CreatePlanetIcon();
+        }
+
+        void CreatePlanetIcon()
+        {
+            BestPlanetIcon?.RemoveFromParent(true);
+
+            int planetIconSize = LowRes ? 80 : 100;
+            var planetIcon = new Rectangle((int)EnvPerfBest.RelPos.X, (int)EnvPerfBest.Pos.Y + 20, planetIconSize, planetIconSize);
+            BestPlanetIcon = Add(new UIPanel(planetIcon, GetBestPlanetTex(SelectedData))
+            {
+                Tooltip = Planet.TextCategory(SelectedData.PreferredEnvPlanet)
+            });
+        }
+
+        void RefreshEnvColors(UILabel entry, float value)
+        {
+            Color color                   = Color.White;
+            if (value.Greater(1)) color = Color.Green;
+            if (value.Less(1))    color = Color.Red;
+
+            entry.Color = color;
         }
 
         void OnEngageClicked(UIButton b)
@@ -483,19 +638,19 @@ namespace Ship_Game
             ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             CreateRaceSummary();
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             batch.Draw(ResourceManager.Flag(FlagIndex), FlagRect, Picker.CurrentColor);
             FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
@@ -521,7 +676,7 @@ namespace Ship_Game
                 return false;
             }
 
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 float start = Screen.DescriptionTextList.NumEntries > 0
                             ? Screen.DescriptionTextList.ItemAtBottom.Bottom

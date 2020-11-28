@@ -24,7 +24,11 @@ namespace Ship_Game
             {
                 if (!keyValuePair.Value)
                     continue;
-                Building b = ResourceManager.GetBuildingTemplate(keyValuePair.Key);
+
+                // when loading from savegames, unlocked BDict can contain invalid entries
+                if (!ResourceManager.GetBuilding(keyValuePair.Key, out Building b))
+                    continue;
+
                 // Skip adding + food buildings for cybernetic races
                 if (IsCybernetic && !b.ProducesProduction && !b.ProducesResearch && b.ProducesFood)
                     continue;
@@ -65,6 +69,7 @@ namespace Ship_Game
 
         public bool MilitaryBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && b.IsMilitary);
         public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && !b.IsMilitary);
+        public bool MilitaryBaseInTheWorks     => ConstructionQueue.Any(b => b.isBuilding && !b.Building.AllowInfantry);
 
         public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);
         public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
@@ -90,7 +95,10 @@ namespace Ship_Game
         {
             get
             {
-                float totalProdNeeded        = TotalProdNeededInQueue();
+                float totalProdNeeded = TotalProdNeededInQueue();
+                if (totalProdNeeded.AlmostZero())
+                    return 0;
+
                 float maxProductionWithInfra = MaxProductionToQueue.LowerBound(0.01f);
                 float turnsWithInfra         = ProdHere / InfraStructure.LowerBound(0.01f);
                 float totalProdWithInfra     = turnsWithInfra * maxProductionWithInfra;
@@ -108,19 +116,51 @@ namespace Ship_Game
                 return 9999; // impossible
 
             float effectiveCost = forTroop ? cost : (cost * ShipBuildingModifier).LowerBound(0);
+            effectiveCost      += TotalShipCostInRefitGoals();
             int itemTurns       = (int)Math.Ceiling(effectiveCost.LowerBound(0) / Prod.NetIncome.Clamped(0.1f, MaxProductionToQueue));
             int total           = itemTurns + TurnsUntilQueueCompleted; // FB - this is just an estimation
             return total.UpperBound(9999);
         }
 
-        public float TotalCostOfTroopsInQueue()
-        {
-            return ConstructionQueue.Filter(qi => qi.isTroop).Sum(qi => qi.Cost);
-        }
-
         public float TotalProdNeededInQueue()
         {
             return ConstructionQueue.Sum(qi => qi.ProductionNeeded);
+        }
+
+        float TotalShipCostInRefitGoals()
+        {
+            var refitGoals = Owner.GetEmpireAI().Goals
+                .Filter(g => (g.type == GoalType.Refit || g.type == GoalType.RefitOrbital) && g.PlanetBuildingAt == this);
+
+            if (refitGoals.Length == 0)
+                return 0;
+
+            float cost = 0;
+            for (int i = 0; i < refitGoals.Length; i++)
+            {
+                Goal goal = refitGoals[i];
+                if (goal.ToBuildUID.NotEmpty())
+                {
+                    var newShip = ResourceManager.GetShipTemplate(goal.ToBuildUID, false);
+                    if (goal.OldShip != null && newShip != null)
+                        cost += goal.OldShip.RefitCost(newShip) * ShipBuildingModifier;
+                }
+            }
+
+            return cost.LowerBound(0);
+        }
+
+        public float MissingProdHereForScrap(Goal[] scrapGoals)
+        {
+            float effectiveProd         = ProdHere + IncomingProd;
+            if (scrapGoals.Length > 0)
+            {
+                var scrapGoalsTargetingThis = scrapGoals.Filter(g => g.type == GoalType.ScrapShip && g.PlanetBuildingAt == this);
+                if (scrapGoalsTargetingThis.Length > 0)
+                    effectiveProd += scrapGoalsTargetingThis.Sum(g => g.OldShip?.GetScrapCost() ?? 0);
+            }
+
+            return Storage.Max - effectiveProd; // Negative means we have excess prod
         }
 
         public Array<Ship> GetAllShipsInQueue() => ShipRolesInQueue(null);

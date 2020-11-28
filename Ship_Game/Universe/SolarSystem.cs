@@ -100,10 +100,10 @@ namespace Ship_Game
             }
 
             isVisible = universe.Frustum.Contains(Position, Radius)
-                    && (universe.viewState <= UniverseScreen.UnivScreenState.SectorView)
+                    && (universe.IsSectorViewOrCloser)
                     && IsExploredBy(player);
 
-            if (isVisible && universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+            if (isVisible && universe.IsSystemViewOrCloser)
             {
                 WasVisibleLastFrame = true;
                 for (int i = 0; i < AsteroidsList.Count; i++)
@@ -137,18 +137,20 @@ namespace Ship_Game
                     planet.Station.Update(timeStep);
             }
 
-            bool radiation = ShouldApplyRadiationDamage(timeStep);
             if (Sun.RadiationDamage > 0f)
                 UpdateSolarRadiationDebug();
 
-            for (int i = 0; i < ShipList.Count; ++i)
+            bool radiation = ShouldApplyRadiationDamage(timeStep);
+            if (radiation)
             {
-                Ship ship = ShipList[i];
-                if (radiation && ship.Active)
+                for (int i = 0; i < ShipList.Count; ++i)
                 {
-                    ApplySolarRadiationDamage(ship);
+                    Ship ship = ShipList[i];
+                    if (ship.Active)
+                    {
+                        ApplySolarRadiationDamage(ship);
+                    }
                 }
-                ship.Update(timeStep);
             }
         }
 
@@ -203,7 +205,7 @@ namespace Ship_Game
 
         void ApplySolarRadiationDamage(Ship ship)
         {
-            if (ShipWithinRadiationRadius(ship, out float distance))
+            if (!ship.IsGuardian && ShipWithinRadiationRadius(ship, out float distance))
             {
                 float damage = SunLayers[0].Intensity * Sun.DamageMultiplier(distance)
                                                       * Sun.RadiationDamage;
@@ -370,8 +372,6 @@ namespace Ship_Game
                     string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(i);
                     var newOrbital    = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
 
-                    newOrbital.GenerateRemnantPresence();
-
                     PlanetList.Add(newOrbital);
                     ringRadius += newOrbital.ObjectRadius;
                     var ring = new Ring
@@ -468,16 +468,9 @@ namespace Ship_Game
                     newOrbital.RingTilt = RandomBetween(-80f, -45f);
                 }
 
-                // Add Remnant Presence
-                newOrbital.GenerateRemnantPresence();
-
                 // Add buildings to planet
                 foreach (string building in ringData.BuildingList)
                     ResourceManager.CreateBuilding(building).SetPlanet(newOrbital);
-
-                // Add ships to orbit
-                foreach (string ship in ringData.Guardians)
-                    newOrbital.Guardians.Add(ship);
 
                 // Add moons to planets
                 for (int j = 0; j < ringData.Moons.Count; j++)
@@ -585,6 +578,22 @@ namespace Ship_Game
             return strength;
         }
 
+        public float GetKnownStrengthHostileTo(Empire e)
+        {
+            float strength = 0f;
+            for (int i = 0; i < ShipList.Count; i++)
+            {
+                Ship ship = ShipList[i];
+                if (ship?.Active != true || !ship.KnownByEmpires.KnownBy(e)) continue;
+                if (!ship.loyalty.IsAtWarWith(e))
+                    continue;
+                strength += ship.GetStrength();
+            }
+
+            return strength;
+        }
+
+
         bool NoAsteroidProximity(Vector2 pos)
         {
             for (int i = 0; i < AsteroidsList.Count; i++)
@@ -682,12 +691,12 @@ namespace Ship_Game
                     SpecialDescription   = planet.SpecialDescription,
                     IncomingFreighters   = planet.IncomingFreighterIds,
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
-                    StationsList         = planet.OrbitalStations.Where(kv => kv.Value.Active)
-                                                                 .Select(kv => kv.Key).ToArray(),
-
+                    StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.guid).ToArray(),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     BaseFertilityTerraformRatio = planet.BaseFertilityTerraformRatio
                 };
+
+
 
                 if (planet.Owner != null)
                 {

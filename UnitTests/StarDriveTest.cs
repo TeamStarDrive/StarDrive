@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using UnitTests.UI;
 
@@ -108,13 +109,20 @@ namespace UnitTests
             Cleanup();
         }
 
-        public void CreateUniverseAndPlayerEmpire(out Empire player)
+        void RequireGameInstance(string functionName)
         {
             if (Game == null)
-                throw new Exception("CreateGameInstance() must be called BEFORE CreateUniverseAndPlayerEmpire() !");
+                throw new Exception($"CreateGameInstance() must be called BEFORE {functionName}() !");
+
+        }
+
+        public void CreateUniverseAndPlayerEmpire(out Empire player)
+        {
+            RequireGameInstance(nameof(CreateUniverseAndPlayerEmpire));
 
             var data = new UniverseData();
             Player = player = data.CreateEmpire(ResourceManager.MajorRaces[0]);
+            Player.isPlayer = true;
             Empire.Universe = Universe = new UniverseScreen(data, player);
             Universe.player = player;
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
@@ -123,6 +131,7 @@ namespace UnitTests
 
         public void LoadStarterShips(params string[] shipList)
         {
+            RequireGameInstance(nameof(LoadStarterShips));
             ResourceManager.LoadStarterShipsForTesting(shipList.Length == 0 ? null : shipList);
         }
 
@@ -131,7 +140,8 @@ namespace UnitTests
             LoadStarterShips(new[]
             {
                 "Vulcan Scout",
-                "Rocket Scout"
+                "Rocket Scout",
+                "Laserclaw"
             });
         }
         
@@ -139,21 +149,21 @@ namespace UnitTests
         {
             var target = Ship.CreateShipAtPoint(shipName, empire, position);
             target.Rotation = shipDirection.Normalized().ToRadians();
-            target.InFrustum = true; // force module pos update
             target.UpdateShipStatus(new FixedSimTime(0.01f)); // update module pos
             target.UpdateModulePositions(new FixedSimTime(0.01f), true, forceUpdate: true);
+            target.SetSystem(null);
             return target;
         }
 
         public void LoadPlanetContent()
         {
-            if (Game == null)
-                throw new Exception("CreateGameInstance() must be called BEFORE LoadPlanetContent() !");
+            RequireGameInstance(nameof(LoadPlanetContent));
             ResourceManager.LoadPlanetContentForTesting();
         }
 
         public void LoadTechContent()
         {
+            RequireGameInstance(nameof(LoadPlanetContent));
             ResourceManager.LoadTechContentForTesting();
         }
 
@@ -186,6 +196,19 @@ namespace UnitTests
         {
             AddDummyPlanet(out p);
             p.GenerateNewHomeWorld(empire);
+        }
+
+        public Array<Projectile> GetProjectiles(Ship ship)
+        {
+            return Universe.Objects.GetProjectiles(ship);
+        }
+        public int GetProjectileCount(Ship ship)
+        {
+            return GetProjectiles(ship).Count;
+        }
+        public Beam[] GetBeams(Ship ship)
+        {
+            return Universe.Objects.GetBeams(ship);
         }
     }
 }

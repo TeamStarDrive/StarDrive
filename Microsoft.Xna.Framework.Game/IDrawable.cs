@@ -4,6 +4,6 @@
     {
         bool Visible { get; }
         int DrawOrder { get; }
-        void Draw(GameTime gameTime);
+        void Draw(float deltaTime);
     }
 }

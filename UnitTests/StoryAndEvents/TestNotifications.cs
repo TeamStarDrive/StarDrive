@@ -35,10 +35,10 @@ namespace UnitTests.NotificationTests
             NotificationManager.AddAgentResult(true, "AgentTest", empire);
 
             var planet = empire.GetPlanets().First();
-            NotificationManager.AddPlanetDiedNotification(planet, empire);
-            NotificationManager.AddPlanetDiedNotification(planet, empire);
-            NotificationManager.AddPlanetDiedNotification(planet, empire);
-            NotificationManager.AddPlanetDiedNotification(planet, empire);
+            NotificationManager.AddPlanetDiedNotification(planet);
+            NotificationManager.AddPlanetDiedNotification(planet);
+            NotificationManager.AddPlanetDiedNotification(planet);
+            NotificationManager.AddPlanetDiedNotification(planet);
 
             NotificationManager.AddAgentResult(true, "AgentTest", empire);
             NotificationManager.AddAgentResult(true, "AgentTest", empire);
@@ -49,18 +49,16 @@ namespace UnitTests.NotificationTests
         [TestMethod]
         public void TestRemoveTooManyNotifications()
         {
-            var TEN_SECONDS = new VariableFrameTime(10f);
-
             CreateTestEnv(out Empire empire);
             AddNotifications(empire);
             Assert.AreEqual(12, NotificationManager.NumberOfNotifications);
-            NotificationManager.Update(TEN_SECONDS);
+            NotificationManager.Update(10f);
             Assert.AreEqual(11, NotificationManager.NumberOfNotifications);
-            NotificationManager.Update(TEN_SECONDS);
+            NotificationManager.Update(10f);
             Assert.AreEqual(10, NotificationManager.NumberOfNotifications);
-            NotificationManager.Update(TEN_SECONDS);
-            NotificationManager.Update(TEN_SECONDS);
-            NotificationManager.Update(TEN_SECONDS);
+            NotificationManager.Update(10f);
+            NotificationManager.Update(10f);
+            NotificationManager.Update(10f);
             Assert.AreEqual(7, NotificationManager.NumberOfNotifications);
         }
     }

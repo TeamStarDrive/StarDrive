@@ -17,7 +17,6 @@ namespace Ship_Game
         BatchRemovalCollection<Notification> NotificationList;
         public int NumberOfNotifications => NotificationList.Count;
 
-        float LastStarDate;
         public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
 
         public bool IsNotificationPresent(string message)
@@ -64,7 +63,7 @@ namespace Ship_Game
 
         public void AddAgentResult(bool good, string result, Empire owner)
         {
-            if (owner != EmpireManager.Player || owner.data.SpyMute)
+            if (!owner.isPlayer || owner.data.SpyMute)
                 return;
 
             AddNotification(new Notification
@@ -74,12 +73,26 @@ namespace Ship_Game
             }, good ? "sd_ui_spy_win_02" : "sd_ui_spy_fail_02");
         }
 
-        public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader)
+        public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader, float strRatio)
         {
+            string threatLevel = "\nThreat level vs. our forces\nthere is ";
+            if      (strRatio < 0.1f)  threatLevel += "negligible.";
+            else if (strRatio < 0.3f)  threatLevel += "very low.";
+            else if (strRatio < 0.5f)  threatLevel += "low.";
+            else if (strRatio < 0.75f) threatLevel += "medium.";
+            else if (strRatio < 1f)    threatLevel += "high.";
+            else if (strRatio < 1.5f)  threatLevel += "very high.";
+            else                       threatLevel += "overwhelming.";
+
+            string message = invader.data.Traits.Singular
+                             + Localizer.Token(1500) + '\n'
+                             + Localizer.Token(1501) + beingInvaded.Name
+                             + Localizer.Token(1502) + threatLevel;
+
             AddNotification(new Notification
             {
                 RelevantEmpire  = invader,
-                Message         = invader.data.Traits.Singular + Localizer.Token(1500) + '\n' + Localizer.Token(1501) + beingInvaded.Name + Localizer.Token(1502),
+                Message         = message,
                 ReferencedItem1 = beingInvaded,
                 IconPath        = "NewUI/icon_planet_terran_01_mid",
                 Action          = "SnapToSystem"
@@ -98,14 +111,45 @@ namespace Ship_Game
             }, "sd_ui_notification_colonized_01");
         }
 
-        public void AddConqueredNotification(Planet wasConquered, Empire conquerer, Empire loser)
+        public void AddAnomalyInvestigated(Planet p, string message)
         {
             AddNotification(new Notification
             {
-                RelevantEmpire  = conquerer,
-                Message         = conquerer.data.Traits.Name + Localizer.Token(1503) + wasConquered.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
-                ReferencedItem1 = wasConquered.ParentSystem,
-                IconPath        = wasConquered.IconPath,
+                Message         = message,
+                ReferencedItem1 = p,
+                IconPath        = p.IconPath,
+                Action          = "CombatScreen"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddConqueredNotification(Planet p, Empire conqueror, Empire loser)
+        {
+            string action = "SnapToSystem";
+            object item   = p.ParentSystem;
+            if (conqueror.isPlayer)
+            {
+                action = "SnapToPlanet";
+                item   = p;
+            }
+
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = conqueror,
+                Message         = conqueror.data.Traits.Name + Localizer.Token(1503) + p.Name + "\n" + Localizer.Token(1504) + loser.data.Traits.Name,
+                ReferencedItem1 = item,
+                IconPath        = p.IconPath,
+                Action          = action
+            }, "sd_troop_march_01");
+        }
+
+        public void AddIncomingRemnants(Planet p, string message)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = EmpireManager.Remnants,
+                Message         = message,
+                ReferencedItem1 = p.ParentSystem,
+                IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
             }, "sd_troop_march_01");
         }
@@ -142,9 +186,49 @@ namespace Ship_Game
                 RelevantEmpire = pirates,
                 Message = $"Your Spies report that {pirates.Name} are getting stronger.\n" +
                           $"They have around {numBases} bases.",
-                ClickRect = DefaultClickRect,
+                ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
             }, "sd_troop_march_01");
+        }
+
+        public void AddRemnantsAreGettingStronger(Empire remnants)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = remnants,
+                ClickRect       = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect,
+                Message         = "Your Scientists report that they observed increased\n" +
+                                  "radiation signatures in the galaxy and it is possible\n" +
+                                  "that the Remnants are getting stronger."
+            }, "sd_ui_notification_warning");
+        }
+
+        public void AddRemnantsStoryActivation(Empire remnants)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = remnants,
+                ClickRect       = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect,
+                Message         = "Your Scientists report that they observed increased\n" +
+                                  "radiation signatures in the galaxy. They believe\n" +
+                                  "a new, powerful object has manifested somewhere\n." +
+                                  "and it is related to the Remnants."
+            }, "sd_ui_notification_warning");
+        }
+
+        public void AddRemnantsNewPortal(Empire remnants)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = remnants,
+                ClickRect       = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect,
+                Message         = "Your Scientists report massive radiation increase\n" +
+                                  "in the galaxy. They suspect another Remnant portal\n" +
+                                  "was created in the galaxy!"
+            }, "sd_ui_notification_encounter");
         }
 
         public void AddPiratesAreGettingWeaker(Empire pirates, int numBases)
@@ -229,6 +313,19 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        public void AddRemnantUpdateNotify(ExplorationEvent expEvent, Empire remnants)
+        {
+
+            AddNotification(new Notification
+            {
+                RelevantEmpire  = remnants,
+                Pause           = false,
+                Message         = $"{expEvent.Name}\nClick for more info",
+                ReferencedItem1 = expEvent,
+                Action          = "LoadEvent"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddNotify(Technology.TriggeredEvent techEvent, string message) => 
             AddNotify(ResourceManager.EventsDict[techEvent.EventUID], message);
 
@@ -246,6 +343,46 @@ namespace Ship_Game
                 IconPath        = p.IconPath,
                 Action          = "SnapToExpandSystem"
             }, "sd_ui_notification_encounter");
+        }
+
+        public void AddShipCrashed(Planet p, string message)
+        {
+            AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = message,
+                ReferencedItem1 = p,
+                IconPath        = p.IconPath,
+                Action          = "SnapToPlanet"
+            }, "sd_ui_notification_encounter"); ;
+        }
+
+        /// <summary>
+        /// Message the player regarding recovered ship on a planet.
+        /// Null ship is safe here.
+        /// </summary>
+        public void AddShipRecovered(Planet p, Ship s, string message)
+        {
+            var recover = new Notification
+            {
+                Pause   = false,
+                Message = message
+            };
+
+            if (s != null)
+            {
+                recover.ReferencedItem1 = s;
+                recover.IconPath        = s.shipData.BaseHull.ActualIconPath;
+                recover.Action          = "SnapToShip";
+            }
+            else
+            {
+                recover.ReferencedItem1 = p;
+                recover.IconPath        = p.IconPath;
+                recover.Action          = "SnapToPlanet";
+            }
+
+            AddNotification(recover, "sd_ui_notification_encounter");
         }
 
         public void AddMoneyWarning()
@@ -292,13 +429,13 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        public void AddPlanetDiedNotification(Planet died, Empire owner)
+        public void AddPlanetDiedNotification(Planet p)
         {
             AddNotification(new Notification
             {
-                Message         = Localizer.Token(1511) + died.Name + Localizer.Token(1512),
-                ReferencedItem1 = died.ParentSystem,
-                IconPath        = died.IconPath,
+                Message         = Localizer.Token(1511) + p.Name + Localizer.Token(1512),
+                ReferencedItem1 = p.ParentSystem,
+                IconPath        = p.IconPath,
                 Action          = "SnapToSystem"
             }, "sd_ui_notification_warning");
         }
@@ -608,7 +745,7 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            Screen.SnapViewColony(p);
+            Screen.SnapViewColony(combatView: false);
         }
 
         public void SnapToShip(Ship s)
@@ -632,19 +769,13 @@ namespace Ship_Game
             Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
         }
 
-        public void Update(VariableFrameTime elapsedTime)
+        public void Update(float elapsedRealTime)
         {
-            if (LastStarDate < Screen.StarDate)
-            {
-                LastStarDate = Screen.StarDate;
-                ResourceManager.EventByDate(Screen.StarDate)?.TriggerExplorationEvent(Screen);
-            }
-            
             lock (NotificationLocker)
             {
                 foreach (Notification n in NotificationList)
                 {
-                    n.transitionElapsedTime += elapsedTime.Seconds;
+                    n.transitionElapsedTime += elapsedRealTime;
                     float amount = (float) Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
                     n.ClickRect.Y =
                         (int) Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));
@@ -652,7 +783,6 @@ namespace Ship_Game
                     //fbedard : Add filter to pause
                     if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
                         Screen.Paused = true;
-
                 }
                 if (NotificationList.Count > MaxEntriesToDisplay)  //fbedard: remove excess notifications
                 {

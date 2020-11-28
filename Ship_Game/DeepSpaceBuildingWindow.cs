@@ -16,14 +16,20 @@ namespace Ship_Game
         public Ship itemToBuild;
         Vector2 TetherOffset;
         Guid TargetPlanet = Guid.Empty;
-        readonly ShipInfoOverlayComponent ShipInfoOverlay;
-
+        ShipInfoOverlayComponent ShipInfoOverlay;
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
         {
             Screen = screen;
+            Visible = false;
+        }
+
+        public void InitializeAndShow()
+        {
+            RemoveAll();
+
             const int windowWidth = 320;
-            Rect = new Rectangle(screen.ScreenWidth - 5 - windowWidth, 260, windowWidth, 300);
+            Rect = new Rectangle(Screen.ScreenWidth - 5 - windowWidth, 260, windowWidth, 300);
 
             var background = new Submenu(Rect);
             background.Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
@@ -54,15 +60,17 @@ namespace Ship_Game
             {
                 ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
             };
+
+            Visible = true;
         }
 
         class ConstructionListItem : ScrollListItem<ConstructionListItem>
         {
             public Ship Ship;
 
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
-                base.Draw(batch);
+                base.Draw(batch, elapsed);
                 
                 SubTexture projector = ResourceManager.Texture("ShipIcons/subspace_projector");
                 SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
@@ -83,6 +91,9 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (!Visible || !Enabled)
+                return false;
+
             // only capture input from window UI if we haven't made a selection
             if (itemToBuild == null)
             {
@@ -163,9 +174,23 @@ namespace Ship_Game
             Screen.UpdateClickableItems();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            if (!Visible)
+                return;
+
+            var nodeTex = ResourceManager.Texture("UI/node1");
+            lock (GlobalStats.ClickableSystemsLock)
+            {
+                foreach (UniverseScreen.ClickablePlanets cplanet in Screen.ClickPlanetList)
+                {
+                    float radius = 2500f * cplanet.planetToClick.Scale;
+                    Screen.DrawCircleProjected(cplanet.planetToClick.Center, radius, new Color(255, 165, 0, 150), 1f,
+                        nodeTex, new Color(0, 0, 255, 50));
+                }
+            }
+
+            base.Draw(batch, elapsed);
 
             if (itemToBuild != null)
             {
@@ -209,6 +234,60 @@ namespace Ship_Game
                 }
                 batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
             }
+        }
+
+        float CurrentRadiusSmoothed;
+
+        public void DrawBlendedBuildIcons()
+        {
+            if (!Visible)
+                return;
+
+            lock (GlobalStats.ClickableItemLocker)
+            {
+                var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
+                for (int i = 0; i < Screen.ItemsToBuild.Count; ++i)
+                {
+                    UniverseScreen.ClickableItemUnderConstruction item = Screen.ItemsToBuild[i];
+
+                    if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
+                    {
+                        Screen.ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2 posOnScreen, out float size);
+
+                        float scale = ScaleIconSize(size, 0.01f, 0.125f);
+                        Screen.DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
+                                   platform.Height * scale, new Color(0, 255, 0, 100));
+
+                        if (item.UID == "Subspace Projector")
+                        {
+                            Screen.DrawCircle(posOnScreen, EmpireManager.Player.GetProjectorRadius(), Color.Orange, 2f);
+                        }
+                        else if (buildTemplate.SensorRange > 0f)
+                        {
+                            Screen.DrawCircle(posOnScreen, buildTemplate.SensorRange, Color.Orange, 2f);
+                        }
+                    }
+                }
+            }
+
+            // show the object placement/build circle
+            if (itemToBuild != null && itemToBuild.IsSubspaceProjector && Screen.AdjustCamTimer <= 0f)
+            {
+                Vector2 center = Screen.Input.CursorPosition;
+                float screenRadius = Screen.ProjectToScreenSize(EmpireManager.Player.GetProjectorRadius());
+                Screen.DrawCircle(center, MathExt.SmoothStep(ref CurrentRadiusSmoothed, screenRadius, 0.3f),
+                                  Color.Orange, 2f); //
+            }
+        }
+
+        float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
+        {
+            float size = screenRadius * 2;
+            if (size < minSize && minSize != 0)
+                size = minSize;
+            else if (maxSize > 0f && size > maxSize)
+                size = maxSize;
+            return size + GlobalStats.IconSize;
         }
     }
 }

@@ -338,11 +338,11 @@ namespace SynapseGaming.LightingSystem.Core
         /// <summary>
         /// Updates the contained manager services and their managed resources.
         /// </summary>
-        /// <param name="gameTime"></param>
-        public virtual void Update(GameTime gameTime)
+        /// <param name="deltaTime"></param>
+        public virtual void Update(float deltaTime)
         {
             foreach (IUpdatableManager updatableManager in Updateables)
-                updatableManager.Update(gameTime);
+                updatableManager.Update(deltaTime);
         }
 
         /// <summary>

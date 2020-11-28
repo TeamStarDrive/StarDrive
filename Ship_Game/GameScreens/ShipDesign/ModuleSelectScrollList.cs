@@ -83,9 +83,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         bool IsModuleAvailable(ShipModule template, out ShipModule tmp)

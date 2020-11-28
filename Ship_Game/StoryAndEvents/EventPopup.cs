@@ -8,43 +8,41 @@ namespace Ship_Game
     public sealed class EventPopup : PopupWindow
     {
         public bool Fade;
-
         public bool FromGame;
-
         public ExplorationEvent ExpEvent;
-
         private readonly Outcome _outcome;
-
         private Rectangle _blackRect;
-
+        private Planet Planet;
         public Map<Packagetypes, Array<DrawPackage>> DrawPackages = new Map<Packagetypes, Array<DrawPackage>>();
 
-        public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, Outcome outcome, bool triggerNow) : base(s, 600, 600)
+        public EventPopup(UniverseScreen s, Empire playerEmpire, ExplorationEvent e, 
+            Outcome outcome, bool triggerNow, Planet p = null) : base(s, 600, 600)
         {
             if (triggerNow)
-            {
                 e.TriggerOutcome(playerEmpire, outcome);
-            }
-            _outcome = outcome;
-            ExpEvent = e;
-            Fade = true;
-            IsPopup = true;
-            FromGame = true;
-            TransitionOnTime = 0.25f;
+
+            _outcome          = outcome;
+            ExpEvent          = e;
+            Fade              = true;
+            IsPopup           = true;
+            FromGame          = true;
+            TransitionOnTime  = 0.25f;
             TransitionOffTime = 0f;
+            Planet            = p;
+
             foreach (Packagetypes packagetype in Enum.GetValues(typeof(Packagetypes)))
             {
                 DrawPackages.Add(packagetype,new Array<DrawPackage>());
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Fade)
             {
                 ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             }
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             ScreenManager.SpriteBatch.Begin();
             Vector2 theirTextPos = new Vector2(_blackRect.X + 10, _blackRect.Y + 10);
@@ -133,11 +131,19 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            TitleText = ExpEvent.Name;
-            MiddleText = _outcome.TitleText;
+            string planetName = Planet != null ? $"{Planet.Name}: " : "";
+            TitleText         = planetName + ExpEvent.Name;
+            MiddleText        = _outcome.TitleText;
+
             base.LoadContent();
             Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
-            _blackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 450);
+            _blackRect        = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 450);
+
+            if (Planet != null)
+            {
+                string message = $"Event unfolded on {Planet.Name}\n{ExpEvent.Name}";
+                Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, message);
+            }
         }
 
         public enum Packagetypes

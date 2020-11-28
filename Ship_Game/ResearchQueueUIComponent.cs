@@ -94,13 +94,13 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             if (ResearchQueueList.Visible && CurrentResearch != null)
             {
-                CurrentResearch.Draw(batch);
+                CurrentResearch.Draw(batch, elapsed);
 
                 float remaining = CurrentResearch.Tech.TechCost - CurrentResearch.Tech.Progress;
                 float numTurns = (float)Math.Ceiling(remaining / (0.01f + EmpireManager.Player.Research.NetResearch));

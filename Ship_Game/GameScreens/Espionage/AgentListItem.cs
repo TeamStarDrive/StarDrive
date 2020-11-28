@@ -8,7 +8,7 @@ namespace Ship_Game.GameScreens.Espionage
     {
         public Agent Agent;
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             SubTexture spy  = ResourceManager.Texture("UI/icon_spy");
             SubTexture star = ResourceManager.Texture("UI/icon_star");

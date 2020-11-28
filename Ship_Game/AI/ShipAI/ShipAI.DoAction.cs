@@ -19,8 +19,8 @@ namespace Ship_Game.AI
         {
             HasPriorityTarget = true;
             State = AIState.Boarding;
-
-            if (EscortTarget == null || !EscortTarget.Active || EscortTarget.loyalty == Owner.loyalty)
+            var escortTarget = EscortTarget;
+            if (escortTarget == null || !escortTarget.Active || escortTarget.loyalty == Owner.loyalty)
             {
                 ClearOrders(State);
                 if (Owner.Mothership != null)
@@ -33,11 +33,12 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPos(EscortTarget.Center, timeStep);
-            float distance = Owner.Center.Distance(EscortTarget.Center);
-            if (distance < EscortTarget.Radius + 300f)
+            ThrustOrWarpToPos(escortTarget.Center, timeStep);
+            float distance = Owner.Center.Distance(escortTarget.Center);
+            if (distance < escortTarget.Radius + 300f)
             {
-                Owner.TryLandSingleTroopOnShip(EscortTarget);
+                Owner.TryLandSingleTroopOnShip(escortTarget);
+                OrderReturnToHangar();
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)
             {
@@ -153,12 +154,12 @@ namespace Ship_Game.AI
             {
                 Vector2 prediction = target.Center;
                 Weapon fastestWeapon = Owner.FastestWeapon;
-                if (fastestWeapon != null) // if we have a weapon
+                if (fastestWeapon != null && target.CurrentVelocity > 0) // if we have a weapon
                 {
                     prediction = fastestWeapon.ProjectedImpactPointNoError(target);
                 }
+
                 ThrustOrWarpToPos(prediction, timeStep);
-                return;
             }
         }
 
@@ -190,7 +191,7 @@ namespace Ship_Game.AI
                 Planet planetToTether = Empire.Universe.GetPlanet(g.Goal.TetherTarget);
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = g.Goal.TetherOffset;
-                planetToTether.OrbitalStations.Add(orbital.guid, orbital);
+                planetToTether.OrbitalStations.Add(orbital);
             }
             Owner.QueueTotalRemoval();
             if (g.Goal.OldShip?.Active == true) // we are refitting something
@@ -224,7 +225,7 @@ namespace Ship_Game.AI
             {
                 orbital.Center = g.Goal.BuildPosition;
                 orbital.TetherToPlanet(target);
-                target.OrbitalStations.Add(orbital.guid, orbital);
+                target.OrbitalStations.Add(orbital);
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
                     g.Goal.OldShip.QueueTotalRemoval();
@@ -355,8 +356,8 @@ namespace Ship_Game.AI
             // this is a balance feature
             ThrustOrWarpToPos(landingSpot, timeStep, warpExitDistance: Owner.WarpOutDistance);
             if (Owner.IsDefaultAssaultShuttle)      LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
-            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot,timeStep);
-            else                                    LandTroopsViaTroopShip(timeStep, planet, landingSpot);
+            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot, timeStep);
+            else                                    LandTroopsViaTroopShip(timeStep, planet);
         }
 
         // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
@@ -365,12 +366,16 @@ namespace Ship_Game.AI
         {
             if (landingSpot.InRadius(Owner.Center, Owner.Radius + 40f))
             {
-                bool troopsLanded = Owner.LandTroopsOnPlanet(planet) > 0; // This will vanish default single Troop Ship
+                // This will vanish default single Troop Ship or order Assault shuttle to return to hangar
+                bool troopsLanded = Owner.LandTroopsOnPlanet(planet) > 0; 
 
                 if (troopsLanded)
                 {
-                    Owner.QueueTotalRemoval();
                     DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
+                    if (Owner.Mothership != null && Owner.Mothership.Active)
+                        OrderReturnToHangar();
+                    else
+                        Owner.QueueTotalRemoval();
                 }
 
                 if (Owner.Active)
@@ -379,9 +384,9 @@ namespace Ship_Game.AI
         }
 
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
-        void LandTroopsViaTroopShip(FixedSimTime timeStep, Planet planet, Vector2 landingSpot)
+        void LandTroopsViaTroopShip(FixedSimTime timeStep, Planet planet)
         {
-            if (landingSpot.InRadius(Owner.Center, Owner.Radius + 100f))
+            if (Owner.Center.InRadius(planet.Center, Owner.Radius + planet.ObjectRadius * 2))
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
                     Owner.LandTroopsOnPlanet(planet); // We can land all our troops without assault bays since its our planet with space port
@@ -514,7 +519,7 @@ namespace Ship_Game.AI
                 Owner.QueueTotalRemoval();
                 foreach (ShipModule hangar in Owner.Mothership.Carrier.AllActiveHangars)
                 {
-                    if (hangar.GetHangarShip() != Owner)
+                    if (hangar.TryGetHangarShip(out Ship hangarShip) && hangarShip != Owner)
                         continue;
 
                     hangar.SetHangarShip(null);
@@ -531,9 +536,11 @@ namespace Ship_Game.AI
             {
                 // find another friendly planet to land at
                 Owner.UpdateHomePlanet(Owner.loyalty.RallyShipYardNearestTo(Owner.Center));
-                if (Owner.HomePlanet == null)
+                if (Owner.HomePlanet == null 
+                    || Owner.HomePlanet.ParentSystem != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
                 {
                     // Nowhere to land, bye bye.
+                    ClearOrders(AIState.Scuttle);
                     Owner.ScuttleTimer = 1;
                     return;
                 }
@@ -573,19 +580,35 @@ namespace Ship_Game.AI
             }
         }
 
+        void DoRearmShip(FixedSimTime timeStep)
+        {
+            if (EscortTarget == null)
+            {
+                ClearOrders();
+                return;
+            }
+
+            if (!Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
+                ThrustOrWarpToPos(EscortTarget.Center, timeStep);
+            else
+                ReverseThrustUntilStopped(timeStep);
+        }
+
         void DoSupplyShip(FixedSimTime timeStep)
         {
-            if (EscortTarget == null || !EscortTarget.Active
-                                     || EscortTarget.AI.State == AIState.Resupply
-                                     || EscortTarget.AI.State == AIState.Scrap
-                                     || EscortTarget.AI.State == AIState.Refit)
+            var escortTarget = EscortTarget;
+            if (EscortTarget == null || !escortTarget.Active
+                                     || escortTarget.AI.State == AIState.Resupply
+                                     || escortTarget.AI.State == AIState.Scrap
+                                     || escortTarget.AI.State == AIState.Refit)
             {
                 OrderReturnToHangar();
                 return;
             }
 
+            
             ThrustOrWarpToPos(EscortTarget.Center, timeStep);
-            if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
+            if (Owner.Center.InRadius(escortTarget.Center, escortTarget.Radius + 300f))
             {
                 // how much the target did not take.
                 float leftOverOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);

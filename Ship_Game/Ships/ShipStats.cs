@@ -28,10 +28,10 @@ namespace Ship_Game.Ships
 
         public float FTLSpoolTime;
 
-        public void Update(ShipModule[] modules, ShipData hull, Empire e, int level)
+        public void Update(ShipModule[] modules, ShipData hull, Empire e, int level, float ordnancePercent)
         {
             Cost = GetCost(GetBaseCost(modules), hull, e);
-            Mass = GetMass(modules, e);
+            Mass = GetMass(modules, e, ordnancePercent);
 
             (Thrust,WarpThrust,TurnThrust) = GetThrust(modules, hull);
             VelocityMax = GetVelocityMax(Thrust, Mass);
@@ -61,11 +61,11 @@ namespace Ship_Game.Ships
             return (int)cost;
         }
 
-        public static float GetMass(ShipModule[] modules, Empire loyalty)
+        public static float GetMass(ShipModule[] modules, Empire loyalty, float ordnancePercent)
         {
             float mass = 0f;
             for (int i = 0; i < modules.Length; i++)
-                mass += modules[i].GetActualMass(loyalty);
+                mass += modules[i].GetActualMass(loyalty, ordnancePercent);
             mass *= loyalty.data.MassModifier; // apply overall mass modifier
 
             float surfaceArea = modules.Length;

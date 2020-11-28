@@ -117,27 +117,27 @@ namespace UnitTests
             return Result;
         }
 
-        public void Update(GameTime time)
+        public void Update(float deltaTime)
         {
             switch (State)
             {
-                case SimState.Starting: WaitingToStart(time); break;
+                case SimState.Starting: WaitingToStart(deltaTime); break;
                 case SimState.Running:  UpdateSimulation();   break;
-                case SimState.Exiting:  WaitingToExit(time);  break;
+                case SimState.Exiting:  WaitingToExit(deltaTime);  break;
             }
         }
 
-        void WaitingToExit(GameTime time)
+        void WaitingToExit(float deltaTime)
         {
             if (!Sim.EnablePauses || Owner.Input.IsKeyDown(Keys.Space))
                 ExitCounter = 0f;
 
-            ExitCounter -= (float) time.ElapsedRealTime.TotalSeconds;
+            ExitCounter -= deltaTime;
             if (ExitCounter <= 0f)
                 Exit.Set();
         }
 
-        void WaitingToStart(GameTime time)
+        void WaitingToStart(float deltaTime)
         {
             if (!Sim.EnablePauses || Owner.Input.IsKeyDown(Keys.Space))
                 State = SimState.Running;
@@ -145,7 +145,7 @@ namespace UnitTests
             if (State == SimState.Running)
                 return;
 
-            StartCounter -= (float)time.ElapsedRealTime.TotalSeconds;
+            StartCounter -= deltaTime;
             if (StartCounter > 0f)
                 return;
 
@@ -192,7 +192,7 @@ namespace UnitTests
             UpdateSimScaleAndBounds();
         }
 
-        public void Draw(GameTime time)
+        public void Draw(float deltaTime)
         {
             SpriteBatch batch = Owner.Batch;
 

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Audio;
+﻿using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -18,7 +11,7 @@ namespace Ship_Game
             Troop = troop;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Color nameColor = Color.LightGray;
             Color statsColor = nameColor;

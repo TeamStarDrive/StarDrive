@@ -114,6 +114,16 @@ namespace Ship_Game
         string Adj1 { get; }
         string Adj2 { get; }
 
+        float EnvPerfTerran { get; }
+        float EnvPerfOceanic { get; }
+        float EnvPerfSteppe { get; }
+        float EnvPerfTundra { get; }
+        float EnvPerfSwamp { get; }
+        float EnvPerfDesert { get; }
+        float EnvPerfIce { get; }
+        float EnvPerfBarren { get; }
+        PlanetCategory PreferredEnvPlanet { get; }
+
         string WarpStart { get; }
         string WarpEnd { get; }
     }
@@ -281,6 +291,24 @@ namespace Ship_Game
         [Serialize(128)] public int MinimumColoniesForStartPayment = 3;
         [Serialize(129)] public Array<float> NormalizedMilitaryScore;
 
+        // FB - For Remnants
+        [Serialize(130)] public bool IsRemnantFaction;
+        [Serialize(131)] public string RemnantFighter;
+        [Serialize(132)] public string RemnantCorvette;
+        [Serialize(133)] public string RemnantSupportSmall;
+        [Serialize(134)] public string RemnantCarrier;
+        [Serialize(135)] public string RemnantAssimilator;
+        [Serialize(136)] public string RemnantTorpedoCruiser;
+        [Serialize(137)] public string RemnantMotherShip;
+        [Serialize(138)] public string RemnantExterminator;
+        [Serialize(139)] public string RemnantPortal;
+        [Serialize(140)] public string RemnantBomber;
+        [Serialize(141)] public string RemnantInhibitor;
+        [Serialize(142)] public string RemnantFrigate;
+        [Serialize(143)] public string RemnantBomberLight;
+        [Serialize(144)] public string RemnantBomberMedium;
+        [Serialize(145)] public string RemnantCruiser;
+
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;
 
@@ -316,6 +344,16 @@ namespace Ship_Game
         public bool IsFaction => Faction > 0;
         [XmlIgnore][JsonIgnore]
         public bool IsFactionOrMinorRace => Faction > 0 || MinorRace;
+
+        [XmlIgnore] [JsonIgnore] public float EnvPerfTerran  => EnvTerran;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfOceanic => EnvOceanic;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfSteppe  => EnvSteppe;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfTundra  => EnvTundra;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfSwamp   => EnvSwamp;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfDesert  => EnvDesert;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfIce     => EnvIce;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfBarren  => EnvBarren;
+        [XmlIgnore] [JsonIgnore] public PlanetCategory PreferredEnvPlanet => PreferredEnv;
 
         public string ShipType  => Traits.ShipType;
         public string VideoPath => Traits.VideoPath;
@@ -388,7 +426,7 @@ namespace Ship_Game
             if (NormalizedMilitaryScore.Count == maxItems)
                 NormalizedMilitaryScore.RemoveAt(0);
 
-            NormalizedMilitaryScore.Add(currentStr);
+            NormalizedMilitaryScore.Add(currentStr / 1000);
             return NormalizedMilitaryScore.Sum() / NormalizedMilitaryScore.Count;
         }
     }

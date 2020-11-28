@@ -56,7 +56,7 @@ namespace Ship_Game
                 }
                 batch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
             }
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 switch (Unlock.Type)
                 {
@@ -124,11 +124,11 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (fade) ScreenManager.FadeBackBufferToBlack((TransitionAlpha * 2) / 3);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public override void LoadContent()

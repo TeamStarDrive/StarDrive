@@ -337,15 +337,15 @@ namespace Ship_Game.Ships
                     drawRect.Y + (int)(rectCenter.Y - (gridCenter.Y * moduleSize)),
                     (int)(GridWidth * moduleSize), (int)(GridHeight * moduleSize));
 
-            foreach (ShipModule m in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; i++)
             {
-                Vector2 modulePos = (m.Position - GridOrigin) / 16f * moduleSize;
-                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X,
-                                         shipDrawRect.Y + (int)modulePos.Y,
-                                         (int)moduleSize * m.XSIZE,
-                                         (int)moduleSize * m.YSIZE);
-                Color healthColor         = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40,40,40);
+                ShipModule m              = ModuleSlotList[i];
+                Vector2 modulePos         = (m.Position - GridOrigin) / 16f * moduleSize;
+                Color healthColor         = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40, 40, 40);
                 Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
+                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y,
+                                   (int)moduleSize * m.XSIZE,(int)moduleSize * m.YSIZE);
+
                 batch.FillRectangle(rect, healthColor);
                 batch.Draw(m.ModuleTexture, rect, moduleColorMultiply);
             }
@@ -367,18 +367,20 @@ namespace Ship_Game.Ships
             var uiNode = ResourceManager.Texture("UI/node");
 
             screen.ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            foreach (ShipModule slot in ModuleSlotList)
+            for (int i = 0; i < Shields.Length; ++i)
             {
-                if (slot.Active && slot.Is(ShipModuleType.Shield) && slot.ShieldsAreActive)
+                ShipModule m = Shields[i];
+                if (m.Active && m.ShieldsAreActive)
                 {
-                    screen.ProjectToScreenCoords(slot.Center, slot.shield_radius * 2.75f, 
+                    screen.ProjectToScreenCoords(m.Center, m.shield_radius * 2.75f, 
                         out Vector2 posOnScreen, out float radiusOnScreen);
 
-                    float shieldRate = 0.001f + slot.ShieldPower / slot.ActualShieldPowerMax;                    
+                    float shieldRate = 0.001f + m.ShieldPower / m.ActualShieldPowerMax;                    
                     screen.DrawTextureSized(uiNode, posOnScreen, 0f, radiusOnScreen, radiusOnScreen, 
-                        Shield.GetBubbleColor(shieldRate, slot.ShieldBubbleColor));
+                        Shield.GetBubbleColor(shieldRate, m.ShieldBubbleColor));
                 }
             }
+
             screen.ScreenManager.SpriteBatch.End();
         }
 

@@ -45,11 +45,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>StarDrive\</OutputPath>
-    <DebugSymbols>false</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <DefineConstants>STEAM</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>true</Prefer32Bit>
@@ -227,6 +227,13 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RemnantInit.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RemnantEngagements.cs" />
+    <Compile Include="Ship_Game\Empires\DataPackets\IncomingThreat.cs" />
+    <Compile Include="Ship_Game\Remnants.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\AssaultPirateBase.cs" />
@@ -240,21 +247,27 @@
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidCombatShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateProtection.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\PirateRaidProjector.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidTransport.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\GoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RefitOrbital.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RearmShipFromPlannet.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\ScrapShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
     <Compile Include="Ship_Game\Data\GameTips.cs" />
     <Compile Include="Ship_Game\Data\LocalizedText.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
+    <Compile Include="Ship_Game\Debug\Page\SpatialDebug.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\Empires\EmpireUI.cs" />
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\WarSupportShips.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
-    <Compile Include="Ship_Game\Empire_Realtionship.cs" />
+    <Compile Include="Ship_Game\Empire_Relationship.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\AABoundingBox2D.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadSafeRandom.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignStat.cs" />
     <Compile Include="Ship_Game\Pirates.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
@@ -401,7 +414,6 @@
     <Compile Include="Ship_Game\Sensors\BasicSensors.cs" />
     <Compile Include="Ship_Game\Sensors\TargetData.cs" />
     <Compile Include="Ship_Game\Sensors\TimedScanner.cs" />
-    <Compile Include="Ship_Game\ShipListScreenEntry.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\DataPackets\KnownByEmpire.cs" />
@@ -429,7 +441,6 @@
     <Compile Include="Ship_Game\Ships\Ship_Initialize.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ModuleGrid.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Movement.cs" />
-    <Compile Include="Ship_Game\Ships\Ship_Projectiles.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Rendering.cs" />
     <Compile Include="Ship_Game\GameScreens\Colors.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\GameLoadingScreen.cs" />
@@ -455,13 +466,21 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Ship_Game\Ships\Ship_Update.cs" />
+    <Compile Include="Ship_Game\Spatial\LinearSearch.cs" />
+    <Compile Include="Ship_Game\Spatial\ISpatial.cs" />
+    <Compile Include="Ship_Game\Spatial\NarrowPhase.cs" />
+    <Compile Include="Ship_Game\Spatial\NativeSpatial.cs" />
+    <Compile Include="Ship_Game\Spatial\NativeSpatialObject.cs" />
     <Compile Include="Ship_Game\Spatial\QtreeNode.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.Collision.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.Debug.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.FindNearby.cs" />
-    <Compile Include="Ship_Game\Spatial\Quadtree.PerfTests.cs" />
+    <Compile Include="Ship_Game\Spatial\QtreeRecycleBuffer.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.Collision.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.Debug.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.FindNearby.cs" />
+    <Compile Include="Ship_Game\Spatial\Qtree.PerfTests.cs" />
+    <Compile Include="Ship_Game\Spatial\SearchOptions.cs" />
     <Compile Include="Ship_Game\Spatial\SpatialObj.cs" />
+    <Compile Include="Ship_Game\Spatial\VisualizerOptions.cs" />
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
     <Compile Include="Ship_Game\GameScreens\Espionage\AgentListItem.cs" />
@@ -495,10 +514,10 @@
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\DynamicCrashSite.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyStorage.cs" />
-    <Compile Include="Ship_Game\Universe\SolarBodies\PlanetListScreenEntry.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_BuildDefenses.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Colonize.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Planet\Planet_Trade.cs" />
@@ -529,8 +548,10 @@
     <Compile Include="Ship_Game\Universe\SolarBodies\Explorable.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\ShipGroupProject.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\ShipMoveCommands.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseObjectManager.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Camera.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Draw.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.DrawDebugInfo.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.HandleInput.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.InputActions.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Menus.cs" />
@@ -1374,10 +1395,6 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMission.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="Ship_Game\StoryAndEvents\Agents\Agent.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
@@ -1590,6 +1607,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\MainMenuFleets.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Model\Ships\Remnant\SharedTextures\AncientFrigate.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Model\Ships\Remnant\SharedTextures\RemnantPortal.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\Nebulas\nebula_1024x1024_01.xnb">
@@ -1835,6 +1858,9 @@
     <Content Include="Content\Buildings\Capital.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Buildings\Dynamic Crash Site.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Buildings\Gun Emplacement.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1842,6 +1868,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Buildings\Outpost.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Buildings\Remnant Detection Array.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Buildings\Space Port.xml">
@@ -1854,6 +1883,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Buildings\Xeno Mine.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Cursors\CinematicCursor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Cursors\Cursor.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Diplomacy\DiplomaticTraits.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Encounter Dialogs\Corsairs001_ToPlayerDemandtMoneyKnown.xml">
@@ -1901,6 +1939,51 @@
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Exploration Events\RemnantAllStories01.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantAllStoriesTech02.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantRandomWin.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantExterminatorsWin.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantBalancersWin.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantRandom05.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantRandom04.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantRandom03.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantBalancers05.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantExterminators04.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantExterminators03.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantExterminators05.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantBalancers04.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantBalancers03.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Exploration Events\RemnantTech1.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Hulls\Corsair\Corsair Asteroid Base.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1919,6 +2002,15 @@
     <Content Include="Content\Hulls\Corsair\HeavyFrigate.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Hulls\Remnant\AncientFrigate.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Hulls\Remnant\RemnantPortal.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Hulls\Remnant\XenoGunship.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Localization\Spanish\GameText.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1927,6 +2019,15 @@
     </Content>
     <Content Include="Content\Races\Draugar.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Ancient Bomber.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Ancient Cruiser.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Ancient Frigate.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\SavedDesigns\Corsair Asteroid Base-Mk3.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -2018,10 +2119,31 @@
     <Content Include="Content\SavedDesigns\Draug.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\SavedDesigns\Light Ancient Bomber.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Medium Ancient Bomber.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Remnant Portal.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\ShipModules\PirateAssaultBay.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipModules\Pirate Inhibitor.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ShipModules\RemnantEngine1.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ShipModules\RemnantEngine2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ShipModules\RemnantEngine3.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ShipModules\RemnantEngine4.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\StarterShips\Draylok Medium Trans2.xml">
@@ -2120,6 +2242,9 @@
     <Content Include="Content\Textures\NewUI\IssueLowPD.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Textures\NewUI\IssueLowTracking.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Textures\NewUI\IssueLowTroops.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2174,6 +2299,9 @@
     <Content Include="Content\Textures\NewUI\IssueNoWarp.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Textures\NewUI\IssuesLowAccuracy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Textures\NewUI\IssueSlowWarp.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2197,6 +2325,9 @@
     </Content>
     <Content Include="Content\Textures\NewUI\UI_SendTroops.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\UI\dan_button_red.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Microsoft.Xna.Framework.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

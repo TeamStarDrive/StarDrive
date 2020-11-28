@@ -8,14 +8,14 @@ namespace Ship_Game
 {
     public sealed class BatchRemovalCollection<T> : Array<T>, IDisposable
     {
-        private ConcurrentStack<T> PendingRemovals;
-        private ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        ConcurrentStack<T> PendingRemovals;
+        ReaderWriterLockSlim ThisLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         public BatchRemovalCollection()
         {
             PendingRemovals = new ConcurrentStack<T>();
         }
-        public BatchRemovalCollection(ICollection<T> listToCopy) : this()
+        public BatchRemovalCollection(IReadOnlyList<T> listToCopy) : this()
         {
             base.AddRange(listToCopy);
         }
@@ -92,14 +92,6 @@ namespace Ship_Game
             return found;
         }
 
-        public void ClearAdd(IEnumerable<T> item)
-        {
-            ThisLock.EnterWriteLock();
-            base.Clear();
-            base.AddRange(item);
-            ThisLock.ExitWriteLock();
-        }
-
         public new bool Contains(T item)
         {
             ThisLock.EnterReadLock();
@@ -108,10 +100,10 @@ namespace Ship_Game
             return result;
         }
 
-        public new void AddRange(ICollection<T> collection)
+        public new void AddRange(IReadOnlyList<T> list)
         {
             ThisLock.EnterWriteLock();
-            base.AddRange(collection);
+            base.AddRange(list);
             ThisLock.ExitWriteLock();
         }
 
@@ -119,10 +111,14 @@ namespace Ship_Game
         // ReadLock is acquired and base.ToArray() called
         public T[] AtomicCopy()
         {
-            ThisLock.EnterReadLock();
-            var arr = ToArray();
-            ThisLock.ExitReadLock();
-            return arr;
+            using (new ScopedReadLock(ThisLock))
+                return base.ToArray();
+        }
+
+        public new T[] ToArray()
+        {
+            using (new ScopedReadLock(ThisLock))
+                return base.ToArray();
         }
 
         public T RecycleObject(Action<T> action)
@@ -144,7 +140,7 @@ namespace Ship_Game
         }
         ~BatchRemovalCollection() { Destroy(); }
 
-        private void Destroy()
+        void Destroy()
         {
             PendingRemovals?.Clear();
             PendingRemovals = null;

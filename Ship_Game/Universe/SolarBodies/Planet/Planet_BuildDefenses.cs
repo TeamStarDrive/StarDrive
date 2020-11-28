@@ -45,7 +45,7 @@ namespace Ship_Game
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
         {
             var orbitalList = new Array<Ship>();
-            foreach (Ship orbital in OrbitalStations.Values)
+            foreach (Ship orbital in OrbitalStations)
             {
                 if (orbital.shipData.Role == role && !orbital.shipData.IsShipyard  // shipyards are not defense stations
                                                   && !orbital.IsConstructor)
@@ -311,7 +311,7 @@ namespace Ship_Game
         public bool IsOutOfOrbitalsLimit(Ship ship, Empire owner)
         {
             int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role, owner);
-            int numShipyards = OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt(owner);
+            int numShipyards = OrbitalStations.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt(owner);
             if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
                 return true;
 
@@ -321,18 +321,33 @@ namespace Ship_Game
             return false;
         }
 
-        public void BuildTroops() // Relevant only for players with the Militia Checkbox checked.
+        public void BuildTroops() // Relevant only for players with the Garrison Checkbox checked.
         {
-            if (!Owner.isPlayer || !AutoBuildTroops)
+            if (!Owner.isPlayer || !AutoBuildTroops || RecentCombat)
                 return;
 
             int numTroopsInTheWorks = NumTroopsInTheWorks;
-            if (numTroopsInTheWorks == 0 && CanBuildInfantry)
+            if (numTroopsInTheWorks > 0)
+                return; // We are already building troops
+
+            int troopsWeHave = TroopsHere.Count; // No need to filter our troops here since the planet must not be in RecentCombat
+            if (troopsWeHave < GarrisonSize && GetFreeTiles(Owner) > 0)
             {
-                int troopsWeHave = TroopsHere.Count;
-                if (troopsWeHave < GarrisonSize && GetFreeTiles(Owner) > 0)
+                if (CanBuildInfantry)
                     BuildSingleMilitiaTroop();
+                else
+                    TryBuildMilitaryBase();
             }
+        }
+
+        void TryBuildMilitaryBase()
+        {
+            if (MilitaryBuildingInTheWorks)
+                return;
+
+            var cheapestInfantryBuilding = BuildingsCanBuild.FindMinFiltered(b => b.AllowInfantry, b => b.ActualCost);
+            if (cheapestInfantryBuilding != null)
+                Construction.Enqueue(cheapestInfantryBuilding);
         }
 
         void BuildSingleMilitiaTroop()

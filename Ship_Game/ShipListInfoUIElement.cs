@@ -105,18 +105,16 @@ namespace Ship_Game
             SelectedShipsSL.Reset();
         }
 
-        public override void Update(FrameTimes elapsed)
+        public override void Update(UpdateTimes elapsed)
         {
             base.Update(elapsed);
             SelectedShipsSL.Update(elapsed.RealTime.Seconds);
         }
 
-        public override void Draw(FrameTimes elapsed)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Screen.SelectedShipList == null)
                 return;  //fbedard
-
-            SpriteBatch batch = ScreenManager.SpriteBatch;
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
@@ -132,7 +130,7 @@ namespace Ship_Game
             }
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             var namePos = new Vector2(Housing.X + 41, Housing.Y + 64);
-            SelectedShipsSL.Draw(batch);
+            SelectedShipsSL.Draw(batch, elapsed);
 
             string text;
             if (HoveredShip == null)
@@ -178,8 +176,8 @@ namespace Ship_Game
                 Vector2 defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
                 SpriteBatch spriteBatch = batch;
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
-                float mechanicalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
-                spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.String(), defPos, Color.White);
+                float totalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
+                spriteBatch.DrawString(arial12Bold, totalBoardingDefense.String(), defPos, Color.White);
                 text = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 155f);
                 Vector2 shipStatus = new Vector2(Selector.Rect.X + Selector.Rect.Width - 168, Housing.Y + 64);
                 text = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 120f);
@@ -200,10 +198,10 @@ namespace Ship_Game
 
             foreach (ToggleButton button in CombatStatusButtons)
             {
-                button.Draw(ScreenManager);
+                button.Draw(batch, elapsed);
             }
 
-            GridButton.Draw(ScreenManager);
+            GridButton.Draw(batch, elapsed);
         }
 
         public void CalcAndDrawProgressBars(SpriteBatch batch)

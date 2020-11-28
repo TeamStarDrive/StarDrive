@@ -20,14 +20,12 @@ namespace SynapseGaming.LightingSystem.Rendering
     {
         private Vector2 vector2_0;
         private Vector2 vector2_1;
-        private float float_0 = 1f;
-        private const int int_0 = 100;
-        private double double_2;
-        private int int_1;
+        private int FrameId;
         private BasicEffect basicEffect_0;
         private FullFrameQuad fullFrameQuad_0;
         private IGraphicsDeviceService igraphicsDeviceService_0;
 
+        float CurrentTime;
         private const double SplashTime = 2.5;
         private const double ClickTime = 0.5;
 
@@ -86,7 +84,6 @@ namespace SynapseGaming.LightingSystem.Rendering
                 float num3 = num2 / device.Viewport.Width;
                 screenmin.X = -num3;
                 one.X = num3;
-                this.float_0 = num2 / 1280f;
             }
             else
             {
@@ -94,7 +91,6 @@ namespace SynapseGaming.LightingSystem.Rendering
                 float num3 = num2 / device.Viewport.Height;
                 screenmin.Y = -num3;
                 one.Y = num3;
-                this.float_0 = num2 / 720f;
             }
             this.fullFrameQuad_0 = new FullFrameQuad(device, device.Viewport.Width, device.Viewport.Height, screenmin, one);
             this.vector2_0 = one * new Vector2(0.2f, 0.75f);
@@ -116,19 +112,18 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>
         /// Called periodically to allow users to click out of the splash screen.
         /// </summary>
-        /// <param name="gameTime"></param>
-        public void Update(GameTime gameTime)
+        /// <param name="deltaTime"></param>
+        public void Update(float deltaTime)
         {
-            if (DisplayComplete || double_2 <= 0.0 || int_1 <= 100)
+            if (DisplayComplete || FrameId <= 100)
                 return;
-            double num = gameTime.TotalRealTime.TotalSeconds - this.double_2;
-            if (num > SplashTime)
+            if (CurrentTime > SplashTime)
             {
                 DisplayComplete = true;
             }
             else
             {
-                if (num <= ClickTime)
+                if (CurrentTime <= ClickTime)
                     return;
                 GamePadState state1 = GamePad.GetState(PlayerIndex.One);
                 KeyboardState state2 = Keyboard.GetState();
@@ -150,26 +145,26 @@ namespace SynapseGaming.LightingSystem.Rendering
         /// <summary>
         /// Renders the SunBurn splash screen (require by the SunBurn license).
         /// </summary>
-        /// <param name="gameTime"></param>
-        public void Render(GameTime gameTime)
+        /// <param name="deltaTime"></param>
+        public void Render(float deltaTime)
         {
             if (this.basicEffect_0 == null)
                 Initialize();
 
             if (DisplayComplete)
                 return;
-            if (this.double_2 <= 0.0)
-                this.double_2 = gameTime.TotalRealTime.TotalSeconds;
-            ++this.int_1;
+
+            CurrentTime += deltaTime;
+            ++FrameId;
             GraphicsDevice graphicsDevice = this.igraphicsDeviceService_0.GraphicsDevice;
             graphicsDevice.RenderState.CullMode = CullMode.None;
             graphicsDevice.RenderState.AlphaBlendEnable = false;
             graphicsDevice.RenderState.DepthBufferEnable = false;
             graphicsDevice.Clear(Color.Black);
-            double num1 = gameTime.TotalRealTime.TotalSeconds - this.double_2;
-            double num2 = 0.25;
+            float num2 = 0.25f;
             float num3 = 4f;
-            this.basicEffect_0.DiffuseColor = Vector3.One * (MathHelper.Clamp((float)(num1 - num2) * num3, 0.0f, 1f) * MathHelper.Clamp((float)(5.0 - (num1 + num2)) * num3, 0.0f, 1f));
+            this.basicEffect_0.DiffuseColor = Vector3.One * (MathHelper.Clamp((CurrentTime - num2) * num3, 0.0f, 1f) 
+                                                           * MathHelper.Clamp((float)(5.0 - (CurrentTime + num2)) * num3, 0.0f, 1f));
             this.fullFrameQuad_0.Render(basicEffect_0);
         }
     }

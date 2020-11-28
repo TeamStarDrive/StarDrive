@@ -23,10 +23,10 @@ namespace Microsoft.Xna.Framework.GamerServices
       base.Initialize();
     }
 
-    public override void Update(GameTime gameTime)
+    public override void Update(float deltaTime)
     {
       GamerServicesDispatcher.Update();
-      base.Update(gameTime);
+      base.Update(deltaTime);
     }
 
     private void GamerServicesDispatcher_InstallingTitleUpdate(object sender, EventArgs e)

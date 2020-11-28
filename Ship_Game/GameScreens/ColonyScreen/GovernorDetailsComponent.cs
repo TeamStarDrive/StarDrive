@@ -42,7 +42,7 @@ namespace Ship_Game
                 ? DrawableSprite.Video(ResourceManager.RootContent, p.Owner.data.Traits.VideoPath, looping:true)
                 : DrawableSprite.SubTex(ResourceManager.RootContent, $"Portraits/{Planet.Owner.data.PortraitName}");
 
-            Portrait  = Add(new UIPanel(PortraitSprite) {Border = Color.Orange});
+            Portrait  = Add(new UIPanel(PortraitSprite));
             WorldType = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
             WorldDescription = Add(new UILabel(Fonts.Arial12Bold));
             
@@ -101,7 +101,7 @@ namespace Ship_Game
             WorldDescription.Text = GetParsedDescription();
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (Planet.Owner != null)
             {
@@ -115,17 +115,29 @@ namespace Ship_Game
                 GovNoScrap.Visible    = GovOrbitals.Visible && Planet.colonyType != Planet.ColonyType.TradeHub;
             }
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             // Governor portrait overlay stuff
+            Portrait.Color = Planet.colonyType == Planet.ColonyType.Colony ? new Color(64,64,64) : Color.White;
+            Color borderColor;
+            switch (Planet.colonyType)
+            {
+                default:                             borderColor = Color.White;           break;
+                case Planet.ColonyType.TradeHub:     borderColor = Color.Yellow;          break;
+                case Planet.ColonyType.Colony:       borderColor = new Color(64, 64, 64); break;
+                case Planet.ColonyType.Industrial:   borderColor = Color.Orange;          break;
+                case Planet.ColonyType.Agricultural: borderColor = Color.Green;           break;
+                case Planet.ColonyType.Research:     borderColor = Color.CornflowerBlue;  break;
+                case Planet.ColonyType.Military:     borderColor = Color.Red;             break;
+            }
+
+            Portrait.Border = borderColor;
             batch.Draw(PortraitShine, Portrait.Rect);
-            if (Planet.colonyType == Planet.ColonyType.Colony)
-                batch.Draw(PortraitRedX, Portrait.Rect);
         }
     }
 }

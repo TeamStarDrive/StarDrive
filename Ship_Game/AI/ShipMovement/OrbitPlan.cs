@@ -95,7 +95,7 @@ namespace Ship_Game.AI.ShipMovement
             if (!AI.BadGuysNear)
             {
                 bool visible = orbitTarget.ParentSystem.isVisible
-                               && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView;
+                               && Empire.Universe.IsSystemViewOrCloser;
                 if (!visible) // don't update orbits in invisible systems
                 {
                     // MAGIC STOP ships when orbiting off screen
