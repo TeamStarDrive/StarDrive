@@ -114,6 +114,16 @@ namespace Ship_Game
         string Adj1 { get; }
         string Adj2 { get; }
 
+        float EnvPerfTerran { get; }
+        float EnvPerfOceanic { get; }
+        float EnvPerfSteppe { get; }
+        float EnvPerfTundra { get; }
+        float EnvPerfSwamp { get; }
+        float EnvPerfDesert { get; }
+        float EnvPerfIce { get; }
+        float EnvPerfBarren { get; }
+        PlanetCategory PreferredEnvPlanet { get; }
+
         string WarpStart { get; }
         string WarpEnd { get; }
     }
@@ -334,6 +344,16 @@ namespace Ship_Game
         public bool IsFaction => Faction > 0;
         [XmlIgnore][JsonIgnore]
         public bool IsFactionOrMinorRace => Faction > 0 || MinorRace;
+
+        [XmlIgnore] [JsonIgnore] public float EnvPerfTerran  => EnvTerran;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfOceanic => EnvOceanic;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfSteppe  => EnvSteppe;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfTundra  => EnvTundra;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfSwamp   => EnvSwamp;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfDesert  => EnvDesert;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfIce     => EnvIce;
+        [XmlIgnore] [JsonIgnore] public float EnvPerfBarren  => EnvBarren;
+        [XmlIgnore] [JsonIgnore] public PlanetCategory PreferredEnvPlanet => PreferredEnv;
 
         public string ShipType  => Traits.ShipType;
         public string VideoPath => Traits.VideoPath;
