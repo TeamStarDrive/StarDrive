@@ -215,6 +215,12 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.AllowInterEmpireTrade  &= q.AllowInterEmpireTrade;
             }
 
+            if (shipAt.isColonyShip)
+            {
+                float amount = shipAt.CargoSpaceFree.UpperBound(P.Population / 10);
+                P.Population -= shipAt.LoadColonists(amount);
+            }
+
             if (!Owner.isPlayer)
                 Owner.Pool.ForcePoolAdd(shipAt);
             return true;

@@ -15,6 +15,8 @@ namespace Ship_Game
             Owner.AddPlanet(this);
             SetExploredBy(Owner);
             CreateStartingEquipment(colonyShip);
+            UnloadTroops(colonyShip);
+            UnloadCargoColonists(colonyShip);
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
             ResetGarrisonSize();
@@ -87,6 +89,17 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddTroopsRemovedNotification(this);
             else if (Owner.isPlayer)
                 Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(this);
+        }
+
+        void UnloadTroops(Ship colonyShip)
+        {
+            foreach (Troop t in colonyShip.GetOurTroops())
+                t.TryLandTroop(this);
+        }
+
+        void UnloadCargoColonists(Ship colonyShip)
+        {
+            Population += colonyShip.UnloadColonists();
         }
 
         void CreateStartingEquipment(Ship colonyShip)
