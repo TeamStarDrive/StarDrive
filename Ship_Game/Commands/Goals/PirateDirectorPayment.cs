@@ -83,9 +83,10 @@ namespace Ship_Game.Commands.Goals
 
             // If the player did not pay, don't ask for another payment, let them crawl to
             // us when they are ready to pay and increase out threat level to them
-            if (!Pirates.PaidBy(TargetEmpire) && TargetEmpire.isPlayer)
+            if (!Pirates.PaidBy(TargetEmpire) && TargetEmpire.isPlayer && Pirates.ThreatLevelFor(TargetEmpire) > -1)
             {
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
+                Pirates.ResetPaymentTimerFor(TargetEmpire);
                 return false;
             }
 
