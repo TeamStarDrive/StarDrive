@@ -56,8 +56,9 @@ namespace Ship_Game
             float territorialism = (data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
             float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
             float expansion      = Research.Strategy.ExpansionRatio;
+            float cybernetic     = IsCybernetic ? 1 : 0;
 
-            return (territorialism + expansion + opportunism);
+            return (territorialism + expansion + opportunism + cybernetic);
         }
 
         readonly int[] MoneyHistory = new int[10];
@@ -1009,6 +1010,12 @@ namespace Ship_Game
 
         public float GetTargetsStrMultiplier(Guid guid)
         {
+            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
+        }
+
+        public float GetTargetsStrMultiplier(Planet planet)
+        {
+            var guid = planet.guid;
             return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
         }
 
