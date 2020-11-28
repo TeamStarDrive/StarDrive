@@ -197,14 +197,14 @@ namespace Ship_Game
         {
             RaceSummary.ShipType = traits.ShipType;
             Picker.CurrentColor  = traits.Color;
-            FlagIndex   = traits.FlagIndex;
-            RaceName    = traits.Name;
-            Singular    = traits.Singular;
-            Plural      = traits.Plural;
-            HomeSysName = traits.HomeSystemName;
-            HomeWorldName = traits.HomeworldName;
+            FlagIndex            = traits.FlagIndex;
+            RaceName             = traits.Name;
+            Singular             = traits.Singular;
+            Plural               = traits.Plural;
+            HomeSysName          = traits.HomeSystemName;
+            HomeWorldName        = traits.HomeworldName;
+            TotalPointsUsed      = 8;
             PreferredEnvDescription = traits.PreferredEnvDescription;
-            TotalPointsUsed = 8;
 
             foreach (TraitEntry t in AllTraits)
             {
