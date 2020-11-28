@@ -661,8 +661,8 @@ namespace Ship_Game
             ApplyTerraforming();
             UpdateColonyValue();
             CalcIncomingGoods();
-            RemoveInvalidFreighters(IncomingFreighters);
-            RemoveInvalidFreighters(OutgoingFreighters);
+            //RemoveInvalidFreighters(IncomingFreighters);
+            //RemoveInvalidFreighters(OutgoingFreighters);
             InitResources(); // must be done before Governing
             UpdateOrbitalsMaintenance();
             UpdateMilitaryBuildingMaintenance();

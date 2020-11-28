@@ -829,6 +829,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.Patrol:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
                 case TaskType.DefendClaim:
+                case TaskType.GuardBeforeColonize:
                 case TaskType.Exploration:        taskCat |= TaskCategory.Expansion; break;
             }
             return taskCat;
