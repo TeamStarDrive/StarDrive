@@ -15,6 +15,7 @@ namespace Ship_Game
         private readonly FleetDesignScreen Fds;
         private BlueButton AssignNow;
         private BlueButton BuildNow;
+        private BlueButton BuildNowRush;
         private int NumBeingBuilt;
         private Rectangle FleetStatsRect;
         private readonly Array<Ship> AvailableShips = new Array<Ship>();
@@ -67,27 +68,28 @@ namespace Ship_Game
             UpdateRequisitionStatus();
         }
 
-        private void CreateFleetRequisitionGoals()
+        private void CreateFleetRequisitionGoals(bool rush = false)
         {
             foreach (FleetDataNode node in F.DataNodes)
             {
                 if (node.Ship != null || node.GoalGUID != Guid.Empty)
                     continue;
-                var g = new FleetRequisition(node.ShipName, F.Owner) {Fleet = F};
+
+                var g = new FleetRequisition(node.ShipName, F.Owner, rush) {Fleet = F};
                 node.GoalGUID = g.guid;
                 F.Owner.GetEmpireAI().Goals.Add(g);
                 g.Evaluate();
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             string text;
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
             Color c = Colors.Cream;
             Selector fleetStats = new Selector(FleetStatsRect, new Color(0, 0, 0, 180));
-            fleetStats.Draw(ScreenManager.SpriteBatch);
+            fleetStats.Draw(ScreenManager.SpriteBatch, elapsed);
             Cursor = new Vector2(FleetStatsRect.X + 25, FleetStatsRect.Y + 25);
             ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", Cursor, c);
             Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
@@ -150,6 +152,7 @@ namespace Ship_Game
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                 }
                 BuildNow.Draw(ScreenManager);
+                BuildNowRush.Draw(ScreenManager);
             }
             else
             {
@@ -201,6 +204,11 @@ namespace Ship_Game
                 CreateFleetRequisitionGoals();
                 UpdateRequisitionStatus();
             }
+            if (BuildNowRush.HandleInput(input))
+            {
+                CreateFleetRequisitionGoals(true);
+                UpdateRequisitionStatus();
+            }
             return base.HandleInput(input);
         }
 
@@ -211,9 +219,16 @@ namespace Ship_Game
             {
                 ToggleOn = true
             };
+
             BuildNow = new BlueButton(new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 365), "Build Now")
             {
                 ToggleOn = true
+            };
+
+            BuildNowRush = new BlueButton(new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 415), "Rush Now")
+            {
+                ToggleOn = true,
+                Tip_ID   = 1826
             };
             UpdateRequisitionStatus();
         }

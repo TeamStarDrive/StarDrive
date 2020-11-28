@@ -34,10 +34,12 @@ namespace Ship_Game.Universe
 
         void UpdateInCombat()
         {
-            foreach (Ship ship in System.ShipList)
+            DangerousForcesPresent = false;
+            for (int i = 0; i < System.ShipList.Count; i++)
             {
-                if (ship.loyalty == Owner)
-                    continue;
+                Ship ship = System.ShipList[i];
+                if (ship == null || ship.loyalty == Owner)
+                    continue; // Todo: the null check should be removed once ShipList is safe
 
                 if (ship.loyalty.isFaction || Owner.IsEmpireAttackable(ship.loyalty, ship))
                 {

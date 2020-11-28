@@ -66,7 +66,7 @@ namespace Ship_Game
                 DamageBioSpheres(hardDamage);
             else if (TargetTile.Habitable)
             {
-                int destroyThreshold = TargetTile.BuildingOnTile ? 1 : 3; // Lower chance to destroy a tile if there is a building on it
+                float destroyThreshold = TargetTile.BuildingOnTile ? 0.5f : 1; // Lower chance to destroy a tile if there is a building on it
                 if (RandomMath.RollDice(hardDamage * destroyThreshold))
                     Surface.DestroyTile(TargetTile); // Tile becomes un-habitable and any building on it is destroyed immediately
             }
@@ -143,15 +143,12 @@ namespace Ship_Game
         public BatchRemovalCollection<Combat> ActiveCombats = new BatchRemovalCollection<Combat>();
         public BatchRemovalCollection<OrbitalDrop> OrbitalDropList = new BatchRemovalCollection<OrbitalDrop>();
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
-        public BatchRemovalCollection<Projectile> Projectiles = new BatchRemovalCollection<Projectile>();
         protected readonly Array<Building> BuildingsCanBuild = new Array<Building>();
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;
         public int NumConstructing => Construction.Count;
-        //public Array<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
-        public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
-        public Map<Guid, Ship> OrbitalStations = new Map<Guid, Ship>();
+        public Array<Ship> OrbitalStations = new Array<Ship>();
         public Matrix RingWorld;
         public SceneObject SO;
         public Guid guid = Guid.NewGuid();
@@ -432,7 +429,7 @@ namespace Ship_Game
         static float GetTraitMax(float invader, float owner) => invader.LowerBound(owner);
         static float GetTraitMin(float invader, float owner) => invader.UpperBound(owner);
 
-        public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel)
+        public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel) // TODO: FB - this code needs refactor
         {
             var thisPlanet = (Planet)this;
 
@@ -445,26 +442,10 @@ namespace Ship_Game
             if (newOwner.isPlayer && Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
 
-            if (IsExploredBy(Empire.Universe.PlayerEmpire))
+            if (IsExploredBy(EmpireManager.Player))
             {
-                if (!newOwner.isFaction)
+                if (Owner != null)
                     Empire.Universe.NotificationManager.AddConqueredNotification(thisPlanet, newOwner, Owner);
-                else
-                {
-                    Empire.Universe.NotificationManager.AddPlanetDiedNotification(thisPlanet, Empire.Universe.PlayerEmpire);
-
-                    if (Owner != null)
-                    {
-                        // check if Owner still has planets in this system:
-                        bool hasPlanetsInSystem = ParentSystem.PlanetList
-                                                .Any(p => p != thisPlanet && p.Owner == Owner);
-                        if (!hasPlanetsInSystem)
-                            ParentSystem.OwnerList.Remove(Owner);
-                        Owner = null;
-                    }
-                    Construction.ClearQueue();
-                    return;
-                }
             }
 
             if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
@@ -488,43 +469,38 @@ namespace Ship_Game
                 // Do not add AI difficulty modifiers for the below
                 float realProductionMod = ownerTraits.ProductionMod - Owner.DifficultyModifiers.ProductionMod;
                 float realResearchMod   = ownerTraits.ResearchMod - Owner.DifficultyModifiers.ResearchMod;
-                float realShipCostMod   = ownerTraits.ShipCostMod + Owner.DifficultyModifiers.ShipCostMod;  // "+"
+                float realShipCostMod   = ownerTraits.ShipCostMod - Owner.DifficultyModifiers.ShipCostMod;
                 float realModHpModifer  = ownerTraits.ModHpModifier - Owner.DifficultyModifiers.ModHpModifier;
                 float realTaxMod        = ownerTraits.TaxMod - Owner.DifficultyModifiers.TaxMod;
 
-                newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod);
-
+                newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod); // min
                 newOwner.data.Traits.ProductionMod = GetTraitMax(newOwner.data.Traits.ProductionMod, realProductionMod);
                 newOwner.data.Traits.ResearchMod   = GetTraitMax(newOwner.data.Traits.ResearchMod, realResearchMod);
                 newOwner.data.Traits.ModHpModifier = GetTraitMax(newOwner.data.Traits.ModHpModifier, realModHpModifer);
                 newOwner.data.Traits.TaxMod        = GetTraitMax(newOwner.data.Traits.TaxMod, realTaxMod);
             }
 
-
-            if (newOwner.isFaction)
-                return;
-
-            foreach (var kv in OrbitalStations)
+            foreach (Ship station in OrbitalStations)
             {
-                Ship station = kv.Value;
                 if (station.loyalty != newOwner)
                 {
                     station.ChangeLoyalty(newOwner);
                     Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
                 }
             }
+
             newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;
             thisPlanet.ResetGarrisonSize();
             thisPlanet.ResetFoodAfterInvasionSuccess();
-            TurnsSinceTurnover = 0;
             Construction.ClearQueue();
-            ParentSystem.OwnerList.Clear();
+            TurnsSinceTurnover = 0;
 
+            ParentSystem.OwnerList.Clear();
             foreach (Planet planet in ParentSystem.PlanetList)
             {
-                if (planet.Owner != null && !ParentSystem.OwnerList.Contains(planet.Owner))
-                    ParentSystem.OwnerList.Add(planet.Owner);                
+                if (planet.Owner != null && !ParentSystem.IsOwnedBy(planet.Owner))
+                    ParentSystem.OwnerList.Add(planet.Owner);
             }
 
             if (newOwner.isPlayer && !newOwner.AutoColonize)

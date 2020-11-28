@@ -481,6 +481,28 @@ namespace Ship_Game
             return copy;
         }
 
+        // Does a type-safe cast from TSource[] into Array<TResult>
+        // Items which fail the cast are discarded
+        public static TResult[] FastCast<TSource, TResult>(this TSource[] items)
+        {
+            var results = new TResult[items.Length];
+            int count = 0;
+
+            for (int i = 0; i < items.Length; ++i)
+                if (items[i] is TResult item)
+                    results[count++] = item;
+
+            if (count == 0)
+                return Empty<TResult>.Array;
+            if (count == results.Length)
+                return results;
+
+            // slow case: need to truncate end of the array
+            var truncated = new TResult[count];
+            Array.Copy(results, 0, truncated, 0, count);
+            return truncated;
+        }
+
         public static T RandItem<T>(this T[] items)
         {
             return RandomMath.RandItem(items);
@@ -496,8 +518,45 @@ namespace Ship_Game
             return RandomMath.RandItem(items);
         }
 
-        // applies selector to gather a unique
-        public static Array<T> Unique<T, TKey>(this ICollection<T> items, Func<T, TKey> keySelector)
+        /// <summary>
+        /// Group items by selector
+        /// </summary>
+        public static Map<TKey, T> GroupBy<T, TKey>(this ICollection<T> items, Func<T, TKey> keySelector)
+        {
+            var unique = new Map<TKey, T>();
+            foreach (T item in items)
+            {
+                TKey key = keySelector(item);
+                if (!unique.ContainsKey(key))
+                    unique.Add(key, item);
+            }
+            return unique;
+        }
+
+        /// <summary>
+        /// Group items by selector with filter
+        /// </summary>
+        public static Map<TKey, Array<T>> GroupByFiltered<T, TKey>(this ICollection<T> items, Func<T, TKey> groupBy, Predicate<T> include)
+        {
+            var unique = new Map<TKey, Array<T>>();
+            foreach (T item in items)
+            {
+                if (include(item))
+                {
+                    TKey key = groupBy(item);
+                    if (!unique.TryGetValue(key, out Array<T> existingKey))
+                        unique.Add(key, new Array<T> { item });
+                    else
+                        existingKey.Add(item);
+                }
+            }
+            return unique;
+        }
+
+        /// <summary>
+        /// Group items by selection
+        /// </summary>
+        public static Array<T> GroupBySelector<T, TKey>(this ICollection<T> items, Func<T, TKey> keySelector)
         {
             var unique = new Map<TKey, T>();
             foreach (T item in items)
@@ -507,6 +566,21 @@ namespace Ship_Game
                     unique.Add(key, item);
             }
             return unique.Values.ToArrayList();
+        }
+
+        /// <summary>
+        /// Returns the unique groups Found in item data
+        /// <returns></returns>
+        public static Array<TKey> UniqueValues<T, TKey>(this ICollection<T> items, Func<T, TKey> keySelector)
+        {
+            var unique = new Map<TKey, T>();
+            foreach (T item in items)
+            {
+                TKey key = keySelector(item);
+                if (!unique.ContainsKey(key))
+                    unique.Add(key, item);
+            }
+            return unique.Keys.ToArrayList();
         }
     }
 }

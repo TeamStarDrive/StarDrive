@@ -215,7 +215,7 @@ namespace SynapseGaming.LightingSystem.Rendering
       }
       else
         graphicsDevice.SetRenderTarget(0, this.renderTarget2D_4);
-      this.class42_0.IntensityBlend = (float) this.SceneState.GameTime.ElapsedRealTime.TotalSeconds / this.SceneState.Environment.DynamicRangeTransitionTime;
+      this.class42_0.IntensityBlend = SceneState.ElapsedTime / SceneState.Environment.DynamicRangeTransitionTime;
       this.class42_0.IntensityTexture = texture;
       this.class42_0.SourceTexture = renderTarget2D.GetTexture();
       this.fullFrameQuad_1.Render(this.class42_0);

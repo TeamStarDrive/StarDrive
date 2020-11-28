@@ -33,7 +33,7 @@ namespace Ship_Game.GameScreens.Espionage
             UpdateMissionAvailability();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             var cursor = new Vector2(X, CenterY - Fonts.Arial12Bold.LineSpacing / 2);
 
@@ -59,7 +59,7 @@ namespace Ship_Game.GameScreens.Espionage
             DoMission.Y = (int)cursor.Y - 1;
             DoMission.Visible = MissionAvailable;
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             batch.DrawLine(BotLeft, BotRight, Color.OrangeRed);
         }

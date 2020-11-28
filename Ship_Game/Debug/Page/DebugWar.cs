@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game.Debug.Page
 {
@@ -17,13 +18,13 @@ namespace Ship_Game.Debug.Page
             EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
 
             DrawWarAOs();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public override bool HandleInput(InputState input)
@@ -44,33 +45,43 @@ namespace Ship_Game.Debug.Page
             TextColumns[0].Color = EmpireAtWar.EmpireColor;
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             var text = new Array<DebugTextBlock>();
             if (EmpireAtWar.data.Defeated) return;
-            foreach (var kv in EmpireAtWar.AllRelations.Sorted(r=> r.Value.AtWar))
+            foreach ((Empire them, Relationship rel) in EmpireAtWar.AllRelations.Sorted(r=> r.Rel.AtWar))
             {
-                var relation = kv.Value;
-                if (relation.Known && !kv.Key.isFaction && kv.Key != EmpireAtWar && !kv.Key.data.Defeated)
+                if (rel.Known && !them.isFaction && them != EmpireAtWar && !them.data.Defeated)
                 {
-                    text.Add(relation.DebugWar());
+                    text.Add(rel.DebugWar());
                 }
             }
             SetTextColumns(text);
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         void DrawWarAOs()
         {
-            foreach(var rel in EmpireAtWar.AllRelations)
+            foreach((Empire them, Relationship rel) in EmpireAtWar.AllRelations)
             {
-                var war = rel.Value.ActiveWar;
+                var war = rel.ActiveWar;
                 if (war == null ||  war.Them.isFaction) continue;
-                for (int i = 0; i < war.WarTheaters.Theaters.Count; i++)
+                int minPri = EmpireAtWar.GetEmpireAI().MinWarPriority;
+                int warPri = war.GetPriority();
+                if (warPri > minPri) 
+                    continue;
+
+                for (int i = 0; i < EmpireAtWar.AllActiveWarTheaters.Length; i++)
                 {
-                    var theater = war.WarTheaters.Theaters[i];
+                    var theater = EmpireAtWar.AllActiveWarTheaters[i];
+                    float thickness = 10;
                     var ao      = theater.TheaterAO;
-                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, (float) war.GetWarScoreState() * 2 + 1);
+                    var rallyAo = theater.RallyAO;
+                    Screen.DrawCircleProjected(ao.Center, ao.Radius, war.Them.EmpireColor, thickness);
+                    if (rallyAo == null) continue;
+                    Screen.DrawLineWideProjected(ao.Center, rallyAo.Center, Colors.Attack(), 2);
+                    Screen.DrawCircleProjected(rallyAo.Center, rallyAo.Radius, war.Them.EmpireColor, 2);
+                    Screen.DrawCircleProjected(rallyAo.Center, rallyAo.Radius, war.Them.EmpireColor, 2);
                 }
             }
         }

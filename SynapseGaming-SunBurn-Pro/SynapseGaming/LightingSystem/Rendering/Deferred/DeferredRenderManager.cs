@@ -171,8 +171,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
               RenderableMesh renderableMesh = sceneObject.RenderableMeshes[index2];
               if (renderableMesh.effect != null)
               {
-                if (renderableMesh.effect is BaseSasBindEffect)
-                  (renderableMesh.effect as BaseSasBindEffect).GameTime = state.GameTime;
+                if (renderableMesh.effect is BaseSasBindEffect sasBind)
+                    sasBind.UpdateTime(state.ElapsedTime);
                 if (this.MaxLoadedMipLevelEnabled)
                 {
                   if (renderableMesh.effect is BasicEffect)
@@ -668,8 +668,8 @@ namespace SynapseGaming.LightingSystem.Rendering.Deferred
                 effect2.ShadowSecondaryBias = shadowGroup_0.ShadowSource.ShadowSecondaryBias;
                 effect2.ShadowArea = shadowGroup_0.BoundingSphereCentered;
                 effect2.SetCameraView(this.SceneState.View, this.SceneState.ViewToWorld);
-                if (class63.Effect is BaseSasEffect)
-                  (class63.Effect as BaseSasEffect).GameTime = this.SceneState.GameTime;
+                if (class63.Effect is BaseSasEffect sasBind)
+                    sasBind.UpdateTime(SceneState.ElapsedTime);
                 if (class63.Effect is ISkinnedEffect)
                   skinnedEffect = class63.Effect as ISkinnedEffect;
               }

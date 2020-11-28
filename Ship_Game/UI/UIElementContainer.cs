@@ -66,7 +66,7 @@ namespace Ship_Game
             return Elements.Count;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
@@ -78,17 +78,17 @@ namespace Ship_Game
                     for (int i = 0; i < Elements.Count; ++i)
                     {
                         UIElementV2 child = Elements[i];
-                        if (child.Visible) child.Draw(batch);
+                        if (child.Visible) child.Draw(batch, elapsed);
                     }
                 }
             }
             else
             {
-                DrawWithDebugOverlay(batch);
+                DrawWithDebugOverlay(batch, elapsed);
             }
         }
 
-        void DrawWithDebugOverlay(SpriteBatch batch)
+        void DrawWithDebugOverlay(SpriteBatch batch, DrawTimes elapsed)
         {
             for (int i = 0; i <= DebugDrawIndex && i < Elements.Count; ++i)
             {
@@ -96,7 +96,7 @@ namespace Ship_Game
                 if (child.Visible)
                 {
                     if (!NewMultiLayeredDrawMode) // DON'T DRAW CHILD ELEMENTS IN MULTI-LAYER MODE
-                        child.Draw(batch);
+                        child.Draw(batch, elapsed);
 
                     if (i == DebugDrawIndex)
                         batch.DrawRectangle(child.Rect, Color.Orange);
@@ -129,7 +129,7 @@ namespace Ship_Game
             return false;
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (!Visible)
                 return;
@@ -140,14 +140,14 @@ namespace Ship_Game
                 Log.Warning(ConsoleColor.DarkRed, 
                     "UIElement.Update called twice per frame. This is a potential bug: "+this);
 
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
 
             for (int i = 0; i < Elements.Count; ++i)
             {
                 UIElementV2 element = Elements[i];
                 if (element.Visible)
                 {
-                    element.Update(deltaTime);
+                    element.Update(fixedDeltaTime);
                     if (element.DeferredRemove) { Remove(element); }
                     // Update directly modified Elements array?
                     else if (Elements[i] != element) { --i; }
@@ -156,7 +156,7 @@ namespace Ship_Game
 
             if (DebugDraw)
             {
-                DebugDrawTimer -= deltaTime;
+                DebugDrawTimer -= fixedDeltaTime;
                 if (DebugDrawTimer <= 0f)
                 {
                     DebugDrawTimer = DebugDrawInterval;

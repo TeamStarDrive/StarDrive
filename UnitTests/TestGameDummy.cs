@@ -35,7 +35,7 @@ namespace UnitTests
             Started.Set();
         }
 
-        protected override void Update(GameTime time)
+        protected override void Update(float deltaTime)
         {
             if (CachedVisibility != Visible)
             {
@@ -45,13 +45,13 @@ namespace UnitTests
 
             // Always Update, even if game is not visible
             // Let the ScreenManager/GameScreen system figure out what to do
-            base.Update(time);
+            base.Update(deltaTime);
 
             if (Input.IsKeyDown(Keys.Escape))
                 Visible = false;
         }
 
-        protected override void Draw(GameTime time)
+        protected override void Draw(float deltaTime)
         {
             // Always Draw, even if game is not visible
             // Because we want our unit tests to go through the entire system
@@ -61,7 +61,7 @@ namespace UnitTests
             try
             {
                 Batch.Begin();
-                base.Draw(time);
+                base.Draw(deltaTime);
             }
             finally
             {

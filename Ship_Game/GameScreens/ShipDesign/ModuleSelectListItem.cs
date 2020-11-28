@@ -12,9 +12,9 @@ namespace Ship_Game
         public ModuleSelectListItem(string headerText) : base(headerText) {}
         public ModuleSelectListItem(ShipModule module) { Module = module; }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             if (Module != null)
             {

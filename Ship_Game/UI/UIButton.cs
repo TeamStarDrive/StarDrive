@@ -24,7 +24,14 @@ namespace Ship_Game
         public ButtonStyle Style = ButtonStyle.Default;
         public StyleTextures CustomStyle;
         public ButtonTextAlign TextAlign = ButtonTextAlign.Center;
+
         public LocalizedText Text;
+
+        /// <summary>
+        /// Optional override Function for text. Called Dynamically every frame.
+        /// </summary>
+        public Func<string> DynamicText;
+
         public ToolTipText Tooltip;
         public string HotKey;
         public string ClickSfx = "echo_affirm";
@@ -127,10 +134,21 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
+
+            string text = null;
+            if (DynamicText != null)
+            {
+                text = DynamicText();
+                Text = new LocalizedText(text, LocalizationMethod.RawText);
+            }
+            else if (Text.NotEmpty)
+            {
+                text = Text.Text;
+            }
 
             Rectangle r = Rect;
             SubTexture texture = ButtonTexture();
@@ -145,11 +163,9 @@ namespace Ship_Game
                 batch.DrawRectangle(r, c.AddRgb(-0.1f), 2);
             }
 
-            if (Text.NotEmpty)
+            if (text != null)
             {
                 SpriteFont font = Font;
-                string text = Text.Text;
-
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
                     textCursor.X = r.X + r.Width / 2 - font.MeasureString(text).X / 2f;

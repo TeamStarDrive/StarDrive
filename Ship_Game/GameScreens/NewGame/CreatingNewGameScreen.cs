@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Xml.Serialization;
+using Ship_Game.AI.ExpansionAI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
@@ -35,9 +37,6 @@ namespace Ship_Game
                 float pace, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
         {
             CanEscapeFromScreen = false;
-            GlobalStats.RemnantArmageddon = false;
-            GlobalStats.RemnantKills = 0;
-            GlobalStats.RemnantActivation = 0;
             MainMenu = mainMenu;
             foreach (Artifact art in ResourceManager.ArtifactsDict.Values)
                 art.Discovered = false;
@@ -121,7 +120,10 @@ namespace Ship_Game
                     planet.SetExploredBy(empire);
 
                     foreach (Planet p in planet.ParentSystem.PlanetList)
+                    {
                         p.SetExploredBy(empire);
+                        TrySendInitialFleets(p, empire);
+                    }
 
                     if (planet.ParentSystem.OwnerList.Count == 0)
                     {
@@ -151,8 +153,29 @@ namespace Ship_Game
                     SolarSystem ss = closestSystems[i];
                     ss.SetExploredBy(e);
                     foreach (Planet planet in ss.PlanetList)
+                    {
                         planet.SetExploredBy(e);
+                        TrySendInitialFleets(planet, e);
+                    }
                 }
+            }
+        }
+
+        void TrySendInitialFleets(Planet p, Empire empire)
+        {
+            if (empire.isPlayer)
+                return;
+
+            if (p.TilesList.Any(t => t.EventOnTile))
+                empire.GetEmpireAI().SendExplorationFleet(p);
+
+            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(empire))
+                return;
+
+            if (PlanetRanker.IsGoodValueForUs(p, empire))
+            {
+                var task = MilitaryTask.CreateGuardTask(empire, p);
+                empire.GetEmpireAI().AddPendingTask(task);
             }
         }
 
@@ -233,7 +256,7 @@ namespace Ship_Game
             step.Start(0.15f, 0.20f, 0.30f, 0.35f); // proportions for each step
 
             CreateOpponents(step.NextStep());
-            PopulateRelations();
+            Empire.InitializeRelationships(Data.EmpireList, Difficulty);
             ShipDesignUtils.MarkDesignsUnlockable(step.NextStep()); // 240ms
             LoadEmpireStartingSystems(step.NextStep()); // 420ms
             GenerateRandomSystems(step.NextStep());    // 425ms
@@ -285,29 +308,6 @@ namespace Ship_Game
             {
                 Data.CreateEmpire(readOnlyData);
                 step.Advance();
-            }
-        }
-
-        void PopulateRelations()
-        {
-            foreach (Empire empire in Data.EmpireList)
-            {
-                foreach (Empire e in Data.EmpireList)
-                {
-                    if (empire == e)
-                        continue;
-
-                    var r = new Relationship(e.data.Traits.Name);
-                    empire.AddRelationships(e, r);
-                    if (e == Player && Difficulty > UniverseData.GameDifficulty.Normal) // TODO see if this increased anger bit can be removed
-                    {
-                        float trustMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Trustworthiness).LowerBound(0);
-                        r.Trust       -= trustMod;
-
-                        float territoryMod = ((int) Difficulty / 10f) * (100 - empire.data.DiplomaticPersonality.Territorialism).LowerBound(0);
-                        r.AddAngerTerritorialConflict(territoryMod);
-                    }
-                }
             }
         }
 
@@ -757,8 +757,9 @@ namespace Ship_Game
 
             ScreenManager.AddScreen(us);
 
-            Log.Info("CreatingNewGameScreen.UpdateAllSystems(0.01)");
-            us.UpdateAllSystems(new FixedSimTime(0.01f));
+            Log.Info("CreatingNewGameScreen.Objects.Update(0.01)");
+            us.Objects.Update(new FixedSimTime(0.01f));
+
             ScreenManager.Music.Stop();
             ScreenManager.RemoveScreen(MainMenu);
  
@@ -766,7 +767,7 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
 

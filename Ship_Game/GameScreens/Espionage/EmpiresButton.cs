@@ -30,10 +30,10 @@ namespace Ship_Game.GameScreens.Espionage
             return false;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             // red background:
-            if (EmpireManager.Player != Empire && EmpireManager.Player.GetRelations(Empire).AtWar && !Empire.data.Defeated)
+            if (EmpireManager.Player != Empire && EmpireManager.Player.IsAtWarWith(Empire) && !Empire.data.Defeated)
             {
                 batch.FillRectangle(Rect.Bevel(2), Color.Red);
             }
@@ -63,7 +63,7 @@ namespace Ship_Game.GameScreens.Espionage
                     batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
                 }
             }
-            else if (EmpireManager.Player == Empire || EmpireManager.Player.GetRelations(Empire).Known)
+            else if (EmpireManager.Player == Empire || EmpireManager.Player.IsKnown(Empire))
             {
                 DrawRacePortrait();
 

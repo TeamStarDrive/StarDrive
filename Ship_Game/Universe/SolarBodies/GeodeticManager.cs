@@ -10,7 +10,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
     {
         private float SystemCombatTimer;
         private readonly Planet P;
-        public TimedScanner AllNearShips;
         private float Population  => P.Population;
         private Empire Owner      => P.Owner;
         private Shield Shield     => P.Shield;
@@ -18,14 +17,12 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private SceneObject SO    => P.SO;
         private bool HasSpacePort => P.HasSpacePort;
         private int Level         => P.Level;
-        private int NumShipYards  => Stations.Values.Count(s => s.shipData.IsShipyard);
-        private Map<Guid,Ship> Stations      => P.OrbitalStations;
+        private int NumShipYards  => P.OrbitalStations.Count(s => s.shipData.IsShipyard);
         private float RepairPerTurn          => P.RepairPerTurn;
         private SolarSystem ParentSystem     => P.ParentSystem;
         private int TurnsSinceTurnover       => P.TurnsSinceTurnover;
         private float ShieldStrengthCurrent  => P.ShieldStrengthCurrent;
-        private Array<PlanetGridSquare> TilesList        => P.TilesList;
-        private BatchRemovalCollection<Troop> TroopsHere => P.TroopsHere;
+        private Array<PlanetGridSquare> TilesList => P.TilesList;
 
         public GeodeticManager (Planet planet)
         {
@@ -83,7 +80,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void DeclareWarOnBombingEmpire(Bomb bomb)
         {
-            if (Owner != null && !Owner.GetRelations(bomb.Owner).AtWar
+            if (Owner != null && !Owner.IsAtWarWith(bomb.Owner)
                               && TurnsSinceTurnover > 10
                               && Empire.Universe.PlayerEmpire == bomb.Owner)
             {
@@ -93,7 +90,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void DamageColonyShields(Bomb bomb)
         {
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
+            if (Empire.Universe.IsSystemViewOrCloser
                 && Empire.Universe.Frustum.Contains(P.Center, P.OrbitalRadius * 2))
             {
                 Shield.HitShield(P, bomb, Center, SO.WorldBoundingSphere.Radius + 100f);
@@ -102,16 +99,30 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             P.ShieldStrengthCurrent = Math.Max(P.ShieldStrengthCurrent - bomb.HardDamageMax, 0);
         }
 
+        void AssignPlanetarySupply()
+        {
+            int remainingSupplyShuttles = P.NumSupplyShuttlesCanLaunch();
+            if (remainingSupplyShuttles <= 0)
+                return; // Maximum supply ships launched
+
+            if (!P.TryGetShipsNeedRearm(out Ship[] ourShipsNeedRearm, Owner))
+                return;
+
+            for (int i = 0; i < ourShipsNeedRearm.Length && remainingSupplyShuttles-- > 0; i++)
+               Owner.GetEmpireAI().AddPlanetaryRearmGoal(ourShipsNeedRearm[i], P);
+        }
+
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
+            AssignPlanetarySupply();
             float repairPool = CalcRepairPool();
             bool spaceCombat = P.SpaceCombatNearPlanet;
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
                 Ship ship         = ParentSystem.ShipList[i];
-                bool loyaltyMatch = ship.loyalty == Owner;
+                bool loyaltyMatch = ship?.loyalty == Owner; // todo remove null check after new quad tree is merged
 
-                if (ship.loyalty.isFaction)
+                if (ship != null && ship.loyalty.isFaction) // todo remove null check after new quad tree is merged
                     AddTroopsForFactions(ship);
 
                 if (loyaltyMatch)
@@ -146,6 +157,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 ship.AddPower(supply*10);
                 ship.ChangeOrdnance(supply);
             }
+
+            ship.HealTroops(healOne: true);
         }
 
         private float CalcRepairPool()
@@ -176,7 +189,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
             foreach (PlanetGridSquare pgs in TilesList)
             {
-                if (troopCount >= ship.TroopCapacity || TroopsHere.Count <= garrisonSize)
+                if (troopCount + ship.NumTroopsRebasingHere >= ship.TroopCapacity || garrisonSize == 0)
                     break;
 
                 if (pgs.LockOnOurTroop(ship.loyalty, out Troop troop))

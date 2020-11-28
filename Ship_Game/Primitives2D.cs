@@ -152,10 +152,31 @@ namespace Ship_Game
         public static void DrawRectangle(this SpriteBatch batch, Vector2 center, Vector2 size, float rotation, Color color, float thickness = 1f)
         {
             Vector2 halfSize = size * 0.5f;
-            Vector2 tl = new Vector2(center.X - halfSize.X, center.Y - halfSize.Y).RotateAroundPoint(center, rotation);
-            Vector2 tr = new Vector2(center.X + halfSize.X, center.Y - halfSize.Y).RotateAroundPoint(center, rotation);
-            Vector2 br = new Vector2(center.X + halfSize.X, center.Y + halfSize.Y).RotateAroundPoint(center, rotation);
-            Vector2 bl = new Vector2(center.X - halfSize.X, center.Y + halfSize.Y).RotateAroundPoint(center, rotation);
+            var tl = new Vector2(center.X - halfSize.X, center.Y - halfSize.Y);
+            var tr = new Vector2(center.X + halfSize.X, center.Y - halfSize.Y);
+            var br = new Vector2(center.X + halfSize.X, center.Y + halfSize.Y);
+            var bl = new Vector2(center.X - halfSize.X, center.Y + halfSize.Y);
+
+            if (rotation != 0f)
+            {
+                tl = tl.RotateAroundPoint(center, rotation);
+                tr = tr.RotateAroundPoint(center, rotation);
+                br = br.RotateAroundPoint(center, rotation);
+                bl = bl.RotateAroundPoint(center, rotation);
+            }
+
+            DrawLine(batch, tl, tr, color, thickness); // ---- top
+            DrawLine(batch, tr, br, color, thickness); //    | right
+            DrawLine(batch, br, bl, color, thickness); // ____ bottom
+            DrawLine(batch, bl, tl, color, thickness); // |    left
+        }
+
+        public static void DrawRectangle(this SpriteBatch batch, in AABoundingBox2D rect, Color color, float thickness = 1f)
+        {
+            var tl = new Vector2(rect.X1, rect.Y1);
+            var tr = new Vector2(rect.X2, rect.Y1);
+            var br = new Vector2(rect.X2, rect.Y2);
+            var bl = new Vector2(rect.X1, rect.Y2);
             DrawLine(batch, tl, tr, color, thickness); // ---- top
             DrawLine(batch, tr, br, color, thickness); //    | right
             DrawLine(batch, br, bl, color, thickness); // ____ bottom

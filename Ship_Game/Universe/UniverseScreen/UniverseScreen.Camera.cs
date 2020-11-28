@@ -9,31 +9,27 @@ namespace Ship_Game
     {
         private Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
         {
-            Vector2 vector2_1 = new Vector2(
-                MousePosition.X - ScreenWidth /
-                2,
-                MousePosition.Y -
-                ScreenHeight / 2);
+            Vector2 vector2_1 = MousePosition - ScreenCenter;
             Vector3 position1 = Viewport.Unproject(
                 new Vector3(MousePosition.X, MousePosition.Y, 0.0f), Projection, this.View, Matrix.Identity);
             Vector3 direction1 =
                 Viewport.Unproject(new Vector3(MousePosition.X, MousePosition.Y, 1f),
                     Projection, this.View, Matrix.Identity) - position1;
+
             direction1.Normalize();
             Ray ray = new Ray(position1, direction1);
             float num1 = -ray.Position.Z / ray.Direction.Z;
             Vector3 source = new Vector3(ray.Position.X + num1 * ray.Direction.X,
                 ray.Position.Y + num1 * ray.Direction.Y, 0.0f);
+
             Matrix view = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f) * Matrix.CreateRotationY(180f.ToRadians()) *
                           Matrix.CreateRotationX(0.0f.ToRadians()) *
                           Matrix.CreateLookAt(new Vector3(CamPos.X, CamPos.Y, DesiredCamHeight),
                               new Vector3(CamPos.X, CamPos.Y, 0.0f), new Vector3(0.0f, -1f, 0.0f));
-            Vector3 vector3 =
-                Viewport.Project(source, Projection, view, Matrix.Identity);
-            Vector2 vector2_2 = new Vector2((int) vector3.X - vector2_1.X,
-                (int) vector3.Y - vector2_1.Y);
-            Vector3 position2 = Viewport.Unproject(
-                new Vector3(vector2_2.X, vector2_2.Y, 0.0f), Projection, view, Matrix.Identity);
+            
+            Vector3 vector3 = Viewport.Project(source, Projection, view, Matrix.Identity);
+            var vector2_2 = new Vector2((int) vector3.X - vector2_1.X, (int) vector3.Y - vector2_1.Y);
+            Vector3 position2 = Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 0.0f), Projection, view, Matrix.Identity);
             Vector3 direction2 =
                 Viewport.Unproject(new Vector3(vector2_2.X, vector2_2.Y, 1f),
                     Projection, view, Matrix.Identity) - position2;
@@ -55,10 +51,10 @@ namespace Ship_Game
             SelectedSystem = null;
             SelectedPlanet = null;
             snappingToShip = true;
-            CamDestination.Z = 3500f;
+            CamDestination.Z = GetZfromScreenState(UniverseScreen.UnivScreenState.DetailView);
             AdjustCamTimer = 1.0f;
             transitionElapsedTime = 0.0f;
-            CamDestination.Z = 4500f;
+            CamDestination.Z = GetZfromScreenState(UniverseScreen.UnivScreenState.PlanetView); ;
             snappingToShip = true;
             ViewingShip = true;
         }
@@ -137,62 +133,6 @@ namespace Ship_Game
                 SelectedItem = null;
                 SelectedShipList.Clear();
 
-            }
-        }
-        public void SnapViewColony(object sender)
-        {
-            ShowShipNames = false;
-
-            if (SelectedPlanet == null)
-                return;
-
-            CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
-
-            if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
-            {
-                GameAudio.NegativeClick();
-            }
-            else
-            {
-                bool flag = player.data.MoleList.Any(mole => mole.PlanetGuid == SelectedPlanet.guid);
-
-                if (SelectedPlanet.Owner == player || flag || Debug && SelectedPlanet.Owner != null)
-                {
-                    workersPanel = new ColonyScreen(this, SelectedPlanet, EmpireUI);
-                }
-                else if (SelectedPlanet.Owner != null)
-                {
-                    workersPanel   = new UnownedPlanetScreen(this, SelectedPlanet);
-                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
-                        95000f);
-
-                }
-                else
-                {
-                    workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
-                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,95000f);
-                }
-
-                SelectedPlanet.SetExploredBy(player);
-
-                LookingAtPlanet         = true;
-                transitionStartPosition = CamPos;
-                AdjustCamTimer          = 2f;
-                transitionElapsedTime   = 0.0f;
-                transDuration           = 5f;
-
-                if (ViewingShip) returnToShip = true;
-
-                ViewingShip    = false;
-                snappingToShip = false;
-                SelectedFleet  = null;
-
-                if (SelectedShip != null && previousSelection != SelectedShip)
-                    previousSelection = SelectedShip;
-
-                SelectedShip = null;
-                SelectedItem = null;
-                SelectedShipList.Clear();
             }
         }
 
@@ -429,6 +369,20 @@ namespace Ship_Game
                 ViewToShip();
             }
             ViewingShip = !ViewingShip;
+        }
+
+        void ToggleCinematicMode()
+        {
+            if (!IsCinematicModeEnabled)
+            {
+                CinematicModeTextTimer = 3;
+                StarDriveGame.Instance.SetCinematicCursor();
+            }
+            else
+            {
+                StarDriveGame.Instance.SetGameCursor();
+            }
+            IsCinematicModeEnabled = !IsCinematicModeEnabled;
         }
     }
 }

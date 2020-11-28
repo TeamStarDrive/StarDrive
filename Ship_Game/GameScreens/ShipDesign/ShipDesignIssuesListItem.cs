@@ -36,7 +36,7 @@ namespace Ship_Game
            return label;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Color borderColor = RectColor(IssueDetails.Color, 3);
             batch.FillRectangle(Rect, RectColor(IssueDetails.Color, 10));
@@ -53,7 +53,7 @@ namespace Ship_Game
             batch.DrawLine(descriptionTop, descriptionBot, borderColor);
             // SetRelPos is not working for some reason, using Pos
             IssueTexture.Pos = new Vector2(Pos.X + 2, Pos.Y + 10);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         Color RectColor(Color color, int divider)

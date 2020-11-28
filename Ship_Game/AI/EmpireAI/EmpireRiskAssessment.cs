@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 
@@ -24,81 +25,68 @@ namespace Ship_Game.AI
 
         public void UpdateRiskAssessment(Empire us)
         {
-            Expansion = ExpansionRiskAssessment(us);
+            Expansion   = ExpansionRiskAssessment(us);
             Border      = BorderRiskAssessment(us);
             KnownThreat = RiskAssessment(us);
-            Risk        = Expansion + Border + KnownThreat;
+            Risk        = (Expansion + Border + KnownThreat) / 3;
             MaxRisk     = MathExt.Max3(Expansion, Border, KnownThreat);
         }
 
         private float ExpansionRiskAssessment(Empire us)
         {
-            if (!Relation.Known  || Them == null || Them.NumPlanets == 0 || Them.data.Defeated)
-                return 0;
+            float expansion = us.GetExpansionRatio(); 
+            if (!Relation.Known  || Them == null || Them.data.Defeated)
+                return expansion;
 
-            float themStrength = 0;
-            float usStrength   = 0;
+            var numberofTheirPlanets = Them.NumPlanets;
+            if (Them.isFaction)
+                numberofTheirPlanets = us.GetEmpireAI().ThreatMatrix.GetAllSystemsWithFactions().Sum(s => s.PlanetList.Count);
 
-            foreach (Planet p in Them.GetPlanets())
+            if (us.NumPlanets > 0 && Them.NumPlanets > 0)
             {
-                if (!p.IsExploredBy(us)) continue;
-                themStrength += p.ColonyValue;
+                var planetRatio = Them.NumPlanets / (float)us.NumPlanets;
+
+                expansion *= planetRatio;
+                if (planetRatio > us.DifficultyModifiers.ExpansionMultiplier)
+                    expansion /= us.DifficultyModifiers.ExpansionMultiplier;
             }
 
-            foreach (Planet p in us.GetPlanets())
-            {
-                usStrength += p.ColonyValue;
-            }
-            float strength = ((themStrength - usStrength) / themStrength).Clamped(0,1);
-            return strength;
+            return expansion;
         }
 
         private float BorderRiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.data.Defeated)
-                return 0;
+            float ourOffensiveRatio = us.GetWarOffensiveRatio().LowerBound(0.1f);
+            float ourTotalSystems = us.NumSystems;
+            if (!Relation.Known || Them.data.Defeated || ourTotalSystems < 1 || Them.GetOwnedSystems().Count == 0 || Them == EmpireManager.Unknown)
+                return ourOffensiveRatio;
 
-            float strength = 0;
-            foreach (SolarSystem ss in us.GetBorderSystems(Them, true))
-            {
-                strength += us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
-            }
-            strength = ((strength - us.CurrentMilitaryStrength) / strength.LowerBound(1)).Clamped(0,1);
-            return strength; 
+            int ourBorderSystems = us.GetOurBorderSystemsTo(Them, true).Count;
+            float space = Empire.Universe.UniverseSize ;
+            float distance = (space - us.WeightedCenter.Distance(Them.WeightedCenter)).LowerBound(1);
+            distance /= space;
+
+            float borders = (ourBorderSystems / ourTotalSystems);
+
+            return (borders ) * ourOffensiveRatio;
+; 
         }
 
         private float RiskAssessment(Empire us, float riskLimit = 2)
         {
-            if (!Relation.Known || Them.data.Defeated)
+            if (!Relation.Known || Them.data.Defeated || Them == EmpireManager.Unknown)
                 return 0;
 
+            var riskBase = us.GetWarOffensiveRatio();
             float risk = 0; 
-            float strength = Math.Max(100, us.CurrentMilitaryStrength);
-            if (!Them.isFaction && !Relation.AtWar && !Relation.PreparingForWar)
-                return 0;
+            float ourStrength = Math.Max(1000, us.CurrentMilitaryStrength);
+            if (!Relation.AtWar && !Relation.PreparingForWar && !Them.isFaction)
+                return riskBase;
 
-            if (!Them.isFaction)
-            {
-                risk = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpire(Them) / strength;
-                return risk; 
-            }
-
-            var checkedSystems = new HashSet<SolarSystem>();
-
-            var claimTasks = us.GetEmpireAI().GetClaimTasks();
-            foreach (MilitaryTask task in claimTasks)
-            {
-                Planet p = task.TargetPlanet;
-                SolarSystem ss = p.ParentSystem;
-                if (checkedSystems.Add(ss))
-                {
-                    float test = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
-                    if (test > 0 && test < risk)
-                        risk = test;
-                }
-            }
-
-            risk /= strength;
+            float theirStrength = us.GetEmpireAI().ThreatMatrix.KnownEmpireStrength(Them, p => p.Ship != null);
+            risk = theirStrength  / ourStrength;
+            
+            risk = risk * riskBase;
             return risk; 
         }
 

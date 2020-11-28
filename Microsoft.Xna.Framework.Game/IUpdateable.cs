@@ -4,6 +4,6 @@
     {
         bool Enabled { get; }
         int UpdateOrder { get; }
-        void Update(GameTime gameTime);
+        void Update(float deltaTime);
     }
 }

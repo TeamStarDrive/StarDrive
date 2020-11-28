@@ -25,11 +25,25 @@ namespace Ship_Game.AI.ExpansionAI
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
             {
-                if (g.type == GoalType.Colonize)
-                    list.Add(g.ColonizationTarget);
+                if (g.type != GoalType.Colonize) continue;
+                list.Add(g.ColonizationTarget);
             }
 
             return list.ToArray();
+        }
+
+        public int GetNumOfBlockedColonyGoals()
+        {
+            int count = 0;
+            foreach (var g in Goals)
+            {
+                if (g.type != GoalType.Colonize) continue;
+                float blocker = Owner.GetTargetsStrMultiplier(g.ColonizationTarget);
+                if (blocker > 1)
+                    count++;
+            }
+
+            return count;
         }
 
         public Array<Goal> GetColonizationGoals()
@@ -44,27 +58,33 @@ namespace Ship_Game.AI.ExpansionAI
             return list;
         }
 
-        SolarSystem[] OwnedPotentialSystems(float ownerStrength) => Owner.GetOwnedSystems().Filter(s => s.IsOnlyOwnedBy(Owner)
-                                                                                            && s.PlanetList.Any(p => p.Habitable)
-                                                                                            && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength));
-
-        int DesiredColonyGoals
+        int DesiredColonyGoals()
         {
-            get
-            {
-                float baseColonyGoals = Owner.DifficultyModifiers.BaseColonyGoals;
-                if (Owner.isPlayer) 
-                    return (int)baseColonyGoals; // BaseColonyGoals for player
+            float goals = Owner.DifficultyModifiers.BaseColonyGoals;
+            if (Owner.isPlayer) 
+                return (int)goals; // BaseColonyGoals for player
 
-                float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
-                int plusGoals   = Owner.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
-                float goals     = (float)Math.Round(baseValue + baseColonyGoals + plusGoals, 0);
-                return (int)goals.Clamped(1f, 5f);
-            }
+            goals += Owner.GetExpansionRatio();
+
+            if (Owner.IsCybernetic)
+                goals += 2;
+
+            goals += GoalsModifierByRank();
+            return (int)goals;
         }
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
-        float ExpansionThreshold => (Owner.IsExpansionists ? 0.35f : 0.45f) + Owner.DifficultyModifiers.ExpansionModifier;
+        float ExpansionThreshold => (Owner.IsExpansionists ? 0.1f : 0.15f) * Owner.DifficultyModifiers.ExpansionMultiplier;
+    
+        int GoalsModifierByRank() // increase goals if we are behind other empires
+        {
+            if (Empire.Universe.StarDate < 1002)
+                return 0;
+
+            float modifier = 0;
+            var empires = EmpireManager.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
+            return (int)(empires.IndexOf(Owner) * Owner.DifficultyModifiers.ColonyGoalMultiplier);
+        }
 
         public ExpansionPlanner(Empire empire)
         {
@@ -83,27 +103,33 @@ namespace Ship_Game.AI.ExpansionAI
             if (Owner.isPlayer && !Owner.AutoColonize)
                 return;
 
+            int ourPlanetsNum = Owner.GetPlanets().Count;
+            if (!Owner.isPlayer && PopulationRatio < ExpansionThreshold
+                && ourPlanetsNum >= Owner.DifficultyModifiers.MinStartingColonies)
+            {
+                return; // We have not reached our pop capacity threshold (for AI only) 
+            }
+            
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
-            if (currentColonizationGoals.Length >= DesiredColonyGoals)
+            int claimTasks                    = Owner.GetEmpireAI().GetNumClaimTasks();
+
+            int desiredGoals = DesiredColonyGoals();
+
+            // we are going to ignore some of the blocked colony goals based on difficulty. 
+            // at brutal no blocked colony goals will be counted. 
+            int blockedColonyGoals = GetNumOfBlockedColonyGoals();
+            blockedColonyGoals = (int)(blockedColonyGoals * Owner.DifficultyModifiers.ColonyGoalMultiplier);
+
+            if (currentColonizationGoals.Length - blockedColonyGoals >= desiredGoals)
                 return;
 
-            float ownerStrength       = Owner.CurrentMilitaryStrength;
-            var potentialOwnedSystems = OwnedPotentialSystems(ownerStrength);
-            int ourPlanets            = Owner.GetPlanets().Count;
-
-            if (PopulationRatio < ExpansionThreshold
-                && potentialOwnedSystems.Length == 0
-                && ourPlanets >= Owner.DifficultyModifiers.MinStartingColonies)
-            {
-                return; // We have not reached our pop capacity threshold yet and not have systems only owned by us to check
-            }
-
-            Log.Info(ConsoleColor.Magenta,$"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
+            Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
+            float ownerStrength  = Owner.OffensiveStrength;
             var ownedSystems     = Owner.GetOwnedSystems();
             var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
                                                                          && !s.IsOwnedBy(Owner)
                                                                          && s.PlanetList.Any(p => p.Habitable)
-                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength));
+                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/2));
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
@@ -135,28 +161,27 @@ namespace Ship_Game.AI.ExpansionAI
             RankedPlanets = allPlanetsRanker.SortedDescending(pr => pr.Value);
 
             // Take action on the found planets
-            CreateColonyGoals(currentColonizationGoals);
+            CreateColonyGoals(currentColonizationGoals, desiredGoals);
         }
 
         /// <summary>
         /// Send colony ships to best targets;
         /// </summary>
-        void CreateColonyGoals(Planet[] markedPlanets)
+        void CreateColonyGoals(Planet[] markedPlanets, int desiredGoals)
         {
-            int desired            = DesiredColonyGoals - markedPlanets.Length;
-            desired                = desired.UpperBound(RankedPlanets.Length);
+            int netDesired = (desiredGoals - markedPlanets.Length).UpperBound(RankedPlanets.Length);
 
-            if (desired < 1) 
+            if (netDesired < 1) 
                 return;
 
-            for (int i = 0; i < RankedPlanets.Length && desired > 0; i++)
+            for (int i = 0; i < RankedPlanets.Length && netDesired > 0; i++)
             {
                 Planet planet = RankedPlanets[i].Planet;
                 Log.Info(ConsoleColor.Magenta,
-                    $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals} | {planet} | {Owner}");
+                    $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals()} | {planet} | {Owner}");
 
                 Goals.Add(new MarkForColonization(planet, Owner));
-                desired--;
+                netDesired--;
             }
         }
         
@@ -186,8 +211,12 @@ namespace Ship_Game.AI.ExpansionAI
                 for (int j = 0; j < system.PlanetList.Count; j++)
                 {
                     Planet p = system.PlanetList[j];
-                    if (p.Habitable && (p.Owner == null || p.Owner.isFaction))
+                    if (Owner.KnownEnemyStrengthIn(p.ParentSystem) <= Owner.OffensiveStrength
+                        && p.Habitable
+                        && (p.Owner == null || p.Owner.isFaction))
+                    {
                         potentialPlanets.Add(p);
+                    }
                 }
             }
 

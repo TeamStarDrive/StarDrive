@@ -35,12 +35,12 @@ namespace Ship_Game
 			PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
 		}
 
-		public override void Draw(SpriteBatch batch)
+		public override void Draw(SpriteBatch batch, DrawTimes elapsed)
 		{
-			TitleBar.Draw(batch);
+			TitleBar.Draw(batch, elapsed);
 			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, Colors.Cream);
-			PlanetMenu.Draw(batch);
-			PlanetInfo.Draw(batch);
+			PlanetMenu.Draw(batch, elapsed);
+			PlanetInfo.Draw(batch, elapsed);
 			batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
 			var pNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
 			batch.DrawString(Fonts.Arial20Bold, p.Name, pNameCursor, Colors.Cream);

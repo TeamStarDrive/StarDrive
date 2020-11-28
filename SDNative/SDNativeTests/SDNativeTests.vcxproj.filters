@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="tests">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="rpp">
+      <UniqueIdentifier>{24a894f8-e70e-4705-b666-d327393c35ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{ba245533-b7af-4332-a3eb-8adbf14aaf09}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tests_main.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\rpp\debugging.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\rpp\file_io.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\rpp\sprint.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\rpp\strview.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\rpp\vec.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\rpp\tests.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="TestQuadTree.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ReCpp\rpp\timer.cpp">
+      <Filter>rpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_impl_dx11.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugGfxWindow.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdparty\imgui\imgui_impl_win32.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSpatialGrid.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestObjectCollection.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSimulation.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCellLoyalty.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+    <ClCompile Include="TestPrimitiveMath.cpp">
+      <Filter>tests</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ReCpp\rpp\collections.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\config.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\debugging.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\file_io.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\sprint.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\strview.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\vec.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\tests.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ReCpp\rpp\timer.h">
+      <Filter>rpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imgui_impl_dx11.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugGfxWindow.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdparty\imgui\imgui_impl_win32.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialSimObject.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialSimUtils.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialSim.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+    <ClInclude Include="SimParams.h">
+      <Filter>tests</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\ReCpp\rpp\strview.natvis">
+      <Filter>rpp</Filter>
+    </Natvis>
+    <Natvis Include="..\ReCpp\rpp\vec.natvis">
+      <Filter>rpp</Filter>
+    </Natvis>
+  </ItemGroup>
+</Project>

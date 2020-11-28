@@ -243,14 +243,24 @@ namespace Ship_Game.GameScreens.MainMenu
             return false;
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        // We need a simulation time accumulator in order to run sim at arbitrary X fps while UI runs at smooth 60 fps
+        float SimTimeSink;
+
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            UpdateMainMenuShips(elapsed.SimulationStep);
             GameAudio.Update3DSound(CamPos);
 
-            FTLManager.Update(this, elapsed.SimulationStep);
+            var simTime = new FixedSimTime(GlobalStats.SimulationFramesPerSecond);
 
-            ScreenManager.UpdateSceneObjects();
+            SimTimeSink += elapsed.RealTime.Seconds;
+            while (SimTimeSink >= simTime.FixedTime)
+            {
+                SimTimeSink -= simTime.FixedTime;
+                UpdateMainMenuShips(simTime);
+                FTLManager.Update(this, simTime);
+            }
+
+            ScreenManager.UpdateSceneObjects(elapsed.RealTime.Seconds);
             
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {
@@ -271,9 +281,9 @@ namespace Ship_Game.GameScreens.MainMenu
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            DrawMultiLayeredExperimental(ScreenManager, draw3D:true);
+            DrawMultiLayeredExperimental(ScreenManager, batch, elapsed, draw3D:true);
 
             foreach (var fleet in Fleets)
                 fleet.Draw(batch, this);

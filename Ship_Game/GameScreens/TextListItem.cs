@@ -20,9 +20,9 @@ namespace Ship_Game
         }
 
         // custom override, because it's faster
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            TextLabel.Draw(batch);
+            TextLabel.Draw(batch, elapsed);
         }
     }
 }

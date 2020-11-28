@@ -27,7 +27,7 @@ namespace Ship_Game.AI
         public string EmpireName;
         public DefensiveCoordinator DefensiveCoordinator;
         public BatchRemovalCollection<Goal> Goals            = new BatchRemovalCollection<Goal>();
-        public ThreatMatrix ThreatMatrix                     = new ThreatMatrix();
+        public ThreatMatrix ThreatMatrix;                     
         public Array<AO> AreasOfOperations                   = new Array<AO>();
         public Array<int> UsedFleets                         = new Array<int>();
         public float Toughnuts = 0;
@@ -39,6 +39,7 @@ namespace Ship_Game.AI
         {
             EmpireName                = e.data.Traits.Name;
             OwnerEmpire               = e;
+            ThreatMatrix              = new ThreatMatrix(e);
             DefensiveCoordinator      = new DefensiveCoordinator(e);
             OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
             TechChooser               = new Research.ChooseTech(e);
@@ -47,13 +48,14 @@ namespace Ship_Game.AI
             if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
-            string name = OwnerEmpire.data.Traits.Name;
-
             if (OwnerEmpire.isFaction && OwnerEmpire.data.IsPirateFaction && !GlobalStats.DisablePirates)
                 OwnerEmpire.SetAsPirates(fromSave, Goals);
 
-            if (name == "The Remnant" && !fromSave)
-                Goals.Add(new RemnantAI(OwnerEmpire));
+            if (OwnerEmpire.isFaction && OwnerEmpire.data.IsRemnantFaction)
+                OwnerEmpire.SetAsRemnants(fromSave, Goals);
+
+            EmpireDefense?.RestoreFromSave(true);
+            WarTasks = new StrategyAI.WarGoals.WarTasks(e);
         }
 
         void RunManagers()
@@ -79,6 +81,14 @@ namespace Ship_Game.AI
             }
             RunMilitaryPlanner();
             RunWarPlanner();
+        }
+
+        public void RemoveFactionEndedTasks()
+        {
+            foreach (MilitaryTask remove in TasksToRemove)
+                TaskList.RemoveRef(remove);
+
+            TasksToRemove.Clear();
         }
 
         public void DebugRunResearchPlanner()
@@ -210,11 +220,26 @@ namespace Ship_Game.AI
             }
         }
 
+        public void AddScrapShipGoal(Ship ship)
+        {
+            Goals.Add(new ScrapShip(ship, OwnerEmpire));
+        }
+
+        public void AddPlanetaryRearmGoal(Ship ship, Planet p, Ship existingSupplyShip = null)
+        {
+            if (existingSupplyShip == null)
+                Goals.Add(new RearmShipFromPlanet(ship, p, OwnerEmpire));
+            else
+                Goals.Add(new RearmShipFromPlanet(ship, existingSupplyShip, p, OwnerEmpire));
+        }
+
         public void Update()
         {
             DefStr = DefensiveCoordinator.GetForcePoolStrength();
             if (!OwnerEmpire.isFaction)
                 RunManagers();
+            else
+                RemoveFactionEndedTasks();
 
             for (int i = Goals.Count - 1; i >= 0; i--)
             {
@@ -243,11 +268,19 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public bool HasGoal(in Guid guid)
+        {
+            for (int i = 0; i < Goals.Count; ++i)
+                if (Goals[i].guid == guid) return true;
+            return false;
+        }
+
         public void AddGoal(Goal goal)
         {
             Goals.Add(goal);
         }
 
+        
         public void FindAndRemoveGoal(GoalType type, Predicate<Goal> removeIf)
         {
             for (int i = 0; i < Goals.Count; ++i)

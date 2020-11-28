@@ -8,90 +8,11 @@ using System;
 
 namespace Microsoft.Xna.Framework
 {
-  public class GameTime
-  {
-    private TimeSpan totalRealTime;
-    private TimeSpan totalGameTime;
-    private TimeSpan elapsedRealTime;
-    private TimeSpan elapsedGameTime;
-    private bool isRunningSlowly;
-
-    public TimeSpan TotalRealTime
+    internal class GameTime
     {
-      get
-      {
-        return this.totalRealTime;
-      }
-      internal set
-      {
-        this.totalRealTime = value;
-      }
+        public TimeSpan TotalRealTime;
+        public TimeSpan TotalGameTime;
+        public TimeSpan ElapsedRealTime;
+        public TimeSpan ElapsedGameTime;
     }
-
-    public TimeSpan TotalGameTime
-    {
-      get
-      {
-        return this.totalGameTime;
-      }
-      internal set
-      {
-        this.totalGameTime = value;
-      }
-    }
-
-    public TimeSpan ElapsedRealTime
-    {
-      get
-      {
-        return this.elapsedRealTime;
-      }
-      internal set
-      {
-        this.elapsedRealTime = value;
-      }
-    }
-
-    public TimeSpan ElapsedGameTime
-    {
-      get
-      {
-        return this.elapsedGameTime;
-      }
-      internal set
-      {
-        this.elapsedGameTime = value;
-      }
-    }
-
-    public bool IsRunningSlowly
-    {
-      get
-      {
-        return this.isRunningSlowly;
-      }
-      internal set
-      {
-        this.isRunningSlowly = value;
-      }
-    }
-
-    public GameTime()
-    {
-    }
-
-    public GameTime(TimeSpan totalRealTime, TimeSpan elapsedRealTime, TimeSpan totalGameTime, TimeSpan elapsedGameTime, bool isRunningSlowly)
-    {
-      this.totalRealTime = totalRealTime;
-      this.elapsedRealTime = elapsedRealTime;
-      this.totalGameTime = totalGameTime;
-      this.elapsedGameTime = elapsedGameTime;
-      this.isRunningSlowly = isRunningSlowly;
-    }
-
-    public GameTime(TimeSpan totalRealTime, TimeSpan elapsedRealTime, TimeSpan totalGameTime, TimeSpan elapsedGameTime)
-      : this(totalRealTime, elapsedRealTime, totalGameTime, elapsedGameTime, false)
-    {
-    }
-  }
 }

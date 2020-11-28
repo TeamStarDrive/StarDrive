@@ -207,10 +207,12 @@ namespace Ship_Game.AI
 
             if (goal.HasCombatMove(0))
             {
-
-                if (HasPriorityOrder)
+                if (HasPriorityOrder && !Owner.loyalty.isPlayer) // For AI fleets doing priority order
+                {
                     HadPO = true;
-                ClearPriorityOrder();
+                    ClearPriorityOrderAndTarget();
+
+                }
             }
 
             Vector2 targetPos = goal.MovePosition;
@@ -234,6 +236,11 @@ namespace Ship_Game.AI
                     DequeueCurrentOrder();
                 }
                 return;
+            }
+
+            if (distance > 1000)
+            {
+                OrderQueue.PushToFront(new ShipGoal(Plan.MoveToWithin1000, targetPos, goal.Direction, AIState.AwaitingOrders, MoveTypes.LastWayPoint, 0, null));
             }
 
             if (distance > 75)
@@ -292,6 +299,7 @@ namespace Ship_Game.AI
         // this is used when we arrive at final position
         void RotateToDesiredFacing(FixedSimTime timeStep, ShipGoal goal)
         {
+            SetPriorityOrder(false);
             if (!RotateToDirection(goal.Direction, timeStep, 0.02f))
             {
                 DequeueCurrentOrder(); // rotation complete
@@ -416,10 +424,13 @@ namespace Ship_Game.AI
                 if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
-                    if (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
-                        Owner.EngageStarDrive();
-                    else if (distance > 15000f && Owner.InCombat)
-                        Owner.EngageStarDrive();
+                    if (distance > 7500f)
+                    {
+                        if (HasPriorityOrder || HasPriorityTarget || !Owner.InCombat)
+                            Owner.EngageStarDrive();
+                        else if (distance > Owner.WeaponsMaxRange && Owner.InCombat)
+                            Owner.EngageStarDrive();
+                    }
                 }
                 Owner.SubLightAccelerate(speedLimit);
             }

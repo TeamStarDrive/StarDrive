@@ -2257,6 +2257,8 @@ namespace Ship_Game
         Generalists = 1859,
         /// <summary>Expansionists</summary>
         Expansionists = 1860,
+        /// <summary>Million Colonists could be living on this land if you built Biospheres.</summary>
+        MillionColonistsCouldBeLiving = 1896,
         /// <summary>was destroyed while exploring</summary>
         WasDestroyedWhileExploringSystem = 1901,
         /// <summary>was destroyed in deep space while exploring the galaxy</summary>
@@ -4235,6 +4237,12 @@ namespace Ship_Game
         ThisIsTheMaximumSensor = 7090,
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         ThisIsThisShipsSelfrepair = 7091,
+        /// <summary>Rush All Construction</summary>
+        RushAllConstruction = 1824,
+        /// <summary>Rush All Construction</summary>
+        RushAllConstructionTip = 1825,
+        /// <summary>BulkReplacement</summary>
+        YouCanUseShiftClick = 1827,
         /// <summary>Big Clusters Game Mode</summary>
         BigClustersGame = 1892,
         /// <summary>Small Clusters Game Mode</summary>
@@ -4244,6 +4252,19 @@ namespace Ship_Game
         /// <summary>We Destroyed a pirate base</summary>
         DestroyedPirateBase = 1871,
         /// <summary>Low MoneyWarning</summary>
-        LowMoneyWarning = 2296
+        LowMoneyWarning = 2296,
+        /// <summary>Weapon Accuracy</summary>
+        Accuracy = 1973,
+        LowAccuracy = 2572,
+        WeaponAccuracy = 2573,
+        ImproveAccuracy = 2574,
+        WeaponTargetError = 4114,
+
+        Tracking = 1457,
+        LowTracking = 1458,
+        TrackingTargets = 1459,
+        ImproveTracking = 1460,
+        OrbitalTracking =1461
+
     }
 }

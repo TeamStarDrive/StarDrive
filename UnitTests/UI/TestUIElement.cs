@@ -29,13 +29,13 @@ namespace UnitTests.UI
                 return false;
             }
 
-            public override void Update(float deltaTime)
+            public override void Update(float fixedDeltaTime)
             {
                 UpdateEventId = ++EventId;
                 ++UpdateEvents;
             }
 
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 DrawEventId = ++EventId;
                 ++DrawEvents;

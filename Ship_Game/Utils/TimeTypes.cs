@@ -31,6 +31,11 @@ namespace Ship_Game
         {
             FixedTime = time;
         }
+
+        public FixedSimTime(int simulationFramesPerSecond)
+        {
+            FixedTime = 1f / simulationFramesPerSecond;
+        }
     }
 
     /// <summary>
@@ -52,56 +57,74 @@ namespace Ship_Game
     }
 
     /// <summary>
-    /// Aggregate for passing game times around the engine
+    /// Aggregate for passing game UPDATE times around the engine.
+    /// WARNING: UPDATE time should note be used for RENDERING, use RenderTime for that!
     /// </summary>
-    public class FrameTimes
+    public class UpdateTimes
     {
         /// <summary>
-        /// 
-        /// </summary>
-        public readonly int SimulationFPS;
-
-        /// <summary>
-        /// This is the fixed simulation step: 1.0/SimulationFPS
-        ///
-        /// By default it is 1 / 60, but players can configure it
-        ///
-        /// If the game is paused, this will be 0
-        /// </summary>
-        public readonly FixedSimTime SimulationStep;
-
-        /// <summary>
-        /// This is the real time elapsed between frames
-        ///
-        /// It can vary greatly depending on how many things are being drawn
+        /// This is the time elapsed between Update calls
         /// </summary>
         public readonly VariableFrameTime RealTime;
 
         /// <summary>
-        /// XNA game time for compatibility
+        /// Total elapsed game time, from the start of the game engine, until this time point
+        /// Except for when the window was inactive
         /// </summary>
-        public readonly GameTime XnaTime;
+        public readonly float CurrentGameTime;
 
+        public UpdateTimes(float deltaTime, float currentGameTime)
+        {
+            RealTime = new VariableFrameTime(deltaTime);
+            CurrentGameTime = currentGameTime;
+        }
+
+        public override string ToString()
+        {
+            return $"UpdateTimes  real:{RealTime.Seconds*1000,2:0.0}ms  game:{CurrentGameTime,2:0.0}s";
+        }
+    }
+
+    /// <summary>
+    /// This time type is used purely for rendering
+    /// </summary>
+    public class DrawTimes
+    {
+        /// <summary>
+        /// TimeSinceLastDrawEvent
+        /// 
+        /// Variable real time that has passed since last draw event
+        /// </summary>
+        public VariableFrameTime RealTime { get; private set; }
+        
         /// <summary>
         /// Total elapsed game time, from the start of the game engine, until this time point
+        /// Except for when the window was inactive
         /// </summary>
-        public readonly float TotalGameSeconds;
+        public float CurrentGameTime { get; private set; }
 
-        public FrameTimes(int simulationFramesPerSecond, GameTime xnaTime)
+        public DrawTimes()
         {
-            SimulationFPS = simulationFramesPerSecond;
-            float simulationFixedTimeStep = 1f / simulationFramesPerSecond;
+        }
 
-            SimulationStep = new FixedSimTime(simulationFixedTimeStep);
-            XnaTime = xnaTime;
+        /// <summary>
+        /// Update the internal timer before rendering
+        /// </summary>
+        public void UpdateBeforeRendering(float currentGameTime)
+        {
+            if (CurrentGameTime == 0f)
+            {
+                CurrentGameTime = currentGameTime;
+            }
 
-            float frameTime = (float)xnaTime.ElapsedGameTime.TotalSeconds;
-            if (frameTime > 0.4f) // @note Probably we were loading something heavy
-                frameTime = simulationFixedTimeStep;
+            float elapsed = (currentGameTime - CurrentGameTime);
+            CurrentGameTime = currentGameTime;
+            RealTime = new VariableFrameTime(elapsed);
+        }
 
-            RealTime = new VariableFrameTime(frameTime);
-
-            TotalGameSeconds = (float)xnaTime.TotalGameTime.TotalSeconds;
+        public override string ToString()
+        {
+            return $"DrawTimes  real:{RealTime.Seconds*1000,2:0.0}ms";
         }
     }
 }

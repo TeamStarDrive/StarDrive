@@ -15,7 +15,7 @@ namespace Ship_Game
             Response = response;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             batch.DrawString(Fonts.Arial12Bold,
                 $"{ItemIndex+1}. {Response.Text}", Pos,

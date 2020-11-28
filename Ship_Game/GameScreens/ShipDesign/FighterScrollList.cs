@@ -116,13 +116,13 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (ActiveHangarModule == null)
                 return;
 
             Screen.DrawRectangle(Rect, Color.TransparentWhite, Color.Black);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
     }
 }

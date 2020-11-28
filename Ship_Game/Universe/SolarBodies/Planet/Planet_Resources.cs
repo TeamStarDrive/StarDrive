@@ -54,7 +54,7 @@ namespace Ship_Game
         }
 
         public float PopulationBillion { get; private set; }
-        public float PlusFlatPopulationPerTurn;
+        public float PlusFlatPopulationPerTurn { get; private set; }
 
         public bool HasProduction    => Prod.GrossIncome > 1.0f;
         public float PopulationRatio => MaxPopulation.AlmostZero() ? 0 : Storage.Population / MaxPopulation;
@@ -194,7 +194,7 @@ namespace Ship_Game
 
             // This will allow a buffer for import / export, so they dont constantly switch between them
             if      (ShortOnFood() || belowImportThreshold)                  FS = GoodState.IMPORT; 
-            else if (Food.NetMaxPotential < 0)                               FS = GoodState.STORE; // We are struggling to produce food but not short on food
+            else if (Food.NetMaxPotential + Food.NetFlatBonus < 0)           FS = GoodState.STORE; // We are struggling to produce food but not short on food
             else if (FS == GoodState.IMPORT && ratio >= importThreshold * 2) FS = GoodState.STORE;  // Until you reach 2x importThreshold, then switch to Store
             else if (FS == GoodState.EXPORT && ratio <= exportThreshold / 2) FS = GoodState.STORE;  // If we were exporting, and drop below half exportThreshold, stop exporting
             else if (ratio > exportThreshold)                                FS = GoodState.EXPORT; // Until we get back to the Threshold, then export

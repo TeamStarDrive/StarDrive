@@ -7,12 +7,12 @@ namespace Ship_Game.Ships
     {
         public string CargoId;
         public float Amount;
-        public Goods Good;        
+        public Goods Good;
         public Cargo(string id, float amount, Goods type = Goods.None) 
         {
             CargoId      = id;
             Amount       = amount;
-            Good         = type;            
+            Good         = type;
         }
     }
 
@@ -21,18 +21,21 @@ namespace Ship_Game.Ships
     {
         CargoContainer Cargo;
 
+        public bool OrdnanceChanged { get; private set; }
         public float CargoSpaceMax { get; private set; }
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
         public float CargoSpaceFree    => CargoSpaceMax - CargoSpaceUsed;
         public float PassengerModifier => loyalty.data.Traits.PassengerModifier;
+        public float OrdnancePercent   => OrdinanceMax > 1 ? Ordinance / OrdinanceMax : 1f;
 
-        public float OrdnancePercent => 
-            OrdinanceMax > 1 ? Ordinance / OrdinanceMax : 1f;
-
-        public float ChangeOrdnance(float ordnance)
+        public float ChangeOrdnance(float amount)
         {
-            float ordnanceLeft = (ordnance - (OrdinanceMax - Ordinance)).Clamped(0, ordnance);
-            Ordinance = (Ordinance + ordnance).Clamped(0, OrdinanceMax);
+            if (amount.AlmostZero() || amount.Greater(0) && OrdnancePercent.AlmostEqual(1))
+                return amount; // easy shortcut with no movement calcs by OrdnanceChanged set to True
+
+            float ordnanceLeft = (amount - (OrdinanceMax - Ordinance)).Clamped(0, amount);
+            Ordinance          = (Ordinance + amount).Clamped(0, OrdinanceMax);
+            OrdnanceChanged    = true;
             return ordnanceLeft;
         }
 
@@ -42,8 +45,8 @@ namespace Ship_Game.Ships
             Ordinance = newOrdnance.Clamped(0, OrdinanceMax);
         }
 
-        public float ShipOrdLaunchCost => Mass / 5f;
-        public float ShipRetrievalOrd  => Mass / 5f * HealthPercent;
+        public float ShipOrdLaunchCost => Mass / 5f * (GlobalStats.HasMod ? GlobalStats.ActiveModInfo.HangarCombatShipCostMultiplier : 1);
+        public float ShipRetrievalOrd  => ShipOrdLaunchCost * HealthPercent;
 
         private sealed class CargoContainer
         {

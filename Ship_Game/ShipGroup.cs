@@ -343,6 +343,9 @@ namespace Ship_Game
             return avg / count;
         }
 
+        /// <summary> Use for DrawThread </summary>
+        public Vector2 CachedAveragePos => AveragePos;
+
         public Vector2 AveragePosition()
         {
             // Update Pos once per frame, OR if LastAveragePosUpdate was invalidated
@@ -370,6 +373,19 @@ namespace Ship_Game
                 }
             }
             return Strength;
+        }
+
+        public float GetBomberStrength()
+        {
+            float str = 0f;
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship = Ships[i];
+                if (ship.Active && ship.DesignRole == ShipData.RoleName.bomber)
+                    str += ship.GetStrength();
+            }
+
+            return str;
         }
 
         public Ship GetClosestShipTo(Vector2 worldPos)
@@ -446,6 +462,8 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
+                ship.AI.SetPriorityOrder(true);
+                
                 ship.AI.ResetPriorityOrder(false);
                 ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, 
                     AIState.MoveTo, null, offensiveMove);
@@ -583,7 +601,7 @@ namespace Ship_Game
         {
             if (!ship.IsSpoolingOrInWarp)
             {
-                ship.AI.ClearPriorityOrder();
+                ship.AI.ClearPriorityOrderAndTarget();
                 ship.AI.ChangeAIState(AIState.AwaitingOrders);
                 return true;
             }
@@ -592,7 +610,7 @@ namespace Ship_Game
 
         public float GetSpeedLimitFor(Ship ship)
         {
-            if (ship.Center.InRadius(AveragePos, 15000))
+            if (ship.Center.InRadius(AveragePos + ship.FleetOffset, 1000))
                 return SpeedLimit;
             return 0;
         }

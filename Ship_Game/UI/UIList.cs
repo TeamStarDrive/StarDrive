@@ -225,14 +225,14 @@ namespace Ship_Game
             RequiresLayout = false;
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (RequiresLayout) // first perform layout:
             {
                 PerformLayout();
             }
             // then call update on child items
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         public void ReverseZOrder()

@@ -25,12 +25,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             base.PerformLayout();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Hovered)
                 batch.FillRectangle(Rect, Color.Black.AddRgb(0.05f).Alpha(0.33f));
 
-            base.Draw(batch); // this will draw our Label
+            base.Draw(batch, elapsed); // this will draw our Label
         }
         
     }

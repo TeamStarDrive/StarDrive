@@ -193,12 +193,12 @@ namespace Ship_Game.AI
             return freighter;
         }
 
-        public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense)
+        public static float GetModifiedStrength(int shipSize, int numOffensiveSlots, float offense, float defense)
         {
-            float weaponRatio = (float)numWeaponSlots / shipSize;
+            float offenseRatio = (float)numOffensiveSlots / shipSize;
             float modifiedStrength;
 
-            if (defense > offense && weaponRatio < 0.2f)
+            if (defense > offense && offenseRatio < 0.2f)
                 modifiedStrength = offense * 2;
             else
                 modifiedStrength = offense + defense;
@@ -214,7 +214,7 @@ namespace Ship_Game.AI
                 case DynamicHangarOptions.DynamicLaunch:      return Color.Gold;
                 case DynamicHangarOptions.DynamicInterceptor: return Color.Cyan;
                 case DynamicHangarOptions.DynamicAntiShip:    return Color.OrangeRed;
-                default:                                      return Color.White;
+                default:                                      return Color.Wheat;
             }
         }
 

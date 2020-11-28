@@ -1,9 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
 using Ship_Game.Ships.AI;
-using Ship_Game.Fleets;
 
 namespace Ship_Game.AI
 {
@@ -36,7 +36,7 @@ namespace Ship_Game.AI
             if (toAttack == null)
                 return;
 
-            if (!Owner.loyalty.IsEmpireAttackable(toAttack.loyalty))
+            if (!Owner.loyalty.IsEmpireAttackable(toAttack.loyalty, toAttack))
                 return;
             if (State == AIState.AttackTarget && Target == toAttack)
                 return;
@@ -92,7 +92,7 @@ namespace Ship_Game.AI
             Vector2 pos = goal.BuildPosition;
             Vector2 dir = Owner.Center.DirectionToTarget(pos);
             OrderMoveTo(pos, dir, true, AIState.MoveTo, goal);
-            if (goal.type == GoalType.DeepSpaceConstruction) // deep space structures
+            if (goal.type == GoalType.DeepSpaceConstruction || goal.TetherTarget == Guid.Empty) // deep space structures
                 AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
             else // orbitals for planet defense
                 AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
@@ -112,6 +112,13 @@ namespace Ship_Game.AI
         {
             ClearOrdersAndWayPoints();
             AddExterminateGoal(toBombard);
+        }
+
+        public void OrderAttackPriorityTarget(Ship target)
+        {
+            HasPriorityTarget = true;
+            Target            = target;
+            AddShipGoal(Plan.DoCombat, AIState.AttackTarget);
         }
 
         public void OrderFindExterminationTarget()
@@ -158,7 +165,8 @@ namespace Ship_Game.AI
         public void OrderLandAllTroops(Planet target)
         {
             ResetPriorityOrderWithClear();
-            if (Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
+            // anyassaultops is broken and doesnt work with troop shuttles. 
+            if (Owner.DesignRole == ShipData.RoleName.troop ||  Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
                 AddLandTroopGoal(target);
         }
 
@@ -356,7 +364,7 @@ namespace Ship_Game.AI
                 return;
 
             // targeting relation
-            if (Owner.loyalty.TryGetRelations(toAttack.loyalty, out Relationship relations))
+            if (Owner.loyalty.GetRelations(toAttack.loyalty, out Relationship relations))
             {
                 if (!relations.Treaty_Peace)
                 {
@@ -466,46 +474,18 @@ namespace Ship_Game.AI
 
         public void OrderScrapShip()
         {
-            if (!Owner.CanBeScrapped)
-                return;
-
-            Owner.loyalty.Pool.RemoveShipFromFleetAndPools(Owner);
-
-            if (Owner.SecondsAlive < 10)
-                Log.Warning($"Possible Scrap loop - {Owner} was ordered scrap while it was alive {Owner.SecondsAlive} seconds.");
-
-            if (Owner.shipData.Role <= ShipData.RoleName.station && Owner.ScuttleTimer < 1)
-            {
-                Owner.ScuttleTimer = 1;
-                ClearOrders(AIState.Scuttle, priority:true);
-                Owner.QueueTotalRemoval(); // fbedard
-                return;
-            }
-
-            ClearOrders();
-
-            IgnoreCombat = true;
-            OrbitTarget = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
-            if (OrbitTarget == null) // nowhere to scrap
-            {
-                Owner.ScuttleTimer = 1;
-                ClearOrders(AIState.Scuttle, priority:true);
-                Owner.QueueTotalRemoval();
-                return;
-            }
-
-            OrderMoveAndScrap(OrbitTarget);
-            return;
+            Owner.loyalty.GetEmpireAI().AddScrapShipGoal(Owner);
         }
 
-        public void AddSupplyShipGoal(Ship supplyTarget)
+        public void AddSupplyShipGoal(Ship supplyTarget, Plan plan = Plan.SupplyShip)
         {
             ClearOrders();
             IgnoreCombat = true;
             //Clearorders wipes stored ordnance data if state is ferrying.
             EscortTarget = supplyTarget;
-            AddShipGoal(Plan.SupplyShip, AIState.Ferrying);
+            AddShipGoal(plan, AIState.Ferrying);
         }
+
         public void OrderSystemDefense(SolarSystem system)
         {
             ShipGoal goal = OrderQueue.PeekLast;
@@ -584,15 +564,18 @@ namespace Ship_Game.AI
 
         bool SetAwaitClosestForFaction()
         {
-            if (!Owner.loyalty.isFaction) return false;
-            AwaitClosest = Owner.System?.PlanetList.FindMax(p => p.GetNearByShips().Length);
+            if (!Owner.loyalty.isFaction)
+                return false;
+
+            AwaitClosest = Owner.System?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
 
             if (AwaitClosest == null)
             {
                 var solarSystem = Owner.loyalty.GetShips()
                     .FindMinFiltered(ship => ship.System != null,
-                                    ship => Owner.Center.SqDist(ship.Center))?.System;
-                AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.GetNearByShips().Length);
+                                     ship => Owner.Center.SqDist(ship.Center))?.System;
+
+                AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.FindNearbyFriendlyShips().Length);
                 if (AwaitClosest == null)
                 {
                     var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>

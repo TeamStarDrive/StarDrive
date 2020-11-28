@@ -27,18 +27,18 @@ namespace Ship_Game
 			overheader = new Rectangle(r.X, r.Y - 11, r.Width, 15);
 		}
 
-		public void Draw(ScreenManager ScreenManager)
+		public void Draw(SpriteBatch batch, DrawTimes elapsed)
 		{
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_left"), leftRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_fill"), FillRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/header_right"), RightRect, Color.White);
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("OliveUI/over_header"), overheader, Color.White);
+			batch.Draw(ResourceManager.Texture("OliveUI/header_left"), leftRect, Color.White);
+			batch.Draw(ResourceManager.Texture("OliveUI/header_fill"), FillRect, Color.White);
+			batch.Draw(ResourceManager.Texture("OliveUI/header_right"), RightRect, Color.White);
+			batch.Draw(ResourceManager.Texture("OliveUI/over_header"), overheader, Color.White);
 			if (Fonts.Arial20Bold.MeasureString(text).X > FillRect.Width - 150)
 			{
-				ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, TextPos, new Color(198, 189, 180));
+				batch.DrawString(Fonts.Arial12Bold, text, TextPos, new Color(198, 189, 180));
 				return;
 			}
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, text, TextPos, new Color(198, 189, 180));
+			batch.DrawString(Fonts.Arial20Bold, text, TextPos, new Color(198, 189, 180));
 		}
 	}
 }

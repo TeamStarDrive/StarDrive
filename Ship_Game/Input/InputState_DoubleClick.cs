@@ -18,7 +18,7 @@ namespace Ship_Game
             float Timer;
 
             // @return TRUE if double click happened this frame
-            public bool Update(FrameTimes elapsed, bool wasClicked, bool mouseMoved)
+            public bool Update(UpdateTimes elapsed, bool wasClicked, bool mouseMoved)
             {
                 if (mouseMoved)
                 {
@@ -46,7 +46,7 @@ namespace Ship_Game
         DoubleClickTimer LeftDoubleClicker  = new DoubleClickTimer();
         DoubleClickTimer RightDoubleClicker = new DoubleClickTimer();
 
-        void UpdateDoubleClick(FrameTimes elapsed)
+        void UpdateDoubleClick(UpdateTimes elapsed)
         {
             LeftMouseDoubleClick  = LeftDoubleClicker.Update(elapsed, LeftMouseClick, MouseMoved);
             RightMouseDoubleClick = RightDoubleClicker.Update(elapsed, RightMouseClick, MouseMoved);

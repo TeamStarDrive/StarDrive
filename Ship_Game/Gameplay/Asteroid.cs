@@ -49,7 +49,6 @@ namespace Ship_Game.Gameplay
         {
             if (So != null)
             {
-                So.Clear();
                 ScreenManager.Instance.RemoveObject(So);
                 So = null;
             }

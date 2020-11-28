@@ -130,7 +130,7 @@ namespace Ship_Game
             string richness = Planet.LocalizedRichness;
             Label(namePos, richness, SmallFont, EmpireColor);
 
-            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(Planet.Category);
+            float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(Planet.Category);
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor       = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;

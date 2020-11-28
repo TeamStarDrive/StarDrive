@@ -57,12 +57,13 @@ namespace Ship_Game.AI
 
         public static bool InfluenceNodeExistsAt(Vector2 pos, Empire empire)
         {
+            float nodeRadius = empire.GetProjectorRadius();
             using (empire.BorderNodes.AcquireReadLock())
             {
                 for (int i = 0; i < empire.BorderNodes.Count; i++)
                 {
                     Empire.InfluenceNode border = empire.BorderNodes[i];
-                    float nodeRadius = Math.Max(empire.GetProjectorRadius(), border.Radius);
+                    nodeRadius = Math.Max(nodeRadius, border.Radius);
                     if (pos.InRadius(border.Position, nodeRadius * 0.75f))
                         return true;
                 }
@@ -156,8 +157,8 @@ namespace Ship_Game.AI
                 if (node.Platform?.Active != true)
                 {
                     bool nodeExists = NodeAlreadyExistsAt(node.Position);
-                    if (OwnerEmpire.isPlayer) // DEBUG
-                        Log.Info($"NodeAlreadyExists? {node.Position}: {nodeExists}");
+                    //if (OwnerEmpire.isPlayer) // DEBUG
+                    //    Log.Info($"NodeAlreadyExists? {node.Position}: {nodeExists}");
 
                     if (!nodeExists)
                     {
@@ -193,24 +194,21 @@ namespace Ship_Game.AI
                         IReadOnlyList<Planet> ps = OwnerEmpire.GetPlanets();
                         for (int pi = 0; pi < ps.Count; pi++)
                         { 
-                            if(ps[pi].Construction.Cancel(g))
+                            if (ps[pi].Construction.Cancel(g))
                                 break;
                         }
 
-                        using (OwnerEmpire.GetShips().AcquireReadLock())
+                        Ship[] ships = OwnerEmpire.GetShips().AtomicCopy();
+                        for (int si = 0; si < ships.Length; si++)
                         {
-                            var ships = OwnerEmpire.GetShips().ToArray();
-                            for (int si = 0; si < ships.Length; si++)
+                            Ship ship = ships[si];
+                            ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
+                            if (goal?.Goal != null &&
+                                goal.Goal.type == GoalType.DeepSpaceConstruction &&
+                                goal.Goal.BuildPosition == node.Position)
                             {
-                                Ship ship = ships[si];
-                                ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
-                                if (goal?.Goal != null &&
-                                    goal.Goal.type == GoalType.DeepSpaceConstruction &&
-                                    goal.Goal.BuildPosition == node.Position)
-                                {
-                                    ship.AI.OrderScrapShip();
-                                    break;
-                                }
+                                ship.AI.OrderScrapShip();
+                                break;
                             }
                         }
                     }

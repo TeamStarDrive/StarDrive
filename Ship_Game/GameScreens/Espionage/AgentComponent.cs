@@ -92,7 +92,7 @@ namespace Ship_Game.GameScreens.Espionage
                 mission.UpdateMissionAvailability();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             SubTexture money    = ResourceManager.Texture("NewUI/icon_money");
             SubTexture iconLock = ResourceManager.Texture("NewUI/icon_lock");
@@ -109,7 +109,7 @@ namespace Ship_Game.GameScreens.Espionage
             int cost = ResourceManager.AgentMissionData.AgentCost + ResourceManager.AgentMissionData.TrainingCost;
             batch.DrawString(Fonts.Arial12Bold, cost.ToString(), costPos, Color.White);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             var spyLimit = new Rectangle(moneyRect.X + 65, moneyRect.Y, 21, 20);
             batch.Draw(iconLock, spyLimit, Color.White);
@@ -123,9 +123,9 @@ namespace Ship_Game.GameScreens.Espionage
             if (SelectedAgent != null)
             {
                 batch.FillRectangle(OpsSubRect, Color.Black);
-                OpsSL.Draw(batch);
+                OpsSL.Draw(batch, elapsed);
             }
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public static string GetName(string[] tokens)

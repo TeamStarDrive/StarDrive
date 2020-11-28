@@ -55,8 +55,8 @@ namespace SynapseGaming.LightingSystem.Core
         /// <summary>Indicates the projection is 2D.</summary>
         public bool OrthographicProjection { get; private set; }
 
-        /// <summary>The scene's current game time.</summary>
-        public GameTime GameTime { get; private set; } = new GameTime();
+        /// <summary>Time elapsed since last frame.</summary>
+        public float ElapsedTime { get; private set; }
 
         /// <summary>The current frame id.</summary>
         public int FrameId { get; private set; }
@@ -69,11 +69,12 @@ namespace SynapseGaming.LightingSystem.Core
         /// <param name="viewwidth">Number of world space units visible across the
         /// width of the viewport.</param>
         /// <param name="aspectratio">Aspect ratio of the viewport.</param>
-        /// <param name="gametime">Current game time.</param>
+        /// <param name="elapsedTime">Time since last frame.</param>
         /// <param name="environment">Environment object used while rendering.</param>
         /// <param name="renderingtoscreen">Indicates the rendering pass is drawing
         /// to the screen (or to a target copied to the screen).</param>
-        public void BeginFrameRendering(Vector2 viewposition, float viewwidth, float aspectratio, GameTime gametime, ISceneEnvironment environment, bool renderingtoscreen)
+        public void BeginFrameRendering(Vector2 viewposition, float viewwidth, float aspectratio,
+            float elapsedTime, ISceneEnvironment environment, bool renderingtoscreen)
         {
             float nearPlaneDistance = viewwidth * 2.5f;
             float farPlaneDistance = nearPlaneDistance * 10f;
@@ -84,18 +85,20 @@ namespace SynapseGaming.LightingSystem.Core
             environment1.ShadowFadeEndDistance = farPlaneDistance;
             environment1.ShadowFadeStartDistance = farPlaneDistance;
             environment1.VisibleDistance = farPlaneDistance;
-            this.BeginFrameRendering(ref lookAt, ref perspective, gametime, environment1, renderingtoscreen);
+            this.BeginFrameRendering(ref lookAt, ref perspective, elapsedTime,
+                                     environment1, renderingtoscreen);
             this.OrthographicProjection = true;
         }
 
         /// <summary>Sets up the scene state prior to 3D rendering.</summary>
         /// <param name="view">Camera view matrix.</param>
         /// <param name="projection">Camera projection matrix.</param>
-        /// <param name="gametime">Current game time.</param>
+        /// <param name="elapsedTime">Time since last frame.</param>
         /// <param name="environment">Environment object used while rendering.</param>
         /// <param name="renderingtoscreen">Indicates the rendering pass is drawing
         /// to the screen (or to a target copied to the screen).</param>
-        public void BeginFrameRendering(ref Matrix view, ref Matrix projection, GameTime gametime, ISceneEnvironment environment, bool renderingtoscreen)
+        public void BeginFrameRendering(ref Matrix view, ref Matrix projection,
+            float elapsedTime, ISceneEnvironment environment, bool renderingtoscreen)
         {
             //SplashScreen.CheckProductActivation();
             this.View = view;
@@ -104,7 +107,7 @@ namespace SynapseGaming.LightingSystem.Core
             this.ProjectionToView = Matrix.Invert(projection);
             this.ViewProjectionMat = view * projection;
             this.ProjectionToWorld = Matrix.Invert(this.ViewProjectionMat);
-            this.GameTime = gametime;
+            this.ElapsedTime = elapsedTime;
             this.RenderingToScreen = renderingtoscreen;
             this.InvertedWindings = this.ViewProjectionMat.Determinant() >= 0.0;
             this.OrthographicProjection = false;
@@ -121,7 +124,7 @@ namespace SynapseGaming.LightingSystem.Core
         /// <summary />
         public void ApplyEditorUpdate(ref Matrix view, ref Matrix viewtoworld, ref Matrix projection)
         {
-            this.BeginFrameRendering(ref view, ref projection, this.GameTime, this.Environment, this.RenderingToScreen);
+            this.BeginFrameRendering(ref view, ref projection, ElapsedTime, this.Environment, this.RenderingToScreen);
         }
     }
 }

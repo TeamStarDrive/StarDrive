@@ -194,10 +194,6 @@ namespace Ship_Game
             }
         }
 
-        //hack... until this is all straightend out to allow override of base draw.
-        public void Draw(ScreenManager screenManager)
-            => Draw(screenManager.SpriteBatch);
-        
         void UpdateStyle()
         {
             if (Style.ContentId != ResourceManager.ContentId)
@@ -211,7 +207,7 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;

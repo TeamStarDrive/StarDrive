@@ -1,12 +1,12 @@
 using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
     // Refactored by Fat Bastard, Feb 6, 2019
     // Converted to 2 troops per tile support by Fat Bastard, Feb 28, 2020
-    public sealed class PlanetGridSquare 
+    public sealed class PlanetGridSquare
     {
         public int x;
         public int y;
@@ -18,7 +18,7 @@ namespace Ship_Game
         public Building building;
         public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
-        public Rectangle ClickRect       = new Rectangle();
+        public Rectangle ClickRect = new Rectangle();
         public bool Highlighted;
         public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
         public bool TroopsAreOnTile      => TroopsHere.NotEmpty;
@@ -27,9 +27,12 @@ namespace Ship_Game
         public bool CombatBuildingOnTile => BuildingOnTile && building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
         public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
-        public bool EventOnTile          => BuildingOnTile && building.EventHere;
+        public bool EventOnTile          => BuildingOnTile && (building.EventHere || CrashSite.Active);
         public bool BioCanTerraform      => Biosphere && Terraformable;
-        public bool CanTerraform         => !Habitable && Terraformable;
+        public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
+        public bool CanCrashHere         => NoBuildingOnTile || !CrashSite.Active || BuildingOnTile && !building.IsCapital;
+
+        public DynamicCrashSite CrashSite = new DynamicCrashSite(false);
 
         public bool IsTileFree(Empire empire)
         {
@@ -87,6 +90,18 @@ namespace Ship_Game
             }
 
             return false;
+        }
+
+        public void KillAllTroops(Planet p)
+        {
+            using (TroopsHere.AcquireWriteLock())
+            {
+                for (int i = TroopsHere.Count - 1; i >= 0; --i)
+                {
+                    Troop t = TroopsHere[i];
+                    t.KillTroop(p, this);
+                }
+            }
         }
 
         public bool LockOnPlayerTroop(out Troop playerTroop)
@@ -247,7 +262,17 @@ namespace Ship_Game
         public void CheckAndTriggerEvent(Planet planet, Empire empire)
         {
             if (EventOnTile && LockOnOurTroop(empire, out _))
-                ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
+            {
+                if (CrashSite.Active)
+                {
+                    if (!planet.SpaceCombatNearPlanet) 
+                        CrashSite.ActivateSite(planet, empire, this);
+                }
+                else
+                {
+                    ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
+                }
+            }
         }
 
         public TileDirection GetDirectionTo(PlanetGridSquare target)
@@ -257,14 +282,14 @@ namespace Ship_Game
             int yDiff = (target.y - y).Clamped(-1, 1);
             switch (xDiff)
             {
-                case 0 when yDiff == -1:  return TileDirection.North;
-                case 0 when yDiff == 1:   return TileDirection.South;
-                case 1 when yDiff == 0:   return TileDirection.East;
-                case -1 when yDiff == 0:  return TileDirection.West;
-                case 1 when yDiff == -1:  return TileDirection.NorthEast;
+                case 0  when yDiff == -1: return TileDirection.North;
+                case 0  when yDiff ==  1: return TileDirection.South;
+                case 1  when yDiff ==  0: return TileDirection.East;
+                case -1 when yDiff ==  0: return TileDirection.West;
+                case 1  when yDiff == -1: return TileDirection.NorthEast;
                 case -1 when yDiff == -1: return TileDirection.NorthWest;
-                case 1 when yDiff == 1:   return TileDirection.SouthEast;
-                case -1 when yDiff == 1:  return TileDirection.SouthWest;
+                case 1  when yDiff ==  1: return TileDirection.SouthEast;
+                case -1 when yDiff ==  1: return TileDirection.SouthWest;
                 default: return TileDirection.None;
             }
         }
@@ -298,7 +323,12 @@ namespace Ship_Game
                 Biosphere     = Biosphere,
                 building      = building,
                 TroopsHere    = TroopsHere,
-                Terraformable = Terraformable
+                Terraformable = Terraformable,
+                CrashSiteActive    = CrashSite.Active,
+                CrashSiteShipName  = CrashSite.ShipName,
+                CrashSiteTroopName = CrashSite.TroopName,
+                CrashSiteTroops    = CrashSite.NumTroopsSurvived,
+                CrashSiteEmpireId  = CrashSite.Loyalty?.Id ?? -1
             };
         }
     }

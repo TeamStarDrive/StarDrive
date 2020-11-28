@@ -178,7 +178,7 @@ namespace Ship_Game
         public UILabel(in LocalizedText text, SpriteFont font, Color color)
         {
             LabelFont = font;
-            Text = text;
+            Text = text; // NOTE: triggers UpdateSizeFromText 
             Color = color;
         }
 
@@ -233,7 +233,7 @@ namespace Ship_Game
 
         Color CurrentColor => IsMouseOver ? Highlight : Color;
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Lines != null && Lines.NotEmpty)
             {

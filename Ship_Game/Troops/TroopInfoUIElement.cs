@@ -34,9 +34,9 @@ namespace Ship_Game
             SoftAttackRect    = new Rectangle(LeftRect.X + 12, DefenseRect.Y + 22 + 5, 16, 16);
             HardAttackRect    = new Rectangle(LeftRect.X + 12, SoftAttackRect.Y + 16 + 5, 16, 16);
             RangeRect         = new Rectangle(LeftRect.X + 12, HardAttackRect.Y + 16 + 5, 16, 16);
-            DefenseRect.X     = DefenseRect.X - 3;
+            DefenseRect.X    -= 3;
             ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
-            Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y - 10, LeftRect.Width + 8, 95);
+            Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y, LeftRect.Width + 8, 110);
             Submenu sub       = new Submenu(desRect);
             DescriptionSL     = new ScrollList2<TextListItem>(sub, Fonts.Arial12.LineSpacing + 1);
 
@@ -62,7 +62,7 @@ namespace Ship_Game
             });
         }
 
-        public override void Draw(FrameTimes elapsed) // refactored by  Fat Bastard Aug 6, 2018
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed) // refactored by  Fat Bastard Aug 6, 2018
         {
             if (Tile == null || Tile.NothingOnTile)
                 return;
@@ -76,8 +76,7 @@ namespace Ship_Game
             Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), "");
             Body body        = new Body(new Rectangle(slant.leftRect.X, Sel.Rect.Y + 44, Sel.Rect.Width, Sel.Rect.Height - 44));
             Color color      = Color.White;
-            SpriteBatch batch = ScreenManager.SpriteBatch;
-            body.Draw(ScreenManager);
+            body.Draw(batch, elapsed);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, color);
             batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, color);
             batch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, color);
@@ -116,8 +115,8 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", Tile.building.Icon, "_64x64")), ItemDisplayRect, color);
             }
 
-            slant.Draw(ScreenManager);
-            DescriptionSL.Draw(batch);
+            slant.Draw(batch, elapsed);
+            DescriptionSL.Draw(batch, elapsed);
         }
 
         private void DrawTroopStats(SpriteBatch batch, Troop troop, Header slant, Vector2 mousePos, Color color)

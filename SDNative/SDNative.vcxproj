@@ -72,11 +72,13 @@
       <ExceptionHandling>Async</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <DisableSpecificWarnings>4244;4275;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4275;4251;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)3rdparty\fbxsdk\libfbxsdk.dll" "$(TargetDir)libfbxsdk.dll"</Command>
@@ -96,8 +98,9 @@
       <Optimization>Full</Optimization>
       <OmitFramePointers>true</OmitFramePointers>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <DisableSpecificWarnings>4244;4275;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4244;4275;4251;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libfbxsdk.lib</AdditionalDependencies>
@@ -144,6 +147,26 @@
     <ClInclude Include="SdMesh\SdMesh.h" />
     <ClInclude Include="SdMesh\SdMeshGroup.h" />
     <ClInclude Include="ShipDataSerializer.h" />
+    <ClInclude Include="spatial\CellLoyalty.h" />
+    <ClInclude Include="spatial\Collision.h" />
+    <ClInclude Include="spatial\Config.h" />
+    <ClInclude Include="spatial\Flatmap.h" />
+    <ClInclude Include="spatial\gridL2\GridL2.h" />
+    <ClInclude Include="spatial\grid\Grid.h" />
+    <ClInclude Include="spatial\grid\GridCell.h" />
+    <ClInclude Include="spatial\grid\GridCellView.h" />
+    <ClInclude Include="spatial\ObjectCollection.h" />
+    <ClInclude Include="spatial\Primitives.h" />
+    <ClInclude Include="spatial\Search.h" />
+    <ClInclude Include="spatial\SlabAllocator.h" />
+    <ClInclude Include="spatial\Spatial.h" />
+    <ClInclude Include="spatial\qtree\Qtree.h" />
+    <ClInclude Include="spatial\qtree\QtreeNode.h" />
+    <ClInclude Include="spatial\SpatialDebug.h" />
+    <ClInclude Include="spatial\SpatialObject.h" />
+    <ClInclude Include="spatial\SpatialObjectArray.h" />
+    <ClInclude Include="spatial\Utilities.h" />
+    <ClInclude Include="spatial\Visualizer.h" />
     <ClInclude Include="util\apex_memmove.h" />
     <ClInclude Include="NodeParser.h" />
   </ItemGroup>
@@ -176,6 +199,16 @@
     <ClCompile Include="SdMesh\SdMesh.cpp" />
     <ClCompile Include="SdMesh\SdMeshGroup.cpp" />
     <ClCompile Include="ShipDataSerializer.cpp" />
+    <ClCompile Include="spatial\Collision.cpp" />
+    <ClCompile Include="spatial\gridL2\GridL2.cpp" />
+    <ClCompile Include="spatial\grid\Grid.cpp" />
+    <ClCompile Include="spatial\grid\GridCellView.cpp" />
+    <ClCompile Include="spatial\ObjectCollection.cpp" />
+    <ClCompile Include="spatial\qtree\Qtree.cpp" />
+    <ClCompile Include="spatial\Search.cpp" />
+    <ClCompile Include="spatial\SlabAllocator.cpp" />
+    <ClCompile Include="spatial\Spatial.cpp" />
+    <ClCompile Include="spatial\SpatialDebug.cpp" />
     <ClCompile Include="util\apex_memmove.cpp" />
     <ClCompile Include="util\math_utils.cpp" />
     <ClCompile Include="util\os_utils.cpp" />
@@ -186,6 +219,7 @@
     <Natvis Include="ReCpp\rpp\strview.natvis" />
     <Natvis Include="ReCpp\rpp\vec.natvis" />
     <Natvis Include="SDNative.natvis" />
+    <Natvis Include="spatial\qtree\Spatial.natvis" />
   </ItemGroup>
   <ItemGroup>
     <None Include="3rdparty\libsquish\config" />

@@ -65,7 +65,7 @@ namespace Ship_Game
         }
 
         // Timers
-        float NonCriticalTimer = 0;
+        float PlanetUpdatePerTurnTimer = 0;
 
         public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
@@ -75,7 +75,7 @@ namespace Ship_Game
         public float RepairPerTurn;
         public float SensorRange { get; private set; }
         public float ProjectorRange { get; private set; }
-        public bool SpaceCombatNearPlanet { get; private set; }
+        public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
         public float OrbitalsMaintenance { get; private set; }
@@ -129,16 +129,14 @@ namespace Ship_Game
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
             => TroopManager.EmpireTroops(empire, maxToTake);
 
-        public int TerraformerLimit => ((int)(TilesList.Count(t => t.Habitable && !t.Biosphere) * 0.25f)).LowerBound(1);
-
-        public GameplayObject[] GetNearByShips() => GetNearByShips(GravityWellRadius);
-        public GameplayObject[] GetNearByShips(float radius) => UniverseScreen.SpaceManager.FindNearby(Center, radius,GameObjectType.Ship, Owner);
+        public GameplayObject[] FindNearbyFriendlyShips()
+            => UniverseScreen.Spatial.FindNearby(GameObjectType.Ship, Center, GravityWellRadius,
+                                                      maxResults:128, onlyLoyalty:Owner);
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
-        public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
-        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * empire?.RacialEnvModifer(Category) 
-                                                       ?? BaseMaxFertility + BuildingsFertility;
+        public float FertilityFor(Empire empire)    => BaseFertility * Empire.RacialEnvModifer(Category, empire);
+        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * Empire.RacialEnvModifer(Category, empire);
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -149,42 +147,48 @@ namespace Ship_Game
 
         public float MaxPopulation => MaxPopulationFor(Owner);
 
-        public float PotentialMaxPopBillionsFor(Empire empire) => PotentialMaxPopFor(empire) / 1000;
+        public float PotentialMaxPopBillionsFor(Empire empire, bool forceOnlyBiospheres = false)
+            => PotentialMaxPopFor(empire, forceOnlyBiospheres) / 1000;
 
-        public float PotentialMaxPopFor(Empire empire)
+        float PotentialMaxPopFor(Empire empire, bool forceOnlyBiospheres = false)
         {
             bool bioSpheresResearched = empire.IsBuildingUnlocked(Building.BiospheresId);
             bool terraformResearched  = empire.IsBuildingUnlocked(Building.TerraformerId);
 
             // We calculate this  and not using MaxPop since it might be an enemy planet with biospheres
             int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-            float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * empire.RacialEnvModifer(Category);
+            float racialEnvModifier      = Empire.RacialEnvModifer(Category, empire);
+            float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * racialEnvModifier;
+            if (!forceOnlyBiospheres && !bioSpheresResearched && !terraformResearched)
+                return naturalMaxPop + PopulationBonus;
 
-            if (!bioSpheresResearched && !terraformResearched)
-                return naturalMaxPop;
-
-            if (bioSpheresResearched && !terraformResearched)
+            // Only Biosphere researched so we are checking specifically for biospheres alone
+            if (bioSpheresResearched  && !terraformResearched || forceOnlyBiospheres)
             {
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
-                return bioSphereMaxPop + naturalMaxPop;
+                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
+                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
             }
 
             if (bioSpheresResearched) // Biospheres and terraformers researched
             {
                 int terraformableTiles  = TilesList.Count(t => t.CanTerraform);
                 int numBiospheresNeeded = TileArea - numNaturalHabitableTiles - terraformableTiles;
-                float bioSphereMaxPop   = PopPerBiosphere * numBiospheresNeeded;
-                naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * empire.RacialEnvModifer(empire.data.PreferredEnv);
-                return bioSphereMaxPop + naturalMaxPop;
+                float bioSphereMaxPop   = PopPerBiosphere(empire) * numBiospheresNeeded;
+                float preferredEnvMod   = empire.PlayerPreferredEnvModifier;
+                naturalMaxPop           = BasePopPerTile * (numNaturalHabitableTiles + terraformableTiles) * preferredEnvMod;
+                return bioSphereMaxPop + naturalMaxPop + PopulationBonus;
             }
 
             // Only Terraformers researched
             int potentialTiles = TilesList.Count(t => t.Terraformable);
-            return BasePopPerTile * potentialTiles * empire.RacialEnvModifer(empire.data.PreferredEnv);
+            return BasePopPerTile*potentialTiles*racialEnvModifier + PopulationBonus;
         }
 
-        public float PopPerBiosphere => BasePopPerTile / 2;
+        public float PopPerBiosphere(Empire empire)
+        {
+            return BasePopPerTile / 2 * Empire.RacialEnvModifer(Category, empire);
+        }
 
         public float PotentialMaxFertilityFor(Empire empire)
         {
@@ -197,11 +201,15 @@ namespace Ship_Game
             if (!Habitable)
                 return 0;
 
-            float minimumPop = BasePopPerTile/2 + PopulationBonus; // At least 1/2 tile's worth population and any max pop bonus buildings have
+            float minimumPop = BasePopPerTile/2; // At least 1/2 tile's worth population and any max pop bonus buildings have
             if (empire == null)
                 return (MaxPopValFromTiles + PopulationBonus).LowerBound(minimumPop);
 
-            return (MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus).LowerBound(minimumPop);
+            float maxPopValToUse = MaxPopValFromTiles;
+            if (TilesList.Count(t => t.Habitable && !t.Biosphere) == 0)
+                maxPopValToUse = minimumPop; // No Habitable tiles, so using the minimum pop
+
+            return (maxPopValToUse * Empire.RacialEnvModifer(Category, empire) + PopulationBonus).LowerBound(minimumPop);
         }
 
         public int FreeTilesWithRebaseOnTheWay(Empire empire)
@@ -302,6 +310,21 @@ namespace Ship_Game
                 troop.Launch();
         }
 
+        public void ForceLaunchInvadingTroops(Empire loyaltyToLaunch)
+        {
+            for (int i = TroopsHere.Count - 1; i >= 0; i--)
+            {
+                Troop t      = TroopsHere[i];
+                Empire owner = t?.Loyalty;
+
+                if (owner == loyaltyToLaunch && owner?.data.DefaultTroopShip != null)
+                {
+                    Ship troopship = t.Launch(ignoreMovement: true);
+                    troopship?.AI.OrderRebaseToNearest();
+                }
+            }
+        }
+
         public float GravityWellForEmpire(Empire empire)
         {
             if (!Empire.Universe.GravityWells)
@@ -310,7 +333,7 @@ namespace Ship_Game
             if (Owner == null)
                 return GravityWellRadius;
 
-            if (Owner == empire || Owner.GetRelations(empire).Treaty_Alliance)
+            if (Owner == empire || Owner.IsAlliedWith(empire))
                 return 0;
 
             return GravityWellRadius;
@@ -378,22 +401,32 @@ namespace Ship_Game
             if (empire.IsCybernetic)
                 value += PotentialMaxFertilityFor(empire) * 10;
 
-            value += SpecialCommodities * 10;
+            value += SpecialCommodities * 20;
             value += MineralRichness * 10;
-            value += PotentialMaxPopBillionsFor(empire) * 5;
-            return value;
-        }
+            value += PotentialMaxPopBillionsFor(empire) * PopMultiplier();
 
+            return value;
+
+            float PopMultiplier()
+            {
+                float multiplier = 5;
+                if (empire.NonCybernetic 
+                    && HabitablePercentage < 0.25f
+                    && empire.IsBuildingUnlocked(Building.BiospheresId)
+                    && !empire.IsBuildingUnlocked(Building.TerraformerId))
+                {
+                    multiplier = 2.5f; // Avoid crappy barren planets unless they have really large pop potential
+                }
+
+                return multiplier;
+            }
+        }
+    
         public float ColonyWarValueTo(Empire empire)
         {
-            if (Owner == null)                    return ColonyPotentialValue(empire);
-            if (Owner.GetRelations(empire)?.AtWar == true) return ColonyWorthTo(empire);
+            if (Owner == null)             return ColonyPotentialValue(empire);
+            if (Owner.IsAtWarWith(empire)) return ColonyWorthTo(empire);
             return 0;
-        }
-
-        public void AddProjectile(Projectile projectile)
-        {
-            Projectiles.Add(projectile);
         }
 
         // added by gremlin deveks drop bomb
@@ -401,10 +434,11 @@ namespace Ship_Game
 
         public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
         {
-            Population -= 1000f * amount;
+            float netPopKill = (amount * PopulationRatio).LowerBound(0.01f); // harder to kill sparse pop
+            Population      -= 1000f * netPopKill;
             AddBaseFertility(amount * -0.25f); // environment suffers temp damage
-            if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 200))
-                AddMaxBaseFertility(-0.02f); // permanent damage to Max Fertility
+            if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 100))
+                AddMaxBaseFertility(-0.01f); // permanent damage to Max Fertility
 
             if (MaxPopulation.AlmostZero())
                 WipeOutColony(attacker);
@@ -412,7 +446,6 @@ namespace Ship_Game
 
         public void Update(FixedSimTime timeStep)
         {
-            RefreshOrbitalStations();
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
         }
@@ -420,48 +453,34 @@ namespace Ship_Game
         void UpdateHabitable(FixedSimTime timeStep)
         {
             // none of the code below requires an owner.
-
             if (!Habitable)
                 return;
-            if (NonCriticalTimer-- < 0 ) NonCriticalTimer = timeStep.FixedTime *5;
+
+            PlanetUpdatePerTurnTimer -= timeStep.FixedTime;
+            if (PlanetUpdatePerTurnTimer < 0 )
+            {
+                UpdateBaseFertility();
+                PlanetUpdatePerTurnTimer = GlobalStats.TurnTimer;
+            }
 
             TroopManager.Update(timeStep);
             GeodeticManager.Update(timeStep);
-            UpdatePlanetaryProjectiles(timeStep);
-            // moved to action queue
-            //UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
+            // this needs some work
+            UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
         }
 
-        void RefreshOrbitalStations()
+        public void RemoveFromOrbitalStations(Ship orbital)
         {
-            if (OrbitalStations.Count == 0 || NonCriticalTimer > 0)
-                return;
-
-            Guid[] toRemove = null;
-            int guidIndex =0;
-            foreach(var kv in OrbitalStations)
-            {
-                var shipyard = kv.Value;
-                if (shipyard == null || !shipyard.Active || shipyard.SurfaceArea == 0)
-                {
-                    if (toRemove == null) toRemove = new Guid[OrbitalStations.Count];
-                    toRemove[guidIndex++] = kv.Key;
-                }
-            }
-            if (toRemove != null)
-            {
-                for (int i = 0; i < guidIndex; i++)
-                {
-                    var key = toRemove[i];
-                    OrbitalStations.Remove(key);
-                }
-            }
+            OrbitalStations.RemoveSwapLast(orbital);
         }
 
         public void UpdateSpaceCombatBuildings(FixedSimTime timeStep)
         {
-            if (Owner == null) 
+            if (Owner == null)
+            {
+                SpaceCombatNearPlanet = false;
                 return;
+            }
 
             bool enemyInRange = ParentSystem.DangerousForcesPresent(Owner);
             if (NoSpaceCombatTargetsFoundDelay.Less(2) || enemyInRange)
@@ -476,9 +495,10 @@ namespace Ship_Game
                     targetNear |= targetFound;
                 }
 
+                SpaceCombatNearPlanet |= targetNear;
                 if (!targetNear && NoSpaceCombatTargetsFoundDelay <= 0)
                 {
-                    SpaceCombatNearPlanet = ThreatsNearPlanet(enemyInRange);
+                    SpaceCombatNearPlanet          = ThreatsNearPlanet(enemyInRange);
                     NoSpaceCombatTargetsFoundDelay = 2f;
                 }
             }
@@ -506,45 +526,40 @@ namespace Ship_Game
 
         public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
         {
-            weaponRange     = weaponRange.UpperBound(SensorRange);
-            float previousT = weaponRange;
-            float previousD = weaponRange;
-            Ship troop      = null;
-            Ship target     = null;
+            weaponRange = weaponRange.UpperBound(SensorRange);
+            float closestTroop = weaponRange;
+            float closestShip = weaponRange;
+            Ship troop = null;
+            Ship closest = null;
 
-            var nearBy = UniverseScreen.SpaceManager.FindNearby(Center, weaponRange, GameObjectType.Ship);
+            GameplayObject[] enemyShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
+                                                 Center, weaponRange, maxResults:64, excludeLoyalty:Owner);
 
-
-            for (int j = 0; j < nearBy.Length; ++j)
+            for (int j = 0; j < enemyShips.Length; ++j)
             {
-                Ship ship = (Ship)nearBy[j];
-
-                if (ship.loyalty == Owner || ship.engineState == Ship.MoveState.Warp)
+                var ship = (Ship)enemyShips[j];
+                if (ship.engineState == Ship.MoveState.Warp || !Owner.IsEmpireAttackable(ship.loyalty))
                     continue;
 
-                if (!Owner.IsEmpireAttackable(ship.loyalty))
-                    continue;
-
-                float currentD = Vector2.Distance(Center, ship.Center);
-                if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
+                float dist = Center.Distance(ship.Center);
+                if (ship.shipData.Role == ShipData.RoleName.troop && dist < closestTroop)
                 {
-                    previousT = currentD;
+                    closestTroop = dist;
                     troop = ship;
-                    continue;
                 }
-
-                if (currentD < previousD && troop == null)
+                else if (dist < closestShip && troop == null)
                 {
-                    previousD = currentD;
-                    target = ship;
+                    closestShip = dist;
+                    closest = ship;
                 }
             }
 
+            // always prefer to target troop ships first (so evil!)
             if (troop != null)
-                target = troop;
+                closest = troop;
 
-            SpaceCombatNearPlanet = target != null;
-            return target;
+            SpaceCombatNearPlanet = closest != null;
+            return closest;
         }
 
         public void LandDefenseShip(Ship ship)
@@ -559,18 +574,6 @@ namespace Ship_Game
             Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
-
-        void UpdatePlanetaryProjectiles(FixedSimTime timeStep)
-        {
-            if (timeStep.FixedTime <= 0f) return;
-            for (int i = Projectiles.Count - 1; i >= 0; --i)
-            {
-                Projectile p = Projectiles[i];
-                if (p.Active) p.Update(timeStep);
-            }
-            Projectiles.RemoveInActiveObjects();
-        }
-
         public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
 
         public void DestroyBioSpheres(PlanetGridSquare tile)
@@ -581,7 +584,7 @@ namespace Ship_Game
             if (tile.Biosphere)
                 ClearBioSpheresFromList(tile);
             else
-                tile.Terraformable = false;
+                tile.Terraformable = RandomMath.RollDice(50);
 
             UpdateMaxPopulation();
         }
@@ -590,6 +593,11 @@ namespace Ship_Game
         {
             RemoveBuildingFromPlanet(b);
             ProdHere += b.ActualCost / 2f;
+        }
+
+        public void DestroyBuildingOn(PlanetGridSquare tile)
+        {
+            RemoveBuildingFromPlanet(tile, true);
         }
 
         private void RemoveBuildingFromPlanet(Building b)
@@ -604,7 +612,7 @@ namespace Ship_Game
             PostBuildingRemoval(b);
         }
 
-        private void RemoveBuildingFromPlanet(PlanetGridSquare tile)
+        private void RemoveBuildingFromPlanet(PlanetGridSquare tile, bool destroy = false)
         {
             if (tile?.building == null)
                 return;
@@ -612,10 +620,10 @@ namespace Ship_Game
             Building b = tile.building;
             BuildingList.Remove(b);
             tile.building = null;
-            PostBuildingRemoval(b);
+            PostBuildingRemoval(b, destroy);
         }
 
-        private void PostBuildingRemoval(Building b)
+        private void PostBuildingRemoval(Building b, bool destroy = false)
         {
             // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
             // environment buildings can be scrapped and the planet will slowly recover
@@ -624,7 +632,8 @@ namespace Ship_Game
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
 
-            Owner?.RefundCreditsPostRemoval(b);
+            if (!destroy)
+                Owner?.RefundCreditsPostRemoval(b);
         }
 
         public void ClearBioSpheresFromList(PlanetGridSquare tile)
@@ -652,9 +661,8 @@ namespace Ship_Game
             ApplyTerraforming();
             UpdateColonyValue();
             CalcIncomingGoods();
-            RemoveInvalidFreighters(IncomingFreighters);
-            RemoveInvalidFreighters(OutgoingFreighters);
-            UpdateBaseFertility();
+            //RemoveInvalidFreighters(IncomingFreighters);
+            //RemoveInvalidFreighters(OutgoingFreighters);
             InitResources(); // must be done before Governing
             UpdateOrbitalsMaintenance();
             UpdateMilitaryBuildingMaintenance();
@@ -717,7 +725,7 @@ namespace Ship_Game
 
         private void UpdateColonyValue() => ColonyValue = Owner != null ? ColonyBaseValue(Owner) : 0;
 
-        public float PopPerTileFor(Empire empire) => BasePopPerTile * empire?.RacialEnvModifer(Category) ?? BasePopPerTile;
+        public float PopPerTileFor(Empire empire) => BasePopPerTile * Empire.RacialEnvModifer(Category, empire);
 
         // these are intentionally duplicated so we don't easily modify them...
         private float BasePopPerTileVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
@@ -737,11 +745,11 @@ namespace Ship_Game
                 return;
 
             int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-            PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
-                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere;
+            PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease);
+            MaxPopValFromTiles    = (BasePopPerTile * numHabitableTiles) 
+                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere(Owner);
 
-
-            MaxPopValFromTiles = Math.Max(BasePopPerTile, BasePopPerTile * numHabitableTiles);
+            MaxPopValFromTiles = MaxPopValFromTiles.LowerBound(BasePopPerTile / 2);
             MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
         }
 
@@ -797,7 +805,7 @@ namespace Ship_Game
         void UpdateOrbitalsMaintenance()
         {
             OrbitalsMaintenance = 0;
-            foreach (Ship orbital in OrbitalStations.Values)
+            foreach (Ship orbital in OrbitalStations)
             {
                 OrbitalsMaintenance += orbital.GetMaintCost(Owner);
             }
@@ -904,29 +912,10 @@ namespace Ship_Game
             TotalDefensiveStrength    = 0;
             PlusFlatPopulationPerTurn = 0;
             float totalStorage        = 0;
+            float projectorRange      = 0;
+            float sensorRange         = 0;
 
-            if (!loadUniverse) // FB - this is needed since OrbitalStations from save has only GUID, so we must not use this when loading a game
-            {
-                var deadShipyards = new Array<Guid>();
-                NumShipyards      = 0; // reset NumShipyards since we are not loading it from a save
-
-                foreach (KeyValuePair<Guid, Ship> orbitalStation in OrbitalStations)
-                {
-                    if (orbitalStation.Value == null)
-                        deadShipyards.Add(orbitalStation.Key);
-                    else if (orbitalStation.Value.Active && orbitalStation.Value.shipData.IsShipyard)
-                        NumShipyards++; // Found a shipyard, increase the number
-                    else if (!orbitalStation.Value.Active)
-                        deadShipyards.Add(orbitalStation.Key);
-                }
-
-                foreach (Guid key in deadShipyards)
-                    OrbitalStations.Remove(key);
-            }
-
-            float projectorRange = 0;
-            float sensorRange = 0;
-
+            NumShipyards         = OrbitalStations.Count(s => s.Active && s.shipData.IsShipyard);
             ShipBuildingModifier = CalcShipBuildingModifier(NumShipyards); // NumShipyards is either counted above or loaded from a save
             for (int i = 0; i < BuildingList.Count; ++i)
             {
@@ -960,6 +949,7 @@ namespace Ship_Game
             UpdateMaxPopulation();
             TotalDefensiveStrength = (int)TroopManager.GroundStrength(Owner);
 
+            ShieldStrengthMax *= (1 + Owner.data.ShieldPowerMod);
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
             HasSpacePort          = spacePort && (colonyType != ColonyType.Research || Owner.isPlayer); // FB todo - why research Governor is omitted here?
@@ -978,6 +968,11 @@ namespace Ship_Game
             Storage.Max = totalStorage.Clamped(10f, 10000000f);
         }
 
+        public bool ShipWithinSensorRange(Ship ship)
+        {
+            return ship.Center.Distance(Center) < SensorRange;
+        }
+
         private static float CalcShipBuildingModifier(int numShipyards)
         {
             float shipyardDiminishedReturn = 1;
@@ -994,6 +989,28 @@ namespace Ship_Game
             }
 
             return shipBuildingModifier;
+        }
+
+        public bool TryGetShipsNeedRearm(out Ship[] shipsNeedRearm, Empire empire)
+        {
+            // Not using the planet Owner since it might have been changed by invasion
+            shipsNeedRearm = null;
+            if (ParentSystem.DangerousForcesPresent(empire) || ParentSystem.ShipList.Count == 0)
+                return false;
+
+            shipsNeedRearm = ParentSystem.ShipList.Filter(s => s.loyalty == empire
+                                                               && s.IsSuitableForPlanetaryRearm());
+
+            shipsNeedRearm = shipsNeedRearm.SortedDescending(s => s.OrdinanceMax - s.Ordinance);
+            return shipsNeedRearm.Length > 0;
+        }
+
+        public int NumSupplyShuttlesCanLaunch() // Net, after subtracting already launched shuttles
+        {
+            var planetSupplyGoals = Owner.GetEmpireAI()
+                .Goals.Filter(g => g.type == AI.GoalType.RearmShipFromPlanet && g.PlanetBuildingAt == this);
+
+            return (int)InfraStructure - planetSupplyGoals.Length;
         }
 
         private void UpdateHomeDefenseHangars(Building b)
@@ -1016,6 +1033,68 @@ namespace Ship_Game
             {
                 Building b = BuildingList[i];
                 b.UpdateDefenseShipBuildingOffense(Owner);
+            }
+        }
+
+        public void TryCrashOn(Ship ship)
+        {
+            if (!Habitable)
+                return;
+
+            float survivalChance = GetSurvivalChance();
+            if (RandomMath.RollDice(survivalChance) && TryGetCrashTile(out PlanetGridSquare crashTile))
+            {
+                int numTroopsSurvived = GetNumTroopSurvived(out string troopName);
+                crashTile.CrashSite.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile);
+            }
+
+            // Local Functions
+            float GetSurvivalChance()
+            {
+                float chance = 20 + ship.Level * 2;
+                chance      *= Scale; // Gravity affects how hard is a crash
+                if (!Type.EarthLike)
+                    chance *= 2; // No atmosphere, not able to burn during planet fall
+
+                chance *= 1 + ship.loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
+                chance += ship.SurfaceArea / 100f;
+                return chance.Clamped(1, 100);
+            }
+
+            bool TryGetCrashTile(out PlanetGridSquare tile)
+            {
+                tile = null;
+                float destroyBuildingChance = ship.SurfaceArea / 100f;
+                var potentialTiles = RandomMath.RollDice(destroyBuildingChance)
+                                     ? TilesList.Filter(t => t.CanCrashHere) 
+                                     : TilesList.Filter(t => t.NoBuildingOnTile);
+
+                if (potentialTiles.Length == 0)
+                    return false;
+
+                tile = potentialTiles.RandItem();
+                return tile != null;
+            }
+
+            int GetNumTroopSurvived(out string name)
+            {
+                int numTroops = 0;
+                var ourTroops = ship.GetOurTroops();
+                name          = "";
+
+                for (int i = 0; i < ourTroops.Count; i++)
+                {
+                    Troop troop = ourTroops[i];
+                    float troopSurvival = 50 * Empire.PreferredEnvModifier(troop.Loyalty);
+                    if (RandomMath.RollDice(troopSurvival))
+                    {
+                        numTroops += 1;
+                        if (name.IsEmpty())
+                            name = troop.Name;
+                    }
+                }
+
+                return numTroops;
             }
         }
 
@@ -1096,7 +1175,7 @@ namespace Ship_Game
                 if (Owner.isPlayer)
                     threshold = AutoBuildTroops ? 0 : GarrisonSize;
 
-                return TroopsHere.Count - threshold;
+                return (TroopsHere.Count - threshold).LowerBound(0);
             }
         }
 
@@ -1127,6 +1206,7 @@ namespace Ship_Game
 
             return false;
         }
+
         private void GrowPopulation()
         {
             if (Owner == null)
@@ -1165,8 +1245,8 @@ namespace Ship_Game
 
             UpdateTerraformPoints(0);
             Owner.RemovePlanet(this, attacker);
-            if (IsExploredBy(Empire.Universe.PlayerEmpire))
-                Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
+            if (IsExploredBy(EmpireManager.Player) && (Owner.isPlayer || attacker.isPlayer))
+                Empire.Universe.NotificationManager.AddPlanetDiedNotification(this);
 
             bool removeOwner = true;
             foreach (Planet other in ParentSystem.PlanetList)
@@ -1184,12 +1264,12 @@ namespace Ship_Game
             Owner = null;
         }
 
-        public bool EventsOnBuildings()
+        public bool EventsOnTiles()
         {
             bool events = false;
-            foreach (Building building in BuildingList)
+            foreach (PlanetGridSquare tile in TilesList)
             {
-                if (building.EventHere && !building.EventWasTriggered)
+                if (tile.EventOnTile  && !tile.building.EventWasTriggered)
                 {
                     events = true;
                     break;
@@ -1208,7 +1288,7 @@ namespace Ship_Game
         public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
         public float BuildingGeodeticOffense => BuildingList.Sum(b => b.Offense);
         public int BuildingGeodeticCount     => BuildingList.Count(b => b.Offense > 0);
-        public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
+        public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Sum(o => o.BaseStrength);
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
@@ -1220,6 +1300,7 @@ namespace Ship_Game
         public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
         public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
+        public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
 
 
         private void RepairBuildings(int repairAmount)
@@ -1278,7 +1359,6 @@ namespace Ship_Game
             Storage   = null;
             TroopManager    = null;
             GeodeticManager = null;
-            Projectiles?.Dispose(ref Projectiles);
             TroopsHere?.Dispose(ref TroopsHere);
         }
 
@@ -1296,7 +1376,7 @@ namespace Ship_Game
             debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
             debug.AddLine($"Scale: {Scale}");
             debug.AddLine($"Population per Habitable Tile: {BasePopPerTile}");
-            debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.RacialEnvModifer(Category)}");
+            debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.PlayerEnvModifier(Category)}");
             debug.AddLine($"Habitable Tiles: {numHabitableTiles}");
             debug.AddLine("");
             debug.AddLine($"Incoming Freighters: {NumIncomingFreighters}");

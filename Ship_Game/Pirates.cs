@@ -1,16 +1,14 @@
 ﻿using System;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Ship_Game.GameScreens.Espionage;
-using Microsoft.Xna.Framework.GamerServices;
 
 namespace Ship_Game
 {
+    using static HelperFunctions;
     public class Pirates // Created by Fat Bastard April 2020
     {
         // Pirates Class is created for factions which are defined as pirates in their XML
@@ -43,19 +41,17 @@ namespace Ship_Game
 
         public Pirates(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
-            Owner        = owner;
-            Goals        = goals;
+            Owner = owner;
+            Goals = goals;
 
             if (!fromSave)
                 goals.Add(new PirateAI(Owner));
         }
 
-        public HashSet<string> ShipsWeCanBuild          => Owner.ShipsWeCanBuild;
-        public Relationship GetRelations(Empire victim) => Owner.GetRelations(victim);
-        public void SetAsKnown(Empire victim)           => Owner.SetRelationsAsKnown(victim);
-        public int MinimumColoniesForPayment            => Owner.data.MinimumColoniesForStartPayment;
-        int PaymentPeriodTurns                          => Owner.data.PiratePaymentPeriodTurns;
-        public bool PaidBy(Empire victim)               => !GetRelations(victim).AtWar;
+        public HashSet<string> ShipsWeCanBuild => Owner.ShipsWeCanBuild;
+        public int MinimumColoniesForPayment   => Owner.data.MinimumColoniesForStartPayment;
+        int PaymentPeriodTurns                 => Owner.data.PiratePaymentPeriodTurns;
+        public bool PaidBy(Empire victim)      => !Owner.IsAtWarWith(victim);
 
         public void AddGoalDirectorPayment(Empire victim) => 
             AddGoal(victim, GoalType.PirateDirectorPayment, null);
@@ -72,6 +68,9 @@ namespace Ship_Game
         public void AddGoalRaidOrbital(Empire victim) =>
             AddGoal(victim, GoalType.PirateRaidOrbital, null);
 
+        public void AddGoalRaidProjector(Empire victim) =>
+            AddGoal(victim, GoalType.PirateRaidProjector, null);
+
         public void AddGoalRaidCombatShip(Empire victim) =>
             AddGoal(victim, GoalType.PirateRaidCombatShip, null);
 
@@ -87,13 +86,14 @@ namespace Ship_Game
             {
                 case GoalType.PirateDirectorPayment: Goals.Add(new PirateDirectorPayment(Owner, victim));  break;
                 case GoalType.PirateDirectorRaid:    Goals.Add(new PirateDirectorRaid(Owner, victim));     break;
-                case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));              break;
+                case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));   break;
                 case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
                 case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));      break;
+                case GoalType.PirateRaidProjector:   Goals.Add(new PirateRaidProjector(Owner, victim));    break;
                 case GoalType.PirateRaidCombatShip:  Goals.Add(new PirateRaidCombatShip(Owner, victim));   break;
-                case GoalType.PirateDefendBase:      Goals.Add(new PirateDefendBase(Owner, ship));                    break;
+                case GoalType.PirateDefendBase:      Goals.Add(new PirateDefendBase(Owner, ship));         break;
                 case GoalType.PirateProtection:      Goals.Add(new PirateProtection(Owner, victim, ship)); break;
-                default:                             Log.Warning($"Goal type {type} invalid for Pirates");            break;
+                default:                             Log.Warning($"Goal type {type} invalid for Pirates"); break;
             }
         }
 
@@ -200,8 +200,8 @@ namespace Ship_Game
             float multiplier         = victim.DifficultyModifiers.PiratePayModifier;
             float minimumPayment     = Level * 100 * multiplier;
             float victimNetPotential = (victim.PotentialIncome - victim.AllSpending).LowerBound(0) * multiplier;
-            float payment            = (victim.Money + victimNetPotential*PaymentPeriodTurns) * basePercentage/100;
-            payment                 *= (Level / 3f).LowerBound(1);
+            float payment            = (victimNetPotential*PaymentPeriodTurns) * basePercentage/100;
+            payment                 *= (Level / 2).LowerBound(1);
 
             return (payment * multiplier).LowerBound(minimumPayment).RoundTo10();
         }
@@ -239,7 +239,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            int dieRoll = Level * DifficultyMultiplier();
+            int dieRoll = Level * DifficultyMultiplier() * (int)CurrentGame.Pace;
             if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
@@ -254,16 +254,13 @@ namespace Ship_Game
 
         int DifficultyMultiplier()
         {
-            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 2;
-            if (Level >= 10)
-                max++;
-
-            return max - (int)CurrentGame.Difficulty;
+            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
+            return (max - (int)CurrentGame.Difficulty).LowerBound(1);
         }
 
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
         {
-            if (!GetRelations(EmpireManager.Player).Known)
+            if (!Owner.IsKnown(EmpireManager.Player))
                 return;
 
             float espionageStr = EmpireManager.Player.GetSpyDefense();
@@ -538,28 +535,6 @@ namespace Ship_Game
             }
         }
 
-        bool GetUnownedSystems(out SolarSystem[] systems)
-        {
-            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 
-                                                                 && s.RingList.Count > 0 
-                                                                 && !s.PiratePresence
-                                                                 && !s.PlanetList.Any(p => p.Guardians.Count > 0));
-
-            return systems.Length > 0;
-        }
-
-        bool GetLoneSystem(out SolarSystem system)
-        {
-            system = null;
-            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 
-                                                                     && !s.PiratePresence);
-
-            if (systems.Length > 0)
-                system = systems.RandItem();
-
-            return system != null;
-        }
-
         void RemovePiratePresenceFromSystem()
         {
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
@@ -712,9 +687,11 @@ namespace Ship_Game
                 switch (type)
                 {
                     case TargetType.Shipyard         when ship.shipData.IsShipyard:
-                    case TargetType.FreighterAtWarp  when (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) && ship.IsInWarp:
-                    case TargetType.CombatShipAtWarp when !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp:
-                    case TargetType.Projector:       targets.Add(ship); break;
+                    case TargetType.FreighterAtWarp  when IsFreighterAtWarpNoOwnedSystem(ship):
+                    case TargetType.CombatShipAtWarp when IsCombatShipAtWarp(ship):
+                    case TargetType.Station          when ship.IsStation:
+                    case TargetType.Platform         when ship.IsPlatform:
+                    case TargetType.Projector: targets.Add(ship); break; // Add all of above cases in to targets
                 }
             }
 
@@ -723,6 +700,18 @@ namespace Ship_Game
 
             target = targets.RandItem();
             return target != null;
+
+            bool IsFreighterAtWarpNoOwnedSystem(Ship ship)
+            {
+                return (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
+                       && ship.IsInWarp 
+                       && (ship.System == null || !ship.System.IsOwnedBy(ship.loyalty));
+            }
+
+            bool IsCombatShipAtWarp(Ship ship)
+            {
+                return !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp;
+            }
         }
 
         public void OrderEscortShip(Ship shipToEscort, Array<Ship> force)
@@ -734,6 +723,18 @@ namespace Ship_Game
             {
                 Ship ship = force[i];
                 ship.AI.AddEscortGoal(shipToEscort);
+            }
+        }
+
+        public void OrderAttackShip(Ship target, Array<Ship> force)
+        {
+            if (force.Count == 0 || target == null)
+                return;
+
+            for (int i = 0; i < force.Count; i++)
+            {
+                Ship ship = force[i];
+                ship.AI.OrderAttackPriorityTarget(target);
             }
         }
 
@@ -758,14 +759,14 @@ namespace Ship_Game
             float maxStrModifier       = ((int)CurrentGame.Difficulty + 1) * 0.15f; // easy will be 15%
             float availableStrModifier = (float)Level / MaxLevel;
 
-            return enemyStr * maxStrModifier * availableStrModifier;
+            return (enemyStr * maxStrModifier * availableStrModifier).LowerBound(Level * 500);
         }
 
         public bool SpawnForce(Ship targetShip, Vector2 pos, float radius, out Array<Ship> force)
         {
             float currentStr = GaugeNeededStrForForce(targetShip);
             force = new Array<Ship>();
-            while (currentStr.Greater(0)) 
+            while (currentStr.Greater(0) && force.Count <= Level * 10) 
             {
                 Vector2 finalPos = pos.GenerateRandomPointOnCircle(radius);
                 if (SpawnShip(PirateShipType.Random, finalPos, out Ship ship))
@@ -807,12 +808,14 @@ namespace Ship_Game
                     Log.Warning($"Could not spawn required pirate ship named {shipName} for {Owner.Name}, check race xml");
             }
             else
+            {
                 Log.Warning($"Pirate ship name was empty for {Owner.Name}, check race xml for typos");
+            }
 
             return shipName.NotEmpty() && pirateShip != null;
         }
 
-        public void SalvageShip(Ship ship, Ship pirateBase)
+        void SalvageShip(Ship ship, Ship pirateBase)
         {
             if (ship.IsFreighter || ship.isColonyShip)
                 SalvageFreighter(ship);
@@ -822,7 +825,7 @@ namespace Ship_Game
 
         void SalvageFreighter(Ship freighter)
         {
-            TryLevelUp(freighter.isColonyShip);
+            TryLevelUp();
             freighter.QueueTotalRemoval();
         }
 
@@ -835,6 +838,7 @@ namespace Ship_Game
                     ShipsWeCanSpawn.AddUnique(ship.Name);
 
                 ship.QueueTotalRemoval();
+                TryLevelUp();
             }
             else
             {
@@ -844,7 +848,6 @@ namespace Ship_Game
                     || ship.AI.State != AIState.Resupply)
                 {
                     ship.AI.AddEscortGoal(pirateBase);
-                    TryLevelUp();
                 }
             }
         }
@@ -896,7 +899,7 @@ namespace Ship_Game
         {
             foreach (Empire faction in EmpireManager.PirateFactions.Filter(f => f != Owner))
             {
-                if (victim.GetRelations(faction).Treaty_NAPact)
+                if (victim.IsNAPactWith(faction))
                 {
                     int executeChance = faction.Pirates.Level * 3;
                     if (RandomMath.RollDice(executeChance))
@@ -919,10 +922,9 @@ namespace Ship_Game
             if (currentAssaultGoals >= maxAssaultGoals || victim.data.TaxRate > 0.8f) 
                 return;
 
-            int chanceMultiplier = FoundPirateBaseInSystemOf(victim, out _) ? 8 : 4;
-            if (RandomMath.RollDice(Level * chanceMultiplier))
+            if (FoundPirateBaseInSystemOf(victim, out Ship pirateBase) || RandomMath.RollDice(Level * 4))
             {
-                Goal goal = new AssaultPirateBase(victim, Owner);
+                Goal goal = new AssaultPirateBase(victim, Owner, pirateBase);
                 victim.GetEmpireAI().AddGoal(goal);
             }
         }
@@ -949,14 +951,15 @@ namespace Ship_Game
             if (!GetBases(out Array<Ship> bases))
                 return false;
 
+            var goals = victim.GetEmpireAI().Goals;
             for (int i = 0; i < bases.Count; i++)
             {
                 pirateBase = bases[i];
                 if (victimSystems.Contains(pirateBase.System))
-                    break;
+                    return true;
             }
 
-            return pirateBase != null;
+            return false;
         }
 
         public bool CanDoAnotherRaid(out int numRaids)
@@ -987,7 +990,8 @@ namespace Ship_Game
             CombatShipAtWarp,
             Projector,
             Shipyard,
-            Station
+            Station,
+            Platform
         }
     }
 

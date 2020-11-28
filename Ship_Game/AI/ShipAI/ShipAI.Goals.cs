@@ -40,14 +40,16 @@ namespace Ship_Game.AI
 
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
-            for (int i = 0; i < OrderQueue.Count; i++)
+            var orders = OrderQueue.TakeAll();
+            for (int i = 0; i < orders.Length; i++)
             {
-                ShipGoal g = OrderQueue[i];
+                ShipGoal g = orders[i];
                 g?.Dispose();
             }
 
             ChangeAIState(newState);
             EscortTarget = null;
+            OrbitTarget  = null;
             if (ExplorationTarget != null)
             {
                 Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
@@ -81,7 +83,7 @@ namespace Ship_Game.AI
             ClearOrders(newState, priority);
         }
 
-        public void ClearPriorityOrder()
+        public void ClearPriorityOrderAndTarget()
         {
             SetPriorityOrder(false);
             Intercepting      = false;
@@ -225,8 +227,18 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndRebase(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, false, AIState.Rebase);
+            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.Rebase);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
+        }
+
+        public void OrderSupplyShipLand(Planet p)
+        {
+            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            OrderMoveToNoStop(GetPositionOnPlanet(p), direction, false, AIState.SupplyReturnHome);
+            IgnoreCombat = true;
+            EscortTarget = null;
+            SetPriorityOrder(true);
         }
 
         public void OrderMoveAndRefit(Planet planet, Goal g)
@@ -243,7 +255,9 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndScrap(Planet p)
         {
-            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, AIState.Scrap);
+            Vector2 direction = Owner.Center.DirectionToTarget(p.Center);
+            OrbitTarget = p;
+            OrderMoveTo(GetPositionOnPlanet(p), direction, true, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 
@@ -498,7 +512,8 @@ namespace Ship_Game.AI
             ReturnHome,
             DeployOrbital,
             HoldPositionOffensive,
-            Escort
+            Escort,
+            RearmShipFromPlanet
         }
     }
 }

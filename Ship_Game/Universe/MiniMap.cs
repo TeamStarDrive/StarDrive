@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Audio;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -29,6 +32,9 @@ namespace Ship_Game
         readonly SubTexture Node1;
         readonly float Scale;
         readonly Vector2 MiniMapZero;
+        Empire Player => EmpireManager.Player;
+        float pulseTime => Screen.NormalFlashTimer;
+        float quickPulseTime => Screen.FastFlashTimer;
 
         public MiniMap(in Rectangle housing) : base(housing)
         {
@@ -50,6 +56,7 @@ namespace Ship_Game
 
             Scale = ActualMap.Width / (Screen.UniverseSize * 2.1f); // Updated to play nice with the new negative map values
             MiniMapZero = new Vector2((float)ActualMap.X + 100, (float)ActualMap.Y + 100);
+
         }
 
         Vector2 WorldToMiniPos(Vector2 pos)        
@@ -63,7 +70,7 @@ namespace Ship_Game
             return rscale;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Visible)
                 return;
@@ -80,8 +87,18 @@ namespace Ship_Game
                 var star = new Rectangle((int)miniSystemPos.X, (int)miniSystemPos.Y, 2, 2);
                 batch.FillRectangle(star, Color.Gray);
             }
-            DrawInfluenceNodes(batch);
-            
+
+            try
+            {
+                DrawInfluenceNodes(batch);
+                DrawSelected(batch, Player);
+                DrawWarnings(batch, elapsed);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"MiniMap Draw crashed {e.InnerException}");
+            }
+
             Vector2 upperLeftView = screen.UnprojectToWorldPosition(new Vector2(0f, 0f));
             upperLeftView = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 1), HelperFunctions.RoundTo(upperLeftView.Y, 1));
             
@@ -123,13 +140,84 @@ namespace Ship_Game
             batch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
             ShipScreen.IsToggled     = screen.showingFTLOverlay;
-            DeepSpaceBuild.IsToggled = screen.showingDSBW;
+            DeepSpaceBuild.IsToggled = screen.DeepSpaceBuildWindow.Visible;
             AIScreen.IsToggled       = screen.aw.IsOpen;
-            Fleets.IsToggled         = screen.showingRangeOverlay;            
-            base.Draw(batch);
+            Fleets.IsToggled         = screen.showingRangeOverlay;
+            
+            base.Draw(batch, elapsed);
         }
 
-        void DrawNode(Empire empire, IList<Empire.InfluenceNode> list, SpriteBatch batch)
+        void DrawWarnings(SpriteBatch batch, DrawTimes elapsed)
+        {
+            float radius = 0.02f;
+            float ringRad = 0.023f * pulseTime;
+            foreach (IncomingThreat threat in Player.SystemWithThreat)
+            {
+                if (threat.ThreatTimedOut) continue;
+
+                var system            = threat.TargetSystem;
+                Vector2 miniSystemPos = WorldToMiniPos(system.Position);
+                float pulseRad = radius + ringRad;
+                batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, pulseRad + 0.009f, SpriteEffects.None, 0f);
+                batch.Draw(Node1, miniSystemPos, Color.Black, 0f, Node.CenterF, pulseRad + 0.002f, SpriteEffects.None, 0f);
+                batch.Draw(Node1, miniSystemPos, Color.Red, 0f, Node.CenterF, radius , SpriteEffects.None, 0f);
+            }
+
+            //foreach (var system in Screen.SolarSystemDict)
+            foreach (var system in Player.GetEmpireAI().ThreatMatrix.GetAllSystemsWithFactions())
+            {
+                if (system.OwnerList.Count > 0) continue;
+                var pin = system;
+                var point = WorldToMiniPos(pin.Position);
+                radius = 0.025f * Screen.SlowFlashTimer;
+                var color = Color.Yellow;
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, color, 0f, Node.CenterF, radius - 0.0055f, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.0055f * 2,
+                    SpriteEffects.None, 1f);
+            }
+
+            foreach (ThreatMatrix.Pin badBase in Player.GetEmpireAI().ThreatMatrix.GetAllFactionBases())
+            {
+                var pin = badBase;
+                var point = WorldToMiniPos(pin.Position);
+                radius = 0.025f * Screen.SlowFlashTimer;
+                var color = pin.GetEmpire().EmpireColor;
+                var warningColor = new Color(Color.Yellow, 200);
+                batch.Draw(Node1, point, warningColor, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, Color.Black, 0f, Node.CenterF, radius - 0.005f, SpriteEffects.None, 1f);
+                batch.Draw(Node1, point, color, 0f, Node.CenterF, 0.012f,
+                    SpriteEffects.None, 1f);
+            }
+        }
+
+        void DrawSelected(SpriteBatch batch, Empire empire)
+        {
+            Ship ship         = Screen.SelectedShip;
+            Planet planet     = Screen.SelectedPlanet;
+            var system        = Screen.SelectedSystem;
+            Ship[] containsShip = Screen.SelectedShipList.AtomicCopy();
+            var fleet         = Screen.SelectedFleet;
+
+            Array<Vector2> centers = new Array<Vector2>();
+
+            if (ship != null) centers.Add(ship.Center);
+            else if (planet != null) centers.Add(planet.Center);
+            else if (system != null) centers.Add(system.Position);
+            else if (fleet != null) centers = new Array<Vector2>(fleet.Ships.Select(s=> s.Center));
+            else if (containsShip?.Length > 0)  centers = new Array<Vector2>(containsShip.Select(s => s.Center));
+
+            float radius = 0.023f;
+            foreach (var center in centers)
+            {
+                var nodePos = WorldToMiniPos(center);
+
+                batch.Draw(Node1, nodePos, new Color(Color.Black, (byte)(255 * quickPulseTime)), 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
+                batch.Draw(Node1, nodePos, new Color(Color.LightGray, (byte)(255 * quickPulseTime)), 0f, Node.CenterF, radius * quickPulseTime, SpriteEffects.None, 1f);
+            }
+        }
+
+        void DrawNode(Empire empire, IList<Empire.InfluenceNode> list, SpriteBatch batch, bool influenceNode)
         {
             {
                 for (int i = 0; i < list.Count; i++)
@@ -138,33 +226,70 @@ namespace Ship_Game
                     if (node == null || !node.KnownToPlayer)
                         continue;
 
+                    bool combat = false;
+                    bool warning = false;
+                    float intensity = 0.005f;
+                    if (empire.isPlayer)
+                    {
+                        if (node.SourceObject is Ship ship)
+                        {
+                            if (ship.IsSubspaceProjector && !influenceNode)
+                                continue;
+                            if (empire.isPlayer)
+                            {
+                                if (ship.InCombat)
+                                    combat = true;
+                            }
+                        }
+                        else if (node.SourceObject is Planet planet)
+                        {
+                            var system = planet.ParentSystem;
+                            if (planet.RecentCombat)
+                            {
+                                combat = true;
+                                intensity += 0.001f;
+                            }
+                            else if (planet.SpaceCombatNearPlanet)
+                            {
+                                combat = true;
+                            }
+                        }
+                    }
                     float nodeRad = WorldToMiniRadius(node.Radius);
-                    if (node.SourceObject is GameplayObject)
-                    {
-                        nodeRad = Math.Max(nodeRad, .007f);
-                    }
-                    else
-                    {
-                        nodeRad = Math.Max(nodeRad, .016f);
-                    }
-                    float radius = nodeRad;
-                    Vector2 nodePos = WorldToMiniPos(node.Position);
-                    var ec = new Color(empire.EmpireColor, 200);
+                    var ec = new Color(empire.EmpireColor, 150);
 
-                    batch.Draw(Node1, nodePos, ec, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
-                    batch.Draw(Node1, nodePos, new Color(Color.Black, 40), 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
+                    Vector2 nodePos = WorldToMiniPos(node.Position);
+                    
+                    if (combat || warning)
+                    {
+                        warning = !combat;
+                        float radius = Math.Max(0.02f, nodeRad) * pulseTime;
+                        var color = warning ? Color.Yellow : Color.Red;
+                        batch.Draw(Node1, nodePos, Color.Black, 0f, Node.CenterF, radius * pulseTime - intensity, SpriteEffects.None, 0f);
+                        batch.Draw(Node1, nodePos, color, 0f, Node.CenterF, radius * pulseTime,SpriteEffects.None, 0f);
+                        batch.Draw(Node1, nodePos, Color.Black, 0f, Node.CenterF, radius * pulseTime - intensity * 2, SpriteEffects.None, 0f);
+                    }
+                    
+                    {
+                        float radius = Math.Min(0.09f, nodeRad);
+                        // draw a shade to dim the color. 
+                        batch.Draw(Node1, nodePos, ec, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
+                        batch.Draw(Node1, nodePos, new Color(Color.Black, 80), 0f, Node.CenterF, nodeRad, SpriteEffects.None, 1f);
+                    }
                 }
             }
         }
 
         void DrawInfluenceNodes(SpriteBatch batch)
         {
+            var empires = EmpireManager.Empires.Sorted(e => (e.isFaction ? -2 : 0) + (!e.isPlayer ? 1 : 0));
+            
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
             {
                 Empire e = EmpireManager.Empires[i];
                 // Draw player nodes last so it will be over allied races - this is a temp solution
-                if (e.isPlayer) 
-                    continue; 
+                if (e.isPlayer)
+                    continue;
 
                 Relationship rel = EmpireManager.Player.GetRelations(e);
                 if (Screen.Debug || e == EmpireManager.Player || rel.Known)
@@ -178,8 +303,8 @@ namespace Ship_Game
         
         void DrawNode(Empire e, SpriteBatch batch)
         {
-            DrawNode(e, e.BorderNodes.AtomicCopy(), batch);
-            DrawNode(e, e.SensorNodes.AtomicCopy(), batch);
+            DrawNode(e, e.BorderNodes.AtomicCopy(), batch, true);
+            DrawNode(e, e.SensorNodes.AtomicCopy(), batch, false);
         }
 
         void ZoomToShip_OnClick(ToggleButton toggleButton)

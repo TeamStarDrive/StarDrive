@@ -32,7 +32,7 @@ namespace Ship_Game
 			TransitionOffTime = 0.25f;
 		}
 
-		public override void Draw(SpriteBatch batch)
+		public override void Draw(SpriteBatch batch, DrawTimes elapsed)
 		{
 			ScreenManager.GraphicsDevice.Clear(Color.Black);
 			batch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
@@ -109,7 +109,7 @@ namespace Ship_Game
 			base.LoadContent();
 		}
 
-		public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+		public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
 		{
 			scale = 1f + 2f * TransitionPosition;
 			Saturation = 100f * (1f - TransitionPosition);

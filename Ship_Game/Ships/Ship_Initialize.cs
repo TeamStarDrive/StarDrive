@@ -90,7 +90,7 @@ namespace Ship_Game.Ships
                 Log.Warning($"Warning: Ship base warp is false: {this}");
 
             owner.AddShip(this);
-            Empire.Universe?.MasterShipList.Add(this);
+            Empire.Universe?.Objects.Add(this);
             if (owner.GetEmpireAI() != null && !owner.isPlayer)
                 owner.Pool.ForcePoolAdd(this);
         }
@@ -182,7 +182,6 @@ namespace Ship_Game.Ships
             kills            = save.kills;
             PowerCurrent     = save.Power;
             yRotation        = save.yRotation;
-            Ordinance        = save.Ordnance;
             Rotation         = save.Rotation;
             Velocity         = save.Velocity;
             IsSpooling       = save.AfterBurnerOn;
@@ -191,19 +190,25 @@ namespace Ship_Game.Ships
             TetherOffset     = save.TetherOffset;
             InCombat         = InCombatTimer > 0f;
 
-            TransportingFood         = save.TransportingFood;
-            TransportingProduction   = save.TransportingProduction;
-            TransportingColonists    = save.TransportingColonists;
-            AllowInterEmpireTrade    = save.AllowInterEmpireTrade;
-            TradeRoutes              = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
+            TransportingFood          = save.TransportingFood;
+            TransportingProduction    = save.TransportingProduction;
+            TransportingColonists     = save.TransportingColonists;
+            AllowInterEmpireTrade     = save.AllowInterEmpireTrade;
+            TradeRoutes               = save.TradeRoutes ?? new Array<Guid>(); // the null check is here in order to not break saves.
+            MechanicalBoardingDefense = save.MechanicalBoardingDefense;
 
             VanityName = shipData.Role == ShipData.RoleName.troop && save.TroopList.NotEmpty
                             ? save.TroopList[0].Name : save.VanityName;
 
             HealthMax = RecalculateMaxHealth();
+            CalcTroopBoardingDefense();
+            ChangeOrdnance(save.Ordnance);
 
             if (save.HomePlanetGuid != Guid.Empty)
                 HomePlanet = loyalty.FindPlanet(save.HomePlanetGuid);
+
+            if (loyalty.WeAreRemnants)
+                IsGuardian = true;
 
             if (!ResourceManager.ShipTemplateExists(save.Name))
             {
@@ -233,11 +238,6 @@ namespace Ship_Game.Ships
             LoadFood(save.FoodCount);
             LoadProduction(save.ProdCount);
             LoadColonists(save.PopCount);
-
-            foreach (SavedGame.ProjectileSaveData pdata in save.Projectiles)
-            {
-                Projectile.Create(this, pdata);
-            }
         }
 
 
@@ -356,12 +356,14 @@ namespace Ship_Game.Ships
             AI.TargetGuid         = aiSave.AttackTarget;
             AI.SystemToDefendGuid = aiSave.SystemToDefend;
             AI.EscortTargetGuid   = aiSave.EscortTarget;
+            AI.HasPriorityTarget  = aiSave.PriorityTarget;
+
+            AI.SetPriorityOrder(aiSave.PriorityOrder);
         }
 
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
-            Empire.Universe?.QueueSceneObjectCreation(this);
 
             if (VanityName.IsEmpty())
                 VanityName = Name;
@@ -390,14 +392,12 @@ namespace Ship_Game.Ships
             if (!loadingFromSaveGame)
                 InitializeStatus(false);
 
-            SetSystem(System);
             InitExternalSlots();
             Initialize();
 
             ShipStatusChange();
             InitializeThrusters();
             DesignRole = GetDesignRole();
-            ShipInitialized = true;
         }
 
         void InitDefendingTroopStrength()
@@ -447,7 +447,7 @@ namespace Ship_Game.Ships
 
             // initialize strength for our empire:
             CurrentStrength = CalculateShipStrength();
-            BaseStrength = CurrentStrength; // save base strength for later
+            BaseStrength    = CurrentStrength; // save base strength for later
             if (shipData.BaseStrength <= 0f)
                 shipData.BaseStrength = BaseStrength;
         }
@@ -469,10 +469,12 @@ namespace Ship_Game.Ships
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
 
-                if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
-                if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
-                if (module.ECM > ECMValue)            ECMValue    = module.ECM.Clamped(0f, 1f);
-                if (module.Regenerate > 0) HasRegeneratingModules = true;
+                if (module.SensorRange > SensorRange)           SensorRange            = module.SensorRange;
+                if (module.SensorBonus > sensorBonus)           sensorBonus            = module.SensorBonus;
+                if (module.ECM > ECMValue)                      ECMValue               = module.ECM.Clamped(0f, 1f);
+                if (module.InhibitionRadius > InhibitionRadius) InhibitionRadius       = module.InhibitionRadius;
+                if (module.Regenerate > 0)                      HasRegeneratingModules = true;
+
 
                 switch (module.ModuleType)
                 {
@@ -501,8 +503,8 @@ namespace Ship_Game.Ships
                     InternalSlotCount += module.XSIZE * module.YSIZE;
                 HasRepairModule |= module.IsRepairModule;
 
-                Health     += module.Health;
-
+                Health    += module.Health;
+                HealthMax += module.Health;
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
                 PowerStoreMax += module.ActualPowerStoreMax;
                 PowerCurrent  += module.ActualPowerStoreMax;
@@ -514,9 +516,7 @@ namespace Ship_Game.Ships
                 OrdinanceMax    += module.OrdinanceCapacity;
 
                 if (!fromSave)
-                {
-                    Ordinance += module.OrdinanceCapacity;
-                }
+                    ChangeOrdnance(module.OrdinanceCapacity);
             }
 
             if (!fromSave)
@@ -529,8 +529,11 @@ namespace Ship_Game.Ships
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
 
+            if (InhibitionRadius.Greater(0))
+                loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
+
             (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
-            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, OrdnancePercent);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);

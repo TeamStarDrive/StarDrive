@@ -110,15 +110,15 @@ namespace Ship_Game
             ResetList(ShowRoles.ActiveValue);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            TitleBar.Draw(batch);
+            TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(190), TitlePos, Colors.Cream);
-            EMenu.Draw(batch);
+            EMenu.Draw(batch, elapsed);
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             // Draw List Header
             if (ShipSL.NumEntries > 0)
@@ -191,7 +191,7 @@ namespace Ship_Game
                 DrawHorizontalSeparator(eRect.Bottom - 10);
                 DrawHorizontalSeparator(eRect.Y + 25);
             }
-            ShowRoles.Draw(batch);
+            ShowRoles.Draw(batch, elapsed);
             batch.End();
         }
         

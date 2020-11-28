@@ -53,7 +53,7 @@ namespace Ship_Game.Universe.SolarBodies
                 return false; // Not enough credits to rush
 
             // inject artificial surplus to instantly rush & finish production
-            if (Empire.Universe.Debug)
+            if (Empire.Universe.Debug && Owner.isPlayer)
             {
                 amount = SurplusThisTurn = 1000;
             }
@@ -105,9 +105,9 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 QueueItem item = ConstructionQueue[itemIndex];
                 SpendProduction(item, maxAmount);
-                if (rush && !Empire.Universe.Debug)
+
+                if (rush && (!Owner.isPlayer || !Empire.Universe.Debug))
                 {
-                    Owner.AddMoney(-maxAmount);
                     Owner.ChargeRushFees(maxAmount);
                 }
             }
@@ -215,6 +215,12 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.AllowInterEmpireTrade  &= q.AllowInterEmpireTrade;
             }
 
+            if (shipAt.isColonyShip)
+            {
+                float amount = shipAt.CargoSpaceFree.UpperBound(P.Population / 10);
+                P.Population -= shipAt.LoadColonists(amount);
+            }
+
             if (!Owner.isPlayer)
                 Owner.Pool.ForcePoolAdd(shipAt);
             return true;
@@ -225,15 +231,23 @@ namespace Ship_Game.Universe.SolarBodies
         {
             // surplus will be reset every turn and consumed at first opportunity
             SurplusThisTurn = surplusFromPlanet;
-            if (ConstructionQueue.IsEmpty)
-                return;
+            if (ConstructionQueue.IsEmpty || P.CrippledTurns > 0)
+                return; // Massive sabotage to planetary facilities or no items
 
-            float percentToApply = 1f;
-            if      (P.CrippledTurns > 0) percentToApply = 0.05f; // massive sabotage to planetary facilities
-            else if (P.RecentCombat)      percentToApply = 0.2f;  // ongoing combat is hindering logistics
-
+            float percentToApply = P.RecentCombat ? 0.1f : 1f; // Ongoing combat is hindering logistics
             float limitSpentProd = P.LimitedProductionExpenditure();
             ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0);
+            TryPlayerRush();
+        }
+
+        void TryPlayerRush() // Apply rush if player marked items as continuous rush
+        {
+            if (!Owner.isPlayer || Count == 0 || P.CrippledTurns > 0 || P.RecentCombat)
+                return;
+
+            QueueItem item = ConstructionQueue[0];
+            if (item.Rush || Owner.RushAllConstruction)
+                RushProduction(0, item.ProductionNeeded, true);
         }
 
         // @return TRUE if building was added to CQ,
@@ -256,13 +270,15 @@ namespace Ship_Game.Universe.SolarBodies
                 Cost            = b.ActualCost,
                 ProductionSpent = 0.0f,
                 NotifyOnEmpty   = false,
+                Rush            = P.Owner.RushAllConstruction,
                 QueueNumber     = ConstructionQueue.Count
+
             };
 
             if (b.AssignBuildingToTile(b, ref where, P))
             {
                 where.QItem = qi;
-                qi.pgs = where; // reset PGS if we got a new one
+                qi.pgs      = where; // reset PGS if we got a new one
                 ConstructionQueue.Add(qi);
                 P.RefreshBuildingsWeCanBuildHere();
                 return true;
@@ -282,7 +298,8 @@ namespace Ship_Game.Universe.SolarBodies
                 DisplayName   = $"{constructor.Name} ({platform.Name})",
                 QueueNumber   = ConstructionQueue.Count,
                 sData         = constructor.shipData,
-                Cost          = platform.GetCost(Owner)
+                Cost          = platform.GetCost(Owner),
+                Rush          = P.Owner.RushAllConstruction
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
@@ -299,7 +316,8 @@ namespace Ship_Game.Universe.SolarBodies
                 DisplayName   = $"{constructor.Name} ({orbitalRefit.Name})",
                 QueueNumber   = ConstructionQueue.Count,
                 sData         = constructor.shipData,
-                Cost          = refitCost
+                Cost          = refitCost,
+                Rush          = P.Owner.RushAllConstruction,
             };
             
             ConstructionQueue.Add(qi);
@@ -309,13 +327,14 @@ namespace Ship_Game.Universe.SolarBodies
         {
             var qi = new QueueItem(P)
             {
-                isShip = true,
-                isOrbital = ship.IsPlatformOrStation,
-                Goal   = goal,
-                sData  = ship.shipData,
-                Cost   = ship.GetCost(Owner),
+                isShip        = true,
+                isOrbital     = ship.IsPlatformOrStation,
+                Goal          = goal,
+                sData         = ship.shipData,
+                Cost          = ship.GetCost(Owner),
                 NotifyOnEmpty = notifyOnEmpty,
-                QueueNumber = ConstructionQueue.Count,
+                QueueNumber   = ConstructionQueue.Count,
+                Rush          = P.Owner.RushAllConstruction
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
@@ -325,11 +344,12 @@ namespace Ship_Game.Universe.SolarBodies
         {
             var qi = new QueueItem(P)
             {
-                isTroop = true,
+                isTroop     = true,
                 QueueNumber = ConstructionQueue.Count,
-                TroopType = template.Name,
-                Goal = goal,
-                Cost = template.ActualCost
+                TroopType   = template.Name,
+                Goal        = goal,
+                Cost        = template.ActualCost,
+                Rush        = P.Owner.RushAllConstruction,
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
@@ -359,9 +379,11 @@ namespace Ship_Game.Universe.SolarBodies
             return item != null;
         }
 
-        public void Cancel(QueueItem q)
+        public void Cancel(QueueItem q, bool refund = true)
         {
-            P.ProdHere += q.ProductionSpent;
+            if (refund)
+                P.ProdHere += q.ProductionSpent / 2;
+
             if (q.pgs != null)
             {
                 q.pgs.QItem = null;
@@ -387,15 +409,17 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void PrioritizeShip(Ship ship)
         {
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
-            {
-                QueueItem q = ConstructionQueue[i];
-                if (q.isShip && q.sData == ship.shipData)
+            int queueOffset = Owner.IsAtWar ? 4 : 2;
+            if (ConstructionQueue.Count > queueOffset + 1)
+                for (int i = queueOffset; i < ConstructionQueue.Count; ++i)
                 {
-                    MoveTo(0, i);
-                    break;
+                    QueueItem q = ConstructionQueue[i];
+                    if (q.isShip && q.sData == ship.shipData)
+                    {
+                        MoveTo(queueOffset, i);
+                        break;
+                    }
                 }
-            }
         }
 
         public void PrioritizeProjector(Vector2 buildPos)
@@ -449,9 +473,28 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Insert(moveTo, item);
         }
 
+        public void MoveToAndContinuousRushFirstItem()
+        {
+            if (Empty)
+                return;
+
+            if (Count > 1)
+                MoveTo(0, Count - 1);
+
+            ConstructionQueue[0].Rush = true;
+        }
+
+        public void SwitchRushAllConstruction(bool rush)
+        {
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+                 ConstructionQueue[i].Rush = rush;
+        }
+
         public void ClearQueue()
         {
             ConstructionQueue.Clear();
+            foreach (PlanetGridSquare tile in P.TilesList)
+                tile.QItem = null; // Clear all planned buildings from tiles
         }
     }
 }

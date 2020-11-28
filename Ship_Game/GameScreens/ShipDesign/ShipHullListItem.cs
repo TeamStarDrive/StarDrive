@@ -15,9 +15,9 @@ namespace Ship_Game
         public ShipHullListItem(string headerText) : base(headerText) {}
         public ShipHullListItem(ShipData hull) { Hull = hull; }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             if (Hull != null)
             {
                 int h = (int)Height;
