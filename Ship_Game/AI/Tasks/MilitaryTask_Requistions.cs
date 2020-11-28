@@ -15,7 +15,7 @@ namespace Ship_Game.AI.Tasks
     public partial class MilitaryTask
     {
         public int FleetCount = 1;
-        public float Completeness = 0.25f;
+        public float Completeness = 0.5f;
 
         float GetEnemyShipStrengthInAO()
         {
@@ -228,6 +228,7 @@ namespace Ship_Game.AI.Tasks
         {
             if (AO.AlmostZero())
                 throw new Exception();
+            if (Owner.Pool.CurrentUseableFleets < 0) return;
 
             AO closestAO = FindClosestAO();
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
@@ -245,8 +246,8 @@ namespace Ship_Game.AI.Tasks
                 requiredTroopStrength = requiredTroopStrength.LowerBound(40);
 
             InitFleetRequirements(minFleetStrength: MinimumTaskForceStrength, minTroopStrength: requiredTroopStrength, minBombMinutes: 0);
-
-            if (CreateTaskFleet("Scout Fleet", Completeness * 0.5f, true) == RequisitionStatus.Complete)
+            float battleFleetSize = MinimumTaskForceStrength < 100 ? 0 : 1f;
+            if (CreateTaskFleet("Scout Fleet", Completeness * battleFleetSize, true) == RequisitionStatus.Complete)
                 Step = 1;
         }
 
@@ -258,9 +259,10 @@ namespace Ship_Game.AI.Tasks
             AO closestAO = FindClosestAO(EnemyStrength);
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
                 return;
+            float battleFleetSize = MinimumTaskForceStrength < 100 ? 0 : 0.5f;
 
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
-            if (CreateTaskFleet("Pre-Colonization Force", 0.1f, false) == RequisitionStatus.Complete)
+            if (CreateTaskFleet("Pre-Colonization Force", battleFleetSize, false) == RequisitionStatus.Complete)
                 Step = 1;
         }
 
@@ -327,8 +329,8 @@ namespace Ship_Game.AI.Tasks
 
             UpdateMinimumTaskForceStrength(TargetPlanet.guid, buildingGeodeticOffense);
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 40, minBombMinutes: 0);
-            
-            if (CreateTaskFleet("Exploration Force", Completeness * 0.2f, true) 
+            float battleFleetSize = MinimumTaskForceStrength < 100 ? 0 : 1f;
+            if (CreateTaskFleet("Exploration Force", Completeness * battleFleetSize, true) 
                                 == RequisitionStatus.Complete)
             {
                 Step = 1;
@@ -416,6 +418,9 @@ namespace Ship_Game.AI.Tasks
         /// <returns>The return is either complete for success or the type of failure in fleet creation.</returns>
         RequisitionStatus CreateTaskFleet(string fleetName, float battleFleetSize, bool highTroopPriority = false)
         {
+
+            if (!RoomForMoreFleets()) return RequisitionStatus.NotEnoughAvailableFleets;
+
             // this determines what core fleet to send if the enemy is strong. 
             // its also an easy out for an empire in a bad state. 
             AO closestAO = FindClosestAO(MinimumTaskForceStrength);
@@ -467,6 +472,7 @@ namespace Ship_Game.AI.Tasks
                 return RequisitionStatus.FailedToCreateAFleet;
 
             CreateFleet(TaskForce, fleetName);
+            Owner.Pool.CurrentUseableFleets -= wantedNumberOfFleets;
             return RequisitionStatus.Complete;
         }
 
@@ -509,8 +515,8 @@ namespace Ship_Game.AI.Tasks
                 else
                 {
                     if (minTroopStrength > 0)
-                        NeededTroopStrength = (int)(GetTargetPlanetGroundStrength(minTroopStrength));
-                                            //* Owner.DifficultyModifiers.EnemyTroopStrength);
+                        NeededTroopStrength = (int)(GetTargetPlanetGroundStrength(minTroopStrength)); 
+                    //* Owner.DifficultyModifiers.EnemyTroopStrength);
 
                     if (minBombMinutes > 0)
                         TaskBombTimeNeeded = BombTimeNeeded().LowerBound(minBombMinutes);
@@ -525,6 +531,7 @@ namespace Ship_Game.AI.Tasks
         {
             NoRallyPoint,
             NoEmpireAreasOfOperation,
+            NotEnoughAvailableFleets,
             NotEnoughShipStrength,
             NotEnoughTroopStrength,
             NotEnoughBomberStrength,

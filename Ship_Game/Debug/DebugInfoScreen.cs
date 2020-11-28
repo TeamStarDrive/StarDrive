@@ -638,8 +638,20 @@ namespace Ship_Game.Debug
                 DrawString("------------------------");
                 DrawString($"Level: {e.Pirates.Level}");
                 DrawString($"Pirate Bases Goals: {goals.Count(g => g.type == GoalType.PirateBase)}");
-                DrawString($"Pirate Payments Goals: {goals.Count(g => g.type == GoalType.PirateDirectorPayment)}");
                 DrawString($"Spawned Ships: {e.Pirates.SpawnedShips.Count}");
+                NewLine();
+                DrawString($"Payment Management Goals ({goals.Count(g => g.type == GoalType.PirateDirectorPayment)})");
+                DrawString("---------------------------------------------"); foreach (Goal g in goals)
+                {
+                    if (g.type == GoalType.PirateDirectorPayment)
+                    {
+                        Empire target     = g.TargetEmpire;
+                        string targetName = target.Name;
+                        int threatLevel   = e.Pirates.ThreatLevelFor(g.TargetEmpire);
+                        DrawString(target.EmpireColor, $"Payment Director For: {targetName}, Threat Level: {threatLevel}, Timer: {e.Pirates.PaymentTimerFor(target)}");
+                    }
+                }
+
                 NewLine();
                 DrawString($"Raid Management Goals ({goals.Count(g => g.type == GoalType.PirateDirectorRaid)})");
                 DrawString("---------------------------------------------");

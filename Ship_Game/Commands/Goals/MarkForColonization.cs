@@ -86,7 +86,7 @@ namespace Ship_Game.Commands.Goals
             {
                 empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, out float strMultiplier);
                 spaceStrength *= strMultiplier;
-                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(100));
+                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(20));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
             else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire) 
@@ -235,7 +235,7 @@ namespace Ship_Game.Commands.Goals
         {
             spaceStrength   = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
             float groundStr = ColonizationTarget.GetGroundStrengthOther(empire);
-            if (ColonizationTarget.Owner != null && ColonizationTarget.Owner.isFaction && groundStr.AlmostZero())
+            if (ColonizationTarget.Owner?.isFaction  == true && groundStr < 1)
                 groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty
 
             return spaceStrength > 10 || groundStr > 0;
