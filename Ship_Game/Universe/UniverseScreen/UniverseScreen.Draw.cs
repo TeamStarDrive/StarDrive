@@ -721,7 +721,7 @@ namespace Ship_Game
                     if (fleet.Ships.Count <= 0)
                         continue;
 
-                    Vector2 averagePos = fleet.AveragePosition();
+                    Vector2 averagePos = fleet.CachedAveragePos;
 
                     var shipsVisible = fleet.Ships.Filter(s=> s?.KnownByEmpires.KnownBy(empireLooking) == true);
 

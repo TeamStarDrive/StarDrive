@@ -91,7 +91,7 @@ namespace Ship_Game.AI.Tasks
                 AO                       = targetPlanet.Center,
                 type                     = TaskType.GuardBeforeColonize,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
-                MinimumTaskForceStrength = (owner.CurrentMilitaryStrength / 1000).LowerBound(100),
+                MinimumTaskForceStrength = (owner.CurrentMilitaryStrength * 0.2f).LowerBound(10),
                 Owner                    = owner,
                 Priority                 = 0
             };
@@ -368,6 +368,18 @@ namespace Ship_Game.AI.Tasks
                     if (g.guid == goalGuid) g.Held = false;
                 }
             }
+        }
+
+        bool RoomForMoreFleets()
+        {
+            float divisor = 2;
+            if (GetTaskCategory() == TaskCategory.War)
+                divisor = 2;
+            else if (Owner.IsAtWar) 
+                divisor = 6;
+            
+            float fleets = Owner.Pool.InitialReadyFleets;
+            return Owner.Pool.CurrentUseableFleets + fleets / divisor > fleets;
         }
 
         public void EndTaskWithMove()
@@ -817,6 +829,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.Patrol:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
                 case TaskType.DefendClaim:
+                case TaskType.GuardBeforeColonize:
                 case TaskType.Exploration:        taskCat |= TaskCategory.Expansion; break;
             }
             return taskCat;

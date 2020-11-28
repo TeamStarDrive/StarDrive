@@ -51,6 +51,16 @@ namespace Ship_Game
             return (1 + territorialism + militaryRatio + opportunism) / 4;
         }
 
+        public float GetExpansionRatio()
+        {
+            float territorialism = (data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float expansion      = Research.Strategy.ExpansionRatio;
+            float cybernetic     = IsCybernetic ? 1 : 0;
+
+            return (territorialism + expansion + opportunism + cybernetic);
+        }
+
         readonly int[] MoneyHistory = new int[10];
         int MoneyHistoryIndex = 0;
 
@@ -439,8 +449,10 @@ namespace Ship_Game
             return planet != null;
         }
 
+        public float KnownEnemyStrengthIn(SolarSystem system, Predicate<ThreatMatrix.Pin> filter)
+                     => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, filter);
         public float KnownEnemyStrengthIn(SolarSystem system)
-                     => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p => p.Strength > 0);
+             => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p=> p.Ship?.Active == true);
         public float KnownEnemyStrengthIn(AO ao)
              => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
 
@@ -998,6 +1010,12 @@ namespace Ship_Game
 
         public float GetTargetsStrMultiplier(Guid guid)
         {
+            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
+        }
+
+        public float GetTargetsStrMultiplier(Planet planet)
+        {
+            var guid = planet.guid;
             return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
         }
 

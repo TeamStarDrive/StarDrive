@@ -37,7 +37,7 @@ namespace Ship_Game.AI
             // the values below are now weights to adjust the budget areas. 
             float defense                  = 6;  // 0.015f;
             float SSP                      = 2;  // 0.003f;
-            float build                    = 15; // 0.02f;
+            float build                    = 10; // 0.02f;
             float spy                      = 100;
             float colony                   = 10;  // 0.015f;
             float savings                  = 350;
@@ -98,12 +98,12 @@ namespace Ship_Game.AI
 
         float DetermineBuildCapacity(float money, float risk, float percentOfMoney)
         {
-            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float personality              = OwnerEmpire.data.DiplomaticPersonality?.Opportunism ?? 1;
-            
-            risk                           = risk.LowerBound(Math.Max(strat.MilitaryRatio, 0.1f));
-            float personalityRatio         = (1f + personality + strat.MilitaryRatio + strat.ExpansionRatio) / 2f;
-            float buildRatio               = personalityRatio;
+            float personalityWar = OwnerEmpire.GetWarOffensiveRatio();
+            float personalityExpansion = OwnerEmpire.GetExpansionRatio();
+
+            risk                           = risk;
+            float personality         = (personalityWar + personalityExpansion ) / 3;
+            float buildRatio               = (personality) ;
             float buildBudget              = SetBudgetForeArea(percentOfMoney, buildRatio, money);
             float extraBudget              = OverSpendRatio(money, 1, 1.25f).LowerBound(1);
             return (buildBudget * risk * extraBudget).LowerBound(1);
