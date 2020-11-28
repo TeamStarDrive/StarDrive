@@ -25,11 +25,25 @@ namespace Ship_Game.AI.ExpansionAI
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
             {
-                if (g.type == GoalType.Colonize)
-                    list.Add(g.ColonizationTarget);
+                if (g.type != GoalType.Colonize) continue;
+                list.Add(g.ColonizationTarget);
             }
 
             return list.ToArray();
+        }
+
+        public int GetNumOfBlockedColonyGoals()
+        {
+            int count = 0;
+            foreach (var g in Goals)
+            {
+                if (g.type != GoalType.Colonize) continue;
+                float blocker = Owner.GetTargetsStrMultiplier(g.ColonizationTarget);
+                if (blocker > 1)
+                    count++;
+            }
+
+            return count;
         }
 
         public Array<Goal> GetColonizationGoals()
@@ -50,9 +64,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (Owner.isPlayer) 
                 return (int)goals; // BaseColonyGoals for player
 
-            goals += Owner.data.DiplomaticPersonality.Territorialism / 100f 
-                     + Owner.data.DiplomaticPersonality.Opportunism
-                     + ExpansionRatio;
+            goals += Owner.GetExpansionRatio();
 
             if (Owner.IsCybernetic)
                 goals += 2;
@@ -63,8 +75,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
         float ExpansionThreshold => (Owner.IsExpansionists ? 0.1f : 0.15f) * Owner.DifficultyModifiers.ExpansionMultiplier;
-        float ExpansionRatio     => ResourceManager.GetEconomicStrategy(Owner.data.EconomicPersonality.Name).ExpansionRatio;
-
+    
         int GoalsModifierByRank() // increase goals if we are behind other empires
         {
             if (Empire.Universe.StarDate < 1002)
@@ -100,14 +111,16 @@ namespace Ship_Game.AI.ExpansionAI
             }
             
             Planet[] currentColonizationGoals = GetColonizationGoalPlanets();
-            int claimTasks                    = Owner.GetEmpireAI().GetNumClaimTasks(); 
+            int claimTasks                    = Owner.GetEmpireAI().GetNumClaimTasks();
 
-            // Adds 1 more goal if we are stuck with all colonization goals with enemy
             int desiredGoals = DesiredColonyGoals();
-            if (claimTasks >= desiredGoals)
-                desiredGoals = (claimTasks + 1).UpperBound(desiredGoals * 2);
 
-            if (currentColonizationGoals.Length >= desiredGoals)
+            // we are going to ignore some of the blocked colony goals based on difficulty. 
+            // at brutal no blocked colony goals will be counted. 
+            int blockedColonyGoals = GetNumOfBlockedColonyGoals();
+            blockedColonyGoals = (int)(blockedColonyGoals * Owner.DifficultyModifiers.ColonyGoalMultiplier);
+
+            if (currentColonizationGoals.Length - blockedColonyGoals >= desiredGoals)
                 return;
 
             Log.Info(ConsoleColor.Magenta, $"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
