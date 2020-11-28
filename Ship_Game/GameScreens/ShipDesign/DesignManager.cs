@@ -30,12 +30,12 @@ namespace Ship_Game
         {
             public Ship Ship;
             public ShipDesignListItem(Ship template) { Ship = template; }
-            public override void Draw(SpriteBatch batch)
+            public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 48, 48));
                 batch.DrawString(Fonts.Arial12Bold, Ship.Name, X+52, Y+4, Color.White);
                 batch.DrawString(Fonts.Arial8Bold, Ship.shipData.GetRole(), X+54, Y+18, Color.Orange);
-                base.Draw(batch);
+                base.Draw(batch, elapsed);
             }
         }
 
@@ -67,11 +67,11 @@ namespace Ship_Game
             EnterNameArea.Text = item.Ship.Name;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 

@@ -8,7 +8,7 @@ namespace Ship_Game
     public class EmpireManager
     {
         public static readonly Array<Empire> Empires = new Array<Empire>();
-        public static int NumEmpires => Empires.Count;
+        public static int NumEmpires { get; private set; }
         static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>();
 
         static Empire PlayerEmpire;
@@ -33,7 +33,13 @@ namespace Ship_Game
         public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateVoidEmpire());
 
         public static Empire[] NonPlayerEmpires =>
-            Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
+            Empires.Filter(empire => !empire.isFaction && !empire.isPlayer);
+
+        public static Empire[] ActiveNonPlayerEmpires =>
+            Empires.Filter(empire => !empire.isFaction && !empire.isPlayer && !empire.data.Defeated);
+
+        public static Empire[] ActiveMajorEmpires => 
+            Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated);
 
         public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.isFaction);
         public static Empire[] Factions       => Empires.Filter(empire => empire.isFaction);
@@ -53,11 +59,12 @@ namespace Ship_Game
                 return;
 
             Empires.Add(e);
-            e.Id = NumEmpires;
+            e.Id = ++NumEmpires;
         }
 
         public static void Clear()
         {
+            NumEmpires = 0;
             Empires.Clear();
             EmpireDict.Clear();
             PlayerEmpire     = null;
@@ -122,7 +129,7 @@ namespace Ship_Game
             for (int i = 0; i < Empires.Count; i++)
             {
                 Empire empire = Empires[i];
-                if (empire != e && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Alliance)
+                if (empire != e && e.IsAlliedWith(empire))
                     allies.Add(empire);
             }
 
@@ -149,7 +156,7 @@ namespace Ship_Game
                 return allies;
 
             foreach (Empire empire in Empires)
-                if (!empire.isPlayer && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Trade)
+                if (!empire.isPlayer && e.IsTradeTreaty(empire))
                     allies.Add(empire);
             return allies;
         }
@@ -248,14 +255,20 @@ namespace Ship_Game
             data.Traits.Singular = data.RebelSing;
             data.Traits.Plural   = data.RebelPlur;
             empire.isFaction = true;
-            Add(empire);
-            foreach (Empire key in Empires)
-            {
-                key.AddRelation(empire);
-                empire.AddRelation(key);
-            }
-            data.RebellionLaunched = true;
 
+            Add(empire);
+
+            foreach (Empire otherEmpire in Empires)
+            {
+                if (otherEmpire != empire)
+                {
+                    otherEmpire.AddRelation(empire);
+                    empire.AddRelation(otherEmpire);
+                    Empire.UpdateBilateralRelations(empire, otherEmpire);
+                }
+            }
+
+            data.RebellionLaunched = true;
             return empire;
         }
 
@@ -277,13 +290,14 @@ namespace Ship_Game
             if (Empires.IsEmpty)
                 Log.Error("must be called after empireList is populated.");
             
-            Empire.Universe.WarmUpShipsForLoad(GameBase.Base.Elapsed);
-            foreach(Empire empire in Empires)
+            Empire.Universe.WarmUpShipsForLoad();
+            foreach (Empire empire in Empires)
             { 
                 empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
                 empire.RestoreUnserializableDataFromSave();
                 empire.InitEmpireEconomy();
                 empire.Pool.UpdatePools();
+                empire.GetEmpireAI().WarTasks.RestoreFromSave(empire);
             }
         }
     }

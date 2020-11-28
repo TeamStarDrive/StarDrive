@@ -75,10 +75,10 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
-            Troop?.Update(deltaTime);
-            base.Update(deltaTime);
+            Troop?.Update(fixedDeltaTime);
+            base.Update(fixedDeltaTime);
         }
 
         // Give a custom height for this scroll list item
@@ -89,9 +89,9 @@ namespace Ship_Game
         float TextWidth => Width - IconSize - ProdWidth;
         float TextX     => X + IconSize;
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             if   (Building != null)  DrawBuilding(batch, Building);
             else if (Troop != null)  DrawTroop(batch, Troop);
             else if (Ship != null)   DrawShip(batch, Ship);
@@ -187,14 +187,14 @@ namespace Ship_Game
             Planet p = Screen.P;
             if (b.MaxFertilityOnBuild.NotZero())
             {
-                string fertilityChange = $"{b.MaxFertilityOnBuild * Screen.Player.RacialEnvModifer(p.Category)}";
+                string fertilityChange = $"{b.MaxFertilityOnBuild * Screen.Player.PlayerEnvModifier(p.Category)}";
                 if (b.MaxFertilityOnBuild.Greater(0))
                     fertilityChange = $"+{fertilityChange}";
                 description = $"{fertilityChange} {description}";
             }
 
             if (b.IsBiospheres)
-                description = $"{(p.PopPerBiosphere/1000).String(2) } {description}";
+                description = $"{(p.PopPerBiosphere(EmpireManager.Player)/1000).String(2) } {description}";
             
             return description;
         }

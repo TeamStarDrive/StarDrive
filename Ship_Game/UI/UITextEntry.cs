@@ -131,7 +131,7 @@ namespace Ship_Game
         }
 
         // TODO: This is only here for legacy compat
-        public void Draw(SpriteBatch batch, SpriteFont font, Vector2 pos, Color c)
+        public void Draw(SpriteBatch batch, DrawTimes elapsed, SpriteFont font, Vector2 pos, Color c)
         {
             Font = font;
             Pos = pos;
@@ -139,10 +139,10 @@ namespace Ship_Game
                 HoverColor = c;
             else 
                 Color = c;
-            Draw(batch);
+            Draw(batch, elapsed);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Vector2 pos = Pos;
             Color color = Color;
@@ -153,7 +153,7 @@ namespace Ship_Game
             pos.X += Font.MeasureString(Text).X;
             if (HandlingInput)
             {
-                float f = 255f * Math.Abs(RadMath.Sin(StarDriveGame.Instance.Elapsed.TotalGameSeconds));
+                float f = 255f * Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed));
                 var flashColor = new Color(255, 255, 255, (byte)f);
                 batch.DrawString(Font, "|", pos, flashColor);
             }

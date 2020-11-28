@@ -19,7 +19,6 @@ namespace Ship_Game
             public string Station; //Has a space port
             public Array<Moon> Moons; //an array of moons.
             public Array<string> BuildingList; //buildings on planet.
-            public Array<string> Guardians; //ships that guard it. 
             public float MaxPopDefined; // pop per tile, disregarding planet scale
             public int OrbitalDistance; // custom orbital radius override
             public int OrbitalWidth; // custom orbital spacing override

@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
 using SynapseGaming.LightingSystem.Core;
-using Point = Microsoft.Xna.Framework.Point;
 
 namespace Ship_Game
 {
@@ -33,8 +32,8 @@ namespace Ship_Game
         public static GameContentManager GameContent => Base?.Content;
 
         public int FrameId { get; protected set; }
-        public FrameTimes Elapsed;
-        public float TotalElapsed => Elapsed.TotalGameSeconds;
+        public UpdateTimes Elapsed { get; protected set; }
+        public float TotalElapsed { get; protected set; }
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);
 
@@ -191,7 +190,7 @@ namespace Ship_Game
             GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
         }
 
-        protected void UpdateGame(GameTime xnaTime)
+        protected void UpdateGame(float deltaTime)
         {
             if (Log.IsTerminating) // game is crashing, don't update anymore
             {
@@ -202,13 +201,13 @@ namespace Ship_Game
             try
             {
                 ++FrameId;
-
-                Elapsed = new FrameTimes(GlobalStats.SimulationFramesPerSecond, xnaTime);
+                TotalElapsed = base.TotalGameTimeSeconds;
+                Elapsed = new UpdateTimes(deltaTime, TotalElapsed);
 
                 // 1. Handle Input and 2. Update for each game screen
                 ScreenManager.Update(Elapsed);
 
-                base.Update(xnaTime); // Update XNA components
+                base.Update(deltaTime); // Update XNA components
             }
             catch (Exception ex)
             {

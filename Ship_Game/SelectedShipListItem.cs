@@ -69,9 +69,9 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             
             foreach (SkinnableButton button in ShipButtons)
             {

@@ -1,18 +1,18 @@
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Particle3DSample;
+using System;
+using System.IO;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using Ship_Game.Audio;
+using Particle3DSample;
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
+
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Audio;
 
 namespace Ship_Game.Gameplay
 {
@@ -64,17 +64,16 @@ namespace Ship_Game.Gameplay
         public Vector2 FixedError;
         public bool ErrorSet = false;
         public bool FlashExplode;
-        bool InFrustum;
         bool Deflected;
         public bool TrailTurnedOn { get; protected set; } = true;
    
 
         public Ship Owner { get; protected set; }
-        public Planet Planet { get; private set; }
+        public Planet Planet { get; protected set; }
 
         public override IDamageModifier DamageMod => Weapon;
 
-        public Projectile(Empire loyalty, GameObjectType typeFlags) : base(typeFlags | GameObjectType.Proj)
+        public Projectile(Empire loyalty, GameObjectType type = GameObjectType.Proj) : base(type)
         {
             Loyalty = loyalty;
         }
@@ -117,20 +116,75 @@ namespace Ship_Game.Gameplay
             return projectile;
         }
 
-        // loading from savegame
-        public static Projectile Create(Ship owner, SavedGame.ProjectileSaveData pdata)
+        public struct ProjectileOwnership
         {
-            Weapon weapon = ResourceManager.CreateWeapon(pdata.Weapon);
-            var projectile = new Projectile(owner.loyalty, GameObjectType.Proj)
+            public Ship Owner;
+            public Planet Planet;
+            public Weapon Weapon;
+            public Empire Loyalty;
+        }
+
+        public static bool GetOwners(in Guid ownerGuid, int loyaltyId, string weaponUID, bool isBeam,
+                                     UniverseData data, out ProjectileOwnership o)
+        {
+            o = default;
+            o.Owner = data.FindShipOrNull(ownerGuid);
+            if (o.Owner != null)
             {
-                Weapon  = weapon,
-                Owner   = owner,
-                Module  = weapon.Module
+                if (weaponUID.NotEmpty())
+                    o.Weapon = o.Owner.Weapons.Find(w => w.UID == weaponUID);
+            }
+            else
+            {
+                o.Planet          = data.FindPlanetOrNull(ownerGuid);
+                Building building = o.Planet?.BuildingList.Find(b => b.Weapon == weaponUID);
+                if (building != null)
+                    o.Weapon = building.TheWeapon;
+            }
+
+            if (loyaltyId > 0) // Older saves don't have loyalty ID, so this is for compatibility
+                o.Loyalty = EmpireManager.GetEmpireById(loyaltyId);
+            else
+                o.Loyalty = o.Owner?.loyalty ?? o.Planet?.Owner;
+
+            if (o.Loyalty == null || o.Owner == null && o.Planet == null)
+            {
+                Log.Warning($"Projectile Owner not found! guid={ownerGuid} weaponUid={weaponUID} loyalty={o.Loyalty}");
+                return false;
+            }
+
+            // fallback, the owner has died, or this is a Mirv warhead (owner is a projectile)
+            if (o.Weapon == null && !isBeam)
+            {
+                // This can fail if `weaponUID` no longer exists in game data
+                // in which case we abandon this projectile
+                ResourceManager.CreateWeapon(weaponUID, out o.Weapon);
+            }
+
+            if (o.Weapon == null)
+                return false;
+
+            return true;
+        }
+
+        // loading from savegame
+        public static Projectile Create(in SavedGame.ProjectileSaveData pdata, UniverseData data)
+        {
+            if (!GetOwners(pdata.Owner, pdata.Loyalty, pdata.Weapon, false, data, out ProjectileOwnership o))
+                return null; // this owner or weapon no longer exists
+
+            var p = new Projectile(o.Loyalty)
+            {
+                Weapon = o.Weapon,
+                Module = o.Weapon.Module,
+                Owner = o.Owner,
+                Planet = o.Planet
             };
-            projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
-            projectile.Duration = pdata.Duration; // apply duration from save data
-            projectile.FirstRun = false;
-            return projectile;
+
+            p.Initialize(pdata.Position, pdata.Velocity, null, playSound: false, Vector2.Zero);
+            p.Duration = pdata.Duration; // apply duration from save data
+            p.FirstRun = false;
+            return p;
         }
 
         void Initialize(Vector2 origin, Vector2 direction, GameplayObject target, bool playSound, Vector2 inheritedVelocity, bool isMirv = false)
@@ -195,15 +249,15 @@ namespace Ship_Game.Gameplay
             LoadContent();
             Initialize();
 
+            Empire.Universe?.Objects.Add(this);
+
             if (Owner != null)
             {
                 SetSystem(Owner.System);
-                Owner.AddProjectile(this);
             }
             else if (Planet != null)
             {
                 SetSystem(Planet.ParentSystem);
-                Planet.AddProjectile(this);
             }
 
             if (playSound && (System != null && System.isVisible || Owner?.InFrustum == true))
@@ -326,23 +380,8 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        int LastDrawId;
-
         public void Draw(SpriteBatch batch, GameScreen screen)
         {
-            int thisFrame = StarDriveGame.Instance.FrameId;
-            if (LastDrawId == thisFrame)
-            {
-                // NOTE: It's cheaper to leave in this concurrency issue
-                //       and just rely on the LastDrawId to ignore double-update projectiles.
-                //       Synchronized/ThreadSafe lists have an extreme performance impact.
-                //Log.Warning("Projectile.Draw called twice per frame!");
-                return;
-            }
-            LastDrawId = thisFrame;
-                
-            InFrustum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
-                         && Empire.Universe.Frustum.Contains(Center, Radius*100f);
             if (!InFrustum)
                 return;
 
@@ -370,8 +409,8 @@ namespace Ship_Game.Gameplay
 
         public void DamageMissile(GameplayObject source, float damageAmount)
         {
-            if (Health < 1)
-                Log.Info($"Projectile had no health {Weapon.Name}");
+            //if (Health < 0.001f)
+            //    Log.Info($"Projectile had no health {Weapon.Name}");
             Health -= damageAmount;
             if (Health <= 0f && Active)
                 DieNextFrame = true;
@@ -386,24 +425,18 @@ namespace Ship_Game.Gameplay
             }
 
             ++DebugInfoScreen.ProjDied;
-            if (Active)
+            if (Light != null)
+                Empire.Universe.RemoveLight(Light);
+
+            if (InFlightSfx.IsPlaying)
+                InFlightSfx.Stop();
+
+            ExplodeProjectile(cleanupOnly);
+
+            if (ProjSO != null)
             {
-                if (Light != null)
-                    Empire.Universe.RemoveLight(Light);
-
-                if (InFlightSfx.IsPlaying)
-                    InFlightSfx.Stop();
-
-                ExplodeProjectile(cleanupOnly);
-
-                if (ProjSO != null)
-                {
-                    Empire.Universe.RemoveObject(ProjSO);
-                    ProjSO.Clear();
-                }
+                Empire.Universe.RemoveObject(ProjSO);
             }
-
-            DroneAI?.KillAllBeams();
 
             SetSystem(null);
             base.Die(source, cleanupOnly);
@@ -532,8 +565,8 @@ namespace Ship_Game.Gameplay
         }
 
 
-        bool CloseEnoughForExplosion    => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SectorView;
-        bool CloseEnoughForFlashExplode => Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView;
+        bool CloseEnoughForExplosion    => Empire.Universe.IsSectorViewOrCloser;
+        bool CloseEnoughForFlashExplode => Empire.Universe.IsSystemViewOrCloser;
 
         void ExplodeProjectile(bool cleanupOnly)
         {
@@ -556,7 +589,7 @@ namespace Ship_Game.Gameplay
                     }
                 }
 
-                UniverseScreen.SpaceManager.ProjectileExplode(this, DamageAmount, DamageRadius);
+                UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius);
             }
             // @note FakeExplode basically FORCES an explosion, I think it's used for Flak weapons
             //       In Vanilla, it only appears in Flak & DualFlak weapons

@@ -72,7 +72,9 @@ namespace Ship_Game.AI
         public Fleet GetCoreFleet()                           => CoreFleet;
         public Planet GetPlanet()                             => CoreWorld;
 
-        public Planet[] GetPlanets()                       => OurPlanetsInAo;
+        public Planet[] GetOurPlanets()                       => OurPlanetsInAo;
+        public Planet[] GetAllPlanets()                       => PlanetsInAo;
+
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
         [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; }           = true;
 
@@ -192,7 +194,7 @@ namespace Ship_Game.AI
             if (ship.fleet?.IsCoreFleet ?? false)
             {
                 CoreFleet.RemoveShip(ship);
-                Log.Error("Ship was in core fleet");
+                Log.Warning(ConsoleColor.Red, "Ship was in core fleet");
             }
             ShipsWaitingForCoreFleet.RemoveRef(ship);            
             return OffensiveForcePool.RemoveRef(ship);

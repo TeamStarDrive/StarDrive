@@ -51,7 +51,7 @@ namespace Ship_Game
             vertRight = new Rectangle(theMenu.X - 1 + theMenu.Width - ResourceManager.Texture("NewUI/menu_2_vert_right").Width, corner_TR.Y + corner_TR.Height, ResourceManager.Texture("NewUI/menu_2_vert_right").Width, theMenu.Height - corner_TR.Height - corner_BR.Height);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (!Hollow)
             {

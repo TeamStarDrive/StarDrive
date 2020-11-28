@@ -38,6 +38,18 @@
     <Filter Include="src\SdMesh">
       <UniqueIdentifier>{f92589a6-f7c4-4c68-a4a4-898008deb53b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="spatial">
+      <UniqueIdentifier>{a0f203e2-ca1e-4078-89ce-c1cd0e5416c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="spatial\qtree">
+      <UniqueIdentifier>{79594e61-c0f0-4c22-909a-1193d63fce10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="spatial\grid">
+      <UniqueIdentifier>{4b26ba28-6163-4c42-a26b-361c722a3497}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="spatial\gridL2">
+      <UniqueIdentifier>{91700856-7a20-4226-9aed-bb8c189fb46f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShipDataSerializer.cpp">
@@ -135,6 +147,36 @@
     </ClCompile>
     <ClCompile Include="util\os_utils.cpp">
       <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\qtree\Qtree.cpp">
+      <Filter>spatial\qtree</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\SlabAllocator.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\grid\Grid.cpp">
+      <Filter>spatial\grid</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\Search.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\ObjectCollection.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\Spatial.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\SpatialDebug.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\Collision.cpp">
+      <Filter>spatial</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\gridL2\GridL2.cpp">
+      <Filter>spatial\gridL2</Filter>
+    </ClCompile>
+    <ClCompile Include="spatial\grid\GridCellView.cpp">
+      <Filter>spatial\grid</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -255,6 +297,66 @@
     <ClInclude Include="SdMesh\SdAnimation.h">
       <Filter>src\SdMesh</Filter>
     </ClInclude>
+    <ClInclude Include="spatial\qtree\Qtree.h">
+      <Filter>spatial\qtree</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\qtree\QtreeNode.h">
+      <Filter>spatial\qtree</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Spatial.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\SpatialObject.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Visualizer.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Config.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Collision.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\SlabAllocator.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Flatmap.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\grid\Grid.h">
+      <Filter>spatial\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Utilities.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Search.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\grid\GridCell.h">
+      <Filter>spatial\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\ObjectCollection.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\SpatialDebug.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\Primitives.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\SpatialObjectArray.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\gridL2\GridL2.h">
+      <Filter>spatial\gridL2</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\grid\GridCellView.h">
+      <Filter>spatial\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="spatial\CellLoyalty.h">
+      <Filter>spatial</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="SDNative.natvis">
@@ -268,6 +370,9 @@
     </Natvis>
     <Natvis Include="NanoMesh\include\Nano\NanoMesh.natvis">
       <Filter>3rdparty\nano</Filter>
+    </Natvis>
+    <Natvis Include="spatial\qtree\Spatial.natvis">
+      <Filter>spatial</Filter>
     </Natvis>
   </ItemGroup>
   <ItemGroup>

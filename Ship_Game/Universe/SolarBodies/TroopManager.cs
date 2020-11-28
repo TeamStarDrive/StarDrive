@@ -70,7 +70,7 @@ namespace Ship_Game
 
         private void MakeCombatDecisions()
         {
-            if (!ForeignTroopHere(Owner) && !Ground.EventsOnBuildings())
+            if (!ForeignTroopHere(Owner) && !Ground.EventsOnTiles())
                 return;
 
             for (int i = 0; i < TilesList.Count; ++i)
@@ -137,6 +137,12 @@ namespace Ship_Game
                 }
                 else if (targetTile.LockOnEnemyTroop(t.Loyalty, out Troop enemy))
                 {
+                    if (enemy.Strength.LessOrEqual(0))
+                    {
+                        // Workaround for negative troop health
+                        Log.Warning($"{enemy.Name} health is less or 0, on planet {Ground.Name}");
+                        enemy.DamageTroop(1, Ground, targetTile, out _);
+                    }
                     CombatScreen.StartCombat(t, enemy, targetTile, Ground);
                     if (t.ActualRange == 1)
                         MoveTowardsTarget(t, ourTile, targetTile); // enter the same tile 
@@ -329,23 +335,27 @@ namespace Ship_Game
             if (invadingForces <= NumInvadersLast || NumInvadersLast != 0)
                 return; // FB - nothing to change if no new troops invade
 
-            if (Empire.Universe.PlayerEmpire == Owner) // notify player of invasion
-                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(Ground, invadingEmpire, Owner);
-            else if (invadingEmpire == Empire.Universe.PlayerEmpire && !Owner.isFaction && !Empire.Universe.PlayerEmpire.GetRelations(Owner).AtWar)
+            Empire player = Empire.Universe.PlayerEmpire;
+
+            if (Owner.isPlayer) // notify player of invasion
             {
-                if (Empire.Universe.PlayerEmpire.GetRelations(Owner).Treaty_NAPact)
+                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(Ground, invadingEmpire, Owner);
+            }
+            else if (invadingEmpire.isPlayer && !Owner.isFaction && !player.IsAtWarWith(Owner))
+            {
+                if (player.IsNAPactWith(Owner))
                 {
                     DiplomacyScreen.Show(Owner, "Invaded NA Pact", ParentSystem);
-                    Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
-                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 50f;
-                    Owner.GetRelations(Empire.Universe.PlayerEmpire).AddAngerDiplomaticConflict(50);
+                    player.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
+                    Owner.GetRelations(player).Trust -= 50f;
+                    Owner.GetRelations(player).AddAngerDiplomaticConflict(50);
                 }
                 else
                 {
                     DiplomacyScreen.Show(Owner, "Invaded Start War", ParentSystem);
-                    Empire.Universe.PlayerEmpire.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
-                    Owner.GetRelations(Empire.Universe.PlayerEmpire).Trust -= 25f;
-                    Owner.GetRelations(Empire.Universe.PlayerEmpire).AddAngerDiplomaticConflict(25);
+                    player.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
+                    Owner.GetRelations(player).Trust -= 25f;
+                    Owner.GetRelations(player).AddAngerDiplomaticConflict(25);
                 }
             }
         }
@@ -354,7 +364,7 @@ namespace Ship_Game
         {
             if (Empire.Universe.LookingAtPlanet 
                 && Empire.Universe.workersPanel is CombatScreen screen 
-                && screen.p == Ground)
+                && screen.P == Ground)
             {
                 ResolveTacticalCombats(timeStep, isViewing: true);
             }
@@ -455,7 +465,7 @@ namespace Ship_Game
                     if (t.Loyalty == empire)
                         continue;
 
-                    if (!empire.TryGetRelations(t.Loyalty, out Relationship trouble) || trouble.AtWar)
+                    if (!empire.GetRelations(t.Loyalty, out Relationship trouble) || trouble.AtWar)
                     {
                         enemies = true;
                         break;

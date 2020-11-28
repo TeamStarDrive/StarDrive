@@ -5,23 +5,25 @@
         public readonly int SysComModifier;
         public readonly int DiploWeightVsPlayer;
         public readonly float BaseColonyGoals;
+        public readonly float ColonyGoalMultiplier; // Multiplier to the colony goals by rank
         public readonly float ShipBuildStrMin;
         public readonly float ShipBuildStrMax;
         public readonly int ColonyRankModifier;
         public readonly float TaskForceStrength;
         public readonly bool DataVisibleToPlayer;
         public readonly float Anger;
-        public readonly int RemnantStory;
         public readonly int ShipLevel;
         public readonly bool HideTacticalData;
         public readonly float MaxDesiredPlanets;
         public readonly float CreditsMultiplier;
-        public readonly float FleetCompletenessMin;
         public readonly float EnemyTroopStrength;
         public readonly int MineralDecayDivider;
         public readonly float PiratePayModifier;
         public readonly int MinStartingColonies; // Starting colonies what we want
         public readonly int ExpandSearchTurns; // For Expansion
+        public readonly int RemnantTurnsLevelUp; // How many turns should pass before Remnants level up
+        public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
+        public readonly float RemnantNumBombers; // Multiplier to Remnant bombers wanted
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -33,13 +35,13 @@
         public readonly float ModHpModifier;
 
         /// <summary>
-        /// Higher number will decrease colonization pace
+        /// Higher than 1 will decrease colonization pace and vice versa
         /// </summary>
-        public readonly float ExpansionModifier; 
+        public readonly float ExpansionMultiplier; 
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
-            DataVisibleToPlayer = false;
+            DataVisibleToPlayer   = false;
             FlatMoneyBonus        = 0;
             ProductionMod         = 0;
             ResearchMod           = 0;
@@ -58,14 +60,18 @@
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.25f;
-                    FleetCompletenessMin = 0f;
                     CreditsMultiplier    = empire.isPlayer ? 0.1f : 0.25f;
                     EnemyTroopStrength   = 1f;
                     MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
-                    ExpansionModifier    = 0.2f;
+                    ExpansionMultiplier  = 1.25f;
                     MinStartingColonies  = 3;
-                    ExpandSearchTurns    = 150;
+                    ExpandSearchTurns    = 100;
+                    RemnantTurnsLevelUp  = 540;
+                    RemnantResourceMod   = 0.2f;
+                    RemnantNumBombers    = 0.5f;
+                    BaseColonyGoals      = 2;
+                    ColonyGoalMultiplier = 0;
 
                     if (!empire.isPlayer)
                     {
@@ -85,14 +91,18 @@
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
-                    FleetCompletenessMin = 0.05f;
                     CreditsMultiplier    = 0.2f;
                     EnemyTroopStrength   = 1.1f;
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 0.75f;
-                    ExpansionModifier    = 0.1f;
+                    ExpansionMultiplier  = 0.75f;
                     MinStartingColonies  = 4;
-                    ExpandSearchTurns    = 100;
+                    ExpandSearchTurns    = 50;
+                    RemnantTurnsLevelUp  = 480;
+                    RemnantResourceMod   = 0.35f;
+                    RemnantNumBombers    = 0.75f;
+                    BaseColonyGoals      = 3;
+                    ColonyGoalMultiplier = 0.5f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -102,14 +112,18 @@
                     ShipLevel            = 2;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
-                    FleetCompletenessMin = 0.1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     EnemyTroopStrength   = 1.25f;
                     MineralDecayDivider  = 25;
                     PiratePayModifier    = 1f;
-                    ExpansionModifier    = 0.05f;
+                    ExpansionMultiplier  = 0.25f;
                     MinStartingColonies  = 5;
-                    ExpandSearchTurns    = 75;
+                    ExpandSearchTurns    = 25;
+                    RemnantTurnsLevelUp  = 400;
+                    RemnantResourceMod   = 0.45f;
+                    RemnantNumBombers    = 1f;
+                    BaseColonyGoals      = 4;
+                    ColonyGoalMultiplier = 0.75f;
 
                     if (!empire.isPlayer)
                     {
@@ -130,14 +144,18 @@
                     ShipLevel            = 3;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
-                    FleetCompletenessMin = 0.15f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     EnemyTroopStrength   = 1.5f;
                     MineralDecayDivider  = 15;
                     PiratePayModifier    = 1.5f;
-                    ExpansionModifier    = 0f;
+                    ExpansionMultiplier  = 0.1f;
                     MinStartingColonies  = 6;
-                    ExpandSearchTurns    = 50;
+                    ExpandSearchTurns    = 10;
+                    RemnantTurnsLevelUp  = 400;
+                    RemnantResourceMod   = 0.6f;
+                    RemnantNumBombers    = 1.5f;
+                    BaseColonyGoals      = 5;
+                    ColonyGoalMultiplier = 1;
 
                     if (!empire.isPlayer)
                     {
@@ -152,27 +170,18 @@
                     break;
             }
 
-            if (empire.isPlayer)
-            {
-                BaseColonyGoals = 3;
-            }
-            else
-            {
-                EconomicResearchStrategy strategy = ResourceManager.GetEconomicStrategy(empire.data.EconomicPersonality.Name);
-                BaseColonyGoals                   = (float)difficulty * 2.5f * strategy.ExpansionRatio;
-            }
-
             SysComModifier      = (int)(((int)difficulty + 1) * 0.5f + 0.5f);
             DiploWeightVsPlayer = (int)difficulty + 1;
             Anger               = 1 + ((int)difficulty + 1) * 0.2f;
-            RemnantStory        = (int)difficulty * 3;
 
             if (empire.isPlayer)
             {
-                ShipBuildStrMin    = 0.9f;
+                BaseColonyGoals    = 5;
+                ShipBuildStrMin    = 1f;
                 ShipBuildStrMax    = 1f;
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
+
                 if (GlobalStats.FixedPlayerCreditCharge && difficulty > UniverseData.GameDifficulty.Easy)
                     CreditsMultiplier = 0.2f;
             }

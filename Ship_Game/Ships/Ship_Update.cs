@@ -3,6 +3,8 @@ using Ship_Game.AI;
 using SynapseGaming.LightingSystem.Core;
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI.ExpansionAI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -11,7 +13,7 @@ namespace Ship_Game.Ships
     public partial class Ship
     {
         // > 0 if ship is outside frustum
-        float OutsideFrustumTimer;
+        float NotVisibleToPlayerTimer;
 
         // after X seconds of ships being invisible, we remove their scene objects
         const float RemoveInvisibleSceneObjectsAfterTime = 15f;
@@ -27,6 +29,9 @@ namespace Ship_Game.Ships
             ShipSO.Visibility = GlobalStats.ShipVisibility;
         }
 
+        public bool IsVisibleToPlayer => InFrustum && inSensorRange
+                                      && (Empire.Universe?.IsSystemViewOrCloser == true);
+
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
         public void CreateSceneObject()
@@ -38,9 +43,8 @@ namespace Ship_Game.Ships
             shipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
-            // Since we just created the object, it must be visible
+            NotVisibleToPlayerTimer = 0;
             UpdateVisibilityToPlayer(FixedSimTime.Zero, forceVisible: true);
-
             ScreenManager.Instance.AddObject(ShipSO);
         }
 
@@ -50,42 +54,31 @@ namespace Ship_Game.Ships
             ShipSO = null;
             if (so != null)
             {
-                //Log.Info($"RemoveSO {Id} {Name}");
-                so.Clear();
                 ScreenManager.Instance.RemoveObject(so);
             }
         }
 
         void UpdateVisibilityToPlayer(FixedSimTime timeStep, bool forceVisible)
         {
-            bool inFrustum = forceVisible || inSensorRange && (System == null || System.isVisible)
-                && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                && (Empire.Universe.Frustum.Contains(Position, 2000f) || 
-                    (AI?.Target != null &&
-                     Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)));
-
-            InFrustum = inFrustum;
-            if (inFrustum) OutsideFrustumTimer = 0f;
-            else           OutsideFrustumTimer += timeStep.FixedTime;
+            bool visibleToPlayer = forceVisible || IsVisibleToPlayer;
+            if (visibleToPlayer) NotVisibleToPlayerTimer = 0f;
+            else                 NotVisibleToPlayerTimer += timeStep.FixedTime;
 
             if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
             {
-                if (!inFrustum && OutsideFrustumTimer > RemoveInvisibleSceneObjectsAfterTime)
+                if (!visibleToPlayer && NotVisibleToPlayerTimer > RemoveInvisibleSceneObjectsAfterTime)
                 {
                     RemoveSceneObject();
                 }
                 else
                 {
-                    ShipSO.Visibility = inFrustum ? GlobalStats.ShipVisibility : ObjectVisibility.None;
+                    ShipSO.Visibility = visibleToPlayer ? GlobalStats.ShipVisibility : ObjectVisibility.None;
                 }
             }
         }
 
         public override void Update(FixedSimTime timeStep)
         {
-            if (!ShipInitialized)
-                return;
-
             if (Active && (ModuleSlotsDestroyed || Health <= 0))
             {
                 if (Health <= 0)
@@ -143,8 +136,6 @@ namespace Ship_Game.Ships
 
             if (timeStep.FixedTime > 0f)
             {
-                Projectiles.Update(timeStep);
-                Beams.Update(timeStep);
                 if (!EMPdisabled && Active)
                     AI.Update(timeStep);
             }
@@ -172,7 +163,7 @@ namespace Ship_Game.Ships
                 UpdateEnginesAndVelocity(timeStep);
             }
 
-            if (InFrustum)
+            if (IsVisibleToPlayer)
             {
                 if (ShipSO != null)
                 {
@@ -206,22 +197,22 @@ namespace Ship_Game.Ships
                     if (p.Center.OutsideRadius(Center, 3000f))
                         continue;
 
-                    if (loyalty == EmpireManager.Player)
+                    if (p.TilesList.Any(t => t.EventOnTile))
                     {
-                        for (int index = 0; index < p.BuildingList.Count; index++)
+                        if (loyalty == EmpireManager.Player)
                         {
-                            Building building = p.BuildingList[index];
-                            if (building.EventHere)
-                                Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
+                            Empire.Universe.NotificationManager.AddFoundSomethingInteresting(p);
                         }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < p.BuildingList.Count; i++)
+                        else if (p.Owner == null)
                         {
-                            Building building = p.BuildingList[i];
-                            if (building.EventHere && loyalty != EmpireManager.Player && p.Owner == null)
-                                loyalty.GetEmpireAI().SendExplorationFleet(p);
+                            loyalty.GetEmpireAI().SendExplorationFleet(p);
+                            if (CurrentGame.Difficulty > UniverseData.GameDifficulty.Normal 
+                                && PlanetRanker.IsGoodValueForUs(p, loyalty)
+                                && p.ParentSystem.GetKnownStrengthHostileTo(loyalty).AlmostZero())
+                            {
+                                var task = MilitaryTask.CreateGuardTask(loyalty, p);
+                                loyalty.GetEmpireAI().AddPendingTask(task);
+                            }
                         }
                     }
 
@@ -283,6 +274,7 @@ namespace Ship_Game.Ships
             }
             if (dietimer <= 0.0f)
             {
+                PlanetCrashingOn?.TryCrashOn(this);
                 reallyDie = true;
                 Die(LastDamagedBy, true);
                 return;
@@ -292,8 +284,16 @@ namespace Ship_Game.Ships
                 return;
 
             // for a cool death effect, make the ship accelerate out of control:
-            ApplyThrust(200f, Ships.Thrust.Forward);
+            ApplyThrust(100f, Ships.Thrust.Forward);
             UpdateVelocityAndPosition(timeStep);
+            if (PlanetCrashingOn != null)
+            {
+                if (!Center.InRadius(PlanetCrashingOn.Center, 100))
+                {
+                    Vector2 dir = Center.DirectionToTarget(PlanetCrashingOn.Center);
+                    Position += dir.Normalized() * 100 * PlanetCrashingOn.Scale * timeStep.FixedTime;
+                }
+            }
 
             int num1 = UniverseRandom.IntBetween(0, 60);
             if (num1 >= 57 && InFrustum)
@@ -312,16 +312,16 @@ namespace Ship_Game.Ships
             Rotation  += DieRotation.Z * timeStep.FixedTime;
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
-            if (inSensorRange && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
+            if (inSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
-                ShipSO.World = Matrix.CreateRotationY(yRotation)
+                float scale = PlanetCrashingOn != null ? (dietimer.UpperBound(6) / 6).LowerBound(0.001f) : 1;
+                ShipSO.World = Matrix.CreateScale(scale) 
+                             * Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
                              * Matrix.CreateRotationZ(Rotation)
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
                 ShipSO.UpdateAnimation(timeStep.FixedTime);
             }
-
-            Projectiles.Update(timeStep);
 
             SoundEmitter.Position = new Vector3(Center, 0);
 

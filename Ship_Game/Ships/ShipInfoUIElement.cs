@@ -180,7 +180,7 @@ namespace Ship_Game.Ships
             return inputCaptured;
         }
 
-        public override void Draw(FrameTimes elapsed)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Screen.SelectedShip == null) return;  //fbedard
 
@@ -189,9 +189,8 @@ namespace Ship_Game.Ships
             SlidingElement.Draw(ScreenManager, (int)(columns * 55 * (1f - TransitionPosition)) + (SlidingElement.Open ? 20 - columns : 0));
             DrawOrderButtons(transitionOffset);
 
-            SpriteBatch batch = ScreenManager.SpriteBatch;
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
-            GridButton.Draw(ScreenManager);
+            GridButton.Draw(batch, elapsed);
             var namePos           = new Vector2(Housing.X + 30, Housing.Y + 63);
             string name           = (!string.IsNullOrEmpty(Ship.VanityName) ? Ship.VanityName : Ship.Name);
             SpriteFont titleFont  = Fonts.Arial14Bold;
@@ -202,7 +201,7 @@ namespace Ship_Game.Ships
                 namePos.X = namePos.X - 8;
                 namePos.Y = namePos.Y + 1;
             }
-            ShipNameArea.Draw(batch, titleFont, namePos, tColor);
+            ShipNameArea.Draw(batch, elapsed, titleFont, namePos, tColor);
             //Added by McShooterz:
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
             string longName = string.Concat(Ship.Name, " - ", Ship.DesignRole);
@@ -234,8 +233,8 @@ namespace Ship_Game.Ships
             OBar.Draw(batch);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
             var defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-            float mechanicalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
-            batch.DrawString(Fonts.Arial12Bold, mechanicalBoardingDefense.String(0), defPos, Color.White);
+            float totalBoardingDefense = Ship.MechanicalBoardingDefense + Ship.TroopBoardingDefense;
+            batch.DrawString(Fonts.Arial12Bold, totalBoardingDefense.String(0), defPos, Color.White);
             batch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
             DrawTroopStatus();
 
@@ -243,7 +242,7 @@ namespace Ship_Game.Ships
             {
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
-                    button.Draw(ScreenManager);
+                    button.Draw(batch, elapsed);
                     if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, button.CombatState);
                 }
             }
@@ -444,7 +443,7 @@ namespace Ship_Game.Ships
 
         void DrawRadiationDamageWarning(Ship ship)
         {
-            if (ship.System == null || !ship.System.ShipWithinRadiationRadius(ship))
+            if (ship.System == null || !ship.System.ShipWithinRadiationRadius(ship) || ship.IsGuardian)
                 return;
 
             var radiationTextPos = new Vector2(Housing.X + 50, Housing.Y - Fonts.Arial12.LineSpacing);

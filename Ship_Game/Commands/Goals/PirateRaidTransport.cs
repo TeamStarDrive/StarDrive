@@ -23,8 +23,9 @@ namespace Ship_Game.Commands.Goals
 
         public PirateRaidTransport(Empire owner, Empire targetEmpire) : this()
         {
-            empire       = owner;
-            TargetEmpire = targetEmpire;
+            empire        = owner;
+            TargetEmpire  = targetEmpire;
+            StarDateAdded = Empire.Universe.StarDate;
 
             PostInit();
             Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Transport Raid vs. {targetEmpire.Name} ----");
@@ -45,18 +46,21 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.GetTarget(TargetEmpire, Pirates.TargetType.FreighterAtWarp, out Ship freighter))
             {
                 Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
-                freighter.HyperspaceReturn();
-                if (Pirates.SpawnBoardingShip(freighter, where, out _))
+                if (Pirates.SpawnBoardingShip(freighter, where, out Ship boardingShip))
                 {
                     TargetShip = freighter;
+                    TargetShip.HyperspaceReturn();
+                    TargetShip.CauseEmpDamage(1000);
+                    TargetShip.AllStop();
+                    boardingShip.AI.OrderAttackSpecificTarget(TargetShip);
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                     Pirates.ExecuteVictimRetaliation(TargetEmpire);
                     return GoalStep.GoToNextStep;
                 }
             }
 
-            // Try locating viable freighters for maximum of 1 year (10 turns), else just give up
-            return (Empire.Universe.StarDate % 1).Greater(0) ? GoalStep.TryAgain : GoalStep.GoalFailed;
+            // Try locating viable freighters for 1 year (10 turns), else just give up
+            return Empire.Universe.StarDate < StarDateAdded + 1 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()

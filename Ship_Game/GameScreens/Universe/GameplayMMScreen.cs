@@ -37,7 +37,7 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
@@ -46,10 +46,10 @@ namespace Ship_Game
                 var pausePos = new Vector2(ScreenCenter.X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
                 batch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, CurrentFlashColor);
             }
-            window.Draw(batch);
+            window.Draw(batch, elapsed);
 
             Save.Enabled = SavedGame.NotSaving;
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 

@@ -18,12 +18,12 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             batch.Draw(TexDict["Slide_"+Index.ToString("00")], BridgeRect, Color.White);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             batch.End();
         }
 

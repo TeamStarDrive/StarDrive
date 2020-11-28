@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
@@ -33,6 +34,8 @@ namespace Ship_Game
 
         void RenderBackdrop(SpriteBatch batch)
         {
+            DrawBackdropPerf.Start();
+
             if (GlobalStats.DrawStarfield)
                 bg.Draw(this, StarField);
 
@@ -95,6 +98,8 @@ namespace Ship_Game
             rs.DepthBufferWriteEnable = true;
             rs.MultiSampleAntiAlias = true;            
             batch.End();
+
+            DrawBackdropPerf.Stop();
         }
 
         void UpdateKnownShipsScreenState()
@@ -152,7 +157,7 @@ namespace Ship_Game
                 Vector2 planetScreenPos = ProjectToScreenPosition(planet.Center, 2500f);
                 float planetOrbitRadius = sysScreenPos.Distance(planetScreenPos);
 
-                if (viewState > UnivScreenState.ShipView)
+                if (viewState > UnivScreenState.ShipView && !IsCinematicModeEnabled)
                 {
                     var transparentDarkGray = new Color(50, 50, 50, 90);
                     DrawCircle(sysScreenPos, planetOrbitRadius, transparentDarkGray, 3f);
@@ -228,6 +233,17 @@ namespace Ship_Game
 
         void RenderOverFog(SpriteBatch batch)
         {
+            DrawOverFog.Start();
+            if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
+            {
+                // set the alpha value depending on camera height
+                int alpha = (int) (90.0f * CamHeight / 1800000.0f);
+                if (alpha > 90) alpha = 90;
+                else if (alpha < 10) alpha = 0;
+                var color = new Color(255, 255, 255, (byte) alpha);
+                batch.Draw(BorderRT.GetTexture(), new Rectangle(0, 0, ScreenWidth, ScreenHeight), color);
+            }
+
             foreach (SolarSystem sys in SolarSystemList)
             {
                 if (viewState >= UnivScreenState.SectorView)
@@ -239,6 +255,7 @@ namespace Ship_Game
                     sys.Sun.DrawLowResSun(batch, sys, View, Projection);
                 }
             }
+
             if (viewState > UnivScreenState.SectorView)
             {
                 var currentEmpire = SelectedShip?.loyalty ?? player;
@@ -251,18 +268,37 @@ namespace Ship_Game
                     for (int x = 0; x < enemies.Count; x++)
                     {
                         var empire = enemies[x];
-                        if (!ssp.HasSeenEmpires.KnownBy(empire)) continue;
-
-                        var screenPos = ProjectToScreenPosition(ssp.Center);
-                        var flag = empire.data.Traits.FlagIndex;
-                        int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
-                        Rectangle rectangle2 = new Rectangle(xPos, (int) screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(empire.EmpireColor));
-                        spacing++;
+                        if (ssp.HasSeenEmpires.KnownBy(empire))
+                        {
+                            var screenPos = ProjectToScreenPosition(ssp.Center);
+                            var flag = empire.data.Traits.FlagIndex;
+                            int xPos = (int)screenPos.X + (15 + GlobalStats.IconSize) * spacing;
+                            Rectangle rectangle2 = new Rectangle(xPos, (int)screenPos.Y, 15 + GlobalStats.IconSize, 15 + GlobalStats.IconSize);
+                            batch.Draw(ResourceManager.Flag(flag), rectangle2, ApplyCurrentAlphaToColor(empire.EmpireColor));
+                            spacing++;
+                        }
                     }
                 }
-            }
+                foreach (IncomingThreat threat in player.SystemWithThreat)
+                {
+                    if (threat.ThreatTimedOut) continue;
 
+                    var system = threat.TargetSystem;
+                    float pulseRad = PulseTimer * (threat.TargetSystem.Radius * 1.5f );
+
+                    var red = new Color(Color.Red, 40);
+                    var black = new Color(Color.Black, 40);
+
+                    DrawCircleProjected(system.Position, pulseRad, red, 10);
+                    DrawCircleProjected(system.Position, pulseRad * 1.001f, black, 5);
+                    DrawCircleProjected(system.Position, pulseRad * 1.3f, red, 10);
+                    DrawCircleProjected(system.Position, pulseRad * 1.301f, black, 5);
+
+                    //batch.DrawCircle(system.Position, pulseRad, new Color(Color.Red, 255 - 255 * threat.PulseTime), pulseRad);
+                    //batch.DrawCircle(system.Position, pulseRad, new Color(Color.Red, 40 * threat.PulseTime), pulseRad);
+                }
+            }
+            DrawOverFog.Stop();
         }
 
         void DrawSolarSystemSectorView(SolarSystem solarSystem)
@@ -316,8 +352,8 @@ namespace Ship_Game
 
                 foreach (Empire e in solarSystem.OwnerList)
                 {
-                    EmpireManager.Player.TryGetRelations(e, out Relationship ssRel);
-                    wellKnown = Debug || EmpireManager.Player == e || ssRel.Treaty_Alliance;
+                    EmpireManager.Player.GetRelations(e, out Relationship ssRel);
+                    wellKnown = Debug || e.isPlayer || ssRel.Treaty_Alliance;
                     if (wellKnown) break;
                     if (ssRel.Known) // (ssRel.Treaty_Alliance || ssRel.Treaty_Trade || ssRel.Treaty_OpenBorders))
                         owners.Add(e);
@@ -367,8 +403,7 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    if (solarSystem.HostileForcesPresent(EmpireManager.Player)
-                        && solarSystem.IsExploredBy(EmpireManager.Player))
+                    if (EmpireManager.Player.KnownEnemyStrengthIn(solarSystem).Greater(0))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
@@ -378,7 +413,7 @@ namespace Ship_Game
                             ToolTip.CreateTooltip(123);
                         ++num3;
 
-                        if (solarSystem.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.SpaceCombatNearPlanet))
+                        if (solarSystem.IsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;
@@ -455,7 +490,7 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
+                    if (EmpireManager.Player.KnownEnemyStrengthIn(solarSystem).Greater(0))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
@@ -466,7 +501,7 @@ namespace Ship_Game
                         ++num3;
 
 
-                        if (solarSystem.PlanetList.Any(p => p.Owner == EmpireManager.Player && p.SpaceCombatNearPlanet))
+                        if (solarSystem.IsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;
@@ -488,14 +523,14 @@ namespace Ship_Game
             if (viewState > UnivScreenState.ShipView)
                 return;
             using (player.KnownShips.AcquireReadLock())
-            for (int i = 0; i < player.KnownShips.Count; ++i)
-            {
-                Ship ship = player.KnownShips[i];
-                if (ship != null && ship.InFrustum && ship.inSensorRange)
+                for (int i = 0; i < player.KnownShips.Count; ++i)
                 {
-                    ship.RenderThrusters(ref View, ref Projection);
+                    Ship ship = player.KnownShips[i];
+                    if (ship != null && ship.InFrustum && ship.inSensorRange)
+                    {
+                        ship.RenderThrusters(ref View, ref Projection);
+                    }
                 }
-            }
         }
 
         public void DrawZones(SpriteFont font, string text, ref int cursorY, Color color)
@@ -580,9 +615,7 @@ namespace Ship_Game
                 {
                     SceneObjBackQueue.RemoveAtSwapLast(i);
                 }
-                else if (ship.inSensorRange && viewState <= UnivScreenState.SystemView
-                     && (ship.System == null || ship.System.isVisible) 
-                     && Frustum.Contains(ship.Center, 2000f))
+                else if (ship.IsVisibleToPlayer)
                 {
                     ship.CreateSceneObject();
                     SceneObjBackQueue.RemoveAtSwapLast(i);
@@ -591,7 +624,7 @@ namespace Ship_Game
             }
         }
 
-        void Render(SpriteBatch batch, FrameTimes elapsed)
+        void Render(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Frustum == null)
                 Frustum = new BoundingFrustum(View * Projection);
@@ -599,7 +632,7 @@ namespace Ship_Game
                 Frustum.Matrix = View * Projection;
 
             CreateShipSceneObjects();
-            ScreenManager.BeginFrameRendering(ref View, ref Projection);
+            ScreenManager.BeginFrameRendering(elapsed, ref View, ref Projection);
 
             RenderBackdrop(batch);
 
@@ -609,22 +642,24 @@ namespace Ship_Game
             batch.End();
 
             DrawBombs();
+
+            DrawSOPerf.Start();
             ScreenManager.RenderSceneObjects();
+            DrawSOPerf.Stop();
 
-            if (viewState < UnivScreenState.SectorView)
-            {
-                using (player.KnownShips.AcquireReadLock())
-                    for (int j = player.KnownShips.Count - 1; j >= 0; j--)
-                    {
-                        Ship ship = player.KnownShips[j];
-                        if (ship?.InFrustum != true || ship?.Active != true)
-                            continue;
-                        ship.DrawDroneBeams(this);
-                        ship.DrawBeams(this);                        
-                    }
-            }
+            RenderState rs = ScreenManager.GraphicsDevice.RenderState;
+            DrawAnomalies(rs);
+            DrawPlanets();
+            DrawAndUpdateParticles(elapsed, rs);
 
-            var rs = ScreenManager.GraphicsDevice.RenderState;
+            ScreenManager.EndFrameRendering();
+            DrawShields();
+
+            rs.DepthBufferWriteEnable = true;
+        }
+
+        private void DrawAnomalies(RenderState rs)
+        {
             rs.DepthBufferWriteEnable = true;
             rs.SourceBlend = Blend.SourceAlpha;
             rs.DestinationBlend = Blend.One;
@@ -633,17 +668,22 @@ namespace Ship_Game
                 Anomaly anomaly = anomalyManager.AnomaliesList[x];
                 anomaly.Draw();
             }
-            DrawSolarSystemsClose();
+        }
+
+        private void DrawAndUpdateParticles(DrawTimes elapsed, RenderState rs)
+        {
+            DrawParticles.Start();
+
             rs.AlphaBlendEnable = true;
             rs.SourceBlend = Blend.SourceAlpha;
             rs.DestinationBlend = Blend.One;
             rs.DepthBufferWriteEnable = false;
             rs.CullMode = CullMode.None;
+
             if (viewState < UnivScreenState.SectorView)
             {
                 RenderThrusters();
                 RenderParticles();
-
                 DrawWarpFlash();
 
                 beamflashes.Draw();
@@ -663,30 +703,28 @@ namespace Ship_Game
                 lightning.Draw();
                 flash.Draw();
             }
+
             if (!Paused) // Particle pools need to be updated
             {
-                float deltaTime = elapsed.RealTime.Seconds;
-                beamflashes.Update(deltaTime);
-                explosionParticles.Update(deltaTime);
-                photonExplosionParticles.Update(deltaTime);
-                explosionSmokeParticles.Update(deltaTime);
-                projectileTrailParticles.Update(deltaTime);
-                fireTrailParticles.Update(deltaTime);
-                smokePlumeParticles.Update(deltaTime);
-                fireParticles.Update(deltaTime);
-                engineTrailParticles.Update(deltaTime);
-                star_particles.Update(deltaTime);
-                neb_particles.Update(deltaTime);
-                flameParticles.Update(deltaTime);
-                SmallflameParticles.Update(deltaTime);
-                sparks.Update(deltaTime);
-                lightning.Update(deltaTime);
-                flash.Update(deltaTime);
+                beamflashes.Update(elapsed);
+                explosionParticles.Update(elapsed);
+                photonExplosionParticles.Update(elapsed);
+                explosionSmokeParticles.Update(elapsed);
+                projectileTrailParticles.Update(elapsed);
+                fireTrailParticles.Update(elapsed);
+                smokePlumeParticles.Update(elapsed);
+                fireParticles.Update(elapsed);
+                engineTrailParticles.Update(elapsed);
+                star_particles.Update(elapsed);
+                neb_particles.Update(elapsed);
+                flameParticles.Update(elapsed);
+                SmallflameParticles.Update(elapsed);
+                sparks.Update(elapsed);
+                lightning.Update(elapsed);
+                flash.Update(elapsed);
             }
-            ScreenManager.EndFrameRendering();
-            if (viewState < UnivScreenState.SectorView)
-                DrawShields();
-            rs.DepthBufferWriteEnable = true;
+
+            DrawParticles.Stop();
         }
 
         private void DrawWarpFlash()
@@ -695,29 +733,38 @@ namespace Ship_Game
             MuzzleFlashManager.Draw(this);
         }
 
-        private void DrawSolarSystemsClose()
+        private void DrawPlanets()
         {
-            if (viewState >= UnivScreenState.SectorView) return;
-            for (int i = 0; i < SolarSystemList.Count; i++)
+            DrawPlanetsPerf.Start();
+            if (viewState < UnivScreenState.SectorView)
             {
-                SolarSystem solarSystem = SolarSystemList[i];
-                if (!solarSystem.IsExploredBy(player)) continue;
-
-                for (int j = 0; j < solarSystem.PlanetList.Count; j++)
+                GraphicsDevice device = ScreenManager.GraphicsDevice;
+                for (int i = 0; i < SolarSystemList.Count; i++)
                 {
-                    Planet p = solarSystem.PlanetList[j];
-                    if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
+                    SolarSystem solarSystem = SolarSystemList[i];
+                    if (!solarSystem.IsExploredBy(player))
+                        continue;
+
+                    for (int j = 0; j < solarSystem.PlanetList.Count; j++)
                     {
-                        if (p.Type.EarthLike)
+                        Planet p = solarSystem.PlanetList[j];
+                        if (Frustum.Contains(p.SO.WorldBoundingSphere) != ContainmentType.Disjoint)
                         {
-                            DrawClouds(xnaPlanetModel, p.CloudMatrix, p);
-                            DrawAtmo(xnaPlanetModel, p.CloudMatrix, p);
+                            if (p.Type.EarthLike)
+                            {
+                                Matrix clouds = p.CloudMatrix;
+                                DrawClouds(device, xnaPlanetModel, clouds, p);
+                                DrawAtmo(device, xnaPlanetModel, clouds);
+                            }
+                            if (p.HasRings)
+                            {
+                                DrawRings(device, p.RingWorld, p.Scale);
+                            }
                         }
-                        if (p.HasRings)
-                            DrawRings(p.RingWorld, p.Scale);
                     }
                 }
             }
+            DrawPlanetsPerf.Stop();
         }
 
         private void SelectShipLinesToDraw()

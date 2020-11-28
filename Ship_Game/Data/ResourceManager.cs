@@ -85,12 +85,20 @@ namespace Ship_Game
         /// </summary>
         static string ContentDirectory;
 
+        /// <summary>
+        /// This is where mod game content can be found.
+        /// Ex: "C:/Projects/BlackBox/stardrive/Mods/Combined Arms/"
+        /// (mods don't have a /Content/ dir, they _are_ the content dir)
+        /// </summary>
+        static string ModContentDirectory;
+
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => GameBase.Base.Content;
 
-        static void InitContentDir()
+        public static void InitContentDir()
         {
             ContentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Content/").Replace('\\', '/');
+            ModContentDirectory = GlobalStats.ModPath;
         }
 
         public static Technology Tech(string techUid)
@@ -161,8 +169,8 @@ namespace Ship_Game
             else
                 GlobalStats.ClearActiveMod();
 
-            Log.Write($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             InitContentDir();
+            Log.Write($"Load {(GlobalStats.HasMod ? ModContentDirectory : "Vanilla")}");
             LoadLanguage(GlobalStats.Language); // @todo Slower than expected [0.36]
             LoadToolTips();
             LoadHullBonuses();
@@ -297,7 +305,7 @@ namespace Ship_Game
                 Log.HideConsoleWindow();
         }
 
-        static FileInfo ModInfo(string file)     => new FileInfo( GlobalStats.ModPath + file );
+        static FileInfo ModInfo(string file)     => new FileInfo( ModContentDirectory + file );
         static FileInfo ContentInfo(string file) => new FileInfo( ContentDirectory + file );
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
@@ -365,18 +373,18 @@ namespace Ship_Game
             }
 
             // now pull everything from the mod folder and replace all matches
-            FileInfo[] mod = Dir.GetFiles(GlobalStats.ModPath + dir, pattern, search);
-            string fullModPath = Path.GetFullPath(GlobalStats.ModPath);
+            FileInfo[] mod = Dir.GetFiles(ModContentDirectory + dir, pattern, search);
+            string fullModPath = Path.GetFullPath(ModContentDirectory);
             foreach (FileInfo file in mod)
             {
                 string name = fileNames ? file.Name : file.FullName.Substring(fullModPath.Length);
                 #if false
                 if (infos.TryGetValue(name, out FileInfo existing))
                 {
-                    string newName = GlobalStats.ModPath + file.FullName.Substring(fullModPath.Length);
+                    string newName = ModContentDirectory + file.FullName.Substring(fullModPath.Length);
                     string existingName = existing.FullName;
                     if (existingName.StartsWith(fullModPath))
-                        existingName = GlobalStats.ModPath + existingName.Substring(fullModPath.Length);
+                        existingName = ModContentDirectory + existingName.Substring(fullModPath.Length);
                     else
                         existingName = existingName.Substring(vanillaPath.Length);
                     Log.Info($"ModReplace {existingName,64} -> {newName}");
@@ -393,7 +401,7 @@ namespace Ship_Game
         public static FileInfo[] GatherFilesModOrVanilla(string dir, string ext)
         {
             if (!GlobalStats.HasMod) return Dir.GetFiles("Content/" + dir, ext);
-            FileInfo[] files = Dir.GetFiles(GlobalStats.ModPath + dir, ext);
+            FileInfo[] files = Dir.GetFiles(ModContentDirectory + dir, ext);
             return files.Length != 0 ? files : Dir.GetFiles("Content/" + dir, ext);
         }
 
@@ -456,7 +464,7 @@ namespace Ship_Game
 
         static Array<T> LoadModEntities<T>(string dir, string id) where T : class
         {
-            return LoadEntities<T>(Dir.GetFiles(GlobalStats.ModPath + dir, "xml"), id);
+            return LoadEntities<T>(Dir.GetFiles(ModContentDirectory + dir, "xml"), id);
         }
 
         class InfoPair<T> where T : class
@@ -468,7 +476,7 @@ namespace Ship_Game
 
         static Array<InfoPair<T>> LoadEntitiesWithInfo<T>(string dir, string id, bool modOnly = false) where T : class
         {
-            var files = modOnly ? Dir.GetFiles(GlobalStats.ModPath + dir, "xml") : GatherFilesUnified(dir, "xml");
+            var files = modOnly ? Dir.GetFiles(ModContentDirectory + dir, "xml") : GatherFilesUnified(dir, "xml");
             var list = new Array<InfoPair<T>>();
             list.Resize(files.Length);
             var s = new XmlSerializer(typeof(T));
@@ -1230,10 +1238,10 @@ namespace Ship_Game
                         Log.Warning($"{data.UID} missing NameIndex: {data.NameIndex}");
 
                 }
-                if (data.IsCommandModule && data.TargetTracking == 0 && data.FixedTracking == 0)
-                {
-                    data.TargetTracking = (sbyte)((data.XSIZE * data.YSIZE) / 3);
-                }
+                // if the values
+                if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
+                if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
+
 
                 if (data.IsRotable == null)
                 {
@@ -1523,6 +1531,17 @@ namespace Ship_Game
             return template.Clone();
         }
 
+        public static bool CreateWeapon(string uid, out Weapon weapon)
+        {
+            if (WeaponsDict.TryGetValue(uid, out Weapon template))
+            {
+                weapon = template.Clone();
+                return true;
+            }
+            weapon = null;
+            return false;
+        }
+
         // WARNING: DO NOT MODIFY this Weapon instance! (wish C# has const refs like C++)
         public static Weapon GetWeaponTemplate(string uid)
         {
@@ -1539,6 +1558,11 @@ namespace Ship_Game
                 wep.UID = string.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
                 wep.InitializeTemplate();
+            }
+
+            foreach (Weapon w in WeaponsDict.Values)
+            {
+                w.CalcDamagePerSecond();
             }
         }
 

@@ -271,7 +271,7 @@ namespace Ship_Game
             if (GovernorShouldNotScrapBuilding)
                 return false;  // Player decided not to allow governors to scrap buildings
 
-            ChooseWorstBuilding(BuildingList, scrapZeroMaintenance, out Building toScrap);
+            ChooseWorstBuilding(BuildingList, scrapZeroMaintenance, false, out Building toScrap);
 
             if (toScrap == null)
                 return false;
@@ -283,11 +283,11 @@ namespace Ship_Game
 
         void ReplaceBuilding(float budget)
         {
-            if (BuildingsHereCanBeBuiltAnywhere)
+            if (BuildingsHereCanBeBuiltAnywhere || BuildingsCanBuild.Count == 0)
                 return;
 
-            // Replace works even if the governor is not scrapping buildings when there is no budget
-            float worstBuildingScore = ChooseWorstBuilding(BuildingList, scrapZeroMaintenance: true, out Building worstBuilding);
+            // Replace works even if the governor is not scrapping buildings, unless they are player built
+            float worstBuildingScore = ChooseWorstBuilding(BuildingList, scrapZeroMaintenance: true, true, out Building worstBuilding);
             if (worstBuilding == null)
                 return;
 
@@ -341,7 +341,7 @@ namespace Ship_Game
             return highestScore;
         }
 
-        float ChooseWorstBuilding(Array<Building> buildings, bool scrapZeroMaintenance, out Building worst)
+        float ChooseWorstBuilding(Array<Building> buildings, bool scrapZeroMaintenance, bool replacing, out Building worst)
         {
             worst = null;
             if (buildings.Count == 0)
@@ -355,7 +355,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (!SuitableForScrap(b, storageInUse, scrapZeroMaintenance))
+                if (!SuitableForScrap(b, storageInUse, scrapZeroMaintenance, replacing))
                     continue;
 
                 // Using b.Cost since actually we wont use effectiveness (no production needed)
@@ -379,6 +379,8 @@ namespace Ship_Game
             if (b.IsMilitary
                 || b.IsTerraformer
                 || b.IsBiospheres  // Different logic for the above
+                || Owner.isPlayer && b.BuildOnlyOnce
+                || !Owner.isPlayer && b.BuildOnlyOnce && Level < (int)DevelopmentLevel.MegaWorld
                 // If starving and this buildings does not produce food while we have food buildings available for build, filter it
                 || NonCybernetic && IsStarving && !b.ProducesFood && BuildingsCanBuild.Any(f => f.ProducesFood))
             {
@@ -392,16 +394,18 @@ namespace Ship_Game
             return false; // Too expensive for us and its not getting profitable juice from the population
         }
 
-        bool SuitableForScrap(Building b)
+        bool SuitableForScrap(Building b, bool replacing)
         {
             if (b.IsBiospheres
                 || !b.Scrappable
                 || b.IsPlayerAdded && Owner.isPlayer
                 || b.IsTerraformer
                 || b.IsMilitary
+                || b.BuildOnlyOnce
                 || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
                 || IsStarving && b.ProducesFood && NonCybernetic // Dont scrap food buildings when starving
-                || b.IsSpacePort && Owner.GetPlanets().Count == 1) // Dont scrap our last spaceport
+                || b.IsSpacePort && Owner.GetPlanets().Count == 1 // Dont scrap our last spaceport
+                || !IsBuildingOnHabitableTile(b) && replacing)  // Dont allow buildings on non habitable tiles to be scrapped when replacing
             {
                 return false;
             }
@@ -409,12 +413,27 @@ namespace Ship_Game
             return true;
         }
 
-        bool SuitableForScrap(Building b, float storageInUse, bool scrapZeroMaintenance)
+        bool SuitableForScrap(Building b, float storageInUse, bool scrapZeroMaintenance, bool replacing)
         {
-            if (!SuitableForScrap(b) || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero())
+            if (!SuitableForScrap(b, replacing) || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero())
                 return false;
 
             return !IsStorageWasted(storageInUse, b.StorageAdded);
+        }
+
+        bool IsBuildingOnHabitableTile(Building b)
+        {
+            if (!b.CanBuildAnywhere)
+                return true;
+
+            PlanetGridSquare tile = TilesList.Find(t => t.building == b);
+            if (tile == null)
+            {
+                Log.Warning($"Building {b.Name} was not found on any tile on the planet {Name} when checking if it is on habitable tile");
+                return true;
+            }
+
+            return tile.Habitable;
         }
 
         bool IsStorageWasted(float storageInUse, float storageAdded) => Storage.Max - storageAdded < storageInUse;
@@ -497,10 +516,17 @@ namespace Ship_Game
 
         void TryBuildTerraformers(float budget)
         {
-            if (IsStarving || NumWantedTerraformers <= 0 || TerraformerInTheWorks)
+            if (PopulationRatio < 0.95f
+                || !AreTerraformersNeeded
+                || IsStarving
+                || TerraformerInTheWorks)
+            {
                 return;
+            }
 
             Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+            if (terraformer.ActualMaintenance(this) > budget)
+                return;
 
             var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
             if (unHabitableTiles.Length > 0) // try to build a terraformer on an unhabitable tile first
@@ -516,27 +542,22 @@ namespace Ship_Game
                     Construction.Enqueue(terraformer);
             }}
         
-        int NumWantedTerraformers
+        bool AreTerraformersNeeded
         {
             get
             {
-                if (!Owner.IsBuildingUnlocked(Building.TerraformerId))
-                    return 0;
+                if (!Owner.IsBuildingUnlocked(Building.TerraformerId) || TerraformersHere >= TerraformerLimit)
+                    return false;
 
-                int num = 0;
-                if (TilesList.Any(t => t.CanTerraform))
-                    num += 1;
+                if (TilesList.Any(t => t.CanTerraform)
+                    || TilesList.Any(t => t.BioCanTerraform)
+                    || Category != Owner.data.PreferredEnv 
+                    || NonCybernetic && BaseMaxFertility.Less(1 / Empire.RacialEnvModifer(Category, Owner)))
+                {
+                    return true;
+                }
 
-                if (TilesList.Any(t => t.BioCanTerraform))
-                    num += 1;
-
-                if (Category != Owner.data.PreferredEnv || NonCybernetic && BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
-                    num += 2;
-
-                if (num > 0)
-                    num = (num - TerraformersHere).LowerBound(0);
-
-                return num.UpperBound(TerraformerLimit);
+                return false;
             }
         }
 

@@ -17,6 +17,9 @@ namespace Ship_Game
     {
         public InputState Input;
         bool OtherScreenHasFocus;
+        public float SlowFlashTimer { get; private set; } = 1;
+        public float NormalFlashTimer { get; private set; } =1;
+        public float FastFlashTimer { get; private set; } = 1;
 
         public bool IsActive => Enabled && !IsExiting && (!OtherScreenHasFocus || (GlobalStats.RestrictAIPlayerInteraction || System.Diagnostics.Debugger.IsAttached )) && 
             (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
@@ -55,7 +58,6 @@ namespace Ship_Game
         public Vector2 MousePos     => Input.CursorPosition;
         public Vector2 ScreenArea   => GameBase.ScreenSize;
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
-        public GameTime GameTime    => StarDriveGame.Instance.Elapsed.XnaTime;
         bool Pauses = true;
 
         // multi cast exit delegate, called when a game screen is exiting
@@ -198,7 +200,7 @@ namespace Ship_Game
             return false;
         }
 
-        public virtual void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public virtual void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             if (IsDisposed)
             {
@@ -238,11 +240,18 @@ namespace Ship_Game
                         : ScreenState.Active;
                 }
             }
+            SlowFlashTimer   -= elapsed.RealTime.Seconds / 4;            
+            NormalFlashTimer -= elapsed.RealTime.Seconds;
+            FastFlashTimer   -= elapsed.RealTime.Seconds * 2;
+
+            FastFlashTimer   = FastFlashTimer < elapsed.RealTime.Seconds ? 1 : FastFlashTimer;
+            NormalFlashTimer = NormalFlashTimer < elapsed.RealTime.Seconds ? 1 : NormalFlashTimer;
+            SlowFlashTimer   = SlowFlashTimer < elapsed.RealTime.Seconds ? 1 : SlowFlashTimer;
 
             DidLoadContent = false;
         }
 
-        bool UpdateTransition(FrameTimes elapsed, float transitionTime, int direction)
+        bool UpdateTransition(UpdateTimes elapsed, float transitionTime, int direction)
         {
             float transitionDelta = (transitionTime.NotZero()
                                   ? (elapsed.RealTime.Seconds / transitionTime) : 1f);
@@ -260,17 +269,18 @@ namespace Ship_Game
 
         protected Color ApplyCurrentAlphaToColor(Color color)
         {
-            float f = Math.Abs(RadMath.Sin(StarDriveGame.Instance.Elapsed.TotalGameSeconds)) * 255f;
+            float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed)) * 255f;
             return new Color(color, (byte)f);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void DrawMultiLayeredExperimental(ScreenManager manager, bool draw3D = false)
+        public void DrawMultiLayeredExperimental(ScreenManager manager, SpriteBatch batch,
+                                                 DrawTimes elapsed, bool draw3D = false)
         {
             if (!Visible)
                 return;
-            DrawMulti(manager, this, draw3D, ref View, ref Projection);
+            DrawMulti(manager, batch, elapsed, this, draw3D, ref View, ref Projection);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -442,6 +452,18 @@ namespace Ship_Game
             sizeOnScreen = new Vector2(Math.Abs(size.X), Math.Abs(size.Y));
         }
 
+        public RectF ProjectToScreenRect(in RectF worldRect)
+        {
+            Vector2 topLeft = ProjectToScreenPosition(new Vector2(worldRect.X, worldRect.Y));
+            Vector2 botRight = ProjectToScreenPosition(new Vector2(worldRect.X + worldRect.W, worldRect.Y + worldRect.H));
+            RectF screenRect = default;
+            screenRect.X = topLeft.X;
+            screenRect.Y = topLeft.Y;
+            screenRect.W = (botRight.X - topLeft.X);
+            screenRect.H = (botRight.Y - topLeft.Y);
+            return screenRect;
+        }
+
         public Rectangle ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld)
         {
             ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out Vector2 pos, out float size);
@@ -467,6 +489,25 @@ namespace Ship_Game
         public Vector2 UnprojectToWorldPosition(Vector2 screenSpace)
         {
             return UnprojectToWorldPosition3D(screenSpace).ToVec2();
+        }
+        public AABoundingBox2D UnprojectToWorldRect(in AABoundingBox2D screenR)
+        {
+            Vector2 topLeft  = UnprojectToWorldPosition(new Vector2(screenR.X1, screenR.Y1));
+            Vector2 botRight = UnprojectToWorldPosition(new Vector2(screenR.X2, screenR.Y2));
+            return new AABoundingBox2D(topLeft, botRight);
+        }
+
+        public AABoundingBox2D UnprojectToWorldRect(in Rectangle screenR)
+        {
+            Vector2 topLeft  = UnprojectToWorldPosition(new Vector2(screenR.X, screenR.Y));
+            Vector2 botRight = UnprojectToWorldPosition(new Vector2(screenR.Right, screenR.Bottom));
+            return new AABoundingBox2D(topLeft, botRight);
+        }
+
+        // visible rectangle in world coordinates
+        public AABoundingBox2D GetVisibleWorldRect()
+        {
+            return UnprojectToWorldRect(new Rectangle(0,0, Viewport.Width, Viewport.Height));
         }
 
         // Unprojects cursor screen pos to world 3D position
@@ -559,7 +600,13 @@ namespace Ship_Game
             DrawRectangle(posOnScreen, sizeOnScreen, rotation, color, thickness);
         }
 
-
+        public void DrawRectProjected(in AABoundingBox2D worldRect, Color color, float thickness = 1f)
+        {
+            Vector2 tl = ProjectToScreenPosition(new Vector2(worldRect.X1, worldRect.Y1));
+            Vector2 br = ProjectToScreenPosition(new Vector2(worldRect.X2, worldRect.Y2));
+            var screenRect = new AABoundingBox2D(tl, br);
+            ScreenManager.SpriteBatch.DrawRectangle(screenRect, color, thickness);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, Color color)
@@ -571,8 +618,6 @@ namespace Ship_Game
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DrawTextureProjected(SubTexture texture, Vector2 posInWorld, float textureScale, float rotation, Color color)
             => DrawTexture(texture, ProjectToScreenPosition(posInWorld), textureScale, rotation, color);
-
-        
 
         public void DrawTextureWithToolTip(SubTexture texture, Color color, int tooltipID, Vector2 mousePos, int rectangleX, int rectangleY, int width, int height)
         {

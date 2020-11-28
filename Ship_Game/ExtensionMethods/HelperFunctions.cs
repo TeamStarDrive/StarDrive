@@ -314,7 +314,7 @@ namespace Ship_Game
 
         public static bool DataVisibleToPlayer(Empire empire)
         {
-            if (empire.isPlayer || empire.GetRelations(EmpireManager.Player).Treaty_Alliance || Empire.Universe.Debug)
+            if (empire.isPlayer || empire.IsAlliedWith(EmpireManager.Player) || Empire.Universe.Debug)
                 return true;
 
             return empire.DifficultyModifiers.DataVisibleToPlayer;
@@ -340,6 +340,37 @@ namespace Ship_Game
                 }
             }
             return sort;
+        }
+
+        public static bool GetLoneSystem(out SolarSystem system)
+        {
+            system = null;
+            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0
+                                                                     && !s.PiratePresence);
+
+            if (systems.Length > 0)
+                system = systems.RandItem();
+
+            return system != null;
+        }
+
+        public static bool GetUnownedSystems(out SolarSystem[] systems)
+        {
+            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0
+                                                                 && s.RingList.Count > 0
+                                                                 && !s.PiratePresence
+                                                                 && !s.ShipList.Any(g => g.IsGuardian));
+
+            return systems.Length > 0;
+        }
+
+        public static bool GetRadiatingStars(out SolarSystem[] systems)
+        {
+            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0
+                                                                 && !s.PiratePresence
+                                                                 && s.Sun.RadiationRadius.Greater(0));
+
+            return systems.Length > 0;
         }
     }
 }

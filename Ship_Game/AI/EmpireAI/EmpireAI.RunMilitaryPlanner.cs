@@ -23,9 +23,9 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer)
                 return;
-
             RunGroundPlanner();
-            NumberOfShipGoals   = 3;
+
+            NumberOfShipGoals = 2 + OwnerEmpire.GetBestPortsForShipBuilding()?.Count ?? 0;
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
             var planetsBuilding = new Array<Planet>();
             foreach (var goal in offensiveGoals) planetsBuilding.AddUnique(goal.PlanetBuildingAt);
@@ -34,11 +34,17 @@ namespace Ship_Game.AI
 
             Goals.ApplyPendingRemovals();
 
-            // Empire Military needs not directly related to war. 
+            // Empire Military needs. War has its own task list in the WarTasks class
             Toughnuts = 0;
 
-            var tasks = TaskList.SortedDescending(t=> t.Priority);
-
+            var tasks = TaskList.SortedDescending(t=>
+            {
+                float hard = 0;
+                if (t.GetTaskCategory() == MilitaryTask.TaskCategory.Expansion)
+                    hard = OwnerEmpire.GetTargetsStrMultiplier(t.TargetPlanet);
+                return t.Priority + hard;
+            });
+            
             foreach (MilitaryTask task in tasks)
             {
                 if (!task.QueuedForRemoval)
@@ -89,7 +95,7 @@ namespace Ship_Game.AI
             }
         }
 
-        void RemoveMilitaryTasksTargeting(Empire empire)
+        public void RemoveMilitaryTasksTargeting(Empire empire)
         {
             for (int i = TaskList.Count - 1; i >= 0; i--)
             {
@@ -97,6 +103,8 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet?.Owner == empire)
                     task.EndTask();
             }
+
+            WarTasks.PurgeAllTasksTargeting(empire);
         }
 
         public MilitaryTask[] GetAtomicTasksCopy()
@@ -155,10 +163,31 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
+        public MilitaryTask[] GetDefendVsRemnantTasks()
+        {
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendVsRemnants);
+        }
+
+        public Goal[] GetRemnantEngagementGoalsFor(Planet p)
+        {
+            return Goals.Filter(g => g.type == GoalType.RemnantBalancersEngage
+                                        && g.ColonizationTarget == p);
+        }
+
+        public MilitaryTask[] GetAssaultPirateTasks()
+        {
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase);
+        }
+
         public MilitaryTask[] GetExpansionTasks()
         {
             return TaskList.Filter(task => task.TargetPlanet != null &&
                 (task.type == MilitaryTask.TaskType.DefendClaim || task.type == MilitaryTask.TaskType.Exploration));
+        }
+
+        public int GetNumClaimTasks()
+        {
+            return TaskList.Filter(t => t.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.Expansion)).Length;
         }
 
         public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)
@@ -225,12 +254,25 @@ namespace Ship_Game.AI
                 if (task.TargetPlanet != null)
                     task.TargetPlanetGuid = task.TargetPlanet.guid;
             }
+            aiSave.WarTaskClass = WarTasks;
+
+
         }
 
         public void ReadFromSave(SavedGame.GSAISAVE aiSave)
         {
             TaskList.Clear();
             TaskList.AddRange(aiSave.MilitaryTaskList);
+            WarTasks = aiSave.WarTaskClass?? new WarTasks(OwnerEmpire);
+        }
+
+        public void TrySendExplorationFleetToCrashSite(Planet p)
+        {
+            if (TaskList.Filter(t => t.type == MilitaryTask.TaskType.Exploration)
+                    .Length < 5 + (int)CurrentGame.Difficulty)
+            {
+                SendExplorationFleet(p);
+            }
         }
 
         public void SendExplorationFleet(Planet p)
@@ -243,6 +285,7 @@ namespace Ship_Game.AI
                 Priority = 20
 
             };
+            OwnerEmpire.UpdateTargetsStrMultiplier(p.guid, out _);
             militaryTask.SetTargetPlanet(p);
             militaryTask.SetEmpire(OwnerEmpire);
             AddPendingTask(militaryTask);
@@ -354,7 +397,9 @@ namespace Ship_Game.AI
                 foreach(ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
                 {
                     var combatRole = RoleCounts.ShipRoleToCombatRole(role);
-                    if (combatRole == RoleCounts.CombatRole.Disabled) continue;
+                    if (combatRole == RoleCounts.CombatRole.Disabled) 
+                        continue;
+
                     float priority = ShipCounts[combatRole].BuildPriority();
                     if (priority > 0)
                         priorities.Add(role, priority);
@@ -419,8 +464,8 @@ namespace Ship_Game.AI
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
                     DesiredCount = (int)(RoleBuildBudget.LowerBound(.001f) / PerUnitMaintenanceMax.LowerBound(0.001f)); // MinimumMaintenance));
-                    if (Role < CombatRole.Frigate)
-                        DesiredCount = Math.Min(50, DesiredCount);
+                    //if (Role < CombatRole.Frigate)
+                    //    DesiredCount = Math.Min(50, DesiredCount);
                 }
 
                 private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)
@@ -471,7 +516,9 @@ namespace Ship_Game.AI
                 {
                     if (WeAreScrapping || CurrentMaintenance + PerUnitMaintenanceMax > RoleBuildBudget)
                         return 0;
-                    return CurrentMaintenance.LowerBound(.00001f) / RoleBuildBudget;
+
+                    // Higher is more important
+                    return RoleBuildBudget / CurrentMaintenance.LowerBound(0.01f);
                 }
 
                 public void ScrapAsNeeded(Empire empire)
@@ -521,6 +568,7 @@ namespace Ship_Game.AI
                     Support,
                     TroopShip
                 }
+
                 public static CombatRole ShipRoleToCombatRole(ShipData.RoleName role)
                 {
                     switch (role)
@@ -535,34 +583,33 @@ namespace Ship_Game.AI
                         case ShipData.RoleName.supply:
                         case ShipData.RoleName.freighter:
                         case ShipData.RoleName.troop:
-                        case ShipData.RoleName.troopShip:
                         case ShipData.RoleName.prototype:
-                        case ShipData.RoleName.scout:    return CombatRole.Disabled;
-                        case ShipData.RoleName.support:  return CombatRole.Support;
-                        case ShipData.RoleName.bomber:   return CombatRole.Bomber;
-                        case ShipData.RoleName.carrier:  return CombatRole.Carrier;
-                        case ShipData.RoleName.fighter:  return CombatRole.Fighter;
-                        case ShipData.RoleName.gunboat:  return CombatRole.Corvette;
-                        case ShipData.RoleName.drone:    return CombatRole.Fighter;
-                        case ShipData.RoleName.corvette: return CombatRole.Corvette;
-                        case ShipData.RoleName.frigate:  return CombatRole.Frigate;
-                        case ShipData.RoleName.destroyer:return CombatRole.Frigate;
-                        case ShipData.RoleName.cruiser:  return CombatRole.Cruiser;
-                        case ShipData.RoleName.capital:  return CombatRole.Capital;
-                        default:                         return CombatRole.Disabled;
+                        case ShipData.RoleName.drone:
+                        case ShipData.RoleName.scout:     return CombatRole.Disabled;
+                        case ShipData.RoleName.troopShip: return CombatRole.TroopShip;
+                        case ShipData.RoleName.support:   return CombatRole.Support;
+                        case ShipData.RoleName.bomber:    return CombatRole.Bomber;
+                        case ShipData.RoleName.carrier:   return CombatRole.Carrier;
+                        case ShipData.RoleName.fighter:   return CombatRole.Fighter;
+                        case ShipData.RoleName.gunboat:   return CombatRole.Corvette;
+                        case ShipData.RoleName.corvette:  return CombatRole.Corvette;
+                        case ShipData.RoleName.frigate:   return CombatRole.Frigate;
+                        case ShipData.RoleName.destroyer: return CombatRole.Frigate;
+                        case ShipData.RoleName.cruiser:   return CombatRole.Cruiser;
+                        case ShipData.RoleName.capital:   return CombatRole.Capital;
+                        default:                          return CombatRole.Disabled;
                     }
                 }
             }
         }
 
-        // fbedard: Build a ship with a random role
-
+        // Pick a ship by role priority based on build ratios and maintenance 
         public string GetAShip(RoleBuildInfo buildRatios)
         {
-            //Find ship to build
+            // Find ship to build
             Map<ShipData.RoleName, float> pickRoles = buildRatios.CreateBuildPriorities();
 
-            foreach (var kv in pickRoles.OrderBy(val => val.Value))
+            foreach (var kv in pickRoles.OrderByDescending(val => val.Value))
             {
                 Ship ship = PickFromCandidates(kv.Key, OwnerEmpire);
                 if (ship == null)

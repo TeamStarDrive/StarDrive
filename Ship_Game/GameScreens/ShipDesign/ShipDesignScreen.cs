@@ -58,6 +58,8 @@ namespace Ship_Game
         ModuleOrientation ActiveModState;
         CategoryDropDown CategoryList;
         HangarDesignationDropDown HangarOptionsList;
+        Map<ShipModule, float> WeaponAccuracyList = new Map<ShipModule, float>();
+        public float FireControlLevel { get; private set; } = 0;
         
 
         bool ShowAllArcs;
@@ -144,7 +146,7 @@ namespace Ship_Game
             ShipModule m = ShipModule.CreateNoParent(ResourceManager.GetModuleTemplate(template.UID),
                                                      EmpireManager.Player, ActiveHull);
             m.SetModuleFacing(m.XSIZE, m.YSIZE, orientation, facing);
-            m.hangarShipUID = m.IsTroopBay ? Ship.GetAssaultShuttleName(EmpireManager.Player) : template.hangarShipUID;
+            m.hangarShipUID = m.IsTroopBay ? EmpireManager.Player.GetAssaultShuttleName() : template.hangarShipUID;
             return m;
         }
 
@@ -235,7 +237,8 @@ namespace Ship_Game
                     active.TryInstallTo(ModuleGrid);
                     mirror.TryInstallTo(ModuleGrid);
                 }
-                ModuleGrid.RecalculatePower();
+
+                RecalculatePower();
                 ShipSaved = false;
                 SpawnActiveModule(active.Mod, active.Ori, active.Slot.Facing);
             }
@@ -260,7 +263,8 @@ namespace Ship_Game
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
                 }
             }
-            ModuleGrid.RecalculatePower();
+
+            RecalculatePower();
             ShipSaved = false;
         }
 
@@ -280,7 +284,7 @@ namespace Ship_Game
                 }
             }
             ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
-            ModuleGrid.RecalculatePower();
+            RecalculatePower();
             GameAudio.SubBassWhoosh();
         }
 
@@ -306,7 +310,7 @@ namespace Ship_Game
                 ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
             }
 
-            ModuleGrid.RecalculatePower();
+            RecalculatePower();
         }
 
         DesignModuleGrid ModuleGrid;
@@ -331,8 +335,23 @@ namespace Ship_Game
                     slot.Module.hangarShipUID = slot.SlotOptions;
             }
 
-            ModuleGrid.RecalculatePower();
+            RecalculatePower(false);
             ResetActiveModule();
+        }
+
+        void RecalculatePower(bool showRoleChangeTip = true)
+        {
+            ModuleGrid.RecalculatePower();
+            RecalculateDesignRole(showRoleChangeTip);
+        }
+
+        void RecalculateDesignRole(bool showRoleChangeTip)
+        {
+            var oldRole = Role;
+            Role        = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
+
+            if (Role != oldRole && showRoleChangeTip)
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true);
         }
 
         public bool IsBadModuleSize(ShipModule module)
@@ -343,16 +362,22 @@ namespace Ship_Game
             return true;
         }
 
-        public override void Update(FrameTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
-            if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;
+            float zoom = MathHelper.SmoothStep(Camera.Zoom, TransitionZoom, 0.2f);
+
+            // this crappy fix is to try and prevent huge jumps in z axis when camera zoom becomes very small. 
+            // at about 0.1 the zoom zaxis change jumps uncontrollably. 
+            if (zoom < 0.1f)
+            {
+                TransitionZoom = Math.Max(zoom-0.01f, TransitionZoom);
+            }
+            
+            Camera.Zoom = zoom;
+            if (Camera.Zoom < 0.03f) Camera.Zoom = 0.03f;
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
-            Role = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
-            //roleData.CreateDesignRoleToolTip(DesignRoleRect); FB: This was killing tool tips in ship design, disabled and should check this
-            
-            CameraPosition.Z = OriginalZ / Camera.Zoom;
+            CameraPosition.Z = (OriginalZ / Camera.Zoom);
             UpdateViewMatrix(CameraPosition);
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
         }
@@ -389,7 +414,7 @@ namespace Ship_Game
                    * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
 
             float aspectRatio = (float)Viewport.Width / Viewport.Height;
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 120000f);
             
             ChangeHull(AvailableHulls[0]);
 

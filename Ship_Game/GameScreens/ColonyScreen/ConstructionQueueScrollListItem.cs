@@ -22,7 +22,6 @@ namespace Ship_Game
             AddCancel(new Vector2(-30, 0), /*Cancel production*/53, OnCancelClicked);
         }
 
-
         void OnUpClicked()
         {
             InputState input = GameBase.ScreenManager.input;
@@ -99,6 +98,12 @@ namespace Ship_Game
         void OnApplyClicked()
         {
             InputState input = GameBase.ScreenManager.input;
+            if (input.IsShiftKeyDown)
+            {
+                RunOnEmpireThread(() => Item.Rush = !Item.Rush);
+                return;
+            }
+
             float maxAmount = (input.IsCtrlKeyDown ? Planet.ProdHere : 10f).UpperBound(Item.ProductionNeeded);
             RunOnEmpireThread(() => RushProduction(Item, maxAmount.UpperBound(Planet.ProdHere)));
         }
@@ -148,10 +153,10 @@ namespace Ship_Game
             GameAudio.AcceptClick();
         }
         
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             Item.DrawAt(batch, Pos);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
     }
 }

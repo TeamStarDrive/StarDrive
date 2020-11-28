@@ -128,10 +128,12 @@ namespace Ship_Game
         public bool KillThis         => KeyPressed(Keys.X) || KeyPressed(Keys.Delete);
         public bool SpawnRemnant     => KeyPressed(Keys.V);
         public bool SpawnPlayerTroop => KeyPressed(Keys.Z);
+        public bool ToggleSpatialManagerType => KeyPressed(Keys.G);
         // Ingame controls
         public bool PreviousTarget  => BackMouseClick;
         public bool ChaseCam        => MiddleMouseClick;
         public bool TacticalIcons   => IsKeyDown(Keys.LeftAlt);
+        public bool CinematicMode   => KeyPressed(Keys.F11);
 
         public bool IsAltKeyDown    => IsKeyDown(Keys.LeftAlt)     || IsKeyDown(Keys.RightAlt);
         public bool IsCtrlKeyDown   => IsKeyDown(Keys.LeftControl) || IsKeyDown(Keys.RightControl);
@@ -214,7 +216,7 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
-        public void Update(FrameTimes elapsed)
+        public void Update(UpdateTimes elapsed)
         {
             KeysPrev    = KeysCurr;
             GamepadPrev = GamepadCurr;

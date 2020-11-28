@@ -24,7 +24,7 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             var bCursor = new Vector2(List.X + 15, Y);
 

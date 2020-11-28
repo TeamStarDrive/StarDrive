@@ -31,3 +31,8 @@ dupReport.xml
 /.vs/ProjectSettings.json
 /.vs/CMake Overview
 /SDNative/fbxsdk/libfbxsdk.dll
+SDNative/SDNativeTests/Debug/
+SDNative/SDNativeTests/Release/
+Content/Audio/aac/
+Content/Audio/export/
+Content/Audio/pcm/

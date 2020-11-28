@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -27,9 +26,7 @@ namespace Ship_Game
         // how fast a tip fades in/out
         const float TipFadeInOutTime = 0.35f;
 
-        
         static readonly Array<TipItem> ActiveTips = new Array<TipItem>();
-        
 
         public static void ShipYardArcTip()
             => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
@@ -39,10 +36,14 @@ namespace Ship_Game
 
         public static int AutoTaxToolTip => 7040;
 
+        // Allows a tool tip which floats regardless of hovering on the position
+        public static void CreateFloatingText(in ToolTipText tip, string hotKey, Vector2? position, float lifeTime) 
+            => CreateTooltip(tip, hotKey, position, lifeTime);
+
         /**
          * Sets the currently active ToolTip
          */
-        public static void CreateTooltip(in ToolTipText tip, string hotKey, Vector2? position)
+        public static void CreateTooltip(in ToolTipText tip, string hotKey, Vector2? position, float forceNoneHoverTime = 0)
         {
             string rawText = tip.LocalizedText;
             if (rawText.IsEmpty())
@@ -58,7 +59,7 @@ namespace Ship_Game
                 return;
             }
 
-            tipItem = new TipItem();
+            tipItem = new TipItem(forceNoneHoverTime);
             ActiveTips.Add(tipItem);
 
             tipItem.RawText = rawText;
@@ -98,20 +99,29 @@ namespace Ship_Game
             public string HotKey;
             public Rectangle Rect;
             public bool HoveredThisFrame = true;
+            float ForceNonHoverTime; // Let the tip show regardless of being hovered on
 
             float LifeTime;
             bool Visible;
+
+            public TipItem(float forceNonHoverTime)
+            {
+                ForceNonHoverTime = forceNonHoverTime;
+            }
 
             // @return FALSE: tip died, TRUE: tip is OK
             public bool Update(float deltaTime)
             {
                 bool hovered = HoveredThisFrame;
-                HoveredThisFrame = false;
+                if (ForceNonHoverTime < 0)
+                    HoveredThisFrame = false;
 
                 // if tip is hovered, we increase its lifetime
                 // when not hovered, we decrease the lifetime
                 LifeTime += (hovered ? deltaTime : -deltaTime);
                 LifeTime = Math.Min(LifeTime, TipTime);
+
+                ForceNonHoverTime -= deltaTime;
 
                 const float TipReappearTimePoint = TipShowTimePoint - TipReappearTimeDelay;
                 const float TipResetTimePoint = TipReappearTimePoint - TipResetTimeDelay;
@@ -141,7 +151,7 @@ namespace Ship_Game
                 return true;
             }
 
-            public void Draw(SpriteBatch batch)
+            public void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 if (!Visible)
                     return;
@@ -149,7 +159,7 @@ namespace Ship_Game
                 float alpha = (255 * LifeTime / TipFadeInOutTime).Clamped(0, 255);
                 var textPos = new Vector2(Rect.X + 10, Rect.Y + 5);
                 var sel = new Selector(Rect, new Color(Color.Black, (byte)alpha),  alpha);
-                sel.Draw(batch);
+                sel.Draw(batch, elapsed);
 
                 var textColor = new Color(255, 239, 208, (byte) alpha);
                 if (HotKey.NotEmpty())
@@ -169,7 +179,7 @@ namespace Ship_Game
             }
         }
 
-        public static void Draw(SpriteBatch batch, VariableFrameTime deltaTime)
+        public static void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             TipItem[] tips = ActiveTips.ToArray();
             if (tips.Length == 0)
@@ -178,9 +188,9 @@ namespace Ship_Game
             batch.Begin();
             foreach (TipItem tipItem in tips)
             {
-                if (tipItem.Update(deltaTime.Seconds))
+                if (tipItem.Update(elapsed.RealTime.Seconds))
                 {
-                    tipItem.Draw(batch);
+                    tipItem.Draw(batch, elapsed);
                 }
                 else // tip died
                 {

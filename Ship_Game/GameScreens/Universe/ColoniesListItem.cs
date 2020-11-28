@@ -168,7 +168,7 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ProdStorage.Progress = p.ProdHere;
             FoodStorage.Progress = p.FoodHere;
@@ -245,7 +245,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial8Bold, p.Name, c, TextColor);
             }
 
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
 
             DrawStorage(batch);
 

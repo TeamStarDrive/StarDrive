@@ -38,6 +38,13 @@ namespace Ship_Game
             Initialize(theMenu);
         }
 
+        public Selector(Rectangle theMenu, Color fillColor, Color edgeColor)
+        {
+            Fill = fillColor;
+            EdgeColor = edgeColor;
+            Initialize(theMenu);
+        }
+
         class ElementTextures
         {
             public SubTexture CornerTL, CornerTR, CornerBL, CornerBR;
@@ -82,7 +89,7 @@ namespace Ship_Game
             VR = new Rectangle(x + w - 2, y + TR.Height - 2, 2, h - BR.Height - 2);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Fill.A > 0)
             {

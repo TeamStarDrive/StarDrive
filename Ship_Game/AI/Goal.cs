@@ -31,13 +31,20 @@ namespace Ship_Game.AI
         PirateBase,
         PirateRaidTransport,
         PirateRaidOrbital,
-        PirateRaidColonyShip, // FB - if adding a new goal, replace this with the new one to keep enum order
+        RemnantPortal,
         PirateRaidCombatShip,
         PirateDefendBase,
         PirateProtection,
         AssaultPirateBase,
         RefitOrbital,
-        DeployFleetProjector
+        DeployFleetProjector,
+        ScrapShip,
+        RearmShipFromPlanet,
+        PirateRaidProjector,
+        RemnantEngagements,
+        RemnantBalancersEngage,
+        RemnantInit,
+        DefendVsRemnants
     }
 
     public enum GoalStep
@@ -142,19 +149,27 @@ namespace Ship_Game.AI
                 case RefitOrbital.ID:           return new RefitOrbital();
                 case BuildOrbital.ID:           return new BuildOrbital();
                 case RemnantAI.ID:              return new RemnantAI();
+                case RemnantInit.ID:            return new RemnantInit();
                 case PirateAI.ID:               return new PirateAI();
                 case PirateDirectorPayment.ID:  return new PirateDirectorPayment();
                 case PirateDirectorRaid.ID:     return new PirateDirectorRaid();
                 case PirateRaidTransport.ID:    return new PirateRaidTransport();
                 case PirateRaidOrbital.ID:      return new PirateRaidOrbital();
                 case PirateRaidColonyShip.ID:   return new PirateRaidColonyShip(); // Save compatibility remove in 2021 :)
+                case PirateRaidProjector.ID:    return new PirateRaidProjector();
                 case PirateRaidCombatShip.ID:   return new PirateRaidCombatShip();
                 case PirateBase.ID:             return new PirateBase();
                 case PirateDefendBase.ID:       return new PirateDefendBase();
                 case PirateProtection.ID:       return new PirateProtection();
                 case AssaultPirateBase.ID:      return new AssaultPirateBase();
                 case DeployFleetProjector.ID:   return new DeployFleetProjector();
+                case RemnantEngagements.ID:     return new RemnantEngagements();
+                case RemnantPortal.ID:          return new RemnantPortal();
+                case RemnantEngageEmpire.ID:    return new RemnantEngageEmpire();
                 case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
+                case ScrapShip.ID:              return new ScrapShip();
+                case RearmShipFromPlanet.ID:    return new RearmShipFromPlanet();
+                case DefendVsRemnants.ID:       return new DefendVsRemnants();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }

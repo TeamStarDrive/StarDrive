@@ -12,8 +12,8 @@ namespace UnitTests.Technologies
 
         public TestTechnologyUnlock()
         {
-            LoadTechContent();
             CreateGameInstance();
+            LoadTechContent();
             CreateTestEnv(out _);
         }
 

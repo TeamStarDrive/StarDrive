@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ship_Game.AI;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -14,11 +9,14 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             Owner = colonyShip.loyalty;
+            RemovePlanetStrNeededMultiplier();
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
             Owner.AddPlanet(this);
             SetExploredBy(Owner);
             CreateStartingEquipment(colonyShip);
+            UnloadTroops(colonyShip);
+            UnloadCargoColonists(colonyShip);
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
             ResetGarrisonSize();
@@ -27,6 +25,12 @@ namespace Ship_Game
             NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
+        }
+
+        void RemovePlanetStrNeededMultiplier()
+        {
+            foreach (Empire e in EmpireManager.MajorEmpires)
+                e.RemoveTargetsStrMultiplier(guid);
         }
 
         void SetupColonyType()
@@ -50,7 +54,7 @@ namespace Ship_Game
                 if (p.Owner == null || p.Owner == Owner)
                     continue;
 
-                if (p.Owner.TryGetRelations(Owner, out Relationship rel) && !rel.Treaty_OpenBorders)
+                if (!p.Owner.IsOpenBordersTreaty(Owner))
                     p.Owner.DamageRelationship(Owner, "Colonized Owned System", 20f, p);
             }
         }
@@ -62,11 +66,11 @@ namespace Ship_Game
 
             for (int i = TroopsHere.Count - 1; i >= 0; i--)
             {
-                Troop t      = TroopsHere[i];
-                Empire owner = t?.Loyalty;
+                Troop t = TroopsHere[i];
+                Empire tLoyalty = t?.Loyalty;
 
-                if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != Owner &&
-                    Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
+                if (tLoyalty != null && !tLoyalty.isFaction && tLoyalty.data.DefaultTroopShip != null
+                    && tLoyalty != Owner && !Owner.IsAtWarWith(tLoyalty))
                 {
                     Ship troopship = t.Launch(ignoreMovement: true);
                     troopsRemoved  = true;
@@ -85,6 +89,17 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddTroopsRemovedNotification(this);
             else if (Owner.isPlayer)
                 Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(this);
+        }
+
+        void UnloadTroops(Ship colonyShip)
+        {
+            foreach (Troop t in colonyShip.GetOurTroops())
+                t.TryLandTroop(this);
+        }
+
+        void UnloadCargoColonists(Ship colonyShip)
+        {
+            Population += colonyShip.UnloadColonists();
         }
 
         void CreateStartingEquipment(Ship colonyShip)

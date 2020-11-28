@@ -23,9 +23,9 @@ namespace Ship_Game
             AddEdit(new Vector2(-20, 0), "FleetDesignShipListItem.Edit");
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             
             if (Ship != null)
             {

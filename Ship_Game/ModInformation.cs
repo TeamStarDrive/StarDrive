@@ -39,7 +39,7 @@ namespace Ship_Game
         public bool expandedWeaponCats;
         public bool overrideSecretsTree;
         public bool usePlanetaryProjection;
-        public bool useProportionalUpkeep;
+        public bool UseProportionalUpkeep;
         public bool reconDropDown;
         public bool ColoniserMenu;
 
@@ -55,11 +55,9 @@ namespace Ship_Game
         public float UpkeepPlatform;
         public float UpkeepStation;
         public float UpkeepDrone;
-        public float Spaceportscale = 0.8f;
-        
-        public int RemnantTechCount;
+        public float SpaceportScale = 0.8f;
 
-        //added by Fat Bastard
+        // added by Fat Bastard
         public bool UseResearchableShipTechs; // Use short term researchable techs with no best ship
 
         // Doctor: Planet generation: % chance of each tile on this planet type being habitable. Default values as vanilla.
@@ -75,6 +73,8 @@ namespace Ship_Game
         public int CostBasedOnSizeThreshold = 2500;  // Allow tuning the change up/down
 
         public int DefaultNumOpponents = 7; // Default AIs to start on default settings
+        public float HangarCombatShipCostMultiplier = 1;
+        public bool DisplayEnvPerfInRaceDesign;
 
         public int ChanceForCategory(PlanetCategory category)
         {

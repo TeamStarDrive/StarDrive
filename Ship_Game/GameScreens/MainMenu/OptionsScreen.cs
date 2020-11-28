@@ -269,6 +269,9 @@ namespace Ship_Game
                                     "offering performance improvements in mid to late game. "+
                                     "This will not affect current games or existing saves.");
 
+            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, "Alert Enemy Presence After Load",
+                "Add Notifications regarding enemies in your systems after you load a game, to remind you which systems " +
+                "are under attack.");
             CurrentLanguage = new DropOptions<Language>(105, 18);
             Add(right, "Language", CurrentLanguage);
 
@@ -401,10 +404,10 @@ namespace Ship_Game
             New.ApplyChanges();
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             if (Fade) ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
         }
 
         public override void ExitScreen()

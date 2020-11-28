@@ -80,7 +80,7 @@ namespace Ship_Game
                 if (ConstructionQueue.Count > 0)
                     Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
                 else
-                    AssignCoreWorldProduction(remainingWork - MinimumResearchNoQueue(remainingWork));
+                    AssignCoreWorldProduction(remainingWork - MinimumResearchNoQueue(remainingWork, 0.5f));
             }
             Res.AutoBalanceWorkers(); // rest goes to research
         }
@@ -96,13 +96,13 @@ namespace Ship_Game
                 if (ConstructionQueue.Count > 0)
                     Prod.Percent = (remainingWork * EvaluateProductionQueue()).UpperBound(remainingWork);
                 else
-                    Prod.Percent = remainingWork - MinimumResearchNoQueue(remainingWork);
+                    Prod.Percent = remainingWork - MinimumResearchNoQueue(remainingWork, percentProd);
             }
 
             Res.AutoBalanceWorkers(); // rest goes to research
         }
         
-        float MinimumResearchNoQueue(float availableWork)
+        float MinimumResearchNoQueue(float availableWork, float wantedStoragePercent)
         {
             if (Res.YieldPerColonist.AlmostZero() || availableWork.AlmostZero() || IsCybernetic || Owner.Research.NoTopic)
                 return 0; // No need to use researchers
@@ -115,14 +115,14 @@ namespace Ship_Game
             switch (colonyType)
             {
                 default:
-                case ColonyType.Core:         minCut = 0.25f; maxCut = 0.75f; break;
-                case ColonyType.Research:     minCut = 0.5f;  maxCut = 1f;   break;
-                case ColonyType.Agricultural: minCut = 0f;    maxCut = 0.4f; break;
+                case ColonyType.Core:         minCut = 0.4f;  maxCut = 0.9f;  break;
+                case ColonyType.Research:     minCut = 0.75f; maxCut = 1f;    break;
+                case ColonyType.Agricultural: minCut = 0f;    maxCut = 0.4f;  break;
                 case ColonyType.Military:
-                case ColonyType.Industrial:   minCut = 0f;    maxCut = 0.1f; break;
+                case ColonyType.Industrial:   minCut = 0f;    maxCut = 0.25f; break;
             }
 
-            return Storage.ProdRatio.Clamped(minCut, maxCut) * availableWork;
+            return (Storage.ProdRatio / wantedStoragePercent).Clamped(minCut, maxCut) * availableWork;
             
         }
 
@@ -208,7 +208,7 @@ namespace Ship_Game
 
             // colony level ranges from 1 worst to 5 best.
             // Gives a base line from .3 to about .1 depending on research wants
-            float colonyDevelopmentBonus = ((6 + buildDesire) - Level * Owner.Research.Strategy.ResearchRatio) * 0.05f;
+            float colonyDevelopmentBonus = ((6 + buildDesire) - Level * Owner.Research.Strategy.ResearchRatio) * 0.03f;
             float colonyTypeBonus        = 0;
             switch (colonyType)
             {

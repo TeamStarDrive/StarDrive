@@ -39,11 +39,19 @@ namespace Ship_Game.Commands.Goals
 
             // ShipToBuild will be the constructor ship -- usually a freighter
             // once the freighter is deployed, it will mutate into ToBuildUID
-            string constructorId = empire.data.ConstructorShip;
+            string constructorId = empire.data.CurrentConstructor;
+            constructorId = empire.data.ConstructorShip;//ConstructorShip;
+            constructorId = empire.data.DefaultConstructor;
+
             if (!ResourceManager.GetShipTemplate(constructorId, out ShipToBuild))
             {
-                Log.Error($"BuildConstructionShip: no construction ship with uid={constructorId}");
-                return GoalStep.GoalFailed;
+                Log.Warning($"BuildConstructionShip: no construction ship with uid={constructorId}");
+                constructorId = empire.data.DefaultConstructor;
+                if (!ResourceManager.GetShipTemplate(constructorId, out ShipToBuild))
+                {
+                    Log.Warning($"BuildConstructionShip: no construction ship with uid={constructorId}");
+                    return GoalStep.GoalFailed;
+                }
             }
 
             Planet planet = empire.FindPlanetToBuildAt(empire.SafeSpacePorts, toBuild.GetCost(empire));

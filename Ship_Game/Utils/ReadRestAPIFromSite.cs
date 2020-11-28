@@ -102,16 +102,16 @@ namespace Ship_Game.Utils
             return int.MaxValue;
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            foreach (var item in Versions)
+            foreach (UILabel version in Versions)
             {
-                item.Draw(spriteBatch);
+                version.Draw(batch, elapsed);
             }
         }
         public bool HandleInput(InputState input, string downLoadSite)
         {
-            foreach (var version in Versions)
+            foreach (UILabel version in Versions)
             {
                 if (!input.LeftMouseClick) continue;
                 if (!version.HitTest(input.CursorPosition)) continue;

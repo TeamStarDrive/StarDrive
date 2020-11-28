@@ -67,18 +67,18 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(float fixedDeltaTime)
         {
             if (SelectedIndex == -1)
                 SelectedIndex = 0; // this will trigger OnTabChangedEvt
 
             ActiveModSubMenu.Visible = Screen.ActiveModule != null || Screen.HighlightedModule != null;
-            base.Update(deltaTime);
+            base.Update(fixedDeltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            base.Draw(batch);
+            base.Draw(batch, elapsed);
             if (ActiveModSubMenu.Visible)
             {
                 DrawActiveModuleData(batch);
@@ -291,7 +291,7 @@ namespace Ship_Game
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
             DrawStat(ref modTitlePos, 128, mod.ActualCost, 84);
-            DrawStat(ref modTitlePos, 123, mod.GetActualMass(EmpireManager.Player), 79);
+            DrawStat(ref modTitlePos, 123, mod.GetActualMass(EmpireManager.Player, 1), 79);
             DrawStat(ref modTitlePos, 124, mod.ActualMaxHealth, 80);
 
             float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
@@ -372,7 +372,7 @@ namespace Ship_Game
             {
                 DrawString(batch, ref modTitlePos, "Explodes", mod.explodes);
                 DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
-                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
+                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius / 16f, 239);
             }
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), mod.EnergyResist, 190,  true);
@@ -396,50 +396,57 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6161), mod.APResist, 208);
             DrawStat(ref modTitlePos, Localizer.Token(6175), mod.DamageThreshold, 221);
             DrawStat(ref modTitlePos, Localizer.Token(6174), mod.EMP_Protection, 219);
-            DrawStat(ref modTitlePos, Localizer.Token(6187), mod.FixedTracking, 231);
-            DrawStat(ref modTitlePos, $"+{Localizer.Token(6186)}", mod.TargetTracking, 226);
+            DrawStat(ref modTitlePos, Localizer.Token(6187), mod.TargetingAccuracy, 231);
+            DrawStat(ref modTitlePos, $"+{Localizer.Token(6188)}", mod.TargetTracking, 226);
             if (mod.RepairDifficulty > 0) DrawStat(ref modTitlePos, Localizer.Token(1992), mod.RepairDifficulty, 241); // Complexity
 
             if (mod.PermittedHangarRoles.Length == 0)
                 return;
-            DynamicHangarOptions hangarOption = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
-            if (hangarOption != DynamicHangarOptions.Static)
-            {
-                modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
-                Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 145f, modTitlePos.Y);
-                string bestShip = Fonts.Arial12Bold.ParseText(GetDynamicHangarText(), ActiveModSubMenu.Width - 20);
-                Color color = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
-                DrawString(batch, ref bestShipSelectionPos, bestShip, color, Fonts.Arial12Bold);
+
+            var hangarOption  = ShipBuilder.GetDynamicHangarOptions(mod.hangarShipUID);
+            string hangerShip = hangarOption != DynamicHangarOptions.Static
+                    ? CarrierBays.GetDynamicShipNameShipDesign(mod)
+                    : mod.hangarShipUID;
+
+            Ship ship = ResourceManager.GetShipTemplate(hangerShip, false);
+            if (ship == null)
                 return;
-            }
-            Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
-            if (ship == null) return;
+
+            Color color   = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
             modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
-            Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+            Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y + 5);
             string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
-            DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
-            shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-            shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing *2;
-            DrawStat(ref shipSelectionPos, "LaunchCost", ship.ShipOrdLaunchCost, -1);
+            DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), color, Fonts.Arial12Bold);
+            shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y-20);
+            shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
+            DrawStat(ref shipSelectionPos, "Ord. Cost", ship.ShipOrdLaunchCost, -1);
             DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, -1);
             DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, -1);
             DrawStat(ref shipSelectionPos, "FTL", ship.MaxFTLSpeed, -1);
 
-            string GetDynamicHangarText()
+            if (hangarOption != DynamicHangarOptions.Static)
             {
-                switch (hangarOption)
-                {
-                    case DynamicHangarOptions.DynamicLaunch:
-                        return "Hangar will launch more advanced ships, as they become available in your empire";
-                    case DynamicHangarOptions.DynamicInterceptor:
-                        return "Hangar will launch more advanced ships which their designated ship category is 'Interceptor', " +
-                               "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
-                    case DynamicHangarOptions.DynamicAntiShip:
-                        return "Hangar will launch more advanced ships which their designated ship category is 'Anti-Ship', " +
-                               "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
-                    default:
-                        return "";
-                }
+                modTitlePos.Y = Math.Max(shipSelectionPos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 5;
+                Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 145f, modTitlePos.Y);
+                string bestShip = Fonts.Arial10.ParseText(GetDynamicHangarText(hangarOption), ActiveModSubMenu.Width - 20);
+                DrawString(batch, ref bestShipSelectionPos, bestShip, color, Fonts.Arial10);
+            }
+        }
+
+        string GetDynamicHangarText(DynamicHangarOptions hangarOption)
+        {
+            switch (hangarOption)
+            {
+                case DynamicHangarOptions.DynamicLaunch:
+                    return "Hangar will launch more advanced ships, as they become available in your empire";
+                case DynamicHangarOptions.DynamicInterceptor:
+                    return "Hangar will launch more advanced ships which their designated ship category is 'Interceptor', " +
+                           "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
+                case DynamicHangarOptions.DynamicAntiShip:
+                    return "Hangar will launch more advanced ships which their designated ship category is 'Anti-Ship', " +
+                           "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
+                default:
+                    return "";
             }
         }
 
@@ -471,10 +478,12 @@ namespace Ship_Game
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, Localizer.Token(128), cost, 84);
-            DrawStat(ref cursor, Localizer.Token(123), m.GetActualMass(EmpireManager.Player), 79);
+            DrawStat(ref cursor, Localizer.Token(123), m.GetActualMass(EmpireManager.Player, 1), 79);
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
+            float accuracy = w.BaseTargetError((int)Screen.FireControlLevel).LowerBound(1) / 16;
+            DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, 4114);
 
             if (isBeam)
             {
@@ -514,6 +523,9 @@ namespace Ship_Game
                 if (salvos > 1) DrawStat(ref cursor, "Salvo", salvos, 182);
                 if (projectiles > 1) DrawStat(ref cursor, "Projectiles", projectiles, 242);
             }
+
+            if (w.FireImprecisionAngle > 0)
+                DrawStat(ref cursor, "Imprecision", w.FireImprecisionAngle, 273);
 
             DrawStat(ref cursor, "Pwr/s", w.BeamPowerCostPerSecond, 87);
             DrawStat(ref cursor, "Delay", delay, 183);

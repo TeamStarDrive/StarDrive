@@ -8,8 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using System.Runtime.InteropServices.WindowsRuntime;
+using static Ship_Game.EmpireManager;
 
 namespace Ship_Game.Gameplay
 {
@@ -77,6 +78,7 @@ namespace Ship_Game.Gameplay
         public bool Tag_Tractor   { get => Tag(WeaponTag.Tractor);   set => Tag(WeaponTag.Tractor, value);   }
 
         [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
+
         public float HitPoints;
         public bool isBeam;
         public float EffectVsArmor = 1f;
@@ -110,7 +112,6 @@ namespace Ship_Game.Gameplay
         public bool isTurret;
         public bool isMainGun;
         public float OrdinanceRequiredToFire;
-
         // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
         public Vector2 PlanetCenter;
         
@@ -184,6 +185,7 @@ namespace Ship_Game.Gameplay
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
+        [XmlIgnore][JsonIgnore] public int DamagePerSecond { get; private set; }
 
         // Number of salvos that will be sequentially spawned.
         // For example, Vulcan Cannon fires a salvo of 20
@@ -258,6 +260,24 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
+        public void CalcDamagePerSecond() // FB: todo - do this also when new tech is unlocked (bonuses)
+        {
+            Weapon wOrMirv = this; 
+            if (MirvWarheads > 0 && MirvWeapon.NotEmpty())
+            {
+                Weapon warhead = ResourceManager.CreateWeapon(MirvWeapon);
+                wOrMirv        = warhead;
+            }
+
+            int salvos           = SalvoCount.LowerBound(1);
+            float beamMultiplier = isBeam && !isRepairBeam ? BeamDuration * 60f : 0f;
+            float dps            = isBeam 
+                ? DamageAmount * beamMultiplier / NetFireDelay
+                : (salvos / NetFireDelay) * wOrMirv.ProjectileCount * wOrMirv.DamageAmount * MirvWarheads.LowerBound(1);
+
+            DamagePerSecond = (int)dps;
+        }
+
         // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
         public float GetDamageWithBonuses(Ship owner)
         {
@@ -277,7 +297,6 @@ namespace Ship_Game.Gameplay
 
             return damageAmount;
         }
-
 
         public void PlayToggleAndFireSfx(AudioEmitter emitter = null)
         {
@@ -483,46 +502,55 @@ namespace Ship_Game.Gameplay
 
         Vector2 GetLevelBasedError(int level = -1)
         {
-            if (Module == null || Module.AccuracyPercent > 0.9999f || TruePD)
-                return Vector2.Zero; //|| Tag_PD
-
-            if (level == -1)
-            {
-                level = (Owner?.Level ?? 0)
-                      + (Owner?.TrackingPower ?? 0)
-                      + (Owner?.loyalty?.data.Traits.Militaristic ?? 0);
-            }
-
-            // reduce error by level cubed. if error is less than a module radius stop.
-            float baseError = 45f + 8 * Module.XSIZE * Module.YSIZE;
-            float adjust    = (baseError - level * level * level).LowerBound(0);
-            if (adjust < 8)
-                return Vector2.Zero;
-
-            // reduce or increase error based on weapon and trait characteristics.
-            if (Tag_Cannon)  adjust *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
-            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
-
-            adjust *= CalculateBaseAccuracy();
+            float adjust = BaseTargetError(level);
 
             return RandomMath2.Vector2D(adjust);
         }
 
-        float CalculateBaseAccuracy()
+        public float BaseTargetError(float level, float range = 0, Empire loyalty = null)
         {
-            float accuracy = (Module?.AccuracyPercent ?? 0f);
-            if (accuracy.AlmostEqual(-1f))
+            if (Module == null)
+                return 0;
+            
+            // base error is based on module size or accuracyPercent.
+            float baseError;
+            if (Module?.AccuracyPercent.AlmostEqual(-1) == false)
             {
-                accuracy = 1f;
-                if (isTurret) accuracy *= 0.5f;
-                if (Tag_PD)   accuracy *= 0.5f;
-                if (TruePD)   accuracy *= 0.5f;
+                // should be calculated once. 
+                baseError = (float)Math.Pow(1000 , (1 - Module.AccuracyPercent));
             }
             else
             {
-                accuracy = 1f - accuracy;
+                if (TruePD) baseError = 0;
+                //else baseError = (Module.Area + 16) * (Module.Area + 16);
+                else baseError = (float)Math.Pow(Module.Area * 16f + 160, 1.2f);
             }
-            return accuracy;
+
+            // Skip all accuracy if weapon is 100% accurate
+            if (baseError.AlmostZero())
+                return 0;
+
+            if (level < 0)
+            {
+                // calculate at ship update
+                level = (Owner?.Level ?? 0) + loyalty?.data.Traits.Militaristic ?? 0;
+                level = (float)Math.Pow(level, 2f);
+                level += (Owner?.TargetingAccuracy ?? 0);
+            }
+            
+            level += 5;
+
+            // reduce the error by level
+            float adjust = (baseError / level -16f).LowerBound(0);
+            
+            // reduce or increase error based on weapon and trait characteristics.
+            // this could be pre-calculated in the flyweight
+            if (Tag_Cannon) adjust  *= (1f - (Owner?.loyalty?.data.Traits.EnergyDamageMod ?? 0));
+            if (Tag_Kinetic) adjust *= (1f - (Owner?.loyalty?.data.OrdnanceEffectivenessBonus ?? 0));
+            if (isTurret) adjust    *= 0.5f;
+            if (Tag_PD) adjust      *= 0.5f;
+            if (TruePD) adjust      *= 0.5f;
+            return adjust;
         }
 
         // @note This is used for debugging
@@ -540,7 +568,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Applies correction to weapon target based on distance to target
-        Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
+        public Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
         {
             // once we get too close the angle error becomes too big, so move the target pos further
             float distance = source.Distance(target);
@@ -551,19 +579,26 @@ namespace Ship_Game.Gameplay
                 target += (minDistance - distance)*source.DirectionToTarget(target);
             }
             
-            // total error magnitude should get smaller as we get closer
-            float errorMagnitude = 1f;
-            if (distance < 2000f)
-            {
-                errorMagnitude = (distance+minDistance) / 2000f;
-            }
+            // total error magnitude should adjust as target is faster or slower than light speed. 
+            float errorMagnitude = (float)Math.Pow((distance + minDistance) / Ship.TargetErrorFocalPoint, 0.25f);
 
+            // total error magnitude should get smaller as the target gets slower. 
+            if (FireTarget?.Type == GameObjectType.ShipModule)
+            {
+                float speed = ((ShipModule)FireTarget).GetParent().CurrentVelocity;
+                errorMagnitude *= speed < 150 ? speed / 150 : 1;
+            }
+            
             Vector2 adjusted = target + error*errorMagnitude;
             DebugLastImpactPredict = adjusted;
             return adjusted;
         }
 
-        
+        public float GetSpeedReduction(float targetSpeed)
+        {
+            return (targetSpeed + 25) / 175;
+        }
+
         public Vector2 Origin => Module?.Center ?? PlanetCenter;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
@@ -738,7 +773,6 @@ namespace Ship_Game.Gameplay
 
             PrepareToFire();
             var beam = new Beam(this, source, destination, target);
-            Module.GetParent().AddBeam(beam);
             return true;
         }
 
@@ -824,12 +858,13 @@ namespace Ship_Game.Gameplay
             actualShieldPenChance = Math.Max(shieldPenChance, actualShieldPenChance);
         }
 
-        public float GetActualRange()
+        public float GetActualRange(Empire owner = null)
         {
+            owner = owner ?? Owner?.loyalty ?? Player;
             float range = BaseRange;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {
-                WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[ ActiveWeaponTags[i] ];
+                WeaponTagModifier mod = owner.data.WeaponTags[ ActiveWeaponTags[i] ];
                 range += mod.Range * BaseRange;
             }
             return range;
@@ -867,6 +902,7 @@ namespace Ship_Game.Gameplay
             else if (Tag_Energy)  damageModifier *= (1f - module.shield_energy_resist);
             else if (Tag_Beam)    damageModifier *= (1f - module.shield_beam_resist);
             else if (Tag_Missile) damageModifier *= (1f - module.shield_missile_resist);
+            else if (Tag_Hybrid)  damageModifier *= (1f - module.shield_hybrid_resist);
             return damageModifier;
         }
 
@@ -875,6 +911,7 @@ namespace Ship_Game.Gameplay
             float damageModifier = 1f;
             if (module.Is(ShipModuleType.Armor)) damageModifier *= EffectVsArmor;
             if (Tag_Explosive)                   damageModifier *= (1f - module.ExplosiveResist);
+            if (Tag_Hybrid)                      damageModifier *= (1f - module.HybridResist);
             if (Tag_Kinetic)                     damageModifier *= (1f - module.KineticResist);
             else if (Tag_Beam)                   damageModifier *= (1f - module.BeamResist);
             else if (Tag_Energy)                 damageModifier *= (1f - module.EnergyResist);
@@ -925,7 +962,7 @@ namespace Ship_Game.Gameplay
 
             off *= TruePD ? 0.2f : 1f;
             off *= Tag_Intercept && (Tag_Missile || Tag_Torpedo) ? 0.8f : 1f;
-            off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
+            off *= ProjectileSpeed > 1 ? ProjectileSpeed / BaseRange : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
             off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.LowerBound(2) : 1;

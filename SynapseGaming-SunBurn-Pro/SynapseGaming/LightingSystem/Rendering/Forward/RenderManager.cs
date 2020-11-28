@@ -109,7 +109,7 @@ namespace SynapseGaming.LightingSystem.Rendering.Forward
                         case null:
                             continue;
                         case BaseSasBindEffect sasBind:
-                            sasBind.GameTime = state.GameTime;
+                            sasBind.UpdateTime(state.ElapsedTime);
                             break;
                     }
 

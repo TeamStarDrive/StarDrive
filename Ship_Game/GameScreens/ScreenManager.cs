@@ -210,10 +210,10 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        public void UpdateSceneObjects()
+        public void UpdateSceneObjects(float deltaTime)
         {
             lock (InterfaceLock)
-                SceneInter.Update(GameBase.Base.Elapsed.XnaTime);
+                SceneInter.Update(deltaTime);
         }
 
         public void RenderSceneObjects()
@@ -222,12 +222,12 @@ namespace Ship_Game
                 SceneInter.RenderManager.Render();
         }
 
-        public void BeginFrameRendering(ref Matrix view, ref Matrix projection)
+        public void BeginFrameRendering(DrawTimes elapsed, ref Matrix view, ref Matrix projection)
         {
-            GameTime xnaTime = GameBase.Base.Elapsed.XnaTime;
             lock (InterfaceLock)
             {
-                GameSceneState.BeginFrameRendering(ref view, ref projection, xnaTime, Environment, true);
+                GameSceneState.BeginFrameRendering(ref view, ref projection,
+                                                   elapsed.RealTime.Seconds, Environment, true);
                 editor.BeginFrameRendering(GameSceneState);
                 SceneInter.BeginFrameRendering(GameSceneState);
             }
@@ -245,8 +245,16 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        public void Draw(FrameTimes elapsed)
+        /// <summary>
+        /// The Draw loop works on visible real time between frames,
+        /// since the delta time varies greatly between threads
+        /// </summary>
+        readonly DrawTimes DrawLoopTime = new DrawTimes();
+
+        public void Draw()
         {
+            DrawLoopTime.UpdateBeforeRendering(GameBase.Base.TotalGameTimeSeconds);
+
             SpriteBatch batch = SpriteBatch;
             for (int i = 0; i < GameScreens.Count; ++i)
             {
@@ -255,7 +263,7 @@ namespace Ship_Game
                 {
                     try
                     {
-                        screen.Draw(batch);
+                        screen.Draw(batch, DrawLoopTime);
                     }
                     catch (Exception e)
                     {
@@ -271,7 +279,7 @@ namespace Ship_Game
                 }
             }
             
-            ToolTip.Draw(batch, elapsed.RealTime);
+            ToolTip.Draw(batch, DrawLoopTime);
         }
 
         public void ExitAll(bool clear3DObjects)
@@ -417,7 +425,7 @@ namespace Ship_Game
             };
         }
 
-        void PerformHotLoadTasks(FrameTimes elapsed)
+        void PerformHotLoadTasks(UpdateTimes elapsed)
         {
             HotloadTimer += elapsed.RealTime.Seconds;
             if (HotloadTimer < HotloadInterval) return;
@@ -437,7 +445,7 @@ namespace Ship_Game
             }
         }
 
-        public void Update(FrameTimes elapsed)
+        public void Update(UpdateTimes elapsed)
         {
             PerformHotLoadTasks(elapsed);
             input.Update(elapsed); // analyze input state for this frame
@@ -478,16 +486,16 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Runs Pending actions for empireThread.
+        /// Invokes all Pending actions. This should only be called from ProcessTurns !!!
         /// </summary>
-        public void ExecutePendingEmpireActions()
+        public void InvokePendingEmpireThreadActions()
         {
-            while(PendingEmpireThreadActions.NotEmpty) 
-                PendingEmpireThreadActions.Dequeue().Invoke();
+            while (PendingEmpireThreadActions.TryDequeue(out Action action))
+                action();
         }
 
         /// <summary>
-        /// Queues action to run on empire thread. Please add logging to the action
+        /// Queues action to run on the Empire / Simulation thread, aka ProcessTurns thread.
         /// </summary>
         public void RunOnEmpireThread(Action action)
         {
@@ -497,7 +505,7 @@ namespace Ship_Game
             }
             else
             {
-                Log.WarningWithCallStack($"Null Action passed to RunOnEmpireThread method");
+                Log.WarningWithCallStack("Null Action passed to RunOnEmpireThread method");
             }
         }
 

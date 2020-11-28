@@ -88,8 +88,9 @@ namespace Ship_Game
 
                 float foodMissing = Storage.Max - FoodHere - IncomingFood;
                 foodMissing      += (-Food.NetIncome * AverageImportTurns).LowerBound(0);
-                int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5) + Owner.NumTradeTreaties;
-                return (int)(foodMissing / Owner.AverageFreighterCargoCap).Clamped(0, maxSlots);
+                int maxSlots      = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5) + Owner.NumTradeTreaties;
+                int foodSlots     = foodMissing < 5 ? 0 : (foodMissing / Owner.AverageFreighterCargoCap).RoundUpTo(1);
+                return foodSlots.Clamped(0, maxSlots);
             }
         }
 
@@ -142,7 +143,7 @@ namespace Ship_Game
 
         public int FreighterTraffic(Array<Ship> freighterList, Goods goods)
         {
-            return freighterList.Count(s => s.AI.HasTradeGoal(goods));
+            return freighterList.Count(s => s?.AI.HasTradeGoal(goods) == true);
         }
 
         // Freighters on the way to pick up from us
@@ -152,7 +153,7 @@ namespace Ship_Game
             for (int i = 0; i < freighterList.Count; i++)
             {
                 Ship freighter = freighterList[i];
-                if (freighter.Active
+                if (freighter?.Active == true
                     && freighter.AI.FindGoal(ShipAI.Plan.PickupGoods, out ShipAI.ShipGoal goal)
                     && goal.Trade.Goods == goods)
                 {
@@ -210,11 +211,11 @@ namespace Ship_Game
             for (int i = freighters.Count - 1; i >= 0; --i)
             {
                 Ship ship = freighters[i];
-                if (!ship.Active || ship.AI.State != AIState.SystemTrader)
+                if (ship == null || !ship.Active || ship.AI.State != AIState.SystemTrader)
                 {
                     freighters.RemoveAtSwapLast(i);
                 }
-                else if (ship.loyalty != Owner && !Owner.GetRelations(ship.loyalty).Treaty_Trade)
+                else if (ship.loyalty != Owner && !Owner.IsTradeTreaty(ship.loyalty))
                 {
                     // cancel trade plan and remove from list if trade treaty was canceled
                     freighters.RemoveAtSwapLast(i);
@@ -256,6 +257,15 @@ namespace Ship_Game
             return maxProdLoad.Clamped(0f, prodLoadLimit); ;
         }
 
+        public float ExportablePop(Planet exportPlanet, Planet importPlanet)
+        {
+            if (importPlanet.IsStarving)
+                return 0;
+
+            float maxPopLoad = importPlanet.MaxPopulation - importPlanet.Population - importPlanet.IncomingPop;
+            return maxPopLoad.Clamped(0, exportPlanet.MaxPopulation * 0.2f);
+        }
+
         void CalcIncomingGoods()
         {
             IncomingFood = CalcIncomingGoods(Goods.Food);
@@ -269,7 +279,7 @@ namespace Ship_Game
             for (int i = 0; i < IncomingFreighters.Count; i++)
             {
                 Ship freighter = IncomingFreighters[i];
-                if (freighter.Active && freighter.AI.HasTradeGoal(goods))
+                if (freighter?.Active == true && freighter.AI.HasTradeGoal(goods))
                    numGoods += freighter.CheckExpectedGoods(goods);
             }
 
@@ -281,9 +291,9 @@ namespace Ship_Game
             float limit = 0; // it is a multiplier
             switch (goods)
             {
-                case Goods.Food:       limit = FoodHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(2); break;
-                case Goods.Production: limit = ProdHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(4); break;
-                case Goods.Colonists:  limit = Population * 0.2f;                               break;
+                case Goods.Food:       limit = FoodHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
+                case Goods.Production: limit = ProdHere / NumOutgoingFreightersPickUp(OutgoingFreighters, goods).LowerBound(1); break;
+                case Goods.Colonists:  limit = Population * 0.2f;                                                               break;
             }
             return limit;
         }
