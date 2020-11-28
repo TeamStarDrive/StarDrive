@@ -334,7 +334,7 @@ namespace Ship_Game.AI
 
                 WarStrength = OwnerEmpire.Pool.EmpireReadyFleets.AccumulatedStrength;
                 // start a new war by military strength
-                if (worstWar > WarState.LosingBadly)
+                if (worstWar > WarState.WinningSlightly)
                 {
                     float currentTaskStrength = GetStrengthNeededByTasks(f =>
                 {
