@@ -36,6 +36,7 @@ namespace Ship_Game.Debug
         Remnants,
         Agents,
         Relationship,
+        FleetMulti,
         Last // dummy value
     }
 
@@ -243,6 +244,7 @@ namespace Ship_Game.Debug
                     case DebugModes.Remnants:     RemnantInfo();      break;
                     case DebugModes.Agents:       AgentsInfo();       break;
                     case DebugModes.Relationship: Relationships();    break;
+                    case DebugModes.FleetMulti:   FleetMultipliers(); break;
                 }
 
                 base.Draw(batch, elapsed);
@@ -250,8 +252,6 @@ namespace Ship_Game.Debug
             }
             catch { }
         }
-
-
 
         void Tech()
         {
@@ -781,6 +781,66 @@ namespace Ship_Game.Debug
                         DrawString(them.EmpireColor, "*** Preparing for War! ***");
 
                     DrawString(e.EmpireColor, "----------------------------");
+                }
+
+                column += 1;
+            }
+        }
+
+        void FleetMultipliers()
+        {
+            int column = 0;
+            foreach (Empire e in EmpireManager.NonPlayerEmpires)
+            {
+                if (e.data.Defeated)
+                    continue;
+
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 95, e.EmpireColor);
+                DrawString("--------------------------");
+                DrawString(e.Name);
+                DrawString($"{e.Personality}");
+                DrawString("----------------------------");
+                NewLine(2);
+                DrawString("Empire Strength Multipliers");
+                DrawString("---------------------------");
+                foreach (KeyValuePair<int, float> kv in e.EmpireStrMultiplier)
+                {
+                    Empire empire = EmpireManager.GetEmpireById(kv.Key);
+                    float multi   = kv.Value;
+                    DrawString(empire.EmpireColor, $"{empire.Name}: {multi.String(2)}");
+                }
+
+                NewLine(2);
+                DrawString("Target Multipliers");
+                DrawString("------------------");
+                Color color = Color.White;
+                string toDisplay = "";
+                foreach (KeyValuePair<Guid, float> kv in e.TargetsFleetStrMultiplier)
+                {
+                    if (!Empire.Universe.PlanetsDict.TryGetValue(kv.Key, out Planet planet))
+                    {
+                        if (!Empire.Universe.SolarSystemDict.TryGetValue(kv.Key, out SolarSystem system))
+                        {
+                            Ship ship = Empire.Universe.Objects.FindShip(kv.Key);
+                            if (ship != null)
+                            {
+                                toDisplay = $"Ship: {ship.Name}";
+                                color = ship.loyalty.EmpireColor;
+                            }
+                        }
+                        else
+                        {
+                            toDisplay = $"System: {system.Name}";
+                        }
+                    }
+                    else
+                    {
+                        toDisplay = $"Planet: {planet.Name}";
+                        color = planet.Owner?.EmpireColor ?? Color.White;
+                    }
+
+                    float multi = kv.Value;
+                    DrawString(color, $"{toDisplay}: {multi.String(2)}");
                 }
 
                 column += 1;

@@ -441,6 +441,40 @@ namespace Ship_Game.AI
             return 0;
         }
 
+        /// <summary>
+        /// Returns the strongest empire in this system. Can return null.
+        /// </summary>
+        /// <returns></returns>
+        public Empire GetDominantEmpireInSystem(SolarSystem system)
+        {
+            using (PinsMutex.AcquireReadLock())
+                if (SystemThreatMap.TryGetValue(system, out Pin[] pins))
+                {
+                    var filteredPins = pins.Filter(p => p.Ship?.Active == true);
+                    Map<Empire, float> empires = new Map<Empire, float>();
+                    for (int i = 0; i < pins.Length; i++)
+                    {
+
+                        Pin pin        = filteredPins[i];
+                        Empire loyalty = pin.Ship.loyalty;
+                        float str      = pin.Ship.GetStrength();
+
+                        if (empires.ContainsKey(loyalty))
+                            empires[loyalty] += str;
+                        else
+                        {
+                            var rel = Owner.GetRelations(loyalty);
+                            if (pin.Ship.IsAttackable(Owner, rel))
+                                empires.Add(loyalty, str);
+                        }
+                    }
+
+                    return empires.Count == 0 ? null : empires.SortedDescending(s => s.Value).First().Key;
+                }
+
+            return null;
+        }
+
         /// <summary> Returns true if there are any pins in the target system </summary>
         public bool AnyKnownThreatsInSystem(SolarSystem system) => SystemThreatMap.Keys.Contains(system);
 

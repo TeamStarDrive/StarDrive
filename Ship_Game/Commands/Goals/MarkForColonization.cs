@@ -84,7 +84,8 @@ namespace Ship_Game.Commands.Goals
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
-                empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, out float strMultiplier);
+                TargetEmpire = empire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
+                empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, TargetEmpire, out float strMultiplier);
                 spaceStrength *= strMultiplier;
                 var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(20));
                 empire.GetEmpireAI().AddPendingTask(task);
@@ -95,7 +96,6 @@ namespace Ship_Game.Commands.Goals
                 var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);
                 empire.GetEmpireAI().AddPendingTask(task);
             }
-
 
             return GoalStep.GoToNextStep;
         }
@@ -199,15 +199,15 @@ namespace Ship_Game.Commands.Goals
 
             if (AIControlsColonization 
                 && empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10
-                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7))
+                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7)) // we lost
             {
+
                 ReleaseShipFromGoal();
                 task?.EndTask();
                 return GoalStep.GoalFailed;
             }
 
             if (FinishedShip == null 
-                || FinishedShip.AI.State != AIState.Colonize
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != ColonizationTarget)
             {
@@ -217,7 +217,12 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            return ColonizationTarget.Owner == null ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            if (ColonizationTarget.Owner == null)
+                return GoalStep.TryAgain;
+
+            empire.DecreaseEmpireStrMultiplier(TargetEmpire);
+            return GoalStep.GoalComplete;
+
         }
 
         void ReleaseShipFromGoal()

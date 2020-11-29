@@ -430,6 +430,7 @@ namespace Ship_Game.Fleets
 
             if (EndInvalidTask(!StillInvasionEffective(task) || !StillCombatEffective(task)))
                 return;
+
             if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null && task.TargetPlanet.Owner != Owner)) 
                 return;
 
@@ -565,7 +566,6 @@ namespace Ship_Game.Fleets
                 {
                     Log.Info($"Invasion ({Owner.Name}) planet ({task.TargetPlanet}) Not attackable");
                     task.EndTask();
-
                 }
                 return;
             }
@@ -980,7 +980,10 @@ namespace Ship_Game.Fleets
                 return;
             }
             if (endTask)
+            {
+                Owner.DecreaseEmpireStrMultiplier(task.TargetEmpire);
                 TaskStep = 5;
+            }
 
             if (TaskStep < 2)
             {
@@ -1049,7 +1052,15 @@ namespace Ship_Game.Fleets
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
             bool threatIncoming = Owner.SystemWithThreat.Any(t=> !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
             bool stillThreats = threatIncoming || (enemyStrength > 1 || TaskStep < 5);
-            if (EndInvalidTask(!stillThreats || !CanTakeThisFight(enemyStrength))) return;
+            if (EndInvalidTask(!CanTakeThisFight(enemyStrength))) 
+                return;
+
+            if (EndInvalidTask(!stillThreats))
+            {
+                Owner.DecreaseEmpireStrMultiplier(task.TargetEmpire);
+                return;
+            }
+
 
             switch (TaskStep)
             {

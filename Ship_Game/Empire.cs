@@ -209,6 +209,7 @@ namespace Ship_Game
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
         public Map<Guid, float> TargetsFleetStrMultiplier { get; private set; } = new Map<Guid, float>();
+        public Map<int, float> EmpireStrMultiplier { get; private set; } = new Map<int, float>(); // Empire IDs
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -987,15 +988,20 @@ namespace Ship_Game
 
             return readyShips.ToArray();
         }
-
-        public void UpdateTargetsStrMultiplier(Guid guid, out float updatedMultiplier)
+        /// <summary>
+        /// Updates the Str needed for the fleet for this guid. Empire can be null.
+        /// </summary>
+        public void UpdateTargetsStrMultiplier(Guid guid, Empire e, out float updatedMultiplier)
         {
             if (TargetsFleetStrMultiplier.ContainsKey(guid))
                 TargetsFleetStrMultiplier[guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
             else
                 TargetsFleetStrMultiplier.Add(guid, DifficultyModifiers.TaskForceStrength);
 
-            updatedMultiplier = TargetsFleetStrMultiplier[guid];
+            updatedMultiplier = GetEmpireStrMultiplier(e) * TargetsFleetStrMultiplier[guid];
+            
+            // Updating the multiplier for the empire, long term value
+            TryUpdateEmpireStrMultiplier(e, TargetsFleetStrMultiplier[guid]);
         }
 
         public void RemoveTargetsStrMultiplier(Guid guid)
@@ -1008,6 +1014,11 @@ namespace Ship_Game
             TargetsFleetStrMultiplier = claims;
         }
 
+        public void RestoreEmpireStrMultiplier(Map<int, float> empireStr)
+        {
+            EmpireStrMultiplier = empireStr;
+        }
+
         public float GetTargetsStrMultiplier(Guid guid)
         {
             return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
@@ -1015,8 +1026,48 @@ namespace Ship_Game
 
         public float GetTargetsStrMultiplier(Planet planet)
         {
-            var guid = planet.guid;
-            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
+            return GetTargetsStrMultiplier(planet.guid);
+        }
+
+        /// <summary>
+        /// This will get  the empire str modifier required for fleets.
+        /// </summary>
+        /// <param name="empire"></param>
+        /// <returns>Will return 1 if empire is null</returns>
+        float GetEmpireStrMultiplier(Empire empire)
+        {
+            if (empire == null)
+                return 1;
+
+            int id = empire.Id;
+            return EmpireStrMultiplier.ContainsKey(id) ? EmpireStrMultiplier[id] : 1;
+        }
+
+        void TryUpdateEmpireStrMultiplier(Empire empire, float value)
+        {
+            if (empire == null)
+                return;
+
+            if (EmpireStrMultiplier.ContainsKey(empire.Id))
+                EmpireStrMultiplier[empire.Id] = value.LowerBound(EmpireStrMultiplier[empire.Id]);
+            else
+                EmpireStrMultiplier.Add(empire.Id, value);
+        }
+
+        /// <summary>
+        /// This will decrease the str needed vs the target empire slightly. Empire is null safe.
+        /// </summary>
+        /// <param name="empire"></param>
+        public void DecreaseEmpireStrMultiplier(Empire empire)
+        {
+            if (empire == null)
+                return;
+
+            int id = empire.Id;
+            if (EmpireStrMultiplier.ContainsKey(id))
+                EmpireStrMultiplier[id] = (EmpireStrMultiplier[id] - 0.2f).LowerBound(0.5f);
+            else
+                EmpireStrMultiplier.Add(id, 1);
         }
 
         public FleetShips AllFleetsReady()
