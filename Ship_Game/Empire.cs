@@ -43,24 +43,6 @@ namespace Ship_Game
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
 
-        public float GetWarOffensiveRatio()
-        {
-            float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
-            float militaryRatio  = Research.Strategy.MilitaryRatio;
-            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
-            return (1 + territorialism + militaryRatio + opportunism) / 4;
-        }
-
-        public float GetExpansionRatio()
-        {
-            float territorialism = (data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
-            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
-            float expansion      = Research.Strategy.ExpansionRatio;
-            float cybernetic     = IsCybernetic ? 1 : 0;
-
-            return (territorialism + expansion + opportunism + cybernetic);
-        }
-
         readonly int[] MoneyHistory = new int[10];
         int MoneyHistoryIndex = 0;
 
@@ -452,9 +434,10 @@ namespace Ship_Game
         public float KnownEnemyStrengthIn(SolarSystem system, Predicate<ThreatMatrix.Pin> filter)
                      => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, filter);
         public float KnownEnemyStrengthIn(SolarSystem system)
-             => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p=> p.Ship?.Active == true);
+             => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p=> IsEmpireHostile(p.GetEmpire()));
         public float KnownEnemyStrengthIn(AO ao)
              => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
+        public float KnownEmpireStrength(Empire empire) => EmpireAI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
@@ -904,15 +887,19 @@ namespace Ship_Game
 
         public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored)
         {
-            var solarSystems = new Array<SolarSystem>();
             Vector2 theirCenter = them.WeightedCenter;
-            float maxDistance = theirCenter.Distance(WeightedCenter) - 300000;
-            
+            Vector2 ownCenter   = WeightedCenter;
+            var directionToThem = ownCenter.DirectionToTarget(theirCenter);
+            float midDistance   = ownCenter.Distance(theirCenter) / 2;
+            Vector2 midPoint    = directionToThem * midDistance;
+            float mapDistance   = Universe.UniverseSize / 2f;
+
+            var solarSystems = new Array<SolarSystem>();
             foreach (var solarSystem in GetOwnedSystems())
             {
                 if (hideUnexplored && !solarSystem.IsExploredBy(them)) continue;
 
-                if (maxDistance < solarSystem.Position.Distance(theirCenter))
+                if (solarSystem.Position.InRadius(midPoint, mapDistance))
                     solarSystems.AddUniqueRef(solarSystem);
             }
             return solarSystems;

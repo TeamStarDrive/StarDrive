@@ -262,12 +262,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public DebugTextBlock DebugText(DebugTextBlock debug, string pad1, string pad2)
         {
             debug.AddLine($"Theaters : {Theaters.Count}");
-            debug.AddLine($"WarValue : {WarValue}");
+            debug.AddLine($"WarValue : {WarValue:n0}");
             
             for (int i = 0; i < (ActiveTheaters?.Length ?? 0); i++)
             {
                 var theater = ActiveTheaters[i];
-                debug.AddLine($"Theater : {i} WarValue : {theater.WarValue}");
+                debug.AddLine($"Theater : {i} WarValue : {theater.WarValue:n0}");
                 debug = theater.DebugText(debug, pad1, pad2);
             }
 

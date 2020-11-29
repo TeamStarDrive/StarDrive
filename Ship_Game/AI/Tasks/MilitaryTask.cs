@@ -374,9 +374,9 @@ namespace Ship_Game.AI.Tasks
         {
             float divisor = 2;
             if (GetTaskCategory() == TaskCategory.War)
-                divisor = 2;
+                divisor = 1;
             else if (Owner.IsAtWar) 
-                divisor = 6;
+                divisor = 10;
             
             float fleets = Owner.Pool.InitialReadyFleets;
             return Owner.Pool.CurrentUseableFleets + fleets / divisor > fleets;
