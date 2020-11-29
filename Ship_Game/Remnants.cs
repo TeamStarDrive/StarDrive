@@ -907,6 +907,7 @@ namespace Ship_Game
                 if (SpawnShip(type, pos, out Ship ship))
                 {
                     ship.OrderToOrbit(p);
+                    ship.SetSystem(p.ParentSystem); // needed for Threat Matrix update pins to register the threatened system 
                     ActivationXpNeeded += (ShipRole.GetExpSettings(ship).KillExp / divider) * StoryTurnsLevelUpModifier();
 
                     foreach (Empire e in EmpireManager.NonPlayerEmpires)
