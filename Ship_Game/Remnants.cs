@@ -393,8 +393,7 @@ namespace Ship_Game
             }
             else  // AI scramble defense
             {
-                planet.Owner.UpdateTargetsStrMultiplier(planet.guid, EmpireManager.Remnants, out float strMulti);
-                var task = MilitaryTask.CreateDefendVsRemnant(planet, planet.Owner, str * strMulti);
+                var task = MilitaryTask.CreateDefendVsRemnant(planet, planet.Owner, str);
                 planet.Owner.GetEmpireAI().AddPendingTask(task);
             }
         }

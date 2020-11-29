@@ -158,9 +158,8 @@ namespace Ship_Game
                 empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
                 empireToSave.WeightedCenter           = e.WeightedCenter;
                 empireToSave.RushAllConstruction      = e.RushAllConstruction;
-
-                empireToSave.TargetsStrMultiplier = e.TargetsFleetStrMultiplier;
-                empireToSave.EmpireStrMultiplier  = e.EmpireStrMultiplier;
+                empireToSave.TargetsStrMultiplier     = e.TargetsFleetStrMultiplier;
+                empireToSave.FleetStrEmpireModifier   = e.FleetStrEmpireModifier;
 
                 if (e.WeArePirates)
                 {
@@ -605,7 +604,7 @@ namespace Ship_Game
             [Serialize(41)] public float RemnantNextLevelUpDate;
             [Serialize(42)] public int RemnantHibernationTurns;
             [Serialize(43)] public float RemnantActivationXpNeeded;
-            [Serialize(44)] public Map<int, float> EmpireStrMultiplier;
+            [Serialize(44)] public Map<int, float> FleetStrEmpireModifier;
         }
 
         public class FleetSave

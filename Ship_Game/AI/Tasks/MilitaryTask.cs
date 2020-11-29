@@ -35,6 +35,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(19)] public Guid TaskGuid = Guid.NewGuid();
         [Serialize(20)] public Array<Vector2> PatrolPoints;
         [Serialize(21)] public int TargetEmpireId;
+        [Serialize(22)] public Guid TargetGuid; // This can be planet, ship or solar system
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
@@ -73,6 +74,7 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateClaimTask(Empire owner, Planet targetPlanet, float minStrength)
         {
+            Empire dominant  = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
             var militaryTask = new MilitaryTask
             {
                 TargetPlanet             = targetPlanet,
@@ -84,7 +86,9 @@ namespace Ship_Game.AI.Tasks
                 // need to adjust this by personality.
                 // this task will increase in priority as time goes by. 
                 // this will generally only have an effect during war. 
-                Priority                 = 20
+                Priority                 = 20,
+                TargetGuid               = targetPlanet.guid,
+                TargetEmpire             = dominant
             };
 
             return militaryTask;
@@ -98,7 +102,7 @@ namespace Ship_Game.AI.Tasks
                 AO                       = targetPlanet.Center,
                 type                     = TaskType.GuardBeforeColonize,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
-                MinimumTaskForceStrength = (owner.CurrentMilitaryStrength * 0.2f).LowerBound(10),
+                MinimumTaskForceStrength = (owner.CurrentMilitaryStrength / 1000).LowerBound(50),
                 Owner                    = owner,
                 Priority                 = 0
             };
@@ -106,7 +110,7 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
-            public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, float minStrength)
+        public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
             var militaryTask = new MilitaryTask
             {
@@ -116,20 +120,9 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = 20000,
                 EnemyStrength            = targetShip.BaseStrength,
                 TargetShipGuid           = targetShip.guid,
-                MinimumTaskForceStrength = minStrength
-            };
-            return militaryTask;
-        }
-
-        public static MilitaryTask CreateGlassPlanetTask(Planet targetPlanet, float minStrength)
-        {
-            var militaryTask = new MilitaryTask
-            {
-                TargetPlanet             = targetPlanet,
-                AO                       = targetPlanet.Center,
-                type                     = TaskType.GlassPlanet,
-                AORadius                 = targetPlanet.GravityWellRadius,
-                MinimumTaskForceStrength = minStrength
+                MinimumTaskForceStrength = targetShip.BaseStrength * empire.GetTargetsStrMultiplier(targetShip, targetShip.loyalty),
+                TargetGuid               = targetShip.guid,
+                TargetEmpire             = targetShip.loyalty
             };
             return militaryTask;
         }
@@ -141,10 +134,11 @@ namespace Ship_Game.AI.Tasks
                 AO           = planet.Center,
                 AORadius     = 10000f,
                 WhichFleet   = fleetId,
-                TargetPlanet = planet
+                TargetPlanet = planet,
+                Owner        = owner,
+                type         = TaskType.DefendPostInvasion
             };
-            militaryTask.SetEmpire(owner);
-            militaryTask.type = TaskType.DefendPostInvasion;
+
             return militaryTask;
         }
 
@@ -164,18 +158,21 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateDefendVsRemnant(Planet planet, Empire owner, float str)
         {
+            float strMulti   = owner.GetTargetsStrMultiplier(planet, EmpireManager.Remnants);
             var militaryTask = new MilitaryTask
             {
                 AO                       = planet.Center,
                 AORadius                 = 50000f,
                 TargetPlanet             = planet,
-                MinimumTaskForceStrength = str,
-                EnemyStrength            = str,
-                Priority                 = 0
+                MinimumTaskForceStrength = str * strMulti,
+                EnemyStrength            = str * strMulti,
+                Priority                 = 0,
+                Owner                    = owner,
+                type                     = TaskType.DefendVsRemnants,
+                TargetEmpire             = EmpireManager.Remnants,
+                TargetGuid               = planet.guid
             };
 
-            militaryTask.SetEmpire(owner);
-            militaryTask.type = TaskType.DefendVsRemnants;
             return militaryTask;
         }
 
@@ -190,12 +187,11 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask(Empire owner, Vector2 center, float radius, SolarSystem system, float strengthWanted, TaskType taskType)
         {
             Empire dominant = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(system);
-            owner.UpdateTargetsStrMultiplier(system.guid, dominant, out float strMulti);
 
             AO                       = center;
             AORadius                 = radius;
             type                     = taskType;
-            MinimumTaskForceStrength = strengthWanted * strMulti;
+            MinimumTaskForceStrength = strengthWanted * owner.GetTargetsStrMultiplier(system, dominant);
             EnemyStrength            = strengthWanted;
             TargetSystem             = system;
             Owner                    = owner;
@@ -204,7 +200,7 @@ namespace Ship_Game.AI.Tasks
                 TargetEmpire = dominant;
         }
 
-        public MilitaryTask(Planet target, Empire owner, float strMultiplier)
+        public MilitaryTask(Planet target, Empire owner)
         {
             var threatMatrix = owner.GetEmpireAI().ThreatMatrix;
             float radius     = 3500f;
@@ -214,10 +210,11 @@ namespace Ship_Game.AI.Tasks
             type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
             TargetPlanetGuid         = target.guid;
+            TargetGuid               = target.guid;
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
-            MinimumTaskForceStrength = strWanted * strMultiplier;
+            MinimumTaskForceStrength = strWanted * owner.GetTargetsStrMultiplier(target, target.Owner);
 
             if (target.Owner != null)
                 TargetEmpire= target.Owner;

@@ -84,10 +84,9 @@ namespace Ship_Game.Commands.Goals
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
-                TargetEmpire = empire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
-                empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, TargetEmpire, out float strMultiplier);
-                spaceStrength *= strMultiplier;
-                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(20));
+                TargetEmpire        = empire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
+                float strMultiplier = empire.GetTargetsStrMultiplier(ColonizationTarget, TargetEmpire);
+                var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * strMultiplier).LowerBound(20));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
             else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire) 
@@ -209,7 +208,7 @@ namespace Ship_Game.Commands.Goals
 
             if (ColonizationTarget.Owner == empire)
             {
-                empire.DecreaseEmpireStrMultiplier(TargetEmpire);
+                empire.DecreaseFleetStrEmpireModifier(TargetEmpire);
                 return GoalStep.GoalComplete;
             }
 

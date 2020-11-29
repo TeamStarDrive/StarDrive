@@ -397,9 +397,9 @@ namespace Ship_Game.AI.Tasks
                 EnemyStrength += TargetShip.BaseStrength;
 
             MinimumTaskForceStrength = EnemyStrength + buildingsSpaceOffense;
-            float multiplier = Owner.GetTargetsStrMultiplier(targetGuid);
+            float multiplier         = Owner.GetTargetsStrMultiplier(targetGuid, TargetEmpire);
 
-            if (multiplier < 2 ||  MinimumTaskForceStrength * multiplier < Owner.CurrentMilitaryStrength / 2)
+            if (MinimumTaskForceStrength * multiplier < Owner.CurrentMilitaryStrength / 2)
                 MinimumTaskForceStrength *= multiplier;
         }
 
@@ -482,7 +482,7 @@ namespace Ship_Game.AI.Tasks
             int wantedNumberOfFleets = FleetCount;
             if (TargetPlanet?.Owner != null)
             {
-                wantedNumberOfFleets +=(int)Math.Floor(Owner.GetTargetsStrMultiplier(TargetPlanet.guid) + 0.5f);
+                wantedNumberOfFleets +=(int)Math.Floor(Owner.GetTargetsStrMultiplier(TargetPlanet, TargetPlanet.Owner) + 0.5f);
                 wantedNumberOfFleets += TargetPlanet.ParentSystem.PlanetList.Max(p =>
                 {
                     if (p.Owner == TargetPlanet.Owner)

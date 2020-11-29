@@ -41,7 +41,7 @@ namespace Ship_Game.AI
             {
                 float hard = 0;
                 if (t.GetTaskCategory() == MilitaryTask.TaskCategory.Expansion)
-                    hard = OwnerEmpire.GetTargetsStrMultiplier(t.TargetPlanet);
+                    hard = OwnerEmpire.GetTargetsStrMultiplier(t.TargetPlanet, t.TargetEmpire);
                 return t.Priority + hard;
             });
             
@@ -277,16 +277,16 @@ namespace Ship_Game.AI
 
         public void SendExplorationFleet(Planet p)
         {
+            Empire dominant = OwnerEmpire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(p.ParentSystem);
             var militaryTask = new MilitaryTask
             {
-                AO       = p.Center,
-                AORadius = 50000f,
-                type     = MilitaryTask.TaskType.Exploration,
-                Priority = 20
-
+                AO          = p.Center,
+                AORadius     = 50000f,
+                type         = MilitaryTask.TaskType.Exploration,
+                Priority     = 20,
+                TargetEmpire = dominant,
             };
-            Empire dominant = OwnerEmpire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(p.ParentSystem);
-            OwnerEmpire.UpdateTargetsStrMultiplier(p.guid, dominant, out _);
+
             militaryTask.SetTargetPlanet(p);
             militaryTask.SetEmpire(OwnerEmpire);
             AddPendingTask(militaryTask);

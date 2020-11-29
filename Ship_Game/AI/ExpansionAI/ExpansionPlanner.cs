@@ -38,7 +38,7 @@ namespace Ship_Game.AI.ExpansionAI
             foreach (var g in Goals)
             {
                 if (g.type != GoalType.Colonize) continue;
-                float blocker = Owner.GetTargetsStrMultiplier(g.ColonizationTarget);
+                float blocker = Owner.GetTargetsStrMultiplier(g.ColonizationTarget, g.TargetEmpire);
                 if (blocker > Owner.DifficultyModifiers.TaskForceStrength)
                     count++;
             }
