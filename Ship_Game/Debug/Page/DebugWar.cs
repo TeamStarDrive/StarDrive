@@ -53,7 +53,7 @@ namespace Ship_Game.Debug.Page
             {
                 if (rel.Known && !them.isFaction && them != EmpireAtWar && !them.data.Defeated)
                 {
-                    text.Add(rel.DebugWar());
+                    text.Add(rel.DebugWar(EmpireAtWar));
                 }
             }
             SetTextColumns(text);
