@@ -12,7 +12,8 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
-                CreateGuardians
+                CreateGuardians,
+                SendExplorationFleetsAstronomers
             };
         }
         public RemnantInit(Empire owner) : this()
@@ -27,6 +28,30 @@ namespace Ship_Game.Commands.Goals
                 foreach (Planet p in solarSystem.PlanetList)
                 {
                     empire.Remnants.GenerateRemnantPresence(p);
+                }
+            }
+
+            return GoalStep.GoToNextStep;
+        }
+
+        GoalStep SendExplorationFleetsAstronomers()
+        {
+            foreach (Empire e in EmpireManager.MajorEmpires.Filter(e => e.data.Traits.BonusExplored > 0))
+            {
+                Planet homeWorld             = e.GetPlanets()[0];
+                var solarSystems             = Empire.Universe.SolarSystemDict.Values;
+                SolarSystem[] closestSystems = solarSystems.Sorted(system => homeWorld.Center.Distance(system.Position));
+                int numExplored              = solarSystems.Count >= 20 ? e.data.Traits.BonusExplored : solarSystems.Count;
+
+                for (int i = 0; i < numExplored; ++i)
+                {
+                    SolarSystem ss = closestSystems[i];
+                    ss.SetExploredBy(e);
+                    foreach (Planet planet in ss.PlanetList)
+                    {
+                        planet.SetExploredBy(e);
+                        Empire.TrySendInitialFleets(planet, e);
+                    }
                 }
             }
 

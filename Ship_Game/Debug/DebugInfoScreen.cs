@@ -1014,11 +1014,11 @@ namespace Ship_Game.Debug
                     DrawString(15f, $"Step:  {task.Step} - Priority:{task.Priority}");
                     float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
                     string strMultiplier = task.TargetPlanet != null 
-                        ? $" (x{e.GetTargetsStrMultiplier(task.TargetPlanet, task.TargetEmpire).String(1)})" 
+                        ? $" (x{e.GetTargetsStrMultiplier(task.TargetPlanet, task.TargetPlanet.Owner).String(1)})" 
                         : "";
                     
                     if (task.type == MilitaryTask.TaskType.AssaultPirateBase && task.TargetShip != null)
-                        strMultiplier = $" (x{e.GetTargetsStrMultiplier(task.TargetShip, task.TargetEmpire).String(1)})";
+                        strMultiplier = $" (x{e.GetTargetsStrMultiplier(task.TargetShip, task.TargetShip.loyalty).String(1)})";
 
                     DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength} {strMultiplier}");
                     if (task.WhichFleet != -1)
