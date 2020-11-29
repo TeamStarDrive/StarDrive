@@ -277,19 +277,8 @@ namespace Ship_Game.AI
 
         public void SendExplorationFleet(Planet p)
         {
-            Empire dominant = OwnerEmpire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(p.ParentSystem);
-            var militaryTask = new MilitaryTask
-            {
-                AO          = p.Center,
-                AORadius     = 50000f,
-                type         = MilitaryTask.TaskType.Exploration,
-                Priority     = 20,
-                TargetEmpire = dominant,
-            };
-
-            militaryTask.SetTargetPlanet(p);
-            militaryTask.SetEmpire(OwnerEmpire);
-            AddPendingTask(militaryTask);
+            var task = MilitaryTask.CreateExploration(p, OwnerEmpire);
+            AddPendingTask(task);
         }
 
         void BuildWarShips(int goalsInConstruction)

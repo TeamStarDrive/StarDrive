@@ -8,6 +8,8 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI.ExpansionAI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Empires;
 using Ship_Game.Empires.DataPackets;
 using Ship_Game.Empires.ShipPools;
@@ -955,6 +957,24 @@ namespace Ship_Game
 
             OwnedSolarSystems.AddUniqueRef(planet.ParentSystem);
             CalcWeightedCenter(calcNow: true);
+        }
+
+        public static void TrySendInitialFleets(Planet p, Empire e)
+        {
+            if (e.isPlayer)
+                return;
+
+            if (p.TilesList.Any(t => t.EventOnTile))
+                e.GetEmpireAI().SendExplorationFleet(p);
+
+            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(e))
+                return;
+
+            if (PlanetRanker.IsGoodValueForUs(p, e) && e.KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
+            {
+                var task = MilitaryTask.CreateGuardTask(e, p);
+                e.GetEmpireAI().AddPendingTask(task);
+            }
         }
 
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;

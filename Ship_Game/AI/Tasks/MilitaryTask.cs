@@ -34,7 +34,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
         [Serialize(19)] public Guid TaskGuid = Guid.NewGuid();
         [Serialize(20)] public Array<Vector2> PatrolPoints;
-        [Serialize(21)] public int TargetEmpireId;
+        [Serialize(21)] public int TargetEmpireId = -1;
         [Serialize(22)] public Guid TargetGuid; // This can be planet, ship or solar system
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
@@ -50,8 +50,12 @@ namespace Ship_Game.AI.Tasks
 
         [XmlIgnore] [JsonIgnore] public Empire TargetEmpire
         {
-            get => EmpireManager.GetEmpireById(TargetEmpireId);
-            set => TargetEmpireId = value.Id;
+            get => TargetEmpireId < 0 ? null : EmpireManager.GetEmpireById(TargetEmpireId);
+            set
+            {
+                if (value != null) 
+                    TargetEmpireId = value.Id;
+            }
         }
 
         public bool IsTaskAOInSystem(SolarSystem system)
@@ -89,6 +93,25 @@ namespace Ship_Game.AI.Tasks
                 Priority                 = 20,
                 TargetGuid               = targetPlanet.guid,
                 TargetEmpire             = dominant
+            };
+
+            return militaryTask;
+        }
+
+        public static MilitaryTask CreateExploration(Planet targetPlanet, Empire owner)
+        {
+            Empire dominant = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
+            var militaryTask = new MilitaryTask
+            {
+                AO               = targetPlanet.Center,
+                AORadius         = 50000f,
+                type             = TaskType.Exploration,
+                Priority         = 20,
+                Owner            = owner,
+                TargetPlanet     = targetPlanet,
+                TargetPlanetGuid = targetPlanet.guid,
+                TargetGuid       = targetPlanet.guid,
+                TargetEmpire     = dominant
             };
 
             return militaryTask;
