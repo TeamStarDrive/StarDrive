@@ -98,16 +98,13 @@ namespace Ship_Game.AI
 
         float DetermineBuildCapacity(float money, float risk, float percentOfMoney)
         {
-            float personalityWar = OwnerEmpire.GetWarOffensiveRatio();
+            float personalityWar       = OwnerEmpire.GetWarOffensiveRatio();
             float personalityExpansion = OwnerEmpire.GetExpansionRatio();
-
-            risk                           = risk;
-            float personality         = (personalityWar + personalityExpansion ) / 3;
-            float buildRatio               = (personality) ;
-            float buildBudget              = SetBudgetForeArea(percentOfMoney, buildRatio, money);
-            float extraBudget              = OverSpendRatio(money, 1, 1.25f).LowerBound(1);
+            float personality          = (personalityWar + personalityExpansion ) / 3;
+            float buildRatio           = (personality) ;
+            float buildBudget          = SetBudgetForeArea(percentOfMoney, buildRatio, money);
+            float extraBudget          = OverSpendRatio(money, 1, 1.25f).LowerBound(1);
             return (buildBudget * risk * extraBudget).LowerBound(1);
-
         }
 
         float DetermineColonyBudget(float money, float percentOfMoney)

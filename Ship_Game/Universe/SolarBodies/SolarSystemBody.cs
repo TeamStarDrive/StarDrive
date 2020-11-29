@@ -442,7 +442,7 @@ namespace Ship_Game
         {
             if (!newOwner.isPlayer)
             {
-                newOwner.DecreaseEmpireStrMultiplier(Owner);
+                newOwner.DecreaseFleetStrEmpireModifier(Owner);
                 RemovePlanetStrNeededMultiplier(this);
             }
 

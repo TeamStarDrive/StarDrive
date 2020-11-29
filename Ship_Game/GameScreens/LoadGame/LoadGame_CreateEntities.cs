@@ -62,8 +62,8 @@ namespace Ship_Game
                 if (sdata.TargetsStrMultiplier != null)
                     e.RestoreTargetsStrMultiplier(sdata.TargetsStrMultiplier);
 
-                if (sdata.EmpireStrMultiplier != null)
-                    e.RestoreEmpireStrMultiplier(sdata.EmpireStrMultiplier);
+                if (sdata.FleetStrEmpireModifier != null)
+                    e.RestoreFleetStrEmpireModifier(sdata.FleetStrEmpireModifier);
 
                 e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
