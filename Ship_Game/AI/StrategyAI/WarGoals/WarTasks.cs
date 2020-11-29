@@ -93,15 +93,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (planet.Owner != them || IsAlreadyAssaultingPlanet(planet))
                     continue;
 
-                Owner.UpdateTargetsStrMultiplier(planet.guid, them, out float strMulti);
-                CreateTask(new MilitaryTask(planet, Owner, strMulti)
+                CreateTask(new MilitaryTask(planet, Owner)
                 {
                     Priority = priority
                 });
 
                 if (Owner.canBuildBombers && !IsAlreadyGlassingPlanet(planet))
                 {
-                    var task = new MilitaryTask(planet, Owner, strMulti)
+                    var task = new MilitaryTask(planet, Owner)
                     {
                         Priority = priority + 1,
                         type = MilitaryTask.TaskType.GlassPlanet

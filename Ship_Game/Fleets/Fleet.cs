@@ -895,7 +895,10 @@ namespace Ship_Game.Fleets
 
         void DoAssaultPirateBase(MilitaryTask task)
         {
-            if (EndInvalidTask(task.TargetShip == null || !task.TargetShip.Active))
+            if (EndInvalidTask(!CanTakeThisFight(task.EnemyStrength)))
+                return;
+
+            if (EndInvalidTask(task.TargetShip == null || !task.TargetShip.Active)) // Pirate base is dead
             {
                 ClearOrders();
                 return;
@@ -924,8 +927,7 @@ namespace Ship_Game.Fleets
                 case 3:
                     if (!AttackEnemyStrengthClumpsInAO(task))
                         TaskStep = 4;
-                    else if (!CanTakeThisFight(task.EnemyStrength))
-                        FleetTask?.EndTask();
+
                     break;
                 case 4:
                     ClearOrders();
@@ -981,7 +983,7 @@ namespace Ship_Game.Fleets
             }
             if (endTask)
             {
-                Owner.DecreaseEmpireStrMultiplier(task.TargetEmpire);
+                Owner.DecreaseFleetStrEmpireModifier(task.TargetEmpire);
                 TaskStep = 5;
             }
 
@@ -1057,7 +1059,7 @@ namespace Ship_Game.Fleets
 
             if (EndInvalidTask(!stillThreats))
             {
-                Owner.DecreaseEmpireStrMultiplier(task.TargetEmpire);
+                Owner.DecreaseFleetStrEmpireModifier(task.TargetEmpire);
                 return;
             }
 
@@ -1433,7 +1435,12 @@ namespace Ship_Game.Fleets
         public bool CanTakeThisFight(float enemyFleetStrength)
         {
             float ourStrengthThreshold = GetStrength() * 2;
-            return enemyFleetStrength < ourStrengthThreshold;
+            if (enemyFleetStrength < ourStrengthThreshold)
+                return true;
+
+            // We can win, update fleet multipliers for next time
+            Owner.UpdateTargetsStrMultiplier(FleetTask.TargetGuid, FleetTask.TargetEmpire);
+            return false;
         }
 
         bool StillCombatEffective(MilitaryTask task)

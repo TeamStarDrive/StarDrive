@@ -803,7 +803,7 @@ namespace Ship_Game.Debug
                 NewLine(2);
                 DrawString("Empire Strength Multipliers");
                 DrawString("---------------------------");
-                foreach (KeyValuePair<int, float> kv in e.EmpireStrMultiplier)
+                foreach (KeyValuePair<int, float> kv in e.FleetStrEmpireModifier)
                 {
                     Empire empire = EmpireManager.GetEmpireById(kv.Key);
                     float multi   = kv.Value;
@@ -989,7 +989,7 @@ namespace Ship_Game.Debug
                     NewLine();
                     string held = g.Held ? "(Held" : "";
                     DrawString($"{held}{g.UID} {g.ColonizationTarget.Name}" +
-                               $" (x{e.GetTargetsStrMultiplier(g.ColonizationTarget.guid).String(1)})");
+                               $" (x{e.GetTargetsStrMultiplier(g.ColonizationTarget, g.TargetEmpire).String(1)})");
 
                     DrawString(15f, $"Step: {g.StepName}");
                     if (g.FinishedShip != null && g.FinishedShip.Active)
@@ -1014,17 +1014,17 @@ namespace Ship_Game.Debug
                     DrawString(15f, $"Step:  {task.Step} - Priority:{task.Priority}");
                     float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
                     string strMultiplier = task.TargetPlanet != null 
-                        ? $" (x{e.GetTargetsStrMultiplier(task.TargetPlanet.guid).String(1)})" 
+                        ? $" (x{e.GetTargetsStrMultiplier(task.TargetPlanet, task.TargetEmpire).String(1)})" 
                         : "";
                     
                     if (task.type == MilitaryTask.TaskType.AssaultPirateBase && task.TargetShip != null)
-                        strMultiplier = $" (x{e.GetTargetsStrMultiplier(task.TargetShip.guid).String(1)})";
+                        strMultiplier = $" (x{e.GetTargetsStrMultiplier(task.TargetShip, task.TargetEmpire).String(1)})";
 
                     DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength} {strMultiplier}");
                     if (task.WhichFleet != -1)
                     {
-                        DrawString(15f, "Fleet: " + task.Fleet.Name);
-                        DrawString(15f, $" Ships: {task.Fleet.Ships.Count} CanWin: {task.Fleet.CanTakeThisFight(task.EnemyStrength)}");
+                        DrawString(15f, "Fleet: " + task.Fleet?.Name);
+                        DrawString(15f, $" Ships: {task.Fleet?.Ships.Count} CanWin: {task.Fleet?.CanTakeThisFight(task.EnemyStrength)}");
                     }
                 }
 
