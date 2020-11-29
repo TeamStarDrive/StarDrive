@@ -285,7 +285,8 @@ namespace Ship_Game.AI
                 Priority = 20
 
             };
-            OwnerEmpire.UpdateTargetsStrMultiplier(p.guid, out _);
+            Empire dominant = OwnerEmpire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(p.ParentSystem);
+            OwnerEmpire.UpdateTargetsStrMultiplier(p.guid, dominant, out _);
             militaryTask.SetTargetPlanet(p);
             militaryTask.SetEmpire(OwnerEmpire);
             AddPendingTask(militaryTask);

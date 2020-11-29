@@ -62,6 +62,9 @@ namespace Ship_Game
                 if (sdata.TargetsStrMultiplier != null)
                     e.RestoreTargetsStrMultiplier(sdata.TargetsStrMultiplier);
 
+                if (sdata.EmpireStrMultiplier != null)
+                    e.RestoreEmpireStrMultiplier(sdata.EmpireStrMultiplier);
+
                 e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
             }
