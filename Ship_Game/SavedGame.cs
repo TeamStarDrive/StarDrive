@@ -160,6 +160,7 @@ namespace Ship_Game
                 empireToSave.RushAllConstruction      = e.RushAllConstruction;
 
                 empireToSave.TargetsStrMultiplier = e.TargetsFleetStrMultiplier;
+                empireToSave.EmpireStrMultiplier  = e.EmpireStrMultiplier;
 
                 if (e.WeArePirates)
                 {
@@ -604,6 +605,7 @@ namespace Ship_Game
             [Serialize(41)] public float RemnantNextLevelUpDate;
             [Serialize(42)] public int RemnantHibernationTurns;
             [Serialize(43)] public float RemnantActivationXpNeeded;
+            [Serialize(44)] public Map<int, float> EmpireStrMultiplier;
         }
 
         public class FleetSave

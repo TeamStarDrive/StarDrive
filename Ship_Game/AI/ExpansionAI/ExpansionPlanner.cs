@@ -39,7 +39,7 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 if (g.type != GoalType.Colonize) continue;
                 float blocker = Owner.GetTargetsStrMultiplier(g.ColonizationTarget);
-                if (blocker > 1)
+                if (blocker > Owner.DifficultyModifiers.TaskForceStrength)
                     count++;
             }
 
@@ -81,7 +81,6 @@ namespace Ship_Game.AI.ExpansionAI
             if (Empire.Universe.StarDate < 1002)
                 return 0;
 
-            float modifier = 0;
             var empires = EmpireManager.ActiveMajorEmpires.SortedDescending(e => e.GetPlanets().Count);
             return (int)(empires.IndexOf(Owner) * Owner.DifficultyModifiers.ColonyGoalMultiplier);
         }
