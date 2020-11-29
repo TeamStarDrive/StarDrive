@@ -207,6 +207,12 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
+            if (ColonizationTarget.Owner == empire)
+            {
+                empire.DecreaseEmpireStrMultiplier(TargetEmpire);
+                return GoalStep.GoalComplete;
+            }
+
             if (FinishedShip == null 
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != ColonizationTarget)
@@ -217,12 +223,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (ColonizationTarget.Owner == null)
-                return GoalStep.TryAgain;
-
-            empire.DecreaseEmpireStrMultiplier(TargetEmpire);
-            return GoalStep.GoalComplete;
-
+            return GoalStep.TryAgain;
         }
 
         void ReleaseShipFromGoal()
@@ -261,7 +262,7 @@ namespace Ship_Game.Commands.Goals
 
             foreach (Ship ship in empire.GetShips())
             {
-                if (ship.isColonyShip && ship.AI != null && ship.AI.State != AIState.Colonize)
+                if (ship.isColonyShip && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _))
                     return ship;
             }
 
