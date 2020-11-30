@@ -536,7 +536,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
-                Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
+                Empire.Universe.NotificationManager?.AddPeaceTreatyExpiredNotification(them);
             }
         }
         
