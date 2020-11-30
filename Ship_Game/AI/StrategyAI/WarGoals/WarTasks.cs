@@ -90,8 +90,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             foreach (var planet in system.PlanetList.SortedDescending(p => p.ColonyBaseValue(Owner)))
             {
-                if (planet.Owner != them || IsAlreadyAssaultingPlanet(planet))               continue;
-                
+                if (planet.Owner != them || IsAlreadyAssaultingPlanet(planet))
+                    continue;
+
                 CreateTask(new MilitaryTask(planet, Owner)
                 {
                     Priority = priority
@@ -146,7 +147,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             
             Vector2 center = system.Position;
             float radius   = system.Radius * 1.5f;
-            CreateTask(new MilitaryTask(center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
+
+            CreateTask(new MilitaryTask(Owner, center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
                 Priority      = priority,
                 FleetCount    = fleetCount
@@ -156,7 +158,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public void StandardAreaClear(Vector2 center, float radius, int priority, float strengthWanted)
         {
             if (IsAlreadyClearingArea(center, radius)) return;
-            CreateTask(new MilitaryTask(center, radius, null, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
+            CreateTask(new MilitaryTask(Owner, center, radius, null, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
                 Priority      = priority
             });

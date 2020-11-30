@@ -9,7 +9,6 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             Owner = colonyShip.loyalty;
-            RemovePlanetStrNeededMultiplier();
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
             Owner.AddPlanet(this);
@@ -20,17 +19,10 @@ namespace Ship_Game
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
             ResetGarrisonSize();
-            Owner.GetEmpireAI(). FindAndRemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
             NewColonyAffectPresentTroops();
             NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
-        }
-
-        void RemovePlanetStrNeededMultiplier()
-        {
-            foreach (Empire e in EmpireManager.MajorEmpires)
-                e.RemoveTargetsStrMultiplier(guid);
         }
 
         void SetupColonyType()
