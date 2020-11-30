@@ -92,6 +92,24 @@ namespace Ship_Game
                 planet.ForceLaunchInvadingTroops(this);
         }
 
+        public float GetWarOffensiveRatio()
+        {
+            float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
+            float militaryRatio  = Research.Strategy.MilitaryRatio;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            return (1 + territorialism + militaryRatio + opportunism) / 4;
+        }
+
+        public float GetExpansionRatio()
+        {
+            float territorialism = (data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float expansion      = Research.Strategy.ExpansionRatio;
+            float cybernetic     = IsCybernetic ? 1 : 0;
+
+            return (territorialism + expansion + opportunism + cybernetic);
+        }
+
         public void UpdateRelationships()
         {
             int atWarCount = 0;

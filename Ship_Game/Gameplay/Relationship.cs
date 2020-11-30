@@ -5,6 +5,7 @@ using System;
 using System.Xml.Serialization;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Debug;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game.Gameplay
@@ -106,11 +107,13 @@ namespace Ship_Game.Gameplay
         [Serialize(62)] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
         [Serialize(63)] public bool IsHostile; // New: If target empire is hostile and might attack us
         [Serialize(64)] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
+        [Serialize(65)] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
 
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
         [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
         [XmlIgnore][JsonIgnore] Empire Player => Empire.Universe.PlayerEmpire;
+        [XmlIgnore] [JsonIgnore] public EmpireInformation KnownInformation;
 
         private readonly int FirstDemand   = 50;
         public readonly int SecondDemand  = 75;
@@ -154,6 +157,7 @@ namespace Ship_Game.Gameplay
         {
             Name = name;
             Risk = new EmpireRiskAssessment(this);
+            KnownInformation = new EmpireInformation(this);
         }
 
         public Relationship()
@@ -501,7 +505,12 @@ namespace Ship_Game.Gameplay
 
         private void UpdateIntelligence(Empire us, Empire them) // Todo - not sure what this does
         {
-            if (!(us.Money > IntelligenceBudget) || !(IntelligencePenetration < 100f))
+            // Moving towards adding intelligence. 
+            // everything after the update is not used.
+            // what should happen is that the information level is figured out.
+            // then knowninformation is updated with the intelligence level. 
+            KnownInformation.Update(EmpireInformation.InformationLevel.Full);
+            if (us.Money < IntelligenceBudget || IntelligencePenetration > 100f)
                 return;
 
             us.AddMoney(-IntelligenceBudget);
@@ -1638,7 +1647,7 @@ namespace Ship_Game.Gameplay
                 war.RestoreFromSave(false);
         }
 
-        public DebugTextBlock DebugWar()
+        public DebugTextBlock DebugWar(Empire Us)
         {
             var debug = new DebugTextBlock
             {
@@ -1646,12 +1655,16 @@ namespace Ship_Game.Gameplay
                 HeaderColor = EmpireManager.GetEmpireByName(Name).EmpireColor
             };
 
-            debug.AddLine($"Total Anger: {(int)TotalAnger}");
-            debug.AddLine($" Border: {(int)Anger_FromShipsInOurBorders}");
-            debug.AddLine($" Military: {(int)Anger_MilitaryConflict}");
-            debug.AddLine($" Territory: {(int)Anger_TerritorialConflict}");
-            debug.AddLine($" Diplomatic: {(int)Anger_DiplomaticConflict}");
-            debug.AddLine($" Trust: {(int)Trust} TrustUsed: {(int)TrustUsed}");
+            if (ActiveWar == null)
+                debug.AddLine($" ReadyForWar: {Us.GetEmpireAI().ShouldGoToWar(this).ToString()}");
+            else
+                debug.AddLine($" At War");
+            debug.AddLine($" WarType: {PreparingForWarType.ToString()}");
+            debug.AddLine($" WarStatus: {ActiveWar?.GetWarScoreState()}");
+            debug.AddLine($" {Us.data.PortraitName} Strength: {Us.CurrentMilitaryStrength}");
+            debug.AddLine($" {Them.data.PortraitName} Strength: {Them.CurrentMilitaryStrength}");
+            debug.AddLine($" WarAnger: {(int)(TotalAnger - Trust)}");
+            debug.AddLine($" Previous Wars: {WarHistory.Count}");
 
             ActiveWar?.WarDebugData(ref debug);
             return debug;

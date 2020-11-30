@@ -46,14 +46,20 @@ namespace Ship_Game.AI
             }
         }
 
+        public bool IsTargetValid(Ship ship)
+        {
+            if (Target?.Active is true && Target.engineState == Ship.MoveState.Sublight)
+                if (Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
+                    return true;
+            return false;
+        }
+
         Ship UpdateCombatTarget()
         {
-            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight || Owner.loyalty == Target.loyalty
-                                       || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
-            {
-                Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
-                                                         t.Center.InRadius(Owner.Center, Owner.SensorRange));
-            }
+            if (IsTargetValid(Target)) return Target;
+
+            Target = PotentialTargets.FirstOrDefault(t => IsTargetValid(t) 
+                                                          && t.Center.InRadius(Owner.Center, Owner.SensorRange));
             return Target;
         }
 
