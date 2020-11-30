@@ -429,23 +429,9 @@ namespace Ship_Game
         static float GetTraitMax(float invader, float owner) => invader.LowerBound(owner);
         static float GetTraitMin(float invader, float owner) => invader.UpperBound(owner);
 
-        public static void RemovePlanetStrNeededMultiplier(SolarSystemBody p)
-        {
-            foreach (Empire e in EmpireManager.MajorEmpires)
-            {
-                e.RemoveTargetsStrMultiplier(p.guid);
-                e.RemoveTargetsStrMultiplier(p.ParentSystem.guid);
-            }
-        }
-
         public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel) // TODO: FB - this code needs refactor
         {
-            if (!newOwner.isPlayer)
-            {
-                newOwner.DecreaseFleetStrEmpireModifier(Owner);
-                RemovePlanetStrNeededMultiplier(this);
-            }
-
+            newOwner.DecreaseFleetStrEmpireMultiplier(Owner);
             var thisPlanet = (Planet)this;
 
             thisPlanet.Construction.ClearQueue();

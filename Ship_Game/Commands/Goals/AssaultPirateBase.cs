@@ -76,7 +76,7 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.TryAgain;
             }
 
-            empire.DecreaseFleetStrEmpireModifier(TargetEmpire);
+            empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
             return GoalStep.GoalComplete;
         }
 

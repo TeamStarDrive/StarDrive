@@ -22,7 +22,6 @@ namespace Ship_Game.Commands.Goals
                 OrderShipToColonize,
                 WaitForColonizationComplete
             };
-
         }
 
         public MarkForColonization(Planet toColonize, Empire e) : this()
@@ -85,7 +84,7 @@ namespace Ship_Game.Commands.Goals
             if (PositiveEnemyPresence(out float spaceStrength))
             {
                 TargetEmpire        = empire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
-                float strMultiplier = empire.GetTargetsStrMultiplier(ColonizationTarget, TargetEmpire);
+                float strMultiplier = empire.GetFleetStrEmpireMultiplier(TargetEmpire);
                 var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * strMultiplier).LowerBound(20));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
@@ -208,7 +207,7 @@ namespace Ship_Game.Commands.Goals
 
             if (ColonizationTarget.Owner == empire)
             {
-                empire.DecreaseFleetStrEmpireModifier(TargetEmpire);
+                empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
                 return GoalStep.GoalComplete;
             }
 
