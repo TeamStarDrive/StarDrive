@@ -3265,18 +3265,11 @@ namespace Ship_Game
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
-            if (rel.CanAttack && !rel.Treaty_Trade || target == null)
+            bool canAttackShip = target?.IsAttackable(this, rel) ?? true;
+            if (rel.CanAttack && canAttackShip)
                 return true;
 
-            if (target != null)
-            {
-                //CG:there is an additional check that can be done for the ship itself.
-                //if no target is applied then it is assumed the target is attackable at this point.
-                //but an additional check can be done if a gameplay object is passed.
-                //maybe its a freighter or something along those lines which might not be attackable.
-                return target.IsAttackable(this, rel);
-            }
-            return false;
+            return canAttackShip;
         }
 
         public bool IsEmpireHostile(Empire targetEmpire)
