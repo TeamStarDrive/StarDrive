@@ -35,7 +35,7 @@ namespace Ship_Game.AI
             if (us.isPlayer || them.isPlayer ||
                 (EmpireManager.Player.IsKnown(us) && EmpireManager.Player.IsKnown(them)))
             {
-                Empire.Universe.NotificationManager.AddWarDeclaredNotification(us, them);
+                Empire.Universe.NotificationManager?.AddWarDeclaredNotification(us, them);
             }
 
         }
@@ -405,11 +405,6 @@ namespace Ship_Game.AI
 
             bool weAreStronger = ourCurrentStrength > theirKnownStrength && ourBuildCapacity > theirBuildCapacity;
             return weAreStronger;
-            
-
-
-
-
         }
     }
 }

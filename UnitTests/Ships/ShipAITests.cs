@@ -47,8 +47,8 @@ namespace UnitTests.Ships
 
             // cant attack trade
             ourRelation.Treaty_Trade = true;
+            theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
             ourRelation.UpdateRelationship(us, Enemy);
-            theirShip.SetProjectorInfluence(us, true);
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
 
             // cant attack during peace.
@@ -70,7 +70,38 @@ namespace UnitTests.Ships
             ourRelation.Treaty_NAPact = true;
             ourRelation.UpdateRelationship(us, Enemy);
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
-            
+
+            theirShip.AI.ClearOrders();
+            ourRelation.AddAngerShipsInOurBorders(1);
+            ourRelation.AddAngerMilitaryConflict(1);
+            ourRelation.AddAngerTerritorialConflict(1);
+            ourRelation.UpdateRelationship(us, Enemy);
+            theirShip.SetProjectorInfluence(us, true);
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
+
+
+            theirShip.AI.ClearOrders();
+            ourRelation.AddAngerShipsInOurBorders(100);
+            ourRelation.AddAngerMilitaryConflict(1);
+            ourRelation.AddAngerTerritorialConflict(1);
+            ourRelation.UpdateRelationship(us, Enemy);
+            theirShip.SetProjectorInfluence(us, true);
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip));
+
+            theirShip.AI.ClearOrders();
+            ourRelation.AddAngerShipsInOurBorders(1);
+            ourRelation.AddAngerMilitaryConflict(100);
+            ourRelation.AddAngerTerritorialConflict(1);
+            ourRelation.UpdateRelationship(us, Enemy);
+            theirShip.SetProjectorInfluence(us, true);
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip));
+
+            // war tests
+            Enemy.isFaction = false;
+            us.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
+            ourRelation.UpdateRelationship(us, Enemy);
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip));
+
         }
     }
 }
