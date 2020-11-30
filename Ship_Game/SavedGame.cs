@@ -591,19 +591,18 @@ namespace Ship_Game
             [Serialize(29)] public int AverageFreighterFTLSpeed;
             [Serialize(30)] public Vector2 WeightedCenter;
             [Serialize(31)] public bool RushAllConstruction;
-            [Serialize(32)] public Map<Guid, float> TargetsStrMultiplier;
-            [Serialize(33)] public float RemnantStoryTriggerKillsXp;
-            [Serialize(34)] public bool RemnantStoryActivated;
-            [Serialize(35)] public int RemnantStoryType;
-            [Serialize(36)] public float RemnantProduction;
-            [Serialize(37)] public int RemnantLevel;
-            [Serialize(38)] public int RemnantStoryStep;
-            [Serialize(39)] public float RemnantPlayerStepTriggerXp;
-            [Serialize(40)] public bool OnlyRemnantLeft;
-            [Serialize(41)] public float RemnantNextLevelUpDate;
-            [Serialize(42)] public int RemnantHibernationTurns;
-            [Serialize(43)] public float RemnantActivationXpNeeded;
-            [Serialize(44)] public Map<int, float> FleetStrEmpireModifier;
+            [Serialize(32)] public float RemnantStoryTriggerKillsXp;
+            [Serialize(33)] public bool RemnantStoryActivated;
+            [Serialize(34)] public int RemnantStoryType;
+            [Serialize(35)] public float RemnantProduction;
+            [Serialize(36)] public int RemnantLevel;
+            [Serialize(37)] public int RemnantStoryStep;
+            [Serialize(38)] public float RemnantPlayerStepTriggerXp;
+            [Serialize(39)] public bool OnlyRemnantLeft;
+            [Serialize(40)] public float RemnantNextLevelUpDate;
+            [Serialize(41)] public int RemnantHibernationTurns;
+            [Serialize(42)] public float RemnantActivationXpNeeded;
+            [Serialize(43)] public Map<int, float> FleetStrEmpireModifier;
         }
 
         public class FleetSave
