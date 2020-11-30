@@ -281,7 +281,7 @@ namespace Ship_Game.Gameplay
 
         public void DamageRelationship(Empire us, Empire them, string why, float amount, Planet p)
         {
-            if (us.data.DiplomaticPersonality == null)
+            if (us.data.DiplomaticPersonality == null || us.isPlayer)
                 return;
 
             if (GlobalStats.RestrictAIPlayerInteraction &&  them == Empire.Universe.PlayerEmpire)
