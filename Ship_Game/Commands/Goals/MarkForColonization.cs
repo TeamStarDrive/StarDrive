@@ -89,7 +89,7 @@ namespace Ship_Game.Commands.Goals
                 var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * strMultiplier).LowerBound(20));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
-            else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire) && empire.GetTargetsStrMultiplier(ColonizationTarget) > empire.DifficultyModifiers.TaskForceStrength
+            else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire)
                      && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
             {
                 var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);
