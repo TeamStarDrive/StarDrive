@@ -509,7 +509,7 @@ namespace Ship_Game.Gameplay
             // everything after the update is not used.
             // what should happen is that the information level is figured out.
             // then knowninformation is updated with the intelligence level. 
-            KnownInformation.Update(EmpireInformation.InformationLevel.Full);
+            KnownInformation.Update(IntelligenceLevel);
             if (us.Money < IntelligenceBudget || IntelligencePenetration > 100f)
                 return;
 
