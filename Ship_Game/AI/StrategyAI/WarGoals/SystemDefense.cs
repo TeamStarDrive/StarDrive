@@ -39,14 +39,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     if (threatenedSystem.ThreatTimedOut) continue;
                     systems.Add(threatenedSystem);
                 }
-
-                //foreach (var system in Owner.GetOwnedSystems())
-                //{
-                //    if (!system.HostileForcesPresent(Owner)) continue;
-                //    var priority = unImportant - system.PlanetList.FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
-                //    var strength = system.GetKnownStrengthHostileTo(Owner);
-                //    Tasks.StandardSystemDefense(system, priority, strength, 1);
-                //}
             }
 
             var highValueSystems = systems.Filter(s => s.TargetSystem.PlanetList.Any(p => p.Owner == Owner && p.Level > 3));
@@ -62,6 +54,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
                 Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1);
             }
+
+            foreach (var system in Owner.GetOwnedSystems())
+            {
+                float str = Owner.KnownEnemyStrengthIn(system);
+                if (str > 100)
+                {
+                    var priority = casual - system.PlanetList
+                    .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
+                    Tasks.StandardSystemDefense(system, priority, str, 1);
+                }
+            }
+
 
             return GoalStep.GoToNextStep;
            

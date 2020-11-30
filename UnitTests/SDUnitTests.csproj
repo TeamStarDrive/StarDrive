@@ -88,6 +88,7 @@
     <Compile Include="Ships\TestWeaponArcs.cs" />
     <Compile Include="Ships\TestIsInsideFiringArc.cs" />
     <Compile Include="Ships\TestShipWarpStates.cs" />
+    <Compile Include="Ships\ShipAITests.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />
@@ -160,6 +161,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Ship_Game\AI\ShipAI\" />
     <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

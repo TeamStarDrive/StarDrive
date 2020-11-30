@@ -163,6 +163,12 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
+        public MilitaryTask[] GetClaimTasks(SolarSystem targetSystem)
+        {
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+                                        && task.TargetPlanet?.ParentSystem == targetSystem);
+        }
+
         public MilitaryTask[] GetDefendVsRemnantTasks()
         {
             return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendVsRemnants);

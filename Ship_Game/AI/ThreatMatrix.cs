@@ -528,6 +528,8 @@ namespace Ship_Game.AI
             return str;
         }
 
+        public SolarSystem[] KnownHostileSystems(Predicate<SolarSystem> filter) => KnownSystemsWithEnemies.Filter(filter);
+
         Map<Empire, Pin[]> GetEmpirePinMap()
         {
             var map = new Map<Empire, Array<KeyValuePair<Guid, Pin>>>();
