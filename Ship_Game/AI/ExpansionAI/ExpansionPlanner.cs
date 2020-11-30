@@ -38,8 +38,8 @@ namespace Ship_Game.AI.ExpansionAI
             foreach (var g in Goals)
             {
                 if (g.type != GoalType.Colonize) continue;
-                float blocker = Owner.GetTargetsStrMultiplier(g.ColonizationTarget, g.TargetEmpire);
-                if (blocker > Owner.DifficultyModifiers.TaskForceStrength)
+                float blocker = Owner.KnownEnemyStrengthIn(g.ColonizationTarget.ParentSystem);
+                if (blocker > Owner.CurrentMilitaryStrength / 10)
                     count++;
             }
 
@@ -128,7 +128,9 @@ namespace Ship_Game.AI.ExpansionAI
             var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
                                                                          && !s.IsOwnedBy(Owner)
                                                                          && s.PlanetList.Any(p => p.Habitable)
-                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/2));
+                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/4)
+                                                                         && !s.OwnerList.Any(o=> !o.isFaction && Owner.IsAtWarWith(o))
+            );
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
