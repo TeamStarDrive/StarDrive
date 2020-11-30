@@ -71,7 +71,6 @@ namespace Ship_Game
 
         void DrawInPosition(SpriteBatch batch, DrawTimes elapsed)
         {
-            s = this.s;
             if (s == null) return;
             ClickTimer += elapsed.RealTime.Seconds;
             SelectionTimer += elapsed.RealTime.Seconds;
