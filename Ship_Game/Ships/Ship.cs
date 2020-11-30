@@ -393,7 +393,7 @@ namespace Ship_Game.Ships
                     return true;
             }
 
-            return false;
+            return true;
         }
 
         // Level 5 crews can use advanced targeting which even predicts acceleration
