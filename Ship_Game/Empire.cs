@@ -3265,7 +3265,7 @@ namespace Ship_Game
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
-            if (rel.CanAttack)
+            if (rel.CanAttack && !rel.Treaty_Trade || target == null)
                 return true;
 
             if (target != null)
