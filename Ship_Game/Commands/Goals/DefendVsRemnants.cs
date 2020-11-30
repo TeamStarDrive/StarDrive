@@ -77,7 +77,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             if (TargetPlanet.Owner != empire && !TryChangeTargetPlanet())
             {
-                empire.DecreaseFleetStrEmpireModifier(EmpireManager.Remnants);
+                empire.DecreaseFleetStrEmpireMultiplier(EmpireManager.Remnants);
                 return GoalStep.GoalComplete;
             }
 

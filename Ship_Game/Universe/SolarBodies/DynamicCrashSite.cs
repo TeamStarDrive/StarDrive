@@ -73,7 +73,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (p.Owner == null && p.IsExploredBy(EmpireManager.Player) || p.Owner == EmpireManager.Player)
                 Empire.Universe.NotificationManager.AddShipCrashed(p, message);
 
-            foreach (Empire e in EmpireManager.ActiveNonPlayerEmpires)
+            foreach (Empire e in EmpireManager.ActiveNonPlayerMajorEmpires)
             {
                 if (p.Owner == null && p.IsExploredBy(e))
                     e.GetEmpireAI().TrySendExplorationFleetToCrashSite(p);

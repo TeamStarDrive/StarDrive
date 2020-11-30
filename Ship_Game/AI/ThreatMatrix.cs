@@ -461,7 +461,7 @@ namespace Ship_Game.AI
 
                         if (empires.ContainsKey(loyalty))
                             empires[loyalty] += str;
-                        else
+                        else if (Owner != loyalty)
                         {
                             var rel = Owner.GetRelations(loyalty);
                             if (rel.IsHostile)
