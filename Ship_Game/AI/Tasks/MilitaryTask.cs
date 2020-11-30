@@ -100,7 +100,7 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateExploration(Planet targetPlanet, Empire owner)
         {
-            Empire dominant = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
+            Empire dominant  = owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
             var militaryTask = new MilitaryTask
             {
                 AO               = targetPlanet.Center,

@@ -959,21 +959,21 @@ namespace Ship_Game
             CalcWeightedCenter(calcNow: true);
         }
 
-        public static void TrySendInitialFleets(Planet p, Empire e)
+        public void TrySendInitialFleets(Planet p)
         {
-            if (e.isPlayer)
+            if (isPlayer)
                 return;
 
             if (p.TilesList.Any(t => t.EventOnTile))
-                e.GetEmpireAI().SendExplorationFleet(p);
+                EmpireAI.SendExplorationFleet(p);
 
-            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(e))
+            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(this))
                 return;
 
-            if (PlanetRanker.IsGoodValueForUs(p, e) && e.KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
+            if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
             {
-                var task = MilitaryTask.CreateGuardTask(e, p);
-                e.GetEmpireAI().AddPendingTask(task);
+                var task = MilitaryTask.CreateGuardTask(this, p);
+                EmpireAI.AddPendingTask(task);
             }
         }
 
