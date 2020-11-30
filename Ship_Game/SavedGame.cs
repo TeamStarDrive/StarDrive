@@ -158,8 +158,7 @@ namespace Ship_Game
                 empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
                 empireToSave.WeightedCenter           = e.WeightedCenter;
                 empireToSave.RushAllConstruction      = e.RushAllConstruction;
-                empireToSave.TargetsStrMultiplier     = e.TargetsFleetStrMultiplier;
-                empireToSave.FleetStrEmpireModifier   = e.FleetStrEmpireModifier;
+                empireToSave.FleetStrEmpireModifier   = e.FleetStrEmpireMultiplier;
 
                 if (e.WeArePirates)
                 {

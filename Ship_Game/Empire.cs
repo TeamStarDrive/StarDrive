@@ -2641,7 +2641,7 @@ namespace Ship_Game
                 return;
 
             float playerScore    = TotalScore;
-            var aiEmpires        = EmpireManager.ActiveNonPlayerEmpires;
+            var aiEmpires        = EmpireManager.ActiveNonPlayerMajorEmpires;
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);

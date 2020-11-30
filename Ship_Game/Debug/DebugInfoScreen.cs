@@ -743,7 +743,7 @@ namespace Ship_Game.Debug
         void Relationships()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.NonPlayerEmpires)
+            foreach (Empire e in EmpireManager.NonPlayerMajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -790,7 +790,7 @@ namespace Ship_Game.Debug
         void FleetMultipliers()
         {
             int column = 0;
-            foreach (Empire e in EmpireManager.NonPlayerEmpires)
+            foreach (Empire e in EmpireManager.ActiveNonPlayerMajorEmpires)
             {
                 if (e.data.Defeated)
                     continue;
@@ -801,47 +801,21 @@ namespace Ship_Game.Debug
                 DrawString($"{e.Personality}");
                 DrawString("----------------------------");
                 NewLine(2);
+                DrawString("Remnants Strength Multipliers");
+                DrawString("---------------------------");
+                Empire remnants = EmpireManager.Remnants;
+                DrawString(remnants.EmpireColor, $"{remnants.Name}: {e.GetFleetStrEmpireMultiplier(remnants).String(2)}");
+                NewLine(2);
                 DrawString("Empire Strength Multipliers");
                 DrawString("---------------------------");
-                foreach (KeyValuePair<int, float> kv in e.FleetStrEmpireModifier)
-                {
-                    Empire empire = EmpireManager.GetEmpireById(kv.Key);
-                    float multi   = kv.Value;
-                    DrawString(empire.EmpireColor, $"{empire.Name}: {multi.String(2)}");
-                }
+                foreach (Empire empire in EmpireManager.ActiveNonPlayerMajorEmpires.Filter(empire => empire != e))
+                    DrawString($"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
 
                 NewLine(2);
-                DrawString("Target Multipliers");
-                DrawString("------------------");
-                Color color = Color.White;
-                string toDisplay = "";
-                foreach (KeyValuePair<Guid, float> kv in e.TargetsFleetStrMultiplier)
-                {
-                    if (!Empire.Universe.PlanetsDict.TryGetValue(kv.Key, out Planet planet))
-                    {
-                        if (!Empire.Universe.SolarSystemDict.TryGetValue(kv.Key, out SolarSystem system))
-                        {
-                            Ship ship = Empire.Universe.Objects.FindShip(kv.Key);
-                            if (ship != null)
-                            {
-                                toDisplay = $"Ship: {ship.Name}";
-                                color = ship.loyalty.EmpireColor;
-                            }
-                        }
-                        else
-                        {
-                            toDisplay = $"System: {system.Name}";
-                        }
-                    }
-                    else
-                    {
-                        toDisplay = $"Planet: {planet.Name}";
-                        color = planet.Owner?.EmpireColor ?? Color.White;
-                    }
-
-                    float multi = kv.Value;
-                    DrawString(color, $"{toDisplay}: {multi.String(2)}");
-                }
+                DrawString("Pirates Strength Multipliers");
+                DrawString("---------------------------");
+                foreach (Empire empire in EmpireManager.PirateFactions.Filter(faction => faction != EmpireManager.Unknown))
+                    DrawString(empire.EmpireColor, $"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
 
                 column += 1;
             }
@@ -874,7 +848,7 @@ namespace Ship_Game.Debug
                     DrawString(empire.EmpireColor, $"{empire.data.Name} - Score: {empire.TotalScore}, Strength: {empire.CurrentMilitaryStrength}");
             }
 
-            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerEmpires.Filter(emp => !emp.data.Defeated)
+            var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
                                                                       : EmpireManager.MajorEmpires.Filter(emp => !emp.data.Defeated);
 
             NewLine();
@@ -989,7 +963,7 @@ namespace Ship_Game.Debug
                     NewLine();
                     string held = g.Held ? "(Held" : "";
                     DrawString($"{held}{g.UID} {g.ColonizationTarget.Name}" +
-                               $" (x{e.GetTargetsStrMultiplier(g.ColonizationTarget, g.TargetEmpire).String(1)})");
+                               $" (x{e.GetFleetStrEmpireMultiplier(g.TargetEmpire).String(1)})");
 
                     DrawString(15f, $"Step: {g.StepName}");
                     if (g.FinishedShip != null && g.FinishedShip.Active)
@@ -1013,13 +987,8 @@ namespace Ship_Game.Debug
                     DrawString($"FleetTask: {task.type} {sysName} {planet}");
                     DrawString(15f, $"Step:  {task.Step} - Priority:{task.Priority}");
                     float ourStrength = task.Fleet?.GetStrength() ?? task.MinimumTaskForceStrength;
-                    string strMultiplier = task.TargetPlanet != null 
-                        ? $" (x{e.GetTargetsStrMultiplier(task.TargetPlanet, task.TargetPlanet.Owner).String(1)})" 
-                        : "";
+                    string strMultiplier = $" (x{e.GetFleetStrEmpireMultiplier(task.TargetEmpire).String(1)})";
                     
-                    if (task.type == MilitaryTask.TaskType.AssaultPirateBase && task.TargetShip != null)
-                        strMultiplier = $" (x{e.GetTargetsStrMultiplier(task.TargetShip, task.TargetShip.loyalty).String(1)})";
-
                     DrawString(15f, $"Strength: Them: {(int)task.EnemyStrength} Us: {(int)ourStrength} {strMultiplier}");
                     if (task.WhichFleet != -1)
                     {

@@ -137,12 +137,17 @@ namespace Ship_Game
 
             foreach (Empire e in Data.EmpireList)
             {
-                if (e.isFaction || e.data.Traits.BonusExplored <= 0)
+                if (e.isFaction)
                     continue;
 
-                Planet homeWorld = e.GetPlanets()[0];
+                e.InitFleetEmpireStrMultiplier();
+                if (e.data.Traits.BonusExplored <= 0)
+                    continue;
+                
+                Planet homeWorld             = e.GetPlanets()[0];
                 SolarSystem[] closestSystems = Data.SolarSystemsList.Sorted(system => homeWorld.Center.Distance(system.Position));
-                int numExplored = Data.SolarSystemsList.Count >= 20 ? e.data.Traits.BonusExplored : Data.SolarSystemsList.Count;
+                int numExplored              = Data.SolarSystemsList.Count >= 20 ? e.data.Traits.BonusExplored : Data.SolarSystemsList.Count;
+
                 for (int i = 0; i < numExplored; ++i)
                 {
                     SolarSystem ss = closestSystems[i];

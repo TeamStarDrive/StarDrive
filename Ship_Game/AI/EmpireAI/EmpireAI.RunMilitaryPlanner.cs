@@ -41,7 +41,7 @@ namespace Ship_Game.AI
             {
                 float hard = 0;
                 if (t.GetTaskCategory() == MilitaryTask.TaskCategory.Expansion)
-                    hard = OwnerEmpire.GetTargetsStrMultiplier(t.TargetPlanet, t.TargetEmpire);
+                    hard = OwnerEmpire.GetFleetStrEmpireMultiplier(t.TargetEmpire);
                 return t.Priority + hard;
             });
             

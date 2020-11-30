@@ -9,7 +9,6 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             Owner = colonyShip.loyalty;
-            RemovePlanetStrNeededMultiplier(this);
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
             Owner.AddPlanet(this);
