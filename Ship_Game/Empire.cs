@@ -8,6 +8,8 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI.ExpansionAI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Empires;
 using Ship_Game.Empires.DataPackets;
 using Ship_Game.Empires.ShipPools;
@@ -190,7 +192,6 @@ namespace Ship_Game
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
-        public Map<Guid, float> TargetsFleetStrMultiplier { get; private set; } = new Map<Guid, float>();
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -945,6 +946,24 @@ namespace Ship_Game
             CalcWeightedCenter(calcNow: true);
         }
 
+        public void TrySendInitialFleets(Planet p)
+        {
+            if (isPlayer)
+                return;
+
+            if (p.TilesList.Any(t => t.EventOnTile))
+                EmpireAI.SendExplorationFleet(p);
+
+            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(this))
+                return;
+
+            if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
+            {
+                var task = MilitaryTask.CreateGuardTask(this, p);
+                EmpireAI.AddPendingTask(task);
+            }
+        }
+
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
         public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
@@ -973,37 +992,6 @@ namespace Ship_Game
             }
 
             return readyShips.ToArray();
-        }
-
-        public void UpdateTargetsStrMultiplier(Guid guid, out float updatedMultiplier)
-        {
-            if (TargetsFleetStrMultiplier.ContainsKey(guid))
-                TargetsFleetStrMultiplier[guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
-            else
-                TargetsFleetStrMultiplier.Add(guid, DifficultyModifiers.TaskForceStrength);
-
-            updatedMultiplier = TargetsFleetStrMultiplier[guid];
-        }
-
-        public void RemoveTargetsStrMultiplier(Guid guid)
-        {
-            TargetsFleetStrMultiplier.Remove(guid);
-        }
-
-        public void RestoreTargetsStrMultiplier(Map<Guid,float> claims)
-        {
-            TargetsFleetStrMultiplier = claims;
-        }
-
-        public float GetTargetsStrMultiplier(Guid guid)
-        {
-            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
-        }
-
-        public float GetTargetsStrMultiplier(Planet planet)
-        {
-            var guid = planet.guid;
-            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
         }
 
         public FleetShips AllFleetsReady()
@@ -2653,7 +2641,7 @@ namespace Ship_Game
                 return;
 
             float playerScore    = TotalScore;
-            var aiEmpires        = EmpireManager.ActiveNonPlayerEmpires;
+            var aiEmpires        = EmpireManager.ActiveNonPlayerMajorEmpires;
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
