@@ -68,12 +68,18 @@ namespace Ship_Game
         void BuildOrReplaceBuilding(float budget)
         {
             if (FreeHabitableTiles > 0)
+            {
                 SimpleBuild(budget); // Let's try to build something within our budget
+                if (TryPrioritizeColonyBuilding())
+                    return;
+            }
             else
+            {
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
+            }
 
-            PrioritizeFoodIfNeeded();
-            PrioritiesProductionIfNeeded();
+            PrioritizeCriticalFoodBuildings();
+            PrioritizeCriticalProductionBuildings();
         }
 
         // Fat Bastard - This will create a map with Governor priorities per building trait
@@ -606,7 +612,7 @@ namespace Ship_Game
             Construction.Enqueue(ResourceManager.CreateBuilding(Building.OutpostId));
 
             // Move Outpost to the top of the list
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            for (int i = 1; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && q.Building.IsOutpost)
@@ -617,7 +623,7 @@ namespace Ship_Game
             }
         }
 
-        void PrioritizeFoodIfNeeded()
+        void PrioritizeCriticalFoodBuildings()
         {
             if (IsCybernetic || !IsStarving)
                 return;
@@ -625,7 +631,7 @@ namespace Ship_Game
             if (PlayerAddedFirstConstructionItem)
                 return; // Do not prioritize over player added queue
 
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            for (int i = 1; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding)
@@ -647,7 +653,31 @@ namespace Ship_Game
             }
         }
 
-        void PrioritiesProductionIfNeeded()
+        bool TryPrioritizeColonyBuilding()
+        {
+            if (ConstructionQueue.Count <= 1 || PlayerAddedFirstConstructionItem)
+                return false;
+
+            for (int i = ConstructionQueue.Count - 1; i >= 0; --i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isBuilding)
+                {
+                    switch (colonyType)
+                    {
+                        case ColonyType.Core:
+                        case ColonyType.Agricultural when q.Building.ProducesFood:
+                        case ColonyType.Industrial   when q.Building.ProducesProduction:
+                        case ColonyType.Research     when q.Building.ProducesResearch:
+                        case ColonyType.Military     when q.Building.IsMilitary: Construction.MoveTo(0, i); return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        void PrioritizeCriticalProductionBuildings()
         {
             if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
                 return;

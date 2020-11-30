@@ -408,7 +408,7 @@ namespace Ship_Game.AI.Tasks
             float divisor = 2;
             if (GetTaskCategory() == TaskCategory.War)
                 divisor = 1;
-            else if (Owner.IsAtWar) 
+            else if (Owner.IsAtWarWithMajorEmpire) 
                 divisor = 10;
             
             float fleets = Owner.Pool.InitialReadyFleets;
