@@ -350,13 +350,18 @@ namespace Ship_Game.AI
                         if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)
                         {
                             DeclareWarOn(them, rel.PreparingForWarType);
+                            break;
                         }
                         // We have border planets
-                        else if (rel.PreparingForWarType == WarType.BorderConflict)
+
+                        if (rel.PreparingForWarType == WarType.BorderConflict)
                         {
                             bool ourBorderSystems = OwnerEmpire.GetOurBorderSystemsTo(OwnerEmpire, true).NotEmpty;
                             if (ourBorderSystems)
+                            {
                                 DeclareWarOn(them, rel.PreparingForWarType);
+                                break;
+                            }
                         }
                         // we have planets in their AO. Skirmish War.
                         else if (rel.PreparingForWarType != WarType.DefensiveWar)
@@ -365,15 +370,16 @@ namespace Ship_Game.AI
                             if (stronger)
                             {
                                 DeclareWarOn(them, rel.PreparingForWarType);
+                                break;
                             }
                         }
                         // We share a solar system
                         else if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
                         {
                             DeclareWarOn(them, rel.PreparingForWarType);
-                        }
+                            break;
 
-                        break;
+                        }
                     }
                 }
             }
