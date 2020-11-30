@@ -79,6 +79,7 @@ namespace Ship_Game.AI
                 RunResearchPlanner();
                 RunAgentManager();
             }
+            WarTasks.Update();
             RunMilitaryPlanner();
             RunWarPlanner();
         }
