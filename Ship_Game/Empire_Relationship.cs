@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.GamerServices;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -292,6 +293,8 @@ namespace Ship_Game
                     Empire empire = EmpireManager.GetEmpireByName(relSave.Name);
                     relSave.ActiveWar?.SetCombatants(ourEmpire, empire);
                     relSave.Risk = new EmpireRiskAssessment(relSave);
+                    relSave.KnownInformation = new EmpireInformation(relSave);
+                    relSave.KnownInformation.Update(relSave.IntelligenceLevel);
                     ourEmpire.AddNewRelationToThem(empire, relSave);
                 }
             }
