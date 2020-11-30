@@ -368,6 +368,9 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
+            if (IsFreighter && AI.State == AIState.SystemTrader && attackerToUs.Treaty_Trade)
+                return false;
+
             if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
                 && IsInBordersOf(attacker))
             {

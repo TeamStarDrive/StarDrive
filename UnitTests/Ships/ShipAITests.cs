@@ -45,19 +45,32 @@ namespace UnitTests.Ships
             var ourRelation = us.GetRelations(Enemy);
             ourRelation.Known = true;
 
+            // cant attack trade
+            ourRelation.Treaty_Trade = true;
+            ourRelation.UpdateRelationship(us, Enemy);
+            theirShip.SetProjectorInfluence(us, true);
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
+
             // cant attack during peace.
             ourRelation.Treaty_Peace = true;
             ourRelation.UpdateRelationship(us, Enemy);
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
             ourRelation.Treaty_Peace = false;
-            
-            // cant attack trade
-            ourRelation.Treaty_Trade = true;
-            ourRelation.UpdateRelationship(us, Enemy);
-            theirShip.SetProjectorInfluence(us, true);
 
+            // faction tests
+            // still trading!
             Enemy.isFaction = true;
+            ourRelation.UpdateRelationship(us, Enemy);
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
+
+            ourRelation.Treaty_Trade = false;
+            ourRelation.UpdateRelationship(us, Enemy);
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip));
+            
+            ourRelation.Treaty_NAPact = true;
+            ourRelation.UpdateRelationship(us, Enemy);
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
+            
         }
     }
 }
