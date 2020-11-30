@@ -38,20 +38,11 @@ namespace Ship_Game.Commands.Goals
         {
             foreach (Empire e in EmpireManager.MajorEmpires.Filter(e => e.data.Traits.BonusExplored > 0))
             {
-                Planet homeWorld             = e.GetPlanets()[0];
-                var solarSystems             = Empire.Universe.SolarSystemDict.Values;
-                SolarSystem[] closestSystems = solarSystems.Sorted(system => homeWorld.Center.Distance(system.Position));
-                int numExplored              = solarSystems.Count >= 20 ? e.data.Traits.BonusExplored : solarSystems.Count;
-
-                for (int i = 0; i < numExplored; ++i)
+                var planets = Empire.Universe.PlanetsDict.Values.Filter(p => p.IsExploredBy(e));
+                for (int i = 0; i < planets.Length; ++i)
                 {
-                    SolarSystem ss = closestSystems[i];
-                    ss.SetExploredBy(e);
-                    foreach (Planet planet in ss.PlanetList)
-                    {
-                        planet.SetExploredBy(e);
-                        Empire.TrySendInitialFleets(planet, e);
-                    }
+                    Planet p = planets[i];
+                    e.TrySendInitialFleets(p);
                 }
             }
 

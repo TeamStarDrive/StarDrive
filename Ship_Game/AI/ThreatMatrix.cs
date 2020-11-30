@@ -452,7 +452,7 @@ namespace Ship_Game.AI
                 {
                     var filteredPins = pins.Filter(p => p.Ship?.Active == true);
                     Map<Empire, float> empires = new Map<Empire, float>();
-                    for (int i = 0; i < pins.Length; i++)
+                    for (int i = 0; i < filteredPins.Length; i++)
                     {
 
                         Pin pin        = filteredPins[i];
@@ -464,7 +464,7 @@ namespace Ship_Game.AI
                         else
                         {
                             var rel = Owner.GetRelations(loyalty);
-                            if (pin.Ship.IsAttackable(Owner, rel))
+                            if (rel.IsHostile)
                                 empires.Add(loyalty, str);
                         }
                     }

@@ -1432,14 +1432,16 @@ namespace Ship_Game.Fleets
             => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
         // @return TRUE if we can take this fight, potentially, maybe...
-        public bool CanTakeThisFight(float enemyFleetStrength)
+        public bool CanTakeThisFight(float enemyFleetStrength, bool debug = false)
         {
             float ourStrengthThreshold = GetStrength() * 2;
             if (enemyFleetStrength < ourStrengthThreshold)
                 return true;
 
-            // We can win, update fleet multipliers for next time
-            Owner.UpdateTargetsStrMultiplier(FleetTask.TargetGuid, FleetTask.TargetEmpire);
+            // We cannot win, update fleet multipliers for next time
+            if (!debug)
+                Owner.UpdateTargetsStrMultiplier(FleetTask.TargetGuid, FleetTask.TargetEmpire);
+
             return false;
         }
 

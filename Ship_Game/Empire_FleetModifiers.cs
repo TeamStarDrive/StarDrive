@@ -36,10 +36,10 @@ namespace Ship_Game
 
         public float GetTargetsStrMultiplier(Guid guid, Empire targetEmpire)
         {
-            float multi = TargetsFleetStrMultiplier.ContainsKey(guid) 
+            float multi = TargetsFleetStrMultiplier.ContainsKey(guid)
                 ? TargetsFleetStrMultiplier[guid] 
                 : DifficultyModifiers.TaskForceStrength;
-
+            
             return multi + GetFleetStrEmpireModifier(targetEmpire);
         }
 
