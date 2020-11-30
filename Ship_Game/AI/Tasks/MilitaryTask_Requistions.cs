@@ -259,7 +259,7 @@ namespace Ship_Game.AI.Tasks
             AO closestAO = FindClosestAO(EnemyStrength);
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
                 return;
-            float battleFleetSize = MinimumTaskForceStrength < 100 ? 0 : 0.5f;
+            float battleFleetSize = MinimumTaskForceStrength < 20 ? 0 : 0.5f;
 
             InitFleetRequirements(MinimumTaskForceStrength, minTroopStrength: 0, minBombMinutes: 0);
             if (CreateTaskFleet("Pre-Colonization Force", battleFleetSize, false) == RequisitionStatus.Complete)

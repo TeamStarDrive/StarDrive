@@ -216,6 +216,8 @@ namespace Ship_Game
 
         public bool IsAtWar => AllActiveWars.Length > 0;
 
+        public bool IsAtWarWithMajorEmpire => AllActiveWars.Any(w => !w.Them.isFaction);
+
         public bool IsAlliedWith(Empire otherEmpire)
         {
             return GetRelationsOrNull(otherEmpire)?.Treaty_Alliance == true;
