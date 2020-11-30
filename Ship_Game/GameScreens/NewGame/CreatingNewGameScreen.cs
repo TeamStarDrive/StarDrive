@@ -118,7 +118,6 @@ namespace Ship_Game
                     foreach (Planet p in planet.ParentSystem.PlanetList)
                     {
                         p.SetExploredBy(empire);
-                        Empire.TrySendInitialFleets(p, empire);
                     }
 
                     if (planet.ParentSystem.OwnerList.Count == 0)
@@ -132,6 +131,25 @@ namespace Ship_Game
                     {
                         planet.Station = new SpaceStation(planet);
                         planet.Station.LoadContent(ScreenManager);
+                    }
+                }
+            }
+
+            foreach (Empire e in Data.EmpireList)
+            {
+                if (e.isFaction || e.data.Traits.BonusExplored <= 0)
+                    continue;
+
+                Planet homeWorld = e.GetPlanets()[0];
+                SolarSystem[] closestSystems = Data.SolarSystemsList.Sorted(system => homeWorld.Center.Distance(system.Position));
+                int numExplored = Data.SolarSystemsList.Count >= 20 ? e.data.Traits.BonusExplored : Data.SolarSystemsList.Count;
+                for (int i = 0; i < numExplored; ++i)
+                {
+                    SolarSystem ss = closestSystems[i];
+                    ss.SetExploredBy(e);
+                    foreach (Planet planet in ss.PlanetList)
+                    {
+                        planet.SetExploredBy(e);
                     }
                 }
             }

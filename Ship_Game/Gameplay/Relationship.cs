@@ -103,7 +103,7 @@ namespace Ship_Game.Gameplay
         [Serialize(59)] public float WeOweThem;
         [Serialize(60)] public int TurnsAtWar;
         [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
-        [Serialize(62)] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
+        [Serialize(62)] public bool CanAttack = true; // New: Bilateral condition if these two empires can attack each other
         [Serialize(63)] public bool IsHostile = true; // New: If target empire is hostile and might attack us
         [Serialize(64)] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
 
@@ -596,7 +596,7 @@ namespace Ship_Game.Gameplay
 
         bool CanWeAttackThem(Empire us, Empire them)
         {
-            if (!Known || AtWar || us.isFaction || them.isFaction
+            if (them.WeAreRemnants || !Known || AtWar || us.isFaction || them.isFaction
                 || Known && !Treaty_Peace && !Treaty_NAPact && !Treaty_Alliance)
             {
                 return true;
