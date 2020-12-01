@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace UnitTests.Ships
@@ -72,35 +73,53 @@ namespace UnitTests.Ships
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
 
             theirShip.AI.ClearOrders();
-            ourRelation.AddAngerShipsInOurBorders(1);
-            ourRelation.AddAngerMilitaryConflict(1);
-            ourRelation.AddAngerTerritorialConflict(1);
+            ResetAnger(ourRelation);
             ourRelation.UpdateRelationship(us, Enemy);
             theirShip.SetProjectorInfluence(us, true);
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
 
-
+            // violation tests
             theirShip.AI.ClearOrders();
+            ResetAnger(ourRelation);
             ourRelation.AddAngerShipsInOurBorders(100);
-            ourRelation.AddAngerMilitaryConflict(1);
-            ourRelation.AddAngerTerritorialConflict(1);
             ourRelation.UpdateRelationship(us, Enemy);
             theirShip.SetProjectorInfluence(us, true);
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip));
 
             theirShip.AI.ClearOrders();
-            ourRelation.AddAngerShipsInOurBorders(1);
+            ResetAnger(ourRelation);
             ourRelation.AddAngerMilitaryConflict(100);
-            ourRelation.AddAngerTerritorialConflict(1);
             ourRelation.UpdateRelationship(us, Enemy);
             theirShip.SetProjectorInfluence(us, true);
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip));
+
+            theirShip.AI.ClearOrders();
+            ResetAnger(ourRelation);
+            ourRelation.AddAngerTerritorialConflict(100);
+            ourRelation.UpdateRelationship(us, Enemy);
+            theirShip.SetProjectorInfluence(us, true);
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip));
+
+            theirShip.AI.ClearOrders();
+            ResetAnger(ourRelation);
+            ourRelation.UpdateRelationship(us, Enemy);
+            theirShip.SetProjectorInfluence(us, true);
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip));
+
 
             // war tests
             Enemy.isFaction = false;
             us.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             ourRelation.UpdateRelationship(us, Enemy);
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip));
+
+        }
+
+        public void ResetAnger(Relationship rel)
+        {
+            rel.AddAngerMilitaryConflict(-rel.Anger_MilitaryConflict + 10);
+            rel.AddAngerShipsInOurBorders(-rel.Anger_FromShipsInOurBorders + 10);
+            rel.AddAngerTerritorialConflict(-rel.Anger_TerritorialConflict + 10);
 
         }
     }
