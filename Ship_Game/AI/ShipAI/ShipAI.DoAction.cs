@@ -48,8 +48,8 @@ namespace Ship_Game.AI
 
         public bool IsTargetValid(Ship ship)
         {
-            if (Target?.Active is true && Target.engineState == Ship.MoveState.Sublight)
-                if (Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
+            if (ship?.Active is true && ship.engineState == Ship.MoveState.Sublight)
+                if (Owner.loyalty.IsEmpireAttackable(ship.GetLoyalty(), ship))
                     return true;
             return false;
         }
