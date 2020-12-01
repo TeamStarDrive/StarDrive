@@ -605,10 +605,8 @@ namespace Ship_Game.Gameplay
 
         bool CanWeAttackThem(Empire us, Empire them)
         {
-            if (!Known || AtWar)// || !Treaty_Peace && !Treaty_NAPact && !Treaty_Alliance)
-            {
+            if (!Known || AtWar)
                 return true;
-            }
 
             if (Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
                 return false;
