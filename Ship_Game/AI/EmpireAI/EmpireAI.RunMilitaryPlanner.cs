@@ -41,7 +41,7 @@ namespace Ship_Game.AI
             {
                 float hard = 0;
                 if (t.GetTaskCategory() == MilitaryTask.TaskCategory.Expansion)
-                    hard = OwnerEmpire.GetTargetsStrMultiplier(t.TargetPlanet);
+                    hard = OwnerEmpire.GetFleetStrEmpireMultiplier(t.TargetEmpire);
                 return t.Priority + hard;
             });
             
@@ -283,18 +283,8 @@ namespace Ship_Game.AI
 
         public void SendExplorationFleet(Planet p)
         {
-            var militaryTask = new MilitaryTask
-            {
-                AO       = p.Center,
-                AORadius = 50000f,
-                type     = MilitaryTask.TaskType.Exploration,
-                Priority = 20
-
-            };
-            OwnerEmpire.UpdateTargetsStrMultiplier(p.guid, out _);
-            militaryTask.SetTargetPlanet(p);
-            militaryTask.SetEmpire(OwnerEmpire);
-            AddPendingTask(militaryTask);
+            var task = MilitaryTask.CreateExploration(p, OwnerEmpire);
+            AddPendingTask(task);
         }
 
         void BuildWarShips(int goalsInConstruction)

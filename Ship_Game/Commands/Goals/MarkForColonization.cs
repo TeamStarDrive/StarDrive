@@ -22,7 +22,6 @@ namespace Ship_Game.Commands.Goals
                 OrderShipToColonize,
                 WaitForColonizationComplete
             };
-
         }
 
         public MarkForColonization(Planet toColonize, Empire e) : this()
@@ -84,18 +83,17 @@ namespace Ship_Game.Commands.Goals
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
-                empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, out float strMultiplier);
-                spaceStrength *= strMultiplier;
-                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(20));
+                TargetEmpire        = empire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
+                float strMultiplier = empire.GetFleetStrEmpireMultiplier(TargetEmpire);
+                var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * strMultiplier).LowerBound(20));
                 empire.GetEmpireAI().AddPendingTask(task);
             }
-            else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire) && empire.GetTargetsStrMultiplier(ColonizationTarget) > empire.DifficultyModifiers.TaskForceStrength
+            else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire)
                      && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
             {
                 var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);
                 empire.GetEmpireAI().AddPendingTask(task);
             }
-
 
             return GoalStep.GoToNextStep;
         }
@@ -199,15 +197,21 @@ namespace Ship_Game.Commands.Goals
 
             if (AIControlsColonization 
                 && empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10
-                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7))
+                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7)) // we lost
             {
+
                 ReleaseShipFromGoal();
                 task?.EndTask();
                 return GoalStep.GoalFailed;
             }
 
+            if (ColonizationTarget.Owner == empire)
+            {
+                empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
+                return GoalStep.GoalComplete;
+            }
+
             if (FinishedShip == null 
-                || FinishedShip.AI.State != AIState.Colonize
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != ColonizationTarget)
             {
@@ -217,7 +221,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            return ColonizationTarget.Owner == null ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            return GoalStep.TryAgain;
         }
 
         void ReleaseShipFromGoal()
@@ -256,7 +260,7 @@ namespace Ship_Game.Commands.Goals
 
             foreach (Ship ship in empire.GetShips())
             {
-                if (ship.isColonyShip && ship.AI != null && ship.AI.State != AIState.Colonize)
+                if (ship.isColonyShip && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _))
                     return ship;
             }
 
