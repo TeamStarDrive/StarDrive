@@ -45,9 +45,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             highValueSystems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
 
-            //int fleets = Owner.AllFleetsReady().CountFleets(out _);
-
-            for (int i = 0; i < highValueSystems.Length; i++)// Math.Min(highValueSystems.Length, fleets); i++)
+            for (int i = 0; i < highValueSystems.Length; i++)
             {
                 var threatenedSystem = highValueSystems[i];
                 var priority = casual - threatenedSystem.TargetSystem.PlanetList
@@ -66,10 +64,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 }
             }
 
-
             return GoalStep.GoToNextStep;
-           
-
         }
     }
 }
