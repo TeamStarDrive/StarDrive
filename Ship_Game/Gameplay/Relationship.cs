@@ -613,7 +613,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
                 return false;
 
-            if ( us.isFaction || them.isFaction)
+            if (us.isFaction || them.isFaction)
                 return true;
 
             if (!us.isPlayer)
