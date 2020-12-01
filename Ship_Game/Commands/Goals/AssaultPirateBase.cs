@@ -55,10 +55,8 @@ namespace Ship_Game.Commands.Goals
         }
 
         GoalStep CreateTask()
-        {
-            empire.UpdateTargetsStrMultiplier(TargetShip.guid, out float multiplier);
-            float minStr = TargetShip.GetStrength() * empire.DifficultyModifiers.TaskForceStrength;
-            var task     = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip, minStr * multiplier * 2);
+        { 
+            var task       = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip, empire);
             empire.GetEmpireAI().AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
@@ -78,6 +76,7 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.TryAgain;
             }
 
+            empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
             return GoalStep.GoalComplete;
         }
 
