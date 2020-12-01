@@ -1668,7 +1668,7 @@ namespace Ship_Game
                     if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
                     {
                         knownFleets.Add(fleet.Value);
-                    }
+                    } 
                 }
             }
 

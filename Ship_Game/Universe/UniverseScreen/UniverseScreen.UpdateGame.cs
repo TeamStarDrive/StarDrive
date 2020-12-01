@@ -440,8 +440,13 @@ namespace Ship_Game
 
             // Execute all the actions submitted from UI thread
             // into this Simulation / Empire thread
-            ScreenManager.InvokePendingEmpireThreadActions();
-
+            //ScreenManager.InvokePendingEmpireThreadActions();
+            //foreach (var empire in EmpireManager.Empires)
+            //{
+            //    empire.Pool.UpdatePools();
+            //    empire.UpdateMilitaryStrengths();
+            //    empire.AssessSystemsInDanger(timeStep);
+            //}
             Parallel.For(EmpireManager.Empires.Count, (start, end) =>
             {
                 for (int i = start; i < end; i++)
