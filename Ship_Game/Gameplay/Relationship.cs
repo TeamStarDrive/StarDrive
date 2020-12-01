@@ -536,7 +536,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
-                Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
+                Empire.Universe.NotificationManager?.AddPeaceTreatyExpiredNotification(them);
             }
         }
         
@@ -605,14 +605,14 @@ namespace Ship_Game.Gameplay
 
         bool CanWeAttackThem(Empire us, Empire them)
         {
-            if (them.WeAreRemnants || !Known || AtWar || us.isFaction || them.isFaction
-                || Known && !Treaty_Peace && !Treaty_NAPact && !Treaty_Alliance)
-            {
+            if (!Known || AtWar)
                 return true;
-            }
 
             if (Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
                 return false;
+
+            if (us.isFaction || them.isFaction || them.WeAreRemnants)
+                return true;
 
             if (!us.isPlayer)
             {
