@@ -368,32 +368,37 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (IsFreighter && AI.State == AIState.SystemTrader && attackerToUs.Treaty_Trade)
+            if (attackerToUs.CanAttack == false)
+            {
+                if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
+                 && IsInBordersOf(attacker))
+                {
+                    return true;
+                }
+
+                SolarSystem system = System;
+                if (system != null)
+                {
+                    if (attackerToUs.WarnedSystemsList.Contains(system.guid))
+                        return true;
+
+                    if (DesignRole == ShipData.RoleName.troop &&
+                        attacker.GetOwnedSystems().ContainsRef(system))
+                        return true;
+                }
+
+                if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
+                {
+                    return true;
+                }
+            }
+
+            if (attackerToUs.Treaty_Trade && IsFreighter && AI.State == AIState.SystemTrader)
+            {
                 return false;
-
-            if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
-                && IsInBordersOf(attacker))
-            {
-                return true;
             }
 
-            if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
-            {
-                return true;
-            }
-
-            SolarSystem system = System;
-            if (system != null)
-            {
-                if (attackerToUs.WarnedSystemsList.Contains(system.guid))
-                    return true;
-
-                if (DesignRole == ShipData.RoleName.troop &&
-                    attacker.GetOwnedSystems().ContainsRef(system))
-                    return true;
-            }
-
-            return true;
+            return attackerToUs.CanAttack;
         }
 
         // Level 5 crews can use advanced targeting which even predicts acceleration

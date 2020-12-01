@@ -3265,11 +3265,11 @@ namespace Ship_Game
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
-            bool canAttackShip = target?.IsAttackable(this, rel) ?? true;
-            if (rel.CanAttack && canAttackShip)
-                return true;
 
-            return canAttackShip;
+            if (rel.CanAttack && target is null)
+                return true;
+            
+            return target?.IsAttackable(this, rel) ?? false;
         }
 
         public bool IsEmpireHostile(Empire targetEmpire)
