@@ -22,13 +22,14 @@ namespace Ship_Game
         string Message;
         readonly string Original;
         string ToAppend;
+        readonly int BoxWidth;
 
         public Action Accepted;
         public Action Cancelled;
 
         public MessageBoxScreen(GameScreen parent, string message,
-                                MessageBoxButtons buttons = MessageBoxButtons.Default)
-            : this(parent, message, Localizer.Token(15), Localizer.Token(16), buttons)
+                                MessageBoxButtons buttons = MessageBoxButtons.Default, int width = 270)
+            : this(parent, message, Localizer.Token(15), Localizer.Token(16), buttons, width)
         {
         }
 
@@ -46,13 +47,14 @@ namespace Ship_Game
         }
 
         public MessageBoxScreen(GameScreen parent, string message, string okText, string cancelText,
-                                MessageBoxButtons buttons = MessageBoxButtons.Default) : base(parent)
+                                MessageBoxButtons buttons = MessageBoxButtons.Default, int width = 270) : base(parent)
         {
             Original = message;
             Message = message;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
+            BoxWidth = width;
 
             Ok = ButtonSmall(0f, 0f, okText, click: OnOkClicked);
             if (buttons == MessageBoxButtons.Default)
@@ -65,8 +67,8 @@ namespace Ship_Game
 
             Message = Fonts.Arial12Bold.ParseText(Original + ToAppend, 250f);
             Vector2 msgSize = Fonts.Arial12Bold.MeasureString(Message);
-            var r = new Rectangle(ScreenWidth / 2 - 135, ScreenHeight / 2 - (int)(msgSize.Y + 40f) / 2,
-                                  270, (int)(msgSize.Y + 40f) + 15);
+            var r = new Rectangle(ScreenWidth / 2 - BoxWidth/2, ScreenHeight / 2 - (int)(msgSize.Y + 40f) / 2,
+                                  BoxWidth, (int)(msgSize.Y + 40f) + 15);
 
             var textPosition = new Vector2(r.X + r.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r.Y + 10);
             
