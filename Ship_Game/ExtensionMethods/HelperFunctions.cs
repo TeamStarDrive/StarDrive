@@ -102,6 +102,15 @@ namespace Ship_Game
                 && -y < pos.Y && pos.Y < y;
         }
 
+        public static void CompressDir(DirectoryInfo dir, string outFile)
+        {
+            FileInfo file = new FileInfo(outFile);
+            if (file.Exists)
+                file.Delete();
+
+            ZipFile.CreateFromDirectory(dir.FullName, outFile, CompressionLevel.Fastest, true);
+        }
+
         public static void Compress(FileInfo fi)
         {
             if (fi.Extension == ".gz" || (fi.Attributes & FileAttributes.Hidden) > 0)
