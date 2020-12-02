@@ -193,7 +193,7 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = 50000f,
                 TargetPlanet             = planet,
                 MinimumTaskForceStrength = str * strMulti,
-                EnemyStrength            = str * strMulti,
+                EnemyStrength            = str,
                 Priority                 = 0,
                 Owner                    = owner,
                 type                     = TaskType.DefendVsRemnants,
