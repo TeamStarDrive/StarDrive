@@ -681,6 +681,7 @@ namespace Ship_Game
 
         bool TryPrioritizeColonyBuilding()
         {
+            // This will prioritize important buildings based on colony type to be 2nd in queue, if possible.
             if (ConstructionQueue.Count <= 2 || PlayerAddedFirstConstructionItem)
                 return false;
 
