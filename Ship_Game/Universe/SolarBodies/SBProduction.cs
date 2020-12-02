@@ -272,7 +272,6 @@ namespace Ship_Game.Universe.SolarBodies
                 NotifyOnEmpty   = false,
                 Rush            = P.Owner.RushAllConstruction,
                 QueueNumber     = ConstructionQueue.Count
-
             };
 
             if (b.AssignBuildingToTile(b, ref where, P))

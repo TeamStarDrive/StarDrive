@@ -401,6 +401,9 @@ namespace Ship_Game
         public bool TargetNextPlanet(Empire targetEmpire, Planet currentPlanet, int numBombers, out Planet nextPlanet)
         {
             nextPlanet = null;
+            if (targetEmpire == null)
+                return false;
+
             if (numBombers > 0 && currentPlanet.ParentSystem.IsOwnedBy(targetEmpire))
             {
                 // Choose another planet owned by target empire in the same system

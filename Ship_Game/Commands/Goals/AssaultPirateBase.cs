@@ -74,9 +74,10 @@ namespace Ship_Game.Commands.Goals
 
                 if (TargetShip != null && TargetShip.Active)
                     return GoalStep.TryAgain;
+
+                empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire); // base is destroyed
             }
 
-            empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
             return GoalStep.GoalComplete;
         }
 
