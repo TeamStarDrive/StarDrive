@@ -1292,12 +1292,14 @@ namespace Ship_Game
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
+        public float HabitableBuiltCoverage  => 1 - (float)FreeHabitableTiles/TotalHabitableTiles;
 
         public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         public int TotalHabitableTiles   => TilesList.Count(tile => tile.Habitable);
+        public float MoneyBuildingRatio  => (float)TotalMoneyBuildings / TotalBuildings;
+        public int TotalMoneyBuildings   => TilesList.Count(tile => tile.BuildingOnTile &&  tile.building.IsMoneyBuilding);
 
         public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
-        public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
         public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
         public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
