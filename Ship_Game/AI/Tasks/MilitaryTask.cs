@@ -193,7 +193,7 @@ namespace Ship_Game.AI.Tasks
                 AORadius                 = 50000f,
                 TargetPlanet             = planet,
                 MinimumTaskForceStrength = str * strMulti,
-                EnemyStrength            = str * strMulti,
+                EnemyStrength            = str,
                 Priority                 = 0,
                 Owner                    = owner,
                 type                     = TaskType.DefendVsRemnants,
@@ -408,7 +408,7 @@ namespace Ship_Game.AI.Tasks
             float divisor = 2;
             if (GetTaskCategory() == TaskCategory.War)
                 divisor = 1;
-            else if (Owner.IsAtWar) 
+            else if (Owner.IsAtWarWithMajorEmpire) 
                 divisor = 10;
             
             float fleets = Owner.Pool.InitialReadyFleets;
