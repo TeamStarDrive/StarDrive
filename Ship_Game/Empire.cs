@@ -2581,10 +2581,10 @@ namespace Ship_Game
                             Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
                             Universe.GameOver = true;
                         }
-                        else
+                        else 
+                        {
                             remnants.Remnants.TriggerOnlyRemnantsLeftEvent();
-
-                        return;
+                        }
                     }
                 }
 
