@@ -133,7 +133,7 @@ namespace Ship_Game
             var theaters = new Array<Theater>();
             foreach (var war in AllActiveWars)
             {
-                if (war.WarTheaters.ActiveTheaters != null)
+                if (war.WarTheaters.ActiveTheaters?.Length > 0)
                     theaters.AddRange(war.WarTheaters.ActiveTheaters);
             }
             AllActiveWarTheaters = theaters.ToArray();

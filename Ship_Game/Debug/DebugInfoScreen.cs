@@ -779,6 +779,10 @@ namespace Ship_Game.Debug
 
                     if (rel.PreparingForWar)
                         DrawString(them.EmpireColor, "*** Preparing for War! ***");
+                    if (rel.PreparingForWar)
+                        DrawString(them.EmpireColor, $"*** {rel.PreparingForWarType} ***");
+                    if (rel.ActiveWar != null)
+                        DrawString(them.EmpireColor, $"*** {rel.ActiveWar.WarType} ***");
 
                     DrawString(e.EmpireColor, "----------------------------");
                 }
