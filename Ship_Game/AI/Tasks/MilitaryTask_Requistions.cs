@@ -154,6 +154,16 @@ namespace Ship_Game.AI.Tasks
 
         AO FindClosestAO(float strWanted = 100)
         {
+            if (Fleet != null)
+            {
+                RallyAO = null;
+                foreach (var theater in Owner.AllActiveWarTheaters.Sorted(t=> t?.TheaterAO.Center.SqDist(Fleet.AveragePosition()) ?? float.MaxValue ))
+                {
+                    RallyAO = theater?.RallyAO;
+                }
+            }
+
+
             if (RallyAO != null) 
                 return RallyAO;
             var aos =  Owner.GetEmpireAI().AreasOfOperations;
@@ -477,7 +487,7 @@ namespace Ship_Game.AI.Tasks
             if (type == TaskType.DefendClaim)
                 Log.Info("lala");
             CreateFleet(TaskForce, fleetName);
-            Owner.Pool.CurrentUseableFleets -= wantedNumberOfFleets;
+            Owner.Pool.CurrentUseableFleets -= fleetShips.ShipSetsExtracted.LowerBound(1);
             return RequisitionStatus.Complete;
         }
 
