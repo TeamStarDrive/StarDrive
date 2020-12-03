@@ -49,7 +49,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
         [JsonIgnore][XmlIgnore] public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
-        [JsonIgnore][XmlIgnore] public float SpaceWarKd => StrengthKilled / StrengthLost.LowerBound(1);
+        [JsonIgnore][XmlIgnore] public float SpaceWarKd => (StrengthKilled + 1000) / (StrengthLost + 1000);
         [JsonIgnore][XmlIgnore] public int LowestTheaterPriority;
 
         int ContestedSystemCount => ContestedSystems.Count(s => s.OwnerList.Contains(Them));
