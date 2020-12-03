@@ -229,6 +229,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\StandbyColonyShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantInit.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
