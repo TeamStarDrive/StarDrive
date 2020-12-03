@@ -41,14 +41,42 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         void SetActiveTheaters()
         {
-            ActiveTheaters = new Theater[0];
+            if (Theaters.Count == 1 && (ActiveTheaters is null || ActiveTheaters.Length < 1 || ActiveTheaters[0] != Theaters[0]))
+            {
+                ActiveTheaters = Theaters.ToArray();
+                return;
+            }
+
+            for (int i = 0; i < ActiveTheaters?.Length; i++)
+            {
+                var theater = ActiveTheaters[i];
+                if (theater.TheaterAO.GetAllPlanets().Any(p => p.Owner == Them))
+                    return;
+            }
+
             if (OwnerWar.GetPriority() <= Us.GetEmpireAI().MinWarPriority)
             {
-                Theater[] theaters = Theaters.Filter(t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
+                Vector2 ourCenter = Us.WeightedCenter;
+                Vector2 theirCenter = Them.WeightedCenter;
 
-                if (theaters.Length > 0)
+                if (OwnerWar.WarType == WarType.GenocidalWar || OwnerWar.WarType == WarType.ImperialistWar)
+                {
+                    theirCenter = Them.GetOwnedSystems().FindMax(s => s.WarValueTo(Us)).Position;
+                }
+
+                var possibleTheaters = Theaters.GroupByFiltered(t => (int)(t.TheaterAO.Center.Distance(ourCenter) * 0.000005f + t.TheaterAO.Center.Distance(theirCenter) * 0.000005f)
+                    , t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
+
+                //Theater[] theaters = Theaters.Filter(t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
+                var theaters = possibleTheaters.FirstOrDefault().Value?.ToArray();
+
+                if (theaters?.Length > 0)
                     ActiveTheaters = new Theater[1] { theaters.SortedDescending(t => t.WarValue)[0] };
+                else
+                    ActiveTheaters = new Theater[0];
             }
+            else
+                ActiveTheaters = new Theater[0];
         }
 
         public void Evaluate()

@@ -21,13 +21,15 @@ namespace Ship_Game.Empires.DataPackets
         public float PulseTime { get; private set; } = 5;
 
         public Empire[] Enemies => Fleets?.FilterSelect(f => f != null, f=>f.Owner);
+        Empire Owner;
 
-        public IncomingThreat (SolarSystem system, Fleet[] fleets)
+        public IncomingThreat (Empire owner, SolarSystem system, Fleet[] fleets)
         {
             TargetSystem = system;
+            Owner        = owner;
             ThreatTimer  = ThreatResetTime;
             Notified     = false;
-            Strength     = fleets.Sum(f => f.GetStrength());
+            Strength     = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
             Fleets       = fleets;
         }
 

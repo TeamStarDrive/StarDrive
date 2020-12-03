@@ -577,8 +577,7 @@ namespace Ship_Game
 
                 CreateSpaceRoads(data, esd, e);
                 CreateGoals(esd, e, data);
-                e.GetEmpireAI().ThreatMatrix.AddFromSave(esd.GSAIData);
-
+                e.GetEmpireAI().ThreatMatrix.AddFromSave(esd.GSAIData, e);
                 e.GetEmpireAI().UsedFleets = esd.GSAIData.UsedFleets;
                 CreateMilitaryTasks(esd, e, data);
                 CreateShipGoals(esd, data, e);
