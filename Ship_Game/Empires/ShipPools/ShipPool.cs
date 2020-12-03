@@ -41,12 +41,8 @@ namespace Ship_Game.Empires.ShipPools
             }
             var fleets = new FleetShips(Owner, Owner.AllFleetReadyShips());
             EmpireReadyFleets = fleets;
-            CurrentUseableFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
-            InitialReadyFleets += CurrentUseableFleets;
-            InitialReadyFleets /=2;
-            CurrentUseableStrength = initialStrength;
-            InitialStrength = (initialStrength + InitialStrength) / 2;
-            
+            CurrentUseableFleets = InitialReadyFleets = EmpireReadyFleets.CountFleets(out float initialStrength);
+            CurrentUseableStrength = InitialStrength = initialStrength;
         }
 
         public void RemoveShipFromFleetAndPools(Ship ship)

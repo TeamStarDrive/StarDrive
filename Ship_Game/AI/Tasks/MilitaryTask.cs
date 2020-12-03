@@ -405,14 +405,17 @@ namespace Ship_Game.AI.Tasks
 
         bool RoomForMoreFleets()
         {
-            float divisor = 2;
-            if (GetTaskCategory() == TaskCategory.War)
+            float divisor = 0;
+            if (type == TaskType.ClearAreaOfEnemies)
                 divisor = 1;
-            else if (Owner.IsAtWarWithMajorEmpire) 
+            else if (GetTaskCategory() == TaskCategory.War)
+                divisor = 5;
+            else if (Owner.IsAtWarWithMajorEmpire)
                 divisor = 10;
-            
-            float fleets = Owner.Pool.InitialReadyFleets;
-            return Owner.Pool.CurrentUseableFleets + fleets / divisor > fleets;
+            float availableFleets = Owner.Pool.CurrentUseableFleets.LowerBound(1);
+            float fleets = Owner.Pool.InitialReadyFleets.LowerBound(1);
+            float usedFleets = fleets - availableFleets;
+            return  fleets / divisor > usedFleets;
         }
 
         public void EndTaskWithMove()

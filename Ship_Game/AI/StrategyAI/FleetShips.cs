@@ -29,6 +29,7 @@ namespace Ship_Game.AI
         public int BombSecsAvailable { get; private set; }
         readonly int[] RoleCount;
         readonly float[] RoleStrength;
+        public int ShipSetsExtracted = 0;
 
         public FleetShips(Empire ownerEmpire)
         {
@@ -142,6 +143,7 @@ namespace Ship_Game.AI
                 {
                     completeFleets++;
                     neededFleets--;
+                    ShipSetsExtracted++;
                 }
      
             }

@@ -886,14 +886,14 @@ namespace Ship_Game
         public int NumPlanets                               => OwnedPlanets.Count;
         public int NumSystems                               => OwnedSolarSystems.Count;
 
-        public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored)
+        public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored, float percentageOfMapSize = 0.5f)
         {
             Vector2 theirCenter = them.WeightedCenter;
             Vector2 ownCenter   = WeightedCenter;
             var directionToThem = ownCenter.DirectionToTarget(theirCenter);
             float midDistance   = ownCenter.Distance(theirCenter) / 2;
             Vector2 midPoint    = directionToThem * midDistance;
-            float mapDistance   = Universe.UniverseSize / 2f;
+            float mapDistance   = (Universe.UniverseSize * percentageOfMapSize).UpperBound(ownCenter.Distance(theirCenter) * 1.2f);
 
             var solarSystems = new Array<SolarSystem>();
             foreach (var solarSystem in GetOwnedSystems())
@@ -1668,7 +1668,7 @@ namespace Ship_Game
                     if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
                     {
                         knownFleets.Add(fleet.Value);
-                    }
+                    } 
                 }
             }
 
@@ -1680,7 +1680,7 @@ namespace Ship_Game
                 {
 
                     if (!SystemWithThreat.Any(s => s.UpdateThreat(system, fleets)))
-                        SystemWithThreat.Add(new IncomingThreat(system, fleets));
+                        SystemWithThreat.Add(new IncomingThreat(this, system, fleets));
                 }
             }
         }

@@ -13,12 +13,6 @@ namespace Ship_Game.AI
 {
     public sealed class CombatAI
     {
-        public float VultureWeight = 0.5f;
-        public float SelfDefenseWeight = 0.5f;
-        public float SmallAttackWeight;
-        public float MediumAttackWeight;
-        public float LargeAttackWeight;
-        public float PirateWeight;
         private float AssistWeight = 0.5f;
         public Ship Owner;
         ShipAIPlan CombatTactic;

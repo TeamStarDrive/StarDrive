@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Gameplay;
@@ -48,81 +49,128 @@ namespace UnitTests.Ships
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
 
             // advanced qualifiers
-            Enemy.isFaction = false;
 
             // cant attack trade
-            ourRelation.Treaty_Trade = true;
-            theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
-            ourRelation.UpdateRelationship(us, Enemy);
-            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
-            ourRelation.Treaty_Trade = false;
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                ourRelation.Treaty_Trade = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Trade: " +GetFailString(us, ourShip, theirShip, ourRelation));
 
             // cant attack during peace.
-            ourRelation.Treaty_Peace = true;
-            ourRelation.UpdateRelationship(us, Enemy);
-            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
-            ourRelation.Treaty_Peace = false;
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                ourRelation.Treaty_Peace = true;
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Peace: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
             // faction tests
-            Enemy.isFaction = true;
-            ourRelation.UpdateRelationship(us, Enemy);
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Enemy.isFaction = true;
+            });
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Faction: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
-            ourRelation.Treaty_Trade = true;
-            ourRelation.UpdateRelationship(us, Enemy);
-            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
-            ourRelation.Treaty_Trade = false;
+            // faction trade works like empire
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Enemy.isFaction = true;
+                ourRelation.Treaty_Trade = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Faction Trade: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
-            ourRelation.Treaty_NAPact = true;
-            ourRelation.UpdateRelationship(us, Enemy);
-            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
-            ourRelation.Treaty_NAPact = false;
+            // faction na pact
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Enemy.isFaction = true;
+                ourRelation.Treaty_NAPact = true;
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Faction NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Player.isFaction = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+                ourRelation.Treaty_NAPact = true;
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Faction NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Player.isFaction = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+                ourRelation.Treaty_NAPact = true;
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(null), "Faction NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
             // faction reset treaties and anger
-            theirShip.AI.ClearOrders();
-            ourRelation.Treaty_NAPact = false;
-            ourRelation.Treaty_Trade = false;
-            ourRelation.Treaty_Peace = false;
-            ResetAnger(ourRelation);
-            ourRelation.UpdateRelationship(us, Enemy);
-            theirShip.SetProjectorInfluence(us, true);
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Enemy.isFaction = true;
+                theirShip.SetProjectorInfluence(us, true);
+            });
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Faction" + GetFailString(us, ourShip, theirShip, ourRelation));
 
             // violation tests.
-            Enemy.isFaction = false;
-            theirShip.AI.ClearOrders();
-            ResetAnger(ourRelation);
-            ourRelation.AddAngerShipsInOurBorders(100);
-            ourRelation.UpdateRelationship(us, Enemy);
-            theirShip.SetProjectorInfluence(us, true);
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
+            // anger inborders
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                ourRelation.AddAngerShipsInOurBorders(100);
+                theirShip.SetProjectorInfluence(us, true);
+            });
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Anger Borders" + GetFailString(us, ourShip, theirShip, ourRelation));
 
-            theirShip.AI.ClearOrders();
-            ResetAnger(ourRelation);
-            ourRelation.AddAngerMilitaryConflict(100);
-            ourRelation.UpdateRelationship(us, Enemy);
-            theirShip.SetProjectorInfluence(us, true);
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
+            // anger military conflict
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                ourRelation.AddAngerMilitaryConflict(100);
+                theirShip.SetProjectorInfluence(us, true);
+            });
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Anger Military:" + GetFailString(us, ourShip, theirShip, ourRelation));
 
-            theirShip.AI.ClearOrders();
-            ResetAnger(ourRelation);
-            ourRelation.AddAngerTerritorialConflict(100);
-            ourRelation.UpdateRelationship(us, Enemy);
-            theirShip.SetProjectorInfluence(us, true);
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
+            // anger territorial
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                ourRelation.AddAngerTerritorialConflict(100);
+                theirShip.SetProjectorInfluence(us, true);
+            });
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), $"Territory: {GetFailString(us, ourShip, theirShip, ourRelation)}");
 
-            theirShip.AI.ClearOrders();
-            ResetAnger(ourRelation);
-            ourRelation.UpdateRelationship(us, Enemy);
-            theirShip.SetProjectorInfluence(us, true);
+            // sanity test no environment
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                theirShip.SetProjectorInfluence(us, true);
+            });
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), GetFailString(us,ourShip, theirShip,ourRelation));
 
-
             // war tests
-            Enemy.isFaction = false;
-            us.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
-            ourRelation.UpdateRelationship(us, Enemy);
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us, ourShip, theirShip, ourRelation));
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Enemy.isFaction = false;
+                us.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
+            });
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), $"War: {GetFailString(us, ourShip, theirShip, ourRelation)}");
+
+            // Empire attack can attacked tests.
+            // faction attack napact
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Player.isFaction = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+                ourRelation.Treaty_NAPact = true;
+            });
+            Assert.IsFalse(Player.IsEmpireAttackable(Enemy), "Faction attack NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Player.isFaction = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+            });
+            Assert.IsTrue(Player.IsEmpireHostile(Enemy), "Faction NA Pact hostile: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
+
         }
 
         void ResetAnger(Relationship rel)
@@ -137,5 +185,25 @@ namespace UnitTests.Ships
             return $"relation attack: {ourRelation.CanAttack}  ship attack: {theirShip.IsAttackable(us, ourRelation)} Loyalty attack {us.IsEmpireAttackable(Enemy, theirShip)}";
         }
 
+        public void SetEnvironment(Empire us, Ship theirShip, Relationship ourRelation, Action setEnvironment)
+        {
+            theirShip.SetProjectorInfluence(us, false);
+            theirShip.ResetProjectorInfluence();
+            theirShip.AI.ClearOrders();
+
+            Enemy.isFaction             = false;
+            Player.isFaction            = false;
+            ourRelation.Treaty_NAPact   = false;
+            ourRelation.Treaty_Trade    = false;
+            ourRelation.Treaty_Peace    = false;
+            ourRelation.AtWar           = false;
+            ourRelation.PreparingForWar = false;
+
+            ResetAnger(ourRelation);
+            theirShip.AI.ClearOrders();
+
+            setEnvironment.Invoke();
+            ourRelation.UpdateRelationship(us, Enemy);
+        }
     }
 }

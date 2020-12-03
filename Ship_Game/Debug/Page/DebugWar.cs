@@ -36,11 +36,15 @@ namespace Ship_Game.Debug.Page
 
         void ChangeEmpireId(bool increase)
         {
-            EmpireID = EmpireID + (increase ? 1 : -1);
-            if (EmpireID > EmpireManager.NumEmpires) EmpireID = 1;
-            if (EmpireID < 1) EmpireID = EmpireManager.NumEmpires;
+            do
+            {
+                EmpireID = EmpireID + (increase ? 1 : -1);
+                if (EmpireID > EmpireManager.NumEmpires) EmpireID = 1;
+                if (EmpireID < 1) EmpireID = EmpireManager.NumEmpires;
+                EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
+            }
+            while (EmpireAtWar.data.Defeated);
 
-            EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
             TextColumns[0].Text = $"Empire: {EmpireAtWar.Name}";
             TextColumns[0].Color = EmpireAtWar.EmpireColor;
         }
@@ -64,6 +68,7 @@ namespace Ship_Game.Debug.Page
         {
             foreach((Empire them, Relationship rel) in EmpireAtWar.AllRelations)
             {
+                if (them.data.Defeated) continue;
                 var war = rel.ActiveWar;
                 if (war == null ||  war.Them.isFaction) continue;
                 int minPri = EmpireAtWar.GetEmpireAI().MinWarPriority;
