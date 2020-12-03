@@ -89,6 +89,22 @@ namespace UnitTests.Ships
             });
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Faction NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Player.isFaction = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+                ourRelation.Treaty_NAPact = true;
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Faction NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Player.isFaction = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+                ourRelation.Treaty_NAPact = true;
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(null), "Faction NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
             // faction reset treaties and anger
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
@@ -136,6 +152,25 @@ namespace UnitTests.Ships
                 us.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             });
             Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), $"War: {GetFailString(us, ourShip, theirShip, ourRelation)}");
+
+            // Empire attack can attacked tests.
+            // faction attack napact
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Player.isFaction = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+                ourRelation.Treaty_NAPact = true;
+            });
+            Assert.IsFalse(Player.IsEmpireAttackable(Enemy), "Faction attack NA Pact: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                Player.isFaction = true;
+                theirShip.AI.ChangeAIState(Ship_Game.AI.AIState.SystemTrader);
+            });
+            Assert.IsTrue(Player.IsEmpireHostile(Enemy), "Faction NA Pact hostile: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
+
         }
 
         void ResetAnger(Relationship rel)
@@ -157,6 +192,7 @@ namespace UnitTests.Ships
             theirShip.AI.ClearOrders();
 
             Enemy.isFaction             = false;
+            Player.isFaction            = false;
             ourRelation.Treaty_NAPact   = false;
             ourRelation.Treaty_Trade    = false;
             ourRelation.Treaty_Peace    = false;
