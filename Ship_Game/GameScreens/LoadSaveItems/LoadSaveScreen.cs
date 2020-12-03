@@ -11,12 +11,12 @@ namespace Ship_Game
         UniverseScreen screen;
         MainMenuScreen mmscreen;
 
-        public LoadSaveScreen(UniverseScreen screen) : base(screen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
+        public LoadSaveScreen(UniverseScreen screen) : base(screen, SLMode.Load, "", Localizer.Token(6), "Saved Games", true)
         {
             this.screen = screen;
             Path = Dir.StarDriveAppData +  "/Saved Games/";
         }
-        public LoadSaveScreen(MainMenuScreen mmscreen) : base(mmscreen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
+        public LoadSaveScreen(MainMenuScreen mmscreen) : base(mmscreen, SLMode.Load, "", Localizer.Token(6), "Saved Games", true)
         {
             this.mmscreen = mmscreen;
             Path = Dir.StarDriveAppData + "/Saved Games/";
@@ -51,6 +51,64 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
             }
             ExitScreen();
+        }
+
+        protected override void ExportSave()
+        {
+            if (SelectedFile != null)
+            {
+                string fileName = SelectedFile.FileName;
+                var dirInfo     = new DirectoryInfo(Path + "/" + fileName);
+                dirInfo.Create();
+                SelectedFile.FileLink.CopyTo(dirInfo.FullName + "/" + SelectedFile.FileLink.Name, true);
+                var header = new FileInfo(Path + "/Headers/" + fileName + ".xml");
+                var fog    = new FileInfo(Path + "/Fog Maps/" + fileName + "fog.png");
+
+                string error = "";
+                if (!header.Exists)
+                    error = "header.xml file does not exist.";
+
+                if (!fog.Exists)
+                    error = $"{error}. Fog map does not exist.";
+
+                if (error.NotEmpty())
+                {
+                    error = $"{error} For {fileName}";
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, error, MessageBoxButtons.Ok));
+                }
+                else
+                {
+                    header.CopyTo(dirInfo.FullName + "/" + header.Name, true);
+                    fog.CopyTo(dirInfo.FullName + "/" + fog.Name, true);
+                    string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                    string savedFileName = $"{GetDebugVers()}{dirInfo.Name}.zip";
+                    HelperFunctions.CompressDir(dirInfo, path + "/" + savedFileName);
+                    dirInfo.Delete(true);
+                    string message = $"The selected save was exported to your desktop as {savedFileName}";
+                    int messageWidth = ((int)Fonts.Arial12Bold.MeasureString(savedFileName).X + 20).UpperBound(400);
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, message, MessageBoxButtons.Ok, messageWidth));
+                    return;
+                }
+            }
+
+            GameAudio.NegativeClick();
+        }
+
+        string GetDebugVers()
+        {
+            string blackBox = GlobalStats.ExtendedVersionNoHash.Replace(":", "").Replace(" ", "_");
+            string modTitle = "";
+            if (GlobalStats.HasMod)
+            {
+                string title = GlobalStats.ActiveModInfo.ModName;
+                string version = GlobalStats.ActiveModInfo.Version;
+                if (version.NotEmpty() && !title.Contains(version))
+                    modTitle = title + "-" + version;
+
+                modTitle = modTitle.Replace(":", "").Replace(" ", "_");
+            }
+
+            return $"{blackBox}_{modTitle}_"; 
         }
 
         protected override void InitSaveList()        // Set list of files to show

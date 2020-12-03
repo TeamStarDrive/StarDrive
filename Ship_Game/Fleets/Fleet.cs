@@ -426,15 +426,19 @@ namespace Ship_Game.Fleets
 
         void DoExplorePlanet(MilitaryTask task)
         {
-            bool eventBuildingFound = task.TargetPlanet.EventsOnTiles();
+            Planet targetPlanet     = task.TargetPlanet;
+            bool eventBuildingFound = targetPlanet.EventsOnTiles();
             if (task.TargetEmpire == null)
-                task.TargetEmpire = Owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(task.TargetPlanet.ParentSystem);
+                task.TargetEmpire = Owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
 
             if (EndInvalidTask(!StillInvasionEffective(task) || !StillCombatEffective(task)))
                 return;
 
-            if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null && task.TargetPlanet.Owner != Owner)) 
+            if (EndInvalidTask(!eventBuildingFound
+                               || targetPlanet.Owner != null && targetPlanet.Owner != Owner && !Owner.IsEmpireAttackable(targetPlanet.Owner)))
+            {
                 return;
+            }
 
             switch (TaskStep)
             {
@@ -444,25 +448,25 @@ namespace Ship_Game.Fleets
                     break;
                 case 1:
                     if (!HasArrivedAtRallySafely()) break;
-                    GatherAtAO(task, distanceFromAO: task.TargetPlanet.GravityWellRadius);
+                    GatherAtAO(task, distanceFromAO: targetPlanet.GravityWellRadius);
                     TaskStep = 2;
                     break;
                 case 2:
                     if (ArrivedAtCombatRally(FinalPosition))
                     {
                         TaskStep = 3;
-                        var combatOffset = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
+                        var combatOffset = task.AO.OffsetTowards(AveragePosition(), targetPlanet.GravityWellRadius);
                         EscortingToPlanet(combatOffset, false);
                     }
                     break;
                 case 3:
-                    var planetMoveStatus = FleetMoveStatus(task.TargetPlanet.GravityWellRadius, FinalPosition);
+                    var planetMoveStatus = FleetMoveStatus(targetPlanet.GravityWellRadius, FinalPosition);
 
                     if (!planetMoveStatus.HasFlag(MoveStatus.MajorityAssembled))
                     {
                         if (planetMoveStatus.HasFlag(MoveStatus.AssembledInCombat))
                         {
-                            ClearPriorityOrderForShipsInAO(Ships, FinalPosition, task.TargetPlanet.GravityWellRadius);
+                            ClearPriorityOrderForShipsInAO(Ships, FinalPosition, targetPlanet.GravityWellRadius);
                         }
                         break;
                     }
