@@ -272,6 +272,10 @@ namespace Ship_Game
             right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, "Alert Enemy Presence After Load",
                 "Add Notifications regarding enemies in your systems after you load a game, to remind you which systems " +
                 "are under attack.");
+            right.AddCheckbox(() => GlobalStats.EnableSaveExportButton, "Enable Save Export",
+                "This will let you easily export specific save to help the developers " +
+                "investigate issues. You will see the export button in the save/load screen");
+
             CurrentLanguage = new DropOptions<Language>(105, 18);
             Add(right, "Language", CurrentLanguage);
 
