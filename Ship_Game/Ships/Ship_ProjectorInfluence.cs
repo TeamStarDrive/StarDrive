@@ -29,7 +29,7 @@ namespace Ship_Game.Ships
         int InfluenceCount;
         ForeignInfluence[] Influences;
 
-        void ResetProjectorInfluence()
+        public void ResetProjectorInfluence()
         {
             InOwnerInfluence = false;
             InfluenceCount   = 0;

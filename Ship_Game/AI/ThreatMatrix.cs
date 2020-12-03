@@ -16,6 +16,8 @@ namespace Ship_Game.AI
 {
     public sealed class ThreatMatrix
     {
+        Empire Owner;
+
         public class Pin
         {
             [Serialize(0)] public Vector2 Position;
@@ -105,7 +107,11 @@ namespace Ship_Game.AI
         {
             Owner = empire;
         }
-        Empire Owner;
+
+        public void SetOwner(Empire owner)
+        {
+            Owner = Owner;
+        }
 
         Pin[] KnownBases = new Pin[0];
         SolarSystem[] KnownSystemsWithEnemies = new SolarSystem[0];
@@ -428,7 +434,7 @@ namespace Ship_Game.AI
                 return KnownBases.Filter(b => b.GetEmpire().isFaction) ?? Empty<Pin>.Array;
         }
 
-        Pin[] GetAllHostileBases() => FilterPins(p => p.Ship.IsPlatformOrStation && Owner.IsEmpireHostile(p.GetEmpire()));
+        Pin[] GetAllHostileBases() => FilterPins(p => p.Ship?.IsPlatformOrStation == true && Owner?.IsEmpireHostile(p.GetEmpire()) == true);
 
         /// <summary> Return the ship strength of filtered ships in a system. It will not tell you if no pins were in the system. </summary>
         public float GetStrengthInSystem(SolarSystem system, Predicate<Pin> filter)
@@ -726,8 +732,9 @@ namespace Ship_Game.AI
                 return Pins.Remove(shipGuid);
         }
 
-        public void AddFromSave(SavedGame.GSAISAVE aiSave)
+        public void AddFromSave(SavedGame.GSAISAVE aiSave, Empire owner)
         {
+            Owner = owner;
             using (PinsMutex.AcquireWriteLock())
             {
                 for (int i = 0; i < aiSave.PinGuids.Count; i++)

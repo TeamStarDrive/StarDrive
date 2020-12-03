@@ -358,6 +358,7 @@ namespace Ship_Game
             return AveragePos;
         }
 
+        // Needs a storage value
         public float GetStrength()
         {
             // Update Strength once per frame, OR if LastStrengthUpdate was invalidated
