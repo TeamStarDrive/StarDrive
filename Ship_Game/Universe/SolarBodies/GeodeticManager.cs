@@ -119,10 +119,12 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             bool spaceCombat = P.SpaceCombatNearPlanet;
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
-                Ship ship         = ParentSystem.ShipList[i];
-                bool loyaltyMatch = ship?.loyalty == Owner; // todo remove null check after new quad tree is merged
+                Ship ship = ParentSystem.ShipList[i];
+                if (ship == null)
+                    continue;
 
-                if (ship != null && ship.loyalty.isFaction) // todo remove null check after new quad tree is merged
+                bool loyaltyMatch = ship.loyalty == Owner || ship.loyalty.IsAlliedWith(Owner);
+                if (ship.loyalty.isFaction)
                     AddTroopsForFactions(ship);
 
                 if (loyaltyMatch)
@@ -131,7 +133,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     {
                         SupplyShip(ship);
                         RepairShip(ship, repairPool);
-                        if (!spaceCombat)
+                        if (!spaceCombat && ship.loyalty == Owner) // dont do this for allies
                         {
                             LoadTroops(ship, P.NumTroopsCanLaunch);
                             DisengageTroopsFromCapturedShips(ship);

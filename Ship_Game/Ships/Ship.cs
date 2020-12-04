@@ -1224,7 +1224,6 @@ namespace Ship_Game.Ships
             }
 
             AI.ProcessResupply(resupplyReason);
-
         }
 
         public bool IsSuitableForPlanetaryRearm()
@@ -1234,11 +1233,11 @@ namespace Ship_Game.Ships
                 || OrdnancePercent.AlmostEqual(1)
                 || IsPlatformOrStation && TetheredTo?.Owner == loyalty
                 || AI.OrbitTarget?.Owner == loyalty
+                || AI.OrbitTarget?.Owner?.IsAlliedWith(loyalty) == true
                 || AI.State == AIState.Resupply
                 || AI.State == AIState.Scrap
                 || AI.State == AIState.Refit
                 || IsSupplyShuttle)
-
             {
                 return false;
             }

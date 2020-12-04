@@ -110,7 +110,7 @@ namespace Ship_Game.AI
 
         public void SetOwner(Empire owner)
         {
-            Owner = Owner;
+            Owner = owner;
         }
 
         Pin[] KnownBases = new Pin[0];
