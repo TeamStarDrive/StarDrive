@@ -152,10 +152,27 @@ namespace Ship_Game.ShipDesignIssues
             }
         }
 
-        public void CheckIssuePowerRecharge(float recharge)
+        public void CheckIssuePowerRecharge(bool hasEnergyWeapons, float recharge, float powerCapacity, float excessPowerConsumed)
         {
             if (recharge.Less(0))
+            { 
                 AddDesignIssue(DesignIssueType.NegativeRecharge, WarningLevel.Critical);
+                return;
+            }
+
+            if (!hasEnergyWeapons || excessPowerConsumed < recharge)
+                return;
+
+            float rechargeTime    = powerCapacity / recharge.LowerBound(1);
+            WarningLevel severity = WarningLevel.None;
+
+            if (rechargeTime > 20)      severity = WarningLevel.Critical;
+            else if (rechargeTime > 16) severity = WarningLevel.Major;
+            else if (rechargeTime > 12) severity = WarningLevel.Minor;
+            else if (rechargeTime > 8)  severity = WarningLevel.Informative;
+
+            if (severity > WarningLevel.None)
+                AddDesignIssue(DesignIssueType.LongRechargeTime, severity);
         }
 
         public void CheckIssueLowWarpTime(float warpDraw, float ftlTime, float warpSpeed)
@@ -345,11 +362,11 @@ namespace Ship_Game.ShipDesignIssues
 
             var average = accuracyList.Average(kv=> kv.Value);
             WarningLevel severity;
-            if      (average > 12) severity = WarningLevel.Critical;
-            else if (average > 9)  severity = WarningLevel.Major;
-            else if (average > 6)  severity = WarningLevel.Minor;
-            else if (average > 3)  severity = WarningLevel.Informative;
-            else                   return;
+            if      (average > 7)    severity = WarningLevel.Critical;
+            else if (average > 5)    severity = WarningLevel.Major;
+            else if (average > 3.5f) severity = WarningLevel.Minor;
+            else if (average > 2.5f) severity = WarningLevel.Informative;
+            else                     return;
 
             string remediation = $" {new LocalizedText(GameText.Average).Text}" +
                                  $" {new LocalizedText(GameText.Accuracy).Text}:" +
@@ -384,11 +401,6 @@ namespace Ship_Game.ShipDesignIssues
             string baseString = !IsPlatform ? "" : $" {new LocalizedText(GameText.OrbitalTracking).Text}";
 
             AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + fireArcs);
-        }
-
-        public void CheckRechargeTime(float recharge, float powerStores)
-        {
-
         }
 
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
@@ -432,7 +444,8 @@ namespace Ship_Game.ShipDesignIssues
         NotIdealCombatEfficiency,
         HighBurstOrdnance,
         Accuracy,
-        Targets
+        Targets,
+        LongRechargeTime
     }
 
     public enum WarningLevel
@@ -605,6 +618,12 @@ namespace Ship_Game.ShipDesignIssues
                     Problem     = new LocalizedText(GameText.TrackingTargets).Text;
                     Remediation = new LocalizedText(GameText.ImproveTracking).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTracking");
+                    break;
+                case DesignIssueType.LongRechargeTime:
+                    Title       = new LocalizedText(1462).Text;
+                    Problem     = new LocalizedText(1463).Text;
+                    Remediation = new LocalizedText(1464).Text;
+                    Texture     = ResourceManager.Texture("NewUI/issueLongRechargeTime");
                     break;
             }
 
