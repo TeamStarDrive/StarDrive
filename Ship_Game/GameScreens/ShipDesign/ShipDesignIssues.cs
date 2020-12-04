@@ -288,8 +288,6 @@ namespace Ship_Game.ShipDesignIssues
             }
         }
 
-
-
         public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime)
         {
             if (!hasBeamWeapons || burstEnergyPowerTime.GreaterOrEqual(2) || burstEnergyPowerTime.Less(0))
@@ -386,6 +384,11 @@ namespace Ship_Game.ShipDesignIssues
             string baseString = !IsPlatform ? "" : $" {new LocalizedText(GameText.OrbitalTracking).Text}";
 
             AddDesignIssue(DesignIssueType.Targets, severity, baseString + target + fireArcs);
+        }
+
+        public void CheckRechargeTime(float recharge, float powerStores)
+        {
+
         }
 
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
