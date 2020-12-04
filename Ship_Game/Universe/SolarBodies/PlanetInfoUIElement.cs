@@ -304,10 +304,9 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial10, P.WorldType, textPos, tColor);
         }
 
-
         int IncomingTroops => Screen.player
                               .GetShips()
-                              .Where(s => s.HasOurTroops && s.AI.OrderQueue.Any(g => g.Plan == ShipAI.Plan.LandTroop && g.TargetPlanet == P))
+                              .Where(s => s != null && s.HasOurTroops && s.AI.OrderQueue.Any(g => g.Plan == ShipAI.Plan.LandTroop && g.TargetPlanet == P))
                               .Sum(s => s.TroopCount);
 
         void DrawColonization(SpriteBatch batch, Vector2 mousePos)
