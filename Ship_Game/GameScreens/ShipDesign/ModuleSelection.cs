@@ -482,9 +482,11 @@ namespace Ship_Game
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
-            float accuracy = w.BaseTargetError((int)Screen.FireControlLevel).LowerBound(1) / 16;
-            DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, 4114);
-
+            if (!w.Tag_Guided)
+            {
+                float accuracy = w.BaseTargetError((int)Screen.FireControlLevel).LowerBound(1) / 16;
+                DrawStat(ref cursor, LocalizedText.ParseText("{Accuracy}"), -1 * accuracy, 4114);
+            }
             if (isBeam)
             {
                 DrawStat(ref cursor, Localizer.Token(repair ? 135 : 127), beamDamage, repair ? 166 : 83);

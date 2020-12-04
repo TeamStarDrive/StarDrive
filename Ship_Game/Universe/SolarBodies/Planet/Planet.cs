@@ -998,7 +998,7 @@ namespace Ship_Game
             if (ParentSystem.DangerousForcesPresent(empire) || ParentSystem.ShipList.Count == 0)
                 return false;
 
-            shipsNeedRearm = ParentSystem.ShipList.Filter(s => s.loyalty == empire
+            shipsNeedRearm = ParentSystem.ShipList.Filter(s => (s.loyalty == empire || s.loyalty.IsAlliedWith(empire))
                                                                && s.IsSuitableForPlanetaryRearm());
 
             shipsNeedRearm = shipsNeedRearm.SortedDescending(s => s.OrdinanceMax - s.Ordinance);
