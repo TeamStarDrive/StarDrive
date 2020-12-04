@@ -1224,7 +1224,6 @@ namespace Ship_Game.Ships
             }
 
             AI.ProcessResupply(resupplyReason);
-
         }
 
         public bool IsSuitableForPlanetaryRearm()
@@ -1239,7 +1238,6 @@ namespace Ship_Game.Ships
                 || AI.State == AIState.Scrap
                 || AI.State == AIState.Refit
                 || IsSupplyShuttle)
-
             {
                 return false;
             }
