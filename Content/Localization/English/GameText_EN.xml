@@ -4004,6 +4004,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Index>1461</Index>
     <Text>Bases placed in orbit also use planet FCS.</Text>
   </Token>
+    <Token>
+      <Index>1462</Index>
+      <Text>Long Recharge Time</Text>
+    </Token>
+    <Token>
+      <Index>1463</Index>
+      <Text>The ship takes long time to fully recharge its batteries. This can make it ineffective during a continuous battle.</Text>
+    </Token>
+    <Token>
+      <Index>1464</Index>
+      <Text>Added Reactors, which will increase the power recharge of the ship.</Text>
+    </Token>
 
     <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side 
     of the screen when something happens. Usually these are split into 2 lines.  Keep formatting / spacing on these.-->
