@@ -1112,6 +1112,9 @@ namespace Ship_Game.Fleets
 
         void DoClearAreaOfEnemies(MilitaryTask task)
         {
+            if (task.TargetEmpire == null && FleetTask.TargetSystem != null)
+                task.TargetEmpire = Owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(FleetTask.TargetSystem);
+
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
             bool threatIncoming = Owner.SystemWithThreat.Any(t=> !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
             bool stillThreats = threatIncoming || (enemyStrength > 1 || TaskStep < 5);
