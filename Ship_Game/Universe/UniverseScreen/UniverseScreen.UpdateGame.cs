@@ -382,8 +382,12 @@ namespace Ship_Game
                     var empire = EmpireManager.Empires[i];
                     foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
                     {
-                        kv.Value.AveragePosition();
-                        kv.Value.SetSpeed();
+                        if (kv.Value.Ships.NotEmpty)
+                        {
+                            kv.Value.AveragePosition();
+
+                            kv.Value.SetSpeed();
+                        }
                     }
                 }
             }, MaxTaskCores);

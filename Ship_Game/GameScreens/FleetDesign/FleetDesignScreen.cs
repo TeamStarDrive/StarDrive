@@ -64,7 +64,7 @@ namespace Ship_Game
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
         {
             GameAudio.PlaySfxAsync(audioCue);
-            SelectedFleet = new Fleet();
+            SelectedFleet = new Fleet() { Owner = EmpireManager.Player }; ;
             EmpireUI = empireUI;
             TransitionOnTime = 0.75f;
             EmpireUI.empire.UpdateShipsWeCanBuild();
