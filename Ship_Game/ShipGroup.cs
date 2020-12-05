@@ -104,11 +104,12 @@ namespace Ship_Game
             return Ships.ContainsRef(ship);
         }
 
-        public virtual void AddShip(Ship ship)
+        public virtual bool AddShip(Ship ship)
         {
-            Ships.Add(ship);
+            if (!Ships.AddUnique(ship)) return false;
             LastAveragePosUpdate = -1; // deferred position refresh
             LastStrengthUpdate = -1;
+            return true;
         }
 
         protected void AssignPositionTo(Ship ship)

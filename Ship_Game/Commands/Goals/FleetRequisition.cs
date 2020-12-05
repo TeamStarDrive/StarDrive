@@ -24,13 +24,13 @@ namespace Ship_Game.Commands.Goals
 
         public FleetRequisition(ShipAI.ShipGoal goal, ShipAI ai) : this()
         {
-            FleetDataNode node = ai.Owner.fleet.DataNodes.First(n => n.Ship == ai.Owner);
-            ToBuildUID = goal.VariableString;
-            ShipToBuild = ResourceManager.GetShipTemplate(ToBuildUID);
-            ShipToBuild.fleet = ai.Owner.fleet;
+            FleetDataNode node              = ai.Owner.fleet.DataNodes.Find(n => n.Ship == ai.Owner);
+            ToBuildUID                      = goal.VariableString;
+            ShipToBuild                     = ResourceManager.GetShipTemplate(ToBuildUID);
+            ShipToBuild.fleet               = ai.Owner.fleet;
             ShipToBuild.RelativeFleetOffset = node.FleetOffset;
-            Fleet = ai.Owner.fleet;
-            PlanetBuildingAt = ai.OrbitTarget;
+            Fleet                           = ai.Owner.fleet;
+            PlanetBuildingAt                = ai.OrbitTarget;
         }
 
         public FleetRequisition(string shipName, Empire owner, bool rush) : this()
@@ -76,8 +76,8 @@ namespace Ship_Game.Commands.Goals
                 if (node.GoalGUID != guid)
                     continue;
 
-                Ship ship = FinishedShip;
-                node.Ship = ship;
+                Ship ship     = FinishedShip;
+                node.Ship     = ship;
                 node.GoalGUID = Guid.Empty;
 
                 if (Fleet.Ships.Count == 0)
