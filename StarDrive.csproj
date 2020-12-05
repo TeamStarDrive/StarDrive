@@ -229,6 +229,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\StandbyColonyShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantInit.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
@@ -2231,6 +2232,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\IssueHighBurstOrdnance.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\issueLongRechargeTime.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\IssueLowEnergyBurstTime.png">

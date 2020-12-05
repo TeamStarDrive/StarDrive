@@ -83,10 +83,12 @@ namespace Ship_Game.Commands.Goals
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
-                TargetEmpire        = empire.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
+                EmpireAI empireAi   = empire.GetEmpireAI();
+                TargetEmpire        = empireAi.ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
                 float strMultiplier = empire.GetFleetStrEmpireMultiplier(TargetEmpire);
                 var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * strMultiplier).LowerBound(20));
-                empire.GetEmpireAI().AddPendingTask(task);
+                empireAi.AddPendingTask(task);
+                empireAi.Goals.Add(new StandbyColonyShip(empire));
             }
             else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire)
                      && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)

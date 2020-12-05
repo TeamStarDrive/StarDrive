@@ -24,6 +24,7 @@
         public readonly int RemnantTurnsLevelUp; // How many turns should pass before Remnants level up
         public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
         public readonly float RemnantNumBombers; // Multiplier to Remnant bombers wanted
+        public readonly int StandByColonyShips;
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -72,6 +73,7 @@
                     RemnantNumBombers    = 0.5f;
                     BaseColonyGoals      = 2;
                     ColonyGoalMultiplier = 0;
+                    StandByColonyShips   = 1;
 
                     if (!empire.isPlayer)
                     {
@@ -103,6 +105,7 @@
                     RemnantNumBombers    = 0.75f;
                     BaseColonyGoals      = 3;
                     ColonyGoalMultiplier = 0.5f;
+                    StandByColonyShips   = 2;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -124,6 +127,7 @@
                     RemnantNumBombers    = 1f;
                     BaseColonyGoals      = 4;
                     ColonyGoalMultiplier = 0.75f;
+                    StandByColonyShips   = 3;
 
                     if (!empire.isPlayer)
                     {
@@ -156,6 +160,7 @@
                     RemnantNumBombers    = 1.5f;
                     BaseColonyGoals      = 5;
                     ColonyGoalMultiplier = 1;
+                    StandByColonyShips   = 3;
 
                     if (!empire.isPlayer)
                     {
