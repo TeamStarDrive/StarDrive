@@ -657,7 +657,8 @@ namespace Ship_Game
                 {
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
                 }
-                weaponAccuracyList[module] = weapon.BaseTargetError((int)FireControlLevel).LowerBound(1) / 16;
+
+                weaponAccuracyList[module] = weapon.Tag_Guided ? 0 :  weapon.BaseTargetError((int)FireControlLevel).LowerBound(1) / 16;
             }
             FireControlLevel   = accuracy;
             WeaponAccuracyList = weaponAccuracyList;
@@ -719,7 +720,7 @@ namespace Ship_Game
                 DesignIssues.CheckIssueBackupCommand(numCommandModules, size);
                 DesignIssues.CheckIssueUnpoweredModules(unpoweredModules);
                 DesignIssues.CheckIssueOrdnance(avgOrdnanceUsed, ordnanceRecovered, ammoTime);
-                DesignIssues.CheckIssuePowerRecharge(powerRecharge);
+                DesignIssues.CheckIssuePowerRecharge(bEnergyWeapons, powerRecharge, powerCapacity, powerConsumed);
                 DesignIssues.CheckIssueOrdnanceBurst(burstOrdnance, ordnanceCap);
                 DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, stats.MaxFTLSpeed);
                 DesignIssues.CheckIssueNoWarp(stats.MaxSTLSpeed, stats.MaxFTLSpeed);
