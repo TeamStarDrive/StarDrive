@@ -78,31 +78,33 @@ namespace Ship_Game.Fleets
                 AddShip(ships[i]);
         }
 
-        public override void AddShip(Ship newShip)
+        public override bool AddShip(Ship newShip)
         {
             if (newShip == null) // Added ship should never be null
             {
                 Log.Error($"Ship Was Null for {Name}");
-                return;
+                return false;
             }
             if (newShip.loyalty != Owner)
                 Log.Warning("ship loyalty incorrect");
+
+            if (newShip.IsPlatformOrStation)
+                return false;
+
             // This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
             // This should likely be two different checks. There is also the possibilty that the ship is in another
             // Fleet ship list.
-            if (newShip.fleet != null || Ships.ContainsRef(newShip))
+            if (newShip.fleet != null || !base.AddShip(newShip))
             {
                 Log.Warning($"{newShip}: \n already in fleet:\n{newShip.fleet}\nthis fleet:\n{this}");
-                return; // recover
+                return false; // recover
             }
-
-            if (newShip.IsPlatformOrStation)
-                return;
 
             UpdateOurFleetShip(newShip);
             SortIntoFlanks(newShip, CommandShip?.DesignRole ?? ShipData.RoleName.capital);
-            AssignPositionTo(newShip);
             AddShipToNodes(newShip);
+            AssignPositionTo(newShip);
+            return true;
         }
 
         void UpdateOurFleetShip(Ship ship)
@@ -121,11 +123,10 @@ namespace Ship_Game.Fleets
             ship.AI.FleetNode = node;
         }
 
-        void AddShipToNodes(Ship shipToAdd)
+        bool AddShipToNodes(Ship shipToAdd)
         {
-            base.AddShip(shipToAdd);
             shipToAdd.fleet = this;
-            AddShipToDataNode(shipToAdd);
+            return AssignExistingOrCreateNewNode(shipToAdd);
         }
 
         void ClearFlankList()
@@ -222,10 +223,11 @@ namespace Ship_Game.Fleets
             SetSpeed();
 
             CenterFlank = SortSquadBySize(CenterShips);
-            LeftFlank = SortSquadBySpeed(LeftShips);
-            RightFlank = SortSquadBySpeed(RightShips);
-            ScreenFlank = SortSquadBySpeed(ScreenShips);
-            RearFlank = SortSquadBySpeed(RearShips);
+            LeftFlank   = SortSquadBySpeed(LeftShips);
+            RightFlank  = SortSquadBySpeed(RightShips);
+            ScreenFlank = SortSquadByDefense(ScreenShips);
+            RearFlank   = SortSquadByUtility(RearShips);
+
             AllFlanks.Add(CenterFlank);
             AllFlanks.Add(LeftFlank);
             AllFlanks.Add(RightFlank);
@@ -240,13 +242,13 @@ namespace Ship_Game.Fleets
             LeftFlankToCenterOffset();
             RightFlankToCenterOffset();
 
+
+            AutoAssembleFleet(0.0f);
             for (int x = 0; x < Ships.Count; x++)
             {
                 Ship s = Ships[x];
-                AddShipToDataNode(s);
+                AssignExistingOrCreateNewNode(s);
             }
-            AutoAssembleFleet(0.0f);
-
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship s = Ships[i];
@@ -258,9 +260,10 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void AddShipToDataNode(Ship ship)
+        bool AssignExistingOrCreateNewNode(Ship ship)
         {
-            FleetDataNode node = DataNodes.Find(n => n.Ship == ship);
+            FleetDataNode node = DataNodes.Find(n => n.Ship == ship || n.Ship == null && n.ShipName == ship.Name && n.GoalGUID == Guid.Empty);
+            bool nodeFound = node != null;
 
             if (node == null)
             {
@@ -269,25 +272,30 @@ namespace Ship_Game.Fleets
                     FleetOffset = ship.RelativeFleetOffset,
                     OrdersOffset = ship.RelativeFleetOffset,
                     CombatState = ship.AI.CombatState
-                };
+            };
                 DataNodes.Add(node);
             }
 
-            node.Ship = ship;
-            node.ShipName = ship.Name;
-            node.OrdersRadius = node.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : node.OrdersRadius;
-            ship.AI.FleetNode = node;
-            ship.AI.CombatState = node.CombatState;
+            node.Ship           = ship;
+            node.ShipName       = ship.Name;
+            node.OrdersRadius   = node.OrdersRadius < 2 ? ship.AI.GetSensorRadius() : node.OrdersRadius;
+            ship.AI.FleetNode   = node;
+            return nodeFound;
+            
         }
 
         enum SquadSortType
         {
             Size,
-            Speed
+            Speed,
+            Defense,
+            Utility
         }
 
         Array<Squad> SortSquadBySpeed(Array<Ship> allShips) => SortSquad(allShips, SquadSortType.Speed);
         Array<Squad> SortSquadBySize(Array<Ship> allShips) => SortSquad(allShips, SquadSortType.Size);
+        Array<Squad> SortSquadByDefense(Array<Ship> allShips) => SortSquad(allShips, SquadSortType.Defense);
+        Array<Squad> SortSquadByUtility(Array<Ship> allShips) => SortSquad(allShips, SquadSortType.Utility);
 
         Array<Squad> SortSquad(Array<Ship> allShips, SquadSortType sort)
         {
@@ -301,6 +309,8 @@ namespace Ship_Game.Fleets
                 {
                     case SquadSortType.Size: return ship.SurfaceArea;
                     case SquadSortType.Speed: return (int)ship.MaxSTLSpeed;
+                    case SquadSortType.Defense: return (int)(ship.armor_max + ship.shield_max);
+                    case SquadSortType.Utility: return ship.DesignRole == ShipData.RoleName.support || ship.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
                     default: return 0;
                 }
             }
@@ -358,8 +368,9 @@ namespace Ship_Game.Fleets
             for (int flank = 0; flank < AllFlanks.Count; flank++)
             {
                 Array<Squad> squads = AllFlanks[flank];
-                foreach (Squad squad in squads)
+                for (int i = 0; i < squads.Count; i++)
                 {
+                    Squad squad = squads[i];
                     for (int index = 0; index < squad.Ships.Count; ++index)
                     {
                         Ship ship = squad.Ships[index];
@@ -367,13 +378,22 @@ namespace Ship_Game.Fleets
                         switch (index)
                         {
                             default:
-                            case 0: radiansAngle = RadMath.RadiansUp; break;
-                            case 1: radiansAngle = RadMath.RadiansLeft; break;
-                            case 2: radiansAngle = RadMath.RadiansRight; break;
-                            case 3: radiansAngle = RadMath.RadiansDown; break;
+                            case 0:
+                                radiansAngle = RadMath.RadiansUp;
+                                break;
+                            case 1:
+                                radiansAngle = RadMath.RadiansLeft;
+                                break;
+                            case 2:
+                                radiansAngle = RadMath.RadiansRight;
+                                break;
+                            case 3:
+                                radiansAngle = RadMath.RadiansDown;
+                                break;
                         }
 
-                        Vector2 offset = (facing + squad.Offset.ToRadians()).RadiansToDirection() * squad.Offset.Length();
+                        Vector2 offset = (facing + squad.Offset.ToRadians()).RadiansToDirection() *
+                                         squad.Offset.Length();
                         ship.FleetOffset = offset + (facing + radiansAngle).RadiansToDirection() * 500f;
                         ship.RelativeFleetOffset = squad.Offset + radiansAngle.RadiansToDirection() * 500f;
                     }
@@ -1884,16 +1904,7 @@ namespace Ship_Game.Fleets
 
         public bool FindShipNode(Ship ship, out FleetDataNode node)
         {
-            node = null;
-            foreach (FleetDataNode n in DataNodes)
-            {
-                if (n.Ship == ship)
-                {
-                    node = n;
-                    break;
-                }
-            }
-
+            node = DataNodes.Find(d=>d.Ship == ship);
             return node != null;
         }
 
@@ -1904,16 +1915,7 @@ namespace Ship_Game.Fleets
 
         public bool FindNodeWithGoalGuid(Guid guid, out FleetDataNode node)
         {
-            node = null;
-            foreach (FleetDataNode n in DataNodes)
-            {
-                if (n.GoalGUID == guid)
-                {
-                    node = n;
-                    break;
-                }
-            }
-
+            node = DataNodes.Find(n => n.GoalGUID == guid);
             return node != null;
         }
 

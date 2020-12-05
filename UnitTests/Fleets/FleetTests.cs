@@ -23,6 +23,7 @@ namespace UnitTests.Fleets
             // Excalibur class has all the bells and whistles
             LoadStarterShips(new[] { "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
             CreateUniverseAndPlayerEmpire(out Empire empire);
+            CreateTestEnv();
         }
 
         void CreateTestEnv()
@@ -57,7 +58,6 @@ namespace UnitTests.Fleets
             {
                 fleet.AddShip(ship);
             }
-            fleet.Update(new FixedSimTime(2f));
             fleets.Add(fleet);
         }
 
@@ -78,6 +78,7 @@ namespace UnitTests.Fleets
 
             // TestFleet assembly
             fleet.AutoArrange();
+
             int flankCount     = fleet.AllFlanks.Count;
             Assert.AreEqual(5, flankCount, $" expected 5 flanks got{flankCount}");
             var flanks         = fleet.AllFlanks;
@@ -85,6 +86,32 @@ namespace UnitTests.Fleets
             Assert.AreEqual(3, squadCount, $"Expected 3 squads got {squadCount}");
             int squadShipCount = flanks.Sum(sq => sq.Sum(s=> s.Ships.Count));
             Assert.AreEqual(10, squadShipCount, $"Expected 10 ships in fleet got {squadShipCount}");
+
+        }
+
+        [TestMethod]
+        public void TestFleetCreationNodes()
+        {
+            CreateTestEnv();
+            CreateWantedShipsAndAddThemToList(10, "Excalibur-Class Supercarrier", PlayerShips);
+            foreach (var ship in PlayerShips)
+            {
+                ship.AI.CombatState = CombatState.Artillery;
+            }
+
+            CreateTestFleet(PlayerShips, PlayerFleets);
+            var fleet = PlayerFleets[0];
+            fleet.SetCommandShip(null);
+            fleet.Update(FixedSimTime.Zero/*paused during init*/);
+            fleet.AutoArrange();
+            foreach (var ship in PlayerShips)
+            {
+                Assert.IsFalse(ship.RelativeFleetOffset == Vector2.Zero);
+                Assert.IsFalse(ship.FleetOffset == Vector2.Zero);
+                Assert.IsFalse(ship.AI.FleetNode.FleetOffset == Vector2.Zero);
+            }
+            
+            
 
         }
     }
