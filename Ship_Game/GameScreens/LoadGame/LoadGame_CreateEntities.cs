@@ -219,7 +219,7 @@ namespace Ship_Game
                         if (!b.IsSpacePort)
                             continue;
                         p.Station = new SpaceStation(p);
-                        p.Station.LoadContent(ScreenManager);
+                        p.Station.LoadContent(ScreenManager, p.Owner);
                         p.HasSpacePort = true;
                     }
                     
