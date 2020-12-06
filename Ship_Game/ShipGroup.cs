@@ -334,10 +334,10 @@ namespace Ship_Game
                 return Vector2.Zero;
 
             Ship[] items = ships.GetInternalArrayItems();
-            Vector2 avg = items[0].FleetOffset;
+            Vector2 avg = items[0].AI.FleetNode?.FleetOffset ?? items[0].FleetOffset;
             for (int i = 1; i < count; ++i)
             {
-                Vector2 p = items[i].FleetOffset;
+                Vector2 p = items[i].AI.FleetNode?.FleetOffset ?? items[i].FleetOffset;
                 avg.X += p.X;
                 avg.Y += p.Y;
             }

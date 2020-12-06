@@ -380,7 +380,7 @@ namespace Ship_Game
                     ClickableSquads.Add(cs);
                 }
             }
-            SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
+            SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
         }
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
