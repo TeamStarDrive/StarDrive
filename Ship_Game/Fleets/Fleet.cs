@@ -101,6 +101,7 @@ namespace Ship_Game.Fleets
             }
 
             UpdateOurFleetShip(newShip);
+
             SortIntoFlanks(newShip, CommandShip?.DesignRole ?? ShipData.RoleName.capital);
             AddShipToNodes(newShip);
             AssignPositionTo(newShip);
@@ -123,6 +124,25 @@ namespace Ship_Game.Fleets
             ship.AI.FleetNode = node;
             ship.FleetOffset = node.FleetOffset;
             ship.RelativeFleetOffset = node.FleetOffset;
+
+            for (int i = 0; i < AllFlanks.Count; i++)
+            {
+                Array<Squad> flank = AllFlanks[i];
+                for (int x = 0; x < flank.Count; x++)
+                {
+                    var squad = flank[x];
+                    if (!squad.DataNodes.ContainsRef(node)) continue;
+                    squad.Ships.AddUniqueRef(ship);
+                    foreach (var flankShip in squad.Ships)
+                    {
+                        if (CenterShips.ContainsRef(flankShip)) { CenterShips.AddUniqueRef(ship); return; }
+                        if (ScreenShips.ContainsRef(flankShip)) { ScreenShips.AddUniqueRef(ship); return; }
+                        if (RearShips.ContainsRef(flankShip)) { RearShips.AddUniqueRef(ship); return; }
+                        if (RightShips.ContainsRef(flankShip)) { RightShips.AddUniqueRef(ship); return; }
+                        if (LeftShips.ContainsRef(flankShip)) { LeftShips.AddUniqueRef(ship); return; }
+                    }
+                }
+            }
         }
 
         bool AddShipToNodes(Ship shipToAdd)
@@ -1806,6 +1826,7 @@ namespace Ship_Game.Fleets
                         if (node.Ship == ship)
                         {
                             node.Ship = null;
+
                             // dont know which one it's in... so this this dumb.
                             // this will be fixed later when flank stuff is refactored.
                             ScreenShips.RemoveRef(ship);
@@ -1813,13 +1834,14 @@ namespace Ship_Game.Fleets
                             LeftShips.RemoveRef(ship);
                             RightShips.RemoveRef(ship);
                             RearShips.RemoveRef(ship);
+
                         }
                     }
                 }
             }
         }
 
-        public bool RemoveShip(Ship ship)
+        public bool RemoveShip(Ship ship, bool andSquad = false)
         {
             if (ship == null)
             {
