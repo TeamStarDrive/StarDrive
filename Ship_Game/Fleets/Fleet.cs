@@ -121,6 +121,8 @@ namespace Ship_Game.Fleets
             base.AddShip(ship);
             ship.fleet = this;
             ship.AI.FleetNode = node;
+            ship.FleetOffset = node.FleetOffset;
+            ship.RelativeFleetOffset = node.FleetOffset;
         }
 
         bool AddShipToNodes(Ship shipToAdd)

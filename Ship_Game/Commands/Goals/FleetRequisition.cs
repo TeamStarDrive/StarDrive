@@ -85,11 +85,9 @@ namespace Ship_Game.Commands.Goals
                 if (Fleet.FinalPosition == Vector2.Zero)
                     Fleet.FinalPosition = empire.FindNearestRallyPoint(ship.Center).Center;
 
-                ship.RelativeFleetOffset = node.FleetOffset;
-
-                Fleet.AddShip(ship);
+                Fleet.AddExistingShip(ship,node);
                 ship.AI.ResetPriorityOrder(false);
-                ship.AI.OrderMoveTo(Fleet.FinalPosition + ship.RelativeFleetOffset,
+                ship.AI.OrderMoveTo(Fleet.FinalPosition + ship.FleetOffset,
                     ship.fleet.FinalDirection, true, AIState.MoveTo);
 
                 return GoalStep.GoalComplete;
