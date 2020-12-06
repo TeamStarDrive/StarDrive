@@ -215,7 +215,7 @@ namespace Ship_Game
             GlobalStats.Comparisons = 0;
             GlobalStats.ComparisonCounter += 1;
             GlobalStats.ModuleUpdates = 0;
-
+            ScreenManager.InvokePendingEmpireThreadActions();
             if (ProcessTurnEmpires(timeStep))
             {
                 FleetSpeed(timeStep);

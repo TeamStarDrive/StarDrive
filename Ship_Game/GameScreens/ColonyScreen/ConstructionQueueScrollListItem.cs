@@ -137,8 +137,8 @@ namespace Ship_Game
                     GameAudio.NegativeClick();
                     Log.Warning($"Deferred Action: Cancel Queue Item: Failed {index}");
                 }
+                GameAudio.AcceptClick();
             });
-            GameAudio.AcceptClick();
         }
 
         void SwapConstructionQueueItems(int swapTo, int currentIndex)
