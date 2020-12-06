@@ -309,6 +309,8 @@ namespace Ship_Game
         [Serialize(144)] public string RemnantBomberMedium;
         [Serialize(145)] public string RemnantCruiser;
 
+        [Serialize(146)] public string SpacePortModel;
+
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;
 
