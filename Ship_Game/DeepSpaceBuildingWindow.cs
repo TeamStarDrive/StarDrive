@@ -29,7 +29,7 @@ namespace Ship_Game
             RemoveAll();
 
             const int windowWidth = 320;
-            Rect = new Rectangle(Screen.ScreenWidth - 5 - windowWidth, 260, windowWidth, 300);
+            Rect = new Rectangle(Screen.ScreenWidth - 15 - windowWidth, 100, windowWidth, 300);
 
             var background = new Submenu(Rect);
             background.Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill

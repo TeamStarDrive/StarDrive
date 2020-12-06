@@ -61,11 +61,7 @@ namespace Ship_Game
 
             var titleRect = new Rectangle(width / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             var nameRect  = new Rectangle(width / 2 - height / 4, titleRect.Y + titleRect.Height + 5, width / 2, 150);
-            var leftRect  = new Rectangle(width / 2 - height / 4, nameRect.Y + nameRect.Height + 5, width / 2,
-                                              height - (titleRect.Y + titleRect.Height) - (int)(0.28f * height));
-            if (leftRect.Height > 580)
-                leftRect.Height = 580;
-
+            var leftRect  = new Rectangle(width / 2 - width / 4,  height /2 -(nameRect.Y + nameRect.Height + 5), width / 2, 580);
             int x = leftRect.X + 60;
             MainMenu = Add(new Menu2(leftRect, Color.Black));
             CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
@@ -75,13 +71,13 @@ namespace Ship_Game
 
             var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
             EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(6139), 0f, 1f, GlobalStats.EnemyFTLInSystemModifier);
-
-            Checkbox(ftlRect.X + 420, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: 2288);
-            Checkbox(ftlRect.X + 420, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: 6022, tooltip: 7011);
-            Checkbox(ftlRect.X + 420, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: 6178);
-            Checkbox(ftlRect.X + 420, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: 1861, tooltip: 1862);
-            Checkbox(ftlRect.X + 420, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: 1868, tooltip: 1869);
-            Checkbox(ftlRect.X + 420, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: 1844, tooltip: 1845);
+            int indent = (int)(width / 4.5f); 
+            Checkbox(ftlRect.X + indent, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: 2288);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: 6022, tooltip: 7011);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: 6178);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: 1861, tooltip: 1862);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: 1868, tooltip: 1869);
+            Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: 1844, tooltip: 1845);
 
             var gwRect = new Rectangle(x, leftRect.Y + 210, 270, 50);
             var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
