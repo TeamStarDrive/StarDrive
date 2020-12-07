@@ -813,7 +813,7 @@ namespace Ship_Game.Gameplay
             }
 
             Empire them = Them;
-            if (them.isPlayer && HaveRejected_TRADE)
+            if (them.isPlayer && (HaveRejected_TRADE || TotalAnger - Trust > 50))
                 return;
 
             Offer offer1 = new Offer

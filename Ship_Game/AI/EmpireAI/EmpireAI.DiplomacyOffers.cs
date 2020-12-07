@@ -362,7 +362,9 @@ namespace Ship_Game.AI
                 AcceptOffer(ourOffer, theirOffer, us, them, attitude);
                 return "OfferResponse_Accept_Gift";
             }
-            valueToUs -= valueToUs * usToThem.Anger_DiplomaticConflict / 100f;
+
+            float angerMultiplier = them.isPlayer ? usToThem.TotalAnger / 100 : usToThem.Anger_DiplomaticConflict / 100;
+            valueToUs -= valueToUs * angerMultiplier;
             OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out float offerDifferential);
             bool canImproveRelations  = themToUs.turnsSinceLastContact >= themToUs.SecondDemand; // So it wont be exploited by the player
             switch (attitude)
