@@ -68,7 +68,7 @@
 
         public WarState GetWarScoreState()
         {
-            if (Them.isFaction) return WarState.NotApplicable;
+            //if (Them.isFaction) return WarState.NotApplicable;
             float lostColonyPercent = LostColonyPercent;
             float spaceWarKd = SpaceWarKd;
 
