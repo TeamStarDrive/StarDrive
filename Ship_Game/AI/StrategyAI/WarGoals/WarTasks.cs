@@ -34,7 +34,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// </summary>
         public virtual void Update()
         {
-            var tasks = NewTasks.Sorted(t => t.Priority);
+            var tasks = NewTasks.Sorted(t => t.QueuedForRemoval ? int.MaxValue : t.Priority);
 
             for (var i = 0; i < tasks.Length; i++)
             {

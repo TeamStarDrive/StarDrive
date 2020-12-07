@@ -170,6 +170,20 @@ namespace UnitTests.Ships
             });
             Assert.IsTrue(Player.IsEmpireHostile(Enemy), "Faction NA Pact hostile: " + GetFailString(us, ourShip, theirShip, ourRelation));
 
+            // player tests
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                ourShip.AI.HasPriorityTarget = true;
+            });
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Play chooses target" + GetFailString(us, ourShip, theirShip, ourRelation));
+
+            SetEnvironment(us, theirShip, ourRelation, () =>
+            {
+                ourShip.AI.HasPriorityTarget    = true;
+                ourRelation.Treaty_Alliance     = true;
+            });
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Player Chooses Alliance Target: " + GetFailString(us, ourShip, theirShip, ourRelation));
+
 
         }
 
@@ -191,13 +205,15 @@ namespace UnitTests.Ships
             theirShip.ResetProjectorInfluence();
             theirShip.AI.ClearOrders();
 
-            Enemy.isFaction             = false;
-            Player.isFaction            = false;
-            ourRelation.Treaty_NAPact   = false;
-            ourRelation.Treaty_Trade    = false;
-            ourRelation.Treaty_Peace    = false;
-            ourRelation.AtWar           = false;
-            ourRelation.PreparingForWar = false;
+            Enemy.isFaction                 = false;
+            Player.isFaction                = false;
+            ourRelation.Treaty_NAPact       = false;
+            ourRelation.Treaty_Trade        = false;
+            ourRelation.Treaty_Peace        = false;
+            ourRelation.PeaceTurnsRemaining = 0;
+            ourRelation.AtWar               = false;
+            ourRelation.PreparingForWar     = false;
+            ourRelation.ActiveWar           = null;
 
             ResetAnger(ourRelation);
             theirShip.AI.ClearOrders();

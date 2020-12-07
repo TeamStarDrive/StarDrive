@@ -319,9 +319,7 @@ namespace Ship_Game.AI
             }
             SetTargetWeights(targetPrefs);
 
-
-            // limiting combat targets to the arbitrary -100 weight. Poor explained here. 
-            ShipWeight[] SortedTargets = ScannedNearby.Filter(weight => weight.Weight > float.MinValue).SortedDescending(weight => weight.Weight);
+            ShipWeight[] SortedTargets = ScannedNearby.SortedDescending(weight => weight.Weight);
 
             ScannedTargets.AddRange(SortedTargets.Select(ship => ship.Ship));
 
@@ -341,7 +339,8 @@ namespace Ship_Game.AI
 
             if (SortedTargets.Length > 0 && (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars))
             {
-                return SortedTargets[0].Ship;
+                if (SortedTargets.FindFirstValid(SortedTargets.Length, w=> w.Weight > float.MinValue, out _, out var shipWeight))
+                    return shipWeight.Ship;
             }
             return null;
         }
@@ -377,14 +376,16 @@ namespace Ship_Game.AI
                 {
                     Vector2 fleetPos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
 
-                    // if outside ordersRatio drop a heavy weight.
+                    // ship is within fleet position and orders radius.
                     bool orderRatio = fleetPos.InRadius(copyWeight.Ship.Center, FleetNode.OrdersRadius);
                     if (orderRatio)
                     {
-                        copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship, targetPrefs) / 2;
+                        if (copyWeight.Ship.InRadius(fleetPos, FleetNode.OrdersRadius))
+                            copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet.Ships, copyWeight.Ship, targetPrefs) / 2;
+                        else
+                            copyWeight.SetWeight(int.MinValue);
                     }
-                    else
-                        copyWeight.SetWeight(-50);
+                        
                 }
 
                 ////ShipWeight is a struct so we are working with a copy. Need to overwrite existing value.
