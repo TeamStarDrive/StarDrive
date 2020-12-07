@@ -639,7 +639,8 @@ namespace Ship_Game.Fleets
                         break;
                     }
                     SetOrdersRadius(Ships, 5000);
-                    FleetTaskGatherAtRally(task);
+                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 1.5f);
+                    //FleetTaskGatherAtRally(task);
                     TaskStep = 1;
                     break;
                 case 1:
@@ -647,9 +648,9 @@ namespace Ship_Game.Fleets
                     {
                         break;
                     }
-                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 1.5f);
+                    
                     TaskStep = 2;
-                    SetOrdersRadius(Ships, 2000f);
+                    SetOrdersRadius(Ships, 5000f);
                     break;
                 case 2:
                     MoveStatus combatRally = FleetMoveStatus(0, FinalPosition);
@@ -1141,7 +1142,8 @@ namespace Ship_Game.Fleets
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
             bool threatIncoming = Owner.SystemWithThreat.Any(t=> !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
             bool stillThreats = threatIncoming || (enemyStrength > 1 || TaskStep < 5);
-            if (EndInvalidTask(!CanTakeThisFight(enemyStrength))) 
+            bool somethingToDefend = task.TargetSystem.OwnerList.Any(e => e == Owner || Owner.IsFriendlyWith(e));
+            if (EndInvalidTask(!somethingToDefend || !CanTakeThisFight(enemyStrength * 0.5f))) 
                 return;
 
             if (EndInvalidTask(!stillThreats))
@@ -1166,6 +1168,7 @@ namespace Ship_Game.Fleets
                     TaskStep++;
                     break;
                 case 2:
+                    ClearPriorityOrderForShipsInAO(Ships, task.AO, Owner.GetProjectorRadius());
                     if (AttackEnemyStrengthClumpsInAO(task, Ships))
                     {
                         TaskStep++;
@@ -1396,13 +1399,15 @@ namespace Ship_Game.Fleets
 
         bool AttackEnemyStrengthClumpsInAO(MilitaryTask task, IEnumerable<Ship> ships)
         {
+            var availableShips = new Array<Ship>(ships);
+            if (availableShips.Count == 0) return false;
+
             Map<Vector2, float> enemyClumpsDict = Owner.GetEmpireAI().ThreatMatrix
-                .PingRadarStrengthClusters(task.AO, task.AORadius, 2500, Owner);
+                .PingRadarStrengthClusters(task.AO, task.AORadius, 10000, Owner);
 
             if (enemyClumpsDict.Count == 0)
                 return false;
 
-            var availableShips = new Array<Ship>(ships);
             while (availableShips.Count > 0)
             {
                 foreach (var kv in enemyClumpsDict.OrderBy(dis => dis.Key.SqDist(task.AO)))
@@ -1462,8 +1467,7 @@ namespace Ship_Game.Fleets
             if (strengthCluster.Strength <= 0) 
                 return false;
 
-            CoreFleetSubTask = MilitaryTask.CreateCoreSubTask(strengthCluster.Position, strengthCluster.Granularity);
-            GatherAtAO(CoreFleetSubTask, 7500);
+            FleetMoveToPosition(strengthCluster.Position, 7500, true);
             return true;
         }
 

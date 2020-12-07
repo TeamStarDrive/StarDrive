@@ -382,7 +382,7 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (attackerToUs.CanAttack == false)
+            if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
             {
                 if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
                  && IsInBordersOf(attacker))
@@ -402,15 +402,14 @@ namespace Ship_Game.Ships
                 }
 
                 if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
-                {
                     return true;
-                }
+
+                if (AI.Target?.LastDamagedBy?.GetLoyalty() == attacker)
+                    return true;
             }
 
             if (attackerToUs.Treaty_Trade && IsFreighter && AI.State == AIState.SystemTrader)
-            {
                 return false;
-            }
 
             return attackerToUs.CanAttack;
         }
