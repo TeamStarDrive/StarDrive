@@ -67,7 +67,7 @@ namespace Ship_Game
 
     public enum PersonalityType
     {
-        None, // For player nad avoid null checks
+        None, // For player, avoid null checks
         Cunning,
         Ruthless,
         Aggressive,
@@ -308,6 +308,8 @@ namespace Ship_Game
         [Serialize(143)] public string RemnantBomberLight;
         [Serialize(144)] public string RemnantBomberMedium;
         [Serialize(145)] public string RemnantCruiser;
+
+        [Serialize(146)] public string SpacePortModel;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;

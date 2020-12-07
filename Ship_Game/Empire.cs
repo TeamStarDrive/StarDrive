@@ -902,6 +902,8 @@ namespace Ship_Game
 
                 if (solarSystem.Position.InRadius(midPoint, mapDistance))
                     solarSystems.AddUniqueRef(solarSystem);
+                else if (solarSystem.Position.InRadius(ownCenter, midDistance))
+                    solarSystems.AddUniqueRef(solarSystem);
             }
             return solarSystems;
         }
