@@ -142,7 +142,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (OwnerWar.WarType == WarType.EmpireDefense)
             {
                 int pri = Us.AllActiveWars.FindMin(w => w.LowestTheaterPriority)?.LowestTheaterPriority ?? 0;
-                Priority = (int)(pri * 1.5f);
+                Priority = (int)(pri);// * 0.75f);
                 return;
             }
 
