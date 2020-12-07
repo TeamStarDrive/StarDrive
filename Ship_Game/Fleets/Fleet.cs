@@ -1099,7 +1099,7 @@ namespace Ship_Game.Fleets
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
             bool threatIncoming = Owner.SystemWithThreat.Any(t=> !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
             bool stillThreats = threatIncoming || (enemyStrength > 1 || TaskStep < 5);
-            bool somethingToDefend = task.TargetSystem.OwnerList.Any(e => e == Owner || Owner.IsFriendlyWith(e));
+            bool somethingToDefend = task.TargetSystem.OwnerList.Any(e => e == Owner || e?.IsFriendlyWith(Owner) == true);
             if (EndInvalidTask(!somethingToDefend || !CanTakeThisFight(enemyStrength * 0.5f))) 
                 return;
 
