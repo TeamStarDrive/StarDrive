@@ -399,9 +399,16 @@ namespace Ship_Game.AI
                 return false;
             float currentEnemyStr = OwnerEmpire.AllRelations.Sum(r => r.Rel.AtWar && !r.Rel.Them.isFaction ? r.Rel.KnownInformation.OffensiveStrength : 0);
             float ourCurrentStrength = OwnerEmpire.CurrentMilitaryStrength;
-            float theirKnownStrength = rel.KnownInformation.OffensiveStrength.LowerBound(500) + currentEnemyStr;
-            float theirBuildCapacity = rel.KnownInformation.EconomicStrength.LowerBound(10);
+            float theirKnownStrength = rel.KnownInformation.AllianceOffensiveStrength.LowerBound(500) + currentEnemyStr;
+            float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10);
             float ourBuildCapacity   = OwnerEmpire.GetEmpireAI().BuildCapacity;
+            var array = EmpireManager.GetAllies(OwnerEmpire);
+            for (int i = 0; i < array.Count; i++)
+            {
+                var ally = array[i];
+                ourBuildCapacity += ally.GetEmpireAI().BuildCapacity;
+                ourCurrentStrength += ally.OffensiveStrength;
+            }
 
             bool weAreStronger = ourCurrentStrength > theirKnownStrength && ourBuildCapacity > theirBuildCapacity;
             return weAreStronger;
