@@ -362,21 +362,22 @@ namespace Ship_Game.AI
                             if (ourBorderSystems)
                             {
                                 DeclareWarOn(them, rel.PreparingForWarType);
-                                break;
                             }
+                            break;
                         }
                         // we have planets in their AO. Skirmish War.
-                        else if (rel.PreparingForWarType != WarType.DefensiveWar)
+                        if (rel.PreparingForWarType != WarType.DefensiveWar)
                         {
                             bool stronger = OwnerEmpire.CurrentMilitaryStrength > rel.KnownInformation.OffensiveStrength.LowerBound(500);
                             if (stronger)
                             {
                                 DeclareWarOn(them, rel.PreparingForWarType);
-                                break;
                             }
+                            break;
                         }
+                        
                         // We share a solar system
-                        else if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
+                        if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
                         {
                             DeclareWarOn(them, rel.PreparingForWarType);
                             break;
