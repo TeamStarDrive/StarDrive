@@ -43,12 +43,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             var highValueSystems = systems.Filter(s => s.TargetSystem.PlanetList.Any(p => p.Owner == Owner && p.Level > 2));
 
-            highValueSystems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
+            systems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
 
-            for (int i = 0; i < highValueSystems.Length; i++)
+            for (int i = 0; i < systems.Count; i++)
             {
-                var threatenedSystem = highValueSystems[i];
-                var priority = casual - threatenedSystem.TargetSystem.PlanetList
+                var threatenedSystem = systems[i];
+                var priority = unImportant - threatenedSystem.TargetSystem.PlanetList
                     .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
                 Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength , 1);
             }

@@ -329,6 +329,7 @@ namespace Ship_Game.AI
                 foreach (War war in activeWars.SortedDescending(w => w.GetPriority()))
                 {
                     var currentWar = war.ConductWar();
+                    if (war.Them.isFaction) continue;
                     worstWar = worstWar > currentWar ? currentWar : worstWar;
                 }
 
@@ -357,24 +358,26 @@ namespace Ship_Game.AI
                         if (rel.PreparingForWarType == WarType.BorderConflict)
                         {
                             bool ourBorderSystems = OwnerEmpire.GetOurBorderSystemsTo(OwnerEmpire, true).NotEmpty;
+                            ourBorderSystems |= OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them));
                             if (ourBorderSystems)
                             {
                                 DeclareWarOn(them, rel.PreparingForWarType);
-                                break;
                             }
+                            break;
                         }
                         // we have planets in their AO. Skirmish War.
-                        else if (rel.PreparingForWarType != WarType.DefensiveWar)
+                        if (rel.PreparingForWarType != WarType.DefensiveWar)
                         {
                             bool stronger = OwnerEmpire.CurrentMilitaryStrength > rel.KnownInformation.OffensiveStrength.LowerBound(500);
                             if (stronger)
                             {
                                 DeclareWarOn(them, rel.PreparingForWarType);
-                                break;
                             }
+                            break;
                         }
+                        
                         // We share a solar system
-                        else if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
+                        if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
                         {
                             DeclareWarOn(them, rel.PreparingForWarType);
                             break;
@@ -388,7 +391,7 @@ namespace Ship_Game.AI
 
         public bool ShouldGoToWar(Relationship rel)
         {
-            if (rel.Them.data.Defeated || !rel.PreparingForWar || rel.AtWar || rel.Treaty_Peace || rel.Treaty_NAPact) 
+            if (rel.Them.data.Defeated || !rel.PreparingForWar || rel.AtWar || rel.Treaty_Peace ) 
                 return false;
             if (rel.IntelligenceLevel <= Empires.DataPackets.EmpireInformation.InformationLevel.Minimal) 
                 return false;
@@ -399,9 +402,16 @@ namespace Ship_Game.AI
                 return false;
             float currentEnemyStr = OwnerEmpire.AllRelations.Sum(r => r.Rel.AtWar && !r.Rel.Them.isFaction ? r.Rel.KnownInformation.OffensiveStrength : 0);
             float ourCurrentStrength = OwnerEmpire.CurrentMilitaryStrength;
-            float theirKnownStrength = rel.KnownInformation.OffensiveStrength.LowerBound(500) + currentEnemyStr;
-            float theirBuildCapacity = rel.KnownInformation.EconomicStrength.LowerBound(10);
+            float theirKnownStrength = rel.KnownInformation.AllianceOffensiveStrength.LowerBound(500) + currentEnemyStr;
+            float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10);
             float ourBuildCapacity   = OwnerEmpire.GetEmpireAI().BuildCapacity;
+            var array = EmpireManager.GetAllies(OwnerEmpire);
+            for (int i = 0; i < array.Count; i++)
+            {
+                var ally = array[i];
+                ourBuildCapacity += ally.GetEmpireAI().BuildCapacity;
+                ourCurrentStrength += ally.OffensiveStrength;
+            }
 
             bool weAreStronger = ourCurrentStrength > theirKnownStrength && ourBuildCapacity > theirBuildCapacity;
             return weAreStronger;

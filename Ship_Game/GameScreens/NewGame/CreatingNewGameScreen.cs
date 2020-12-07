@@ -130,7 +130,7 @@ namespace Ship_Game
                     if (planet.HasSpacePort)
                     {
                         planet.Station = new SpaceStation(planet);
-                        planet.Station.LoadContent(ScreenManager);
+                        planet.Station.LoadContent(ScreenManager, empire);
                     }
                 }
             }
