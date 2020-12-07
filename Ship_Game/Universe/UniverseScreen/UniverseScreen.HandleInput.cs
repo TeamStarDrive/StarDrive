@@ -424,14 +424,14 @@ namespace Ship_Game
                 foreach (Ship ship in SelectedShipList)
                     ship.ClearFleet();
 
-                // TODO: Is there a good reason why we abandon the fleet?
-                if (fleet != null && fleet.Ships.Count > 0)
-                {
-                    fleet.Reset();
-                    fleet = new Fleet();
-                    fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
-                    fleet.Owner = player;
-                }
+                //// TODO: Is there a good reason why we abandon the fleet?
+                //if (fleet != null && fleet.Ships.Count > 0)
+                //{
+                //    fleet.Reset();
+                //    fleet = new Fleet();
+                //    fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
+                //    fleet.Owner = player;
+                //}
                 AddSelectedShipsToFleet(fleet);
                 player.GetFleetsDict()[index] = fleet;
                 RecomputeFleetButtons(true);
@@ -1232,7 +1232,7 @@ namespace Ship_Game
             }
             fleet.SetCommandShip(null);
             fleet.Update(FixedSimTime.Zero/*paused during init*/);
-            fleet.AutoArrange();
+            //fleet.AutoArrange();
             InputCheckPreviousShip();
 
             SelectedShip = null;
