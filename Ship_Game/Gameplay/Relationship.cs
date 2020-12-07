@@ -680,20 +680,18 @@ namespace Ship_Game.Gameplay
 
             switch (Posture)
             {
-                case Posture.Friendly:
-                    Trust = (Trust + personality.TrustGainedAtPeace).UpperBound(Treaty_Alliance ? 150 : 100);
-                    break;
-                case Posture.Neutral:
-                    if (!us.IsXenophobic)
-                        Trust = (Trust + personality.TrustGainedAtPeace /10).UpperBound(Treaty_Alliance ? 150 : 100);
-                    break;
+                case Posture.Friendly:                      Trust += personality.TrustGainedAtPeace;     break;
+                case Posture.Neutral when !us.IsXenophobic: Trust += personality.TrustGainedAtPeace / 2; break;
+                case Posture.Hostile when !us.IsXenophobic: Trust += personality.TrustGainedAtPeace / 5; break;
+                case Posture.Hostile:                                                                    return;
             }
 
-            if (Treaty_NAPact) Trust      += 0.0125f;
-            if (Treaty_OpenBorders) Trust += 0.025f;
-            if (Treaty_Trade) Trust       += 0.025f;
+            float trustGain = getTrustGain();
+            if (Treaty_NAPact) Trust      += trustGain;
+            if (Treaty_OpenBorders) Trust += trustGain;
+            if (Treaty_Trade) Trust       += trustGain;
 
-            if (us.Personality == PersonalityType.Xenophobic
+            if (us.IsXenophobic
                 && them.GetPlanets().Count >  us.GetPlanets().Count * 1.2f )
             {
                 Trust -= 0.1f;
@@ -701,6 +699,45 @@ namespace Ship_Game.Gameplay
 
             TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
             Trust        = Trust.Clamped(0, Treaty_Alliance ? 150 : 100);
+
+            float getTrustGain()
+            {
+                float gain = 0.0125f;
+
+                switch (us.Personality)
+                {
+                    case PersonalityType.Aggressive when them.IsAggressive:
+                    case PersonalityType.Aggressive when them.IsXenophobic: gain *= 0.7f;  break;
+                    case PersonalityType.Aggressive when them.IsRuthless:   gain *= 0.85f; break;
+                    case PersonalityType.Ruthless   when them.IsAggressive: gain *= 0.75f; break;
+                    case PersonalityType.Ruthless   when them.IsRuthless:   gain *= 0.7f;  break;
+                    case PersonalityType.Ruthless   when them.IsXenophobic: gain *= 0.8f;  break;
+                    case PersonalityType.Xenophobic when them.IsAggressive:
+                    case PersonalityType.Xenophobic when them.IsRuthless:   gain *= 0.5f;  break;
+                    case PersonalityType.Xenophobic when them.IsXenophobic: gain *= 0.2f;  break;
+                    case PersonalityType.Honorable  when them.IsHonorable:  gain *= 2f;    break;
+                    case PersonalityType.Honorable  when them.IsPacifist:   gain *= 1.1f;  break;
+                    case PersonalityType.Honorable  when them.IsCunning:    gain *= 1.05f; break;
+                    case PersonalityType.Pacifist   when them.IsHonorable:  gain *= 1.2f;  break;
+                    case PersonalityType.Pacifist   when them.IsPacifist:   gain *= 2f;    break;
+                    case PersonalityType.Pacifist   when them.IsCunning:    gain *= 1.1f;  break;
+                    case PersonalityType.Cunning    when them.IsHonorable:
+                    case PersonalityType.Cunning    when them.IsPacifist:   gain *= 1.1f;  break;
+                    case PersonalityType.Cunning    when them.IsCunning:    gain *= 0.8f;  break;
+                    case PersonalityType.Xenophobic:                        gain *= 0.6f;  break;
+                    case PersonalityType.Aggressive:                        gain *= 0.75f; break;
+                    case PersonalityType.Ruthless:                          gain *= 0.7f;  break;
+                    case PersonalityType.Pacifist:                          gain *= 1.25f; break;
+                    case PersonalityType.Honorable:                         gain *= 1.1f;  break;
+                }
+ 
+                if (them.isPlayer)
+                {
+                    gain /= ((int)CurrentGame.Difficulty).LowerBound(1);
+                }
+
+                return gain;
+            }
         }
 
         void UpdatePeace(Empire us, Empire them)
@@ -1557,12 +1594,12 @@ namespace Ship_Game.Gameplay
                 case PersonalityType.Cunning:
                 case PersonalityType.Honorable:
                 case PersonalityType.Pacifist:
-                    if (!Treaty_NAPact || Trust.AlmostEqual(0) && TotalAnger > 50)
+                    if ((!Treaty_NAPact || Trust.AlmostEqual(0)) && TotalAnger > 50)
                         break;
 
                     return;
                 case PersonalityType.Aggressive:
-                    if (Threat < -45 || TotalAnger > 50 || Treaty_NAPact & TotalAnger > 75)
+                    if (Threat < -45 || TotalAnger > 50 || Treaty_NAPact && TotalAnger > 75)
                         break;
 
                     return;
