@@ -67,7 +67,7 @@ namespace Ship_Game
 
     public enum PersonalityType
     {
-        None, // For player nad avoid null checks
+        None, // For player, avoid null checks
         Cunning,
         Ruthless,
         Aggressive,
