@@ -467,7 +467,7 @@ namespace Ship_Game
 
                 if (SelectedFleet != null)
                 {
-                    if (Input.LeftMouseDoubleClick)
+                    if (Input.LeftMouseDoubleClick || input.KeysPrev.GetPressedKeys() == input.KeysCurr.GetPressedKeys())
                     {
                         ViewingShip = false;
                         AdjustCamTimer = 0.5f;
