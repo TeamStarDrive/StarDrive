@@ -51,6 +51,12 @@ namespace Ship_Game.AI
             if (ship?.Active is true && ship.engineState == Ship.MoveState.Sublight)
                 if (Owner.loyalty.IsEmpireAttackable(ship.GetLoyalty(), ship))
                     return true;
+            if (Owner.loyalty.isPlayer && HasPriorityTarget)
+            {
+                var rel = Owner.loyalty.GetRelationsOrNull(ship?.loyalty);
+                if (rel != null && !rel.Treaty_Alliance)
+                    return true;
+            }
             return false;
         }
 

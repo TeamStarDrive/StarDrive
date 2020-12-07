@@ -222,7 +222,13 @@ namespace Ship_Game
         {
             return GetRelationsOrNull(otherEmpire)?.Treaty_Alliance == true;
         }
-        
+
+        public bool IsFriendlyWith(Empire otherEmpire)
+        {
+            var rel = GetRelationsOrNull(otherEmpire);
+            return rel?.Posture == Posture.Friendly || rel?.Treaty_Alliance == true; ;
+        }
+
         public bool IsPeaceTreaty(Empire otherEmpire)
         {
             return GetRelationsOrNull(otherEmpire)?.Treaty_Peace == true;
