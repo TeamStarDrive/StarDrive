@@ -496,6 +496,7 @@ namespace Ship_Game
             thisPlanet.ResetFoodAfterInvasionSuccess();
             Construction.ClearQueue();
             TurnsSinceTurnover = 0;
+            thisPlanet.Station.Replace(thisPlanet);
 
             ParentSystem.OwnerList.Clear();
             foreach (Planet planet in ParentSystem.PlanetList)
