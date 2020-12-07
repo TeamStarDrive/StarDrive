@@ -291,6 +291,7 @@ namespace Ship_Game.Fleets
             {
                 node = new FleetDataNode
                 {
+                    
                     FleetOffset = ship.RelativeFleetOffset,
                     OrdersOffset = ship.RelativeFleetOffset,
                     CombatState = ship.AI.CombatState

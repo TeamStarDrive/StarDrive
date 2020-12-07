@@ -103,6 +103,7 @@ namespace UnitTests.Fleets
             var fleet = PlayerFleets[0];
             fleet.SetCommandShip(null);
             fleet.Update(FixedSimTime.Zero/*paused during init*/);
+            fleet.AssembleFleet(Vector2.Zero,)
             fleet.AutoArrange();
             foreach (var ship in PlayerShips)
             {
