@@ -329,6 +329,7 @@ namespace Ship_Game.AI
                 foreach (War war in activeWars.SortedDescending(w => w.GetPriority()))
                 {
                     var currentWar = war.ConductWar();
+                    if (war.Them.isFaction) continue;
                     worstWar = worstWar > currentWar ? currentWar : worstWar;
                 }
 
@@ -357,6 +358,7 @@ namespace Ship_Game.AI
                         if (rel.PreparingForWarType == WarType.BorderConflict)
                         {
                             bool ourBorderSystems = OwnerEmpire.GetOurBorderSystemsTo(OwnerEmpire, true).NotEmpty;
+                            ourBorderSystems |= OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them));
                             if (ourBorderSystems)
                             {
                                 DeclareWarOn(them, rel.PreparingForWarType);
@@ -388,7 +390,7 @@ namespace Ship_Game.AI
 
         public bool ShouldGoToWar(Relationship rel)
         {
-            if (rel.Them.data.Defeated || !rel.PreparingForWar || rel.AtWar || rel.Treaty_Peace || rel.Treaty_NAPact) 
+            if (rel.Them.data.Defeated || !rel.PreparingForWar || rel.AtWar || rel.Treaty_Peace ) 
                 return false;
             if (rel.IntelligenceLevel <= Empires.DataPackets.EmpireInformation.InformationLevel.Minimal) 
                 return false;
