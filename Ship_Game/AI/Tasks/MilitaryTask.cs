@@ -878,11 +878,17 @@ namespace Ship_Game.AI.Tasks
             return taskCat;
         }
 
-        public void RestoreFromSaveFromSaveNoUniverse(Empire e, UniverseData data)
+        public void RestoreFromSaveNoUniverse(Empire e, UniverseData data)
         {
             data.FindPlanet(TargetPlanetGuid, out Planet p);
             data.FindShip(TargetShipGuid, out Ship ship);
             RestoreFromSaveFromSave(e, ship, p);
+
+            foreach (var system in data.SolarSystemsList)
+            {
+                if (IsTaskAOInSystem(system))
+                    TargetSystem = system;
+            }
         }
 
         public void RestoreFromSaveFromUniverse(Empire e)
@@ -890,6 +896,12 @@ namespace Ship_Game.AI.Tasks
             Ship ship = Empire.Universe.Objects.FindShip(TargetShipGuid);
             var planet = Planet.GetPlanetFromGuid(TargetPlanetGuid);
             RestoreFromSaveFromSave(e, ship, planet);
+
+            foreach (var system in Empire.Universe.SolarSystemDict.Values)
+            {
+                if (IsTaskAOInSystem(system))
+                    TargetSystem = system;
+            }
         }
 
         void RestoreFromSaveFromSave(Empire e, Ship ship, Planet p)
