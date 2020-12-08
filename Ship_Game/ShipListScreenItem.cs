@@ -77,7 +77,7 @@ namespace Ship_Game
             if (isCombat)
             {
                 ExploreButton = new TexturedButton(refit, "NewUI/icon_order_explore", "NewUI/icon_order_explore_hover1", "NewUI/icon_order_explore_hover2");
-                PatrolButton = new TexturedButton(refit, "NewUI/icon_order_patrol", "NewUI/icon_order_patrol_hover1", "NewUI/icon_order_patrol_hover2");
+                //PatrolButton = new TexturedButton(refit, "NewUI/icon_order_patrol", "NewUI/icon_order_patrol_hover1", "NewUI/icon_order_patrol_hover2");
             }
             RefitButton = new TexturedButton(refit, "NewUI/icon_queue_rushconstruction", "NewUI/icon_queue_rushconstruction_hover1", "NewUI/icon_queue_rushconstruction_hover2");			
             ScrapButton = new TexturedButton(refit, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
@@ -151,7 +151,7 @@ namespace Ship_Game
             if (isCombat)
             {
                 ExploreButton.Draw(batch);
-                PatrolButton.Draw(batch);
+                //PatrolButton.Draw(batch); // FB - Disabled until we make it better
             }
             RefitButton.Draw(batch);
             ScrapButton.Draw(batch);
@@ -324,8 +324,10 @@ namespace Ship_Game
                     return true;
                 }
 
+                // FB - Disabled until we make it better
                 // System defense button for ship list
-                if (PatrolButton.HandleInput(input))
+                /*
+                if (PatrolButton.HandleInput(input)) 
                 {
                     if (ship.AI.State == AIState.SystemDefender || ship.DoingSystemDefense)
                     {
@@ -338,7 +340,7 @@ namespace Ship_Game
                     }
                     Status_Text = GetStatusText(ship);
                     return true;
-                }
+                }*/
             }
 
             if (RefitButton.HandleInput(input))
@@ -441,9 +443,9 @@ namespace Ship_Game
                 Rectangle explore = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 5 - ResourceManager.Texture("NewUI/icon_order_explore_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_order_explore_hover1").Height / 2, ResourceManager.Texture("NewUI/icon_order_explore_hover1").Width, ResourceManager.Texture("NewUI/icon_order_explore_hover1").Height);
                 Rectangle patrol = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 10, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Width, ResourceManager.Texture("NewUI/icon_order_patrol_hover2").Height);
                 ExploreButton.r = explore;
-                PatrolButton.r = patrol;
+                //PatrolButton.r = patrol; // FB - Disabled until we make it better
                 ExploreButton.LocalizerTip = 2171;
-                PatrolButton.LocalizerTip = 7080;
+                //PatrolButton.LocalizerTip = 7080; // FB - Disabled until we make it better
             }
 
             Rectangle refit = new Rectangle(RefitRect.X + RefitRect.Width / 4 + 15 + ResourceManager.Texture("NewUI/icon_order_patrol_hover1").Width, RefitRect.Y + RefitRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2").Height);
