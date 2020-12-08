@@ -397,6 +397,8 @@ namespace Ship_Game
                 if (SelectedShipList.Count == 0)
                     return;
 
+                var shipsWithNoFleet = new Array<Ship>();
+
                 for (int i = player.GetFleetsDict()[index].Ships.Count - 1; i >= 0; i--)
                 {
                     Ship ship = player.GetFleetsDict()[index].Ships[i];
@@ -410,6 +412,17 @@ namespace Ship_Game
                 fleet.Name = str + " Fleet";
                 fleet.Owner = player;
 
+                foreach (var ship in SelectedShipList)
+                {
+                    if (ship.RelativeFleetOffset != Vector2.Zero)
+                        continue;
+                    shipsWithNoFleet.Add(ship);
+                }
+
+                if (shipsWithNoFleet.NotEmpty)
+                    new ShipGroup(shipsWithNoFleet, Vector2.Zero, new Vector2(500), new Vector2(0,-1), player);
+                
+
                 AddSelectedShipsToFleet(fleet);
                 fleet.SetCommandShip(null);
                 player.GetFleetsDict()[index] = fleet;
@@ -421,8 +434,18 @@ namespace Ship_Game
                     return;
 
                 Fleet fleet = player.GetFleetsDict()[index];
-                foreach (Ship ship in SelectedShipList)
+
+                var shipsWithNoFleet = new Array<Ship>();
+                foreach (var ship in SelectedShipList)
+                {
                     ship.ClearFleet();
+                    if (ship.RelativeFleetOffset != Vector2.Zero)
+                        continue;
+                    shipsWithNoFleet.Add(ship);
+                }
+
+                if (shipsWithNoFleet.NotEmpty)
+                    new ShipGroup(shipsWithNoFleet, Vector2.Zero, new Vector2(500), new Vector2(0, -1), player);
 
                 //// TODO: Is there a good reason why we abandon the fleet?
                 //if (fleet != null && fleet.Ships.Count > 0)
