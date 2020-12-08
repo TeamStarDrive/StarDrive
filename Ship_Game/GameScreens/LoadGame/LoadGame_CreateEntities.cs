@@ -442,7 +442,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < d.GSAIData.MilitaryTaskList.Count; i++)
             {
-                d.GSAIData.MilitaryTaskList[i].RestoreFromSaveFromSaveNoUniverse(e, data);
+                d.GSAIData.MilitaryTaskList[i].RestoreFromSaveNoUniverse(e, data);
             }
 
             e.GetEmpireAI().ReadFromSave(d.GSAIData);
