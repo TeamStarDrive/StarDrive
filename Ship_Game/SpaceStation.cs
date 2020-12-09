@@ -19,19 +19,31 @@ namespace Ship_Game
             Planet = p;
         }
 
-        public void LoadContent(ScreenManager manager)
+        public void LoadContent(ScreenManager manager, Empire owner)
         {
-            var innerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_inner");
-            var outerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_outer");
+            Model innerModel = null;
+            Model outerModel;
+            if (owner == null || owner.data.SpacePortModel.IsEmpty())
+            {
+                innerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_inner");
+                outerModel = ResourceManager.RootContent.Load<Model>("Model/Stations/spacestation01_outer");
+            }
+            else
+            {
+                outerModel = ResourceManager.RootContent.Load<Model>(owner.data.SpacePortModel);
+            }
 
-            InnerSO = new SceneObject(innerModel.Meshes[0]) { ObjectType = ObjectType.Dynamic };
-            OuterSO = new SceneObject(outerModel.Meshes[0]) { ObjectType = ObjectType.Dynamic };
-            InnerSO.Name = "spacestation01_inner";
+            if (innerModel != null)
+            {
+                InnerSO      = new SceneObject(innerModel.Meshes[0]) { ObjectType = ObjectType.Dynamic };
+                InnerSO.Name = "spacestation01_inner";
+                manager.AddObject(InnerSO);
+            }
+
+            OuterSO      = new SceneObject(outerModel.Meshes[0]) { ObjectType = ObjectType.Dynamic };
             OuterSO.Name = "spacestation01_outer";
-            UpdateTransforms();
-
-            manager.AddObject(InnerSO);
             manager.AddObject(OuterSO);
+            UpdateTransforms();
         }
 
         void UpdateTransforms()
@@ -41,13 +53,15 @@ namespace Ship_Game
                 scale = GlobalStats.ActiveModInfo.SpaceportScale;
 
             Vector2 position = Planet.Center;
-
-            InnerSO.World = Matrix.CreateScale(scale)
-                            * Matrix.CreateRotationZ(90f.ToRadians() + ZRotation)
-                            * Matrix.CreateRotationX(20f.ToRadians())
-                            * Matrix.CreateRotationY(65f.ToRadians())
-                            * Matrix.CreateRotationZ(90f.ToRadians())
-                            * Matrix.CreateTranslation(position.X, position.Y, 600f);
+            if (InnerSO != null)
+            {
+                InnerSO.World = Matrix.CreateScale(scale)
+                                * Matrix.CreateRotationZ(90f.ToRadians() + ZRotation)
+                                * Matrix.CreateRotationX(20f.ToRadians())
+                                * Matrix.CreateRotationY(65f.ToRadians())
+                                * Matrix.CreateRotationZ(90f.ToRadians())
+                                * Matrix.CreateTranslation(position.X, position.Y, 600f);
+            }
                 
             OuterSO.World = Matrix.CreateScale(scale)
                             * Matrix.CreateRotationZ(90f.ToRadians() - ZRotation)
@@ -61,19 +75,27 @@ namespace Ship_Game
         {
             Planet = p;
             if (p == null)
-                Log.Error("SpaceStation.SetVisibility Planet cannot be null!");
-
-            if (InnerSO == null || OuterSO == null)
             {
-                LoadContent(manager);
+                Log.Error("SpaceStation.SetVisibility Planet cannot be null!");
+                return;
+            }
+
+            if (p.Owner?.data.SpacePortModel.IsEmpty() == true && InnerSO == null || OuterSO == null)
+            {
+                LoadContent(manager, Planet.Owner);
             }
             if (vis)
             {
-                InnerSO.Visibility = ObjectVisibility.RenderedAndCastShadows;
+                if (InnerSO != null)
+                    InnerSO.Visibility = ObjectVisibility.RenderedAndCastShadows;
+
                 OuterSO.Visibility = ObjectVisibility.RenderedAndCastShadows;
                 return;
             }
-            InnerSO.Visibility = ObjectVisibility.None;
+
+            if (InnerSO != null)
+                InnerSO.Visibility = ObjectVisibility.None;
+
             OuterSO.Visibility = ObjectVisibility.None;
         }
 
@@ -81,10 +103,29 @@ namespace Ship_Game
         {
             ZRotation += RadiansPerSecond * timeStep.FixedTime;
 
-            if (InnerSO != null && OuterSO != null && Planet.SO.Visibility == ObjectVisibility.Rendered)
+            if ((Planet.Owner?.data.SpacePortModel.NotEmpty() == true || InnerSO != null) 
+                && OuterSO != null && Planet.SO.Visibility == ObjectVisibility.Rendered)
             {
                 UpdateTransforms();
             }
+        }
+
+        public void Replace(Planet p)
+        {
+            Remove();
+            LoadContent(Empire.Universe.ScreenManager, p.Owner);
+        }
+
+        void Remove()
+        {
+            if (InnerSO != null)
+                ScreenManager.Instance.RemoveObject(InnerSO);
+
+            if (OuterSO != null)
+                ScreenManager.Instance.RemoveObject(OuterSO);
+
+            InnerSO = null;
+            OuterSO = null;
         }
     }
 }

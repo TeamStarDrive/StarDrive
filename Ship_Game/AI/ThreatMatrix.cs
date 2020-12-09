@@ -16,6 +16,8 @@ namespace Ship_Game.AI
 {
     public sealed class ThreatMatrix
     {
+        Empire Owner;
+
         public class Pin
         {
             [Serialize(0)] public Vector2 Position;
@@ -105,7 +107,11 @@ namespace Ship_Game.AI
         {
             Owner = empire;
         }
-        Empire Owner;
+
+        public void SetOwner(Empire owner)
+        {
+            Owner = owner;
+        }
 
         Pin[] KnownBases = new Pin[0];
         SolarSystem[] KnownSystemsWithEnemies = new SolarSystem[0];
@@ -428,7 +434,7 @@ namespace Ship_Game.AI
                 return KnownBases.Filter(b => b.GetEmpire().isFaction) ?? Empty<Pin>.Array;
         }
 
-        Pin[] GetAllHostileBases() => FilterPins(p => p.Ship.IsPlatformOrStation && Owner.IsEmpireHostile(p.GetEmpire()));
+        Pin[] GetAllHostileBases() => FilterPins(p => p.Ship?.IsPlatformOrStation == true && Owner?.IsEmpireHostile(p.GetEmpire()) == true);
 
         /// <summary> Return the ship strength of filtered ships in a system. It will not tell you if no pins were in the system. </summary>
         public float GetStrengthInSystem(SolarSystem system, Predicate<Pin> filter)
@@ -439,6 +445,40 @@ namespace Ship_Game.AI
                     return pins.Filter(filter).Sum(p => p.Strength);
                 }
             return 0;
+        }
+
+        /// <summary>
+        /// Returns the strongest empire in this system. Can return null.
+        /// </summary>
+        /// <returns></returns>
+        public Empire GetDominantEmpireInSystem(SolarSystem system)
+        {
+            using (PinsMutex.AcquireReadLock())
+                if (SystemThreatMap.TryGetValue(system, out Pin[] pins))
+                {
+                    var filteredPins = pins.Filter(p => p.Ship?.Active == true);
+                    Map<Empire, float> empires = new Map<Empire, float>();
+                    for (int i = 0; i < filteredPins.Length; i++)
+                    {
+
+                        Pin pin        = filteredPins[i];
+                        Empire loyalty = pin.Ship.loyalty;
+                        float str      = pin.Ship.GetStrength();
+
+                        if (empires.ContainsKey(loyalty))
+                            empires[loyalty] += str;
+                        else if (Owner != loyalty)
+                        {
+                            var rel = Owner.GetRelations(loyalty);
+                            if (rel.IsHostile)
+                                empires.Add(loyalty, str);
+                        }
+                    }
+
+                    return empires.Count == 0 ? null : empires.SortedDescending(s => s.Value).First().Key;
+                }
+
+            return null;
         }
 
         /// <summary> Returns true if there are any pins in the target system </summary>
@@ -493,6 +533,8 @@ namespace Ship_Game.AI
 
             return str;
         }
+
+        public SolarSystem[] KnownHostileSystems(Predicate<SolarSystem> filter) => KnownSystemsWithEnemies.Filter(filter);
 
         Map<Empire, Pin[]> GetEmpirePinMap()
         {
@@ -690,8 +732,9 @@ namespace Ship_Game.AI
                 return Pins.Remove(shipGuid);
         }
 
-        public void AddFromSave(SavedGame.GSAISAVE aiSave)
+        public void AddFromSave(SavedGame.GSAISAVE aiSave, Empire owner)
         {
+            Owner = owner;
             using (PinsMutex.AcquireWriteLock())
             {
                 for (int i = 0; i < aiSave.PinGuids.Count; i++)

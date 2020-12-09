@@ -299,6 +299,9 @@ namespace Ship_Game
         public UIButton ButtonLow(float x, float y, in LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Low80, new Vector2(x, y), text, click);
 
+        public UIButton ButtonBigDip(float x, float y, in LocalizedText text, Action<UIButton> click)
+            => Button(ButtonStyle.BigDip, new Vector2(x, y), text, click);
+
 
         public UIButton ButtonSmall(float x, float y, in LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Small, new Vector2(x, y), text, click);

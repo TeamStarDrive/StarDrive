@@ -39,10 +39,7 @@ namespace Ship_Game.Commands.Goals
 
             // ShipToBuild will be the constructor ship -- usually a freighter
             // once the freighter is deployed, it will mutate into ToBuildUID
-            string constructorId = empire.data.CurrentConstructor;
-            constructorId = empire.data.ConstructorShip;//ConstructorShip;
-            constructorId = empire.data.DefaultConstructor;
-
+            string constructorId = empire.data.ConstructorShip;
             if (!ResourceManager.GetShipTemplate(constructorId, out ShipToBuild))
             {
                 Log.Warning($"BuildConstructionShip: no construction ship with uid={constructorId}");

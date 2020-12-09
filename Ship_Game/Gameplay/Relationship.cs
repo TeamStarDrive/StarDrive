@@ -5,6 +5,7 @@ using System;
 using System.Xml.Serialization;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Debug;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game.Gameplay
@@ -103,14 +104,16 @@ namespace Ship_Game.Gameplay
         [Serialize(59)] public float WeOweThem;
         [Serialize(60)] public int TurnsAtWar;
         [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
-        [Serialize(62)] public bool CanAttack; // New: Bilateral condition if these two empires can attack each other
-        [Serialize(63)] public bool IsHostile; // New: If target empire is hostile and might attack us
+        [Serialize(62)] public bool CanAttack = true; // New: Bilateral condition if these two empires can attack each other
+        [Serialize(63)] public bool IsHostile = true; // New: If target empire is hostile and might attack us
         [Serialize(64)] public int NumTechsWeGave; // number of tech they have given us, through tech trade or demands.
+        [Serialize(65)] public EmpireInformation.InformationLevel IntelligenceLevel = EmpireInformation.InformationLevel.Full;
 
         [XmlIgnore][JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore] public Empire Them => EmpireManager.GetEmpireByName(Name);
         [XmlIgnore][JsonIgnore] public float AvailableTrust => Trust - TrustUsed;
         [XmlIgnore][JsonIgnore] Empire Player => Empire.Universe.PlayerEmpire;
+        [XmlIgnore] [JsonIgnore] public EmpireInformation KnownInformation;
 
         private readonly int FirstDemand   = 50;
         public readonly int SecondDemand  = 75;
@@ -154,6 +157,7 @@ namespace Ship_Game.Gameplay
         {
             Name = name;
             Risk = new EmpireRiskAssessment(this);
+            KnownInformation = new EmpireInformation(this);
         }
 
         public Relationship()
@@ -277,7 +281,7 @@ namespace Ship_Game.Gameplay
 
         public void DamageRelationship(Empire us, Empire them, string why, float amount, Planet p)
         {
-            if (us.data.DiplomaticPersonality == null)
+            if (us.data.DiplomaticPersonality == null || us.isPlayer)
                 return;
 
             if (GlobalStats.RestrictAIPlayerInteraction &&  them == Empire.Universe.PlayerEmpire)
@@ -501,7 +505,12 @@ namespace Ship_Game.Gameplay
 
         private void UpdateIntelligence(Empire us, Empire them) // Todo - not sure what this does
         {
-            if (!(us.Money > IntelligenceBudget) || !(IntelligencePenetration < 100f))
+            // Moving towards adding intelligence. 
+            // everything after the update is not used.
+            // what should happen is that the information level is figured out.
+            // then knowninformation is updated with the intelligence level. 
+            KnownInformation.Update(IntelligenceLevel);
+            if (us.Money < IntelligenceBudget || IntelligencePenetration > 100f)
                 return;
 
             us.AddMoney(-IntelligenceBudget);
@@ -527,7 +536,7 @@ namespace Ship_Game.Gameplay
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
-                Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
+                Empire.Universe.NotificationManager?.AddPeaceTreatyExpiredNotification(them);
             }
         }
         
@@ -596,14 +605,14 @@ namespace Ship_Game.Gameplay
 
         bool CanWeAttackThem(Empire us, Empire them)
         {
-            if (!Known || AtWar || us.isFaction || them.isFaction
-                || Known && !Treaty_Peace && !Treaty_NAPact && !Treaty_Alliance)
-            {
+            if (!Known || AtWar)
                 return true;
-            }
 
             if (Treaty_Peace || Treaty_NAPact || Treaty_Alliance)
                 return false;
+
+            if (us.isFaction || them.isFaction || them.WeAreRemnants)
+                return true;
 
             if (!us.isPlayer)
             {
@@ -671,20 +680,18 @@ namespace Ship_Game.Gameplay
 
             switch (Posture)
             {
-                case Posture.Friendly:
-                    Trust = (Trust + personality.TrustGainedAtPeace).UpperBound(Treaty_Alliance ? 150 : 100);
-                    break;
-                case Posture.Neutral:
-                    if (!us.IsXenophobic)
-                        Trust = (Trust + personality.TrustGainedAtPeace /10).UpperBound(Treaty_Alliance ? 150 : 100);
-                    break;
+                case Posture.Friendly:                      Trust += personality.TrustGainedAtPeace;     break;
+                case Posture.Neutral when !us.IsXenophobic: Trust += personality.TrustGainedAtPeace / 2; break;
+                case Posture.Hostile when !us.IsXenophobic: Trust += personality.TrustGainedAtPeace / 5; break;
+                case Posture.Hostile:                                                                    return;
             }
 
-            if (Treaty_NAPact) Trust      += 0.0125f;
-            if (Treaty_OpenBorders) Trust += 0.025f;
-            if (Treaty_Trade) Trust       += 0.025f;
+            float trustGain = getTrustGain();
+            if (Treaty_NAPact) Trust      += trustGain;
+            if (Treaty_OpenBorders) Trust += trustGain;
+            if (Treaty_Trade) Trust       += trustGain;
 
-            if (us.Personality == PersonalityType.Xenophobic
+            if (us.IsXenophobic
                 && them.GetPlanets().Count >  us.GetPlanets().Count * 1.2f )
             {
                 Trust -= 0.1f;
@@ -692,6 +699,45 @@ namespace Ship_Game.Gameplay
 
             TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
             Trust        = Trust.Clamped(0, Treaty_Alliance ? 150 : 100);
+
+            float getTrustGain()
+            {
+                float gain = 0.0125f;
+
+                switch (us.Personality)
+                {
+                    case PersonalityType.Aggressive when them.IsAggressive:
+                    case PersonalityType.Aggressive when them.IsXenophobic: gain *= 0.7f;  break;
+                    case PersonalityType.Aggressive when them.IsRuthless:   gain *= 0.85f; break;
+                    case PersonalityType.Ruthless   when them.IsAggressive: gain *= 0.75f; break;
+                    case PersonalityType.Ruthless   when them.IsRuthless:   gain *= 0.7f;  break;
+                    case PersonalityType.Ruthless   when them.IsXenophobic: gain *= 0.8f;  break;
+                    case PersonalityType.Xenophobic when them.IsAggressive:
+                    case PersonalityType.Xenophobic when them.IsRuthless:   gain *= 0.5f;  break;
+                    case PersonalityType.Xenophobic when them.IsXenophobic: gain *= 0.2f;  break;
+                    case PersonalityType.Honorable  when them.IsHonorable:  gain *= 2f;    break;
+                    case PersonalityType.Honorable  when them.IsPacifist:   gain *= 1.1f;  break;
+                    case PersonalityType.Honorable  when them.IsCunning:    gain *= 1.05f; break;
+                    case PersonalityType.Pacifist   when them.IsHonorable:  gain *= 1.2f;  break;
+                    case PersonalityType.Pacifist   when them.IsPacifist:   gain *= 2f;    break;
+                    case PersonalityType.Pacifist   when them.IsCunning:    gain *= 1.1f;  break;
+                    case PersonalityType.Cunning    when them.IsHonorable:
+                    case PersonalityType.Cunning    when them.IsPacifist:   gain *= 1.1f;  break;
+                    case PersonalityType.Cunning    when them.IsCunning:    gain *= 0.8f;  break;
+                    case PersonalityType.Xenophobic:                        gain *= 0.6f;  break;
+                    case PersonalityType.Aggressive:                        gain *= 0.75f; break;
+                    case PersonalityType.Ruthless:                          gain *= 0.7f;  break;
+                    case PersonalityType.Pacifist:                          gain *= 1.25f; break;
+                    case PersonalityType.Honorable:                         gain *= 1.1f;  break;
+                }
+ 
+                if (them.isPlayer)
+                {
+                    gain /= ((int)CurrentGame.Difficulty).LowerBound(1);
+                }
+
+                return gain;
+            }
         }
 
         void UpdatePeace(Empire us, Empire them)
@@ -804,7 +850,7 @@ namespace Ship_Game.Gameplay
             }
 
             Empire them = Them;
-            if (them.isPlayer && HaveRejected_TRADE)
+            if (them.isPlayer && (HaveRejected_TRADE || TotalAnger - Trust > 50))
                 return;
 
             Offer offer1 = new Offer
@@ -1548,12 +1594,12 @@ namespace Ship_Game.Gameplay
                 case PersonalityType.Cunning:
                 case PersonalityType.Honorable:
                 case PersonalityType.Pacifist:
-                    if (!Treaty_NAPact || Trust.AlmostEqual(0) && TotalAnger > 50)
+                    if ((!Treaty_NAPact || Trust.AlmostEqual(0)) && TotalAnger > 50)
                         break;
 
                     return;
                 case PersonalityType.Aggressive:
-                    if (Threat < -45 || TotalAnger > 50 || Treaty_NAPact & TotalAnger > 75)
+                    if (Threat < -45 || TotalAnger > 50 || Treaty_NAPact && TotalAnger > 75)
                         break;
 
                     return;
@@ -1638,7 +1684,7 @@ namespace Ship_Game.Gameplay
                 war.RestoreFromSave(false);
         }
 
-        public DebugTextBlock DebugWar()
+        public DebugTextBlock DebugWar(Empire Us)
         {
             var debug = new DebugTextBlock
             {
@@ -1646,12 +1692,16 @@ namespace Ship_Game.Gameplay
                 HeaderColor = EmpireManager.GetEmpireByName(Name).EmpireColor
             };
 
-            debug.AddLine($"Total Anger: {(int)TotalAnger}");
-            debug.AddLine($" Border: {(int)Anger_FromShipsInOurBorders}");
-            debug.AddLine($" Military: {(int)Anger_MilitaryConflict}");
-            debug.AddLine($" Territory: {(int)Anger_TerritorialConflict}");
-            debug.AddLine($" Diplomatic: {(int)Anger_DiplomaticConflict}");
-            debug.AddLine($" Trust: {(int)Trust} TrustUsed: {(int)TrustUsed}");
+            if (ActiveWar == null)
+                debug.AddLine($" ReadyForWar: {Us.GetEmpireAI().ShouldGoToWar(this).ToString()}");
+            else
+                debug.AddLine($" At War");
+            debug.AddLine($" WarType: {PreparingForWarType.ToString()}");
+            debug.AddLine($" WarStatus: {ActiveWar?.GetWarScoreState()}");
+            debug.AddLine($" {Us.data.PortraitName} Strength: {Us.CurrentMilitaryStrength}");
+            debug.AddLine($" {Them.data.PortraitName} Strength: {Them.CurrentMilitaryStrength}");
+            debug.AddLine($" WarAnger: {(int)(TotalAnger - Trust)}");
+            debug.AddLine($" Previous Wars: {WarHistory.Count}");
 
             ActiveWar?.WarDebugData(ref debug);
             return debug;

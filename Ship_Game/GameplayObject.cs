@@ -151,6 +151,10 @@ namespace Ship_Game
                 changeTo.AddShip(ship);
                 ship.PiratePostChangeLoyalty();
                 ship.IsGuardian = changeTo.WeAreRemnants;
+
+                if (!changeTo.isPlayer && !changeTo.isFaction)
+                    changeTo.Pool.ForcePoolAdd(ship);
+
                 if (notification)
                 {
                     changeTo.AddBoardSuccessNotification(ship);

@@ -9,26 +9,20 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             Owner = colonyShip.loyalty;
-            RemovePlanetStrNeededMultiplier();
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
             Owner.AddPlanet(this);
             SetExploredBy(Owner);
             CreateStartingEquipment(colonyShip);
+            UnloadTroops(colonyShip);
+            UnloadCargoColonists(colonyShip);
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
             ResetGarrisonSize();
-            Owner.GetEmpireAI(). FindAndRemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
             NewColonyAffectPresentTroops();
             NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
-        }
-
-        void RemovePlanetStrNeededMultiplier()
-        {
-            foreach (Empire e in EmpireManager.MajorEmpires)
-                e.RemoveTargetsStrMultiplier(guid);
         }
 
         void SetupColonyType()
@@ -87,6 +81,17 @@ namespace Ship_Game
                 Empire.Universe.NotificationManager.AddTroopsRemovedNotification(this);
             else if (Owner.isPlayer)
                 Empire.Universe.NotificationManager.AddForeignTroopsRemovedNotification(this);
+        }
+
+        void UnloadTroops(Ship colonyShip)
+        {
+            foreach (Troop t in colonyShip.GetOurTroops())
+                t.TryLandTroop(this);
+        }
+
+        void UnloadCargoColonists(Ship colonyShip)
+        {
+            Population += colonyShip.UnloadColonists();
         }
 
         void CreateStartingEquipment(Ship colonyShip)

@@ -37,7 +37,13 @@ namespace Ship_Game.AI
             // Empire Military needs. War has its own task list in the WarTasks class
             Toughnuts = 0;
 
-            var tasks = TaskList.SortedDescending(t=> t.Priority);
+            var tasks = TaskList.SortedDescending(t=>
+            {
+                float hard = 0;
+                if (t.GetTaskCategory() == MilitaryTask.TaskCategory.Expansion)
+                    hard = OwnerEmpire.GetFleetStrEmpireMultiplier(t.TargetEmpire);
+                return t.Priority + hard;
+            });
             
             foreach (MilitaryTask task in tasks)
             {
@@ -157,6 +163,12 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
+        public MilitaryTask[] GetClaimTasks(SolarSystem targetSystem)
+        {
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+                                        && task.TargetPlanet?.ParentSystem == targetSystem);
+        }
+
         public MilitaryTask[] GetDefendVsRemnantTasks()
         {
             return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendVsRemnants);
@@ -181,7 +193,7 @@ namespace Ship_Game.AI
 
         public int GetNumClaimTasks()
         {
-            return TaskList.Filter(t => t.type == MilitaryTask.TaskType.DefendClaim).Length;
+            return TaskList.Filter(t => t.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.Expansion)).Length;
         }
 
         public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)
@@ -271,18 +283,8 @@ namespace Ship_Game.AI
 
         public void SendExplorationFleet(Planet p)
         {
-            var militaryTask = new MilitaryTask
-            {
-                AO       = p.Center,
-                AORadius = 50000f,
-                type     = MilitaryTask.TaskType.Exploration,
-                Priority = 20
-
-            };
-            OwnerEmpire.UpdateTargetsStrMultiplier(p.guid, out _);
-            militaryTask.SetTargetPlanet(p);
-            militaryTask.SetEmpire(OwnerEmpire);
-            AddPendingTask(militaryTask);
+            var task = MilitaryTask.CreateExploration(p, OwnerEmpire);
+            AddPendingTask(task);
         }
 
         void BuildWarShips(int goalsInConstruction)

@@ -142,6 +142,7 @@
       <HintPath>packages\SharpRaven.2.4.0\lib\net45\SharpRaven.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -228,11 +229,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\StandbyColonyShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantInit.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngageEmpire.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantPortal.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantEngagements.cs" />
+    <Compile Include="Ship_Game\Empires\DataPackets\EmpireInformation.cs" />
     <Compile Include="Ship_Game\Empires\DataPackets\IncomingThreat.cs" />
+    <Compile Include="Ship_Game\Empire_FleetModifiers.cs" />
     <Compile Include="Ship_Game\Remnants.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
@@ -2228,6 +2232,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\IssueHighBurstOrdnance.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\issueLongRechargeTime.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\IssueLowEnergyBurstTime.png">

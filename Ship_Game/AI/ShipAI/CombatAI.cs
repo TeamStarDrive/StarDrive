@@ -13,12 +13,6 @@ namespace Ship_Game.AI
 {
     public sealed class CombatAI
     {
-        public float VultureWeight = 0.5f;
-        public float SelfDefenseWeight = 0.5f;
-        public float SmallAttackWeight;
-        public float MediumAttackWeight;
-        public float LargeAttackWeight;
-        public float PirateWeight;
         private float AssistWeight = 0.5f;
         public Ship Owner;
         ShipAIPlan CombatTactic;
@@ -105,6 +99,13 @@ namespace Ship_Game.AI
                         break;
                 }
             }
+            else if (Owner.MaxSTLSpeed > targetPrefs.Speed)
+            {
+                targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
+                targetValue += target.DesignRole == ShipData.RoleName.colony ? 1 : 0;
+                targetValue += target.AI.State == AIState.Bombard ? 1 : 0;
+            }
+
             targetValue += turnRatio;
             targetValue += stlRatio;
             targetValue += massDPSValue;

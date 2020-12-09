@@ -12,7 +12,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         public override string UID => ID;
         private Planet TargetPlanet;
 
-        public DefendVsRemnants() : base(GoalType.BuildOrbital)
+        public DefendVsRemnants() : base(GoalType.DefendVsRemnants)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -76,7 +76,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             }
 
             if (TargetPlanet.Owner != empire && !TryChangeTargetPlanet())
+            {
+                empire.DecreaseFleetStrEmpireMultiplier(EmpireManager.Remnants);
                 return GoalStep.GoalComplete;
+            }
 
             return RemnantGoalExists() ? GoalStep.TryAgain : GoalStep.GoalComplete;
         }

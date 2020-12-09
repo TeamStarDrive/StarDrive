@@ -215,7 +215,7 @@ namespace Ship_Game
             GlobalStats.Comparisons = 0;
             GlobalStats.ComparisonCounter += 1;
             GlobalStats.ModuleUpdates = 0;
-
+            ScreenManager.InvokePendingEmpireThreadActions();
             if (ProcessTurnEmpires(timeStep))
             {
                 FleetSpeed(timeStep);
@@ -382,6 +382,7 @@ namespace Ship_Game
                     var empire = EmpireManager.Empires[i];
                     foreach (KeyValuePair<int, Fleet> kv in empire.GetFleetsDict())
                     {
+                        kv.Value.AveragePosition();
                         kv.Value.SetSpeed();
                     }
                 }
@@ -439,8 +440,13 @@ namespace Ship_Game
 
             // Execute all the actions submitted from UI thread
             // into this Simulation / Empire thread
-            ScreenManager.InvokePendingEmpireThreadActions();
-
+            //ScreenManager.InvokePendingEmpireThreadActions();
+            //foreach (var empire in EmpireManager.Empires)
+            //{
+            //    empire.Pool.UpdatePools();
+            //    empire.UpdateMilitaryStrengths();
+            //    empire.AssessSystemsInDanger(timeStep);
+            //}
             Parallel.For(EmpireManager.Empires.Count, (start, end) =>
             {
                 for (int i = start; i < end; i++)

@@ -431,6 +431,7 @@ namespace Ship_Game
 
         public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel) // TODO: FB - this code needs refactor
         {
+            newOwner.DecreaseFleetStrEmpireMultiplier(Owner);
             var thisPlanet = (Planet)this;
 
             thisPlanet.Construction.ClearQueue();
@@ -495,6 +496,7 @@ namespace Ship_Game
             thisPlanet.ResetFoodAfterInvasionSuccess();
             Construction.ClearQueue();
             TurnsSinceTurnover = 0;
+            thisPlanet.Station.Replace(thisPlanet);
 
             ParentSystem.OwnerList.Clear();
             foreach (Planet planet in ParentSystem.PlanetList)

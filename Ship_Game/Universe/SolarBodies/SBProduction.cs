@@ -215,6 +215,12 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.AllowInterEmpireTrade  &= q.AllowInterEmpireTrade;
             }
 
+            if (shipAt.isColonyShip)
+            {
+                float amount = shipAt.CargoSpaceFree.UpperBound(P.Population / 10);
+                P.Population -= shipAt.LoadColonists(amount);
+            }
+
             if (!Owner.isPlayer)
                 Owner.Pool.ForcePoolAdd(shipAt);
             return true;
@@ -266,7 +272,6 @@ namespace Ship_Game.Universe.SolarBodies
                 NotifyOnEmpty   = false,
                 Rush            = P.Owner.RushAllConstruction,
                 QueueNumber     = ConstructionQueue.Count
-
             };
 
             if (b.AssignBuildingToTile(b, ref where, P))
@@ -403,15 +408,17 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void PrioritizeShip(Ship ship)
         {
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
-            {
-                QueueItem q = ConstructionQueue[i];
-                if (q.isShip && q.sData == ship.shipData)
+            int queueOffset = Owner.IsAtWar ? 4 : 2;
+            if (ConstructionQueue.Count > queueOffset + 1)
+                for (int i = queueOffset; i < ConstructionQueue.Count; ++i)
                 {
-                    MoveTo(0, i);
-                    break;
+                    QueueItem q = ConstructionQueue[i];
+                    if (q.isShip && q.sData == ship.shipData)
+                    {
+                        MoveTo(queueOffset, i);
+                        break;
+                    }
                 }
-            }
         }
 
         public void PrioritizeProjector(Vector2 buildPos)
