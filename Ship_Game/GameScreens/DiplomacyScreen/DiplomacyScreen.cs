@@ -881,7 +881,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             }
 
             DState = DialogState.Them;
-        }
+        } 
 
         void RespondHardcodedFederationAnalysis()
         {
@@ -897,16 +897,16 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 else
                     TheirText += GetDialogueByName("Federation_RelationsPoor");
             }
-            else if (ThemAndUs.TurnsAllied < 100)
+            else if (ThemAndUs.TurnsAllied < ThemAndUs.GetTurnsForFederationWithPlayer(Them))
             {
                 TheirText += GetDialogueByName("Federation_AllianceTooYoung");
             }
             else
             {
-                if (ThemAndUs.TurnsAllied < 100)
+                if (ThemAndUs.TurnsAllied < ThemAndUs.GetTurnsForFederationWithPlayer(Them))
                     return;
 
-                if (Them.TotalScore > Us.TotalScore * 0.8f && ThemAndUs.Threat < 0f)
+                if (Them.TotalScore > Us.TotalScore * 0.75f || ThemAndUs.Threat < 0f)
                 {
                     TheirText += GetDialogueByName("Federation_WeAreTooStrong");
                     return;
