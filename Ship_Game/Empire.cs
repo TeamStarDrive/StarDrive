@@ -8,6 +8,8 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI.ExpansionAI;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Empires;
 using Ship_Game.Empires.DataPackets;
 using Ship_Game.Empires.ShipPools;
@@ -42,14 +44,6 @@ namespace Ship_Game
         private readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
-
-        public float GetWarOffensiveRatio()
-        {
-            float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
-            float militaryRatio  = Research.Strategy.MilitaryRatio;
-            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
-            return (1 + territorialism + militaryRatio + opportunism) / 4;
-        }
 
         readonly int[] MoneyHistory = new int[10];
         int MoneyHistoryIndex = 0;
@@ -198,7 +192,6 @@ namespace Ship_Game
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
-        public Map<Guid, float> TargetsFleetStrMultiplier { get; private set; } = new Map<Guid, float>();
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -439,10 +432,13 @@ namespace Ship_Game
             return planet != null;
         }
 
+        public float KnownEnemyStrengthIn(SolarSystem system, Predicate<ThreatMatrix.Pin> filter)
+                     => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, filter);
         public float KnownEnemyStrengthIn(SolarSystem system)
-                     => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p => p.Strength > 0);
+             => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p=> IsEmpireHostile(p.GetEmpire()));
         public float KnownEnemyStrengthIn(AO ao)
              => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
+        public float KnownEmpireStrength(Empire empire) => EmpireAI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
@@ -890,17 +886,23 @@ namespace Ship_Game
         public int NumPlanets                               => OwnedPlanets.Count;
         public int NumSystems                               => OwnedSolarSystems.Count;
 
-        public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored)
+        public Array<SolarSystem> GetOurBorderSystemsTo(Empire them, bool hideUnexplored, float percentageOfMapSize = 0.5f)
         {
-            var solarSystems = new Array<SolarSystem>();
             Vector2 theirCenter = them.WeightedCenter;
-            float maxDistance = theirCenter.Distance(WeightedCenter) - 300000;
-            
+            Vector2 ownCenter   = WeightedCenter;
+            var directionToThem = ownCenter.DirectionToTarget(theirCenter);
+            float midDistance   = ownCenter.Distance(theirCenter) / 2;
+            Vector2 midPoint    = directionToThem * midDistance;
+            float mapDistance   = (Universe.UniverseSize * percentageOfMapSize).UpperBound(ownCenter.Distance(theirCenter) * 1.2f);
+
+            var solarSystems = new Array<SolarSystem>();
             foreach (var solarSystem in GetOwnedSystems())
             {
                 if (hideUnexplored && !solarSystem.IsExploredBy(them)) continue;
 
-                if (maxDistance < solarSystem.Position.Distance(theirCenter))
+                if (solarSystem.Position.InRadius(midPoint, mapDistance))
+                    solarSystems.AddUniqueRef(solarSystem);
+                else if (solarSystem.Position.InRadius(ownCenter, midDistance))
                     solarSystems.AddUniqueRef(solarSystem);
             }
             return solarSystems;
@@ -946,6 +948,24 @@ namespace Ship_Game
             CalcWeightedCenter(calcNow: true);
         }
 
+        public void TrySendInitialFleets(Planet p)
+        {
+            if (isPlayer)
+                return;
+
+            if (p.TilesList.Any(t => t.EventOnTile))
+                EmpireAI.SendExplorationFleet(p);
+
+            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(this))
+                return;
+
+            if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
+            {
+                var task = MilitaryTask.CreateGuardTask(this, p);
+                EmpireAI.AddPendingTask(task);
+            }
+        }
+
         public BatchRemovalCollection<Ship> GetShips() => OwnedShips;
         public Ship[] GetShipsAtomic() => OwnedShips.ToArray();
 
@@ -974,31 +994,6 @@ namespace Ship_Game
             }
 
             return readyShips.ToArray();
-        }
-
-        public void UpdateTargetsStrMultiplier(Guid guid, out float updatedMultiplier)
-        {
-            if (TargetsFleetStrMultiplier.ContainsKey(guid))
-                TargetsFleetStrMultiplier[guid] += 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1);
-            else
-                TargetsFleetStrMultiplier.Add(guid, DifficultyModifiers.TaskForceStrength);
-
-            updatedMultiplier = TargetsFleetStrMultiplier[guid];
-        }
-
-        public void RemoveTargetsStrMultiplier(Guid guid)
-        {
-            TargetsFleetStrMultiplier.Remove(guid);
-        }
-
-        public void RestoreTargetsStrMultiplier(Map<Guid,float> claims)
-        {
-            TargetsFleetStrMultiplier = claims;
-        }
-
-        public float GetTargetsStrMultiplier(Guid guid)
-        {
-            return TargetsFleetStrMultiplier.ContainsKey(guid) ? TargetsFleetStrMultiplier[guid] : 1;
         }
 
         public FleetShips AllFleetsReady()
@@ -1675,7 +1670,7 @@ namespace Ship_Game
                     if (fleet.Value.Ships.Any(s => s.IsInBordersOf(this) || s.KnownByEmpires.KnownBy(this)))
                     {
                         knownFleets.Add(fleet.Value);
-                    }
+                    } 
                 }
             }
 
@@ -1687,7 +1682,7 @@ namespace Ship_Game
                 {
 
                     if (!SystemWithThreat.Any(s => s.UpdateThreat(system, fleets)))
-                        SystemWithThreat.Add(new IncomingThreat(system, fleets));
+                        SystemWithThreat.Add(new IncomingThreat(this, system, fleets));
                 }
             }
         }
@@ -2588,10 +2583,10 @@ namespace Ship_Game
                             Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
                             Universe.GameOver = true;
                         }
-                        else
+                        else 
+                        {
                             remnants.Remnants.TriggerOnlyRemnantsLeftEvent();
-
-                        return;
+                        }
                     }
                 }
 
@@ -2648,7 +2643,7 @@ namespace Ship_Game
                 return;
 
             float playerScore    = TotalScore;
-            var aiEmpires        = EmpireManager.ActiveNonPlayerEmpires;
+            var aiEmpires        = EmpireManager.ActiveNonPlayerMajorEmpires;
             float aiTotalScore   = aiEmpires.Sum(e => e.TotalScore);
             float allEmpireScore = aiTotalScore + playerScore;
             Empire biggestAI     = aiEmpires.FindMax(e => e.TotalScore);
@@ -3260,18 +3255,11 @@ namespace Ship_Game
                 return false;
 
             Relationship rel = GetRelations(targetEmpire);
-            if (rel.CanAttack)
-                return true;
 
-            if (target != null)
-            {
-                //CG:there is an additional check that can be done for the ship itself.
-                //if no target is applied then it is assumed the target is attackable at this point.
-                //but an additional check can be done if a gameplay object is passed.
-                //maybe its a freighter or something along those lines which might not be attackable.
-                return target.IsAttackable(this, rel);
-            }
-            return false;
+            if (rel.CanAttack && target is null)
+                return true;
+            
+            return target?.IsAttackable(this, rel) ?? false;
         }
 
         public bool IsEmpireHostile(Empire targetEmpire)

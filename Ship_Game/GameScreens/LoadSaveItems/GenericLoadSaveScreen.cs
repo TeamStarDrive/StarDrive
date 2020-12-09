@@ -18,6 +18,7 @@ namespace Ship_Game
         protected UITextEntry EnterNameArea;
         protected ScrollList2<SaveLoadListItem> SavesSL;
         protected UIButton DoBtn;
+        protected UIButton ExportBtn;
         public enum SLMode { Load, Save }
         protected SLMode Mode;
 
@@ -30,9 +31,10 @@ namespace Ship_Game
         protected FileData FileToDelete;
         protected FileData SelectedFile;
         protected int EntryHeight = 55; // element height
+        protected bool SaveExport;
 
         protected GenericLoadSaveScreen(
-            GameScreen parent, SLMode mode, string initText, string title, string tabText)
+            GameScreen parent, SLMode mode, string initText, string title, string tabText, bool saveExport = false)
             : base(parent)
         {
             Mode = mode;
@@ -42,6 +44,7 @@ namespace Ship_Game
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
+            SaveExport = saveExport;
         }
 
         protected GenericLoadSaveScreen(
@@ -97,7 +100,11 @@ namespace Ship_Game
         protected virtual void Load()
         {
         }
-        
+
+        protected virtual void ExportSave()
+        {
+        }
+
         protected abstract void InitSaveList(); // To be implemented in subclasses
 
         public override void LoadContent()
@@ -130,6 +137,13 @@ namespace Ship_Game
                     Load();
             });
 
+            ExportBtn = ButtonBigDip(sub.X + sub.Width - 200, EnterNameArea.Y - 48, "Export Save", b =>
+            {
+                ExportSave();
+            });
+
+            ExportBtn.Visible = GlobalStats.EnableSaveExportButton && SaveExport;
+            ExportBtn.Tooltip = "Export Selected Save for developers.";
             base.LoadContent();
         }
 

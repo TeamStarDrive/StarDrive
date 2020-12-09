@@ -360,7 +360,7 @@ namespace Ship_Game
             if (IsSpacePort)
             {
                 p.Station.Planet = p;
-                p.Station.LoadContent(Empire.Universe.ScreenManager);
+                p.Station.LoadContent(Empire.Universe.ScreenManager, p.Owner);
             }
             p.HasSpacePort |= IsSpacePort || AllowShipBuilding;
 
@@ -379,8 +379,8 @@ namespace Ship_Game
             if (CanAttack)
             {
                 score += Strength + Defense + CombatStrength + SoftAttack + HardAttack;
-                score += PlanetaryShieldStrengthAdded / 50;
-                score += InvadeInjurePoints * 10;
+                score += PlanetaryShieldStrengthAdded;
+                score += InvadeInjurePoints * 20;
                 if (AllowInfantry)
                     score += 50;
 

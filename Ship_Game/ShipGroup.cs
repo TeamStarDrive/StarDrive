@@ -343,6 +343,9 @@ namespace Ship_Game
             return avg / count;
         }
 
+        /// <summary> Use for DrawThread </summary>
+        public Vector2 CachedAveragePos => AveragePos;
+
         public Vector2 AveragePosition()
         {
             // Update Pos once per frame, OR if LastAveragePosUpdate was invalidated
@@ -355,6 +358,7 @@ namespace Ship_Game
             return AveragePos;
         }
 
+        // Needs a storage value
         public float GetStrength()
         {
             // Update Strength once per frame, OR if LastStrengthUpdate was invalidated

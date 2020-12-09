@@ -59,8 +59,8 @@ namespace Ship_Game
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
 
-                if (sdata.TargetsStrMultiplier != null)
-                    e.RestoreTargetsStrMultiplier(sdata.TargetsStrMultiplier);
+                if (sdata.FleetStrEmpireModifier != null)
+                    e.RestoreFleetStrEmpireMultiplier(sdata.FleetStrEmpireModifier);
 
                 e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
@@ -219,7 +219,7 @@ namespace Ship_Game
                         if (!b.IsSpacePort)
                             continue;
                         p.Station = new SpaceStation(p);
-                        p.Station.LoadContent(ScreenManager);
+                        p.Station.LoadContent(ScreenManager, p.Owner);
                         p.HasSpacePort = true;
                     }
                     
@@ -442,7 +442,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < d.GSAIData.MilitaryTaskList.Count; i++)
             {
-                d.GSAIData.MilitaryTaskList[i].RestoreFromSaveFromSaveNoUniverse(e, data);
+                d.GSAIData.MilitaryTaskList[i].RestoreFromSaveNoUniverse(e, data);
             }
 
             e.GetEmpireAI().ReadFromSave(d.GSAIData);
@@ -577,8 +577,7 @@ namespace Ship_Game
 
                 CreateSpaceRoads(data, esd, e);
                 CreateGoals(esd, e, data);
-                e.GetEmpireAI().ThreatMatrix.AddFromSave(esd.GSAIData);
-
+                e.GetEmpireAI().ThreatMatrix.AddFromSave(esd.GSAIData, e);
                 e.GetEmpireAI().UsedFleets = esd.GSAIData.UsedFleets;
                 CreateMilitaryTasks(esd, e, data);
                 CreateShipGoals(esd, data, e);

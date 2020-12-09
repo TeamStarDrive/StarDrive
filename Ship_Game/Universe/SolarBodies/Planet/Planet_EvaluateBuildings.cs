@@ -68,12 +68,18 @@ namespace Ship_Game
         void BuildOrReplaceBuilding(float budget)
         {
             if (FreeHabitableTiles > 0)
+            {
                 SimpleBuild(budget); // Let's try to build something within our budget
+                if (TryPrioritizeColonyBuilding())
+                    return;
+            }
             else
+            {
                 ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
+            }
 
-            PrioritizeFoodIfNeeded();
-            PrioritiesProductionIfNeeded();
+            PrioritizeCriticalFoodBuildings();
+            PrioritizeCriticalProductionBuildings();
         }
 
         // Fat Bastard - This will create a map with Governor priorities per building trait
@@ -108,10 +114,10 @@ namespace Ship_Game
 
             float foodToFeedAll      = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
             float flatFoodToFeedAll  = foodToFeedAll - Food.NetFlatBonus;
-            float fertilityBonus     = Fertility.Less(1) ? 1 : Fertility;
+            float fertilityBonus     = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
 
             float flat   = (flatFoodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
-            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
+            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0) * fertilityBonus;
             if (IsStarving)
             {
                 perCol += 3 * fertilityBonus;
@@ -126,7 +132,7 @@ namespace Ship_Game
 
 
             flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f);
-            perCol = ApplyGovernorBonus(perCol, 1.75f, 0.5f, 0.25f, 3f, 0.25f);
+            perCol = ApplyGovernorBonus(perCol, 1.75f, 0.25f, 0.25f, 3f, 0.25f);
             Priorities[ColonyPriority.FoodFlat]   = flat;
             Priorities[ColonyPriority.FoodPerCol] = perCol;
         }
@@ -141,24 +147,19 @@ namespace Ship_Game
                                        : (flatProdToFeedAll - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0);
 
             float richnessMultiplier = NonCybernetic ? 5 : 10;
-            float perRichness = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus).LowerBound(0);
-            float perCol      = 10 - netProdPerColonist - flatProdToFeedAll*richnessBonus;
-            perCol            = (perCol * MineralRichness).LowerBound(0);
-            if (IsCybernetic)
+            float perRichness        = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus/2).LowerBound(0);
+            float perCol             = 10 - netProdPerColonist - flatProdToFeedAll*richnessBonus;
+            perCol                   = (perCol * MineralRichness).LowerBound(0);
+            if (IsCybernetic && IsStarving)
             {
-                if (colonyType == ColonyType.Industrial)
-                    perCol += Fertility;
-
-                if (IsStarving)
-                {
-                    perCol      += 2 * MineralRichness;
-                    flat        += (2 - MineralRichness).LowerBound(0);
-                    perRichness += 1.5f * MineralRichness;
-                }
+                perCol      += 2 * MineralRichness;
+                flat        += (2 - MineralRichness).LowerBound(0);
+                perRichness += 1.5f * MineralRichness;
             }
 
             flat   += 1 - Storage.ProdRatio;
             perCol += (1 - Storage.ProdRatio) * MineralRichness;
+            perCol *= PopulationRatio;
 
             flat        = ApplyGovernorBonus(flat, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
@@ -191,7 +192,7 @@ namespace Ship_Game
         {
             float storage = NonCybernetic ? (Storage.FoodRatio + Storage.ProdRatio) * 2.5f
                                           : Storage.ProdRatio * 5f;
-            storage += Level;
+            storage += (Level / 2f).LowerBound(0.5f);
             storage  = ApplyGovernorBonus(storage, 1f, 1f, 0.5f, 1.25f, 1f);
             Priorities[ColonyPriority.StorageNeeds] = storage;
         }
@@ -217,8 +218,10 @@ namespace Ship_Game
 
         void CalcMoneyPriorities()
         {
-            float tax     = PopulationBillion * Owner.data.TaxRate*4;
-            float credits = PopulationBillion.LowerBound(2);
+            float ratio   = 1 - MoneyBuildingRatio;
+            float tax     = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
+            float credits = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
+
             tax           = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
             credits       = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
             Priorities[ColonyPriority.TaxPercent]    = tax;
@@ -442,38 +445,54 @@ namespace Ship_Game
         float EvaluateBuilding(Building b, float totalProd, bool chooseBest = true)
         {
             float score = 0;
-            score += EvalTraits(Priorities[ColonyPriority.FoodFlat], b.PlusFlatFoodAmount);
-            score += EvalTraits(Priorities[ColonyPriority.FoodPerCol], b.PlusFoodPerColonist);
-            score += EvalTraits(Priorities[ColonyPriority.ProdFlat], b.PlusFlatProductionAmount);
-            score += EvalTraits(Priorities[ColonyPriority.ProdPerCol], b.PlusProdPerColonist);
+            if (IsLimitedByPerCol(b))
+            {
+                if (IsPlanetExtraDebugTarget())
+                {
+                    Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-10} " +
+                                                   $"{score.SignString()} {"",3} Has Per Col traits which are not needed.");
+                }
+            }
+            else
+            {
+                score = CalcBuildingScore(b, totalProd, chooseBest);
+            }
+
+            return score;
+        }
+
+        float CalcBuildingScore(Building b, float totalProd, bool chooseBest)
+        {
+            float score = 0;
+
+            score += EvalTraits(Priorities[ColonyPriority.FoodFlat],        b.PlusFlatFoodAmount);
+            score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist);
+            score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount);
+            score += EvalTraits(Priorities[ColonyPriority.ProdPerCol],      b.PlusProdPerColonist);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
-            score += EvalTraits(Priorities[ColonyPriority.PopGrowth], b.PlusFlatPopulation / 10);
-            score += EvalTraits(Priorities[ColonyPriority.PopCap], b.MaxPopIncrease / 200);
-            score += EvalTraits(Priorities[ColonyPriority.StorageNeeds], (float)b.StorageAdded / 50);
-            score += EvalTraits(Priorities[ColonyPriority.ResearchFlat], b.PlusFlatResearchAmount * 3);
-            score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol], b.PlusResearchPerColonist * 10);
-            score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol], b.CreditsPerColonist * 3);
-            score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage * 20);
-            score += EvalTraits(Priorities[ColonyPriority.Fertility], b.MaxFertilityOnBuildFor(Owner, Category) * 2);
-            score += EvalTraits(Priorities[ColonyPriority.SpacePort], b.IsSpacePort ? 5 : 0);
-            score += EvalTraits(Priorities[ColonyPriority.InfraStructure], b.Infrastructure * 3);
+            score += EvalTraits(Priorities[ColonyPriority.PopGrowth],       b.PlusFlatPopulation / 10);
+            score += EvalTraits(Priorities[ColonyPriority.PopCap],          b.MaxPopIncrease / 200);
+            score += EvalTraits(Priorities[ColonyPriority.StorageNeeds],    b.StorageAdded / 50f);
+            score += EvalTraits(Priorities[ColonyPriority.ResearchFlat],    b.PlusFlatResearchAmount * 3);
+            score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol],  b.PlusResearchPerColonist * 10);
+            score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol],   b.CreditsPerColonist * 3);
+            score += EvalTraits(Priorities[ColonyPriority.TaxPercent],      b.PlusTaxPercentage * 20);
+            score += EvalTraits(Priorities[ColonyPriority.Fertility],       b.MaxFertilityOnBuildFor(Owner, Category) * 2);
+            score += EvalTraits(Priorities[ColonyPriority.SpacePort],       b.IsSpacePort ? 5 : 0);
+            score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
 
             score *= FertilityMultiplier(b);
-
-            float effectiveness = chooseBest? CostEffectivenessMultiplier(b.Cost, totalProd) : 1;
-            if (b.IsMoneyBuilding)
-                effectiveness *= 1.2f;
-
+            float effectiveness = chooseBest ? CostEffectivenessMultiplier(b.Cost, totalProd) : 1;
             score *= effectiveness;
 
             if (IsPlanetExtraDebugTarget())
             {
-                 if (score > 0f)
-                     Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-10} " +
-                                                 $"{score.SignString()} {"",3} {"Effectiveness:",-13} {effectiveness.String(2)}");
-                 else
-                     Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-10} " +
-                                                    $"{score.SignString()} {"", 3} {"Effectiveness:",-13} {effectiveness.String(2)}");
+                if (score > 0f)
+                    Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-10} " +
+                                                $"{score.SignString()} {"",3} {"Effectiveness:",-13} {effectiveness.String(2)}");
+                else
+                    Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-10} " +
+                                                   $"{score.SignString()} {"",3} {"Effectiveness:",-13} {effectiveness.String(2)}");
             }
 
             return score;
@@ -504,6 +523,17 @@ namespace Ship_Game
             return 1;
         }
 
+        // Hard limits on mulfi functional buildings which are useless due to per col needs being 0.
+        bool IsLimitedByPerCol(Building b)
+        {
+            if (Priorities[ColonyPriority.ProdPerCol].AlmostZero() && b.PlusProdPerColonist.Greater(0))         return true;
+            if (Priorities[ColonyPriority.FoodPerCol].AlmostZero() && b.PlusFoodPerColonist.Greater(0))         return true;
+            if (Priorities[ColonyPriority.ResearchPerCol].AlmostZero() && b.PlusResearchPerColonist.Greater(0)) return true;
+            if (Priorities[ColonyPriority.CreditsPerCol].AlmostZero() && b.CreditsPerColonist.Greater(0))       return true;
+
+            return false;
+        }
+
         float CostEffectivenessMultiplier(float cost, float expectedProd)
         {
             if (expectedProd >= cost)
@@ -517,6 +547,7 @@ namespace Ship_Game
         void TryBuildTerraformers(float budget)
         {
             if (PopulationRatio < 0.95f
+                || HabitableBuiltCoverage < 0.5f
                 || !AreTerraformersNeeded
                 || IsStarving
                 || TerraformerInTheWorks)
@@ -564,7 +595,8 @@ namespace Ship_Game
         bool TryBuildBiospheres(float budget)
         {
             if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
-                || CivilianBuildingInTheWorks
+                || PopulationRatio < 0.9f && HabitableBuiltCoverage.Less(1)
+                || BiosphereInTheWorks
                 || IsStarving
                 || HabitablePercentage.AlmostEqual(1)) // all tiles are habitable
             {
@@ -575,15 +607,15 @@ namespace Ship_Game
             if (bio == null || bio.ActualMaintenance(this) > budget)
                 return false; // not within budget
 
-            if (PopulationRatio.GreaterOrEqual(0.9f) || BuiltCoverage.AlmostEqual(1))
-            {
-                if (IsPlanetExtraDebugTarget())
-                    Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
+            if (IsPlanetExtraDebugTarget())
+                Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
 
-                return Construction.Enqueue(bio);
-            }
 
-            return false;
+            PlanetGridSquare preferred = Owner.IsBuildingUnlocked(Building.TerraformerId) 
+                ? TilesList.Find(t => !t.Habitable && !t.Terraformable)
+                : null;
+
+            return Construction.Enqueue(bio, preferred); // Preferred is null safe in this call
         }
 
         bool OutpostBuiltOrInQueue()
@@ -606,7 +638,7 @@ namespace Ship_Game
             Construction.Enqueue(ResourceManager.CreateBuilding(Building.OutpostId));
 
             // Move Outpost to the top of the list
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            for (int i = 1; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && q.Building.IsOutpost)
@@ -617,7 +649,7 @@ namespace Ship_Game
             }
         }
 
-        void PrioritizeFoodIfNeeded()
+        void PrioritizeCriticalFoodBuildings()
         {
             if (IsCybernetic || !IsStarving)
                 return;
@@ -625,7 +657,7 @@ namespace Ship_Game
             if (PlayerAddedFirstConstructionItem)
                 return; // Do not prioritize over player added queue
 
-            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            for (int i = 1; i < ConstructionQueue.Count; ++i)
             {
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding)
@@ -647,7 +679,32 @@ namespace Ship_Game
             }
         }
 
-        void PrioritiesProductionIfNeeded()
+        bool TryPrioritizeColonyBuilding()
+        {
+            // This will prioritize important buildings based on colony type to be 2nd in queue, if possible.
+            if (ConstructionQueue.Count <= 2 || PlayerAddedFirstConstructionItem)
+                return false;
+
+            for (int i = ConstructionQueue.Count - 1; i > 1; --i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isBuilding && !q.Building.IsBiospheres)
+                {
+                    switch (colonyType)
+                    {
+                        case ColonyType.Core:
+                        case ColonyType.Agricultural when q.Building.ProducesFood:
+                        case ColonyType.Industrial   when q.Building.ProducesProduction:
+                        case ColonyType.Research     when q.Building.ProducesResearch:
+                        case ColonyType.Military     when q.Building.IsMilitary: Construction.MoveTo(1, i); return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        void PrioritizeCriticalProductionBuildings()
         {
             if (Prod.NetIncome > 1 && ConstructionQueue.Count <= Level)
                 return;

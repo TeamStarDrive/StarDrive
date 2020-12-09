@@ -78,9 +78,6 @@ namespace Ship_Game
             if (input.Escaped) DefaultZoomPoints();
             if (input.Tab) ShowShipNames = !ShowShipNames;
 
-            if (Debug)
-                HandleDebugEvents(input);
-
             HandleFleetSelections(input);
             HandleShipSelectionAndOrders();
 
@@ -94,6 +91,9 @@ namespace Ship_Game
             }
 
             HandleScrolls(input);
+
+            if (Debug)
+                HandleDebugEvents(input);
         }
 
         void HandleDebugEvents(InputState input)

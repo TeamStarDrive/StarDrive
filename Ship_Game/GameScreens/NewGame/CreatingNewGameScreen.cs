@@ -4,12 +4,8 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Xml.Serialization;
-using Ship_Game.AI.ExpansionAI;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
@@ -122,7 +118,6 @@ namespace Ship_Game
                     foreach (Planet p in planet.ParentSystem.PlanetList)
                     {
                         p.SetExploredBy(empire);
-                        TrySendInitialFleets(p, empire);
                     }
 
                     if (planet.ParentSystem.OwnerList.Count == 0)
@@ -135,19 +130,24 @@ namespace Ship_Game
                     if (planet.HasSpacePort)
                     {
                         planet.Station = new SpaceStation(planet);
-                        planet.Station.LoadContent(ScreenManager);
+                        planet.Station.LoadContent(ScreenManager, empire);
                     }
                 }
             }
 
             foreach (Empire e in Data.EmpireList)
             {
-                if (e.isFaction || e.data.Traits.BonusExplored <= 0)
+                if (e.isFaction)
                     continue;
 
-                Planet homeWorld = e.GetPlanets()[0];
+                e.InitFleetEmpireStrMultiplier();
+                if (e.data.Traits.BonusExplored <= 0)
+                    continue;
+                
+                Planet homeWorld             = e.GetPlanets()[0];
                 SolarSystem[] closestSystems = Data.SolarSystemsList.Sorted(system => homeWorld.Center.Distance(system.Position));
-                int numExplored = Data.SolarSystemsList.Count >= 20 ? e.data.Traits.BonusExplored : Data.SolarSystemsList.Count;
+                int numExplored              = Data.SolarSystemsList.Count >= 20 ? e.data.Traits.BonusExplored : Data.SolarSystemsList.Count;
+
                 for (int i = 0; i < numExplored; ++i)
                 {
                     SolarSystem ss = closestSystems[i];
@@ -155,27 +155,8 @@ namespace Ship_Game
                     foreach (Planet planet in ss.PlanetList)
                     {
                         planet.SetExploredBy(e);
-                        TrySendInitialFleets(planet, e);
                     }
                 }
-            }
-        }
-
-        void TrySendInitialFleets(Planet p, Empire empire)
-        {
-            if (empire.isPlayer)
-                return;
-
-            if (p.TilesList.Any(t => t.EventOnTile))
-                empire.GetEmpireAI().SendExplorationFleet(p);
-
-            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(empire))
-                return;
-
-            if (PlanetRanker.IsGoodValueForUs(p, empire))
-            {
-                var task = MilitaryTask.CreateGuardTask(empire, p);
-                empire.GetEmpireAI().AddPendingTask(task);
             }
         }
 
