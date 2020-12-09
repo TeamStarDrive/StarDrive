@@ -77,9 +77,9 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float strDiv        = TargetEmpire.isPlayer ? 3 : 4;
+            float strDiv        = TargetEmpire.GetTotalPop(out _) / (TargetEmpire.isPlayer ? 120 : 80);
             float strMultiplier = ((int)CurrentGame.Difficulty + 1) * 0.5f;
-            float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv;
+            float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv.LowerBound(1);
             str                 = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
 
             return str.LowerBound(Remnants.Level * Remnants.Level * 200 * strMultiplier);
