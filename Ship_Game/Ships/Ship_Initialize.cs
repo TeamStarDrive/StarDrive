@@ -426,7 +426,6 @@ namespace Ship_Game.Ships
             Health                   = 0f;
             TroopCapacity            = 0;
             ECMValue                 = 0f;
-            SurfaceArea              = shipData.ModuleSlots.Length;
             BaseCost                 = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank                  = GetMaxBank();
 
