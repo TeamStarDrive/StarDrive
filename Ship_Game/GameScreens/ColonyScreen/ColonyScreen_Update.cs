@@ -48,7 +48,7 @@ namespace Ship_Game
             if (P.Owner == Empire.Universe.player)
             {
                 int troopsLanding = P.Owner.GetShips()
-                    .Filter(s => s.TroopCount > 0 && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
+                    .Filter(s => s != null && s.TroopCount > 0 && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
                     .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
 
                 if (troopsLanding > 0)

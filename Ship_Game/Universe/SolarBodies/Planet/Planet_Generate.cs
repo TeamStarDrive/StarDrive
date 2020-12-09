@@ -6,26 +6,25 @@ namespace Ship_Game
     public partial class Planet
     {
 
-        public string LocalizedCategory
+        public static string TextCategory(PlanetCategory category)
         {
-            get
+            switch (category)
             {
-                switch (Category)
-                {
-                    case PlanetCategory.Terran:   return Localizer.Token(1447);
-                    case PlanetCategory.Barren:   return Localizer.Token(1448);
-                    case PlanetCategory.GasGiant: return Localizer.Token(1449);
-                    case PlanetCategory.Volcanic: return Localizer.Token(1450);
-                    case PlanetCategory.Tundra:   return Localizer.Token(1451);
-                    case PlanetCategory.Desert:   return Localizer.Token(1452);
-                    case PlanetCategory.Steppe:   return Localizer.Token(1453);
-                    case PlanetCategory.Swamp:    return Localizer.Token(1454);
-                    case PlanetCategory.Ice:      return Localizer.Token(1455);
-                    case PlanetCategory.Oceanic:  return Localizer.Token(1456);
-                    default: return "";
-                }
+                case PlanetCategory.Terran:   return Localizer.Token(1447);
+                case PlanetCategory.Barren:   return Localizer.Token(1448);
+                case PlanetCategory.GasGiant: return Localizer.Token(1449);
+                case PlanetCategory.Volcanic: return Localizer.Token(1450);
+                case PlanetCategory.Tundra:   return Localizer.Token(1451);
+                case PlanetCategory.Desert:   return Localizer.Token(1452);
+                case PlanetCategory.Steppe:   return Localizer.Token(1453);
+                case PlanetCategory.Swamp:    return Localizer.Token(1454);
+                case PlanetCategory.Ice:      return Localizer.Token(1455);
+                case PlanetCategory.Oceanic:  return Localizer.Token(1456);
+                default: return "";
             }
         }
+
+        public string LocalizedCategory => TextCategory(Category);
 
         public string LocalizedRichness => $"{LocalizedCategory} {RichnessText}";
 

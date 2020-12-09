@@ -511,45 +511,6 @@ namespace Ship_Game
             }
         }
 
-        public static void SpawnRemnantsInSolarSystem(SolarSystem solarSystem)
-        {
-            if (EmpireManager.Remnants == null)
-                return;
-
-            foreach (string fleetUid in solarSystem.DefensiveFleets)
-                CreateDefensiveRemnantFleet(fleetUid, solarSystem.PlanetList[0].Center, 120000f);
-
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.customRemnantElements)
-                foreach (Planet p in solarSystem.PlanetList)
-                foreach (string fleetUid in p.PlanetFleets)
-                    CreateDefensiveRemnantFleet(fleetUid, p.Center, 120000f);
-
-            foreach (SolarSystem.FleetAndPos fleetAndPos in solarSystem.FleetsToSpawn)
-                CreateDefensiveRemnantFleet(fleetAndPos.FleetName, solarSystem.Position + fleetAndPos.Pos, 75000f);
-
-            foreach (string key in solarSystem.ShipsToSpawn)
-                Ship.CreateShipAt(key, EmpireManager.Remnants, solarSystem.PlanetList[0], true);
-        }
-
-        public static void CreateDefensiveRemnantFleet(string fleetUid, Vector2 where, float defenseRadius)
-        {
-            if (EmpireManager.Remnants == null)
-                return;
-            Fleet defensiveFleetAt = HelperFunctions.CreateFleetAt(fleetUid, EmpireManager.Remnants, where, CombatState.Artillery);
-            var militaryTask = new MilitaryTask
-            {
-                AO = where,
-                AORadius = defenseRadius,
-                type = MilitaryTask.TaskType.DefendSystem
-            };
-            defensiveFleetAt.FleetTask = militaryTask;
-            defensiveFleetAt.TaskStep = 3;
-            militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
-            EmpireManager.Remnants.GetFleetsDict().Add(militaryTask.WhichFleet, defensiveFleetAt);
-            EmpireManager.Remnants.GetEmpireAI().AddPendingTask(militaryTask);
-            militaryTask.Step = 2;
-        }
-
         void LoadParticles(Data.GameContentManager content, GraphicsDevice device)
         {
             beamflashes              = new ParticleSystem(content, "3DParticles/BeamFlash", device);

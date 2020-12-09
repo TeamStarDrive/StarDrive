@@ -39,33 +39,32 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     if (threatenedSystem.ThreatTimedOut) continue;
                     systems.Add(threatenedSystem);
                 }
-
-                //foreach (var system in Owner.GetOwnedSystems())
-                //{
-                //    if (!system.HostileForcesPresent(Owner)) continue;
-                //    var priority = unImportant - system.PlanetList.FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
-                //    var strength = system.GetKnownStrengthHostileTo(Owner);
-                //    Tasks.StandardSystemDefense(system, priority, strength, 1);
-                //}
             }
 
-            var highValueSystems = systems.Filter(s => s.TargetSystem.PlanetList.Any(p => p.Owner == Owner && p.Level > 3));
+            var highValueSystems = systems.Filter(s => s.TargetSystem.PlanetList.Any(p => p.Owner == Owner && p.Level > 2));
 
-            highValueSystems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
+            systems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
 
-            //int fleets = Owner.AllFleetsReady().CountFleets(out _);
-
-            for (int i = 0; i < highValueSystems.Length; i++)// Math.Min(highValueSystems.Length, fleets); i++)
+            for (int i = 0; i < systems.Count; i++)
             {
-                var threatenedSystem = highValueSystems[i];
-                var priority = casual - threatenedSystem.TargetSystem.PlanetList
+                var threatenedSystem = systems[i];
+                var priority = unImportant - threatenedSystem.TargetSystem.PlanetList
                     .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
-                Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1);
+                Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength , 1);
             }
+
+            //foreach (var system in Owner.GetOwnedSystems().Sorted(s => Owner.KnownEnemyStrengthIn(s)))
+            //{
+            //    float str = Owner.KnownEnemyStrengthIn(system);
+            //    if (str > 100)
+            //    {
+            //        var priority = casual - system.PlanetList
+            //        .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
+            //        Tasks.StandardSystemDefense(system, priority, str, 1);
+            //    }
+            //}
 
             return GoalStep.GoToNextStep;
-           
-
         }
     }
 }

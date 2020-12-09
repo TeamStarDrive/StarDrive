@@ -49,7 +49,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
         [JsonIgnore][XmlIgnore] public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
-        [JsonIgnore][XmlIgnore] public float SpaceWarKd => StrengthKilled / StrengthLost.LowerBound(1);
+        [JsonIgnore][XmlIgnore] public float SpaceWarKd => (StrengthKilled + 1000) / (StrengthLost + 1000);
         [JsonIgnore][XmlIgnore] public int LowestTheaterPriority;
 
         int ContestedSystemCount => ContestedSystems.Count(s => s.OwnerList.Contains(Them));
@@ -202,31 +202,24 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             string pad = "     ";
             string pad2 = pad + "  *";
-            debug.AddLine($"WarType:{WarType}");
-            debug.AddLine($"WarState:{Score.GetWarScoreState()}");
-            debug.AddLine($"ThreatRatio = % {(int)(TotalThreatAgainst * 100)}");
+            debug.AddLine($"Duration Years: {Empire.Universe.StarDate - StartDate:n1}");
+            debug.AddLine($"War Value: {WarTheaters.WarValue:n1}");
+            debug.AddLine($"ThreatRatio = {(int)(TotalThreatAgainst * 100):p0}");
             debug.AddLine($"StartDate {StartDate}");
-            debug.AddLine($"killed: {StrengthKilled} Lost: {StrengthLost} Ratio: % {(int)(SpaceWarKd * 100)}");
-            debug.AddLine($"Colonies Won : {ColoniesWon} Lost : {ColoniesLost} Ratio: % {(int)(LostColonyPercent * 100)}.00");
+            debug.AddLine($"killed: {StrengthKilled:n0} Lost: {StrengthLost:n0} Ratio: {(int)(SpaceWarKd * 100):p0}");
+            debug.AddLine($"Colonies Won : {ColoniesWon} Lost : {ColoniesLost} Ratio: % {(int)(LostColonyPercent * 100):n0}");
+            
+            
 
             debug = WarTheaters.DebugText(debug, pad, pad2);
 
+            debug.AddLine($"Contested Systems: {ContestedSystemCount}");
             foreach (var system in ContestedSystems)
             {
                 bool ourForcesPresent   = system.OwnerList.Contains(Us);
                 bool theirForcesPresent = system.OwnerList.Contains(Them);
                 int value               = (int)system.PlanetList.Sum(p => p.ColonyBaseValue(Us));
                 bool hasFleetTask = Us.GetEmpireAI().WarTasks.IsAlreadyAssaultingSystem(system);
-                debug.AddLine($"{pad2}System: {system.Name}  value:{value}  task:{hasFleetTask}");
-                debug.AddLine($"{pad2}OurForcesPresent:{ourForcesPresent}  TheirForcesPresent:{theirForcesPresent}");
-            }
-
-            foreach (MilitaryTask task in Us.GetEmpireAI().GetMilitaryTasksTargeting(Them))
-            {
-                debug.AddLine($"{pad} Type:{task.type}");
-                debug.AddLine($"{pad2} System: {task.TargetPlanet.ParentSystem.Name}");
-                debug.AddLine($"{pad2} Has Fleet: {task.WhichFleet}");
-                debug.AddLine($"{pad2} Fleet MinStr: {(int)task.MinimumTaskForceStrength}");
             }
         }
     }

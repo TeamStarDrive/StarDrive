@@ -22,7 +22,6 @@ namespace Ship_Game.Commands.Goals
                 OrderShipToColonize,
                 WaitForColonizationComplete
             };
-
         }
 
         public MarkForColonization(Planet toColonize, Empire e) : this()
@@ -84,18 +83,19 @@ namespace Ship_Game.Commands.Goals
 
             if (PositiveEnemyPresence(out float spaceStrength))
             {
-                empire.UpdateTargetsStrMultiplier(ColonizationTarget.guid, out float strMultiplier);
-                spaceStrength *= strMultiplier;
-                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength.LowerBound(100));
-                empire.GetEmpireAI().AddPendingTask(task);
+                EmpireAI empireAi   = empire.GetEmpireAI();
+                TargetEmpire        = empireAi.ThreatMatrix.GetDominantEmpireInSystem(ColonizationTarget.ParentSystem);
+                float strMultiplier = empire.GetFleetStrEmpireMultiplier(TargetEmpire);
+                var task            = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, (spaceStrength * strMultiplier).LowerBound(20));
+                empireAi.AddPendingTask(task);
+                empireAi.Goals.Add(new StandbyColonyShip(empire));
             }
-            else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire) 
-                     && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet == ColonizationTarget).Length == 0)
+            else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire)
+                     && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
             {
                 var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);
                 empire.GetEmpireAI().AddPendingTask(task);
             }
-
 
             return GoalStep.GoToNextStep;
         }
@@ -199,15 +199,21 @@ namespace Ship_Game.Commands.Goals
 
             if (AIControlsColonization 
                 && empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 10
-                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7))
+                && (!TryGetClaimTask(out MilitaryTask task) || task.Fleet?.TaskStep != 7)) // we lost
             {
+
                 ReleaseShipFromGoal();
                 task?.EndTask();
                 return GoalStep.GoalFailed;
             }
 
+            if (ColonizationTarget.Owner == empire)
+            {
+                empire.DecreaseFleetStrEmpireMultiplier(TargetEmpire);
+                return GoalStep.GoalComplete;
+            }
+
             if (FinishedShip == null 
-                || FinishedShip.AI.State != AIState.Colonize
                 || !FinishedShip.AI.FindGoal(ShipAI.Plan.Colonize, out ShipAI.ShipGoal goal)
                 || goal.TargetPlanet != ColonizationTarget)
             {
@@ -217,7 +223,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            return ColonizationTarget.Owner == null ? GoalStep.TryAgain : GoalStep.GoalComplete;
+            return GoalStep.TryAgain;
         }
 
         void ReleaseShipFromGoal()
@@ -235,7 +241,7 @@ namespace Ship_Game.Commands.Goals
         {
             spaceStrength   = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
             float groundStr = ColonizationTarget.GetGroundStrengthOther(empire);
-            if (ColonizationTarget.Owner != null && ColonizationTarget.Owner.isFaction && groundStr.AlmostZero())
+            if (ColonizationTarget.Owner?.isFaction  == true && groundStr < 1)
                 groundStr += 40; // So AI will know to send fleets to remnant colonies, even if they are empty
 
             return spaceStrength > 10 || groundStr > 0;
@@ -256,7 +262,7 @@ namespace Ship_Game.Commands.Goals
 
             foreach (Ship ship in empire.GetShips())
             {
-                if (ship.isColonyShip && ship.AI != null && ship.AI.State != AIState.Colonize)
+                if (ship.isColonyShip && ship.AI != null && !ship.AI.FindGoal(ShipAI.Plan.Colonize, out _))
                     return ship;
             }
 

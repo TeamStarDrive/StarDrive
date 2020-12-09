@@ -74,6 +74,7 @@ namespace Ship_Game
 
         public int DefaultNumOpponents = 7; // Default AIs to start on default settings
         public float HangarCombatShipCostMultiplier = 1;
+        public bool DisplayEnvPerfInRaceDesign;
 
         public int ChanceForCategory(PlanetCategory category)
         {

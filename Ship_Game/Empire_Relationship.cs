@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.GamerServices;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Empires.DataPackets;
 using Ship_Game.Gameplay;
 
 namespace Ship_Game
@@ -92,6 +93,24 @@ namespace Ship_Game
                 planet.ForceLaunchInvadingTroops(this);
         }
 
+        public float GetWarOffensiveRatio()
+        {
+            float territorialism = 1 - (data.DiplomaticPersonality?.Territorialism ?? 100) / 100f;
+            float militaryRatio  = Research.Strategy.MilitaryRatio;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            return (1 + territorialism + militaryRatio + opportunism) / 4;
+        }
+
+        public float GetExpansionRatio()
+        {
+            float territorialism = (data.DiplomaticPersonality?.Territorialism ?? 1) / 100f;
+            float opportunism    = data.DiplomaticPersonality?.Opportunism ?? 1;
+            float expansion      = Research.Strategy.ExpansionRatio;
+            float cybernetic     = IsCybernetic ? 1 : 0;
+
+            return (territorialism + expansion + opportunism + cybernetic);
+        }
+
         public void UpdateRelationships()
         {
             int atWarCount = 0;
@@ -114,7 +133,7 @@ namespace Ship_Game
             var theaters = new Array<Theater>();
             foreach (var war in AllActiveWars)
             {
-                if (war.WarTheaters.ActiveTheaters != null)
+                if (war.WarTheaters.ActiveTheaters?.Length > 0)
                     theaters.AddRange(war.WarTheaters.ActiveTheaters);
             }
             AllActiveWarTheaters = theaters.ToArray();
@@ -192,14 +211,24 @@ namespace Ship_Game
 
         public bool IsAtWarWith(Empire otherEmpire)
         {
-            return GetRelationsOrNull(otherEmpire)?.AtWar == true || isFaction && !IsNAPactWith(otherEmpire);
+            return GetRelationsOrNull(otherEmpire)?.AtWar == true || otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire);
         }
+
+        public bool IsAtWar => AllActiveWars.Length > 0;
+
+        public bool IsAtWarWithMajorEmpire => AllActiveWars.Any(w => !w.Them.isFaction);
 
         public bool IsAlliedWith(Empire otherEmpire)
         {
             return GetRelationsOrNull(otherEmpire)?.Treaty_Alliance == true;
         }
-        
+
+        public bool IsFriendlyWith(Empire otherEmpire)
+        {
+            var rel = GetRelationsOrNull(otherEmpire);
+            return rel?.Posture == Posture.Friendly || rel?.Treaty_Alliance == true; ;
+        }
+
         public bool IsPeaceTreaty(Empire otherEmpire)
         {
             return GetRelationsOrNull(otherEmpire)?.Treaty_Peace == true;
@@ -272,6 +301,8 @@ namespace Ship_Game
                     Empire empire = EmpireManager.GetEmpireByName(relSave.Name);
                     relSave.ActiveWar?.SetCombatants(ourEmpire, empire);
                     relSave.Risk = new EmpireRiskAssessment(relSave);
+                    relSave.KnownInformation = new EmpireInformation(relSave);
+                    relSave.KnownInformation.Update(relSave.IntelligenceLevel);
                     ourEmpire.AddNewRelationToThem(empire, relSave);
                 }
             }

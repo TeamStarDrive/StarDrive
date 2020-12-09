@@ -368,29 +368,36 @@ namespace Ship_Game.Ships
 
         public override bool IsAttackable(Empire attacker, Relationship attackerToUs)
         {
-            if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
-                && IsInBordersOf(attacker))
+            if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
             {
-                return true;
-            }
+                if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
+                 && IsInBordersOf(attacker))
+                {
+                    return true;
+                }
 
-            if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
-            {
-                return true;
-            }
+                SolarSystem system = System;
+                if (system != null)
+                {
+                    if (attackerToUs.WarnedSystemsList.Contains(system.guid))
+                        return true;
 
-            SolarSystem system = System;
-            if (system != null)
-            {
-                if (attackerToUs.WarnedSystemsList.Contains(system.guid))
+                    if (DesignRole == ShipData.RoleName.troop &&
+                        attacker.GetOwnedSystems().ContainsRef(system))
+                        return true;
+                }
+
+                if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
                     return true;
 
-                if (DesignRole == ShipData.RoleName.troop &&
-                    attacker.GetOwnedSystems().ContainsRef(system))
+                if (AI.Target?.LastDamagedBy?.GetLoyalty() == attacker)
                     return true;
             }
 
-            return false;
+            if (attackerToUs.Treaty_Trade && IsFreighter && AI.State == AIState.SystemTrader)
+                return false;
+
+            return attackerToUs.CanAttack;
         }
 
         // Level 5 crews can use advanced targeting which even predicts acceleration
@@ -1216,7 +1223,6 @@ namespace Ship_Game.Ships
             }
 
             AI.ProcessResupply(resupplyReason);
-
         }
 
         public bool IsSuitableForPlanetaryRearm()
@@ -1226,11 +1232,11 @@ namespace Ship_Game.Ships
                 || OrdnancePercent.AlmostEqual(1)
                 || IsPlatformOrStation && TetheredTo?.Owner == loyalty
                 || AI.OrbitTarget?.Owner == loyalty
+                || AI.OrbitTarget?.Owner?.IsAlliedWith(loyalty) == true
                 || AI.State == AIState.Resupply
                 || AI.State == AIState.Scrap
                 || AI.State == AIState.Refit
                 || IsSupplyShuttle)
-
             {
                 return false;
             }
