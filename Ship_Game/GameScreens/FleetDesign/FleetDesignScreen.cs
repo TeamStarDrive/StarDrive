@@ -64,7 +64,7 @@ namespace Ship_Game
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
         {
             GameAudio.PlaySfxAsync(audioCue);
-            SelectedFleet = new Fleet();
+            SelectedFleet = new Fleet() { Owner = EmpireManager.Player }; ;
             EmpireUI = empireUI;
             TransitionOnTime = 0.75f;
             EmpireUI.empire.UpdateShipsWeCanBuild();
@@ -380,7 +380,7 @@ namespace Ship_Game
                     ClickableSquads.Add(cs);
                 }
             }
-            SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
+            SelectedFleet.AssembleFleet(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection, true);
         }
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
