@@ -27,7 +27,7 @@ namespace Ship_Game
 
             if (fleet != null)
             {
-                FleetCenter = fleet.GetProjectedMidPoint(Start, End, fleet.GetRelativeSize());
+                FleetCenter = fleet.GetProjectedMidPoint(Start, End, Vector2.Zero);
             }
         }
     }
