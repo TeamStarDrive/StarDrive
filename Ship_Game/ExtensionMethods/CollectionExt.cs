@@ -556,17 +556,9 @@ namespace Ship_Game
         /// <summary>
         /// Group items by selection
         /// </summary>
-        public static Array<T> GroupBySelector<T, TKey>(this ICollection<T> items, Func<T, TKey> keySelector)
-        {
-            var unique = new Map<TKey, T>();
-            foreach (T item in items)
-            {
-                TKey key = keySelector(item);
-                if (!unique.ContainsKey(key))
-                    unique.Add(key, item);
-            }
-            return unique.Values.ToArrayList();
-        }
+        public static Map<TKey, Array<T>> GroupBySelector<T, TKey>(this ICollection<T> items, Func<T, TKey> groupBy)
+        => GroupByFiltered(items, groupBy, i => i != null);
+
 
         /// <summary>
         /// Returns the unique groups Found in item data
