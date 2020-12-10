@@ -108,11 +108,7 @@ namespace UnitTests.Fleets
             {
                 Assert.IsFalse(ship.RelativeFleetOffset == Vector2.Zero);
                 Assert.IsFalse(ship.FleetOffset == Vector2.Zero);
-                Assert.IsFalse(ship.AI.FleetNode.FleetOffset == Vector2.Zero);
             }
-            
-            
-
         }
     }
 }
