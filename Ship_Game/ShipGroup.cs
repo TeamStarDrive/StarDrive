@@ -104,11 +104,12 @@ namespace Ship_Game
             return Ships.ContainsRef(ship);
         }
 
-        public virtual void AddShip(Ship ship)
+        public virtual bool AddShip(Ship ship)
         {
-            Ships.Add(ship);
+            if (!Ships.AddUnique(ship)) return false;
             LastAveragePosUpdate = -1; // deferred position refresh
             LastStrengthUpdate = -1;
+            return true;
         }
 
         protected void AssignPositionTo(Ship ship)
@@ -303,12 +304,12 @@ namespace Ship_Game
             if (count == 0)
                 return Vector2.Zero;
 
-            if (commandShip != null) return commandShip.Center; 
+            if (commandShip != null) return commandShip.Center - commandShip.FleetOffset; 
 
             float fleetCapableShipCount = 1;
             Ship[] items                = ships.GetInternalArrayItems();
             commandShip                 = commandShip ?? items[0];
-            Vector2 avg                 = commandShip.Center;
+            Vector2 avg = commandShip.Center - commandShip.FleetOffset;
             float commandShipSize       = commandShip.SurfaceArea;
  
             for (int i = 0; i < count; ++i)
@@ -317,10 +318,10 @@ namespace Ship_Game
                 if (ship != commandShip && ship.CanTakeFleetMoveOrders())
                 {
                     float ratio            = ship.SurfaceArea / commandShipSize;
-                    fleetCapableShipCount += 1 * ratio;
-                    Vector2 p              = ship.Center + ship.FleetOffset;
-                    avg.X                 += p.X * ratio;
-                    avg.Y                 += p.Y * ratio;
+                    fleetCapableShipCount += (1f * ratio);
+                    Vector2 p = (ship.Center -  ship.FleetOffset) * ratio;
+                    avg.X += p.X;
+                    avg.Y += p.Y;
                 }
             }
             return avg / fleetCapableShipCount;
@@ -333,10 +334,10 @@ namespace Ship_Game
                 return Vector2.Zero;
 
             Ship[] items = ships.GetInternalArrayItems();
-            Vector2 avg = items[0].FleetOffset;
+            Vector2 avg = items[0].AI.FleetNode?.FleetOffset ?? items[0].FleetOffset;
             for (int i = 1; i < count; ++i)
             {
-                Vector2 p = items[i].FleetOffset;
+                Vector2 p = items[i].AI.FleetNode?.FleetOffset ?? items[i].FleetOffset;
                 avg.X += p.X;
                 avg.Y += p.Y;
             }
