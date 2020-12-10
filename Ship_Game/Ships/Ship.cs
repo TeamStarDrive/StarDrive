@@ -49,8 +49,22 @@ namespace Ship_Game.Ships
         public AudioEmitter SoundEmitter = new AudioEmitter();
         public Vector2 ScreenPosition;
         public float ScuttleTimer = -1f;
+        Vector2 ShipGroupOffset = Vector2.Zero;
         public Vector2 FleetOffset;
+        //{
+        //    get => AI.FleetNode?.FleetOffset ?? ShipGroupOffset;
+        //    set =>
+        //        //if (AI.FleetNode != null) AI.FleetNode.FleetOffset = value;
+        //        ShipGroupOffset = value;
+        //}
+        Vector2 ShipGroupRelativeOffset = Vector2.Zero;
         public Vector2 RelativeFleetOffset;
+        //{
+        //    get => AI.FleetNode?.FleetOffset ?? ShipGroupRelativeOffset;
+        //    set =>
+        //        //if (AI.FleetNode != null) AI.FleetNode.FleetOffset = value;
+        //        ShipGroupRelativeOffset = value;
+        //}
         ShipModule[] Shields;
         ShipModule[] Amplifiers;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
