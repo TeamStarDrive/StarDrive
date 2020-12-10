@@ -60,6 +60,13 @@ namespace Ship_Game.Fleets
             SetCommandShip(null);
         }
 
+        public Fleet(Array<Ship> ships)
+        {
+            FleetIconIndex = RandomMath.IntBetween(1, 10);
+            SetCommandShip(null);
+            AddShips(ships);
+        }
+
         public void SetNameByFleetIndex(int index)
         {
             string suffix = "th";
@@ -264,13 +271,14 @@ namespace Ship_Game.Fleets
             LeftFlankToCenterOffset();
             RightFlankToCenterOffset();
 
-
-            AutoAssembleFleet(0.0f);
             for (int x = 0; x < Ships.Count; x++)
             {
                 Ship s = Ships[x];
                 AssignExistingOrCreateNewNode(s);
             }
+
+            AutoAssembleFleet(0.0f);
+
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship s = Ships[i];
@@ -289,12 +297,13 @@ namespace Ship_Game.Fleets
 
             if (node == null)
             {
+                var offset = ship.RelativeFleetOffset + GetRelativeSize();
                 node = new FleetDataNode
                 {
                     
-                    FleetOffset = ship.RelativeFleetOffset,
-                    OrdersOffset = ship.RelativeFleetOffset,
-                    CombatState = ship.AI.CombatState
+                    FleetOffset  = offset,
+                    OrdersOffset = offset,
+                    CombatState  = ship.AI.CombatState
             };
                 DataNodes.Add(node);
             }
@@ -1882,7 +1891,7 @@ namespace Ship_Game.Fleets
         }
 
         // @return The desired formation pos for this ship
-        public Vector2 GetFormationPos(Ship ship) => AveragePosition() + ship.FleetOffset - AverageOffsetFromZero;
+        public Vector2 GetFormationPos(Ship ship) => AveragePosition() + ship.FleetOffset; //- AverageOffsetFromZero;
 
         // @return The Final destination position for this ship
         public Vector2 GetFinalPos(Ship ship) => FinalPosition + ship.FleetOffset;
@@ -1981,7 +1990,7 @@ namespace Ship_Game.Fleets
             Ship commandShip  = null;
 
             if (Ships.Count == 0) return;
-            if (CommandShip != null && !CommandShip.CanTakeFleetMoveOrders())
+            if (CommandShip?.fleet != this || !CommandShip.CanTakeFleetMoveOrders())
                 SetCommandShip(null);
 
             for (int i = Ships.Count - 1; i >= 0; --i)
