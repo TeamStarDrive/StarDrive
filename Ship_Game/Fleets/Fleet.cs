@@ -903,6 +903,9 @@ namespace Ship_Game.Fleets
             switch (TaskStep)
             {
                 case 1:
+                    if (FleetInAreaInCombat(GetAveragePosition(Ships), 50000) == CombatStatus.InCombat)
+                        break;
+
                     GatherAtAO(task, target.ParentSystem.Radius);
                     if (TryCalcEtaToPlanet(task, target.Owner, out float eta))
                         Owner.Remnants.InitTargetEmpireDefenseActions(target, eta, GetStrength());
