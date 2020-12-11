@@ -187,7 +187,7 @@ namespace Ship_Game.Ships
 
         void SetFleetCapableStatus()
         {
-            if (!EMPdisabled && !InhibitedByEnemy)
+            if (!EMPdisabled)
             {
                 switch (AI.State)
                 {

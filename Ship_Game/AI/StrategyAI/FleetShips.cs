@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using Ship_Game.AI.Tasks;
 using Ship_Game.Empires.ShipPools;
 using Ship_Game.Ships;
 using static Ship_Game.Ships.ShipData;
@@ -310,30 +311,29 @@ namespace Ship_Game.AI
         /// <param name="planetTroops">Troops still on planets</param>
         /// /// <param name="minimumFleetSize">Attempt to get this many fleets</param>
         /// <returns></returns>
-        public Array<Ship> ExtractShipSet(float minStrength, int bombingSecs,
-            int wantedTroopStrength, Array<Troop> planetTroops, int minimumFleetSize, Vector2 rallyCenter)
+        public Array<Ship> ExtractShipSet(float minStrength, Array<Troop> planetTroops, int minimumFleetSize, Vector2 rallyPoint, MilitaryTask task)
         {
             // create static empty ship array.
-            if (BombSecsAvailable < bombingSecs) return new Array<Ship>();
+            if (BombSecsAvailable < task.TaskBombTimeNeeded) return new Array<Ship>();
 
-            SortShipsByDistanceToPoint(rallyCenter);
+            SortShipsByDistanceToPoint(task.AO);
 
             Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, minimumFleetSize, out int fleetCount);
             
             if (ships.IsEmpty)
                 return new Array<Ship>();
             
-            if (wantedTroopStrength > 0)
+            if (task.NeededTroopStrength > 0)
             {
-                if (InvasionTroopStrength < wantedTroopStrength)
-                    LaunchTroopsAndAddToShipList(wantedTroopStrength, planetTroops);
+                if (InvasionTroopStrength < task.NeededTroopStrength)
+                    LaunchTroopsAndAddToShipList(task.NeededTroopStrength, planetTroops);
                 
-                if (InvasionTroopStrength < wantedTroopStrength) return new Array<Ship>();
+                if (InvasionTroopStrength < task.NeededTroopStrength) return new Array<Ship>();
 
-                ships.AddRange(ExtractTroops(wantedTroopStrength));
+                ships.AddRange(ExtractTroops(task.NeededTroopStrength));
             }
 
-            ships.AddRange(ExtractBombers(bombingSecs, fleetCount));
+            ships.AddRange(ExtractBombers(task.TaskBombTimeNeeded, fleetCount));
 
             CheckForShipErrors(ships);
 
