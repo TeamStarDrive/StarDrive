@@ -477,8 +477,7 @@ namespace Ship_Game.AI.Tasks
 
             // All's Good... Make a fleet
 
-            TaskForce = fleetShips.ExtractShipSet(strengthNeeded, TaskBombTimeNeeded,
-                NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets, rallyCenter: rallyPoint.Center);
+            TaskForce = fleetShips.ExtractShipSet(strengthNeeded, troopsOnPlanets, wantedNumberOfFleets, rallyPoint.Center, this);
 
             if (TaskForce.IsEmpty)
                 return RequisitionStatus.FailedToCreateAFleet;
