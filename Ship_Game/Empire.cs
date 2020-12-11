@@ -371,6 +371,20 @@ namespace Ship_Game
             return null;
         }
 
+        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, Ship ship, bool travelBack, out Planet planet)
+        {
+            planet               = null;
+            int travelMultiplier = travelBack ? 2 : 1;
+
+            if (ports.Count == 0)
+                return false;
+
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false) 
+                                        + ship.GetAstrograteTimeTo(p) * travelMultiplier);
+
+            return planet != null;
+        }
+
         public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding() => GetBestPortsForShipBuilding(OwnedPlanets);
         public IReadOnlyCollection<Planet> GetBestPortsForShipBuilding(IReadOnlyList<Planet> ports)
         {
