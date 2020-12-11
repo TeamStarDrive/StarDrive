@@ -246,21 +246,37 @@ namespace Ship_Game.Fleets
 
         enum FlankType
         {
+            Screen,
+            Center,
             Left,
-            Right
+            Right,
+            Rear
         }
 
         void FlankToCenterOffset(Array<Squad> flank, FlankType flankType)
         {
             if (flank.IsEmpty) return;
             int centerSquadCount = Math.Max(1, CenterFlank.Count);
+
+            float largestSquad = 0;
+            int row = 0;
+            float column = 0;
             for (int x = 0; x < flank.Count; x++)
             {
-                Squad squad = flank[x];
-                var offset = centerSquadCount * 1400 + x * 1400;
+                Squad squad  = flank[x];
+                largestSquad = Math.Max(largestSquad, squad.Ships.Max(s => s.Radius * 3));
+                var offset   = (centerSquadCount / 3).LowerBound(1) * 1400 + row * 1400;
+
                 if (flankType == FlankType.Left)
                     offset *= -1;
-                squad.Offset = new Vector2(offset, 0f);
+                squad.Offset = new Vector2(offset, column);
+                row++;
+                if (x % 3 == 0)
+                {
+                    row = 0;
+                    column += largestSquad;
+                    largestSquad = 0;
+                }
             }
         }
 
@@ -285,9 +301,9 @@ namespace Ship_Game.Fleets
             AllFlanks.Add(RearFlank);
             FinalPosition = AveragePosition();
 
-            ArrangeSquad(CenterFlank, Vector2.Zero);
-            ArrangeSquad(ScreenFlank, new Vector2(0.0f, -2500f));
-            ArrangeSquad(RearFlank, new Vector2(0.0f, 2500f));
+            ArrangeSquad(CenterFlank, Vector2.Zero, FlankType.Center);
+            ArrangeSquad(ScreenFlank, new Vector2(0.0f, -2500f), FlankType.Screen);
+            ArrangeSquad(RearFlank, new Vector2(0.0f, 2500f), FlankType.Rear);
 
             LeftFlankToCenterOffset();
             RightFlankToCenterOffset();
@@ -394,25 +410,42 @@ namespace Ship_Game.Fleets
             return destSquad;
         }
 
-        static void ArrangeSquad(Array<Squad> squad, Vector2 squadOffset)
+        static void ArrangeSquad(Array<Squad> squads, Vector2 squadOffset, FlankType flank)
         {
             int leftSide = 0;
             int rightSide = 0;
 
-            for (int index = 0; index < squad.Count; ++index)
+            int row = 0;
+            int column = 0;
+            int rowMax = squads.Count /  (flank == FlankType.Screen ? 2 : 4);
+            float largestShip = 0;
+
+            for (int index = 0; index < squads.Count; ++index)
             {
-                if (index == 0)
-                    squad[index].Offset = squadOffset;
+                var squad = squads[index];
+                if (row == 0)
+                {
+                    squad.Offset = squadOffset;
+                }
                 else if (index % 2 == 1)
                 {
                     ++leftSide;
-                    squad[index].Offset = new Vector2(leftSide * (-1400 + squadOffset.X), squadOffset.Y);
+                    squad.Offset = new Vector2(leftSide * (-1400 + squadOffset.X), squadOffset.Y);
+                    largestShip = Math.Max(largestShip, squad.Ships.Max(s => s.Radius * 3));
                 }
                 else
                 {
                     ++rightSide;
-                    squad[index].Offset = new Vector2(rightSide * (1400 + squadOffset.X), squadOffset.Y);
+                    squad.Offset = new Vector2(rightSide * (1400 + squadOffset.X), squadOffset.Y);
                 }
+                row++;
+                if (row > rowMax)
+                {
+                    row = leftSide = rightSide = 0;
+                    squadOffset.Y += (flank == FlankType.Screen ? -1 : 1) * largestShip;
+                }
+
+
             }
         }
 
@@ -2029,7 +2062,7 @@ namespace Ship_Game.Fleets
                     continue;
                 }
 
-                if (CommandShip == null && ship.CanTakeFleetMoveOrders())
+                if (CommandShip == null && ship.CanTakeFleetOrders)
                 {
                     if ((commandShip?.SurfaceArea ?? 0) < ship.SurfaceArea)
                         commandShip = ship;
