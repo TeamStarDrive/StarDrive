@@ -112,11 +112,13 @@ namespace Ship_Game
             return true;
         }
 
-        protected void AssignPositionTo(Ship ship)
+        protected void AssignPositionTo(Ship ship) => ship.FleetOffset = GetPositionFromDirection(ship, FinalDirection);
+
+        public Vector2 GetPositionFromDirection(Ship ship, Vector2 direction)
         {
-            float angle = ship.RelativeFleetOffset.ToRadians() + FinalDirection.ToRadians();
+            float angle = ship.RelativeFleetOffset.ToRadians() + direction.ToRadians();
             float distance = ship.RelativeFleetOffset.Length();
-            ship.FleetOffset = angle.RadiansToDirection()*distance;
+            return angle.RadiansToDirection() * distance;
         }
 
         public void AssignPositions(Vector2 newDirection)
