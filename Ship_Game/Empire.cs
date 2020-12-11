@@ -380,8 +380,18 @@ namespace Ship_Game
                 return false;
 
             planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false) 
-                                        + ship.GetAstrograteTimeTo(p) * travelMultiplier);
+                                        + ship.GetAstrogateTimeTo(p) * travelMultiplier);
 
+            return planet != null;
+        }
+
+        public bool FindPlanetToRefitAt(IReadOnlyList<Planet> ports, float cost, out Planet planet)
+        {
+            planet = null;
+            if (ports.Count == 0)
+                return false;
+
+            planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false));
             return planet != null;
         }
 
