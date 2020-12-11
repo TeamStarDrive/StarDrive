@@ -264,14 +264,14 @@ namespace Ship_Game.Fleets
             for (int x = 0; x < flank.Count; x++)
             {
                 Squad squad  = flank[x];
-                largestSquad = Math.Max(largestSquad, squad.Ships.Max(s => s.Radius * 3));
-                var offset   = (centerSquadCount / 3).LowerBound(1) * 1400 + row * 1400;
+                largestSquad = Math.Max(largestSquad, squad.Ships.Max(s => s.Radius * 2) + 1000) ;
+                var offset   = (centerSquadCount / 3).LowerBound(3) * 1400 + row * 1400;
 
                 if (flankType == FlankType.Left)
                     offset *= -1;
                 squad.Offset = new Vector2(offset, column);
                 row++;
-                if (x % 3 == 0)
+                if (x % 5 == 0)
                 {
                     row = 0;
                     column += largestSquad;
@@ -288,7 +288,7 @@ namespace Ship_Game.Fleets
             ResetFlankLists(); // set up center, left, right, screen, rear...
             SetSpeed();
 
-            CenterFlank = SortSquadBySize(CenterShips);
+            CenterFlank = SortSquadBySpeed(CenterShips);
             LeftFlank   = SortSquadBySpeed(LeftShips);
             RightFlank  = SortSquadBySpeed(RightShips);
             ScreenFlank = SortSquadByDefense(ScreenShips);
@@ -417,7 +417,7 @@ namespace Ship_Game.Fleets
 
             int row = 0;
             int column = 0;
-            int rowMax = squads.Count /  (flank == FlankType.Screen ? 2 : 4);
+            int rowMax = (squads.Count /  (flank == FlankType.Screen ? 2 : 4)).LowerBound(3);
             float largestShip = 0;
 
             for (int index = 0; index < squads.Count; ++index)
