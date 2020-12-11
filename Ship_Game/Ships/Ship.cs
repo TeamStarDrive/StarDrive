@@ -548,7 +548,7 @@ namespace Ship_Game.Ships
         }
 
         // Calculates estimated trip time by turns
-        public float GetAstrograteTimeTo(Planet destination)
+        public float GetAstrogateTimeTo(Planet destination)
         {
             float distance    = Center.Distance(destination.Center);
             float distanceSTL = destination.GravityWellForEmpire(loyalty);
@@ -570,14 +570,17 @@ namespace Ship_Game.Ships
 
         private float GetAstrogateTime(float distance, float distanceSTL, Vector2 targetPos)
         {
-            float rotationTime = Direction.AngleToTarget(targetPos) / (RotationDegrees / GlobalStats.TurnTimer);
+            float angleDiff = Center.AngleToTarget(targetPos) - RotationDegrees;
+            if (angleDiff > 180)
+                angleDiff = 360 - Center.AngleToTarget(targetPos) + RotationDegrees;
+
+            float rotationTime = angleDiff / RotationRadiansPerSecond.ToDegrees().LowerBound(1);
             float distanceFTL  = Math.Max(distance - distanceSTL, 0);
             float travelSTL    = distanceSTL / MaxSTLSpeed;
             float travelFTL    = distanceFTL / MaxFTLSpeed;
 
             return (travelFTL + travelSTL + rotationTime + FTLSpoolTime) / GlobalStats.TurnTimer;
         }
-
 
         public void TetherToPlanet(Planet p)
         {
