@@ -18,6 +18,8 @@ namespace Ship_Game.Fleets
         public readonly Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
         public Guid Guid = Guid.NewGuid();
         public string Name = "";
+        public ShipAI.TargetParameterTotals TotalFleetAttributes;
+        public ShipAI.TargetParameterTotals AverageFleetAttributes;
 
         readonly Array<Ship> CenterShips = new Array<Ship>();
         readonly Array<Ship> LeftShips = new Array<Ship>();
@@ -109,7 +111,7 @@ namespace Ship_Game.Fleets
 
             UpdateOurFleetShip(newShip);
 
-            SortIntoFlanks(newShip, CommandShip?.DesignRole ?? ShipData.RoleName.capital);
+            SortIntoFlanks(newShip, TotalFleetAttributes.GetAveragedValues());
             AddShipToNodes(newShip);
             AssignPositionTo(newShip);
             return true;
@@ -121,6 +123,7 @@ namespace Ship_Game.Fleets
 
             HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles ||
                                         ship.Carrier.HasSupplyBays && ship.Ordinance >= 100;
+
         }
 
         public void AddExistingShip(Ship ship, FleetDataNode node)
@@ -182,36 +185,54 @@ namespace Ship_Game.Fleets
                 return;
             }
 
-            var mainShipList = new Array<Ship>(Ships);
-            var largestShip = CommandShip ?? mainShipList.FindMax(ship => (int)ship.DesignRole);
+            var mainShipList = new Array<Ship>();
+
+            foreach (var ship in Ships)
+            {
+                TotalFleetAttributes.AddTargetValue(ship);
+                mainShipList.Add(ship);
+            }
+
+            var fleetParameters = TotalFleetAttributes.GetAveragedValues();
 
             for (int i = mainShipList.Count - 1; i >= 0; i--)
             {
                 Ship ship = mainShipList[i];
-                SortIntoFlanks(ship, largestShip.DesignRole);
+                SortIntoFlanks(ship, fleetParameters);
             }
         }
 
-        void SortIntoFlanks(Ship ship, ShipData.RoleName largest)
+        void SortIntoFlanks(Ship ship, ShipAI.TargetParameterTotals fleetAverages)
         {
             int leftCount = LeftShips.Count;
             var roleType = ship.DesignRoleType;
-            if (roleType != ShipData.RoleType.Warship || ship.DesignRole == ShipData.RoleName.carrier)
+
+            if (roleType != ShipData.RoleType.Warship)
             {
                 RearShips.AddUniqueRef(ship);
             }
-            else if (CommandShip == ship || ship.DesignRole > ShipData.RoleName.fighter
-                                         && largest == ship.DesignRole)
+            else if (CommandShip == ship)
             {
                 CenterShips.AddUniqueRef(ship);
             }
-            else if (CenterShips.Count - 2 <= ScreenShips.Count)
+            else if (ship.DesignRole == ShipData.RoleName.carrier)
             {
-                CenterShips.AddUniqueRef(ship);
+                if (leftCount <= RightShips.Count)
+                {
+                    LeftShips.AddUniqueRef(ship);
+                }
+                else
+                {
+                    RightShips.AddUniqueRef(ship);
+                }
             }
-            else if (ScreenShips.Count <= leftCount)
+            else if (fleetAverages.ScreenShip(ship) || fleetAverages.Big(ship))
             {
                 ScreenShips.AddUniqueRef(ship);
+            }
+            else if (fleetAverages.LongRange(ship) )
+            {
+                CenterShips.AddUniqueRef(ship);
             }
             else if (leftCount <= RightShips.Count)
             {
@@ -225,21 +246,37 @@ namespace Ship_Game.Fleets
 
         enum FlankType
         {
+            Screen,
+            Center,
             Left,
-            Right
+            Right,
+            Rear
         }
 
         void FlankToCenterOffset(Array<Squad> flank, FlankType flankType)
         {
             if (flank.IsEmpty) return;
             int centerSquadCount = Math.Max(1, CenterFlank.Count);
+
+            float largestSquad = 0;
+            int row = 0;
+            float column = 0;
             for (int x = 0; x < flank.Count; x++)
             {
-                Squad squad = flank[x];
-                var offset = centerSquadCount * 1400 + x * 1400;
+                Squad squad  = flank[x];
+                largestSquad = Math.Max(largestSquad, squad.Ships.Max(s => s.Radius * 3));
+                var offset   = (centerSquadCount / 3).LowerBound(1) * 1400 + row * 1400;
+
                 if (flankType == FlankType.Left)
                     offset *= -1;
-                squad.Offset = new Vector2(offset, 0f);
+                squad.Offset = new Vector2(offset, column);
+                row++;
+                if (x % 3 == 0)
+                {
+                    row = 0;
+                    column += largestSquad;
+                    largestSquad = 0;
+                }
             }
         }
 
@@ -264,9 +301,9 @@ namespace Ship_Game.Fleets
             AllFlanks.Add(RearFlank);
             FinalPosition = AveragePosition();
 
-            ArrangeSquad(CenterFlank, Vector2.Zero);
-            ArrangeSquad(ScreenFlank, new Vector2(0.0f, -2500f));
-            ArrangeSquad(RearFlank, new Vector2(0.0f, 2500f));
+            ArrangeSquad(CenterFlank, Vector2.Zero, FlankType.Center);
+            ArrangeSquad(ScreenFlank, new Vector2(0.0f, -2500f), FlankType.Screen);
+            ArrangeSquad(RearFlank, new Vector2(0.0f, 2500f), FlankType.Rear);
 
             LeftFlankToCenterOffset();
             RightFlankToCenterOffset();
@@ -373,25 +410,42 @@ namespace Ship_Game.Fleets
             return destSquad;
         }
 
-        static void ArrangeSquad(Array<Squad> squad, Vector2 squadOffset)
+        static void ArrangeSquad(Array<Squad> squads, Vector2 squadOffset, FlankType flank)
         {
             int leftSide = 0;
             int rightSide = 0;
 
-            for (int index = 0; index < squad.Count; ++index)
+            int row = 0;
+            int column = 0;
+            int rowMax = squads.Count /  (flank == FlankType.Screen ? 2 : 4);
+            float largestShip = 0;
+
+            for (int index = 0; index < squads.Count; ++index)
             {
-                if (index == 0)
-                    squad[index].Offset = squadOffset;
+                var squad = squads[index];
+                if (row == 0)
+                {
+                    squad.Offset = squadOffset;
+                }
                 else if (index % 2 == 1)
                 {
                     ++leftSide;
-                    squad[index].Offset = new Vector2(leftSide * (-1400 + squadOffset.X), squadOffset.Y);
+                    squad.Offset = new Vector2(leftSide * (-1400 + squadOffset.X), squadOffset.Y);
+                    largestShip = Math.Max(largestShip, squad.Ships.Max(s => s.Radius * 3));
                 }
                 else
                 {
                     ++rightSide;
-                    squad[index].Offset = new Vector2(rightSide * (1400 + squadOffset.X), squadOffset.Y);
+                    squad.Offset = new Vector2(rightSide * (1400 + squadOffset.X), squadOffset.Y);
                 }
+                row++;
+                if (row > rowMax)
+                {
+                    row = leftSide = rightSide = 0;
+                    squadOffset.Y += (flank == FlankType.Screen ? -1 : 1) * largestShip;
+                }
+
+
             }
         }
 
@@ -1988,7 +2042,7 @@ namespace Ship_Game.Fleets
             HasRepair         = false;
             bool readyForWarp = true;
             Ship commandShip  = null;
-
+            var fleetTotals = new ShipAI.TargetParameterTotals();
             if (Ships.Count == 0) return;
             if (CommandShip?.fleet != this || !CommandShip.CanTakeFleetMoveOrders())
                 SetCommandShip(null);
@@ -2008,11 +2062,13 @@ namespace Ship_Game.Fleets
                     continue;
                 }
 
-                if (CommandShip == null && ship.CanTakeFleetMoveOrders())
+                if (CommandShip == null && ship.CanTakeFleetOrders)
                 {
                     if ((commandShip?.SurfaceArea ?? 0) < ship.SurfaceArea)
                         commandShip = ship;
                 }
+
+                fleetTotals.AddTargetValue(ship);
 
                 Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
 
@@ -2044,7 +2100,10 @@ namespace Ship_Game.Fleets
 
             if (commandShip != null)
                 SetCommandShip(commandShip);
-            ReadyForWarp = readyForWarp;
+
+            ReadyForWarp          = readyForWarp;
+            TotalFleetAttributes  = fleetTotals;
+            AverageFleetAttributes = TotalFleetAttributes.GetAveragedValues();
         }
 
         public void OffensiveTactic()

@@ -659,6 +659,7 @@ namespace Ship_Game.AI
                 for (int x = 0; x < targets.Length; x++)
                 {
                     var target = targets[x];
+                    if (target == null) continue;
                     threatCopy.AddOrUpdatePin(target, target.IsInBordersOf(owner), true);
                 }
             }
