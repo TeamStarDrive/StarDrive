@@ -162,38 +162,54 @@ namespace Ship_Game.AI
         public struct  TargetParameterTotals
         {
             // target characteristics 
-            public float Armor, Shield, DPS, Size, Speed, Health, Largest, MostFirePower;
+            public float Armor, Shield, DPS, Size, Speed, Health, Largest, MostFirePower, MaxRange, MediumRange, ShortRange;
             public Vector2 Center;
+            public float Defense => Armor + Shield;
+            public bool ScreenShip(Ship ship) => ship.armor_max + ship.shield_max >= Defense && ship.MaxSTLSpeed * 1.5f > Speed;
+            public bool LongRange(Ship ship) => ship.WeaponsMaxRange >= MaxRange;
+            public bool Interceptor(Ship ship) => ship.MaxSTLSpeed >= Speed;
+            public bool FirePower(Ship ship) => ship.TotalDps >= DPS;
+            public bool Big(Ship ship) => ship.SurfaceArea >= Size;
 
-            int count;
+            int Count;
 
             public void AddTargetValue(Ship ship)
             {
                 Largest = Math.Max(Largest, ship.SurfaceArea);
                 MostFirePower = Math.Max(MostFirePower, ship.TotalDps);
 
-                Armor  += ship.armor_max;
-                Shield += ship.shield_max;
-                DPS    += ship.TotalDps;
-                Size   += ship.SurfaceArea;
-                Speed  += ship.MaxSTLSpeed;
-                Health += ship.HealthPercent;
+                Armor       += ship.armor_max;
+                Shield      += ship.shield_max;
+                DPS         += ship.TotalDps;
+                Size        += ship.SurfaceArea;
+                Speed       += ship.MaxSTLSpeed;
+                Health      += ship.HealthPercent;
+                MaxRange    += ship.WeaponsMaxRange;
+                MediumRange += ship.WeaponsAvgRange;
+                ShortRange  += ship.WeaponsMinRange;
+
                 if (ship.SurfaceArea >= Largest && ship.TotalDps >= MostFirePower)
                     Center = ship.Center;
-                count++;
+                Count++;
 
             }
 
             public TargetParameterTotals GetAveragedValues()
             {
-                var returnValue = new TargetParameterTotals
+                var returnValue = new TargetParameterTotals()
                 {
-                    Armor  = this.Armor / count,
-                    Shield = this.Shield / count,
-                    DPS    = this.DPS / count,
-                    Size   = this.Size / count,
-                    Speed  = this.Speed / count,
-                    Health = this.Health / count
+                    Armor       = this.Armor / Count,
+                    Shield      = this.Shield / Count,
+                    DPS         = this.DPS / Count,
+                    Size        = this.Size / Count,
+                    Speed       = this.Speed / Count,
+                    Health      = this.Health / Count,
+                    MaxRange    = this.MaxRange / Count,
+                    MediumRange = this.MediumRange / Count,
+                    ShortRange  = this.ShortRange / Count,
+                    Largest     = Largest,
+                    Center      = Center
+
                 };
                 return returnValue;
             }
@@ -339,7 +355,7 @@ namespace Ship_Game.AI
 
             if (SortedTargets.Length > 0 && (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars))
             {
-                if (SortedTargets.FindFirstValid(SortedTargets.Length, w=> w.Weight > float.MinValue, out _, out var shipWeight))
+                if (SortedTargets.FindFirstValid(SortedTargets.Length, w=> w.Weight > -10000f, out _, out var shipWeight))
                     return shipWeight.Ship;
             }
             return null;
