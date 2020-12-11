@@ -186,8 +186,11 @@ namespace Ship_Game.Gameplay
             }
         }
 
+        public float GetTurnsForFederationWithPlayer(Empire us) => TurnsAbove95Federation(us);
+
         int TurnsAbove95Federation(Empire us)
         {
+
             int turns;
             switch (us.Personality)
             {

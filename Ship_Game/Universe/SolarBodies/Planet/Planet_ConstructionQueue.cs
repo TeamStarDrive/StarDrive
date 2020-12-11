@@ -91,21 +91,18 @@ namespace Ship_Game
         public bool BuildingBuiltOrQueued(Building b) => BuildingBuilt(b.BID) || BuildingInQueue(b.BID);
         public bool BuildingBuiltOrQueued(int bid) => BuildingBuilt(bid) || BuildingInQueue(bid);
 
-        public int TurnsUntilQueueCompleted
+        public int TurnsUntilQueueCompleted(float extraItemCost = 0)
         {
-            get
-            {
-                float totalProdNeeded = TotalProdNeededInQueue();
-                if (totalProdNeeded.AlmostZero())
-                    return 0;
+            float totalProdNeeded = TotalProdNeededInQueue() + extraItemCost;
+            if (totalProdNeeded.AlmostZero())
+                return 0;
 
-                float maxProductionWithInfra = MaxProductionToQueue.LowerBound(0.01f);
-                float turnsWithInfra         = ProdHere / InfraStructure.LowerBound(0.01f);
-                float totalProdWithInfra     = turnsWithInfra * maxProductionWithInfra;
-                float currentProduction      = Prod.NetIncome.LowerBound(0.01f);
-                float turnsWithoutInfra      = (totalProdNeeded - totalProdWithInfra / currentProduction).LowerBound(0);
-                return (int)(turnsWithInfra + turnsWithoutInfra);
-            }
+            float maxProductionWithInfra = MaxProductionToQueue.LowerBound(0.01f);
+            float turnsWithInfra         = ProdHere / InfraStructure.LowerBound(0.01f);
+            float totalProdWithInfra     = turnsWithInfra * maxProductionWithInfra;
+            float potentialProduction    = Prod.NetMaxPotential.LowerBound(0.01f);
+            float turnsWithoutInfra      = (totalProdNeeded - totalProdWithInfra / potentialProduction).LowerBound(0);
+            return (int)(turnsWithInfra + turnsWithoutInfra);
         }
 
         // @return Total numbers before ship will be finished if
@@ -117,8 +114,7 @@ namespace Ship_Game
 
             float effectiveCost = forTroop ? cost : (cost * ShipBuildingModifier).LowerBound(0);
             effectiveCost      += TotalShipCostInRefitGoals();
-            int itemTurns       = (int)Math.Ceiling(effectiveCost.LowerBound(0) / Prod.NetIncome.Clamped(0.1f, MaxProductionToQueue));
-            int total           = itemTurns + TurnsUntilQueueCompleted; // FB - this is just an estimation
+            int total           = TurnsUntilQueueCompleted(effectiveCost); // FB - this is just an estimation
             return total.UpperBound(9999);
         }
 
