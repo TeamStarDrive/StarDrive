@@ -39,7 +39,7 @@ namespace Ship_Game.AI
             }
 
             bool freighterTooSmall = false;
-            float eta              = Owner.GetAstrograteTimeTo(importPlanet);
+            float eta              = Owner.GetAstrogateTimeTo(importPlanet);
             switch (g.Trade.Goods)
             {
                 case Goods.Food:
@@ -155,14 +155,14 @@ namespace Ship_Game.AI
 
             SetTradePlan(plan, exportPlanet, importPlanet, goods);
             if (plan == Plan.DropOffGoods)
-                Owner.loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrograteTimeTo(importPlanet));
+                Owner.loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
         }
 
         public void SetupFreighterPlan(Planet importPlanet, Goods goods)
         {
             Plan plan = Plan.DropOffGoods; // found close freighter with the goods we need so we don't need an export planet
             SetTradePlan(plan, importPlanet, importPlanet, goods); // this planet takes care of itself this trade
-            Owner.loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrograteTimeTo(importPlanet));
+            Owner.loyalty.AffectFastVsBigFreighterByEta(importPlanet, goods, Owner.GetAstrogateTimeTo(importPlanet));
         }
     }
 
