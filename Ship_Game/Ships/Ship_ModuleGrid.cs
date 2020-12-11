@@ -24,12 +24,13 @@ namespace Ship_Game.Ships
 
         void CreateModuleGrid()
         {
-            float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
-
+            float minX  = 0f, maxX = 0f, minY = 0f, maxY = 0f;
+            SurfaceArea = 0;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
                 Vector2 topLeft = module.Position;
+                SurfaceArea += module.Area;
                 var botRight = new Vector2(topLeft.X + module.XSIZE * 16.0f,
                                            topLeft.Y + module.YSIZE * 16.0f);
                 if (topLeft.X  < minX) minX = topLeft.X;
@@ -40,7 +41,6 @@ namespace Ship_Game.Ships
 
             float spanX = maxX - minX;
             float spanY = maxY - minY;
-
             GridOrigin = new Vector2(minX, minY);
             GridWidth  = (int)spanX / 16;
             GridHeight = (int)spanY / 16;

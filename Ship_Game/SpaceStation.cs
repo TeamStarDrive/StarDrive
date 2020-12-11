@@ -109,5 +109,23 @@ namespace Ship_Game
                 UpdateTransforms();
             }
         }
+
+        public void Replace(Planet p)
+        {
+            Remove();
+            LoadContent(Empire.Universe.ScreenManager, p.Owner);
+        }
+
+        void Remove()
+        {
+            if (InnerSO != null)
+                ScreenManager.Instance.RemoveObject(InnerSO);
+
+            if (OuterSO != null)
+                ScreenManager.Instance.RemoveObject(OuterSO);
+
+            InnerSO = null;
+            OuterSO = null;
+        }
     }
 }
