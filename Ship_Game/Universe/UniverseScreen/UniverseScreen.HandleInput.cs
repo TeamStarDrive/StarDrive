@@ -392,29 +392,42 @@ namespace Ship_Game
             if (index == -1) return;
 
             // replace ships in fleet from selection
-            //if (input.ReplaceFleet)
-            //{
-            //    if (SelectedShipList.Count == 0)
-            //        return;
+            // or remove selected fleet if not ships are selected. 
+            if (input.ReplaceFleet)
+            {
+                Fleet newFleet;
+                var selectedFleet = player.GetFleetsDict()[index];
+                if (SelectedShipList.Count == 0)
+                {
+                    selectedFleet.Reset();
+                    newFleet = new Fleet() { Owner = player };
+                }
+                else
+                {
+                    selectedFleet.Reset();
 
-            //    var fleet = AddSelectedShipsToNewFleet(SelectedShipList);
+                    foreach (Ship ship in SelectedShipList)
+                        ship.ClearFleet();
+                    newFleet = AddSelectedShipsToNewFleet(SelectedShipList);
+                }
 
-            //    string str = Fleet.GetDefaultFleetNames(index);
-            //    foreach (Ship ship in SelectedShipList)
-            //        ship.ClearFleet();
-            //    fleet.Name = str + " Fleet";
-            //    fleet.Owner = player;
+                string str     = Fleet.GetDefaultFleetNames(index);
+                newFleet.Name  = str + " Fleet";
+                newFleet.Owner = player;
 
-            //    fleet.SetCommandShip(null);
+                newFleet.SetCommandShip(null);
 
-            //    player.GetFleetsDict()[index] = fleet;
-            //    RecomputeFleetButtons(true);
-            //}
-            //else 
-            if (input.AddToFleet) // added by gremlin add ships to exiting fleet
+                newFleet.Update(FixedSimTime.Zero/*paused during init*/);
+                player.GetFleetsDict()[index] = newFleet;
+                RecomputeFleetButtons(true);
+            }
+            else if (input.AddToFleet) // added by gremlin add ships to exiting fleet
             {
                 if (SelectedShipList.Count == 0 )
+                {
+                    GameAudio.NegativeClick();
                     return;
+                }
 
                 Fleet fleet = null;
                 var targetFleet = player.GetFleetsDict()[index];
