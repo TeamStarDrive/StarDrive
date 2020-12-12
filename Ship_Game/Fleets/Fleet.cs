@@ -334,7 +334,7 @@ namespace Ship_Game.Fleets
 
             if (node == null)
             {
-                var offset = ship.RelativeFleetOffset + GetRelativeSize();
+                var offset = ship.RelativeFleetOffset;// ship.RelativeFleetOffset + GetRelativeSize();
                 node = new FleetDataNode
                 {
                     
