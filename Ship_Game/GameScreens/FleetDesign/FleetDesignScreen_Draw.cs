@@ -48,7 +48,8 @@ namespace Ship_Game
             {
                 if (node.Ship == null)
                 {
-                    float radius = 150f;
+                    var template = ResourceManager.GetShipTemplate(node.ShipName);
+                    float radius = template?.Radius ?? 150f;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
                         Matrix.Identity);
@@ -71,7 +72,7 @@ namespace Ship_Game
                 {
                     Ship ship = node.Ship;
                     ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, 0f));
-                    float radius = ship.GetSO().WorldBoundingSphere.Radius;
+                    float radius = ship.Radius;//.GetSO().WorldBoundingSphere.Radius;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
                         Matrix.Identity);
@@ -94,12 +95,11 @@ namespace Ship_Game
 
             foreach (FleetDataNode node in HoveredNodeList)
             {
-                if (node.Ship == null)
+                var ship = node.Ship;
+                if (ship == null)
                 {
-                    if (node.Ship != null)
-                        continue;
-
-                    float radius = 150f;
+                    var template = ResourceManager.GetShipTemplate(node.ShipName);
+                    float radius = template?.Radius ?? 150f;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
                         Matrix.Identity);
@@ -124,8 +124,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Ship ship = node.Ship;
-                    float radius = ship.GetSO().WorldBoundingSphere.Radius;
+                    float radius = ship.Radius;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
                         Matrix.Identity);
