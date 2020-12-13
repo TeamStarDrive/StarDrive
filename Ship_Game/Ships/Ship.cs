@@ -272,7 +272,9 @@ namespace Ship_Game.Ships
             if (IsConstructor)
                 return ResourceManager.Texture("TacticalIcons/symbol_construction");
 
-            string roleName = DesignRole.ToString();
+            string roleName = DesignRole == ShipData.RoleName.scout ? DesignRole.ToString() 
+                                                                    : shipData.HullRole.ToString();
+
             string iconName = "TacticalIcons/symbol_";
             return ResourceManager.TextureOrNull(iconName + roleName) ??
                 ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
