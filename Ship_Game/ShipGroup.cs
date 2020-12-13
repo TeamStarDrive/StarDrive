@@ -349,10 +349,11 @@ namespace Ship_Game
         /// <summary> Use for DrawThread </summary>
         public Vector2 CachedAveragePos => AveragePos;
 
-        public Vector2 AveragePosition()
+        public Vector2 AveragePosition(bool force = false)
         {
             // Update Pos once per frame, OR if LastAveragePosUpdate was invalidated
-            if (LastAveragePosUpdate != (StarDriveGame.Instance?.FrameId ?? -1))
+            // force check is pretty rare so evaluate last
+            if (LastAveragePosUpdate != (StarDriveGame.Instance?.FrameId ?? -1) || force)
             {
                 LastAveragePosUpdate = StarDriveGame.Instance.FrameId;
                 AveragePos = GetAveragePosition(Ships, CommandShip);
