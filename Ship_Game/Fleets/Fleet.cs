@@ -62,8 +62,9 @@ namespace Ship_Game.Fleets
             SetCommandShip(null);
         }
 
-        public Fleet(Array<Ship> ships)
+        public Fleet(Array<Ship> ships, Empire empire)
         {
+            Owner          = empire;
             FleetIconIndex = RandomMath.IntBetween(1, 10);
             SetCommandShip(null);
             AddShips(ships);
@@ -226,7 +227,7 @@ namespace Ship_Game.Fleets
                     RightShips.AddUniqueRef(ship);
                 }
             }
-            else if (fleetAverages.ScreenShip(ship) || fleetAverages.Big(ship))
+            else if (fleetAverages.ScreenShip(ship))
             {
                 ScreenShips.AddUniqueRef(ship);
             }
@@ -253,35 +254,68 @@ namespace Ship_Game.Fleets
             Rear
         }
 
+        public Vector2 GetFlankSize(Array<Squad> flank)
+        {
+            Vector2 size = Vector2.Zero;
+            for (int i = 0; i < flank.Count; i++) 
+                size = Vector2.Max(flank[i].GetSquadSize(), size);
+
+            return size;
+        }
+
         void FlankToCenterOffset(Array<Squad> flank, FlankType flankType)
         {
             if (flank.IsEmpty) return;
-            int centerSquadCount = Math.Max(1, CenterFlank.Count);
 
-            float largestSquad = 0;
-            int row = 0;
-            float column = 0;
+            Vector2 centerFlankSize = GetFlankSize(CenterFlank);
+            int buildDirection = flankType == FlankType.Left ? -1 : 1;
+            int shipIndexForWidth = buildDirection == -1 ? 2 : 1;
+
+            float initialX = flankType == FlankType.Left ? -centerFlankSize.X : centerFlankSize.X;
+            float initialY = 75;
+            int columnMax = 4;
+            int column = 1;
+            int columnStartIndex = 0;
+            //Vector2 position = new Vector2(initialX, initialY);
+
             for (int x = 0; x < flank.Count; x++)
             {
                 Squad squad  = flank[x];
-                largestSquad = Math.Max(largestSquad, squad.Ships.Max(s => s.Radius * 2) + 1000) ;
-                var offset   = (centerSquadCount / 3).LowerBound(3) * 1400 + row * 1400;
 
-                if (flankType == FlankType.Left)
-                    offset *= -1;
-                squad.Offset = new Vector2(offset, column);
-                row++;
-                if (x % 5 == 0)
+                shipIndexForWidth  = squad.Ships.Count > shipIndexForWidth ? shipIndexForWidth : -1;
+                float width         = shipIndexForWidth == -1 || x == columnStartIndex ? 0 : squad.Ships[shipIndexForWidth].GridWidth * 16 * buildDirection;
+                float previousWidth = x > 0 ? flank[x - 1].GetSquadSize().X * buildDirection : 0f;
+                previousWidth       = x == columnStartIndex ? initialX : previousWidth;
+
+                float height  = x - columnMax > -1 ? flank[x - columnMax].GetSquadSize().Y : initialY;
+                var upperShip = squad.Ships.Count > 0 ? squad.Ships[0] : null;
+                height       += upperShip?.GridHeight * 16 ?? 0;
+                
+                Vector2 position = new Vector2(previousWidth + width , height);
+                squad.SetOffSets(position);
+                column++;
+                if (column > columnMax)
                 {
-                    row = 0;
-                    column += largestSquad;
-                    largestSquad = 0;
+                    column = 0;
+                    columnStartIndex = x + 1;
                 }
             }
         }
 
         void LeftFlankToCenterOffset() => FlankToCenterOffset(LeftFlank, FlankType.Left);
         void RightFlankToCenterOffset() => FlankToCenterOffset(RightFlank, FlankType.Right);
+
+        static Vector2 GetLargestSquad(Array<Squad> squads)
+        {
+            if (squads.IsEmpty) return Vector2.Zero;
+
+            Vector2 largest = Vector2.Zero;
+            foreach (var squad in squads)
+            {
+                largest = Vector2.Max(largest, squad.GetSquadSize());
+            }
+            return largest;
+        }
 
         public void AutoArrange()
         {
@@ -299,23 +333,23 @@ namespace Ship_Game.Fleets
             AllFlanks.Add(RightFlank);
             AllFlanks.Add(ScreenFlank);
             AllFlanks.Add(RearFlank);
-            FinalPosition = AveragePosition();
-
-            ArrangeSquad(CenterFlank, Vector2.Zero, FlankType.Center);
-            ArrangeSquad(ScreenFlank, new Vector2(0.0f, -2500f), FlankType.Screen);
-            ArrangeSquad(RearFlank, new Vector2(0.0f, 2500f), FlankType.Rear);
-
-            LeftFlankToCenterOffset();
-            RightFlankToCenterOffset();
 
             for (int x = 0; x < Ships.Count; x++)
             {
                 Ship s = Ships[x];
                 AssignExistingOrCreateNewNode(s);
             }
+            
+            var centerSize = ArrangeSquad(CenterFlank, Vector2.Zero, FlankType.Center);
+            ArrangeSquad(ScreenFlank, centerSize * -1, FlankType.Screen);
+            var screenSize = ArrangeSquad(RearFlank, centerSize, FlankType.Rear);
 
-            AutoAssembleFleet(0.0f);
+            LeftFlankToCenterOffset();
+            RightFlankToCenterOffset();
 
+            FinalPosition = AveragePosition(true);
+            SetAllSquadsShipPositions(0.0f);
+            SetAIDefaultTactics();
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship s = Ships[i];
@@ -325,6 +359,28 @@ namespace Ship_Game.Fleets
                 s.AI.OrderAllStop();
                 s.AI.OrderThrustTowardsPosition(FinalPosition + s.FleetOffset, FinalDirection, false);
             }
+        }
+
+        void SetAIDefaultTactics()
+        {
+            for (int i = 0; i < ScreenFlank.Count; i++)
+            {
+                Squad squad = ScreenFlank[i];
+                squad.SetSquadTactics(s =>
+                {
+                    if (s.MaxSTLSpeed >= AverageFleetAttributes.Speed)
+                        s.AI.CombatState = CombatState.Artillery;
+                    else
+                        s.AI.CombatState = CombatState.ShortRange;
+                });
+            }
+
+            for (int i = 0; i < CenterFlank.Count; i++)
+            {
+                Squad squad = CenterFlank[i];
+                squad.SetSquadTactics(s => s.AI.CombatState = CombatState.Artillery);
+            }
+            SetOrdersRadius(Ships, AverageFleetAttributes.MaxSensorRange);
         }
 
         bool AssignExistingOrCreateNewNode(Ship ship)
@@ -399,7 +455,11 @@ namespace Ship_Game.Fleets
             for (int x = 0; x < allShips.Count; ++x)
             {
                 if (squad.Ships.Count < 4)
-                    squad.Ships.Add(allShips[x]);
+                {
+                    var squadShip = allShips[x];
+                    squad.Ships.Add(squadShip);
+                    squad.DataNodes.AddUnique(squadShip.AI.FleetNode);
+                }
 
                 if (squad.Ships.Count != 4 && x != allShips.Count - 1)
                     continue;
@@ -410,46 +470,61 @@ namespace Ship_Game.Fleets
             return destSquad;
         }
 
-        static void ArrangeSquad(Array<Squad> squads, Vector2 squadOffset, FlankType flank)
+        static Vector2 ArrangeSquad(Array<Squad> squads, Vector2 size, FlankType flank)
         {
-            int leftSide = 0;
-            int rightSide = 0;
-
-            int row = 0;
-            int column = 0;
-            int rowMax = (squads.Count /  (flank == FlankType.Screen ? 2 : 4)).LowerBound(3);
-            float largestShip = 0;
+            int upOrDown              = flank == FlankType.Screen ? -1 : 1;
+            float spacer              = 1000 * upOrDown;
+            Vector2 squadOffset       = new Vector2(0,spacer);
+            int row                   = 0;
+            int columns               = flank == FlankType.Screen ? 9 : 5;
+            int rowMax                = 1 +(squads.Count / columns).LowerBound(columns);
+            float tallestSquad        = 0;
+            Vector2 previousSizeLeft  = Vector2.Zero;
+            Vector2 previousSizeRight = Vector2.Zero;
 
             for (int index = 0; index < squads.Count; ++index)
             {
                 var squad = squads[index];
                 if (row == 0)
                 {
-                    squad.Offset = squadOffset;
+                    int dir = upOrDown == 1 ? 1 : -1;
+                    int wantedIndex = dir == 1 ? 0 : 3;
+                    int wantedShip = squad.Ships.Count >= wantedIndex + 1? wantedIndex  : -1;
+                    float height = dir == -1 ? 0 : squad.Ships[wantedShip].GridHeight * 16 * dir;
+                    squad.SetOffSets(new Vector2(previousSizeLeft.X, squadOffset.Y + height));
+                    previousSizeLeft = squad.GetSquadSize();
+                    previousSizeRight = -squad.GetSquadSize();
                 }
                 else if (index % 2 == 1)
                 {
-                    ++leftSide;
-                    squad.Offset = new Vector2(leftSide * (-1400 + squadOffset.X), squadOffset.Y);
-                    largestShip = Math.Max(largestShip, squad.Ships.Max(s => s.Radius * 3));
+                    int dir = squad.Ships.Count >= 3 ? 2 : -1;
+                    float width = dir == -1 ? 0 : squad.Ships[dir].GridWidth * 16;
+                    squad.SetOffSets(new Vector2(previousSizeLeft.X + width , squadOffset.Y));
+                    previousSizeLeft = squad.GetSquadSize();
                 }
                 else
                 {
-                    ++rightSide;
-                    squad.Offset = new Vector2(rightSide * (1400 + squadOffset.X), squadOffset.Y);
+                    int dir = squad.Ships.Count >= 2 ? 1 : -1;
+                    float width = dir == -1 ? 0 : squad.Ships[dir].GridWidth * 16;
+                    squad.SetOffSets(new Vector2(previousSizeRight.X - width, squadOffset.Y));
+                    previousSizeRight = -squad.GetSquadSize();
                 }
+
+                tallestSquad = Math.Max(tallestSquad, squad.GetSquadSize().Y);
                 row++;
+                
                 if (row > rowMax)
                 {
-                    row = leftSide = rightSide = 0;
-                    squadOffset.Y += (flank == FlankType.Screen ? -1 : 1) * largestShip;
+                    row =  0;
+                    squadOffset.Y = (flank == FlankType.Screen ? -1 : 1) * tallestSquad;
+                    previousSizeLeft = previousSizeRight = Vector2.Zero;
+                    tallestSquad = 0;
                 }
-
-
             }
+            return GetLargestSquad(squads);
         }
 
-        void AutoAssembleFleet(float facing)
+        void SetAllSquadsShipPositions(float facing)
         {
             for (int flank = 0; flank < AllFlanks.Count; flank++)
             {
@@ -457,32 +532,7 @@ namespace Ship_Game.Fleets
                 for (int i = 0; i < squads.Count; i++)
                 {
                     Squad squad = squads[i];
-                    for (int index = 0; index < squad.Ships.Count; ++index)
-                    {
-                        Ship ship = squad.Ships[index];
-                        float radiansAngle;
-                        switch (index)
-                        {
-                            default:
-                            case 0:
-                                radiansAngle = RadMath.RadiansUp;
-                                break;
-                            case 1:
-                                radiansAngle = RadMath.RadiansLeft;
-                                break;
-                            case 2:
-                                radiansAngle = RadMath.RadiansRight;
-                                break;
-                            case 3:
-                                radiansAngle = RadMath.RadiansDown;
-                                break;
-                        }
-
-                        Vector2 offset = (facing + squad.Offset.ToRadians()).RadiansToDirection() *
-                                         squad.Offset.Length();
-                        ship.FleetOffset = offset + (facing + radiansAngle).RadiansToDirection() * 500f;
-                        ship.RelativeFleetOffset = squad.Offset + radiansAngle.RadiansToDirection() * 500f;
-                    }
+                    squad.SetNodeOffsets(facing);
                 }
             }
         }
@@ -500,6 +550,14 @@ namespace Ship_Game.Fleets
             TaskStep = 0;
             FleetTask = null;
             ClearFleetGoals();
+        }
+
+        /// <summary>Only For Specific fake fleet destruction </summary>
+        public void UnSafeRemoveShip(Ship ship)
+        {
+            RemoveFromAllSquads(ship);
+            Ships.Remove(ship);
+            ship.fleet = null;
         }
 
         void EvaluateTask(FixedSimTime timeStep)
@@ -2140,6 +2198,108 @@ namespace Ship_Game.Fleets
             public Array<Ship> Ships = new Array<Ship>();
             public Fleet Fleet;
             public Vector2 Offset;
+
+            public float GetShipDirectionFromShip(Ship ship)
+            {
+                return GetShipIndexDirection(Ships.IndexOfRef(ship));
+            }
+
+            public float GetShipIndexDirection(int index)
+            {
+                float radiansAngle = 0;
+                switch (index)
+                {
+                    default:
+                    case 0:
+                        radiansAngle = RadMath.RadiansUp;
+                        break;
+                    case 1:
+                        radiansAngle = RadMath.RadiansLeft;
+                        break;
+                    case 2:
+                        radiansAngle = RadMath.RadiansRight;
+                        break;
+                    case 3:
+                        radiansAngle = RadMath.RadiansDown;
+                        break;
+                }
+                return radiansAngle;
+            }
+
+            public Vector2 GetSquadSize()
+            {
+                float x = 0;
+                float y = 0;
+
+                for (int i = 0; i < DataNodes.Count; i++)
+                {
+                    var n        = DataNodes[i];
+                    float width  = n.Ship?.GridWidth * 8f ?? 0;
+                    float height = n.Ship?.GridHeight * 8f ?? 0;
+                    Vector2 relativeOffset = Offset - Fleet.AveragePos;
+                    float nodeX  = Math.Abs((n.FleetOffset - Offset).X);
+                    float nodeY  = Math.Abs((n.FleetOffset - Offset).Y);
+
+                    x = Math.Max(x, nodeX) + width + 75f;
+                    y = Math.Max(y, nodeY) + height + 75f;
+                    
+                }
+                return new Vector2(x,y);
+            }
+
+            public void SetNodeOffsets(float facing = 0.0f)
+            {
+                for (int index = 0; index < DataNodes.Count; ++index)
+                {
+                    var node = DataNodes[index];
+                    var ship = node?.Ship;
+                    if (ship == null) continue;
+
+                    float radiansAngle = GetShipIndexDirection(index);
+                    Vector2 offset = (facing + Offset.ToRadians()).RadiansToDirection() * Offset.Length();
+
+                    node.Ship.FleetOffset         = offset;
+                    node.Ship.RelativeFleetOffset = offset;
+                    node.CombatState              = node.Ship.AI.CombatState;
+                    ship.FleetOffset              = offset + (facing + radiansAngle).RadiansToDirection() * (ship.Radius + 75f);
+                    ship.RelativeFleetOffset      = Offset + radiansAngle.RadiansToDirection() * (ship.Radius + 75f);
+                }
+            }
+
+            void ClearSquadOffsets()
+            {
+                Offset = Vector2.Zero;
+                foreach (var node in DataNodes)
+                {
+                    node.FleetOffset  = Vector2.Zero;
+                    node.OrdersOffset = Vector2.Zero;
+
+                    if (node.Ship != null)
+                    {
+                        node.Ship.FleetOffset         = Vector2.Zero;
+                        node.Ship.RelativeFleetOffset = Vector2.Zero;
+                        node.CombatState              = node.Ship.AI.CombatState;
+                        node.OrdersRadius             = node.Ship.SensorRange;
+                    }
+                }
+            }
+
+            public void SetOffSets(Vector2 offset)
+            {
+                ClearSquadOffsets();
+                Offset = offset;
+                SetNodeOffsets();
+            }
+
+            public void SetSquadTactics(Action<Ship> tactic)
+            {
+                for (int i = 0; i < Ships.Count; i++)
+                {
+                    var ship = Ships[i];
+                    if (ship == null) continue;
+                    tactic(ship);
+                }
+            }
         }
 
         public enum FleetGoalType
