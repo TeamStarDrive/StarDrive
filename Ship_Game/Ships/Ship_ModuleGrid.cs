@@ -13,8 +13,12 @@ namespace Ship_Game.Ships
         ShipModule[] SparseModuleGrid;   // single dimensional grid, for performance reasons
         ShipModule[] ExternalModuleGrid; // only contains external modules
         public int NumExternalSlots { get; private set; }
-        int GridWidth;
-        int GridHeight;
+
+        /// <summary>  Ship slot (1x1 modules) width </summary>
+        public int GridWidth { get; private set; }
+        
+        /// <summary>Ship slot (1x1 modules) height </summary>
+        public int GridHeight { get; private set; }
         Vector2 GridOrigin; // local origin, eg -32, -48
 
         static bool EnableDebugGridExport = false;
