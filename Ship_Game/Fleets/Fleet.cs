@@ -363,6 +363,8 @@ namespace Ship_Game.Fleets
 
         void SetAIDefaultTactics()
         {
+            if (Owner.isPlayer) return;
+
             for (int i = 0; i < ScreenFlank.Count; i++)
             {
                 Squad squad = ScreenFlank[i];
