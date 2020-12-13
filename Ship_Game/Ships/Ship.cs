@@ -1656,6 +1656,7 @@ namespace Ship_Game.Ships
         }
 
         public void ClearFleet() => fleet?.RemoveShip(this);
+        public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
         public void Dispose()
         {

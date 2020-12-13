@@ -162,10 +162,11 @@ namespace Ship_Game.AI
         public struct  TargetParameterTotals
         {
             // target characteristics 
-            public float Armor, Shield, DPS, Size, Speed, Health, Largest, MostFirePower, MaxRange, MediumRange, ShortRange;
+            public float Armor, Shield, DPS, Size, Speed, Health, Largest, MostFirePower, MaxRange, MediumRange, ShortRange, SensorRange;
             public Vector2 Center;
+            public float MaxSensorRange;
             public float Defense => Armor + Shield;
-            public bool ScreenShip(Ship ship) => ship.armor_max + ship.shield_max >= Defense && ship.MaxSTLSpeed * 1.5f > Speed;
+            public bool ScreenShip(Ship ship) => ship.armor_max + ship.shield_max >= Defense;
             public bool LongRange(Ship ship) => ship.WeaponsMaxRange >= MaxRange;
             public bool Interceptor(Ship ship) => ship.MaxSTLSpeed >= Speed;
             public bool FirePower(Ship ship) => ship.TotalDps >= DPS;
@@ -187,6 +188,9 @@ namespace Ship_Game.AI
                 MaxRange    += ship.WeaponsMaxRange;
                 MediumRange += ship.WeaponsAvgRange;
                 ShortRange  += ship.WeaponsMinRange;
+                SensorRange += ship.SensorRange;
+
+                MaxSensorRange = Math.Max(MaxSensorRange, ship.SensorRange);
 
                 if (ship.SurfaceArea >= Largest && ship.TotalDps >= MostFirePower)
                     Center = ship.Center;
@@ -207,9 +211,10 @@ namespace Ship_Game.AI
                     MaxRange    = this.MaxRange / Count,
                     MediumRange = this.MediumRange / Count,
                     ShortRange  = this.ShortRange / Count,
+                    SensorRange = this.SensorRange / Count,
                     Largest     = Largest,
-                    Center      = Center
-
+                    Center      = Center,
+                    MaxSensorRange = MaxSensorRange
                 };
                 return returnValue;
             }
