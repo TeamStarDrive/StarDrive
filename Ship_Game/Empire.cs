@@ -268,6 +268,15 @@ namespace Ship_Game
 
         public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)
         {
+            if (fromSave && data.Defeated)
+                return;
+
+            if (!fromSave && GlobalStats.DisablePirates)
+            {
+                data.Defeated = true;
+                return;
+            }
+
             Pirates = new Pirates(this, fromSave, goals);
         }
 
