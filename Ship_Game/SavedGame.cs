@@ -206,6 +206,8 @@ namespace Ship_Game
                     };                    
                     foreach (FleetDataNode node in fleet.Value.DataNodes)
                     {
+                        if (node.Ship?.Active != true)
+                            Log.Warning("tick");
                         if (node.Ship != null)
                             node.ShipGuid = node.Ship.guid;
                     }
