@@ -1133,9 +1133,17 @@ namespace Ship_Game.Gameplay
             Offer ourOffer  = new Offer { PeaceTreaty = true };
 
             if (them == Empire.Universe.PlayerEmpire)
+            {
                 DiplomacyScreen.Show(us, dialogue, ourOffer, offerPeace);
+            }
             else
-                them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
+            {
+                string dialog = them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
+                if (us.IsPeaceTreaty(them))
+                    offerPeace.AcceptDL = dialog;
+                else
+                    offerPeace.RejectDL = dialog;
+            }
         }
 
         void DemandTech(Empire us)
