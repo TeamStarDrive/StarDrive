@@ -15,7 +15,7 @@ namespace Ship_Game.Fleets
 {
     public sealed class Fleet : ShipGroup
     {
-        public readonly Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
+        readonly public Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
         public Guid Guid = Guid.NewGuid();
         public string Name = "";
         public ShipAI.TargetParameterTotals TotalFleetAttributes;
@@ -2194,6 +2194,12 @@ namespace Ship_Game.Fleets
             Maintain,
             Loose,
             Free
+        }
+
+        public void AddFleetDataNodes(Array<FleetDataNode> nodes)
+        {
+            foreach (var node in nodes)
+                DataNodes.AddUnique(node);
         }
 
         public sealed class Squad
