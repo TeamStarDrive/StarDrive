@@ -226,23 +226,14 @@ namespace Ship_Game.AI
             return allianceGood;
         }
 
-        bool PeaceAccepted(Offer theirOffer, Offer ourOffer, Empire them,
+        void ProcessPeace(Offer theirOffer, Offer ourOffer, Empire them,
                            Offer.Attitude attitude, out string text)
         {
-            text = "";
-            if (!theirOffer.PeaceTreaty)
-                return false;
-
-            bool isPeace = false;
             PeaceAnswer answer = AnalyzePeaceOffer(theirOffer, ourOffer, them, attitude);
             if (answer.Peace)
-            {
                 AcceptOffer(ourOffer, theirOffer, OwnerEmpire, them, attitude);
-                isPeace = true;
-            }
 
             text = answer.Answer;
-            return isPeace;
         }
 
         public string AnalyzeOffer(Offer theirOffer, Offer ourOffer, Empire them, Offer.Attitude attitude)
@@ -254,8 +245,11 @@ namespace Ship_Game.AI
             if (AllianceAccepted(theirOffer, ourOffer, usToThem, them, out string allianceText))
                 return allianceText;
 
-            if (PeaceAccepted(theirOffer, ourOffer, them, attitude, out string peaceText))
+            if (theirOffer.PeaceTreaty)
+            {
+                ProcessPeace(theirOffer, ourOffer, them, attitude, out string peaceText);
                 return peaceText;
+            }
 
             float totalTrustRequiredFromUs = 0f;
             DTrait dt = us.data.DiplomaticPersonality;
@@ -573,8 +567,15 @@ namespace Ship_Game.AI
             }
 
             valueToUs += valueToUs * them.data.Traits.DiplomacyMod; // TODO FB - need to be smarter here
+            valueToUs *= us.AlliancesValueMultiplierThirdParty(them, out bool reject);
             OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out _);
             PeaceAnswer response      = ProcessPeace("REJECT_OFFER_PEACE_POOROFFER"); // Default response is reject
+            if (reject)
+            {
+                response = ProcessPeace("REJECT_OFFER_ALLIED_WITH_ENEMY");
+                return response;
+            }
+
             switch (usToThem.ActiveWar.WarType)
             {
                 case WarType.BorderConflict:

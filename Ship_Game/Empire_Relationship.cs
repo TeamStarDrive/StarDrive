@@ -316,5 +316,33 @@ namespace Ship_Game
                     rel.DamageRelationship(this, e, why, amount, p);
             }
         }
+
+        public float AlliancesValueMultiplierThirdParty(Empire them, out bool decline)
+        {
+            float multiplier = 1;
+            decline          = false;
+            foreach ((Empire other, Relationship rel) in ActiveRelations)
+            {
+                if (!other.isFaction 
+                    && rel.Known 
+                    && rel.AtWar 
+                    && other.IsAlliedWith(them))
+                {
+                    switch (Personality)
+                    {
+                        case PersonalityType.Pacifist:   rel.AddAngerDiplomaticConflict(25); multiplier = 0.8f; break;
+                        case PersonalityType.Cunning:    rel.AddAngerDiplomaticConflict(50); multiplier = 0.6f; break;
+                        case PersonalityType.Ruthless:   rel.AddAngerDiplomaticConflict(75); multiplier = 0.5f; break;
+                        case PersonalityType.Aggressive: rel.AddAngerDiplomaticConflict(75); multiplier = 0.4f; break;
+                        case PersonalityType.Honorable:
+                        case PersonalityType.Xenophobic: rel.AddAngerDiplomaticConflict(100); multiplier = 0.5f; decline = true; break;
+                    }
+
+                    break;
+                }
+            }
+
+            return multiplier;
+        }
     }
 }
