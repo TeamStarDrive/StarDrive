@@ -249,6 +249,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             ScreenManager.Instance.AddScreenDeferred(new DiplomacyScreen(victim, Empire.Universe.PlayerEmpire, dialog, claimedPlanet.ParentSystem));
         }
 
+        public static void ContactPlayerFromDiplomacyQueue(Empire responder, string dialog)
+        {
+            ScreenManager.Instance.AddScreenDeferred(new DiplomacyScreen(responder, 
+                Empire.Universe.PlayerEmpire, dialog, null, endOnly: true));
+        }
+
 
         void DoNegotiationResponse(string answer)
         {

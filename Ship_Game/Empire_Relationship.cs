@@ -321,28 +321,42 @@ namespace Ship_Game
         {
             float multiplier = 1;
             decline          = false;
-            foreach ((Empire other, Relationship rel) in ActiveRelations)
+            Relationship rel = GetRelations(them);
+            if (TheyAreAlliedWithOurEnemies(them, out Array<Empire> empiresAlliedWithThem))
             {
-                if (!other.isFaction 
-                    && rel.Known 
-                    && rel.AtWar 
-                    && other.IsAlliedWith(them))
+                switch (Personality)
                 {
-                    switch (Personality)
-                    {
-                        case PersonalityType.Pacifist:   rel.AddAngerDiplomaticConflict(25); multiplier = 0.8f; break;
-                        case PersonalityType.Cunning:    rel.AddAngerDiplomaticConflict(50); multiplier = 0.6f; break;
-                        case PersonalityType.Ruthless:   rel.AddAngerDiplomaticConflict(75); multiplier = 0.5f; break;
-                        case PersonalityType.Aggressive: rel.AddAngerDiplomaticConflict(75); multiplier = 0.4f; break;
-                        case PersonalityType.Honorable:
-                        case PersonalityType.Xenophobic: rel.AddAngerDiplomaticConflict(100); multiplier = 0.5f; decline = true; break;
-                    }
-
-                    break;
+                    case PersonalityType.Pacifist:   rel.AddAngerDiplomaticConflict(25); multiplier = 0.8f; break;
+                    case PersonalityType.Cunning:    rel.AddAngerDiplomaticConflict(50); multiplier = 0.6f; break;
+                    case PersonalityType.Ruthless:   rel.AddAngerDiplomaticConflict(75); multiplier = 0.5f; break;
+                    case PersonalityType.Aggressive: rel.AddAngerDiplomaticConflict(75); multiplier = 0.4f; break;
+                    case PersonalityType.Honorable:
+                    case PersonalityType.Xenophobic: rel.AddAngerDiplomaticConflict(100); multiplier = 0.5f; decline = true; break;
                 }
             }
 
+            rel.Trust *= multiplier;
+            EmpireAI.CheckOtherEmpiresResponse(them, empiresAlliedWithThem, false);
             return multiplier;
+        }
+
+        public bool TheyAreAlliedWithOurEnemies(Empire them, out Array<Empire> alliedEmpires)
+        {
+            alliedEmpires = new Array<Empire>();
+            bool allied = false;
+            foreach ((Empire other, Relationship rel) in ActiveRelations)
+            {
+                if (!other.isFaction
+                    && rel.Known
+                    && rel.AtWar
+                    && other.IsAlliedWith(them))
+                {
+                    allied = true;
+                    alliedEmpires.Add(other);
+                }
+            }
+
+            return allied;
         }
     }
 }
