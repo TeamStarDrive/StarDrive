@@ -192,6 +192,7 @@ namespace Ship_Game
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
+        public List<KeyValuePair<int, string>> DiplomacyContactQueue { get; private set; } = new List<KeyValuePair<int, string>>();  // Empire IDs, for player only
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -2590,6 +2591,7 @@ namespace Ship_Game
 
             if (isPlayer)
             {
+                ExecuteDiplomacyContacts();
                 CheckFederationVsPlayer();
                 RandomEventManager.UpdateEvents();
 
@@ -2669,6 +2671,26 @@ namespace Ship_Game
                 AssignExplorationTasks();
             }
         }
+
+        void ExecuteDiplomacyContacts()
+        {
+            if (DiplomacyContactQueue.Count == 0)
+                return;
+
+            Empire empire = EmpireManager.GetEmpireById(DiplomacyContactQueue.First().Key);
+            string dialog = DiplomacyContactQueue.First().Value;
+            if (dialog == "War")
+            {
+                empire.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
+            }
+            else
+            {
+                DiplomacyScreen.ContactPlayerFromDiplomacyQueue(empire, dialog);
+            }
+
+            DiplomacyContactQueue.RemoveAt(0);
+        }
+
 
         void CheckFederationVsPlayer()
         {
@@ -2890,6 +2912,54 @@ namespace Ship_Game
             }
 
             return false;
+        }
+
+        public void RespondToThirdPartyTreatiesWithEnemies(Empire them, bool treatySigned)
+        {
+            if (!them.isPlayer)
+                return; // works only for player
+
+            string dialog    = treatySigned ? "CUTTING_DEALS_WITH_ENEMY" : "TRY_CUTTING_DEALS_WITH_ENEMY";
+            float spyDefense = GetSpyDefense();
+            Relationship rel = GetRelations(them);
+            if (treatySigned || RandomMath.RollDice(spyDefense*10))
+            {
+                switch (Personality)
+                {
+                    case PersonalityType.Aggressive: 
+                        rel.Trust -= 50; 
+                        BreakAllianceWith(them);
+                        break;
+                    case PersonalityType.Ruthless:
+                        rel.Trust -= 50;
+                        BreakAllTreatiesWith(them);
+                        break;
+                    case PersonalityType.Xenophobic:
+                        rel.Trust -= 150;
+                        BreakAllianceWith(them);
+                        rel.PreparingForWar = true;
+                        break;
+                    case PersonalityType.Pacifist:
+                        rel.Trust -= 50;
+                        break;
+                    case PersonalityType.Cunning:
+                        rel.Trust -= 50;
+                        rel.PreparingForWar = true;
+                        break;
+                    case PersonalityType.Honorable:
+                        rel.Trust -= 50;
+                        AddToDiplomacyContactView(this, "DECLAREWAR");
+                        return;
+                }
+            }
+
+            rel.turnsSinceLastContact = 0;
+            them.AddToDiplomacyContactView(this, dialog);
+        }
+
+        public void AddToDiplomacyContactView(Empire empire, string dialog)
+        {
+            DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
         }
 
         public void AddBoardSuccessNotification(Ship ship)
@@ -3480,6 +3550,12 @@ namespace Ship_Game
             // fixed costs for players, feedback tax loop for the AI
             float taxModifer = isPlayer ? 1 : 1 - data.TaxRate;
             return spentProduction * taxModifer * DifficultyModifiers.CreditsMultiplier;
+        }
+
+        public void RestoreDiplomacyConcatQueue(List<KeyValuePair<int, string>> diplomacyContactQueue)
+        {
+            if (diplomacyContactQueue != null)
+                DiplomacyContactQueue = diplomacyContactQueue;
         }
 
         public class InfluenceNode
