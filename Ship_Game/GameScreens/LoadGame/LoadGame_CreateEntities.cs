@@ -387,6 +387,9 @@ namespace Ship_Game
                         FinalDirection = fleetsave.facing.RadiansToDirection(),
                         Owner = e
                     };
+
+                    fleet.AddFleetDataNodes(fleetsave.DataNodes);
+
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
                         foreach (Ship ship in data.MasterShipList)
