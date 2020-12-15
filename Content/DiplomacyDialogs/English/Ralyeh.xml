@@ -74,7 +74,7 @@
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_InsufficientTrust</DialogType>
-      <Default>We have no reason to trust PLURAL with such an arrangment.</Default>
+      <Default>We have no reason to trust PLURAL with such an arrangement.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
@@ -138,15 +138,15 @@
     </DialogLine>
     <DialogLine>
       <DialogType>Declare War Defense</DialogType>
-      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your trangressions are too many, and we are now at war.</Default>
+      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your transgressions are too many, and we are now at war.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>Declare War BC</DialogType>
-      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your trangressions are too many, and we are now at war.</Default>
+      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your transgressions are too many, and we are now at war.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>Declare War BC TarSys</DialogType>
-      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your trangression in TARSYS was one too many, and we are now at war.</Default>
+      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your transgression in TARSYS was one too many, and we are now at war.</Default>
     </DialogLine>
     <DialogLine>
       <DialogType>Offer NAPact</DialogType>
@@ -603,6 +603,35 @@
     <DialogLine>
       <DialogType>JoinWar_OK</DialogType>
       <Default>My thoughts exactly! They're weak, they're vulnerable...let us attack and finish them off.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>You want peace with the Ralyeh, yet you are allied with our enemies. Begone, SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>You are insulting the Elder God by offering alliance while allied with our enemies. We refuse.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>What abomination is this?! You are going behind our back, signing treaties with our mutual enemies? </Default>
+      <DL_Agg>Our Alliance is canceled.</DL_Agg>
+      <DL_Ruth>Our relations are off. Soon you will feel our wraith, SING.</DL_Ruth>
+      <DL_Xeno>This is expected, yet not acceptable. We are cutting off our relations with you.</DL_Xeno>
+      <DL_Cunn>The Elder God is not pleased.</DL_Cunn>
+      <DL_Pac>The Elder God welcomes peaceful solutions, but you should wait until we are not at war with them as well.</DL_Pac>
+      <DL_Hon>Have you thought of your death, SING? What death shall it be? In the name of the Elder God, we will dispatch of you.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>What abomination is this?! You are going behind our back, trying to sign treaties with our mutual enemies?</Default>
+      <DL_Agg>Our Alliance is canceled.</DL_Agg>
+      <DL_Ruth>Our relations are off. Soon you will feel our wraith, SING.</DL_Ruth>
+      <DL_Xeno>This is expected, yet not acceptable. We are cutting off our relations with you.</DL_Xeno>
+      <DL_Cunn>The Elder God is not pleased.</DL_Cunn>
+      <DL_Pac>The Elder God welcomes peaceful solutions, but you should wait until we are not at war with them as well.</DL_Pac>
+      <DL_Hon>Have you thought of your death, SING? What death shall it be? In the name of the Elder God, we will dispatch of you.</DL_Hon>
     </DialogLine>
   </Dialogs>
 </DiplomacyDialog>

@@ -615,5 +615,34 @@
       <DialogType>JoinWar_OK</DialogType>
       <Default>You know what? That sounds like an EXCELLENT idea! God I've been wanting to fire these torpedos so freaking badly too! YES!</Default>
     </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>We will not accept peace offering while you are allied with our enemies, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Do you think we are fools, SING? We shall not be your allies while you are allied with our enemies!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Signing treaties with our enemies now, aren't you? Fine then.</Default>
+      <DL_Agg>We decided to revoke our alliance. Find other friends and pray we will not become foes.</DL_Agg>
+      <DL_Ruth>We decided to revoke our diplomatic relations.</DL_Ruth>
+      <DL_Xeno>We decided to revoke our diplomatic relations, We knew you will betray us, Sing. Beware!</DL_Xeno>
+      <DL_Cunn>But if you wish to start a backstabbing contest, so it shall be.</DL_Cunn>
+      <DL_Pac>It is preferable you improve relations with our allies, though.</DL_Pac>
+      <DL_Hon>'Semper Fi' is a strange term for you. We are deeply disappointed.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Sneaking around and trying to sign treaties with our enemies now, aren't you?</Default>
+      <DL_Agg>We decided to revoke our alliance. Find other friends and pray we will not become foes.</DL_Agg>
+      <DL_Ruth>We decided to revoke our diplomatic relations.</DL_Ruth>
+      <DL_Xeno>We decided to revoke our diplomatic relations, We knew you will betray us, Sing. Beware!</DL_Xeno>
+      <DL_Cunn>But if you wish to start a backstabbing contest, so it shall be.</DL_Cunn>
+      <DL_Pac>It is preferable you thrive to improve relations with our allies, though.</DL_Pac>
+      <DL_Hon>'Semper Fi' is a strange term for you. We are deeply disappointed.</DL_Hon>
+    </DialogLine>
   </Dialogs>
 </DiplomacyDialog>

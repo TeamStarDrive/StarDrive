@@ -322,7 +322,7 @@ namespace Ship_Game
             float multiplier = 1;
             decline          = false;
             Relationship rel = GetRelations(them);
-            if (TheyAreAlliedWithOurEnemies(them, out Array<Empire> empiresAlliedWithThem))
+            if (TheyAreAlliedWithOurEnemies(them, out _))
             {
                 switch (Personality)
                 {
@@ -336,7 +336,6 @@ namespace Ship_Game
             }
 
             rel.Trust *= multiplier;
-            EmpireAI.CheckOtherEmpiresResponse(them, empiresAlliedWithThem, false);
             return multiplier;
         }
 
