@@ -594,5 +594,34 @@
       <DialogType>JoinWar_OK</DialogType>
       <Default>Affirmative. Target acquired.</Default>
     </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Negative. Allied with enemy.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Error - Alliance not possible. PLURAL allied with Opteris enemies</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Exception Caught: PLURAL not at war with enemies.</Default>
+      <DL_Agg>Alliance terminated.</DL_Agg>
+      <DL_Ruth>Diplomatic relations: Terminated.</DL_Ruth>
+      <DL_Xeno>Diplomatic relations: Terminated. Execute 'Prepare For War' code.</DL_Xeno>
+      <DL_Cunn>Trust Decreased. War probability increased.</DL_Cunn>
+      <DL_Pac>PLURAL should initiate relations with friends.</DL_Pac>
+      <DL_Hon>PLURAL not honorable. Execute 'War'</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Exception Caught: Detected PLURAL betrayal possible.</Default>
+      <DL_Agg>Alliance terminated.</DL_Agg>
+      <DL_Ruth>Diplomatic relations: Terminated.</DL_Ruth>
+      <DL_Xeno>Diplomatic relations: Terminated. Execute 'Prepare For War' code.</DL_Xeno>
+      <DL_Cunn>Trust Decreased. War probability increased.</DL_Cunn>
+      <DL_Pac>PLURAL should initiate relations with friends.</DL_Pac>
+      <DL_Hon>PLURAL not honorable. Execute 'War'</DL_Hon>
+    </DialogLine>
   </Dialogs>
 </DiplomacyDialog>

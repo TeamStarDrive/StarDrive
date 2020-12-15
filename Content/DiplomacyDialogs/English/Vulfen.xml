@@ -606,5 +606,34 @@
       <DialogType>JoinWar_OK</DialogType>
       <Default>Grrr....OK! We will hunt them too. </Default>
     </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Grrr... No! You are allied with our enemies. No peace!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Grrr..? You want to be our friends, yet you are allied with our enemy hounds. No!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>What? You are not loyal to us. Your pack made agreements with our enemies! </Default>
+      <DL_Agg>We are not friends anymore!</DL_Agg>
+      <DL_Ruth>Grrr! We are cutting PLURAL off from Vulfar. Beware, or you will be prey to us.</DL_Ruth>
+      <DL_Xeno>You fools! We are cutting PLURAL off from Vulfar. Beware, or you will be prey to us.</DL_Xeno>
+      <DL_Cunn>We do not like this, grrr!</DL_Cunn>
+      <DL_Pac>You are innocent pups. Next time try being friends with our friends.</DL_Pac>
+      <DL_Hon>Grrr! War!</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>What? You are not loyal to us. Your pack tried to make agreements with our enemies! You thought we are too stupid to find out, huh? Grrrr! </Default>
+      <DL_Agg>We are not friends anymore!</DL_Agg>
+      <DL_Ruth>Grrr! We are cutting PLURAL off from Vulfar. Beware, or you will be prey to us.</DL_Ruth>
+      <DL_Xeno>You fools! We are cutting PLURAL off from Vulfar. Beware, or you will be prey to us.</DL_Xeno>
+      <DL_Cunn>We do not like this, grrr!</DL_Cunn>
+      <DL_Pac>You are innocent pups. Next time try being friends with our friends.</DL_Pac>
+      <DL_Hon>Grrr! War!</DL_Hon>
+    </DialogLine>
   </Dialogs>
 </DiplomacyDialog>

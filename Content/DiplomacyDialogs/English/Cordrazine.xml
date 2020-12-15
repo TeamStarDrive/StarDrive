@@ -614,5 +614,34 @@
       <DialogType>JoinWar_OK</DialogType>
       <Default>Well. We don't have much else going on, so...sure.</Default>
     </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Ooooh. You want peace with the beautiful Cordrazine. But you are allied with Cordrazine enemies. Master says we can't have peace like that.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>PLURAL are crazy. They want to be our friends while allied with our enemies. This is not nice.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Ohwhahaha! PLURAL are being friends of Cordrazine enemies. Master is sad. </Default>
+      <DL_Agg>Master says we can't be friends anymore.</DL_Agg>
+      <DL_Ruth>Master says we dont like you anymore and all relations are off.</DL_Ruth>
+      <DL_Xeno>Master said he knew you would betray Cordrazine and we should not trust aliens. We do not want anything with you.</DL_Xeno>
+      <DL_Cunn>Master says you are sneaky sneaky. But Cordrazine are more sneaky.</DL_Cunn>
+      <DL_Pac>Master says next time sign treaties with our friends and not our enemies.</DL_Pac>
+      <DL_Hon>Master is very very angry. Having sneaky sneaky friends is not good. You are jerky jerky friends.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Ohwhahaha! PLURAL are trying to be friends of Cordrazine enemies. Master is sad. </Default>
+      <DL_Agg>Master says we can't be friends anymore.</DL_Agg>
+      <DL_Ruth>Master says we dont like you anymore and all relations are off.</DL_Ruth>
+      <DL_Xeno>Master said he knew you would betray Cordrazine and we should not trust aliens. We do not want anything with you.</DL_Xeno>
+      <DL_Cunn>Master says you are sneaky sneaky. But Cordrazine are more sneaky.</DL_Cunn>
+      <DL_Pac>Master says next time sign treaties with our friends and not our enemies.</DL_Pac>
+      <DL_Hon>master is very very angry. Having sneaky sneaky friends is not good. You are jerky jerky friends.</DL_Hon>
+    </DialogLine>
   </Dialogs>
 </DiplomacyDialog>

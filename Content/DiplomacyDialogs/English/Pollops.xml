@@ -609,5 +609,34 @@
       <DialogType>JoinWar_OK</DialogType>
       <Default>Actually that is a pretty good idea! Nice thinking, SING! Let's just kill them all and take their worlds!</Default>
     </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>We will not sign peace with you while you are sunbathing with our enemies.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Thunderstorms! How can we ally you while you shed light on our enemies?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Darkness upon us, PLURAL. You shine our enemies with treaties and warmness. </Default>
+      <DL_Agg>We cannot be your friends anymore.</DL_Agg>
+      <DL_Ruth>Our relations are darken and rotten!</DL_Ruth>
+      <DL_Xeno>We suspected your intentions are cloudy. We are canceling our relations.</DL_Xeno>
+      <DL_Cunn>Parasites might interfere wth out relations now.</DL_Cunn>
+      <DL_Pac>You are warm to our enemies, please shine upon our friends as well.</DL_Pac>
+      <DL_Hon>Let the storms begin, PLURAL.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Darkness upon us, PLURAL. You shine our enemies with treaties and warmness. But their own light exposed you for what you are. </Default>
+      <DL_Agg>We cannot be your friends anymore.</DL_Agg>
+      <DL_Ruth>Our relations are darken and rotten!</DL_Ruth>
+      <DL_Xeno>We suspected your intentions are cloudy. We are canceling our relations.</DL_Xeno>
+      <DL_Cunn>Parasites might interfere wth out relations now.</DL_Cunn>
+      <DL_Pac>You are warm to our enemies, please shine upon our friends as well.</DL_Pac>
+      <DL_Hon>Let the storms begin, PLURAL.</DL_Hon>
+    </DialogLine>
   </Dialogs>
 </DiplomacyDialog>

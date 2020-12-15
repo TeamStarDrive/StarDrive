@@ -610,5 +610,34 @@ Heed well our warrior-poets, SING, and anger not the mighty Kulrathi</Neutral>
       <DialogType>JoinWar_OK</DialogType>
       <Default>Hmm. Yes. Our warriors need a good battle and TAREMP seems vulnerable. Let us sound the drums! To War!</Default>
     </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>We will not accept peace offering while you are allied with our enemies, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>It is not honorable to be your allies while you are allied with our enemies!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Lowering your blades before our enemies? Has might left you, SING?</Default>
+      <DL_Agg>The Kulrathi decided to revoke our alliance. You are tainted.</DL_Agg>
+      <DL_Ruth>The Kulrathi decided to revoke our diplomatic relations. We might clash our blades soon.</DL_Ruth>
+      <DL_Xeno>The Kulrathi decided to revoke our diplomatic relations, We knew you will betray us, Sing. Beware!</DL_Xeno>
+      <DL_Cunn>But if you wish to start a backstabbing contest, so it shall be.</DL_Cunn>
+      <DL_Pac>It is preferable you improve relations with our allies, though.</DL_Pac>
+      <DL_Hon>Your dishonor shames you, as it shames The Kulrathi empire, for being your friends.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Lowering your blades before our enemies? Even they see your blades are not sharp anymore.</Default>
+      <DL_Agg>The Kulrathi decided to revoke our alliance. You are tainted.</DL_Agg>
+      <DL_Ruth>The Kulrathi decided to revoke our diplomatic relations. We might clash our blades soon.</DL_Ruth>
+      <DL_Xeno>The Kulrathi decided to revoke our diplomatic relations, We knew you will betray us, Sing. Beware!</DL_Xeno>
+      <DL_Cunn>But if you wish to start a backstabbing contest, so it shall be.</DL_Cunn>
+      <DL_Pac>It is preferable you try improving relations with our allies, though.</DL_Pac>
+      <DL_Hon>Your dishonor shames you, as it shames us, for being your friends.</DL_Hon>
+    </DialogLine>
   </Dialogs>
 </DiplomacyDialog>
