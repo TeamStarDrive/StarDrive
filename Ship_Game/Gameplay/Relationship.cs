@@ -1124,8 +1124,8 @@ namespace Ship_Game.Gameplay
             var offerPeace = new Offer
             {
                 PeaceTreaty   = true,
-                AcceptDL      = "OFFERPEACE_ACCEPTED",
-                RejectDL      = "OFFERPEACE_REJECTED",
+                AcceptDL      = "OFFERPEACE_ACCEPTED", // This will be modified in Process Peace
+                RejectDL      = "OFFERPEACE_REJECTED", // This will be modified in Process Peace
                 ValueToModify = new Ref<bool>(() => false, x => SetImperialistWar())
             };
 
@@ -1133,17 +1133,9 @@ namespace Ship_Game.Gameplay
             Offer ourOffer  = new Offer { PeaceTreaty = true };
 
             if (them == Empire.Universe.PlayerEmpire)
-            {
                 DiplomacyScreen.Show(us, dialogue, ourOffer, offerPeace);
-            }
             else
-            {
-                string dialog = them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
-                if (us.IsPeaceTreaty(them))
-                    offerPeace.AcceptDL = dialog;
-                else
-                    offerPeace.RejectDL = dialog;
-            }
+                them.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, us, Offer.Attitude.Respectful);
         }
 
         void DemandTech(Empire us)

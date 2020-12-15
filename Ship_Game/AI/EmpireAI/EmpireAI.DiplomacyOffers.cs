@@ -201,39 +201,64 @@ namespace Ship_Game.AI
             Empire.UpdateBilateralRelations(us, them);
         }
 
-        bool AllianceAccepted(Offer theirOffer, Offer ourOffer, Relationship usToThem, Empire them, out string text)
+        string ProcessAlliance(Offer theirOffer, Offer ourOffer, Relationship usToThem, Empire them)
         {
-            text = "";
-            if (!theirOffer.Alliance)
-                return false;
-
-            bool allianceGood = false;
+            string answer;
             if (!theirOffer.IsBlank() || !ourOffer.IsBlank())
             {
-                text = "OFFER_ALLIANCE_TOO_COMPLICATED";
+                answer = "OFFER_ALLIANCE_TOO_COMPLICATED";
             }
             else if (usToThem.Trust < 90f || usToThem.TotalAnger >= 20f || usToThem.TurnsKnown <= 100)
             {
-                text = "AI_ALLIANCE_REJECT";
+                answer = "AI_ALLIANCE_REJECT";
             }
-            else
+            else if (WeCanAllyWithThem(them, usToThem, out answer))
             {
                 usToThem.SetAlliance(true, OwnerEmpire, them);
-                text = "AI_ALLIANCE_ACCEPT";
-                allianceGood = true;
             }
 
-            return allianceGood;
+            return answer;
         }
 
-        void ProcessPeace(Offer theirOffer, Offer ourOffer, Empire them,
-                           Offer.Attitude attitude, out string text)
+        bool WeCanAllyWithThem(Empire them, Relationship usToThem, out string answer)
+        {
+            bool allowAlliance     = true;
+            answer                 = "AI_ALLIANCE_ACCEPT";
+            const string rejection = "AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY";
+            if (OwnerEmpire.TheyAreAlliedWithOurEnemies(them, out Array<Empire> empiresAlliedWithThem))
+            {
+                switch (OwnerEmpire.Personality)
+                {
+                    case PersonalityType.Aggressive: usToThem.AddAngerDiplomaticConflict(50);  allowAlliance = false; answer = rejection; break;
+                    case PersonalityType.Ruthless:   usToThem.AddAngerDiplomaticConflict(25);  allowAlliance = false; answer = rejection; break;
+                    case PersonalityType.Honorable:  usToThem.AddAngerDiplomaticConflict(75);  allowAlliance = false; answer = rejection; break;
+                    case PersonalityType.Xenophobic: usToThem.AddAngerDiplomaticConflict(100); allowAlliance = false; answer = rejection; break;
+                    case PersonalityType.Pacifist:
+                    case PersonalityType.Cunning:
+                    default: break; // ok to ally with them
+                }
+
+                usToThem.Trust -= 25;
+            }
+
+            CheckOtherEmpiresResponse(them, empiresAlliedWithThem, allowAlliance);
+            return allowAlliance;
+        }
+
+        public void CheckOtherEmpiresResponse(Empire them, Array<Empire> otherEmpires, bool treatySigned)
+        {
+            foreach (Empire e in otherEmpires)
+                e.RespondToThirdPartyTreatiesWithEnemies(them, treatySigned);
+        }
+
+        string ProcessPeace(Offer theirOffer, Offer ourOffer, Empire them,
+                           Offer.Attitude attitude)
         {
             PeaceAnswer answer = AnalyzePeaceOffer(theirOffer, ourOffer, them, attitude);
             if (answer.Peace)
                 AcceptOffer(ourOffer, theirOffer, OwnerEmpire, them, attitude);
 
-            text = answer.Answer;
+            return answer.Answer;
         }
 
         public string AnalyzeOffer(Offer theirOffer, Offer ourOffer, Empire them, Offer.Attitude attitude)
@@ -242,14 +267,11 @@ namespace Ship_Game.AI
             Relationship usToThem = us.GetRelations(them);
             Relationship themToUs = them.GetRelations(us);
 
-            if (AllianceAccepted(theirOffer, ourOffer, usToThem, them, out string allianceText))
-                return allianceText;
+            if (theirOffer.Alliance)
+                return ProcessAlliance(theirOffer, ourOffer, usToThem, them);
 
             if (theirOffer.PeaceTreaty)
-            {
-                ProcessPeace(theirOffer, ourOffer, them, attitude, out string peaceText);
-                return peaceText;
-            }
+                return ProcessPeace(theirOffer, ourOffer, them, attitude);
 
             float totalTrustRequiredFromUs = 0f;
             DTrait dt = us.data.DiplomaticPersonality;
@@ -354,6 +376,7 @@ namespace Ship_Game.AI
             {
                 usToThem.ImproveRelations(valueToUs, valueToUs);
                 AcceptOffer(ourOffer, theirOffer, us, them, attitude);
+                ourOffer.AcceptDL = "OfferResponse_Accept_Gift";
                 return "OfferResponse_Accept_Gift";
             }
 
@@ -572,7 +595,7 @@ namespace Ship_Game.AI
             PeaceAnswer response      = ProcessPeace("REJECT_OFFER_PEACE_POOROFFER"); // Default response is reject
             if (reject)
             {
-                response = ProcessPeace("REJECT_OFFER_ALLIED_WITH_ENEMY");
+                response = ProcessPeace("REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY");
                 return response;
             }
 
