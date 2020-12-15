@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -241,24 +242,35 @@ namespace Ship_Game.AI
                 usToThem.Trust -= 25;
             }
 
-            CheckOtherEmpiresResponse(them, empiresAlliedWithThem, allowAlliance);
+            CheckAIEmpiresResponse(them, empiresAlliedWithThem, allowAlliance);
             return allowAlliance;
-        }
-
-        public void CheckOtherEmpiresResponse(Empire them, Array<Empire> otherEmpires, bool treatySigned)
-        {
-            foreach (Empire e in otherEmpires)
-                e.RespondToThirdPartyTreatiesWithEnemies(them, treatySigned);
         }
 
         string ProcessPeace(Offer theirOffer, Offer ourOffer, Empire them,
                            Offer.Attitude attitude)
         {
             PeaceAnswer answer = AnalyzePeaceOffer(theirOffer, ourOffer, them, attitude);
+            Relationship rel   = OwnerEmpire.GetRelations(them);
+            bool neededPeace   = them.isPlayer  // player asked peace since he is in a real bad state
+                                 && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
+                                 && them.GetTotalPop(out _) < OwnerEmpire.GetTotalPop(out _) / (int)(CurrentGame.Difficulty + 1);
+
             if (answer.Peace)
                 AcceptOffer(ourOffer, theirOffer, OwnerEmpire, them, attitude);
 
+            if (!neededPeace && OwnerEmpire.TheyAreAlliedWithOurEnemies(them, out Array<Empire> empiresAlliedWithThem))
+                CheckAIEmpiresResponse(them, empiresAlliedWithThem, answer.Peace);
+
             return answer.Answer;
+        }
+
+        public void CheckAIEmpiresResponse(Empire them, Array<Empire> otherEmpires, bool treatySigned)
+        {
+            foreach (Empire e in otherEmpires)
+            {
+                if (!e.isPlayer)
+                    e.RespondToPlayerThirdPartyTreatiesWithEnemies(them, treatySigned);
+            }
         }
 
         public string AnalyzeOffer(Offer theirOffer, Offer ourOffer, Empire them, Offer.Attitude attitude)
