@@ -373,19 +373,12 @@ namespace Ship_Game.AI
             if (landingSpot.InRadius(Owner.Center, Owner.Radius + 40f))
             {
                 // This will vanish default single Troop Ship or order Assault shuttle to return to hangar
-                bool troopsLanded = Owner.LandTroopsOnPlanet(planet) > 0; 
-
-                if (troopsLanded)
-                {
-                    DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
-                    if (Owner.Mothership != null && Owner.Mothership.Active)
-                        OrderReturnToHangar();
-                    else
-                        Owner.QueueTotalRemoval();
-                }
-
-                if (Owner.Active)
-                    Orbit.Orbit(planet, timeStep);
+                Owner.LandTroopsOnPlanet(planet); 
+                DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
+                if (Owner.Mothership != null && Owner.Mothership.Active)
+                    OrderReturnToHangar();
+                else
+                    Owner.QueueTotalRemoval();
             }
         }
 
