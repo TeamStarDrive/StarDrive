@@ -316,5 +316,100 @@ namespace Ship_Game
                     rel.DamageRelationship(this, e, why, amount, p);
             }
         }
+
+        public float AlliancesValueMultiplierThirdParty(Empire them, out bool decline)
+        {
+            float multiplier = 1;
+            decline          = false;
+            Relationship rel = GetRelations(them);
+            if (TheyAreAlliedWithOurEnemies(them, out _))
+            {
+                switch (Personality)
+                {
+                    case PersonalityType.Pacifist:   rel.AddAngerDiplomaticConflict(25); multiplier = 0.8f; break;
+                    case PersonalityType.Cunning:    rel.AddAngerDiplomaticConflict(50); multiplier = 0.6f; break;
+                    case PersonalityType.Ruthless:   rel.AddAngerDiplomaticConflict(75); multiplier = 0.5f; break;
+                    case PersonalityType.Aggressive: rel.AddAngerDiplomaticConflict(75); multiplier = 0.4f; break;
+                    case PersonalityType.Honorable:
+                    case PersonalityType.Xenophobic: rel.AddAngerDiplomaticConflict(100); multiplier = 0.5f; decline = true; break;
+                }
+            }
+
+            rel.Trust *= multiplier;
+            return multiplier;
+        }
+
+        public bool TheyAreAlliedWithOurEnemies(Empire them, out Array<Empire> alliedEmpires)
+        {
+            alliedEmpires = new Array<Empire>();
+            bool allied = false;
+            foreach ((Empire other, Relationship rel) in ActiveRelations)
+            {
+                if (!other.isFaction
+                    && rel.Known
+                    && rel.AtWar
+                    && other.IsAlliedWith(them))
+                {
+                    allied = true;
+                    alliedEmpires.Add(other);
+                }
+            }
+
+            return allied;
+        }
+
+        public void RespondToPlayerThirdPartyTreatiesWithEnemies(Empire them, bool treatySigned)
+        {
+            if (!them.isPlayer)
+                return; // works only for player
+
+            string dialog    = treatySigned ? "CUTTING_DEALS_WITH_ENEMY" : "TRIED_CUTTING_DEALS_WITH_ENEMY";
+            float multiplier = treatySigned ? 1 : 0.5f;
+            float spyDefense = GetSpyDefense();
+            Relationship rel = GetRelations(them);
+            if (treatySigned || RandomMath.RollDice(spyDefense * 5))
+            {
+                rel.turnsSinceLastContact = 0;
+                them.AddToDiplomacyContactView(this, dialog);
+                switch (Personality)
+                {
+                    case PersonalityType.Aggressive:
+                        rel.Trust -= 75 * multiplier;
+                        rel.AddAngerDiplomaticConflict(25 * multiplier);
+                        BreakAllianceWith(them);
+                        break;
+                    case PersonalityType.Ruthless:
+                        rel.Trust -= 75 * multiplier;
+                        rel.AddAngerDiplomaticConflict(30 * multiplier);
+                        BreakAllTreatiesWith(them);
+                        break;
+                    case PersonalityType.Xenophobic:
+                        rel.Trust -= 150 * multiplier;
+                        rel.AddAngerDiplomaticConflict(75 * multiplier);
+                        BreakAllianceWith(them);
+                        rel.PreparingForWar = true;
+                        break;
+                    case PersonalityType.Pacifist:
+                        rel.AddAngerDiplomaticConflict(15 * multiplier);
+                        rel.Trust -= 50 * multiplier;
+                        break;
+                    case PersonalityType.Cunning:
+                        rel.AddAngerDiplomaticConflict(20 * multiplier);
+                        rel.Trust -= 50 * multiplier;
+                        rel.PreparingForWar = true;
+                        break;
+                    case PersonalityType.Honorable:
+                        rel.AddAngerDiplomaticConflict(100 * multiplier);
+                        rel.Trust -= 50 * multiplier;
+                        them.AddToDiplomacyContactView(this, "DECLAREWAR");
+                        return;
+                }
+            }
+        }
+
+        void AddToDiplomacyContactView(Empire empire, string dialog)
+        {
+            DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
+        }
     }
 }
