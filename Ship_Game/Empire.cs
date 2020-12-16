@@ -2914,60 +2914,6 @@ namespace Ship_Game
             return false;
         }
 
-        public void RespondToPlayerThirdPartyTreatiesWithEnemies(Empire them, bool treatySigned)
-        {
-            if (!them.isPlayer)
-                return; // works only for player
-
-            string dialog    = treatySigned ? "CUTTING_DEALS_WITH_ENEMY" : "TRIED_CUTTING_DEALS_WITH_ENEMY";
-            float multiplier = treatySigned ? 1 : 0.5f;
-            float spyDefense = GetSpyDefense();
-            Relationship rel = GetRelations(them);
-            if (treatySigned || RandomMath.RollDice(spyDefense*5))
-            {
-                rel.turnsSinceLastContact = 0;
-                them.AddToDiplomacyContactView(this, dialog);
-                switch (Personality)
-                {
-                    case PersonalityType.Aggressive: 
-                        rel.Trust -= 75 * multiplier;
-                        rel.AddAngerDiplomaticConflict(25 * multiplier);
-                        BreakAllianceWith(them);
-                        break;
-                    case PersonalityType.Ruthless:
-                        rel.Trust -= 75 * multiplier;
-                        rel.AddAngerDiplomaticConflict(30 * multiplier);
-                        BreakAllTreatiesWith(them);
-                        break;
-                    case PersonalityType.Xenophobic:
-                        rel.Trust -= 150 * multiplier;
-                        rel.AddAngerDiplomaticConflict(75 * multiplier);
-                        BreakAllianceWith(them);
-                        rel.PreparingForWar = true;
-                        break;
-                    case PersonalityType.Pacifist:
-                        rel.AddAngerDiplomaticConflict(15 * multiplier);
-                        rel.Trust -= 50 * multiplier;
-                        break;
-                    case PersonalityType.Cunning:
-                        rel.AddAngerDiplomaticConflict(20 * multiplier);
-                        rel.Trust -= 50 * multiplier;
-                        rel.PreparingForWar = true;
-                        break;
-                    case PersonalityType.Honorable:
-                        rel.AddAngerDiplomaticConflict(100 * multiplier);
-                        rel.Trust -= 50 * multiplier;
-                        them.AddToDiplomacyContactView(this, "DECLAREWAR");
-                        return;
-                }
-            }
-        }
-
-        public void AddToDiplomacyContactView(Empire empire, string dialog)
-        {
-            DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
-        }
-
         public void AddBoardSuccessNotification(Ship ship)
         {
             if (!isPlayer)
