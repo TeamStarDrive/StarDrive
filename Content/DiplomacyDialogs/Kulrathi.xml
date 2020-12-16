@@ -1,0 +1,614 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>I dream of morning / warm winds bending blades of grass / around our fallen foes
+We, the mighty Kulrathi, do greet you, and hope that in time we may find friendship in the Way of battle.  </Friendly>
+      <Neutral>In the spring rains / pond and river become one / bloodied by our foes
+Heed well our warrior-poets, SING, and anger not the mighty Kulrathi</Neutral>
+      <Hostile>You are not worthy of poetry. Stay clear of our systems, animal.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>We greet you, Honorable friend. What is it that you need?</Friendly>
+      <Neutral>Greetings, SING. A coincidence that you contact us; I was just meditating on the future of our peoples. What is that you need?</Neutral>
+      <Hostile>The craven PLURAL call upon their betters. Speak quickly, as we have little patience for fools.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Friend, you have settled in TARSYS, which we have previously claimed.  We are happy to share our hunting grounds with an honored friend; however, please respect our borders in the future.  </Friendly>
+      <Neutral>I see we are in competition for the TARSYS system. Do not press us, warrior. We will protect our claims. </Neutral>
+      <Hostile>Cowardly prey-thing! You dare to settle in the TARSYS system? Relinquish your claim at once!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Honorable warrior, perhaps your weapons systems malfunctioned in the recent destruction of one of our ships? See that this does not happen again. </Friendly>
+      <Neutral>Your unprovoked aggression sends a clear signal, SING.  We do not seek war with you but we will gladly fight a war that is brought to us. </Neutral>
+      <Hostile>Insolent cub! How dare you attack a sovereign vessel of the Kulrathi Shogunate?!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Warrior! To see your warships in our space gives us proof of your courage. Nevertheless, the number of ships and the duration that they have been in our space are causing concern, and you must now withdraw. </Friendly>
+      <Neutral>SING, your ships are not welcome in Kulrathi space! You test the patience of our warriors and should withdraw now for your own safety. </Neutral>
+      <Hostile>SING, you are either brave or foolish to bring your warships to Kulrathi space. We shall soon test your strength against ours!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>You invade our space with your ships, then you colonize in the TARSYS system, knowing well that we have a claim there? Does our friendship mean nothing to you? </Friendly>
+      <Neutral>SING, it is only with the greatest discipline that we restrain ourselves from anger at your continual disregard for our borders. Settling in the TARSYS system has pushed us to the brink of war. </Neutral>
+      <Hostile>Rrrrraaaaaa!!!! Your fleets continue to intrude into Shogunate territory and you stole our claims in the TARSYS system -- The Kulrathi are no fools!! Relinquish your claims and vacate Kulrathi space or war is sure to come!   </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>SING, are we not friends? Why would a friend first contest our claim in the TARSYS system, and then fill our space with warships? </Friendly>
+      <Neutral>SING, it is only with the greatest discipline that we restrain ourselves from anger at your continual disregard for our borders. Settling in the TARSYS system tested our patience. Now you fill our space with your ships. This has pushed us to the brink of war. </Neutral>
+      <Hostile>RRrrrraaaaaa!!!! Your fleets are in our space, you steal our claims in the TARSYS system!! The Kulrathi are no fools!!  Relinquish your claims and vacate Kulrathi space or war is sure to come!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Drums pounding like the oceans waves, relentless, unstoppable -- the Kulrathi go to war!  Your disrespectful encroachments upon our claimed systems will end now with your destruction!</misc1>
+      <misc2>You have dared to attack the Kulrathi Shogunate, and now you will learn the meaning of humility!</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>There...are others? We must meditate on this. We have not yet met these others, and we wonder - will they be friends or foes? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Steel and Fang and Fur and Blood, this is what you should know of the mighty Kulrathi! None can stand before our might! </DL_Agg>
+      <DL_Hon>Honor and Blood. Kith and Kin. Beauty. These are the values of the Kulrathi people. </DL_Hon>
+      <DL_Pac></DL_Pac>
+      <DL_Ruth></DL_Ruth>
+      <DL_Cunn>We believe in but one law: the law of nature. Strength and speed will win a battle, but wits will win a war. </DL_Cunn>
+      <DL_Xeno>And why should we trust you with our thoughts and values when you and yours are so alien to us? You know what you need to know: that we are strong. Even so...</DL_Xeno>
+      <DL_Exp>Our destiny is to people to the stars, and woe betide the fool who stands in our way. </DL_Exp>
+      <DL_Tech>We believe that a well forged blade is worth a hundred rusted swords. Those who possess the knowledge posses the finest weapons, and it is weapons as much as warriors who win wars.</DL_Tech>
+      <DL_Mil>A fleet to span the stars, to drive fear into the hearts of our enemies...to CRUSH enemies! This is our purpose in life.</DL_Mil>
+      <DL_Ind>Many among us seek the glory of battle as their purposes in life. But dear to all Kulrathi is the love of industry and the satisfaction of a thing done without flaw, be it a beheading or a work of art. To us, these are one and the same.</DL_Ind>
+      <DL_Gen>Yet in all things there must be balance. It is the adaptable that survive, SING.  </DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>How do you hold your sword without any thumbs?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Hmmm, what? What are thumbs? Some Kulrathi hold a weapon in each paw and one in their jaws as well. Pray you never meet our bearzerkers on the field of battle.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Trust is earned, SING, not freely given. Perhaps in time we can make a deal of this breadth, but not now.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>SING, even though you are but strangers to us, you do us great Honor with such a generous offer. We accept.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Does the SING think is some ignorant cub? We did not trust you before you made this terrible offer and we trust you even less now.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>You offer us brittle iron for Kulrathi steel.  No, SING, we cannot accept this deal as is.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Lead for gold, iron for steel, dirt for riches, this is what you offer us?! (Unintelligble - Probable Profanity). </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>We see the wisdom in your proposal. We accept.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Yes, this arrangement is most favorable to the Kulrathi people. We accept.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>You do us a great honor by offering us such generous terms. We accept.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>You do us a great honor with this gift. We thank you.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Yes, to help a friend in need is an Honorable course of action.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>A most dishonorable threat from a most dishonorable foe. No, SING, we will not bow to your threats. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>This arrangment is fair, SING, but we do not appreciate your tone. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>You humiliate us, SING. Take your stolen bounty and go from our sight. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Dishonorable whelp! Fool! You have awoken a sleeping giant. Run if you can! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>War! Yes! Let us resolve these disputes in Honorable combat! We come for you, foolish SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Have you tired of the sight of your own blood so quickly? We thought you mightier than that. What is it that you want, foeman?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>The Kulrathi will not stand idle as you destroy our ships. We are now in a state of open hostilities.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>Oathbreakers! You violate our Non-Aggression Pact and dishonor yourselves! If it is aggression you desire, then it is aggression you shall have! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Perhaps you did not take us seriously when we warned you about staying out of our territory. You should have, for we now march to war!.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>The Kulrathi have claimed the TARSYS system. We told you this, yet you have not ceded your own claim. It is time now for blood to decide the issue. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>This galaxy is filled with danger, SING, and we see your strength. Join us in pledging a mutual pact of non-aggression and let us move forward as friends. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>It pleases us to hear it, SING. But a warning to you: we take our promises seriously and we expect you to do the same. Honor and blood!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>So, a potential foe then? Your honestly is honorable. Even so, things have not yet come to blows and perhaps they never will. Time will tell and our swords will remain sharp. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Warm greetings to you, SING. We have been meditating on the future of our peoples and we think it would be a wise course of action to open trade between our empires. Do you agree? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Your wisdom is obvious. Kulrathi steel is the finest in the galaxy. We look forward to seeing what PLURAL can produce!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Very well, SING. Though you should know that we only make this offer because we are friends. Perhaps in time you will trust us enough to try again.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>What has changed that you now desire a Non-Aggression pact when before you denied this to us? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>We must admit, PLURAL puzzle us at times. We wanted to trade with you before but you rejected us, don't you remember?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Your ways are strange to us, SING. Your physical form confuses us. We know that we need friends in this galaxy but our people are slow to trust. Perhaps if you provided us with TECH_DEMAND as a show of good faith? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Your actions speak of your honor. Thank you. We will remember this. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>It is as we expected. Friendship and trust are earned, SING. Goodbye. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Poor PLURAL! Do you even know how dangerous this galaxy is? Your military is woefully unprepared for battle. You will see soon enough.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Greetings, SING. We wanted to provide our compliments on your fine military. We respect your strength and hope to remain your friends. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>It gladdens us to see that you listened to our earlier warnings. Your fleet now looks strong and more worthy of battle! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>SING, your military is simply too weak to withstand us. We want your worlds. Prepare yourselves, for the hour of your death approaches.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Ah, yes, the humans. We are quite friendly with them. But they are always calling us "Space Bears". Tell me, SING, What is a space bear? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>We have not spent much time among Humans. Perhaps in time we will be friends, or enemies, or perhaps we will always keep our distance. Time will tell. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>In truth, we have never met a more depraved race of greedy, violent animals than the Humans. They are very dangerous, SING! Be warned. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Ah yes, the Pollops. They are a kind and gentle race with a love of song and poetry. We like them quite a bit.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Sadly, we do not know these Pollops very well. They seem to be a kind and gentle people, however.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>The Kulrathi people have a word for Pollops: Salad. We do not like Salad. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>The Vulfar! They have spirit! Energy! We understand their lust for battle. It is a shame that they are so stupid. But we do like them! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>While we don't know the Vulfar very well, tales of their intellectual shortcomings are widespread among the Kulrathi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Those savage mongrels? We know them well. They are delicious. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>The Cordrazine value beauty, and, while their social skills are somewhat lacking, we respect them for this and call them friends. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>We have only seem them from afar and know little of them and their ways. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>These...mollusk creatures...they very much annoy us. They take slaves and talk only of themselves. We do not like them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Their convictions are strong and their philosophy runs deep through their souls. We approve of them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>We have little to say on these people, whom we do not know well.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>The dealers of death have crossed our path. It is clear that there is not enough room in this galaxy for the both of us.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Foolish, SING. While you thought yourself safe wearing armor made of paper, we grew strong. Our Non-Aggression Pact is canceled, and we come now for your worlds!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>The moment when the sword falls, cutting through your neck. Do you suffer? Do you feel your head rolling to the floor? If only you could speak, we would know. But you cannot, as you have been defeated by the Mighty Kulrathi.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>We Kulrathi know well the ways of conflict, but truly we seek peace for ourselves and our friends. I fear that our border disputes are unwise, and we propose an Open Borders treaty to resolve this.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>And so we may release our pommel grip and breathe a sigh of relief. We are honored to be your friends. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Then tighten your grip and prepare to draw steel, SING. Kulrathi anger grows.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Dishonorable sneak attacks! Oathbreakers! Prepare to die! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Dishonorable sneak attacks do not win wars, SING. Might does! Prepare!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Their machine logic offers a certain sense of honor. We do like them.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>We cannot say that we know them well enough to have an opinion.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Dangerous foes, the Opteris. A foe that feels no fear is twice the foe.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Greetings, SING. We noticed your scouts in the TARSYS system. You should know that we Kulrathi have claimed this system, and it would be wise for you to abandon thoughts of colonizing it. </Friendly>
+      <Neutral>SING. We noticed your scouts in the TARSYS system. You should know that we Kulrathi have claimed this system, and it would be wise for you to abandon thoughts of colonizing it.</Neutral>
+      <Hostile>Dishonorable ones - We noticed your scouts in the TARSYS system. You should know that we Kulrathi have claimed this system, and unless you wish for the hour of your death to be brought that much sooner, you will stay away from our claims.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Your boldness in ignoring the claims of the Kulrathi is admirable. But does your strength match your boldness?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Who can know whether a flower will smell sweet when it is just a seed in the ground? We have no problems with you SING. Not yet, at least, and perhaps not ever. Time will tell. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Our bond grows stronger, SING. We are pleased to be your friends.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Well, SING. You ask, and we shall answer. We do have some grievances with your people. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Our primary grievance is that you are claiming territory that we too have claimed, and we Kulrathi are very territorial. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>First, you must understand that the Kulrathi are a territorial people. Our competition for systems is an issue. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Second, your military is very powerful and this makes our people think that battle may come.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Second, we Kulrathi respect military strength and unfortunately you are falling too far behind us. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>If you wish for the Kulrathi to respect you, you must be strong! And you are not strong, SING. Not yet. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>While we respect strength, we question the size of your fleets relative to ours. Are we to remain friends? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>You are allied with TAREMP, a most dishonorable people. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Also, you are allied with TAREMP, a most dishonorable people. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Nothing good, nothing bad. This is how we see PLURAL for now. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Has your courage left you, SING? Why else come to us now, in this final hour of your people? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>You...you are a powerful warrior, SING. We respect this. But do not expect us to surrender. What is it that you want from us then? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>SING! To make glorious battle together, this is what we desire! Join us! Defeat TAREMP with us!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>RRaaaa!! To war then!! Sound the drums and sharpen your blades, PLURAL! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>We understand your reluctance, SING. Very well. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>These Draylok are a noble people, and friends of the Kulrathi. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>We do not know them well, SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>These dishonorable creatures lurk in the shadows and fight like cowards. </Default>
+    </DialogLine>
+
+    <!-- Second Run Localization Efforts -->
+
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>The battle rage subsides and we can see more clearly now. This war is not in either of our best interests. Make a peace with us, SING, for our mutual benefit.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Your fleets have fallen before our might. Do not risk more SING lives unnecessarily. We would make peace with you if you would have it.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>You are a worthy foe, SING. If this war continues then surely one of us would fall. End it now, then, and preserve our futures with a peace treaty.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Your might is unquestionable. We are humbled before you. Please, SING, sign a peace treaty with us.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>You fought well and lost. There is no shame in this. Sign a treaty and let us end this border dispute.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Your defense of your claims is spirited! We will yield to you on this if you agree to a peace.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Your battle-spirit is inspiring, SING. Very well! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Your wisdom is great. Our swords are now sheathed.</Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>A wise offer would be wise to accept. We agree to lay down our arms and have peace.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Your offer for us to jump upon your sword is kindly declined. Is there anything else?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>We Kulrathi take our territorial claims most seriously. We cannot have peace until this dispute is resolved.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>It shames us to accept your terms but prudence dictates that we must. Peace it is.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>We still bear the wounds of war, SING. Our relations will not begin to heal until our wounds do. Give it time. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>It is time now to join our might, SING! Let us declare an alliance before all the galaxy! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Then it is done! From now on, PLURAL are brothers and sisters to the Kulrathi. Clan and blood! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Your reluctance is disappointing. Perhaps in the future.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Hmmmm. Perhaps, SING. However, we cannot make a decision for an alliance with all of these other terms in place. We would consider an offer of alliance if it stood alone.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Your strength and honor are revered amongst the Kulrathi. Yes, we will join you in alliance.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>We appreciate you considering us for this honor. However, we cannot accept your offer at this time because - bluntly - we do not trust you enough yet.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>The Drums of War have already sounded. The blades are sharp, the warriors' hearts prepared. The Drum cannot be un-sounded. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Hmm. You ask us to stay our blades before they are yet stained with SING blood. You offer us gifts for this boon. After due consideration, we accept.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>You shame yourselves with such a dishonorable refusal to help an ally. We are canceling our alliance with you.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Rrrrwwwrrr. Your...continued defiance...is pushing many to anger... rrwwrrr. Respect our claims, SING. Rrrrrwwr.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>RRRAAAAAAAAWRRR! RRRWWWAARRRRR!!!!!! (unintelligible - probable Kulrathi obscenities) </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>...Spying is so...dishonorable. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Rrrrwrr. Do not anger us with further espionage, SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>RRRAAAAAAAAWRRR! RRRWWWAARRRRR!!!!!! (unintelligible - probable Kulrathi obscenities)! (Treaties Canceled)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Your agent was captured and killed, SING. We will show no mercy to those who seek to steal our secrets!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>It is the pinnacle of dishonesty to spy upon your friends. We will forgive you this once.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>We warned you, SING, and yet you defiled our friendship once more with your spies. Our alliance is forfeit.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>To a Kulrathi, opening our territorial borders is an honor reserved only for our closest friends. Join us, SING, in making this pledge with us?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Hmmm. We understand. Territorial ownership is sacred and we take no offense.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Hmm! Your desire for friendship is noted, SING. However, Kulrathi are somewhat more cautious in these matters than you. Perhaps in the future.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>What you ask may some day be possible, as we do consider PLURAL to be our friends. However, we must try an alliance before we begin and we are not yet at that point in our relationship.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Soon, SING. But not yet! We are just recently become allies. Let us settle in and ensure our comfort before discussing this merger proposal.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>The Kulrathi respect strength, SING! Strength which we have and you do not! I am sorry, but we cannot merge our empire with those who are weaker than us.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Yes. Our bond has grown. Your people are our people. Your blood is our blood. Together, the Galaxy shall be ours. To the Federation!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Join you we will. However, you must first prove your might by defeating our enemies. Destroy TAREMP and we shall become one!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Your strength is proven! TAREMP is now destroyed, and we keep our bond of Honor. Our swords are yours! Long live the Federation!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Hmmm. No, SING. Our relations have quite a ways to go yet.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Much as we love your people, you are at war with our friends, TAREMP. If you can make an ally of them, then we would feel comfortable joining your Federation.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Yes! Your Honor is clear and pure. You have made an ally of TAREMP and now we will join your Federation.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>SING. It is dishonorable to ask us to fight a war that you are not even fighting! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>We ARE at war with TAREMP!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Yes, ally. We will join you.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>I am sorry friend, but we are also friends with TAREMP. To choose a side in this conflict would jeopardize our friendship.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>No, SING. You ask much and offer little.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>We do not believe in fighting others' wars. Have you tried making peace with TAREMP instead?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>No. To join this war would be foolish. We have our own interests to look out for!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Hmm. Yes. Our warriors need a good battle and TAREMP seems vulnerable. Let us sound the drums! To War!</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>
