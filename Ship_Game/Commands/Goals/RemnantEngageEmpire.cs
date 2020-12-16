@@ -147,6 +147,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep GatherFleet()
         {
+            if (Portal.InCombat)
+                return GoalStep.TryAgain;
+
             bool checkOnlyDefeated = Remnants.Story == Remnants.RemnantStory.AncientRaidersRandom;
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal, checkOnlyDefeated))
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
@@ -162,10 +165,9 @@ namespace Ship_Game.Commands.Goals
             if (ships.Count == 0 && singleShip != null)
                 ships.Add(singleShip);
 
-            if (Fleet == null)
-                CreateFleet(ships);
-            else
-                Fleet.AddShips(ships);
+            if      (Fleet == null)           CreateFleet(ships);
+            else if (Fleet.FleetTask == null) Remnants.ReleaseFleet(Fleet, GoalStep.TryAgain);
+            else                              Fleet.AddShips(ships);
 
             for (int i = 0; i < ships.Count; i++)
                 ships[i].AI.AddEscortGoal(Portal);
