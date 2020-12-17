@@ -59,8 +59,8 @@ namespace Ship_Game
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
 
-                if (sdata.FleetStrEmpireModifier != null)
-                    e.RestoreFleetStrEmpireMultiplier(sdata.FleetStrEmpireModifier);
+                e.RestoreFleetStrEmpireMultiplier(sdata.FleetStrEmpireModifier);
+                e.RestoreDiplomacyConcatQueue(sdata.DiplomacyContactQueue);
 
                 e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
@@ -387,6 +387,9 @@ namespace Ship_Game
                         FinalDirection = fleetsave.facing.RadiansToDirection(),
                         Owner = e
                     };
+
+                    fleet.AddFleetDataNodes(fleetsave.DataNodes);
+
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
                         foreach (Ship ship in data.MasterShipList)

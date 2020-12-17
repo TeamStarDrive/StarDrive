@@ -159,6 +159,7 @@ namespace Ship_Game
                 empireToSave.WeightedCenter           = e.WeightedCenter;
                 empireToSave.RushAllConstruction      = e.RushAllConstruction;
                 empireToSave.FleetStrEmpireModifier   = e.FleetStrEmpireMultiplier;
+                empireToSave.DiplomacyContactQueue    = e.DiplomacyContactQueue;
 
                 if (e.WeArePirates)
                 {
@@ -206,6 +207,8 @@ namespace Ship_Game
                     };                    
                     foreach (FleetDataNode node in fleet.Value.DataNodes)
                     {
+                        if (node.Ship?.Active != true)
+                            Log.Warning("tick");
                         if (node.Ship != null)
                             node.ShipGuid = node.Ship.guid;
                     }
@@ -603,6 +606,7 @@ namespace Ship_Game
             [Serialize(41)] public int RemnantHibernationTurns;
             [Serialize(42)] public float RemnantActivationXpNeeded;
             [Serialize(43)] public Map<int, float> FleetStrEmpireModifier;
+            [Serialize(44)] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
         }
 
         public class FleetSave

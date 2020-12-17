@@ -392,29 +392,33 @@ namespace Ship_Game
             if (index == -1) return;
 
             // replace ships in fleet from selection
-            //if (input.ReplaceFleet)
-            //{
-            //    if (SelectedShipList.Count == 0)
-            //        return;
+            // or remove selected fleet if not ships are selected. 
+            if (input.ReplaceFleet)
+            {
+                var selectedFleet = player.GetFleetsDict()[index];
+                if (SelectedShipList.Count == 0)
+                {
+                    selectedFleet.Ships.ForEach(s => s?.UnsafeClearFleet());
+                    return;
+                }
 
-            //    var fleet = AddSelectedShipsToNewFleet(SelectedShipList);
+                selectedFleet?.Ships.ForEach(s => s?.UnsafeClearFleet());
 
-            //    string str = Fleet.GetDefaultFleetNames(index);
-            //    foreach (Ship ship in SelectedShipList)
-            //        ship.ClearFleet();
-            //    fleet.Name = str + " Fleet";
-            //    fleet.Owner = player;
+                var newFleet   = AddSelectedShipsToNewFleet(SelectedShipList);
+                string str     = Fleet.GetDefaultFleetNames(index);
+                newFleet.Name  = str + " Fleet";
+                newFleet.Owner = player;
 
-            //    fleet.SetCommandShip(null);
-
-            //    player.GetFleetsDict()[index] = fleet;
-            //    RecomputeFleetButtons(true);
-            //}
-            //else 
-            if (input.AddToFleet) // added by gremlin add ships to exiting fleet
+                player.GetFleetsDict()[index] = newFleet;
+                RecomputeFleetButtons(true);
+            }
+            else if (input.AddToFleet) // added by gremlin add ships to exiting fleet
             {
                 if (SelectedShipList.Count == 0 )
+                {
+                    GameAudio.NegativeClick();
                     return;
+                }
 
                 Fleet fleet = null;
                 var targetFleet = player.GetFleetsDict()[index];
@@ -1247,17 +1251,15 @@ namespace Ship_Game
         {
             if (ships?.NotEmpty != true) return null;
 
-            ships.ForEach(s => s?.ClearFleet());
+            ships.ForEach(s => s.UnsafeClearFleet());
 
-            var newFleet = new Fleet(ships){Owner = player};
-            newFleet.AutoArrange();
-
+            var newFleet = new Fleet(ships, player);
+            
+            InputCheckPreviousShip();
+            GameAudio.FleetClicked();
             newFleet.SetCommandShip(null);
             newFleet.Update(FixedSimTime.Zero/*paused during init*/);
             newFleet.AutoArrange();
-            InputCheckPreviousShip();
-            GameAudio.FleetClicked();
-
             shipListInfoUI.SetShipList(SelectedShipList, true);  //fbedard:display new fleet in UI
             return newFleet;
         }
@@ -1274,10 +1276,10 @@ namespace Ship_Game
             GameAudio.FleetClicked();
             InputCheckPreviousShip();
 
-            foreach (var ship in ships) ship?.ClearFleet();
+            foreach (var ship in ships) ship?.UnsafeClearFleet();
 
             // create a fake fleet to assign positions.
-            var positioningFleet = new Fleet(ships){Owner = player};
+            var positioningFleet = new Fleet(ships, player);
             positioningFleet.AutoArrange();
             
             // offset from the fleet we are adding to
@@ -1287,10 +1289,9 @@ namespace Ship_Game
             positioningFleet.DataNodes.ForEach(n =>
             {
                 n.Ship.RelativeFleetOffset += fleetSize;
-                //n.FleetOffset += fleetSize;
             });
             // ditch the fake fleet
-            positioningFleet.Reset();
+            positioningFleet.Ships.ForEach(s => s?.ClearFleet());
 
             // put it all together
             foreach (var ship in ships) ship?.ClearFleet();
