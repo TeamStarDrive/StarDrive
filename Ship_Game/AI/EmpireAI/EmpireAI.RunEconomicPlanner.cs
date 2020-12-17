@@ -66,7 +66,7 @@ namespace Ship_Game.AI
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources.  
             // its primarily geared at ship building. 
-            float riskLimit                = (normalizedBudget * 6 / treasuryGoal).Clamped(0.01f,2);
+            float riskLimit = (normalizedBudget * 6 / treasuryGoal).Clamped(0.01f,2);
             float gameState                = GetRisk(riskLimit);
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(treasuryGoal, defense);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal, SSP);
@@ -104,7 +104,12 @@ namespace Ship_Game.AI
             float buildRatio           = (personality) ;
             float buildBudget          = SetBudgetForeArea(percentOfMoney, buildRatio, money);
             float extraBudget          = OverSpendRatio(money, 1, 1.25f).LowerBound(1);
-            return (buildBudget * risk * extraBudget).LowerBound(1);
+            float warRatio = OwnerEmpire.GetWarOffensiveRatio();
+            float min = (money * (warRatio * 0.02f)).LowerBound(1);
+            
+            buildBudget = (buildBudget * risk * extraBudget).LowerBound(min);
+
+            return buildBudget;
         }
 
         float DetermineColonyBudget(float money, float percentOfMoney)
@@ -239,6 +244,7 @@ namespace Ship_Game.AI
             }
 
             risk /= totalRels.LowerBound(1);
+
             return Math.Min(risk, riskLimit);
         }
 

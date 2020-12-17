@@ -50,7 +50,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     task.Evaluate(Owner);
                 }
             }
-             
+
+            var ai = Owner.GetEmpireAI();
+            float warHunger = Owner.GetWarOffensiveRatio();
+            float warTurns = 100 * warHunger;
+
+            if (NewTasks.Count == 0) ai.PauseWarTimer = (int)warTurns;
+            else if (ai.PauseWarTimer >= 1) ai.PauseWarTimer = -(int)warTurns;
+
+            bool nonFactionWars = Owner.AllActiveWars.Any(t => !t.Them.isFaction && t.Them != Owner);
             for (int i = 0; i < NewTasks.Count; i++)
             {
                 var task = NewTasks[i];
@@ -67,7 +75,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     NewTasks.RemoveSwapLast(task);
                 }
             }
-
+            ai.PauseWarTimer++;
         }
 
         void CreateTaskAfterActionReport(MilitaryTask task)
@@ -78,32 +86,34 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             
         }
 
-        public void StandardAssault(IEnumerable<SolarSystem> systemsToAttack, int priority, Empire them)
+        public void StandardAssault(IEnumerable<SolarSystem> systemsToAttack, int priority, Campaign campaign)
         {
             foreach (var system in systemsToAttack)
             {
-                StandardAssault(system, priority, them);
+                StandardAssault(system, priority, campaign);
             }
         }
 
-        public void StandardAssault(SolarSystem system, int priority, Empire them, int fleetsPerTarget = 1)
+        public void StandardAssault(SolarSystem system, int priority, Campaign campaign, int fleetsPerTarget = 1)
         {
             foreach (var planet in system.PlanetList.SortedDescending(p => p.ColonyBaseValue(Owner)))
             {
-                if (planet.Owner != them || IsAlreadyAssaultingPlanet(planet))
+                if (planet.Owner != campaign.GetWar().Them || IsAlreadyAssaultingPlanet(planet))
                     continue;
 
                 CreateTask(new MilitaryTask(planet, Owner)
                 {
-                    Priority = priority
+                    Priority    = priority,
+                    WarCampaign = campaign
                 });
 
                 if (Owner.canBuildBombers && !IsAlreadyGlassingPlanet(planet))
                 {
                     var task = new MilitaryTask(planet, Owner)
                     {
-                        Priority = priority + 1,
-                        type = MilitaryTask.TaskType.GlassPlanet
+                        Priority    = priority + 1,
+                        type        = MilitaryTask.TaskType.GlassPlanet,
+                        WarCampaign = campaign
                     };
                     CreateTask(task);
                 }
@@ -141,7 +151,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return clearing;
         }
 
-        public void StandardSystemDefense(SolarSystem system, int priority, float strengthWanted, int fleetCount)
+        public void StandardSystemDefense(SolarSystem system, int priority, float strengthWanted, int fleetCount, Campaign campaign)
         {
             if (IsAlreadyDefendingSystem(system)) return;
             
@@ -151,16 +161,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             CreateTask(new MilitaryTask(Owner, center, radius, system, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
                 Priority      = priority,
-                FleetCount    = fleetCount
+                FleetCount    = fleetCount,
+                WarCampaign   = campaign
             });
         }
 
-        public void StandardAreaClear(Vector2 center, float radius, int priority, float strengthWanted)
+        public void StandardAreaClear(Vector2 center, float radius, int priority, float strengthWanted, Campaign campaign)
         {
             if (IsAlreadyClearingArea(center, radius)) return;
             CreateTask(new MilitaryTask(Owner, center, radius, null, strengthWanted, MilitaryTask.TaskType.ClearAreaOfEnemies)
             {
-                Priority      = priority
+                Priority      = priority,
+                WarCampaign   = campaign
             });
         }
 
