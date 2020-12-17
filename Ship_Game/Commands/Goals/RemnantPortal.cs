@@ -46,14 +46,14 @@ namespace Ship_Game.Commands.Goals
         void JumpToEnemy()
         {
             float desiredRange = Portal.DesiredCombatRange;
-            Ship nearest       = Portal.System?.ShipList.FindMinFiltered(s => s != null 
-                                                                             && s.loyalty != empire 
-                                                                             && s.GetStrength() > 100
-                                                                             && !s.IsInWarp, s => s.Center.Distance(Portal.Center));
+            Ship farthest      = Portal.System?.ShipList.FindMaxFiltered(s => s != null 
+                                                                            && s.loyalty != empire 
+                                                                            && s.GetStrength() > 100
+                                                                            && !s.IsInWarp, s => s.Center.Distance(Portal.Center));
 
-            if (nearest!= null && !nearest.Center.InRadius(Portal.Center, desiredRange))
+            if (farthest!= null && !farthest.Center.InRadius(Portal.Center, desiredRange))
             {
-                Vector2 pos = nearest.Center - nearest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + nearest.Radius);
+                Vector2 pos = farthest.Center + farthest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + farthest.Radius);
                 MoveToPos(pos);
             }
         }
@@ -92,11 +92,15 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             Remnants.OrderEscortPortal(Portal);
-            float production = Empire.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
-            production      *= empire.DifficultyModifiers.RemnantResourceMod;
-            production      *= (int)(CurrentGame.GalaxySize + 1) * 2 * CurrentGame.StarsModifier / EmpireManager.MajorEmpires.Length;
-            Remnants.TryGenerateProduction(production);
             UpdatePosition();
+            if (!Portal.InCombat)
+            {
+                float production = Empire.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
+                production *= empire.DifficultyModifiers.RemnantResourceMod;
+                production *= (int)(CurrentGame.GalaxySize + 1) * 2 * CurrentGame.StarsModifier / EmpireManager.MajorEmpires.Length;
+                Remnants.TryGenerateProduction(production);
+            }
+
             return GoalStep.TryAgain;
         }
     }

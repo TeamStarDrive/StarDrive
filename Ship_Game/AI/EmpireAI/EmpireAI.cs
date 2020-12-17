@@ -46,9 +46,9 @@ namespace Ship_Game.AI
             ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
 
             if (OwnerEmpire.data.EconomicPersonality != null)
-                NumberOfShipGoals = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
+                NumberOfShipGoals += OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
-            if (OwnerEmpire.isFaction && OwnerEmpire.data.IsPirateFaction && !GlobalStats.DisablePirates)
+            if (OwnerEmpire.isFaction && OwnerEmpire.data.IsPirateFaction)
                 OwnerEmpire.SetAsPirates(fromSave, Goals);
 
             if (OwnerEmpire.isFaction && OwnerEmpire.data.IsRemnantFaction)

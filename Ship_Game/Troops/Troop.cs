@@ -534,7 +534,7 @@ namespace Ship_Game
                 }
             }
 
-            return  bestTiles.RandItem() ?? freeTiles.RandItem();
+            return bestTiles.Count > 0 ? bestTiles.RandItem() : freeTiles.RandItem();
         }
 
         int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)

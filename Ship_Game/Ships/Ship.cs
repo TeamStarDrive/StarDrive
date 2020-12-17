@@ -187,7 +187,7 @@ namespace Ship_Game.Ships
 
         void SetFleetCapableStatus()
         {
-            if (!EMPdisabled && !InhibitedByEnemy)
+            if (!EMPdisabled)
             {
                 switch (AI.State)
                 {
@@ -272,7 +272,10 @@ namespace Ship_Game.Ships
             if (IsConstructor)
                 return ResourceManager.Texture("TacticalIcons/symbol_construction");
 
-            string roleName = DesignRole.ToString();
+            string roleName = DesignRole == ShipData.RoleName.scout || DesignRole == ShipData.RoleName.troop 
+                ? DesignRole.ToString() 
+                : shipData.HullRole.ToString();
+
             string iconName = "TacticalIcons/symbol_";
             return ResourceManager.TextureOrNull(iconName + roleName) ??
                 ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
@@ -1659,6 +1662,7 @@ namespace Ship_Game.Ships
         }
 
         public void ClearFleet() => fleet?.RemoveShip(this);
+        public void UnsafeClearFleet() => fleet?.UnSafeRemoveShip(this);
 
         public void Dispose()
         {

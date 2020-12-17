@@ -83,7 +83,7 @@ namespace UnitTests.Fleets
             Assert.AreEqual(5, flankCount, $" expected 5 flanks got{flankCount}");
             var flanks         = fleet.AllFlanks;
             int squadCount = flanks.Sum(sq => sq.Count);
-            Assert.AreEqual(3, squadCount, $"Expected 3 squads got {squadCount}");
+            Assert.AreEqual(4, squadCount, $"Expected 3 squads got {squadCount}");
             int squadShipCount = flanks.Sum(sq => sq.Sum(s=> s.Ships.Count));
             Assert.AreEqual(10, squadShipCount, $"Expected 10 ships in fleet got {squadShipCount}");
 
