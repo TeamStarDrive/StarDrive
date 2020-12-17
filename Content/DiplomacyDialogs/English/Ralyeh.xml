@@ -1,0 +1,637 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>...Perhaps, perhaps. We are Ralyeh, bringers of death. And yet, you...you impress us. Perhaps another fate lies in store for you?</Friendly>
+      <Neutral>Tell me, SING, have you ever truly contemplated the hour of your own death, when all becomes nothing? Do you fear to suffer? You should, for we are Ralyeh, harbringers of death and servants of the Elder God.</Neutral>
+      <Hostile>Tell me, SING, have you ever truly contemplated the hour of your own death, when all becomes nothing? Do you fear to suffer? You should, for we are Ralyeh, harbringers of death and servants of the Elder God.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Are you so eager to fade into non-existence that you would taunt the Elder God before his throne? Your trespass into our systems is a great offense.</Friendly>
+      <Neutral>You taunt the Elder God with your extension into his realms. Do you expect that he will not crush you like the insects that you are?</Neutral>
+      <Hostile>Your mockery of the Elder God does not go unnoticed. Your transgression in the TARSYS system will not be forgotten. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Are you so eager to fade into non-existence that you would taunt the Elder God by attacking his disciples? What madness possesses you? </Friendly>
+      <Neutral>Your attacks on the Ralyeh, pitiful as they might be, give great offense to the Elder God. Beware.</Neutral>
+      <Hostile>Foolish PLURAL! Are you so eager to die that you would provoke us before it is yet your turn?</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>SING, take your ships from our space or we shall be angry.</Friendly>
+      <Neutral>SING, take your ships from our space or we shall be angry. We have tolerated this for long enough.</Neutral>
+      <Hostile>SING, your ships are in our space and we will not abide your trespasses. Remove your ships or have them removed. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>You mock us, surely? How crazed can the PLURAL be to jeopardize a friendship with the Ralyeh? Cede us TARSYS or face the consequences. </Friendly>
+      <Neutral>As expected, your incursions into our space are now proving themselves to be more permanent. Your colonization of TARSYS is a great offense. </Neutral>
+      <Hostile>...soon, SING. Soon the Elder God will pass judgment on you. Prepare yourselves.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>You mock us, surely? How crazed can the PLURAL be to jeopardize a friendship with the Ralyeh? Cede us TARSYS or face the consequences. </Friendly>
+      <Neutral>As expected, your incursions into our space are now proving themselves to be more permanent. Your colonization of TARSYS is a great offense, and your lingering presence even more so. </Neutral>
+      <Hostile>...soon, SING. Soon the Elder God will pass judgment on you. Prepare yourselves.</Hostile>    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Make no mistake, SING. When the hour of your death arrives, you will be no more. All that you ever knew and ever were will be erased. There is no God but the Elder God, and even he is a slaved to death. But I digress. The hour of your death is upon you. We are now at war. </misc1>
+      <misc2>To take a life is a great honor and a great burden. The dealer of death is a destroyer of worlds - of universes! Everything that you once were becomes nothing! We will do this to you. We will destroy your worlds and crush your universes into non-existence! We are now at war.</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>The Elder God's eye has not yet fallen upon a race other than ours and your own. Soon, though, soon he shall see. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Greetings, SING. Have you thought more about your death? Will it be a good death?</Friendly>
+      <Neutral>How is it that you will die, SING? In your home, surrounded by your family, old and infirm? In battle? An accident? Murdered? We wonder these things. Why do you disturb us from these dark thoughts?</Neutral>
+      <Hostile>The PLURAL come to sniff at Death's heels. What is it? </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>What is that staff that you're holding?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>This is the Sceptre of the Elder God, which marks me as the leader of our people. It is I who interpets the will of the Elder God and make it manifest.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>We are dealers of death, SING, </DL_Agg>
+      <DL_Hon>We are dealers of death, SING, </DL_Hon>
+      <DL_Pac>We are dealers of death, SING, </DL_Pac>
+      <DL_Ruth>We are dealers of death, SING,</DL_Ruth>
+      <DL_Cunn>We are dealers of death, SING, </DL_Cunn>
+      <DL_Xeno>We are dealers of death, SING, </DL_Xeno>
+      <DL_Exp> and we shall carry our heavy burden to the edges of space, to every star in every sky. </DL_Exp>
+      <DL_Tech> and through the deaths of those whom displease the Elder God, we shall gain knowledge. Knowledge to defy death! </DL_Tech>
+      <DL_Mil> and our mighty fleets shall carry our heavy burden to the many worlds of our foes.  </DL_Mil>
+      <DL_Ind> and our mighty industries shall produce such instruments of power that none could ever resist our sacred charge.</DL_Ind>
+      <DL_Gen> and yet we love life. Life and Death. Light and Darkness. Chaos and Order.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>We have no reason to trust PLURAL with such an arrangement.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Your offering to the Elder God moves us to extends to you more trust than our better judgment may allow. It is agreed. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>You must think the Ralyeh are imbeciles. No. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>You abuse our trust by making us such a poor offer. Increase your end of the bargain if you wish to make such an arrangment. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>You anger the Elder God with such insulting terms!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>It is agreed, then. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Your terms please the Elder God. We agree.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Your generous terms are accepted, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>The Elder God will be pleased with your offering.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>You beg for a fair trade? Pathetic. Even so, we accept. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>The sound of the Elder God's laughter would cause your cranium to explode, were you capable of hearing it. He is laughing at your pathetic threats.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Your threats are weeds upon the tide. We accept your offer of trade, but do not appreciate the tone. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Has the Elder God abandoned us? How can such creatures as yourselves force us into giving so much for so little? In this time of darkness, we agree to your demands. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>You violate your oaths, but we will keep ours. We vow to kill you. We vow to crush your bones and suck out your insides. We vow to drink your blood from the skulls of your children. Before the Elder God, we swear this. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Very well. Death comes for us all, SING. This is the way of Life.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Can you see the blackness ahead of you? It is so near now, SING. Are you pleased with how you have lived? Did you find meaning? Speak now, and we will listen.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your transgressions are too many, and we are now at war.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your transgressions are too many, and we are now at war.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>We would have preferred to wait before warring with you, but prudence demands that we begin immediately. Your transgression in TARSYS was one too many, and we are now at war.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>The Elder God extends to you an offer of Non-Aggression, in the hopes that our two people might defy death together.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>And so it shall be. PLURAL and Ralyeh will Live, and death shall wait for tomorrow.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>It is as he foresaw, then. You will die and be forgotten, alone and ignorant.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>We greet you, SING. It is our desire to trade goods with your people. Will you accept such an arrangement? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>The Elder God is pleased. We will make arrangements. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Very well. We heard your goods were of inferior quality anyway. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Have our words swayed you? Is it Life that you choose now, and not death? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>You reject us once and now offer us our own terms? PLURAL are so strange.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>You would be wise to grant us the technology of TECH_DEMAND. To do so might prolong your lives significantly.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>It is as the Elder God foresaw. Perhaps we shall defy death awhile longer, you and I.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>No matter. This was only a test, and you failed. Farewell, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>The Elder God's eye falls upon your fleet and finds it lacking. He wonders, is it PLURAL that are to die next? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>The Elder God has judged your fleet and he finds it worthy. You will live, for now. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>We are pleased that you heeded the Elder God's warning, and so is he. Your fleet is in much better condition now. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>We come to you now with our sacred charge. We shall take your lives, SING. We shall take your planets and your goods and your people, and we shall crush them into non-existence. Prepare yourselves.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>We respect their philosophies and their strength. They shall live, for now.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>They are beyond the Elder God's consideration for the moment.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>The warrior beasts offend the Elder God, and there is only one punishment for such an offense.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>We...cannot help but liking these creatures.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Curious things, the Pollops. We largely ignore them.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Seaweeds! We will not even be sad when we uproot them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>We sometimes question how the Vulfar are even capable of spaceflight. But they are strong and fierce and we like them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>We do not think much on the Vulfar.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Those dogs are not fit to live.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Yes, we like the Humans well enough. The Elder God has visited their homeworld once, long ago. Human legend holds that he was driven from their world entirely. But, of course, we Ralyeh know the true story. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>We have not concerned ourselves much with Humans since the Elder God visited their homeworld many ages past.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Humans have legends of our Elder God. They believe themselves capable of defeating him! How wrong, and pathetic, they are!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>To the Ralyeh there is but one oath: that which we must all swear to the service of the Elder God. We have decided that our Non-Aggression pact is inconsistent with our Oath. It is now discarded and we are at war.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Your planets are ours, your fleets lie in ruins. The circle is closed and Elder God's will has been done. Death has been brought to the PLURAL, and we mourn your loss.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>You have been worthy friends to the Elder God and his devoted. We do not wish these border disputes to imperil our relationship. Let us sign an Open Borders treaty and put this conflict aside.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>You are wise, SING. Now let us bring the message to those more deserving, shall we not? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>That is most unfortunate. You draw the Elder God's gaze with your defiance, and his gaze brings only death.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Hmmm. We admire your courage, SING. We did not see this move coming from you. We thought you more honorable than that. No matter, we see the truth now. War it is.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>So. You knock on Death's door with your troops landing in TARSYS. Very well. He comes to answer.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Interesting creatures, these Opteris. Are they alive? Can they die? We are friendly with them, at least. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>We have no opinion on these machines.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>They anger the Elder God. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Are you alive? Well, then we have a grievance. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>The Elder God's eye is turned away from you, from now. You are certainly blessed by his ignorance of you. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>The Elder God is displeased with you in a number of ways. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>The primary matter of concern is our competition for star systems. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>The primary matter of concern is our competition for star systems. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>However, we are also concerned with your fleet strength and your intentions with that fleet. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Also, your fleet is pathetic and we cannot respect that. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>The primary matter of concern is how weak you are. The Elder God despises weaklings. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>The primary matter of concern is the size of your fleet, and your intentions with that fleet. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Your alliance with the foes of the Elder God, TAREMP, displeases us. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Additionally, your alliance with the foes of the Elder God, TAREMP, displeases us. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>The fact that you are alive displeases us. Otherwise, we have no grievances. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Can you hear the bells tolling your demise, summoning you to the underworld? It's so close now, SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Your continued defiance of the Elder God's summons is infuriating. What do you want, SING? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>The Elder God would be most pleased with you if you joined us in our battle against TAREMP. What say you? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Excellent. Together we shall deliver his heavy burden. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Fool! Do not think yourself safe from us. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>They haven't angered the Elder God yet, so that's good. I suppose we like them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>We ignore lesser beings.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>They are on our list, SING. And not the good list.</Default>
+    </DialogLine>
+
+
+    <!-- Second Run Localization -->
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>For reasons beyond my understanding, the Elder God wishes to spare your people for the time being. We offer a peace treaty.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>For reasons beyond my understanding, and despite our continued military success, the Elder God wishes to spare your people for the time being. We offer a peace treaty.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>The Elder God has acknowledged your strength in battle. In deference to your power, we offer a treaty that would end hostilities.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>We...must ask that you end your war against us. Our message is so important and you threaten our existence with your power. Please, let us end this war.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>The Elder God has acknowledged your strength in defense of your claims. In deference to your power, we offer a treaty that would end hostilities.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>These border conflicts are distracting to us. We feel like we have won this round and we are willing to end the hostilities now.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Well...peace was a poor idea to begin with anyway.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>So it is written, so it shall be done. We are at peace.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Ring twice the bell. Once for those who are fallen, and once for those who are saved. We have peace. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>The Servants of the Elder God do not need omniscience to see how foolish you must think we are by offering such horrid terms. No. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>The Elder God's claims stand unresolved. We will not abandon them without good cause. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>You bend us to your will here, SING. We can admire that. Very well - we agree.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Your continued existence despite our best efforts at war is an ongoing grievance. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>The galaxy is a dangerous place, SING. We feel that our friendship merits recognition with an alliance, to keep these dangers at bay. What do you say?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>We are pleased with your wisdom. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Your lack of wisdom on this matter puzzles us.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>To consider an alliance is a complicated analysis. We do not want to have our decision clouded by these other terms. Offer us an alliance alone and we can consider it. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Yes...yes! We do see the wisdom in this! Let us be allies then.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Ah. No, SING. We will not be your allies.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>And what tithes have you offered the Elder God for his forgiveness? Hmm? What worlds will you give him? Think on this before you ask that he spare your lives.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>A peace? Before any blood has been shed at all? Your tithe seems sufficient. Very well. Peace it is.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>You anger us, SING. This is not how allies should act. Very well. The alliance is canceled.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Have you no respect, SING, for the claims of a GOD? TARSYS was to be his, and you anger him with your defiance! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Fools! We thought PLURAL enjoyed clinging to their pathetic existences. But your continued defiance of our wishes makes us wonder if you desire for us to hasten the deliverance of our gift.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>And again, you steal our claims right from beneath our tentacles. The Elder God awakes, SING. He will not be happy to hear of this.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>We tell you because we are friends, SING. Stay out of the TARSYS system. We have claimed it for our God.</Friendly>
+      <Neutral>In the name of the Elder God, we claim the TARSYS system. Stay away, SING.</Neutral>
+      <Hostile>Know this: that the Ralyeh have claimed the TARSYS system. Colonize it at your own risk!</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>A strange race, to be sure. And their companions, the furred ones...also strange. But we like them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>We have no opinion on the slavers.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Ah, the slavers. We are not impressed with their methods, and consider them enemies. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>PLURAL. Lurking in the shadows...stealing the secrets of their betters...disgusting.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>We are on to you, SING. We know you are spying on us. You only hasten your demise by angering us.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>The Elder God will not stand for this! Your spying is out of hand! Our treaties are canceled!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>An offering for the Elder God! Your Agent was delicious.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>...why do you spy on us, SING? Why make an alliance and then discard it so thoughtlessly? We will give you one chance to stop.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>And your one chance has been wasted. Our Alliance is over.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Come join us, SING. We would open our borders to you and you to us, in friendship. Do you consent?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>As you wish. But Death knows no borders, plays no favorites.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>No, eager one. This is not an arrangement that we will enter into with just anyone.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Friends...you ask much of us, and yet we are not even formal allies yet. What you ask may be possible some day, but we must first build a basis for that relationship.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Eager as always, I see. Let us settle into this new alliance first...make sure that there are no problems...then we can discuss this proposal further.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>But why would we do this, when we are strong and you...well, you are not as strong? We cannot.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>This is a most auspicious day. You have helped us find life in the blackness. Today we join you. Long live our Federation!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>You ask much of us, SING. We will join you. However, we will only join you if you first defeat our enemies, TAREMP. Prove your faith and we will become one.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>And so it is done. TAREMP is defeated and we shall keep our word and join your Federation.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Perhaps you should focus on improving our relations and addressing some of our grievances before making such grand overtures.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>We would join you, SING. But you must prove yourself to be a friend of our friends. If you can make an alliance with TAREMP, then we shall join your Federation.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>You have done as we asked. With our friends, TAREMP, now your allies, we shall join your Federation.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Your enthusiasm for creating conflict is noted. However, the soldiers of the Elder God are not mercenaries. The answer is no.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>We are already at war with TAREMP, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>As your allies we are duty-bound to accept your request. War it is.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>We cannot war upon TAREMP as they are also our friends and allies.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>No, SING. We were thinking that instead we might war upon you. Wouldn't that be fun? Now go away.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>We do not approve of war unless it is in self-defense.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>No. They are too powerful for us. We cannot agree.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>My thoughts exactly! They're weak, they're vulnerable...let us attack and finish them off.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>You want peace with the Ralyeh, yet you are allied with our enemies. Begone, SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>You are insulting the Elder God by offering alliance while allied with our enemies. We refuse.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>What abomination is this?! You are going behind our back, signing treaties with our mutual enemies? </Default>
+      <DL_Agg>Our Alliance is canceled.</DL_Agg>
+      <DL_Ruth>Our relations are off. Soon you will feel our wraith, SING.</DL_Ruth>
+      <DL_Xeno>This is expected, yet not acceptable. We are cutting off our relations with you.</DL_Xeno>
+      <DL_Cunn>The Elder God is not pleased.</DL_Cunn>
+      <DL_Pac>The Elder God welcomes peaceful solutions, but you should wait until we are not at war with them as well.</DL_Pac>
+      <DL_Hon>Have you thought of your death, SING? What death shall it be? In the name of the Elder God, we will dispatch of you.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>What abomination is this?! You are going behind our back, trying to sign treaties with our mutual enemies?</Default>
+      <DL_Agg>Our Alliance is canceled.</DL_Agg>
+      <DL_Ruth>Our relations are off. Soon you will feel our wraith, SING.</DL_Ruth>
+      <DL_Xeno>This is expected, yet not acceptable. We are cutting off our relations with you.</DL_Xeno>
+      <DL_Cunn>The Elder God is not pleased.</DL_Cunn>
+      <DL_Pac>The Elder God welcomes peaceful solutions, but you should wait until we are not at war with them as well.</DL_Pac>
+      <DL_Hon>Have you thought of your death, SING? What death shall it be? In the name of the Elder God, we will dispatch of you.</DL_Hon>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

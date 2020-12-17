@@ -54,7 +54,8 @@
 
         public void RestoreFleetStrEmpireMultiplier(Map<int, float> empireStr)
         {
-            FleetStrEmpireMultiplier = empireStr;
+            if (empireStr != null)
+                FleetStrEmpireMultiplier = empireStr;
         }
     }
 }
