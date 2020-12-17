@@ -1124,8 +1124,8 @@ namespace Ship_Game.Gameplay
             var offerPeace = new Offer
             {
                 PeaceTreaty   = true,
-                AcceptDL      = "OFFERPEACE_ACCEPTED",
-                RejectDL      = "OFFERPEACE_REJECTED",
+                AcceptDL      = "OFFERPEACE_ACCEPTED", // This will be modified in Process Peace
+                RejectDL      = "OFFERPEACE_REJECTED", // This will be modified in Process Peace
                 ValueToModify = new Ref<bool>(() => false, x => SetImperialistWar())
             };
 

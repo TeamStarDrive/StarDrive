@@ -249,6 +249,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             ScreenManager.Instance.AddScreenDeferred(new DiplomacyScreen(victim, Empire.Universe.PlayerEmpire, dialog, claimedPlanet.ParentSystem));
         }
 
+        public static void ContactPlayerFromDiplomacyQueue(Empire responder, string dialog)
+        {
+            ScreenManager.Instance.AddScreenDeferred(new DiplomacyScreen(responder, 
+                Empire.Universe.PlayerEmpire, dialog, null, endOnly: true));
+        }
+
 
         void DoNegotiationResponse(string answer)
         {
@@ -466,17 +472,21 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 if (dl.DialogType != name)
                     continue;
 
+                string space = "";
                 if (dl.Default.NotEmpty())
+                {
                     sb.Append(dl.Default);
+                    space = " ";
+                }
 
                 switch (Them.data.DiplomaticPersonality.Name ?? "")
                 {
-                    case "Aggressive": sb.Append(dl.DL_Agg);  break;
-                    case "Ruthless":   sb.Append(dl.DL_Ruth); break;
-                    case "Honorable":  sb.Append(dl.DL_Hon);  break;
-                    case "Xenophobic": sb.Append(dl.DL_Xeno); break;
-                    case "Pacifist":   sb.Append(dl.DL_Pac);  break;
-                    case "Cunning":    sb.Append(dl.DL_Cunn); break;
+                    case "Aggressive": sb.Append(space + dl.DL_Agg);  break;
+                    case "Ruthless":   sb.Append(space + dl.DL_Ruth); break;
+                    case "Honorable":  sb.Append(space + dl.DL_Hon);  break;
+                    case "Xenophobic": sb.Append(space + dl.DL_Xeno); break;
+                    case "Pacifist":   sb.Append(space + dl.DL_Pac);  break;
+                    case "Cunning":    sb.Append(space + dl.DL_Cunn); break;
                 }
 
                 switch (Them.data.EconomicPersonality.Name ?? "")

@@ -1,0 +1,618 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>We, the illuminated, the wise and powerful Cordrazine, do greet you.  No, I'm back here! With the eye. Yes. We do wisely and powerfully greet you! </Friendly>
+      <Neutral>Behold! We, the most wise and beautiful Cordrazine do greet you. No, I'm back here! With the eye! Yes. We do wisely and powerfully greet you! </Neutral>
+      <Hostile>Behold! We are the mighty and powerful and wise and so on Cordrazine! And we -- HEY! Owlwoks! Pay attention! Ahem. Watch yourselves, SING! We aren't to be trifled with. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>.....Master says to please not colonize in our systems or he will be very sad! You wouldn't like master when he is sad... </Friendly>
+      <Neutral>.....Master says to please not colonize in our systems or he will be very angry! You wouldn't like master when he is angry... </Neutral>
+      <Hostile>Behold! I am brilliant! And you have colonized in one of my systems. Are you such a fool as to think you can challenge MEEEEE? </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>...Master was confused when you fired on his ships! He thinks that maybe you had a problem with your weapons? You should check your weapons.... </Friendly>
+      <Neutral>....HOOOO!!! Master is angry!!! Why did you attack his ships? Oh we don't like it when Master is angry..... </Neutral>
+      <Hostile>Behold! Look at how beautiful I am! You attacked something as beautiful as me! I am hurt! And angry. Very, very Angry.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>...Hello, SING! Master says please to remove your ships from our space!.... </Friendly>
+      <Neutral>...Master says to tell the PLURAL to take their ships out of our space right now, OK?...</Neutral>
+      <Hostile>...Master says "tell the PLURAL to take those pieces of junk that they call spaceships and to remove them from our space right away or else", so you had better listen up! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>...HOO! You didn't listen to Master! He SAID to stay out of our systems and now you colonized one? He is going to be ANGRY! </Friendly>
+      <Neutral>Behold! I smell wonderful, don't I? Wait, why did we contact you again? OWLWOKS!! Wake up!  Ah yes. We contacted you because we are angry that you have colonized TARSYS even after we warned you to stay out. We're just saying. </Neutral>
+      <Hostile>Behold! I smell wonderful, don't I? Wait, why did we contact you again? OWLWOKS!! Wake up!  Ah yes. You PLURAL are so disgusting, aren't you? And you colonized in TARSYS! We are very unhappy about this. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>...HOO! You didn't listen to Master! He SAID to stay out of our systems and now your ships are flying here and there! He is going to be ANGRY! </Friendly>
+      <Neutral>Behold! I smell wonderful, don't I? Wait, why did we contact you again? OWLWOKS!! Wake up!  Ah yes. We contacted you because we are angry that you are acting like you own the TARSYS system. Get out or things are going to go badly for you! </Neutral>
+      <Hostile>Behold! I smell wonderful, don't I? Wait, why did we contact you again? OWLWOKS!! Wake up!  Ah yes. You PLURAL are so disgusting, aren't you? And you colonized in the TARSYS system, which is ours! We are very unhappy about this. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>Greetings disgusting SING. We regret to inform you that your stench is overwhelming, and as a result we intend to remove your fetid race from the galaxy. Goodbye! </misc1>
+      <misc2>......HOOOOOO!! WAR WAR WAR WAR WAR War war war war.......</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Ah! There are even more races out there who can admire our beauty and elegance? We are glad to hear it. Sadly, we do not know any of them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Behold! Isn't my shell beautiful? What can I do for you, friend?</Friendly>
+      <Neutral>....Master is busy right now. How can Owlwoks help the SING? </Neutral>
+      <Hostile>....Master said that he does not like the PLURAL. We don't like the PLURAL! What do you want!??.... </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>You guys are so cute and fuzzy!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Wait, what? No! These Owlwoks are just our slaves! And they're so hideous! Not like me. I really am beautiful, aren't I?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Well I suppose you would want to know about your betters, wouldn't you? Very well. We are beautiful creatures, we Cordrazine. Irresistable, really. </DL_Agg>
+      <DL_Hon>Very well. Do PLURAL have the notion of Honor? We certainly do. It means to always respect that which is beautiful, like ourselves. </DL_Hon>
+      <DL_Pac>We Cordrazine are a pacifist people. Why fight your enemies when you can just mesmerize them with beauty anyway? </DL_Pac>
+      <DL_Ruth>Do you know what it is to be both beautiful and terrible? To have power and grace? This is what it means to be Cordrazine. </DL_Ruth>
+      <DL_Cunn>Oh, SING, you know. We're a little bit of this, a little bit of that, but really we're just beautiful, don't you think? </DL_Cunn>
+      <DL_Xeno>Well, in truth, we feel a little dirty around the lesser races. You're just so...ugly! We value beauty. </DL_Xeno>
+      <DL_Exp>As for what our future holds, we see our empire spread among the stars far and wide. </DL_Exp>
+      <DL_Tech>Also, we have research teams working day and night to help us gain and find beauty. </DL_Tech>
+      <DL_Mil>But what is beauty without a hard shell? We need to be strong too, and so we emphasize military growth. </DL_Mil>
+      <DL_Ind>And so, day and night, we labor to be more beautiful..</DL_Ind>
+      <DL_Gen>And yet, while beauty is our highest ideal, we know that a balanced approach to life is most likely to help us find it.</DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>No, no, SING. We do not trust you enough for such a deal.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>My my! What a beautiful offer you have made! While this stretches the limits of our trust for one another, how can I say no? We accept. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>No, SING, this won't do at all! Are you trying to cheat us? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>SING, we are not opposed to making a trade of this magnitude, but you just are not giving us enough to make it worth our while right now. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>You must think me some simple-minded Owlwok! Of course I won't accept this deal!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>A good trade. We accept. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Beautiful! A fair and fine deal. We accept. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>But of course you would offer us such a fine gift! This is a gift, isn't it? Or did you think we were making equal trades here?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Ah yes, a fine gift! Thank you so very much. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>Oh...fine. Don't let it be said that we never did something beautiful for you! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>How dare you threaten me, you, you UGLY little owlwok dung! I never! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>You know, SING, threats are so very ugly. We would have made this deal without the ugliness! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Fine! Take your spoils and go. Your presence offends me. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>You betray us! Why? We're so beautiful! You have never seen such fury as a Cordrazine scorned! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>You wish to war on us? You know, there was once an independent race of creatures called Owlwoks who thought to do the same. Good luck, SING. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Finally come around to seeing our beauty, have you, SING? Very well, go ahead. We're ready to be showered with gifts! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>....HOOOO!!! Master says to shoot at your ships now! Unlucky, SING!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>....HOOOO!!! Master says to remove all PLURAL from our space! Get ready to die!.....  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>....HOOOO!!! Master says he warned you! You should have left TARSYS alone!.... </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Behold! Imagine if you could bask in our radiant glow day in and day out without fear of mind-controlling chemicals being forcibly injected into your brains. Wouldn't that be nice? Let us enjoy a non-Aggression pact.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Wonderful! OWLWOKS!! Send over the necessary paperwork! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Well! I never! Maybe you DO need some mind-controlling chemicals after all! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>...Hello SING! Master wants to make some trades with PLURAL. Want to sign a trade treaty? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>.....HOOOO!!! Great! I'll tell Master..... </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>....Hooo? Okay then.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>I seem to recall you Rejecting our offer of non-Aggression? Well no matter, the past is the past. What else do we have here? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Didn't my owlwoks offer this same trade treaty to you and you rejected it? Well no matter, those disgusting creatures are worthless sometimes. Let's see...</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Behold! Beautiful beings such as ourselves require gifts to help ease our insecurities. Won't you give us TECH_DEMAND ? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Oh I just knew you thought I was beautiful! I see great things in our futures! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Well! We're definitely putting you on the to-inject-with-mind-controlling-chemicals list!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>I was just having the most hilarious conversation with the Owlwoks about how sad your fleet is! Really! What a joke! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>The Owlwoks told me that your fleet is pretty nice. Obviously it isn't as beautiful as our fleet, but it's pretty good. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Hello, SING. You know, the reason we say mean things to you is to help you get better. And look at your fleet now! A lot stronger! Good for you! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Well, SING, we have thought long and hard about this and we think ultimately that you will be a much better friend if we hook you up with some mind-controlling chemicals. So we're coming to enslave you now! Fighting only makes it harder!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Those hideous bear things? We like them well enough.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>They are so digusting! Beyond that we have no opinion. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Ugly, odiferous, rude, far too large for their own good, resistant to mind-control drugs...no, we don't like them one bit.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Well it's just so hard to NOT like those little guys! All they want to do is just play me music, and you know I really do appreciate that. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>I definitely want a few for my collection! But other than that, no opinion!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Those weedy little bastards? Ugh! Disgusting. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Hideous and stupid, but mostly harmless! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Well, one of them tried to mate with one of my Owlwoks once and it was pretty funny. But other than that, no opinion!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>We hate them with every fiber of our being. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Hideous and smelly, but overall a good bunch of aliens. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>We really haven't dealt much with the Humans, sorry.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Those disgusting apes! Can you believe that they thought the OWLWOKS were the leaders of our race? Outrageous! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Oh, they're SO beautiful! It makes us jealous sometimes, doesn't it, Owlwoks?  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Hmmm we do not know them well enough to really give an opinion, except to say that they obviously are not as beautiful as us.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>Hideous! Disgusting! And so depressing! Always talking about death and dying and so on! Get over yourselves, Ralyeh!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>SING presence in this galaxy offends my Owlwoks, doesn't it you guys? Yes it does. And we don't care about treaties at all! So we're at war now. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Take a good long look, SING! Gaze upon the beautiful eye of your conqueror. Your people are dead. Your planets belong to us. In short, YOU LOSE! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>We like you, SING, don't we, Owlwoks? But we have a problem in that we are sharing the same space. We would rather declare an Open Borders treaty and just put this whole mess behind us. What do you say: friends?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>That's just terrific! We don't often make friends that aren't pumped full of mind-controlling chemicals! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Oh! Well! I suppose we had better get our defenses prepared then. Goodbye!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>What!? Why!! I thought we were friends! Is TARSYS really so important to you? Prepare to meet the Owlwok death squads!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Sneaky little PLURAL! TARSYS is mine! War it is, then!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>Well, they're certainly a strange lot! But we like them just fine. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>They're just machines, aren't they? No real opinion.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Those bugbots are crazy! Trust me, SING, you don't want a piece of them!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Master is VERY unhappy about you stealing his claim in TARSYS! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Helloooo! Just for your information, SING, we have claimed the TARSYS system. So between friends, you should definitely stay out! </Friendly>
+      <Neutral>The most wise and graceful and, uhmm, magnificent and beautiful and pretty smart Cordrazine do greet you! We claim the TARSYS system! Stay out!</Neutral>
+      <Hostile>KWWAAAAK. Hey, SING, Master says he owns the TARSYS system so you had better stay out. </Hostile>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Well we've just met you, SING! We will have to see how things develop, won't we my dear Owlwoks? Yes we will. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Everything is looking fabulous on our end, SING! We're going to be such good friends, aren't we? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Honestly, SING, we have a few nits to pick with you!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Well, just one really. We keep competing for the same systems, and this is bothering us. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>First, we keep competing over star systems and this is a problem for us.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Second, you have a huge military and that makes the Owlwoks a little scared sometimes.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Also, your military is a TOTAL JOKE! The Owlwoks think it is hilarious. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Mainly, we just think your military is a joke! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Mainly, the size of your fleets scares the Owlwoks. But you're nice, aren't you? Not going to attack us or anything?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>We are not very thrilled about your friendship with TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Oh, and you're also allied with TAREMP, who are a bunch of jerks.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Well, things aren't exactly great between our empires, but we don't have any specific problems. Maybe we can improve things a bit? I love gifts, you know!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Ha! Come to beg for mercy? Unlikely, but please! Do beg! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>If it isn't the bloodthirsty PLURAL! What do you want? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>SING! We're in rough shape in our war with TAREMP. We could really use some help. Join us in this war! Please!?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Fabulous! We'll race you to their homeworld!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Crud. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>They're so...sneaky! I love it! Very exotic, don't you agree? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Sorry but we don't really know them very well.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Ugh. Their whole hologram thing is just super pathetic.</Default>
+    </DialogLine>
+    
+    
+    <!--  Second Run Localization Efforts -->
+
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>This was has been traumatizing for the Owlwoks. Let us end it now before more fur is shed. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>By now you must surely have realized the superiority of Owlwok troopers. Won't you accept a fair peace with us?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Back and forth we fight. I'm tired of this war. Let us make peace?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>For the love of all that's furry! Please, SING, please let us make a peace?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Do you remember when you used to own some of the star systems that WE now own? Give it up, SING! Make peace with us.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>On reflection, perhaps it was a bad idea to war over these trivial planets. Let us end the war?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Well! I never!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Yes, yes. This is good. Let's try to avoid a repeat of this incident, shall we?</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Very well! We are happy to see and end to these hostilities.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Even with but one eye I can see that you are trying to rob me blind! There will be no peace under these terms. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>My claim to the disputed system is valid and I am not abandoning it for the trinkets you are offering!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Curse you, SING! Fine! You shall have your peace. Take your winnings and go from my sight. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Grievances? Do you not recall the horrible war with millions of suffering Owlwoks? Of course we have grievances. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>We have been friends for so long, SING, that we believe it is time to cement our friendship with a formal alliance. We will stand together in all things. What do you think? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Beautiful! We are so happy to hear it! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>I...well. Well I didn't want an alliance with you anyway! Leave me alone! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>There is too much being asked of us here. If you want to discuss an alliance with us then we need to consider it alone. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>I thought you would never ask! Yes!!! We will be your allies!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Oooooohhh. Well, we appreciate you asking us but...it isn't you, it's me. I'm just not ready for this level of commitment.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>What Treachery is this!? We had a PACT! Doesn't that mean anything to you brutes?! We will defend ourselves! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Haha! Oh you PLURAL really can be a delight sometimes. But there will be no peace between us, I'm afriad! Not without the chemicals!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>Well, considering that no actual Owlwoks were harmed in this little "war" of ours, I suppose we could have a peace treaty.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>NO!?? HOW COULD YOU DO THIS TO ME!!???? Our alliance is CANCELED!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>KWWWAAAAAK!! Are you CRAZY!? When Master finds out you colonized TARSYS he....KWAAK!!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Hello, SING. Have you no respect at all? Do you really hate me that much? That you would steal from me and my poor Owlwoks over and over and over?</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>KWAK! Hey! Master KNOWS that you were spying on him and is pretty unhappy about it!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>PLURAL are crazy! Why do you keep spying on us?! Mind your own business!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>Ahem! We warned you! Whatever treaties we have, they are off! Jerks!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Oh I'm sorry, SING, was that YOUR spy we just floated out the airlock? OH IT WAS? Well then. Maybe you shouldn't be spying on us?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>I don't know where you got your notions about alliances from, but you shouldn't spy on your allies!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>We just don't believe that you want to be allies. If you did, you wouldn't spy on us. Our alliance is canceled!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Now that we are such good friends, what do you say that we open our borders up to one another? Then we could be BEST friends!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>That's great news! We'll just...wait. No? But aren't we friends?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Well! This is unexpected! But no. We aren't going to just get swept off of our feet by the first xeno to show some interest in us!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Well! We are friends, aren't we? But we aren't ALLIES. Show me you love me and maybe we can get to it.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>My my! So forward! With our alliance so young, we cannot say yes. But give it time and I think we could do it.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Oooohh. Well, it's not me, it's you. You just...aren't strong enough for us to join you. Friends?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>YES! A hundred times yes! Oh the Owlwoks are going to be SO happy in their new homes! Wow! I just...I'm so happy right now. Yes, you beautiful fools, we'll join your Federation!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>We require a gift! Destroy our most hated enemies, TAREMP, and we will join you!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>You did it! You killed TAREMP and won my heart! We'll join your Federation now!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>As if! We're hardly friends at this point, SING. A few gifts though...that might help!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Well what would TAREMP think if we joined with you? You are at war with them and we are their friends. Tell you what - you make an ally of them and we will definitely join you.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Such great news! About you and TAREMP! We'll join your Federation now.</Default>
+    </DialogLine>
+
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Haha! You must think we have Owlwok dung for brains! No way! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>We ARE at war with them, SING! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Well what ARE friends for if not for nuking our enemies together from orbit! We're definitely coming to this party!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Ooooh. Awk-ward! You see we are also friends with TAREMP so we are going to have to sit this one out.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Ohwhahaha! Did you hear that one, Owlwoks?! They want US to join them in a war! They don't even know that we hate them! OK turn the sound back on. Ahem. Sorry, SING, but we must unfortunately deny your request.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>And risk my Owlwoks!? No!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>We just can't afford another war right now. Sorry, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Well. We don't have much else going on, so...sure.</Default>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

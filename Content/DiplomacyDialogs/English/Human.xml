@@ -1,0 +1,648 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>In the name of the United Federation, we humans do greet you. It is our hope that we may grow strong and prosperous together.  </Friendly>
+      <Neutral>We are the United Federation, and we greet you. Perhaps in time we shall become friends.</Neutral>
+      <Hostile>Attention alien vessel - maintain your distance from Human space. The United Federation has little tolerance for territorial disputes. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>Friend, your colonization of the TARSYS system is seen by many in our empire as an act of aggression. Please refrain from colonizing our systems. </Friendly>
+      <Neutral>SING, we are not impressed by your recent incursion into Federation space.  I fear your expansionism is harming our relations. </Neutral>
+      <Hostile>Attention alien colony in the TARSYS system. Your colony is illegal and will be removed by force unless you cede it to us immediately. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>SING, please check your weapon systems for any errors. It appears that you destroyed one of our vessels and for the sake of our friendship, this needs to never happen again. </Friendly>
+      <Neutral>Your illegal attack our sovereignty is intolerable! We are at the brink of war, and I suggest you stay clear of Federation space if you wish to avoid this. </Neutral>
+      <Hostile>Attention alien - you have attacked a sovereign vessel of the Federation unprovoked. War is imminent.  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>SING, our races are on good terms. Please do not jeapordize our peace by leaving your ships inside our borders. Our people will only tolerate this incursion for so long. </Friendly>
+      <Neutral>SING, the incursion of your fleets into Federation space is unacceptable. Please remove all of your ships from our territory before the situation escalates. </Neutral>
+      <Hostile>Attention alien vessels -- your incursion into Federation space is seen as an act of war. Remove your ships immediately or we will open fire.  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>SING, your intrusions into Federation space are growing more bold. We warned you about the trespasses of your fleet and requested that you respect our borders.  Your recent settlement in the TARSYS system, which is inside of our borders, does not bode well for our continued friendship. </Friendly>
+      <Neutral>SING, you must take us for fools or weaklings if you believe we cannot see your incursions into our space, or that we will do nothing to protect our claims. TARSYS is our system. Relinquish your claims if you wish to maintain the peace. </Neutral>
+      <Hostile>Alien scum! We warned you to stay out of our space, yet you deposited one of your filthy colonies on a planet claimed by the Federation. Remove it now or we shall remove it for you! </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>SING, the Federation council is growing deeply concerned about your fleet's presence in the TARSYS system and elsewhere in Federation space. You should know that this is causing a rift in our relations. </Friendly>
+      <Neutral>The Human people have no particular dislike for PLURAL. However, the colonization in TARSYS and the incursion of your fleets in Federation space is causing us to reconsider those notions. </Neutral>
+      <Hostile>We are no fools, SING. We see your defiance of our borders and we remember the planet you stole from us in the TARSYS system.  Alien scum!  </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType>
+      <misc1>SING, for your repeated violations of sovereign Federation space, we are now in a state of war. </misc1>
+      <misc2>Red alert! Shields up! Lay in a course for the nearest SING system!  Alien - war is coming to you!</misc2>>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Negative. We have not yet establised contact with any other races. Now if you'll excuse me, I have to get back to plotting this course. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Communication channels opened. Greetings, SING. To what do we owe this honor?</Friendly>
+      <Neutral>Fleet Command Actual. State the nature of your business, SING.</Neutral>
+      <Hostile>What is it, Alien? Can't you see that I'm busy plotting this course?</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>Isn't it dangerous to smoke a pipe on a spaceship?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>No more dangerous than drinking bourbon at the helm, SING, and we haven't had any accidents yet! I jest. Yes, it's very dangerous.
+      </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Agg>Humans have a destiny, SING, to be masters of the stars. We take what we want when the time is right for taking. Stay out of our way. </DL_Agg>
+      <DL_Hon>Human history is a sad tale, SING, one filled with suffering and violence. But tomorrow is a new day, and we are a new people. </DL_Hon>
+      <DL_Pac>Human history is a sad tale, SING, one filled with suffering and violence. We reject our past and want nothing now but to live in peace. </DL_Pac>
+      <DL_Ruth>Humanity has a destiny, SING, to dominate those who will bend the knee and to exterminate those will not. </DL_Ruth>
+      <DL_Cunn>We believe in but one law: the law of nature. Strength and speed will win a battle, but wits will win a war. </DL_Cunn>
+      <DL_Xeno>We will not be deceived by your interest in us, Alien. To gain our trust is a long road, for our history is one filled with treachery and deceit, and why should we expect any less from you? </DL_Xeno>
+      <DL_Exp>It is our manifest destiny to spread among the stars. </DL_Exp>
+      <DL_Tech>Our scientists are the finest in the galaxy, and we will achieve all of our dreams through the power of knowledge. </DL_Tech>
+      <DL_Mil>There are no finer ships in all the galaxy, SING, than those of the Human fleet. Power is Power. </DL_Mil>
+      <DL_Ind>Humanity values industry, SING. We love to build and to build well, and there is no higher pursuit.</DL_Ind>
+      <DL_Gen>But we do believe in balance. Science and Industry, Arts and Education, War and Peace. All things in moderation, even moderation. </DL_Gen>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Negative, SING. Your offer requires more from us than we're willing to part with at this time.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Even though caution might dictate building more trust between us before entering into such a deal, the offer you put before us is too generous to refuse. We accept, and hope this heralds a greater period of friendship between our peoples.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>SING, not only do we not trust you, but you also seek to hoodwink us with a clearly lopsided offer. So, no, we will not accept your terrible offer.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Why would we ever agree to give so much for so little?  Sweeten the deal and perhaps this can work, but definitely not as is.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Your lack of respect for us is apparent in this horrendous offer.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Yes, this seems like a fair deal to us. We accept.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>You offer us a bargain, SING. We appreciate this and accept your offer.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>A gift, for us? Or did you think this was a fair deal? Either way, we thank you, and accept.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>The United Federation remembers those who remember it, SING. Thank you for this tribute.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>The United Federation will provide you with this boon. However, we shall expect the favor to be repaid in kind in the future.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Alien scum! You sorely overestimate the strength of your forces. We will not yield so easily to your demands. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>On Earth we have a saying that you can get more flies with honey than with vinegar. We would have accepted this offer even if you had not threatened us for it. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>You disgust us, SING. Fine. Take what you will from us, but be warned - our flexibility has limits. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Treacherous SING scum! You pledged a pact of Non-Aggression! Shields up! Red Alert! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>So be it. Humans are no strangers to war, SING. You shall soon known your folly. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Have you come to sue for peace? What is it that you want, SING? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>Attention PLURAL. Federation ships have been instructed to engage in defensive operations. Any SING ships will be engaged on sight. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>We have warned you about your repeated transgressions of Federation space. It has come now to war.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>We have warned you about your repeated transgressions of Federation space. TARSYS is a Federation System and now we will prove it to you with strength of arms. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Greetings to you, noble SING. We believe it would be in both of our peoples' best interests to enter into a mutual pact of Non-Aggression. What do you say? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Excellent! Our ambassadors will send over the necessary documents. Now if you don't mind, I've got to get back to the holodeck. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>No? Well, that's disappointing. But, then again, what good are all these warships without any wars to fight? See you soon. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Hello friend. We believe that it would be mutually profitable to open our markets to one another, don't you think? Let us sign a trade treaty. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Wonderful. This trade treaty will benefit both of our peoples for many years to come. A toast, SING, to our future! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>If that is your wish then we will respect it. But this is your loss, SING. Humanity has many valuable trade goods. If you reconsider your position, let us know.  </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Ah, so you've changed your mind about a Non-aggression pact, have you? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>So now Human trade is good enough for you? What else is on the table here? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Greetings...alien. The truth is, we humans are a bit of a xenophobic lot. If you want to be our friends, it would go a long way with us if you were to give us the gift of TECH_DEMAND. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Perhaps...what are you called again? PLURAL? Perhaps PLURAL aren't so bad after all. Thank you. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Alien scum! We'll remember this. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Look at those buckets of bolts you call spaceships! My captain's yacht could probably take out your flagship. Pathetic!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>That's an impressive military you've got there! Just thought you should know. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Greetings, Alien. It looks like you have really turned things around with your military. Good for you. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>We have decided to claim your space as our own. So, war it is! See you soon.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>The Space Bears? Sure, we get along with them just fine. They're a bit serious though,aren't they? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>The Space Bears? We're not exactly friends with them but we're not enemies either. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Have you ever seen a Kulrathi Bearzerker? Up close, I mean? I have, and it was both beautiful and terrible. It took six full mags from my bolter to drop it. These space bears are our enemies and we would caution you against befriending them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Pollops! Sure, we love those little guys. One of them gave me a plant for the bridge. I'm pretty sure it is spying on us, but so what? They're so harmless!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>The plant people? We know them. We don't have much of a relationship with them though.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>The plant people? Kind of ridiculous, aren't they? Always playing their organ thing? We don't like them. In fact, we're probably going to take over their planets. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>The Vulfen? Why, they are our best friends! Strong, loyal, obedient, and yes, dumb as rocks, but still. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Oh, the Vulfar? We've seen them about but we really don't have much to say about them. We keep our distance.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Vile beasts, those Vulfar. We really do not like them one bit. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Well now, there is a peculiar race! They're very proud! But all in all we get along well with them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Are those the little Owl-looking things? We don't know them very well.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>If there ever was a race more arrogant, pompous, and self-centered than our own, then the Cordrazine take the cake. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>The Ralyeh seem noble enough to us. We are on good terms with them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>We have no real opinion on the Ralyeh.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>Those pompous calamari clerics can go right back whatever hell their Elder God created for them. They are no friends of ours!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Alien, Humanity requires room to grow. While our friendship to date will not be forgotten, your race will in fact be forgotten. Our Non-Aggression pact is canceled and we are now in a state of War.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Attention Alien Scum: you lose. It was always going to end like this. Better luck in your next life, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Greetings, friend. We've been doing some deliberations and as it turns out, space IS big enough for the two of us. Why don't we declare an Open Borders treaty instead of getting all worked up about where our ships travel?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Excellent news! Time to crack open some of that Kulrathi ale I've been saving! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>You're making a terrible mistake, SING, one that I fear will cost many lives. Salty out.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Vile scum! You break our treaty like this, with boots on Human soil? You're disgusting, but not as disgusting as you'll be when you're dead! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>What the...What is this Pearl Harbor nonsese? TARSYS is a Human settlement! War it is!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Opteris</DialogType>
+      <Default>The menacing, ruthless cybernetic bug people? Love 'em. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Opteris</DialogType>
+      <Default>Just another piece of hardware. No real opinion.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Opteris</DialogType>
+      <Default>Those mechanical cockroaches have crossed us a few times. We don't like them.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Greetings, friend. We just wanted to inform you that Human colonization efforts are underway in the TARSYS system. Please avoid Human space. Thank you. </Friendly>
+      <Neutral>Attention aliens: pursuant to our laws of colonization, by which you are bound, we have claimed the TARSYS system. SING presence is illegal there, so keep that in mind.</Neutral>
+      <Hostile>Hello, Alien Scum! We just wanted to let you know that we have claimed the TARSYS system, so stay out unless you want trouble. </Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Your refusal to acknowledge our claim to the TARSYS system has angered many. We consider now our next steps. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>No offense, SING, but we Humans are a cautious set. Friendship may be in our future but for now we will remain wary. We don't have any specific grievances against you though. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Humanity is proud to be on good terms with PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Well now that you ask, yes we do have a few problems with PLURAL .</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Or just off the top of my head, just one really: our competition for the same star systems really frosts our cookie. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>A chief concern is over our borders and our competition for the same star systems. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Also, you have a very large military and this gives us pause regarding your intentions.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Also, your "fleets" if you can call them that...how can we respect your might with such a crummy fleet? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Mainly, you're fleets are so small and poorly equipped that we are concerned about your safety. From us. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Primarily we are concerned with the size of your fleets and what you intend to do with them.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Your alliance with TAREMP is a problem for us. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Additionally, your alliance with TAREMP unsettles us as we have poor relations with them. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>I'm glad to report that we don't have any specific problems with your people. We aren't allies, of course, but certainly we don't see you as enemies. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>What is it, Alien? Can't you see I'm plotting a course to your homeworld here? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Your progress in this war is impressive, SING, but we'll fight you to the last if we must. What is it that you want? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>SING, we hesitate to ask, but prudence demands that we do so. We need help in our war with TAREMP. Will you join us? </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Of course you will! Let's do it then. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>What? You deny us? Perhaps you will be next then. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>The Draylok Council is a noble and formidable group. We approve. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Sorry but we don't really know them very well.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>They stole one of our technologies! Can you believe that? What gall.</Default>
+    </DialogLine>
+
+
+
+    <!--  Second Run Localization Efforts -->
+
+    <DialogLine>
+      <DialogType>Declare War Defense BrokenNA</DialogType>
+      <Default>Alien scum! Your violation of our treaty is unacceptable. We are now at war! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Come now, SING. Have you seen the error of this war yet? Let us end it now before it is too late.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>How many ships must you lose before you acknowledge our strength? We do not wish to destroy you. Come join us in peace.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Both of our peoples have long suffered in this war. Neither of us are better off for it. Let's end it now. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Please...please! Forgive us whatever trespasses we have committed against you. End this war, noble SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>These territorial disputes are beneath us all, wouldn't you say? Let's call it quits on this war.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>This border dispute has run its course, and by my count you are short a colony or two. Sign a treaty and end this war.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>An unfortunate response. May history forgive us for the horrors we shall commit.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Then it is done. Human fleets are standing down.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>These terms are acceptable. I am glad that we can have peace, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>You think yourselves in a far better position than you are, SING. We will not accept these terms.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>So long as we are both claim the same systems there can be no peace! These are Human systems and that is final!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>You insult us with this offer but we are obliged to accept it for the good of humanity. We shall have peace.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>We don't appreciate SING humor. I lost my son in our most recent conflict, as did many Father and Mothers. Of course we have grievances. </Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>We believe that the time is right for us to join together in alliance, SING. What do you say, will you join us?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Then let the galaxy know that we are now allies. Mess with one of us and they'll get both! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>A shame, SING. We would make excellent allies, and this is a dangerous galaxy to go it alone in. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>We would consider an alliance were these other conditions removed. Alliances should not be bought or sold. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>After due consideration, we agree to your proposal. We shall have an alliance!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>I am afraid that an alliance is currently not in the cards for us. We need greater trust between our peoples first. Give it time. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>No, the time for diplomacy is long past. Bend your...alien equivalent of a knee...and we might consider peace. Otherwise it is to the last gasp!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>As much as I wanted to blow up some SING ships, you make a good enough offer to bring us to peace.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>You PLURAL have a strange sense of what it means to be allies. No matter. We are no longer allies.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Do not think that your illegal colonization of the TARSYS system has gone unnoticed, SING. We are prepared to defend our claims if we must.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Your continued disrepsect of Human authority is going to cost lives! TARSYS was legally claimed by Humans. If you will not agree to follow the law then we will deploy our fleets to ensure compliance.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>Do you think we wouldn't notice a distinctly non-human creature rifling through our secrets? Stop your espionage activities at once!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+       <Default>There's an old saying in Tennessee - I know it's in Texas, probably in Tennessee - that says, fool me once, shame on - shame on you. Fool me - you can't get fooled again. Stop spying on us!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>You anger us greatly by this continued disrespect of our state secrets. You can tear up our treaties.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Ha! Caught your filthy agent! We'll send back the pieces when we're done with him.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Can we trust you, SING? Should we trust you? Why are you spying on us, your allies? Please stop.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>Our Alliance is now forfeit. Your continued Espionage leaves us with no choice..</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Our friendship grows stronger by the day, SING. Let us open our borders to one another and increase our friendship.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Well that IS disappointing! No matter. We shall remain your friends.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>So you want us to join your Federation, and you would be in charge? I think not.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Well well. You know, WE have a Federation too. Granted, it's only us in it. But we do. Anyway, I think we need to try out an alliance before we can just join your Federation. So butter me up, baby! </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Let me stop you there. We hear you. We think it is probably a good idea. But the ink on this alliance isn't even dry yet. Let's make sure everyone is happy with it before moving forward.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Humans are a prideful lot, SING. I'm afraid we can't join your empire when in truth ours is more powerful.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Alright, we're in. God help us but we're in! What should we call it? Personally I think the United Federation has a nice ring. But those are just details! Man! Let's get smashed!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>If you want us to join you, then you need to help us out! Defeat our enemies, TAREMP, and we will join you!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Great work! With TAREMP defeated, we're ready to join your Federation. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Ha! That was a joke, right?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>We agree that a Federation would be a fine idea. However, you must first end your war with TAREMP and make them your allies. If you can do this, then we will join you.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Excellent work! With TAREMP now your ally, we feel comfortable joining your Federation.</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>We are not going to just up and declare war on them because you say so. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>We have been warring with TAREMP for quite some time now. </Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Alright, SING. You have our support. Tell me where to point this thing. I can only travel in triangular paths.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>That's a negative. We're friends with TAREMP! Can't go warring on our friends now, can we?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>What? We don't even like you! Who cares what happens in your war? Hint: it isn't me.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Can't we all just get along, man? Like, Peace and everything? And love?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>No way! Those guys are crazy powerful. I don't want anything to do with it.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>You know what? That sounds like an EXCELLENT idea! God I've been wanting to fire these torpedos so freaking badly too! YES!</Default>
+    </DialogLine>
+
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>We will not accept peace offering while you are allied with our enemies, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Do you think we are fools, SING? We shall not be your allies while you are allied with our enemies!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Signing treaties with our enemies now, aren't you? Fine then.</Default>
+      <DL_Agg>We decided to revoke our alliance. Find other friends and pray we will not become foes.</DL_Agg>
+      <DL_Ruth>We decided to revoke our diplomatic relations.</DL_Ruth>
+      <DL_Xeno>We decided to revoke our diplomatic relations, We knew you will betray us, Sing. Beware!</DL_Xeno>
+      <DL_Cunn>But if you wish to start a backstabbing contest, so it shall be.</DL_Cunn>
+      <DL_Pac>It is preferable you improve relations with our allies, though.</DL_Pac>
+      <DL_Hon>'Semper Fi' is a strange term for you. We are deeply disappointed.</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Sneaking around and trying to sign treaties with our enemies now, aren't you?</Default>
+      <DL_Agg>We decided to revoke our alliance. Find other friends and pray we will not become foes.</DL_Agg>
+      <DL_Ruth>We decided to revoke our diplomatic relations.</DL_Ruth>
+      <DL_Xeno>We decided to revoke our diplomatic relations, We knew you will betray us, Sing. Beware!</DL_Xeno>
+      <DL_Cunn>But if you wish to start a backstabbing contest, so it shall be.</DL_Cunn>
+      <DL_Pac>It is preferable you thrive to improve relations with our allies, though.</DL_Pac>
+      <DL_Hon>'Semper Fi' is a strange term for you. We are deeply disappointed.</DL_Hon>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>
