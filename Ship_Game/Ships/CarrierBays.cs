@@ -353,8 +353,12 @@ namespace Ship_Game.Ships
             ScrambleAllAssaultShips();
             foreach (ShipModule bay in AllTroopBays)
             {
-                if (bay.TryGetHangarShipActive(out Ship hangarShip))
+                if (bay.TryGetHangarShipActive(out Ship hangarShip)
+                    && !hangarShip.AI.HasPriorityOrder
+                    && hangarShip.HasOurTroops)
+                {
                     hangarShip.AI.OrderLandAllTroops(planet);
+                }
             }
         }
 

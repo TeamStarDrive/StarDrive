@@ -192,6 +192,7 @@ namespace Ship_Game
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
+        public List<KeyValuePair<int, string>> DiplomacyContactQueue { get; private set; } = new List<KeyValuePair<int, string>>();  // Empire IDs, for player only
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
@@ -2590,6 +2591,7 @@ namespace Ship_Game
 
             if (isPlayer)
             {
+                ExecuteDiplomacyContacts();
                 CheckFederationVsPlayer();
                 RandomEventManager.UpdateEvents();
 
@@ -2669,6 +2671,26 @@ namespace Ship_Game
                 AssignExplorationTasks();
             }
         }
+
+        void ExecuteDiplomacyContacts()
+        {
+            if (DiplomacyContactQueue.Count == 0)
+                return;
+
+            Empire empire = EmpireManager.GetEmpireById(DiplomacyContactQueue.First().Key);
+            string dialog = DiplomacyContactQueue.First().Value;
+            if (dialog == "DECLAREWAR")
+            {
+                empire.GetEmpireAI().DeclareWarOn(this, WarType.ImperialistWar);
+            }
+            else
+            {
+                DiplomacyScreen.ContactPlayerFromDiplomacyQueue(empire, dialog);
+            }
+
+            DiplomacyContactQueue.RemoveAt(0);
+        }
+
 
         void CheckFederationVsPlayer()
         {
@@ -3480,6 +3502,12 @@ namespace Ship_Game
             // fixed costs for players, feedback tax loop for the AI
             float taxModifer = isPlayer ? 1 : 1 - data.TaxRate;
             return spentProduction * taxModifer * DifficultyModifiers.CreditsMultiplier;
+        }
+
+        public void RestoreDiplomacyConcatQueue(List<KeyValuePair<int, string>> diplomacyContactQueue)
+        {
+            if (diplomacyContactQueue != null)
+                DiplomacyContactQueue = diplomacyContactQueue;
         }
 
         public class InfluenceNode

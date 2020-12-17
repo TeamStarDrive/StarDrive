@@ -193,10 +193,10 @@ namespace Ship_Game
                         score -= 1; // Stay away from stronger buildings
 
                     if (building.PlanetaryShieldStrengthAdded > 0)
-                        score += 10; // Land near shields to destroy them
+                        score += 2; // Land near shields to destroy them
 
                     if (building.InvadeInjurePoints > 0)
-                        score += 6; // Land near AA anti troop defense to destroy it
+                        score += 2; // Land near AA anti troop defense to destroy it
                 }
                 else // friendly building
                 {

@@ -1,0 +1,57 @@
+﻿<DiplomacyDialog>
+  <StatementSets>
+    <StatementSet>
+      <Name>Ordinary Discussion</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>Do you have any grievances with us?</words>
+          <Response>Hardcoded_Grievances</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Let's discuss another Empire...</words>
+          <Response>Hardcoded_EmpireChoose</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>What can you tell me about your people? </words>
+          <Response>AboutUS</Response>
+        </DialogOption>
+        <DialogOption>
+          <SpecialInquiry>Racial_Inquiry_1</SpecialInquiry>
+          <words></words>
+          <Response>Racial_Response_1</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>We propose joining our empires into a Federation. We would be in charge of course. </words>
+          <Response>Hardcoded_Federation_Analysis</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+    <StatementSet>
+      <Name>EmpireDiscuss</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>What is your opinion of TAREMP?</words>
+          <Response>Target_Opinion</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>We want you to Declare War on TAREMP</words>
+          <Response>Hardcoded_War_Analysis</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+    <StatementSet>
+      <Name>Threaten</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>It will make us very angry if you planet new colonies in systems that we have claimed.</words>
+          <Response>Threatened_Territory</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Stop spying on us </words>
+          <Response>Stop_Spying</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+  </StatementSets>
+ 
+</DiplomacyDialog>

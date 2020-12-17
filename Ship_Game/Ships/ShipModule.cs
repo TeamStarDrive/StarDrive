@@ -925,7 +925,7 @@ namespace Ship_Game.Ships
                 hangarShip = Ship.CreateTroopShipAtPoint(Parent.loyalty.GetAssaultShuttleName(), Parent.loyalty, Center, troop);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
+                hangarShip.Velocity = Parent.Velocity;
                 HangarShipGuid      = hangarShip.guid;
                 hangarTimer         = hangarTimerConstant;
                 ship                = hangarShip;

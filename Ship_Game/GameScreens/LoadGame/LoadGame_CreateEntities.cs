@@ -59,8 +59,8 @@ namespace Ship_Game
                 if (sdata.empireData.NormalizedMilitaryScore == null)
                     sdata.empireData.NormalizedMilitaryScore = new Array<float>(); // Save compatibility
 
-                if (sdata.FleetStrEmpireModifier != null)
-                    e.RestoreFleetStrEmpireMultiplier(sdata.FleetStrEmpireModifier);
+                e.RestoreFleetStrEmpireMultiplier(sdata.FleetStrEmpireModifier);
+                e.RestoreDiplomacyConcatQueue(sdata.DiplomacyContactQueue);
 
                 e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
