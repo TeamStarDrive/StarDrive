@@ -579,8 +579,8 @@ namespace Ship_Game.Ships
 
             float rotationTime = angleDiff / RotationRadiansPerSecond.ToDegrees().LowerBound(1);
             float distanceFTL  = Math.Max(distance - distanceSTL, 0);
-            float travelSTL    = distanceSTL / MaxSTLSpeed;
-            float travelFTL    = distanceFTL / MaxFTLSpeed;
+            float travelSTL    = distanceSTL / MaxSTLSpeed.LowerBound(1);
+            float travelFTL    = distanceFTL / MaxFTLSpeed.LowerBound(1);
 
             return (travelFTL + travelSTL + rotationTime + FTLSpoolTime) / GlobalStats.TurnTimer;
         }

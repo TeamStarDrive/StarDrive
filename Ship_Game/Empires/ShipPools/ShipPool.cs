@@ -7,7 +7,7 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool : IDisposable
     {
         readonly Empire Owner;
-        readonly Array<Ship> ForcePool        = new Array<Ship>();
+        public readonly Array<Ship> ForcePool        = new Array<Ship>();
         EmpireAI OwnerAI                      => Owner.GetEmpireAI();
         readonly Array<Ship> ShipsToAdd       = new Array<Ship>();
         public void AddShipNextFame(Ship s)   => ShipsToAdd.Add(s);

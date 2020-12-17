@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
 
@@ -9,8 +10,9 @@ namespace Ship_Game.Debug.Page
         GameScreen ParentScreen;
         public DebugModes Mode { get; }
         protected Array<UILabel> TextColumns = new Array<UILabel>();
-        Vector2 TextCursor = Vector2.Zero;
-        Color TextColor = Color.White;
+
+        Vector2 TextCursor  = Vector2.Zero;
+        Color TextColor     = Color.White;
         SpriteFont TextFont = Fonts.Arial12Bold;
 
         public DebugPage(GameScreen parent, DebugModes mode) : base(parent.Rect)
@@ -23,7 +25,11 @@ namespace Ship_Game.Debug.Page
         void ShowDebugGameInfo(int column, DebugTextBlock block, float x, float y)
         {
             if (TextColumns.Count <= column)
-                TextColumns.Add(Label(x, y, ""));
+                TextColumns.Add(Label(x, y, "", TextFont));
+            else
+            {
+                TextColumns[column].SetRelPos(x, y);
+            }
 
             TextColumns[column].Show();
             TextColumns[column].MultilineText = block.GetFormattedLines();
@@ -36,10 +42,19 @@ namespace Ship_Game.Debug.Page
 
             if (text == null || text.IsEmpty)
                 return;
+            float longestLine = 0;
             for (int i = 0; i < text.Count; i++)
             {
                 DebugTextBlock lines = text[i];
-                ShowDebugGameInfo(i, lines, Rect.X + 10 + 300 * i, Rect.Y + 250);
+
+                float header = TextFont.MeasureString(lines.Header ?? "").X;
+                float body = lines.Lines.Max(l =>
+                {
+                    var str = l.ToString();
+                    return TextFont.MeasureString(str).X;
+                });
+                ShowDebugGameInfo(i, lines, Rect.X + longestLine, Rect.Y + 250);
+                longestLine += Math.Max(header, body) + 10; // (i > 0 ? 10 : 0);
             }
         }
 

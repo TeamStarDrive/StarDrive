@@ -296,7 +296,7 @@ namespace Ship_Game.AI
                 bool preparingForWar = false;
 
                 var activeWars = new Array<War>();
-
+                bool empireWar = false; ;
                 foreach ((Empire other, Relationship rel) in OwnerEmpire.AllRelations)
                 {
                     //if (GlobalStats.RestrictAIPlayerInteraction && other.isPlayer) 
@@ -317,6 +317,8 @@ namespace Ship_Game.AI
                         continue;
 
                     activeWars.Add(rel.ActiveWar);
+                    if (!other.isFaction)
+                        empireWar = true;
                 }
 
                 // Process wars by their success.
@@ -333,7 +335,7 @@ namespace Ship_Game.AI
                     worstWar = worstWar > currentWar ? currentWar : worstWar;
                 }
 
-                WarStrength = OwnerEmpire.Pool.EmpireReadyFleets.AccumulatedStrength;
+                
                 // start a new war by military strength
                 if (worstWar > WarState.WinningSlightly)
                 {
@@ -391,20 +393,25 @@ namespace Ship_Game.AI
 
         public bool ShouldGoToWar(Relationship rel)
         {
-            if (rel.Them.data.Defeated || !rel.PreparingForWar || rel.AtWar || rel.Treaty_Peace ) 
+            if (rel.Them.data.Defeated || !rel.PreparingForWar || rel.AtWar) 
                 return false;
-            if (rel.IntelligenceLevel <= Empires.DataPackets.EmpireInformation.InformationLevel.Minimal) 
-                return false;
+            //if (rel.IntelligenceLevel <= Empires.DataPackets.EmpireInformation.InformationLevel.Minimal) 
+            //    return false;
             
             float warRatio = OwnerEmpire.GetWarOffensiveRatio();
             float anger    = (rel.TotalAnger - rel.Trust) /100f;
-            if (anger < warRatio) 
-                return false;
-            float currentEnemyStr = OwnerEmpire.AllRelations.Sum(r => r.Rel.AtWar && !r.Rel.Them.isFaction ? r.Rel.KnownInformation.OffensiveStrength : 0);
+            //if (anger < warRatio) 
+            //    return false;
+            var currentWarInformation = OwnerEmpire.AllActiveWars.FilterSelect(w => !w.Them.isFaction,
+                                          w => OwnerEmpire.GetRelations(w.Them).KnownInformation);
+
+            float currentEnemyStr    = currentWarInformation.Sum(i => i.OffensiveStrength);
+            float currentEnemyBuild  = currentWarInformation.Sum(i => i.EconomicStrength);
             float ourCurrentStrength = OwnerEmpire.CurrentMilitaryStrength;
-            float theirKnownStrength = rel.KnownInformation.AllianceOffensiveStrength.LowerBound(500) + currentEnemyStr;
-            float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10);
+            float theirKnownStrength = rel.KnownInformation.AllianceOffensiveStrength.LowerBound(1500) + currentEnemyStr;
+            float theirBuildCapacity = rel.KnownInformation.AllianceEconomicStrength.LowerBound(10) + currentEnemyBuild;
             float ourBuildCapacity   = OwnerEmpire.GetEmpireAI().BuildCapacity;
+
             var array = EmpireManager.GetAllies(OwnerEmpire);
             for (int i = 0; i < array.Count; i++)
             {
@@ -412,6 +419,7 @@ namespace Ship_Game.AI
                 ourBuildCapacity += ally.GetEmpireAI().BuildCapacity;
                 ourCurrentStrength += ally.OffensiveStrength;
             }
+
 
             bool weAreStronger = ourCurrentStrength > theirKnownStrength && ourBuildCapacity > theirBuildCapacity;
             return weAreStronger;
