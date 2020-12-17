@@ -44,7 +44,6 @@ namespace Ship_Game.Debug.Page
                 EmpireAtWar = EmpireManager.GetEmpireById(EmpireID);
             }
             while (EmpireAtWar.data.Defeated);
-
             TextColumns[0].Text = $"Empire: {EmpireAtWar.Name}";
             TextColumns[0].Color = EmpireAtWar.EmpireColor;
         }
@@ -53,6 +52,11 @@ namespace Ship_Game.Debug.Page
         {
             var text = new Array<DebugTextBlock>();
             if (EmpireAtWar.data.Defeated) return;
+            
+            var column = new DebugTextBlock();
+            column.AddLine($"{EmpireID} {EmpireAtWar.Name}", EmpireAtWar.EmpireColor);
+            text.Add(column);
+
             foreach ((Empire them, Relationship rel) in EmpireAtWar.AllRelations.Sorted(r=> r.Rel.AtWar))
             {
                 if (rel.Known && !them.isFaction && them != EmpireAtWar && !them.data.Defeated)
@@ -60,6 +64,7 @@ namespace Ship_Game.Debug.Page
                     text.Add(rel.DebugWar(EmpireAtWar));
                 }
             }
+
             SetTextColumns(text);
             base.Update(fixedDeltaTime);
         }
