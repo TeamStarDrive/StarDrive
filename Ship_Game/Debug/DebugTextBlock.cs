@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Debug
 {
-    public struct DebugTextBlock
+    public struct  DebugTextBlock
     {
         public Array<string> Lines;
         public string Header;

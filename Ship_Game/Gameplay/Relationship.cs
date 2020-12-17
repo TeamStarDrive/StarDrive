@@ -1691,7 +1691,7 @@ namespace Ship_Game.Gameplay
         {
             var debug = new DebugTextBlock
             {
-                Header      = $"Relation To: {Name}",
+                Header      = $"Relation To: {Them.data.PortraitName}",
                 HeaderColor = EmpireManager.GetEmpireByName(Name).EmpireColor
             };
 

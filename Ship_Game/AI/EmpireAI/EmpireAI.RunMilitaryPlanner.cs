@@ -29,8 +29,8 @@ namespace Ship_Game.AI
             var offensiveGoals  = SearchForGoals(GoalType.BuildOffensiveShips);
             var planetsBuilding = new Array<Planet>();
             foreach (var goal in offensiveGoals) planetsBuilding.AddUnique(goal.PlanetBuildingAt);
-            var effectiveGoals  = offensiveGoals.Count / planetsBuilding.Count.LowerBound(1);
-            BuildWarShips(effectiveGoals);
+            //var effectiveGoals  = offensiveGoals.Count / planetsBuilding.Count.LowerBound(1);
+            BuildWarShips(offensiveGoals.Count);
 
             Goals.ApplyPendingRemovals();
 
@@ -459,7 +459,9 @@ namespace Ship_Game.AI
                     if (minimum.AlmostZero())
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
-                    DesiredCount = (int)(RoleBuildBudget.LowerBound(.001f) / PerUnitMaintenanceMax.LowerBound(0.001f)); // MinimumMaintenance));
+                    float buildBudget    = RoleBuildBudget.LowerBound(.001f);
+                    float maintenanceMax = PerUnitMaintenanceMax.LowerBound(0.001f);
+                    DesiredCount = (int)(buildBudget / maintenanceMax); // MinimumMaintenance));
                     //if (Role < CombatRole.Frigate)
                     //    DesiredCount = Math.Min(50, DesiredCount);
                 }
