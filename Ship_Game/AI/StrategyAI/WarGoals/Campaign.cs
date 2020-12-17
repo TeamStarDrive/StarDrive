@@ -49,6 +49,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         public bool WarMatch(War war) => war == OwnerWar;
         public WarType GetWarType()   => OwnerWar?.WarType ?? WarType.EmpireDefense;
         public WarState GetWarState() => OwnerWar?.GetWarScoreState() ?? WarState.NotApplicable;
+        public Theater GetTheater()   => OwnerTheater;
+        public War GetWar()           => OwnerWar;
 
         public bool IsRecoveredCorrectlyFromSave() => OwnerTheater != null;
         /// <summary>
@@ -256,9 +258,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             return GoalStep.GoToNextStep;
         }
 
-        protected void AttackSystemsInList(int fleetsPerTarget = 1) => AttackSystemsInList(TargetSystems, fleetsPerTarget);
+        protected void AttackSystemsInList(int fleetsPerTarget = 1) => AttackSystemsInList(TargetSystems, this, fleetsPerTarget);
 
-        protected void AttackSystemsInList(Array<SolarSystem> currentTargets, int fleetsPerTarget = 1)
+        protected void AttackSystemsInList(Array<SolarSystem> currentTargets,Campaign campaign, int fleetsPerTarget = 1)
         {
             if (currentTargets.Count == 0) return;
 
@@ -268,7 +270,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             {
                 int contestedSystemMod = system.OwnerList.Contains(Them) ? 2 : 0;
 
-                Tasks.StandardAssault(system, priority - contestedSystemMod, Them,  fleetsPerTarget);
+                Tasks.StandardAssault(system, priority - contestedSystemMod, campaign,  fleetsPerTarget);
                 if (OwnerWar.WarType != WarType.EmpireDefense)
                     priority += 4;
             }
@@ -292,7 +294,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 //    break;
                 var currentTarget = currentTargets[i];
                 int targetIndex  = currentTargets.IndexOf(currentTarget);
-                Tasks.StandardSystemDefense(currentTarget, priorities[targetIndex], strength, fleetCount);
+                Tasks.StandardSystemDefense(currentTarget, priorities[targetIndex], strength, fleetCount, this);
             }
         }
 
@@ -300,7 +302,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             int priority = 0;
             if (priority > 10) return;
-            Tasks.StandardAreaClear(center, radius, priority, strength);
+            Tasks.StandardAreaClear(center, radius, priority, strength, this);
         }
     }
 }

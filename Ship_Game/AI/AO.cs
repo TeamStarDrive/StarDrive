@@ -289,7 +289,7 @@ namespace Ship_Game.AI
 
         public void Update()
         {
-            Empire.Universe?.DebugWin?.DrawCircle(DebugModes.AO, Center, Radius, Owner.EmpireColor, 1);
+            //Empire.Universe?.DebugWin?.DrawCircle(DebugModes.AO, Center, Radius, Owner.EmpireColor, 1);
             if (PlanetsInAo.Length == 0 && Owner != null) SetupPlanetsInAO();
 
             if (OurPlanetsInAo.Length == 0 && Owner != null && PlanetsInAo.Length > 0) OurPlanetsInAo = PlanetsInAo.Filter(p => p.Owner == Owner);

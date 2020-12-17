@@ -23,7 +23,7 @@ namespace Ship_Game
         public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
         public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
         public int MaxFreightersInQueue  => 1 + Research.Strategy.IndustryPriority;
-        public int TotalFreighters       => OwnedShips.Count(s => s.IsFreighter);
+        public int TotalFreighters       => OwnedShips.Count(s => s?.IsFreighter == true);
         public Ship[] IdleFreighters     => OwnedShips.Filter(s => s.IsIdleFreighter);
         public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
         public bool ManualTrade          => isPlayer && !AutoFreighters;
@@ -225,7 +225,7 @@ namespace Ship_Game
 
         int NumFreightersTrading(Goods goods)
         {
-            return OwnedShips.Count(s => s.IsFreighter && !s.IsIdleFreighter && s.AI.HasTradeGoal(goods));
+            return OwnedShips.Count(s => s?.IsFreighter == true && !s.IsIdleFreighter && s.AI.HasTradeGoal(goods));
         }
 
         // centralized method to deal with freighter priority ratio (fast or big)
