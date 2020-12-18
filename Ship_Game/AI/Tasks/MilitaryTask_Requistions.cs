@@ -430,6 +430,22 @@ namespace Ship_Game.AI.Tasks
         /// <returns>The return is either complete for success or the type of failure in fleet creation.</returns>
         RequisitionStatus CreateTaskFleet(string fleetName, float battleFleetSize, bool highTroopPriority = false)
         {
+            var taskCat = GetTaskCategory();
+            bool warTask = taskCat.HasFlag(TaskCategory.War);
+            int pauseTimer = Owner.GetEmpireAI().PauseWarTimer;
+
+            if (!taskCat.HasFlag(TaskCategory.Domestic))
+            {
+                if (pauseTimer >= 0)
+                {
+                    if (warTask && TargetPlanet != null && !TargetPlanet.Owner.isFaction)
+                        return RequisitionStatus.FailedToCreateAFleet;
+
+                }
+                else if (!warTask)
+                    return RequisitionStatus.FailedToCreateAFleet;
+
+            }
 
             if (!RoomForMoreFleets()) return RequisitionStatus.NotEnoughAvailableFleets;
 
@@ -474,6 +490,8 @@ namespace Ship_Game.AI.Tasks
             int wantedNumberOfFleets = WantedNumberOfFleets();
 
             float strengthNeeded = MinimumTaskForceStrength.LowerBound(EnemyStrength);
+
+
 
             // All's Good... Make a fleet
 

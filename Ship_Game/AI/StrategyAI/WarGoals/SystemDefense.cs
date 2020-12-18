@@ -37,6 +37,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 foreach (IncomingThreat threatenedSystem in Owner.SystemWithThreat)
                 {
                     if (threatenedSystem.ThreatTimedOut) continue;
+                    if (!threatenedSystem.HighPriority) continue;
                     systems.Add(threatenedSystem);
                 }
             }
@@ -50,7 +51,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 var threatenedSystem = systems[i];
                 var priority = unImportant - threatenedSystem.TargetSystem.PlanetList
                     .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
-                Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength , 1);
+                Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1, this);
             }
 
             //foreach (var system in Owner.GetOwnedSystems().Sorted(s => Owner.KnownEnemyStrengthIn(s)))

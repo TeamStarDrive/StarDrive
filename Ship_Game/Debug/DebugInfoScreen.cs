@@ -169,11 +169,12 @@ namespace Ship_Game.Debug
             {
                 switch (Mode)
                 {
-                    case DebugModes.PathFinder: Page = Add(new PathFinderDebug(Screen,  this)); break;
-                    case DebugModes.Trade:   Page = Add(new TradeDebug(Screen, this)); break;
-                    case DebugModes.Planets: Page = Add(new PlanetDebug(Screen,this)); break;
-                    case DebugModes.Solar:   Page = Add(new SolarDebug(Screen, this)); break;
+                    case DebugModes.PathFinder: Page   = Add(new PathFinderDebug(Screen,  this)); break;
+                    case DebugModes.Trade:   Page      = Add(new TradeDebug(Screen, this)); break;
+                    case DebugModes.Planets: Page      = Add(new PlanetDebug(Screen,this)); break;
+                    case DebugModes.Solar:   Page      = Add(new SolarDebug(Screen, this)); break;
                     case DebugModes.RelationsWar: Page = Add(new DebugWar(Screen, this)); break;
+                    case DebugModes.AO: Page           = Add(new DebugAO(Screen, this)); break;
                 }
             }
 
@@ -782,7 +783,7 @@ namespace Ship_Game.Debug
                     if (rel.PreparingForWar)
                         DrawString(them.EmpireColor, $"*** {rel.PreparingForWarType} ***");
                     if (rel.ActiveWar != null)
-                        DrawString(them.EmpireColor, $"*** {rel.ActiveWar.WarType} ***");
+                        DrawString(them.EmpireColor, $"*** {rel.ActiveWar.WarType} - Priority:{e.GetEmpireAI().PauseWarTimer < 0 }***");
 
                     DrawString(e.EmpireColor, "----------------------------");
                 }

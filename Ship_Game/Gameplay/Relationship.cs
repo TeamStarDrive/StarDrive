@@ -536,6 +536,7 @@ namespace Ship_Game.Gameplay
         public void UpdatePlayerRelations(Empire us, Empire them)
         {
             UpdateIntelligence(us, them);
+            Risk.UpdateRiskAssessment(us);
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 us.EndPeaceWith(them);
@@ -556,12 +557,12 @@ namespace Ship_Game.Gameplay
                 WarHistory.Add(ActiveWar);
                 ActiveWar             = null;
             }
+            Risk.UpdateRiskAssessment(us);
 
             if (GlobalStats.RestrictAIPlayerInteraction && them.isPlayer)
                 return;
 
             TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
-            Risk.UpdateRiskAssessment(us);
 
             bool canAttack = CanWeAttackThem(us, them);
             if (CanAttack != canAttack)
@@ -1691,7 +1692,7 @@ namespace Ship_Game.Gameplay
         {
             var debug = new DebugTextBlock
             {
-                Header      = $"Relation To: {Name}",
+                Header      = $"Relation To: {Them.data.PortraitName}",
                 HeaderColor = EmpireManager.GetEmpireByName(Name).EmpireColor
             };
 
