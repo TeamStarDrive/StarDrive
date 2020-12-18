@@ -9,8 +9,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (OwnerWar.WarType != WarType.EmpireDefense)
                 return new Array<SolarSystem>(OwnerTheater.GetSystems().Filter(s =>
                     s.IsExploredBy(Owner) && s.OwnerList.Contains(Them)));
+
             return new Array<SolarSystem>(OwnerTheater.GetSystems().Filter(s =>
-                s.IsExploredBy(Owner) && s.OwnerList.Count > 1 && s.OwnerList.Contains(Owner)));
+            {
+                if (s.OwnerList.Count < 1 || !s.IsExploredBy(Owner)) return false;
+                foreach (var owner in s.OwnerList)
+                {
+                    if (Owner.IsAtWarWith(owner))
+                        return true;
+                }
+                return false;
+            }));
         }
         /// <summary>
         /// Initializes from save a new instance of the <see cref="Capture"/> class.
