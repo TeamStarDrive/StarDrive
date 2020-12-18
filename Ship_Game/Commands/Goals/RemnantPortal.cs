@@ -46,14 +46,14 @@ namespace Ship_Game.Commands.Goals
         void JumpToEnemy()
         {
             float desiredRange = Portal.DesiredCombatRange;
-            Ship farthest      = Portal.System?.ShipList.FindMaxFiltered(s => s != null 
+            Ship nearest      = Portal.System?.ShipList.FindMinFiltered(s => s != null 
                                                                             && s.loyalty != empire 
                                                                             && s.GetStrength() > 100
                                                                             && !s.IsInWarp, s => s.Center.Distance(Portal.Center));
 
-            if (farthest!= null && !farthest.Center.InRadius(Portal.Center, desiredRange))
+            if (nearest!= null && !nearest.Center.InRadius(Portal.Center, desiredRange))
             {
-                Vector2 pos = farthest.Center + farthest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + farthest.Radius);
+                Vector2 pos = nearest.Center + nearest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + nearest.Radius);
                 MoveToPos(pos);
             }
         }

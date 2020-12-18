@@ -134,11 +134,29 @@ namespace Ship_Game
 
                 SetLevel(Level + 1);
                 newLevel = Level;
+                Upgrade();
                 return true;
             }
 
             CheckHibernation();
             return false;
+        }
+
+        void Upgrade()
+        {
+            if (Level % 2 == 0)
+                Owner.data.ShieldPowerMod += 0.1f;
+
+            if (Level % 4 == 0)
+                Owner.data.Traits.ModHpModifier += 0.1f;
+
+            if (Level % 6 == 0)
+                Owner.data.ArmorPiercingBonus += 1;
+
+            if (Level % 8 == 0)
+                Owner.data.ExplosiveRadiusReduction += 0.15f;
+
+            EmpireShipBonuses.RefreshBonuses(Owner);
         }
 
         void CheckHibernation() // Start Hibernation some time before leveling up
