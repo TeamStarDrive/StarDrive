@@ -41,7 +41,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         void SetActiveTheaters()
         {
-            if (Theaters.Count == 1 && (ActiveTheaters is null || ActiveTheaters.Length < 1 || ActiveTheaters[0] != Theaters[0]))
+            if (OwnerWar.WarType == WarType.EmpireDefense || Theaters.Count == 1 && 
+                (ActiveTheaters is null || ActiveTheaters.Length < 1 || ActiveTheaters[0] != Theaters[0]))
             {
                 ActiveTheaters = Theaters.ToArray();
                 return;
@@ -89,6 +90,12 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             }
 
             SetActiveTheaters();
+            // HACK! just need to fix the border planet war so that it deals with having taken the border planets. 
+            if (OwnerWar.WarType == WarType.BorderConflict && ActiveTheaters.Length == 0)
+            {
+                OwnerWar.WarType = WarType.ImperialistWar;
+                Initialized = false;
+            }
 
             for (int i = 0; i < Theaters.Count; i++)
             {
@@ -98,7 +105,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             // if there system count changes rebuild the AO
             int theirSystems = Them.GetOwnedSystems().Count;
-            if (!Initialized || theirSystems > 0 && theirSystems != TheirSystemCount )
+            if (!Initialized || Theaters.Count == 0 || theirSystems > 0 && theirSystems != TheirSystemCount )
             {
                 TheirSystemCount = theirSystems;
                 Initialize();
@@ -186,7 +193,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);
                     campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
-                    aos                = CreateBorderAOs();
+                    aos                = CreateImperialisticAO();
                     break;
                 case WarType.EmpireDefense:
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);

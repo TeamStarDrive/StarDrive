@@ -6,6 +6,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
+using Ship_Game.AI.StrategyAI.WarGoals;
 
 namespace Ship_Game.AI.Tasks
 {
@@ -35,6 +36,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(21)] public int TargetEmpireId = -1;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
+        [XmlIgnore] [JsonIgnore] public Campaign WarCampaign = null;
 
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] public SolarSystem TargetSystem { get; private set; }
@@ -859,6 +861,11 @@ namespace Ship_Game.AI.Tasks
         public TaskCategory GetTaskCategory()
         {
             TaskCategory taskCat = MinimumTaskForceStrength > 0 ? TaskCategory.FleetNeeded : TaskCategory.None;
+            
+            if (WarCampaign?.GetWarType() == WarType.EmpireDefense)
+                taskCat |= TaskCategory.Domestic;
+            else if (WarCampaign != null)
+                taskCat |= TaskCategory.War;
 
             switch (type)
             {
@@ -867,13 +874,18 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.GlassPlanet:
                 case TaskType.ClearAreaOfEnemies:
                 case TaskType.CorsairRaid:        taskCat |= TaskCategory.War; break;
+                case TaskType.AssaultPirateBase:
                 case TaskType.DefendSystem:
                 case TaskType.CohesiveClearAreaOfEnemies:
                 case TaskType.Patrol:
+                case TaskType.DefendVsRemnants:
+                case TaskType.RemnantEngagement:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
                 case TaskType.DefendClaim:
                 case TaskType.GuardBeforeColonize:
                 case TaskType.Exploration:        taskCat |= TaskCategory.Expansion; break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
             return taskCat;
         }
