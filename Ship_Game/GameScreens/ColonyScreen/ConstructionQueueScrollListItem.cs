@@ -11,11 +11,13 @@ namespace Ship_Game
     {
         readonly Planet Planet;
         public readonly QueueItem Item;
+        readonly bool LowRes;
 
-        public ConstructionQueueScrollListItem(QueueItem item)
+        public ConstructionQueueScrollListItem(QueueItem item, bool lowRes)
         {
             Planet = item.Planet;
             Item   = item;
+            LowRes = lowRes;
             AddUp(new Vector2(-120, 0), /*Queue up*/63, OnUpClicked);
             AddDown(new Vector2(-90, 0), /*Queue down*/64, OnDownClicked);
             AddApply(new Vector2(-60, 0), /*Cancel production*/50, OnApplyClicked);
@@ -155,7 +157,7 @@ namespace Ship_Game
         
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            Item.DrawAt(batch, Pos);
+            Item.DrawAt(batch, Pos, LowRes);
             base.Draw(batch, elapsed);
         }
     }
