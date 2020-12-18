@@ -668,7 +668,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", Localizer.Token(1879), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", Localizer.Token(1880), digits: 1);
             DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", Localizer.Token(1881), digits: 1);
-            DrawBuildingInfo(ref cursor, batch, P.MaxProductionToQueue, "NewUI/icon_queue_rushconstruction", Localizer.Token(1873), digits: 1);
+            DrawBuildingInfo(ref cursor, batch, P.CurrentProductionToQueue, "NewUI/icon_queue_rushconstruction", Localizer.Token(1873), digits: 1);
         }
 
         void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b)

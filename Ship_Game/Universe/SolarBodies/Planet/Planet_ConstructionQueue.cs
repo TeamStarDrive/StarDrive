@@ -97,11 +97,17 @@ namespace Ship_Game
             if (totalProdNeeded.AlmostZero())
                 return 0;
 
-            float maxProductionWithInfra = MaxProductionToQueue.LowerBound(0.01f);
-            float turnsWithInfra         = ProdHere / InfraStructure.LowerBound(0.01f);
-            float totalProdWithInfra     = turnsWithInfra * maxProductionWithInfra;
-            float potentialProduction    = Prod.NetMaxPotential.LowerBound(0.01f);
-            float turnsWithoutInfra      = (totalProdNeeded - totalProdWithInfra / potentialProduction).LowerBound(0);
+            float maxProductionWithInfra    = MaxProductionToQueue.LowerBound(0.01f);
+            float turnsWithInfra            = ProdHere / InfraStructure.LowerBound(0.01f);
+            float totalProdWithInfra        = turnsWithInfra * maxProductionWithInfra;
+            float prodNeededAfterStorageEnd = totalProdNeeded - totalProdWithInfra;
+
+            if (prodNeededAfterStorageEnd.LessOrEqual(0)) // we can produce all queue with max prod and storage
+                return (int)(totalProdNeeded / maxProductionWithInfra);
+
+            float potentialProduction = Prod.NetMaxPotential.LowerBound(0.01f);
+            float turnsWithoutInfra   = prodNeededAfterStorageEnd / potentialProduction;
+
             return (int)(turnsWithInfra + turnsWithoutInfra);
         }
 

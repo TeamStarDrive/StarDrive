@@ -4,7 +4,8 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-        public float MaxProductionToQueue       => Prod.NetIncome + InfraStructure;
+        public float CurrentProductionToQueue   => Prod.NetIncome + InfraStructure;
+        public float MaxProductionToQueue       => Prod.NetMaxPotential + InfraStructure;
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / (Owner.IsCybernetic ? 2 : 3)).LowerBound(0.1f);
         float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
@@ -170,7 +171,7 @@ namespace Ship_Game
                 }
             }
 
-            return prodToSpend.UpperBound(MaxProductionToQueue);
+            return prodToSpend.UpperBound(CurrentProductionToQueue);
         }
     }
 }
