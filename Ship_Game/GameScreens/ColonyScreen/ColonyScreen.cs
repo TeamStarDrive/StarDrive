@@ -63,9 +63,10 @@ namespace Ship_Game
         int EditHoverState;
 
         Rectangle EditNameButton;
-        readonly SpriteFont Font8 = Fonts.Arial8Bold;
+        readonly SpriteFont Font8  = Fonts.Arial8Bold;
         readonly SpriteFont Font12 = Fonts.Arial12Bold;
         readonly SpriteFont Font20 = Fonts.Arial20Bold;
+        readonly SpriteFont TextFont;
         public readonly Empire Player = EmpireManager.Player;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
@@ -73,7 +74,7 @@ namespace Ship_Game
             P = p;
             eui = empUI;
             empUI.empire.UpdateShipsWeCanBuild();
-
+            TextFont = LowRes ? Font8 : Font12;
             var titleBar = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleBar);
             LeftColony = new ToggleButton(new Vector2(titleBar.X + 25, titleBar.Y + 24), ToggleButtonStyle.ArrowLeft);
@@ -191,8 +192,13 @@ namespace Ship_Game
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;
             ConstructionQueue.OnDragReorder = OnConstructionItemReorder;
+            int iconSize = LowRes ? 80 : 128;
+            int iconOffsetX = LowRes ? 100 : 148;
+            int iconOffsetY = LowRes ? 0 : 25;
 
-            PlanetIcon = new Rectangle((int)PlanetInfo.Right - 148, (int)PlanetInfo.Y + ((int)PlanetInfo.Height - 25) / 2 - 64 + 25, 128, 128);
+            PlanetIcon = new Rectangle((int)PlanetInfo.Right - iconOffsetX, 
+                (int)PlanetInfo.Y + ((int)PlanetInfo.Height - iconOffsetY) / 2 - iconSize/2 + (LowRes ? 0 : 25), iconSize, iconSize);
+
             GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);
             int width = GridPos.Width / 7;
             int height = GridPos.Height / 5;

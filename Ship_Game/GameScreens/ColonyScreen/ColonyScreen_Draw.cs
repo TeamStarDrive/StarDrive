@@ -48,8 +48,8 @@ namespace Ship_Game
             batch.Draw(texture, fIcon, Color.White);
             string suffix = percent ? "% " : " ";
             string text = string.Concat(plusOrMinus, Math.Abs(value).String(digits), suffix, toolTip);
-            batch.DrawString(Font12, text, tCursor, color);
-            cursor.Y += Font12.LineSpacing + 10;
+            batch.DrawString(TextFont, text, tCursor, color);
+            cursor.Y += TextFont.LineSpacing + 10;
         }
 
         void DrawTroopLevel(Troop troop)
@@ -196,37 +196,37 @@ namespace Ship_Game
                 vector2_2.Y += Font20.LineSpacing * 2;
             else
                 vector2_2.Y += Font20.LineSpacing;
-            batch.DrawString(Font12, Localizer.Token(384) + ":", vector2_2, Color.Orange);
+            batch.DrawString(TextFont, Localizer.Token(384) + ":", vector2_2, Color.Orange);
             Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, P.CategoryName, position3, Colors.Cream);
-            vector2_2.Y += Font12.LineSpacing + 2;
+            batch.DrawString(TextFont, P.CategoryName, position3, Colors.Cream);
+            vector2_2.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
+            batch.DrawString(TextFont, Localizer.Token(385) + ":", vector2_2, Color.Orange);
             var color = Colors.Cream;
-            batch.DrawString(Font12, P.PopulationStringForPlayer, position3, color);
-            var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(385) + ":").X, Font12.LineSpacing);
+            batch.DrawString(TextFont, P.PopulationStringForPlayer, position3, color);
+            var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(385) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(75);
-            vector2_2.Y += Font12.LineSpacing + 2;
+            vector2_2.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
+            batch.DrawString(TextFont, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             string fertility;
             if (P.FertilityFor(Player).AlmostEqual(P.MaxFertilityFor(Player)))
             {
                 fertility = P.FertilityFor(Player).String(2);
-                batch.DrawString(Font12, fertility, position3, color);
+                batch.DrawString(TextFont, fertility, position3, color);
             }
             else
             {
                 Color fertColor = P.FertilityFor(Player) < P.MaxFertilityFor(Player) ? Color.LightGreen : Color.Pink;
                 fertility = $"{P.FertilityFor(Player).String(2)} / {P.MaxFertilityFor(Player).LowerBound(0).String(2)}";
-                batch.DrawString(Font12, fertility, position3, fertColor);
+                batch.DrawString(TextFont, fertility, position3, fertColor);
             }
             float fertEnvMultiplier = EmpireManager.Player.PlayerEnvModifier(P.Category);
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
-                var fertMultiplier = new Vector2(position3.X + Font12.MeasureString($"{fertility} ").X, position3.Y+2);
+                var fertMultiplier = new Vector2(position3.X + TextFont.MeasureString($"{fertility} ").X, position3.Y+2);
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
             if (P.TerraformPoints > 0)
@@ -244,16 +244,17 @@ namespace Ship_Game
                     terraformText = Localizer.Token(1919);
                 }
 
-                var terraformPos = new Vector2(vector2_2.X + num5 * 3.9f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
-                batch.DrawString(Font12, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
+                int terraformOffSetX = LowRes ? 30 : 20;
+                var terraformPos = new Vector2(PlanetIcon.X - terraformOffSetX, PlanetIcon.Y + PlanetIcon.Height + TextFont.LineSpacing-5);
+                batch.DrawString(TextFont, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
             }
 
             UpdateData();
             if (IncomingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
             {
-                Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
-                Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
-                batch.DrawString(Font12, "Incoming Freighters:", incomingTitle, Color.White);
+                Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (TextFont.LineSpacing + 2) * 3);
+                Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (TextFont.LineSpacing + 2) * 3);
+                batch.DrawString(TextFont, "Incoming Freighters:", incomingTitle, Color.White);
 
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingFoodFreighters,
                     IncomingFood.String(), GameText.Food);
@@ -266,22 +267,22 @@ namespace Ship_Game
 
             if (OutgoingFreighters > 0 && (P.Owner?.isPlayer == true || Empire.Universe.Debug))
             {
-                Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
-                Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
-                batch.DrawString(Font12, "Outgoing Freighters:", outgoingTitle, Color.White);
+                Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (TextFont.LineSpacing + 2) * 2);
+                Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (TextFont.LineSpacing + 2) * 2);
+                batch.DrawString(TextFont, "Outgoing Freighters:", outgoingTitle, Color.White);
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingFoodFreighters, GameText.Food);
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Production);
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Colonists);
             }
 
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
+            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(386) + ":").X, TextFont.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(20);
-            vector2_2.Y += Font12.LineSpacing + 2;
+            vector2_2.Y += TextFont.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, Localizer.Token(387) + ":", vector2_2, Color.Orange);
-            batch.DrawString(Font12, P.MineralRichness.String(), position3, Colors.Cream);
-            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(387) + ":").X, Font12.LineSpacing);
+            batch.DrawString(TextFont, Localizer.Token(387) + ":", vector2_2, Color.Orange);
+            batch.DrawString(TextFont, P.MineralRichness.String(), position3, Colors.Cream);
+            rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(387) + ":").X, TextFont.LineSpacing);
 
             string gIncome = Localizer.Token(6125);
             string gUpkeep = Localizer.Token(6126);
@@ -318,7 +319,7 @@ namespace Ship_Game
             positionNetIncome.Y = positionGrossUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
 
             batch.DrawString(Fonts.Arial12, (netIncome > 0.0 ? nIncome : nLosses) + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
-            batch.DrawString(Font12, netIncome.String(2) + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
+            batch.DrawString(TextFont, netIncome.String(2) + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
 
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
@@ -335,17 +336,17 @@ namespace Ship_Game
             if (numFreighters == 0)
                 return;
 
-            int lineDown      = Font12.LineSpacing + 2;
+            int lineDown      = TextFont.LineSpacing + 2;
             string freighters = $"{numFreighters} ";
             incomingTitle.Y  += lineDown;
             incomingData.Y   += lineDown;
 
-            batch.DrawString(Font12, $"{new LocalizedText(text).Text}:", incomingTitle, Color.Gray);
-            batch.DrawString(Font12, freighters, incomingData, Color.LightGreen);
+            batch.DrawString(TextFont, $"{new LocalizedText(text).Text}:", incomingTitle, Color.Gray);
+            batch.DrawString(TextFont, freighters, incomingData, Color.LightGreen);
             if (incomingCargo == "0" || incomingCargo == "0.00")
                 return;
 
-            Vector2 numCargo = new Vector2(incomingData.X + Font12.MeasureString(freighters).X, incomingData.Y + 1);
+            Vector2 numCargo = new Vector2(incomingData.X + TextFont.MeasureString(freighters).X, incomingData.Y + 1);
             batch.DrawString(Font8, $"({incomingCargo})", numCargo, Color.DarkKhaki);
         }
 
@@ -355,11 +356,11 @@ namespace Ship_Game
             if (numFreighters == 0)
                 return;
 
-            int lineDown     = Font12.LineSpacing + 2;
+            int lineDown     = TextFont.LineSpacing + 2;
             outgoingTitle.Y += lineDown;
             outgoingData.Y  += lineDown;
-            batch.DrawString(Font12, $"{new LocalizedText(text).Text}:", outgoingTitle, Color.Gray);
-            batch.DrawString(Font12, numFreighters.String(), outgoingData, Color.Gold);
+            batch.DrawString(TextFont, $"{new LocalizedText(text).Text}:", outgoingTitle, Color.Gray);
+            batch.DrawString(TextFont, numFreighters.String(), outgoingData, Color.Gold);
         }
 
         void DrawFoodAndStorage(SpriteBatch batch)
@@ -490,19 +491,20 @@ namespace Ship_Game
 
         string MultiLineFormat(LocalizedText text)
         {
-            return Font12.ParseText(text.Text, pFacilities.Rect.Width - 40);
+            return TextFont.ParseText(text.Text, pFacilities.Rect.Width - 40);
         }
 
         void DrawMultiLine(ref Vector2 cursor, LocalizedText text, Color color)
         {
             string multiline = MultiLineFormat(text);
-            ScreenManager.SpriteBatch.DrawString(Font12, multiline, cursor, color);
-            cursor.Y += (Font12.MeasureString(multiline).Y + Font12.LineSpacing);
+
+            ScreenManager.SpriteBatch.DrawString(TextFont, multiline, cursor, color);
+            cursor.Y += (TextFont.MeasureString(multiline).Y + TextFont.LineSpacing);
         }
 
         void DrawCommoditiesArea(Vector2 bCursor)
         {
-            ScreenManager.SpriteBatch.DrawString(Font12, MultiLineFormat(4097), bCursor, TextColor);
+            ScreenManager.SpriteBatch.DrawString(TextFont, MultiLineFormat(4097), bCursor, TextColor);
         }
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
@@ -573,15 +575,15 @@ namespace Ship_Game
                         case null when pgs.Habitable && pgs.Biosphere:
                             batch.DrawString(Font20, Localizer.Token(348), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
+                            batch.DrawString(TextFont, MultiLineFormat(349), bCursor, color);
                             bCursor.Y += Font20.LineSpacing * 5;
-                            batch.DrawString(Font12, $"{P.PopPerBiosphere(Player).String(0)}" +
+                            batch.DrawString(TextFont, $"{P.PopPerBiosphere(Player).String(0)}" +
                                                      $" {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
 
                             bCursor.Y += Font20.LineSpacing;
                             if (pgs.BioCanTerraform)
                             {
-                                batch.DrawString(Font12, MultiLineFormat("This tile can be terraformed " +
+                                batch.DrawString(TextFont, MultiLineFormat("This tile can be terraformed " +
                                         "as part of terraforming operations. The process will take more time due to " +
                                         "Biosphere Terraforming complexity."), bCursor, Player.EmpireColor);
 
@@ -592,9 +594,9 @@ namespace Ship_Game
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
+                            batch.DrawString(TextFont, MultiLineFormat(349), bCursor, color);
                             bCursor.Y += Font20.LineSpacing * 5;
-                            batch.DrawString(Font12, $"{popPerTile.String(0)} {MultiLineFormat(1898)}", bCursor, Color.LightGreen);
+                            batch.DrawString(TextFont, $"{popPerTile.String(0)} {MultiLineFormat(1898)}", bCursor, Color.LightGreen);
                             return;
                     }
 
@@ -604,25 +606,25 @@ namespace Ship_Game
                         {
                             batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(Font12, MultiLineFormat(352), bCursor, color);
+                            batch.DrawString(TextFont, MultiLineFormat(352), bCursor, color);
                         }
                         else
                         {
                             batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            batch.DrawString(Font12, MultiLineFormat(353), bCursor, color);
+                            batch.DrawString(TextFont, MultiLineFormat(353), bCursor, color);
                         }
 
                         bCursor.Y += Font20.LineSpacing * 5;
                         string bioText = new LocalizedText(GameText.MillionColonistsCouldBeLiving).Text;
                         if (BioSpheresResearched && pgs.CanTerraform)
                         {
-                            batch.DrawString(Font12, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
+                            batch.DrawString(TextFont, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
                             bCursor.Y += Font20.LineSpacing;
                             bioText   += " However, building Biospheres here will complicate future terraforming efforts on the tile.";
                         }
 
-                        batch.DrawString(Font12, $"{P.PopPerBiosphere(Player).String(0)} {MultiLineFormat(bioText)}", bCursor, Color.Gold);
+                        batch.DrawString(TextFont, $"{P.PopPerBiosphere(Player).String(0)} {MultiLineFormat(bioText)}", bCursor, Color.Gold);
                         return;
                     }
 
@@ -634,22 +636,22 @@ namespace Ship_Game
                     batch.DrawString(Font20, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, color);
                     bCursor.Y   += Font20.LineSpacing + 5;
                     string buildingDescription  = MultiLineFormat(pgs.building.DescriptionIndex);
-                    batch.DrawString(Font12, buildingDescription, bCursor, color);
-                    bCursor.Y   += Font12.MeasureString(buildingDescription).Y + Font20.LineSpacing;
+                    batch.DrawString(TextFont, buildingDescription, bCursor, color);
+                    bCursor.Y   += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
                     DrawSelectedBuildingInfo(ref bCursor, batch, pgs.building);
                     if (!pgs.building.Scrappable)
                         return;
 
-                    bCursor.Y += (Font12.LineSpacing * 3);
-                    batch.DrawString(Font12, "You may scrap this building by right clicking it", bCursor, Color.White);
+                    bCursor.Y += (TextFont.LineSpacing * 3);
+                    batch.DrawString(TextFont, "You may scrap this building by right clicking it", bCursor, Color.White);
                     break;
 
                 case Building selectedBuilding:
                     batch.DrawString(Font20, Localizer.Token(selectedBuilding.NameTranslationIndex), bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
                     string selectionText = MultiLineFormat(selectedBuilding.DescriptionIndex);
-                    batch.DrawString(Font12, selectionText, bCursor, color);
-                    bCursor.Y += Font12.MeasureString(selectionText).Y + Font20.LineSpacing;
+                    batch.DrawString(TextFont, selectionText, bCursor, color);
+                    bCursor.Y += TextFont.MeasureString(selectionText).Y + Font20.LineSpacing;
                     if (selectedBuilding.isWeapon)
                         selectedBuilding.CalcMilitaryStrength(); // So the building will have TheWeapon for stats
 
@@ -711,9 +713,9 @@ namespace Ship_Game
                                                   "above 0 due to currently present negative environment " +
                                                   $"buildings on this planet (effective Max Fertility is {P.MaxFertility}).");
 
-                cursor.Y += Font12.LineSpacing;
-                batch.DrawString(Font12, warning, cursor, Color.Red);
-                cursor.Y += Font12.LineSpacing * 4;
+                cursor.Y += TextFont.LineSpacing;
+                batch.DrawString(TextFont, warning, cursor, Color.Red);
+                cursor.Y += TextFont.LineSpacing * 4;
             }
         }
 
@@ -723,9 +725,9 @@ namespace Ship_Game
                 return;
 
             string terraformStats = TerraformPotential(out Color terraformColor);
-            cursor.Y += Font12.LineSpacing;
-            batch.DrawString(Font12, terraformStats, cursor, terraformColor);
-            cursor.Y += Font12.LineSpacing * 4;
+            cursor.Y += TextFont.LineSpacing;
+            batch.DrawString(TextFont, terraformStats, cursor, terraformColor);
+            cursor.Y += TextFont.LineSpacing * 4;
         }
 
         void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Building b)
