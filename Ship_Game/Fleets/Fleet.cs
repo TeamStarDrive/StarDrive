@@ -363,7 +363,7 @@ namespace Ship_Game.Fleets
 
         void SetAIDefaultTactics()
         {
-            if (Owner?.isPlayer == true) return;
+            if (Owner.isPlayer == true) return;
 
             for (int i = 0; i < ScreenFlank.Count; i++)
             {
