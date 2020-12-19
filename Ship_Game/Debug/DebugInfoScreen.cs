@@ -813,7 +813,7 @@ namespace Ship_Game.Debug
                 NewLine(2);
                 DrawString("Empire Strength Multipliers");
                 DrawString("---------------------------");
-                foreach (Empire empire in EmpireManager.ActiveNonPlayerMajorEmpires.Filter(empire => empire != e))
+                foreach (Empire empire in EmpireManager.ActiveMajorEmpires.Filter(empire => empire != e))
                     DrawString($"{empire.Name}: {e.GetFleetStrEmpireMultiplier(empire).String(2)}");
 
                 NewLine(2);
