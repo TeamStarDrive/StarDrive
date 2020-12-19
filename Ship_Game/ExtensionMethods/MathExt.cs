@@ -288,10 +288,11 @@ namespace Ship_Game
             if (((float)len).AlmostZero())
                 return Vectors.Up; // UP
             Vector2 dir = Vector2.Normalize(new Vector2((float)(dx / len), (float)(dy / len)));
-            float check = (float)Sqrt((dir.X *dir.X + dir.Y * dir.Y));
-            if (check != 1)
+            if (System.Diagnostics.Debugger.IsAttached)
             {
-                Log.Warning("did");
+                float check = (float)Sqrt(dir.X * dir.X + dir.Y * dir.Y);
+                if (check != 1)
+                    Log.Error("DirectionToTarget unit vector was not equal 1. Bad unit vector will result in incorrect calculations");
             }
             return dir;
         }
