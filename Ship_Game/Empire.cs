@@ -418,15 +418,9 @@ namespace Ship_Game
             bestPorts = null;
             if (ports.Count > 0)
             {
-                float planetDivider;
-                if (isPlayer)
-                    planetDivider = 2;
-                else
-                    planetDivider = IsIndustrialists ? 5f : 4f;
-
-                int numPlanetsToFocus = ((int)Math.Ceiling(OwnedPlanets.Count / planetDivider)).Clamped(1, ports.Count + 1);
-                bestPorts             = ports.SortedDescending(p => p.Prod.NetMaxPotential);
-                bestPorts             = bestPorts.Take(numPlanetsToFocus).ToArray();
+                float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
+                bestPorts            = ports.Filter(p => p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd));
+                bestPorts            = bestPorts.SortedDescending(p => p.Prod.NetMaxPotential);
             }
 
             return bestPorts != null;

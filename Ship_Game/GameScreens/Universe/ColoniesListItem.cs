@@ -31,12 +31,18 @@ namespace Ship_Game
         DropDownMenu prodDropDown;
         Rectangle foodStorageIcon;
         Rectangle prodStorageIcon;
+        int NumShipsInQueue;
+        int NumBuildingsInQueue;
+        int NumTroopsInQueue;
+        int TotalProdNeeded;
 
         bool ApplyProdHover;
+        bool LowRes;
 
         public ColoniesListItem(EmpireManagementScreen screen, Planet planet)
         {
             Screen = screen;
+            LowRes = Screen.LowRes;
             p = planet;
 
             //UIList columns = Add(new UIList());
@@ -102,8 +108,9 @@ namespace Ship_Game
             prodDropDown.AddOption(Localizer.Token(330));
             prodDropDown.AddOption(Localizer.Token(331));
             prodDropDown.ActiveIndex = (int)p.PS;
-            ApplyProductionRect = new Rectangle(QueueRect.X + QueueRect.Width - 50, QueueRect.Y + QueueRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height);
-            
+            ApplyProductionRect = new Rectangle(QueueRect.X + QueueRect.Width - 20, QueueRect.Y + 10, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height);
+            UpdateQueueItemsList();
+
             base.PerformLayout();
         }
 
@@ -127,6 +134,7 @@ namespace Ship_Game
                         if (hasValidConstruction && p.Construction.RushProduction(0, maxAmount, rush: true))
                         {
                             GameAudio.AcceptClick();
+                            UpdateQueueItemsList();
                         }
                         else
                         {
@@ -252,12 +260,36 @@ namespace Ship_Game
             if (p.ConstructionQueue.Count > 0)
             {
                 QueueItem qi = p.ConstructionQueue[0];
-                qi.DrawAt(batch, new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 - 15));
+                qi.DrawAt(batch, new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 - 30), LowRes);
 
                 batch.Draw((ApplyProdHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
+                DrawQueueStats(batch);
             }
-            
+
             batch.DrawRectangle(Rect, TextColor2);
+        }
+
+        void DrawQueueStats(SpriteBatch batch)
+        {
+            if (p.ConstructionQueue.Count < 2)
+                return;
+
+            string stats = $"In Queue ({p.ConstructionQueue.Count}):";
+            if (NumShipsInQueue > 0)
+                stats = $"{stats} ships ({NumShipsInQueue}),";
+
+            if (NumBuildingsInQueue > 0)
+                stats = $"{stats} buildings ({NumBuildingsInQueue}),";
+
+            if (NumTroopsInQueue > 0)
+                stats = $"{stats} Troops ({NumTroopsInQueue}),";
+
+            stats   = stats.TrimEnd(',');
+            stats   = $"{stats}. Total: {TotalProdNeeded}";
+            var pos = new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 + 15);
+
+            SpriteFont font = LowRes ? Fonts.Arial8Bold : Fonts.Arial12;
+            batch.DrawString(font, stats, pos, Color.Gray);
         }
 
         void DrawStorage(SpriteBatch batch)
@@ -288,6 +320,17 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(74);
             }
+        }
+
+        void UpdateQueueItemsList()
+        {
+            if (p.ConstructionQueue.Count < 2)
+                return;
+
+            NumShipsInQueue     = p.ConstructionQueue.Filter(q => q.isShip).Length;
+            NumBuildingsInQueue = p.ConstructionQueue.Filter(q => q.isBuilding).Length;
+            NumTroopsInQueue    = p.ConstructionQueue.Filter(q => q.isTroop).Length;
+            TotalProdNeeded     = (int)(p.TotalProdNeededInQueue() - p.ConstructionQueue.ToArray().Sum(q => q.ProductionSpent));
         }
     }
 }

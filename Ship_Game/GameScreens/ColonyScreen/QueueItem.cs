@@ -58,13 +58,13 @@ namespace Ship_Game
 
         public void SetCanceled(bool state = true) => IsCancelled = state;
 
-        public void DrawAt(SpriteBatch batch, Vector2 at)
+        public void DrawAt(SpriteBatch batch, Vector2 at, bool lowRes)
         {
             var r = new Rectangle((int)at.X, (int)at.Y, 29, 30);
             var tCursor = new Vector2(at.X + 40f, at.Y);
             var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing + 4, 150, 18);
             var pb = new ProgressBar(pbRect, ActualCost, ProductionSpent);
-            var rushCursor = new Vector2(at.X + 200f, at.Y+18);
+            var rushCursor = new Vector2(at.X + 200f, at.Y + 18);
 
             if (isBuilding)
             {
@@ -88,7 +88,10 @@ namespace Ship_Game
             }
 
             if (Rush)
-                batch.DrawString(Fonts.Arial12Bold, "Continuous Rush", rushCursor, Color.Red);
+            {
+                SpriteFont font = lowRes ? Fonts.Arial8Bold : Fonts.Arial10;
+                batch.DrawString(font, "Continuous Rush", rushCursor, Color.IndianRed);
+            }
         }
 
         public float ActualCost

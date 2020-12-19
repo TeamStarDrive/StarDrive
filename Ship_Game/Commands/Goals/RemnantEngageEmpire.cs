@@ -217,7 +217,7 @@ namespace Ship_Game.Commands.Goals
 
             // Select a new closest planet
             if (!Remnants.TargetNextPlanet(TargetEmpire, TargetPlanet, Remnants.NumBombersInFleet(Fleet), out Planet nextPlanet))
-                return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
+                return ReturnToPortal();
 
             Fleet.FleetTask.ChangeTargetPlanet(nextPlanet);
             Fleet.ClearOrders();
