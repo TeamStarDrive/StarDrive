@@ -279,14 +279,21 @@ namespace Ship_Game
             return new Vector3(dx / len, dy / len, dz / len);
         }
 
+        // this will give values != 1 sometimes resulting in slightly incorrect values
         public static Vector2 DirectionToTarget(this Vector2 origin, Vector2 target)
         {
             float dx = target.X - origin.X;
             float dy = target.Y - origin.Y;
-            float len = (float)Sqrt(dx*dx + dy*dy);
-            if (len.AlmostZero())
+            double len = Sqrt(Pow(dx,2) + Pow(dy,2));
+            if (((float)len).AlmostZero())
                 return Vectors.Up; // UP
-            return new Vector2(dx / len, dy / len);
+            Vector2 dir = Vector2.Normalize(new Vector2((float)(dx / len), (float)(dy / len)));
+            float check = (float)Sqrt((dir.X *dir.X + dir.Y * dir.Y));
+            if (check != 1)
+            {
+                Log.Warning("did");
+            }
+            return dir;
         }
 
         public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)

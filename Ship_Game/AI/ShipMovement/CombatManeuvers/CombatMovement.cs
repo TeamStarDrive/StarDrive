@@ -82,6 +82,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// If movement direction is greater than 90 degrees different from facing we must be moving backwards
         /// </summary>
         protected bool WeAreRetrograding => DeltaOurFacingAndOurMovement > 90;
+        protected bool HeadOnAttack => DeltaOurMovementTheirFacing > 175;
 
         protected  ChaseState ChaseStates;
         protected CombatMovement(ShipAI ai) : base(ai)
@@ -150,7 +151,15 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         /// </summary>
         protected virtual bool ShouldDisengage()
         {
-            return !Owner.AI.HasPriorityTarget && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem);
+            return !Owner.AI.HasPriorityTarget && (MoveState == CombatMoveState.Disengage || WeAreChasingAndCantCatchThem || TheyAreMighty());
+        }
+
+        protected bool TheyAreMighty()
+        {
+            if (!HeadOnAttack) return false;
+            float theirDps = OwnerTarget.TotalDps;
+            float ourDefense = (Owner.shield_max + Owner.armor_max) * Owner.HealthPercent;
+            return theirDps * 5 > ourDefense;
         }
 
         /// <summary>

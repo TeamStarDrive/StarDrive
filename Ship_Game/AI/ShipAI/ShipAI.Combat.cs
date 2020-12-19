@@ -162,8 +162,9 @@ namespace Ship_Game.AI
         public struct  TargetParameterTotals
         {
             // target characteristics 
-            public float Armor, Shield, DPS, Size, Speed, Health, Largest, MostFirePower, MaxRange, MediumRange, ShortRange, SensorRange;
+            public float Armor, Shield, DPS, Size, Speed, Health, Largest, MostFirePower, MaxRange, MediumRange, ShortRange, SensorRange, X, Y;
             public Vector2 Center;
+            public Vector2 DPSCenter;
             public float MaxSensorRange;
             public float Defense => Armor + Shield;
             public bool ScreenShip(Ship ship) => ship.armor_max + ship.shield_max >= Defense;
@@ -176,9 +177,11 @@ namespace Ship_Game.AI
 
             public void AddTargetValue(Ship ship)
             {
+                if (ship.engineState == Ship.MoveState.Warp) return;
+                Count++;
                 Largest = Math.Max(Largest, ship.SurfaceArea);
                 MostFirePower = Math.Max(MostFirePower, ship.TotalDps);
-
+                
                 Armor       += ship.armor_max;
                 Shield      += ship.shield_max;
                 DPS         += ship.TotalDps;
@@ -191,17 +194,17 @@ namespace Ship_Game.AI
                 SensorRange += ship.SensorRange;
 
                 MaxSensorRange = Math.Max(MaxSensorRange, ship.SensorRange);
-
-                if (ship.SurfaceArea >= Largest && ship.TotalDps >= MostFirePower)
-                    Center = ship.Center;
-                Count++;
-
+                Center        += ship.Center;
+                DPSCenter     += ship.Center * ship.TotalDps;
             }
 
             public TargetParameterTotals GetAveragedValues()
             {
+                if (Count == 0) return new TargetParameterTotals();
                 var returnValue = new TargetParameterTotals()
                 {
+                    DPSCenter   = DPS > 0 ? DPSCenter / DPS : Center / Count,
+                    Center      = Center / Count,
                     Armor       = this.Armor / Count,
                     Shield      = this.Shield / Count,
                     DPS         = this.DPS / Count,
@@ -213,7 +216,7 @@ namespace Ship_Game.AI
                     ShortRange  = this.ShortRange / Count,
                     SensorRange = this.SensorRange / Count,
                     Largest     = Largest,
-                    Center      = Center,
+
                     MaxSensorRange = MaxSensorRange
                 };
                 return returnValue;
@@ -275,7 +278,7 @@ namespace Ship_Game.AI
                 
                 // this should be expanded to include allied ships. 
                 Empire empire = nearbyShip.loyalty;
-                if (empire == Owner.loyalty)
+                if (empire == Owner.loyalty && nearbyShip.Mothership == null)
                 {
                     ScannedFriendlies.Add(nearbyShip);
                     FriendliesSwarmCenter += nearbyShip.Center;
@@ -298,12 +301,9 @@ namespace Ship_Game.AI
                         // with no control to have a scan radius and so its possible this would 0 and still scanning.
                         if (radius < 1)
                             continue;
-
-                        var sw = new ShipWeight(nearbyShip, 0);
-                        ScannedNearby.Add(sw);
-
+                        
                         targetPrefs.AddTargetValue(nearbyShip);
-                        ScannedNearby[ScannedNearby.Count - 1] = sw;
+                        ScannedNearby.Add(new ShipWeight(nearbyShip, 0)); 
                     }
                 }
             }
@@ -333,10 +333,11 @@ namespace Ship_Game.AI
             if (Owner.IsSubspaceProjector || IgnoreCombat || Owner.WeaponsMaxRange.AlmostZero() || ScannedNearby.Count == 0)
                 return Target;
 
-            if (EscortTarget != null && EscortTarget.Active && EscortTarget.AI.Target != null && !scannedShips.Contains(EscortTarget))
+            if (EscortTarget?.Active == true && IsTargetValid(EscortTarget) && !scannedShips.Contains(EscortTarget))
             {
                 var sw = new ShipWeight(EscortTarget.AI.Target, 0);
                 ScannedNearby.Add(sw);
+                targetPrefs.AddTargetValue(EscortTarget);
             }
             SetTargetWeights(targetPrefs);
 
@@ -374,7 +375,7 @@ namespace Ship_Game.AI
             {
                 ShipWeight copyWeight = ScannedNearby[i]; //Remember we have a copy.
 
-                if (!Owner.loyalty.IsEmpireAttackable(copyWeight.Ship.loyalty))
+                if (!Owner.loyalty.IsEmpireAttackable(copyWeight.Ship.loyalty, copyWeight.Ship))
                 {
                     copyWeight.Weight = float.MinValue;
                     ScannedNearby[i] = copyWeight;
