@@ -103,7 +103,7 @@ namespace Ship_Game
             AddLight();
             Light.World        = bomb.World;
             Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-            Light.Radius       = Radius* RandomMath.RandomBetween(100, 500);
+            Light.Radius       = Radius* RandomMath.RandomBetween(1, 2);
             Light.Intensity    = RandomMath.RandomBetween(5, 15);
             Light.Enabled      = true;
 
