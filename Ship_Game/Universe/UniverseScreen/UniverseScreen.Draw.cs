@@ -884,7 +884,9 @@ namespace Ship_Game
                     shipSpacingH.Y += 15f;
                 }
 
-                batch.Draw(ship.GetTacticalIcon(), iconHousing, fleetButton.Fleet.Owner.EmpireColor);
+                batch.Draw(ship.GetTacticalIcon(out SubTexture secondary), iconHousing, fleetButton.Fleet.Owner.EmpireColor);
+                if (secondary != null)
+                    batch.Draw(secondary, iconHousing, fleetButton.Fleet.Owner.EmpireColor);
             }
         }
 
@@ -895,7 +897,7 @@ namespace Ship_Game
             for (int i = 0; i < fleetButton.Fleet.Ships.Count; ++i)
             {
                 Ship ship   = fleetButton.Fleet.Ships[i];
-                string icon = $"TacticalIcons/{ship.GetTacticalIcon().Name}";
+                string icon = $"TacticalIcons/{ship.GetTacticalIcon(out _).Name}";
                 if (sums.TryGetValue(icon, out int value))
                     sums[icon] = value + 1;
                 else
@@ -1004,21 +1006,16 @@ namespace Ship_Game
 
         void DrawShipProjectionIcon(Ship ship, Vector2 position, Vector2 direction, Color color)
         {
-            SubTexture symbol = ship.GetTacticalIcon();
+            SubTexture symbol = ship.GetTacticalIcon(out SubTexture secondary);
+            float num         = ship.SurfaceArea / (30f + symbol.Width);
+            float scale       = (num * 4000f / CamHeight).UpperBound(1);
 
-            float num = ship.SurfaceArea / (30f + symbol.Width);
-            float scale = num * 4000f / CamHeight;
-            if (scale > 1.0f)
-            {
-                scale = 1f;
-            }
-            else if (scale <= 0.1f)
-            {
-                scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView
-                      ? 0.15f : 0.08f;
-            }
+            if (scale <= 0.1f)
+                scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView ? 0.15f : 0.08f;
 
             DrawTextureProjected(symbol, position, scale, direction.ToRadians(), color);
+            if (secondary != null)
+                DrawTextureProjected(secondary, position, scale, direction.ToRadians(), color);
         }
 
         void DrawOverlay(Ship ship)
