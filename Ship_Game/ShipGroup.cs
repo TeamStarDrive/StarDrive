@@ -31,6 +31,7 @@ namespace Ship_Game
         // This can also be considered as the ASSEMBLY POSITION
         // If you set this to X location, ships will gather around it when idle
         public Vector2 FinalPosition;
+        public Vector2 BattlePosition;
 
         // FINAL direction facing of this ship group
         public Vector2 FinalDirection = Vectors.Up;

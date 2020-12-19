@@ -2011,7 +2011,13 @@ namespace Ship_Game.Fleets
         public Vector2 GetFormationPos(Ship ship) => AveragePosition() + ship.FleetOffset; //- AverageOffsetFromZero;
 
         // @return The Final destination position for this ship
-        public Vector2 GetFinalPos(Ship ship) => FinalPosition + ship.FleetOffset;
+        public Vector2 GetFinalPos(Ship ship)
+        {
+            if (CommandShip?.InCombat == true && FinalPosition.InRadius(CommandShip.Center, CommandShip.AI.FleetNode.OrdersRadius))
+                return CommandShip.Center + ship.FleetOffset;
+            
+            return FinalPosition + ship.FleetOffset;
+        }
 
         public float FormationWarpSpeed(Ship ship)
         {
