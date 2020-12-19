@@ -26,7 +26,7 @@ namespace Ship_Game
         private readonly SpriteFont NormalFont = Fonts.Arial20Bold;
 
         public Planet SelectedPlanet { get; private set; }
-
+        
         public EmpireManagementScreen(GameScreen parent, EmpireUIOverlay empUI) : base(parent)
         {
             TransitionOnTime = 0.25f;
