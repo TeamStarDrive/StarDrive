@@ -103,8 +103,8 @@ namespace Ship_Game
             AddLight();
             Light.World        = bomb.World;
             Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-            Light.Radius       = 50f;
-            Light.Intensity    = 8f;
+            Light.Radius       = Radius* RandomMath.RandomBetween(100, 500);
+            Light.Intensity    = RandomMath.RandomBetween(5, 15);
             Light.Enabled      = true;
 
             Vector3 vel = (bomb.Position - center3D).Normalized();
@@ -131,24 +131,6 @@ namespace Ship_Game
             }
         }
 
-        public void HitShield(ShipModule module, Beam beam)
-        {
-            float intensity = 10f.Clamped(1, beam.DamageAmount / module.ShieldPower);
-
-            Rotation     = module.Center.RadiansToTarget(beam.ActualHitDestination);
-            Radius       = module.ShieldHitRadius;
-            TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(intensity, 10f);
-            Displacement = 0.085f * RandomMath.RandomBetween(intensity, 10f);
-
-            AddLight();
-            Light.World        = Matrix.CreateTranslation(beam.ActualHitDestination.ToVec3());
-            Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
-            Light.Radius       = module.ShieldHitRadius;
-            Light.Intensity    = RandomMath.RandomBetween(intensity * 0.5f, 10f);
-            Light.Enabled      = true;
-
-            CreateShieldHitParticles(module.GetCenter3D, beam.Center, beamFlash: true);
-        }
         public void HitShield(ShipModule module, Projectile proj)
         {
             GameAudio.PlaySfxAsync("sd_impact_shield_01", module.GetParent().SoundEmitter);
