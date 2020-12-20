@@ -40,7 +40,7 @@ namespace Ship_Game.Empires.DataPackets
         {
             if (system != TargetSystem) return false;
 
-            Strength    = fleets.Sum(f => f.GetStrength());
+            Strength    = fleets.Sum(f => f.GetStrength() * Owner.GetFleetStrEmpireMultiplier(f.Owner));
             ThreatTimer = ThreatResetTime;
 
             foreach(var fleetToAdd in fleets)
