@@ -16,7 +16,8 @@ namespace Ship_Game.AI.Tasks
     {
         public int FleetCount = 1;
         public float Completeness = 0.5f;
-
+        [XmlIgnore] [JsonIgnore] RequisitionStatus ReqStatus = RequisitionStatus.None;
+        public RequisitionStatus GetRequisitionStatus() => ReqStatus;
         float GetEnemyShipStrengthInAO()
         {
             // RedFox: I removed ClampMin(minimumStrength) because this was causing infinite
@@ -162,8 +163,7 @@ namespace Ship_Game.AI.Tasks
                     RallyAO = theater?.RallyAO;
                 }
             }
-
-
+            
             if (RallyAO != null) 
                 return RallyAO;
             var aos =  Owner.GetEmpireAI().AreasOfOperations;
@@ -173,9 +173,7 @@ namespace Ship_Game.AI.Tasks
                 return null;
             }
 
-            AO closestAO = aos.FindMaxFiltered(ao => ao.GetPoolStrength() > strWanted,
-                               ao => -ao.Center.SqDist(AO))
-                           ?? aos.FindMin(ao => ao.Center.SqDist(AO));
+            AO closestAO = aos.FindMin(ao => ao.Center.SqDist(AO));
             return closestAO;
         }
 
@@ -447,7 +445,12 @@ namespace Ship_Game.AI.Tasks
 
             }
 
-            if (!RoomForMoreFleets()) return RequisitionStatus.NotEnoughAvailableFleets;
+            if (!RoomForMoreFleets())
+            {
+
+                ReqStatus = RequisitionStatus.NotEnoughAvailableFleets;
+                return ReqStatus;
+            }
 
             // this determines what core fleet to send if the enemy is strong. 
             // its also an easy out for an empire in a bad state. 
@@ -455,13 +458,17 @@ namespace Ship_Game.AI.Tasks
 
             if (closestAO == null)
             {
-                return RequisitionStatus.NoEmpireAreasOfOperation;
+                ReqStatus = RequisitionStatus.NoEmpireAreasOfOperation;
+                return ReqStatus;
             }
 
             // where the fleet will gather after requisition before moving to target AO.
             Planet rallyPoint = TargetPlanet ?? GetRallyPlanet();
             if (rallyPoint == null)
-                return RequisitionStatus.NoRallyPoint;
+            {
+                ReqStatus = RequisitionStatus.NoRallyPoint;
+                return ReqStatus;
+            }
 
 
             FleetShips fleetShips                    = Owner.Pool.EmpireReadyFleets;
@@ -482,10 +489,16 @@ namespace Ship_Game.AI.Tasks
 
                 // See if we need to gather troops from planets. Bail if not enough
                 if (!AreThereEnoughTroopsToInvade(fleetShips.InvasionTroopStrength, out troopsOnPlanets, rallyPoint.Center, highTroopPriority))
-                    return RequisitionStatus.NotEnoughTroopStrength;
+                {
+                    ReqStatus = RequisitionStatus.NotEnoughTroopStrength;
+                    return ReqStatus;
+                }
             }
             else if (TaskBombTimeNeeded > fleetShips.BombSecsAvailable)
-                return RequisitionStatus.NotEnoughBomberStrength;
+            {
+                ReqStatus = RequisitionStatus.NotEnoughBomberStrength;
+                return ReqStatus;
+            }
 
             int wantedNumberOfFleets = WantedNumberOfFleets();
 
@@ -498,14 +511,20 @@ namespace Ship_Game.AI.Tasks
             TaskForce = fleetShips.ExtractShipSet(strengthNeeded, troopsOnPlanets, wantedNumberOfFleets, rallyPoint.Center, this);
 
             if (TaskForce.IsEmpty)
-                return RequisitionStatus.FailedToCreateAFleet;
+            {
+                ReqStatus = RequisitionStatus.FailedToCreateAFleet;
+                return ReqStatus;
+            }
 
             float totalStr = TaskForce.Sum(s => s.BaseStrength);
             if (type == TaskType.DefendClaim)
                 Log.Info("lala");
             CreateFleet(TaskForce, fleetName);
             Owner.Pool.CurrentUseableFleets -= fleetShips.ShipSetsExtracted.LowerBound(1);
-            return RequisitionStatus.Complete;
+            {
+                ReqStatus = RequisitionStatus.Complete;
+                return ReqStatus;
+            }
         }
 
         private int WantedNumberOfFleets()
@@ -559,8 +578,9 @@ namespace Ship_Game.AI.Tasks
             MinimumTaskForceStrength = minFleetStrength;
         }
 
-        enum RequisitionStatus
+        public enum RequisitionStatus
         {
+            None,
             NoRallyPoint,
             NoEmpireAreasOfOperation,
             NotEnoughAvailableFleets,
