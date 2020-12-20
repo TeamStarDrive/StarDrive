@@ -906,23 +906,47 @@ namespace Ship_Game
 
             Vector2 shipSpacingH = new Vector2(x, y);
             int roleCounter = 1;
+            Color sumColor = Color.Goldenrod;
+            if (sums.Count > 12) // Switch to default sum views if too many icon sums
+            {
+                sums = RecalculateExcessIcons(sums);
+                sumColor = Color.Gold;
+            }
+
             foreach (string iconPaths in sums.Keys.ToArray())
             {
                 var iconHousing = new Rectangle((int)shipSpacingH.X, (int)shipSpacingH.Y, 15, 15);
-                string sum = $"{sums[iconPaths]}x";
-                batch.DrawString(Fonts.Arial10, sum, iconHousing.X, iconHousing.Y, color);
+                string space = sums[iconPaths] < 9 ? "  " : "";
+                string sum = $"{space}{sums[iconPaths]}x";
+                batch.DrawString(Fonts.Arial10, sum, iconHousing.X, iconHousing.Y, sumColor);
                 float ident = Fonts.Arial10.MeasureString(sum).X;
                 shipSpacingH.X += ident;
                 iconHousing.X  += (int)ident;
                 DrawIconSums(iconPaths, iconHousing);
                 shipSpacingH.X += 25f;
-                if (roleCounter % 5 == 0) // 5 roles per line
+                if (roleCounter % 4 == 0) // 4 roles per line
                 {
                     shipSpacingH.X  = x;
                     shipSpacingH.Y += 15f;
                 }
 
                 roleCounter += 1;
+            }
+
+            // Ignore secondary icons and returns only the hull role icons
+            Map<string, int> RecalculateExcessIcons(Map<string, int> excessSums)
+            {
+                Map<string, int> recalculated = new Map<string, int>();
+                foreach (string iconPaths in excessSums.Keys.ToArray())
+                {
+                    var hullPath = iconPaths.Split('|')[0];
+                    if (recalculated.TryGetValue(hullPath, out _))
+                        recalculated[hullPath] += excessSums[iconPaths];
+                    else
+                        recalculated.Add(hullPath, excessSums[iconPaths]);
+                }
+
+                return recalculated;
             }
 
             string GetFullTacticalIconPaths(Ship s)
