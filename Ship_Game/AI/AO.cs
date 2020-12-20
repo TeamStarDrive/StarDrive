@@ -77,7 +77,7 @@ namespace Ship_Game.AI
 
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
         [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; }           = true;
-
+        
         [XmlIgnore][JsonIgnore]
         public float OffensiveForcePoolStrength
         {

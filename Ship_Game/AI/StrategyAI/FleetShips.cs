@@ -354,7 +354,7 @@ namespace Ship_Game.AI
 
                     return inTheater || inTheaterRally;
                 });
-                if (!inWarTheater && shipInTheater)
+                if (!inWarTheater && shipInTheater || (s.System?.HostileForcesPresent(OwnerEmpire) ?? false))
                     return s.Center.SqDist(point) + Empire.Universe.UniverseSize;
                 return s.Center.SqDist(point);
 

@@ -42,6 +42,7 @@ namespace Ship_Game.Debug
             LineColor = LineColor ?? new Array<Color>();
             Lines.Add(text);
             LineColor.Add(color);
+            
         }
 
         Color GetLastColor()
