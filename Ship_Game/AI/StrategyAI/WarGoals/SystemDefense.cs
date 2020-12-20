@@ -40,18 +40,16 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     if (!threatenedSystem.HighPriority) continue;
                     systems.Add(threatenedSystem);
                 }
-            }
 
-            var highValueSystems = systems.Filter(s => s.TargetSystem.PlanetList.Any(p => p.Owner == Owner && p.Level > 2));
+                systems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
 
-            systems.Sort(ts => ts.TargetSystem.WarValueTo(Owner));
-
-            for (int i = 0; i < systems.Count; i++)
-            {
-                var threatenedSystem = systems[i];
-                var priority = unImportant - threatenedSystem.TargetSystem.PlanetList
-                    .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
-                Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1, this);
+                for (int i = 0; i < systems.Count; i++)
+                {
+                    var threatenedSystem = systems[i];
+                    var priority = casual - threatenedSystem.TargetSystem.PlanetList
+                        .FindMax(p => p.Owner == Owner ? p.Level : 0)?.Level ?? 0;
+                    Tasks.StandardSystemDefense(threatenedSystem.TargetSystem, priority, threatenedSystem.Strength, 1, this);
+                }
             }
 
             //foreach (var system in Owner.GetOwnedSystems().Sorted(s => Owner.KnownEnemyStrengthIn(s)))
