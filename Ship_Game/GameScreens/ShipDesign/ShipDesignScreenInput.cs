@@ -201,7 +201,7 @@ namespace Ship_Game
                 return true;
 
             if (DesignRoleRect.HitTest(input.CursorPosition))
-                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect);
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, false, Vector2.Zero);
 
             if (ActiveModule != null && ActiveModule.IsRotatable) 
             {
