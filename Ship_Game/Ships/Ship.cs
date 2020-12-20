@@ -1587,7 +1587,7 @@ namespace Ship_Game.Ships
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
                 int tumbleSeconds   = UniverseRandom.IntBetween(4, 8);
-                PlanetCrashingOn = TryCrashOnPlanet(tumbleSeconds*2);
+                PlanetCrashingOn = TryCrashOnPlanet(tumbleSeconds);
                 if (InFrustum)
                 {
                     dying         = true;
