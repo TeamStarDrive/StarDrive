@@ -49,7 +49,15 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         [JsonIgnore][XmlIgnore] public SolarSystem[] ContestedSystems { get; private set; }
         [JsonIgnore][XmlIgnore] public float LostColonyPercent  => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore] public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
-        [JsonIgnore][XmlIgnore] public float SpaceWarKd => (StrengthKilled + 1000) / (StrengthLost + 1000);
+        [JsonIgnore][XmlIgnore] public float SpaceWarKd
+        {
+            get
+            {
+                float buffer = Us.CurrentMilitaryStrength.LowerBound(1000);
+                return (StrengthKilled + buffer) / (StrengthLost + buffer);
+            }
+        }
+
         [JsonIgnore][XmlIgnore] public int LowestTheaterPriority;
 
         int ContestedSystemCount => ContestedSystems.Count(s => s.OwnerList.Contains(Them));
@@ -66,7 +74,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var warState = Score.GetWarScoreState();
             if (Us != Them)
             {
-                float strengthMod = Us.CurrentMilitaryStrength / Them.CurrentMilitaryStrength.LowerBound(1);
+                var strength = Us.GetRelationsOrNull(Them)?.KnownInformation.OffensiveStrength ?? Us.CurrentMilitaryStrength;
+                float strengthMod = Us.CurrentMilitaryStrength / strength.LowerBound(1);
                 return 8 - (int)((int)warState * strengthMod).UpperBound(8);
             }
             return 0;
@@ -170,13 +179,13 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void ShipWeLost(Ship target)
         {
-            if (Them != target.LastDamagedBy?.GetLoyalty()) return;
+            if (target.Mothership != null || Them != target.LastDamagedBy?.GetLoyalty()) return;
             StrengthLost += target.GetStrength();
         }
 
         public void ShipWeKilled(Ship target)
         {
-            if (Them != target.loyalty) return;
+            if (Them != target.loyalty || target.Mothership != null) return;
             StrengthKilled += target.GetStrength();
         }
 
