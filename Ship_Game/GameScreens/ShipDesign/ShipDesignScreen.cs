@@ -351,7 +351,10 @@ namespace Ship_Game
             Role        = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
 
             if (Role != oldRole && showRoleChangeTip)
-                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true);
+            {
+                Vector2 pos = new Vector2(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
+                RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, pos);
+            }
         }
 
         public bool IsBadModuleSize(ShipModule module)
