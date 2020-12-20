@@ -56,7 +56,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             float warTurns = 100 * warHunger;
 
             if (NewTasks.Count == 0) ai.PauseWarTimer = (int)warTurns;
-            else if (ai.PauseWarTimer >= 1) ai.PauseWarTimer = -(int)warTurns;
+            else if (ai.PauseWarTimer >= 10 * Owner.GetExpansionRatio()) ai.PauseWarTimer = -(int)warTurns;
 
             bool nonFactionWars = Owner.AllActiveWars.Any(t => !t.Them.isFaction && t.Them != Owner);
             for (int i = 0; i < NewTasks.Count; i++)

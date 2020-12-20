@@ -60,14 +60,22 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 Vector2 ourCenter = Us.WeightedCenter;
                 Vector2 theirCenter = Them.WeightedCenter;
 
+                Map<int, Array<Theater>> possibleTheaters;
                 if (OwnerWar.WarType == WarType.GenocidalWar || OwnerWar.WarType == WarType.ImperialistWar)
                 {
                     theirCenter = Them.GetOwnedSystems().FindMax(s => s.WarValueTo(Us)).Position;
-                }
 
-                var possibleTheaters = Theaters.GroupByFiltered(t => (int)(t.TheaterAO.Center.Distance(ourCenter) * 0.000005f + t.TheaterAO.Center.Distance(theirCenter) * 0.000005f)
+                    ourCenter = Us.GetOwnedSystems().FindMin(s => s.Position.SqDist(theirCenter)).Position;
+
+                    possibleTheaters = Theaters.GroupByFiltered(t => (int)(t.TheaterAO.Center.Distance(ourCenter) * 0.000005f + t.TheaterAO.Center.Distance(theirCenter) * 0.000005f)
                     , t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
-
+                }
+                else
+                {
+                    possibleTheaters = Theaters.GroupByFiltered(t => (int)(t.TheaterAO.Center.Distance(ourCenter) * 0.000005f + t.TheaterAO.Center.Distance(theirCenter) * 0.000005f)
+                    , t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
+                }
+                
                 //Theater[] theaters = Theaters.Filter(t => t.Active() && t.Priority <= OwnerWar.LowestTheaterPriority);
                 var theaters = possibleTheaters.FirstOrDefault().Value?.ToArray();
 

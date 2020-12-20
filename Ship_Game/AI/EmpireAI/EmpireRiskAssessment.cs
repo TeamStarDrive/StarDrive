@@ -78,14 +78,10 @@ namespace Ship_Game.AI
                 return 0;
 
             var riskBase = us.GetWarOffensiveRatio();
-            float risk = 0; 
-            float ourStrength = Math.Max(1000, us.CurrentMilitaryStrength);
-            if (!Relation.AtWar && !Relation.PreparingForWar && !Them.isFaction)
-                return riskBase;
-
-            float theirStrength = us.GetEmpireAI().ThreatMatrix.KnownEmpireStrength(Them, p => p.Ship != null);
-            risk = theirStrength  / ourStrength;
-            
+            float risk = 0;
+            float ourBuildCap = us.GetEmpireAI().BuildCapacity.LowerBound(1);
+            float theirBuildCap = Relation.KnownInformation.AllianceEconomicStrength;
+            risk = theirBuildCap / ourBuildCap;
             risk = risk * riskBase;
             return risk; 
         }

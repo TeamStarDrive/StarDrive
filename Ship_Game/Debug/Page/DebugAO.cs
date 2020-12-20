@@ -1,8 +1,12 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
+using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
+using static Ship_Game.AI.Tasks.MilitaryTask;
 
 namespace Ship_Game.Debug.Page
 {
@@ -54,13 +58,11 @@ namespace Ship_Game.Debug.Page
         public override void Update(float fixedDeltaTime)
         {
             if (EmpireAtWar.data.Defeated) return;
-            
-            var allShips = Empire.Universe.GetMasterShipList().Filter(s => s?.loyalty == EmpireAtWar);
+
+            var allShips = Empire.Universe.GetMasterShipList().ToArray().Filter(s=> s.loyalty == EmpireAtWar);
             var ourShips = new Array<Ship>(EmpireAtWar.GetShips());
             var aoShips = EmpireAtWar.Pool;
             var fleets = EmpireAtWar.GetFleetsDict().Values;
-
-
 
             var text = new Array<DebugTextBlock>();
 
@@ -77,7 +79,6 @@ namespace Ship_Game.Debug.Page
             column.AddLine($"Fleets in use: {fleets.Count}");
             text.Add(column);
 
-            /// fleets
             column = new DebugTextBlock();
             column.AddLine($"fleets");
             foreach (var fleet in fleets)
@@ -85,38 +86,23 @@ namespace Ship_Game.Debug.Page
                 if (fleet.Ships.IsEmpty) continue;
                 column.AddLine($"{fleet.Name}  -  Ships: {fleet.Ships.Count}");
             }
-            text.Add(column);
-
-            ///// Tasks
-            column = new DebugTextBlock();
-            column.AddLine($"Empire Tasks");
-
-            var tasks = EmpireAtWar.GetEmpireAI().GetAtomicTasksCopy();
-
-            foreach (var task in tasks)
-            {
-                column.AddLine($"{task.type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
-            }
 
             text.Add(column);
 
-            column = new DebugTextBlock();
-            column.AddLine($"War Tasks");
+            text.Add(ShipStates(allShips));
+            text.AddRange(RoleCounts(allShips));
+            text.AddRange(GetAllShipsUnderConstruction());
+            text.AddRange(TaskStats());
+            text.Add(Tasks());
+            SetTextColumns(text);
 
-            /// WarTasks
-            if (EmpireAtWar.GetEmpireAI().PauseWarTimer < 0)
-            {
-                var wartasks = EmpireAtWar.GetEmpireAI().WarTasks;
+            base.Update(fixedDeltaTime);
+        }
 
-                foreach (var task in wartasks.NewTasks)
-                {
-                    column.AddLine($"{task.type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
-                }
-            }
-            text.Add(column);
-
+        DebugTextBlock ShipStates(Ship[] allShips)
+        {
             ///// ship states
-            column = new DebugTextBlock();
+            var column = new DebugTextBlock();
             column.AddLine($"Ship States");
             var shipStates = new Map<AIState, Array<Ship>>();
             foreach (var ship in allShips)
@@ -135,12 +121,17 @@ namespace Ship_Game.Debug.Page
             {
                 column.AddLine($"{state.Key.ToString()} = {state.Value.Count}");
             }
-            text.Add(column);
+            return column;
+        }
 
+        private Array<DebugTextBlock> RoleCounts(Ship[] allShips)
+        {
             ///// ship hulls
-            column = new DebugTextBlock();
-            column.AddLine($"Ship Roles");
+            var columns = new Array<DebugTextBlock>();
+            var column = new DebugTextBlock();
             var shipHulls = new Map<ShipData.RoleName, Array<Ship>>();
+            column.Header= $"Ship Roles";
+
             foreach (var ship in allShips)
             {
                 if (ship == null) continue;
@@ -159,23 +150,72 @@ namespace Ship_Game.Debug.Page
             {
                 column.AddLine($"{keys.Key.ToString()} = ");
             }
-            text.Add(column);
-
+            columns.Add(column);
             column = new DebugTextBlock();
             column.AddLine($"Counts");
             foreach (var keys in shipHulls)
             {
                 column.AddLine($"{keys.Value.Count}");
             }
-            text.Add(column);
+            columns.Add(column);
 
-            var columns = GetAllShipsUnderConstruction();
-            if (columns?.NotEmpty == true)
-                text.AddRange(columns);
-            
-            SetTextColumns(text);
+            return columns;
+        }
 
-            base.Update(fixedDeltaTime);
+        private DebugTextBlock Tasks()
+        {
+            ///// Tasks
+            DebugTextBlock column = new DebugTextBlock();
+            column.Header= $"--Tasks--";
+            column.AddLine($"Empire Tasks");
+
+            var tasks = EmpireAtWar.GetEmpireAI().GetAtomicTasksCopy();
+
+            foreach (var task in tasks)
+            {
+                column.AddLine($"{task.type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
+            }
+
+            column.AddLine($"---------");
+            column.AddLine($"War Tasks");
+
+            /// WarTasks
+            if (EmpireAtWar.GetEmpireAI().PauseWarTimer < 0)
+            {
+                var warTasks = EmpireAtWar.GetEmpireAI().WarTasks;
+
+                foreach (var task in warTasks.NewTasks)
+                {
+                    column.AddLine($"{task.type} - {task.MinimumTaskForceStrength}  -  Ending: {task.QueuedForRemoval}");
+                }
+            }
+
+            return column;
+        }
+
+        Array<DebugTextBlock> TaskStats()
+        {
+            var itemName = Enum.GetValues(typeof(RequisitionStatus));
+            var taskMap = new Map<RequisitionStatus, int>();
+            foreach (RequisitionStatus item in itemName) taskMap.Add(item, 0);
+
+            var tasks = EmpireAtWar.GetEmpireAI().GetAtomicTasksCopy();
+
+            foreach (var task in tasks) 
+                taskMap[task.GetRequisitionStatus()]++;
+            tasks = EmpireAtWar.GetEmpireAI().WarTasks.NewTasks.ToArray();
+            foreach (var task in tasks)
+                taskMap[task.GetRequisitionStatus()]++;
+            var names = new DebugTextBlock();
+            var count = new DebugTextBlock();
+            names.AddLine("Task Results");
+            count.AddLine("Counts");
+            foreach (var kv in taskMap)
+            {
+                names.AddLine($"{kv.Key}");
+                count.AddLine($"{kv.Value}");
+            }
+            return new Array<DebugTextBlock> { names, count };
         }
 
         Array<DebugTextBlock> GetAllShipsUnderConstruction()
@@ -187,7 +227,7 @@ namespace Ship_Game.Debug.Page
             var queue = new Map<ShipData.RoleName, Array<ShipData>>();
             var queues = EmpireAtWar.GetPlanets().Select(p => p.ConstructionQueue);
             var shipData = new Array<ShipData>();
-            if (queues.Length == 0) return null;
+            if (queues.Length == 0) return new Array<DebugTextBlock>{column};
             for (int i = 0; i < queues.Length; i++)
             {
                 var q = queues[i];

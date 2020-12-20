@@ -562,7 +562,7 @@ namespace Ship_Game
 
         /// <summary>
         /// Returns the unique groups Found in item data
-        /// <returns></returns>
+        /// </summary>
         public static Array<TKey> UniqueValues<T, TKey>(this ICollection<T> items, Func<T, TKey> keySelector)
         {
             var unique = new Map<TKey, T>();
@@ -574,5 +574,19 @@ namespace Ship_Game
             }
             return unique.Keys.ToArrayList();
         }
+
+        /// <summary>
+        /// Returns the unique groups
+        /// </summary>
+        public static Array<T> Unique<T>(this ICollection<T> items)
+        {
+            var unique = new HashSet<T>();
+            foreach (var item in items)
+            {
+                unique.Add(item);
+            }
+            return unique.ToArrayList();
+        }
+
     }
 }

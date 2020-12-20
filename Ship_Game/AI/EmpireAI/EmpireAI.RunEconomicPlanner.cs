@@ -75,6 +75,8 @@ namespace Ship_Game.AI
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal, colony);
             TroopShuttleCapacity           = DetermineBuildCapacity(treasuryGoal, gameState, troopShuttles) - OwnerEmpire.TotalTroopShipMaintenance;
             PlanetBudgetDebugInfo();
+            foreach (var ally in EmpireManager.GetAllies(OwnerEmpire)) AllianceBuildCapacity += ally.GetEmpireAI().BuildCapacity;
+            AllianceBuildCapacity += BuildCapacity;
         }
 
         float DetermineDefenseBudget(float money, float percentOfMoney)
