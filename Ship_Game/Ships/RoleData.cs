@@ -194,14 +194,18 @@ namespace Ship_Game.Ships
             return Modules.SurfaceArea(moduleType) / (float)SurfaceArea;
         }
 
-        public static void CreateDesignRoleToolTip(ShipData.RoleName role, Rectangle designRoleRect, bool floatingText = false)
+        public static void CreateDesignRoleToolTip(ShipData.RoleName role, Rectangle designRoleRect, bool floatingText, Vector2 pos)
         {
             SpriteFont roleFont = Fonts.Arial12;
             string text         = $"Ship Role was Changed to {RoleDesignString(role)}";
             float floatTime     = floatingText ? text.Length / 10 : 0;
             Vector2 spacing     = roleFont.MeasureString(text);
-            float tipY          = designRoleRect.Y - spacing.Y * 2 - designRoleRect.Height - roleFont.LineSpacing;
-            var pos             = new Vector2(designRoleRect.Left, tipY);
+
+            if (pos == Vector2.Zero)
+            {
+                float tipY = designRoleRect.Y - spacing.Y * 2 - designRoleRect.Height - roleFont.LineSpacing;
+                pos = new Vector2(designRoleRect.Left, tipY);
+            }
 
             ToolTip.CreateFloatingText(text, "", pos, floatTime.UpperBound(7));
         }

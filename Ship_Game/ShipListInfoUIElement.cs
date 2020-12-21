@@ -397,11 +397,11 @@ namespace Ship_Game
             for (int i = 0; i < shipList.Count; i++)
             {
                 Ship ship = shipList[i];
-                var button = new SkinnableButton(new Rectangle(0, 0, 20, 20), ship.GetTacticalIcon())
+                var button = new SkinnableButton(new Rectangle(0, 0, 20, 20), ship.GetTacticalIcon(out SubTexture secondary), secondary)
                 {
                     IsToggle = false,
                     ReferenceObject = ship,
-                    BaseColor = ship.loyalty.EmpireColor
+                    BaseColor = ship.loyalty.EmpireColor,
                 };
 
                 if (entry.ShipButtons.Count < 8)

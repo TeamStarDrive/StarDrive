@@ -267,16 +267,21 @@ namespace Ship_Game.Ships
         public ShipData.RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
         public string DesignRoleName            => ShipData.GetRole(DesignRole);
 
-        public SubTexture GetTacticalIcon()
+        public SubTexture GetTacticalIcon(out SubTexture secondaryIcon)
         {
+            secondaryIcon = null;
             if (IsConstructor)
                 return ResourceManager.Texture("TacticalIcons/symbol_construction");
+
+            if (IsSupplyShuttle)
+                return ResourceManager.Texture("TacticalIcons/symbol_supply");
 
             string roleName = DesignRole == ShipData.RoleName.scout || DesignRole == ShipData.RoleName.troop 
                 ? DesignRole.ToString() 
                 : shipData.HullRole.ToString();
 
             string iconName = "TacticalIcons/symbol_";
+            secondaryIcon   = ResourceManager.TextureOrNull($"{iconName}design_{DesignRole}");
             return ResourceManager.TextureOrNull(iconName + roleName) ??
                 ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
@@ -1582,7 +1587,7 @@ namespace Ship_Game.Ships
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
                 int tumbleSeconds   = UniverseRandom.IntBetween(4, 8);
-                PlanetCrashingOn = TryCrashOnPlanet(tumbleSeconds*2);
+                PlanetCrashingOn = TryCrashOnPlanet(tumbleSeconds);
                 if (InFrustum)
                 {
                     dying         = true;

@@ -212,10 +212,12 @@ namespace Ship_Game
             if (!IsActive)
                 return false;
 
+            if (ShowRoles.HandleInput(input))
+                return true;
+
             if (ShipSL.HandleInput(input))
                 return true;
 
-            ShowRoles.HandleInput(input);
             if (ShowRoles.ActiveIndex != indexLast)
             {
                 ResetList(ShowRoles.ActiveValue);
