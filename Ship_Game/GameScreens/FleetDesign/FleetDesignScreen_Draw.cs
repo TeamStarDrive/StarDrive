@@ -297,19 +297,21 @@ namespace Ship_Game
                     radius = Vector2.Distance(insetRadialSS, pPos);
                     Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
                         (int) radius * 2, (int) radius * 2);
+
+                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary);
                     if (node.GoalGUID == Guid.Empty)
                     {
-                        batch.Draw(ship.GetTacticalIcon(), r,
-                            (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                                ? Color.White
-                                : Color.Red));
+                        Color color = HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Red;
+                        batch.Draw(icon, r, color);
+                        if (secondary != null)
+                            batch.Draw(secondary, r, color);
                     }
                     else
                     {
-                        batch.Draw(ship.GetTacticalIcon(), r,
-                            (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                                ? Color.White
-                                : Color.Yellow));
+                        Color color = HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Yellow;
+                        batch.Draw(icon, r, color);
+                        if (secondary != null)
+                            batch.Draw(secondary, r, color);
 
                         string buildingAt = "";
                         foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
@@ -331,6 +333,7 @@ namespace Ship_Game
                 else
                 {
                     Ship ship = node.Ship;
+                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary);
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
@@ -349,10 +352,11 @@ namespace Ship_Game
 
                     Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
                         (int) radius * 2, (int) radius * 2);
-                    batch.Draw(ship.GetTacticalIcon(), r,
-                        (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                            ? Color.White
-                            : Color.Green));
+
+                    Color color = HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Green;
+                    batch.Draw(icon, r, color);
+                    if (secondary != null)
+                        batch.Draw(secondary, r, color);
                 }
             }
 
@@ -360,24 +364,26 @@ namespace Ship_Game
             {
                 float scale;
                 Vector2 iconOrigin;
-                SubTexture item;
-                Ship ship = ActiveShipDesign;
+                Ship ship       = ActiveShipDesign;
+                SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary);
                 {
                     scale = ship.SurfaceArea /
                             (float) (30 + ResourceManager.Texture("TacticalIcons/symbol_fighter").Width);
                     iconOrigin = new Vector2(ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f,
                         ResourceManager.Texture("TacticalIcons/symbol_fighter").Width / 2f);
                     scale = scale * 4000f / CamPos.Z;
-                    if (scale > 1f)
-                        scale = 1f;
-                    if (scale < 0.15f)
-                        scale = 0.15f;
-                    item = ship.GetTacticalIcon();
+
+                    if (scale > 1f)    scale = 1f;
+                    if (scale < 0.15f) scale = 0.15f;
                 }
-                float single = Mouse.GetState().X;
+
+                float single     = Mouse.GetState().X;
                 MouseState state = Mouse.GetState();
-                batch.Draw(item, new Vector2(single, state.Y), EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale,
-                    SpriteEffects.None, 1f);
+                Vector2 pos      = new Vector2(single, state.Y);
+                Color color      = EmpireManager.Player.EmpireColor;
+                batch.Draw(icon, pos, color , 0f, iconOrigin, scale, SpriteEffects.None, 1f);
+                if (secondary != null)
+                    batch.Draw(secondary, pos, color, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
 
             DrawSelectedData(batch, elapsed);
