@@ -41,31 +41,34 @@ namespace Ship_Game.AI
 
             Vector2 friendlyCenter = Owner.AI.FriendliesSwarmCenter;
             Vector2 ownerCenter = Owner.Center;
-
-            if (Owner.fleet?.CommandShip != null)
+            TargetParameterTotals fleetPrefs = Owner.fleet?.AverageFleetAttributes ?? new TargetParameterTotals();
+            if (Owner.fleet != null)
             {
-                friendlyCenter = Owner.fleet.AveragePosition() + Owner.fleet.GetPositionFromDirection(Owner, Owner.fleet.AveragePosition().DirectionToTarget(targetPrefs.Center));
-                ownerCenter = friendlyCenter;
+                var dir = friendlyCenter.DirectionToTarget(targetPrefs.DPSCenter);
+                var fleetPos = Owner.fleet.GetPositionFromDirection(Owner, dir);
+                //friendlyCenter = friendlyCenter + fleetPos;
+                ownerCenter = friendlyCenter + fleetPos;
             }
             else if (Owner.Mothership != null)
             {
                 friendlyCenter = Owner.Mothership.Center;
                 ownerCenter = friendlyCenter;
-            } ;
+            }
+            Vector2 battleCenter = (friendlyCenter + targetPrefs.DPSCenter) / 2f;
 
             Ship target             = weight.Ship;
             float distanceToTarget  = ownerCenter.Distance(target.Center).LowerBound(1);
-            float distanceToMass    = friendlyCenter.Distance(targetPrefs.Center);
-            float enemyMassDistance = ownerCenter.Distance(targetPrefs.Center);
-            float errorRatio        = 0.5f + (target.Radius - Owner.MaxWeaponError) / target.Radius;
+            float distanceToMass    = friendlyCenter.Distance(targetPrefs.DPSCenter);
+            float distanceToBattleCenter = friendlyCenter.Distance(battleCenter);
+
+            float distanceToEnemyCenter = friendlyCenter.Distance(targetPrefs.DPSCenter);
+            float chanceToHit = -0.5f + (target.Radius - Owner.MaxWeaponError) / target.Radius;
             bool inTheirRange       = distanceToTarget < target.WeaponsMaxRange;
             bool inOurRange         = distanceToTarget < Owner.WeaponsMaxRange;
-            bool inOurMass = false;
-            if (distanceToMass < target.Center.Distance(targetPrefs.Center))
-            {
-                inOurMass = inTheirRange;
-            }
+            bool inOurMass = target.Center.InRadius(friendlyCenter, distanceToBattleCenter);
+            bool tooFar = target.Center.OutsideRadius(friendlyCenter, distanceToMass / 2);
 
+            
             // more agile than us the less they are valued. 
             float turnRatio        = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond).Clamped(-1, 1);
             float stlRatio         = (Owner.MaxSTLSpeed - target.MaxSTLSpeed).Clamped(-1,0);
@@ -74,8 +77,11 @@ namespace Ship_Game.AI
             float targetDPSValue   = Owner.TotalDps < target.TotalDps  ? -1 : 0;
             float massTargetValue  = distanceToTarget > distanceToMass? -1 : 1;
             float ownerTargetValue = Owner.WeaponsMaxRange > distanceToTarget  ? 1 : 0;
+            bool weAreAScreenShip  = fleetPrefs.ScreenShip(Owner);
+
 
             float targetValue = 0;
+            bool unsafeDistance = !weAreAScreenShip && tooFar;
 
             Ship motherShip = Owner.Mothership ?? Owner.AI.EscortTarget;
             if (motherShip != null)
@@ -99,33 +105,40 @@ namespace Ship_Game.AI
                         {
                             targetValue += targetOfMothership ? 1 : 0;
                             targetValue += target.Mothership != null ? -1 : 0;
-                            targetValue += errorRatio < 0.2f ? errorRatio : 0;
+                            targetValue += chanceToHit > 0.5f ? chanceToHit : 0;
                             break;
                         }
                     case ShipData.HangarOptions.Interceptor:
                         {
                             targetValue += motherShip.Carrier.AllFighterHangars.Any(h => h.HangarShipGuid == target.AI.Target?.guid) ? 1 : 0;
                             targetValue += target.shipData.HangarDesignation == ShipData.HangarOptions.AntiShip ? 1 : 0;
-                            targetValue += errorRatio > 0.2f ? 1 : 0;
+                            targetValue += chanceToHit < 0.5f ? 1 : 0;
                             targetValue += target.Mothership != null ? 1 : 0;
                             targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
                             targetValue += target.DesignRoleType == ShipData.RoleType.EmpireSupport ? 1 : 0;
-                            targetValue += target.DesignRole == ShipData.RoleName.colony  ? 1 : 0;
+                            targetValue += target.DesignRole == ShipData.RoleName.colony ? 1 : 0;
                             break;
                         }
                     default:
                         break;
                 }
             }
-            else if (Owner.MaxSTLSpeed > targetPrefs.Speed)
+            else
             {
-                targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
-                targetValue += target.DesignRole == ShipData.RoleName.colony ? 1 : 0;
-                targetValue += target.AI.State == AIState.Bombard ? 1 : 0;
-            }
+                if (Owner.MaxSTLSpeed > targetPrefs.Speed)
+                {
+                    targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
+                    targetValue += target.DesignRole == ShipData.RoleName.colony ? 1 : 0;
+                    targetValue += target.AI.State == AIState.Bombard ? 1 : 0;
+                }
 
-            targetValue += errorRatio < 0.2f ? errorRatio : 0;
-            targetValue += inOurMass ? 0 : -1;
+
+            }
+            targetValue += weAreAScreenShip && distanceToMass > Owner.WeaponsMaxRange ? -2 : 0;
+            targetValue += chanceToHit < 0.25f ? -1 : 0;
+            targetValue += !weAreAScreenShip && unsafeDistance ? -1 :0;
+            targetValue += !weAreAScreenShip && tooFar ? -1 : 0;
+            targetValue += !weAreAScreenShip && inOurMass ? 1 : 0;
             targetValue += turnRatio;
             targetValue += stlRatio;
             targetValue += massDPSValue;
@@ -138,8 +151,8 @@ namespace Ship_Game.AI
             targetValue += target.LastDamagedBy == Owner ? 0.25f : 0;
             targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
             targetValue += target.AI.State == AIState.Resupply ? -1 : 0;
-            targetValue += target.Mothership != null ? -2 : 0;
-            targetValue += target.HomePlanet != null ? -2 : 0;
+            targetValue += target.Mothership != null && chanceToHit < 0.5f ? -1 : 0;
+            targetValue += target.HomePlanet != null && chanceToHit < 0.5f ? -1 : 0;
             targetValue += target.MaxSTLSpeed == 0 ? -1 : 0;
             targetValue += target.TotalDps < 1 ? -1 : 0;
 
@@ -155,8 +168,10 @@ namespace Ship_Game.AI
                 Vector2 debugOffset = new Vector2(target.Radius + 50);
                 Empire.Universe.DebugWin?.DrawText(DebugModes.Targeting, target.Center + debugOffset, $"TargetValue : {targetValue.ToString()}", Color.Yellow, 0.3f);
                 Empire.Universe.DebugWin?.DrawText(targetPrefs.Center, $"Enemy Center", Color.Red, 0.3f);
+                Empire.Universe.DebugWin?.DrawText(targetPrefs.DPSCenter, $"DPS Center", Color.Red, 0.3f);
                 Empire.Universe.DebugWin?.DrawText(friendlyCenter, $"FriendlyCenter", Color.Green, 0.3f);
-
+                Empire.Universe.DebugWin?.DrawText(ownerCenter, $"FleetPosCenter", Color.Green, 0.3f);
+                Empire.Universe.DebugWin?.DrawText(battleCenter, $"Battle Center", Color.Yellow, 0.3f);
             }
             return weight;
         }

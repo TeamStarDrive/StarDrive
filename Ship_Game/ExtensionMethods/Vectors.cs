@@ -387,5 +387,19 @@ namespace Ship_Game
             a = b;
             b = tmp;
         }
+
+        public static Vector2 Expand(this Vector2 origin, float amount)
+        {
+            origin.X += origin.X > 0 ? amount : -amount;
+            origin.Y += origin.Y > 0 ? amount : -amount;
+            return origin;
+        }
+
+        public static Vector2 Contract(this Vector2 origin, float amount)
+        {
+            origin.X -= origin.X > 0 ? amount : -amount;
+            origin.Y += origin.Y > 0 ? amount : -amount;
+            return origin;
+        }
     }
 }

@@ -7,63 +7,41 @@ namespace Ship_Game
     public sealed class SkinnableButton
     {
         public Rectangle r;
-
         public object ReferenceObject;
-
         public string Action = "";
-
         public bool IsToggle = true;
-
         public bool Toggled;
-
         public bool Hover;
-
-        private string tPath;
-
         public int WhichToolTip;
-
         public bool HasToolTip;
-
-        public string SecondSkin;
-
         public Color HoverColor = Color.White;
-
         public Color BaseColor = Color.White;
-
         private readonly Color ToggleColor = new Color(33, 26, 18);
         private readonly SubTexture Texture;
+        private readonly SubTexture SecondTex;
+        private string tPath;
 
         public SkinnableButton(Rectangle r, string texturePath)
         {
-            tPath = texturePath;
+            tPath   = texturePath;
             Texture = ResourceManager.Texture(tPath);
-            this.r = r;
+            this.r  = r;
         }
-        public SkinnableButton(Rectangle r, SubTexture texture)
+        public SkinnableButton(Rectangle r, SubTexture texture, SubTexture secondary)
         {
-            Texture = texture;
-            this.r = r;
+            Texture   = texture;
+            this.r    = r;
+            SecondTex = secondary;
         }
 
         public void Draw(SpriteBatch batch)
         {
             if (Toggled)
-            {
                 batch.FillRectangle(r, ToggleColor);
-            }
          
-            batch.Draw(Texture, r, (Hover ? HoverColor : BaseColor));
-            if (SecondSkin != null)
-            {
-                if (Toggled)
-                {
-                    Rectangle secondRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture(SecondSkin).Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture(SecondSkin).Height / 2, ResourceManager.Texture(SecondSkin).Width, ResourceManager.Texture(SecondSkin).Height);
-                    batch.Draw(ResourceManager.Texture(SecondSkin), secondRect, Color.White);
-                    return;
-                }
-                Rectangle secondRect0 = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture(SecondSkin).Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture(SecondSkin).Height / 2, ResourceManager.Texture(SecondSkin).Width, ResourceManager.Texture(SecondSkin).Height);
-                batch.Draw(ResourceManager.Texture(SecondSkin), secondRect0, (Hover ? Color.LightGray : Color.Black));
-            }
+            batch.Draw(Texture, r, Hover ? HoverColor : BaseColor);
+            if (SecondTex != null)
+                batch.Draw(SecondTex, r, Hover ? HoverColor : BaseColor);
         }
 
         public bool HandleInput(InputState input)
