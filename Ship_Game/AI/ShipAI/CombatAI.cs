@@ -66,7 +66,7 @@ namespace Ship_Game.AI
             bool inTheirRange       = distanceToTarget < target.WeaponsMaxRange;
             bool inOurRange         = distanceToTarget < Owner.WeaponsMaxRange;
             bool inOurMass = target.Center.InRadius(friendlyCenter, distanceToBattleCenter);
-            bool tooFar = target.Center.OutsideRadius(friendlyCenter, distanceToMass / 2);
+            bool tooFar = target.Center.OutsideRadius(friendlyCenter, distanceToBattleCenter / 2);
 
             
             // more agile than us the less they are valued. 
@@ -96,27 +96,27 @@ namespace Ship_Game.AI
                 {
                     case ShipData.HangarOptions.General:
                         {
-                            targetValue += targetOfMothership ? 1 : 0;
-                            targetValue += targetingMothership ? 1 : 0;
-                            targetValue += damagingMotherShip ? 1 : 0;
+                            targetValue += targetOfMothership ? 0 : -1;
+                            targetValue += targetingMothership ? 0 : -1;
+                            targetValue += damagingMotherShip ? 0 : -1;
                             break;
                         }
                     case ShipData.HangarOptions.AntiShip:
                         {
-                            targetValue += targetOfMothership ? 1 : 0;
+                            targetValue += targetOfMothership ? 0 : -1;
                             targetValue += target.Mothership != null ? -1 : 0;
-                            targetValue += chanceToHit > 0.5f ? chanceToHit : 0;
+                            targetValue += chanceToHit > 0.5f ? 0 : -1;
                             break;
                         }
                     case ShipData.HangarOptions.Interceptor:
                         {
-                            targetValue += motherShip.Carrier.AllFighterHangars.Any(h => h.HangarShipGuid == target.AI.Target?.guid) ? 1 : 0;
-                            targetValue += target.shipData.HangarDesignation == ShipData.HangarOptions.AntiShip ? 1 : 0;
-                            targetValue += chanceToHit < 0.5f ? 1 : 0;
-                            targetValue += target.Mothership != null ? 1 : 0;
-                            targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 1 : 0;
-                            targetValue += target.DesignRoleType == ShipData.RoleType.EmpireSupport ? 1 : 0;
-                            targetValue += target.DesignRole == ShipData.RoleName.colony ? 1 : 0;
+                            targetValue += motherShip.Carrier.AllFighterHangars.Any(h => h.HangarShipGuid == target.AI.Target?.guid) ? 0 : -1;
+                            targetValue += target.shipData.HangarDesignation == ShipData.HangarOptions.AntiShip ? 0 : -1;
+                            targetValue += chanceToHit < 0.5f ? 0 : -1;
+                            targetValue += target.Mothership != null ? 0 : -1;
+                            targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 0 : -1;
+                            targetValue += target.DesignRoleType == ShipData.RoleType.EmpireSupport ? 0 : -1;
+                            targetValue += target.DesignRole == ShipData.RoleName.colony ? 0 : -1;
                             break;
                         }
                     default:

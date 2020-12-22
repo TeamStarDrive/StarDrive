@@ -698,7 +698,7 @@ namespace Ship_Game.Gameplay
                     return true;
                 case ShipModule module:
                     Ship parent = module.GetParent();
-                    if (!Loyalty.IsEmpireAttackable(parent.loyalty))
+                    if (!Loyalty.IsEmpireAttackable(parent.loyalty, parent))
                         return false;
 
                     if (Weapon.TruePD)
