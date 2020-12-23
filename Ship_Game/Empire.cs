@@ -401,6 +401,10 @@ namespace Ship_Game
             if (ports.Count == 0)
                 return false;
 
+            ports  = ports.Filter(p => !p.IsCrippled);
+            if (ports.Count == 0)
+                return false;
+
             planet = ports.FindMin(p => p.TurnsUntilQueueComplete(cost, false));
             return planet != null;
         }
@@ -419,7 +423,7 @@ namespace Ship_Game
             if (ports.Count > 0)
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
-                bestPorts            = ports.Filter(p => p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd));
+                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd));
                 bestPorts            = bestPorts.SortedDescending(p => p.Prod.NetMaxPotential);
             }
 
