@@ -249,7 +249,7 @@ namespace Ship_Game.AI
 
             SolarSystem thisSystem = Owner.System;
 
-            if (thisSystem != null)
+            if (thisSystem?.OwnerList.Count > 0)
             {
                 for (int i = 0; i < thisSystem.PlanetList.Count; i++)
                 {
