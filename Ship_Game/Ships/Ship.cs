@@ -412,8 +412,12 @@ namespace Ship_Game.Ships
                 if (attackerToUs.AttackForTransgressions(attacker.data.DiplomaticPersonality))
                     return true;
 
-                if (AI.Target?.LastDamagedBy?.GetLoyalty() == attacker)
+                if (LastDamagedBy?.GetLoyalty() == attacker)
                     return true;
+                if (AI.Target?.GetLoyalty() == attacker)
+                    return true;
+                //if (attacker.isPlayer && !attackerToUs.Treaty_NAPact) 
+                //    return true;
             }
 
             if (attackerToUs.Treaty_Trade && IsFreighter && AI.State == AIState.SystemTrader)
@@ -688,7 +692,7 @@ namespace Ship_Game.Ships
                     if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
                         return false;
                 }
-                if (!loyalty.IsEmpireAttackable(target.GetLoyalty()))
+                if (!AI.IsTargetValid(targetShip))
                     return false;
             }
 
