@@ -35,8 +35,6 @@ namespace Ship_Game.Universe.SolarBodies
             P = planet;
         }
 
-        bool IsCrippled => P.CrippledTurns > 0 || P.RecentCombat;
-
         public IReadOnlyList<QueueItem> GetConstructionQueue()
         {
             return ConstructionQueue;
@@ -45,7 +43,7 @@ namespace Ship_Game.Universe.SolarBodies
         public bool RushProduction(int itemIndex, float maxAmount, bool rush = false)
         {
             // don't allow rush if we're crippled
-            if (IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
+            if (P.IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
                 return false;
 
             float amount = maxAmount.UpperBound(ProductionHere);
