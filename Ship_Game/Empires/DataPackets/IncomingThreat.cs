@@ -77,7 +77,7 @@ namespace Ship_Game.Empires.DataPackets
                     continue;
                 }
 
-                if (fleet.Owner.isPlayer || fleet.FleetTask.GetTaskCategory() == MilitaryTask.TaskCategory.War)
+                if (fleet.Owner.isPlayer || fleet.FleetTask?.GetTaskCategory() == MilitaryTask.TaskCategory.War)
                 {
                     HighPriority = true;
                 }
