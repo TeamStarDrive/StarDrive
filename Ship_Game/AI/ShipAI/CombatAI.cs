@@ -71,11 +71,11 @@ namespace Ship_Game.AI
 
             float targetValue = 0;
 
-            targetValue += HangarShips(targetPrefs, distanceToTarget, chanceToHit);
+            targetValue += HangarShips(targetPrefs, distanceToTarget, chanceToHit, target);
             targetValue += chanceToHit < 0.25f ? -1 : 0;
             targetValue += tooFar ? -1 :0;
             targetValue += weAreAScreenShip && inOurMass ? 1 : 0;
-            targetValue += inOurMass ? 1 : 0;
+            targetValue += inOurMass ? 1 : -1;
             targetValue += turnRatio;
             targetValue += stlRatio;
             targetValue += massDPSValue;
@@ -132,9 +132,8 @@ namespace Ship_Game.AI
             return battleCenter;
         }
 
-        private float HangarShips(TargetParameterTotals targetPrefs, float distanceToTarget, float chanceToHit)
+        private float HangarShips(TargetParameterTotals targetPrefs, float distanceToTarget, float chanceToHit, Ship target)
         {
-            Ship target = Owner.AI.Target;
             float targetValue = 0;
             Ship motherShip = Owner.Mothership ?? Owner.AI.EscortTarget;
             if (motherShip != null)
