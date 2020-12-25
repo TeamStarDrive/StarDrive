@@ -15,7 +15,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitMainGoalCompletion,
+                WaitForConstructorBuilt,
                 OrderDeepSpaceBuild,
                 WaitForDeployment
             };
@@ -60,9 +60,19 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
+        GoalStep WaitForConstructorBuilt() // When the Ship is finished, the goal is moved externally to next step (ReportShipComplete).
+        {
+            if (PlanetBuildingAt.ConstructionQueue.Filter(q => q.Goal == this).Length == 0 && FinishedShip == null)
+                return GoalStep.GoalFailed;
+
+            return GoalStep.TryAgain;
+        }
+
         GoalStep OrderDeepSpaceBuild()
         {
-            if (FinishedShip == null) return GoalStep.GoalFailed;
+            if (FinishedShip == null) 
+                return GoalStep.GoalFailed;
+
             FinishedShip.AI.OrderDeepSpaceBuild(this);
             FinishedShip.IsConstructor = true;
             return GoalStep.GoToNextStep;

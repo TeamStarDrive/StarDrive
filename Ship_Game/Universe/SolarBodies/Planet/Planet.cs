@@ -122,7 +122,7 @@ namespace Ship_Game
         public bool NoGovernorAndNotTradeHub            => !Governor && colonyType != ColonyType.TradeHub;
         public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
         public bool Governor                            => colonyType != ColonyType.Colony;
-
+        public bool IsCrippled                          => CrippledTurns > 0 || RecentCombat;
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
             => TroopManager.GroundStrengthOther(allButThisEmpire);
