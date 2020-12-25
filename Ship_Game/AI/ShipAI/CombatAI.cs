@@ -18,6 +18,9 @@ namespace Ship_Game.AI
         ShipAIPlan CombatTactic;
         CombatState CurrentCombatStance;
 
+        public TargetParameterTotals EnemyGroupData;
+        public TargetParameterTotals FriendlyGroupData;
+
         public CombatAI()
         {
         }
@@ -42,37 +45,23 @@ namespace Ship_Game.AI
             Vector2 friendlyCenter = Owner.AI.FriendliesSwarmCenter;
             Vector2 ownerCenter = Owner.Center;
             TargetParameterTotals fleetPrefs = Owner.fleet?.AverageFleetAttributes ?? new TargetParameterTotals();
-            if (Owner.fleet != null)
-            {
-                var dir = friendlyCenter.DirectionToTarget(targetPrefs.DPSCenter);
-                var fleetPos = Owner.fleet.GetPositionFromDirection(Owner, dir);
-                //friendlyCenter = friendlyCenter + fleetPos;
-                ownerCenter = friendlyCenter + fleetPos;
-            }
-            else if (Owner.Mothership != null)
-            {
-                friendlyCenter = Owner.Mothership.Center;
-                ownerCenter = friendlyCenter;
-            }
-            Vector2 battleCenter = (friendlyCenter + targetPrefs.DPSCenter) / 2f;
+            Vector2 battleCenter = BattleCenters(targetPrefs, ref friendlyCenter, ref ownerCenter);
 
-            Ship target             = weight.Ship;
-            float distanceToTarget  = ownerCenter.Distance(target.Center).LowerBound(1);
-            float distanceToMass    = friendlyCenter.Distance(targetPrefs.DPSCenter);
+            Ship target                  = weight.Ship;
+            float distanceToTarget       = ownerCenter.Distance(target.Center).LowerBound(1);
+            float distanceToMass         = friendlyCenter.Distance(targetPrefs.DPSCenter);
             float distanceToBattleCenter = friendlyCenter.Distance(battleCenter);
 
-            float distanceToEnemyCenter = friendlyCenter.Distance(targetPrefs.DPSCenter);
-            float chanceToHit = -0.5f + (target.Radius - Owner.MaxWeaponError) / target.Radius;
-            bool inTheirRange       = distanceToTarget < target.WeaponsMaxRange;
-            bool inOurRange         = distanceToTarget < Owner.WeaponsMaxRange;
-            bool inOurMass = target.Center.InRadius(friendlyCenter, distanceToBattleCenter);
-            bool tooFar = target.Center.OutsideRadius(friendlyCenter, distanceToBattleCenter / 2);
+            float chanceToHit           = -0.5f + (target.Radius - Owner.MaxWeaponError) / target.Radius;
+            bool inTheirRange           = distanceToTarget < target.WeaponsMaxRange;
+            bool inOurRange             = distanceToTarget < Owner.WeaponsMaxRange;
+            bool inOurMass              = target.Center.InRadius(friendlyCenter, distanceToBattleCenter);
+            bool tooFar                 = target.Center.OutsideRadius(friendlyCenter, distanceToMass / 2);
 
             
             // more agile than us the less they are valued. 
             float turnRatio        = (Owner.RotationRadiansPerSecond - target.RotationRadiansPerSecond).Clamped(-1, 1);
             float stlRatio         = (Owner.MaxSTLSpeed - target.MaxSTLSpeed).Clamped(-1,0);
-            //float errorValue       = ((Owner.MaxWeaponError * 2) - target.Radius / 8).Clamped(-1, 1);
             float massDPSValue     = (target.TotalDps - targetPrefs.DPS).Clamped(-1, 1);
             float targetDPSValue   = Owner.TotalDps < target.TotalDps  ? -1 : 0;
             float massTargetValue  = distanceToTarget > distanceToMass? -1 : 1;
@@ -81,14 +70,77 @@ namespace Ship_Game.AI
 
 
             float targetValue = 0;
-            bool unsafeDistance = !weAreAScreenShip && tooFar;
 
-            Ship motherShip = Owner.Mothership ?? Owner.AI.EscortTarget;
+            targetValue += HangarShips(targetPrefs, distanceToTarget, chanceToHit, target);
+            targetValue += chanceToHit < 0.25f ? -1 : 0;
+            targetValue += tooFar ? -1 :0;
+            targetValue += weAreAScreenShip && inOurMass ? 0 : -1;
+            targetValue += inOurMass ? 1 : 0;
+            targetValue += turnRatio;
+            targetValue += stlRatio;
+            targetValue += massDPSValue;
+            targetValue += targetDPSValue;
+            targetValue += massTargetValue;
+            targetValue += ownerTargetValue;
+            targetValue += inTheirRange ? 1 : 0;
+            targetValue += inOurRange ? 1 : 0;
+            targetValue += target == Owner.AI.Target ? 0.5f : 0;
+            targetValue += target.LastDamagedBy == Owner ? 0.25f : 0;
+            targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
+            targetValue += target.AI.State == AIState.Resupply ? -1 : 0;
+            targetValue += target.Mothership != null && chanceToHit < 0.5f ? -1 : 0;
+            targetValue += target.HomePlanet != null && chanceToHit < 0.5f ? -1 : 0;
+            targetValue += target.MaxSTLSpeed == 0 ? -1 : 0;
+            targetValue += target.TotalDps < 1 ? -1 : 0;
+
+            weight.SetWeight(targetValue);
+
+            if (float.IsNaN(weight.Weight))
+                Log.Error($"ship weight NaN for {weight.Ship}");
+            if (float.IsInfinity(weight.Weight))
+                Log.Error($"ship weight infinite for {weight.Ship}");
+            
+            if (Empire.Universe.SelectedShip == Owner && Empire.Universe.DebugWin != null)
+            {
+                Vector2 debugOffset = new Vector2(target.Radius + 50);
+                Empire.Universe.DebugWin?.DrawText(DebugModes.Targeting, target.Center + debugOffset, $"TargetValue : {targetValue.ToString()}", Color.Yellow, 0.3f);
+                Empire.Universe.DebugWin?.DrawText(targetPrefs.Center, $"Enemy Center", Color.Red, 0.3f);
+                Empire.Universe.DebugWin?.DrawText(targetPrefs.DPSCenter, $"DPS Center", Color.Red, 0.3f);
+                Empire.Universe.DebugWin?.DrawText(friendlyCenter, $"FriendlyCenter", Color.Green, 0.3f);
+                Empire.Universe.DebugWin?.DrawText(ownerCenter, $"FleetPosCenter", Color.Green, 0.3f);
+                Empire.Universe.DebugWin?.DrawText(battleCenter, $"Battle Center", Color.Yellow, 0.3f);
+            }
+            return weight;
+        }
+
+        private Vector2 BattleCenters(TargetParameterTotals targetPrefs, ref Vector2 friendlyCenter, ref Vector2 ownerCenter)
+        {
+            if (Owner.fleet != null)
+            {
+                Vector2 dir          = friendlyCenter.DirectionToTarget(targetPrefs.DPSCenter);
+                Vector2 fleetPos     = Owner.fleet.GetPositionFromDirection(Owner, dir);
+                ownerCenter          = friendlyCenter + fleetPos;
+            }
+            else if (Owner.Mothership != null)
+            {
+                friendlyCenter = Owner.Mothership.Center;
+                ownerCenter = friendlyCenter;
+            }
+
+            Vector2 battleCenter = (friendlyCenter + targetPrefs.DPSCenter) / 2f;
+            return battleCenter;
+        }
+
+        private float HangarShips(TargetParameterTotals targetPrefs, float distanceToTarget, float chanceToHit, Ship target)
+        {
+            float targetValue = 0;
+            Ship motherShip   = Owner.Mothership ?? Owner.AI.EscortTarget;
+
             if (motherShip != null)
             {
-                bool targetingMothership = target.AI.Target == motherShip;
-                bool targetOfMothership = target == motherShip.AI.Target;
-                bool damagingMotherShip = motherShip.LastDamagedBy == target;
+                bool targetingMothership      = target.AI.Target == motherShip;
+                bool targetOfMothership       = target == motherShip.AI.Target;
+                bool damagingMotherShip       = motherShip.LastDamagedBy == target;
                 float motherShipDistanceValue = (motherShip.Center.Distance(target.Center) - distanceToTarget).Clamped(-1, 1);
 
                 targetValue += motherShipDistanceValue;
@@ -131,49 +183,9 @@ namespace Ship_Game.AI
                     targetValue += target.DesignRole == ShipData.RoleName.colony ? 1 : 0;
                     targetValue += target.AI.State == AIState.Bombard ? 1 : 0;
                 }
-
-
             }
-            targetValue += weAreAScreenShip && distanceToMass > Owner.WeaponsMaxRange ? -2 : 0;
-            targetValue += chanceToHit < 0.25f ? -1 : 0;
-            targetValue += !weAreAScreenShip && unsafeDistance ? -1 :0;
-            targetValue += !weAreAScreenShip && tooFar ? -1 : 0;
-            targetValue += !weAreAScreenShip && inOurMass ? 1 : 0;
-            targetValue += turnRatio;
-            targetValue += stlRatio;
-            targetValue += massDPSValue;
-            targetValue += targetDPSValue;
-            targetValue += massTargetValue;
-            targetValue += ownerTargetValue;
-            targetValue += inTheirRange ? 1 : 0;
-            targetValue += inOurRange ? 1 : 0;
-            targetValue += target == Owner.AI.Target ? 0.5f : 0;
-            targetValue += target.LastDamagedBy == Owner ? 0.25f : 0;
-            targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
-            targetValue += target.AI.State == AIState.Resupply ? -1 : 0;
-            targetValue += target.Mothership != null && chanceToHit < 0.5f ? -1 : 0;
-            targetValue += target.HomePlanet != null && chanceToHit < 0.5f ? -1 : 0;
-            targetValue += target.MaxSTLSpeed == 0 ? -1 : 0;
-            targetValue += target.TotalDps < 1 ? -1 : 0;
 
-            weight.SetWeight(targetValue);
-
-            if (float.IsNaN(weight.Weight))
-                Log.Error($"ship weight NaN for {weight.Ship}");
-            if (float.IsInfinity(weight.Weight))
-                Log.Error($"ship weight infinite for {weight.Ship}");
-            
-            if (Empire.Universe.SelectedShip == Owner && Empire.Universe.DebugWin != null)
-            {
-                Vector2 debugOffset = new Vector2(target.Radius + 50);
-                Empire.Universe.DebugWin?.DrawText(DebugModes.Targeting, target.Center + debugOffset, $"TargetValue : {targetValue.ToString()}", Color.Yellow, 0.3f);
-                Empire.Universe.DebugWin?.DrawText(targetPrefs.Center, $"Enemy Center", Color.Red, 0.3f);
-                Empire.Universe.DebugWin?.DrawText(targetPrefs.DPSCenter, $"DPS Center", Color.Red, 0.3f);
-                Empire.Universe.DebugWin?.DrawText(friendlyCenter, $"FriendlyCenter", Color.Green, 0.3f);
-                Empire.Universe.DebugWin?.DrawText(ownerCenter, $"FleetPosCenter", Color.Green, 0.3f);
-                Empire.Universe.DebugWin?.DrawText(battleCenter, $"Battle Center", Color.Yellow, 0.3f);
-            }
-            return weight;
+            return targetValue;
         }
 
         public void SetCombatTactics(CombatState combatState)
