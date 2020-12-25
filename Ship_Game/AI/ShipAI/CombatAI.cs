@@ -74,8 +74,8 @@ namespace Ship_Game.AI
             targetValue += HangarShips(targetPrefs, distanceToTarget, chanceToHit, target);
             targetValue += chanceToHit < 0.25f ? -1 : 0;
             targetValue += tooFar ? -1 :0;
-            targetValue += weAreAScreenShip && inOurMass ? 1 : 0;
-            targetValue += inOurMass ? 1 : -1;
+            targetValue += weAreAScreenShip && inOurMass ? 0 : -1;
+            targetValue += inOurMass ? 1 : 0;
             targetValue += turnRatio;
             targetValue += stlRatio;
             targetValue += massDPSValue;
@@ -117,10 +117,9 @@ namespace Ship_Game.AI
         {
             if (Owner.fleet != null)
             {
-                var dir = friendlyCenter.DirectionToTarget(targetPrefs.DPSCenter);
-                var fleetPos = Owner.fleet.GetPositionFromDirection(Owner, dir);
-                //friendlyCenter = friendlyCenter + fleetPos;
-                ownerCenter = friendlyCenter + fleetPos;
+                Vector2 dir          = friendlyCenter.DirectionToTarget(targetPrefs.DPSCenter);
+                Vector2 fleetPos     = Owner.fleet.GetPositionFromDirection(Owner, dir);
+                ownerCenter          = friendlyCenter + fleetPos;
             }
             else if (Owner.Mothership != null)
             {
@@ -135,12 +134,13 @@ namespace Ship_Game.AI
         private float HangarShips(TargetParameterTotals targetPrefs, float distanceToTarget, float chanceToHit, Ship target)
         {
             float targetValue = 0;
-            Ship motherShip = Owner.Mothership ?? Owner.AI.EscortTarget;
+            Ship motherShip   = Owner.Mothership ?? Owner.AI.EscortTarget;
+
             if (motherShip != null)
             {
-                bool targetingMothership = target.AI.Target == motherShip;
-                bool targetOfMothership = target == motherShip.AI.Target;
-                bool damagingMotherShip = motherShip.LastDamagedBy == target;
+                bool targetingMothership      = target.AI.Target == motherShip;
+                bool targetOfMothership       = target == motherShip.AI.Target;
+                bool damagingMotherShip       = motherShip.LastDamagedBy == target;
                 float motherShipDistanceValue = (motherShip.Center.Distance(target.Center) - distanceToTarget).Clamped(-1, 1);
 
                 targetValue += motherShipDistanceValue;
