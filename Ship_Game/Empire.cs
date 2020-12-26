@@ -363,8 +363,8 @@ namespace Ship_Game
             if (ports.Count != 0)
             {
                 float cost = troop.ActualCost;
-                chosen = FindPlanetToBuildAt(ports, cost, forTroop: true);
-                return true;
+                chosen     = FindPlanetToBuildAt(ports, cost, forTroop: true);
+                return chosen != null;
             }
 
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {troop} at! Candidates:{ports.Count}");
