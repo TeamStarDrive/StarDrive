@@ -351,7 +351,7 @@ namespace Ship_Game
                 float cost = ship.GetCost(this);
 
                 chosen = FindPlanetToBuildAt(ports, cost);
-                return true;
+                return chosen != null;
             }
             Log.Info(ConsoleColor.Red, $"{this} could not find planet to build {ship} at! Candidates:{ports.Count}");
             chosen = null;
