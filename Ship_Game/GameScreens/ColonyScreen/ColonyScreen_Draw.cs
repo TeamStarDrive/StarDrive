@@ -738,7 +738,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref cursor, batch, b.TheWeapon.BaseRange, "UI/icon_offense", "Range", signs: false);
             DrawBuildingInfo(ref cursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
             DrawBuildingInfo(ref cursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
-            DrawBuildingInfo(ref cursor, batch, b.TheWeapon.NetFireDelay, "UI/icon_offense", "Fire Delay", signs: false);
+            DrawBuildingInfo(ref cursor, batch, b.ActualFireDelay(P), "UI/icon_offense", "Fire Delay", signs: false);
         }
 
         void UpdateData() // This will update freighters in an interval to reduce threading issues
