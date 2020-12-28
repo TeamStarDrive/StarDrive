@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
@@ -15,8 +14,8 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitMainGoalCompletion,
-                ReportGoalCompleteToEmpire
+                WaitForShipBuilt,
+                CompleteGoal
             };
         }
 
@@ -30,19 +29,18 @@ namespace Ship_Game.Commands.Goals
             if (!GetFreighter(out Ship freighter))
                 return GoalStep.GoalFailed;
 
-            if (!FindPlanetToBuildShipAt(SpacePortType.Safe, freighter, out Planet planet))
+            if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, freighter, out Planet planet))
                 return GoalStep.GoalFailed;
 
             planet.Construction.Enqueue(freighter, this, notifyOnEmpty: false);
             if (empire.IsIndustrialists || RandomMath.RollDie(empire.MaxFreightersInQueue) == 1)
-                planet.Construction.PrioritizeShip(freighter);
+                planet.Construction.PrioritizeShip(freighter, 2, 5);
 
             return GoalStep.GoToNextStep;
         }
 
-        GoalStep ReportGoalCompleteToEmpire()
+        GoalStep CompleteGoal()
         {
-            empire.ReportGoalComplete(this);
             return GoalStep.GoalComplete;
         }
     }

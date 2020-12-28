@@ -18,7 +18,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 FindShipAndPlanetToRefit,
                 WaitForOldShipAtPlanet,
                 BuildNewShip,
-                WaitMainGoalCompletion,
+                WaitForShipBuilt,
                 AddShipDataAndFleet
             };
         }

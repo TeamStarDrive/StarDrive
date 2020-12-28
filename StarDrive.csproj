@@ -276,7 +276,6 @@
     <Compile Include="Ship_Game\Pirates.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
-    <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOffensiveShips.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildScout.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildTroop.cs" />

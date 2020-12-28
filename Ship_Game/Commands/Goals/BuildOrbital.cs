@@ -18,7 +18,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             Steps = new Func<GoalStep>[]
             {
                 BuildConstructor,
-                WaitForConstructorBuilt,
+                WaitForShipBuilt,
                 OrderDeployOrbital,
                 WaitForDeployment
             };
@@ -56,14 +56,6 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
             PlanetBuildingAt.Construction.Enqueue(orbital, ShipToBuild, this);
             return GoalStep.GoToNextStep;
-        }
-
-        GoalStep WaitForConstructorBuilt() // When the Ship is finished, the goal is moved externally to next step (ReportShipComplete).
-        {
-            if (PlanetBuildingAt.ConstructionQueue.Filter(q => q.Goal == this).Length == 0 && FinishedShip == null)
-                return GoalStep.GoalFailed;
-
-            return GoalStep.TryAgain;
         }
 
         GoalStep OrderDeployOrbital()
