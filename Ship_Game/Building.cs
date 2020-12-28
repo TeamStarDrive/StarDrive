@@ -152,8 +152,10 @@ namespace Ship_Game
 
         void ResetSpaceWeaponTimer(Planet p)
         {
-            WeaponTimer = TheWeapon.fireDelay / (p.Level.LowerBound(1)/2f);
+            WeaponTimer = ActualFireDelay(p);
         }
+
+        public float ActualFireDelay(Planet p) => TheWeapon != null ? TheWeapon.fireDelay / (p.Level.LowerBound(1) / 2f) : 1;
 
         void UpdateSpaceWeaponTimer(FixedSimTime timeStep)
         {

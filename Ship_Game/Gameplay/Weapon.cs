@@ -802,10 +802,7 @@ namespace Ship_Game.Gameplay
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
             targetShip.InCombatTimer = 15f;
-            PlanetOrigin             = planet.Level > 1 
-                                       ? planet.Center.GenerateRandomPointInsideCircle(planet.ObjectRadius)
-                                       : planet.Center;
-
+            PlanetOrigin             = planet.Center.GenerateRandomPointInsideCircle(planet.ObjectRadius);
             GameplayObject target    = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 
             if (isBeam)
