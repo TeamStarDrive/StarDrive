@@ -8,7 +8,6 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
-using System.Xml.Serialization;
 
 namespace Ship_Game.AI
 {
@@ -17,7 +16,7 @@ namespace Ship_Game.AI
         Colonize,
         DeepSpaceConstruction,
         BuildTroop,
-        BuildDefensiveShips,
+        BuildDefensiveShips, // remove this in Mars, when we can break saves
         BuildOffensiveShips,
         IncreaseFreighters,
         BuildScout,
