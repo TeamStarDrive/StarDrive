@@ -14,7 +14,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                 FindPlanetToBuildAt,
-                WaitMainGoalCompletion,
+                WaitForShipBuilt,
                 OrderExplore,
                 ReportGoalCompleteToEmpire
             };
@@ -55,7 +55,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
-            planet.Construction.PrioritizeShip(scout);
+            planet.Construction.PrioritizeShip(scout, 1, 2);
 
             return GoalStep.GoToNextStep;
         }
@@ -68,12 +68,11 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
             FinishedShip.AI.OrderExplore();
-            return GoalStep.GoToNextStep;
+            return GoalStep.GoalComplete;
         }
 
-        GoalStep ReportGoalCompleteToEmpire()
+        GoalStep ReportGoalCompleteToEmpire() // FB - Not used: remove this in Mars, when we can break saves
         {
-            empire.ReportGoalComplete(this);
             return GoalStep.GoalComplete;
         }
     }

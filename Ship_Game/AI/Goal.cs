@@ -139,7 +139,6 @@ namespace Ship_Game.AI
             switch (uid)
             {
                 case BuildConstructionShip.ID:  return new BuildConstructionShip();
-                case BuildDefensiveShips.ID:    return new BuildDefensiveShips();
                 case BuildOffensiveShips.ID:    return new BuildOffensiveShips();
                 case BuildScout.ID:             return new BuildScout();
                 case BuildTroop.ID:             return new BuildTroop();
@@ -220,6 +219,17 @@ namespace Ship_Game.AI
                     return GoalStep.GoalComplete;
                 return GoalStep.GoToNextStep;
             }
+            return GoalStep.TryAgain;
+        }
+
+        protected GoalStep WaitForShipBuilt() 
+        {
+            // When the Ship is finished, the goal is moved externally to next step (ReportShipComplete).
+            // So no need for GotoNextStep here.
+
+            if (PlanetBuildingAt.ConstructionQueue.Filter(q => q.Goal == this).Length == 0 && FinishedShip == null)
+                return GoalStep.GoalFailed;
+
             return GoalStep.TryAgain;
         }
 
