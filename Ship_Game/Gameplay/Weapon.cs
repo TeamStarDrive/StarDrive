@@ -113,7 +113,7 @@ namespace Ship_Game.Gameplay
         public bool isMainGun;
         public float OrdinanceRequiredToFire;
         // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
-        public Vector2 PlanetCenter;
+        public Vector2 PlanetOrigin;
         
         // This is the weapons base unaltered range. In addition to this, many bonuses could be applied.
         // Use GetActualRange() to the true range with bonuses
@@ -599,7 +599,7 @@ namespace Ship_Game.Gameplay
             return (targetSpeed + 25) / 175;
         }
 
-        public Vector2 Origin => Module?.Center ?? PlanetCenter;
+        public Vector2 Origin => Module?.Center ?? PlanetOrigin;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
         Vector2 Predict(Vector2 origin, GameplayObject target, bool advancedTargeting)
@@ -801,13 +801,16 @@ namespace Ship_Game.Gameplay
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
-            PlanetCenter = planet.Center;
             targetShip.InCombatTimer = 15f;
-            GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
+            PlanetOrigin             = planet.Level > 1 
+                                       ? planet.Center.GenerateRandomPointInsideCircle(planet.ObjectRadius)
+                                       : planet.Center;
+
+            GameplayObject target    = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 
             if (isBeam)
             {
-                FireBeam(planet.Center, target.Center, target);
+                FireBeam(PlanetOrigin, target.Center, target);
                 return;
             }
 
@@ -815,7 +818,7 @@ namespace Ship_Game.Gameplay
             {
                 Vector2 direction = (pip - Origin).Normalized();
 
-                foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
+                foreach (FireSource fireSource in EnumFireSources(PlanetOrigin, direction))
                     Projectile.Create(this, planet, fireSource.Direction, target);
             }
         }

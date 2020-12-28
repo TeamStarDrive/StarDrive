@@ -218,6 +218,7 @@ namespace Ship_Game
             if (P.Construction.Enqueue(b, where, true))
             {
                 GameAudio.AcceptClick();
+                ClearItemsFilter();
                 return true;
             }
             GameAudio.NegativeClick();
@@ -243,6 +244,8 @@ namespace Ship_Game
                     P.Construction.Enqueue(ship);
                 }
             }
+
+            ClearItemsFilter();
             GameAudio.AcceptClick();
         }
 
@@ -252,6 +255,8 @@ namespace Ship_Game
             {
                 P.Construction.Enqueue(troop);
             }
+
+            ClearItemsFilter();
             GameAudio.AcceptClick();
         }
 
@@ -262,6 +267,13 @@ namespace Ship_Game
 
             P.AddOrbital(orbital);
             return true;
+        }
+
+        void ClearItemsFilter()
+        {
+            FilterItemsText = "";
+            ResetBuildableList = true;
+            FilterBuildableItems.ClearTextInput();
         }
 
         void OnBuildPlatformClick(UIButton b)
@@ -282,9 +294,7 @@ namespace Ship_Game
 
         void OnClearFilterClick(UIButton b)
         {
-            FilterItemsText    = "";
-            ResetBuildableList = true;
-            FilterBuildableItems.ClearTextInput();
+            ClearItemsFilter();
         }
 
         void OnBuildShipyardClick(UIButton b)

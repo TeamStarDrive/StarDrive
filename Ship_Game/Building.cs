@@ -150,9 +150,9 @@ namespace Ship_Game
             AttackTimer = 10;
         }
 
-        void ResetSpaceWeaponTimer()
+        void ResetSpaceWeaponTimer(Planet p)
         {
-            WeaponTimer = TheWeapon.fireDelay;
+            WeaponTimer = TheWeapon.fireDelay / (p.Level.LowerBound(1)/2f);
         }
 
         void UpdateSpaceWeaponTimer(FixedSimTime timeStep)
@@ -165,7 +165,7 @@ namespace Ship_Game
             if (isWeapon && target != null)
             {
                 TheWeapon.FireFromPlanet(planet, target);
-                ResetSpaceWeaponTimer();
+                ResetSpaceWeaponTimer(planet);
             }
         }
 
@@ -199,19 +199,21 @@ namespace Ship_Game
             }
         }
 
-        private void UpdateOffense()
+        private void UpdateOffense(int planetLevel = 1)
         {
             if (isWeapon)
-                Offense = TheWeapon.CalculateOffense() * 3; // 360 degree angle
+                Offense = TheWeapon.CalculateOffense() * (planetLevel/2f); // fire delay is shorter when planet level is higher
         }
 
-        public void UpdateDefenseShipBuildingOffense(Empire empire)
+        public void UpdateOffense(Planet p) => UpdateOffense(p.Level);
+
+        public void UpdateDefenseShipBuildingOffense(Empire empire, Planet p)
         {
             if (DefenseShipsCapacity <= 0)
                 return;
 
             Offense = 0;
-            UpdateOffense();
+            UpdateOffense(p.Level);
             Ship pickedShip = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
 
             if (pickedShip != null && ResourceManager.ShipsDict.TryGetValue(pickedShip.Name, out Ship ship))
@@ -370,6 +372,8 @@ namespace Ship_Game
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
                 u.ScreenManager.AddScreenDeferred(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true, p));
             }
+
+            UpdateOffense(p.Level);
         }
 
         public void CalcMilitaryStrength()
