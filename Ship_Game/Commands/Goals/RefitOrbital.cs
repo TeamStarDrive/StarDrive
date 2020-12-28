@@ -17,7 +17,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             {
                 FindOrbitalAndPlanetToRefit,
                 BuildNewShip,
-                WaitMainGoalCompletion,
+                WaitForShipBuilt,
                 OrderDeployOrbital,
                 WaitForDeployment
             };

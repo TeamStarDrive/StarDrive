@@ -404,9 +404,9 @@ namespace Ship_Game.Universe.SolarBodies
             q.OnComplete?.Invoke(success: false);
         }
 
-        public void PrioritizeShip(Ship ship)
+        public void PrioritizeShip(Ship ship, int atPeace, int atWar = 4)
         {
-            int queueOffset = Owner.IsAtWar ? 4 : 2;
+            int queueOffset = Owner.IsAtWar ? atWar : atPeace;
             if (ConstructionQueue.Count > queueOffset + 1)
                 for (int i = queueOffset; i < ConstructionQueue.Count; ++i)
                 {
