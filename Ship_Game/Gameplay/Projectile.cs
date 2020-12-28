@@ -91,15 +91,21 @@ namespace Ship_Game.Gameplay
         }
 
         // For Mirv creation
-        public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, bool playSound, Vector2 inheritedVelocity)
+        public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, 
+            bool playSound, Vector2 inheritedVelocity, Empire loyalty)
         {
-            var projectile = new Projectile(weapon.Owner.loyalty, GameObjectType.Proj)
+            var projectile = new Projectile(loyalty)
             {
                 Weapon   = weapon,
-                Owner    = weapon.Owner,
-                Module   = weapon.Module,
                 FirstRun = false
             };
+
+            if (weapon.Owner != null)
+                projectile.Owner = weapon.Owner;
+
+            if (weapon.Module != null)
+                projectile.Module = weapon.Module;
+
             projectile.Initialize(origin, direction, target, playSound, inheritedVelocity, isMirv: true);
             return projectile;
         }
@@ -112,7 +118,7 @@ namespace Ship_Game.Gameplay
                 Planet  = planet,
                 ZStart  = -2500f
             };
-            projectile.Initialize(planet.Center, direction, target, playSound: true, Vector2.Zero);
+            projectile.Initialize(weapon.Origin, direction, target, playSound: true, Vector2.Zero);
             return projectile;
         }
 
@@ -340,15 +346,15 @@ namespace Ship_Game.Gameplay
             Weapon mirv = ResourceManager.CreateWeapon(Weapon.MirvWeapon);
             mirv.Owner  = Owner;
             mirv.Module = Module;
-            bool playSound = true;
+            bool playSound = true; // play sound once
             for (int i = 0; i < Weapon.MirvWarheads; i++)
             {
                 float launchDir          = RandomMath.RollDie(2) == 1 ? -1.5708f : 1.5708f; // 90 degrees
                 Vector2 separationVel    = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
                 Vector2 separationVector = mirv.Tag_Guided ? Velocity : separationVel;
                 // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
-                Create(mirv, Position, Direction, target, playSound, separationVector);
-                playSound        = false;
+                Create(mirv, Position, Direction, target, playSound, separationVector, Loyalty);
+                playSound = false;
             }
 
             Die(null, false);

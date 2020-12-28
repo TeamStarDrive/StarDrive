@@ -758,9 +758,10 @@ namespace Ship_Game
 
         public void UpdateDevelopmentLevel() // need to check this with Racial env
         {
+            int newLevel = Level;
             if (PopulationBillion <= 0.5f)
             {
-                Level = (int)DevelopmentLevel.Solitary;
+                newLevel = (int)DevelopmentLevel.Solitary;
                 DevelopmentStatus = Localizer.Token(1763);
                 if      (MaxPopulationBillion >= 2f  && !IsBarrenType) DevelopmentStatus += Localizer.Token(1764);
                 else if (MaxPopulationBillion >= 2f  &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1765);
@@ -769,26 +770,37 @@ namespace Ship_Game
             }
             else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
-                Level = (int)DevelopmentLevel.Meager;
+                newLevel = (int)DevelopmentLevel.Meager;
                 DevelopmentStatus = Localizer.Token(1768);
                 DevelopmentStatus += MaxPopulationBillion >= 2 ? Localizer.Token(1769) : Localizer.Token(1770);
             }
             else if (PopulationBillion > 2.0 && PopulationBillion <= 5.0)
             {
-                Level = (int)DevelopmentLevel.Vibrant;
+                newLevel = (int)DevelopmentLevel.Vibrant;
                 DevelopmentStatus = Localizer.Token(1771);
                 if      (MaxPopulationBillion >= 5.0) DevelopmentStatus += Localizer.Token(1772);
                 else if (MaxPopulationBillion <  5.0) DevelopmentStatus += Localizer.Token(1773);
             }
             else if (PopulationBillion > 5.0 && PopulationBillion <= 10.0)
             {
-                Level = (int)DevelopmentLevel.CoreWorld;
+                newLevel = (int)DevelopmentLevel.CoreWorld;
                 DevelopmentStatus = Localizer.Token(1774);
             }
             else if (PopulationBillion > 10.0)
             {
-                Level = (int)DevelopmentLevel.MegaWorld;
+                newLevel = (int)DevelopmentLevel.MegaWorld;
                 DevelopmentStatus = Localizer.Token(1775); // densely populated
+            }
+
+            if (newLevel != Level) // need to update building offense
+            {
+                Level = newLevel;
+                for (int i =0; i < BuildingList.Count; i++)
+                {
+                    Building b = BuildingList[i];
+                    if (b.isWeapon)
+                        b.UpdateOffense(this);
+                }
             }
 
             if (Prod.NetIncome >= 10.0 && HasSpacePort)
@@ -1032,7 +1044,7 @@ namespace Ship_Game
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b = BuildingList[i];
-                b.UpdateDefenseShipBuildingOffense(Owner);
+                b.UpdateDefenseShipBuildingOffense(Owner, this);
             }
         }
 
