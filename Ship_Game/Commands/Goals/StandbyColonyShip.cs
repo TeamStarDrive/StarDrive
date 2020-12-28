@@ -46,7 +46,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(colonyShip, this);
-            planet.Construction.PrioritizeShip(colonyShip);
+            planet.Construction.PrioritizeShip(colonyShip, 2);
             return GoalStep.GoToNextStep;
         }
 
