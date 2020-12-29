@@ -66,7 +66,7 @@ namespace Ship_Game
         {
             // Note: for ships, the queue item code knows how to handle production cost modifiers
             if (Building != null)   Screen.Build(Building);
-            else if (Ship != null)  Screen.Build(Ship, Ship.GetCost(Screen.P.Owner), numItemsToBuild);
+            else if (Ship != null)  Screen.Build(Ship, numItemsToBuild);
             else if (Troop != null) Screen.Build(Troop, numItemsToBuild);
         }
 

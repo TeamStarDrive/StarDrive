@@ -1004,7 +1004,19 @@ namespace Ship_Game
         public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, int tooltipId, bool doGoodBadTint = true, bool isPercent = false, float spacing = 165)
         {
             StatValue sv = isPercent ? TintedPercent(words, stat, tooltipId, color, spacing, 0)
-                                     :   TintedValue(words, stat, tooltipId, color, spacing, 0);
+                                     : TintedValue(words, stat, tooltipId, color, spacing, 0);
+            DrawStatColor(ref cursor, sv);
+        }
+
+        public void DrawStat(ref Vector2 cursor, string words, float stat, Color color, int tooltipId, float spacing = 165)
+        {
+            StatValue sv = PercentBadLower1(words, stat, tooltipId, color, spacing, 0);
+            DrawStatColor(ref cursor, sv);
+        }
+
+        public void DrawStatBadPercentLower1(ref Vector2 cursor, string words, float stat, Color color, int tooltipId, float spacing = 165)
+        {
+            StatValue sv = PercentBadLower1(words, stat, tooltipId, color, spacing, 0);
             DrawStatColor(ref cursor, sv);
         }
 
@@ -1096,6 +1108,7 @@ namespace Ship_Game
             Bad,
             GoodBad,
             BadLowerThan2,
+            BadPercentLowerThan1,
             CompareValue
         }
 
@@ -1117,10 +1130,11 @@ namespace Ship_Game
                 {
                     switch (Tint)
                     {
-                        case ValueTint.GoodBad: return Value > 0f ? Color.LightGreen : Color.LightPink;
-                        case ValueTint.Bad: return Color.LightPink;
-                        case ValueTint.BadLowerThan2: return Value > 2f ? Color.LightGreen : Color.LightPink;
-                        case ValueTint.CompareValue: return CompareValue < Value ? Color.LightGreen : Color.LightPink;
+                        case ValueTint.GoodBad:              return Value > 0f ? Color.LightGreen : Color.LightPink;
+                        case ValueTint.Bad:                  return Color.LightPink;
+                        case ValueTint.BadLowerThan2:        return Value > 2f ? Color.LightGreen : Color.LightPink;
+                        case ValueTint.BadPercentLowerThan1: return Value > 1f ? Color.LightGreen : Color.LightPink;
+                        case ValueTint.CompareValue:         return CompareValue < Value ? Color.LightGreen : Color.LightPink;
                         case ValueTint.None:
                         default: return Color.White;
                     }
@@ -1128,7 +1142,7 @@ namespace Ship_Game
             }
 
 
-            public string ValueText => IsPercent ? Value.ToString("P1") : Value.GetNumberString();
+            public string ValueText => IsPercent ? Value.ToString("P0") : Value.GetNumberString();
         }
 
         static StatValue NormalValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
@@ -1150,7 +1164,10 @@ namespace Ship_Game
             => new StatValue { Title = Localizer.Token(titleId)+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
 
         static StatValue TintedPercent(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
-            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
+            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor,  Tint = ValueTint.GoodBad, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
+
+        static StatValue PercentBadLower1(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = title, Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.BadPercentLowerThan1, IsPercent = true, Spacing = spacing, LineSpacing = lineSpacing };
 
         void DrawStatColor(ref Vector2 cursor, StatValue stat)
         {
