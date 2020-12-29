@@ -247,9 +247,10 @@ namespace Ship_Game
                 DrawWeaponStats(batch, modTitlePos, mod, mod.InstalledWeapon, starty);
             }
         }
+
         void DrawStat(ref Vector2 cursor, string text, float stat, int toolTipId, bool isPercent = false)
         {
-            if (stat.AlmostEqual(0.0f))
+            if (stat.AlmostEqual(0))
                 return;
 
             Screen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
@@ -621,7 +622,8 @@ namespace Ship_Game
         void DrawResistancePercent(ref Vector2 cursor, Weapon weapon, string description, WeaponStat stat)
         {
             float effect = ModifiedWeaponStat(weapon, stat);
-            if (effect != 1f) DrawStat(ref cursor, description, effect, 147, isPercent: true);
+            if (effect.NotEqual(1))
+                Screen.DrawStatBadPercentLower1(ref cursor, description, effect, Color.White, 147, ActiveModStatSpacing);
         }
 
         float GetHullDamageBonus()

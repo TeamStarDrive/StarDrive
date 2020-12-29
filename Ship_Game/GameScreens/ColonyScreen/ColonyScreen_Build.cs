@@ -225,7 +225,7 @@ namespace Ship_Game
             return false;
         }
 
-        public void Build(Ship ship, float cost, int repeat = 1)
+        public void Build(Ship ship, int repeat = 1)
         {
             for (int i = 0; i < repeat; i++)
             {
@@ -245,7 +245,6 @@ namespace Ship_Game
                 }
             }
 
-            ClearItemsFilter();
             GameAudio.AcceptClick();
         }
 
@@ -256,7 +255,6 @@ namespace Ship_Game
                 P.Construction.Enqueue(troop);
             }
 
-            ClearItemsFilter();
             GameAudio.AcceptClick();
         }
 
@@ -271,7 +269,10 @@ namespace Ship_Game
 
         void ClearItemsFilter()
         {
-            FilterItemsText = "";
+            if (FilterItemsText.IsEmpty())
+                return;
+
+            FilterItemsText    = "";
             ResetBuildableList = true;
             FilterBuildableItems.ClearTextInput();
         }
