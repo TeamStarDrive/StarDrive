@@ -53,26 +53,30 @@ namespace Ship_Game
         }
 
         public void Update()
-        {
-            if (Strategy == null)
-            {
-                if (Empire.data.EconomicPersonality == null)
-                    Empire.data.EconomicPersonality = new ETrait { Name = "Generalists" };
-                Strategy = ResourceManager.GetEconomicStrategy(Empire.data.EconomicPersonality.Name);
-            }
-
+        { 
             UpdateNetResearch();
             ApplyResearchPoints();
         }
         
-        void UpdateNetResearch()
+        public void UpdateNetResearch()
         {
+            SetResearchStrategy();
             NetResearch = 0;
             MaxResearchPotential = 0;
             foreach (Planet planet in Empire.GetPlanets())
             {
                 NetResearch          += planet.Res.NetIncome;
                 MaxResearchPotential += planet.Res.GrossMaxPotential;
+            }
+        }
+
+        public void SetResearchStrategy()
+        {
+            if (Strategy == null)
+            {
+                if (Empire.data.EconomicPersonality == null)
+                    Empire.data.EconomicPersonality = new ETrait { Name = "Generalists" };
+                Strategy = ResourceManager.GetEconomicStrategy(Empire.data.EconomicPersonality.Name);
             }
         }
 
