@@ -162,7 +162,8 @@ namespace Ship_Game
             };
 
             RandomEventManager.ActiveEvent = saveData.RandomEvent;
-            CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets);
+            int numEmpires                 = saveData.EmpireDataList.Filter(e => !e.IsFaction).Length; 
+            CurrentGame.StartNew(data, saveData.GamePacing, saveData.StarsModifier, saveData.ExtraPlanets, numEmpires);
             
             EmpireManager.Clear();
             Empire.Universe?.Objects.Clear();
