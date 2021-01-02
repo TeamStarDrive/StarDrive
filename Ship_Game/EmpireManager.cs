@@ -260,7 +260,7 @@ namespace Ship_Game
             data.Traits.Name     = data.RebelName;
             data.Traits.Singular = data.RebelSing;
             data.Traits.Plural   = data.RebelPlur;
-            empire.isFaction = true;
+            empire.isFaction     = true;
 
             Add(empire);
 

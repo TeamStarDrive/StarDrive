@@ -1225,6 +1225,7 @@ namespace Ship_Game
 
             CreateThrusterColors();
             UpdateShipsWeCanBuild();
+            Research.SetResearchStrategy();
         }
 
         bool WeCanUseThisLater(TechEntry tech)
