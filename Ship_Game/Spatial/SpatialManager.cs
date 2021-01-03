@@ -152,7 +152,7 @@ namespace Ship_Game.Gameplay
         // @note This is called every time an exploding projectile hits a target and dies
         //       so everything nearby receives additional splash damage
         //       usually the recipient is only 1 ship, but ships can overlap and cause more results
-        public void ProjectileExplode(Projectile source, float damageAmount, float damageRadius)
+        public void ProjectileExplode(Projectile source, float damageAmount, float damageRadius, Vector2 center)
         {
             if (damageRadius <= 0f)
                 return;
@@ -161,7 +161,7 @@ namespace Ship_Game.Gameplay
             // I tried to make the min to a the smallest cell size. 
             GameplayObject[] ships = FindNearby(GameObjectType.Ship, source, Math.Max(damageRadius, 512),
                                                     maxResults:32, excludeLoyalty:source.Owner?.loyalty);
-            ships.SortByDistance(source.Center);
+            ships.SortByDistance(center);
 
             foreach (GameplayObject go in ships)
             {
@@ -177,7 +177,7 @@ namespace Ship_Game.Gameplay
                 if (ship.loyalty?.data.ExplosiveRadiusReduction > 0f)
                     modifiedRadius *= 1f - ship.loyalty.data.ExplosiveRadiusReduction;
 
-                ship.DamageModulesExplosive(source, damageAmount, source.Center, modifiedRadius, source.IgnoresShields);
+                ship.DamageModulesExplosive(source, damageAmount, center, modifiedRadius, source.IgnoresShields);
             }
         }
 

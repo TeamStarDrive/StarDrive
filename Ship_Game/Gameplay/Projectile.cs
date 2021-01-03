@@ -437,7 +437,7 @@ namespace Ship_Game.Gameplay
             if (InFlightSfx.IsPlaying)
                 InFlightSfx.Stop();
 
-            ExplodeProjectile(cleanupOnly);
+            ExplodeProjectile(cleanupOnly, Position);
 
             if (ProjSO != null)
             {
@@ -574,7 +574,7 @@ namespace Ship_Game.Gameplay
         bool CloseEnoughForExplosion    => Empire.Universe.IsSectorViewOrCloser;
         bool CloseEnoughForFlashExplode => Empire.Universe.IsSystemViewOrCloser;
 
-        void ExplodeProjectile(bool cleanupOnly)
+        void ExplodeProjectile(bool cleanupOnly, Vector2 center)
         {
             if (Explodes)
             {
@@ -585,17 +585,17 @@ namespace Ship_Game.Gameplay
 
                 if (!cleanupOnly && CloseEnoughForExplosion)
                 {
-                    ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.1f,
+                    ExplosionManager.AddExplosion(new Vector3(center, -50f), Velocity*0.1f,
                         DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
 
                     if (FlashExplode && CloseEnoughForFlashExplode)
                     {
                         GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
+                        Empire.Universe.flash.AddParticleThreadB(new Vector3(center, -50f), Vector3.Zero);
                     }
                 }
 
-                UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius);
+                UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, center);
             }
             // @note FakeExplode basically FORCES an explosion, I think it's used for Flak weapons
             //       In Vanilla, it only appears in Flak & DualFlak weapons
@@ -715,9 +715,9 @@ namespace Ship_Game.Gameplay
 
                     // Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!Explodes)
-                    {
                         ArmourPiercingTouch(module, parent);
-                    }
+                    else
+                        RayTracedExplosion(module);
 
                     // else: it will do radial explode and affect whatever it cant
                     Health = 0f;
@@ -773,9 +773,17 @@ namespace Ship_Game.Gameplay
                     break;
                 }
             }
-            
+
             DieNextFrame = !Deflected;
             return true;
+        }
+
+        void RayTracedExplosion(ShipModule module)
+        {
+            ExplodeProjectile(false, module.Center);
+            Explodes = false;
+            if (Weapon != null)
+                Weapon.FakeExplode = false;
         }
 
         void DebugTargetCircle()
