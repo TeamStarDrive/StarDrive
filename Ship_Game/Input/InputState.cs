@@ -104,8 +104,8 @@ namespace Ship_Game
         public bool Fleet7               => KeyPressed(Keys.D7);
         public bool Fleet8               => KeyPressed(Keys.D8);
         public bool Fleet9               => KeyPressed(Keys.D9);
-        public bool AddToFleet           => IsCtrlKeyDown && !IsShiftKeyDown;
-        public bool ReplaceFleet         => IsCtrlKeyDown && IsShiftKeyDown;
+        public bool AddToFleet           => IsCtrlKeyDown && IsShiftKeyDown;
+        public bool ReplaceFleet         => IsCtrlKeyDown && !IsShiftKeyDown;
         public bool QueueAction          => IsShiftKeyDown;
         public bool OrderOption          => IsAltKeyDown;
         public bool ShipPieMenu          => KeyPressed(Keys.Q);
