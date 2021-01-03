@@ -389,10 +389,13 @@ namespace Ship_Game
         void HandleFleetSelections(InputState input)
         {
             int index = InputFleetSelection(input);
-            if (index == -1) return;
+            if (index == -1) 
+                return;
+
+            bool moveToFleet = SelectedFleet == player.GetFleetsDict()[index];
 
             // replace ships in fleet from selection
-            // or remove selected fleet if not ships are selected. 
+            // or remove selected fleet if not ships are selected.
             if (input.ReplaceFleet)
             {
                 var selectedFleet = player.GetFleetsDict()[index];
@@ -403,6 +406,13 @@ namespace Ship_Game
                 }
 
                 selectedFleet?.Ships.ForEach(s => s?.UnsafeClearFleet());
+                // clear the fleet if pressing ctrl + the same fleet number
+                if (selectedFleet == SelectedFleet && SelectedFleet?.Ships.Count > 0)
+                {
+                    selectedFleet?.Reset();
+                    RecomputeFleetButtons(true);
+                    return;
+                }
 
                 var newFleet   = AddSelectedShipsToNewFleet(SelectedShipList);
                 string str     = Fleet.GetDefaultFleetNames(index);
@@ -490,17 +500,14 @@ namespace Ship_Game
                 else if (SelectedShipList.Count > 1)
                     shipListInfoUI.SetShipList(SelectedShipList, true);
 
-                if (SelectedFleet != null)
+                if (SelectedFleet != null && moveToFleet)
                 {
-                    if (Input.LeftMouseDoubleClick || input.KeysPrev.GetPressedKeys() == input.KeysCurr.GetPressedKeys())
-                    {
-                        ViewingShip = false;
-                        AdjustCamTimer = 0.5f;
-                        CamDestination = SelectedFleet.AveragePosition().ToVec3();
+                    ViewingShip    = false;
+                    AdjustCamTimer = 0.5f;
+                    CamDestination = SelectedFleet.AveragePosition().ToVec3();
 
-                        if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
-                            CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
-                    }
+                    if (CamHeight < GetZfromScreenState(UnivScreenState.SystemView))
+                        CamDestination.Z = GetZfromScreenState(UnivScreenState.SystemView);
                 }
             }
         }
