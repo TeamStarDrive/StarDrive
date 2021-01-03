@@ -20,15 +20,17 @@ namespace Ship_Game
         public static UniverseData.GameDifficulty Difficulty { get; private set; }
         public static GalSize GalaxySize = GalSize.Medium;
         public static int ExtraPlanets;
+        public static int NumMajorEmpires; // Including the player
         public static float StarsModifier = 1f;
 
-        public static void StartNew(UniverseData data, float pace, float starsMod, int extraPlanets)
+        public static void StartNew(UniverseData data, float pace, float starsMod, int extraPlanets, int numEmpires)
         {
-            Difficulty    = data.difficulty;
-            GalaxySize    = data.GalaxySize;
-            Pace          = pace;
-            StarsModifier = starsMod;
-            ExtraPlanets  = extraPlanets;
+            Difficulty      = data.difficulty;
+            GalaxySize      = data.GalaxySize;
+            Pace            = pace;
+            StarsModifier   = starsMod;
+            ExtraPlanets    = extraPlanets;
+            NumMajorEmpires = numEmpires;
 
             RandomEventManager.ActiveEvent = null; // This is a bug that will reset ongoing event upon game load (like hyperspace flux)
         }
