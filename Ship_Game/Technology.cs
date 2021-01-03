@@ -126,15 +126,14 @@ namespace Ship_Game
 
         float ResearchMultiplier()
         {
-            if (!GlobalStats.ModChangeResearchCost || EmpireManager.MajorEmpires.Length == 0)
+            if (!GlobalStats.ModChangeResearchCost)
                 return Cost;
-
 
             int idealNumPlayers     = (int)(CurrentGame.GalaxySize) + 3;
             float galSizeModifier   = ((int)CurrentGame.GalaxySize / 2f).LowerBound(0.25f);
             float starsModifier     = CurrentGame.StarsModifier;
             float extraPlanetsMod   = 1 + CurrentGame.ExtraPlanets * 0.25f;
-            float playerRatio       = idealNumPlayers / (float)EmpireManager.MajorEmpires.Length;
+            float playerRatio       = (float)idealNumPlayers / CurrentGame.NumMajorEmpires;
             float settingsRatio     = galSizeModifier * extraPlanetsMod * playerRatio * starsModifier;
 
             if (settingsRatio.Less(1))

@@ -113,7 +113,7 @@ namespace Ship_Game
 
             var sandbox = new UniverseData();
             sandbox.GravityWells = true;
-            CurrentGame.StartNew(sandbox, pace:1f, 1, 0);
+            CurrentGame.StartNew(sandbox, pace:1f, 1, 0, 1);
 
             IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(PlayerFilter));
             IEmpireData[] opponents = ResourceManager.MajorRaces.Filter(
