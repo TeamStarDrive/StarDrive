@@ -260,7 +260,7 @@ namespace Ship_Game
             data.Traits.Name     = data.RebelName;
             data.Traits.Singular = data.RebelSing;
             data.Traits.Plural   = data.RebelPlur;
-            empire.isFaction = true;
+            empire.isFaction     = true;
 
             Add(empire);
 
@@ -295,8 +295,12 @@ namespace Ship_Game
         {
             if (Empires.IsEmpty)
                 Log.Error("must be called after empireList is populated.");
-            
+
+            foreach (Empire empire in Empires)
+                empire.Research.UpdateNetResearch();
+
             Empire.Universe.WarmUpShipsForLoad();
+
             foreach (Empire empire in Empires)
             { 
                 empire.GetEmpireAI().EmpireDefense = empire.GetEmpireAI().EmpireDefense ?? War.CreateInstance(empire, empire, WarType.EmpireDefense);
