@@ -78,15 +78,33 @@ namespace Ship_Game.AI
             InitialPhaseDirection = RandomMath.RollDice(50) ? -1f : +1f;
         }
 
+        bool TargetValid(Ship ship)
+        {
+            return ship.Active
+                   && !ship.dying
+                   && !ship.IsInWarp
+                   && Missile.Weapon.TargetValid(ship.shipData.HullRole)
+                   && Missile.Loyalty.IsEmpireAttackable(ship.loyalty);
+        }
+
         //added by gremlin deveks ChooseTarget
         public void ChooseTarget()
         {
+            if (Missile.Weapon.Tag_Torpedo)
+                return;  // Torps will not choose new targets but continue straight.
+
+            if (!Missile.Loyalty.data.Traits.SmartMissiles)
+            {
+                Missile.Die(Missile, false);
+                return;
+            }
+
             Ship owningShip = Missile.Owner;
             if (owningShip != null && owningShip.Active && !owningShip.dying)
             {
                 if (owningShip.AI.Target is Ship targetShip)
                 {
-                    if (targetShip.Active && Missile.Loyalty.IsEmpireAttackable(targetShip.loyalty))
+                    if (TargetValid(targetShip))
                     {
                         Target = targetShip.GetRandomInternalModule(Missile);
                         return;
@@ -95,7 +113,7 @@ namespace Ship_Game.AI
 
                 foreach (Ship ship in owningShip.AI.PotentialTargets)
                 {
-                    if (ship.Active && !ship.dying && ship.engineState != Ship.MoveState.Warp)
+                    if (TargetValid(ship))
                     {
                         Target = ship.GetRandomInternalModule(Missile);
                         return;
@@ -103,31 +121,32 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (TargetList?.IsEmpty ?? true)
-                return;
-
             Empire owner = owningShip?.loyalty ?? Missile.Planet.Owner;
-            if (owner == null)
+            if (owner == null || TargetList == null )
+            {
+                Missile.Die(Missile, false);
                 return;
+            }
 
             float bestSqDist = float.MaxValue;
             Ship bestTarget = null;
             foreach (Ship sourceTargetShip in TargetList)
             {
-                if (!sourceTargetShip.Active || sourceTargetShip.dying )
+                if (!TargetValid(sourceTargetShip))
                     continue;
 
                 float sqDist = Missile.Center.SqDist(sourceTargetShip.Center);
-                if (sqDist > bestSqDist || !Missile.Loyalty.IsEmpireAttackable(owner))
+                if (sqDist > bestSqDist)
                     continue;
+
                 bestSqDist = sqDist;
                 bestTarget = sourceTargetShip;                    
             }
 
             if (bestTarget != null && bestSqDist < 30000 * 30000)
-            {
                 Target = bestTarget.GetRandomInternalModule(Missile);
-            }
+            else
+                Missile.Die(Missile, false);
         }
 
         void MoveTowardsTargetJammed(FixedSimTime timeStep)
