@@ -187,11 +187,16 @@ namespace Ship_Game.Gameplay
         {
             if (damageRadius <= 0.0f || damageAmount <= 0.0f)
                 return;
-            Ship shipToDamage = hitModule.GetParent();
+
+            Ship shipToDamage    = hitModule.GetParent();
             if (shipToDamage.dying || !shipToDamage.Active)
                 return;
 
-            shipToDamage.DamageModulesExplosive(damageSource, damageAmount, hitModule.Center, damageRadius, ignoresShields);
+            float modifiedRadius = damageRadius;
+            if (shipToDamage.loyalty?.data.ExplosiveRadiusReduction > 0f)
+                modifiedRadius *= 1f - shipToDamage.loyalty.data.ExplosiveRadiusReduction;
+
+            shipToDamage.DamageModulesExplosive(damageSource, damageAmount, hitModule.Center, modifiedRadius, ignoresShields);
         }
 
         // @note This is called quite rarely, so optimization is not a priority
