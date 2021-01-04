@@ -716,13 +716,7 @@ namespace Ship_Game.Gameplay
                         return true;
                     }
 
-                    // Non exploding projectiles should go through multiple modules if it has enough damage
-                    if (!Explodes)
-                        ArmourPiercingTouch(module, parent);
-                    else
-                        RayTracedExplosion(module);
-
-                    // else: it will do radial explode and affect whatever it cant
+                    ArmourPiercingTouch(module, parent);
                     Health = 0f;
                     break;
             }
@@ -801,32 +795,46 @@ namespace Ship_Game.Gameplay
             ArmorPiercing -= module.APResist;
 
             if (ArmorPiercing <= 0 || !module.Is(ShipModuleType.Armor))
+            {
+                if (Explodes)
+                {
+                    RayTracedExplosion(module);
+                    return;
+                }
+
                 module.Damage(this, DamageAmount, out DamageAmount);
+            }
 
             if (DamageAmount <= 0f)
                 return;
-            var projectedModules = new Array<ShipModule>();
-            projectedModules.Add(module);
-            projectedModules = parent.RayHitTestModules(module.Center, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
-            if (projectedModules == null)
-                return;
+
+            var projectedModules = parent.RayHitTestModules(module.Center, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
+
             DebugTargetCircle();
-            for (int x = 0; x < projectedModules.Count; x++)
+            for (int i = 1; i < projectedModules.Count; i++) // I is 1 since we dealt with the first module above to save performance
             {
-                ShipModule impactModule = projectedModules[x];
+                ShipModule impactModule = projectedModules[i];
                 if (!impactModule.Active)
                     continue;
+
                 if (ArmorPiercing > 0 && impactModule.Is(ShipModuleType.Armor))
                 {
-                    ArmorPiercing -= impactModule.XSIZE; // armor is always squared anyway.
+                    ArmorPiercing -= impactModule.XSIZE + impactModule.APResist; // armor is always squared anyway.
                     impactModule.DebugDamageCircle();
                     if (ArmorPiercing >= 0)
-                    {
-                        continue; // SKIP/Phase through this armor module (yikes!)
-                    }
+                        continue; // Phase through this armor module (yikes!)
                 }
+
                 impactModule.DebugDamageCircle();
+                if (Explodes)
+                {
+                    RayTracedExplosion(module);
+                    return;
+                }
+
                 impactModule.Damage(this, DamageAmount, out DamageAmount);
+                // It is possible for a high AP projectile to pierce 1 armor, damage several modules and them pierce more armor modules
+                // as long as it has enough AP left and not exploding, which is cool
                 if (DamageAmount <= 0f)
                     return;
             }
