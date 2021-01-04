@@ -187,8 +187,10 @@ namespace Ship_Game
 
         public float PopPerBiosphere(Empire empire)
         {
-            return BasePopPerTile / 2 * Empire.RacialEnvModifer(Category, empire);
+            return BasePopPerBioSphere * Empire.RacialEnvModifer(Category, empire);
         }
+
+        public float BasePopPerBioSphere => BasePopPerTile / 2;
 
         public float PotentialMaxFertilityFor(Empire empire)
         {
@@ -747,7 +749,7 @@ namespace Ship_Game
             int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
             PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease);
             MaxPopValFromTiles    = (BasePopPerTile * numHabitableTiles) 
-                                    + BuildingList.Count(b => b.IsBiospheres) * PopPerBiosphere(Owner);
+                                    + BuildingList.Count(b => b.IsBiospheres) * BasePopPerBioSphere;
 
             MaxPopValFromTiles = MaxPopValFromTiles.LowerBound(BasePopPerTile / 2);
             MaxPopBillionVal   = MaxPopValFromTiles / 1000f;

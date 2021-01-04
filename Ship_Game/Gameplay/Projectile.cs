@@ -828,7 +828,7 @@ namespace Ship_Game.Gameplay
                 impactModule.DebugDamageCircle();
                 if (Explodes)
                 {
-                    RayTracedExplosion(module);
+                    RayTracedExplosion(impactModule);
                     return;
                 }
 
