@@ -574,8 +574,9 @@ namespace Ship_Game.Gameplay
         bool CloseEnoughForExplosion    => Empire.Universe.IsSectorViewOrCloser;
         bool CloseEnoughForFlashExplode => Empire.Universe.IsSystemViewOrCloser;
 
-        void ExplodeProjectile(bool cleanupOnly)
+        void ExplodeProjectile(bool cleanupOnly, ShipModule atModule = null)
         {
+            Vector3 origin = new Vector3(atModule?.Center ?? Center, -50f);
             if (Explodes)
             {
                 if (Weapon.OrdinanceRequiredToFire > 0f && Owner != null)
@@ -585,28 +586,30 @@ namespace Ship_Game.Gameplay
 
                 if (!cleanupOnly && CloseEnoughForExplosion)
                 {
-                    ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.1f,
+                    ExplosionManager.AddExplosion(origin, Velocity*0.1f,
                         DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
 
                     if (FlashExplode && CloseEnoughForFlashExplode)
                     {
                         GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                        Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
+                        Empire.Universe.flash.AddParticleThreadB(origin, Vector3.Zero);
                     }
                 }
 
-                UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius);
+                // Using explosion at a specific module not to affect other ships which might bypass other modulesfor them , like armor
+                if (atModule != null) 
+                    UniverseScreen.Spatial.ExplodeAtModule(this, atModule, IgnoresShields, DamageAmount, DamageRadius);
+                else
+                    UniverseScreen.Spatial.ProjectileExplode(this, DamageAmount, DamageRadius, Center);
             }
-            // @note FakeExplode basically FORCES an explosion, I think it's used for Flak weapons
-            //       In Vanilla, it only appears in Flak & DualFlak weapons
             else if (Weapon.FakeExplode && CloseEnoughForExplosion)
             {
-                ExplosionManager.AddExplosion(new Vector3(Position, -50f), Velocity*0.1f, 
+                ExplosionManager.AddExplosion(origin, Velocity*0.1f, 
                     DamageRadius * ExplosionRadiusMod, 2.5f, Weapon.ExplosionType);
                 if (FlashExplode && CloseEnoughForFlashExplode)
                 {
                     GameAudio.PlaySfxAsync(DieCueName, Emitter);
-                    Empire.Universe.flash.AddParticleThreadB(new Vector3(Position, -50f), Vector3.Zero);
+                    Empire.Universe.flash.AddParticleThreadB(origin, Vector3.Zero);
                 }
             }
         }
@@ -715,9 +718,9 @@ namespace Ship_Game.Gameplay
 
                     // Non exploding projectiles should go through multiple modules if it has enough damage
                     if (!Explodes)
-                    {
                         ArmourPiercingTouch(module, parent);
-                    }
+                    else
+                        RayTracedExplosion(module);
 
                     // else: it will do radial explode and affect whatever it cant
                     Health = 0f;
@@ -773,9 +776,17 @@ namespace Ship_Game.Gameplay
                     break;
                 }
             }
-            
+
             DieNextFrame = !Deflected;
             return true;
+        }
+
+        void RayTracedExplosion(ShipModule module)
+        {
+            ExplodeProjectile(false, module);
+            Explodes = false;
+            if (Weapon != null)
+                Weapon.FakeExplode = false;
         }
 
         void DebugTargetCircle()
