@@ -227,12 +227,13 @@ namespace Ship_Game.Ships
         // module types for calculations. Dont use it when you are looking for main functionality as defined in the xml (for instance - ship design screen)
         public bool Is(ShipModuleType type)
         {
-            if (type == ShipModuleType.PowerPlant)
-                return Flyweight.PowerFlowMax >= 1f;
-            if (type == ShipModuleType.Shield)
-                return Flyweight.shield_power_max >= 1f;
-
-            return ModuleType == type;
+            switch (type)
+            {
+                case ShipModuleType.PowerPlant: return Flyweight.PowerFlowMax >= 1f;
+                case ShipModuleType.Shield:     return Flyweight.shield_power_max >= 1f;
+                case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
+                default:                        return ModuleType == type;
+            }
         }
 
         // this is the design spec of the module
