@@ -828,34 +828,31 @@ namespace Ship_Game.Gameplay
             if (Owner.loyalty.data.Traits.Pack)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
-            float actualShieldPenChance = 0;
+            float actualShieldPenChance = Module?.GetParent().loyalty.data.ShieldPenBonusChance * 100 ?? 0;
             for (int i = 0; i < ActiveWeaponTags.Length; ++i)
             {
                 AddModifiers(ActiveWeaponTags[i], projectile, ref actualShieldPenChance);
             }
 
-            // @note This is a random chance, so it cannot be pre calculated
-            projectile.IgnoresShields = actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance;
+            projectile.IgnoresShields = RandomMath.RollDice(actualShieldPenChance);
         }
 
         void AddModifiers(WeaponTag tag, Projectile p, ref float actualShieldPenChance)
         {
-            WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[tag];
-            p.RotationRadsPerSecond += mod.Turn * RotationRadsPerSecond;
-            p.DamageAmount          += mod.Damage * p.DamageAmount;
-            p.Range                 += mod.Range * BaseRange;
-            p.Speed                 += mod.Speed * ProjectileSpeed;
-            p.Health                += mod.HitPoints * HitPoints;
-            p.DamageRadius          += mod.ExplosionRadius * DamageRadius;
-            p.ArmorPiercing         += (int)mod.ArmourPenetration;
-            p.ArmorDamageBonus      += mod.ArmorDamage;
-            p.ShieldDamageBonus     += mod.ShieldDamage;
+            WeaponTagModifier weaponTag = Owner.loyalty.data.WeaponTags[tag];
+
+            p.RotationRadsPerSecond += weaponTag.Turn * RotationRadsPerSecond;
+            p.DamageAmount          += weaponTag.Damage * p.DamageAmount;
+            p.Range                 += weaponTag.Range * BaseRange;
+            p.Speed                 += weaponTag.Speed * ProjectileSpeed;
+            p.Health                += weaponTag.HitPoints * HitPoints;
+            p.DamageRadius          += weaponTag.ExplosionRadius * DamageRadius;
+            p.ArmorPiercing         += (int)weaponTag.ArmourPenetration;
+            p.ArmorDamageBonus      += weaponTag.ArmorDamage;
+            p.ShieldDamageBonus     += weaponTag.ShieldDamage;
             
-            // Shield Penetration TODO
-            float shieldPenChance = Module?.GetParent().loyalty.data.ShieldPenBonusChance ?? 0;
-            shieldPenChance      += mod.ShieldPenetration * 100;
-            shieldPenChance      += ShieldPenChance;
-            actualShieldPenChance = Math.Max(shieldPenChance, actualShieldPenChance);
+            float shieldPenChance  = weaponTag.ShieldPenetration * 100 + ShieldPenChance;
+            actualShieldPenChance += shieldPenChance.LowerBound(actualShieldPenChance);
         }
 
         public float GetActualRange(Empire owner = null)
