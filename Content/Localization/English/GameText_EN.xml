@@ -4711,6 +4711,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Use Shift + Click to bulk replace all similar modules. It is useful if you are upgrading your ship. It will also keep your old weapons' facing when bulk replacing weapons.</Text>
     </Token>
     <Token>
+      <Index>1828</Index>
+      <Text>Shield Pen</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
@@ -9080,7 +9084,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7032</Index>
-      <Text>Random chance this weapon will fire through enemy shields</Text>
+      <Text>Random chance this weapon will fire through enemy shields. Golden color means that this value is modified from the original number.</Text>
     </Token>
   <Token>
       <Index>7033</Index>
