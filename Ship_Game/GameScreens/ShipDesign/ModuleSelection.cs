@@ -551,7 +551,18 @@ namespace Ship_Game
 
             DrawResistancePercent(ref cursor, wOrMirv, "VS Armor", WeaponStat.Armor);
             DrawResistancePercent(ref cursor, wOrMirv, "VS Shield", WeaponStat.Shield);
-            DrawStat(ref cursor, "Shield Pen", wOrMirv.ShieldPenChance / 100, 181, isPercent: true);
+
+            float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance * 100 + wOrMirv.ShieldPenChance/100;
+            for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
+            {
+                CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
+            }
+
+            if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
+                DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(100), 181, Color.Gold, isPercent: true);
+            else
+                DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), 181, isPercent: true);
+
             DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
             DrawStat(ref cursor, Localizer.Token(6175), m.DamageThreshold, 221);
             if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(1992), m.RepairDifficulty, 241); // Complexity
@@ -578,6 +589,12 @@ namespace Ship_Game
                 if (wOrMirv.Excludes_Capitals)  WriteLine(batch, ref cursor, "Capitals");
                 if (wOrMirv.Excludes_Stations)  WriteLine(batch, ref cursor, "Stations");
             }
+        }
+
+        void CheckShieldPenModifier(WeaponTag tag, ref float actualShieldPenChance)
+        {
+            WeaponTagModifier weaponTag = EmpireManager.Player.data.WeaponTags[tag];
+            actualShieldPenChance += weaponTag.ShieldPenetration;
         }
 
         void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, int tooltipId)
