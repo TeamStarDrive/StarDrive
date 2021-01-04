@@ -208,7 +208,7 @@ namespace Ship_Game
                 return (MaxPopValFromTiles + PopulationBonus).LowerBound(minimumPop);
 
             float maxPopValToUse = MaxPopValFromTiles;
-            if (TilesList.Count(t => t.Habitable && !t.Biosphere) == 0)
+            if (TilesList.Count(t => t.Habitable) == 0)
                 maxPopValToUse = minimumPop; // No Habitable tiles, so using the minimum pop
 
             return (maxPopValToUse * Empire.RacialEnvModifer(Category, empire) + PopulationBonus).LowerBound(minimumPop);
