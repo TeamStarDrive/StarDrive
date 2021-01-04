@@ -841,12 +841,16 @@ namespace Ship_Game
                         catch { }
                     }
 
-                    Color fleetKey = Color.Orange;
+                    Color fleetKey       = Color.Orange;
                     SpriteFont fleetFont = Fonts.Pirulen12;
+                    bool needShadow      = false;
+                    Vector2 keyPos       = new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4);
                     if (SelectedFleet == fleetButton.Fleet)
                     {
-                        fleetKey = Color.White;
-                        fleetFont = Fonts.Pirulen16;
+                        fleetKey   = Color.White;
+                        fleetFont  = Fonts.Pirulen16;
+                        needShadow = true;
+                        keyPos     = new Vector2(keyPos.X, keyPos.Y - 2);
                     }
 
                     batch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
@@ -855,9 +859,10 @@ namespace Ship_Game
 
                     buttonSelector.Draw(batch, elapsed);
                     batch.Draw(fleetButton.Fleet.Icon, housing, EmpireManager.Player.EmpireColor);
-                    batch.DrawString(fleetFont, fleetButton.Key.ToString(),
-                        new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4), fleetKey);
+                    if (needShadow)
+                        batch.DrawString(fleetFont, fleetButton.Key.ToString(), new Vector2(keyPos.X + 2, keyPos.Y + 2), Color.Black);
 
+                    batch.DrawString(fleetFont, fleetButton.Key.ToString(), keyPos, fleetKey);
                     DrawFleetShipIcons(batch, fleetButton);
                 }
             }
