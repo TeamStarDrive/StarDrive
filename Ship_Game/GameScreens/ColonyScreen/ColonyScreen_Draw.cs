@@ -569,38 +569,23 @@ namespace Ship_Game
                     break;
 
                 case PlanetGridSquare pgs:
-                    float popPerTile = P.BasePopPerTile * Player.PlayerEnvModifier(P.Category);
                     switch (pgs.building)
                     {
                         case null when pgs.Habitable && pgs.Biosphere:
                             batch.DrawString(Font20, Localizer.Token(348), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(TextFont, MultiLineFormat(349), bCursor, color);
-                            bCursor.Y += Font20.LineSpacing * 5;
-                            batch.DrawString(TextFont, $"{P.PopPerBiosphere(Player).String(0)}" +
-                                                     $" {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
-
-                            bCursor.Y += Font20.LineSpacing;
-                            if (pgs.BioCanTerraform)
-                            {
-                                batch.DrawString(TextFont, MultiLineFormat("This tile can be terraformed " +
-                                        "as part of terraforming operations. The process will take more time due to " +
-                                        "Biosphere Terraforming complexity."), bCursor, Player.EmpireColor);
-
-                                bCursor.Y += Font20.LineSpacing*2;
-                            }
-
+                            DrawTilePopInfo(ref bCursor, batch, pgs);
                             return;
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(TextFont, MultiLineFormat(349), bCursor, color);
-                            bCursor.Y += Font20.LineSpacing * 5;
-                            batch.DrawString(TextFont, $"{popPerTile.String(0)} {MultiLineFormat(1898)}", bCursor, Color.LightGreen);
+                            DrawTilePopInfo(ref bCursor, batch, pgs);
                             return;
                     }
 
-                    if (!pgs.Habitable && pgs.building == null)
+                    if (!pgs.Habitable)
                     {
                         if (P.IsBarrenType)
                         {
@@ -615,16 +600,7 @@ namespace Ship_Game
                             batch.DrawString(TextFont, MultiLineFormat(353), bCursor, color);
                         }
 
-                        bCursor.Y += Font20.LineSpacing * 5;
-                        string bioText = new LocalizedText(GameText.MillionColonistsCouldBeLiving).Text;
-                        if (BioSpheresResearched && pgs.CanTerraform)
-                        {
-                            batch.DrawString(TextFont, "This tile can be terraformed as part of terraforming operations.", bCursor, Player.EmpireColor);
-                            bCursor.Y += Font20.LineSpacing;
-                            bioText   += " However, building Biospheres here will complicate future terraforming efforts on the tile.";
-                        }
-
-                        batch.DrawString(TextFont, $"{P.PopPerBiosphere(Player).String(0)} {MultiLineFormat(bioText)}", bCursor, Color.Gold);
+                        DrawTilePopInfo(ref bCursor, batch, pgs);
                         return;
                     }
 
@@ -639,10 +615,11 @@ namespace Ship_Game
                     batch.DrawString(TextFont, buildingDescription, bCursor, color);
                     bCursor.Y   += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
                     DrawSelectedBuildingInfo(ref bCursor, batch, pgs.building);
+                    DrawTilePopInfo(ref bCursor, batch, pgs, 2);
                     if (!pgs.building.Scrappable)
                         return;
 
-                    bCursor.Y += (TextFont.LineSpacing * 3);
+                    bCursor.Y += TextFont.LineSpacing * 2;
                     batch.DrawString(TextFont, "You may scrap this building by right clicking it", bCursor, Color.White);
                     break;
 
@@ -657,6 +634,44 @@ namespace Ship_Game
 
                     DrawSelectedBuildingInfo(ref bCursor, batch, selectedBuilding);
                     break;
+            }
+        }
+
+        void DrawTilePopInfo(ref Vector2 cursor, SpriteBatch batch, PlanetGridSquare tile, int spacing = 5)
+        {
+            float popPerTile = P.BasePopPerTile * Player.PlayerEnvModifier(P.Category);
+            float popBonus   = tile.building?.MaxPopIncrease ?? 0;
+            cursor.Y += Font20.LineSpacing * spacing;
+            if (tile.Habitable && tile.Biosphere)
+            {
+                batch.DrawString(TextFont, $"{(P.PopPerBiosphere(Player) + popBonus).String(1)}" +
+                                         $" {MultiLineFormat(1897)}", cursor, Player.EmpireColor);
+
+                cursor.Y += Font20.LineSpacing;
+                if (tile.BioCanTerraform)
+                {
+                    batch.DrawString(TextFont, MultiLineFormat("This tile can be terraformed " +
+                            "as part of terraforming operations. The process will take more time due to " +
+                            "Biosphere Terraforming complexity."), cursor, Player.EmpireColor);
+
+                    cursor.Y += Font20.LineSpacing * 2;
+                }
+            }
+            else if (tile.Habitable)
+            {
+                batch.DrawString(TextFont, $"{(popPerTile + popBonus).String(1)} {MultiLineFormat(1898)}", cursor, Color.LightGreen);
+            }
+            else
+            {
+                string bioText = new LocalizedText(GameText.MillionColonistsCouldBeLiving).Text;
+                if (BioSpheresResearched && tile.CanTerraform)
+                {
+                    batch.DrawString(TextFont, "This tile can be terraformed as part of terraforming operations.", cursor, Player.EmpireColor);
+                    cursor.Y += Font20.LineSpacing;
+                    bioText += " However, building Biospheres here will complicate future terraforming efforts on the tile.";
+                }
+
+                batch.DrawString(TextFont, $"{(P.PopPerBiosphere(Player) + popBonus).String(1)} {MultiLineFormat(bioText)}", cursor, Color.Gold);
             }
         }
 
