@@ -876,8 +876,8 @@ namespace Ship_Game
                 case "Ship Experience Bonus": data.ExperienceMod += unlockedBonus.Bonus; break;
                 case "Kinetic Shield Penetration Chance Bonus": data.ShieldPenBonusChance += unlockedBonus.Bonus; break;
                 case "Tax Goods": data.Traits.TaxGoods = true; break;
-                // FB Minimum Troop Level Bonus
-                case "Minimum Troop Level": data.MinimumTroopLevel += (int)unlockedBonus.Bonus; break;
+                case "Smart Missiles": data.Traits.SmartMissiles = true; break; // Fb - Smart re target
+                case "Minimum Troop Level": data.MinimumTroopLevel += (int)unlockedBonus.Bonus; break; // FB Minimum Troop Level Bonus
             }
         }
 
