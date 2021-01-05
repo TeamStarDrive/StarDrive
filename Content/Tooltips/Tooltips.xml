@@ -1375,15 +1375,20 @@
       <Title>Imprecision</Title>
       <Data>1823</Data>
     </ToolTip>
-	<ToolTip>
-	  <TIP_ID>274</TIP_ID>
-	  <Title>Accuracy</Title>
-	  <Data>4114</Data>
-	</ToolTip>
-	<ToolTip>
-	  <TIP_ID>275</TIP_ID>
-	  <Title>TargetTracking</Title>
-	  <Data>5088</Data>
-	</ToolTip>
+  <ToolTip>
+    <TIP_ID>274</TIP_ID>
+    <Title>Accuracy</Title>
+    <Data>4114</Data>
+  </ToolTip>
+  <ToolTip>
+    <TIP_ID>275</TIP_ID>
+    <Title>TargetTracking</Title>
+    <Data>5088</Data>
+  </ToolTip>
+    <ToolTip>
+      <TIP_ID>276</TIP_ID>
+      <Title>Armor Pen</Title>
+      <Data>1830</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
