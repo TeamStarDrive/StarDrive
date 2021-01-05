@@ -96,10 +96,11 @@ namespace Ship_Game
         static void DrawStringRed(SpriteBatch batch, ref Vector2 cursorPos, string text, SpriteFont font = null)
         {
             if (font == null) 
-                font = Fonts.Arial8Bold;
+                font = Fonts.Arial10;
 
+            cursorPos.Y += 5;
             batch.DrawString(font, text, cursorPos, Color.Red);
-            cursorPos.X += font.TextWidth(text);
+            cursorPos.X += font.TextWidth(text)+2;
         }
 
         static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
@@ -599,7 +600,7 @@ namespace Ship_Game
             else if (wOrMirv.Excludes_Fighters || wOrMirv.Excludes_Corvettes || wOrMirv.Excludes_Capitals || wOrMirv.Excludes_Stations)
             {
                 WriteLine(ref cursor);
-                DrawStringRed(batch, ref cursor, "Cannot Target:", Fonts.Arial12Bold);
+                DrawStringRed(batch, ref cursor, "Cannot Target:", Fonts.Arial8Bold);
 
                 if (wOrMirv.Excludes_Fighters)  WriteLine(batch, ref cursor, "Fighters");
                 if (wOrMirv.Excludes_Corvettes) WriteLine(batch, ref cursor, "Corvettes");
@@ -622,7 +623,7 @@ namespace Ship_Game
 
         void WriteLine(SpriteBatch batch, ref Vector2 cursor, string text)
         {
-            batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
+            batch.DrawString(Fonts.Arial8Bold, text, cursor, Color.Wheat);
             WriteLine(ref cursor);
         }
 
