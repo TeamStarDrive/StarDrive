@@ -371,10 +371,10 @@ namespace Ship_Game
             }
             if (mod.explodes)
             {
-                //DrawString(batch, ref modTitlePos, "Explodes", mod.explodes);
                 DrawStatCustomColor(ref modTitlePos, 1998, mod.ExplosionDamage, 238, Color.Red, isPercent: false);
                 DrawStatCustomColor(ref modTitlePos, 1997, mod.ExplosionRadius / 16f, 239, Color.Red, isPercent: false);
             }
+
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), mod.EnergyResist, 190,  true);
             DrawStat(ref modTitlePos, Localizer.Token(6144), mod.GuidedResist, 191,  true);
