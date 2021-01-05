@@ -4715,6 +4715,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Shield Pen</Text>
     </Token>
     <Token>
+      <Index>1829</Index>
+      <Text>Armor Pen</Text>
+    </Token>
+    <Token>
+      <Index>1830</Index>
+      <Text>Armor Penetration enables this weapon to "bypass" armor on impact. The number indicates the size of the armor which can be penetrated (or combination of smaller sized armor). Some armor modules might have resistance to Armor Penetration. Golden color means that this value is modified from the original number.</Text>
+    </Token>
+    <Token>
+      <Index>1831</Index>
+      <Text>Blast Size</Text>
+    </Token>
+    <Token>
+      <Index>1832</Index>
+      <Text>The radius of the projectile's explosion. The number given is in slots. So 3 means 3 slots in every direction might be affected by the blast.</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
@@ -5276,11 +5292,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1995</Index>
-      <Text>The damage radius of this module's explosion, when it is destroyed. The radius will get smaller as modules nearby absorb the explosion</Text>
+      <Text>This modules explodes when destroyed, causing damage to nearby modules. The radius will get smaller as modules nearby absorb the explosion. The number is given as slots. So a Radius of 4 means around 4 slots will be affected from the explosion center.</Text>
     </Token>
     <Token>
       <Index>1996</Index>
-      <Text>The damage caused to nearby modules if this module explodes.</Text>
+      <Text>The damage caused to nearby modules when this module is destroyed. Note that modules which soak the explosion also reduce the explosion damage.</Text>
     </Token>
     <Token>
       <Index>1997</Index>
@@ -5424,7 +5440,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2031</Index>
-      <Text>Ballistic and Missile weapons will pass through the first small-sized armor module encountered. The armor will take no damage.</Text>
+      <Text>Kinetic projectiles will pass through the first small-sized armor module encountered. The armor will take no damage.</Text>
     </Token>
     <Token>
       <Index>2032</Index>
@@ -5436,7 +5452,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2034</Index>
-      <Text>Ballistic and Missile weapons will pass through up to three slots worth of armor.</Text>
+      <Text>Kinetic projectiles will pass through up to three slots worth of armor.</Text>
     </Token>
     <Token>
       <Index>2035</Index>
