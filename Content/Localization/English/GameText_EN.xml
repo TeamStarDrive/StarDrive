@@ -4715,6 +4715,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Shield Pen</Text>
     </Token>
     <Token>
+      <Index>1829</Index>
+      <Text>Armor Pen</Text>
+    </Token>
+    <Token>
+      <Index>1830</Index>
+      <Text>Armor Penetration enables this weapon to "bypass" armor on impact. The number indicates the size of the armor which can be penetrated (or combination of smaller sized armor). Some armor modules might have resistance to Armor Penetration. Golden color means that this value is modified from the original number.</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
@@ -5424,7 +5432,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2031</Index>
-      <Text>Ballistic and Missile weapons will pass through the first small-sized armor module encountered. The armor will take no damage.</Text>
+      <Text>Kinetic projectiles will pass through the first small-sized armor module encountered. The armor will take no damage.</Text>
     </Token>
     <Token>
       <Index>2032</Index>
@@ -5436,7 +5444,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2034</Index>
-      <Text>Ballistic and Missile weapons will pass through up to three slots worth of armor.</Text>
+      <Text>Kinetic projectiles will pass through up to three slots worth of armor.</Text>
     </Token>
     <Token>
       <Index>2035</Index>
