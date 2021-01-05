@@ -87,9 +87,20 @@ namespace Ship_Game
 
         static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, SpriteFont font = null)
         {
-            if (font == null) font = Fonts.Arial8Bold;
+            if (font == null) 
+                font = Fonts.Arial8Bold;
             batch.DrawString(font, text, cursorPos, Color.SpringGreen);
             cursorPos.X += font.TextWidth(text);
+        }
+
+        static void DrawStringRed(SpriteBatch batch, ref Vector2 cursorPos, string text, SpriteFont font = null)
+        {
+            if (font == null) 
+                font = Fonts.Arial10;
+
+            cursorPos.Y += 5;
+            batch.DrawString(font, text, cursorPos, Color.Red);
+            cursorPos.X += font.TextWidth(text)+2;
         }
 
         static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
@@ -371,10 +382,10 @@ namespace Ship_Game
             }
             if (mod.explodes)
             {
-                DrawString(batch, ref modTitlePos, "Explodes", mod.explodes);
-                DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
-                DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius / 16f, 239);
+                DrawStatCustomColor(ref modTitlePos, 1998, mod.ExplosionDamage, 238, Color.Red, isPercent: false);
+                DrawStatCustomColor(ref modTitlePos, 1997, mod.ExplosionRadius / 16f, 239, Color.Red, isPercent: false);
             }
+
             DrawStat(ref modTitlePos, Localizer.Token(6142), mod.KineticResist, 189, true);
             DrawStat(ref modTitlePos, Localizer.Token(6143), mod.EnergyResist, 190,  true);
             DrawStat(ref modTitlePos, Localizer.Token(6144), mod.GuidedResist, 191,  true);
@@ -494,7 +505,14 @@ namespace Ship_Game
                 DrawStat(ref cursor, "Duration", w.BeamDuration, 188);
             }
             else
+            {
                 DrawStat(ref cursor, Localizer.Token(127), isBallistic ? ballisticDamage : energyDamage, 83);
+            }
+
+            if (wOrMirv.explodes)
+            {
+                DrawStat(ref cursor, "Blast Rad", wOrMirv.DamageRadius / 16, 277);
+            }
 
             if (wOrMirv.TerminalPhaseAttack)
             {
@@ -551,18 +569,25 @@ namespace Ship_Game
 
             DrawResistancePercent(ref cursor, wOrMirv, "VS Armor", WeaponStat.Armor);
             DrawResistancePercent(ref cursor, wOrMirv, "VS Shield", WeaponStat.Shield);
-
-            float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance * 100 + wOrMirv.ShieldPenChance/100;
-            for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
+            if (!wOrMirv.TruePD)
             {
-                CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
+                int actualArmorPen = wOrMirv.ArmorPen + (wOrMirv.Tag_Kinetic ? EmpireManager.Player.data.ArmorPiercingBonus : 0);
+                if (actualArmorPen > wOrMirv.ArmorPen)
+                    DrawStatCustomColor(ref cursor, 1829, actualArmorPen, 276, Color.Gold, isPercent: false);
+                else
+                    DrawStat(ref cursor, "Armor Pen", actualArmorPen, 276);
+
+                float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance * 100 + wOrMirv.ShieldPenChance / 100;
+                for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
+                {
+                    CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
+                }
+
+                if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
+                    DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(100), 181, Color.Gold);
+                else
+                    DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), 181, isPercent: true);
             }
-
-            if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
-                DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(100), 181, Color.Gold, isPercent: true);
-            else
-                DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), 181, isPercent: true);
-
             DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
             DrawStat(ref cursor, Localizer.Token(6175), m.DamageThreshold, 221);
             if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(1992), m.RepairDifficulty, 241); // Complexity
@@ -570,21 +595,14 @@ namespace Ship_Game
             if (wOrMirv.TruePD)
             {
                 WriteLine(ref cursor);
-                DrawString(batch, ref cursor, "Cannot Target Ships" );
+                DrawStringRed(batch, ref cursor, "Cannot Target Ships");
             }
-            else
-            if (wOrMirv.Excludes_Fighters || wOrMirv.Excludes_Corvettes ||
-                wOrMirv.Excludes_Capitals || wOrMirv.Excludes_Stations)
+            else if (wOrMirv.Excludes_Fighters || wOrMirv.Excludes_Corvettes || wOrMirv.Excludes_Capitals || wOrMirv.Excludes_Stations)
             {
                 WriteLine(ref cursor);
-                DrawString(batch, ref cursor, "Cannot Target:");
+                DrawStringRed(batch, ref cursor, "Cannot Target:", Fonts.Arial8Bold);
 
-                if (wOrMirv.Excludes_Fighters)
-                {
-                    if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useDrones)
-                        WriteLine(batch, ref cursor, "Drones");
-                    WriteLine(batch, ref cursor, "Fighters");
-                }
+                if (wOrMirv.Excludes_Fighters)  WriteLine(batch, ref cursor, "Fighters");
                 if (wOrMirv.Excludes_Corvettes) WriteLine(batch, ref cursor, "Corvettes");
                 if (wOrMirv.Excludes_Capitals)  WriteLine(batch, ref cursor, "Capitals");
                 if (wOrMirv.Excludes_Stations)  WriteLine(batch, ref cursor, "Stations");
@@ -605,7 +623,7 @@ namespace Ship_Game
 
         void WriteLine(SpriteBatch batch, ref Vector2 cursor, string text)
         {
-            batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
+            batch.DrawString(Fonts.Arial8Bold, text, cursor, Color.Wheat);
             WriteLine(ref cursor);
         }
 
