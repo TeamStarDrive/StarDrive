@@ -1390,5 +1390,10 @@
       <Title>Armor Pen</Title>
       <Data>1830</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>277</TIP_ID>
+      <Title>Explosion Radius</Title>
+      <Data>1832</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
