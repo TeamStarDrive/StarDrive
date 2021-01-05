@@ -87,8 +87,18 @@ namespace Ship_Game
 
         static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, SpriteFont font = null)
         {
-            if (font == null) font = Fonts.Arial8Bold;
+            if (font == null) 
+                font = Fonts.Arial8Bold;
             batch.DrawString(font, text, cursorPos, Color.SpringGreen);
+            cursorPos.X += font.TextWidth(text);
+        }
+
+        static void DrawStringRed(SpriteBatch batch, ref Vector2 cursorPos, string text, SpriteFont font = null)
+        {
+            if (font == null) 
+                font = Fonts.Arial8Bold;
+
+            batch.DrawString(font, text, cursorPos, Color.Red);
             cursorPos.X += font.TextWidth(text);
         }
 
@@ -560,8 +570,8 @@ namespace Ship_Game
             DrawResistancePercent(ref cursor, wOrMirv, "VS Shield", WeaponStat.Shield);
             if (!wOrMirv.TruePD)
             {
-                int actualArmorPen = wOrMirv.ArmourPen + (wOrMirv.Tag_Kinetic ? EmpireManager.Player.data.ArmorPiercingBonus : 0);
-                if (actualArmorPen > wOrMirv.ArmourPen)
+                int actualArmorPen = wOrMirv.ArmorPen + (wOrMirv.Tag_Kinetic ? EmpireManager.Player.data.ArmorPiercingBonus : 0);
+                if (actualArmorPen > wOrMirv.ArmorPen)
                     DrawStatCustomColor(ref cursor, 1829, actualArmorPen, 276, Color.Gold, isPercent: false);
                 else
                     DrawStat(ref cursor, "Armor Pen", actualArmorPen, 276);
@@ -584,21 +594,14 @@ namespace Ship_Game
             if (wOrMirv.TruePD)
             {
                 WriteLine(ref cursor);
-                DrawString(batch, ref cursor, "Cannot Target Ships" );
+                DrawStringRed(batch, ref cursor, "Cannot Target Ships");
             }
-            else
-            if (wOrMirv.Excludes_Fighters || wOrMirv.Excludes_Corvettes ||
-                wOrMirv.Excludes_Capitals || wOrMirv.Excludes_Stations)
+            else if (wOrMirv.Excludes_Fighters || wOrMirv.Excludes_Corvettes || wOrMirv.Excludes_Capitals || wOrMirv.Excludes_Stations)
             {
                 WriteLine(ref cursor);
-                DrawString(batch, ref cursor, "Cannot Target:");
+                DrawStringRed(batch, ref cursor, "Cannot Target:", Fonts.Arial12Bold);
 
-                if (wOrMirv.Excludes_Fighters)
-                {
-                    if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useDrones)
-                        WriteLine(batch, ref cursor, "Drones");
-                    WriteLine(batch, ref cursor, "Fighters");
-                }
+                if (wOrMirv.Excludes_Fighters)  WriteLine(batch, ref cursor, "Fighters");
                 if (wOrMirv.Excludes_Corvettes) WriteLine(batch, ref cursor, "Corvettes");
                 if (wOrMirv.Excludes_Capitals)  WriteLine(batch, ref cursor, "Capitals");
                 if (wOrMirv.Excludes_Stations)  WriteLine(batch, ref cursor, "Stations");
@@ -619,7 +622,7 @@ namespace Ship_Game
 
         void WriteLine(SpriteBatch batch, ref Vector2 cursor, string text)
         {
-            batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
+            batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
             WriteLine(ref cursor);
         }
 

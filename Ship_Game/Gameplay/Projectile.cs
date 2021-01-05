@@ -211,7 +211,7 @@ namespace Ship_Game.Gameplay
             WeaponEffectType      = Weapon.WeaponEffectType;
             WeaponType            = Weapon.WeaponType;
             RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
-            ArmorPiercing         = Weapon.ArmourPen;
+            ArmorPiercing         = Weapon.ArmorPen;
             TrailTurnedOn         = !Weapon.Tag_Guided || Weapon.DelayedIgnition.AlmostZero();
 
             Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
