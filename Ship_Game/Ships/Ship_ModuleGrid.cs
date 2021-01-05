@@ -751,9 +751,9 @@ namespace Ship_Game.Ships
         // find ShipModules that collide with a this wide RAY
         // direction must be normalized!!
         // results are sorted by distance
-        // @warning Ignores shields!!
-        // @note Don't bother optimizing this. It's only used during armour piercing, which is super rare.
-        // @todo Align this with RayHitTestSingle
+        // warning Ignores shields!!
+        // This is also used to damage modules inline when excess damage remains
+        // todo Align this with RayHitTestSingle
         public Array<ShipModule> RayHitTestModules(
             Vector2 startPos, Vector2 direction, float distance, float rayRadius)
         {

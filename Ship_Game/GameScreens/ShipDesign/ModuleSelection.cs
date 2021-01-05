@@ -551,18 +551,25 @@ namespace Ship_Game
 
             DrawResistancePercent(ref cursor, wOrMirv, "VS Armor", WeaponStat.Armor);
             DrawResistancePercent(ref cursor, wOrMirv, "VS Shield", WeaponStat.Shield);
-
-            float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance * 100 + wOrMirv.ShieldPenChance/100;
-            for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
+            if (!wOrMirv.TruePD)
             {
-                CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
+                int actualArmorPen = wOrMirv.ArmourPen + (wOrMirv.Tag_Kinetic ? EmpireManager.Player.data.ArmorPiercingBonus : 0);
+                if (actualArmorPen > wOrMirv.ArmourPen)
+                    DrawStatCustomColor(ref cursor, 1829, actualArmorPen, 276, Color.Gold, isPercent: false);
+                else
+                    DrawStat(ref cursor, "Armor Pen", actualArmorPen, 276);
+
+                float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance * 100 + wOrMirv.ShieldPenChance / 100;
+                for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
+                {
+                    CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
+                }
+
+                if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
+                    DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(100), 181, Color.Gold);
+                else
+                    DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), 181, isPercent: true);
             }
-
-            if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
-                DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(100), 181, Color.Gold, isPercent: true);
-            else
-                DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), 181, isPercent: true);
-
             DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
             DrawStat(ref cursor, Localizer.Token(6175), m.DamageThreshold, 221);
             if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(1992), m.RepairDifficulty, 241); // Complexity

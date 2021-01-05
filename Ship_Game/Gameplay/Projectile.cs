@@ -211,7 +211,7 @@ namespace Ship_Game.Gameplay
             WeaponEffectType      = Weapon.WeaponEffectType;
             WeaponType            = Weapon.WeaponType;
             RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
-            ArmorPiercing         = (int)Weapon.ArmourPen;
+            ArmorPiercing         = Weapon.ArmourPen;
             TrailTurnedOn         = !Weapon.Tag_Guided || Weapon.DelayedIgnition.AlmostZero();
 
             Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
@@ -233,11 +233,8 @@ namespace Ship_Game.Gameplay
             InitialDuration = Duration = (Range/Speed + Weapon.DelayedIgnition) * durationMod;
             ParticleDelay  += Weapon.particleDelay;
 
-            if (Owner?.loyalty.data.ArmorPiercingBonus > 0
-                && (Weapon.Tag_Kinetic || Weapon.Tag_Missile || Weapon.Tag_Torpedo))
-            {
+            if (Owner?.loyalty.data.ArmorPiercingBonus > 0 && Weapon.Tag_Kinetic)
                 ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
-            }
 
             if (Weapon.IsRepairDrone)
             {
@@ -794,7 +791,7 @@ namespace Ship_Game.Gameplay
             // deduct that from the projectile's AP before starting AP and damage checks
             ArmorPiercing -= module.APResist;
 
-            if (ArmorPiercing <= 0 || !module.Is(ShipModuleType.Armor))
+            if (!module.Is(ShipModuleType.Armor) || ArmorPiercing < module.XSIZE)
             {
                 if (Explodes)
                 {
@@ -808,6 +805,7 @@ namespace Ship_Game.Gameplay
             if (DamageAmount <= 0f)
                 return;
 
+            ArmorPiercing -= module.XSIZE;
             var projectedModules = parent.RayHitTestModules(module.Center, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
 
             DebugTargetCircle();
@@ -819,10 +817,13 @@ namespace Ship_Game.Gameplay
 
                 if (ArmorPiercing > 0 && impactModule.Is(ShipModuleType.Armor))
                 {
-                    ArmorPiercing -= impactModule.XSIZE + impactModule.APResist; // armor is always squared anyway.
+                    ArmorPiercing -= impactModule.APResist; 
                     impactModule.DebugDamageCircle();
-                    if (ArmorPiercing >= 0)
+                    if (ArmorPiercing >= impactModule.XSIZE) // armor is always squared anyway.
+                    {
+                        ArmorPiercing -= impactModule.XSIZE;
                         continue; // Phase through this armor module (yikes!)
+                    }
                 }
 
                 impactModule.DebugDamageCircle();
