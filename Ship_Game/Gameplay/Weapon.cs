@@ -172,7 +172,7 @@ namespace Ship_Game.Gameplay
         public float MirvWarheads;
         public float MirvSeparationDistance;
         public string MirvWeapon;
-        public int ArmourPen = 0;
+        public int ArmorPen = 0;
         public string SecondaryFire;
         public bool AltFireMode;
         public bool AltFireTriggerFighter;
@@ -951,7 +951,7 @@ namespace Ship_Game.Gameplay
             //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
             off *= Tag_Guided ? 3f : 1f;
 
-            off *= 1 + ArmourPen * 0.2f;
+            off *= 1 + ArmorPen * 0.2f;
             // FB: simpler calcs for these.
             off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
             off *= EffectVsArmor < 1 ? 1f - (1f - EffectVsArmor) / 2f : 1f;
