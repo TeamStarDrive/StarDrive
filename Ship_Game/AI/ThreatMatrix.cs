@@ -161,7 +161,7 @@ namespace Ship_Game.AI
                     Empire pinEmpire = pin.GetEmpire();
                     if (pinEmpire == them && pin.Ship?.IsInBordersOf(us) == true)
                     {
-                        if (pin.Ship != null && (pin.Ship.System?.IsOnlyOwnedBy(us) ?? true))
+                        if (pin.Ship != null && (pin.Ship.System?.IsExclusivelyOwnedBy(us) ?? true))
                             str += pin.Strength;
                     }
                 }

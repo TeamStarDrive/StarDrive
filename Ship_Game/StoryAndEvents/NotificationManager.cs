@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -109,6 +110,28 @@ namespace Ship_Game
                 IconPath        = wasColonized.IconPath,
                 Action          = "SnapToPlanet"
             }, "sd_ui_notification_colonized_01");
+        }
+
+        public void AddTreatyBreak(Empire empire, TreatyType type)
+        {
+            string treaty;
+            switch (type)
+            {
+                case TreatyType.Alliance:      treaty = "Alliance";            break;
+                case TreatyType.OpenBorders:   treaty = "Open Borders Treaty"; break;
+                case TreatyType.Trade:         treaty = "Trade Treaty";        break;
+                case TreatyType.NonAggression: treaty = "Non-Aggression Pact"; break;
+                default:                       treaty ="";                     break;
+            }
+
+            if (treaty.IsEmpty())
+                return;
+
+            AddNotification(new Notification
+            {
+                RelevantEmpire = empire,
+                Message        = $"Our {treaty} with {empire.Name} was revoked.",
+            }, "sd_ui_notification_warning");
         }
 
         public void AddAnomalyInvestigated(Planet p, string message)

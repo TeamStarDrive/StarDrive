@@ -501,7 +501,7 @@ namespace Ship_Game
             ParentSystem.OwnerList.Clear();
             foreach (Planet planet in ParentSystem.PlanetList)
             {
-                if (planet.Owner != null && !ParentSystem.IsOwnedBy(planet.Owner))
+                if (planet.Owner != null && !ParentSystem.HasPlanetsOwnedBy(planet.Owner))
                     ParentSystem.OwnerList.Add(planet.Owner);
             }
 

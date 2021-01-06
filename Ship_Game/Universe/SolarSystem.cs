@@ -159,14 +159,17 @@ namespace Ship_Game
             PiratePresence = value;
         }
 
-        public bool IsOwnedBy(Empire empire)
+        /// <summary>
+        /// Checks if the empire has planets owned in this system. It might be the only owner here as well.
+        /// </summary>
+        public bool HasPlanetsOwnedBy(Empire empire)
         {
             return OwnerList.Contains(empire);
         }
 
-        public bool IsOnlyOwnedBy(Empire empire)
+        public bool IsExclusivelyOwnedBy(Empire empire)
         {
-            return IsOwnedBy(empire) && OwnerList.Count == 1;
+            return HasPlanetsOwnedBy(empire) && OwnerList.Count == 1;
         }
 
         float RadiationTimer;
