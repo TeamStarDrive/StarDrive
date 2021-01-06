@@ -41,7 +41,7 @@ namespace Ship_Game.Commands.Goals
 
                 // submit troop into queue
                 planet.Construction.Enqueue(troopTemplate, this);
-                if (RandomMath.RollDice(50 - troopRatio * 100))
+                if (RandomMath.RollDice(50 - troopRatio * 100) && !planet.HasColonyShipFirstInQueue())
                     planet.Construction.PrioritizeTroop();
 
                 PlanetBuildingAt = planet;

@@ -433,6 +433,9 @@ namespace Ship_Game
             Empire player     = EmpireManager.Player;
             switch (usToPlayer.StolenSystems.Count)
             {
+                case 0:
+                    Log.Warning("RespondPlayerStoleColony called with 0 stolen systems.");
+                    return;
                 case 1:
                     switch (Personality)
                     {
@@ -467,7 +470,7 @@ namespace Ship_Game
                         case PersonalityType.Xenophobic:
                         case PersonalityType.Honorable:
                         case PersonalityType.Cunning:
-                        case PersonalityType.Pacifist when usToPlayer.StolenSystems.Count >= 5:
+                        case PersonalityType.Pacifist when usToPlayer.StolenSystems.Count >= 4:
                             player.AddToDiplomacyContactView(this, "DECLAREWAR");
                             break;
                         case PersonalityType.Pacifist: 
@@ -477,6 +480,21 @@ namespace Ship_Game
 
                     break;
             }
+        }
+
+        public bool WeHaveTreatiesWith(Empire them)
+        {
+            Relationship rel = GetRelationsOrNull(them);
+
+            if (rel != null)
+            {
+                return rel.Treaty_NAPact
+                       || rel.Treaty_Trade
+                       || rel.Treaty_OpenBorders
+                       || rel.Treaty_Alliance;
+            }
+
+            return false;
         }
 
         void AddToDiplomacyContactView(Empire empire, string dialog)

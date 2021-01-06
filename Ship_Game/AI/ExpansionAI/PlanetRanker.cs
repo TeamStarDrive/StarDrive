@@ -35,7 +35,7 @@ namespace Ship_Game.AI.ExpansionAI
             PoorPlanet            = false;
             float rawValue        = planet.ColonyPotentialValue(empire);
 
-            if (!Planet.ParentSystem.IsOwnedBy(empire))
+            if (!Planet.ParentSystem.HasPlanetsOwnedBy(empire))
             {
                 DistanceMod = (planet.Center.Distance(empireCenter) / longestDistance * 10).Clamped(1, 10);
                 EnemyStrMod = (empire.KnownEnemyStrengthIn(planet.ParentSystem) / empire.OffensiveStrength * 10).Clamped(1, 10);
@@ -51,7 +51,7 @@ namespace Ship_Game.AI.ExpansionAI
         private static bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
         {
             if (s.OwnerList.Count == 0
-                || s.IsOnlyOwnedBy(ownerEmpire)
+                || s.IsExclusivelyOwnedBy(ownerEmpire)
                 || ownerEmpire.isFaction
                 || ownerEmpire.data?.DiplomaticPersonality == null)
             {

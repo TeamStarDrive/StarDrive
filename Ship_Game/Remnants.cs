@@ -422,7 +422,7 @@ namespace Ship_Game
             if (targetEmpire == null)
                 return false;
 
-            if (numBombers > 0 && currentPlanet.ParentSystem.IsOwnedBy(targetEmpire))
+            if (numBombers > 0 && currentPlanet.ParentSystem.HasPlanetsOwnedBy(targetEmpire))
             {
                 // Choose another planet owned by target empire in the same system
                 nextPlanet = currentPlanet.ParentSystem.PlanetList.Filter(p => p.Owner == targetEmpire).RandItem();
