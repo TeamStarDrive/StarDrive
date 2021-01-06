@@ -413,7 +413,7 @@ namespace Ship_Game
                             ToolTip.CreateTooltip(123);
                         ++num3;
 
-                        if (solarSystem.IsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
+                        if (solarSystem.HasPlanetsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;
@@ -501,7 +501,7 @@ namespace Ship_Game
                         ++num3;
 
 
-                        if (solarSystem.IsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
+                        if (solarSystem.HasPlanetsOwnedBy(EmpireManager.Player) && solarSystem.PlanetList.Any(p => p.SpaceCombatNearPlanet))
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;

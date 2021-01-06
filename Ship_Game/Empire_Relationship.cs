@@ -53,7 +53,27 @@ namespace Ship_Game
         // Break Bilateral treaty
         public void BreakTreatyWith(Empire them, TreatyType type)
         {
+            AddTreatyBreakNotification(them, type);
             SignBilateralTreaty(them, type, false);
+        }
+
+        void AddTreatyBreakNotification(Empire them, TreatyType type)
+        {
+            if (!them.isPlayer)
+                return;
+
+            bool notify;
+            switch (type)
+            {
+                case TreatyType.Alliance:      notify = IsAlliedWith(them);        break;
+                case TreatyType.OpenBorders:   notify = IsOpenBordersTreaty(them); break;
+                case TreatyType.Trade:         notify = IsTradeTreaty(them);       break;
+                case TreatyType.NonAggression: notify = IsNAPactWith(them);        break;
+                default:                       notify = false;                     break;
+            }
+
+            if (notify)
+                Universe.NotificationManager.AddTreatyBreak(this, type);
         }
 
         public void BreakAllTreatiesWith(Empire them, bool includingPeace = false)
@@ -407,9 +427,75 @@ namespace Ship_Game
             }
         }
 
+        public void RespondPlayerStoleColony(Relationship usToPlayer)
+        {
+            usToPlayer.Trust -= DifficultyModifiers.TrustLostStoleColony;
+            Empire player     = EmpireManager.Player;
+            switch (usToPlayer.StolenSystems.Count)
+            {
+                case 0:
+                    Log.Warning("RespondPlayerStoleColony called with 0 stolen systems.");
+                    return;
+                case 1:
+                    switch (Personality)
+                    {
+                        case PersonalityType.Xenophobic: BreakAllTreatiesWith(player);                 break;
+                        case PersonalityType.Honorable:  BreakTreatyWith(player, TreatyType.Alliance); break;
+                    }
+
+                    break;
+                case 2:
+                    switch (Personality)
+                    {
+                        case PersonalityType.Aggressive:
+                        case PersonalityType.Honorable:
+                        case PersonalityType.Cunning:
+                            BreakTreatyWith(player, TreatyType.Alliance); 
+                            BreakTreatyWith(player, TreatyType.OpenBorders); 
+                            break;
+                        case PersonalityType.Ruthless:
+                            BreakTreatyWith(player, TreatyType.Alliance);
+                            break;
+                        case PersonalityType.Xenophobic:
+                            player.AddToDiplomacyContactView(this, "DECLAREWAR");
+                            break;
+                    }
+
+                    break;
+                default: // 3 and above
+                    switch (Personality)
+                    {
+                        case PersonalityType.Aggressive: 
+                        case PersonalityType.Ruthless:
+                        case PersonalityType.Xenophobic:
+                        case PersonalityType.Honorable:
+                        case PersonalityType.Cunning:
+                        case PersonalityType.Pacifist when usToPlayer.StolenSystems.Count >= 4:
+                            player.AddToDiplomacyContactView(this, "DECLAREWAR");
+                            break;
+                        case PersonalityType.Pacifist: 
+                            BreakAllTreatiesWith(player);
+                            break;
+                    }
+
+                    break;
+            }
+        }
+
         void AddToDiplomacyContactView(Empire empire, string dialog)
         {
             DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
+        }
+
+        public float ColonizationDetectionChance(Relationship usToThem, Empire them)
+        {
+            int minChance = 0;
+            if (usToThem.Treaty_NAPact)      minChance = 1;
+            if (usToThem.Treaty_Trade)       minChance = 2;
+            if (usToThem.Treaty_OpenBorders) minChance = 4;
+
+            // Note - Allied parties will always detect colonization efforts since they share scan info.
+            return (GetSpyDefense() - them.GetSpyDefense()).LowerBound(minChance);
         }
     }
 }

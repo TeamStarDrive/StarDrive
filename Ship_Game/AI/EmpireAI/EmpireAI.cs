@@ -172,11 +172,10 @@ namespace Ship_Game.AI
                 return;
             }
 
-            // Xenophobic empires and non friendly aggressive empires will warn about claims
+            // Xenophobic empires will warn about claims
             // even if they decided to colonize a planet after another empire did so
-            bool warnAnyway = OwnerEmpire.IsXenophobic
-                              || OwnerEmpire.IsAggressive && (usToThem.Posture == Posture.Hostile || usToThem.Posture == Posture.Neutral);
-
+            bool warnAnyway       = OwnerEmpire.IsXenophobic && usToThem.Posture != Posture.Friendly;
+            float detectionChance = OwnerEmpire.ColonizationDetectionChance(usToThem, them);
             foreach (Goal ourGoal in ourColonizationGoals)
             {
                 var system = ourGoal.ColonizationTarget.ParentSystem;
@@ -184,18 +183,22 @@ namespace Ship_Game.AI
                     continue;
 
                 // Non allied empires will always warn if the system is exclusively owned by them
-                // and someone wants to colonized planets in that system
-                bool warnExclusive = !usToThem.Treaty_Alliance && system.IsOnlyOwnedBy(OwnerEmpire);
-                if (theirColonizationGoals.Any(g => g.ColonizationTarget.ParentSystem == system
-                                                                     && (warnAnyway || warnExclusive || ourGoal.StarDateAdded < g.StarDateAdded)))
+                bool warnExclusive = !usToThem.Treaty_Alliance && system.IsExclusivelyOwnedBy(OwnerEmpire);
+                foreach (Goal theirGoal in theirColonizationGoals)
                 {
-                    if (system.PlanetList.Any(p => p.Owner != null && p.Owner == them))
-                        continue; // They are already here
+                    if (theirGoal.ColonizationTarget.ParentSystem != ourGoal.ColonizationTarget.ParentSystem)
+                        continue;
 
-                    if (them.isPlayer)
-                        DiplomacyScreen.Show(OwnerEmpire, "Claim System", system);
+                    if (DetectAndWarn(theirGoal, warnExclusive))
+                    {
+                        if (system.HasPlanetsOwnedBy(them) && theirGoal.ColonizationTarget != ourGoal.ColonizationTarget && !warnAnyway)
+                            continue; // They already have colonies in this system and targeting a different planet
 
-                    usToThem.WarnedSystemsList.Add(system.guid);
+                        if (them.isPlayer)
+                            DiplomacyScreen.Show(OwnerEmpire, "Claim System", system);
+
+                        usToThem.WarnedSystemsList.AddUnique(system.guid);
+                    }
                 }
             }
 
@@ -203,6 +206,38 @@ namespace Ship_Game.AI
             {
                 planetList = empire.GetEmpireAI().ExpansionAI.GetColonizationGoals();
                 return planetList.Count > 0;
+            }
+
+            bool DetectAndWarn(Goal goal, bool warnExclusive)
+            {
+                if (!RandomMath.RollDice(detectionChance)
+                    && !goal.FinishedShip?.KnownByEmpires.KnownBy(OwnerEmpire) == true)
+                {
+                    return false;
+                }
+
+                // Detected their colonization efforts
+                if (warnExclusive || warnAnyway)
+                    return true;
+
+                // If they stole planets from us, we will value our targets more.
+                // If we have more planets then them, we will cut them some slack.
+                Planet p           = goal.ColonizationTarget;
+                float planetsRatio = (float)OwnerEmpire.GetPlanets().Count / them.GetPlanets().Count.LowerBound(1);
+                float valueForUs   = p.ColonyPotentialValue(OwnerEmpire) * usToThem.NumberStolenClaims;
+                float valueForThem = p.ColonyPotentialValue(them) * planetsRatio;
+                float ratio        = valueForUs / valueForThem.LowerBound(1);
+
+                switch (OwnerEmpire.Personality) //  Xenophobic will always warn
+                {
+                    case PersonalityType.Aggressive: return ratio > 0.7f;
+                    case PersonalityType.Ruthless:   return ratio > 0.6f;
+                    case PersonalityType.Xenophobic: return ratio > 0.5f;
+                    case PersonalityType.Cunning:    return ratio > 1;
+                    case PersonalityType.Pacifist:   return ratio > 1.25f;
+                    case PersonalityType.Honorable:  return ratio > 1f;
+                    default:                         return true;
+                }
             }
         }
 

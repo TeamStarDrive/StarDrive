@@ -37,7 +37,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep BuildProjector()
         {
-            if (Fleet == null || ColonizationTarget.ParentSystem.IsOwnedBy(empire))
+            if (Fleet == null || ColonizationTarget.ParentSystem.HasPlanetsOwnedBy(empire))
                 return GoalStep.GoalComplete;
 
             float distanceToDeploy = empire.GetProjectorRadius() * 0.8f;

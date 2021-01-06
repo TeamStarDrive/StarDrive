@@ -126,7 +126,7 @@ namespace Ship_Game.AI.ExpansionAI
             float ownerStrength  = Owner.OffensiveStrength;
             var ownedSystems     = Owner.GetOwnedSystems();
             var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
-                                                                         && !s.IsOwnedBy(Owner)
+                                                                         && !s.HasPlanetsOwnedBy(Owner)
                                                                          && s.PlanetList.Any(p => p.Habitable)
                                                                          && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength/4)
                                                                          && !s.OwnerList.Any(o=> !o.isFaction && Owner.IsAtWarWith(o))
@@ -250,21 +250,18 @@ namespace Ship_Game.AI.ExpansionAI
 
         public void CheckClaim(Empire thievingEmpire, Relationship thiefRelationship, Planet claimedPlanet)
         {
-            if (Owner.isPlayer || Owner.isFaction)
-                return;
-
-            if (!thiefRelationship.Known)
+            if (Owner.isPlayer || Owner.isFaction || !thiefRelationship.Known)
                 return;
 
             if (claimedPlanet.Owner != thievingEmpire || thiefRelationship.AtWar)
                 return;
 
-            thiefRelationship.StoleOurColonyClaim(Owner, claimedPlanet);
+            bool newTheft = false;
+            if (thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.guid))
+                thiefRelationship.StoleOurColonyClaim(Owner, claimedPlanet, out newTheft);
 
-            if (!thievingEmpire.isPlayer)
-                return;
-
-            thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);
+            if (thievingEmpire.isPlayer && newTheft)
+                thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);
         }
 
         public bool AssignExplorationTargetSystem(Ship ship, out SolarSystem targetSystem)
