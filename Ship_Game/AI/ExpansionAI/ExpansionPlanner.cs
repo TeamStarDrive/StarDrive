@@ -256,7 +256,9 @@ namespace Ship_Game.AI.ExpansionAI
             if (claimedPlanet.Owner != thievingEmpire || thiefRelationship.AtWar)
                 return;
 
-            thiefRelationship.StoleOurColonyClaim(Owner, claimedPlanet, out bool newTheft);
+            bool newTheft = false;
+            if (thiefRelationship.WarnedSystemsList.Contains(claimedPlanet.ParentSystem.guid))
+                thiefRelationship.StoleOurColonyClaim(Owner, claimedPlanet, out newTheft);
 
             if (thievingEmpire.isPlayer && newTheft)
                 thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);

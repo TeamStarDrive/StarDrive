@@ -737,12 +737,12 @@ namespace Ship_Game.Gameplay
                 return gain;
             }
 
-            float TrustMultiplier() // based on number of planet they stole from us
+            float TrustMultiplier() // Based on number of planet they stole from us
             {
-                if (NumberStolenClaims == 0)
+                if (NumberStolenClaims == 0 || !them.isPlayer) // AI has their internal trust gain
                     return 1;
 
-                float multiplier = 1f; // Hi
+                float multiplier = 1f; 
                 switch (us.Personality)
                 {
                     case PersonalityType.Aggressive: multiplier = 0.5f; break;
@@ -753,7 +753,7 @@ namespace Ship_Game.Gameplay
                     case PersonalityType.Pacifist:   multiplier = 1f;   break;
                 }
 
-                return multiplier / NumberStolenClaims.LowerBound(1);
+                return multiplier / NumberStolenClaims;
             }
         }
 

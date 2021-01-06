@@ -174,8 +174,8 @@ namespace Ship_Game.AI
 
             // Xenophobic empires will warn about claims
             // even if they decided to colonize a planet after another empire did so
-            bool warnAnyway   = OwnerEmpire.IsXenophobic && usToThem.Posture != Posture.Friendly;
-            bool haveTreaties = OwnerEmpire.WeHaveTreatiesWith(them);
+            bool warnAnyway       = OwnerEmpire.IsXenophobic && usToThem.Posture != Posture.Friendly;
+            float detectionChance = OwnerEmpire.ColonizationDetectionChance(usToThem, them);
             foreach (Goal ourGoal in ourColonizationGoals)
             {
                 var system = ourGoal.ColonizationTarget.ParentSystem;
@@ -189,32 +189,55 @@ namespace Ship_Game.AI
                     if (theirGoal.ColonizationTarget.ParentSystem != ourGoal.ColonizationTarget.ParentSystem)
                         continue;
 
-                    bool detectedGoal = haveTreaties || theirGoal.FinishedShip?.KnownByEmpires.KnownBy(OwnerEmpire) == true;
-                    if (detectedGoal)
+                    if (DetectAndWarn(theirGoal, warnExclusive))
                     {
                         if (system.HasPlanetsOwnedBy(them) && theirGoal.ColonizationTarget != ourGoal.ColonizationTarget && !warnAnyway)
-                            continue; // They already have colonies in this system
+                            continue; // They already have colonies in this system and targeting a different planet
 
-                        if (warnAnyway || warnExclusive || ourGoal.StarDateAdded < theirGoal.StarDateAdded)
-                            WarnThem(system);
-                        else if (OwnerEmpire.IsRuthless && ourGoal.StarDateAdded >= theirGoal.StarDateAdded)
-                            WarnThem(system); // Ruthless do not care about who claimed stuff first
+                        if (them.isPlayer)
+                            DiplomacyScreen.Show(OwnerEmpire, "Claim System", system);
+
+                        usToThem.WarnedSystemsList.AddUnique(system.guid);
                     }
                 }
-            }
-
-            void WarnThem(SolarSystem targetSystem)
-            {
-                if (them.isPlayer)
-                    DiplomacyScreen.Show(OwnerEmpire, "Claim System", targetSystem);
-
-                usToThem.WarnedSystemsList.Add(targetSystem.guid);
             }
 
             bool GetColonizationGoalsList(Empire empire, out Array<Goal> planetList)
             {
                 planetList = empire.GetEmpireAI().ExpansionAI.GetColonizationGoals();
                 return planetList.Count > 0;
+            }
+
+            bool DetectAndWarn(Goal goal, bool warnExclusive)
+            {
+                if (!RandomMath.RollDice(detectionChance)
+                    && !goal.FinishedShip?.KnownByEmpires.KnownBy(OwnerEmpire) == true)
+                {
+                    return false;
+                }
+
+                // Detected their colonization efforts
+                if (warnExclusive || warnAnyway)
+                    return true;
+
+                // If they stole planets from us, we will value our targets more.
+                // If we have more planets then them, we will cut them some slack.
+                Planet p           = goal.ColonizationTarget;
+                float planetsRatio = (float)OwnerEmpire.GetPlanets().Count / them.GetPlanets().Count.LowerBound(1);
+                float valueForUs   = p.ColonyPotentialValue(OwnerEmpire) * usToThem.NumberStolenClaims;
+                float valueForThem = p.ColonyPotentialValue(them) * planetsRatio;
+                float ratio        = valueForUs / valueForThem.LowerBound(1);
+
+                switch (OwnerEmpire.Personality) //  Xenophobic will always warn
+                {
+                    case PersonalityType.Aggressive: return ratio > 0.7f;
+                    case PersonalityType.Ruthless:   return ratio > 0.6f;
+                    case PersonalityType.Xenophobic: return ratio > 0.5f;
+                    case PersonalityType.Cunning:    return ratio > 1;
+                    case PersonalityType.Pacifist:   return ratio > 1.25f;
+                    case PersonalityType.Honorable:  return ratio > 1f;
+                    default:                         return true;
+                }
             }
         }
 
