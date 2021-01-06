@@ -172,11 +172,9 @@ namespace Ship_Game.AI
                 return;
             }
 
-            // Xenophobic empires and non friendly aggressive empires will warn about claims
+            // Xenophobic empires will warn about claims
             // even if they decided to colonize a planet after another empire did so
-            bool warnAnyway = OwnerEmpire.IsXenophobic
-                              || OwnerEmpire.IsAggressive && (usToThem.Posture == Posture.Hostile || usToThem.Posture == Posture.Neutral);
-
+            bool warnAnyway = OwnerEmpire.IsXenophobic;
             foreach (Goal ourGoal in ourColonizationGoals)
             {
                 var system = ourGoal.ColonizationTarget.ParentSystem;
@@ -184,19 +182,45 @@ namespace Ship_Game.AI
                     continue;
 
                 // Non allied empires will always warn if the system is exclusively owned by them
-                // and someone wants to colonized planets in that system
+                // and someone wants to colonize planets in that system
                 bool warnExclusive = !usToThem.Treaty_Alliance && system.IsOnlyOwnedBy(OwnerEmpire);
-                if (theirColonizationGoals.Any(g => g.ColonizationTarget.ParentSystem == system
-                                                                     && (warnAnyway || warnExclusive || ourGoal.StarDateAdded < g.StarDateAdded)))
+                foreach (Goal theirGoal in theirColonizationGoals)
                 {
-                    if (system.PlanetList.Any(p => p.Owner != null && p.Owner == them))
-                        continue; // They are already here
+                    if (theirGoal.ColonizationTarget.ParentSystem == ourGoal.ColonizationTarget.ParentSystem)
+                    {
+                        if (warnAnyway || warnExclusive)
+                        {
+                            WarnThem(system);
+                            return;
+                        }
 
-                    if (them.isPlayer)
-                        DiplomacyScreen.Show(OwnerEmpire, "Claim System", system);
+                        if (system.IsOwnedBy(them)
+                            || theirGoal.StarDateAdded < ourGoal.StarDateAdded
+                            || theirGoal.FinishedShip != null && ourGoal.FinishedShip == null)
+                        {
+                            // They already have colonies in this system or they claimed it before we did
+                            // or they have a ship on the way before us
+                            continue; 
+                        }
 
-                    usToThem.WarnedSystemsList.Add(system.guid);
+                        if (theirGoal.FinishedShip != null 
+                            && ourGoal.FinishedShip != null
+                            && ourGoal.FinishedShip.Center.Distance(ourGoal.ColonizationTarget.Center) < 
+                            theirGoal.FinishedShip.Center.Distance(theirGoal.ColonizationTarget.Center))
+                        {
+                            // Our ship is closer than theirs regardless of speed
+                            WarnThem(system);
+                        }
+                    }
                 }
+            }
+
+            void WarnThem(SolarSystem targetSystem)
+            {
+                if (them.isPlayer)
+                    DiplomacyScreen.Show(OwnerEmpire, "Claim System", targetSystem);
+
+                usToThem.WarnedSystemsList.Add(targetSystem.guid);
             }
 
             bool GetColonizationGoalsList(Empire empire, out Array<Goal> planetList)

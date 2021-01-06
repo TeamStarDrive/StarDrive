@@ -257,6 +257,7 @@ namespace Ship_Game.Gameplay
         {
             NumberStolenClaims++;
             AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
+            Trust -= owner.data.DiplomaticPersonality.Territorialism / 5f;
             StolenSystems.AddUnique(claimedPlanet.ParentSystem.guid);
         }
 
@@ -279,7 +280,9 @@ namespace Ship_Game.Gameplay
 
             if (newTheft || !HaveWarnedThrice)
                 DiplomacyScreen.Stole3rdColonyClaim(claimedPlanet, victim);
+
             HaveWarnedThrice = true;
+            victim.RespondPlayerStoleColony(this);
         }
 
         public void DamageRelationship(Empire us, Empire them, string why, float amount, Planet p)
@@ -681,30 +684,31 @@ namespace Ship_Game.Gameplay
             }
 
             TrustEntries.ApplyPendingRemovals();
-
+            float trustToAdd = 0;
             switch (Posture)
             {
-                case Posture.Friendly:                      Trust += personality.TrustGainedAtPeace;     break;
-                case Posture.Neutral when !us.IsXenophobic: Trust += personality.TrustGainedAtPeace / 2; break;
-                case Posture.Hostile when !us.IsXenophobic: Trust += personality.TrustGainedAtPeace / 5; break;
-                case Posture.Hostile:                                                                    return;
+                case Posture.Friendly:                      trustToAdd += personality.TrustGainedAtPeace;     break;
+                case Posture.Neutral when !us.IsXenophobic: trustToAdd += personality.TrustGainedAtPeace / 2; break;
+                case Posture.Hostile when !us.IsXenophobic: trustToAdd += personality.TrustGainedAtPeace / 5; break;
+                case Posture.Hostile:                                                                         return;
             }
 
-            float trustGain = getTrustGain();
-            if (Treaty_NAPact) Trust      += trustGain;
-            if (Treaty_OpenBorders) Trust += trustGain;
-            if (Treaty_Trade) Trust       += trustGain;
+            float trustGain = GetTrustGain();
+            if (Treaty_NAPact)      trustToAdd += trustGain;
+            if (Treaty_OpenBorders) trustToAdd += trustGain;
+            if (Treaty_Trade)       trustToAdd += trustGain;
 
             if (us.IsXenophobic
                 && them.GetPlanets().Count >  us.GetPlanets().Count * 1.2f )
             {
-                Trust -= 0.1f;
+                trustToAdd -= 0.1f;
             }
 
-            TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
+            Trust        += trustToAdd * TrustMultiplier();
             Trust        = Trust.Clamped(0, Treaty_Alliance ? 150 : 100);
+            TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
 
-            float getTrustGain()
+            float GetTrustGain()
             {
                 float gain = 0.0125f;
 
@@ -741,6 +745,25 @@ namespace Ship_Game.Gameplay
                 }
 
                 return gain;
+            }
+
+            float TrustMultiplier() // based on number of planet they stole from us
+            {
+                if (NumberStolenClaims == 0)
+                    return 1;
+
+                float multiplier = 1f; // Hi
+                switch (us.Personality)
+                {
+                    case PersonalityType.Aggressive: multiplier = 0.5f; break;
+                    case PersonalityType.Ruthless:   multiplier = 0.6f; break;
+                    case PersonalityType.Xenophobic: multiplier = 0.1f; break;
+                    case PersonalityType.Cunning:    multiplier = 0.8f; break;
+                    case PersonalityType.Honorable:  multiplier = 0.4f; break;
+                    case PersonalityType.Pacifist:   multiplier = 1f;   break;
+                }
+
+                return multiplier / NumberStolenClaims.LowerBound(1);
             }
         }
 

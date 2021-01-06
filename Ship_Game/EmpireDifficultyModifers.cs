@@ -25,6 +25,7 @@
         public readonly float RemnantResourceMod; // Multiplier to Remnant Prod generation
         public readonly float RemnantNumBombers; // Multiplier to Remnant bombers wanted
         public readonly int StandByColonyShips;
+        public readonly int TrustLostStoleColony; // Vs players
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -74,6 +75,7 @@
                     BaseColonyGoals      = 2;
                     ColonyGoalMultiplier = 0;
                     StandByColonyShips   = 1;
+                    TrustLostStoleColony = 0;
 
                     if (!empire.isPlayer)
                     {
@@ -106,6 +108,7 @@
                     BaseColonyGoals      = 3;
                     ColonyGoalMultiplier = 0.5f;
                     StandByColonyShips   = 2;
+                    TrustLostStoleColony = 5;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -128,6 +131,7 @@
                     BaseColonyGoals      = 4;
                     ColonyGoalMultiplier = 0.75f;
                     StandByColonyShips   = 3;
+                    TrustLostStoleColony = 10;
 
                     if (!empire.isPlayer)
                     {
@@ -161,6 +165,7 @@
                     BaseColonyGoals      = 5;
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 3;
+                    TrustLostStoleColony = 15;
 
                     if (!empire.isPlayer)
                     {
