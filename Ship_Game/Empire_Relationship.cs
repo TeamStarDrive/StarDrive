@@ -53,11 +53,11 @@ namespace Ship_Game
         // Break Bilateral treaty
         public void BreakTreatyWith(Empire them, TreatyType type)
         {
+            AddTreatyBreakNotification(them, type);
             SignBilateralTreaty(them, type, false);
-            NotifyTreatyBreak(them, type);
         }
 
-        void NotifyTreatyBreak(Empire them, TreatyType type)
+        void AddTreatyBreakNotification(Empire them, TreatyType type)
         {
             if (!them.isPlayer)
                 return;
@@ -482,24 +482,20 @@ namespace Ship_Game
             }
         }
 
-        public bool WeHaveTreatiesWith(Empire them)
-        {
-            Relationship rel = GetRelationsOrNull(them);
-
-            if (rel != null)
-            {
-                return rel.Treaty_NAPact
-                       || rel.Treaty_Trade
-                       || rel.Treaty_OpenBorders
-                       || rel.Treaty_Alliance;
-            }
-
-            return false;
-        }
-
         void AddToDiplomacyContactView(Empire empire, string dialog)
         {
             DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
+        }
+
+        public float ColonizationDetectionChance(Relationship usToThem, Empire them)
+        {
+            int minChance = 0;
+            if (usToThem.Treaty_NAPact)      minChance = 1;
+            if (usToThem.Treaty_Trade)       minChance = 2;
+            if (usToThem.Treaty_OpenBorders) minChance = 4;
+
+            // Note - Allied parties will always detect colonization efforts since they share scan info.
+            return (GetSpyDefense() - them.GetSpyDefense()).LowerBound(minChance);
         }
     }
 }
