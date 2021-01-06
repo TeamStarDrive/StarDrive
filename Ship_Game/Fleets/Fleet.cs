@@ -597,11 +597,10 @@ namespace Ship_Game.Fleets
             if (task.TargetEmpire == null)
                 task.TargetEmpire = Owner.GetEmpireAI().ThreatMatrix.GetDominantEmpireInSystem(targetPlanet.ParentSystem);
 
-            if (EndInvalidTask(!StillInvasionEffective(task) || !StillCombatEffective(task)))
-                return;
-
             if (EndInvalidTask(!eventBuildingFound
-                               || targetPlanet.Owner != null && targetPlanet.Owner != Owner && !Owner.IsEmpireAttackable(targetPlanet.Owner)))
+                               || targetPlanet.Owner != null && !Owner.IsAtWarWith(targetPlanet.Owner)
+                               || !StillInvasionEffective(task)
+                               || !StillCombatEffective(task)))
             {
                 return;
             }
