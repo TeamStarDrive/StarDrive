@@ -54,8 +54,11 @@ namespace Ship_Game.Commands.Goals
             if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
+            var queue    = planet.Construction.GetConstructionQueue();
+            int priority = queue.Count > 0 && !planet.HasColonyShipFirstInQueue() && queue[0].ProductionNeeded > scout.GetCost(empire) * 2 ? 0 : 1;
+
             planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
-            planet.Construction.PrioritizeShip(scout, 1, 2);
+            planet.Construction.PrioritizeShip(scout, priority, 2);
 
             return GoalStep.GoToNextStep;
         }

@@ -174,7 +174,8 @@ namespace Ship_Game.AI
 
             // Xenophobic empires will warn about claims
             // even if they decided to colonize a planet after another empire did so
-            bool warnAnyway = OwnerEmpire.IsXenophobic;
+            bool warnAnyway   = OwnerEmpire.IsXenophobic && usToThem.Posture != Posture.Friendly;
+            bool haveTreaties = OwnerEmpire.WeHaveTreatiesWith(them);
             foreach (Goal ourGoal in ourColonizationGoals)
             {
                 var system = ourGoal.ColonizationTarget.ParentSystem;
@@ -182,35 +183,22 @@ namespace Ship_Game.AI
                     continue;
 
                 // Non allied empires will always warn if the system is exclusively owned by them
-                // and someone wants to colonize planets in that system
-                bool warnExclusive = !usToThem.Treaty_Alliance && system.IsOnlyOwnedBy(OwnerEmpire);
+                bool warnExclusive = !usToThem.Treaty_Alliance && system.IsExclusivelyOwnedBy(OwnerEmpire);
                 foreach (Goal theirGoal in theirColonizationGoals)
                 {
-                    if (theirGoal.ColonizationTarget.ParentSystem == ourGoal.ColonizationTarget.ParentSystem)
+                    if (theirGoal.ColonizationTarget.ParentSystem != ourGoal.ColonizationTarget.ParentSystem)
+                        continue;
+
+                    bool detectedGoal = haveTreaties || theirGoal.FinishedShip?.KnownByEmpires.KnownBy(OwnerEmpire) == true;
+                    if (detectedGoal)
                     {
-                        if (warnAnyway || warnExclusive)
-                        {
-                            WarnThem(system);
-                            return;
-                        }
+                        if (system.HasPlanetsOwnedBy(them) && theirGoal.ColonizationTarget != ourGoal.ColonizationTarget && !warnAnyway)
+                            continue; // They already have colonies in this system
 
-                        if (system.IsOwnedBy(them)
-                            || theirGoal.StarDateAdded < ourGoal.StarDateAdded
-                            || theirGoal.FinishedShip != null && ourGoal.FinishedShip == null)
-                        {
-                            // They already have colonies in this system or they claimed it before we did
-                            // or they have a ship on the way before us
-                            continue; 
-                        }
-
-                        if (theirGoal.FinishedShip != null 
-                            && ourGoal.FinishedShip != null
-                            && ourGoal.FinishedShip.Center.Distance(ourGoal.ColonizationTarget.Center) < 
-                            theirGoal.FinishedShip.Center.Distance(theirGoal.ColonizationTarget.Center))
-                        {
-                            // Our ship is closer than theirs regardless of speed
+                        if (warnAnyway || warnExclusive || ourGoal.StarDateAdded < theirGoal.StarDateAdded)
                             WarnThem(system);
-                        }
+                        else if (OwnerEmpire.IsRuthless && ourGoal.StarDateAdded >= theirGoal.StarDateAdded)
+                            WarnThem(system); // Ruthless do not care about who claimed stuff first
                     }
                 }
             }

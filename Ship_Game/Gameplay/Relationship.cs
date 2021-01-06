@@ -253,35 +253,25 @@ namespace Ship_Game.Gameplay
             return lostSystems.ToArray();
         }
 
-        public void StoleOurColonyClaim(Empire owner, Planet claimedPlanet)
+        public void StoleOurColonyClaim(Empire owner, Planet claimedPlanet, out bool newTheft)
         {
             NumberStolenClaims++;
             AddAngerTerritorialConflict(5f + (float)Math.Pow(5, NumberStolenClaims));
             Trust -= owner.data.DiplomaticPersonality.Territorialism / 5f;
+            newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.guid);
             StolenSystems.AddUnique(claimedPlanet.ParentSystem.guid);
         }
 
         public void WarnClaimThiefPlayer(Planet claimedPlanet, Empire victim)
         {
-            bool newTheft = !StolenSystems.Contains(claimedPlanet.ParentSystem.guid);
-
-            if (newTheft && !HaveWarnedTwice)
+            switch (StolenSystems.Count)
             {
-                DiplomacyScreen.Stole1stColonyClaim(claimedPlanet, victim);
-                return;
+                case 0:                                                                                      return;
+                case 1: DiplomacyScreen.Stole1stColonyClaim(claimedPlanet, victim);                          break;
+                case 2: DiplomacyScreen.Stole2ndColonyClaim(claimedPlanet, victim); HaveWarnedTwice  = true; break;
+                case 3: DiplomacyScreen.Stole3rdColonyClaim(claimedPlanet, victim); HaveWarnedThrice = true; break;
             }
 
-            if (!HaveWarnedTwice)
-            {
-                DiplomacyScreen.Stole2ndColonyClaim(claimedPlanet, victim);
-                HaveWarnedTwice = true;
-                return;
-            }
-
-            if (newTheft || !HaveWarnedThrice)
-                DiplomacyScreen.Stole3rdColonyClaim(claimedPlanet, victim);
-
-            HaveWarnedThrice = true;
             victim.RespondPlayerStoleColony(this);
         }
 
@@ -705,7 +695,7 @@ namespace Ship_Game.Gameplay
             }
 
             Trust        += trustToAdd * TrustMultiplier();
-            Trust        = Trust.Clamped(0, Treaty_Alliance ? 150 : 100);
+            Trust        = Trust.Clamped(-50, Treaty_Alliance ? 150 : 100);
             TurnsAbove95 = Trust > 95 ? TurnsAbove95 + 1 : 0;
 
             float GetTrustGain()
@@ -1644,7 +1634,6 @@ namespace Ship_Game.Gameplay
 
             ChangeToHostile();
         }
-
 
         public void SetAlliance(bool ally, Empire us, Empire them)
         {

@@ -130,7 +130,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire = empire,
-                Message        = $"{treaty} was canceled by {empire.Name}",
+                Message        = $"Our {treaty} with {empire.Name} was revoked.",
             }, "sd_ui_notification_warning");
         }
 

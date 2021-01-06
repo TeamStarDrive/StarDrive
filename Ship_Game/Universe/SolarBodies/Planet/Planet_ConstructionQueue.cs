@@ -221,5 +221,10 @@ namespace Ship_Game
             }
             return cost;
         }
+
+        public bool HasColonyShipFirstInQueue()
+        {
+            return ConstructionQueue.Count > 0 && ConstructionQueue[0].Goal?.type == GoalType.Colonize;
+        }
     }
 }
