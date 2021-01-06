@@ -407,6 +407,58 @@ namespace Ship_Game
             }
         }
 
+        public void RespondPlayerStoleColony(Relationship usToPlayer)
+        {
+            usToPlayer.Trust -= DifficultyModifiers.TrustLostStoleColony;
+            Empire player     = EmpireManager.Player;
+            switch (usToPlayer.StolenSystems.Count)
+            {
+                case 1:
+                    switch (Personality)
+                    {
+                        case PersonalityType.Xenophobic: BreakAllTreatiesWith(player);                 break;
+                        case PersonalityType.Honorable:  BreakTreatyWith(player, TreatyType.Alliance); break;
+                    }
+
+                    break;
+                case 2:
+                    switch (Personality)
+                    {
+                        case PersonalityType.Aggressive:
+                        case PersonalityType.Honorable:
+                        case PersonalityType.Cunning:
+                            BreakTreatyWith(player, TreatyType.Alliance); 
+                            BreakTreatyWith(player, TreatyType.OpenBorders); 
+                            break;
+                        case PersonalityType.Ruthless:
+                            BreakTreatyWith(player, TreatyType.Alliance);
+                            break;
+                        case PersonalityType.Xenophobic:
+                            player.AddToDiplomacyContactView(this, "DECLAREWAR");
+                            break;
+                    }
+
+                    break;
+                default: // 3 and above
+                    switch (Personality)
+                    {
+                        case PersonalityType.Aggressive: 
+                        case PersonalityType.Ruthless:
+                        case PersonalityType.Xenophobic:
+                        case PersonalityType.Honorable:
+                        case PersonalityType.Cunning:
+                        case PersonalityType.Pacifist when usToPlayer.StolenSystems.Count >= 5:
+                            player.AddToDiplomacyContactView(this, "DECLAREWAR");
+                            break;
+                        case PersonalityType.Pacifist: 
+                            BreakAllTreatiesWith(player);
+                            break;
+                    }
+
+                    break;
+            }
+        }
+
         void AddToDiplomacyContactView(Empire empire, string dialog)
         {
             DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
