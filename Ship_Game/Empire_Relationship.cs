@@ -54,6 +54,26 @@ namespace Ship_Game
         public void BreakTreatyWith(Empire them, TreatyType type)
         {
             SignBilateralTreaty(them, type, false);
+            NotifyTreatyBreak(them, type);
+        }
+
+        void NotifyTreatyBreak(Empire them, TreatyType type)
+        {
+            if (!them.isPlayer)
+                return;
+
+            bool notify;
+            switch (type)
+            {
+                case TreatyType.Alliance:      notify = IsAlliedWith(them);        break;
+                case TreatyType.OpenBorders:   notify = IsOpenBordersTreaty(them); break;
+                case TreatyType.Trade:         notify = IsTradeTreaty(them);       break;
+                case TreatyType.NonAggression: notify = IsNAPactWith(them);        break;
+                default:                       notify = false;                     break;
+            }
+
+            if (notify)
+                Universe.NotificationManager.AddTreatyBreak(this, type);
         }
 
         public void BreakAllTreatiesWith(Empire them, bool includingPeace = false)
