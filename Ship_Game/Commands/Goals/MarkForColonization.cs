@@ -90,7 +90,7 @@ namespace Ship_Game.Commands.Goals
                 empireAi.AddPendingTask(task);
                 empireAi.Goals.Add(new StandbyColonyShip(empire));
             }
-            else if (!ColonizationTarget.ParentSystem.IsOwnedBy(empire)
+            else if (!ColonizationTarget.ParentSystem.HasPlanetsOwnedBy(empire)
                      && empire.GetFleetsDict().FilterValues(f => f.FleetTask?.TargetPlanet?.ParentSystem == ColonizationTarget.ParentSystem).Length == 0)
             {
                 var task = MilitaryTask.CreateGuardTask(empire, ColonizationTarget);

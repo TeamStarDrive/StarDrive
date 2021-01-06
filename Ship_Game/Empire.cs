@@ -988,7 +988,7 @@ namespace Ship_Game
             if (p.TilesList.Any(t => t.EventOnTile))
                 EmpireAI.SendExplorationFleet(p);
 
-            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsOnlyOwnedBy(this))
+            if (CurrentGame.Difficulty <= UniverseData.GameDifficulty.Normal || p.ParentSystem.IsExclusivelyOwnedBy(this))
                 return;
 
             if (PlanetRanker.IsGoodValueForUs(p, this) && KnownEnemyStrengthIn(p.ParentSystem).AlmostZero())
@@ -1620,7 +1620,7 @@ namespace Ship_Game
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem system = UniverseScreen.SolarSystemList[i];
-                if (!system.IsOwnedBy(EmpireManager.Player) || GlobalStats.NotifyEnemyInSystemAfterLoad)
+                if (!system.HasPlanetsOwnedBy(EmpireManager.Player) || GlobalStats.NotifyEnemyInSystemAfterLoad)
                 {
                     HostilesLogged.Add(system, false);
                     continue;

@@ -705,7 +705,7 @@ namespace Ship_Game
             {
                 return (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) 
                        && ship.IsInWarp 
-                       && (ship.System == null || !ship.System.IsOwnedBy(ship.loyalty));
+                       && (ship.System == null || !ship.System.HasPlanetsOwnedBy(ship.loyalty));
             }
 
             bool IsCombatShipAtWarp(Ship ship)
