@@ -63,6 +63,7 @@ namespace Ship_Game
                     MakeCombatDecisions();
                     DecisionTimer = 0.5f;
                 }
+
                 DoBuildingTimers(timeStep);
                 DoTroopTimers(timeStep);
             }
@@ -330,18 +331,17 @@ namespace Ship_Game
                 }
         }
 
-        private void ResolveDiplomacy(int invadingForces, Empire invadingEmpire)
+        private void ResolveDiplomacy(int invadingForces, Array<Empire> invadingEmpires)
         {
-            if (invadingForces <= NumInvadersLast || NumInvadersLast != 0)
+            if (Owner == null || invadingForces <= NumInvadersLast || invadingEmpires.Count == 0)
                 return; // FB - nothing to change if no new troops invade
 
             Empire player = Empire.Universe.PlayerEmpire;
-
             if (Owner.isPlayer) // notify player of invasion
             {
-                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(Ground, invadingEmpire, Owner);
+                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(Ground, invadingEmpires[0], Owner);
             }
-            else if (invadingEmpire.isPlayer && !Owner.isFaction && !player.IsAtWarWith(Owner))
+            else if (invadingEmpires.Any(e => e.isPlayer) && !Owner.isFaction && !player.IsAtWarWith(Owner))
             {
                 if (player.IsNAPactWith(Owner))
                 {
@@ -377,17 +377,66 @@ namespace Ship_Game
                 InCombatTimer = 10f;
 
             ActiveCombats.ApplyPendingRemovals();
-            if (NoTroopsOnPlanet || Owner == null)
+            if (NoTroopsOnPlanet)
                 return;
 
             var forces = new Forces(Owner, TilesList);
-            ResolveDiplomacy(forces.InvadingForces, forces.InvadingEmpire);
+            ResolveDiplomacy(forces.InvadingForces, forces.InvadingEmpires);
             NumInvadersLast = forces.InvadingForces;
 
-            if (forces.InvadingForces <= 0 || forces.DefendingForces != 0)
-                return; // Planet is still fighting or all invading forces are destroyed
+            if (forces.InvadingForces > 0 && forces.DefendingForces == 0) // Invaders have won
+                DetermineNewOwnerAndChangeOwnership(forces.InvadingEmpires);
 
-            Ground.ChangeOwnerByInvasion(forces.InvadingEmpire, Ground.Level);
+            if (forces.DefendingForces > 0 && forces.InvadingForces == 0) // Defenders have won
+            {
+                Ground.LaunchNonOwnerTroops();
+                IncreaseTrustAlliesWon(Owner, forces.DefendingEmpires);
+            }
+        }
+
+        void DetermineNewOwnerAndChangeOwnership(Array<Empire> empires)
+        {
+            Empire newOwner = null;
+            switch (empires.Count)
+            {
+                case 0:                        return;
+                case 1: newOwner = empires[0]; break;
+                default: // more than one invading empire
+                    float highestStr = float.MinValue;
+                    for (int i = 0; i < empires.Count; i++)
+                    {
+                        Empire e  = empires[i];
+                        float str = GroundStrength(e);
+                        if (str > highestStr)
+                        {
+                            highestStr = str;
+                            newOwner   = e;
+                        }
+                    }
+
+                    break;
+            }
+
+            if (Owner != null)
+                Ground.ChangeOwnerByInvasion(newOwner, Ground.Level);
+
+            IncreaseTrustAlliesWon(newOwner, empires);
+        }
+
+        void IncreaseTrustAlliesWon(Empire newOwner, Array<Empire> empires)
+        {
+            if (newOwner == null || newOwner.isPlayer)
+                return;
+
+            for (int i = 0; i < empires.Count; i++)
+            {
+                Empire e = empires[i];
+                if (e != newOwner)
+                {
+                    Relationship rel = newOwner.GetRelations(e);
+                    rel.Trust += newOwner.data.DiplomaticPersonality.Territorialism / 5f;
+                }
+            }
         }
 
         public float GroundStrength(Empire empire)
@@ -517,13 +566,16 @@ namespace Ship_Game
         {
             public readonly int DefendingForces;
             public readonly int InvadingForces;
-            public readonly Empire InvadingEmpire;
+            public readonly Array<Empire> InvadingEmpires;
+            public readonly Array<Empire> DefendingEmpires;
 
-            public Forces(Empire defendingEmpire, Array<PlanetGridSquare> tileList)
+            public Forces(Empire planetOwner, Array<PlanetGridSquare> tileList)
             {
-                DefendingForces = 0;
-                InvadingForces  = 0;
-                InvadingEmpire  = null;
+                DefendingForces  = 0;
+                InvadingForces   = 0;
+                InvadingEmpires  = new Array<Empire>();
+                DefendingEmpires = new Array<Empire>();
+
                 for (int i = 0; i < tileList.Count; i++)
                 {
                     PlanetGridSquare tile = tileList[i];
@@ -533,15 +585,19 @@ namespace Ship_Game
                         Troop troop = troops[x];
                         if (troop != null)
                         {
-                            if (troop.Loyalty != null && troop.Loyalty != defendingEmpire)
+                            if (troop.Loyalty != null
+                                && troop.Loyalty != planetOwner
+                                && !troop.Loyalty.isFaction
+                                && !troop.Loyalty.IsAlliedWith(planetOwner))
                             {
                                 ++InvadingForces;
-                                // This is broken. Multiple invading empire will switch this over and over
-                                // making this value unpredictable.
-                                InvadingEmpire = troop.Loyalty; 
+                                InvadingEmpires.AddUnique(troop.Loyalty);
                             }
                             else
+                            {
                                 ++DefendingForces;
+                                DefendingEmpires.AddUnique(troop.Loyalty);
+                            }
                         }
                     }
 

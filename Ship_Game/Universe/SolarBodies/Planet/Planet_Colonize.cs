@@ -19,7 +19,7 @@ namespace Ship_Game
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
             ResetGarrisonSize();
-            NewColonyAffectPresentTroops();
+            LaunchNonOwnerTroops();
             NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
@@ -51,7 +51,7 @@ namespace Ship_Game
             }
         }
 
-        void NewColonyAffectPresentTroops()
+        public void LaunchNonOwnerTroops()
         {
             bool troopsRemoved       = false;
             bool playerTroopsRemoved = false;
