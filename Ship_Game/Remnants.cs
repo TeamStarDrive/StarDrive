@@ -273,7 +273,7 @@ namespace Ship_Game
             switch (Story)
             {
                 case RemnantStory.AncientBalancers:
-                    target = FindStrongestByAverageScore(empiresList);
+                    target = FindStrongestByAveragePop(empiresList);
                     break;
                 case RemnantStory.AncientExterminators: 
                     target = empiresList.FindMin(e => e.CurrentMilitaryStrength);
@@ -303,15 +303,15 @@ namespace Ship_Game
             return expectedTarget == currentTarget;
         }
 
-        Empire FindStrongestByAverageScore(Empire[] empiresList)
+        Empire FindStrongestByAveragePop(Empire[] empiresList)
         {
             if (empiresList.Length == 1)
                 return empiresList.First();
 
-            var averageScore  = empiresList.Average(e => e.TotalScore);
-            Empire bestEmpire = empiresList.FindMax(e => e.TotalScore);
+            var averagePop    = empiresList.Average(e => e.GetTotalPop(out _));
+            Empire bestEmpire = empiresList.FindMax(e => e.GetTotalPop(out _));
 
-            return bestEmpire.TotalScore > averageScore * 1.25f ? bestEmpire : null;
+            return bestEmpire.GetTotalPop(out _) > averagePop * 1.25f ? bestEmpire : null;
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, float neededStr, out Array<Ship> ships)
