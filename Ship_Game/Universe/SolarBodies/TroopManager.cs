@@ -13,7 +13,7 @@ namespace Ship_Game
         private readonly Planet Ground;
 
         private Empire Owner           => Ground.Owner;
-        public bool RecentCombat       => InCombatTimer > 0.0f;
+        public bool RecentCombat       => InCombatTimer > 0;
         private bool NoTroopsOnPlanet  => Ground.TroopsHere.Count <= 0;
         private bool TroopsAreOnPlanet => Ground.TroopsHere.Count > 0;
 
@@ -36,7 +36,7 @@ namespace Ship_Game
         private float InCombatTimer;
         private int NumInvadersLast;
 
-        public void SetInCombat(float timer = 10f)
+        public void SetInCombat(float timer = 1)
         {
             InCombatTimer = timer;
         }
@@ -46,6 +46,7 @@ namespace Ship_Game
         public TroopManager(Planet planet)      
         {
             Ground = planet;
+            SetInCombat(0.5f);
         }
 
         public void Update(FixedSimTime timeStep)
@@ -53,20 +54,24 @@ namespace Ship_Game
             if (Empire.Universe.Paused) 
                 return;
 
-            DecisionTimer -= timeStep.FixedTime;
-            InCombatTimer -= timeStep.FixedTime;
-            if (RecentCombat || TroopsAreOnPlanet)
+            bool startCombatTimer = false;
+            if (RecentCombat)
             {
-                ResolvePlanetaryBattle(timeStep);
+                InCombatTimer -= timeStep.FixedTime;
+                DecisionTimer -= timeStep.FixedTime;
+                ResolvePlanetaryBattle(timeStep, ref startCombatTimer);
                 if (DecisionTimer <= 0)
                 {
                     MakeCombatDecisions();
                     DecisionTimer = 0.5f;
                 }
 
-                DoBuildingTimers(timeStep);
-                DoTroopTimers(timeStep);
+                DoBuildingTimers(timeStep, ref startCombatTimer);
+                DoTroopTimers(timeStep, ref startCombatTimer);
             }
+
+            if (startCombatTimer) // continue the setting the timer until nothing needs update
+                SetInCombat();
         }
 
         private void MakeCombatDecisions()
@@ -252,7 +257,7 @@ namespace Ship_Game
             return targetTile != null;
         }
 
-        private void DoBuildingTimers(FixedSimTime timeStep)
+        private void DoBuildingTimers(FixedSimTime timeStep, ref bool startCombatTimer)
         {
             if (BuildingList.Count <= 0)
                 return;
@@ -264,15 +269,18 @@ namespace Ship_Game
                     continue;
 
                 building.UpdateAttackTimer(-timeStep.FixedTime);
-                if (building.AttackTimer < 0.0)
+                if (building.AttackTimer < 0)
                 {
                     building.UpdateAttackActions(1);
                     building.ResetAttackTimer();
                 }
+
+                if (!building.CanAttack)
+                    startCombatTimer = true;
             }
         }
 
-        private void DoTroopTimers(FixedSimTime timeStep)
+        private void DoTroopTimers(FixedSimTime timeStep, ref bool startCombatTimer)
         {
             if (NoTroopsOnPlanet)
                 return;
@@ -308,6 +316,9 @@ namespace Ship_Game
                     troop.UpdateAttackActions(troop.MaxStoredActions);
                     troop.ResetAttackTimer();
                 }
+
+                if (!troop.CanAttack || !troop.CanMove)
+                    startCombatTimer = true;
             }
         }
 
@@ -360,7 +371,7 @@ namespace Ship_Game
             }
         }
 
-        private void ResolvePlanetaryBattle(FixedSimTime timeStep)
+        private void ResolvePlanetaryBattle(FixedSimTime timeStep, ref bool startCombatTimer)
         {
             if (Empire.Universe.LookingAtPlanet 
                 && Empire.Universe.workersPanel is CombatScreen screen 
@@ -374,7 +385,7 @@ namespace Ship_Game
             }
 
             if (ActiveCombats.Count > 0)
-                InCombatTimer = 10f;
+                startCombatTimer = true;
 
             ActiveCombats.ApplyPendingRemovals();
             if (NoTroopsOnPlanet)
