@@ -425,13 +425,13 @@ namespace Ship_Game
 
         void IncreaseTrustAlliesWon(Empire newOwner, Array<Empire> empires)
         {
-            if (newOwner == null || newOwner.isPlayer)
+            if (newOwner == null || newOwner.isPlayer || newOwner.isFaction)
                 return;
 
             for (int i = 0; i < empires.Count; i++)
             {
                 Empire e = empires[i];
-                if (e != newOwner)
+                if (e != newOwner && !e.isFaction)
                 {
                     Relationship rel = newOwner.GetRelations(e);
                     rel.Trust += newOwner.data.DiplomaticPersonality.Territorialism / 5f;
