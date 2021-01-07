@@ -32,7 +32,7 @@ namespace UnitTests.Planets
             Friendly = CreateFriendlyTroop;
         }
 
-        Troop CreateEnemyTroop    => ResourceManager.CreateTroop("Wyvern", EmpireManager.Remnants);
+        Troop CreateEnemyTroop    => ResourceManager.CreateTroop("Wyvern", Enemy);
         Troop CreateFriendlyTroop => ResourceManager.CreateTroop("Wyvern", TestEmpire);
 
         bool GetTroopTile(Troop troop, out PlanetGridSquare troopTile)
