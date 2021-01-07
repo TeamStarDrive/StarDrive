@@ -61,7 +61,7 @@ namespace Ship_Game
                 for (int i = 0; i < TroopsHere.Count; ++i)
                 {
                     Troop t = TroopsHere[i];
-                    if (t.Loyalty != us)
+                    if (t.Loyalty.IsAtWarWith(us))
                     {
                         troop = t;
                         return true;
@@ -240,12 +240,8 @@ namespace Ship_Game
 
                 return 1;
             }
-            else if (HostilesTargetsOnTile(t.Loyalty, planet.Owner))
-            {
-                return 1;
-            }
 
-            return 0;
+            return HostilesTargetsOnTile(t.Loyalty, planet.Owner) ? 1 : 0;
         }
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
