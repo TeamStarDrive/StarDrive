@@ -2180,8 +2180,10 @@ namespace Ship_Game
             return (int)defense;
         }
 
+        public float GetTotalPop() => GetTotalPop(out _);
+
         /// <summary>
-        /// Gets the total population in billions
+        /// Gets the total population in billions and option for max pop
         /// </summary>
         public float GetTotalPop(out float maxPop)
         {

@@ -704,7 +704,7 @@ namespace Ship_Game
         private float GetPop(Empire e)
         {
             if (Traders.Contains(e) || e.isPlayer)
-                return e.GetTotalPop(out _);
+                return e.GetTotalPop();
 
             float pop = GetPopInExploredPlanetsFor(PlayerEmpire, e);
             foreach (Empire tradePartner in Traders)

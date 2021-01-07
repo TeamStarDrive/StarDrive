@@ -253,7 +253,7 @@ namespace Ship_Game.AI
             Relationship rel   = OwnerEmpire.GetRelations(them);
             bool neededPeace   = them.isPlayer  // player asked peace since he is in a real bad state
                                  && rel.ActiveWar.GetWarScoreState() == WarState.Dominating
-                                 && them.GetTotalPop(out _) < OwnerEmpire.GetTotalPop(out _) / (int)(CurrentGame.Difficulty + 1);
+                                 && them.GetTotalPop() < OwnerEmpire.GetTotalPop() / (int)(CurrentGame.Difficulty + 1);
 
             if (answer.Peace)
                 AcceptOffer(ourOffer, theirOffer, OwnerEmpire, them, attitude);
