@@ -452,8 +452,13 @@ namespace Ship_Game
             if (planet.GetFreeTiles(Loyalty) == 0)
                 return false;
 
-            return tile != null ? AssignTroopToNearestAvailableTile(tile, planet)
-                                : AssignTroopToRandomFreeTile(planet);
+            bool landed = tile != null ? AssignTroopToNearestAvailableTile(tile, planet)
+                                       : AssignTroopToRandomFreeTile(planet);
+
+            if (landed)
+                planet.SetInGroundCombat();
+
+            return landed;
         }
 
         // FB - For newly recruited troops (so they will be able to launch or move immediately)
@@ -494,6 +499,7 @@ namespace Ship_Game
                 DamageTroop(planet.TotalInvadeInjure, planet, tileToLand,  out bool _);
 
             tileToLand.CheckAndTriggerEvent(planet, Loyalty);
+            planet.SetInGroundCombat();
             return true;
         }
 
@@ -509,6 +515,8 @@ namespace Ship_Game
                 UpdateAttackActions(-1);
                 AttackTimer = 3f; // Land delay
             }
+
+            planet.SetInGroundCombat();
         }
 
         PlanetGridSquare PickTileToLand(Planet planet, PlanetGridSquare[] freeTiles)

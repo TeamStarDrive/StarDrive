@@ -697,6 +697,7 @@ namespace Ship_Game
                             ourTroop.UpdateMoveActions(-1);
                             ourTroop.ResetMoveTimer();
                             ourTroop.MovingTimer = 0.75f;
+                            P.SetInGroundCombat();
                             ourTroop.SetFromRect(ourTroop.ClickRect);
                             GameAudio.PlaySfxAsync(ourTroop.MovementCue);
                             ActiveTile.TroopsHere.Remove(ourTroop);
