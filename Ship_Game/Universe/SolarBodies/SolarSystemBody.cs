@@ -492,6 +492,7 @@ namespace Ship_Game
 
             newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;
+            thisPlanet.LaunchNonOwnerTroops();
             thisPlanet.ResetGarrisonSize();
             thisPlanet.ResetFoodAfterInvasionSuccess();
             Construction.ClearQueue();

@@ -305,7 +305,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message         = "Your troops stationed on " + where.Name + " had to evacuate when\n" + where.Owner.data.Traits.Name + " colonized the planet",
+                Message         = "Your troops stationed on " + where.Name + " had to evacuate since\n" + where.Owner.data.Traits.Name + " owns the planet now",
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
