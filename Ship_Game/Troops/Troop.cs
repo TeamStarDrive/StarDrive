@@ -452,13 +452,8 @@ namespace Ship_Game
             if (planet.GetFreeTiles(Loyalty) == 0)
                 return false;
 
-            bool landed = tile != null ? AssignTroopToNearestAvailableTile(tile, planet)
-                                       : AssignTroopToRandomFreeTile(planet);
-
-            if (landed)
-                planet.SetInGroundCombat();
-
-            return landed;
+            return tile != null ? AssignTroopToNearestAvailableTile(tile, planet)
+                                : AssignTroopToRandomFreeTile(planet);
         }
 
         // FB - For newly recruited troops (so they will be able to launch or move immediately)
