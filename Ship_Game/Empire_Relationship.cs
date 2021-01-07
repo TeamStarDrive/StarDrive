@@ -229,9 +229,15 @@ namespace Ship_Game
             return GetRelationsOrNull(otherEmpire)?.Treaty_NAPact == true;
         }
 
+        /// <summary>
+        ///  Always at war with Unknown or Remnants
+        /// </summary>
         public bool IsAtWarWith(Empire otherEmpire)
         {
-            return GetRelationsOrNull(otherEmpire)?.AtWar == true || otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire);
+            return GetRelationsOrNull(otherEmpire)?.AtWar == true
+                   || otherEmpire?.isFaction == true && otherEmpire != this && !IsNAPactWith(otherEmpire)
+                   || this == EmpireManager.Unknown
+                   || WeAreRemnants;
         }
 
         public bool IsAtWar => AllActiveWars.Length > 0;
