@@ -30,6 +30,11 @@ namespace Ship_Game.Ships
         public int NumPlayerTroopsOnShip  => loyalty.isPlayer ? OurTroops.Count : HostileTroops.Count;
         public int NumAiTroopsOnShip      => loyalty.isPlayer ? HostileTroops.Count : OurTroops.Count;
 
+        public bool IsIdleSingleTroopship => Name == loyalty.data.DefaultTroopShip
+                                             && HasOurTroops
+                                             && (AI.State == AIState.AwaitingOrders || AI.State == AIState.Orbit || AI.State == AIState.HoldPosition)
+                                             && fleet == null && !InCombat;
+
         // NOTE: could be an enemy troop or a friendly one
         public void AddTroop(Troop troop)
         {
