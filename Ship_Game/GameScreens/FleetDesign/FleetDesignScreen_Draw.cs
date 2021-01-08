@@ -255,6 +255,9 @@ namespace Ship_Game
                     var firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12,
                         rect.Value.Width - 12);
                     batch.Draw(f.Icon, firect, EmpireManager.Player.EmpireColor);
+                    if (f.AutoRequisition)
+                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), firect, ApplyCurrentAlphaToColor(EmpireManager.Player.EmpireColor));
+                    
                 }
 
                 Vector2 num = new Vector2(rect.Value.X + 4, rect.Value.Y + 4);
