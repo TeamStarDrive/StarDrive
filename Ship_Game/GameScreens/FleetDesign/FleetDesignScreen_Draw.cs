@@ -256,7 +256,10 @@ namespace Ship_Game
                         rect.Value.Width - 12);
                     batch.Draw(f.Icon, firect, EmpireManager.Player.EmpireColor);
                     if (f.AutoRequisition)
-                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), firect, ApplyCurrentAlphaToColor(EmpireManager.Player.EmpireColor));
+                    {
+                        Rectangle autoReq = new Rectangle(firect.X + 54, firect.Y + 12, 20, 27);
+                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, ApplyCurrentAlphaToColor(EmpireManager.Player.EmpireColor));
+                    }
                     
                 }
 

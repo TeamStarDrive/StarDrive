@@ -167,7 +167,7 @@ namespace Ship_Game
 
             AutoRequisition.Draw(batch, elapsed);
             if (F.AutoRequisition)
-                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, EmpireManager.Player.EmpireColor);
+                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, ApplyCurrentAlphaToColor(EmpireManager.Player.EmpireColor));
 
             ScreenManager.SpriteBatch.End();
         }
