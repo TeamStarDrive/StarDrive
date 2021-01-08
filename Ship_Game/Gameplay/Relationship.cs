@@ -116,7 +116,7 @@ namespace Ship_Game.Gameplay
         [XmlIgnore] [JsonIgnore] public EmpireInformation KnownInformation;
 
         private readonly int FirstDemand   = 50;
-        public readonly int SecondDemand  = 75;
+        public readonly int SecondDemand   = 75;
         public readonly int TechTradeTurns = 100;
 
         /// <summary>
@@ -1019,13 +1019,44 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
+            turnsSinceLastContact = 0; // Try again after 100 turns
             Relationship themToUs = us.GetRelations(them);
-            if (themToUs.Trust >= 150 
-                || themToUs.Trust >= 100 && them.GetPlanets().Count < us.GetPlanets().Count / 5)
+            if ((themToUs.Trust >= 150 || themToUs.Trust >= 100 && them.GetPlanets().Count < us.GetPlanets().Count / 5)
+                && Is3RdPartyBiggerThenUs())
             {
-                turnsSinceLastContact = 0;
                 Empire.Universe.NotificationManager.AddPeacefulMergerNotification(us, them);
                 us.AbsorbEmpire(them);
+            }
+
+            // Local Method
+            bool Is3RdPartyBiggerThenUs()
+            {
+                float popRatioWar = PopRatioWar();
+                foreach (Empire e in EmpireManager.ActiveMajorEmpires)
+                {
+                    if (e == us || e == them)
+                        continue;
+
+                    float ratio = us.IsAtWarWith(e) ? popRatioWar : 1.25f;
+                    if (e.TotalPopBillion / us.TotalPopBillion > ratio) // 3rd party is a potential risk
+                        return true;
+                }
+
+                return false;
+            }
+
+            float PopRatioWar() // When at war we will have lower threshold for merge
+            {
+                switch (us.Personality)
+                {
+                    default:
+                    case PersonalityType.Honorable:  return 1f;
+                    case PersonalityType.Aggressive: return 1.1f;
+                    case PersonalityType.Ruthless:   return 1.2f;
+                    case PersonalityType.Xenophobic: return 1.25f;
+                    case PersonalityType.Cunning:    return 0.5f;
+                    case PersonalityType.Pacifist:   return 0.8f;
+                }
             }
         }
 

@@ -228,7 +228,8 @@ namespace Ship_Game
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
         public readonly EmpireResearch Research;
-
+        public float TotalPopBillion { get; private set; }
+        public float MaxPopBillion { get; private set; }
         public DifficultyModifiers DifficultyModifiers { get; private set; }
         // Empire unique ID. If this is 0, then this empire is invalid!
         // Set in EmpireManager.cs
@@ -1458,7 +1459,6 @@ namespace Ship_Game
             }
         }
 
-
         void DoFirstContact(Empire them)
         {
             Relationship usToThem = GetRelations(them);
@@ -1603,6 +1603,7 @@ namespace Ship_Game
 
                 UpdateTimer = GlobalStats.TurnTimer + (Id -1) * timeStep.FixedTime;
                 UpdateEmpirePlanets();
+                UpdatePopulation();
                 UpdateAI(); // Must be done before DoMoney
                 GovernPlanets(); // this does the governing after getting the budgets from UpdateAI when loading a game
                 DoMoney();
@@ -1612,6 +1613,12 @@ namespace Ship_Game
             UpdateFleets(timeStep);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
+        }
+
+        public void UpdatePopulation()
+        {
+            TotalPopBillion = GetTotalPop(out float maxPopBillion);
+            MaxPopBillion   = maxPopBillion;
         }
 
         void InitializeHostilesInSystemDict() // For Player warnings
@@ -2186,12 +2193,10 @@ namespace Ship_Game
             return (int)defense;
         }
 
-        public float GetTotalPop() => GetTotalPop(out _);
-
         /// <summary>
         /// Gets the total population in billions and option for max pop
         /// </summary>
-        public float GetTotalPop(out float maxPop)
+        float GetTotalPop(out float maxPop)
         {
             float num = 0f;
             maxPop    = 0f;

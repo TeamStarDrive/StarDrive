@@ -308,10 +308,10 @@ namespace Ship_Game
             if (empiresList.Length == 1)
                 return empiresList.First();
 
-            var averagePop    = empiresList.Average(e => e.GetTotalPop(out _));
-            Empire bestEmpire = empiresList.FindMax(e => e.GetTotalPop(out _));
+            var averagePop    = empiresList.Average(e => e.TotalPopBillion);
+            Empire bestEmpire = empiresList.FindMax(e => e.TotalPopBillion);
 
-            return bestEmpire.GetTotalPop(out _) > averagePop * 1.25f ? bestEmpire : null;
+            return bestEmpire.TotalPopBillion > averagePop * 1.25f ? bestEmpire : null;
         }
 
         public bool AssignShipInPortalSystem(Ship portal, int bombersNeeded, float neededStr, out Array<Ship> ships)
