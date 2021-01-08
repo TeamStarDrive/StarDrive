@@ -66,6 +66,9 @@ namespace Ship_Game
                 float maxPopForPlayer = MaxPopulationBillionFor(EmpireManager.Player);
                 int numDecimalsPop    = PopulationBillion.GreaterOrEqual(0.1f) ? 1 : 2;
                 int numDecimalsPopMax = maxPopForPlayer % 1 > 0.95f || maxPopForPlayer % 1 < 0.05f ? 1 : 2;
+                if (maxPopForPlayer.Greater(0.005f) && maxPopForPlayer < 0.05f)
+                    numDecimalsPopMax = 2;
+
                 string popString      = $"{PopulationBillion.String(numDecimalsPop)} / {maxPopForPlayer.String(numDecimalsPopMax)}";
 
                 if (PopulationRatio.NotZero())

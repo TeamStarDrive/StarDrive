@@ -2140,16 +2140,15 @@ namespace Ship_Game
             return troopShip != null;
         }
 
-        public bool CanRebaseTroops()
+        public int NumFreeTroops()
         {
-            bool canRebase;
+            int numTroops;
             using (OwnedShips.AcquireReadLock())
             {
-                canRebase = OwnedShips.Any(s => s.IsIdleSingleTroopship) 
-                            || OwnedPlanets.Any(predicate => predicate.NumTroopsCanLaunch > 0);
+                numTroops = OwnedShips.Filter(s => s.IsIdleSingleTroopship).Length + OwnedPlanets.Sum(p => p.NumTroopsCanLaunch);
             }
 
-            return canRebase;
+            return numTroops;
         }
 
         private bool LaunchNearestTroopForRebase(out Ship troopShip, Vector2 objectCenter, string planetName = "")
