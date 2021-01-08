@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Ship_Game.Audio;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
 // ReSharper disable once CheckNamespace
@@ -14,7 +13,7 @@ namespace Ship_Game
 
         private Empire Owner           => Ground.Owner;
         public bool RecentCombat       => InCombatTimer > 0;
-        private bool NoTroopsOnPlanet  => Ground.TroopsHere.Count <= 0;
+        private bool NoTroopsOnPlanet  => Ground.TroopsHere.Count == 0;
         private bool TroopsAreOnPlanet => Ground.TroopsHere.Count > 0;
 
         private Array<PlanetGridSquare> TilesList => Ground.TilesList;
@@ -32,9 +31,10 @@ namespace Ship_Game
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
 
-        private float DecisionTimer = 0.5f;        
+        private float DecisionTimer;
         private float InCombatTimer;
         private int NumInvadersLast;
+        private bool Init = true;
 
         public void SetInCombat(float timer = 1)
         {
@@ -42,11 +42,10 @@ namespace Ship_Game
         }
 
         // ReSharper disable once UnusedParameter.Local Habital concept here is to not use this class if the planet cant have
-        // ground combat. but that will be a future project. 
-        public TroopManager(Planet planet)      
+        // ground combat. but that will be a future project.
+        public TroopManager(Planet planet)
         {
             Ground = planet;
-            SetInCombat(0.5f);
         }
 
         public void Update(FixedSimTime timeStep)
@@ -55,7 +54,7 @@ namespace Ship_Game
                 return;
 
             bool startCombatTimer = false;
-            if (RecentCombat)
+            if (RecentCombat || Init)
             {
                 InCombatTimer -= timeStep.FixedTime;
                 DecisionTimer -= timeStep.FixedTime;
@@ -68,6 +67,7 @@ namespace Ship_Game
 
                 DoBuildingTimers(timeStep, ref startCombatTimer);
                 DoTroopTimers(timeStep, ref startCombatTimer);
+                Init = false;
             }
 
             if (startCombatTimer) // continue the setting the timer until nothing needs update
