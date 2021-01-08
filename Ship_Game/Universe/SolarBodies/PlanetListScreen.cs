@@ -10,23 +10,21 @@ namespace Ship_Game
 {
     public sealed class PlanetListScreen : GameScreen
     {
-        Menu2 TitleBar;
-        Vector2 TitlePos;
-
-        Menu2 EMenu;
+        readonly Menu2 TitleBar;
+        readonly Vector2 TitlePos;
+        readonly Menu2 EMenu;
 
         public Planet SelectedPlanet { get; private set; }
-        ScrollList2<PlanetListScreenItem> PlanetSL;
         public EmpireUIOverlay EmpireUI;
-        Rectangle leftRect;
+        readonly ScrollList2<PlanetListScreenItem> PlanetSL;
 
-        SortButton sb_Sys;
-        SortButton sb_Name;
-        SortButton sb_Fert;
-        SortButton sb_Rich;
-        SortButton sb_Pop;
-        SortButton sb_Owned;
-        SortButton sb_Distance;
+        readonly SortButton sb_Sys;
+        readonly SortButton sb_Name;
+        readonly SortButton sb_Fert;
+        readonly SortButton sb_Rich;
+        readonly SortButton sb_Pop;
+        readonly SortButton sb_Owned;
+        readonly SortButton sb_Distance;
 
         private UICheckBox cb_hideOwned;
         private UICheckBox cb_hideUninhabitable;
@@ -34,9 +32,9 @@ namespace Ship_Game
         bool HideOwned;
         bool HideUninhab = true;
 
-        private bool CanRebaseTroops;
+        private int NumAvailableTroops;
         readonly Array<Planet> ExploredPlanets = new Array<Planet>();
-
+        readonly UILabel AvailableTroops;
         Rectangle eRect;
         SortButton LastSorted;
 
@@ -60,14 +58,14 @@ namespace Ship_Game
             Rectangle titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-            leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
+            Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             EMenu    = new Menu2(leftRect);
             Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
             eRect = new Rectangle(leftRect.X + 20, titleRect.Bottom + 30,
                                   ScreenWidth - 40,
                                   leftRect.Bottom - (titleRect.Bottom + 30) - 15);
 
-            PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect, 40));
+            PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect));
             PlanetSL.EnableItemHighlight = true;
 
             sb_Sys      = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
@@ -98,6 +96,9 @@ namespace Ship_Game
             cb_hideUninhabitable = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
                 () => HideUninhab, 
                 x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0));
+
+            Vector2 troopPos = new Vector2(TitleBar.Menu.X + TitleBar.Menu.Width + 17, TitleBar.Menu.Y + 55);
+            AvailableTroops  = Add(new UILabel(troopPos, $"Available Troops: ", Fonts.Arial20Bold, Color.LightGreen));
         }
 
         void CalcPlanetsDistances()
@@ -135,7 +136,8 @@ namespace Ship_Game
             TitleBar.Draw(batch, elapsed);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, Colors.Cream);
             EMenu.Draw(batch, elapsed);
-
+            AvailableTroops.Text = $"Available Troops: {NumAvailableTroops}";
+            AvailableTroops.Color = NumAvailableTroops == 0 ? Color.Gray : Color.LightGreen;
             base.Draw(batch, elapsed);
 
             if (PlanetSL.NumEntries > 0)
@@ -218,7 +220,7 @@ namespace Ship_Game
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
 
-                var e = new PlanetListScreenItem(this, p, GetShortestDistance(p), CanRebaseTroops);
+                var e = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
                 PlanetSL.AddItem(e);
             }
         }
@@ -237,7 +239,7 @@ namespace Ship_Game
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
 
-                var e = new PlanetListScreenItem(this, p, distance, CanRebaseTroops);
+                var e = new PlanetListScreenItem(this, p, distance, NumAvailableTroops > 0);
                 PlanetSL.AddItem(e);
             }
         }
@@ -302,7 +304,7 @@ namespace Ship_Game
         {
             PlanetSL.Reset();
             PlanetSL.OnClick = OnPlanetListItemClicked;
-            CanRebaseTroops  = EmpireManager.Player.CanRebaseTroops();
+            NumAvailableTroops  = EmpireManager.Player.NumFreeTroops();
 
             if (LastSorted == null)
             {
@@ -311,7 +313,7 @@ namespace Ship_Game
                     if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                         continue;
 
-                    var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p), CanRebaseTroops);
+                    var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p), NumAvailableTroops > 0);
                     PlanetSL.AddItem(entry);
                 }
             }
@@ -331,10 +333,10 @@ namespace Ship_Game
 
         public void RefreshSendTroopButtonsVisibility()
         {
-            CanRebaseTroops = EmpireManager.Player.CanRebaseTroops();
+            NumAvailableTroops = EmpireManager.Player.NumFreeTroops();
             foreach (PlanetListScreenItem item in PlanetSL.AllEntries)
             {
-                item.UpdateSendTroopButtonVisibility(CanRebaseTroops);
+                item.SetCanSendTroops(NumAvailableTroops > 0);
             }
         }
     }

@@ -101,10 +101,9 @@ namespace Ship_Game
             RecallTroops.Rect  = new RectF(OrdersRect.X + Colonize.Width*2 + 10, Colonize.Y, Colonize.Width, Colonize.Height);
 
             Colonize.Visible     = Planet.Owner == null && Planet.Habitable;
-            SendTroops.Visible   = Planet.Habitable && CanSendTroops;
             RecallTroops.Visible = Planet.Owner != Player && Planet.CountEmpireTroops(Player) > 0;
 
-
+            UpdateButtonSendTroops();
             AddSystemName();
             AddPlanetName();
             AddPlanetTextureAndStatus();
@@ -305,14 +304,22 @@ namespace Ship_Game
                 SendTroops.Text = $"{text} {troopsInvading}";
                 SendTroops.Style = style;
             }
+            else
+            {
+                SendTroops.Visible = Planet.Habitable && CanSendTroops;
+            }
 
 
         }
 
-        public void UpdateSendTroopButtonVisibility(bool canSendTroops)
+        public void SetCanSendTroops(bool value)
         {
-            Screen.RefreshSendTroopButtonsVisibility();
-            SendTroops.Visible = Planet.Habitable && canSendTroops;
+            CanSendTroops = value;
+        }
+
+        void UpdateSendTroopButtonVisibility()
+        {
+            SendTroops.Visible = Planet.Habitable && CanSendTroops;
         }
 
         void DrawPlanetDistance(float distance, Vector2 namePos, SpriteFont spriteFont)
@@ -330,7 +337,9 @@ namespace Ship_Game
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderLandAllTroops(Planet);
+                Screen.RefreshSendTroopButtonsVisibility();
                 UpdateButtonSendTroops();
+                //UpdateSendTroopButtonVisibility();
             }
             else
                 GameAudio.NegativeClick();
