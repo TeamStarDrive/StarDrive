@@ -234,8 +234,11 @@ namespace Ship_Game
         /// </summary>
         public bool IsAtWarWith(Empire otherEmpire)
         {
+            if (this == otherEmpire)
+                return false;
+
             return GetRelationsOrNull(otherEmpire)?.AtWar == true
-                   || otherEmpire?.isFaction == true && otherEmpire != this && !IsNAPactWith(otherEmpire)
+                   || otherEmpire?.isFaction == true && !IsNAPactWith(otherEmpire)
                    || this == EmpireManager.Unknown
                    || WeAreRemnants;
         }
