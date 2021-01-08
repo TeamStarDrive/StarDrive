@@ -845,33 +845,33 @@ namespace Ship_Game.Debug
             DrawString($"Level: {e.Remnants.Level}");
             DrawString($"Resources: {e.Remnants.Production.String()}");
             NewLine();
-            DrawString("Empires Score and Strength:");
+            DrawString("Empires Population and Strength:");
             for (int i = 0; i < EmpireManager.MajorEmpires.Length; i++)
             {
                 Empire empire = EmpireManager.MajorEmpires[i];
                 if (!empire.data.Defeated)
-                    DrawString(empire.EmpireColor, $"{empire.data.Name} - Score: {empire.TotalScore}, Strength: {empire.CurrentMilitaryStrength}");
+                    DrawString(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.GetTotalPop(out _).String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
             }
 
             var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
                                                                       : EmpireManager.MajorEmpires.Filter(emp => !emp.data.Defeated);
 
             NewLine();
-            float averageScore = (float)empiresList.Average(empire => empire.TotalScore);
-            float averageStr   = empiresList.Average(empire => empire.CurrentMilitaryStrength);
-            DrawString($"AI Empire Average Score:     {averageScore.String(0)}");
+            float averagePop = empiresList.Average(empire => empire.GetTotalPop(out _));
+            float averageStr = empiresList.Average(empire => empire.CurrentMilitaryStrength);
+            DrawString($"AI Empire Average Pop:         {averagePop.String(1)}");
             DrawString($"AI Empire Average Strength: {averageStr.String(0)}");
 
             NewLine();
-            Empire bestScore = empiresList.FindMax(empire => empire.TotalScore);
-            Empire bestStr   = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
-            Empire worstStr  = empiresList.FindMin(empire => empire.CurrentMilitaryStrength);
+            Empire bestPop  = empiresList.FindMax(empire => empire.GetTotalPop(out _));
+            Empire bestStr  = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
+            Empire worstStr = empiresList.FindMin(empire => empire.CurrentMilitaryStrength);
 
-            float diffFromAverageScore    = bestScore.TotalScore / averageScore.LowerBound(1) * 100;
+            float diffFromAverageScore    = bestPop.GetTotalPop(out _) / averagePop.LowerBound(1) * 100;
             float diffFromAverageStrBest  = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
             float diffFromAverageStrWorst = worstStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
 
-            DrawString(bestScore.EmpireColor, $"Highest Score Empire: {bestScore.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
+            DrawString(bestPop.EmpireColor, $"Highest Pop Empire: {bestPop.data.Name} ({(diffFromAverageScore - 100).String(1)}% above average)");
             DrawString(bestStr.EmpireColor, $"Strongest Empire:   {bestStr.data.Name} ({(diffFromAverageStrBest - 100).String(1)}% above average)");
             DrawString(worstStr.EmpireColor, $"Weakest Empire:     {worstStr.data.Name} ({(diffFromAverageStrWorst - 100).String(1)}% below average)");
 
