@@ -10,7 +10,6 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "RemnantEngageEmpire";
         public override string UID => ID;
-        public Planet TargetPlanet;
         private Remnants Remnants;
         private Ship Portal;
         private int BombersLevel;
@@ -38,9 +37,14 @@ namespace Ship_Game.Commands.Goals
         public sealed override void PostInit()
         {
             Remnants     = empire.Remnants;
-            TargetPlanet = ColonizationTarget;
             Portal       = TargetShip; // Save compatibility
             BombersLevel = ShipLevel;
+        }
+
+        public Planet TargetPlanet
+        {
+            get => ColonizationTarget;
+            set => ColonizationTarget = value;
         }
 
         public override bool IsRaid => true;
@@ -57,10 +61,10 @@ namespace Ship_Game.Commands.Goals
             // Find closest planet in the map to Portal and target a planet from the victim's planet list
             var planets   = Empire.Universe.PlanetsDict.Values.ToArray().Filter(p => p.Owner != null);
             Planet planet = planets.FindMin(p => p.Center.Distance(Portal.Center));
-            if (!Remnants.TargetNextPlanet(TargetEmpire, planet, 0, out TargetPlanet))
+            if (!Remnants.TargetNextPlanet(TargetEmpire, planet, 0, out Planet targetPlanet))
                 return false; // Could not find a target planet
 
-            ColonizationTarget = TargetPlanet; // Using TargetPlanet for better readability
+            TargetPlanet = targetPlanet; // Using TargetPlanet for better readability
             return TargetPlanet != null;
         }
 
@@ -77,7 +81,7 @@ namespace Ship_Game.Commands.Goals
 
         float RequiredFleetStr()
         {
-            float strDiv        = TargetEmpire.GetTotalPop(out _) / (TargetEmpire.isPlayer ? 150 : 60);
+            float strDiv        = TargetEmpire.GetTotalPop() / (TargetEmpire.isPlayer ? 150 : 60);
             float strMultiplier = ((int)CurrentGame.Difficulty + 1) * 0.4f;
             float str           = TargetEmpire.CurrentMilitaryStrength * strMultiplier / strDiv.LowerBound(1);
             str                 = str.UpperBound(str * Remnants.Level / Remnants.MaxLevel);
@@ -198,7 +202,7 @@ namespace Ship_Game.Commands.Goals
             if (numBombers == Fleet.Ships.Count)
                 return ReturnToPortal();
 
-            if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Cleared enemy at target planet
+            if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Not cleared enemy at target planet yet
                 return GoalStep.TryAgain;
 
 
