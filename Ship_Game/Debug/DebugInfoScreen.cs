@@ -850,24 +850,24 @@ namespace Ship_Game.Debug
             {
                 Empire empire = EmpireManager.MajorEmpires[i];
                 if (!empire.data.Defeated)
-                    DrawString(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.GetTotalPop(out _).String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
+                    DrawString(empire.EmpireColor, $"{empire.data.Name} - Pop: {empire.TotalPopBillion.String()}, Strength: {empire.CurrentMilitaryStrength.String(0)}");
             }
 
             var empiresList = GlobalStats.RestrictAIPlayerInteraction ? EmpireManager.NonPlayerMajorEmpires.Filter(emp => !emp.data.Defeated)
                                                                       : EmpireManager.MajorEmpires.Filter(emp => !emp.data.Defeated);
 
             NewLine();
-            float averagePop = empiresList.Average(empire => empire.GetTotalPop(out _));
+            float averagePop = empiresList.Average(empire => empire.TotalPopBillion);
             float averageStr = empiresList.Average(empire => empire.CurrentMilitaryStrength);
             DrawString($"AI Empire Average Pop:         {averagePop.String(1)}");
             DrawString($"AI Empire Average Strength: {averageStr.String(0)}");
 
             NewLine();
-            Empire bestPop  = empiresList.FindMax(empire => empire.GetTotalPop(out _));
+            Empire bestPop  = empiresList.FindMax(empire => empire.TotalPopBillion);
             Empire bestStr  = empiresList.FindMax(empire => empire.CurrentMilitaryStrength);
             Empire worstStr = empiresList.FindMin(empire => empire.CurrentMilitaryStrength);
 
-            float diffFromAverageScore    = bestPop.GetTotalPop(out _) / averagePop.LowerBound(1) * 100;
+            float diffFromAverageScore    = bestPop.TotalPopBillion / averagePop.LowerBound(1) * 100;
             float diffFromAverageStrBest  = bestStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
             float diffFromAverageStrWorst = worstStr.CurrentMilitaryStrength / averageStr.LowerBound(1) * 100;
 
@@ -952,8 +952,8 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine(3);
-                DrawString("Total Pop: "+ e.GetTotalPop(out float maxPop).String(1) 
-                                        + "/" + maxPop.String(1) 
+                DrawString("Total Pop: "+ e.TotalPopBillion.String(1) 
+                                        + "/" + e.MaxPopBillion.String(1) 
                                         + "/" + e.GetTotalPopPotential().String(1));
 
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
