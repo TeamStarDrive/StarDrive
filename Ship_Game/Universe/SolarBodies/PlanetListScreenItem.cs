@@ -38,8 +38,9 @@ namespace Ship_Game
         private readonly PlanetListScreen Screen;
         private readonly float Distance;
         private bool MarkedForColonization;
+        public bool CanSendTroops;
 
-        public PlanetListScreenItem(PlanetListScreen screen, Planet planet, float distance)
+        public PlanetListScreenItem(PlanetListScreen screen, Planet planet, float distance, bool canSendTroops)
         {
             Screen   = screen;
             Planet   = planet;
@@ -47,6 +48,7 @@ namespace Ship_Game
 
             PlanetStatColor = Planet.Habitable ? Color.White : Color.LightPink;
             EmpireColor     = Planet.Owner?.EmpireColor ?? new Color(255, 239, 208);
+            CanSendTroops   = canSendTroops;
 
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
@@ -99,10 +101,9 @@ namespace Ship_Game
             RecallTroops.Rect  = new RectF(OrdersRect.X + Colonize.Width*2 + 10, Colonize.Y, Colonize.Width, Colonize.Height);
 
             Colonize.Visible     = Planet.Owner == null && Planet.Habitable;
-            SendTroops.Visible   = Planet.Habitable;
             RecallTroops.Visible = Planet.Owner != Player && Planet.CountEmpireTroops(Player) > 0;
 
-
+            UpdateButtonSendTroops();
             AddSystemName();
             AddPlanetName();
             AddPlanetTextureAndStatus();
@@ -303,6 +304,22 @@ namespace Ship_Game
                 SendTroops.Text = $"{text} {troopsInvading}";
                 SendTroops.Style = style;
             }
+            else
+            {
+                SendTroops.Visible = Planet.Habitable && CanSendTroops;
+            }
+
+
+        }
+
+        public void SetCanSendTroops(bool value)
+        {
+            CanSendTroops = value;
+        }
+
+        void UpdateSendTroopButtonVisibility()
+        {
+            SendTroops.Visible = Planet.Habitable && CanSendTroops;
         }
 
         void DrawPlanetDistance(float distance, Vector2 namePos, SpriteFont spriteFont)
@@ -320,6 +337,7 @@ namespace Ship_Game
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderLandAllTroops(Planet);
+                Screen.RefreshSendTroopButtonsVisibility();
                 UpdateButtonSendTroops();
             }
             else
