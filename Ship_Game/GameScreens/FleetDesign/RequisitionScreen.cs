@@ -20,7 +20,8 @@ namespace Ship_Game
         private Rectangle FleetStatsRect;
         private readonly Array<Ship> AvailableShips = new Array<Ship>();
         private int NumThatFit;
-
+        private UICheckBox AutoRequisition;
+        Rectangle AutoRequisitionRect;
         public RequisitionScreen(FleetDesignScreen fds) : base(fds)
         {
             Fds               = fds;
@@ -92,7 +93,7 @@ namespace Ship_Game
             fleetStats.Draw(ScreenManager.SpriteBatch, elapsed);
             Cursor = new Vector2(FleetStatsRect.X + 25, FleetStatsRect.Y + 25);
             ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "Fleet Statistics", Cursor, c);
-            Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
+            Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
             DrawStat("# Ships in Design:", F.DataNodes.Count, ref Cursor);
             int actualNumber = 0;
             foreach (FleetDataNode node in F.DataNodes)
@@ -113,7 +114,7 @@ namespace Ship_Game
                 cost = cost + node.Ship?.GetCost(F.Owner) ?? cost + ResourceManager.ShipsDict[node.ShipName].GetCost(F.Owner);
             }
             DrawStat("Total Production Cost:", (int)cost, ref Cursor);
-            Cursor.Y = Cursor.Y + 20f;
+            Cursor.Y += 20f;
             int numShips = 0;
             foreach (Ship s in F.Owner.GetShips())
             {
@@ -151,17 +152,23 @@ namespace Ship_Game
                     text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
                     ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
                 }
+
                 BuildNow.Draw(ScreenManager);
                 BuildNowRush.Draw(ScreenManager);
             }
             else
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, "No Requisition Needed", Cursor, c);
-                Cursor.Y = Cursor.Y + (Fonts.Pirulen16.LineSpacing + 8);
+                Cursor.Y += (Fonts.Pirulen16.LineSpacing + 8);
                 text = "This fleet is at full strength, or has build orders in place to bring it to full strength, and does not require further requisitions";
                 text = Fonts.Arial12Bold.ParseText(text, FleetStatsRect.Width - 40);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, c);
             }
+
+            AutoRequisition.Draw(batch, elapsed);
+            if (F.AutoRequisition)
+                batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), AutoRequisitionRect, EmpireManager.Player.EmpireColor);
+
             ScreenManager.SpriteBatch.End();
         }
 
@@ -174,7 +181,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, c);
             cursor.X = column2;
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value.ToString(), cursor, c);
-            cursor.Y = cursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+            cursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
             cursor.X = column1;
         }
 
@@ -187,7 +194,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, c);
             cursor.X = column2;
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, value.ToString(), cursor, statColor);
-            cursor.Y = cursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+            cursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
             cursor.X = column1;
         }
 
@@ -230,6 +237,10 @@ namespace Ship_Game
                 ToggleOn = true,
                 Tip_ID   = 1826
             };
+
+            AutoRequisition = Add(new UICheckBox(() => F.AutoRequisition, Fonts.Arial12Bold, title: 1833, tooltip: 1834));
+            AutoRequisition.Pos = new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 480);
+            AutoRequisitionRect = new Rectangle((int)AutoRequisition.Pos.X - 40, (int)AutoRequisition.Pos.Y - 14, 30, 40);
             UpdateRequisitionStatus();
         }
 
@@ -248,7 +259,7 @@ namespace Ship_Game
             {
                 foreach (FleetDataNode node in F.DataNodes)
                 {
-                    if (node.ShipName != ship.Name || node.Ship != null | ship.HomePlanet != null)
+                    if (node.ShipName != ship.Name || node.Ship != null || ship.HomePlanet != null || ship.Mothership != null)
                         continue;
 
                     NumThatFit++;

@@ -1577,6 +1577,8 @@ namespace Ship_Game.Ships
                     new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
 
+            loyalty.TryAutoRequisitionShip(fleet, this);
+
             QueueTotalRemoval();
             base.Die(source, cleanupOnly);
         }
