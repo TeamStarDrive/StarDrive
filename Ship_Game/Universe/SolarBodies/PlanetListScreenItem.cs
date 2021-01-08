@@ -339,7 +339,6 @@ namespace Ship_Game
                 troopShip.AI.OrderLandAllTroops(Planet);
                 Screen.RefreshSendTroopButtonsVisibility();
                 UpdateButtonSendTroops();
-                //UpdateSendTroopButtonVisibility();
             }
             else
                 GameAudio.NegativeClick();
