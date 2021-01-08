@@ -34,6 +34,7 @@ namespace Ship_Game
         bool HideOwned;
         bool HideUninhab = true;
 
+        private bool CanRebaseTroops;
         readonly Array<Planet> ExploredPlanets = new Array<Planet>();
 
         Rectangle eRect;
@@ -217,7 +218,7 @@ namespace Ship_Game
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
 
-                var e = new PlanetListScreenItem(this, p, GetShortestDistance(p));
+                var e = new PlanetListScreenItem(this, p, GetShortestDistance(p), CanRebaseTroops);
                 PlanetSL.AddItem(e);
             }
         }
@@ -236,7 +237,7 @@ namespace Ship_Game
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
 
-                var e = new PlanetListScreenItem(this, p, distance);
+                var e = new PlanetListScreenItem(this, p, distance, CanRebaseTroops);
                 PlanetSL.AddItem(e);
             }
         }
@@ -301,6 +302,7 @@ namespace Ship_Game
         {
             PlanetSL.Reset();
             PlanetSL.OnClick = OnPlanetListItemClicked;
+            CanRebaseTroops  = EmpireManager.Player.CanRebaseTroops();
 
             if (LastSorted == null)
             {
@@ -309,7 +311,7 @@ namespace Ship_Game
                     if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                         continue;
 
-                    var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p));
+                    var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p), CanRebaseTroops);
                     PlanetSL.AddItem(entry);
                 }
             }
@@ -325,6 +327,15 @@ namespace Ship_Game
             }
 
             SelectedPlanet = PlanetSL.NumEntries > 0 ? PlanetSL.AllEntries[0].Planet : null;
+        }
+
+        public void RefreshSendTroopButtonsVisibility()
+        {
+            CanRebaseTroops = EmpireManager.Player.CanRebaseTroops();
+            foreach (PlanetListScreenItem item in PlanetSL.AllEntries)
+            {
+                item.UpdateSendTroopButtonVisibility(CanRebaseTroops);
+            }
         }
     }
 }
