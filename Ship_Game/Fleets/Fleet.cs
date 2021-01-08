@@ -9,28 +9,27 @@ using System.Linq;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
-using Ship_Game.AI.CombatTactics;
 
 namespace Ship_Game.Fleets
 {
     public sealed class Fleet : ShipGroup
     {
-        readonly public Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
+        public readonly Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
         public Guid Guid = Guid.NewGuid();
         public string Name = "";
         public ShipAI.TargetParameterTotals TotalFleetAttributes;
         public ShipAI.TargetParameterTotals AverageFleetAttributes;
 
-        readonly Array<Ship> CenterShips = new Array<Ship>();
-        readonly Array<Ship> LeftShips = new Array<Ship>();
-        readonly Array<Ship> RightShips = new Array<Ship>();
-        readonly Array<Ship> RearShips = new Array<Ship>();
-        readonly Array<Ship> ScreenShips = new Array<Ship>();
-        public Array<Squad> CenterFlank = new Array<Squad>();
-        public Array<Squad> LeftFlank = new Array<Squad>();
-        public Array<Squad> RightFlank = new Array<Squad>();
-        public Array<Squad> ScreenFlank = new Array<Squad>();
-        public Array<Squad> RearFlank = new Array<Squad>();
+        readonly Array<Ship> CenterShips  = new Array<Ship>();
+        readonly Array<Ship> LeftShips    = new Array<Ship>();
+        readonly Array<Ship> RightShips   = new Array<Ship>();
+        readonly Array<Ship> RearShips    = new Array<Ship>();
+        readonly Array<Ship> ScreenShips  = new Array<Ship>();
+        public Array<Squad> CenterFlank   = new Array<Squad>();
+        public Array<Squad> LeftFlank     = new Array<Squad>();
+        public Array<Squad> RightFlank    = new Array<Squad>();
+        public Array<Squad> ScreenFlank   = new Array<Squad>();
+        public Array<Squad> RearFlank     = new Array<Squad>();
         public readonly Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
 
         int DefenseTurns = 50;
@@ -44,6 +43,7 @@ namespace Ship_Game.Fleets
 
         public int TaskStep;
         public bool IsCoreFleet;
+        public bool AutoRequisition { get; private set; }
 
         Array<Ship> AllButRearShips => Ships.Except(RearShips).ToArrayList();
         public bool HasRepair { get; private set; }  //fbedard: ships in fleet with repair capability will not return for repair.
@@ -148,12 +148,17 @@ namespace Ship_Game.Fleets
                     {
                         if (CenterShips.ContainsRef(flankShip)) { CenterShips.AddUniqueRef(ship); return; }
                         if (ScreenShips.ContainsRef(flankShip)) { ScreenShips.AddUniqueRef(ship); return; }
-                        if (RearShips.ContainsRef(flankShip)) { RearShips.AddUniqueRef(ship); return; }
-                        if (RightShips.ContainsRef(flankShip)) { RightShips.AddUniqueRef(ship); return; }
-                        if (LeftShips.ContainsRef(flankShip)) { LeftShips.AddUniqueRef(ship); return; }
+                        if (RearShips.ContainsRef(flankShip))   { RearShips.AddUniqueRef(ship);   return; }
+                        if (RightShips.ContainsRef(flankShip))  { RightShips.AddUniqueRef(ship);  return; }
+                        if (LeftShips.ContainsRef(flankShip))   { LeftShips.AddUniqueRef(ship);   return; }
                     }
                 }
             }
+        }
+
+        public void SetAutoRequisition(bool value)
+        {
+            AutoRequisition = value;
         }
 
         bool AddShipToNodes(Ship shipToAdd)
