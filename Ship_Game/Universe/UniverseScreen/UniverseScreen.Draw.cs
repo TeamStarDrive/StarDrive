@@ -857,6 +857,12 @@ namespace Ship_Game
                         fleetButton.ClickRect, inCombat ? ApplyCurrentAlphaToColor(new Color(255, 0, 0))
                                                         : new Color( 0,  0,  0,  80));
 
+                    if (fleetButton.Fleet.AutoRequisition)
+                    {
+                        Rectangle autoReq = new Rectangle(fleetButton.ClickRect.X - 18, fleetButton.ClickRect.Y + 5, 15, 20);
+                        batch.Draw(ResourceManager.Texture("NewUI/AutoRequisition"), autoReq, EmpireManager.Player.EmpireColor);
+                    }
+
                     buttonSelector.Draw(batch, elapsed);
                     batch.Draw(fleetButton.Fleet.Icon, housing, EmpireManager.Player.EmpireColor);
                     if (needShadow)
