@@ -73,7 +73,7 @@ namespace Ship_Game.AI.ExpansionAI
             return (int)goals;
         }
 
-        float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
+        float PopulationRatio    => Owner.TotalPopBillion / Owner.MaxPopBillion.LowerBound(1);
         float ExpansionThreshold => (Owner.IsExpansionists ? 0.1f : 0.15f) * Owner.DifficultyModifiers.ExpansionMultiplier;
     
         int GoalsModifierByRank() // increase goals if we are behind other empires

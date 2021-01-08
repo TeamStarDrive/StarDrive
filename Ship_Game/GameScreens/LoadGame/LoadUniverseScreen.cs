@@ -177,6 +177,7 @@ namespace Ship_Game
             CreateTasksGoalsRoads(saveData, data);             step.Advance();
             CreatePlanetImportExportShipLists(saveData, data); step.Advance();
             UpdateDefenseShipBuildingOffense();                step.Advance();
+            UpdatePopulation();                                step.Advance();
             RestoreSolarSystemCQs(saveData, data);             step.Finish();
             return data;
         }

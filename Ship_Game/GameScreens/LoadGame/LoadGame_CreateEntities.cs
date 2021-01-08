@@ -661,6 +661,12 @@ namespace Ship_Game
                 empire.UpdateDefenseShipBuildingOffense();
         }
 
+        void UpdatePopulation()
+        {
+            foreach (Empire empire in EmpireManager.ActiveEmpires)
+                empire.UpdatePopulation();
+        }
+
         static void CreateRelations(SavedGame.UniverseSaveData saveData)
         {
             Empire.InitializeRelationships(saveData.EmpireDataList);

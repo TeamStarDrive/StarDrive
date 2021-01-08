@@ -309,7 +309,7 @@ namespace Ship_Game.AI.Tasks
             }
 
             UpdateMinimumTaskForceStrength();
-            float divider = (Owner.GetTotalPop() / 30).LowerBound(1);
+            float divider = (Owner.TotalPopBillion / 30).LowerBound(1);
             InitFleetRequirements(MinimumTaskForceStrength / divider, minTroopStrength: 0, minBombMinutes: 0);
 
             if (CreateTaskFleet("Defense Task Force", Completeness) == RequisitionStatus.Complete)
