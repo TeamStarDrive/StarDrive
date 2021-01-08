@@ -430,6 +430,7 @@ namespace Ship_Game
                     fleet.Owner = e;
                     fleet.FinalPosition = fleetsave.Position;
                     fleet.SetSpeed();
+                    fleet.SetAutoRequisition(fleetsave.AutoRequisition);
                     e.GetFleetsDict()[fleetsave.Key] = fleet;
                 }
             }

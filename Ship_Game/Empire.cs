@@ -2555,6 +2555,41 @@ namespace Ship_Game
             }
         }
 
+        public void TryAutoRequisitionShip(Fleet fleet, Ship ship)
+        {
+            if (!isPlayer || fleet == null || !fleet.AutoRequisition)
+                return;
+
+            if (!ShipsWeCanBuild.Contains(ship.Name) || !fleet.FindShipNode(ship, out FleetDataNode node))
+                return;
+
+            using (OwnedShips.AcquireReadLock())
+            {
+                for (int i = 0; i < OwnedShips.Count; i++)
+                {
+                    Ship s = OwnedShips[i];
+                    if (s.fleet == null 
+                        && s.Name == ship.Name
+                        && !s.InCombat
+                        && s.HomePlanet == null 
+                        && s.Mothership == null 
+                        && s.AI.State != AIState.Refit
+                        && !s.AI.HasPriorityOrder
+                        && !s.AI.HasPriorityTarget)
+                    {
+                        s.AI.ClearOrders();
+                        fleet.AddExistingShip(s, node);
+                        return;
+                    }
+                }
+            }
+
+            var g = new FleetRequisition(ship.Name, this, false) { Fleet = fleet };
+            node.GoalGUID = g.guid;
+            EmpireAI.Goals.Add(g);
+            g.Evaluate();
+        }
+
         private void TakeTurn()
         {
             if (IsEmpireDead()) return;

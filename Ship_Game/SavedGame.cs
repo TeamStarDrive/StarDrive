@@ -196,14 +196,15 @@ namespace Ship_Game
                     if (fleet.Value.DataNodes == null) continue;
                     var fs = new FleetSave
                     {
-                        Name        = fleet.Value.Name,
-                        IsCoreFleet = fleet.Value.IsCoreFleet,
-                        TaskStep    = fleet.Value.TaskStep,
-                        Key         = fleet.Key,
-                        facing      = fleet.Value.FinalDirection.ToRadians(), // @note Save game compatibility uses radians
-                        FleetGuid   = fleet.Value.Guid,
-                        Position    = fleet.Value.FinalPosition,
-                        ShipsInFleet = new Array<FleetShipSave>()
+                        Name            = fleet.Value.Name,
+                        IsCoreFleet     = fleet.Value.IsCoreFleet,
+                        TaskStep        = fleet.Value.TaskStep,
+                        Key             = fleet.Key,
+                        facing          = fleet.Value.FinalDirection.ToRadians(), // @note Save game compatibility uses radians
+                        FleetGuid       = fleet.Value.Guid,
+                        Position        = fleet.Value.FinalPosition,
+                        ShipsInFleet    = new Array<FleetShipSave>(),
+                        AutoRequisition = fleet.Value.AutoRequisition
                     };                    
                     foreach (FleetDataNode node in fleet.Value.DataNodes)
                     {
@@ -620,6 +621,7 @@ namespace Ship_Game
             [Serialize(6)] public int Key;
             [Serialize(7)] public Array<FleetShipSave> ShipsInFleet;
             [Serialize(8)] public Array<FleetDataNode> DataNodes;
+            [Serialize(9)] public bool AutoRequisition;
 
             public override string ToString() => $"FleetSave {Name} (core={IsCoreFleet}) {FleetGuid} {Position}";
         }
