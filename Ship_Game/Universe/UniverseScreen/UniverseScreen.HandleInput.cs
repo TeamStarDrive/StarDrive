@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -7,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Ship_Game.Audio;
 using Ship_Game.Fleets;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace Ship_Game
 {
@@ -280,6 +280,15 @@ namespace Ship_Game
                 ToggleCinematicMode();
 
             ShowTacticalCloseup = input.TacticalIcons;
+
+            if (input.QuickSave)
+            {
+                string saveName = $"Quicksave, {EmpireManager.Player.data.Traits.Name}, {StarDate.String()}";
+                RunOnEmpireThread(() =>
+                {
+                    var savedGame = new SavedGame(this, saveName);
+                });
+            }
 
             if (input.UseRealLights)
             {
