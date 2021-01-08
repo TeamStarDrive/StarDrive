@@ -2131,18 +2131,25 @@ namespace Ship_Game
             Array<Ship> troopShips;
             using (OwnedShips.AcquireReadLock())
                 troopShips = new Array<Ship>(OwnedShips
-                    .Filter(troopship => troopship.Name == data.DefaultTroopShip
-                                        && troopship.HasOurTroops
-                                        && (troopship.AI.State == AIState.AwaitingOrders 
-                                            || troopship.AI.State == AIState.Orbit
-                                            || troopship.AI.State == AIState.HoldPosition)
-                                        && troopship.fleet == null && !troopship.InCombat)
+                    .Filter(troopship => troopship.IsIdleSingleTroopship)
                     .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
             if (troopShips.Count > 0)
                 troopShip = troopShips.First();
 
             return troopShip != null;
+        }
+
+        public bool CanRebaseTroops()
+        {
+            bool canRebase;
+            using (OwnedShips.AcquireReadLock())
+            {
+                canRebase = OwnedShips.Any(s => s.IsIdleSingleTroopship) 
+                            || OwnedPlanets.Any(predicate => predicate.NumTroopsCanLaunch > 0);
+            }
+
+            return canRebase;
         }
 
         private bool LaunchNearestTroopForRebase(out Ship troopShip, Vector2 objectCenter, string planetName = "")

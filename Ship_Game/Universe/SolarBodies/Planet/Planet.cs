@@ -917,7 +917,7 @@ namespace Ship_Game
 
             bool spacePort            = false;
             AllowInfantry             = false;
-            InfraStructure            = 0;
+            InfraStructure            = 1;
             RepairPerTurn             = 0;
             TerraformToAdd            = 0;
             ShieldStrengthMax         = 0;
