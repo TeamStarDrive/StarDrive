@@ -4731,6 +4731,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>The radius of the projectile's explosion. The number given is in slots. So 3 means 3 slots in every direction might be affected by the blast.</Text>
     </Token>
     <Token>
+      <Index>1833</Index>
+      <Text>Automatic Requisition</Text>
+    </Token>
+    <Token>
+      <Index>1834</Index>
+      <Text>If checked, every time a ship in the fleet is destroyed, a new one will be created to fill the lines. The ship must be able to be built by your empire.</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
