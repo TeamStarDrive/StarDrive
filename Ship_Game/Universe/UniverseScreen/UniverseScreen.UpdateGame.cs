@@ -467,21 +467,22 @@ namespace Ship_Game
             if (!Paused && IsActive)
             {
                 EmpireUpdatePerf.Start();
-
-                for (var i = 0; i < EmpireManager.NumEmpires; i++)
-                {
-                    Empire empire = EmpireManager.Empires[i];
-                    if (!empire.data.Defeated)
-                    {
-                        empire.Update(timeStep);
-                    }
-                }
-
-                EmpireUpdatePerf.Stop();
-                return true;
+                UpdateEmpires(timeStep);
             }
             
             return !Paused;
+        }
+
+        void UpdateEmpires(FixedSimTime timeStep)
+        {
+            for (int i = 0; i < EmpireManager.NumEmpires; i++)
+            {
+                Empire empire = EmpireManager.Empires[i];
+                if (!empire.data.Defeated)
+                {
+                    empire.Update(timeStep);
+                }
+            }
         }
 
         /*
