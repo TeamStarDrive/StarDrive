@@ -220,7 +220,15 @@ namespace Ship_Game.AI.Research
         {
             Array<TechEntry> availableTechs = OwnerEmpire.CurrentTechsResearchable();
 
-            if (availableTechs.Count <= 0) return false;
+            if (availableTechs.Count <= 0)
+            {
+                OwnerEmpire.Research.SetNoResearchLeft(true);
+                return false;
+            }
+            else
+            {
+                OwnerEmpire.Research.SetNoResearchLeft(false);
+            }
 
             DebugLog($"Possible Techs : {availableTechs.Count}");
 
