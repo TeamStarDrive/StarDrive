@@ -1006,7 +1006,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
 
     <Token>
       <Index>249</Index>
-      <Text>Add this item to the colony's build queue. Holding Shift will add it 5 times. Holding Ctrl will add it 10 times.</Text>
+      <Text>Add this item to the colony's build queue. Holding Shift will add it 5 times. Holding Ctrl will add it 10 times. The credits cost listed is the final credit cost of this item. The cost will be charged partially, as production progresses.</Text>
     </Token>
     <Token>
       <Index>250</Index>
@@ -1014,7 +1014,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>251</Index>
-      <Text>Cancel production and remove this item from the construction queue</Text>
+      <Text>Cancel production and remove this item from the construction queue. 50% of the production spent will be returned to the colony's storage, however, there will be no credit refund.</Text>
     </Token>
     <Token>
       <Index>252</Index>
@@ -7255,7 +7255,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>805</Index>
-      <Text>This is a collection of seeds that have clearly undergone extensive and advanced genetic manipulation. In fact, these seeds don't even seem to be programmed with DNA at all, but instead with some sort of alternative gene sequencing that is beyond anything we have ever seen. \n\nProvides a +.1 Fertility bonus to any planet that you own or colonize</Text>
+      <Text>This is a collection of seeds that have clearly undergone extensive and advanced genetic manipulation. In fact, these seeds don't even seem to be programmed with DNA at all, but instead with some sort of alternative gene sequencing that is beyond anything we have ever seen. \n\nProvides a +0.1 Fertility bonus to any planet that you own or colonize</Text>
     </Token>
     <Token>
       <Index>806</Index>
