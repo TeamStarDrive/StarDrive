@@ -44,7 +44,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 return; // No friendly_fire
 
             DeclareWarOnBombingEmpire(bomb);
-            P.SetInGroundCombat();
+            P.SetInGroundCombat(Owner);
+
             if (ShieldStrengthCurrent > 0f)
                 DamageColonyShields(bomb);
             else
