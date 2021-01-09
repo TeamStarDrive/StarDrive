@@ -555,6 +555,14 @@ namespace Ship_Game
                 CinematicModeTextTimer -= elapsed.RealTime.Seconds;
                 DrawTopCenterStatusText(batch, "Cinematic Mode - Press F11 to exit", Color.White, 3);
             }
+
+            if (!EmpireManager.Player.Research.NoResearchLeft 
+                && EmpireManager.Player.Research.NoTopic
+                && !EmpireManager.Player.AutoResearch
+                && !Empire.Universe.Debug)
+            {
+                DrawTopCenterStatusText(batch, "No Research!",  ApplyCurrentAlphaToColor(Color.Red), 2);
+            }
         }
 
         void DrawShipRangeOverlay()

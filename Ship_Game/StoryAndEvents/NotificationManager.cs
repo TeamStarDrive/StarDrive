@@ -278,7 +278,7 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
-        public void AddEnemyTroopsLandedNotification(Planet where, Empire invader, Empire player)
+        public void AddEnemyTroopsLandedNotification(Planet where, Empire invader)
         {
             AddNotification(new Notification
             {
