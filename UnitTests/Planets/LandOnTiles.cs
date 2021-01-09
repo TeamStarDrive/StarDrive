@@ -25,6 +25,7 @@ namespace UnitTests.Planets
         void CreateTestEnv()
         {
             CreateUniverseAndPlayerEmpire(out TestEmpire);
+            Universe.NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
             AddDummyPlanetToEmpire(TestEmpire);
             AddHomeWorldToEmpire(TestEmpire, out P);
             Enemy1   = CreateEnemyTroop;
