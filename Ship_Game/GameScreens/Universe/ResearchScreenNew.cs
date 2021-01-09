@@ -327,6 +327,7 @@ namespace Ship_Game
                 int totalTechs = EmpireManager.Player.TechEntries.Count;
                 int techUnlocked = EmpireManager.Player.TechEntries.Count(t => t.Unlocked);
                 float ratioUnlocked = techUnlocked / (float)totalTechs;
+                EmpireManager.Player.Research.SetNoResearchLeft(true);
 
                 foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
                 {

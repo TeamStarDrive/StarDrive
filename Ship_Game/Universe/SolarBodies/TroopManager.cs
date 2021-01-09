@@ -348,23 +348,19 @@ namespace Ship_Game
                 return; // FB - nothing to change if no new troops invade
 
             Empire player = Empire.Universe.PlayerEmpire;
-            if (Owner.isPlayer) // notify player of invasion
-            {
-                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(Ground, invadingEmpires[0], Owner);
-            }
-            else if (invadingEmpires.Any(e => e.isPlayer) && !Owner.isFaction && !player.IsAtWarWith(Owner))
+            if (invadingEmpires.Any(e => e.isPlayer) && !Owner.isFaction && !player.IsAtWarWith(Owner))
             {
                 if (player.IsNAPactWith(Owner))
                 {
                     DiplomacyScreen.Show(Owner, "Invaded NA Pact", ParentSystem);
-                    player.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
+                    Owner.GetEmpireAI().DeclareWarOn(player, WarType.ImperialistWar);
                     Owner.GetRelations(player).Trust -= 50f;
                     Owner.GetRelations(player).AddAngerDiplomaticConflict(50);
                 }
                 else
                 {
                     DiplomacyScreen.Show(Owner, "Invaded Start War", ParentSystem);
-                    player.GetEmpireAI().DeclareWarOn(Owner, WarType.ImperialistWar);
+                    Owner.GetEmpireAI().DeclareWarOn(player, WarType.ImperialistWar);
                     Owner.GetRelations(player).Trust -= 25f;
                     Owner.GetRelations(player).AddAngerDiplomaticConflict(25);
                 }

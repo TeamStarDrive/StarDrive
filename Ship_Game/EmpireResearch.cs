@@ -6,6 +6,7 @@ namespace Ship_Game
     public class EmpireResearch
     {
         readonly Empire Empire;
+        public bool NoResearchLeft { get; private set; }
 
         // The FIRST item (0) is always the Current research topic
         Array<string> Queue => Empire.data.ResearchQueue;
@@ -101,6 +102,14 @@ namespace Ship_Game
                 if (Empire.isPlayer)
                     Empire.Universe?.NotificationManager.AddResearchComplete(tech.UID, Empire);
             }
+        }
+
+        /// <summary>
+        /// If true, it will prevent UI warning for player if there is no research
+        /// </summary>
+        public void SetNoResearchLeft(bool value)
+        {
+            NoResearchLeft = value;
         }
 
         // Inserts to the front of ResearchQueue, OR moves existing tech to the front
