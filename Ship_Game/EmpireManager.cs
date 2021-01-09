@@ -47,6 +47,9 @@ namespace Ship_Game
         public static Empire[] ActiveMajorEmpires => 
             Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated);
 
+        public static Empire[] ActiveEmpires =>
+            Empires.Filter(empire => !empire.data.Defeated);
+
         public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.isFaction);
         public static Empire[] Factions       => Empires.Filter(empire => empire.isFaction);
         public static Empire[] PirateFactions => Empires.Filter(empire => empire.WeArePirates);
@@ -255,7 +258,7 @@ namespace Ship_Game
             empire.EmpireColor         = new Color(128, 128, 128, 255);
 
             empire.InitializeFromSave();
-
+            empire.UpdatePopulation();
             data.IsRebelFaction  = true;
             data.Traits.Name     = data.RebelName;
             data.Traits.Singular = data.RebelSing;
