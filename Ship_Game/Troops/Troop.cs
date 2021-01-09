@@ -494,7 +494,7 @@ namespace Ship_Game
                 DamageTroop(planet.TotalInvadeInjure, planet, tileToLand,  out bool _);
 
             tileToLand.CheckAndTriggerEvent(planet, Loyalty);
-            planet.SetInGroundCombat();
+            planet.SetInGroundCombat(Loyalty, notify: true);
             return true;
         }
 
@@ -511,7 +511,7 @@ namespace Ship_Game
                 AttackTimer = 3f; // Land delay
             }
 
-            planet.SetInGroundCombat();
+            planet.SetInGroundCombat(Loyalty, notify: true);
         }
 
         PlanetGridSquare PickTileToLand(Planet planet, PlanetGridSquare[] freeTiles)

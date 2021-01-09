@@ -368,8 +368,11 @@ namespace Ship_Game
             return worth;
         }
 
-        public void SetInGroundCombat()
+        public void SetInGroundCombat(Empire empire, bool notify = false)
         {
+            if (!RecentCombat && notify && Owner == EmpireManager.Player && Owner.IsAtWarWith(empire))
+                Empire.Universe.NotificationManager.AddEnemyTroopsLandedNotification(this, empire);
+
             TroopManager.SetInCombat();
         }
 
