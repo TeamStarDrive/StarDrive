@@ -509,7 +509,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12, Localizer.Token(6099)+"Unknown", textCursor, Color.White);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), GetPop(SelectedEmpire).ToString("0.0"), Localizer.Token(6101)), textCursor, Color.White);
+            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), GetPop(SelectedEmpire).String(1), Localizer.Token(6101)) + " ", textCursor, Color.White);
             //Diplomatic Relations
             foreach ((Empire other, Relationship rel) in SelectedEmpire.AllRelations)
             {
@@ -704,7 +704,7 @@ namespace Ship_Game
         private float GetPop(Empire e)
         {
             if (Traders.Contains(e) || e.isPlayer)
-                return e.GetTotalPop();
+                return e.TotalPopBillion;
 
             float pop = GetPopInExploredPlanetsFor(PlayerEmpire, e);
             foreach (Empire tradePartner in Traders)
