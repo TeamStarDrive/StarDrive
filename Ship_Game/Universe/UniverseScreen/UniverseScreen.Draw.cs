@@ -909,7 +909,7 @@ namespace Ship_Game
 
                 SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out Color statColor);
                 if (statColor != Color.Black)
-                    batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_status"), iconHousing, ApplyCurrentAlphaToColor(statColor, 0));
+                    batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_status"), iconHousing, ApplyCurrentAlphaToColor(statColor));
 
                 batch.Draw(icon, iconHousing, fleetButton.Fleet.Owner.EmpireColor);
                 if (secondary != null)
