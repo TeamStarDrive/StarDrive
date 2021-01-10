@@ -4,7 +4,6 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Ship_Game.Commands.Goals;
 using Ship_Game.GameScreens.DiplomacyScreen;

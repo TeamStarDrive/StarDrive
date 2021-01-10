@@ -173,6 +173,9 @@ namespace Ship_Game.Universe.SolarBodies
             Building b = ResourceManager.CreateBuilding(q.Building.Name);
             b.IsPlayerAdded = q.IsPlayerAdded;
             q.pgs.PlaceBuilding(b, P);
+            if (!Empire.Universe.IsViewingColonyScreen(P) && P.Owner == EmpireManager.Player && q.IsPlayerAdded)
+                Empire.Universe.NotificationManager.AddBuildingConstructed(P, b);
+
             return true;
         }
 
