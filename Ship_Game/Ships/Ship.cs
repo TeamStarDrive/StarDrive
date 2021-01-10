@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Ships
 {
@@ -267,9 +268,17 @@ namespace Ship_Game.Ships
         public ShipData.RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
         public string DesignRoleName            => ShipData.GetRole(DesignRole);
 
-        public SubTexture GetTacticalIcon(out SubTexture secondaryIcon)
+        public SubTexture GetTacticalIcon(out SubTexture secondaryIcon, out Color statusColor)
         {
             secondaryIcon = null;
+            statusColor = Color.Black;
+
+            if (HealthPercent < 0.75f)
+                statusColor = Color.Yellow;
+
+            if (InternalSlotsHealthPercent < 0.75f)
+                statusColor = Color.Red;
+
             if (IsConstructor)
                 return ResourceManager.Texture("TacticalIcons/symbol_construction");
 

@@ -14,20 +14,22 @@ namespace Ship_Game
         public bool Hover;
         public int WhichToolTip;
         public bool HasToolTip;
-        public Color HoverColor = Color.White;
-        public Color BaseColor = Color.White;
+        public Color HoverColor            = Color.White;
+        public Color BaseColor             = Color.White;
         private readonly Color ToggleColor = new Color(33, 26, 18);
         private readonly SubTexture Texture;
         private readonly SubTexture SecondTex;
+        private readonly SubTexture BackGroundTex; // Can draw a background tex under this button
+        public Color BackGroundTexColor { get; private set; } = Color.Black;
         private string tPath;
 
         public SkinnableButton(Rectangle r, string texturePath)
         {
-            tPath   = texturePath;
-            Texture = ResourceManager.Texture(tPath);
-            this.r  = r;
+            tPath     = texturePath;
+            Texture   = ResourceManager.Texture(tPath);
+            this.r    = r;
         }
-        public SkinnableButton(Rectangle r, SubTexture texture, SubTexture secondary)
+        public SkinnableButton(Rectangle r, SubTexture texture, SubTexture secondary, SubTexture backgroundTex = null)
         {
             Texture   = texture;
             this.r    = r;
@@ -38,10 +40,21 @@ namespace Ship_Game
         {
             if (Toggled)
                 batch.FillRectangle(r, ToggleColor);
-         
+
+            if (BackGroundTexColor != Color.Black)
+                batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_status"), r, BackGroundTexColor);
+
             batch.Draw(Texture, r, Hover ? HoverColor : BaseColor);
             if (SecondTex != null)
                 batch.Draw(SecondTex, r, Hover ? HoverColor : BaseColor);
+        }
+
+        /// <summary>
+        /// Updates the background texture color, if applicable. Can be used for blinking textures.
+        /// </summary>
+        public void UpdateBackGroundTexColor(Color color)
+        {
+            BackGroundTexColor = color;
         }
 
         public bool HandleInput(InputState input)

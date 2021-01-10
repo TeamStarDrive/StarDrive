@@ -304,7 +304,7 @@ namespace Ship_Game
                     Rectangle r = new Rectangle((int) pPos.X - (int) radius, (int) pPos.Y - (int) radius,
                         (int) radius * 2, (int) radius * 2);
 
-                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary);
+                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out _);
                     if (node.GoalGUID == Guid.Empty)
                     {
                         Color color = HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node) ? Color.White : Color.Red;
@@ -339,7 +339,7 @@ namespace Ship_Game
                 else
                 {
                     Ship ship = node.Ship;
-                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary);
+                    SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out _);
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
@@ -371,7 +371,7 @@ namespace Ship_Game
                 float scale;
                 Vector2 iconOrigin;
                 Ship ship       = ActiveShipDesign;
-                SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary);
+                SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out _);
                 {
                     scale = ship.SurfaceArea /
                             (float) (30 + ResourceManager.Texture("TacticalIcons/symbol_fighter").Width);
