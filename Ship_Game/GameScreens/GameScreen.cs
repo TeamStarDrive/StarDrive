@@ -267,10 +267,10 @@ namespace Ship_Game
         // Gets the current cursor blinking mask color [255,255,255,a]
         public Color CurrentFlashColor => ApplyCurrentAlphaToColor(new Color(255, 255, 255));
 
-        protected Color ApplyCurrentAlphaToColor(Color color, byte trim = 0)
+        protected Color ApplyCurrentAlphaToColor(Color color)
         {
             float f = Math.Abs(RadMath.Sin(GameBase.Base.TotalElapsed)) * 255f;
-            return new Color(color, (byte)f.Clamped(0 + trim, 255 - trim));
+            return new Color(color, (byte)f);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
