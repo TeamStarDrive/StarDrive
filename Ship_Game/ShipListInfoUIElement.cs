@@ -39,7 +39,7 @@ namespace Ship_Game
         public ShipListInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
             Housing = r;
-            this.Screen = screen;
+            Screen  = screen;
             ScreenManager = sm;
             ElementRect = r;
             Selector = new Selector(r, Color.Black);
@@ -206,11 +206,13 @@ namespace Ship_Game
 
         public void CalcAndDrawProgressBars(SpriteBatch batch)
         {
+
             float fleetOrdnance      = 0f;
             float fleetOrdnanceMax   = 0f;
             float fleetShields       = 0f;
             float fleetShieldsMax    = 0f;
             float fleetHealthPercent = 0f;
+            float fleetStr           = 0f;
 
             for (int i = 0; i < ShipList.Count; i++)
             {
@@ -223,6 +225,7 @@ namespace Ship_Game
                 fleetShields       += ship.shield_power;
                 fleetShieldsMax    += ship.shield_max;
                 fleetHealthPercent += ship.HealthPercent;
+                fleetStr           += ship.GetStrength();
             }
 
             fleetHealthPercent = (fleetHealthPercent / ShipList.Count() * 100).Clamped(0,100);
@@ -230,6 +233,7 @@ namespace Ship_Game
             DrawProgressBar(batch, fleetHealthPercent, 100, "green", "StatusIcons/icon_structure", ref barYPos, true);
             DrawProgressBar(batch, fleetOrdnance, fleetOrdnanceMax, "brown", "Modules/Ordnance", ref barYPos);
             DrawProgressBar(batch, fleetShields, fleetShieldsMax, "blue", "Modules/Shield_1KW", ref barYPos);
+            batch.DrawString(Fonts.Arial12, $"Total Strength: {fleetStr.GetNumberString()}", Housing.X + 45, barYPos, Color.White);
         }
 
         public void DrawProgressBar(SpriteBatch batch, float value, float maxValue, string color, string texture, ref int yPos, bool percentage = false)
