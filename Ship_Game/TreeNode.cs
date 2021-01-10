@@ -8,7 +8,8 @@ namespace Ship_Game
 {
     public sealed class TreeNode : Node
     {
-        public SpriteFont TitleFont = Fonts.Visitor10;
+        //public SpriteFont TitleFont = Fonts.Visitor10;
+        public SpriteFont TitleFont = Fonts.Tahoma10;
 
         public NodeState State;
 
@@ -168,7 +169,7 @@ namespace Ship_Game
             UnlocksRect.Width = UnlocksRect.Width + 4;
             UnlocksRect.Y = UnlocksRect.Y - 2;
             UnlocksRect.Height = UnlocksRect.Height + 4;
-            TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 15, 90, 29);
+            TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 20, 90, 36);
             if (GlobalStats.IsGermanOrPolish)
             {
                 TitleRect.X = TitleRect.X - 5;
@@ -176,11 +177,11 @@ namespace Ship_Game
                 TreeNode titleWidth = this;
                 titleWidth.TitleWidth = titleWidth.TitleWidth + 10f;
             }
-            CostPos = new Vector2(65f, 70f) + new Vector2(BaseRect.X, BaseRect.Y);
+            CostPos = new Vector2(62f, 70f) + new Vector2(BaseRect.X, BaseRect.Y);
             float x = CostPos.X;
             SpriteFont titleFont = TitleFont;
             float cost = Entry.TechCost;
-            CostPos.X = x - titleFont.MeasureString(cost.String(1)).X;
+            CostPos.X = x - TitleFont.MeasureString(cost.GetNumberString()).X;
             CostPos.X = (int)CostPos.X;
             CostPos.Y = (int)CostPos.Y - 3;
 
@@ -211,15 +212,15 @@ namespace Ship_Game
                     batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
                     batch.DrawRectangle(UnlocksRect, active ? new Color(34, 136, 200) : Color.Black);
                     grid.Draw(batch);
-                    batch.Draw(active ? ResourceManager.Texture("ResearchMenu/tech_base_complete")
-                                      : ResourceManager.Texture("ResearchMenu/tech_base"), BaseRect, Color.White);
+                    batch.Draw(active ? ResourceManager.Texture("NewUI/new_tech_base_complete")
+                                      : ResourceManager.Texture("NewUI/new_tech_base"), BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
                     batch.Draw(TechIcon, IconRect, Color.White);
-                    batch.Draw(active ? ResourceManager.Texture("ResearchMenu/tech_base_title_complete")
-                                      : ResourceManager.Texture("ResearchMenu/tech_base_title"), TitleRect, Color.White);
+                    batch.Draw(active ? ResourceManager.Texture("NewUI/new_tech_base_title_complete")
+                                      : ResourceManager.Texture("NewUI/new_tech_base_title"), TitleRect, Color.White);
                     string str1 = TitleFont.ParseText(TechName, TitleWidth);
                     string[] strArray1 = Regex.Split(str1, "\n");
-                    Vector2 vector2_1 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str1).X / 2f, TitleRect.Y + 14 - TitleFont.MeasureString(str1).Y / 2f);
+                    Vector2 vector2_1 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str1).X / 2f, TitleRect.Y + 18 - TitleFont.MeasureString(str1).Y / 2f);
                     int num1 = 0;
                     foreach (string text in strArray1)
                     {
@@ -239,12 +240,12 @@ namespace Ship_Game
                     batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
                     batch.DrawRectangle(UnlocksRect, new Color(190, 113, 25));
                     grid.Draw(batch);
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_hover"), BaseRect, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/new_tech_base_hover"), BaseRect, Color.White);
                     batch.Draw(TechIcon, IconRect, Color.White);
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_title_hover"), TitleRect, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/new_tech_base_title_hover"), TitleRect, Color.White);
                     string str2 = TitleFont.ParseText(TechName, TitleWidth);
                     string[] strArray2 = Regex.Split(str2, "\n");
-                    Vector2 vector2_2 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str2).X / 2f, TitleRect.Y + 14 - TitleFont.MeasureString(str2).Y / 2f);
+                    Vector2 vector2_2 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str2).X / 2f, TitleRect.Y + 18 - TitleFont.MeasureString(str2).Y / 2f);
                     int num3 = 0;
                     foreach (string text in strArray2)
                     {
@@ -263,12 +264,12 @@ namespace Ship_Game
                     batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
                     batch.DrawRectangle(UnlocksRect, new Color(190, 113, 25));
                     grid.Draw(batch);
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_hover"), BaseRect, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/new_tech_base_hover"), BaseRect, Color.White);
                     batch.Draw(TechIcon, IconRect, Color.White);
-                    batch.Draw(ResourceManager.Texture("ResearchMenu/tech_base_title_hover"), TitleRect, Color.White);
+                    batch.Draw(ResourceManager.Texture("NewUI/new_tech_base_title_hover"), TitleRect, Color.White);
                     string str3 = TitleFont.ParseText(TechName, TitleWidth);
                     string[] strArray3 = Regex.Split(str3, "\n");
-                    Vector2 vector2_3 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str3).X / 2f, TitleRect.Y + 14 - TitleFont.MeasureString(str3).Y / 2f);
+                    Vector2 vector2_3 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str3).X / 2f, TitleRect.Y + 18 - TitleFont.MeasureString(str3).Y / 2f);
                     int num5 = 0;
                     foreach (string text in strArray3)
                     {
@@ -286,7 +287,7 @@ namespace Ship_Game
             }
             var techCost = Entry.TechCost;
             if (!Entry.Unlocked) techCost -= Entry.Progress;
-            batch.DrawString(TitleFont, ((float)(int)techCost).String(1), CostPos, Color.White);
+            batch.DrawString(TitleFont, techCost.GetNumberString(), CostPos, Color.LightBlue);
             if (TechTemplate.NumStuffUnlocked > 4)
             { 
                 PlusRect = new Rectangle(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.Height, 20, 20);

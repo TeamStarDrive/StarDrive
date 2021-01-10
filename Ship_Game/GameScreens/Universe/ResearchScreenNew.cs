@@ -53,7 +53,7 @@ namespace Ship_Game
             int numDiscoveredRoots = EmpireManager.Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
 
             GridHeight = (main.Height - 40) / numDiscoveredRoots;
-            MainMenuOffset.Y = main.Y + GridHeight / 3;
+            MainMenuOffset.Y = main.Y + 12 + GridHeight / 3;
             if (ScreenHeight <= 720)
             {
                 MainMenuOffset.Y = MainMenuOffset.Y + 8f;
