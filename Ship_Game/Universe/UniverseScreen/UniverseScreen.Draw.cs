@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -908,7 +907,11 @@ namespace Ship_Game
                     shipSpacingH.Y += 18f;
                 }
 
-                batch.Draw(ship.GetTacticalIcon(out SubTexture secondary), iconHousing, fleetButton.Fleet.Owner.EmpireColor);
+                SubTexture icon = ship.GetTacticalIcon(out SubTexture secondary, out Color statColor);
+                if (statColor != Color.Black)
+                    batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_status"), iconHousing, ApplyCurrentAlphaToColor(statColor));
+
+                batch.Draw(icon, iconHousing, fleetButton.Fleet.Owner.EmpireColor);
                 if (secondary != null)
                     batch.Draw(secondary, iconHousing, fleetButton.Fleet.Owner.EmpireColor);
             }
@@ -975,7 +978,7 @@ namespace Ship_Game
 
             string GetFullTacticalIconPaths(Ship s)
             {
-                string icon = $"TacticalIcons/{s.GetTacticalIcon(out SubTexture secondary).Name}";
+                string icon = $"TacticalIcons/{s.GetTacticalIcon(out SubTexture secondary, out _).Name}";
                 if (secondary != null)
                     icon = $"{icon}|TacticalIcons/{secondary.Name}";
 
@@ -1071,7 +1074,7 @@ namespace Ship_Game
 
         void DrawShipProjectionIcon(Ship ship, Vector2 position, Vector2 direction, Color color)
         {
-            SubTexture symbol = ship.GetTacticalIcon(out SubTexture secondary);
+            SubTexture symbol = ship.GetTacticalIcon(out SubTexture secondary, out _);
             float num         = ship.SurfaceArea / (30f + symbol.Width);
             float scale       = (num * 4000f / CamHeight).UpperBound(1);
 

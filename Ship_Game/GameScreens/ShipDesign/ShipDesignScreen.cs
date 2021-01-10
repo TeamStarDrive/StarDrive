@@ -10,7 +10,6 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesignScreen;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
-using Ship_Game.ShipDesignIssues;
 
 namespace Ship_Game
 {

@@ -1,11 +1,8 @@
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Ship_Game.Debug;
 using Ship_Game.Fleets;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Commands.Goals;

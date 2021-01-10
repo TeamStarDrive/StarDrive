@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
 using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
 using Ship_Game.Empires;
 using Ship_Game.Gameplay;
@@ -199,6 +198,7 @@ namespace Ship_Game
         bool IsUniverseInitialized;
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.P == p;
+        public bool IsViewingColonyScreen(Planet p) => LookingAtPlanet && workersPanel is ColonyScreen cs && cs.P == p;
 
         public Array<Ship> GetMasterShipList() => Objects.Ships;
 
