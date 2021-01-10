@@ -177,6 +177,17 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddBuildingConstructed(Planet p, Building b)
+        {
+            AddNotification(new Notification
+            {
+                Message         = $"Construction of {b.Name}\nwas finished at {p.Name}",
+                ReferencedItem1 = p,
+                IconPath        = $"Buildings/icon_{b.Icon}_64x64",
+                Action          = "SnapToPlanet"
+            }, "smallservo");
+        }
+
         public void AddEmpireDiedNotification(Empire thatDied)
         {
             AddNotification(new Notification

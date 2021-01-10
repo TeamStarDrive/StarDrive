@@ -1,6 +1,3 @@
-using Ship_Game.Ships;
-using System;
-using System.Linq;
 using Ship_Game.AI.Research;
 
 namespace Ship_Game.AI

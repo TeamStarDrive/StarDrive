@@ -1,9 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
 using Ship_Game.Ships;
-using System;
-using System.Linq;
 using Ship_Game.Audio;
 
 namespace Ship_Game
@@ -219,6 +216,7 @@ namespace Ship_Game
             }
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            P.RefreshBuildingsWeCanBuildHere();
         }
 
         public float TerraformTargetFertility()
