@@ -31,9 +31,10 @@ namespace Ship_Game
         }
         public SkinnableButton(Rectangle r, SubTexture texture, SubTexture secondary, SubTexture backgroundTex = null)
         {
-            Texture   = texture;
-            this.r    = r;
-            SecondTex = secondary;
+            Texture       = texture;
+            this.r        = r;
+            SecondTex     = secondary;
+            BackGroundTex = backgroundTex;
         }
 
         public void Draw(SpriteBatch batch)
@@ -41,8 +42,8 @@ namespace Ship_Game
             if (Toggled)
                 batch.FillRectangle(r, ToggleColor);
 
-            if (BackGroundTexColor != Color.Black)
-                batch.Draw(ResourceManager.Texture("TacticalIcons/symbol_status"), r, BackGroundTexColor);
+            if (BackGroundTex != null && BackGroundTexColor != Color.Black)
+                batch.Draw(BackGroundTex, r, BackGroundTexColor);
 
             batch.Draw(Texture, r, Hover ? HoverColor : BaseColor);
             if (SecondTex != null)
