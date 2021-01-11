@@ -85,7 +85,7 @@ namespace Ship_Game
                 if (tile.TroopsAreOnTile)
                     PerformTroopsGroundActions(tile);
 
-                else if (tile.BuildingPerformsAutoCombat(Ground))
+                else if (tile.BuildingOnTile)
                     PerformGroundActions(tile.building, tile);
             }
         }
@@ -317,7 +317,7 @@ namespace Ship_Game
                     troop.ResetAttackTimer();
                 }
 
-                if (!troop.CanAttack || !troop.CanMove)
+                if (!troop.CanAttack || !troop.CanMove || Owner != null && troop.Loyalty != Owner)
                     startCombatTimer = true;
             }
         }

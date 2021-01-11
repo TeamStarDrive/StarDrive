@@ -190,8 +190,8 @@ namespace Ship_Game
                 return true;
 
             // only then check for ExitScreen condition
-            if ((CanEscapeFromScreen && input.Escaped) ||
-                (CanEscapeFromScreen && IsPopup && input.RightMouseClick))
+            if (CanEscapeFromScreen && input.Escaped ||
+                CanEscapeFromScreen && IsPopup && input.RightMouseClick)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();

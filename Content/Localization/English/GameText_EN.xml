@@ -4739,6 +4739,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>If checked, every time a ship in the fleet is destroyed, a new one will be created to fill the lines. The ship must be able to be built by your empire.</Text>
     </Token>
     <Token>
+      <Index>1835</Index>
+      <Text>Disable Building Alerts</Text>
+    </Token>
+    <Token>
+      <Index>1836</Index>
+      <Text> Normally, when you manually add a building to the colony's build queue, you will be notified when it is completed. You can disable these notifications, if you tend to manually build most of your buildings.</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
@@ -6163,7 +6171,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2207</Index>
-      <Text>Auto Ground Combat</Text>
+      <Text>Auto Ground Combat</Text> <!-- Not used Anymore -->
     </Token>
     <Token>
       <Index>2208</Index>
@@ -6254,7 +6262,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Your empire will automatically manage your freighter needs, creating freighters to transport food and passengers where needed. You will still need to designate which planets import and export various goods or select a Governor for them. You may select here a specific Freighter name you wish your Empire will use.</Text>
     </Token>
     <Token>
-      <Index>2230</Index>
+      <Index>2230</Index> <!-- Not used Anymore -->
       <Text>Your troops will automatically engage in ground combat even if you are viewing the combat. If you disable this option then you will need to manually control the ground combat if you are viewing it. Unviewed combats will still be automatically managed.</Text>
     </Token>
     <Token>
