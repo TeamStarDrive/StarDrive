@@ -71,7 +71,7 @@ namespace Ship_Game
                     unlock.module      = ResourceManager.GetModuleTemplate(TechTemplate.ModulesUnlocked[i].ModuleUID);
                     unlock.privateName = Localizer.Token(unlock.module.NameIndex);
                     unlock.Description = Localizer.Token(unlock.module.DescriptionIndex);
-                    unlock.Type        = UnlockType.SHIPMODULE;
+                    unlock.Type        = UnlockType.ShipModule;
                     Unlocks.Add(unlock);
                     numUnlocks++;
                 }
@@ -87,7 +87,7 @@ namespace Ship_Game
                     {
                         privateName = TechTemplate.BonusUnlocked[i].Name,
                         Description = Localizer.Token(TechTemplate.BonusUnlocked[i].BonusIndex),
-                        Type = UnlockType.ADVANCE
+                        Type = UnlockType.Advance
                     };
                     numUnlocks++;
                     Unlocks.Add(unlock);
@@ -104,7 +104,7 @@ namespace Ship_Game
                     unlock.building = ResourceManager.BuildingsDict[TechTemplate.BuildingsUnlocked[i].Name];
                     unlock.privateName = Localizer.Token(unlock.building.NameTranslationIndex);
                     unlock.Description = Localizer.Token(unlock.building.DescriptionIndex);
-                    unlock.Type = UnlockType.BUILDING;
+                    unlock.Type = UnlockType.Building;
                     numUnlocks++;
                     Unlocks.Add(unlock);
                 }
@@ -121,7 +121,7 @@ namespace Ship_Game
                         HullUnlocked = TechTemplate.HullsUnlocked[i].Name,
                         privateName = TechTemplate.HullsUnlocked[i].Name,
                         Description = "",
-                        Type = UnlockType.HULL
+                        Type = UnlockType.Hull
                     };
                     numUnlocks++;
                     Unlocks.Add(unlock);
@@ -139,7 +139,7 @@ namespace Ship_Game
                     unlock.troop       = ResourceManager.GetTroopTemplate(TechTemplate.TroopsUnlocked[i].Name);
                     unlock.privateName = TechTemplate.TroopsUnlocked[i].Name;
                     unlock.Description = unlock.troop.Description;
-                    unlock.Type        = UnlockType.TROOP;
+                    unlock.Type        = UnlockType.Troop;
                     numUnlocks++;
                     Unlocks.Add(unlock);
                 }
@@ -287,7 +287,7 @@ namespace Ship_Game
             }
             var techCost = Entry.TechCost;
             if (!Entry.Unlocked) techCost -= Entry.Progress;
-            batch.DrawString(TitleFont, techCost.GetNumberString(), CostPos, Color.LightBlue);
+            batch.DrawString(TitleFont, techCost.GetNumberString(), CostPos, Color.SkyBlue);
             if (TechTemplate.NumStuffUnlocked > 4)
             { 
                 PlusRect = new Rectangle(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.Height, 20, 20);

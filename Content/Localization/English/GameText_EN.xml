@@ -7178,7 +7178,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>925</Index>
-      <Text>This module contains all of the equipment, food, and colonists necessary to start a new colony on a distant world, including a small number of colonists as well as 2 food and 2 production to jump start their efforts. \n \nColonizing a planet will consume the ship used to colonize. </Text>
+      <Text>This module contains all of the equipment, food, and colonists necessary to start a new colony on a distant world, including a small number of colonists as well as 2 food and 2 production to jump start their efforts. Colonizing a planet will consume the ship used to colonize, but if it carries troops, they will land on the planet. Cargo modules will add to the number of colonists the colony ship can load.</Text>
     </Token>
     <Token>
       <Index>987</Index>
