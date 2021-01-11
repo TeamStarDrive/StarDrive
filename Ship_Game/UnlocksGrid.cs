@@ -6,11 +6,11 @@ namespace Ship_Game
 {
     public enum UnlockType
     {
-        SHIPMODULE,
-        TROOP,
-        BUILDING,
-        HULL,
-        ADVANCE
+        ShipModule,
+        Troop,
+        Building,
+        Hull,
+        Advance
     }
 
     public sealed class UnlockItem
@@ -63,7 +63,7 @@ namespace Ship_Game
                 UnlockItem unlock = gi.item;
                 switch (unlock.Type)
                 {
-                    case UnlockType.SHIPMODULE:
+                    case UnlockType.ShipModule:
                         var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 16 * unlock.module.XSIZE, 16 * unlock.module.YSIZE);
                         int modW = unlock.module.XSIZE;
                         int modH = unlock.module.YSIZE;
@@ -91,17 +91,17 @@ namespace Ship_Game
 
                         batch.Draw(unlock.module.ModuleTexture, iconRect, Color.White);
                         break;
-                    case UnlockType.TROOP:
+                    case UnlockType.Troop:
                         unlock.troop.DrawIcon(batch, gi.rect);
                         break;
-                    case UnlockType.BUILDING:
+                    case UnlockType.Building:
                         batch.Draw(ResourceManager.Texture($"Buildings/icon_{unlock.building.Icon}_64x64"), gi.rect, Color.White);
                         break;
-                    case UnlockType.HULL:
+                    case UnlockType.Hull:
                         if (ResourceManager.Hull(unlock.privateName, out ShipData hullData))
                             batch.Draw(hullData.Icon, gi.rect, Color.White);
                         break;
-                    case UnlockType.ADVANCE:
+                    case UnlockType.Advance:
                         batch.Draw(ResourceManager.Texture("TechIcons/star"), gi.rect, Color.White);
                         break;
                 }
