@@ -69,10 +69,10 @@ namespace Ship_Game
             UIList rest = AddList(new Vector2(win.X + 10f, win.Y + 200f));
             rest.Padding = new Vector2(2f, 10f);
             rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: 1958, tooltip: 1959);
-            rest.AddCheckbox(() => GlobalStats.AutoCombat,                     title: 2207, tooltip: 2230);
             rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: 6136, tooltip: 7039);
             rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: 7040);
             rest.AddCheckbox(() => RushConstruction, title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
+            rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: 1835, tooltip: 1836);
 
             UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
