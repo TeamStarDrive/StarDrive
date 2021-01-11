@@ -70,7 +70,7 @@ namespace Ship_Game
             if (encounter.Current.EndTransmission)
             {
                 var responsePos = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
-                batch.DrawString(Fonts.Arial12Bold, "Escape or Right Click to End Transmission:", responsePos, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, "Escape or Click on Close Button to End Transmission:", responsePos, Color.White);
             }
             else
             {
@@ -89,7 +89,10 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             CanEscapeFromScreen = encounter.Current.EndTransmission;
-            if (encounter.Current.EndTransmission && (input.Escaped || input.RightMouseClick))
+            if (input.RightMouseClick)
+                return false; // dont let this screen exit on right click
+
+            if (encounter.Current.EndTransmission && input.Escaped)
             {
                 ExitScreen();
                 return true;
