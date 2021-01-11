@@ -39,7 +39,8 @@ namespace Ship_Game
             {
                 Unlock = unlock;
             }
-            void DrawTitleAndDescr(SpriteBatch batch, string title, string descr, string comment = "")
+
+            void DrawTitleAndDescr(SpriteBatch batch, string title, string descr, string comment = "", string summary = "")
             {
                 string wrappedDescr = Fonts.Arial12.ParseText(descr, Width - 100);
                 float textHeight = Fonts.Arial14Bold.LineSpacing + 5 + Fonts.Arial12.MeasureString(wrappedDescr).Y;
@@ -53,13 +54,21 @@ namespace Ship_Game
                     commentPos.Y   = pos.Y + 2;
                     batch.DrawString(Fonts.Arial12, comment, commentPos, Color.Gray);
                 }
+
                 batch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
+                if (summary.NotEmpty())
+                {
+                    string wrappedSummary = Fonts.Arial12.ParseText(summary, Width - 100);
+                    int lines = wrappedDescr.Split('\n').Length + 2;
+                    batch.DrawString(Fonts.Arial12, wrappedSummary, pos + new Vector2(0f, Fonts.Arial12.LineSpacing * lines - 3), Color.SteelBlue);
+                }
+
             }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 switch (Unlock.Type)
                 {
-                    case UnlockType.SHIPMODULE:
+                    case UnlockType.ShipModule:
                     {
                         Rectangle DestinationRect(int width, int height)
                         {
@@ -84,7 +93,7 @@ namespace Ship_Game
                         DrawTitleAndDescr(batch, Unlock.privateName, Unlock.Description, size);
                         break;
                     }
-                    case UnlockType.TROOP:
+                    case UnlockType.Troop:
                     {
                         var r = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
                         Unlock.troop.Draw(batch, r);
@@ -92,17 +101,18 @@ namespace Ship_Game
                         DrawTitleAndDescr(batch, Unlock.troop.Name, Unlock.troop.Description);
                         break;
                     }
-                    case UnlockType.BUILDING:
+                    case UnlockType.Building:
                     {
                         var r = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
                         batch.Draw(ResourceManager.Texture($"Buildings/icon_{Unlock.building.Icon}_64x64"), r, Color.White);
 
-                        string title = Localizer.Token(Unlock.building.NameTranslationIndex);
-                        string descr = Localizer.Token(Unlock.building.DescriptionIndex);
-                        DrawTitleAndDescr(batch, title, descr);
+                        string title   = new LocalizedText(Unlock.building.NameTranslationIndex).Text;
+                        string descr   = new LocalizedText(Unlock.building.DescriptionIndex).Text;
+                        string summary = new LocalizedText(Unlock.building.ShortDescriptionIndex).Text;
+                        DrawTitleAndDescr(batch, title, descr, summary: summary);
                         break;
                     }
-                    case UnlockType.HULL:
+                    case UnlockType.Hull:
                     {
                         if (ResourceManager.Hull(Unlock.privateName, out ShipData hull))
                         {
@@ -112,7 +122,7 @@ namespace Ship_Game
                         }
                         break;
                     }
-                    case UnlockType.ADVANCE:
+                    case UnlockType.Advance:
                     {
                         var r = new Rectangle((int)X + 24, (int)Y + 24, 48, 48);
                         batch.Draw(ResourceManager.Texture("TechIcons/star"), r, Color.White);
@@ -156,7 +166,7 @@ namespace Ship_Game
                     ShipModule template = ResourceManager.GetModuleTemplate(module.ModuleUID);
                     var unlock = new UnlockItem
                     {
-                        Type = UnlockType.SHIPMODULE,
+                        Type = UnlockType.ShipModule,
                         module = template,
                         Description = Localizer.Token(template.DescriptionIndex),
                         privateName = Localizer.Token(template.NameIndex)
@@ -170,7 +180,7 @@ namespace Ship_Game
                 {
                     var unlock = new UnlockItem
                     {
-                        Type = UnlockType.TROOP,
+                        Type = UnlockType.Troop,
                         troop = ResourceManager.GetTroopTemplate(troop.Name)
                     };
                     UnlockSL.AddItem(new UnlockListItem(unlock));
@@ -182,7 +192,7 @@ namespace Ship_Game
                 {
                     var unlock = new UnlockItem
                     {
-                        Type = UnlockType.HULL,
+                        Type = UnlockType.Hull,
                         privateName = hull.Name,
                         HullUnlocked = hullData.Name
                     };
@@ -197,7 +207,7 @@ namespace Ship_Game
                 {
                     var unlock = new UnlockItem
                     {
-                        Type = UnlockType.BUILDING,
+                        Type = UnlockType.Building,
                         building = ResourceManager.GetBuildingTemplate(building.Name)
                     };
                     UnlockSL.AddItem(new UnlockListItem(unlock));
@@ -209,7 +219,7 @@ namespace Ship_Game
                 {
                     var unlock = new UnlockItem
                     {
-                        Type = UnlockType.ADVANCE,
+                        Type = UnlockType.Advance,
                         privateName = bonus.Name,
                         Description = Localizer.Token(bonus.BonusIndex)
                     };
