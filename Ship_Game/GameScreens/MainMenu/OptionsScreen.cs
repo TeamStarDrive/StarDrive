@@ -268,7 +268,6 @@ namespace Ship_Game
                                     "This will prevent asteroids from being generated in new games, "+
                                     "offering performance improvements in mid to late game. "+
                                     "This will not affect current games or existing saves.");
-
             right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, "Alert Enemy Presence After Load",
                 "Add Notifications regarding enemies in your systems after you load a game, to remind you which systems " +
                 "are under attack.");

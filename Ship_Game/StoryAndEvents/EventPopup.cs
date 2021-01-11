@@ -127,8 +127,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.End();
         }
 
-
-
         public override void LoadContent()
         {
             string planetName = Planet != null ? $"{Planet.Name}: " : "";
@@ -144,6 +142,14 @@ namespace Ship_Game
                 string message = $"Event unfolded on {Planet.Name}\n{ExpEvent.Name}";
                 Empire.Universe.NotificationManager.AddAnomalyInvestigated(Planet, message);
             }
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (input.RightMouseClick)
+                return false; // Don't let right click exit screen and make players miss the event.
+
+            return base.HandleInput(input);
         }
 
         public enum Packagetypes
