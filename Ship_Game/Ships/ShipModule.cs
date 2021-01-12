@@ -232,6 +232,7 @@ namespace Ship_Game.Ships
                 case ShipModuleType.PowerPlant: return Flyweight.PowerFlowMax >= 1f;
                 case ShipModuleType.Shield:     return Flyweight.shield_power_max >= 1f;
                 case ShipModuleType.Armor:      return ModuleType == type || APResist > 0;
+                case ShipModuleType.Ordnance:   return ModuleType == type && OrdinanceCapacity > 0;
                 default:                        return ModuleType == type;
             }
         }
