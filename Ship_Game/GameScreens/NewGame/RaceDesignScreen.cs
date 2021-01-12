@@ -36,7 +36,8 @@ namespace Ship_Game
         int Pacing = 100;
         int NumOpponents;
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
-
+        float StarNumModifier = 1;
+        UILabel NumSystems;
         int FlagIndex;
         public int TotalPointsUsed { get; private set; } = 8;
 
@@ -178,6 +179,9 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
+            NumSystems = Add(new UILabel(NameMenu.Right + 300, NameMenu.Y+3, $"Systems: {GetSystemsNum()}"));
+            NumSystems.Font = Fonts.Arial12Bold;
+            NumSystems.Color = Color.Orange;
             UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
             optionButtons.CaptureInput = true;
             optionButtons.Padding = new Vector2(2,3);
@@ -299,6 +303,25 @@ namespace Ship_Game
             };
 
             base.LoadContent();
+        }
+
+        int GetSystemsNum()
+        {
+            StarNumModifier = ((int)StarEnum + 1) * 0.25f;
+            int numSystemsFromSize;
+            switch (GalaxySize)
+            {
+                default:
+                case GalSize.Tiny:   numSystemsFromSize = 16;  break;
+                case GalSize.Small:  numSystemsFromSize = 32;  break;
+                case GalSize.Medium: numSystemsFromSize = 48;  break;
+                case GalSize.Large:  numSystemsFromSize = 64;  break;
+                case GalSize.Huge:   numSystemsFromSize = 80;  break;
+                case GalSize.Epic:   numSystemsFromSize = 96;  break;
+                //case GalSize.TrulyEpic: numSystemsFromSize = 144;  break;
+            }
+
+            return (int)(numSystemsFromSize * StarNumModifier) + ((int)GalaxySize + 1) * NumOpponents;
         }
 
         void SetEnvPerfVisibility(UIList list1, UIList list2)
@@ -648,6 +671,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            NumSystems.Text = $"Systems: {GetSystemsNum()}";
             batch.Begin();
             
             base.Draw(batch, elapsed);
