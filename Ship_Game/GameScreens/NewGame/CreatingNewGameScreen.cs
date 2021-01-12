@@ -68,7 +68,7 @@ namespace Ship_Game
             switch (universeSize)
             {
                 default:
-                case GalSize.Tiny:   size = 16; Data.Size = new Vector2(1750000); break;
+                case GalSize.Tiny:   size =                16; Data.Size = new Vector2(1750000); break;
                 case GalSize.Small:  size = corners ? 32 : 30;  Data.Size = new Vector2(3500000); break;
                 case GalSize.Medium: size = corners ? 48 : 45;  Data.Size = new Vector2(5500000); break;
                 case GalSize.Large:  size = corners ? 64 : 70;  Data.Size = new Vector2(9000000); break;
