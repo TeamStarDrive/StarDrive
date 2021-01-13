@@ -482,6 +482,7 @@ namespace Ship_Game
 
         void GenerateRandomMap()
         {
+            // FB - we are using the sector creation only for starting systems here. the rest will be created randomly
             (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
             Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
             GenerateClustersStartingSystems(sectors);
