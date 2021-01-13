@@ -28,7 +28,7 @@ namespace Ship_Game
         TaskResult BackgroundTask;
         UniverseScreen us;
 
-        public CreatingNewGameScreen(Empire player, GalSize universeSize, 
+        public CreatingNewGameScreen(Empire player, GalSize universeSize, int numSystems, 
                 float starNumModifier, int numOpponents, RaceDesignScreen.GameMode mode, 
                 float pace, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
         {
@@ -40,6 +40,7 @@ namespace Ship_Game
             Difficulty = difficulty;
             Mode = mode;
             NumOpponents = numOpponents;
+            NumSystems   = numSystems;
             EmpireManager.Clear();
             ResourceManager.LoadEncounters();
 
@@ -63,24 +64,37 @@ namespace Ship_Game
             player.data.CurrentAutoFreighter = player.data.FreighterShip;
             player.data.CurrentConstructor   = player.data.ConstructorShip;
 
+
+            /* FB - left here so we can see the legacy numbers. size is coming as a parameter in the declaration.
             bool corners = Mode == RaceDesignScreen.GameMode.Corners;
             int size;
             switch (universeSize)
             {
                 default:
-                case GalSize.Tiny:   size = 16; Data.Size = new Vector2(1750000); break;
+                case GalSize.Tiny:   size =                16;  Data.Size = new Vector2(1750000); break;
                 case GalSize.Small:  size = corners ? 32 : 30;  Data.Size = new Vector2(3500000); break;
                 case GalSize.Medium: size = corners ? 48 : 45;  Data.Size = new Vector2(5500000); break;
                 case GalSize.Large:  size = corners ? 64 : 70;  Data.Size = new Vector2(9000000); break;
                 case GalSize.Huge:   size = corners ? 80 : 92;  Data.Size = new Vector2(12500000); break;
                 case GalSize.Epic:   size = corners ? 112: 115; Data.Size = new Vector2(17500000); break;
                 // case GalSize.TrulyEpic:   size = corners ? 144: 160; Data.Size = new Vector2(33554423); break;
+            }*/
+
+            switch (universeSize)
+            {
+                default:
+                case GalSize.Tiny:      Data.Size = new Vector2(2000000);  break;
+                case GalSize.Small:     Data.Size = new Vector2(4000000);  break;
+                case GalSize.Medium:    Data.Size = new Vector2(6000000);  break;
+                case GalSize.Large:     Data.Size = new Vector2(9000000);  break;
+                case GalSize.Huge:      Data.Size = new Vector2(12000000); break;
+                case GalSize.Epic:      Data.Size = new Vector2(15000000); break;
+                case GalSize.TrulyEpic: Data.Size = new Vector2(20000000); break;
             }
 
-            NumSystems = (int)(size * starNumModifier);           
-            //Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
-            
-            Data.EmpireList.Add(player);
+           //Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
+
+           Data.EmpireList.Add(player);
             EmpireManager.Add(player);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.Reset();
@@ -243,10 +257,10 @@ namespace Ship_Game
 
             switch (Mode)
             {
-                case RaceDesignScreen.GameMode.Corners:       GenerateCornersGameMode();                 break;
-                case RaceDesignScreen.GameMode.BigClusters:   GenerateBigClusters();                     break;
-                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters();                   break;
-                default:                                      SolarSystemSpacing(Data.SolarSystemsList); break; // 2ms
+                case RaceDesignScreen.GameMode.Corners:       GenerateCornersGameMode(); break;
+                case RaceDesignScreen.GameMode.BigClusters:   GenerateBigClusters();     break;
+                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters();   break;
+                default:                                      GenerateRandomMap();       break; 
             }
 
             step.Finish();
@@ -343,8 +357,12 @@ namespace Ship_Game
             foreach (SolarSystem solarSystem2 in solarSystems)
             {
                 float spacing = 350000f;
-                if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                if (solarSystem2.isStartingSystem)
+                    continue; // We created starting systems before
+
+                if (solarSystem2.DontStartNearPlayer)
                     spacing = Data.Size.X / (2f - 1f / (Data.EmpireList.Count - 1));
+
                 solarSystem2.Position = GenerateRandomSysPos(spacing);
             }
         }
@@ -460,6 +478,15 @@ namespace Ship_Game
 
             ClaimedSpots.Add(sysPos);
             return sysPos;
+        }
+
+        void GenerateRandomMap()
+        {
+            // FB - we are using the sector creation only for starting systems here. the rest will be created randomly
+            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
+            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
+            GenerateClustersStartingSystems(sectors);
+            SolarSystemSpacing(Data.SolarSystemsList);
         }
 
         void GenerateBigClusters()
