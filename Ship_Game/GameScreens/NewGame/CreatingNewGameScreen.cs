@@ -500,12 +500,16 @@ namespace Ship_Game
 
         void GenerateSmallClusters()
         {
+            // FB - we are using the sector creation only for starting systems here. the rest will be in small clusters
+            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
+            Array<Sector> startingSectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
+            GenerateClustersStartingSystems(startingSectors);
+
             // Divides the galaxy to many sectors and populates each sector with stars
             int numSectorsPerAxis  = GetNumSectorsPerAxis(NumSystems, NumOpponents + 1);
             float offsetMultiplier = 0.2f / numSectorsPerAxis.UpperBound(4);
-            float deviation        = 0.02f * numSectorsPerAxis.UpperBound(4);
+            float deviation        = 0.05f * numSectorsPerAxis.UpperBound(4);
             Array<Sector> sectors  = GenerateSectors(numSectorsPerAxis, numSectorsPerAxis, deviation, offsetMultiplier);
-            GenerateClustersStartingSystems(sectors);
             GenerateClusterSystems(sectors);
         }
 
