@@ -221,7 +221,7 @@ namespace Ship_Game
             var pos = new Vector2(LockRect.Right + 10, Rect.CenterY() - font.LineSpacing / 2);
             float value = NetValue;
             string text;
-            if      (IsDisabled) text = "Unnecessary";
+            if      (IsDisabled) text = "n/a";
             else if (IsCrippled) text = Localizer.Token(2202/*sabotaged*/);
             else if (IsInvasion) text = Localizer.Token(2257/*invasion!*/);
             else                 text = value.String();
