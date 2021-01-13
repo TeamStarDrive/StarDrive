@@ -37,7 +37,8 @@ namespace Ship_Game
         int NumOpponents;
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
         float StarNumModifier = 1;
-        UILabel NumSystems;
+        UILabel NumSystemsLabel;
+        UILabel PerformanceWarning;
         int FlagIndex;
         public int TotalPointsUsed { get; private set; } = 8;
 
@@ -179,9 +180,13 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            NumSystems = Add(new UILabel(NameMenu.Right + 300, NameMenu.Y+3, $"Systems: {GetSystemsNum()}"));
-            NumSystems.Font = Fonts.Arial12Bold;
-            NumSystems.Color = Color.Orange;
+            NumSystemsLabel = Add(new UILabel(NameMenu.Right + 300, NameMenu.Y + 3, $"Systems: {GetSystemsNum()}"));
+            NumSystemsLabel.Font = Fonts.Arial12Bold;
+            NumSystemsLabel.Color = Color.SteelBlue;
+
+            PerformanceWarning = Add(new UILabel(NameMenu.Right + 20, NameMenu.Y - 20 , ""));
+            PerformanceWarning.Font = Fonts.Arial12;
+
             UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
             optionButtons.CaptureInput = true;
             optionButtons.Padding = new Vector2(2,3);
@@ -659,18 +664,39 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            NumSystems.Text = $"Systems: {GetSystemsNum()}";
-            batch.Begin();
-            
-            base.Draw(batch, elapsed);
+            int numSystems       = GetSystemsNum();
+            NumSystemsLabel.Text = $"Systems: {numSystems}";
+            ShowPerformanceWarning(numSystems);
 
+            batch.Begin();
+            base.Draw(batch, elapsed);
             batch.Draw(ResourceManager.Flag(FlagIndex), FlagRect, Picker.CurrentColor);
-            FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
+            FlagLeft  = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
             batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
 
             batch.End();
+        }
+
+        void ShowPerformanceWarning(int numSystems)
+        {
+            PerformanceWarning.Visible = numSystems >= 100;
+            if (numSystems >= 200)
+            {
+                PerformanceWarning.Color = NumSystemsLabel.Color = Color.Orange;
+                PerformanceWarning.Text = "Warning, performance issues are expected late game.";
+            }
+            else if (numSystems >= 100)
+            {
+                PerformanceWarning.Color = NumSystemsLabel.Color = Color.Yellow;
+                PerformanceWarning.Text = "Warning, you might experience performance issues late game.";
+
+            }
+            else
+            {
+                NumSystemsLabel.Color = Color.SteelBlue;
+            }
         }
 
         class SelectedTraitsSummary : UIElementV2
