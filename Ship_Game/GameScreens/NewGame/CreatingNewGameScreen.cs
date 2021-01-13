@@ -257,10 +257,10 @@ namespace Ship_Game
 
             switch (Mode)
             {
-                case RaceDesignScreen.GameMode.Corners:       GenerateCornersGameMode();                 break;
-                case RaceDesignScreen.GameMode.BigClusters:   GenerateBigClusters();                     break;
-                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters();                   break;
-                default:                                      SolarSystemSpacing(Data.SolarSystemsList); break; // 2ms
+                case RaceDesignScreen.GameMode.Corners:       GenerateCornersGameMode(); break;
+                case RaceDesignScreen.GameMode.BigClusters:   GenerateBigClusters();     break;
+                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters();   break;
+                default:                                      GenerateRandomMap();       break; 
             }
 
             step.Finish();
@@ -357,8 +357,12 @@ namespace Ship_Game
             foreach (SolarSystem solarSystem2 in solarSystems)
             {
                 float spacing = 350000f;
-                if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                if (solarSystem2.isStartingSystem)
+                    continue; // We created starting systems before
+
+                if (solarSystem2.DontStartNearPlayer)
                     spacing = Data.Size.X / (2f - 1f / (Data.EmpireList.Count - 1));
+
                 solarSystem2.Position = GenerateRandomSysPos(spacing);
             }
         }
@@ -474,6 +478,14 @@ namespace Ship_Game
 
             ClaimedSpots.Add(sysPos);
             return sysPos;
+        }
+
+        void GenerateRandomMap()
+        {
+            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
+            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
+            GenerateClustersStartingSystems(sectors);
+            SolarSystemSpacing(Data.SolarSystemsList);
         }
 
         void GenerateBigClusters()
