@@ -312,13 +312,13 @@ namespace Ship_Game
             switch (GalaxySize)
             {
                 default:
-                case GalSize.Tiny:   numSystemsFromSize = 16;  break;
-                case GalSize.Small:  numSystemsFromSize = 32;  break;
-                case GalSize.Medium: numSystemsFromSize = 48;  break;
-                case GalSize.Large:  numSystemsFromSize = 64;  break;
-                case GalSize.Huge:   numSystemsFromSize = 80;  break;
-                case GalSize.Epic:   numSystemsFromSize = 96;  break;
-                //case GalSize.TrulyEpic: numSystemsFromSize = 144;  break;
+                case GalSize.Tiny:      numSystemsFromSize = 16;  break;
+                case GalSize.Small:     numSystemsFromSize = 32;  break;
+                case GalSize.Medium:    numSystemsFromSize = 48;  break;
+                case GalSize.Large:     numSystemsFromSize = 64;  break;
+                case GalSize.Huge:      numSystemsFromSize = 80;  break;
+                case GalSize.Epic:      numSystemsFromSize = 96;  break;
+                case GalSize.TrulyEpic: numSystemsFromSize = 112; break;
             }
 
             return (int)(numSystemsFromSize * StarNumModifier) + ((int)GalaxySize + 1) * NumOpponents;
@@ -630,34 +630,22 @@ namespace Ship_Game
             RaceSummary.FlagIndex      = FlagIndex;
             RaceSummary.ShipType       = SelectedData.ShipType;
             RaceSummary.VideoPath      = SelectedData.VideoPath;
-            RaceSummary.Adj1 = SelectedData.Adj1;
-            RaceSummary.Adj2 = SelectedData.Adj2;
+            RaceSummary.Adj1           = SelectedData.Adj1;
+            RaceSummary.Adj2           = SelectedData.Adj2;
 
             var player = new Empire
             {
                 EmpireColor = Picker.CurrentColor,
-                data = SelectedData.CreateInstance(copyTraits: false)
+                data        = SelectedData.CreateInstance(copyTraits: false)
             };
             player.data.SpyModifier = RaceSummary.SpyMultiplier;
-            player.data.Traits = RaceSummary;
+            player.data.Traits      = RaceSummary;
             player.data.DiplomaticPersonality = new DTrait();
 
-            float modifier = 1f;
-            switch (StarEnum)
-            {
-                case StarNum.VeryRare:    modifier = 0.25f; break;
-                case StarNum.Rare:        modifier = 0.50f; break;
-                case StarNum.Uncommon:    modifier = 0.75f; break;
-                case StarNum.Normal:      modifier = 1.00f; break;
-                case StarNum.Abundant:    modifier = 1.25f; break;
-                case StarNum.Crowded:     modifier = 1.50f; break;
-                case StarNum.Packed:      modifier = 1.75f; break;
-                case StarNum.SuperPacked: modifier = 2.00f; break;
-            }
-
             float pace = Pacing / 100f;
-            var ng = new CreatingNewGameScreen(player, GalaxySize, modifier, 
+            var ng = new CreatingNewGameScreen(player, GalaxySize, GetSystemsNum(), StarNumModifier, 
                                                NumOpponents, Mode, pace, SelectedDifficulty, MainMenu);
+
             ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
 
@@ -746,7 +734,7 @@ namespace Ship_Game
 
     public enum GalSize
     {
-        Tiny, Small, Medium, Large, Huge, Epic
+        Tiny, Small, Medium, Large, Huge, Epic, TrulyEpic
     }
 
     public enum ExtraRemnantPresence
