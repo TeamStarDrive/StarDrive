@@ -567,16 +567,24 @@ namespace Ship_Game
                 if (item.ShipType == empire.data.Traits.ShipType)
                     return true;
 
-                switch (item.RacialTrait) {
+                switch (item.RacialTrait)
+                {
                     case RacialTrait.NameOfTrait.None:
                         break;
                     case RacialTrait.NameOfTrait.Cybernetic:
                         if (empire.data.Traits.Cybernetic > 0)
                             return true;
+
+                        break;
+                    case RacialTrait.NameOfTrait.NonCybernetic:
+                        if (empire.data.Traits.Cybernetic == 0)
+                            return true;
+
                         break;
                     case RacialTrait.NameOfTrait.Militaristic:
                         if (empire.data.Traits.Militaristic > 0)
                             return true;
+
                         break;
                 }
             }
