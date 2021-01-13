@@ -36,7 +36,8 @@ namespace Ship_Game
         int Pacing = 100;
         int NumOpponents;
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
-
+        float StarNumModifier = 1;
+        UILabel NumSystems;
         int FlagIndex;
         public int TotalPointsUsed { get; private set; } = 8;
 
@@ -178,6 +179,9 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
+            NumSystems = Add(new UILabel(NameMenu.Right + 300, NameMenu.Y+3, $"Systems: {GetSystemsNum()}"));
+            NumSystems.Font = Fonts.Arial12Bold;
+            NumSystems.Color = Color.Orange;
             UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
             optionButtons.CaptureInput = true;
             optionButtons.Padding = new Vector2(2,3);
@@ -299,6 +303,25 @@ namespace Ship_Game
             };
 
             base.LoadContent();
+        }
+
+        int GetSystemsNum()
+        {
+            StarNumModifier = ((int)StarEnum + 1) * 0.25f;
+            int numSystemsFromSize;
+            switch (GalaxySize)
+            {
+                default:
+                case GalSize.Tiny:      numSystemsFromSize = 16;  break;
+                case GalSize.Small:     numSystemsFromSize = 32;  break;
+                case GalSize.Medium:    numSystemsFromSize = 48;  break;
+                case GalSize.Large:     numSystemsFromSize = 64;  break;
+                case GalSize.Huge:      numSystemsFromSize = 80;  break;
+                case GalSize.Epic:      numSystemsFromSize = 96;  break;
+                case GalSize.TrulyEpic: numSystemsFromSize = 112; break;
+            }
+
+            return (int)(numSystemsFromSize * StarNumModifier) + ((int)GalaxySize + 1) * NumOpponents;
         }
 
         void SetEnvPerfVisibility(UIList list1, UIList list2)
@@ -607,34 +630,22 @@ namespace Ship_Game
             RaceSummary.FlagIndex      = FlagIndex;
             RaceSummary.ShipType       = SelectedData.ShipType;
             RaceSummary.VideoPath      = SelectedData.VideoPath;
-            RaceSummary.Adj1 = SelectedData.Adj1;
-            RaceSummary.Adj2 = SelectedData.Adj2;
+            RaceSummary.Adj1           = SelectedData.Adj1;
+            RaceSummary.Adj2           = SelectedData.Adj2;
 
             var player = new Empire
             {
                 EmpireColor = Picker.CurrentColor,
-                data = SelectedData.CreateInstance(copyTraits: false)
+                data        = SelectedData.CreateInstance(copyTraits: false)
             };
             player.data.SpyModifier = RaceSummary.SpyMultiplier;
-            player.data.Traits = RaceSummary;
+            player.data.Traits      = RaceSummary;
             player.data.DiplomaticPersonality = new DTrait();
 
-            float modifier = 1f;
-            switch (StarEnum)
-            {
-                case StarNum.VeryRare:    modifier = 0.25f; break;
-                case StarNum.Rare:        modifier = 0.50f; break;
-                case StarNum.Uncommon:    modifier = 0.75f; break;
-                case StarNum.Normal:      modifier = 1.00f; break;
-                case StarNum.Abundant:    modifier = 1.25f; break;
-                case StarNum.Crowded:     modifier = 1.50f; break;
-                case StarNum.Packed:      modifier = 1.75f; break;
-                case StarNum.SuperPacked: modifier = 2.00f; break;
-            }
-
             float pace = Pacing / 100f;
-            var ng = new CreatingNewGameScreen(player, GalaxySize, modifier, 
+            var ng = new CreatingNewGameScreen(player, GalaxySize, GetSystemsNum(), StarNumModifier, 
                                                NumOpponents, Mode, pace, SelectedDifficulty, MainMenu);
+
             ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
 
@@ -648,6 +659,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            NumSystems.Text = $"Systems: {GetSystemsNum()}";
             batch.Begin();
             
             base.Draw(batch, elapsed);
@@ -722,7 +734,7 @@ namespace Ship_Game
 
     public enum GalSize
     {
-        Tiny, Small, Medium, Large, Huge, Epic
+        Tiny, Small, Medium, Large, Huge, Epic, TrulyEpic
     }
 
     public enum ExtraRemnantPresence
