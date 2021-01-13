@@ -12,7 +12,8 @@ namespace Ship_Game
         {
             None,
             Cybernetic,
-            Militaristic
+            Militaristic,
+            NonCybernetic
         }
         
         [Serialize(0)] public string Name;
