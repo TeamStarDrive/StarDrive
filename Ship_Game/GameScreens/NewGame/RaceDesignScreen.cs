@@ -38,6 +38,7 @@ namespace Ship_Game
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
         float StarNumModifier = 1;
         UILabel NumSystemsLabel;
+        UILabel ExtraPlanetsLabel;
         UILabel PerformanceWarning;
         int FlagIndex;
         public int TotalPointsUsed { get; private set; } = 8;
@@ -180,17 +181,24 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            NumSystemsLabel = Add(new UILabel(NameMenu.Right + 300, NameMenu.Y + 3, $"Systems: {GetSystemsNum()}"));
-            NumSystemsLabel.Font = Fonts.Arial12Bold;
+            SpriteFont font       = LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
+            float labelX          = LowRes ? NameMenu.Right + 20 : NameMenu.Right + 300;
+            float labelY          = LowRes ? NameMenu.Y - 50 : NameMenu.Y + 3;
+            NumSystemsLabel       = Add(new UILabel(labelX, labelY, $"Solar Systems: {GetSystemsNum()}"));
+            NumSystemsLabel.Font  = font;
             NumSystemsLabel.Color = Color.SteelBlue;
 
-            PerformanceWarning = Add(new UILabel(NameMenu.Right + 20, NameMenu.Y - 20 , ""));
-            PerformanceWarning.Font = Fonts.Arial12;
+            ExtraPlanetsLabel       = Add(new UILabel(NumSystemsLabel.X, NumSystemsLabel.Y + font.LineSpacing + 3, ""));
+            ExtraPlanetsLabel.Font  = font;
+            ExtraPlanetsLabel.Color = Color.Green;
 
-            UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
+            PerformanceWarning      = Add(new UILabel(NameMenu.Right + 20, NameMenu.Y - 20 , ""));
+            PerformanceWarning.Font = font;
+
+            UIList optionButtons       = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
             optionButtons.CaptureInput = true;
-            optionButtons.Padding = new Vector2(2,3);
-            optionButtons.Color = Color.Black.Alpha(0.5f);
+            optionButtons.Padding      = new Vector2(2,3);
+            optionButtons.Color        = Color.Black.Alpha(0.5f);
 
             var customStyle = new UIButton.StyleTextures();
             // [ btn_title : ]  lbl_text
@@ -199,8 +207,8 @@ namespace Ship_Game
             {
                 var button = new UIButton(customStyle, new Vector2(160, 18), LocalizedText.Parse(title))
                 {
-                    Font = Fonts.Arial11Bold, OnClick = onClick,
-                    Tooltip = tip, TextAlign = ButtonTextAlign.Right,
+                    Font              = Fonts.Arial11Bold, OnClick = onClick,
+                    Tooltip           = tip, TextAlign = ButtonTextAlign.Right,
                     AcceptRightClicks = true, TextShadows = true,
                 };
                 optionButtons.AddSplit(button, new UILabel(getText, Fonts.Arial11Bold)).Split = 180;
@@ -257,7 +265,6 @@ namespace Ship_Game
             envPerf2.Padding = envPerf1.Padding;
             UILabel AddEnvSplitter(string title, float envPerfInput, UIList list)
             {
-                var font    = LowRes ? Fonts.Arial8Bold : Fonts.Arial12Bold;
                 Color color = Color.White;
                 if (envPerfInput.Greater(1)) color = Color.Green;
                 if (envPerfInput.Less(1))    color = Color.Red;
@@ -665,8 +672,9 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             int numSystems       = GetSystemsNum();
-            NumSystemsLabel.Text = $"Systems: {numSystems}";
+            NumSystemsLabel.Text = $"Solar Systems: {numSystems}";
             ShowPerformanceWarning(numSystems);
+            ShowExtraPlanetsNum(GlobalStats.ExtraPlanets);
 
             batch.Begin();
             base.Draw(batch, elapsed);
@@ -679,13 +687,19 @@ namespace Ship_Game
             batch.End();
         }
 
+        void ShowExtraPlanetsNum(int extraPlanets)
+        {
+            ExtraPlanetsLabel.Visible = extraPlanets > 0;
+            ExtraPlanetsLabel.Text = $"Extra Planets: {extraPlanets}";
+        }
+
         void ShowPerformanceWarning(int numSystems)
         {
             PerformanceWarning.Visible = numSystems >= 100;
             if (numSystems >= 200)
             {
                 PerformanceWarning.Color = NumSystemsLabel.Color = Color.Orange;
-                PerformanceWarning.Text = "Warning, performance issues are expected late game.";
+                PerformanceWarning.Text = "Warning, performance issues are expected mid to late game.";
             }
             else if (numSystems >= 100)
             {
