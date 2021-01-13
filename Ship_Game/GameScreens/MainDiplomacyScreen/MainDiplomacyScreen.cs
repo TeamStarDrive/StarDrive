@@ -309,6 +309,7 @@ namespace Ship_Game
                     }
                     rank++;
                 }
+
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385), textCursor, Color.White);
                 batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
@@ -451,6 +452,24 @@ namespace Ship_Game
                 }
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1605), textCursor, Color.White);
                 batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
+                ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                IOrderedEnumerable<Empire> PopSortedList =
+                    from empire in Sortlist
+                    orderby GetPop(empire) descending
+                    select empire;
+                rank = 1;
+                foreach (Empire e in PopSortedList)
+                {
+                    if (e == SelectedEmpire)
+                    {
+                        break;
+                    }
+                    rank++;
+                }
+
+                batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
             }
             textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
             HelperFunctions.DrawDropShadowText(batch, Localizer.Token(6091), textCursor, Fonts.Arial20Bold);
@@ -731,7 +750,7 @@ namespace Ship_Game
         float GetScientificStr(Empire e)
         {
             float scientificStr = 0f;
-            if (Friends.Contains(e))
+            if (Friends.Contains(e) || e.isPlayer)
             {
                 var techs = e.TechEntries.Filter(t => t.Unlocked);
                 return techs.Length == 0 ? 0 : techs.Sum(t => t.Tech.Cost);
@@ -743,7 +762,7 @@ namespace Ship_Game
                 ally.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techList, e);
 
             foreach (string tech in techList)
-                scientificStr += ResourceManager.Tech(tech).ActualCost;
+                scientificStr += ResourceManager.Tech(tech).Cost;
 
             return scientificStr;
         }
