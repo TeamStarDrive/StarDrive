@@ -587,8 +587,6 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        
-
         public void SetShip(Ship s)
         {
             CanRename = s.loyalty == EmpireManager.Player;
