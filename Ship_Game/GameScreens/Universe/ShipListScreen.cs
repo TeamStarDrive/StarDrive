@@ -72,7 +72,7 @@ namespace Ship_Game
             }
 
             ShipSL = Add(new ScrollList2<ShipListScreenItem>(eRect, 30));
-            ShipSL.OnClick = OnShipListScreenItemClicked;
+            ShipSL.OnDoubleClick = OnShipListScreenItemClicked;
             ShipSL.EnableItemHighlight = true;
 
             Add(new UICheckBox(TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,
