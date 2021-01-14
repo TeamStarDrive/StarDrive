@@ -763,7 +763,7 @@ namespace Ship_Game
         
         public enum GameMode
         {
-            Sandbox, Elimination, Corners, BigClusters, SmallClusters
+            Sandbox, SmallClusters, BigClusters, Corners, Elimination
         }
 
         public enum StarNum

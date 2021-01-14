@@ -644,6 +644,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     TheirText = GetDialogueByName(TheirOffer.RejectDL);
                 }
             }
+
+            if (input.RightMouseClick) // prevent right click from closing this screen
+                return true;
+
             return base.HandleInput(input);
         }
 
