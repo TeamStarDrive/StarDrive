@@ -140,7 +140,7 @@ namespace Ship_Game.AI
                     continue;
 
                 bestSqDist = sqDist;
-                bestTarget = sourceTargetShip;                    
+                bestTarget = sourceTargetShip;
             }
 
             if (bestTarget != null && bestSqDist < 30000 * 30000)

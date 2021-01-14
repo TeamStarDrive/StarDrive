@@ -92,12 +92,13 @@ namespace Ship_Game.Gameplay
 
         // For Mirv creation
         public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, 
-            bool playSound, Vector2 inheritedVelocity, Empire loyalty)
+            bool playSound, Vector2 inheritedVelocity, Empire loyalty, Planet planet)
         {
             var projectile = new Projectile(loyalty)
             {
                 Weapon   = weapon,
-                FirstRun = false
+                FirstRun = false,
+                Planet   = planet
             };
 
             if (weapon.Owner != null)
@@ -350,7 +351,7 @@ namespace Ship_Game.Gameplay
                 Vector2 separationVel    = (Rotation + launchDir).RadiansToDirection() * (100 + RandomMath.RollDie(40));
                 Vector2 separationVector = mirv.Tag_Guided ? Velocity : separationVel;
                 // Use separation velocity for mirv non guided, or just Velocity for guided (they will compensate)
-                Create(mirv, Position, Direction, target, playSound, separationVector, Loyalty);
+                Create(mirv, Position, Direction, target, playSound, separationVector, Loyalty, Planet);
                 playSound = false;
             }
 
