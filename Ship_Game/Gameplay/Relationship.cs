@@ -830,7 +830,7 @@ namespace Ship_Game.Gameplay
 
         public bool AttackForBorderViolation(DTrait personality, Empire targetEmpire, Empire attackingEmpire, bool isTrader)
         {
-            if (Treaty_OpenBorders) 
+            if (Treaty_OpenBorders || Treaty_Peace) 
                 return false;
 
             float borderAnger = Anger_FromShipsInOurBorders * (Anger_MilitaryConflict * 0.1f) + Anger_TerritorialConflict;
