@@ -3357,7 +3357,7 @@ namespace Ship_Game
 
             Relationship rel = GetRelations(targetEmpire);
 
-            if (rel.CanAttack && target is null)
+            if (rel.CanAttack) // && target is null)
                 return true;
             
             return target?.IsAttackable(this, rel) ?? false;
