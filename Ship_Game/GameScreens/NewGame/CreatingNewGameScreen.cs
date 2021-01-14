@@ -483,7 +483,7 @@ namespace Ship_Game
         void GenerateRandomMap()
         {
             // FB - we are using the sector creation only for starting systems here. the rest will be created randomly
-            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
+            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors((NumOpponents + 1).LowerBound(9));
             Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
             GenerateClustersStartingSystems(sectors);
             SolarSystemSpacing(Data.SolarSystemsList);
@@ -500,16 +500,12 @@ namespace Ship_Game
 
         void GenerateSmallClusters()
         {
-            // FB - we are using the sector creation only for starting systems here. the rest will be in small clusters
-            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
-            Array<Sector> startingSectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
-            GenerateClustersStartingSystems(startingSectors);
-
             // Divides the galaxy to many sectors and populates each sector with stars
             int numSectorsPerAxis  = GetNumSectorsPerAxis(NumSystems, NumOpponents + 1);
             float offsetMultiplier = 0.2f / numSectorsPerAxis.UpperBound(4);
-            float deviation        = 0.05f * numSectorsPerAxis.UpperBound(4);
+            float deviation        = 0.03f * numSectorsPerAxis.UpperBound(4);
             Array<Sector> sectors  = GenerateSectors(numSectorsPerAxis, numSectorsPerAxis, deviation, offsetMultiplier);
+            GenerateClustersStartingSystems(sectors, numSectorsPerAxis - 1);
             GenerateClusterSystems(sectors);
         }
 
@@ -563,17 +559,55 @@ namespace Ship_Game
             return sectors;
         }
 
-        void GenerateClustersStartingSystems(Array<Sector> sectors)
+        void GenerateClustersStartingSystems(Array<Sector> sectors, int trySpacingNum = 1)
         {
-            Array<Sector> startingSectors = new Array<Sector>();
-            foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => s.isStartingSystem))
-            {
-                Sector startingSector = sectors.RandItem();
-                while (startingSectors.Contains(startingSector))
-                    startingSector = sectors.RandItem();
+            Array<Sector> claimedSectors = new Array<Sector>();
+            var startingSystems           = Data.SolarSystemsList.Filter(s => s.isStartingSystem);
+            if (sectors.Count < startingSystems.Length)
+                Log.Error($"Sectors ({sectors.Count}) < starting Systems ({startingSystems.Length})");
 
-                startingSectors.Add(startingSector);
-                system.Position = GenerateSystemInCluster(startingSector, 350000f);
+            SolarSystem firstSystem  = startingSystems[0];
+            Sector initialSector     = sectors.RandItem();
+            firstSystem.Position     = GenerateSystemInCluster(initialSector, 350000f);
+            claimedSectors.Add(initialSector);
+
+            for (int i = 1; i < startingSystems.Length; i++) // starting with 2nd (i = 1) item since the first one was added above
+            {
+                SolarSystem system   = startingSystems[i];
+                var remainingSectors = sectors.Filter(s => !claimedSectors.Contains(s));
+                int spacing          = trySpacingNum;
+                var potentialSectors = remainingSectors.Filter(s => IsSuitableSector(s, claimedSectors, spacing));
+
+                while (potentialSectors.Length == 0)
+                {
+                    spacing--;
+                    if (spacing < 0)
+                        Log.Error("GenerateClustersStartingSystems: Could not find suitable sectors to add starting system");
+
+                    potentialSectors = remainingSectors.Filter(s => IsSuitableSector(s, claimedSectors, spacing));
+                }
+
+                Sector nextSector = potentialSectors.RandItem();
+                system.Position   = GenerateSystemInCluster(nextSector, 350000f);
+                claimedSectors.Add(nextSector);
+            }
+
+            // Local Method
+            bool SpaceBetweenMoreThan(int space, Sector a, Sector b)
+            {
+                return Math.Abs(a.X - b.X) > space || Math.Abs(a.Y - b.Y) > space;
+            }
+
+            // Local Method
+            bool IsSuitableSector(Sector sector, Array<Sector> list, int space)
+            {
+                foreach (Sector s in list)
+                {
+                    if (!SpaceBetweenMoreThan(space, sector, s))
+                        return false;
+                }
+
+                return true;
             }
         }
 
@@ -606,15 +640,16 @@ namespace Ship_Game
 
         struct Sector
         {
-            private readonly float LeftX;
             private readonly float RightX;
-            private readonly float TopY;
-            private readonly float BotY;
             private readonly Vector2 Center;
+            public readonly int X;
+            public readonly int Y;
 
             public Sector(Vector2 universeSize, int horizontalSectors, int verticalSectors, int horizontalNum, int verticalNum, 
                           float deviation, float offsetMultiplier) : this()
             {
+                X              = horizontalNum;
+                Y              = verticalNum;
                 float xSection = universeSize.X / horizontalSectors;
                 float ySection = universeSize.Y / verticalSectors;
                 float offset   = universeSize.X * offsetMultiplier; 
@@ -626,17 +661,17 @@ namespace Ship_Game
                 // Some deviation in the center of the cluster
                 rawCenter = rawCenter.GenerateRandomPointInsideCircle(universeSize.X * deviation);
 
-                LeftX  = (rawCenter.X - xSection).LowerBound(-universeSize.X);
-                RightX = (rawCenter.X + xSection).UpperBound(universeSize.X);
-                TopY   = (rawCenter.Y - ySection).LowerBound(-universeSize.Y) + offset;
-                BotY   = (rawCenter.Y + ySection).UpperBound(universeSize.Y) - offset;
+                float leftX = (rawCenter.X - xSection).LowerBound(-universeSize.X);
+                RightX      = (rawCenter.X + xSection).UpperBound(universeSize.X);
+                float topY  = (rawCenter.Y - ySection).LowerBound(-universeSize.Y) + offset;
+                float botY  = (rawCenter.Y + ySection).UpperBound(universeSize.Y) - offset;
 
                 // creating some gaps between clusters
-                GenerateOffset(universeSize.X, offset,ref LeftX, ref RightX);
-                GenerateOffset(universeSize.Y, offset, ref TopY, ref BotY);
+                GenerateOffset(universeSize.X, offset,ref leftX, ref RightX);
+                GenerateOffset(universeSize.Y, offset, ref topY, ref botY);
 
                 // This is the true Center, after all offsets are applied with borders
-                Center = new Vector2((LeftX + RightX) / 2, (TopY + BotY) / 2);
+                Center = new Vector2((leftX + RightX) / 2, (topY + botY) / 2);
             }
             
             // Offset from borders. Less offset if near one or 2 edges
