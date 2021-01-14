@@ -12,7 +12,7 @@ namespace Ship_Game
         private readonly Planet Ground;
 
         private Empire Owner           => Ground.Owner;
-        public bool RecentCombat       => InCombatTimer > 0;
+        public bool RecentCombat       => InCombatTimer > 0 && ForeignTroopHere(Owner);
         private bool NoTroopsOnPlanet  => Ground.TroopsHere.Count == 0;
         private bool TroopsAreOnPlanet => Ground.TroopsHere.Count > 0;
 
@@ -54,7 +54,7 @@ namespace Ship_Game
                 return;
 
             bool startCombatTimer = false;
-            if (RecentCombat || Init)
+            if (InCombatTimer > 0 || Init)
             {
                 InCombatTimer -= timeStep.FixedTime;
                 DecisionTimer -= timeStep.FixedTime;
