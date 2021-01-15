@@ -514,11 +514,11 @@ namespace Ship_Game.AI
         PeaceAnswer AnalyzePeaceOffer(Offer theirOffer, Offer ourOffer, Empire them, Offer.Attitude attitude)
         {
             WarState state;
-            Empire us = OwnerEmpire;
+            Empire us             = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
-            DTrait personality = us.data.DiplomaticPersonality;
-            float valueToUs    = theirOffer.ArtifactsOffered.Count * 15f;
-            float valueToThem  = ourOffer.ArtifactsOffered.Count * 15f;
+            DTrait personality    = us.data.DiplomaticPersonality;
+            float valueToUs       = theirOffer.ArtifactsOffered.Count * 15f;
+            float valueToThem     = ourOffer.ArtifactsOffered.Count * 15f;
 
             foreach (string tech in ourOffer.TechnologiesOffered)
                 valueToThem += ResourceManager.Tech(tech).DiplomaticValueTo(us);
@@ -550,35 +550,32 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (personality.Name.NotEmpty())
+            WarType warType   = usToThem.ActiveWar.WarType;
+            WarState warState = WarState.NotApplicable;
+            switch (warType)
             {
-                WarType warType = usToThem.ActiveWar.WarType;
-                WarState warState = WarState.NotApplicable;
-                switch (warType)
-                {
-                    case WarType.BorderConflict: warState = usToThem.ActiveWar.GetBorderConflictState(planetsToUs); break;
-                    case WarType.ImperialistWar: warState = usToThem.ActiveWar.GetWarScoreState();                  break;
-                    case WarType.DefensiveWar:   warState = usToThem.ActiveWar.GetWarScoreState();                  break;
-                }
+                case WarType.BorderConflict: warState = usToThem.ActiveWar.GetBorderConflictState(planetsToUs); break;
+                case WarType.ImperialistWar: warState = usToThem.ActiveWar.GetWarScoreState();                  break;
+                case WarType.DefensiveWar:   warState = usToThem.ActiveWar.GetWarScoreState();                  break;
+            }
 
-                switch (us.Personality)
-                {
-                    case PersonalityType.Pacifist:
-                    case PersonalityType.Honorable when warType == WarType.DefensiveWar:
-                        AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
-                    case PersonalityType.Honorable:
-                        AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
-                    case PersonalityType.Xenophobic when warType == WarType.DefensiveWar:
-                        AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
-                    case PersonalityType.Xenophobic:
-                        AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
-                    case PersonalityType.Aggressive:
-                        AddToValue(warState, 10, 5, 75, 200, ref valueToUs, ref valueToThem); break;
-                    case PersonalityType.Ruthless:
-                        AddToValue(warState, 5, 1, 120, 300, ref valueToUs, ref valueToThem); break;
-                    case PersonalityType.Cunning:
-                        AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
-                }
+            switch (us.Personality)
+            {
+                case PersonalityType.Pacifist:
+                case PersonalityType.Honorable when warType == WarType.DefensiveWar:
+                    AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
+                case PersonalityType.Honorable:
+                    AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
+                case PersonalityType.Xenophobic when warType == WarType.DefensiveWar:
+                    AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
+                case PersonalityType.Xenophobic:
+                    AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
+                case PersonalityType.Aggressive:
+                    AddToValue(warState, 10, 5, 75, 200, ref valueToUs, ref valueToThem); break;
+                case PersonalityType.Ruthless:
+                    AddToValue(warState, 5, 1, 120, 300, ref valueToUs, ref valueToThem); break;
+                case PersonalityType.Cunning:
+                    AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
             }
 
             valueToUs += valueToUs * them.data.Traits.DiplomacyMod; // TODO FB - need to be smarter here
@@ -615,7 +612,7 @@ namespace Ship_Game.AI
 
                             break;
                         case WarState.Dominating when offerQuality >= OfferQuality.Good:
-                                response = ProcessPeace("ACCEPT_OFFER_PEACE", true);
+                            response = ProcessPeace("ACCEPT_OFFER_PEACE", true);
                             break;
                         case WarState.ColdWar when offerQuality < OfferQuality.Great:
                             response = ProcessPeace("REJECT_OFFER_PEACE_UNWILLING_BC");
