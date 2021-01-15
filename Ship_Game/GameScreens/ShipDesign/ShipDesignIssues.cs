@@ -182,11 +182,11 @@ namespace Ship_Game.ShipDesignIssues
 
             weaponsPowerPerShot.Sort();
             int numCanFire = 0;
-            for (int i = 0; 0 < weaponsPowerPerShot.Count; i++)
+            for (int i = 0; i < weaponsPowerPerShot.Count; i++)
             {
                 float weaponPower = weaponsPowerPerShot[i];
                 if (weaponPower.LessOrEqual(powerCapacity))
-                    numCanFire = +1;
+                    numCanFire += 1;
                 else
                     break;
             }
@@ -203,8 +203,8 @@ namespace Ship_Game.ShipDesignIssues
             if (percentCanFire.AlmostZero())
                 efficiency = 0;
 
-            string strNumCanFire = $"{percentCanFire.String(0)}% {new LocalizedText(1467).Text}. ";
-            string strEfficiency = $"{new LocalizedText(1467).Text} {efficiency.String(0)}%.";
+            string strNumCanFire = $" {(100 - percentCanFire).String(0)}% {new LocalizedText(1468).Text}";
+            string strEfficiency = $" {new LocalizedText(1469).Text} {efficiency.String(0)}%.";
 
             if (severity > WarningLevel.None)
                 AddDesignIssue(DesignIssueType.OneTimeFireEfficiency, severity, $"{strNumCanFire}{strEfficiency}");
