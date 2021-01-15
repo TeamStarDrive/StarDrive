@@ -550,8 +550,9 @@ namespace Ship_Game
             bool canTargetCorvettes        = false;
             bool canTargetCapitals         = false;
             int pointDefenseValue          = 0;
-            Map<ShipModule, float> weaponAccuracyList = new Map<ShipModule, float>();
 
+            Map<ShipModule, float> weaponAccuracyList = new Map<ShipModule, float>();
+            Array<float> weaponsPowerFirePerShot      = new Array<float>();
             DesignIssues.Reset();
             var modules = new ModuleCache(ModuleGrid.CopyModulesList());
 
@@ -656,6 +657,8 @@ namespace Ship_Game
                 else
                 {
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
+                    if (weapon.PowerRequiredToFire > 0)
+                        weaponsPowerFirePerShot.Add(weapon.PowerRequiredToFire);
                 }
 
                 weaponAccuracyList[module] = weapon.Tag_Guided ? 0 :  weapon.BaseTargetError((int)FireControlLevel).LowerBound(1) / 16;
@@ -721,6 +724,7 @@ namespace Ship_Game
                 DesignIssues.CheckIssueUnpoweredModules(unpoweredModules);
                 DesignIssues.CheckIssueOrdnance(avgOrdnanceUsed, ordnanceRecovered, ammoTime);
                 DesignIssues.CheckIssuePowerRecharge(bEnergyWeapons, powerRecharge, powerCapacity, powerConsumed);
+                DesignIssues.CheckPowerRequiredToFireOnce(weaponsPowerFirePerShot, powerCapacity);
                 DesignIssues.CheckIssueOrdnanceBurst(burstOrdnance, ordnanceCap);
                 DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, stats.MaxFTLSpeed);
                 DesignIssues.CheckIssueNoWarp(stats.MaxSTLSpeed, stats.MaxFTLSpeed);
