@@ -8,37 +8,20 @@ namespace Ship_Game.AI
         void AcceptNAPact(Empire us, Empire them,  Offer.Attitude attitude)
         {
             us.SignTreatyWith(them, TreatyType.NonAggression);
-
-            float cost = 0f;
-            if (Empire.Universe.PlayerEmpire != us)
-            {
-                switch (us.Personality)
-                {
-                    case PersonalityType.Pacifist: 
-                    case PersonalityType.Cunning:    cost = 0f;  break;
-                    case PersonalityType.Xenophobic: cost = 15f; break;
-                    case PersonalityType.Aggressive: cost = 35f; break;
-                    case PersonalityType.Honorable:  cost = 5f;  break;
-                    case PersonalityType.Ruthless:   cost = 50f; break;
-                }
-            }
-
             Relationship usToThem = us.GetRelations(them);
-            usToThem.AddTrustEntry(attitude, TrustEntryType.Treaty, cost);
+            usToThem.AddTrustEntry(attitude, TrustEntryType.Treaty, OwnerEmpire.PersonalityModifiers.TrustCostNaPact);
         }
 
         void AcceptTradeTreaty(Empire us, Empire them, Offer.Attitude attitude)
         {
             us.SignTreatyWith(them, TreatyType.Trade);
-
             Relationship usToThem = us.GetRelations(them);
-            usToThem.AddTrustEntry(attitude, TrustEntryType.Treaty, 0.1f);
+            usToThem.AddTrustEntry(attitude, TrustEntryType.Treaty, OwnerEmpire.PersonalityModifiers.TrustCostTradePact);
         }
 
         void AcceptBorderTreaty(Empire us, Empire them, Offer.Attitude attitude)
         {
             us.SignTreatyWith(them, TreatyType.OpenBorders);
-
             Relationship usToThem = us.GetRelations(them);
             usToThem.AddTrustEntry(attitude, TrustEntryType.Treaty, 5f);
         }
@@ -226,18 +209,17 @@ namespace Ship_Game.AI
             const string rejection = "AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY";
             if (OwnerEmpire.TheyAreAlliedWithOurEnemies(them, out Array<Empire> empiresAlliedWithThem))
             {
-                switch (OwnerEmpire.Personality)
+                usToThem.AddAngerDiplomaticConflict(OwnerEmpire.PersonalityModifiers.AddAngerAlliedWithEnemy);
+                if (!OwnerEmpire.IsPacifist || !OwnerEmpire.isFaction) // Only pacifist and cunning will ally
                 {
-                    case PersonalityType.Aggressive: usToThem.AddAngerDiplomaticConflict(50);  allowAlliance = false; answer = rejection; break;
-                    case PersonalityType.Ruthless:   usToThem.AddAngerDiplomaticConflict(25);  allowAlliance = false; answer = rejection; break;
-                    case PersonalityType.Honorable:  usToThem.AddAngerDiplomaticConflict(75);  allowAlliance = false; answer = rejection; break;
-                    case PersonalityType.Xenophobic: usToThem.AddAngerDiplomaticConflict(100); allowAlliance = false; answer = rejection; break;
-                    case PersonalityType.Pacifist:
-                    case PersonalityType.Cunning:
-                    default: break; // ok to ally with them
+                    allowAlliance   = false;
+                    answer          = rejection;
+                    usToThem.Trust -= 25;
                 }
-
-                usToThem.Trust -= 25;
+                else
+                {
+                    usToThem.Trust -= 5;
+                }
             }
 
             CheckAIEmpiresResponse(them, empiresAlliedWithThem, allowAlliance);
