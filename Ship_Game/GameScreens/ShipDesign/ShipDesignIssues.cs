@@ -166,13 +166,48 @@ namespace Ship_Game.ShipDesignIssues
             float rechargeTime    = powerCapacity / recharge.LowerBound(1);
             WarningLevel severity = WarningLevel.None;
 
-            if (rechargeTime > 20)      severity = WarningLevel.Critical;
+            if      (rechargeTime > 20) severity = WarningLevel.Critical;
             else if (rechargeTime > 16) severity = WarningLevel.Major;
             else if (rechargeTime > 12) severity = WarningLevel.Minor;
             else if (rechargeTime > 8)  severity = WarningLevel.Informative;
 
             if (severity > WarningLevel.None)
                 AddDesignIssue(DesignIssueType.LongRechargeTime, severity);
+        }
+
+        public void CheckPowerRequiredToFireOnce(Array<float> weaponsPowerPerShot, float powerCapacity)
+        {
+            if (weaponsPowerPerShot.Count == 0)
+                return;
+
+            weaponsPowerPerShot.Sort();
+            int numCanFire = 0;
+            for (int i = 0; 0 < weaponsPowerPerShot.Count; i++)
+            {
+                float weaponPower = weaponsPowerPerShot[i];
+                if (weaponPower.LessOrEqual(powerCapacity))
+                    numCanFire = +1;
+                else
+                    break;
+            }
+
+            float percentCanFire  = 100f * numCanFire / weaponsPowerPerShot.Count;
+            float efficiency      = 100 * powerCapacity / weaponsPowerPerShot.Sum().LowerBound(1);
+            WarningLevel severity = WarningLevel.None;
+
+            if      (percentCanFire < 50)  severity = WarningLevel.Critical;
+            else if (percentCanFire < 70)  severity = WarningLevel.Major;
+            else if (percentCanFire < 90)  severity = WarningLevel.Minor;
+            else if (percentCanFire < 100) severity = WarningLevel.Informative;
+
+            if (percentCanFire.AlmostZero())
+                efficiency = 0;
+
+            string strNumCanFire = $"{percentCanFire.String(0)}% {new LocalizedText(1467).Text}. ";
+            string strEfficiency = $"{new LocalizedText(1467).Text} {efficiency.String(0)}%.";
+
+            if (severity > WarningLevel.None)
+                AddDesignIssue(DesignIssueType.OneTimeFireEfficiency, severity, $"{strNumCanFire}{strEfficiency}");
         }
 
         public void CheckIssueLowWarpTime(float warpDraw, float ftlTime, float warpSpeed)
@@ -445,7 +480,8 @@ namespace Ship_Game.ShipDesignIssues
         HighBurstOrdnance,
         Accuracy,
         Targets,
-        LongRechargeTime
+        LongRechargeTime,
+        OneTimeFireEfficiency
     }
 
     public enum WarningLevel
@@ -624,6 +660,12 @@ namespace Ship_Game.ShipDesignIssues
                     Problem     = new LocalizedText(1463).Text;
                     Remediation = new LocalizedText(1464).Text;
                     Texture     = ResourceManager.Texture("NewUI/issueLongRechargeTime");
+                    break;
+                case DesignIssueType.OneTimeFireEfficiency:
+                    Title       = new LocalizedText(1465).Text;
+                    Problem     = new LocalizedText(1466).Text;
+                    Remediation = new LocalizedText(1467).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNegativeRecharge");
                     break;
             }
 
