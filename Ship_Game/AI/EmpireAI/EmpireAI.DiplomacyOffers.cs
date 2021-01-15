@@ -516,7 +516,6 @@ namespace Ship_Game.AI
             WarState state;
             Empire us             = OwnerEmpire;
             Relationship usToThem = us.GetRelations(them);
-            DTrait personality    = us.data.DiplomaticPersonality;
             float valueToUs       = theirOffer.ArtifactsOffered.Count * 15f;
             float valueToThem     = ourOffer.ArtifactsOffered.Count * 15f;
 
