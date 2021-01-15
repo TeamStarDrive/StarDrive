@@ -231,6 +231,7 @@ namespace Ship_Game
         public float TotalPopBillion { get; private set; }
         public float MaxPopBillion { get; private set; }
         public DifficultyModifiers DifficultyModifiers { get; private set; }
+        public PersonalityModifiers PersonalityModifiers { get; private set; }
         // Empire unique ID. If this is 0, then this empire is invalid!
         // Set in EmpireManager.cs
         public int Id;
@@ -1051,6 +1052,11 @@ namespace Ship_Game
             DifficultyModifiers = new DifficultyModifiers(this, CurrentGame.Difficulty);
         }
 
+        void InitPersonalityModifiers()
+        {
+            PersonalityModifiers = new PersonalityModifiers(Personality);
+        }
+
         public void TestInitDifficultyModifiers() // For UnitTests only
         {
             InitDifficultyModifiers();
@@ -1107,6 +1113,7 @@ namespace Ship_Game
                 UpdateTimer = 0;
 
             InitDifficultyModifiers();
+            InitPersonalityModifiers();
             CreateThrusterColors();
             EmpireAI = new EmpireAI(this, fromSave: false);
             Research.Update();
@@ -1193,6 +1200,7 @@ namespace Ship_Game
         public void InitializeFromSave()
         {
             InitDifficultyModifiers();
+            InitPersonalityModifiers();
             EmpireAI = new EmpireAI(this, fromSave: true);
             for (int key = 1; key < 1; ++key)
             {

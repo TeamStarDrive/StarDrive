@@ -49,22 +49,7 @@ namespace Ship_Game.AI
             AssignSpyMissions(currentMissions, wantedMissions);
         }
 
-        float GetSpyModifier()
-        {
-            float modifier;
-            switch (OwnerEmpire.Personality)
-            {
-                default:
-                case PersonalityType.Cunning:
-                case PersonalityType.Xenophobic: modifier = 0.13f;  break;
-                case PersonalityType.Ruthless:
-                case PersonalityType.Aggressive: modifier = 0.115f; break;
-                case PersonalityType.Honorable:
-                case PersonalityType.Pacifist:   modifier = 0.1f;   break;
-            }
-
-            return (1 + (int)CurrentGame.Difficulty) * modifier;
-        }
+        float GetSpyModifier() => (1 + (int)CurrentGame.Difficulty) * OwnerEmpire.PersonalityModifiers.WantedAgentMissionMultiplier;
 
         void AssignSpyMissions(int currentMissions, int wantedMissions)
         {
