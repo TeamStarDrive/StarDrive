@@ -422,7 +422,7 @@ namespace Ship_Game.Ships
                     return true;
 
                 //if (LastDamagedBy?.GetLoyalty() == attacker)
-                    //return true;
+                  //  return true;
                 //if (AI.Target?.GetLoyalty() == attacker)
                     //return true;
                 //if (attacker.isPlayer && !attackerToUs.Treaty_NAPact) 
