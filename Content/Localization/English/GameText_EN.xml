@@ -4004,18 +4004,38 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Index>1461</Index>
     <Text>Bases placed in orbit also use planet FCS.</Text>
   </Token>
-    <Token>
-      <Index>1462</Index>
-      <Text>Long Recharge Time</Text>
-    </Token>
-    <Token>
-      <Index>1463</Index>
-      <Text>The ship takes long time to fully recharge its batteries. This can make it ineffective during a continuous battle.</Text>
-    </Token>
-    <Token>
-      <Index>1464</Index>
-      <Text>Added Reactors, which will increase the power recharge of the ship.</Text>
-    </Token>
+  <Token>
+    <Index>1462</Index>
+    <Text>Long Recharge Time</Text>
+  </Token>
+  <Token>
+    <Index>1463</Index>
+    <Text>The ship takes long time to fully recharge its batteries. This can make it ineffective during a continuous battle.</Text>
+  </Token>
+  <Token>
+    <Index>1464</Index>
+    <Text>Added Reactors, which will increase the power recharge of the ship.</Text>
+  </Token>
+  <Token>
+    <Index>1465</Index>
+    <Text>Low Power Capacity</Text>
+  </Token>
+  <Token>
+    <Index>1466</Index>
+    <Text>The ship's Power Capacity it to low to support all of it's installed energy weaponry. The ship might have enough power output, but it must also have sufficient capacity to store it.</Text>
+  </Token>
+  <Token>
+    <Index>1467</Index>
+    <Text>Add Power Cells to the ship.</Text>
+  </Token>
+  <Token>
+    <Index>1468</Index>
+    <Text>of the ships's energy weapons cannot fire a single shot.</Text>
+  </Token>
+  <Token>
+    <Index>1469</Index>
+    <Text>The efficiency of the ships's energy weapon with it's current Power Capacity is</Text>
+  </Token>
 
     <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side 
     of the screen when something happens. Usually these are split into 2 lines.  Keep formatting / spacing on these.-->
