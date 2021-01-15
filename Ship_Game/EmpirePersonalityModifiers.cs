@@ -26,8 +26,8 @@
                     PlanetStoleTrustMultiplier   = 0.75f;
                     AddAngerAlliedWithEnemy      = 0;
                     FederationPopRatioWar = 1;
-                    TrustCostNaPact       = 0;
                     TrustCostTradePact    = 0;
+                    TrustCostNaPact       = 0;
                     break;
                 case PersonalityType.Aggressive:
                     ColonizationClaimRatioWarningThreshold = 0.7f;
@@ -38,8 +38,8 @@
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
                     FederationPopRatioWar = 1.1f;
-                    TrustCostNaPact       = 35;
                     TrustCostTradePact    = 20;
+                    TrustCostNaPact       = 35;
                     break;
                 case PersonalityType.Ruthless:
                     ColonizationClaimRatioWarningThreshold = 0.6f;
@@ -50,8 +50,8 @@
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
                     FederationPopRatioWar = 1.2f;
-                    TrustCostNaPact       = 45f;
                     TrustCostTradePact    = 15;
+                    TrustCostNaPact       = 45f;
                     break;
                 case PersonalityType.Xenophobic:
                     ColonizationClaimRatioWarningThreshold = 0;
@@ -62,8 +62,8 @@
                     PlanetStoleTrustMultiplier   = 0.1f;
                     AddAngerAlliedWithEnemy      = 100;
                     FederationPopRatioWar = 1.25f;
-                    TrustCostNaPact       = 15;
                     TrustCostTradePact    = 15;
+                    TrustCostNaPact       = 15;
                     break;
                 case PersonalityType.Cunning:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -74,8 +74,8 @@
                     PlanetStoleTrustMultiplier   = 0.7f;
                     AddAngerAlliedWithEnemy      = 0;
                     FederationPopRatioWar = 0.5f;
-                    TrustCostNaPact       = 5;
                     TrustCostTradePact    = 5;
+                    TrustCostNaPact       = 5;
                     break;
                 case PersonalityType.Honorable:
                     ColonizationClaimRatioWarningThreshold = 1;
@@ -86,8 +86,8 @@
                     PlanetStoleTrustMultiplier   = 0.4f;
                     AddAngerAlliedWithEnemy      = 75;
                     FederationPopRatioWar = 1;
-                    TrustCostNaPact       = 10;
                     TrustCostTradePact    = 10;
+                    TrustCostNaPact       = 10;
                     break;
                 case PersonalityType.Pacifist:
                     ColonizationClaimRatioWarningThreshold = 1.25f;
@@ -98,8 +98,8 @@
                     PlanetStoleTrustMultiplier   = 0.8f;
                     AddAngerAlliedWithEnemy      = 0;
                     FederationPopRatioWar = 0.8f;
-                    TrustCostNaPact       = 3;
                     TrustCostTradePact    = 12;
+                    TrustCostNaPact       = 3;
                     break;
             }
         }
