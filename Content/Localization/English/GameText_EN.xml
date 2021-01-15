@@ -6143,7 +6143,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2195</Index>
-      <Text>Send this Agent on a mission to steal an enemy technology. The Agent will be on assignment for the indicated number of turns. If successful, the Agent will steal a random enemy technology.</Text>
+      <Text>Send this Agent on a mission to steal an enemy technology. The Agent will be on assignment for the indicated number of turns. If successful, the Agent will steal a random enemy technology data, which would greatly help up progress in the related technology's research.</Text>
     </Token>
     <Token>
       <Index>2196</Index>
@@ -8459,13 +8459,13 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>6057</Index>
-      <Text>stole technology data chips for:</Text>
+      <Text>stole some technology data related to:</Text>
     </Token>
   <Token>
       <Index>6058</Index>
       <Text>An enemy Agent stole a technology from us:</Text>
-    </Token>
-  <Token>
+    </Token>SignTreatyWith
+    <Token>
       <Index>6059</Index>
       <Text>We foiled an enemy plot to steal our technology</Text>
     </Token>
