@@ -116,7 +116,7 @@ namespace Ship_Game.AI
 
         public static bool PickColonyShip(Empire empire, out Ship colonyShip)
         {
-            if (empire.isPlayer)
+            if (empire.isPlayer && !empire.AutoPickBestColonizer)
             {
                 ResourceManager.GetShipTemplate(empire.data.CurrentAutoColony, out colonyShip);
             }
