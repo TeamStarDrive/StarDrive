@@ -552,6 +552,7 @@ namespace Ship_Game
                     e.AutoExplore           = saveData.AutoExplore;
                     e.AutoFreighters        = saveData.AutoFreighters;
                     e.AutoPickBestFreighter = saveData.AutoPickBestFreighter;
+                    e.AutoPickBestColonizer = saveData.AutoPickBestColonizer;
                     e.AutoBuild             = saveData.AutoProjectors;
                 }
 
