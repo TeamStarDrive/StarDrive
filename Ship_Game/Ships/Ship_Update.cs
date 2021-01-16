@@ -320,6 +320,16 @@ namespace Ship_Game.Ships
                              * Matrix.CreateRotationX(xRotation)
                              * Matrix.CreateRotationZ(Rotation)
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+
+
+                if (RandomMath.RollDice(20)) // Spawn some junk when tumbling
+                {
+                    float radSqrt = (float)Math.Sqrt(Radius);
+                    float junkScale = (radSqrt * 0.05f).UpperBound(0.25f);
+                    SpaceJunk.SpawnJunk(1, Center.GenerateRandomPointOnCircle(Radius / 20),
+                        Velocity, this, Radius, junkScale, true);
+                }
+
                 ShipSO.UpdateAnimation(timeStep.FixedTime);
             }
 
