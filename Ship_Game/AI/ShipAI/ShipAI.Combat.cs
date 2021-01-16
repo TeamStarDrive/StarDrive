@@ -262,7 +262,7 @@ namespace Ship_Game.AI
             // radius hack needs investigation.
             // i believe this is an orbital no control systems compensator. But it should not be handled here. 
             float scanRadius = radius + (radius < 0.01f ? 10000 : 0);
-            int maxResults   = Owner.System?.ShipList.Count ?? 128;
+            int maxResults   = Owner.System?.ShipList.Count.LowerBound(128) ?? 128;
             GameplayObject[] scannedShips = UniverseScreen.Spatial.FindNearby(GameObjectType.Ship,
                                                                     Owner, scanRadius, maxResults);
  
