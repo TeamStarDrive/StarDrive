@@ -342,9 +342,9 @@ namespace Ship_Game.AI
             }
             SetTargetWeights(targetPrefs);
 
-            ShipWeight[] SortedTargets = ScannedNearby.SortedDescending(weight => weight.Weight);
+            ShipWeight[] sortedTargets = ScannedNearby.SortedDescending(weight => weight.Weight);
 
-            ScannedTargets.AddRange(SortedTargets.Select(ship => ship.Ship));
+            ScannedTargets.AddRange(sortedTargets.Select(ship => ship.Ship));
 
             // check target validity
             if (Target?.Active != true)
@@ -360,9 +360,9 @@ namespace Ship_Game.AI
                 return Target;
             }
 
-            if (SortedTargets.Length > 0 && (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars))
+            if (sortedTargets.Length > 0 && (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars))
             {
-                if (SortedTargets.FindFirstValid(SortedTargets.Length, w=> w.Weight > -10000f, out _, out var shipWeight))
+                if (sortedTargets.FindFirstValid(sortedTargets.Length, w=> w.Weight > -10000f, out _, out var shipWeight))
                     return shipWeight.Ship;
             }
             return null;
