@@ -4720,7 +4720,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1825</Index>
-      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items.\n \nWARNING: This will quickly spend your treasury and may cause high tax rates.</Text>
+      <Text>Signals Continuous Construction rush of all items in your empire, including existing and future items.\n \nWARNING: This will quickly spend your treasury and may cause high tax rates if Auto Tax is enabled.</Text>
     </Token>
     <Token>
       <Index>1826</Index>
@@ -4765,6 +4765,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>1836</Index>
       <Text> Normally, when you manually add a building to the colony's build queue, you will be notified when it is completed. You can disable these notifications, if you tend to manually build most of your buildings.</Text>
+    </Token>
+    <Token>
+      <Index>1837</Index>
+      <Text>Auto Pick Colony Ship</Text>
+    </Token>
+    <Token>
+      <Index>1838</Index>
+      <Text>The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons.</Text>
     </Token>
     <Token>
       <Index>1844</Index>
@@ -9052,7 +9060,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7011</Index>
-      <Text>Prevents AI empires from merging into Federations at the first site of a powerful opponent.</Text>
+      <Text>Prevents AI empires from merging into Federations at the first site of a powerful opponent. This will not prevent them from federating if they have strong, long lasting alliances.</Text>
     </Token>
     <Token>
       <Index>7012</Index>

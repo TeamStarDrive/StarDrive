@@ -193,6 +193,7 @@ namespace Ship_Game
         public Vector2 WeightedCenter;
         public bool RushAllConstruction;
         public List<KeyValuePair<int, string>> DiplomacyContactQueue { get; private set; } = new List<KeyValuePair<int, string>>();  // Empire IDs, for player only
+        public bool AutoPickBestColonizer;
 
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();

@@ -113,6 +113,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             AvailableDesignsList = Add(new ScrollList2<DesignListItem>(background));
             AvailableDesignsList.EnableItemHighlight = true;
             AvailableDesignsList.OnClick = OnDesignListItemClicked;
+            AvailableDesignsList.OnDoubleClick = OnDesignListItemDoubleClicked;
 
             PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(background.Right - 44, background.Y)));
             PlayerDesignsToggle.OnClick = p =>
@@ -151,6 +152,13 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 EnterNameArea.Text = item.Ship.Name;
             }
         }
+
+        void OnDesignListItemDoubleClicked(DesignListItem item)
+        {
+            OnDesignListItemClicked(item);
+            LoadShipToScreen();
+        }
+
 
         void DeleteAccepted()
         {            

@@ -256,14 +256,14 @@ namespace Ship_Game
 
         void OnColonyListItemClicked(ColoniesListItem item)
         {
-            SelectedPlanet = item.p;
+            SelectedPlanet = item.P;
             GovernorDetails.SetPlanetDetails(SelectedPlanet);
             GovernorDetails.PerformLayout();
         }
 
         void OnColonyListItemDoubleClicked(ColoniesListItem item)
         {
-            Empire.Universe.SelectedPlanet = item.p;
+            Empire.Universe.SelectedPlanet = item.P;
             Empire.Universe.SnapViewColony(combatView: false);
             ExitScreen();
         }
@@ -310,7 +310,7 @@ namespace Ship_Game
                 ColoniesList.AddItem(new ColoniesListItem(this, p));
             }
 
-            SelectedPlanet = ColoniesList.AllEntries[0].p;
+            SelectedPlanet = ColoniesList.AllEntries[0].P;
             GovernorDetails.SetPlanetDetails(SelectedPlanet);
             GovernorDetails.PerformLayout();
         }
