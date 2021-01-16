@@ -227,16 +227,7 @@ namespace Ship_Game.AI
                 float valueForThem = p.ColonyPotentialValue(them) * planetsRatio;
                 float ratio        = valueForUs / valueForThem.LowerBound(1);
 
-                switch (OwnerEmpire.Personality) //  Xenophobic will always warn
-                {
-                    case PersonalityType.Aggressive: return ratio > 0.7f;
-                    case PersonalityType.Ruthless:   return ratio > 0.6f;
-                    case PersonalityType.Xenophobic: return ratio > 0.5f;
-                    case PersonalityType.Cunning:    return ratio > 1;
-                    case PersonalityType.Pacifist:   return ratio > 1.25f;
-                    case PersonalityType.Honorable:  return ratio > 1f;
-                    default:                         return true;
-                }
+                return ratio > OwnerEmpire.PersonalityModifiers.ColonizationClaimRatioWarningThreshold;
             }
         }
 
