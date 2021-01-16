@@ -188,24 +188,9 @@ namespace Ship_Game.Gameplay
 
         public float GetTurnsForFederationWithPlayer(Empire us) => TurnsAbove95Federation(us);
 
-        int TurnsAbove95Federation(Empire us)
-        {
-
-            int turns;
-            switch (us.Personality)
-            {
-                default:
-                case PersonalityType.Aggressive: turns = 350;  break;
-                case PersonalityType.Xenophobic: turns = 500;  break;
-                case PersonalityType.Ruthless:   turns = 425;  break;
-                case PersonalityType.Honorable:  turns = 250;  break;
-                case PersonalityType.Cunning:    turns = 320;  break;
-                case PersonalityType.Pacifist:   turns = 300;  break;
-            }
-
-            return turns * (int)(CurrentGame.GalaxySize + 1);
-        }
-
+        int TurnsAbove95Federation(Empire us) => us.PersonalityModifiers.TurnsAbove95FederationNeeded 
+                                                 * (int)(CurrentGame.GalaxySize + 1);
+        
         public void SetTreaty(Empire us, TreatyType treatyType, bool value)
         {
             switch (treatyType)
@@ -742,18 +727,7 @@ namespace Ship_Game.Gameplay
                 if (NumberStolenClaims == 0 || !them.isPlayer) // AI has their internal trust gain
                     return 1;
 
-                float multiplier = 1f; 
-                switch (us.Personality)
-                {
-                    case PersonalityType.Aggressive: multiplier = 0.5f; break;
-                    case PersonalityType.Ruthless:   multiplier = 0.6f; break;
-                    case PersonalityType.Xenophobic: multiplier = 0.1f; break;
-                    case PersonalityType.Cunning:    multiplier = 0.8f; break;
-                    case PersonalityType.Honorable:  multiplier = 0.4f; break;
-                    case PersonalityType.Pacifist:   multiplier = 1f;   break;
-                }
-
-                return multiplier / NumberStolenClaims;
+                return us.PersonalityModifiers.PlanetStoleTrustMultiplier / NumberStolenClaims;
             }
         }
 
@@ -1031,7 +1005,7 @@ namespace Ship_Game.Gameplay
             // Local Method
             bool Is3RdPartyBiggerThenUs()
             {
-                float popRatioWar = PopRatioWar();
+                float popRatioWar = us.PersonalityModifiers.FederationPopRatioWar;
                 foreach (Empire e in EmpireManager.ActiveMajorEmpires)
                 {
                     if (e == us || e == them)
@@ -1043,20 +1017,6 @@ namespace Ship_Game.Gameplay
                 }
 
                 return false;
-            }
-
-            float PopRatioWar() // When at war we will have lower threshold for merge
-            {
-                switch (us.Personality)
-                {
-                    default:
-                    case PersonalityType.Honorable:  return 1f;
-                    case PersonalityType.Aggressive: return 1.1f;
-                    case PersonalityType.Ruthless:   return 1.2f;
-                    case PersonalityType.Xenophobic: return 1.25f;
-                    case PersonalityType.Cunning:    return 0.5f;
-                    case PersonalityType.Pacifist:   return 0.8f;
-                }
             }
         }
 

@@ -98,7 +98,7 @@ namespace Ship_Game
         {
             SignTreatyWith(them, TreatyType.Alliance);
             SignTreatyWith(them, TreatyType.OpenBorders);
-            BreakTreatyWith(them, TreatyType.NonAggression);
+            SignTreatyWith(them, TreatyType.NonAggression);
         }
 
         public void EndPeaceWith(Empire them)
@@ -353,15 +353,10 @@ namespace Ship_Game
             Relationship rel = GetRelations(them);
             if (TheyAreAlliedWithOurEnemies(them, out _))
             {
-                switch (Personality)
-                {
-                    case PersonalityType.Pacifist:   rel.AddAngerDiplomaticConflict(25); multiplier = 0.8f; break;
-                    case PersonalityType.Cunning:    rel.AddAngerDiplomaticConflict(50); multiplier = 0.6f; break;
-                    case PersonalityType.Ruthless:   rel.AddAngerDiplomaticConflict(75); multiplier = 0.5f; break;
-                    case PersonalityType.Aggressive: rel.AddAngerDiplomaticConflict(75); multiplier = 0.4f; break;
-                    case PersonalityType.Honorable:
-                    case PersonalityType.Xenophobic: rel.AddAngerDiplomaticConflict(100); multiplier = 0.5f; decline = true; break;
-                }
+                rel.AddAngerDiplomaticConflict(PersonalityModifiers.AddAngerAlliedWithEnemies3RdParty);
+                multiplier = PersonalityModifiers.AllianceValueAlliedWithEnemy;
+                if (IsXenophobic)
+                    decline = true;
             }
 
             rel.Trust *= multiplier;
