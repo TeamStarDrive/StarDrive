@@ -1127,6 +1127,9 @@ namespace Ship_Game.Ships
 
         public void UpdateWhileDying(FixedSimTime timeStep)
         {
+            if (!RandomMath.RollDice(10))
+                return; 
+
             Center3D = Parent.Center.ToVec3(UniverseRandom.RandomBetween(-25f, 25f));
             if (CanVisualizeDamage)
                 UpdateDamageVisualization(timeStep);

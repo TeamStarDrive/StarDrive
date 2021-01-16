@@ -1566,8 +1566,7 @@ namespace Ship_Game.Ships
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
                     float radSqrt   = (float)Math.Sqrt(Radius);
-                    float junkScale = radSqrt * 0.05f; // trial and error, depends on junk model sizes
-                    if (junkScale > 1.4f) junkScale = 1.4f; // bigger doesn't look good
+                    float junkScale = (radSqrt * 0.05f).UpperBound(1.4f); // trial and error, depends on junk model sizes // bigger doesn't look good
 
                     //Log.Info("Ship.Explode r={1} rsq={2} junk={3} scale={4}   {0}", Name, Radius, radSqrt, explosionJunk, junkScale);
                     for (int x = 0; x < 3; ++x)
