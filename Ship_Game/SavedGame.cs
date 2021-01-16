@@ -90,6 +90,7 @@ namespace Ship_Game
             SaveData.AutoExplore           = EmpireManager.Player.AutoExplore;
             SaveData.AutoFreighters        = EmpireManager.Player.AutoFreighters;
             SaveData.AutoPickBestFreighter = EmpireManager.Player.AutoPickBestFreighter;
+            SaveData.AutoPickBestColonizer = EmpireManager.Player.AutoPickBestColonizer;
             SaveData.AutoProjectors        = EmpireManager.Player.AutoBuild;
             SaveData.GamePacing            = CurrentGame.Pace;
             SaveData.GameScale             = 1f;
@@ -930,6 +931,7 @@ namespace Ship_Game
 
             [Serialize(38)] public ProjectileSaveData[] Projectiles; // New global projectile list
             [Serialize(39)] public BeamSaveData[] Beams; // new global beam list
+            [Serialize(40)] public bool AutoPickBestColonizer;
         }
     }
 }

@@ -122,6 +122,7 @@ namespace Ship_Game
             AllSaves.AddTab(TabText);
             SavesSL = Add(new ScrollList2<SaveLoadListItem>(AllSaves, EntryHeight));
             SavesSL.OnClick = OnSaveLoadItemClicked;
+            SavesSL.OnDoubleClick = OnSaveLoadItemDoubleClicked;
             SavesSL.EnableItemHighlight = true;
             InitSaveList();
 
@@ -150,6 +151,15 @@ namespace Ship_Game
         protected virtual void OnSaveLoadItemClicked(SaveLoadListItem item)
         {
             SwitchFile(item.Data);
+        }
+
+        protected virtual void OnSaveLoadItemDoubleClicked(SaveLoadListItem item)
+        {
+            SwitchFile(item.Data);
+            if (Mode == SLMode.Save)
+                TrySave();
+            else if (Mode == SLMode.Load)
+                Load();
         }
 
 
