@@ -22,7 +22,7 @@ namespace Ship_Game
         {
             Universe = universe;
             const int windowWidth = 210;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 350);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 360);
         }
 
         class CheckedDropdown : UIElementV2
@@ -68,10 +68,11 @@ namespace Ship_Game
 
             UIList rest = AddList(new Vector2(win.X + 10f, win.Y + 200f));
             rest.Padding = new Vector2(2f, 10f);
+            rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestColonizer, title: 1837, tooltip: 1838);
             rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: 1958, tooltip: 1959);
             rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: 6136, tooltip: 7039);
             rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: 7040);
-            rest.AddCheckbox(() => RushConstruction, title: GameText.RushAllConstruction, tooltip: GameText.RushAllConstructionTip);
+            rest.AddCheckbox(() => RushConstruction,                           title: 1824, tooltip: 1825);
             rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: 1835, tooltip: 1836);
 
             UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
@@ -113,7 +114,10 @@ namespace Ship_Game
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(batch, elapsed);
             ConstructionSubMenu.Draw(batch, elapsed);
-            
+
+            FreighterDropDown.Visible  = !EmpireManager.Player.AutoPickBestFreighter;
+            ColonyShipDropDown.Visible = !EmpireManager.Player.AutoPickBestColonizer;
+
             base.Draw(batch, elapsed);
         }
 
