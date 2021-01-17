@@ -989,7 +989,7 @@ namespace Ship_Game.Ships
 
             // Carriers will use the carrier range for max range.
             // for min range carriers will use the max range of normal weapons.
-            if (Carrier.IsPrimaryCarrierRole)
+            if (Carrier.IsPrimaryCarrierRoleForLaunchRange)
             {
                 WeaponsMinRange = Math.Min(ranges.Max(), Carrier.HangarRange);
                 WeaponsMaxRange = Math.Max(Carrier.HangarRange, ranges.Max());
