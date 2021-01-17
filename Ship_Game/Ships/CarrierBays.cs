@@ -30,9 +30,9 @@ namespace Ship_Game.Ships
         public float HangarRange => HasActiveHangars ? 7500f : 0;
         public bool IsPrimaryCarrierRole => HasActiveHangars &&
                                             (Owner.WeaponsMaxRange.AlmostZero()
-                                            ||Owner.DesignRole == ShipData.RoleName.carrier ||
-                                             Owner.DesignRole == ShipData.RoleName.support ||
-                                             Owner.DesignRoleType == ShipData.RoleType.Orbital);
+                                            || Owner.DesignRole == ShipData.RoleName.carrier
+                                            || Owner.DesignRole == ShipData.RoleName.support
+                                            || Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
         private CarrierBays(Ship owner, ShipModule[] slots)
         {
