@@ -29,7 +29,8 @@ namespace Ship_Game.Ships
         public SupplyShuttles SupplyShuttle;
         public float HangarRange => HasActiveHangars ? 7500f : 0;
         public bool IsPrimaryCarrierRole => HasActiveHangars &&
-                                            (Owner.DesignRole == ShipData.RoleName.carrier ||
+                                            (Owner.WeaponsMaxRange.AlmostZero()
+                                            ||Owner.DesignRole == ShipData.RoleName.carrier ||
                                              Owner.DesignRole == ShipData.RoleName.support ||
                                              Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
@@ -597,6 +598,11 @@ namespace Ship_Game.Ships
         /// </returns>
         public bool IsInHangarLaunchRange(float distanceToTarget)
         {
+
+            if (Owner != null && Owner.loyalty.isPlayer && Owner.VanityName == "LALA")
+                Log.Info("lala");
+
+
             if (HasActiveHangars && !Owner.IsSpoolingOrInWarp)
             {
                 float range;
