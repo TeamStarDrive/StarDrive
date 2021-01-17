@@ -28,7 +28,8 @@ namespace Ship_Game.Ships
         public bool RecallingShipsBeforeWarp { get; private set; }
         public SupplyShuttles SupplyShuttle;
         public float HangarRange => HasActiveHangars ? 7500f : 0;
-        public bool IsPrimaryCarrierRole => HasActiveHangars &&
+        public bool IsPrimaryCarrierRoleForLaunchRange => 
+                                            HasActiveHangars &&
                                             (Owner.WeaponsMaxRange.AlmostZero()
                                             || Owner.DesignRole == ShipData.RoleName.carrier
                                             || Owner.DesignRole == ShipData.RoleName.support
@@ -606,7 +607,7 @@ namespace Ship_Game.Ships
             if (HasActiveHangars && !Owner.IsSpoolingOrInWarp)
             {
                 float range;
-                if (IsPrimaryCarrierRole && Owner.AI.CombatState != CombatState.ShortRange)
+                if (IsPrimaryCarrierRoleForLaunchRange && Owner.AI.CombatState != CombatState.ShortRange)
                     range = Owner.SensorRange;
                 else
                     range = Owner.WeaponsMaxRange;
