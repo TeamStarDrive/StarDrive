@@ -44,9 +44,12 @@ namespace Ship_Game.Universe
                 if (ship.loyalty.isFaction || Owner.IsEmpireAttackable(ship.loyalty, ship))
                 {
                     HostileForcesPresent = true;
-                    DangerousForcesPresent |= ship.BaseStrength > 0;
-                    CombatTimer = Owner.isPlayer ? 5f : 1f;
-                    return;
+                    CombatTimer          = Owner.isPlayer ? 5f : 1f;
+                    if (ship.BaseStrength > 0)
+                    {
+                        DangerousForcesPresent = true;
+                        return;
+                    }
                 }
             }
         }
