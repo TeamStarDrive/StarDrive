@@ -53,8 +53,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             get
             {
-                float buffer = Us.CurrentMilitaryStrength.LowerBound(1000);
-                return (StrengthKilled + buffer) / (StrengthLost + buffer);
+                float minStr      = 10000 * ((int)CurrentGame.Difficulty + 1);
+                float ourStr      = Us.CurrentMilitaryStrength.LowerBound(minStr);
+                float theirStr    = Them.CurrentMilitaryStrength.LowerBound(minStr);
+                float killPercent = StrengthKilled / theirStr;
+                float lossPercent = StrengthLost / ourStr;
+
+                // start checking kill ratio only after 5% kills/loses 
+                return killPercent > 0.05f || lossPercent > 0.05f ? killPercent / lossPercent : 1;
             }
         }
 
