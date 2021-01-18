@@ -550,6 +550,7 @@ namespace Ship_Game
             bool canTargetCorvettes        = false;
             bool canTargetCapitals         = false;
             int pointDefenseValue          = 0;
+            int totalHangarArea            = 0;
 
             Map<ShipModule, float> weaponAccuracyList = new Map<ShipModule, float>();
             Array<float> weaponsPowerFirePerShot      = new Array<float>();
@@ -599,6 +600,7 @@ namespace Ship_Game
                 totalEcm            = module.ECM.LowerBound(totalEcm);
                 sensorRange         = module.SensorRange.LowerBound(sensorRange);
                 sensorBonus         = module.SensorBonus.LowerBound(sensorBonus);
+                totalHangarArea    += module.MaximumHangarShipSize;
 
                 if (module.IsTroopBay)
                     numTroopBays += 1;
@@ -668,7 +670,7 @@ namespace Ship_Game
             FireControlLevel  += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
             targets           += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
 
-            var stats        = new ShipStats();
+            var stats = new ShipStats();
             stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0, 1);
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
             shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
@@ -682,7 +684,7 @@ namespace Ship_Game
             
             var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
             DrawHullBonuses(ref cursor, stats.Cost, ActiveHull.Bonuses);
-            DrawUpkeepSizeMass(ref cursor, stats.Cost, size, stats.Mass);
+            DrawUpkeepSizeMass(ref cursor, stats.Cost, size, stats.Mass, totalHangarArea);
             WriteLine(ref cursor);
 
             DrawPowerConsumedAndRecharge(ref cursor, weaponPowerNeeded, powerRecharge, powerCapacity, out float powerConsumed);
@@ -928,9 +930,9 @@ namespace Ship_Game
             DrawStatColor(ref cursor, TintedValue(111, powerRecharge, 101, Color.LightSkyBlue));
         }
 
-        void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass)
+        void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass, int totalHangarArea)
         {
-            float upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
+            float upkeep = GetMaintenanceCost(ActiveHull, (int)cost, totalHangarArea);
 
             DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, 175, Color.White));
             DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, 230, Color.White));

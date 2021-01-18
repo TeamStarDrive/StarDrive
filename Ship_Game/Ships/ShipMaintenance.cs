@@ -15,10 +15,13 @@ namespace Ship_Game.Ships
                    || role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate;
         }
 
-        public static float GetMaintenanceCost(ShipData ship, float cost, Empire empire)
+        // Note, this is for ship design screen only. So it is always for the Player empire
+        public static float GetMaintenanceCost(ShipData ship, float cost, int totalHangarArea)
         {
             ShipData.RoleName role = ship.HullRole;
-            float maint = GetBaseMainCost(role, ship.FixedCost > 0 ? ship.FixedCost : cost, ship.ModuleSlots.Length, empire);
+            float maint = GetBaseMainCost(role, ship.FixedCost > 0 ? ship.FixedCost : cost, 
+                ship.ModuleSlots.Length + totalHangarArea, EmpireManager.Player);
+
             return (float)Math.Round(maint, 2);
         }
 
@@ -28,9 +31,11 @@ namespace Ship_Game.Ships
             if (IsFreeUpkeepShip(role, empire, ship))
                 return 0;
 
-            float maint = GetBaseMainCost(role, ship.GetCost(empire), ship.SurfaceArea, empire);
+            float hangarArea = ship.Carrier.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
+            float maint      = GetBaseMainCost(role, ship.GetCost(empire), ship.SurfaceArea + hangarArea, empire);
 
             // Projectors do not get any more modifiers
+
             if (ship.IsSubspaceProjector)
                 return maint;
 
