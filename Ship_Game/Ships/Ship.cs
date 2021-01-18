@@ -453,25 +453,31 @@ namespace Ship_Game.Ships
             return error;
         }
 
-        public bool CanBeScrapped  => Mothership == null && HomePlanet == null;
+        public bool IsHangarShip   => Mothership != null;
+        public bool IsHomeDefense  => HomePlanet != null;
+        public bool CanBeRefitted  => CanBeScrapped;
+        public bool CanBeScrapped  => !IsHangarShip && !IsHomeDefense;
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > Status.Critical
                                                                  && OrdnanceStatus != Status.NotApplicable;
 
-        public Status OrdnanceStatus => OrdnanceStatusWithincoming(0);
+        public Status OrdnanceStatus => OrdnanceStatusWithIncoming(0);
 
-        public Status OrdnanceStatusWithincoming(float incomingAmount)
+        public Status OrdnanceStatusWithIncoming(float incomingAmount)
         {
             if (IsInWarp
                 || AI.State == AIState.Scrap
                 || AI.State == AIState.Resupply
-                || AI.State == AIState.Refit || Mothership != null
+                || AI.State == AIState.Refit 
+                || !CanBeRefitted
                 || shipData.Role == ShipData.RoleName.supply
-                || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
+                || shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station
                 || OrdinanceMax < 1
-                || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
+                || IsTethered && shipData.HullRole == ShipData.RoleName.platform)
+            {
                 return Status.NotApplicable;
+            }
 
             float amount = Ordinance;
             if (incomingAmount > 0)
@@ -736,7 +742,7 @@ namespace Ship_Game.Ships
             return shipData.ShipStyle == "Remnant"
                 || empire?.data == null
                 || loyalty.data.PrototypeShip == Name
-                || (Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
+                || IsHangarShip && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate;
         }
 
         // Calculate maintenance by proportion of ship cost
@@ -1209,7 +1215,7 @@ namespace Ship_Game.Ships
             }
 
             // return home if it is a defense ship
-            if (!InCombat && HomePlanet != null && !HomePlanet.SpaceCombatNearPlanet)
+            if (!InCombat && IsHomeDefense && !HomePlanet.SpaceCombatNearPlanet)
                 ReturnHome();
 
             // Repair
@@ -1538,7 +1544,7 @@ namespace Ship_Game.Ships
             }
 
             NotifyPlayerIfDiedExploring();
-            Carrier.ScuttleNonWarpHangarShips();
+            Carrier.ScuttleHangarShips();
             ResetProjectorInfluence();
 
             float size = Radius * (shipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
@@ -1618,7 +1624,7 @@ namespace Ship_Game.Ships
 
         Planet TryCrashOnPlanet(int etaSeconds)
         {
-            if (IsStation || System == null || HomePlanet != null)
+            if (IsStation || System == null)
                 return null;
 
             for (int i = 0; i < System.PlanetList.Count; i++)
@@ -1644,7 +1650,7 @@ namespace Ship_Game.Ships
         {
             AI.Reset();
 
-            if (Mothership != null)
+            if (IsHangarShip)
             {
                 foreach (ShipModule shipModule in Mothership.Carrier.AllActiveHangars)
                     if (shipModule.TryGetHangarShip(out Ship ship) && ship == this)

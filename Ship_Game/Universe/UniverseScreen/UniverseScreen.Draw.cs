@@ -1139,7 +1139,7 @@ namespace Ship_Game
                 }
                 if (ship.AI.State == AIState.ReturnToHangar)
                 {
-                    if (ship.Mothership != null)
+                    if (ship.IsHangarShip)
                         DrawLineProjected(start, ship.Mothership.Center, color);
                     else
                         ship.AI.State = AIState.AwaitingOrders; //@todo this looks like bug fix hack. investigate and fix.

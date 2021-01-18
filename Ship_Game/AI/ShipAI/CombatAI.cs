@@ -88,8 +88,8 @@ namespace Ship_Game.AI
             targetValue += target.LastDamagedBy == Owner ? 0.25f : 0;
             targetValue += Owner.loyalty.WeArePirates && target.shipData.ShipCategory == ShipData.Category.Civilian ? 1 : 0;
             targetValue += target.AI.State == AIState.Resupply ? -1 : 0;
-            targetValue += target.Mothership != null && chanceToHit < 0.5f ? -1 : 0;
-            targetValue += target.HomePlanet != null && chanceToHit < 0.5f ? -1 : 0;
+            targetValue += target.IsHangarShip && chanceToHit < 0.5f ? -1 : 0;
+            targetValue += target.IsHomeDefense && chanceToHit < 0.5f ? -1 : 0;
             targetValue += target.MaxSTLSpeed == 0 ? -1 : 0;
             targetValue += target.TotalDps < 1 ? -1 : 0;
 
@@ -121,7 +121,7 @@ namespace Ship_Game.AI
                 Vector2 fleetPos     = Owner.fleet.GetPositionFromDirection(Owner, dir);
                 ownerCenter          = friendlyCenter + fleetPos;
             }
-            else if (Owner.Mothership != null)
+            else if (Owner.IsHangarShip)
             {
                 friendlyCenter = Owner.Mothership.Center;
                 ownerCenter = friendlyCenter;
@@ -156,7 +156,7 @@ namespace Ship_Game.AI
                     case ShipData.HangarOptions.AntiShip:
                         {
                             targetValue += targetOfMothership ? 0 : -1;
-                            targetValue += target.Mothership != null ? -1 : 0;
+                            targetValue += target.IsHangarShip ? -1 : 0;
                             targetValue += chanceToHit > 0.5f ? 0 : -1;
                             break;
                         }
@@ -165,7 +165,7 @@ namespace Ship_Game.AI
                             targetValue += motherShip.Carrier.AllFighterHangars.Any(h => h.HangarShipGuid == target.AI.Target?.guid) ? 0 : -1;
                             targetValue += target.shipData.HangarDesignation == ShipData.HangarOptions.AntiShip ? 0 : -1;
                             targetValue += chanceToHit < 0.5f ? 0 : -1;
-                            targetValue += target.Mothership != null ? 0 : -1;
+                            targetValue += target.IsHangarShip ? 0 : -1;
                             targetValue += target.DesignRoleType == ShipData.RoleType.Troop ? 0 : -1;
                             targetValue += target.DesignRoleType == ShipData.RoleType.EmpireSupport ? 0 : -1;
                             targetValue += target.DesignRole == ShipData.RoleName.colony ? 0 : -1;

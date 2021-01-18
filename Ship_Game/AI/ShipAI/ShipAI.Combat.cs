@@ -116,7 +116,7 @@ namespace Ship_Game.AI
 
             if (Owner.TrackingPower <= 0 || !hasPointDefense)
             {
-                if (Owner.Mothership != null)
+                if (Owner.IsHangarShip)
                 {
                     Owner.Mothership.AI.TrackProjectiles.ForEach(p=> TrackProjectiles.AddUnique(p));
                 }
@@ -128,7 +128,7 @@ namespace Ship_Game.AI
                                     Owner, Owner.WeaponsMaxRange, maxResults:64, excludeLoyalty:Owner.loyalty);
             {
                 ScannedProjectiles.Clear();
-                if (Owner.Mothership != null)
+                if (Owner.IsHangarShip)
                     ScannedProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
                 for (int i = 0; i < projectiles.Length; i++)
                 {
@@ -279,7 +279,7 @@ namespace Ship_Game.AI
                 
                 // this should be expanded to include allied ships. 
                 Empire empire = nearbyShip.loyalty;
-                if (empire == Owner.loyalty && nearbyShip.Mothership == null)
+                if (empire == Owner.loyalty && !nearbyShip.IsHangarShip)
                 {
                     ScannedFriendlies.Add(nearbyShip);
                     FriendliesSwarmCenter += nearbyShip.Center;
@@ -435,14 +435,14 @@ namespace Ship_Game.AI
             }
             else if (!HasPriorityTarget)
             {
-                if (Owner.Mothership != null)
+                if (Owner.IsHangarShip)
                     ScannedTarget = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
                 else
                     ScannedTarget = ScanForCombatTargets(sensorShip, radius);
             }
             else
             {
-                if (Owner.Mothership != null)
+                if (Owner.IsHangarShip)
                     ScannedTarget = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
                 else
                     ScanForCombatTargets(sensorShip, radius);
@@ -490,7 +490,7 @@ namespace Ship_Game.AI
                 return 30000f;
             }
 
-            if (Owner.Mothership != null)
+            if (Owner.IsHangarShip)
             {
                 // get the motherships sensor status. 
                 float motherRange = Owner.Mothership.AI.GetSensorRadius(out sensorShip);

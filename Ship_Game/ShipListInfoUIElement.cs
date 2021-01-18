@@ -440,7 +440,7 @@ namespace Ship_Game
                 if (ship.Carrier.HasTroopBays)            troopShipsHere = true;
                 if (ship.DesignRole < ShipData.RoleName.carrier || ship.shipData.ShipCategory == ShipData.Category.Civilian 
                                                                 || ship.AI.State == AIState.Colonize 
-                                                                || ship.Mothership != null)
+                                                                || ship.IsHangarShip)
                 {
                     allCombat = false;
                 }
