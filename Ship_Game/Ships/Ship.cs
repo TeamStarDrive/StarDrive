@@ -736,15 +736,6 @@ namespace Ship_Game.Ships
             AI.OrderReturnHome();
         }
 
-        // ModInfo activation option for Maintenance Costs:
-        bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire)
-        {
-            return shipData.ShipStyle == "Remnant"
-                || empire?.data == null
-                || loyalty.data.PrototypeShip == Name
-                || IsHangarShip && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate;
-        }
-
         // Calculate maintenance by proportion of ship cost
         private static float GetModMaintenanceModifier(ShipData.RoleName role)
         {
