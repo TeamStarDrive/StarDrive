@@ -582,7 +582,7 @@ namespace Ship_Game
 
         bool ShipPieMenu(Ship ship)
         {
-            if (ship == null || ship != SelectedShip || SelectedShip.Mothership != null ||
+            if (ship == null || ship != SelectedShip || SelectedShip.IsHangarShip ||
                 SelectedShip.IsConstructor) return false;
 
             LoadShipMenuNodes(ship.loyalty == player ? 1 : 0);
