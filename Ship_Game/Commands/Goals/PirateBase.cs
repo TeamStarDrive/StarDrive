@@ -54,7 +54,7 @@ namespace Ship_Game.Commands.Goals
                 for (int i = 0; i < friendlies.Count; i++)
                 {
                     Ship ship = friendlies[i];
-                    if (ship.IsPlatformOrStation || ship.Mothership != null)
+                    if (ship.IsPlatformOrStation || ship.IsHangarShip)
                         continue; // Do not mess with our own structures
 
                     if (ship.InRadius(Base.Center, Base.Radius + 3000))

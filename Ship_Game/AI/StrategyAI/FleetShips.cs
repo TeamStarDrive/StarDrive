@@ -68,12 +68,14 @@ namespace Ship_Game.AI
 
             if (ship.IsPlatformOrStation
                 || ship.fleet != null
-                || ship.Mothership != null
+                || ship.IsHangarShip
                 || ship.AI.State == AIState.Scrap
                 || ship.AI.State == AIState.Resupply
                 || ship.AI.State == AIState.Refit
-                || ship.HomePlanet != null)
+                || ship.IsHomeDefense)
+            {
                 return false;
+            }
 
             int roleIndex            = (int)EmpireAI.RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
             RoleCount[roleIndex]    += 1;

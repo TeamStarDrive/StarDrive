@@ -1034,7 +1034,7 @@ namespace Ship_Game
             if (SpaceCombatNearPlanet || b.CurrentNumDefenseShips == b.DefenseShipsCapacity)
                 return;
 
-            if (ParentSystem.ShipList.Any(t => t.HomePlanet != null))
+            if (ParentSystem.ShipList.Any(t => t.IsHomeDefense))
                 return; // if there are still defense ships our there, don't update building's hangars
 
             b.UpdateCurrentDefenseShips(1, Owner);
@@ -1069,6 +1069,10 @@ namespace Ship_Game
             {
                 float chance = 20 + ship.Level * 2;
                 chance      *= Scale; // Gravity affects how hard is a crash
+
+                if (!ship.CanBeRefitted)
+                    chance *= 0.25f; // Dont recover hangar ships or home defense ships so easily.
+
                 if (!Type.EarthLike)
                     chance *= 2; // No atmosphere, not able to burn during planet fall
 

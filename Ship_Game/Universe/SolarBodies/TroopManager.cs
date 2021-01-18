@@ -34,7 +34,7 @@ namespace Ship_Game
         private float DecisionTimer;
         private float InCombatTimer;
         private int NumInvadersLast;
-        private bool Init = true;
+        private bool Init = true; // Force initial timers update in case of combat when the class is created
 
         public void SetInCombat(float timer = 1)
         {
@@ -278,6 +278,9 @@ namespace Ship_Game
                 if (!building.CanAttack)
                     startCombatTimer = true;
             }
+
+            if (ForeignTroopHere(Owner))
+                startCombatTimer = true;
         }
 
         private void DoTroopTimers(FixedSimTime timeStep, ref bool startCombatTimer)
@@ -387,11 +390,11 @@ namespace Ship_Game
             if (NoTroopsOnPlanet)
                 return;
 
-            var forces = new Forces(Owner, TilesList);
+            var forces = new Forces(Owner, Ground);
             ResolveDiplomacy(forces.InvadingForces, forces.InvadingEmpires);
             NumInvadersLast = forces.InvadingForces;
 
-            if (forces.InvadingForces > 0 && forces.DefendingForces == 0) // Invaders have won
+            if (forces.InvadingForces > 0 && forces.DefendingForces == 0 && Ground.Owner != null) // Invaders have won
                 DetermineNewOwnerAndChangeOwnership(forces.InvadingEmpires);
 
             if (forces.DefendingForces > 0 && forces.InvadingForces == 0) // Defenders have won
@@ -576,41 +579,38 @@ namespace Ship_Game
             public readonly Array<Empire> InvadingEmpires;
             public readonly Array<Empire> DefendingEmpires;
 
-            public Forces(Empire planetOwner, Array<PlanetGridSquare> tileList)
+            public Forces(Empire planetOwner, Planet ground)
             {
                 DefendingForces  = 0;
                 InvadingForces   = 0;
                 InvadingEmpires  = new Array<Empire>();
                 DefendingEmpires = new Array<Empire>();
 
-                for (int i = 0; i < tileList.Count; i++)
-                {
-                    PlanetGridSquare tile = tileList[i];
-                    var troops = tile.TroopsHere.GetInternalArrayItems();
-                    for (int x = troops.Length - 1; x >= 0; x--)
-                    {
-                        Troop troop = troops[x];
-                        if (troop != null)
-                        {
-                            if (troop.Loyalty != null
-                                && troop.Loyalty != planetOwner
-                                && !troop.Loyalty.isFaction
-                                && !troop.Loyalty.IsAlliedWith(planetOwner))
-                            {
-                                ++InvadingForces;
-                                InvadingEmpires.AddUnique(troop.Loyalty);
-                            }
-                            else
-                            {
-                                ++DefendingForces;
-                                DefendingEmpires.AddUnique(troop.Loyalty);
-                            }
-                        }
-                    }
+                if (ground.Owner != null)
+                    DefendingEmpires.Add(ground.Owner);
 
-                    if (tile.CombatBuildingOnTile)
-                        ++DefendingForces;
+                for (int i = 0; i < ground.TroopsHere.Count; i++)
+                {
+                    Troop troop = ground.TroopsHere[i];
+                    if (troop == null)
+                        continue;
+
+                    if (troop.Loyalty != null
+                        && troop.Loyalty != planetOwner
+                        && troop.Loyalty != EmpireManager.Unknown
+                        && !troop.Loyalty.IsAlliedWith(planetOwner))
+                    {
+                        InvadingForces += 1;
+                        InvadingEmpires.AddUnique(troop.Loyalty);
+                    }
+                    else
+                    {
+                        DefendingForces += 1;
+                        DefendingEmpires.AddUnique(troop.Loyalty);
+                    }
                 }
+
+                DefendingForces += ground.BuildingList.Count(b => b.IsAttackable);
             }
         }
     }

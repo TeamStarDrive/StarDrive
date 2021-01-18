@@ -23,16 +23,17 @@ namespace Ship_Game.AI
         public void ChooseTarget()
         {
             var target = Drone.Owner?.AI.FriendliesNearby
-                .FindMinFiltered(ship => ship.Active && ship.Mothership == null
-                                                     && ship.HealthStatus < Status.Maximum
-                                                     && ship.Center.InRadius(Drone.Owner.Center, 10000)
+                .FindMinFiltered(ship => ship.Active 
+                                         && !ship.IsHangarShip
+                                         && ship.HealthStatus < Status.Maximum
+                                         && ship.Center.InRadius(Drone.Owner.Center, 10000)
                 , ship =>
                 {
                     var ownerCenter      = Drone.Owner.Center;
                     var distance         = ship.Center.Distance(ownerCenter);
-                    var distanceWieght   = 1 + (int)(10 * distance / DroneWeapon.BaseRange);
+                    var distanceWeight   = 1 + (int)(10 * distance / DroneWeapon.BaseRange);
                     var repairWeight     = (int)ship.HealthStatus;
-                    float weight         = distanceWieght * repairWeight ;
+                    float weight         = distanceWeight * repairWeight ;
                     return weight;
                 });
 

@@ -181,7 +181,7 @@ namespace Ship_Game
             if (SelectedFleet != null || SelectedItem != null || SelectedShip != null || SelectedPlanet != null ||
                 SelectedShipList.Count != 0)
                 return;
-            if (shipClicked == null || shipClicked.Mothership != null || shipClicked.IsConstructor)
+            if (shipClicked == null || shipClicked.IsHangarShip || shipClicked.IsConstructor)
                 return;
             if (SelectedShip != null && previousSelection != SelectedShip && SelectedShip != shipClicked)
                 previousSelection = SelectedShip;

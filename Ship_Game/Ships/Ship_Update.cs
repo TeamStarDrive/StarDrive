@@ -113,7 +113,7 @@ namespace Ship_Game.Ships
                 Center   = TetheredTo.Center + TetherOffset;
                 VelocityMaximum = 0;
             }
-            if (Mothership != null && !Mothership.Active) //Problematic for drones...
+            if (IsHangarShip && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
             if (!dying) UpdateAlive(timeStep);

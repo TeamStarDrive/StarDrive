@@ -7,32 +7,35 @@ namespace Ship_Game.Ships
         private const float MaintModifierRealism = 0.004f;
         private const float MaintModifierBySize  = 0.01f;
 
-        private static bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire, Ship ship)
+        private static bool IsFreeUpkeepShip(Empire empire, Ship ship)
         {
             return ship.loyalty.WeAreRemnants
                    || empire?.data == null
-                   || ship.loyalty.data.PrototypeShip == ship.Name
-                   || (ship.Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
+                   || ship.Name == ship.loyalty.data.PrototypeShip
+                   || !ship.CanBeRefitted; 
         }
 
-        public static float GetMaintenanceCost(ShipData ship, float cost, Empire empire)
+        // Note, this is for ship design screen only. So it is always for the Player empire
+        public static float GetMaintenanceCost(ShipData ship, float cost, int totalHangarArea)
         {
-            ShipData.RoleName role = ship.HullRole;
-            float maint = GetBaseMainCost(role, ship.FixedCost > 0 ? ship.FixedCost : cost, ship.ModuleSlots.Length, empire);
+            float maint = GetBaseMainCost(ship.HullRole, ship.FixedCost > 0 ? ship.FixedCost : cost, 
+                ship.ModuleSlots.Length + totalHangarArea, EmpireManager.Player);
+
             return (float)Math.Round(maint, 2);
         }
 
         public static float GetMaintenanceCost(Ship ship, Empire empire)
         {
-            ShipData.RoleName role = ship.shipData.HullRole;
-            if (IsFreeUpkeepShip(role, empire, ship))
+            if (IsFreeUpkeepShip(empire, ship))
                 return 0;
 
-            float maint = GetBaseMainCost(role, ship.GetCost(empire), ship.SurfaceArea, empire);
+            float hangarArea = ship.Carrier.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
+            float maint      = GetBaseMainCost(ship.shipData.HullRole, ship.GetCost(empire), ship.SurfaceArea + hangarArea, empire);
 
             // Projectors do not get any more modifiers
+
             if (ship.IsSubspaceProjector)
-                return maint;
+                 return maint;
 
             // Reduced maintenance for shipyards (sitting ducks, no offense) Shipyards are limited to 3.
             if (ship.shipData.IsShipyard)
@@ -50,8 +53,10 @@ namespace Ship_Game.Ships
 
             switch (role)
             {
+
                 case ShipData.RoleName.station:
                 case ShipData.RoleName.platform:              maint *= 0.7f; break;
+                case ShipData.RoleName.troop:                 maint *= 0.5f; break;
                 case ShipData.RoleName.corvette when realism: maint *= 0.9f; break;
                 case ShipData.RoleName.frigate  when realism: maint *= 0.8f; break;
                 case ShipData.RoleName.cruiser  when realism: maint *= 0.7f; break;

@@ -240,8 +240,13 @@ namespace Ship_Game.AI
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
-                if (ship.AI.BadGuysNear || ship.AI.HasPriorityOrder || ship.AI.HasPriorityTarget)
+                if (ship.AI.BadGuysNear
+                    || ship.AI.HasPriorityOrder
+                    || ship.AI.HasPriorityTarget
+                    || ship.CanBeRefitted)
+                {
                     continue;
+                }
 
                 Ship newShip = ShipBuilder.PickShipToRefit(ship, OwnerEmpire);
                 if (newShip != null)
