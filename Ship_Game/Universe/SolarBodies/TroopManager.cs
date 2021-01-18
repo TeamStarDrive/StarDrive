@@ -34,7 +34,7 @@ namespace Ship_Game
         private float DecisionTimer;
         private float InCombatTimer;
         private int NumInvadersLast;
-        private bool Init = true;
+        private bool Init = true; // Force initial timers update in case of combat when the class is created
 
         public void SetInCombat(float timer = 1)
         {
@@ -278,6 +278,9 @@ namespace Ship_Game
                 if (!building.CanAttack)
                     startCombatTimer = true;
             }
+
+            if (ForeignTroopHere(Owner))
+                startCombatTimer = true;
         }
 
         private void DoTroopTimers(FixedSimTime timeStep, ref bool startCombatTimer)
