@@ -259,7 +259,7 @@ namespace Ship_Game
             {
                 foreach (FleetDataNode node in F.DataNodes)
                 {
-                    if (node.ShipName != ship.Name || node.Ship != null || ship.HomePlanet != null || ship.Mothership != null)
+                    if (node.ShipName != ship.Name || node.Ship != null || ship.IsHomeDefense || ship.IsHangarShip)
                         continue;
 
                     NumThatFit++;

@@ -1595,18 +1595,19 @@ namespace Ship_Game
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
                     Ship ship = OwnedShips[i];
-                    //if (ship?.Active != true) continue;
-
                     if (ship.InhibitionRadius > 0.0f)
                         Inhibitors.Add(ship);
 
-                    if (ship.fleet == null && ship.InCombat && ship.Mothership == null) //fbedard: total ships in combat
+                    if (ship.fleet == null && ship.InCombat && !ship.IsHangarShip) //fbedard: total ships in combat
                         empireShipCombat++;
 
-                    if (ship.Mothership != null || ship.DesignRole            == ShipData.RoleName.troop
-                                                || ship.DesignRole            == ShipData.RoleName.freighter
-                                                || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                    if (ship.IsHangarShip || ship.DesignRole == ShipData.RoleName.troop
+                                          || ship.DesignRole == ShipData.RoleName.freighter
+                                          || ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                    {
                         continue;
+                    }
+
                     empireShipTotal++;
                 }
 
@@ -2585,8 +2586,8 @@ namespace Ship_Game
                     if (s.fleet == null 
                         && s.Name == ship.Name
                         && !s.InCombat
-                        && s.HomePlanet == null 
-                        && s.Mothership == null 
+                        && !s.IsHangarShip
+                        && !s.IsHomeDefense
                         && s.AI.State != AIState.Refit
                         && !s.AI.HasPriorityOrder
                         && !s.AI.HasPriorityTarget)

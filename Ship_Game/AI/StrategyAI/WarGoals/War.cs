@@ -179,13 +179,17 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         public void ShipWeLost(Ship target)
         {
-            if (target.Mothership != null || Them != target.LastDamagedBy?.GetLoyalty()) return;
+            if (target.IsHangarShip || target.IsHomeDefense || Them != target.LastDamagedBy?.GetLoyalty()) 
+                return;
+
             StrengthLost += target.GetStrength();
         }
 
         public void ShipWeKilled(Ship target)
         {
-            if (Them != target.loyalty || target.Mothership != null) return;
+            if (Them != target.loyalty || target.IsHangarShip || target.IsHomeDefense)
+                return;
+
             StrengthKilled += target.GetStrength();
         }
 

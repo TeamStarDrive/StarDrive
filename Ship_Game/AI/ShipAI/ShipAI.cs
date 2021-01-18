@@ -754,7 +754,7 @@ namespace Ship_Game.AI
             {
                 EscortTarget = null;
                 ClearOrders();
-                if (Owner.Mothership != null && Owner.Mothership.Active)
+                if (Owner.IsHangarShip && Owner.Mothership.Active)
                 {
                     OrderReturnToHangar();
                     return;
@@ -766,9 +766,10 @@ namespace Ship_Game.AI
 
                 return;
             }
-            if (Owner.GetStrength() <=0 
-                || Owner.Mothership == null && escortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
-                || Owner.Mothership == null 
+
+            if (Owner.GetStrength() <= 0 
+                || !Owner.IsHangarShip && escortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
+                || !Owner.IsHangarShip
                 || !Owner.Mothership.AI.BadGuysNear 
                 || escortTarget != Owner.Mothership)
             {
