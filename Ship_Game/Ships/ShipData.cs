@@ -339,10 +339,10 @@ namespace Ship_Game.Ships
             supply,
             freighter,
             troop,
-            troopShip,
-            support,
-            bomber,
-            carrier,
+            troopShip, // Design role
+            support,   // Design role
+            bomber,    // Design role
+            carrier,   // Design role
             fighter,
             scout,
             gunboat,
