@@ -7,13 +7,12 @@ namespace Ship_Game.Ships
         private const float MaintModifierRealism = 0.004f;
         private const float MaintModifierBySize  = 0.01f;
 
-        private static bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire, Ship ship)
+        private static bool IsFreeUpkeepShip(Empire empire, Ship ship)
         {
             return ship.loyalty.WeAreRemnants
                    || empire?.data == null
                    || ship.Name == ship.loyalty.data.PrototypeShip
-                   || !ship.CanBeRefitted
-                   || role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.troop;
+                   || !ship.CanBeRefitted; 
         }
 
         // Note, this is for ship design screen only. So it is always for the Player empire
@@ -27,20 +26,16 @@ namespace Ship_Game.Ships
 
         public static float GetMaintenanceCost(Ship ship, Empire empire)
         {
-            ShipData.RoleName role = ship.shipData.HullRole;
-            if (IsFreeUpkeepShip(role, empire, ship))
+            if (IsFreeUpkeepShip(empire, ship))
                 return 0;
 
             float hangarArea = ship.Carrier.AllFighterHangars.Sum(m => m.MaximumHangarShipSize);
-            float maint      = GetBaseMainCost(role, ship.GetCost(empire), ship.SurfaceArea + hangarArea, empire);
+            float maint      = GetBaseMainCost(ship.shipData.HullRole, ship.GetCost(empire), ship.SurfaceArea + hangarArea, empire);
 
             // Projectors do not get any more modifiers
 
             if (ship.IsSubspaceProjector)
-                return maint;
-
-            if (ship.IsDefaultTroopTransport)
-                return maint *= 0.5f;
+                 return maint;
 
             // Reduced maintenance for shipyards (sitting ducks, no offense) Shipyards are limited to 3.
             if (ship.shipData.IsShipyard)
