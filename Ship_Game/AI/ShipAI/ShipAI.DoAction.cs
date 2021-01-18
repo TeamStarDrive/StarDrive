@@ -23,7 +23,7 @@ namespace Ship_Game.AI
             if (escortTarget == null || !escortTarget.Active || escortTarget.loyalty == Owner.loyalty)
             {
                 ClearOrders(State);
-                if (Owner.Mothership != null)
+                if (Owner.IsHangarShip)
                 {
                     if (Owner.Mothership.Carrier.TroopsOut)
                         Owner.DoEscort(Owner.Mothership);
@@ -375,7 +375,7 @@ namespace Ship_Game.AI
                 // This will vanish default single Troop Ship or order Assault shuttle to return to hangar
                 Owner.LandTroopsOnPlanet(planet); 
                 DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
-                if (Owner.Mothership != null && Owner.Mothership.Active)
+                if (Owner.IsHangarShip && Owner.Mothership.Active)
                     OrderReturnToHangar();
                 else
                     Owner.QueueTotalRemoval();
@@ -490,7 +490,7 @@ namespace Ship_Game.AI
 
         void DoReturnToHangar(FixedSimTime timeStep)
         {
-            if (Owner.Mothership == null || !Owner.Mothership.Active)
+            if (!Owner.IsHangarShip || !Owner.Mothership.Active)
             {
                 ClearOrders(State);
                 if (Owner.shipData.Role == ShipData.RoleName.supply)
@@ -535,7 +535,7 @@ namespace Ship_Game.AI
             {
                 // find another friendly planet to land at
                 Owner.UpdateHomePlanet(Owner.loyalty.RallyShipYardNearestTo(Owner.Center));
-                if (Owner.HomePlanet == null 
+                if (!Owner.IsHomeDefense // new home planet not found
                     || Owner.HomePlanet.ParentSystem != Owner.System && !Owner.BaseCanWarp) // Cannot warp and its in another system
                 {
                     // Nowhere to land, bye bye.

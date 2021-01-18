@@ -12,7 +12,7 @@ namespace Ship_Game.Ships
             return ship.loyalty.WeAreRemnants
                    || empire?.data == null
                    || ship.loyalty.data.PrototypeShip == ship.Name
-                   || (ship.Mothership != null && role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate);
+                   || role >= ShipData.RoleName.fighter && role <= ShipData.RoleName.frigate;
         }
 
         public static float GetMaintenanceCost(ShipData ship, float cost, Empire empire)

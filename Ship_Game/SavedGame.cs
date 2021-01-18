@@ -318,7 +318,7 @@ namespace Ship_Game
                     sdata.RecallFightersBeforeFTL   = ship.Carrier.RecallFightersBeforeFTL;
                     sdata.MechanicalBoardingDefense = ship.MechanicalBoardingDefense;
 
-                    if (ship.HomePlanet != null)
+                    if (ship.IsHomeDefense)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
 
                     if (ship.TradeRoutes?.NotEmpty == true)

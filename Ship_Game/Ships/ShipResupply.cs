@@ -104,7 +104,7 @@ namespace Ship_Game.Ships
 
         public void ResupplyFromButton()
         {
-            if (Ship.Mothership != null)
+            if (Ship.IsHangarShip)
                 Ship.AI.OrderReturnToHangar();
             else
                 Ship.AI.GoOrbitNearestPlanetAndResupply(true);
@@ -135,8 +135,8 @@ namespace Ship_Game.Ships
                 || Ship.OrdinanceMax < 1
                 || Ship.loyalty.isFaction
                 || Ship.IsPlatformOrStation
-                || Ship.HomePlanet != null
-                || Ship.Mothership != null
+                || !Ship.IsHomeDefense
+                || !Ship.IsHangarShip
                 || Ship.OrdAddedPerSecond > 0
                 || Ship.OrdnancePercent > 0.99f)
             {

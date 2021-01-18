@@ -353,7 +353,7 @@ namespace Ship_Game.AI
             {
                 foreach (var ship in empire.GetShips())
                 {
-                    if (ship != null && ship.Active && ship.Mothership == null && ship.AI.State != AIState.Scrap)
+                    if (ship != null && ship.Active && ship.CanBeScrapped && ship.AI.State != AIState.Scrap)
                     {
                         var combatRole = RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
                         if (currentShips.TryGetValue(combatRole, out RoleCounts roleCounts))
@@ -532,7 +532,7 @@ namespace Ship_Game.AI
                                         (ship.fleet == null)
                                         && ship.AI.State != AIState.Scuttle
                                         && ship.AI.State != AIState.Resupply
-                                        && ship.Mothership == null && ship.Active
+                                        && ship.CanBeScrapped && ship.Active
                                         && ship.GetMaintCost(empire) > 0)
                         {
                             if (ship.AI.State != AIState.Scrap)

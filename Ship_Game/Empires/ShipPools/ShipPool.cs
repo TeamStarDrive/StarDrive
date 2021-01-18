@@ -86,7 +86,11 @@ namespace Ship_Game.Empires.ShipPools
             for (int i = 0; i < allShips.Count; i++)
             {
                 var ship = allShips[i];
-                if (!ship.Active || ship.fleet != null || ship.Mothership != null || ship.AI.HasPriorityOrder)
+                if (!ship.Active 
+                    || ship.fleet != null 
+                    || ship.IsHangarShip 
+                    || ship.IsHomeDefense
+                    || ship.AI.HasPriorityOrder)
                 {
                     continue;
                 }
@@ -168,7 +172,9 @@ namespace Ship_Game.Empires.ShipPools
 
         public void ForcePoolAdd(Ship ship)
         {
-            if (Owner.isFaction || ship.Mothership != null || ship.HomePlanet != null) return;
+            if (Owner.isFaction || ship.IsHangarShip || ship.IsHomeDefense) 
+                return;
+
             Owner.Pool.RemoveShipFromFleetAndPools(ship);
             if (ship.loyalty != Owner)
             {
@@ -205,8 +211,13 @@ namespace Ship_Game.Empires.ShipPools
             }
             float baseDefensePct = 0.1f;
             baseDefensePct      += 0.15f * numWars;
-            if (toAdd.DesignRole < ShipData.RoleName.fighter || !toAdd.Active ||
-                toAdd.BaseStrength <= 0f || (toAdd.WarpThrust <= 0f && !toAdd.BaseCanWarp) || toAdd.Mothership != null)
+
+            if (toAdd.DesignRole < ShipData.RoleName.fighter 
+                || !toAdd.Active
+                || toAdd.BaseStrength <= 0f 
+                || toAdd.WarpThrust <= 0f && !toAdd.BaseCanWarp 
+                || toAdd.IsHangarShip 
+                || toAdd.IsHomeDefense)
             {
                 return false; // we don't need this ship
             }
@@ -236,7 +247,7 @@ namespace Ship_Game.Empires.ShipPools
             {
                 Ship s = ShipsToAdd[i];
                 Owner.AddShip(s);
-                if (!Owner.isPlayer && !Owner.isFaction && s.Active && s.Mothership == null && s.HomePlanet == null && s.HomePlanet == null) 
+                if (!Owner.isPlayer && !Owner.isFaction && s.Active && !s.IsHomeDefense && !s.IsHomeDefense) 
                     ForcePoolAdd(s);
             }
 
