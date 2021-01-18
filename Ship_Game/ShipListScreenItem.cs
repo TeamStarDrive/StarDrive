@@ -65,7 +65,7 @@ namespace Ship_Game
                 width = width + 1f;
             }
 
-            if (!ship.IsPlatformOrStation && ship.Mothership == null 
+            if (!ship.IsPlatformOrStation && !ship.IsHangarShip 
                                           && ship.shipData.Role != ShipData.RoleName.troop 
                                           && ship.AI.State != AIState.Colonize 
                                           && ship.shipData.Role != ShipData.RoleName.freighter 

@@ -334,7 +334,7 @@ namespace Ship_Game
 
             bool ShouldAddForCategory(Ship ship, int forCategory)
             {
-                if ((PlayerDesignsOnly && !ship.IsPlayerDesign) || ship.Mothership != null || ship.HomePlanet != null)
+                if ((PlayerDesignsOnly && !ship.IsPlayerDesign) || ship.IsHangarShip || ship.IsHomeDefense)
                     return false;
 
                 switch (forCategory)

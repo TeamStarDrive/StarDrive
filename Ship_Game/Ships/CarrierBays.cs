@@ -186,17 +186,16 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void ScuttleNonWarpHangarShips() // FB: get rid of no warp capable hangar ships to prevent them from crawling around
+        public void ScuttleHangarShips() // FB: todo: assign hangar ships a a new carrier, if able
         {
             foreach (ShipModule hangar in AllFighterHangars)
             {
-                if (hangar.TryGetHangarShipActive(out Ship hangarShip) && hangarShip.WarpThrust < 1f)
-                    hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while
+                if (hangar.TryGetHangarShipActive(out Ship hangarShip))
+                    hangarShip.ScuttleTimer = 60f; // 60 seconds so surviving fighters will be able to continue combat for a while                
             }
         }
 
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
-
 
         bool ScrambleAssaultShips(float strengthNeeded)
         {
