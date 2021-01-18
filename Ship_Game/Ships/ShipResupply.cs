@@ -279,7 +279,7 @@ namespace Ship_Game.Ships
         {
             float amount = IncomingSupply[supplyType];
             // for easier debugging keeping this as two statements
-            return Ship.OrdnanceStatusWithincoming(amount);
+            return Ship.OrdnanceStatusWithIncoming(amount);
         }
     }
     public enum ResupplyReason

@@ -13,7 +13,9 @@ namespace Ship_Game.AI
         {
             Planet exportPlanet = g.Trade.ExportFrom;
             Planet importPlanet = g.Trade.ImportTo;
-            if (exportPlanet.Owner == null || importPlanet.Owner == null) // colony was wiped out
+            if (exportPlanet.Owner == null 
+                || importPlanet.Owner == null // colony was wiped out
+                || importPlanet.Owner != Owner.loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.loyalty)) 
             {
                 AI.CancelTradePlan();
                 return;
@@ -107,7 +109,8 @@ namespace Ship_Game.AI
             Planet importPlanet = g.Trade.ImportTo;
             Planet exportPlanet = g.Trade.ExportFrom;
 
-            if (importPlanet.Owner == null) // colony was wiped out
+            if (importPlanet.Owner == null  // colony was wiped out
+                || importPlanet.Owner != Owner.loyalty && !importPlanet.Owner.IsTradeTreaty(Owner.loyalty)) 
             {
                 AI.CancelTradePlan(exportPlanet);
                 return;
