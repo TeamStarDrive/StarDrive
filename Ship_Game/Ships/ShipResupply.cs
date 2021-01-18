@@ -135,8 +135,8 @@ namespace Ship_Game.Ships
                 || Ship.OrdinanceMax < 1
                 || Ship.loyalty.isFaction
                 || Ship.IsPlatformOrStation
-                || !Ship.IsHomeDefense
-                || !Ship.IsHangarShip
+                || Ship.IsHomeDefense
+                || Ship.IsHangarShip
                 || Ship.OrdAddedPerSecond > 0
                 || Ship.OrdnancePercent > 0.99f)
             {
