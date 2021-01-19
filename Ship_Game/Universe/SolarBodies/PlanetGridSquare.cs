@@ -162,10 +162,8 @@ namespace Ship_Game
 
         public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool warZone)
         {
-            if (!TroopsAreOnTile)
-                return false; // buildings only see troops on tile as potential hostiles
-
-            return HostilesTargetsOnTile(us, planetOwner, warZone);
+            // buildings only see troops on tile as potential hostiles
+            return TroopsAreOnTile && HostilesTargetsOnTile(us, planetOwner, warZone);
         }
 
         public bool HostilesTargetsOnTile(Empire us, Empire planetOwner, bool warZone)
