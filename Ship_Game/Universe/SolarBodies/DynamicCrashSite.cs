@@ -77,6 +77,17 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 if (p.Owner == null && p.IsExploredBy(e))
                     e.GetEmpireAI().TrySendExplorationFleetToCrashSite(p);
+                else if (p.Owner == e && !p.TroopsInTheWorks && !p.AnyOfOurTroops(e) && !p.SpaceCombatNearPlanet)
+                    Send4Troops(e, p);
+            }
+        }
+
+        void Send4Troops(Empire e, Planet p)
+        {
+            for (int i = 1; i <= 4; i++) // send 4 troops to explore, if possible
+            {
+                e.GetTroopShipForRebase(out Ship troopShip, p);
+                troopShip.AI.OrderLandAllTroops(p);
             }
         }
 
