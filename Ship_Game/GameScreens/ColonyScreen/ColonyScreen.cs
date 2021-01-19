@@ -203,7 +203,7 @@ namespace Ship_Game
                 planetGridSquare.ClickRect = new Rectangle(GridPos.X + planetGridSquare.x * width, GridPos.Y + planetGridSquare.y * height, width, height);
             
             PlanetName.Text = p.Name;
-            PlanetName.MaxCharacters = 12;
+            PlanetName.MaxCharacters = 20;
 
             if (p.Owner != null)
             {
