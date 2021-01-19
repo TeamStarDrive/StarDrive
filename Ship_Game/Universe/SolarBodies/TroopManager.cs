@@ -63,7 +63,7 @@ namespace Ship_Game
                 {
                     MakeCombatDecisions();
                     DecisionTimer = 0.5f;
-                    if (Ground.EventsOnTiles())
+                    if (Ground.EventsOnTiles() && TroopList.Count > 0)
                         startCombatTimer = true;
                 }
 
