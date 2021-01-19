@@ -36,16 +36,6 @@ namespace Ship_Game
             base.PerformLayout();
         }
 
-        public override bool HandleInput(InputState input)
-        {
-            if (base.HandleInput(input))
-            {
-                GameAudio.ResearchSelect();
-                return true;
-            }
-            return false;
-        }
-
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             base.Draw(batch, elapsed);
@@ -68,6 +58,7 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
                 return;
             }
+
             SwapQueueItems(index - 1, index);
             Screen.Queue.ReloadResearchQueue();
         }
@@ -80,6 +71,7 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
                 return;
             }
+
             SwapQueueItems(index + 1, index);
             Screen.Queue.ReloadResearchQueue();
         }
