@@ -63,6 +63,8 @@ namespace Ship_Game
                 {
                     MakeCombatDecisions();
                     DecisionTimer = 0.5f;
+                    if (Ground.EventsOnTiles())
+                        startCombatTimer = true;
                 }
 
                 DoBuildingTimers(timeStep, ref startCombatTimer);
@@ -76,44 +78,41 @@ namespace Ship_Game
 
         private void MakeCombatDecisions()
         {
-            if (!ForeignTroopHere(Owner) && !Ground.EventsOnTiles())
+            bool foreignTroopHere = ForeignTroopHere(Owner) && Owner != null || Owner == null; // so events wont be explored in combat
+            if (!foreignTroopHere && !Ground.EventsOnTiles())
                 return;
 
             for (int i = 0; i < TilesList.Count; ++i)
             {
                 PlanetGridSquare tile = TilesList[i];
                 if (tile.TroopsAreOnTile)
-                    PerformTroopsGroundActions(tile);
+                    PerformTroopsGroundActions(tile, foreignTroopHere);
 
                 else if (tile.BuildingOnTile)
-                    PerformGroundActions(tile.building, tile);
+                    PerformGroundActions(tile.building, tile, foreignTroopHere);
             }
         }
 
-        private void PerformTroopsGroundActions(PlanetGridSquare tile)
+        private void PerformTroopsGroundActions(PlanetGridSquare tile, bool warZone)
         {
             using (tile.TroopsHere.AcquireWriteLock())
             {
                 for (int i = 0; i < tile.TroopsHere.Count; ++i)
                 {
                     Troop troop = tile.TroopsHere[i];
-                    PerformGroundActions(troop, tile);
+                    PerformGroundActions(troop, tile, warZone);
                 }
             }
         }
 
-        private void PerformGroundActions(Building b, PlanetGridSquare ourTile)
+        private void PerformGroundActions(Building b, PlanetGridSquare ourTile, bool warZone)
         {
             if (!b.CanAttack || Ground.Owner == null)
                 return;
 
-            // scan for enemies
-            if (!SpotClosestHostile(ourTile, Owner, out PlanetGridSquare nearestTargetTile))
+            // scan for enemies, right now all buildings have range 1
+            if (!SpotClosestHostile(ourTile, 1, Owner, warZone, out PlanetGridSquare nearestTargetTile))
                 return; // no targets on planet
-
-            // find range
-            if (!nearestTargetTile.InRangeOf(ourTile, 1) || nearestTargetTile.EventOnTile) // right now all buildings have range 1
-                return;
 
             // lock on enemy troop target
             if (nearestTargetTile.LockOnEnemyTroop(Owner, out Troop enemy))
@@ -124,7 +123,7 @@ namespace Ship_Game
             }
         }
 
-        private void PerformGroundActions(Troop t, PlanetGridSquare ourTile)
+        private void PerformGroundActions(Troop t, PlanetGridSquare ourTile, bool warZone)
         {
             if (!t.CanMove && !t.CanAttack)
                 return;
@@ -159,7 +158,7 @@ namespace Ship_Game
             else // Move to target
             {
                 // scan for closest enemy
-                if (!SpotClosestHostile(ourTile, t.Loyalty, out PlanetGridSquare nearestTargetTile))
+                if (!SpotClosestHostile(ourTile, 10, t.Loyalty, warZone, out PlanetGridSquare nearestTargetTile))
                     return; // No targets on planet. No need to move
 
                 MoveTowardsTarget(t, ourTile, nearestTargetTile);
@@ -234,7 +233,7 @@ namespace Ship_Game
             return null;
         }
 
-        bool SpotClosestHostile(PlanetGridSquare spotterTile, Empire spotterOwner, out PlanetGridSquare targetTile)
+        bool SpotClosestHostile(PlanetGridSquare spotterTile, int range, Empire spotterOwner, bool warZone, out PlanetGridSquare targetTile)
         {
             targetTile = null;
             if (spotterTile.LockOnEnemyTroop(spotterOwner, out _))
@@ -243,10 +242,15 @@ namespace Ship_Game
             }
             else
             {
-                foreach (PlanetGridSquare scannedTile in TilesList.OrderBy(tile =>
+                var tiles = TilesList.Filter(t => t.InRangeOf(spotterTile, range));
+                foreach (PlanetGridSquare scannedTile in tiles.OrderBy(tile =>
                     Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
                 {
-                    if (scannedTile.HostilesTargetsOnTile(spotterOwner, Owner))
+                    bool hostilesOnTile = spotterTile.CombatBuildingOnTile
+                                          ? scannedTile.HostilesTargetsOnTileToBuilding(spotterOwner, Owner, warZone)
+                                          : scannedTile.HostilesTargetsOnTile(spotterOwner, Owner, warZone);
+
+                    if (hostilesOnTile)
                     {
                         targetTile = scannedTile;
                         break;
