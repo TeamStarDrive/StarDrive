@@ -823,7 +823,7 @@ namespace Ship_Game.Gameplay
 
         public bool AttackForTransgressions(DTrait personality)
         {
-            return !Treaty_NAPact && TotalAnger  > (personality?.Territorialism
+            return !Treaty_NAPact && !Treaty_Peace && TotalAnger > (personality?.Territorialism
                 ?? EmpireManager.Player.data.BorderTolerance);
         }
 
