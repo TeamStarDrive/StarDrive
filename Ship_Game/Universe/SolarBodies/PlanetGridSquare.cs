@@ -160,9 +160,15 @@ namespace Ship_Game
             b.OnBuildingBuiltAt(p);
         }
 
-        public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)
+        public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool warZone)
         {
-            if (CombatBuildingOnTile && planetOwner != null && planetOwner != us || EventOnTile)
+            // buildings only see troops on tile as potential hostiles
+            return TroopsAreOnTile && HostilesTargetsOnTile(us, planetOwner, warZone);
+        }
+
+        public bool HostilesTargetsOnTile(Empire us, Empire planetOwner, bool warZone)
+        {
+            if (CombatBuildingOnTile && planetOwner != null && planetOwner != us || EventOnTile && !warZone)
                 return true;
 
             return LockOnEnemyTroop(us, out _);
@@ -228,7 +234,7 @@ namespace Ship_Game
                 return 1;
             }
 
-            return HostilesTargetsOnTile(t.Loyalty, planet.Owner) ? 1 : 0;
+            return HostilesTargetsOnTile(t.Loyalty, planet.Owner, planet.MightBeAWarZone(t.Loyalty)) ? 1 : 0;
         }
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
@@ -248,7 +254,7 @@ namespace Ship_Game
             {
                 if (CrashSite.Active)
                 {
-                    if (!planet.SpaceCombatNearPlanet) 
+                    if (!planet.MightBeAWarZone(empire))
                         CrashSite.ActivateSite(planet, empire, this);
                 }
                 else

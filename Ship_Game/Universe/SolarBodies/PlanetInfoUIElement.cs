@@ -111,20 +111,26 @@ namespace Ship_Game
 
             float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
-            var MousePos = new Vector2(x, state.Y);
+            var mousePos = new Vector2(x, state.Y);
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
-            var NamePos = new Vector2(Housing.X + 41, Housing.Y + 65);
+            var namePos = new Vector2(Housing.X + 15, Housing.Y + 65);
+
+            SpriteFont font = Fonts.Arial8Bold;
+            if (P.Name.Length < 12)      { font = Fonts.Arial20Bold; namePos.X += 15; }
+            else if (P.Name.Length < 13) { font = Fonts.Arial12Bold; namePos.X += 10; }
+            else if (P.Name.Length < 17) { font = Fonts.Arial10;     namePos.X += 5; }
+           
             P.UpdateMaxPopulation();
             if (P.Owner == null || !P.IsExploredBy(EmpireManager.Player))
             {
-                DrawUnexploredUninhabited(NamePos, MousePos);
+                DrawUnexploredUninhabited(namePos, mousePos);
                 return;
             }
 
             AddExploredTips();
-            batch.DrawString(Fonts.Arial20Bold, P.Name, NamePos, tColor);
+            batch.DrawString(font, P.Name, namePos, P.Owner?.EmpireColor ?? tColor);
             batch.Draw(ResourceManager.Flag(P.Owner), FlagRect, P.Owner.EmpireColor);
-            var cursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65, NamePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
+            var cursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65, namePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
 
             string pop = P.PopulationStringForPlayer;
             cursor.X -= (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
@@ -133,7 +139,7 @@ namespace Ship_Game
             PopRect = new Rectangle((int)cursor.X - 23, (int)cursor.Y - 3, 22, 22);
             batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
-            MoneyRect = new Rectangle(PopRect.X - 70, PopRect.Y, 22, 22);
+            MoneyRect = new Rectangle(PopRect.X - 60, PopRect.Y, 22, 22);
             var moneyCursor = new Vector2((float)MoneyRect.X + 24, cursor.Y);
 
             if (P.Owner == EmpireManager.Player)
@@ -178,8 +184,8 @@ namespace Ship_Game
 
             DrawColonyType(batch);
             DrawFertProdStats(batch);
-            DrawColonization(batch, MousePos);
-            DrawSendTroops(batch, MousePos);
+            DrawColonization(batch, mousePos);
+            DrawSendTroops(batch, mousePos);
             Inspect.Draw(batch);
             Invade.Draw(batch);
 
