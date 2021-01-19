@@ -1054,7 +1054,7 @@ namespace Ship_Game
 
         public void TryCrashOn(Ship ship)
         {
-            if (!Habitable)
+            if (!Habitable || NumActiveCrashSites >= 5)
                 return;
 
             float survivalChance = GetSurvivalChance();
@@ -1297,6 +1297,8 @@ namespace Ship_Game
             }
             return events;
         }
+
+        public int NumActiveCrashSites => TilesList.Count(t => t.CrashSite.Active);
 
         // Bump out an enemy troop to make room available (usually for spawned troops via events)
         public bool BumpOutTroop(Empire empire)

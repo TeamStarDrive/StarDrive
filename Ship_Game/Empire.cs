@@ -2130,14 +2130,12 @@ namespace Ship_Game
 
         public bool GetTroopShipForRebase(out Ship troopShip, Planet planet)
         {
-            troopShip = null;
             // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
             return NearestFreeTroopShip(out troopShip, planet.Center) || LaunchNearestTroopForRebase(out troopShip, planet.Center, planet.Name);
         }
 
         public bool GetTroopShipForRebase(out Ship troopShip, Ship ship)
         {
-            troopShip = null;
             // Try free troop ships first if there is not one free, launch a troop from the nearest planet to space if possible
             return NearestFreeTroopShip(out troopShip, ship.Center) || LaunchNearestTroopForRebase(out troopShip, ship.Center);
         }
