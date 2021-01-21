@@ -80,7 +80,6 @@
     <RepairRateMod>0</RepairRateMod>
     <Cybernetic>0</Cybernetic>
     <Spiritual>.5</Spiritual>
-    <PreferredEnvDescription>1921</PreferredEnvDescription>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

@@ -89,7 +89,6 @@
     <GroundCombatModifier>0</GroundCombatModifier>
     <RepairRateMod>0</RepairRateMod>
     <Cybernetic>1</Cybernetic>
-    <PreferredEnvDescription>1921</PreferredEnvDescription>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>
