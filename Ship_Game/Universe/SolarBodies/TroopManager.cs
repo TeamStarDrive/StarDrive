@@ -78,8 +78,8 @@ namespace Ship_Game
 
         private void MakeCombatDecisions()
         {
-            bool foreignTroopHere = ForeignTroopHere(Owner) && Ground.Owner != null; // so events wont be explored in combat
-            bool warZone      = MightBeAWarZone();
+            bool foreignTroopHere = ForeignTroopHere(Owner); 
+            bool warZone          = MightBeAWarZone(); // so crash sites events wont be explored in warzone/space combat
             if (!foreignTroopHere && !Ground.EventsOnTiles())
                 return;
 
