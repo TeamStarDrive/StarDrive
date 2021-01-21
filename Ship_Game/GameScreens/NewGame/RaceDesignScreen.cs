@@ -74,8 +74,6 @@ namespace Ship_Game
         string DesertEnvPerf  { set => DesertEnvEntry.Text  = value; }
         string BarrenEnvPerf  { set => BarrenEnvEntry.Text  = value; }
 
-        int PreferredEnvDescription;
-
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu)
         {
             IsPopup = true; // it has to be a popup, otherwise the MainMenuScreen will not be drawn
@@ -588,6 +586,9 @@ namespace Ship_Game
 
         void RefreshEnvPerf(IEmpireData data)
         {
+            if (!GlobalStats.HasMod || !GlobalStats.ActiveModInfo.DisplayEnvPerfInRaceDesign)
+                return;
+
             TerranEnvPerf  = data.EnvPerfTerran.String(2);
             SteppeEnvPerf  = data.EnvPerfSteppe.String(2);
             OceanicEnvPerf = data.EnvPerfOceanic.String(2);

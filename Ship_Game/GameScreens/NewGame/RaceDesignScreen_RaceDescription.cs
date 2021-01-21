@@ -158,8 +158,6 @@ namespace Ship_Game
                 b.Plural(1380); // | HUMANS | are natural sailors and shipwrights
             }
 
-            b.Plural(PreferredEnvDescription);
-
             DescriptionTextList.ResetWithParseText(DescriptionTextFont, b.ToString(), DescriptionTextList.Width - 50);
         }
 
@@ -204,7 +202,6 @@ namespace Ship_Game
             HomeSysName          = traits.HomeSystemName;
             HomeWorldName        = traits.HomeworldName;
             TotalPointsUsed      = 8;
-            PreferredEnvDescription = traits.PreferredEnvDescription;
 
             foreach (TraitEntry t in AllTraits)
             {
