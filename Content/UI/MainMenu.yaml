@@ -109,11 +109,11 @@ Panel: blacbox_animated_logo
 
 Panel: blackvox_sub_version
   Texture: MMenu/subver.png
-  Size: [0, 0.03] # 0.03
-  Pos: [-360, 213] #  [-360, 213] -510, 140]
+  Size: [0, 0.035]
+  Pos: [-335, 213]
   AxisAlign: TopRight
   DrawDepth: Foreground
-  Animation: [1, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
+  Animation: [3, 2, 0, 2, 0] # delay, duration, end-time, fadein, fadeout
     Alpha: [0, 1]
 
 Panel: vignette
