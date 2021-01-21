@@ -5077,10 +5077,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Was Terraformed to a new heaven. \nYour Terraformers will now remove all Biospheres  \nfrom the planet and will be scrapped when the  \nprocess is complete.</Text>
     </Token>
     <Token>
-      <Index>1921</Index>
-      <Text> prosper in Terran worlds and will terraform other environments to Terran worlds if possible.</Text>
-    </Token>
-    <Token>
       <Index>1929</Index>
       <Text>Population (in Billions) vs. Max Population available for your Empire. Percentage indicates how full the colony is. Lower Max Population than the current population means that the current Race occupying this planet is better suited to the environment than your Empire.</Text>
     </Token>
@@ -5504,7 +5500,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2036</Index>
-      <Text>Dedicated orbital shipbuilding facilities will allow us to streamline our production process and provide large efficiency bonuses to our efforts. When built at a colony, a station will be placed in geosynchronous orbit (limited to 27 per colony). Stations may also be built in deep space. See the help menu for details.</Text>
+      <Text>Dedicated orbital shipbuilding facilities will allow us to streamline our production process and provide large efficiency bonuses to our efforts. When built at a colony, a station will be placed in geosynchronous orbit (limited to 2 Shipyards per colony, 27 total orbital stytuctures). Stations may also be built in deep space. See the help menu for details.</Text>
     </Token>
     <Token>
       <Index>2037</Index>
