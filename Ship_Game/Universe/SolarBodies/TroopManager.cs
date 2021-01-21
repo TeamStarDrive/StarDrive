@@ -78,7 +78,8 @@ namespace Ship_Game
 
         private void MakeCombatDecisions()
         {
-            bool foreignTroopHere = ForeignTroopHere(Owner) && Owner != null || Owner == null; // so events wont be explored in combat
+            bool foreignTroopHere = ForeignTroopHere(Owner) && Ground.Owner != null; // so events wont be explored in combat
+            bool warZone      = MightBeAWarZone();
             if (!foreignTroopHere && !Ground.EventsOnTiles())
                 return;
 
@@ -86,10 +87,10 @@ namespace Ship_Game
             {
                 PlanetGridSquare tile = TilesList[i];
                 if (tile.TroopsAreOnTile)
-                    PerformTroopsGroundActions(tile, foreignTroopHere);
+                    PerformTroopsGroundActions(tile, warZone);
 
                 else if (tile.BuildingOnTile)
-                    PerformGroundActions(tile.building, tile, foreignTroopHere);
+                    PerformGroundActions(tile.building, tile, warZone);
             }
         }
 
@@ -233,7 +234,8 @@ namespace Ship_Game
             return null;
         }
 
-        bool SpotClosestHostile(PlanetGridSquare spotterTile, int range, Empire spotterOwner, bool warZone, out PlanetGridSquare targetTile)
+        bool SpotClosestHostile(PlanetGridSquare spotterTile, int range, Empire spotterOwner, 
+            bool warZone, out PlanetGridSquare targetTile)
         {
             targetTile = null;
             if (spotterTile.LockOnEnemyTroop(spotterOwner, out _))
@@ -266,12 +268,14 @@ namespace Ship_Game
             if (BuildingList.Count <= 0)
                 return;
 
+            bool combatBuildingHere = false;
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building building = BuildingList[i];
                 if (building == null || !building.IsAttackable)
                     continue;
 
+                combatBuildingHere = true;
                 building.UpdateAttackTimer(-timeStep.FixedTime);
                 if (building.AttackTimer < 0)
                 {
@@ -283,7 +287,7 @@ namespace Ship_Game
                     startCombatTimer = true;
             }
 
-            if (ForeignTroopHere(Owner))
+            if (ForeignTroopHere(Owner) && combatBuildingHere)
                 startCombatTimer = true;
         }
 
