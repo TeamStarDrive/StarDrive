@@ -168,8 +168,14 @@ namespace Ship_Game
 
         public bool HostilesTargetsOnTile(Empire us, Empire planetOwner, bool warZone)
         {
-            if (CombatBuildingOnTile && planetOwner != null && planetOwner != us || EventOnTile && !warZone)
+            // Crash sites will not be targeted if there is a space/ground battle near the planet, since its
+            // useless to recover damaged ships right into battle
+            if (CombatBuildingOnTile && planetOwner != null && planetOwner != us
+                || CrashSite.Active && !warZone
+                || EventOnTile && !CrashSite.Active)
+            {
                 return true;
+            }
 
             return LockOnEnemyTroop(us, out _);
         }
