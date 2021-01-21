@@ -160,16 +160,22 @@ namespace Ship_Game
             b.OnBuildingBuiltAt(p);
         }
 
-        public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool warZone)
+        public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool spaceBattle)
         {
             // buildings only see troops on tile as potential hostiles
-            return TroopsAreOnTile && HostilesTargetsOnTile(us, planetOwner, warZone);
+            return TroopsAreOnTile && HostilesTargetsOnTile(us, planetOwner, spaceBattle);
         }
 
-        public bool HostilesTargetsOnTile(Empire us, Empire planetOwner, bool warZone)
+        public bool HostilesTargetsOnTile(Empire us, Empire planetOwner, bool spaceBattle)
         {
-            if (CombatBuildingOnTile && planetOwner != null && planetOwner != us || EventOnTile && !warZone)
+            // Crash sites will not be targeted if there is a space/ground battle near the planet, since its
+            // useless to recover damaged ships right into battle
+            if (CombatBuildingOnTile && planetOwner != null && planetOwner != us
+                || CrashSite.Active && !spaceBattle
+                || EventOnTile && !CrashSite.Active)
+            {
                 return true;
+            }
 
             return LockOnEnemyTroop(us, out _);
         }
