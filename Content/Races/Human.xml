@@ -85,7 +85,6 @@
 	<HistoryTraitHonest>false</HistoryTraitHonest> 										<!--(-2)-->
 	<HistoryTraitHugeHomeWorld>false</HistoryTraitHugeHomeWorld>			 			<!--( 3)-->
 	<HistoryTraitSmallHomeWorld>false</HistoryTraitSmallHomeWorld>						<!--(-3)-->
-  <PreferredEnvDescription>1921</PreferredEnvDescription>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>
