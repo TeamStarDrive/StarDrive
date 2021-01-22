@@ -121,7 +121,7 @@ namespace Ship_Game.Ships
         public float shield_subspace_resist      => Flyweight.shield_subspace_resist;
         public float shield_warp_resist          => Flyweight.shield_warp_resist;
         public float shield_beam_resist          => Flyweight.shield_beam_resist;
-        public float numberOfColonists           => Flyweight.numberOfColonists;
+        public float numberOfColonists           => Flyweight.numberOfColonists; // In Millions!
         public float numberOfEquipment           => Flyweight.numberOfEquipment;
         public float numberOfFood                => Flyweight.numberOfFood;
         public bool IsSupplyBay                  => Flyweight.IsSupplyBay;
