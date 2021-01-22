@@ -15,7 +15,7 @@ set name=%name:/=_%
 for /f %%r in ('git rev-list --count HEAD') do set revision=%%r
 echo Name=%name%
 echo Revision=%revision%
-set installer_filename=BlackBox_Venus_%name%_%revision%
+set installer_filename=BlackBox_Mars_%name%_%revision%
 echo %installer_filename% > version.txt
 
 copy "%1deploy\config\config.txt" "%1deploy\config\config_%name%" 
