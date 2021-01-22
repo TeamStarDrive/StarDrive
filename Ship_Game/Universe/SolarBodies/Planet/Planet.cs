@@ -719,10 +719,10 @@ namespace Ship_Game
 
         private void RechargePlanetaryShields()
         {
-            if (ShieldStrengthMax.LessOrEqual(0) || ShieldStrengthCurrent.GreaterOrEqual(ShieldStrengthMax) || RecentCombat)
-                return; // fully recharged or in combat
+            if (ShieldStrengthMax.LessOrEqual(0) || ShieldStrengthCurrent.GreaterOrEqual(ShieldStrengthMax))
+                return; // fully recharged
 
-            float maxRechargeRate = ShieldStrengthMax / 25;
+            float maxRechargeRate = ShieldStrengthMax / (SpaceCombatNearPlanet ? 100 : 30);
             float rechargeRate    = (ShieldStrengthCurrent * 100 / ShieldStrengthMax).Clamped(1, maxRechargeRate);
             ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate).Clamped(0, ShieldStrengthMax);
         }
