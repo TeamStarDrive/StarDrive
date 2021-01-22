@@ -350,6 +350,7 @@ namespace Ship_Game
             // only validate the location
             if (where != null)
                 return where.CanBuildHere(b);
+
             PlanetGridSquare[] freeSpots = planet.TilesList.Filter(pgs => pgs.CanBuildHere(b));
             if (freeSpots.Length > 0)
                 where = RandomMath.RandItem(freeSpots);

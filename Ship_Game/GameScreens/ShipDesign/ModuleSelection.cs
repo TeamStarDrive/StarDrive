@@ -410,7 +410,12 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(6174), mod.EMP_Protection, 219);
             DrawStat(ref modTitlePos, Localizer.Token(6187), mod.TargetingAccuracy, 231);
             DrawStat(ref modTitlePos, $"+{Localizer.Token(6188)}", mod.TargetTracking, 226);
-            if (mod.RepairDifficulty > 0) DrawStat(ref modTitlePos, Localizer.Token(1992), mod.RepairDifficulty, 241); // Complexity
+
+            if (mod.RepairDifficulty.NotZero()) 
+                DrawStat(ref modTitlePos, Localizer.Token(1992), mod.RepairDifficulty, 241); // Complexity
+
+            if (mod.numberOfColonists.Greater(0))
+                DrawStat(ref modTitlePos, "Colonists", mod.numberOfColonists, 1921); // Number of Colonists
 
             if (mod.PermittedHangarRoles.Length == 0)
                 return;
