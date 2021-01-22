@@ -5077,6 +5077,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Was Terraformed to a new heaven. \nYour Terraformers will now remove all Biospheres  \nfrom the planet and will be scrapped when the  \nprocess is complete.</Text>
     </Token>
     <Token>
+      <Index>1921</Index>
+      <Text>The number of Colonists (in Millions) which can be loaded. Usually relevant for a Colony Ship module.</Text>
+    </Token>
+    <Token>
       <Index>1929</Index>
       <Text>Population (in Billions) vs. Max Population available for your Empire. Percentage indicates how full the colony is. Lower Max Population than the current population means that the current Race occupying this planet is better suited to the environment than your Empire.</Text>
     </Token>
