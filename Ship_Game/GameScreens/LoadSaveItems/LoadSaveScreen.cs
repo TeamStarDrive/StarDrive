@@ -96,7 +96,11 @@ namespace Ship_Game
 
         string GetDebugVers()
         {
-            string blackBox = GlobalStats.ExtendedVersionNoHash.Replace(":", "").Replace(" ", "_");
+            string blackBox = GlobalStats.ExtendedVersionNoHash
+                                         .Replace(":", "")
+                                         .Replace(" ", "_")
+                                         .Replace("/", "_");
+
             string modTitle = "";
             if (GlobalStats.HasMod)
             {
