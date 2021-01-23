@@ -582,14 +582,14 @@ namespace Ship_Game
                 else
                     DrawStat(ref cursor, "Armor Pen", actualArmorPen, 276);
 
-                float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance * 100 + wOrMirv.ShieldPenChance / 100;
+                float actualShieldPenChance = EmpireManager.Player.data.ShieldPenBonusChance + wOrMirv.ShieldPenChance / 100;
                 for (int i = 0; i < wOrMirv.ActiveWeaponTags.Length; ++i)
                 {
                     CheckShieldPenModifier(wOrMirv.ActiveWeaponTags[i], ref actualShieldPenChance);
                 }
 
                 if (actualShieldPenChance.Greater(wOrMirv.ShieldPenChance / 100))
-                    DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(100), 181, Color.Gold);
+                    DrawStatCustomColor(ref cursor, 1828, actualShieldPenChance.UpperBound(1), 181, Color.Gold);
                 else
                     DrawStat(ref cursor, "Shield Pen", actualShieldPenChance.UpperBound(100), 181, isPercent: true);
             }
