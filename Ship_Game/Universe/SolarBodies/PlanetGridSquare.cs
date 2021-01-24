@@ -160,19 +160,18 @@ namespace Ship_Game
             b.OnBuildingBuiltAt(p);
         }
 
-        public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool warZone)
+        public bool HostilesTargetsOnTileToBuilding(Empire us, Empire planetOwner, bool spaceCombat)
         {
             // buildings only see troops on tile as potential hostiles
-            return TroopsAreOnTile && HostilesTargetsOnTile(us, planetOwner, warZone);
+            return TroopsAreOnTile && HostilesTargetsOnTile(us, planetOwner, spaceCombat);
         }
 
-        public bool HostilesTargetsOnTile(Empire us, Empire planetOwner, bool warZone)
+        public bool HostilesTargetsOnTile(Empire us, Empire planetOwner, bool spaceCombat)
         {
-            // Crash sites will not be targeted if there is a space/ground battle near the planet, since its
-            // useless to recover damaged ships right into battle.
+            // Events will not be targeted if there is a space battle near the planet, since its
+            // useless to potentially recover damaged ships right into battle.
             if (CombatBuildingOnTile && planetOwner != null && planetOwner != us
-                || CrashSite.Active && !warZone
-                || EventOnTile && !CrashSite.Active)
+                || EventOnTile && !spaceCombat)
             {
                 return true;
             }
@@ -240,7 +239,7 @@ namespace Ship_Game
                 return 1;
             }
 
-            return HostilesTargetsOnTile(t.Loyalty, planet.Owner, planet.MightBeAWarZone(t.Loyalty)) ? 1 : 0;
+            return HostilesTargetsOnTile(t.Loyalty, planet.Owner, planet.SpaceCombatNearPlanet) ? 1 : 0;
         }
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
@@ -260,7 +259,7 @@ namespace Ship_Game
             {
                 if (CrashSite.Active)
                 {
-                    if (!planet.MightBeAWarZone(empire))
+                    if (!planet.SpaceCombatNearPlanet)
                         CrashSite.ActivateSite(planet, empire, this);
                 }
                 else
