@@ -8985,7 +8985,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
   </Token>		
   <Token>
     <Index>6183</Index>
-    <Text>Weapons Range Overlay: visualizes ships' maximum weapon range.</Text>
+    <Text>Weapons Range Overlay: visualizes ships' maximum weapon range. When a ship is selected, you will see green circles with Yellow, Orange and Red borders (shortest, average and maximum weapon range, correspondingly). The blue circle is the Sensor Range of the ship. Enemy Circles will be Red.</Text>
   </Token>
   <Token>
     <Index>6184</Index>
@@ -9140,7 +9140,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7031</Index>
-      <Text>Indicates the counter-espionage strength of this empire</Text>
+      <Text>Indicates the counter-espionage strength of this empire. The strength goes up when more spies are dedicated for defense missions, but goes down when the empire expands.</Text>
     </Token>
   <Token>
       <Index>7032</Index>

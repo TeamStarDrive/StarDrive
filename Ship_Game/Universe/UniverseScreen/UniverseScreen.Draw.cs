@@ -574,11 +574,12 @@ namespace Ship_Game
                     Ship ship = clickable.shipToClick;
                     if (ship != null && ship.WeaponsMaxRange > 0f)
                     {
-                        Color color = (ship.loyalty == EmpireManager.Player)
-                            ? new Color(0, 200, 0, 30)
-                            : new Color(200, 0, 0, 30);
-                        byte edgeAlpha = 40;
-                        DrawCircleProjected(ship.Position, ship.WeaponsMaxRange, new Color(Color.Red, edgeAlpha));
+                        Color color = ship.loyalty == EmpireManager.Player
+                                        ? new Color(0, 200, 0, 30)
+                                        : new Color(200, 0, 0, 30);
+
+                        byte edgeAlpha = 70;
+                        DrawCircleProjected(ship.Position, ship.WeaponsMaxRange, new Color(color, edgeAlpha));
                         if (SelectedShip == ship)
                         {
                             edgeAlpha = 70;
@@ -593,11 +594,11 @@ namespace Ship_Game
                         if (Empire.Universe.SelectedShip == ship)
                         {
                             Color color = (ship.loyalty == EmpireManager.Player)
-                                ? new Color(0, 200, 0, 10)
+                                ? new Color(0, 100, 200, 20)
                                 : new Color(200, 0, 0, 10);
-                            byte edgeAlpha = 70;
+                            byte edgeAlpha = 85;
                             DrawTextureProjected(shipRangeTex, ship.Position, ship.SensorRange, color);
-                            DrawCircleProjected(ship.Position, ship.SensorRange, new Color(Color.Red, edgeAlpha));
+                            DrawCircleProjected(ship.Position, ship.SensorRange, new Color(Color.Blue, edgeAlpha));
                         }
                     }
                 }
