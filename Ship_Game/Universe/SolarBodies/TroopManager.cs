@@ -79,7 +79,6 @@ namespace Ship_Game
         private void MakeCombatDecisions()
         {
             bool foreignTroopHere = ForeignTroopHere(Owner); 
-            bool warZone          = MightBeAWarZone(); // so crash sites events wont be explored in warzone/space combat
             if (!foreignTroopHere && !Ground.EventsOnTiles())
                 return;
 
@@ -87,32 +86,32 @@ namespace Ship_Game
             {
                 PlanetGridSquare tile = TilesList[i];
                 if (tile.TroopsAreOnTile)
-                    PerformTroopsGroundActions(tile, warZone);
+                    PerformTroopsGroundActions(tile);
 
                 else if (tile.BuildingOnTile)
-                    PerformGroundActions(tile.building, tile, warZone);
+                    PerformGroundActions(tile.building, tile);
             }
         }
 
-        private void PerformTroopsGroundActions(PlanetGridSquare tile, bool warZone)
+        private void PerformTroopsGroundActions(PlanetGridSquare tile)
         {
             using (tile.TroopsHere.AcquireWriteLock())
             {
                 for (int i = 0; i < tile.TroopsHere.Count; ++i)
                 {
                     Troop troop = tile.TroopsHere[i];
-                    PerformGroundActions(troop, tile, warZone);
+                    PerformGroundActions(troop, tile);
                 }
             }
         }
 
-        private void PerformGroundActions(Building b, PlanetGridSquare ourTile, bool warZone)
+        private void PerformGroundActions(Building b, PlanetGridSquare ourTile)
         {
             if (!b.CanAttack || Ground.Owner == null)
                 return;
 
             // scan for enemies, right now all buildings have range 1
-            if (!SpotClosestHostile(ourTile, 1, Owner, warZone, out PlanetGridSquare nearestTargetTile))
+            if (!SpotClosestHostile(ourTile, 1, Owner, out PlanetGridSquare nearestTargetTile))
                 return; // no targets on planet
 
             // lock on enemy troop target
@@ -124,7 +123,7 @@ namespace Ship_Game
             }
         }
 
-        private void PerformGroundActions(Troop t, PlanetGridSquare ourTile, bool warZone)
+        private void PerformGroundActions(Troop t, PlanetGridSquare ourTile)
         {
             if (!t.CanMove && !t.CanAttack)
                 return;
@@ -159,7 +158,7 @@ namespace Ship_Game
             else // Move to target
             {
                 // scan for closest enemy
-                if (!SpotClosestHostile(ourTile, 10, t.Loyalty, warZone, out PlanetGridSquare nearestTargetTile))
+                if (!SpotClosestHostile(ourTile, 10, t.Loyalty, out PlanetGridSquare nearestTargetTile))
                     return; // No targets on planet. No need to move
 
                 MoveTowardsTarget(t, ourTile, nearestTargetTile);
@@ -234,8 +233,7 @@ namespace Ship_Game
             return null;
         }
 
-        bool SpotClosestHostile(PlanetGridSquare spotterTile, int range, Empire spotterOwner, 
-            bool warZone, out PlanetGridSquare targetTile)
+        bool SpotClosestHostile(PlanetGridSquare spotterTile, int range, Empire spotterOwner, out PlanetGridSquare targetTile)
         {
             targetTile = null;
             if (spotterTile.LockOnEnemyTroop(spotterOwner, out _))
@@ -249,8 +247,8 @@ namespace Ship_Game
                     Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
                 {
                     bool hostilesOnTile = spotterTile.CombatBuildingOnTile
-                                          ? scannedTile.HostilesTargetsOnTileToBuilding(spotterOwner, Owner, warZone)
-                                          : scannedTile.HostilesTargetsOnTile(spotterOwner, Owner, warZone);
+                                          ? scannedTile.HostilesTargetsOnTileToBuilding(spotterOwner, Owner, Ground.SpaceCombatNearPlanet)
+                                          : scannedTile.HostilesTargetsOnTile(spotterOwner, Owner, Ground.SpaceCombatNearPlanet);
 
                     if (hostilesOnTile)
                     {
