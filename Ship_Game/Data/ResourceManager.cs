@@ -993,6 +993,8 @@ namespace Ship_Game
                         ShipData shipData  = ShipData.Parse(info);
                         shipData.Hull      = dirName + "/" + shipData.Hull;
                         shipData.ShipStyle = dirName;
+                        // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
+                        // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
                         shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.battleship : shipData.Role;
                         shipData.UpdateBaseHull();
                         hulls[i] = shipData;
