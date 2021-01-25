@@ -278,9 +278,6 @@ namespace Ship_Game
                 case RemnantStory.AncientExterminators: 
                     target = empiresList.FindMin(e => e.CurrentMilitaryStrength);
                     break;
-                case RemnantStory.AncientRaidersClosest:
-                    target = empiresList.FindMax(e => portal.Center.Distance(e.WeightedCenter));
-                    break;
                 case RemnantStory.AncientRaidersRandom:
                     target = empiresList.RandItem();
                     break;
@@ -941,20 +938,17 @@ namespace Ship_Game
 
         RemnantStory InitAndPickStory(BatchRemovalCollection<Goal> goals)
         {
+            goals.Add(new RemnantInit(Owner));
             if (GlobalStats.DisableRemnantStory)
-            {
-                goals.Add(new RemnantInit(Owner)); 
                 return RemnantStory.None;
-            }
 
-            switch (RollDie(4)) // todo 3 is for testing  should be 6
+            switch (RollDie(3)) // todo for now 3 stories
             {
-                default: // 1 is no story
-                case 2: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientBalancers;
-                case 3: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientExterminators;
-                case 4: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersRandom;
-                case 5: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientRaidersClosest;
-                case 6: goals.Add(new RemnantInit(Owner)); return RemnantStory.AncientColonizers;
+                default:
+                case 1: return RemnantStory.AncientBalancers;
+                case 2: return RemnantStory.AncientExterminators;
+                case 3: return RemnantStory.AncientRaidersRandom;
+                case 4: return RemnantStory.AncientColonizers;
             }
         }
 
@@ -964,7 +958,6 @@ namespace Ship_Game
             AncientBalancers,
             AncientExterminators,
             AncientRaidersRandom,
-            AncientRaidersClosest,
             AncientColonizers
         }
     }
