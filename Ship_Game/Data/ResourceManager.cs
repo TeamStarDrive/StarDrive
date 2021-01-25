@@ -993,7 +993,7 @@ namespace Ship_Game
                         ShipData shipData  = ShipData.Parse(info);
                         shipData.Hull      = dirName + "/" + shipData.Hull;
                         shipData.ShipStyle = dirName;
-                        shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
+                        shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.battleship : shipData.Role;
                         shipData.UpdateBaseHull();
                         hulls[i] = shipData;
                     }
@@ -1649,11 +1649,12 @@ namespace Ship_Game
             switch (canBuild)
             {
                 default:
-                case BuildRatio.CanBuildFighters:  return BuildRatios[BuildRatio.CanBuildFighters];
-                case BuildRatio.CanBuildCorvettes: return BuildRatios[BuildRatio.CanBuildCorvettes];
-                case BuildRatio.CanBuildFrigates:  return BuildRatios[BuildRatio.CanBuildFrigates];
-                case BuildRatio.CanBuildCruisers:  return BuildRatios[BuildRatio.CanBuildCruisers];
-                case BuildRatio.CanBuildCapitals:  return BuildRatios[BuildRatio.CanBuildCapitals];
+                case BuildRatio.CanBuildFighters:    return BuildRatios[BuildRatio.CanBuildFighters];
+                case BuildRatio.CanBuildCorvettes:   return BuildRatios[BuildRatio.CanBuildCorvettes];
+                case BuildRatio.CanBuildFrigates:    return BuildRatios[BuildRatio.CanBuildFrigates];
+                case BuildRatio.CanBuildCruisers:    return BuildRatios[BuildRatio.CanBuildCruisers];
+                case BuildRatio.CanBuildBattleships: return BuildRatios[BuildRatio.CanBuildBattleships];
+                case BuildRatio.CanBuildCapitals:    return BuildRatios[BuildRatio.CanBuildCapitals];
             }
         }
 
@@ -1662,11 +1663,12 @@ namespace Ship_Game
             using (var parser = new YamlParser("FleetBuildRatios.yaml"))
             {
                 var ratios = parser.DeserializeArray<FleetBuildRatios>();
-                BuildRatios[BuildRatio.CanBuildFighters]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFighters);
-                BuildRatios[BuildRatio.CanBuildCorvettes] = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCorvettes);
-                BuildRatios[BuildRatio.CanBuildFrigates]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFrigates);
-                BuildRatios[BuildRatio.CanBuildCruisers]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCruisers);
-                BuildRatios[BuildRatio.CanBuildCapitals]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCapitals);
+                BuildRatios[BuildRatio.CanBuildFighters]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFighters);
+                BuildRatios[BuildRatio.CanBuildCorvettes]   = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCorvettes);
+                BuildRatios[BuildRatio.CanBuildFrigates]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFrigates);
+                BuildRatios[BuildRatio.CanBuildCruisers]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCruisers);
+                BuildRatios[BuildRatio.CanBuildBattleships] = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildBattleships);
+                BuildRatios[BuildRatio.CanBuildCapitals]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCapitals);
             }
         }
 

@@ -44,6 +44,7 @@ namespace Ship_Game
                 case 4:
                     SpawnUniqueMeshes(ShipData.RoleName.capital);
                     SpawnUniqueMeshes(ShipData.RoleName.carrier);
+                    SpawnUniqueMeshes(ShipData.RoleName.battleship);
                     SpawnUniqueMeshes(ShipData.RoleName.station);
                     break;
                 default:

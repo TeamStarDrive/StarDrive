@@ -62,7 +62,7 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 4;
+        public const int SaveGameVersion = 5;
 
         public static bool NewFormat = true; // use new save format ?
         public const string NewExt = ".sav";
