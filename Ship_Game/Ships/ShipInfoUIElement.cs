@@ -204,7 +204,7 @@ namespace Ship_Game.Ships
             ShipNameArea.Draw(batch, elapsed, titleFont, namePos, tColor);
             //Added by McShooterz:
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
-            string longName = string.Concat(Ship.Name, " - ", Ship.DesignRole);
+            string longName = string.Concat(Ship.Name, " - ", Localizer.GetRole(Ship.DesignRole, Ship.loyalty));
             if (Ship.shipData.ShipCategory != ShipData.Category.Unclassified)
                 longName += " - "+Ship.shipData.GetCategory();
 
