@@ -11,6 +11,7 @@ namespace Ship_Game.AI
         CanBuildCorvettes,
         CanBuildFrigates,
         CanBuildCruisers,
+        CanBuildBattleships,
         CanBuildCapitals
     }
 
@@ -21,6 +22,7 @@ namespace Ship_Game.AI
         public float MinCorvettes { get; set; }
         public float MinFrigates { get; set; }
         public float MinCruisers { get; set; }
+        public float MinBattleships { get; set; }
         public float MinCapitals { get; set; }
         public float MinTroopShip { get; set; }
         public float MinBombers { get; set; }
@@ -34,12 +36,13 @@ namespace Ship_Game.AI
         public FleetRatios(Empire empire)
         {
             OwnerEmpire    = empire;
-            CountIndexed = new int[9];
+            CountIndexed   = new int[9];
             TotalCount     = 0;
             MinFighters    = 0;
             MinCorvettes   = 0;
             MinFrigates    = 0;
             MinCruisers    = 0;
+            MinBattleships = 0;
             MinCapitals    = 0;
             MinTroopShip   = 0;
             MinBombers     = 0;
@@ -57,11 +60,12 @@ namespace Ship_Game.AI
 
             int[] counts;
 
-            if      (OwnerEmpire.canBuildCapitals)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals);
-            else if (OwnerEmpire.canBuildCruisers)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers);
-            else if (OwnerEmpire.canBuildFrigates)  counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates);
-            else if (OwnerEmpire.canBuildCorvettes) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes);
-            else                                    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters);
+            if      (OwnerEmpire.canBuildCapitals)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCapitals);
+            else if (OwnerEmpire.CanBuildBattleships) counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildBattleships);
+            else if (OwnerEmpire.canBuildCruisers)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCruisers);
+            else if (OwnerEmpire.canBuildFrigates)    counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFrigates);
+            else if (OwnerEmpire.canBuildCorvettes)   counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildCorvettes);
+            else                                      counts = ResourceManager.GetFleetRatios(BuildRatio.CanBuildFighters);
 
             SetCounts(counts);
             CountIndexed = counts;
@@ -69,15 +73,16 @@ namespace Ship_Game.AI
 
         private void SetCounts(int[] counts)
         {
-            MinFighters  = counts[0];
-            MinCorvettes = counts[1];
-            MinFrigates  = counts[2];
-            MinCruisers  = counts[3];
-            MinCapitals  = counts[4];
-            MinTroopShip = counts[5];
-            MinBombers   = counts[6];
-            MinCarriers  = counts[7];
-            MinSupport   = counts[8];
+            MinFighters    = counts[0];
+            MinCorvettes   = counts[1];
+            MinFrigates    = counts[2];
+            MinCruisers    = counts[3];
+            MinBattleships = counts[4];
+            MinCapitals    = counts[5];
+            MinTroopShip   = counts[6];
+            MinBombers     = counts[7];
+            MinCarriers    = counts[8];
+            MinSupport     = counts[9];
 
             if (!OwnerEmpire.canBuildTroopShips)
                 MinTroopShip = 0;
@@ -94,7 +99,7 @@ namespace Ship_Game.AI
                 MinSupport = 0;
 
             MinCombatFleet = (int)(MinFighters + MinCorvettes + MinFrigates + MinCruisers
-                               + MinCapitals);
+                               + MinBattleships + MinCapitals);
             TotalCount = MinCombatFleet + MinBombers + MinTroopShip + MinSupport + MinCarriers;
 
         }
@@ -126,16 +131,16 @@ namespace Ship_Game.AI
         {
             switch (role)
             {
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Fighter:   return 0;
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Corvette:  return 1;
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Frigate:   return 2;
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Cruiser:   return 3;
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Capital:   return 4;
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.TroopShip: return 5;
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Bomber:    return 6;
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Carrier:   return 7;
-                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Support:   return 8;
-                
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Fighter:    return 0;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Corvette:   return 1;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Frigate:    return 2;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Cruiser:    return 3;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Battleship: return 4;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Capital:    return 5;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.TroopShip:  return 6;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Bomber:     return 7;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Carrier:    return 8;
+                case EmpireAI.RoleBuildInfo.RoleCounts.CombatRole.Support:    return 9;
             }
             return -1;
         }

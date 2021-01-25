@@ -161,7 +161,7 @@ namespace Ship_Game
             {
                 if (mod.DroneModule && mod.FighterModule && mod.CorvetteModule 
                     && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule 
-                    && mod.CarrierModule && mod.CarrierModule && mod.PlatformModule 
+                    && mod.BattleshipModule && mod.BattleshipModule && mod.PlatformModule 
                     && mod.StationModule && mod.FreighterModule)
                 {
                     shipRest = "All Hulls";
@@ -181,7 +181,7 @@ namespace Ship_Game
 
             if (!specialString && (!mod.DroneModule && modDrones) || (!mod.DestroyerModule && modDestroyers) 
                      || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule 
-                     || !mod.CruiserModule || !mod.CarrierModule  || !mod.CapitalModule 
+                     || !mod.CruiserModule || !mod.BattleshipModule  || !mod.CapitalModule 
                      || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
             {
                  if (mod.DroneModule && modDrones)            shipRest += "Dr ";
@@ -190,7 +190,7 @@ namespace Ship_Game
                  if (mod.FrigateModule)                       shipRest += "Fr ";
                  if (mod.DestroyerModule && modDestroyers)    shipRest += "Dy ";
                  if (mod.CruiserModule)                       shipRest += "Cr ";
-                 if (mod.CarrierModule)                       shipRest += "Bs ";
+                 if (mod.BattleshipModule)                    shipRest += "Bs ";
                  if (mod.CapitalModule)                       shipRest += "Ca ";
                  if (mod.FreighterModule)                     shipRest += "Frt ";
                  if (mod.PlatformModule || mod.StationModule) shipRest += "Orb ";

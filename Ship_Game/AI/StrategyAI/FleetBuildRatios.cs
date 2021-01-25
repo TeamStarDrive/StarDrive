@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.AI;
-using Ship_Game.Data;
+﻿using Ship_Game.AI;
 using Ship_Game.Data.Serialization;
 
 #pragma warning disable 649
@@ -20,6 +14,7 @@ namespace Ship_Game
         [StarData] readonly int Corvettes;
         [StarData] readonly int Frigates;
         [StarData] readonly int Cruisers;
+        [StarData] readonly int Battleships;
         [StarData] readonly int Capitals;
         [StarData] readonly int TroopShips;
         [StarData] readonly int Bombers;
@@ -29,12 +24,13 @@ namespace Ship_Game
         public static int[] GetRatiosFor(Array<FleetBuildRatios> counts, BuildRatio canBuild)
         {
             var hullTypeCount = counts.Find(c => c.CanBuild == canBuild);
-            int[] countsForWhatWeCanBuild = new int[]
+            int[] countsForWhatWeCanBuild =
             {
                 hullTypeCount.Fighters,
                 hullTypeCount.Corvettes,
                 hullTypeCount.Frigates,
                 hullTypeCount.Cruisers,
+                hullTypeCount.Battleships,
                 hullTypeCount.Capitals,
                 hullTypeCount.TroopShips,
                 hullTypeCount.Bombers,

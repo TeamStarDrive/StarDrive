@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework.Graphics;
 

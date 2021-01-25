@@ -167,6 +167,7 @@ namespace Ship_Game
         public int empireShipCombat;    //fbedard
         public int empirePlanetCombat;  //fbedard
         public bool canBuildCapitals;
+        public bool CanBuildBattleships;
         public bool canBuildCruisers;
         public bool canBuildFrigates;
         public bool canBuildCorvettes;
@@ -2926,12 +2927,13 @@ namespace Ship_Game
             float unlockChance;
             switch (ship.shipData.HullRole)
             {
-                case ShipData.RoleName.fighter:  unlockChance = 90;    break;
-                case ShipData.RoleName.corvette: unlockChance = 80;    break;
-                case ShipData.RoleName.frigate:  unlockChance = 60;    break;
-                case ShipData.RoleName.cruiser:  unlockChance = 40;    break;
-                case ShipData.RoleName.capital:  unlockChance = 20f;   break;
-                default:                         unlockChance = 50f;   break;
+                case ShipData.RoleName.fighter:    unlockChance = 90; break;
+                case ShipData.RoleName.corvette:   unlockChance = 80; break;
+                case ShipData.RoleName.frigate:    unlockChance = 60; break;
+                case ShipData.RoleName.cruiser:    unlockChance = 40; break;
+                case ShipData.RoleName.battleship: unlockChance = 30; break;
+                case ShipData.RoleName.capital:    unlockChance = 20; break;
+                default:                           unlockChance = 50; break;
             }
 
             unlockChance *= 1 + data.Traits.ModHpModifier; // skilled or bad engineers
