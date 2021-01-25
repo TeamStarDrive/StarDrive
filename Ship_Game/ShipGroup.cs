@@ -174,17 +174,17 @@ namespace Ship_Game
         {
             switch (ship.DesignRole)
             {
-                case ShipData.RoleName.fighter:   return 1;
-                case ShipData.RoleName.gunboat:   return 1;
-                case ShipData.RoleName.corvette:  return 1;
-                case ShipData.RoleName.bomber:    return 2; // bombers behind fighters
-                case ShipData.RoleName.frigate:   return 3;
-                case ShipData.RoleName.destroyer: return 3;
-                case ShipData.RoleName.cruiser:   return 3;
-                case ShipData.RoleName.prototype: return 3;
-                case ShipData.RoleName.carrier:   return 4; // carriers behind cruisers
-                case ShipData.RoleName.capital:   return 4;
-                default: return 5; // everything else to the back
+                case ShipData.RoleName.fighter:    return 1;
+                case ShipData.RoleName.gunboat:    return 1;
+                case ShipData.RoleName.corvette:   return 1;
+                case ShipData.RoleName.bomber:     return 2; // bombers behind fighters
+                case ShipData.RoleName.frigate:    return 3;
+                case ShipData.RoleName.destroyer:  return 3;
+                case ShipData.RoleName.cruiser:    return 3;
+                case ShipData.RoleName.prototype:  return 3;
+                case ShipData.RoleName.battleship: return 4;
+                case ShipData.RoleName.capital:    return 5;
+                default: return 6; // everything else to the back
             }
         }
 

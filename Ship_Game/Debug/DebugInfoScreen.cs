@@ -933,6 +933,7 @@ namespace Ship_Game.Debug
                            $" {ships.Count(warship => warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser )}" +
+                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.battleship)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"

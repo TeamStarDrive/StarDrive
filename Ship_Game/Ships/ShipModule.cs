@@ -89,7 +89,7 @@ namespace Ship_Game.Ships
         public bool FrigateModule                => Flyweight.FrigateModule;
         public bool DestroyerModule              => Flyweight.DestroyerModule;
         public bool CruiserModule                => Flyweight.CruiserModule;
-        public bool CarrierModule                => Flyweight.CarrierModule;
+        public bool BattleshipModule             => Flyweight.BattleshipModule;
         public bool CapitalModule                => Flyweight.CapitalModule;
         public bool FreighterModule              => Flyweight.FreighterModule;
         public bool PlatformModule               => Flyweight.PlatformModule;

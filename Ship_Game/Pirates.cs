@@ -862,7 +862,8 @@ namespace Ship_Game
             if (ShipsWeCanSpawn.Contains(ship.Name))
                 return false;
 
-            return ship.shipData.HullRole != ShipData.RoleName.capital 
+            return ship.shipData.HullRole != ShipData.RoleName.capital
+                   || ship.shipData.HullRole != ShipData.RoleName.battleship
                    || ship.shipData.HullRole != ShipData.RoleName.cruiser;
         }
 
