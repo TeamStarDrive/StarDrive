@@ -272,12 +272,15 @@ namespace Ship_Game.Debug
                     DrawString(e.data.EconomicPersonality.Name);
                 }
 
-                DrawString($"corvettes: {e.canBuildCorvettes}");
-                DrawString($"frigates: {e.canBuildFrigates}");
-                DrawString($"cruisers: {e.canBuildCruisers}");
-                DrawString($"bombers: {e.canBuildBombers}");
-                DrawString($"carriers: {e.canBuildCarriers}");
-
+                DrawString($"Corvettes: {e.canBuildCorvettes}");
+                DrawString($"Frigates: {e.canBuildFrigates}");
+                DrawString($"Cruisers: {e.canBuildCruisers}");
+                DrawString($"Battleships: {e.CanBuildBattleships}");
+                DrawString($"Capitals: {e.canBuildCapitals}");
+                DrawString($"Bombers: {e.canBuildBombers}");
+                DrawString($"Carriers: {e.canBuildCarriers}");
+                DrawString($"Troopships: {e.canBuildTroopShips}");
+                NewLine();
                 if (e.Research.HasTopic)
                 {
                     DrawString($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0} ({e.Research.NetResearch.String()} / {e.Research.MaxResearchPotential.String()})");
@@ -933,6 +936,7 @@ namespace Ship_Game.Debug
                            $" {ships.Count(warship => warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser )}" +
+                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.battleship)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
                            $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"

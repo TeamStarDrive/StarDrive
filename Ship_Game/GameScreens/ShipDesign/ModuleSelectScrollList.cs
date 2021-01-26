@@ -221,19 +221,19 @@ namespace Ship_Game
         {
             switch (role)
             {
-                case ShipData.RoleName.drone     when mod.DroneModule     == false:
-                case ShipData.RoleName.scout     when mod.FighterModule   == false:
-                case ShipData.RoleName.fighter   when mod.FighterModule   == false:
-                case ShipData.RoleName.corvette  when mod.CorvetteModule  == false:
-                case ShipData.RoleName.gunboat   when mod.CorvetteModule  == false:
-                case ShipData.RoleName.frigate   when mod.FrigateModule   == false:
-                case ShipData.RoleName.destroyer when mod.DestroyerModule == false:
-                case ShipData.RoleName.cruiser   when mod.CruiserModule   == false:
-                case ShipData.RoleName.carrier   when mod.CarrierModule   == false:
-                case ShipData.RoleName.capital   when mod.CapitalModule   == false:
-                case ShipData.RoleName.freighter when mod.FreighterModule == false:
-                case ShipData.RoleName.platform  when mod.PlatformModule  == false:
-                case ShipData.RoleName.station   when mod.StationModule   == false: return true;
+                case ShipData.RoleName.drone      when mod.DroneModule      == false:
+                case ShipData.RoleName.scout      when mod.FighterModule    == false:
+                case ShipData.RoleName.fighter    when mod.FighterModule    == false:
+                case ShipData.RoleName.corvette   when mod.CorvetteModule   == false:
+                case ShipData.RoleName.gunboat    when mod.CorvetteModule   == false:
+                case ShipData.RoleName.frigate    when mod.FrigateModule    == false:
+                case ShipData.RoleName.destroyer  when mod.DestroyerModule  == false:
+                case ShipData.RoleName.cruiser    when mod.CruiserModule    == false:
+                case ShipData.RoleName.battleship when mod.BattleshipModule == false:
+                case ShipData.RoleName.capital    when mod.CapitalModule    == false:
+                case ShipData.RoleName.freighter  when mod.FreighterModule  == false:
+                case ShipData.RoleName.platform   when mod.PlatformModule   == false:
+                case ShipData.RoleName.station    when mod.StationModule    == false: return true;
             }
 
             return false;
