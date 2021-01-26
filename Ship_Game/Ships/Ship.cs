@@ -755,7 +755,7 @@ namespace Ship_Game.Ships
                 case ShipData.RoleName.platform:   return mod.UpkeepPlatform;
                 case ShipData.RoleName.station:    return mod.UpkeepStation;
             }
-            if (role == ShipData.RoleName.drone && mod.useDrones) return mod.UpkeepDrone;
+
             return mod.UpkeepBaseline;
         }
 
@@ -1151,7 +1151,7 @@ namespace Ship_Game.Ships
                         weapon.fireDelay = weaponTemplate.fireDelay;
 
                         //Added by McShooterz: Hull bonus Fire Rate
-                        if (GlobalStats.ActiveModInfo.useHullBonuses)
+                        if (GlobalStats.ActiveModInfo.UseHullBonuses)
                         {
                             weapon.fireDelay *= 1f - shipData.Bonuses.FireRateBonus;
                         }
@@ -1212,7 +1212,7 @@ namespace Ship_Game.Ships
             // Repair
             if (Health.Less(HealthMax))
             {
-                if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair))
+                if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair))
                 {
                     // Added by McShooterz: Priority repair
                     float repair = InCombat ? RepairRate * 0.1f : RepairRate;

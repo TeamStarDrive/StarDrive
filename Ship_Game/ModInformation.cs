@@ -1,18 +1,14 @@
-using System;
-using Microsoft.Xna.Framework;
-using Ship_Game.GameScreens.MainMenu;
-
 namespace Ship_Game
 {
     public sealed class ModInformation
     {
+        public bool DisableDefaultRaces;
         public string ModName         = "";
         public string CustomMenuMusic = "";
         public string ModDescription  = "";
-        public bool DisableDefaultRaces;
-        public string PortraitPath = "";
-        public string URL          = "";
-        public string Author       = "";
+        public string PortraitPath    = "";
+        public string URL             = "";
+        public string Author          = "";
 
         //added by Gremlin
         public string Version;
@@ -23,25 +19,19 @@ namespace Ship_Game
         public int MaxOpponents = 7;
 
         //added by McShooterz
-        public bool useAlternateTech;
-        public bool useHullBonuses;
-        public bool removeRemnantStory;
-        public bool useCombatRepair;
-        public bool clearVanillaTechs;
-        public bool clearVanillaWeapons;
+        public bool UseHullBonuses;
+        public bool RemoveRemnantStory;
+        public bool UseCombatRepair;
+        public bool ClearVanillaTechs;
+        public bool ClearVanillaWeapons;
 
         //added by The Doctor
-        public bool customMilTraitTechs;
-        public bool customRemnantElements;
         public bool enableECM;
         public bool useDestroyers;
-        public bool useDrones;
         public bool expandedWeaponCats;
-        public bool overrideSecretsTree;
         public bool usePlanetaryProjection;
         public bool UseProportionalUpkeep;
         public bool reconDropDown;
-        public bool ColoniserMenu;
 
         public float ShipyardBonus;
         public float UpkeepBaseline;
@@ -59,6 +49,10 @@ namespace Ship_Game
 
         // added by Fat Bastard
         public bool UseResearchableShipTechs; // Use short term researchable techs with no best ship
+
+
+
+        public string SupportedBlackBoxVersions;
 
         // Doctor: Planet generation: % chance of each tile on this planet type being habitable. Default values as vanilla.
         public int BarrenHab = 0;

@@ -154,10 +154,9 @@ namespace Ship_Game
             // Concat ship class restrictions
             string shipRest    = "";
             bool specialString = false;
-            bool modDrones     = GlobalStats.ActiveModInfo?.useDrones == true;
             bool modDestroyers = GlobalStats.ActiveModInfo?.useDestroyers == true;
 
-            if (modDrones && modDestroyers)
+            if (modDestroyers)
             {
                 if (mod.DroneModule && mod.FighterModule && mod.CorvetteModule 
                     && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule 
@@ -169,7 +168,7 @@ namespace Ship_Game
                 }
             }
 
-            if (GlobalStats.ActiveModInfo == null || (!modDrones && !modDestroyers))
+            if (GlobalStats.ActiveModInfo == null || !modDestroyers)
             {
                 if (mod.FighterModule && mod.CorvetteModule && mod.FrigateModule 
                     && mod.CruiserModule && mod.CruiserModule && mod.CapitalModule 
@@ -179,12 +178,12 @@ namespace Ship_Game
                 }
             }
 
-            if (!specialString && (!mod.DroneModule && modDrones) || (!mod.DestroyerModule && modDestroyers) 
+            if (!specialString && !mod.DroneModule || (!mod.DestroyerModule && modDestroyers) 
                      || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule 
                      || !mod.CruiserModule || !mod.BattleshipModule  || !mod.CapitalModule 
                      || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
             {
-                 if (mod.DroneModule && modDrones)            shipRest += "Dr ";
+                 if (mod.DroneModule)                         shipRest += "Dr ";
                  if (mod.FighterModule)                       shipRest += "Fi ";
                  if (mod.CorvetteModule)                      shipRest += "Co ";
                  if (mod.FrigateModule)                       shipRest += "Fr ";
@@ -668,7 +667,7 @@ namespace Ship_Game
 
         float GetHullDamageBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses &&
                 ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
                 return 1f + bonus.DamageBonus;
             return 1f;
@@ -676,7 +675,7 @@ namespace Ship_Game
 
         float GetHullFireRateBonus()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses &&
                 ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
                 return 1f - bonus.FireRateBonus;
             return 1f;
