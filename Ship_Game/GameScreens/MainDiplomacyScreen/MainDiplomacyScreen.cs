@@ -573,7 +573,7 @@ namespace Ship_Game
                     else
                     {
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, other.data.Traits.Name+(rel.Treaty_Trade ? Localizer.Token(GameText.None2) : Localizer.Token(GameText.MilitaryStrength)), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, other.data.Traits.Name + " " + (rel.Treaty_Trade ? Localizer.Token(GameText.None2) : Localizer.Token(GameText.MilitaryStrength)), textCursor, Color.White);
                     }
                 }
             }
