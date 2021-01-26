@@ -44,8 +44,9 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportFood)
                     return 0;
 
-                int min = Storage.FoodRatio > 0.75f ? 1 : 0;
-                return ((int)(Food.NetIncome / 2 + Storage.Food / 25)).Clamped(min, 10);
+                int min      = Storage.FoodRatio > 0.75f ? 1 : 0;
+                int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 20 : 10;
+                return ((int)(Food.NetIncome + Storage.Food / 25)).Clamped(min, maxSlots);
             }
         }
 
@@ -56,8 +57,12 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                int min = Storage.ProdRatio > 0.5f ? 1 : 0;
-                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, 5);
+                int min      = Storage.ProdRatio > 0.5f ? 1 : 0;
+                int maxSlots = colonyType == ColonyType.Industrial 
+                               || colonyType == ColonyType.Colony
+                               || colonyType == ColonyType.Core ? 10 : 5;
+
+                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, maxSlots);
             }
         }
 
@@ -101,7 +106,15 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportProd)
                     return 0;
 
-                float averageFreighterCargoCap = Owner.AverageFreighterCargoCap;
+                int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5) + Owner.NumTradeTreaties;
+                if (colonyType == ColonyType.Industrial
+                    || colonyType == ColonyType.Core
+                    || colonyType == ColonyType.Colony)
+                {
+                    maxSlots = (int)(maxSlots * 1.5f);
+                }
+
+                float averageFreighterCargoCap = Owner.AverageFreighterCargoCap * Owner.FastVsBigFreighterRatio;
                 if (NonCybernetic)
                 {
                     switch (ConstructionQueue.Count)
@@ -120,8 +133,7 @@ namespace Ship_Game
                 if (IsCybernetic) // They need prod as food
                     totalProdSlots += ((int)(-Prod.NetIncome * AverageImportTurns / averageFreighterCargoCap)).LowerBound(0);
 
-                int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5) + Owner.NumTradeTreaties;
-                return (int)(totalProdSlots).Clamped(0, maxSlots);
+                return (int)totalProdSlots.Clamped(0, maxSlots);
             }
         }
 
