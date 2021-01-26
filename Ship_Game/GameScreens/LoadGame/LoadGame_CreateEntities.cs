@@ -454,10 +454,12 @@ namespace Ship_Game
 
         static bool IsShipGoalInvalid(SavedGame.GoalSave g)
         {
-            if (g.type != GoalType.BuildDefensiveShips &&
-                g.type != GoalType.BuildOffensiveShips &&
+            if (g.type != GoalType.BuildOffensiveShips &&
                 g.type != GoalType.IncreaseFreighters)
+            {
                 return false;
+            }
+
             return g.ToBuildUID != null && !ResourceManager.ShipTemplateExists(g.ToBuildUID);
         }
         

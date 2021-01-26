@@ -36,7 +36,7 @@ namespace Ship_Game.AI
         public FleetRatios(Empire empire)
         {
             OwnerEmpire    = empire;
-            CountIndexed   = new int[9];
+            CountIndexed   = new int[10];
             TotalCount     = 0;
             MinFighters    = 0;
             MinCorvettes   = 0;
