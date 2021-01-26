@@ -45,41 +45,26 @@ namespace Ship_Game.AI.Research
                 case ShipData.RoleName.supply:
                 case ShipData.RoleName.troop:
                 case ShipData.RoleName.prototype:
-                case ShipData.RoleName.construction:
-                    return false;
+                case ShipData.RoleName.construction: return false;
                 case ShipData.RoleName.freighter:
                 case ShipData.RoleName.colony:
 
                 case ShipData.RoleName.platform:
-                    break;
                 case ShipData.RoleName.station:
-                    break;
                 case ShipData.RoleName.troopShip:
-                    break;
                 case ShipData.RoleName.support:
-                    break;
                 case ShipData.RoleName.bomber:
-                    break;
                 case ShipData.RoleName.carrier:
-                    break;
                 case ShipData.RoleName.fighter:
-                    break;
                 case ShipData.RoleName.scout:
-                    break;
                 case ShipData.RoleName.gunboat:
-                    break;
                 case ShipData.RoleName.drone:
-                    break;
                 case ShipData.RoleName.corvette:
-                    break;
                 case ShipData.RoleName.frigate:
-                    break;
                 case ShipData.RoleName.destroyer:
-                    break;
                 case ShipData.RoleName.cruiser:
-                    break;
-                case ShipData.RoleName.capital:
-                    break;
+                case ShipData.RoleName.battleship:
+                case ShipData.RoleName.capital: break;
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -264,20 +249,21 @@ namespace Ship_Game.AI.Research
                         case ShipData.RoleName.scout:
                         case ShipData.RoleName.drone:
                         case ShipData.RoleName.fighter:
-                        case ShipData.RoleName.freighter: return 0;
+                        case ShipData.RoleName.freighter:  return 0;
                         case ShipData.RoleName.colony:
                         case ShipData.RoleName.supply:
                         case ShipData.RoleName.troop:
                         case ShipData.RoleName.troopShip:
                         case ShipData.RoleName.support:
-                        case ShipData.RoleName.carrier: return 3;
+                        case ShipData.RoleName.carrier:    return 4;
                         case ShipData.RoleName.gunboat:
-                        case ShipData.RoleName.corvette:  return 4;
+                        case ShipData.RoleName.corvette:   return 5;
                         case ShipData.RoleName.bomber:
                         case ShipData.RoleName.frigate:
                         case ShipData.RoleName.destroyer:
-                        case ShipData.RoleName.cruiser: return 1;
-                        case ShipData.RoleName.capital:   return 2;
+                        case ShipData.RoleName.cruiser:    return 1;
+                        case ShipData.RoleName.battleship: return 2;
+                        case ShipData.RoleName.capital:    return 3;
                         default: return (int)s.DesignRole;
                     }
                 });

@@ -184,10 +184,9 @@ namespace Ship_Game
             public DrawPackage(string text, SpriteFont font, float value,
                 Color color, string postFix)
             {
-                Value = (int)(value * 100f);
-                Text = text + Value + postFix;
-                Font = font;
-                
+                Value = postFix == "%" ? (int)(value * 100f) : (int)value;
+                Text  = text + Value + postFix;
+                Font  = font;
                 Color = color;
             }
         }

@@ -55,12 +55,13 @@ namespace Ship_Game.Ships
             {
 
                 case ShipData.RoleName.station:
-                case ShipData.RoleName.platform:              maint *= 0.7f; break;
-                case ShipData.RoleName.troop:                 maint *= 0.5f; break;
-                case ShipData.RoleName.corvette when realism: maint *= 0.9f; break;
-                case ShipData.RoleName.frigate  when realism: maint *= 0.8f; break;
-                case ShipData.RoleName.cruiser  when realism: maint *= 0.7f; break;
-                case ShipData.RoleName.capital  when realism: maint *= 0.5f; break;
+                case ShipData.RoleName.platform:                maint *= 0.7f; break;
+                case ShipData.RoleName.troop:                   maint *= 0.5f; break;
+                case ShipData.RoleName.corvette   when realism: maint *= 0.9f; break;
+                case ShipData.RoleName.frigate    when realism: maint *= 0.8f; break;
+                case ShipData.RoleName.cruiser    when realism: maint *= 0.7f; break;
+                case ShipData.RoleName.battleship when realism: maint *= 0.6f; break;
+                case ShipData.RoleName.capital    when realism: maint *= 0.5f; break;
             }
 
             if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)

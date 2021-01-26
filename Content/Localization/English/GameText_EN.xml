@@ -4775,6 +4775,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>The best Colony Ship will be selected for construction if you have enable Auto Colonize or when you click on any Colonize buttons.</Text>
     </Token>
     <Token>
+      <Index>1839</Index>
+      <Text>Battleship</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>

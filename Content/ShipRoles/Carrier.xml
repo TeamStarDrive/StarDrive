@@ -2,19 +2,11 @@
 <ShipRole xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Name>carrier</Name>
   <Localization>138</Localization>
-  <Upkeep>4.0</Upkeep>
-  <KillExp>28.0</KillExp>
-  <KillExpPerLevel>7.0</KillExpPerLevel>
-  <ExpPerLevel>14.0</ExpPerLevel>
-  <DamageRelations>4.0</DamageRelations>
-  <RaceList>
-    <Race>
-	  <ShipType>Terran</ShipType>
-	    <Localization>138</Localization>
-        <Upkeep>4.0</Upkeep>
-        <KillExp>28.0</KillExp>
-        <KillExpPerLevel>7.0</KillExpPerLevel>
-        <ExpPerLevel>14.0</ExpPerLevel>
-	</Race>
+  <Upkeep>0</Upkeep>
+  <KillExp>0</KillExp>
+  <KillExpPerLevel>0</KillExpPerLevel>
+  <ExpPerLevel>0</ExpPerLevel>
+  <DamageRelations>0</DamageRelations>
+  <RaceList>    
   </RaceList>
 </ShipRole>

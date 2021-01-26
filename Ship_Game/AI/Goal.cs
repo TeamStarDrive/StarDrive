@@ -16,7 +16,6 @@ namespace Ship_Game.AI
         Colonize,
         DeepSpaceConstruction,
         BuildTroop,
-        BuildDefensiveShips, // remove this in Mars, when we can break saves
         BuildOffensiveShips,
         IncreaseFreighters,
         BuildScout,
@@ -154,7 +153,6 @@ namespace Ship_Game.AI
                 case PirateDirectorRaid.ID:     return new PirateDirectorRaid();
                 case PirateRaidTransport.ID:    return new PirateRaidTransport();
                 case PirateRaidOrbital.ID:      return new PirateRaidOrbital();
-                case PirateRaidColonyShip.ID:   return new PirateRaidColonyShip(); // Save compatibility remove in 2021 :)
                 case PirateRaidProjector.ID:    return new PirateRaidProjector();
                 case PirateRaidCombatShip.ID:   return new PirateRaidCombatShip();
                 case PirateBase.ID:             return new PirateBase();
@@ -165,7 +163,6 @@ namespace Ship_Game.AI
                 case RemnantEngagements.ID:     return new RemnantEngagements();
                 case RemnantPortal.ID:          return new RemnantPortal();
                 case RemnantEngageEmpire.ID:    return new RemnantEngageEmpire();
-                case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
                 case ScrapShip.ID:              return new ScrapShip();
                 case RearmShipFromPlanet.ID:    return new RearmShipFromPlanet();
                 case DefendVsRemnants.ID:       return new DefendVsRemnants();

@@ -743,19 +743,19 @@ namespace Ship_Game.Ships
             switch (role)
             {
                 case ShipData.RoleName.fighter:
-                case ShipData.RoleName.scout:     return mod.UpkeepFighter;
+                case ShipData.RoleName.scout:      return mod.UpkeepFighter;
                 case ShipData.RoleName.corvette:
-                case ShipData.RoleName.gunboat:   return mod.UpkeepCorvette;
+                case ShipData.RoleName.gunboat:    return mod.UpkeepCorvette;
                 case ShipData.RoleName.frigate:
-                case ShipData.RoleName.destroyer: return mod.UpkeepFrigate;
-                case ShipData.RoleName.cruiser:   return mod.UpkeepCruiser;
-                case ShipData.RoleName.carrier:   return mod.UpkeepCarrier;
-                case ShipData.RoleName.capital:   return mod.UpkeepCapital;
-                case ShipData.RoleName.freighter: return mod.UpkeepFreighter;
-                case ShipData.RoleName.platform:  return mod.UpkeepPlatform;
-                case ShipData.RoleName.station:   return mod.UpkeepStation;
+                case ShipData.RoleName.destroyer:  return mod.UpkeepFrigate;
+                case ShipData.RoleName.cruiser:    return mod.UpkeepCruiser;
+                case ShipData.RoleName.battleship: return mod.UpkeepCarrier;
+                case ShipData.RoleName.capital:    return mod.UpkeepCapital;
+                case ShipData.RoleName.freighter:  return mod.UpkeepFreighter;
+                case ShipData.RoleName.platform:   return mod.UpkeepPlatform;
+                case ShipData.RoleName.station:    return mod.UpkeepStation;
             }
-            if (role == ShipData.RoleName.drone && mod.useDrones) return mod.UpkeepDrone;
+
             return mod.UpkeepBaseline;
         }
 
@@ -1151,7 +1151,7 @@ namespace Ship_Game.Ships
                         weapon.fireDelay = weaponTemplate.fireDelay;
 
                         //Added by McShooterz: Hull bonus Fire Rate
-                        if (GlobalStats.ActiveModInfo.useHullBonuses)
+                        if (GlobalStats.ActiveModInfo.UseHullBonuses)
                         {
                             weapon.fireDelay *= 1f - shipData.Bonuses.FireRateBonus;
                         }
@@ -1212,7 +1212,7 @@ namespace Ship_Game.Ships
             // Repair
             if (Health.Less(HealthMax))
             {
-                if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair))
+                if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.UseCombatRepair))
                 {
                     // Added by McShooterz: Priority repair
                     float repair = InCombat ? RepairRate * 0.1f : RepairRate;
@@ -1548,7 +1548,7 @@ namespace Ship_Game.Ships
                     case ShipData.RoleName.scout:
                     case ShipData.RoleName.fighter:
                     case ShipData.RoleName.frigate:   ExplodeShip(size * 10, cleanupOnly); break;
-                    case ShipData.RoleName.carrier:
+                    case ShipData.RoleName.battleship:
                     case ShipData.RoleName.capital:
                     case ShipData.RoleName.cruiser:
                     case ShipData.RoleName.station:   ExplodeShip(size * 8, true);         break;
@@ -1749,16 +1749,17 @@ namespace Ship_Game.Ships
         {
             switch (DesignRole)
             {
-                case ShipData.RoleName.bomber:    empire.canBuildBombers      = true; break;
-                case ShipData.RoleName.carrier:   empire.canBuildCarriers     = true; break;
-                case ShipData.RoleName.support:   empire.canBuildSupportShips = true; break;
-                case ShipData.RoleName.troopShip: empire.canBuildTroopShips   = true; break;
-                case ShipData.RoleName.corvette:  empire.canBuildCorvettes    = true; break;
-                case ShipData.RoleName.frigate:   empire.canBuildFrigates     = true; break;
-                case ShipData.RoleName.cruiser:   empire.canBuildCruisers     = true; break;
-                case ShipData.RoleName.capital:   empire.canBuildCapitals     = true; break;
-                case ShipData.RoleName.platform:  empire.CanBuildPlatforms    = true; break;
-                case ShipData.RoleName.station:   empire.CanBuildStations     = true; break;
+                case ShipData.RoleName.bomber:     empire.canBuildBombers      = true; break;
+                case ShipData.RoleName.carrier:    empire.canBuildCarriers     = true; break;
+                case ShipData.RoleName.support:    empire.canBuildSupportShips = true; break;
+                case ShipData.RoleName.troopShip:  empire.canBuildTroopShips   = true; break;
+                case ShipData.RoleName.corvette:   empire.canBuildCorvettes    = true; break;
+                case ShipData.RoleName.frigate:    empire.canBuildFrigates     = true; break;
+                case ShipData.RoleName.cruiser:    empire.canBuildCruisers     = true; break;
+                case ShipData.RoleName.battleship: empire.CanBuildBattleships  = true; break;
+                case ShipData.RoleName.capital:    empire.canBuildCapitals     = true; break;
+                case ShipData.RoleName.platform:   empire.CanBuildPlatforms    = true; break;
+                case ShipData.RoleName.station:    empire.CanBuildStations     = true; break;
             }
             if (shipData.IsShipyard)
                 empire.CanBuildShipyards = true;

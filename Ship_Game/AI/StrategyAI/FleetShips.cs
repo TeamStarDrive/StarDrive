@@ -165,14 +165,14 @@ namespace Ship_Game.AI
         public Array<Ship> GetCoreFleet(out bool goodSet)
         {
             var ships = new Array<Ship>();
-            goodSet = true;
-            bool roleGood = false;
-            bool badSet = false;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter,  out  roleGood)); badSet = !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, out roleGood)); badSet = badSet || !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, out roleGood)); badSet = badSet || !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, out roleGood)); badSet = badSet || !roleGood;
-            ships.AddRange(ExtractCoreFleetRole(RoleName.capital, out roleGood)); badSet = badSet || !roleGood;
+            goodSet   = true;
+            bool roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.fighter,  out  roleGood));  bool badSet = !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.corvette, out roleGood));        badSet = badSet || !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.frigate, out roleGood));         badSet = badSet || !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.cruiser, out roleGood));         badSet = badSet || !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.battleship, out roleGood));      badSet = badSet || !roleGood;
+            ships.AddRange(ExtractCoreFleetRole(RoleName.capital, out roleGood));         badSet = badSet || !roleGood;
             goodSet = !badSet;
             return ships;
         }

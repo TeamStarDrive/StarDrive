@@ -5,6 +5,7 @@ FleetBuildRatios: CanBuildFighters
   Corvettes: 0
   Frigates: 0
   Cruisers: 0
+  Battleships: 0
   Capitals: 0
   TroopShips: 1
   Bombers: 2
@@ -16,6 +17,7 @@ FleetBuildRatios: CanBuildCorvettes
   Corvettes: 6
   Frigates: 0
   Cruisers: 0
+  Battleships: 0
   Capitals: 0
   TroopShips: 1
   Bombers: 1
@@ -27,6 +29,7 @@ FleetBuildRatios: CanBuildFrigates
   Corvettes: 6
   Frigates: 4
   Cruisers: 0
+  Battleships: 0
   Capitals: 0
   TroopShips: 1
   Bombers: 1
@@ -38,6 +41,19 @@ FleetBuildRatios: CanBuildCruisers
   Corvettes: 9
   Frigates: 6
   Cruisers: 3
+  Battleships: 0
+  Capitals: 0
+  TroopShips: 1
+  Bombers: 1
+  Carriers: 3
+  Support: 1
+
+FleetBuildRatios: CanBuildBattleships
+  Fighters: 2
+  Corvettes: 8
+  Frigates: 6
+  Cruisers: 3
+  Battleships: 2
   Capitals: 0
   TroopShips: 1
   Bombers: 1
@@ -46,9 +62,10 @@ FleetBuildRatios: CanBuildCruisers
 
 FleetBuildRatios: CanBuildCapitals
   Fighters: 1
-  Corvettes: 12
-  Frigates: 8
+  Corvettes: 4
+  Frigates: 6
   Cruisers: 8
+  Battleships: 8
   Capitals: 4
   TroopShips: 1
   Bombers: 1

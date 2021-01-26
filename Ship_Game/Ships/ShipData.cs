@@ -351,7 +351,8 @@ namespace Ship_Game.Ships
             frigate,
             destroyer,
             cruiser,
-            capital,
+            battleship,
+            capital, 
             prototype
         }
         public enum RoleType
@@ -391,6 +392,7 @@ namespace Ship_Game.Ships
                 case RoleName.frigate:
                 case RoleName.destroyer:
                 case RoleName.cruiser:
+                case RoleName.battleship:
                 case RoleName.capital:
                 case RoleName.prototype: return RoleType.Warship;
                 default:

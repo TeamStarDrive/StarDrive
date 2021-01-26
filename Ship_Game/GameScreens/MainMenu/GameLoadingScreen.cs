@@ -130,7 +130,7 @@ namespace Ship_Game
         {
             try
             {
-                ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod);
+                ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod?.IsSupported == true ? GlobalStats.ActiveMod : null);
                 Log.Write($"Finished loading 'Root' Assets {GameBase.GameContent.GetLoadedAssetMegabytes():0.0}MB");
 
                 //QuadtreePerfTests.RunCollisionPerfTest();
