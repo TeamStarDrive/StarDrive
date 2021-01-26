@@ -967,11 +967,11 @@ namespace Ship_Game
 
         static void LoadHullBonuses()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
             {
                 foreach (HullBonus hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
                     HullBonuses[hullBonus.Hull] = hullBonus;
-                GlobalStats.ActiveModInfo.useHullBonuses = HullBonuses.Count != 0;
+                GlobalStats.ActiveModInfo.UseHullBonuses = HullBonuses.Count != 0;
             }
         }
 
@@ -993,7 +993,9 @@ namespace Ship_Game
                         ShipData shipData  = ShipData.Parse(info);
                         shipData.Hull      = dirName + "/" + shipData.Hull;
                         shipData.ShipStyle = dirName;
-                        shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.capital : shipData.Role;
+                        // Note: carrier role as written in the hull file was changed to battleship, since now carriers are a design role
+                        // originally, carriers are battleships. The naming was poorly thought on 15b, or not fixed later.
+                        shipData.Role      = shipData.Role == ShipData.RoleName.carrier ? ShipData.RoleName.battleship : shipData.Role;
                         shipData.UpdateBaseHull();
                         hulls[i] = shipData;
                     }
@@ -1464,7 +1466,7 @@ namespace Ship_Game
 
         static void LoadTechTree()
         {
-            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
+            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.ClearVanillaTechs;
             Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
 
             var duplicateTech = new Map<string, Technology>();
@@ -1551,7 +1553,7 @@ namespace Ship_Game
         static void LoadWeapons() // Refactored by RedFox
         {
             WeaponsDict.Clear();
-            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;
+            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.ClearVanillaWeapons;
             foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
             {
                 Weapon wep = pair.Entity;
@@ -1649,11 +1651,12 @@ namespace Ship_Game
             switch (canBuild)
             {
                 default:
-                case BuildRatio.CanBuildFighters:  return BuildRatios[BuildRatio.CanBuildFighters];
-                case BuildRatio.CanBuildCorvettes: return BuildRatios[BuildRatio.CanBuildCorvettes];
-                case BuildRatio.CanBuildFrigates:  return BuildRatios[BuildRatio.CanBuildFrigates];
-                case BuildRatio.CanBuildCruisers:  return BuildRatios[BuildRatio.CanBuildCruisers];
-                case BuildRatio.CanBuildCapitals:  return BuildRatios[BuildRatio.CanBuildCapitals];
+                case BuildRatio.CanBuildFighters:    return BuildRatios[BuildRatio.CanBuildFighters];
+                case BuildRatio.CanBuildCorvettes:   return BuildRatios[BuildRatio.CanBuildCorvettes];
+                case BuildRatio.CanBuildFrigates:    return BuildRatios[BuildRatio.CanBuildFrigates];
+                case BuildRatio.CanBuildCruisers:    return BuildRatios[BuildRatio.CanBuildCruisers];
+                case BuildRatio.CanBuildBattleships: return BuildRatios[BuildRatio.CanBuildBattleships];
+                case BuildRatio.CanBuildCapitals:    return BuildRatios[BuildRatio.CanBuildCapitals];
             }
         }
 
@@ -1662,11 +1665,12 @@ namespace Ship_Game
             using (var parser = new YamlParser("FleetBuildRatios.yaml"))
             {
                 var ratios = parser.DeserializeArray<FleetBuildRatios>();
-                BuildRatios[BuildRatio.CanBuildFighters]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFighters);
-                BuildRatios[BuildRatio.CanBuildCorvettes] = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCorvettes);
-                BuildRatios[BuildRatio.CanBuildFrigates]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFrigates);
-                BuildRatios[BuildRatio.CanBuildCruisers]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCruisers);
-                BuildRatios[BuildRatio.CanBuildCapitals]  = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCapitals);
+                BuildRatios[BuildRatio.CanBuildFighters]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFighters);
+                BuildRatios[BuildRatio.CanBuildCorvettes]   = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCorvettes);
+                BuildRatios[BuildRatio.CanBuildFrigates]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildFrigates);
+                BuildRatios[BuildRatio.CanBuildCruisers]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCruisers);
+                BuildRatios[BuildRatio.CanBuildBattleships] = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildBattleships);
+                BuildRatios[BuildRatio.CanBuildCapitals]    = FleetBuildRatios.GetRatiosFor(ratios, BuildRatio.CanBuildCapitals);
             }
         }
 

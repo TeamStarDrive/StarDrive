@@ -248,7 +248,6 @@
     <Compile Include="Ship_Game\Commands\Goals\PirateDefendBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateDirectorPayment.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateAI.cs" />
-    <Compile Include="Ship_Game\Commands\Goals\PirateRaidColonyShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateDirectorRaid.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidCombatShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidOrbital.cs" />
@@ -2205,6 +2204,9 @@
     <Content Include="Content\ShipModules\RemnantEngine4.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\ShipRoles\Carrier.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\StarterShips\Draylok Medium Trans2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -3542,7 +3544,7 @@
     <Content Include="Content\ShipRoles\Capital.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\ShipRoles\Carrier.xml">
+    <Content Include="Content\ShipRoles\Battleship.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipRoles\Construction.xml">

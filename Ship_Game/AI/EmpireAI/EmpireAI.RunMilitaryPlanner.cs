@@ -560,6 +560,7 @@ namespace Ship_Game.AI
                     Corvette,
                     Frigate,
                     Cruiser,
+                    Battleship,
                     Capital,
                     Carrier,
                     Bomber,
@@ -583,19 +584,20 @@ namespace Ship_Game.AI
                         case ShipData.RoleName.troop:
                         case ShipData.RoleName.prototype:
                         case ShipData.RoleName.drone:
-                        case ShipData.RoleName.scout:     return CombatRole.Disabled;
-                        case ShipData.RoleName.troopShip: return CombatRole.TroopShip;
-                        case ShipData.RoleName.support:   return CombatRole.Support;
-                        case ShipData.RoleName.bomber:    return CombatRole.Bomber;
-                        case ShipData.RoleName.carrier:   return CombatRole.Carrier;
-                        case ShipData.RoleName.fighter:   return CombatRole.Fighter;
-                        case ShipData.RoleName.gunboat:   return CombatRole.Corvette;
-                        case ShipData.RoleName.corvette:  return CombatRole.Corvette;
-                        case ShipData.RoleName.frigate:   return CombatRole.Frigate;
-                        case ShipData.RoleName.destroyer: return CombatRole.Frigate;
-                        case ShipData.RoleName.cruiser:   return CombatRole.Cruiser;
-                        case ShipData.RoleName.capital:   return CombatRole.Capital;
-                        default:                          return CombatRole.Disabled;
+                        case ShipData.RoleName.scout:      return CombatRole.Disabled;
+                        case ShipData.RoleName.troopShip:  return CombatRole.TroopShip;
+                        case ShipData.RoleName.support:    return CombatRole.Support;
+                        case ShipData.RoleName.bomber:     return CombatRole.Bomber;
+                        case ShipData.RoleName.carrier:    return CombatRole.Carrier;
+                        case ShipData.RoleName.fighter:    return CombatRole.Fighter;
+                        case ShipData.RoleName.gunboat:    return CombatRole.Corvette;
+                        case ShipData.RoleName.corvette:   return CombatRole.Corvette;
+                        case ShipData.RoleName.frigate:    return CombatRole.Frigate;
+                        case ShipData.RoleName.destroyer:  return CombatRole.Frigate;
+                        case ShipData.RoleName.cruiser:    return CombatRole.Cruiser;
+                        case ShipData.RoleName.battleship: return CombatRole.Battleship;
+                        case ShipData.RoleName.capital:    return CombatRole.Capital;
+                        default:                           return CombatRole.Disabled;
                     }
                 }
             }

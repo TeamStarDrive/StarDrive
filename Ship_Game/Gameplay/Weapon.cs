@@ -289,7 +289,7 @@ namespace Ship_Game.Gameplay
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
             // Hull bonus damage increase
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses && owner != null &&
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses && owner != null &&
                 ResourceManager.HullBonuses.TryGetValue(owner.shipData.Hull, out HullBonus mod))
             {
                 damageAmount += damageAmount * mod.DamageBonus;
@@ -919,15 +919,22 @@ namespace Ship_Game.Gameplay
 
         public bool TargetValid(ShipData.RoleName role)
         {
-            if (Excludes_Fighters && (role == ShipData.RoleName.fighter || role == ShipData.RoleName.scout || role == ShipData.RoleName.drone))
-                return false;
-            if (Excludes_Corvettes && (role == ShipData.RoleName.corvette || role == ShipData.RoleName.gunboat))
-                return false;
-            if (Excludes_Capitals && (role == ShipData.RoleName.frigate || role == ShipData.RoleName.destroyer || role == ShipData.RoleName.cruiser || role == ShipData.RoleName.carrier || role == ShipData.RoleName.capital))
-                return false;
-            if (Excludes_Stations && (role == ShipData.RoleName.platform || role == ShipData.RoleName.station))
-                return false;
-            return true;
+            switch (role)
+            {
+                case ShipData.RoleName.fighter    when Excludes_Fighters:
+                case ShipData.RoleName.scout      when Excludes_Fighters:
+                case ShipData.RoleName.drone      when Excludes_Fighters:
+                case ShipData.RoleName.corvette   when Excludes_Corvettes:
+                case ShipData.RoleName.gunboat    when Excludes_Corvettes:
+                case ShipData.RoleName.frigate    when Excludes_Capitals:
+                case ShipData.RoleName.destroyer  when Excludes_Capitals:
+                case ShipData.RoleName.cruiser    when Excludes_Capitals:
+                case ShipData.RoleName.battleship when Excludes_Capitals:
+                case ShipData.RoleName.capital    when Excludes_Capitals:
+                case ShipData.RoleName.platform   when Excludes_Stations:
+                case ShipData.RoleName.station    when Excludes_Stations: return false;
+                default: return true;
+            }
         }
 
         public float CalculateOffense(ShipModule m = null)

@@ -339,17 +339,18 @@ namespace Ship_Game
 
                 switch (forCategory)
                 {
-                    case 1: return ship.DesignRole > ShipData.RoleName.station;
-                    case 2: return ship.DesignRole == ShipData.RoleName.fighter || ship.DesignRole == ShipData.RoleName.scout;
-                    case 3: return ship.DesignRole == ShipData.RoleName.frigate || ship.DesignRole == ShipData.RoleName.destroyer;
-                    case 4: return ship.DesignRole == ShipData.RoleName.cruiser;
-                    case 5: return ship.DesignRole == ShipData.RoleName.capital || ship.DesignRole == ShipData.RoleName.carrier;
-                    case 6: return ship.fleet != null;
-                    case 7: return ship.IsPlayerDesign;
-                    case 8: return ship.IsConstructor || ship.DesignRole == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
-                    case 9: return ship.DesignRole <= ShipData.RoleName.construction;
-                    case 10: return ship.DesignRole == ShipData.RoleName.corvette || ship.DesignRole == ShipData.RoleName.gunboat;
-                    case 11: return ship.fleet == null && ship.shipData.Role > ShipData.RoleName.station;
+                    case 1:  return ship.DesignRole > ShipData.RoleName.station;
+                    case 2:  return ship.DesignRole == ShipData.RoleName.fighter || ship.DesignRole == ShipData.RoleName.scout;
+                    case 3:  return ship.DesignRole == ShipData.RoleName.frigate || ship.DesignRole == ShipData.RoleName.destroyer;
+                    case 4:  return ship.DesignRole == ShipData.RoleName.cruiser;
+                    case 5:  return ship.DesignRole == ShipData.RoleName.battleship;
+                    case 6:  return ship.DesignRole == ShipData.RoleName.capital;
+                    case 7:  return ship.fleet != null;
+                    case 8:  return ship.IsPlayerDesign;
+                    case 9:  return ship.IsConstructor || ship.DesignRole == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
+                    case 10: return ship.DesignRole <= ShipData.RoleName.construction;
+                    case 11: return ship.DesignRole == ShipData.RoleName.corvette || ship.DesignRole == ShipData.RoleName.gunboat;
+                    case 12: return ship.fleet == null && ship.shipData.Role > ShipData.RoleName.station;
                 }
                 return false;
             }

@@ -171,7 +171,7 @@ namespace Ship_Game.Ships
             {
                 case ShipData.RoleName.corvette:
                 case ShipData.RoleName.gunboat: return ShipData.RoleName.corvette;
-                case ShipData.RoleName.carrier:
+                case ShipData.RoleName.carrier: return ShipData.RoleName.battleship;
                 case ShipData.RoleName.capital: return ShipData.RoleName.capital;
                 case ShipData.RoleName.destroyer:
                 case ShipData.RoleName.frigate: return ShipData.RoleName.frigate;
@@ -235,6 +235,7 @@ namespace Ship_Game.Ships
                 case ShipData.RoleName.frigate:      return "'Frigate'";
                 case ShipData.RoleName.destroyer:    return "'Destroyer'";
                 case ShipData.RoleName.cruiser:      return "'Cruiser'";
+                case ShipData.RoleName.battleship:   return "'battleship'";
                 case ShipData.RoleName.capital:      return "'Capital'";
                 case ShipData.RoleName.prototype:    return "'Prototype'";
             }

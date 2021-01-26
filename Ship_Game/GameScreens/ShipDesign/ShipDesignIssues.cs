@@ -88,7 +88,8 @@ namespace Ship_Game.ShipDesignIssues
         bool IsPlatform => Hull.HullRole == ShipData.RoleName.platform;
         bool Stationary => Hull.HullRole == ShipData.RoleName.station || Hull.HullRole == ShipData.RoleName.platform;
         bool LargeCraft => Hull.HullRole == ShipData.RoleName.freighter || Hull.HullRole == ShipData.RoleName.destroyer
-                                                                        || Hull.HullRole == ShipData.RoleName.cruiser 
+                                                                        || Hull.HullRole == ShipData.RoleName.cruiser
+                                                                        || Hull.HullRole == ShipData.RoleName.battleship
                                                                         || Hull.HullRole == ShipData.RoleName.capital;
 
         public static bool Civilian(ShipData.RoleName role) => role == ShipData.RoleName.colony 
