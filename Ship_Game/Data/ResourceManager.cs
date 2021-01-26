@@ -967,11 +967,11 @@ namespace Ship_Game
 
         static void LoadHullBonuses()
         {
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses)
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.UseHullBonuses)
             {
                 foreach (HullBonus hullBonus in LoadEntities<HullBonus>("HullBonuses", "LoadHullBonuses"))
                     HullBonuses[hullBonus.Hull] = hullBonus;
-                GlobalStats.ActiveModInfo.useHullBonuses = HullBonuses.Count != 0;
+                GlobalStats.ActiveModInfo.UseHullBonuses = HullBonuses.Count != 0;
             }
         }
 
@@ -1466,7 +1466,7 @@ namespace Ship_Game
 
         static void LoadTechTree()
         {
-            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaTechs;
+            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.ClearVanillaTechs;
             Array<InfoPair<Technology>> techs = LoadEntitiesWithInfo<Technology>("Technology", "LoadTechTree", modTechsOnly);
 
             var duplicateTech = new Map<string, Technology>();
@@ -1553,7 +1553,7 @@ namespace Ship_Game
         static void LoadWeapons() // Refactored by RedFox
         {
             WeaponsDict.Clear();
-            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;
+            bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.ClearVanillaWeapons;
             foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
             {
                 Weapon wep = pair.Entity;

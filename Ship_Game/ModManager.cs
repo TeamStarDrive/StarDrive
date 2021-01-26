@@ -78,7 +78,6 @@ namespace Ship_Game
             ModsList = Add(new ScrollList2<ModsListItem>(AllSaves, 140));
             ModsList.EnableItemHighlight = true;
             ModsList.OnClick = OnModItemClicked;
-
             var ser = new XmlSerializer(typeof(ModInformation));
             foreach (DirectoryInfo info in Dir.GetDirs("Mods", SearchOption.TopDirectoryOnly))
             {
@@ -114,7 +113,7 @@ namespace Ship_Game
             if (CurrentButton == null && (input.Escaped || input.RightMouseClick))
             {
                 ExitScreen();
-                return true;    
+                return true;
             }
             return base.HandleInput(input);
         }
@@ -136,8 +135,11 @@ namespace Ship_Game
 
         void OnLoadClicked(UIButton b)
         {
-            if (SelectedMod == null)
+            if (SelectedMod == null || !SelectedMod.IsSupported)
+            {
+                GameAudio.NegativeClick();
                 return;
+            }
             CurrentButton = b;
             b.Text = "Loading";
             LoadModTask();
