@@ -438,7 +438,8 @@ namespace Ship_Game
 
         public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
         {
-            float netPopKill = amount * PopulationRatio.LowerBound(0.02f); // harder to kill sparse pop
+            float netPopKill = PopulationRatio > 0.05f ? amount * PopulationRatio.LowerBound(0.02f)  // Harder to kill sparse pop
+                                                       : amount; // Unless very small pop left
             Population      -= 1000f * netPopKill;
             AddBaseFertility(amount * -0.25f); // environment suffers temp damage
             if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 100))
@@ -1229,7 +1230,7 @@ namespace Ship_Game
 
         private void GrowPopulation()
         {
-            if (Owner == null || RecentCombat)
+            if (Owner == null || MightBeAWarZone(Owner))
                 return;
 
             if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
