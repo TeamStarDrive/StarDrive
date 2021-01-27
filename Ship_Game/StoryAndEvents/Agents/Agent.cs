@@ -47,7 +47,6 @@ namespace Ship_Game
                     owner.data.MoleList.QueuePendingRemoval(m);
                     break;
                 }
-
             }
 
             owner.data.MoleList.ApplyPendingRemovals();
@@ -492,6 +491,9 @@ namespace Ship_Game
 
         void RepeatMission(Empire us)
         {
+            if (Mission == AgentMission.Undercover)
+                return;  // do not repeat mission for undercover agents, they are moles now.
+
             if (us.isPlayer && us.data.SpyMissionRepeat)
             {
                 if (Mission != AgentMission.Training || Mission == AgentMission.Training && IsNovice)
