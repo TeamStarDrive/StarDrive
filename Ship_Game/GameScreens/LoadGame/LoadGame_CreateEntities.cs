@@ -169,6 +169,7 @@ namespace Ship_Game
                 if (!ResourceManager.GetBuilding(pgs.Building.Name, out Building template))
                     continue; // this can happen if savegame contains a building which no longer exists in game files
 
+                pgs.SetEventOutcomeNumFromSave(d.EventOutcomeNum);
                 pgs.Building.AssignBuildingId(template.BID);
                 pgs.Building.Scrappable = template.Scrappable;
                 pgs.Building.CalcMilitaryStrength();
