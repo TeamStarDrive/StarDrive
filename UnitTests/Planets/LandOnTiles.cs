@@ -108,10 +108,10 @@ namespace UnitTests.Planets
             Assert.IsTrue(Friendly.TryLandTroop(P));
             Assert.IsTrue(GetTroopTile(Friendly, out PlanetGridSquare friendlyTile));
 
-            string positions = $"Capital : {capitalTile.x},{capitalTile.y}\n" +
-                               $"Friendly: {friendlyTile.x},{ friendlyTile.y}\n" +
-                               $"Enemy1  : {enemy1Tile.x},{ enemy1Tile.y}\n" +
-                               $"Enemy2  : {enemy2Tile.x},{ enemy2Tile.y}\n"; 
+            string positions = $"Capital : {capitalTile.X},{capitalTile.Y}\n" +
+                               $"Friendly: {friendlyTile.X},{ friendlyTile.Y}\n" +
+                               $"Enemy1  : {enemy1Tile.X},{ enemy1Tile.Y}\n" +
+                               $"Enemy2  : {enemy2Tile.X},{ enemy2Tile.Y}\n"; 
 
             Assert.IsTrue(friendlyTile.InRangeOf(capitalTile, 1), $"Friendly Too Far From Capital\n{positions}");
             Assert.IsFalse(friendlyTile.InRangeOf(enemy1Tile, 1), $"Friendly Too Close to Enemy1\n{positions}");

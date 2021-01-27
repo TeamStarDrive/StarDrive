@@ -142,7 +142,7 @@ namespace Ship_Game
 
             foreach (PlanetGridSquare tile in SelectedPlanet.TilesList)
             {
-                var rect = new Rectangle(buildingsRect.X + tile.x * xSize, buildingsRect.Y + tile.y * ySize, xSize, ySize);
+                var rect = new Rectangle(buildingsRect.X + tile.X * xSize, buildingsRect.Y + tile.Y * ySize, xSize, ySize);
 
                 if (!tile.Habitable)
                 {

@@ -200,7 +200,7 @@ namespace Ship_Game
             int width = GridPos.Width / 7;
             int height = GridPos.Height / 5;
             foreach (PlanetGridSquare planetGridSquare in p.TilesList)
-                planetGridSquare.ClickRect = new Rectangle(GridPos.X + planetGridSquare.x * width, GridPos.Y + planetGridSquare.y * height, width, height);
+                planetGridSquare.ClickRect = new Rectangle(GridPos.X + planetGridSquare.X * width, GridPos.Y + planetGridSquare.Y * height, width, height);
             
             PlanetName.Text = p.Name;
             PlanetName.MaxCharacters = 20;

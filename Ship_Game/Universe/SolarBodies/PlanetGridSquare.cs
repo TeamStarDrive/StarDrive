@@ -8,8 +8,8 @@ namespace Ship_Game
     // Converted to 2 troops per tile support by Fat Bastard, Feb 28, 2020
     public sealed class PlanetGridSquare
     {
-        public int x;
-        public int y;
+        public int X;
+        public int Y;
         public bool ShowAttackHover;
         public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
@@ -118,8 +118,8 @@ namespace Ship_Game
 
         public PlanetGridSquare(int x, int y, Building b, bool hab, bool terraformable)
         {
-            this.x        = x;
-            this.y        = y;
+            this.X        = x;
+            this.Y        = y;
             Habitable     = hab;
             Building      = b;
             Terraformable = terraformable;
@@ -246,13 +246,13 @@ namespace Ship_Game
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
         {
-            return Math.Abs(x - tileToCheck.x) <= range && Math.Abs(y - tileToCheck.y) <= range;
+            return Math.Abs(X - tileToCheck.X) <= range && Math.Abs(Y - tileToCheck.Y) <= range;
         }
 
         public void DirectionToTarget(PlanetGridSquare target, out int xDiff, out int yDiff)
         {
-            xDiff = (target.x - x).Clamped(-1, 1);
-            yDiff = (target.y - y).Clamped(-1, 1);
+            xDiff = (target.X - X).Clamped(-1, 1);
+            yDiff = (target.Y - Y).Clamped(-1, 1);
         }
 
         public void CheckAndTriggerEvent(Planet planet, Empire empire)
@@ -285,8 +285,8 @@ namespace Ship_Game
         public TileDirection GetDirectionTo(PlanetGridSquare target)
         {
 
-            int xDiff = (target.x - x).Clamped(-1, 1);
-            int yDiff = (target.y - y).Clamped(-1, 1);
+            int xDiff = (target.X - X).Clamped(-1, 1);
+            int yDiff = (target.Y - Y).Clamped(-1, 1);
             switch (xDiff)
             {
                 case 0  when yDiff == -1: return TileDirection.North;
@@ -306,16 +306,16 @@ namespace Ship_Game
             Point p;
             switch (d)
             {
-                case TileDirection.North:     p.X = x;     p.Y = y - 1; break;
-                case TileDirection.South:     p.X = x;     p.Y = y + 1; break;
-                case TileDirection.East:      p.X = x + 1; p.Y = y;     break;
-                case TileDirection.West:      p.X = x - 1; p.Y = y;     break;
-                case TileDirection.NorthEast: p.X = x + 1; p.Y = y - 1; break;
-                case TileDirection.NorthWest: p.X = x - 1; p.Y = y - 1; break;
-                case TileDirection.SouthEast: p.X = x + 1; p.Y = y + 1; break;
-                case TileDirection.SouthWest: p.X = x - 1; p.Y = y + 1; break;
+                case TileDirection.North:     p.X = X;     p.Y = Y - 1; break;
+                case TileDirection.South:     p.X = X;     p.Y = Y + 1; break;
+                case TileDirection.East:      p.X = X + 1; p.Y = Y;     break;
+                case TileDirection.West:      p.X = X - 1; p.Y = Y;     break;
+                case TileDirection.NorthEast: p.X = X + 1; p.Y = Y - 1; break;
+                case TileDirection.NorthWest: p.X = X - 1; p.Y = Y - 1; break;
+                case TileDirection.SouthEast: p.X = X + 1; p.Y = Y + 1; break;
+                case TileDirection.SouthWest: p.X = X - 1; p.Y = Y + 1; break;
                 case TileDirection.None:
-                default:                        p.X = x;     p.Y = y;     break;
+                default:                        p.X = X;     p.Y = Y;     break;
             }
             return p;
         }
@@ -324,8 +324,8 @@ namespace Ship_Game
         {
             return new SavedGame.PGSData
             {
-                x = x,
-                y = y,
+                x = X,
+                y = Y,
                 Habitable     = Habitable,
                 Biosphere     = Biosphere,
                 building      = Building,

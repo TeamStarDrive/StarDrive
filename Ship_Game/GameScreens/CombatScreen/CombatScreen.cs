@@ -83,7 +83,7 @@ namespace Ship_Game
             int ySize = GridPos.Height / 5;
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
-                pgs.ClickRect = new Rectangle(GridPos.X + pgs.x * xSize, GridPos.Y + pgs.y * ySize, xSize, ySize);
+                pgs.ClickRect = new Rectangle(GridPos.X + pgs.X * xSize, GridPos.Y + pgs.Y * ySize, xSize, ySize);
                 using (pgs.TroopsHere.AcquireReadLock())
                 {
                     foreach (var troop in pgs.TroopsHere)
@@ -132,7 +132,7 @@ namespace Ship_Game
             {
                 foreach (PointSet ps in CenterPoints)
                 {
-                    if (pgs.x == ps.column && pgs.y == ps.row)
+                    if (pgs.X == ps.column && pgs.Y == ps.row)
                         pgs.ClickRect = new Rectangle((int) ps.point.X - 32, (int) ps.point.Y - 32, 64, 64);
                 }
             }
@@ -171,8 +171,8 @@ namespace Ship_Game
                     if (tile == ActiveTile)
                         continue;
 
-                    int xTotalDistance = Math.Abs(ActiveTile.x - tile.x);
-                    int yTotalDistance = Math.Abs(ActiveTile.y - tile.y);
+                    int xTotalDistance = Math.Abs(ActiveTile.X - tile.X);
+                    int yTotalDistance = Math.Abs(ActiveTile.Y - tile.Y);
                     int rangeToTile    = Math.Max(xTotalDistance, yTotalDistance);
                     if (rangeToTile <= range && tile.IsTileFree(EmpireManager.Player))
                     {
@@ -276,7 +276,7 @@ namespace Ship_Game
         {
             SpriteBatch batch = ScreenManager.SpriteBatch;
 
-            int width = (pgs.y * 15 + 64).UpperBound(128);
+            int width = (pgs.Y * 15 + 64).UpperBound(128);
             if (pgs.CombatBuildingOnTile)
                 width = 64;
 
@@ -691,7 +691,7 @@ namespace Ship_Game
 
                         if (MovementTiles.Contains(pgs))
                         {
-                            ourTroop.facingRight = pgs.x > ActiveTile.x;
+                            ourTroop.facingRight = pgs.X > ActiveTile.X;
                             pgs.AddTroop(ourTroop);
                             ourTroop.UpdateMoveActions(-1);
                             ourTroop.ResetMoveTimer();

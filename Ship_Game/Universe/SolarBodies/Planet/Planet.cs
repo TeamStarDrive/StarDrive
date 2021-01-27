@@ -1370,7 +1370,7 @@ namespace Ship_Game
             if (x < 0 || x >= TileMaxX || y < 0 || y >= TileMaxY) // FB >= because coords start from 0
                 return null;
 
-            return TilesList.Find(pgs => pgs.x == x && pgs.y == y);
+            return TilesList.Find(pgs => pgs.X == x && pgs.Y == y);
         }
 
         ~Planet() { Destroy(); }

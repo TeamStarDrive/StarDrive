@@ -244,7 +244,7 @@ namespace Ship_Game
             {
                 var tiles = TilesList.Filter(t => t.InRangeOf(spotterTile, range));
                 foreach (PlanetGridSquare scannedTile in tiles.OrderBy(tile =>
-                    Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
+                    Math.Abs(tile.X - spotterTile.X) + Math.Abs(tile.Y - spotterTile.Y)))
                 {
                     bool hostilesOnTile = spotterTile.CombatBuildingOnTile
                                           ? scannedTile.HostilesTargetsOnTileToBuilding(spotterOwner, Owner, Ground.SpaceCombatNearPlanet)
