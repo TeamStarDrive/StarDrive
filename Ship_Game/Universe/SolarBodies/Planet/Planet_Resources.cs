@@ -64,11 +64,8 @@ namespace Ship_Game
             get
             {
                 float maxPopForPlayer = MaxPopulationBillionFor(EmpireManager.Player);
-                int numDecimalsPop    = PopulationBillion.GreaterOrEqual(0.1f) || PopulationBillion.AlmostZero() ? 1 : 2;
-                int numDecimalsPopMax = maxPopForPlayer % 1 > 0.95f || maxPopForPlayer % 1 < 0.05f ? 1 : 2;
-                if (maxPopForPlayer.Greater(0.005f) && maxPopForPlayer < 0.05f)
-                    numDecimalsPopMax = 2;
-
+                int numDecimalsPop    = PopulationBillion < 2 ? 2 : 1;
+                int numDecimalsPopMax = maxPopForPlayer < 2 ? 2 : 1;
                 string popString      = $"{PopulationBillion.String(numDecimalsPop)} / {maxPopForPlayer.String(numDecimalsPopMax.UpperBound(numDecimalsPop))}";
 
                 if (PopulationRatio.NotZero())
@@ -78,18 +75,7 @@ namespace Ship_Game
             }
         }
 
-        public float GetGoodHere(Goods good)
-        {
-            switch (good)
-            {
-                case Goods.Food:       return FoodHere;
-                case Goods.Production: return ProdHere;
-                case Goods.Colonists:  return Population;
-                default:               return 0;
-            }
-        }
-
-        public GoodState FS = GoodState.STORE;      //I dont like these names, but changing them will affect a lot of files
+        public GoodState FS = GoodState.STORE;      // I dont like these names, but changing them will affect a lot of files
         public GoodState PS = GoodState.STORE;
         public bool ImportFood => FS == GoodState.IMPORT;
         public bool ImportProd => PS == GoodState.IMPORT;

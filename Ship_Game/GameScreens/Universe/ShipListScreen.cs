@@ -84,28 +84,29 @@ namespace Ship_Game
 
             ShowRoles = new DropOptions<int>(new Rectangle(TitleBar.Menu.Right + 175, TitleBar.Menu.Y + 15, 175, 18));
             ShowRoles.AddOption("All Ships", 1);
-            ShowRoles.AddOption("Not in Fleets", 11);
             ShowRoles.AddOption("Fighters", 2);
-            ShowRoles.AddOption("Corvettes", 10);
-            ShowRoles.AddOption("Frigates", 3);
-            ShowRoles.AddOption("Cruisers", 4);
-            ShowRoles.AddOption("Capitals", 5);
-            ShowRoles.AddOption("Civilian", 8);
-            ShowRoles.AddOption("All Structures", 9);
-            ShowRoles.AddOption("In Fleets Only", 6);
+            ShowRoles.AddOption("Corvettes", 3);
+            ShowRoles.AddOption("Frigates", 4);
+            ShowRoles.AddOption("Cruisers", 5);
+            ShowRoles.AddOption("Battleships", 6);
+            ShowRoles.AddOption("Titans", 7);
+            ShowRoles.AddOption("Carriers", 8);
+            ShowRoles.AddOption("Bombers", 9);
+            ShowRoles.AddOption("Troopships", 10);
+            ShowRoles.AddOption("All Structures", 11);
+            ShowRoles.AddOption("Civilian", 12);
+            ShowRoles.AddOption("In Fleets Only", 13);
+            ShowRoles.AddOption("Not in Fleets", 14);
 
-            // Replaced using the tick-box for player design filtering. Platforms now can be browsed with 'structures'
-            // this.ShowRoles.AddOption("Player Designs Only", 7);
-            
             SortSystem = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(192));
             SortName   = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(193));
             SortRole   = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(194));
             SortOrder  = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(195));
-            Maint    = new SortButton(this.empUI.empire.data.SLSort, "maint");
-            SB_FTL   = new SortButton(this.empUI.empire.data.SLSort, "FTL");
-            SB_STL   = new SortButton(this.empUI.empire.data.SLSort, "STL");
-            SB_Troop = new SortButton(this.empUI.empire.data.SLSort, "TROOP");
-            SB_STR   = new SortButton(this.empUI.empire.data.SLSort, "STR");
+            Maint      = new SortButton(this.empUI.empire.data.SLSort, "maint");
+            SB_FTL     = new SortButton(this.empUI.empire.data.SLSort, "FTL");
+            SB_STL     = new SortButton(this.empUI.empire.data.SLSort, "STL");
+            SB_Troop   = new SortButton(this.empUI.empire.data.SLSort, "TROOP");
+            SB_STR     = new SortButton(this.empUI.empire.data.SLSort, "STR");
             ShowRoles.ActiveIndex = indexLast;  //fbedard: remember last filter
             ResetList(ShowRoles.ActiveValue);
         }
@@ -341,16 +342,18 @@ namespace Ship_Game
                 {
                     case 1:  return ship.DesignRole > ShipData.RoleName.station;
                     case 2:  return ship.DesignRole == ShipData.RoleName.fighter || ship.DesignRole == ShipData.RoleName.scout;
-                    case 3:  return ship.DesignRole == ShipData.RoleName.frigate || ship.DesignRole == ShipData.RoleName.destroyer;
-                    case 4:  return ship.DesignRole == ShipData.RoleName.cruiser;
-                    case 5:  return ship.DesignRole == ShipData.RoleName.battleship;
-                    case 6:  return ship.DesignRole == ShipData.RoleName.capital;
-                    case 7:  return ship.fleet != null;
-                    case 8:  return ship.IsPlayerDesign;
-                    case 9:  return ship.IsConstructor || ship.DesignRole == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
-                    case 10: return ship.DesignRole <= ShipData.RoleName.construction;
-                    case 11: return ship.DesignRole == ShipData.RoleName.corvette || ship.DesignRole == ShipData.RoleName.gunboat;
-                    case 12: return ship.fleet == null && ship.shipData.Role > ShipData.RoleName.station;
+                    case 3:  return ship.DesignRole == ShipData.RoleName.corvette || ship.DesignRole == ShipData.RoleName.gunboat;
+                    case 4:  return ship.DesignRole == ShipData.RoleName.frigate || ship.DesignRole == ShipData.RoleName.destroyer;
+                    case 5:  return ship.DesignRole == ShipData.RoleName.cruiser;
+                    case 6:  return ship.DesignRole == ShipData.RoleName.battleship;
+                    case 7:  return ship.DesignRole == ShipData.RoleName.capital;
+                    case 8:  return ship.DesignRole == ShipData.RoleName.carrier;
+                    case 9:  return ship.DesignRole == ShipData.RoleName.bomber;
+                    case 10: return ship.DesignRole == ShipData.RoleName.troopShip;
+                    case 11: return ship.DesignRole <= ShipData.RoleName.platform || ship.DesignRole == ShipData.RoleName.station;
+                    case 12: return ship.IsConstructor || ship.DesignRole == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
+                    case 13: return ship.fleet != null;
+                    case 14: return ship.fleet == null && ship.shipData.Role > ShipData.RoleName.station;
                 }
                 return false;
             }
