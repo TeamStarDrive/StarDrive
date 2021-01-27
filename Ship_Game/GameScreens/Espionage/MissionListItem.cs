@@ -25,7 +25,7 @@ namespace Ship_Game.GameScreens.Espionage
 
         void DoMission_OnClick(UIButton button)
         {
-            if (Component.SelectedAgent.Mission == AgentMission.Defending)
+            if (Component.SelectedAgent.Mission == AgentMission.Defending || Component.SelectedAgent.Mission == AgentMission.Undercover)
             {
                 Component.SelectedAgent.AssignMission(TheMission,
                     EmpireManager.Player, Component.EspionageScreen.SelectedEmpire.data.Traits.Name);
@@ -134,7 +134,7 @@ namespace Ship_Game.GameScreens.Espionage
 
             if (EmpireManager.Player.Money < cost 
                 || Component.EspionageScreen.SelectedEmpire.data.Defeated 
-                || Component.SelectedAgent?.Mission != AgentMission.Defending
+                || Component.SelectedAgent?.Mission != AgentMission.Defending && Component.SelectedAgent?.Mission != AgentMission.Undercover
                 || TheMission == AgentMission.Training && Component.SelectedAgent?.Level >= 3)
             {
                 MissionAvailable = false;

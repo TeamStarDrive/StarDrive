@@ -1337,7 +1337,7 @@ namespace Ship_Game
                             if (mole.PlanetGuid == planet.guid)
                             {
                                 posOffSet.X += (18 * drawLocationOffset);
-                                DrawTextureWithToolTip(icon_spy_small, Color.White, 121, mousePos,
+                                DrawTextureWithToolTip(icon_spy_small, Color.White, 120, mousePos,
                                     (int)posOffSet.X, (int)posOffSet.Y, 14, 14);
                                 ++drawLocationOffset;
                                 break;
