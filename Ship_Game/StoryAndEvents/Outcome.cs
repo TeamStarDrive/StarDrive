@@ -5,76 +5,41 @@ namespace Ship_Game
 {
     public sealed class Outcome
     {
-        private Planet _selectedPlanet;
-
+        public Planet SelectedPlanet { get; private set; }
         public bool BeginArmageddon;
-
         public int Chance;
-
-        private Artifact _grantedArtifact;
-
+        public Artifact GrantedArtifact { get; private set; }
         public Array<string> TroopsToSpawn;
-
         public Array<string> FriendlyShipsToSpawn;
         public Array<string> PirateShipsToSpawn;
         public Array<string> RemnantShipsToSpawn;
-
         public bool UnlockSecretBranch;
-
         public string SecretTechDiscovered;
-
         public string TitleText;
-
         public string UnlockTech;
-
         public bool WeHadIt;
-
         public bool GrantArtifact;
-
-        public bool RemoveTrigger;
-
+        public bool RemoveTrigger = true;
         public string ReplaceWith = "";
-
         public string DescriptionText;
-
         public int MoneyGranted;
-
         public Array<string> TroopsGranted;
-
         public float FoodProductionBonus;
-
         public float IndustryBonus;
-
         public float ScienceBonus;
-
         public bool SelectRandomPlanet;
-
         public string SpawnBuildingOnPlanet;
-
-        public string SpawnFleetInOrbitOfPlanet;
-
         public bool OnlyTriggerOnce;
-
         public bool AlreadyTriggered;
-
-        public Artifact GetArtifact()
-        {
-            return _grantedArtifact;
-        }
-
-        public Planet GetPlanet()
-        {
-            return _selectedPlanet;
-        }
 
         public void SetArtifact(Artifact art)
         {
-            _grantedArtifact = art;
+            GrantedArtifact = art;
         }
 
         public void SetPlanet(Planet p)
         {
-            _selectedPlanet = p;
+            SelectedPlanet = p;
         }
 
         private void FlatGrants(Empire triggerEmpire)
@@ -133,13 +98,13 @@ namespace Ship_Game
         {
             if (RemoveTrigger)
             {
-                p.BuildingList.Remove(eventLocation.building);
-                eventLocation.building = null;
+                p.BuildingList.Remove(eventLocation.Building);
+                eventLocation.Building = null;
             }
             if (!string.IsNullOrEmpty(ReplaceWith))
             {
-                eventLocation.building = ResourceManager.CreateBuilding(ReplaceWith);
-                p.BuildingList.Add(eventLocation.building);
+                eventLocation.Building = ResourceManager.CreateBuilding(ReplaceWith);
+                p.BuildingList.Add(eventLocation.Building);
             }
         }
 
@@ -251,7 +216,7 @@ namespace Ship_Game
 
             //events that trigger on other planets
             if(!SetRandomPlanet()) return;
-            p = _selectedPlanet;
+            p = SelectedPlanet;
 
             if (eventLocation == null)
             {
