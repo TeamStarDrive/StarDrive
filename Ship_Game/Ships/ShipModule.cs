@@ -666,7 +666,7 @@ namespace Ship_Game.Ships
             Damage(source, damage);
         }
 
-        public void DamageByRecoveredFromCrash()
+        public void DamageByRecoveredFromCrash(float modifier)
         {
             float percent;
             switch (Restrictions)
@@ -693,7 +693,7 @@ namespace Ship_Game.Ships
             if (ActualShieldPowerMax > 0)
                 Damage(source, ActualShieldPowerMax); // Kill shield power first
 
-            Damage(source, Health * percent);
+            Damage(source, Health * percent * modifier);
         }
 
         public override void Damage(GameplayObject source, float damageAmount)

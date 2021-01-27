@@ -155,7 +155,7 @@ namespace Ship_Game
                 if (d.CrashSiteActive)
                 {
                     Empire e = EmpireManager.GetEmpireById(d.CrashSiteEmpireId);
-                    pgs.CrashSite.CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, p, pgs, true);
+                    pgs.CrashSite.CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, d.CrashSiteRecoverShip, p, pgs);
                 }
 
                 p.TilesList.Add(pgs);
