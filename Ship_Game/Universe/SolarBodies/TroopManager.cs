@@ -89,7 +89,7 @@ namespace Ship_Game
                     PerformTroopsGroundActions(tile);
 
                 else if (tile.BuildingOnTile)
-                    PerformGroundActions(tile.building, tile);
+                    PerformGroundActions(tile.Building, tile);
             }
         }
 
@@ -138,7 +138,7 @@ namespace Ship_Game
                 if (targetTile.CombatBuildingOnTile)
                 {
                     t.UpdateMoveActions(-1);
-                    CombatScreen.StartCombat(t, targetTile.building, targetTile, Ground);
+                    CombatScreen.StartCombat(t, targetTile.Building, targetTile, Ground);
                 }
                 else if (targetTile.LockOnEnemyTroop(t.Loyalty, out Troop enemy))
                 {

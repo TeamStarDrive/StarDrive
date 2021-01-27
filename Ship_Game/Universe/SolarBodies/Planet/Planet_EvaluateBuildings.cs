@@ -429,7 +429,7 @@ namespace Ship_Game
             if (!b.CanBuildAnywhere)
                 return true;
 
-            PlanetGridSquare tile = TilesList.Find(t => t.building == b);
+            PlanetGridSquare tile = TilesList.Find(t => t.Building == b);
             if (tile == null)
             {
                 Log.Warning($"Building {b.Name} was not found on any tile on the planet {Name} when checking if it is on habitable tile");

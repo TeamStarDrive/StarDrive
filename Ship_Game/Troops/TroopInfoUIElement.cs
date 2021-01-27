@@ -103,16 +103,16 @@ namespace Ship_Game
             }
             else // draw building stats
             {
-                if (Tile.building.Strength < Tile.building.StrengthMax)
-                    DrawInfoData(batch, DefenseRect, Tile.building.Strength + "/" + Tile.building.StrengthMax.String(1), color, 2, 11);
+                if (Tile.Building.Strength < Tile.Building.StrengthMax)
+                    DrawInfoData(batch, DefenseRect, Tile.Building.Strength + "/" + Tile.Building.StrengthMax.String(1), color, 2, 11);
                 else
-                    DrawInfoData(batch, DefenseRect, Tile.building.StrengthMax.String(1), color, 2, 11);
+                    DrawInfoData(batch, DefenseRect, Tile.Building.StrengthMax.String(1), color, 2, 11);
 
-                slant.text = Localizer.Token(Tile.building.NameTranslationIndex);
-                DrawInfoData(batch, SoftAttackRect, Tile.building.SoftAttack.ToString(), color, 5, 8);
-                DrawInfoData(batch, HardAttackRect, Tile.building.HardAttack.ToString(), color, 5, 8);
+                slant.text = Localizer.Token(Tile.Building.NameTranslationIndex);
+                DrawInfoData(batch, SoftAttackRect, Tile.Building.SoftAttack.ToString(), color, 5, 8);
+                DrawInfoData(batch, HardAttackRect, Tile.Building.HardAttack.ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
-                batch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", Tile.building.Icon, "_64x64")), ItemDisplayRect, color);
+                batch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", Tile.Building.Icon, "_64x64")), ItemDisplayRect, color);
             }
 
             slant.Draw(batch, elapsed);
@@ -243,7 +243,7 @@ namespace Ship_Game
             }
             else if (pgs.BuildingOnTile)
             {
-                DescriptionSL.ResetWithParseText(Fonts.Arial12, Localizer.Token(pgs.building.DescriptionIndex), LeftRect.Width - 15);
+                DescriptionSL.ResetWithParseText(Fonts.Arial12, Localizer.Token(pgs.Building.DescriptionIndex), LeftRect.Width - 15);
             }
         }
 

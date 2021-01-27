@@ -58,7 +58,16 @@ namespace Ship_Game
             }
         }
 
-        public Outcome GetRandomOutcome()
+        public short SetOutcomeNum(Planet p)
+        {
+            int numTotalOutcomeChance = PotentialOutcomes.Sum(o => o.Chance);
+            int random                = RandomMath.RollDie(numTotalOutcomeChance);
+
+            return 1;
+
+        }
+
+        private Outcome GetRandomOutcome()
         {
             int ranMax = PotentialOutcomes.Filter(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
                 .Sum(outcome => outcome.Chance);
@@ -81,6 +90,8 @@ namespace Ship_Game
             }
             return triggeredOutcome;
         }
+
+
         public void TriggerExplorationEvent(UniverseScreen screen)
         {
             Outcome triggeredOutcome = GetRandomOutcome();

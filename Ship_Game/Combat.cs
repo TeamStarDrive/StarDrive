@@ -106,7 +106,7 @@ namespace Ship_Game
                     return; // Building still stands
 
                 Planet.BuildingList.Remove(DefendingBuilding);
-                DefenseTile.building = null; // make pgs building private in the future
+                DefenseTile.Building = null; // make pgs building private in the future
             }
         }
 

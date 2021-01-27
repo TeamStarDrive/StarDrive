@@ -109,7 +109,7 @@ namespace Ship_Game
             if (!TargetTile.BuildingOnTile)
                 return;
 
-            Building building = TargetTile.building;
+            Building building = TargetTile.Building;
             building.Strength -= damage;
             if (building.IsAttackable)
                 building.CombatStrength = building.Strength;
@@ -117,7 +117,7 @@ namespace Ship_Game
             if (TargetTile.BuildingDestroyed)
             {
                 Surface.BuildingList.Remove(building);
-                TargetTile.building = null;
+                TargetTile.Building = null;
             }
         }
     }
@@ -222,8 +222,8 @@ namespace Ship_Game
 
                 int building = RandomMath.RandItem(buildingIds);
                 PlanetGridSquare pgs = ResourceManager.CreateBuilding(building).AssignBuildingToRandomTile(this as Planet);
-                BuildingList.Add(pgs.building);
-                Log.Info($"Event building : {pgs.building.Name} : created on {Name}");
+                BuildingList.Add(pgs.Building);
+                Log.Info($"Event building : {pgs.Building.Name} : created on {Name}");
             }
         }
 
@@ -242,8 +242,8 @@ namespace Ship_Game
                 {
                     PlanetGridSquare pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this as Planet);
                     pgs.Habitable = true;
-                    BuildingList.Add(pgs.building);
-                    Log.Info($"Resource Created : '{pgs.building.Name}' : on '{Name}' ");
+                    BuildingList.Add(pgs.Building);
+                    Log.Info($"Resource Created : '{pgs.Building.Name}' : on '{Name}' ");
                 }
             }
         }
