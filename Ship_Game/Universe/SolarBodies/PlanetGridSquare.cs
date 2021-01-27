@@ -19,7 +19,7 @@ namespace Ship_Game
         public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
         public Rectangle ClickRect = new Rectangle();
-        public short EventOutcomeNum { get; private set; } = -1;
+        public short EventOutcomeNum { get; private set; }
         public bool Highlighted;
         public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
         public bool TroopsAreOnTile      => TroopsHere.NotEmpty;
@@ -266,14 +266,20 @@ namespace Ship_Game
                 }
                 else
                 {
-                    ResourceManager.Event(Building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
+                    ResourceManager.Event(Building.EventTriggerUID).TriggerPlanetEvent(planet, EventOutcomeNum , empire, this, Empire.Universe);
                 }
             }
         }
 
-        public void SetEventOutComeNum(Planet p)
+        public bool SetEventOutComeNum(Planet p, Building b)
         {
+            EventOutcomeNum = ResourceManager.Event(b.EventTriggerUID).SetOutcomeNum(p);
+            return EventOutcomeNum != 0;
+        }
 
+        public void SetEventOutcomeNumFromSave(short value)
+        {
+            EventOutcomeNum = value;
         }
 
         public TileDirection GetDirectionTo(PlanetGridSquare target)
@@ -291,7 +297,7 @@ namespace Ship_Game
                 case -1 when yDiff == -1: return TileDirection.NorthWest;
                 case 1  when yDiff ==  1: return TileDirection.SouthEast;
                 case -1 when yDiff ==  1: return TileDirection.SouthWest;
-                default: return TileDirection.None;
+                default:                  return TileDirection.None;
             }
         }
 
@@ -318,13 +324,14 @@ namespace Ship_Game
         {
             return new SavedGame.PGSData
             {
-                x             = x,
-                y             = y,
+                x = x,
+                y = y,
                 Habitable     = Habitable,
                 Biosphere     = Biosphere,
                 building      = Building,
                 TroopsHere    = TroopsHere,
                 Terraformable = Terraformable,
+                EventOutcomeNum      = EventOutcomeNum,
                 CrashSiteActive      = CrashSite.Active,
                 CrashSiteShipName    = CrashSite.ShipName,
                 CrashSiteTroopName   = CrashSite.TroopName,

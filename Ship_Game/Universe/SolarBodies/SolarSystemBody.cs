@@ -220,9 +220,14 @@ namespace Ship_Game
                         buildingIds.Add(kv.Value.BID);
                 }
 
-                int building = RandomMath.RandItem(buildingIds);
-                PlanetGridSquare pgs = ResourceManager.CreateBuilding(building).AssignBuildingToRandomTile(this as Planet);
+                Building building    = ResourceManager.CreateBuilding(buildingIds.RandItem());
+                Planet thisPlanet    = this as Planet;
+                PlanetGridSquare pgs = building.AssignBuildingToRandomTile(thisPlanet);
+
                 BuildingList.Add(pgs.Building);
+                if (!pgs.SetEventOutComeNum(thisPlanet, building))
+                    thisPlanet?.DestroyBuildingOn(pgs);
+
                 Log.Info($"Event building : {pgs.Building.Name} : created on {Name}");
             }
         }
