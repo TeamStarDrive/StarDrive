@@ -322,7 +322,7 @@ namespace Ship_Game
                 }
                 else sys = SolarSystem.GenerateSystemFromData(systemData, e);
 
-                sys.isStartingSystem = true;
+                sys.IsStartingSystem = true;
                 Data.SolarSystemsList.Add(sys);
             }
         }
@@ -357,7 +357,7 @@ namespace Ship_Game
             foreach (SolarSystem solarSystem2 in solarSystems)
             {
                 float spacing = 350000f;
-                if (solarSystem2.isStartingSystem)
+                if (solarSystem2.IsStartingSystem)
                     continue; // We created starting systems before
 
                 if (solarSystem2.DontStartNearPlayer)
@@ -374,7 +374,7 @@ namespace Ship_Game
             foreach (SolarSystem system in Data.SolarSystemsList)
             {
                 // This will distribute all the rest of the planets evenly
-                if (!system.isStartingSystem && !system.DontStartNearPlayer)
+                if (!system.IsStartingSystem && !system.DontStartNearPlayer)
                 {
                     system.Position = GenerateRandomCorners(whichCorner);
                     whichCorner += 1;   // Only change which corner if a system is actually created
@@ -389,9 +389,9 @@ namespace Ship_Game
             short whichcorner = (short) RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
             foreach (SolarSystem solarSystem2 in Data.SolarSystemsList)
             {
-                if (solarSystem2.isStartingSystem || solarSystem2.DontStartNearPlayer)
+                if (solarSystem2.IsStartingSystem || solarSystem2.DontStartNearPlayer)
                 {
-                    if (solarSystem2.isStartingSystem)
+                    if (solarSystem2.IsStartingSystem)
                     {
                         //Corner Values
                         //0 = Top Left
@@ -562,7 +562,7 @@ namespace Ship_Game
         void GenerateClustersStartingSystems(Array<Sector> sectors, int trySpacingNum = 1)
         {
             Array<Sector> claimedSectors = new Array<Sector>();
-            var startingSystems           = Data.SolarSystemsList.Filter(s => s.isStartingSystem);
+            var startingSystems           = Data.SolarSystemsList.Filter(s => s.IsStartingSystem);
             if (sectors.Count < startingSystems.Length)
                 Log.Error($"Sectors ({sectors.Count}) < starting Systems ({startingSystems.Length})");
 
@@ -614,7 +614,7 @@ namespace Ship_Game
         void GenerateClusterSystems(Array<Sector> sectors)
         {
             int i = 0;
-            foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => !s.isStartingSystem)
+            foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => !s.IsStartingSystem)
                      .SortedDescending(s => s.AverageValueForEmpires(Data.EmpireList)))
             {
                 Sector currentSector = sectors[i]; // distribute systems evenly per sector, based on value
