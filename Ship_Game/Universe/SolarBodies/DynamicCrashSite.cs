@@ -58,7 +58,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (tile.BuildingOnTile)
             {
-                message = $"{message}\n Unfortunately, it crashed on the {tile.building.TranslatedName.Text}.";
+                message = $"{message}\n Unfortunately, it crashed on the {tile.Building.TranslatedName.Text}.";
                 p.DestroyBuildingOn(tile);
             }
 
