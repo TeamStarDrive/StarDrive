@@ -289,7 +289,7 @@ namespace Ship_Game
 
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.x != (int) qisave.pgsVector.X || pgs.y != (int) qisave.pgsVector.Y)
+                        if (pgs.X != (int) qisave.pgsVector.X || pgs.Y != (int) qisave.pgsVector.Y)
                             continue;
 
                         pgs.QItem = qi;
