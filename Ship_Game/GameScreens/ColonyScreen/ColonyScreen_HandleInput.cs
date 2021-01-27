@@ -113,13 +113,13 @@ namespace Ship_Game
                         DetailInfo = pgs;
                         var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
                             pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                        if (pgs.building != null && bRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
+                        if (pgs.Building != null && bRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
                         {
-                            if (pgs.building.Scrappable)
+                            if (pgs.Building.Scrappable)
                             {
-                                ToScrap = pgs.building;
+                                ToScrap = pgs.Building;
                                 string message = string.Concat("Do you wish to scrap ",
-                                    Localizer.Token(pgs.building.NameTranslationIndex),
+                                    Localizer.Token(pgs.Building.NameTranslationIndex),
                                     "? Half of the building's construction cost will be recovered to your storage.");
                                 var messageBox = new MessageBoxScreen(Empire.Universe, message);
                                 messageBox.Accepted = ScrapAccepted;

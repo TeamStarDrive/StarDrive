@@ -49,22 +49,22 @@ namespace Ship_Game
             string description = Fonts.Verdana10.ParseText(_outcome.DescriptionText, _blackRect.Width - 40);			
             theirTextPos = DrawString(Fonts.Verdana10, description, theirTextPos, Color.White);
 
-            if (_outcome.SelectRandomPlanet && _outcome.GetPlanet() != null)
+            if (_outcome.SelectRandomPlanet && _outcome.SelectedPlanet != null)
             {
-                theirTextPos = DrawString(Fonts.Arial12Bold, "Relevant Planet: "+_outcome.GetPlanet().Name, theirTextPos, Color.LightGreen);				
+                theirTextPos = DrawString(Fonts.Arial12Bold, "Relevant Planet: "+_outcome.SelectedPlanet.Name, theirTextPos, Color.LightGreen);				
             }
-            if (_outcome.GetArtifact() != null)
+            if (_outcome.GrantedArtifact != null)
             {
                 //theirTextPos.Y = theirTextPos.Y + Fonts.Arial12Bold.LineSpacing ;
-                string theirText = "Artifact Granted: "+_outcome.GetArtifact().Name;
+                string theirText = "Artifact Granted: "+_outcome.GrantedArtifact.Name;
                 theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.LightGreen);
                 
                 Rectangle icon = new Rectangle((int)theirTextPos.X, (int)theirTextPos.Y, 64, 64);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Artifact Icons/"+_outcome.GetArtifact().Name), icon, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Artifact Icons/"+_outcome.GrantedArtifact.Name), icon, Color.White);
                 theirTextPos.Y += icon.Height;
                 
                 //theirTextPos.Y = theirTextPos.Y + 36f;			    
-                theirText = Fonts.Arial12.ParseText(_outcome.GetArtifact().Description, _blackRect.Width - 40);
+                theirText = Fonts.Arial12.ParseText(_outcome.GrantedArtifact.Description, _blackRect.Width - 40);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, theirText, theirTextPos, Color.White);
                 theirTextPos.Y = theirTextPos.Y + Fonts.Arial12.MeasureString(theirText).Y;
 

@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
-using Ship_Game.AI.StrategyAI.WarGoals;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -169,17 +163,17 @@ namespace Ship_Game
                     p.AddTroop(t, pgs);
                 }
 
-                if (pgs.building == null || pgs.CrashSite.Active)
+                if (pgs.Building == null || pgs.CrashSite.Active)
                     continue;
 
-                if (!ResourceManager.GetBuilding(pgs.building.Name, out Building template))
+                if (!ResourceManager.GetBuilding(pgs.Building.Name, out Building template))
                     continue; // this can happen if savegame contains a building which no longer exists in game files
 
-                pgs.building.AssignBuildingId(template.BID);
-                pgs.building.Scrappable = template.Scrappable;
-                pgs.building.CalcMilitaryStrength();
-                p.BuildingList.Add(pgs.building);
-                p.AddBuildingsFertility(pgs.building.MaxFertilityOnBuild);
+                pgs.Building.AssignBuildingId(template.BID);
+                pgs.Building.Scrappable = template.Scrappable;
+                pgs.Building.CalcMilitaryStrength();
+                p.BuildingList.Add(pgs.Building);
+                p.AddBuildingsFertility(pgs.Building.MaxFertilityOnBuild);
             }
             return p;
         }

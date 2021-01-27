@@ -57,7 +57,7 @@ namespace UnitTests.Planets
             capitalTile = null;
             foreach (PlanetGridSquare tile in P.TilesList)
             {
-                if (tile.BuildingOnTile && tile.building.IsCapital)
+                if (tile.BuildingOnTile && tile.Building.IsCapital)
                 {
                     capitalTile = tile;
                     break;
