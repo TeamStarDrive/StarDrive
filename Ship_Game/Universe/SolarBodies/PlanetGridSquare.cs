@@ -318,11 +318,12 @@ namespace Ship_Game
                 building      = building,
                 TroopsHere    = TroopsHere,
                 Terraformable = Terraformable,
-                CrashSiteActive    = CrashSite.Active,
-                CrashSiteShipName  = CrashSite.ShipName,
-                CrashSiteTroopName = CrashSite.TroopName,
-                CrashSiteTroops    = CrashSite.NumTroopsSurvived,
-                CrashSiteEmpireId  = CrashSite.Loyalty?.Id ?? -1
+                CrashSiteActive      = CrashSite.Active,
+                CrashSiteShipName    = CrashSite.ShipName,
+                CrashSiteTroopName   = CrashSite.TroopName,
+                CrashSiteTroops      = CrashSite.NumTroopsSurvived,
+                CrashSiteEmpireId    = CrashSite.Loyalty?.Id ?? -1,
+                CrashSiteRecoverShip = CrashSite.RecoverShip
             };
         }
     }

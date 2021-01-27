@@ -682,6 +682,7 @@ namespace Ship_Game
             [Serialize(9)] public string CrashSiteShipName;
             [Serialize(10)] public string CrashSiteTroopName;
             [Serialize(11)] public int CrashSiteEmpireId;
+            [Serialize(12)] public bool CrashSiteRecoverShip;
         }
 
         public class PlanetSaveData
