@@ -195,7 +195,7 @@ namespace Ship_Game
         public void FaceEnemy(PlanetGridSquare targetTile, PlanetGridSquare ourTile)
         {
             if (targetTile != ourTile)
-                facingRight = targetTile.x >= ourTile.x;
+                facingRight = targetTile.X >= ourTile.X;
             else // troops are on the same tile
                 facingRight = ClickRect.X < ourTile.ClickRect.X + ClickRect.Width / 2;
         }
@@ -502,7 +502,7 @@ namespace Ship_Game
         {
             planet.AddTroop(this, tile);
             RemoveTroopFromHostShip();
-            facingRight = tile.x < planet.TileMaxX / 2;
+            facingRight = tile.X < planet.TileMaxX / 2;
             if (resetMove)
             {
                 UpdateMoveActions(-1);
@@ -588,10 +588,10 @@ namespace Ship_Game
 
             public Ping(PlanetGridSquare tile, Planet planet, int pingSize)
             {
-                Left   = (tile.x - pingSize).LowerBound(0);
-                Right  = (tile.x + pingSize).UpperBound(planet.TileMaxX - 1);
-                Top    = (tile.y - pingSize).LowerBound(0);
-                Bottom = (tile.y + pingSize).UpperBound(planet.TileMaxY - 1);
+                Left   = (tile.X - pingSize).LowerBound(0);
+                Right  = (tile.X + pingSize).UpperBound(planet.TileMaxX - 1);
+                Top    = (tile.Y - pingSize).LowerBound(0);
+                Bottom = (tile.Y + pingSize).UpperBound(planet.TileMaxY - 1);
                 Width  = planet.TileMaxY;
             }
         }
