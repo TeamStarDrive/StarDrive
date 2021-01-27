@@ -716,7 +716,7 @@ namespace Ship_Game
 
         public void GenerateRemnantPresence(Planet p)
         {
-            if (p.ParentSystem.isStartingSystem || p.ParentSystem.PiratePresence)
+            if (p.ParentSystem.IsStartingSystem || p.ParentSystem.PiratePresence)
                 return; // Don't create Remnants on starting systems or Pirate systems
 
             float quality   = PlanetQuality(p);

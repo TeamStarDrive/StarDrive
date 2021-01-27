@@ -75,7 +75,9 @@ namespace Ship_Game
         Outcome[] FilteredPotentialOutcomes(Planet p)
         {
             // do not include hostile ship spawns in systems with a capital, these just mess up the game.
-            return p.ParentSystem.PlanetList.Any(planet => planet.Habitable && planet.HasCapital)
+            // starting system is for checking at game creation and the planet list capital for mid game.
+            // since IsStartingSystem value is not saved.
+            return p.ParentSystem.IsStartingSystem || p.ParentSystem.PlanetList.Any(planet => planet.Habitable && planet.HasCapital)
                      ? PotentialOutcomes.Filter(o => o.PirateShipsToSpawn.Count == 0 && o.RemnantShipsToSpawn.Count == 0)
                      : PotentialOutcomes.ToArray();
         }
