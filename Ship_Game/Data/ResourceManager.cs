@@ -1244,14 +1244,11 @@ namespace Ship_Game
                 if (data.IsCommandModule && data.TargetTracking == 0)  data.TargetTracking = (sbyte) (int)(data.XSIZE * data.YSIZE * 1.25f );
                 if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
 
-
-                {
-                    data.DisableRotation = data.DisableRotation || data.XSIZE == data.YSIZE
-                        || (data.WeaponType.NotEmpty() && data.ModuleType == ShipModuleType.Turret);
-                }
+                data.DisableRotation = data.DisableRotation 
+                                       || data.XSIZE == data.YSIZE 
+                                       || (data.WeaponType.NotEmpty() && data.ModuleType == ShipModuleType.Turret);
 
                 ModuleTemplates[data.UID] = ShipModule.CreateTemplate(data);
-
             }
 
             //Log.Info("Num ShipModuleFlyweight: {0}", ShipModuleFlyweight.TotalNumModules);
