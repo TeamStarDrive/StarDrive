@@ -5,76 +5,51 @@ namespace Ship_Game
 {
     public sealed class Outcome
     {
-        private Planet _selectedPlanet;
-
+        private Planet SelectedPlanet; 
         public bool BeginArmageddon;
-
         public int Chance;
-
-        private Artifact _grantedArtifact;
-
+        private Artifact GrantedArtifact;
         public Array<string> TroopsToSpawn;
-
         public Array<string> FriendlyShipsToSpawn;
         public Array<string> PirateShipsToSpawn;
         public Array<string> RemnantShipsToSpawn;
-
         public bool UnlockSecretBranch;
-
         public string SecretTechDiscovered;
-
         public string TitleText;
-
         public string UnlockTech;
-
         public bool WeHadIt;
-
         public bool GrantArtifact;
-
-        public bool RemoveTrigger;
-
+        public bool RemoveTrigger = true;
         public string ReplaceWith = "";
-
         public string DescriptionText;
-
         public int MoneyGranted;
-
         public Array<string> TroopsGranted;
-
         public float FoodProductionBonus;
-
         public float IndustryBonus;
-
         public float ScienceBonus;
-
         public bool SelectRandomPlanet;
-
         public string SpawnBuildingOnPlanet;
-
-        public string SpawnFleetInOrbitOfPlanet;
-
         public bool OnlyTriggerOnce;
-
         public bool AlreadyTriggered;
 
         public Artifact GetArtifact()
         {
-            return _grantedArtifact;
+            return GrantedArtifact;
         }
 
         public Planet GetPlanet()
         {
-            return _selectedPlanet;
+            return SelectedPlanet;
         }
 
         public void SetArtifact(Artifact art)
         {
-            _grantedArtifact = art;
+            GrantedArtifact = art;
         }
 
         public void SetPlanet(Planet p)
         {
-            _selectedPlanet = p;
+            SelectedPlanet = p;
         }
 
         private void FlatGrants(Empire triggerEmpire)
@@ -84,19 +59,19 @@ namespace Ship_Game
             triggerEmpire.data.Traits.ProductionMod += IndustryBonus;
         }
 
-        private void TechGrants(Empire triggerer)
+        private void TechGrants(Empire triggeredBy)
         {
             if (SecretTechDiscovered != null)
             {
-                triggerer.SetEmpireTechDiscovered(SecretTechDiscovered);
+                triggeredBy.SetEmpireTechDiscovered(SecretTechDiscovered);
             }
             if (UnlockTech != null)
             {
-                TechEntry tech = triggerer.GetTechEntry(UnlockTech);
+                TechEntry tech = triggeredBy.GetTechEntry(UnlockTech);
                 if (!tech.Unlocked)
                 {
-                    //triggerer.UnlockTech(tech, TechUnlockType.Event); // FB making secret tech need research instead
-                    tech.SetDiscovered(triggerer);
+                    //triggeredBy.UnlockTech(tech, TechUnlockType.Event); // FB making secret tech need research instead
+                    tech.SetDiscovered(triggeredBy);
                 }
                 else
                 {
@@ -105,11 +80,11 @@ namespace Ship_Game
             }
         }
 
-        private void ShipGrants(Empire triggerer ,Planet p)
+        private void ShipGrants(Empire triggeredBy ,Planet p)
         {
             foreach (string shipName in FriendlyShipsToSpawn)
             {
-                triggerer.Pool.ForcePoolAdd(Ship.CreateShipAt(shipName, triggerer, p, true));
+                triggeredBy.Pool.ForcePoolAdd(Ship.CreateShipAt(shipName, triggeredBy, p, true));
             }
 
             foreach (string shipName in RemnantShipsToSpawn)
@@ -133,13 +108,13 @@ namespace Ship_Game
         {
             if (RemoveTrigger)
             {
-                p.BuildingList.Remove(eventLocation.building);
-                eventLocation.building = null;
+                p.BuildingList.Remove(eventLocation.Building);
+                eventLocation.Building = null;
             }
             if (!string.IsNullOrEmpty(ReplaceWith))
             {
-                eventLocation.building = ResourceManager.CreateBuilding(ReplaceWith);
-                p.BuildingList.Add(eventLocation.building);
+                eventLocation.Building = ResourceManager.CreateBuilding(ReplaceWith);
+                p.BuildingList.Add(eventLocation.Building);
             }
         }
 
@@ -167,14 +142,14 @@ namespace Ship_Game
             return false;
         }
 
-        private void TroopActions(Empire triggerer, Planet p, PlanetGridSquare eventLocation)
+        private void TroopActions(Empire triggeredBy, Planet p, PlanetGridSquare eventLocation)
         {
             if (TroopsGranted != null)
             {
                 foreach (string troopName in TroopsGranted)
                 {
-                    Troop t = ResourceManager.CreateTroop(troopName, triggerer);
-                    t.SetOwner(triggerer);
+                    Troop t = ResourceManager.CreateTroop(troopName, triggeredBy);
+                    t.SetOwner(triggeredBy);
                     if (!t.TryLandTroop(p, eventLocation))
                         t.Launch(p);
                 }
@@ -202,12 +177,12 @@ namespace Ship_Game
             }
         }
 
-        public bool InValidOutcome(Empire triggerer)
+        public bool InValidOutcome(Empire triggeredBy)
         {
-            return OnlyTriggerOnce && AlreadyTriggered && triggerer.isPlayer;
+            return OnlyTriggerOnce && AlreadyTriggered && triggeredBy.isPlayer;
         }
 
-        public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggerer, EventPopup popup)
+        public void CheckOutComes(Planet p,  PlanetGridSquare eventLocation, Empire triggeredBy, EventPopup popup)
         {
             //artifact setup
             if (GrantArtifact)
@@ -231,27 +206,29 @@ namespace Ship_Game
                 {
                     //choose a random available artifact and process it.
                     Artifact chosenArtifact = potentials[RandomMath.InRange(potentials.Count)];
-                    triggerer.data.OwnedArtifacts.Add(chosenArtifact);
+                    triggeredBy.data.OwnedArtifacts.Add(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
                     SetArtifact(chosenArtifact);
-                    chosenArtifact.CheckGrantArtifact(triggerer, this, popup);
+                    chosenArtifact.CheckGrantArtifact(triggeredBy, this, popup);
                 }
             }
+
             //Generic grants
-            FlatGrants(triggerer);
-            TechGrants(triggerer);
-            ShipGrants(triggerer, p);
+            FlatGrants(triggeredBy);
+            TechGrants(triggeredBy);
+            ShipGrants(triggeredBy, p);
+
             //planet triggered events
             if (p != null)
             {
                 BuildingActions(p, eventLocation);
-                TroopActions(triggerer, p, eventLocation);
+                TroopActions(triggeredBy, p, eventLocation);
                 return;
             }
 
             //events that trigger on other planets
             if(!SetRandomPlanet()) return;
-            p = _selectedPlanet;
+            p = SelectedPlanet;
 
             if (eventLocation == null)
             {
@@ -259,7 +236,7 @@ namespace Ship_Game
             }
 
             BuildingActions(p, eventLocation);
-            TroopActions(triggerer, p, eventLocation);
+            TroopActions(triggeredBy, p, eventLocation);
         }
     }
 }

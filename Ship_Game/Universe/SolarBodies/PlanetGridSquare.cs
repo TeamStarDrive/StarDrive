@@ -8,29 +8,31 @@ namespace Ship_Game
     // Converted to 2 troops per tile support by Fat Bastard, Feb 28, 2020
     public sealed class PlanetGridSquare
     {
-        public int x;
-        public int y;
+        public int X;
+        public int Y;
         public bool ShowAttackHover;
         public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public bool Biosphere;
         public bool Terraformable; // This tile can be habitable if terraformed
-        public Building building;
+        public Building Building;
         public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
         public Rectangle ClickRect = new Rectangle();
+        public short EventOutcomeNum { get; private set; }
         public bool Highlighted;
         public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
         public bool TroopsAreOnTile      => TroopsHere.NotEmpty;
-        public bool NoBuildingOnTile     => building == null;
-        public bool BuildingOnTile       => building != null;
-        public bool CombatBuildingOnTile => BuildingOnTile && building.IsAttackable;
+        public bool NoBuildingOnTile     => Building == null;
+        public bool BuildingOnTile       => Building != null;
+        public bool CombatBuildingOnTile => BuildingOnTile && Building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
-        public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
-        public bool EventOnTile          => BuildingOnTile && (building.EventHere || CrashSite.Active);
+        public bool BuildingDestroyed    => BuildingOnTile && Building.Strength <= 0;
+        public bool EventOnTile          => BuildingOnTile && (Building.EventHere || CrashSite.Active);
         public bool BioCanTerraform      => Biosphere && Terraformable;
         public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
-        public bool CanCrashHere         => NoBuildingOnTile || !CrashSite.Active || BuildingOnTile && !building.IsCapital;
+        public bool CanCrashHere         => NoBuildingOnTile || !CrashSite.Active || BuildingOnTile && !Building.IsCapital;
+
 
         public DynamicCrashSite CrashSite = new DynamicCrashSite(false);
 
@@ -116,10 +118,10 @@ namespace Ship_Game
 
         public PlanetGridSquare(int x, int y, Building b, bool hab, bool terraformable)
         {
-            this.x        = x;
-            this.y        = y;
+            this.X        = x;
+            this.Y        = y;
             Habitable     = hab;
-            building      = b;
+            Building      = b;
             Terraformable = terraformable;
         }
 
@@ -154,7 +156,7 @@ namespace Ship_Game
                 Biosphere = true;
             }
             else
-                building = b;
+                Building = b;
 
             QItem = null;
             b.OnBuildingBuiltAt(p);
@@ -186,20 +188,20 @@ namespace Ship_Game
             {
                 if (troop.Loyalty != planetOwner) // hostile building
                 {
-                    score += building.CanAttack ? -1 : 1;
-                    if (building.Strength > troop.Strength)
+                    score += Building.CanAttack ? -1 : 1;
+                    if (Building.Strength > troop.Strength)
                         score -= 1; // Stay away from stronger buildings
 
-                    if (building.PlanetaryShieldStrengthAdded > 0)
+                    if (Building.PlanetaryShieldStrengthAdded > 0)
                         score += 2; // Land near shields to destroy them
 
-                    if (building.InvadeInjurePoints > 0)
+                    if (Building.InvadeInjurePoints > 0)
                         score += 2; // Land near AA anti troop defense to destroy it
                 }
                 else // friendly building
                 {
-                    score += building.CanAttack ? 3 : 2;
-                    if (building.Strength < troop.Strength)
+                    score += Building.CanAttack ? 3 : 2;
+                    if (Building.Strength < troop.Strength)
                         score += 1; // Defend friendly building
                 }
 
@@ -230,10 +232,10 @@ namespace Ship_Game
 
             if (t.Loyalty != planet.Owner && CombatBuildingOnTile)
             {
-                if (planet.ShieldStrengthCurrent > 0 && building.PlanetaryShieldStrengthAdded > 0)
+                if (planet.ShieldStrengthCurrent > 0 && Building.PlanetaryShieldStrengthAdded > 0)
                     return 3;
 
-                if (building.InvadeInjurePoints > 0)
+                if (Building.InvadeInjurePoints > 0)
                     return 2;
 
                 return 1;
@@ -244,13 +246,13 @@ namespace Ship_Game
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
         {
-            return Math.Abs(x - tileToCheck.x) <= range && Math.Abs(y - tileToCheck.y) <= range;
+            return Math.Abs(X - tileToCheck.X) <= range && Math.Abs(Y - tileToCheck.Y) <= range;
         }
 
         public void DirectionToTarget(PlanetGridSquare target, out int xDiff, out int yDiff)
         {
-            xDiff = (target.x - x).Clamped(-1, 1);
-            yDiff = (target.y - y).Clamped(-1, 1);
+            xDiff = (target.X - X).Clamped(-1, 1);
+            yDiff = (target.Y - Y).Clamped(-1, 1);
         }
 
         public void CheckAndTriggerEvent(Planet planet, Empire empire)
@@ -264,16 +266,27 @@ namespace Ship_Game
                 }
                 else
                 {
-                    ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
+                    ResourceManager.Event(Building.EventTriggerUID).TriggerPlanetEvent(planet, EventOutcomeNum , empire, this, Empire.Universe);
                 }
             }
+        }
+
+        public bool SetEventOutComeNum(Planet p, Building b)
+        {
+            EventOutcomeNum = ResourceManager.Event(b.EventTriggerUID).SetOutcomeNum(p);
+            return EventOutcomeNum != 0;
+        }
+
+        public void SetEventOutcomeNumFromSave(short value)
+        {
+            EventOutcomeNum = value;
         }
 
         public TileDirection GetDirectionTo(PlanetGridSquare target)
         {
 
-            int xDiff = (target.x - x).Clamped(-1, 1);
-            int yDiff = (target.y - y).Clamped(-1, 1);
+            int xDiff = (target.X - X).Clamped(-1, 1);
+            int yDiff = (target.Y - Y).Clamped(-1, 1);
             switch (xDiff)
             {
                 case 0  when yDiff == -1: return TileDirection.North;
@@ -284,7 +297,7 @@ namespace Ship_Game
                 case -1 when yDiff == -1: return TileDirection.NorthWest;
                 case 1  when yDiff ==  1: return TileDirection.SouthEast;
                 case -1 when yDiff ==  1: return TileDirection.SouthWest;
-                default: return TileDirection.None;
+                default:                  return TileDirection.None;
             }
         }
 
@@ -293,16 +306,16 @@ namespace Ship_Game
             Point p;
             switch (d)
             {
-                case TileDirection.North:     p.X = x;     p.Y = y - 1; break;
-                case TileDirection.South:     p.X = x;     p.Y = y + 1; break;
-                case TileDirection.East:      p.X = x + 1; p.Y = y;     break;
-                case TileDirection.West:      p.X = x - 1; p.Y = y;     break;
-                case TileDirection.NorthEast: p.X = x + 1; p.Y = y - 1; break;
-                case TileDirection.NorthWest: p.X = x - 1; p.Y = y - 1; break;
-                case TileDirection.SouthEast: p.X = x + 1; p.Y = y + 1; break;
-                case TileDirection.SouthWest: p.X = x - 1; p.Y = y + 1; break;
+                case TileDirection.North:     p.X = X;     p.Y = Y - 1; break;
+                case TileDirection.South:     p.X = X;     p.Y = Y + 1; break;
+                case TileDirection.East:      p.X = X + 1; p.Y = Y;     break;
+                case TileDirection.West:      p.X = X - 1; p.Y = Y;     break;
+                case TileDirection.NorthEast: p.X = X + 1; p.Y = Y - 1; break;
+                case TileDirection.NorthWest: p.X = X - 1; p.Y = Y - 1; break;
+                case TileDirection.SouthEast: p.X = X + 1; p.Y = Y + 1; break;
+                case TileDirection.SouthWest: p.X = X - 1; p.Y = Y + 1; break;
                 case TileDirection.None:
-                default:                        p.X = x;     p.Y = y;     break;
+                default:                        p.X = X;     p.Y = Y;     break;
             }
             return p;
         }
@@ -311,18 +324,20 @@ namespace Ship_Game
         {
             return new SavedGame.PGSData
             {
-                x             = x,
-                y             = y,
+                x = X,
+                y = Y,
                 Habitable     = Habitable,
                 Biosphere     = Biosphere,
-                building      = building,
+                building      = Building,
                 TroopsHere    = TroopsHere,
                 Terraformable = Terraformable,
-                CrashSiteActive    = CrashSite.Active,
-                CrashSiteShipName  = CrashSite.ShipName,
-                CrashSiteTroopName = CrashSite.TroopName,
-                CrashSiteTroops    = CrashSite.NumTroopsSurvived,
-                CrashSiteEmpireId  = CrashSite.Loyalty?.Id ?? -1
+                EventOutcomeNum      = EventOutcomeNum,
+                CrashSiteActive      = CrashSite.Active,
+                CrashSiteShipName    = CrashSite.ShipName,
+                CrashSiteTroopName   = CrashSite.TroopName,
+                CrashSiteTroops      = CrashSite.NumTroopsSurvived,
+                CrashSiteEmpireId    = CrashSite.Loyalty?.Id ?? -1,
+                CrashSiteRecoverShip = CrashSite.RecoverShip
             };
         }
     }

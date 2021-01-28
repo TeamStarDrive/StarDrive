@@ -83,7 +83,7 @@ namespace Ship_Game
             int ySize = GridPos.Height / 5;
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
-                pgs.ClickRect = new Rectangle(GridPos.X + pgs.x * xSize, GridPos.Y + pgs.y * ySize, xSize, ySize);
+                pgs.ClickRect = new Rectangle(GridPos.X + pgs.X * xSize, GridPos.Y + pgs.Y * ySize, xSize, ySize);
                 using (pgs.TroopsHere.AcquireReadLock())
                 {
                     foreach (var troop in pgs.TroopsHere)
@@ -132,7 +132,7 @@ namespace Ship_Game
             {
                 foreach (PointSet ps in CenterPoints)
                 {
-                    if (pgs.x == ps.column && pgs.y == ps.row)
+                    if (pgs.X == ps.column && pgs.Y == ps.row)
                         pgs.ClickRect = new Rectangle((int) ps.point.X - 32, (int) ps.point.Y - 32, 64, 64);
                 }
             }
@@ -171,8 +171,8 @@ namespace Ship_Game
                     if (tile == ActiveTile)
                         continue;
 
-                    int xTotalDistance = Math.Abs(ActiveTile.x - tile.x);
-                    int yTotalDistance = Math.Abs(ActiveTile.y - tile.y);
+                    int xTotalDistance = Math.Abs(ActiveTile.X - tile.X);
+                    int yTotalDistance = Math.Abs(ActiveTile.Y - tile.Y);
                     int rangeToTile    = Math.Max(xTotalDistance, yTotalDistance);
                     if (rangeToTile <= range && tile.IsTileFree(EmpireManager.Player))
                     {
@@ -193,8 +193,8 @@ namespace Ship_Game
 
             foreach (PlanetGridSquare pgs in ReversedList)
             {
-                if ((pgs.building == null && pgs.TroopsHere.Count == 0) ||
-                    (pgs.building != null && pgs.building.CombatStrength == 0 && pgs.TroopsHere.Count == 0))
+                if ((pgs.Building == null && pgs.TroopsHere.Count == 0) ||
+                    (pgs.Building != null && pgs.Building.CombatStrength == 0 && pgs.TroopsHere.Count == 0))
                 {
                     Vector2 center = pgs.ClickRect.Center();
                     DrawCircle(center, 8f, Color.White, 4f);
@@ -224,7 +224,7 @@ namespace Ship_Game
                 if (pgs.BuildingOnTile)
                 {
                     var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{pgs.building.Icon}_64x64"), bRect, Color.White);
+                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{pgs.Building.Icon}_64x64"), bRect, Color.White);
                 }
             }
             foreach (PlanetGridSquare pgs in ReversedList)
@@ -258,7 +258,7 @@ namespace Ship_Game
         void DrawCombatInfo(PlanetGridSquare pgs)
         {
             if ((ActiveTile == null || ActiveTile != pgs) &&
-                (pgs.building == null || pgs.building.CombatStrength <= 0 || ActiveTile == null ||
+                (pgs.Building == null || pgs.Building.CombatStrength <= 0 || ActiveTile == null ||
                  ActiveTile != pgs))
                 return;
 
@@ -276,7 +276,7 @@ namespace Ship_Game
         {
             SpriteBatch batch = ScreenManager.SpriteBatch;
 
-            int width = (pgs.y * 15 + 64).UpperBound(128);
+            int width = (pgs.Y * 15 + 64).UpperBound(128);
             if (pgs.CombatBuildingOnTile)
                 width = 64;
 
@@ -362,16 +362,16 @@ namespace Ship_Game
                     var strengthRect = new Rectangle(bRect.X + bRect.Width + 2, bRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                     batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
                     batch.DrawRectangle(strengthRect, P.Owner?.EmpireColor ?? Color.Gray);
-                    var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.Strength.ToString()).X / 2f,
+                    var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.Building.Strength.ToString()).X / 2f,
                                              (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                    batch.DrawString(Fonts.Arial12, pgs.building.Strength.ToString(), cursor, Color.White);
+                    batch.DrawString(Fonts.Arial12, pgs.Building.Strength.ToString(), cursor, Color.White);
                 }
                 else
                 {
                     var attackRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width + 2, pgs.ClickRect.Y + 23, 12, 12);
-                    if (pgs.building.AvailableAttackActions <= 0)
+                    if (pgs.Building.AvailableAttackActions <= 0)
                     {
-                        int num = (int)pgs.building.AttackTimer + 1;
+                        int num = (int)pgs.Building.AttackTimer + 1;
                         batch.DrawString(Fonts.Arial12, num.ToString(), new Vector2((attackRect.X + 4), attackRect.Y), Color.White);
                     }
                     else
@@ -381,12 +381,12 @@ namespace Ship_Game
                     var strengthRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width + 2, pgs.ClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                     batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
                     batch.DrawRectangle(strengthRect, P.Owner?.EmpireColor ?? Color.LightGray);
-                    var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.CombatStrength.ToString()).X / 2f,
+                    var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.Building.CombatStrength.ToString()).X / 2f,
                                              (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
-                    batch.DrawString(Fonts.Arial12, pgs.building.CombatStrength.ToString(), cursor, Color.White);
+                    batch.DrawString(Fonts.Arial12, pgs.Building.CombatStrength.ToString(), cursor, Color.White);
                 }
 
-                if (ActiveTile != null && ActiveTile == pgs && ActiveTile.building.CanAttack)
+                if (ActiveTile != null && ActiveTile == pgs && ActiveTile.Building.CanAttack)
                 {
                     foreach (PlanetGridSquare attackTile in AttackTiles)
                     {
@@ -585,7 +585,7 @@ namespace Ship_Game
             HoveredSquare = null;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (pgs.ClickRect.HitTest(input.CursorPosition) && (pgs.TroopsHere.Count != 0 || pgs.building != null))
+                if (pgs.ClickRect.HitTest(input.CursorPosition) && (pgs.TroopsHere.Count != 0 || pgs.Building != null))
                     HoveredSquare = pgs;
             }
 
@@ -662,12 +662,12 @@ namespace Ship_Game
                 if (Input.LeftMouseClick && pgs.ClickRect.HitTest(Input.CursorPosition))
                 {
                     if (ActiveTile.CombatBuildingOnTile 
-                        && ActiveTile.building.CanAttack  // Attacking building
+                        && ActiveTile.Building.CanAttack  // Attacking building
                         && pgs.LockOnEnemyTroop(EmpireManager.Player, out Troop enemy))
                     {
-                        ActiveTile.building.UpdateAttackActions(-1);
-                        ActiveTile.building.ResetAttackTimer();
-                        StartCombat(ActiveTile.building, enemy, pgs, P);
+                        ActiveTile.Building.UpdateAttackActions(-1);
+                        ActiveTile.Building.ResetAttackTimer();
+                        StartCombat(ActiveTile.Building, enemy, pgs, P);
                     }
                     else if (ActiveTile.LockOnPlayerTroop(out Troop ourTroop)) // Attacking troops
                     {
@@ -675,7 +675,7 @@ namespace Ship_Game
                         {
                             if (pgs.CombatBuildingOnTile) // Defending building
                             {
-                                StartCombat(ourTroop, pgs.building, pgs, P);
+                                StartCombat(ourTroop, pgs.Building, pgs, P);
                                 capturedInput = true;
                             }
                             else if (pgs.LockOnEnemyTroop(EmpireManager.Player, out Troop enemyTroop))
@@ -691,7 +691,7 @@ namespace Ship_Game
 
                         if (MovementTiles.Contains(pgs))
                         {
-                            ourTroop.facingRight = pgs.x > ActiveTile.x;
+                            ourTroop.facingRight = pgs.X > ActiveTile.X;
                             pgs.AddTroop(ourTroop);
                             ourTroop.UpdateMoveActions(-1);
                             ourTroop.ResetMoveTimer();
