@@ -142,7 +142,7 @@ namespace Ship_Game
 
             foreach (PlanetGridSquare tile in SelectedPlanet.TilesList)
             {
-                var rect = new Rectangle(buildingsRect.X + tile.x * xSize, buildingsRect.Y + tile.y * ySize, xSize, ySize);
+                var rect = new Rectangle(buildingsRect.X + tile.X * xSize, buildingsRect.Y + tile.Y * ySize, xSize, ySize);
 
                 if (!tile.Habitable)
                 {
@@ -150,10 +150,10 @@ namespace Ship_Game
                 }
                 batch.DrawRectangle(rect, new Color(211, 211, 211, 100), 0.5f);
 
-                if (tile.building != null)
+                if (tile.Building != null)
                 {
                     Color c = tile.QItem != null ? White : new Color(White, 128);
-                    batch.Draw(tile.building.IconTex, rect.Center() - new Vector2(18), new Vector2(36), c);
+                    batch.Draw(tile.Building.IconTex, rect.Center() - new Vector2(18), new Vector2(36), c);
                 }
 
                 DrawTileIcons(tile, rect);

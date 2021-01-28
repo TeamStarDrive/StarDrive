@@ -255,10 +255,10 @@ namespace Ship_Game.Ships
                 module.DebugDamage(percent);
         }
 
-        public void DamageByRecoveredFromCrash()
+        public void DamageByRecoveredFromCrash(float modifier)
         {
             foreach (ShipModule module in ModuleSlotList)
-                module.DamageByRecoveredFromCrash();
+                module.DamageByRecoveredFromCrash(modifier);
 
             Carrier.ResetAllHangarTimers();
             KillAllTroops();

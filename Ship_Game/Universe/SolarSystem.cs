@@ -60,7 +60,7 @@ namespace Ship_Game
         public Array<string> ShipsToSpawn = new Array<string>();
         public Array<FleetAndPos> FleetsToSpawn = new Array<FleetAndPos>();
         public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
-        public bool isStartingSystem;
+        public bool IsStartingSystem;
         public Array<string> DefensiveFleets = new Array<string>();
         [XmlIgnore][JsonIgnore] bool WasVisibleLastFrame;
 
@@ -402,7 +402,7 @@ namespace Ship_Game
 
         public void GenerateStartingSystem(string name, float systemScale, Empire owner)
         {
-            isStartingSystem = true;
+            IsStartingSystem = true;
             GenerateRandomSystem(name, systemScale, owner);
         }
 
@@ -418,7 +418,7 @@ namespace Ship_Game
             }
 
             if (owner != null)
-                isStartingSystem = true;
+                IsStartingSystem = true;
 
             for (int i = 0; i < numberOfRings; i++)
             {

@@ -89,7 +89,7 @@ namespace Ship_Game
                     PerformTroopsGroundActions(tile);
 
                 else if (tile.BuildingOnTile)
-                    PerformGroundActions(tile.building, tile);
+                    PerformGroundActions(tile.Building, tile);
             }
         }
 
@@ -138,7 +138,7 @@ namespace Ship_Game
                 if (targetTile.CombatBuildingOnTile)
                 {
                     t.UpdateMoveActions(-1);
-                    CombatScreen.StartCombat(t, targetTile.building, targetTile, Ground);
+                    CombatScreen.StartCombat(t, targetTile.Building, targetTile, Ground);
                 }
                 else if (targetTile.LockOnEnemyTroop(t.Loyalty, out Troop enemy))
                 {
@@ -244,7 +244,7 @@ namespace Ship_Game
             {
                 var tiles = TilesList.Filter(t => t.InRangeOf(spotterTile, range));
                 foreach (PlanetGridSquare scannedTile in tiles.OrderBy(tile =>
-                    Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
+                    Math.Abs(tile.X - spotterTile.X) + Math.Abs(tile.Y - spotterTile.Y)))
                 {
                     bool hostilesOnTile = spotterTile.CombatBuildingOnTile
                                           ? scannedTile.HostilesTargetsOnTileToBuilding(spotterOwner, Owner, Ground.SpaceCombatNearPlanet)
