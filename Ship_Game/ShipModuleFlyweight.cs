@@ -110,11 +110,11 @@ namespace Ship_Game.Gameplay
         public readonly float DamageThreshold;
         public readonly int APResist;
         public readonly bool IndirectPower;
-        public readonly bool isPowerArmour;
-        public readonly bool isBulkhead;
+        public readonly bool IsPowerArmor;
+        public readonly bool IsBulkhead;
         public readonly int TargetTracking;
         public readonly int TargetAccuracy;
-        public readonly bool IsRotable;
+        public readonly bool DisableRotation;
         public readonly float AmplifyShields;
         public readonly int ExplosionDamage;
         public readonly int ExplosionRadius;
@@ -235,12 +235,12 @@ namespace Ship_Game.Gameplay
             Regenerate                  = s.Regenerate;
             ShieldBubbleColor           = s.ShieldBubbleColor;
             IndirectPower               = s.IndirectPower;
-            isPowerArmour               = s.isPowerArmour;
-            isBulkhead                  = s.isBulkhead;
+            IsPowerArmor                = s.IsPowerArmor;
+            IsBulkhead                  = s.IsBulkhead;
             TargetTracking              = s.TargetTracking;
             TargetAccuracy              = s.TargetAccuracy;
-            IsRotable                   = s.IsRotable == true;
-            UID                         = s.UID;    
+            DisableRotation             = s.DisableRotation;
+            UID                         = s.UID;
         }
     }
 
@@ -381,12 +381,12 @@ namespace Ship_Game.Gameplay
         public float DamageThreshold;
         public int APResist;
         public bool IndirectPower;
-        public bool isPowerArmour;
-        public bool isBulkhead;
+        public bool IsPowerArmor;
+        public bool IsBulkhead;
         public int quadrant = -1;
         public int TargetTracking;
         public int TargetAccuracy;
-        public bool? IsRotable = null;
+        public bool DisableRotation;
         public int ExplosionRadius;
         public int ExplosionDamage;
         public float RepairDifficulty = 1;

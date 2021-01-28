@@ -59,7 +59,7 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial8Bold, size, tCursor, Color.Gray);
             tCursor.X += Fonts.Arial8Bold.MeasureString(size).X;
 
-            if (mod.IsRotatable)
+            if (!mod.DisableRotation)
             {
                 var rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
                 batch.Draw(ResourceManager.Texture("UI/icon_can_rotate"), rotateRect, Color.White);
