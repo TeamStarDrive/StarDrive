@@ -8889,17 +8889,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>6161</Index>
       <Text>AP Res</Text>
     </Token>
-  <Token>
-      <Index>6172</Index>
-      <Text>Power Armour</Text>
-    </Token>
-  <Token>
-      <Index>6173</Index>
-      <Text>Bulkhead</Text>
-    </Token>
-  
   <!-- Shield Resists UI -->
-  
   <Token>
       <Index>6162</Index>
       <Text>Kinetic SR</Text>
@@ -8942,7 +8932,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>6172</Index>
-      <Text>Power Armour</Text>
+      <Text>Power Armor</Text>
     </Token>
   <Token>
       <Index>6173</Index>
@@ -9281,7 +9271,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
   
   <Token>
       <Index>7065</Index>
-      <Text>Indicates resistance to Armour Piercing effects - each point of AP resistance negates 1 point of Armour Piercing on enemy projectiles.</Text>
+      <Text>Indicates resistance to Armor Piercing effects - each point of AP resistance negates 1 point of Armor Piercing on enemy projectiles.</Text>
     </Token>
 
   

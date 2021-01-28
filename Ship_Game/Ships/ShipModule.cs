@@ -170,8 +170,8 @@ namespace Ship_Game.Ships
         public float DamageThreshold             => Flyweight.DamageThreshold;
         public int APResist                      => Flyweight.APResist;
         public bool AlwaysPowered                => Flyweight.IndirectPower;
-        public bool isPowerArmour                => Flyweight.isPowerArmour;
-        public bool isBulkhead                   => Flyweight.isBulkhead;
+        public bool IsPowerArmor                 => Flyweight.IsPowerArmor;
+        public bool IsBulkhead                   => Flyweight.IsBulkhead;
         public int TargetTracking                => Flyweight.TargetTracking;
         public int TargetingAccuracy             => Flyweight.TargetAccuracy;
         public int ExplosionDamage               => Flyweight.ExplosionDamage;
@@ -179,7 +179,7 @@ namespace Ship_Game.Ships
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
         public string ShieldBubbleColor          => Flyweight.ShieldBubbleColor;
         public float Regenerate                  => Flyweight.Regenerate; // Self regenerating modules
-        public bool IsRotatable                  => Flyweight.IsRotable;
+        public bool DisableRotation              => Flyweight.DisableRotation;
         public float AmplifyShields              => Flyweight.AmplifyShields;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret

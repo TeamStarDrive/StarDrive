@@ -182,17 +182,17 @@ namespace Ship_Game
                 ShipModuleType type = m.ModuleType;
                 if (type == ShipModuleType.Shield ||
                     type == ShipModuleType.Countermeasure ||
-                    (type == ShipModuleType.Armor && !m.isBulkhead && !m.isPowerArmour))
+                    (type == ShipModuleType.Armor && !m.IsBulkhead && !m.IsPowerArmor))
                 {
                     AddCategoryItem((int)type, type.ToString(), m);
                 }
                 // These need special booleans as they are ModuleType ARMOR - and the armor ModuleType
                 // is needed for vsArmor damage calculations - don't want to use new moduletype therefore.
-                else if (m.isPowerArmour && type == ShipModuleType.Armor)
+                else if (m.IsPowerArmor && type == ShipModuleType.Armor)
                 {
                     AddCategoryItem(6172, Localizer.Token(6172), m);
                 }
-                else if (m.isBulkhead && type == ShipModuleType.Armor)
+                else if (m.IsBulkhead && type == ShipModuleType.Armor)
                 {
                     AddCategoryItem(6173, Localizer.Token(6173), m);
                 }
