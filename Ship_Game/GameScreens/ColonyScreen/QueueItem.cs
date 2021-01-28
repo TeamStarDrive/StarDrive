@@ -144,7 +144,7 @@ namespace Ship_Game
             if (qi.isShip)     qi.UID = sData.Name;
             if (qi.isTroop)    qi.UID = TroopType;
             if (Goal != null) qi.GoalGUID  = Goal.guid;
-            if (pgs != null)  qi.pgsVector = new Vector2(pgs.x, pgs.y);
+            if (pgs != null)  qi.pgsVector = new Vector2(pgs.X, pgs.Y);
             return qi;
         }
     }

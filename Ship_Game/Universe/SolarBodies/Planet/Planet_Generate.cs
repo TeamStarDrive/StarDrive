@@ -347,9 +347,9 @@ namespace Ship_Game
         {
             foreach (PlanetGridSquare tile in TilesList)
             {
-                if (tile.building?.PlusTerraformPoints > 0)
+                if (tile.Building?.PlusTerraformPoints > 0)
                 {
-                    ScrapBuilding(tile.building);
+                    ScrapBuilding(tile.Building);
                     if (removeOne)
                         return;
                 }

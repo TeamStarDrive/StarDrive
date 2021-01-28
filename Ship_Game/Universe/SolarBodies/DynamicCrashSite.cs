@@ -5,11 +5,12 @@ namespace Ship_Game.Universe.SolarBodies
 {
     public struct DynamicCrashSite // Created by Fat Bastard, Nov 2020
     {
-        public Empire Loyalty;
-        public string ShipName;
-        public int NumTroopsSurvived;
-        public bool Active;
-        public string TroopName;
+        public Empire Loyalty { get; private set; }
+        public string ShipName { get; private set; }
+        public int NumTroopsSurvived { get; private set; }
+        public bool Active { get; private set; }
+        public string TroopName { get; private set; }
+        public bool RecoverShip { get; private set; }
 
         public DynamicCrashSite(bool active)
         {
@@ -18,6 +19,7 @@ namespace Ship_Game.Universe.SolarBodies
             ShipName          = "";
             TroopName         = "";
             NumTroopsSurvived = 0;
+            RecoverShip       = false;
         }
 
         public void CrashShip(Empire empire, string shipName, string troopName, int numTroopsSurvived,
@@ -33,7 +35,17 @@ namespace Ship_Game.Universe.SolarBodies
             NumTroopsSurvived = numTroopsSurvived;
 
             if (!fromSave)
+            {
                 NotifyPlayerAndAi(p, message);
+                RecoverShip = RecoverChance();
+            }
+        }
+
+        public void CrashShip(Empire empire, string shipName, string troopName, int numTroopsSurvived,
+            bool recoverShip, Planet p, PlanetGridSquare tile)
+        {
+            CrashShip(empire, shipName, troopName, numTroopsSurvived, p, tile, true);
+            RecoverShip = recoverShip;
         }
 
         bool TryCreateCrashSite(Planet p, PlanetGridSquare tile, out string message)
@@ -46,7 +58,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (tile.BuildingOnTile)
             {
-                message = $"{message}\n Unfortunately, it crashed on the {tile.building.TranslatedName.Text}.";
+                message = $"{message}\n Unfortunately, it crashed on the {tile.Building.TranslatedName.Text}.";
                 p.DestroyBuildingOn(tile);
             }
 
@@ -115,17 +127,13 @@ namespace Ship_Game.Universe.SolarBodies
             if (template == null)
                 return null;
 
-            float recoverChance = CalcRecoverChance(template, activatingEmpire);
-
-            if (RandomMath.RollDice(recoverChance) 
-                && !template.IsConstructor
-                && !template.IsDefaultTroopTransport)
+            if (RecoverShip)
             {
-                string otherOwners = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
-                Ship ship          = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
-                message            = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
-
-                ship.DamageByRecoveredFromCrash();
+                string otherOwners   = owner.isPlayer ? ".\n" : $" by {owner.Name}.\n";
+                Ship ship            = Ship.CreateShipAt(ShipName, activatingEmpire, p, true);
+                message              = $"Ship ({ShipName}) was recovered from the\nsurface of {p.Name}{otherOwners}";
+                float damageModifier = activatingEmpire == Loyalty ? 0.8f : 1; // If it was our ship, spawn with less damage.
+                ship.DamageByRecoveredFromCrash(damageModifier);
                 return ship;
             }
 
@@ -194,15 +202,19 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        float CalcRecoverChance(Ship template, Empire activatingEmpire)
+        bool RecoverChance()
         {
-            float chance = 20 * (1 + activatingEmpire.data.Traits.ModHpModifier);
-            if (Loyalty == activatingEmpire)
-                chance += 5; // Familiarity with our ships
-            else if (Loyalty.WeAreRemnants)
+            Ship template = ResourceManager.GetShipTemplate(ShipName, false);
+            if (template == null)
+                return false;
+
+            float chance = 20 * (1 + Loyalty.data.Traits.ModHpModifier);
+            if (Loyalty.WeAreRemnants)
                 chance -= template.SurfaceArea / 15f; // Remnants tend to self destruct
 
-            return chance.Clamped(1, 50);
+            return RandomMath.RollDice(chance.Clamped(1, 50))
+                && !template.IsConstructor
+                && !template.IsDefaultTroopTransport;
         }
     }
 }

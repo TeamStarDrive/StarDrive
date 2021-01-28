@@ -330,12 +330,12 @@ namespace Ship_Game
         public PlanetGridSquare AssignBuildingToRandomTile(Planet planet, bool mustBeHabitableTile = false)
         {
             PlanetGridSquare[] list = mustBeHabitableTile 
-                ? planet.TilesList.Filter(pgs => pgs.building == null && pgs.Habitable) 
-                : planet.TilesList.Filter(pgs => pgs.building == null);
+                ? planet.TilesList.Filter(pgs => pgs.Building == null && pgs.Habitable) 
+                : planet.TilesList.Filter(pgs => pgs.Building == null);
             if (list.Length == 0)
                 return null;
             PlanetGridSquare target = RandomMath.RandItem(list);
-            target.building = this;
+            target.Building = this;
             return target;
         }
 

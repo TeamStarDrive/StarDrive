@@ -12,53 +12,77 @@ namespace Ship_Game
 
         public Array<Outcome> PotentialOutcomes;
 
-        public void TriggerOutcome(Empire triggerer, Outcome triggeredOutcome)
+        public void TriggerOutcome(Empire triggeredBy, Outcome triggeredOutcome)
         {
-            triggeredOutcome.CheckOutComes(null , null, triggerer,null);
+            triggeredOutcome.CheckOutComes(null , null, triggeredBy,null);
         }
 
-        public void TriggerPlanetEvent(Planet p, Empire triggeredBy, PlanetGridSquare eventLocation,
-            UniverseScreen screen)
+        public void TriggerPlanetEvent(Planet p, short outcomeNum, Empire triggeredBy,
+            PlanetGridSquare eventLocation, UniverseScreen screen)
         {
-            int random = 0;
-            // do not include hostile ship spawns in systems with a capital, these just mess up the game.
-            var potentialOutcomes = p.ParentSystem.PlanetList.Any(planet => planet.Habitable && planet.HasCapital)
-                ? PotentialOutcomes.Filter(o => o.PirateShipsToSpawn.Count == 0 && o.RemnantShipsToSpawn.Count == 0)
-                : PotentialOutcomes.ToArray();
-
-
-            foreach (Outcome outcome in potentialOutcomes)
-            {
-                if (outcome.InValidOutcome(triggeredBy)) continue;
-                random += outcome.Chance;
-            }            
-            random = RandomMath.InRange(random);
-            Outcome triggeredOutcome = null;
             int cursor = 0;
-            foreach (Outcome outcome in potentialOutcomes)
+            Outcome triggeredOutcome      = null;
+            var filteredPotentialOutcomes = FilteredPotentialOutcomes(p);
+            int sumChances                = filteredPotentialOutcomes.Sum(o => o.Chance);
+
+            // for save compatibility - can be removed in 2022 :)
+            if (outcomeNum == 0 && eventLocation.EventOnTile) 
+                outcomeNum = 1; 
+            // **************************************************
+
+            if (outcomeNum > sumChances)
             {
-                if (outcome.InValidOutcome(triggeredBy)) continue;
-                cursor = cursor + outcome.Chance;
-                if (random > cursor) continue;
-                triggeredOutcome = outcome;
-                if (triggeredBy.isPlayer) outcome.AlreadyTriggered = true;
-                break;
+                Log.Warning($"outcomeNum ({outcomeNum}) was larger than sum of all chance in tile for event {Name} on {p.Name}. Setting to 1\n" +
+                            "This can occur if an event outcome chances were changed and a save was loaded");
+                outcomeNum = 1;
             }
-            if (triggeredOutcome != null)
+
+            foreach (Outcome outcome in FilteredPotentialOutcomes(p))
             {
-                EventPopup popup = null;
-                if (triggeredBy == EmpireManager.Player)
-                    popup = new EventPopup(screen, triggeredBy, this, triggeredOutcome,false, p);
-                triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy,popup);
-                if (popup != null)
+                cursor += outcome.Chance;
+                if (outcomeNum <= cursor) 
                 {
-                    screen.ScreenManager.AddScreenDeferred(popup);
-                    GameAudio.PlaySfxAsync("sd_notify_alert");
+                    triggeredOutcome = outcome;
+                    break;
                 }
             }
+
+            if (triggeredOutcome == null) 
+                return;
+
+            EventPopup popup = null;
+            if (triggeredBy == EmpireManager.Player)
+                popup = new EventPopup(screen, triggeredBy, this, triggeredOutcome,false, p);
+
+            triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy,popup);
+            if (popup != null)
+            {
+                screen.ScreenManager.AddScreenDeferred(popup);
+                GameAudio.PlaySfxAsync("sd_notify_alert");
+            }
         }
 
-        public Outcome GetRandomOutcome()
+        public short SetOutcomeNum(Planet p)
+        {
+            var filteredPotentialOutcomes = FilteredPotentialOutcomes(p);
+            if (filteredPotentialOutcomes.Length == 0)
+                return 0;
+
+            int numTotalOutcomeChance = filteredPotentialOutcomes.Sum(o => o.Chance);
+            return (short)RandomMath.RollDie(numTotalOutcomeChance); // 1 to total chance
+        }
+
+        Outcome[] FilteredPotentialOutcomes(Planet p)
+        {
+            // do not include hostile ship spawns in systems with a capital, these just mess up the game.
+            // starting system is for checking at game creation and the planet list capital for mid game.
+            // since IsStartingSystem value is not saved.
+            return p.ParentSystem.IsStartingSystem || p.ParentSystem.PlanetList.Any(planet => planet.Habitable && planet.HasCapital)
+                     ? PotentialOutcomes.Filter(o => o.PirateShipsToSpawn.Count == 0 && o.RemnantShipsToSpawn.Count == 0)
+                     : PotentialOutcomes.ToArray();
+        }
+
+        private Outcome GetRandomOutcome()
         {
             int ranMax = PotentialOutcomes.Filter(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
                 .Sum(outcome => outcome.Chance);
@@ -81,6 +105,8 @@ namespace Ship_Game
             }
             return triggeredOutcome;
         }
+
+
         public void TriggerExplorationEvent(UniverseScreen screen)
         {
             Outcome triggeredOutcome = GetRandomOutcome();

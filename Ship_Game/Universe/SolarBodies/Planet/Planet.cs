@@ -608,9 +608,9 @@ namespace Ship_Game
         private void RemoveBuildingFromPlanet(Building b)
         {
             BuildingList.Remove(b);
-            PlanetGridSquare pgs = TilesList.Find(tile => tile.building == b);
+            PlanetGridSquare pgs = TilesList.Find(tile => tile.Building == b);
             if (pgs != null)
-                pgs.building = null;
+                pgs.Building = null;
             else
                 Log.Error($"{this} failed to find tile with building {b}");
 
@@ -619,12 +619,12 @@ namespace Ship_Game
 
         private void RemoveBuildingFromPlanet(PlanetGridSquare tile, bool destroy = false)
         {
-            if (tile?.building == null)
+            if (tile?.Building == null)
                 return;
 
-            Building b = tile.building;
+            Building b = tile.Building;
             BuildingList.Remove(b);
-            tile.building = null;
+            tile.Building = null;
             PostBuildingRemoval(b, destroy);
         }
 
@@ -1290,7 +1290,7 @@ namespace Ship_Game
             bool events = false;
             foreach (PlanetGridSquare tile in TilesList)
             {
-                if (tile.EventOnTile  && !tile.building.EventWasTriggered)
+                if (tile.EventOnTile  && !tile.Building.EventWasTriggered)
                 {
                     events = true;
                     break;
@@ -1320,7 +1320,7 @@ namespace Ship_Game
         public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         public int TotalHabitableTiles   => TilesList.Count(tile => tile.Habitable);
         public float MoneyBuildingRatio  => (float)TotalMoneyBuildings / TotalBuildings;
-        public int TotalMoneyBuildings   => TilesList.Count(tile => tile.BuildingOnTile &&  tile.building.IsMoneyBuilding);
+        public int TotalMoneyBuildings   => TilesList.Count(tile => tile.BuildingOnTile &&  tile.Building.IsMoneyBuilding);
 
         public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
@@ -1370,7 +1370,7 @@ namespace Ship_Game
             if (x < 0 || x >= TileMaxX || y < 0 || y >= TileMaxY) // FB >= because coords start from 0
                 return null;
 
-            return TilesList.Find(pgs => pgs.x == x && pgs.y == y);
+            return TilesList.Find(pgs => pgs.X == x && pgs.Y == y);
         }
 
         ~Planet() { Destroy(); }

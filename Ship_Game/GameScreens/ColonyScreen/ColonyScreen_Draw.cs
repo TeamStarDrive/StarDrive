@@ -102,29 +102,29 @@ namespace Ship_Game
             float numFood = 0f;
             float numProd = 0f;
             float numRes = 0f;
-            if (pgs.building != null)
+            if (pgs.Building != null)
             {
-                if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
+                if (pgs.Building.PlusFlatFoodAmount > 0f || pgs.Building.PlusFoodPerColonist > 0f)
                 {
-                    numFood += pgs.building.PlusFoodPerColonist * P.PopulationBillion * P.Food.Percent;
-                    numFood += pgs.building.PlusFlatFoodAmount;
+                    numFood += pgs.Building.PlusFoodPerColonist * P.PopulationBillion * P.Food.Percent;
+                    numFood += pgs.Building.PlusFlatFoodAmount;
                 }
 
-                if (pgs.building.PlusFlatProductionAmount > 0f || pgs.building.PlusProdPerColonist > 0f)
+                if (pgs.Building.PlusFlatProductionAmount > 0f || pgs.Building.PlusProdPerColonist > 0f)
                 {
-                    numProd += pgs.building.PlusFlatProductionAmount;
-                    numProd += pgs.building.PlusProdPerColonist * P.PopulationBillion * P.Prod.Percent;
+                    numProd += pgs.Building.PlusFlatProductionAmount;
+                    numProd += pgs.Building.PlusProdPerColonist * P.PopulationBillion * P.Prod.Percent;
                 }
 
-                if (pgs.building.PlusProdPerRichness > 0f)
+                if (pgs.Building.PlusProdPerRichness > 0f)
                 {
-                    numProd += pgs.building.PlusProdPerRichness * P.MineralRichness;
+                    numProd += pgs.Building.PlusProdPerRichness * P.MineralRichness;
                 }
 
-                if (pgs.building.PlusResearchPerColonist > 0f || pgs.building.PlusFlatResearchAmount > 0f)
+                if (pgs.Building.PlusResearchPerColonist > 0f || pgs.Building.PlusFlatResearchAmount > 0f)
                 {
-                    numRes += pgs.building.PlusResearchPerColonist * P.PopulationBillion * P.Res.Percent;
-                    numRes += pgs.building.PlusFlatResearchAmount;
+                    numRes += pgs.Building.PlusResearchPerColonist * P.PopulationBillion * P.Res.Percent;
+                    numRes += pgs.Building.PlusFlatResearchAmount;
                 }
             }
 
@@ -408,12 +408,12 @@ namespace Ship_Game
                     batch.FillRectangle(pgs.ClickRect, new Color(0, 0, 0, 200));
 
                 batch.DrawRectangle(pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
-                if (pgs.building != null)
+                if (pgs.Building != null)
                 {
                     var buildingIcon = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
                         pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"),
-                        buildingIcon, pgs.building.IsPlayerAdded ? Color.WhiteSmoke : Color.White);
+                    batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.Building.Icon + "_64x64"),
+                        buildingIcon, pgs.Building.IsPlayerAdded ? Color.WhiteSmoke : Color.White);
                 }
                 else if (pgs.QItem != null)
                 {
@@ -569,7 +569,7 @@ namespace Ship_Game
                     break;
 
                 case PlanetGridSquare pgs:
-                    switch (pgs.building)
+                    switch (pgs.Building)
                     {
                         case null when pgs.Habitable && pgs.Biosphere:
                             batch.DrawString(Font20, Localizer.Token(348), bCursor, color);
@@ -604,19 +604,19 @@ namespace Ship_Game
                         return;
                     }
 
-                    if (pgs.building == null)
+                    if (pgs.Building == null)
                         return;
 
                     var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                     batch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
-                    batch.DrawString(Font20, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, color);
+                    batch.DrawString(Font20, Localizer.Token(pgs.Building.NameTranslationIndex), bCursor, color);
                     bCursor.Y   += Font20.LineSpacing + 5;
-                    string buildingDescription  = MultiLineFormat(pgs.building.DescriptionIndex);
+                    string buildingDescription  = MultiLineFormat(pgs.Building.DescriptionIndex);
                     batch.DrawString(TextFont, buildingDescription, bCursor, color);
                     bCursor.Y   += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
-                    DrawSelectedBuildingInfo(ref bCursor, batch, pgs.building);
+                    DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building);
                     DrawTilePopInfo(ref bCursor, batch, pgs, 2);
-                    if (!pgs.building.Scrappable)
+                    if (!pgs.Building.Scrappable)
                         return;
 
                     bCursor.Y += TextFont.LineSpacing * 2;
@@ -640,7 +640,7 @@ namespace Ship_Game
         void DrawTilePopInfo(ref Vector2 cursor, SpriteBatch batch, PlanetGridSquare tile, int spacing = 5)
         {
             float popPerTile = P.BasePopPerTile * Player.PlayerEnvModifier(P.Category);
-            float popBonus   = tile.building?.MaxPopIncrease ?? 0;
+            float popBonus   = tile.Building?.MaxPopIncrease ?? 0;
             cursor.Y += Font20.LineSpacing * spacing;
             if (tile.Habitable && tile.Biosphere)
             {
