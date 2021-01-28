@@ -1245,10 +1245,9 @@ namespace Ship_Game
                 if (data.IsCommandModule && data.TargetAccuracy == 0)  data.TargetAccuracy = data.TargetTracking;
 
 
-                if (data.IsRotable == null)
                 {
-                    data.IsRotable = data.XSIZE != data.YSIZE
-                        || (data.WeaponType.NotEmpty() && data.ModuleType != ShipModuleType.Turret);
+                    data.DisableRotation = data.DisableRotation || data.XSIZE == data.YSIZE
+                        || (data.WeaponType.NotEmpty() && data.ModuleType == ShipModuleType.Turret);
                 }
 
                 ModuleTemplates[data.UID] = ShipModule.CreateTemplate(data);

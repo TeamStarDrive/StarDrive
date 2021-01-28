@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -506,6 +505,11 @@ namespace Ship_Game.Ships
         {
             if (Screen.SelectedShip == null)
                 return false;
+
+            if (FlagRect.HitTest(input.CursorPosition))
+            {
+                ToolTip.CreateTooltip(Ship.loyalty.Name);
+            }
             
             if (SlidingElement.HandleInput(input))
             {
