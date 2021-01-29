@@ -4036,6 +4036,55 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Index>1469</Index>
     <Text>The efficiency of the ships's energy weapon with it's current Power Capacity is</Text>
   </Token>
+    <Token>
+      <Index>1470</Index>
+      <Text>Excess Power Cells</Text>
+    </Token>
+    <Token>
+      <Index>1471</Index>
+      <Text>The ship has excessive number of power cells, compared to it's weapon load out.</Text>
+    </Token>
+    <Token>
+      <Index>1472</Index>
+      <Text>Replace some of your Power Cells with modules which might benefit the ship.</Text>
+    </Token>
+    <Token>
+      <Index>1473</Index>
+      <Text>Dedicated Carrier</Text>
+    </Token>
+    <Token>
+      <Index>1474</Index>
+      <Text>This ship is a dedicated Carrier. The fighter launch range will be determined by the Combat Stance you select for it. Short Range or Attack Runs Stances will set fighters to launch from Max Weapon Range (minimum 7500). Anything else - Sensor Range.</Text>
+    </Token>
+    <Token>
+      <Index>1475</Index>
+      <Text>Current Selected Fighter Launch Range is: \n </Text>
+    </Token>
+    <Token>
+      <Index>1476</Index>
+      <Text>Sensor Range of</Text>
+    </Token>
+    <Token>
+      <Index>1477</Index>
+      <Text>Maximum Weapon Range of </Text>
+    </Token>
+    <Token>
+      <Index>1478</Index>
+      <Text>Secondary Carrier</Text>
+    </Token>
+    <Token>
+      <Index>1479</Index>
+      <Text>This ship has some Fighter Hangars. However, it is not a Dedicated Carrier. The fighter launch range will be the Maximum weapon range of this ship (minimum of 7500).</Text>
+    </Token>
+    <Token>
+      <Index>1480</Index>
+      <Text>Minimum Launch Range of </Text>
+    </Token>
+    <Token>
+      <Index>1481</Index>
+      <Text>, since the ship's Maximum Weapon Range is only</Text>
+    </Token>
+
 
     <!-- 1500 + Notification Manager. These are notifications that scroll down the right hand side 
     of the screen when something happens. Usually these are split into 2 lines.  Keep formatting / spacing on these.-->
@@ -9008,7 +9057,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
   <Token>
       <Index>6190</Index>
       <Text>Ship Offense</Text>
-    </Token>
+  </Token>
+  <Token>
+      <Index>6191</Index>
+      <Text>Power Cells</Text>
+  </Token>
     
   <!-- SD Code Mod, TOOLTIP TEXT -->	
   
