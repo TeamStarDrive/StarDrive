@@ -168,8 +168,10 @@ namespace Ship_Game
                 if (type == ShipModuleType.PowerConduit) // force PowerConduit into PowerPlant category
                     type = ShipModuleType.PowerPlant;
 
-                if (type == ShipModuleType.PowerPlant || type == ShipModuleType.FuelCell || type == ShipModuleType.Engine)
+                if (type == ShipModuleType.PowerPlant || type == ShipModuleType.Engine)
                     AddCategoryItem((int)type, type.ToString(), m);
+                else if (type == ShipModuleType.FuelCell)
+                    AddCategoryItem((int)type, new LocalizedText(6191).Text, m);
             }
             if (!OpenCategory((int)ShipModuleType.PowerPlant))
                 OpenCategoryByIndex(0);
