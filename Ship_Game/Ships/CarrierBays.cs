@@ -26,8 +26,9 @@ namespace Ship_Game.Ships
         public bool SendTroopsToShip { get; private set; }
         public bool RecallFightersBeforeFTL { get; private set; }
         public bool RecallingShipsBeforeWarp { get; private set; }
+        public static float DefaultHangarRange = 7500;
         public SupplyShuttles SupplyShuttle;
-        public float HangarRange => HasActiveHangars ? 7500f : 0;
+        public float HangarRange => HasActiveHangars ? DefaultHangarRange : 0;
         public bool IsPrimaryCarrierRoleForLaunchRange => 
                                             HasActiveHangars &&
                                             (Owner.WeaponsMaxRange.AlmostZero()
@@ -598,15 +599,10 @@ namespace Ship_Game.Ships
         /// </returns>
         public bool IsInHangarLaunchRange(float distanceToTarget)
         {
-
-            if (Owner != null && Owner.loyalty.isPlayer && Owner.VanityName == "LALA")
-                Log.Info("lala");
-
-
             if (HasActiveHangars && !Owner.IsSpoolingOrInWarp)
             {
                 float range;
-                if (IsPrimaryCarrierRoleForLaunchRange && Owner.AI.CombatState != CombatState.ShortRange)
+                if (IsPrimaryCarrierRoleForLaunchRange && Owner.AI.CombatState != CombatState.ShortRange && Owner.AI.CombatState != CombatState.AttackRuns)
                     range = Owner.SensorRange;
                 else
                     range = Owner.WeaponsMaxRange;
