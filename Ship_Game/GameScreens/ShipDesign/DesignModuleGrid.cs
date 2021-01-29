@@ -306,30 +306,39 @@ namespace Ship_Game
                 return false;
             }
 
-            ModuleRect span = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
-            if (!IsInBounds(span))
-            {
-                if (logFailure) Log.Warning($"Design slot {span} was out of bounds");
-                return false;
-            }
+            ModuleRect span  = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
+            ModuleRect span2 = GetModuleSpan(slot, module.YSIZE, module.XSIZE);
 
-            for (int x = span.X0; x <= span.X1; ++x) 
-            for (int y = span.Y0; y <= span.Y1; ++y)
+            return ModuleOk(span, module) || ModuleOk(span2, module);
+
+            // local method
+            bool ModuleOk(ModuleRect modSpan, ShipModule m)
             {
-                SlotStruct target = Grid[x + y*Width];
-                if (target == null)
+                if (!IsInBounds(modSpan))
                 {
-                    if (logFailure) Log.Warning($"Design slot {{{x},{y}}} does not exist in ship design layout");
+                    if (logFailure) Log.Warning($"Design slot {modSpan} was out of bounds");
                     return false;
                 }
-                if (!target.CanSlotSupportModule(module))
-                {
-                    if (logFailure)
-                        Log.Warning($"Design slot {{{x},{y}}} ({target.Restrictions}) cannot support module {module.UID} ({module.Restrictions})");
-                    return false;
-                }
+
+                for (int x = modSpan.X0; x <= modSpan.X1; ++x)
+                    for (int y = modSpan.Y0; y <= modSpan.Y1; ++y)
+                    {
+                        SlotStruct target = Grid[x + y * Width];
+                        if (target == null)
+                        {
+                            if (logFailure) Log.Warning($"Design slot {{{x},{y}}} does not exist in ship design layout");
+                            return false;
+                        }
+                        if (!target.CanSlotSupportModule(m))
+                        {
+                            if (logFailure)
+                                Log.Warning($"Design slot {{{x},{y}}} ({target.Restrictions}) cannot support module {m.UID} ({module.Restrictions})");
+                            return false;
+                        }
+                    }
+
+                return true;
             }
-            return true;
         }
 
         private void PlaceModule(SlotStruct slot, ShipModule newModule, ModuleOrientation orientation)
