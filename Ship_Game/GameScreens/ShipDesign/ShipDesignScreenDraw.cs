@@ -218,44 +218,37 @@ namespace Ship_Game
 
             switch (orientation)
             {
-                case ModuleOrientation.Left:
-                    if (!GetOrientedTexture(template ?? slot.Module, ref texture, orientation))
+                case ModuleOrientation.Left when !GetOrientedTexture(template ?? slot.Module, ref texture, orientation):
                     {
-                        int w = xSize;
-                        int h = ySize;
-                        r.Width = h; // swap width & height
+                        int w    = xSize;
+                        int h    = ySize;
+                        r.Width  = h; // swap width & height
                         r.Height = w;
                         rotation = -1.57079637f;
-                        r.Y += h;
+                        r.Y     += h;
+                        break;
                     }
-
-
-                    break;
-                case ModuleOrientation.Right:
-                    if (!GetOrientedTexture(template ?? slot.Module, ref texture, orientation))
+                case ModuleOrientation.Right when !GetOrientedTexture(template ?? slot.Module, ref texture, orientation):
                     {
-                        int w = ySize;
-                        int h = xSize;
-                        r.Width = w;
+                        int w    = ySize;
+                        int h    = xSize;
+                        r.Width  = w;
                         r.Height = h;
                         rotation = 1.57079637f;
-                        r.X += h;
+                        r.X     += h;
+                        break;
                     }
-
-                    break;
                 case ModuleOrientation.Rear:
                     GetOrientedTexture(template ?? slot.Module, ref texture, orientation);
                     effects = SpriteEffects.FlipVertically;
                     break;
                 case ModuleOrientation.Normal:
-                    if (slot?.SlotReference.Position.X > 256f
-                        && slot.Module.ModuleType != ShipModuleType.PowerConduit)
-                    {
+                    if (slot?.SlotReference.Position.X > 256f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         effects = SpriteEffects.FlipHorizontally;
-                    }
 
                     break;
             }
+
             spriteBatch.Draw(texture, r, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
         }
 
