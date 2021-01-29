@@ -549,8 +549,10 @@ namespace Ship_Game
             bool canTargetFighters         = false;
             bool canTargetCorvettes        = false;
             bool canTargetCapitals         = false;
+            bool hasPowerCells             = false;
             int pointDefenseValue          = 0;
             int totalHangarArea            = 0;
+            int maxWeaponRange             = 0;
 
             Map<ShipModule, float> weaponAccuracyList = new Map<ShipModule, float>();
             Array<float> weaponsPowerFirePerShot      = new Array<float>();
@@ -574,6 +576,7 @@ namespace Ship_Game
                 ordnanceCap   += module.OrdinanceCapacity;
                 powerFlow     += module.ActualPowerFlowMax;
                 cargoSpace    += module.Cargo_Capacity;
+                hasPowerCells |= module.ModuleType == ShipModuleType.FuelCell && module.PowerStoreMax > 0;
 
                 if (module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
                 {
@@ -601,6 +604,7 @@ namespace Ship_Game
                 sensorRange         = module.SensorRange.LowerBound(sensorRange);
                 sensorBonus         = module.SensorBonus.LowerBound(sensorBonus);
                 totalHangarArea    += module.MaximumHangarShipSize;
+
 
                 if (module.IsTroopBay)
                     numTroopBays += 1;
@@ -649,6 +653,10 @@ namespace Ship_Game
 
                 if (weapon.Tag_PD)
                     pointDefenseValue += 1;
+
+                int range = (int)weapon.GetActualRange(EmpireManager.Player);
+                if (range > maxWeaponRange)
+                    maxWeaponRange = range;
 
                 // added by Fat Bastard for Energy power calcs
                 if (weapon.isBeam)
@@ -736,12 +744,17 @@ namespace Ship_Game
                 DesignIssues.CheckTruePD(size, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
                 DesignIssues.CheckCombatEfficiency(powerConsumed, energyDuration, powerRecharge, numWeapons, numOrdnanceWeapons);
+                DesignIssues.CheckExcessPowerCells(beamPeakPowerNeeded > 0, burstEnergyDuration, powerConsumed, hasPowerCells);
                 DesignIssues.CheckBurstPowerTime(beamPeakPowerNeeded > 0, burstEnergyDuration);
-                DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons);
+                DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons, avgOrdnanceUsed, ordnanceRecovered);
                 DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
                 DesignIssues.CheckTroops(troopCount, size);
                 DesignIssues.CheckAccuracy(WeaponAccuracyList);
                 DesignIssues.CheckTargets(WeaponAccuracyList, targets);
+                DesignIssues.CheckSecondaryCarrier(totalHangarArea > 0, Role, maxWeaponRange);
+                DesignIssues.CheckDedicatedCarrier(totalHangarArea > 0, Role, maxWeaponRange, (int)sensorRange,
+                    ActiveHull.CombatState == CombatState.ShortRange || ActiveHull.CombatState == CombatState.AttackRuns);
+
                 UpdateDesignButton();
             }
         }
