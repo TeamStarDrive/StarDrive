@@ -66,9 +66,9 @@ namespace Ship_Game.Ships
         {
             float mass = surfaceArea * 0.5f * (1 + surfaceArea / 500);
             for (int i = 0; i < modules.Length; i++)
-                mass += modules[i].GetActualMass(loyalty, ordnancePercent);
+                mass += modules[i].GetActualMass(loyalty, ordnancePercent, useMassModifier: false);
 
-            mass *= loyalty.data.MassModifier; // apply overall mass modifier
+            mass *= loyalty.data.MassModifier; // apply overall mass modifier once 
             return mass.LowerBound(1);
         }
 
