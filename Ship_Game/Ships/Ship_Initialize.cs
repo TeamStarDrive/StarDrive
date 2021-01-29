@@ -532,7 +532,7 @@ namespace Ship_Game.Ships
                 loyalty.Inhibitors.Add(this); // Start inhibiting at spawn
 
             (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
-            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, OrdnancePercent);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, SurfaceArea, OrdnancePercent);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);

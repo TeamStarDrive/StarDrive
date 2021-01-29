@@ -391,7 +391,7 @@ namespace Ship_Game
 
         void HandleCameraMovement(InputState input)
         {
-            if (input.RightMouseClick)
+            if (input.MiddleMouseClick)
             {
                 StartDragPos = input.CursorPosition;
                 CameraVelocity.X = 0.0f;
@@ -405,7 +405,7 @@ namespace Ship_Game
             Vector2 tempPos = Camera.WASDCamMovement(input, this, camLimit); //This moves the grid
             CameraPosition.X = tempPos.X; //This moves the model
             CameraPosition.Y = tempPos.Y;
-            if (input.RightMouseHeld())
+            if (input.MiddleMouseHeld())
             {
                 float num1 = input.CursorPosition.X - StartDragPos.X;
                 float num2 = input.CursorPosition.Y - StartDragPos.Y;
