@@ -218,40 +218,58 @@ namespace Ship_Game
 
             switch (orientation)
             {
-                case ModuleOrientation.Left:
-                {
-                    int w    = xSize;
-                    int h    = ySize;
-                    r.Width  = h; // swap width & height
-                    r.Height = w;
-                    rotation = -1.57079637f;
-                    r.Y     += h;
-                    break;
-                }
-                case ModuleOrientation.Right:
-                {
-                    int w    = ySize;
-                    int h    = xSize;
-                    r.Width  = w;
-                    r.Height = h;
-                    rotation = 1.57079637f;
-                    r.X     += h;
-                    break;
-                }
+                case ModuleOrientation.Left when !GetOrientedTexture(template ?? slot.Module, ref texture, orientation):
+                    {
+                        int w    = xSize;
+                        int h    = ySize;
+                        r.Width  = h; // swap width & height
+                        r.Height = w;
+                        rotation = -1.57079637f;
+                        r.Y     += h;
+                        break;
+                    }
+                case ModuleOrientation.Right when !GetOrientedTexture(template ?? slot.Module, ref texture, orientation):
+                    {
+                        int w    = ySize;
+                        int h    = xSize;
+                        r.Width  = w;
+                        r.Height = h;
+                        rotation = 1.57079637f;
+                        r.X     += h;
+                        break;
+                    }
                 case ModuleOrientation.Rear:
-                {
+                    GetOrientedTexture(template ?? slot.Module, ref texture, orientation);
                     effects = SpriteEffects.FlipVertically;
                     break;
-                }
                 case ModuleOrientation.Normal:
-                {
-                    if (slot?.SlotReference.Position.X > 256f
-                        && slot.Module.ModuleType != ShipModuleType.PowerConduit)
+                    if (slot?.SlotReference.Position.X > 256f && slot.Module.ModuleType != ShipModuleType.PowerConduit)
                         effects = SpriteEffects.FlipHorizontally;
+
                     break;
-                }
             }
+
             spriteBatch.Draw(texture, r, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
+        }
+
+        // For specific cases were non squared icons requires a different texture when oriented, light thrusters
+        static bool GetOrientedTexture(ShipModule template, ref SubTexture tex, ModuleOrientation orientation)
+        {
+            if (template.DisableRotation)
+                return false;
+
+            string defaultTex = template.IconTexturePath;
+            switch (orientation)
+            {
+                case ModuleOrientation.Left:  tex = ResourceManager.TextureOrDefault($"{defaultTex}_270", defaultTex); break;
+                case ModuleOrientation.Right: tex = ResourceManager.TextureOrDefault($"{defaultTex}_90", defaultTex);  break;
+                case ModuleOrientation.Rear:  tex = ResourceManager.TextureOrDefault($"{defaultTex}_180", defaultTex); break;
+                default: return false;
+            }
+
+            return tex.Name.EndsWith("_90") 
+                   || tex.Name.EndsWith("_180")
+                   || tex.Name.EndsWith("_270");
         }
 
         void DrawTacticalOverlays(SpriteBatch batch)
@@ -398,7 +416,6 @@ namespace Ship_Game
             if (w == null)
                 return;
             DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f, shipLevel);
-
         }
 
         void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 screenPos, float facing = 0f)
@@ -410,7 +427,6 @@ namespace Ship_Game
             int cx = (int)(8f * module.XSIZE * Camera.Zoom);
             int cy = (int)(8f * module.YSIZE * Camera.Zoom);
             DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f, FireControlLevel);
-            
         }
 
         void DrawActiveModule(SpriteBatch spriteBatch)
@@ -679,7 +695,7 @@ namespace Ship_Game
             targets           += 1 + EmpireManager.Player.data.Traits.Militaristic + (ActiveHull.Role == ShipData.RoleName.platform ? 3 : 0);
 
             var stats = new ShipStats();
-            stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0, 1);
+            stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0,  size, 1);
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
             shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
             bool mainShieldsPresent      = modules.Shields.Any(s => s.ModuleType == ShipModuleType.Shield);

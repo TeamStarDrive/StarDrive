@@ -50,14 +50,18 @@ namespace Ship_Game
             }
         }
 
-        public MouseHoldStatus LeftHold = new MouseHoldStatus();
-        public MouseHoldStatus RightHold = new MouseHoldStatus();
+        public MouseHoldStatus LeftHold   = new MouseHoldStatus();
+        public MouseHoldStatus RightHold  = new MouseHoldStatus();
+        public MouseHoldStatus MiddleHold = new MouseHoldStatus();
 
         public bool LeftMouseHeld(float heldForSeconds = 0.15f)
             => LeftHold.IsHolding && LeftHold.Time > heldForSeconds;
 
         public bool RightMouseHeld(float heldForSeconds = 0.15f)
             => RightHold.IsHolding && RightHold.Time > heldForSeconds;
+
+        public bool MiddleMouseHeld(float heldForSeconds = 0.15f)
+            => MiddleHold.IsHolding && MiddleHold.Time > heldForSeconds;
 
         public bool LeftMouseHeldDown  => LeftHold.IsHolding;
         public bool RightMouseHeldDown => RightHold.IsHolding;
@@ -83,6 +87,7 @@ namespace Ship_Game
         {
             LeftHold.Update(elapsed, MouseCurr.LeftButton, CursorPosition);
             RightHold.Update(elapsed, MouseCurr.RightButton, CursorPosition);
+            MiddleHold.Update(elapsed, MouseCurr.MiddleButton, CursorPosition);
         }
     }
 }

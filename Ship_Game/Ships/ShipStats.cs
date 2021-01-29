@@ -28,10 +28,10 @@ namespace Ship_Game.Ships
 
         public float FTLSpoolTime;
 
-        public void Update(ShipModule[] modules, ShipData hull, Empire e, int level, float ordnancePercent)
+        public void Update(ShipModule[] modules, ShipData hull, Empire e, int level, int surfaceArea, float ordnancePercent)
         {
             Cost = GetCost(GetBaseCost(modules), hull, e);
-            Mass = GetMass(modules, e, ordnancePercent);
+            Mass = GetMass(modules, e, surfaceArea, ordnancePercent);
 
             (Thrust,WarpThrust,TurnThrust) = GetThrust(modules, hull);
             VelocityMax = GetVelocityMax(Thrust, Mass);
@@ -47,6 +47,7 @@ namespace Ship_Game.Ships
             float baseCost = 0f;
             for (int i = 0; i < modules.Length; i++)
                 baseCost += modules[i].Cost;
+
             return baseCost;
         }
 
@@ -61,20 +62,19 @@ namespace Ship_Game.Ships
             return (int)cost;
         }
 
-        public static float GetMass(ShipModule[] modules, Empire loyalty, float ordnancePercent)
+        public static float GetMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
         {
-            float mass = 0f;
+            float mass = surfaceArea * 0.5f * (1 + surfaceArea / 500);
             for (int i = 0; i < modules.Length; i++)
-                mass += modules[i].GetActualMass(loyalty, ordnancePercent);
-            mass *= loyalty.data.MassModifier; // apply overall mass modifier
+                mass += modules[i].GetActualMass(loyalty, ordnancePercent, useMassModifier: false);
 
-            float surfaceArea = modules.Length;
-            return Math.Max(1, Math.Max(surfaceArea*0.5f, mass));
+            mass *= loyalty.data.MassModifier; // apply overall mass modifier once 
+            return mass.LowerBound(1);
         }
 
         public static float GetMass(float mass, Empire loyalty)
         {
-            return mass *= loyalty.data.MassModifier; // apply overall mass modifier
+            return mass * loyalty.data.MassModifier; // apply overall mass modifier
         }
 
         public static (float STL, float Warp, float Turn) GetThrust(ShipModule[] modules, ShipData hull)

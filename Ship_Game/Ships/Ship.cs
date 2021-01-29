@@ -1391,7 +1391,7 @@ namespace Ship_Game.Ships
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
             (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
-            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, OrdnancePercent);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty, SurfaceArea, OrdnancePercent);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             CurrentStrength = CalculateShipStrength();
