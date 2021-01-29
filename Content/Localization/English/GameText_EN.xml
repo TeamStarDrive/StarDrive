@@ -823,11 +823,11 @@
     <!-- Tool Tips : Reserve Index 200 - 299 -->
     <Token>
       <Index>200</Index>
-      <Text>Ship will make head-on attack runs on its target</Text>
+      <Text>Attack Runs: \n\nShip will make head-on attack runs on its target</Text>
     </Token>
     <Token>
       <Index>201</Index>
-      <Text>Ship will rotate so that forward-firing weapons are facing its target. \nIf in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within maximum weapons range. \nIf a carrier the ship will use the Carrier Hangar range.</Text>
+      <Text>Maximum Range: \n\nShip will rotate so that forward-firing weapons are facing its target. \nIf in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within maximum weapons range. \nIf a carrier the ship will use the Carrier Hangar range.</Text>
     </Token>
     <Token>
       <Index>202</Index>
@@ -3072,7 +3072,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1033</Index>
-      <Text>Carries power across a ship
+      <Text>Carries power across a ship over a large area.
       </Text>
     </Token>
     <Token>
@@ -9060,7 +9060,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
   </Token>
   <Token>
       <Index>6191</Index>
-      <Text>Power Cells</Text>
+      <Text>Power Cell</Text>
   </Token>
     
   <!-- SD Code Mod, TOOLTIP TEXT -->	
@@ -9409,7 +9409,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7085</Index>
-      <Text>Ship will rotate so that forward-firing weapons are facing its target. \nIf in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within minimum weapons range. \nIf a carrier the ship will use the Max actual weapons range.</Text>
+      <Text>Short Range: \n\nShip will rotate so that forward-firing weapons are facing its target. \nIf in a fleet, it will attempt to maintain formation. If not, ship will maneuver to within minimum weapons range. \nIf a carrier the ship will use the Max actual weapons range.</Text>
     </Token>
   <Token>
       <Index>7086</Index>
