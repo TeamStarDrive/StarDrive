@@ -47,6 +47,7 @@ namespace Ship_Game.Ships
             float baseCost = 0f;
             for (int i = 0; i < modules.Length; i++)
                 baseCost += modules[i].Cost;
+
             return baseCost;
         }
 
@@ -63,7 +64,7 @@ namespace Ship_Game.Ships
 
         public static float GetMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
         {
-            float mass = surfaceArea * 0.5f * (1 + surfaceArea / 1000f);
+            float mass = surfaceArea * 0.5f * (1 + surfaceArea / 500);
             for (int i = 0; i < modules.Length; i++)
                 mass += modules[i].GetActualMass(loyalty, ordnancePercent);
 
