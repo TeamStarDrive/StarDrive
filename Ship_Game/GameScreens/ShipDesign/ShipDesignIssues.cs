@@ -341,6 +341,19 @@ namespace Ship_Game.ShipDesignIssues
             }
         }
 
+        public void CheckExcessPowerCells(bool hasBeamWeapons, float burstEnergyPowerTime, 
+            float excessPowerConsumed, bool hasPowerCells)
+        {
+            if (!hasPowerCells
+                || hasBeamWeapons && burstEnergyPowerTime.LessOrEqual(2)
+                || excessPowerConsumed.Greater(0))
+            {
+                return;
+            }
+
+            AddDesignIssue(DesignIssueType.ExcessPowerCells, WarningLevel.Informative);
+        }
+
         public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime)
         {
             if (!hasBeamWeapons || burstEnergyPowerTime.GreaterOrEqual(2) || burstEnergyPowerTime.Less(0))
@@ -350,12 +363,12 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.LowBurstPowerTime, severity);
         }
 
-        public void CheckOrdnanceVsEnergyWeapons(int numWeapons, int numOrdnanceWeapons)
+        public void CheckOrdnanceVsEnergyWeapons(int numWeapons, int numOrdnanceWeapons, float ordnanceUsed, float ordnanceRecovered)
         {
             if (Stationary || numWeapons == 0 || numOrdnanceWeapons == 0)
                 return;
 
-            if (numOrdnanceWeapons < numWeapons)
+            if (numOrdnanceWeapons < numWeapons && ordnanceUsed > ordnanceRecovered)
                 AddDesignIssue(DesignIssueType.NoOrdnanceResupplyPlayerOrder, WarningLevel.Informative);
 
             float ordnanceToEnergyRatio = (float)numOrdnanceWeapons / numWeapons;
@@ -371,6 +384,50 @@ namespace Ship_Game.ShipDesignIssues
             int diff             = numTroopBays - numTroops;
             string troopsMissing = $" {diff} {new LocalizedText(2564).Text}";
             AddDesignIssue(DesignIssueType.LowTroopsForBays, WarningLevel.Major, troopsMissing);
+        }
+
+        public void CheckDedicatedCarrier(bool hasFighterHangars, ShipData.RoleName role, int maxWeaponRange, int sensorRange, bool shortRange)
+        {
+            if (role != ShipData.RoleName.carrier || !hasFighterHangars)
+                return;
+
+            bool minCarrier  = false;
+            string rangeText = shortRange  // short range or attack runs
+                ? $"\n{GetRangeLaunchText(maxWeaponRange, out int minLaunchRangeWeapons, out minCarrier)} " +
+                  $"{HelperFunctions.GetNumberString(maxWeaponRange.LowerBound(minLaunchRangeWeapons))}" 
+                : $"\n{new LocalizedText(1476).Text} {HelperFunctions.GetNumberString(sensorRange)}";
+
+            if (minCarrier) // too low max weapon range, using default minimum hangar launch from carrier bays
+                rangeText = $" {rangeText}{new LocalizedText(1481).Text} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
+
+            AddDesignIssue(DesignIssueType.DedicatedCarrier, WarningLevel.Informative, rangeText);
+        }
+
+        public void CheckSecondaryCarrier(bool hasFighterHangars, ShipData.RoleName role, int maxWeaponRange)
+        {
+            if (role == ShipData.RoleName.carrier || !hasFighterHangars)
+                return;
+
+            string rangeText = $"\n{GetRangeLaunchText(maxWeaponRange, out int minLaunchRangeWeapons, out bool minCarrier)}" +
+                               $" {HelperFunctions.GetNumberString(maxWeaponRange.LowerBound(minLaunchRangeWeapons))}";
+
+            if (minCarrier) // too low max weapon range, using default minimum hangar launch from carrier bays
+                rangeText = $" {rangeText}{new LocalizedText(1481).Text} {HelperFunctions.GetNumberString(maxWeaponRange)}.";
+
+            AddDesignIssue(DesignIssueType.SecondaryCarrier, WarningLevel.Informative, rangeText);
+        }
+
+        string GetRangeLaunchText(int maxWeaponRange, out int minLaunchRangeWeapons, out bool usingMinimumCarrierRange)
+        {
+            usingMinimumCarrierRange = false;
+            minLaunchRangeWeapons    = (int)CarrierBays.DefaultHangarRange;
+            if (maxWeaponRange < minLaunchRangeWeapons)
+            {
+                usingMinimumCarrierRange = true;
+                return new LocalizedText(1480).Text;
+            }
+
+            return new LocalizedText(1477).Text;
         }
 
         public void CheckTroops(int numTroops, int size)
@@ -482,7 +539,10 @@ namespace Ship_Game.ShipDesignIssues
         Accuracy,
         Targets,
         LongRechargeTime,
-        OneTimeFireEfficiency
+        OneTimeFireEfficiency,
+        ExcessPowerCells,
+        DedicatedCarrier,
+        SecondaryCarrier
     }
 
     public enum WarningLevel
@@ -667,6 +727,24 @@ namespace Ship_Game.ShipDesignIssues
                     Problem     = new LocalizedText(1466).Text;
                     Remediation = new LocalizedText(1467).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueNegativeRecharge");
+                    break;
+                case DesignIssueType.ExcessPowerCells:
+                    Title       = new LocalizedText(1470).Text;
+                    Problem     = new LocalizedText(1471).Text;
+                    Remediation = new LocalizedText(1472).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueExcessPowerCells");
+                    break;
+                case DesignIssueType.DedicatedCarrier:
+                    Title       = new LocalizedText(1473).Text;
+                    Problem     = new LocalizedText(1474).Text;
+                    Remediation = new LocalizedText(1475).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueDedicatedCarrier");
+                    break;
+                case DesignIssueType.SecondaryCarrier:
+                    Title       = new LocalizedText(1478).Text;
+                    Problem     = new LocalizedText(1479).Text;
+                    Remediation = new LocalizedText(1475).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueSecondaryCarrier");
                     break;
             }
 
