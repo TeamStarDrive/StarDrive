@@ -124,7 +124,7 @@ namespace Ship_Game.Ships
 
             OrdnanceChanged = false;
             var shipStats   = new ShipStats();
-            shipStats.Update(ModuleSlotList, shipData, loyalty, Level, OrdnancePercent);
+            shipStats.Update(ModuleSlotList, shipData, loyalty, Level,  SurfaceArea, OrdnancePercent);
             Mass                     = shipStats.Mass;
             MaxFTLSpeed              = shipStats.MaxFTLSpeed;
             MaxSTLSpeed              = shipStats.MaxSTLSpeed;
