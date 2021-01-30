@@ -93,10 +93,11 @@ namespace Ship_Game
             ShowRoles.AddOption("Carriers", 8);
             ShowRoles.AddOption("Bombers", 9);
             ShowRoles.AddOption("Troopships", 10);
-            ShowRoles.AddOption("All Structures", 11);
-            ShowRoles.AddOption("Civilian", 12);
-            ShowRoles.AddOption("In Fleets Only", 13);
-            ShowRoles.AddOption("Not in Fleets", 14);
+            ShowRoles.AddOption("Support Ships", 11);
+            ShowRoles.AddOption("All Structures", 12);
+            ShowRoles.AddOption("Civilian", 13);
+            ShowRoles.AddOption("In Fleets Only", 14);
+            ShowRoles.AddOption("Not in Fleets", 15);
 
             SortSystem = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(192));
             SortName   = new SortButton(this.empUI.empire.data.SLSort, Localizer.Token(193));
@@ -349,11 +350,12 @@ namespace Ship_Game
                     case 7:  return ship.DesignRole == ShipData.RoleName.capital;
                     case 8:  return ship.DesignRole == ShipData.RoleName.carrier;
                     case 9:  return ship.DesignRole == ShipData.RoleName.bomber;
-                    case 10: return ship.DesignRole == ShipData.RoleName.troopShip;
-                    case 11: return ship.DesignRole <= ShipData.RoleName.platform || ship.DesignRole == ShipData.RoleName.station;
-                    case 12: return ship.IsConstructor || ship.DesignRole == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
-                    case 13: return ship.fleet != null;
-                    case 14: return ship.fleet == null && ship.shipData.Role > ShipData.RoleName.station;
+                    case 10: return ship.DesignRole == ShipData.RoleName.troopShip || ship.DesignRole == ShipData.RoleName.troop;
+                    case 11: return ship.DesignRole == ShipData.RoleName.support;
+                    case 12: return ship.DesignRole <= ShipData.RoleName.platform || ship.DesignRole == ShipData.RoleName.station;
+                    case 13: return ship.IsConstructor || ship.DesignRole == ShipData.RoleName.freighter || ship.shipData.ShipCategory == ShipData.Category.Civilian;
+                    case 14: return ship.fleet != null;
+                    case 15: return ship.fleet == null && ship.shipData.Role > ShipData.RoleName.station;
                 }
                 return false;
             }
