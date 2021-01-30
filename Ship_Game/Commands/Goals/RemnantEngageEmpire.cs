@@ -137,6 +137,20 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
+        bool IsPortalValidOrRerouted()
+        {
+            if (Portal != null)
+                return true;
+
+            if (Remnants.RerouteGoalPortals(out Ship newPortal))
+            {
+                TargetShip = Portal = newPortal;
+                return true;
+            }
+
+            return false;
+        }
+
         GoalStep SelectFirstTargetPlanet()
         {
             return SelectTargetPlanet() ? GoalStep.GoToNextStep : GoalStep.GoalComplete;
@@ -150,6 +164,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep GatherFleet()
         {
+            if (!IsPortalValidOrRerouted())
+                return GoalStep.GoalFailed;
+
             if (Portal.InCombat)
                 return GoalStep.TryAgain;
 
@@ -187,6 +204,9 @@ namespace Ship_Game.Commands.Goals
         {
             if (Fleet.Ships.Count == 0)
                 return GoalStep.GoalFailed; // fleet is dead
+
+            if (!IsPortalValidOrRerouted())
+                return Remnants.ReleaseFleet(Fleet, GoalStep.GoalFailed);
 
             if (Fleet.TaskStep == 10) // Arrived back to portal
                 return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
