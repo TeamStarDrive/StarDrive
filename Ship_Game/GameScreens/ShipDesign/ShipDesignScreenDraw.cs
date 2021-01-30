@@ -218,7 +218,7 @@ namespace Ship_Game
 
             switch (orientation)
             {
-                case ModuleOrientation.Left when !GetOrientedTexture(template ?? slot.Module, ref texture, orientation):
+                case ModuleOrientation.Left when !HelperFunctions.GetOrientedModuleTexture(template ?? slot.Module, ref texture, orientation):
                     {
                         int w    = xSize;
                         int h    = ySize;
@@ -228,7 +228,7 @@ namespace Ship_Game
                         r.Y     += h;
                         break;
                     }
-                case ModuleOrientation.Right when !GetOrientedTexture(template ?? slot.Module, ref texture, orientation):
+                case ModuleOrientation.Right when !HelperFunctions.GetOrientedModuleTexture(template ?? slot.Module, ref texture, orientation):
                     {
                         int w    = ySize;
                         int h    = xSize;
@@ -239,7 +239,7 @@ namespace Ship_Game
                         break;
                     }
                 case ModuleOrientation.Rear:
-                    GetOrientedTexture(template ?? slot.Module, ref texture, orientation);
+                    HelperFunctions.GetOrientedModuleTexture(template ?? slot.Module, ref texture, orientation);
                     effects = SpriteEffects.FlipVertically;
                     break;
                 case ModuleOrientation.Normal:
@@ -250,26 +250,6 @@ namespace Ship_Game
             }
 
             spriteBatch.Draw(texture, r, Color.White.Alpha(alpha), rotation, Vector2.Zero, effects, 1f);
-        }
-
-        // For specific cases were non squared icons requires a different texture when oriented, light thrusters
-        static bool GetOrientedTexture(ShipModule template, ref SubTexture tex, ModuleOrientation orientation)
-        {
-            if (template.DisableRotation)
-                return false;
-
-            string defaultTex = template.IconTexturePath;
-            switch (orientation)
-            {
-                case ModuleOrientation.Left:  tex = ResourceManager.TextureOrDefault($"{defaultTex}_270", defaultTex); break;
-                case ModuleOrientation.Right: tex = ResourceManager.TextureOrDefault($"{defaultTex}_90", defaultTex);  break;
-                case ModuleOrientation.Rear:  tex = ResourceManager.TextureOrDefault($"{defaultTex}_180", defaultTex); break;
-                default: return false;
-            }
-
-            return tex.Name.EndsWith("_90") 
-                   || tex.Name.EndsWith("_180")
-                   || tex.Name.EndsWith("_270");
         }
 
         void DrawTacticalOverlays(SpriteBatch batch)

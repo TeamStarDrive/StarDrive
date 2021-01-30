@@ -10,7 +10,6 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "RemnantEngageEmpire";
         public override string UID => ID;
         private Remnants Remnants;
-        private Ship Portal;
         private int BombersLevel;
 
         public RemnantEngageEmpire() : base(GoalType.RemnantBalancersEngage)
@@ -36,8 +35,13 @@ namespace Ship_Game.Commands.Goals
         public sealed override void PostInit()
         {
             Remnants     = empire.Remnants;
-            Portal       = TargetShip; // Save compatibility
             BombersLevel = ShipLevel;
+        }
+
+        Ship Portal
+        {
+            get => TargetShip;
+            set => TargetShip = value;
         }
 
         public Planet TargetPlanet
@@ -143,12 +147,9 @@ namespace Ship_Game.Commands.Goals
                 return true;
 
             if (Remnants.RerouteGoalPortals(out Ship newPortal))
-            {
-                TargetShip = Portal = newPortal;
-                return true;
-            }
+                Portal = newPortal;
 
-            return false;
+            return Portal != null;
         }
 
         GoalStep SelectFirstTargetPlanet()
