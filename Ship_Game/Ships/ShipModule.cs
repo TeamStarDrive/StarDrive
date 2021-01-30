@@ -28,6 +28,8 @@ namespace Ship_Game.Ships
             get => FacingRadians.ToDegrees();
             set => FacingRadians = value.ToRadians();
         }
+
+        public ModuleOrientation Orientation;
         public bool CheckedConduits;
         public bool Powered;
         public bool isExternal;
@@ -327,10 +329,8 @@ namespace Ship_Game.Ships
             IconTexturePath       = template.IconTexturePath;
             TargetValue           = template.TargetValue;
             TemplateMaxHealth     = template.HealthMax;
-
             UpdateModuleRadius();
         }
-
 
         public static ShipModule CreateTemplate(ShipModule_Deserialize template)
         {
@@ -1362,6 +1362,8 @@ namespace Ship_Game.Ships
                     YSIZE = w;
                     break;
             }
+
+            Orientation = orientation;
         }
 
         public override Vector2 JammingError()

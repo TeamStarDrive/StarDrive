@@ -155,11 +155,16 @@ namespace Ship_Game.Ships
                 posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
                 if (w.AlmostEqual(h, 0.001f)) w = h;
 
-                float slotFacing = (int)((slot.FacingDegrees + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
+                float slotFacing = 0;
+                switch (slot.Orientation)
+                {
+                    case ModuleOrientation.Right: slotFacing += 90; break;
+                    case ModuleOrientation.Left:  slotFacing += 270; break;
+                    case ModuleOrientation.Rear:  slotFacing += 180; break;
+                }
+
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
-
                 sc.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, Color.White);
-
                 if (camHeight > 6000.0f) // long distance view, draw the modules as colored icons
                 {
                     sc.DrawTextureSized(symbolFighter, posOnScreen, shipRotation, w, h, slot.GetHealthStatusColor());
@@ -348,8 +353,11 @@ namespace Ship_Game.Ships
                 var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y,
                                    (int)moduleSize * m.XSIZE,(int)moduleSize * m.YSIZE);
 
+                SubTexture tex = m.ModuleTexture;
+                HelperFunctions.GetOrientedModuleTexture(m, ref tex, m.Orientation);
+
                 batch.FillRectangle(rect, healthColor);
-                batch.Draw(m.ModuleTexture, rect, moduleColorMultiply);
+                batch.Draw(tex, rect, moduleColorMultiply);
             }
         }
 
