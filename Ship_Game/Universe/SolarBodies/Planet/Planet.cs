@@ -1218,9 +1218,12 @@ namespace Ship_Game
 
         public bool OurShipsCanScanSurface(Empire us)
         {
-            for (int i = 0; i < ParentSystem.ShipList.Count; i++)
+            var ships = us.GetShips();
+            ships.AddRange(us.GetProjectors());
+
+            for (int i = 0; i < ships.Count; i++)
             {
-                Ship ship = ParentSystem.ShipList[i];
+                Ship ship = ships[i];
                 if (ship.loyalty == us && ship.Center.InRadius(Center, ship.SensorRange))
                     return true;
             }
