@@ -359,8 +359,11 @@ namespace Ship_Game
         public bool IsBadModuleSize(ShipModule module)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
-                if (ModuleGrid.ModuleFitsAtSlot(slot, module))
+            {
+                ShipModule tiltedModule = CreateDesignModule(module.UID, ModuleOrientation.Right, slot.Facing);
+                if (ModuleGrid.ModuleFitsAtSlot(slot, module) || ModuleGrid.ModuleFitsAtSlot(slot, tiltedModule))
                     return false;
+            }
             return true;
         }
 
