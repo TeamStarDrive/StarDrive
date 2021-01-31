@@ -333,7 +333,7 @@ namespace Ship_Game.Ships
                 }
                 return;
             }
-
+            
             int maxSpan = Math.Max(GridWidth, GridHeight);
             Vector2 gridCenter = new Vector2(GridWidth, GridHeight) / 2f;
             Vector2 rectCenter = new Vector2(drawRect.Width, drawRect.Height) / 2f;
