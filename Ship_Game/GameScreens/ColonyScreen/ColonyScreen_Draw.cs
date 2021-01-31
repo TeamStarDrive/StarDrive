@@ -21,6 +21,7 @@ namespace Ship_Game
         int IncomingProd;
         float IncomingPop;
         int UpdateTimer;
+        bool Blockade;
         bool BioSpheresResearched;
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
@@ -326,6 +327,9 @@ namespace Ship_Game
 
             DrawFoodAndStorage(batch);
             DrawOrbitalStats(batch);
+
+            BlockadeLabel.Visible = Blockade;
+            BlockadeLabel.Color   = ApplyCurrentAlphaToColor(Color.Red);
 
             base.Draw(batch, elapsed);
         }
@@ -773,6 +777,7 @@ namespace Ship_Game
                 IncomingFood           = TotalIncomingCargo(Goods.Food).RoundUpTo(1);
                 IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
                 IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
+                Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
                 UpdateTimer            = 300;
             }
             else if (!Empire.Universe.Paused)

@@ -34,7 +34,7 @@ namespace Ship_Game
         Submenu subColonyGrid;
         Submenu FilterFrame;
         UIButton ClearFilter;
-
+        UILabel BlockadeLabel;
 
         ScrollList2<BuildableListItem> BuildableList;
         ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
@@ -93,6 +93,8 @@ namespace Ship_Game
             pStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 40, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
             pStorage.AddTab(title:328);
 
+            Vector2 blockadePos = new Vector2(pStorage.X + 20, pStorage.Y + 35);
+            BlockadeLabel = Add(new UILabel(blockadePos, "Blockade!", Fonts.Pirulen16, Color.Red));
             FoodStorage = new ProgressBar(pStorage.X + 100, pStorage.Y + 25 + 0.33f*(pStorage.Height - 25), 0.4f*pStorage.Width, 18);
             FoodStorage.Max = p.Storage.Max;
             FoodStorage.Progress = p.FoodHere;

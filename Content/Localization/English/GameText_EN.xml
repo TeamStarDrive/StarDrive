@@ -4828,6 +4828,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Battleship</Text>
     </Token>
     <Token>
+      <Index>1840</Index>
+      <Text>Indicates that this planet is unsafe for goods transportation, due to combat in the planet's orbit or manual Quarantine, and therefore no freighter will be until the Blockade or Quarantine is lifted.</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
@@ -4995,7 +4999,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1887</Index>
-      <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
+      <Text>Prevent goods transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage. This overrides the Governor's Import/Export settings.</Text>
     </Token>
     <Token>
       <Index>1888</Index>
