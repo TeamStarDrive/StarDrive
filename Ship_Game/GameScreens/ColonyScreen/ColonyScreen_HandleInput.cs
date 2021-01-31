@@ -33,6 +33,9 @@ namespace Ship_Game
             if (FilterBuildableItems.HandlingInput)
                 return base.HandleInput(input);
 
+            if (BlockadeLabel.Visible && BlockadeLabel.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(1840);
+
             if (HandleCycleColoniesLeftRight(input))
                 return true;
 
