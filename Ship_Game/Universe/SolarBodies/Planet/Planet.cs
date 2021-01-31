@@ -99,7 +99,7 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
-        public bool Safe => !SpaceCombatNearPlanet && !MightBeAWarZone(Owner);
+        public bool Safe => !MightBeAWarZone(Owner);
 
         public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
 
