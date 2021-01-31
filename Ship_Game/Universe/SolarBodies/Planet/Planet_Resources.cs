@@ -86,9 +86,6 @@ namespace Ship_Game
         {
             get
             {
-                if (Quarantine && Owner.isPlayer)
-                    return GoodState.STORE;
-
                 bool needFood = ShortOnFood();
                 if (needFood && Population > 500f)                  return GoodState.EXPORT;
                 if (!needFood && PopulationRatio < 0.8f)            return GoodState.IMPORT;
@@ -164,9 +161,9 @@ namespace Ship_Game
         {
             if (IsCybernetic) return;
 
-            if (Owner.NumPlanets == 1)
+            if (Owner.NumPlanets == 1 || TradeBlocked)
             {
-                FS = GoodState.STORE; // Easy out for solo planets
+                FS = GoodState.STORE; // Easy out for solo planets or blockades
                 return;
             }
 
@@ -191,9 +188,9 @@ namespace Ship_Game
 
         void DetermineProdState(float importThreshold, float exportThreshold)
         {
-            if (Owner.NumPlanets == 1)
+            if (Owner.NumPlanets == 1 || TradeBlocked)
             {
-                PS = GoodState.STORE;       //Easy out for solo planets
+                PS = GoodState.STORE; // Easy out for solo planets or blockades
                 return;
             }
 
