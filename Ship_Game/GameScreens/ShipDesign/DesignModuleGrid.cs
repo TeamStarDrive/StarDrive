@@ -309,7 +309,14 @@ namespace Ship_Game
             ModuleRect span  = GetModuleSpan(slot, module.XSIZE, module.YSIZE);
             ModuleRect span2 = GetModuleSpan(slot, module.YSIZE, module.XSIZE);
 
-            return ModuleOk(span, module) || ModuleOk(span2, module);
+            switch (module.Orientation)
+            {
+                default: 
+                case ModuleOrientation.Normal:
+                case ModuleOrientation.Rear:  return ModuleOk(span, module);
+                case ModuleOrientation.Left:
+                case ModuleOrientation.Right: return ModuleOk(span2, module);
+            }
 
             // local method
             bool ModuleOk(ModuleRect modSpan, ShipModule m)
