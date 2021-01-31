@@ -696,10 +696,11 @@ namespace Ship_Game
 
             SelectShipClicks(input);
 
-            if (SelectedShip != null && SelectedShipList.Count >0)
+            if (SelectedShip != null && SelectedShipList.Count > 0)
                 ShipInfoUIElement.SetShip(SelectedShip);
             else if (SelectedShipList.Count > 1)
                 shipListInfoUI.SetShipList(SelectedShipList, false);
+
 
             if (SelectedShipList.Count == 1)
             {
@@ -707,7 +708,8 @@ namespace Ship_Game
                 return;
             }
 
-            if ((SelectedPlanet = CheckPlanetClick()) != null)
+            SelectedPlanet = CheckPlanetClick();
+            if (SelectedPlanet != null)
             {
                 SelectedSomethingTimer = 3f;
                 pInfoUI.SetPlanet(SelectedPlanet);
@@ -734,7 +736,7 @@ namespace Ship_Game
                 SelectedShip = SelectedShipList[0];
             }
 
-            if (input.LeftMouseHeld(0.05f)) // we started dragging selection box
+            if (input.LeftMouseHeld(0.075f)) // we started dragging selection box
             {
                 Vector2 a = input.StartLeftHold;
                 Vector2 b = input.EndLeftHold;
@@ -752,61 +754,17 @@ namespace Ship_Game
             if (SelectingWithBox) // trigger! mouse released after selecting
                 SelectingWithBox = false;
 
-            if (!GetAllShipsInArea(SelectionBox, out Array<Ship> ships,
-                out bool purgeLoyalty, out bool purgeSupply, out Fleet fleet))
+            SelectedShipList = GetAllShipsInArea(SelectionBox, input, out Fleet fleet);
+            if (SelectedShipList.Count == 0)
             {
                 SelectionBox = new Rectangle(0, 0, -1, -1);
                 return;
             }
 
-            bool isFleet = fleet != null;
             SelectedPlanet = null;
-            if (input.IsShiftKeyDown)
-                SelectedShipList.AddRange(ships.Filter(s => !SelectedShipList.Contains(s)));
-            else
-                SelectedShipList = new BatchRemovalCollection<Ship>(ships);
-
-            SelectedSomethingTimer = 3f;
-            if (purgeLoyalty)
-            {
-                isFleet = false;
-                foreach (Ship ship in SelectedShipList)
-                {
-                    if (ship.loyalty != player)
-                    {
-                        SelectedShipList.QueuePendingRemoval(ship);
-                        continue;
-                    }
-                    isFleet = isFleet || (fleet?.ContainsShip(ship) ?? false);
-                }
-                SelectedShipList.ApplyPendingRemovals();
-            }
-            if (!input.IsShiftKeyDown)
-            {
-                if (isFleet)
-                {
-                    foreach (Ship ship in SelectedShipList)
-                    {
-                        if (ship?.fleet != fleet)
-                            SelectedShipList.QueuePendingRemoval(ship);
-                    }
-                    SelectedShipList.ApplyPendingRemovals();
-                }
-
-                if (purgeSupply && !isFleet)
-                {
-                    foreach (Ship ship in SelectedShipList)
-                    {
-                        if (NonCombatShip(ship))
-                            SelectedShipList.QueuePendingRemoval(ship);
-                    }
-                    SelectedShipList.ApplyPendingRemovals();
-                }
-            }
-
-
-            shipListInfoUI.SetShipList(SelectedShipList, isFleet);
-            SelectedFleet = isFleet ? fleet : null;
+            SelectedShip   = null;
+            shipListInfoUI.SetShipList(SelectedShipList, fleet != null);
+            SelectedFleet = fleet;
 
             if (SelectedShipList.Count == 1)
             {
@@ -823,10 +781,64 @@ namespace Ship_Game
 
         bool NonCombatShip(Ship ship)
         {
-            return ship != null && (ship.shipData.Role <= ShipData.RoleName.freighter ||
-                ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                ship.AI.State == AIState.Colonize);
+            return ship != null && (ship.shipData.Role <= ShipData.RoleName.freighter 
+                                    || ship.shipData.ShipCategory == ShipData.Category.Civilian 
+                                    || ship.DesignRole == ShipData.RoleName.troop
+                                    || ship.Weapons.Count == 0 && !ship.Carrier.HasFighterBays
+                                    || ship.AI.State == AIState.Colonize);
         }
+
+        BatchRemovalCollection<Ship> GetAllShipsInArea(Rectangle screenArea, InputState input, out Fleet fleet)
+        {
+            fleet              = null;
+            var potentialShips = new BatchRemovalCollection<Ship>();
+            var clickableShips = ClickableShipsList.Filter(cs => screenArea.HitTest(cs.ScreenPos));
+
+            if (clickableShips.Length == 0)
+                return potentialShips;
+
+            foreach (ClickableShip cs in clickableShips)
+            {
+                if (cs.shipToClick != null)
+                    potentialShips.Add(cs.shipToClick);
+            }
+
+            bool addToSelection         = input.IsShiftKeyDown;
+            bool selectPlayerEverything = input.IsCtrlKeyDown || !potentialShips.Any(s => !NonCombatShip(s)); ;
+            bool nonPlayer               = input.IsAltKeyDown || !potentialShips.Any(s => s.loyalty.isPlayer);
+            bool onlyPlayer              = !nonPlayer && potentialShips.Any(s => s.loyalty.isPlayer);
+
+            var ships = new BatchRemovalCollection<Ship>();
+            if (addToSelection)
+                ships.AddRange(SelectedShipList);
+
+            foreach (Ship ship in potentialShips)
+            {
+                if (onlyPlayer && ship.loyalty.isPlayer) ships.AddUnique(ship);
+                else if  (nonPlayer && !ship.loyalty.isPlayer) ships.AddUnique(ship);
+            }
+
+            if (onlyPlayer && ships.First.fleet != null)
+            {
+                Fleet tryFleet = ships.First.fleet;
+                fleet = ships.Any(s => s.fleet != tryFleet) ? null : tryFleet;
+            }
+
+            if (onlyPlayer && !selectPlayerEverything && fleet == null) // Need to remove non combat ship.
+            {
+                for (int i = ships.Count - 1; i >= 0; i--)
+                {
+                    Ship ship = ships[i];
+                    if (NonCombatShip(ship))
+                        ships.RemoveAt(i);
+                }
+            }
+
+            return ships;
+        }
+
+
+
 
         bool GetAllShipsInArea(Rectangle screenArea, out Array<Ship> ships, out bool purgeLoyalty, out bool purgeType, out Fleet fleet)
         {
