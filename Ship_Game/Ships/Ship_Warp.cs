@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Ship_Game.AI;
+﻿using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
 
 namespace Ship_Game.Ships
@@ -15,7 +13,9 @@ namespace Ship_Game.Ships
         // This is the maximum STL speed that ships can achieve
         // This is both for balancing and for realism, since sub-light
         // ships should not get even close to light speed
-        public const float MaxSubLightSpeed = 1800f;
+        public const float MaxSubLightSpeed = 1500f;
+        // Limit in Turn Speed in Radians
+        public const float MaxTurnRadians = 3.14159f;
         public bool IsSpooling { get; private set; }
         public float InhibitedTimer;
         public bool Inhibited { get; private set; }
