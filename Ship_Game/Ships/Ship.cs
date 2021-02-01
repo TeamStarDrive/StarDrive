@@ -951,16 +951,17 @@ namespace Ship_Game.Ships
         }
 
         /// <summary>
-        /// Gets the distinct weapons ranges.
+        /// Gets the weapons ranges.
         /// </summary>
         /// <param name="weapons">The weapons.</param>
         /// <returns></returns>
-        float[] GetDistinctWeaponsRanges(Array<Weapon> weapons)
+        float[] GetWeaponsRanges(Array<Weapon> weapons)
         {
             Array<float> ranges = new Array<float>();
 
             for (int i = 0; i < weapons.Count; ++i) // using raw loops for perf
-                ranges.AddUnique(weapons[i].GetActualRange());
+                ranges.Add(weapons[i].GetActualRange());
+
             return ranges.ToArray();
         }
 
@@ -982,7 +983,7 @@ namespace Ship_Game.Ships
         void UpdateWeaponRanges()
         {
             Array<Weapon> weapons = GetActiveWeapons();
-            float[] ranges = GetDistinctWeaponsRanges(weapons);
+            float[] ranges = GetWeaponsRanges(weapons);
 
             // Carriers will use the carrier range for max range.
             // for min range carriers will use the max range of normal weapons.
@@ -1009,7 +1010,7 @@ namespace Ship_Game.Ships
         // Not performance critical.
         float GetDesiredCombatRangeForState(CombatState state)
         {
-            float[] ranges = GetDistinctWeaponsRanges(GetActiveWeapons());
+            float[] ranges = GetWeaponsRanges(GetActiveWeapons());
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 
@@ -1021,17 +1022,15 @@ namespace Ship_Game.Ships
 
             // for game balancing, so ships won't kite way too far
             // and still have chance to hit while moving
-            const float rangeBalance = 0.9f; 
-
             switch (state)
             {
                 case CombatState.Evade:        return UnarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
-                case CombatState.ShortRange:   return WeaponsMinRange * rangeBalance;
-                case CombatState.Artillery:    return WeaponsMaxRange * rangeBalance;
-                case CombatState.AssaultShip:  return WeaponsMaxRange * rangeBalance;
-                default:
-                    return WeaponsAvgRange * 0.9f;
+                case CombatState.ShortRange:   return WeaponsMinRange * 0.7f;
+                case CombatState.Artillery:    return WeaponsMaxRange * 0.9f;
+                case CombatState.AssaultShip:
+                case CombatState.AttackRuns:
+                default:                       return WeaponsAvgRange * 0.9f;
             }
         }
 
