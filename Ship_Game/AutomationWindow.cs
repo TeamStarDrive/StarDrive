@@ -22,7 +22,7 @@ namespace Ship_Game
         {
             Universe = universe;
             const int windowWidth = 210;
-            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 360);
+            Rect = new Rectangle(ScreenWidth - 15 - windowWidth, 130, windowWidth, 390);
         }
 
         class CheckedDropdown : UIElementV2
@@ -74,6 +74,7 @@ namespace Ship_Game
             rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: 7040);
             rest.AddCheckbox(() => RushConstruction,                           title: 1824, tooltip: 1825);
             rest.AddCheckbox(() => GlobalStats.SuppressOnBuildNotifications,   title: 1835, tooltip: 1836);
+            rest.AddCheckbox(() => GlobalStats.DisableInhibitionWarning,       title: 1842, tooltip: 1843);
 
             UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
