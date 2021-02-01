@@ -47,6 +47,7 @@ namespace Ship_Game
         ScrollList2<ShipHullListItem> HullSelectList;
 
         public ShipModule HighlightedModule;
+        private SlotStruct ProjectedSlot;
         Vector2 CameraVelocity;
         Vector2 StartDragPos;
         ShipData Changeto;
