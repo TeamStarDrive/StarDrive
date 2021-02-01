@@ -366,17 +366,44 @@ namespace Ship_Game.Ships
             SubTexture iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
             SubTexture iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
 
-            if (Ship.IsInhibitedByUnfriendlyGravityWell)
+            if (Ship.IsInhibitedByUnfriendlyGravityWell) // planet well
+            {
+                DrawInhibitWarning(batch, numStatus, mousePos);
                 DrawIconWithTooltip(batch, iconGravwell, () => Localizer.Token(2287), mousePos,
                     Color.White, numStatus);
-            else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)
+            }
+            else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp) // event
+            {
                 DrawIconWithTooltip(batch, iconInhibited, () => Localizer.Token(2113), mousePos,
                     Color.White, numStatus);
-            else
+            }
+            else // ship inhibitor
+            {
                 DrawIconWithTooltip(batch, iconFlux, () => Localizer.Token(2285), mousePos,
                     Color.White, numStatus);
+            }
 
             numStatus++;
+        }
+
+        void DrawInhibitWarning(SpriteBatch batch, int numStatus, Vector2 mousePos)
+        {
+            if (GlobalStats.DisableInhibitionWarning || Screen.showingFTLOverlay)
+                return;
+
+            string text     = "Inhibited";
+            SpriteFont font = Fonts.Arial20Bold;
+            var rect        = new Rectangle((int)StatusArea.X + numStatus * 53, (int)StatusArea.Y - 24,
+                        (int)font.MeasureString(text).X, (int)font.MeasureString(text).Y);
+
+            batch.DrawString(Fonts.Arial20Bold, text, rect.PosVec(), Screen.CurrentFlashColorRed);
+            if (rect.HitTest(mousePos)) ToolTip.CreateTooltip(1841);
+
+            Planet p = Ship.System?.IdentifyGravityWell(Ship);
+            if (p == null)
+                return;
+
+            Screen.DrawCircleProjected(p.Center, p.GravityWellRadius, Screen.CurrentFlashColorRed);
         }
 
         void DrawCargoUsed(SpriteBatch batch, Vector2 mousePos, ref int numStatus)

@@ -4832,6 +4832,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Indicates that this planet is unsafe for goods transportation, due to combat in the planet's orbit or manual Quarantine, and therefore no freighter will be until the Blockade or Quarantine is lifted.</Text>
     </Token>
     <Token>
+      <Index>1841</Index>
+      <Text>This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automation Screen. You can also enable gravity well display in the related button next to the Mini-map.</Text>
+    </Token>
+    <Token>
+      <Index>1842</Index>
+      <Text>Disable Inhibition Alerts</Text>
+    </Token>
+    <Token>
+      <Index>1843</Index>
+      <Text>Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default when starting a game on Hard or Brutal.</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
