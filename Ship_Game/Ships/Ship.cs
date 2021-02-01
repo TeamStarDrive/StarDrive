@@ -960,11 +960,8 @@ namespace Ship_Game.Ships
             Array<float> ranges = new Array<float>();
 
             for (int i = 0; i < weapons.Count; ++i) // using raw loops for perf
-            {
-                Weapon w = weapons[i];
-                if (!w.TruePD)
-                    ranges.Add(weapons[i].GetActualRange());
-            }
+                ranges.Add(weapons[i].GetActualRange());
+
             return ranges.ToArray();
         }
 
