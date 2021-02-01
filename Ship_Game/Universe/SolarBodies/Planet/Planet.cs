@@ -1290,16 +1290,7 @@ namespace Ship_Game
 
         public bool EventsOnTiles()
         {
-            bool events = false;
-            foreach (PlanetGridSquare tile in TilesList)
-            {
-                if (tile.EventOnTile  && !tile.Building.EventWasTriggered)
-                {
-                    events = true;
-                    break;
-                }
-            }
-            return events;
+            return TilesList.Any(t => t.EventOnTile);
         }
 
         public int NumActiveCrashSites => TilesList.Count(t => t.CrashSite.Active);
