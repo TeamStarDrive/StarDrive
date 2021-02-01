@@ -263,6 +263,7 @@ namespace Ship_Game
             if (HandleModuleSelection(input))
                 return true;
 
+            HandleProjectedSlot(input);
             HandleDeleteModule(input);
             HandlePlaceNewModule(input);
             return false;
@@ -294,7 +295,19 @@ namespace Ship_Game
                 case ModuleOrientation.Rear:   return 180;
             }
         }
-        
+
+        bool GetMirrorProjectedSlot(SlotStruct slot, int xSize, ModuleOrientation orientation, out SlotStruct projectedMirror)
+        {
+            if (GetMirrorSlot(slot, xSize, orientation, out MirrorSlot mirrored))
+            {
+                projectedMirror = mirrored.Slot;
+                return true;
+            }
+
+            projectedMirror = default;
+            return false;
+        }
+
         bool GetMirrorSlot(SlotStruct slot, int xSize, ModuleOrientation orientation, out MirrorSlot mirrored)
         {
             int resolutionOffset = (int)slot.SlotReference.Position.X - 256;
@@ -558,6 +571,11 @@ namespace Ship_Game
             {
                 GameAudio.NegativeClick();
             }
+        }
+
+        void HandleProjectedSlot(InputState input)
+        {
+            GetSlotUnderCursor(input, out ProjectedSlot);
         }
 
         void DisplayBulkReplacementTip()
