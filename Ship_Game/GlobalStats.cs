@@ -90,6 +90,7 @@ namespace Ship_Game
 
         public static bool DisableAsteroids;
         public static bool SuppressOnBuildNotifications;
+        public static bool DisableInhibitionWarning = true;
         public static bool FixedPlayerCreditCharge;
         public static bool NotifyEnemyInSystemAfterLoad = true;
 
