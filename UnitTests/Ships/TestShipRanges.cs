@@ -40,7 +40,7 @@ namespace UnitTests.Ships
             UpdateStatus(ship, CombatState.Artillery);
             Assert.That.Equal(7500, ship.WeaponsMaxRange);
             Assert.That.Equal(4000, ship.WeaponsMinRange);
-            Assert.That.Equal(4000, ship.WeaponsAvgRange);
+            Assert.That.Equal(2681, ship.WeaponsAvgRange);
             Assert.That.Equal(6750, ship.DesiredCombatRange);
             Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
 
@@ -51,7 +51,7 @@ namespace UnitTests.Ships
             Assert.That.Equal(ship.WeaponsMaxRange, ship.DesiredCombatRange);
 
             UpdateStatus(ship, CombatState.ShortRange);
-            Assert.That.Equal(ship.WeaponsMinRange*0.9f, ship.DesiredCombatRange);
+            Assert.That.Equal(ship.WeaponsMinRange*0.7f, ship.DesiredCombatRange);
             
             UpdateStatus(ship, CombatState.Artillery);
             Assert.That.Equal(ship.WeaponsMaxRange*0.9f, ship.DesiredCombatRange);
@@ -67,7 +67,7 @@ namespace UnitTests.Ships
             Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
 
             UpdateStatus(ship, CombatState.AssaultShip);
-            Assert.That.Equal(ship.WeaponsMaxRange*0.9f, ship.DesiredCombatRange);
+            Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
             UpdateStatus(ship, CombatState.OrbitalDefense);
             Assert.That.Equal(ship.WeaponsAvgRange*0.9f, ship.DesiredCombatRange);
         }
@@ -85,7 +85,7 @@ namespace UnitTests.Ships
             UpdateStatus(ship, CombatState.Artillery);
             Assert.That.Equal(8000, ship.WeaponsMaxRange);
             Assert.That.Equal(7500, ship.WeaponsMinRange);
-            Assert.That.Equal(5833, ship.WeaponsAvgRange);
+            Assert.That.Equal(4681, ship.WeaponsAvgRange);
             Assert.That.Equal(7200, ship.DesiredCombatRange);
             Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
         }
