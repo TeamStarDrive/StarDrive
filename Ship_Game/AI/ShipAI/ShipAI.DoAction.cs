@@ -48,16 +48,16 @@ namespace Ship_Game.AI
 
         public bool IsTargetValid(Ship ship)
         {
-            if (ship?.Active is true && ship.engineState == Ship.MoveState.Sublight)
-                if (Owner.loyalty.IsEmpireAttackable(ship.GetLoyalty(), ship))
-                    return true;
-            if (Owner.loyalty.isPlayer && HasPriorityTarget)
-            {
-                var rel = Owner.loyalty.GetRelationsOrNull(ship?.loyalty);
-                if (rel != null && !rel.Treaty_Alliance)
-                    return true;
-            }
-            return false;
+            if (ship == null)
+                return false;
+
+            if (ship.Active && !ship.IsInWarp && Owner.loyalty.IsEmpireAttackable(ship.GetLoyalty(), ship))
+                return true;
+
+            return Owner.loyalty.isPlayer 
+                   && HasPriorityTarget 
+                   && ship.inSensorRange
+                   && !Owner.loyalty.IsAlliedWith(ship.loyalty);
         }
 
         Ship UpdateCombatTarget()
