@@ -1787,7 +1787,7 @@ namespace Ship_Game
             debug.AddLine($"Total Freighters / Cap: {TotalFreighters}/{FreighterCap}");
             debug.AddLine($"Freighter Types: F: {foodShips}  P: {prodShips} C: {colonistsShips}");
             debug.AddLine($"Freighters in Queue / Max: {FreightersBeingBuilt}/{MaxFreightersInQueue}");
-            debug.AddLine($"Idle Freighters: {IdleFreighters.Length}");
+            debug.AddLine($"Idle Freighters: {GetIdleFreighters(false).Length}");
             debug.AddLine($"Fast or Big Ratio: {FastVsBigFreighterRatio}");
             debug.AddLine("");
             debug.AddLine("Planet Trade:");
