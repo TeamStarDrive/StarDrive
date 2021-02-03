@@ -68,7 +68,7 @@
                     PiratePayModifier    = 0.5f;
                     ExpansionMultiplier  = 1.25f;
                     MinStartingColonies  = 2;
-                    ExpandSearchTurns    = 75;
+                    ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 540;
                     RemnantResourceMod   = 0.2f;
                     RemnantNumBombers    = 0.5f;
@@ -79,10 +79,10 @@
 
                     if (!empire.isPlayer)
                     {
-                        ProductionMod = -0.25f;
-                        ResearchMod   = -0.25f; ;
-                        TaxMod        = -0.25f;
-                        ModHpModifier = -0.25f;
+                        ProductionMod = -0.1f;
+                        ResearchMod   = -0.1f; ;
+                        TaxMod        = -0.1f;
+                        ModHpModifier = -0.2f;
                     }
 
                     break;
@@ -101,7 +101,7 @@
                     PiratePayModifier    = 0.75f;
                     ExpansionMultiplier  = 0.75f;
                     MinStartingColonies  = 3;
-                    ExpandSearchTurns    = 60;
+                    ExpandSearchTurns    = 30;
                     RemnantTurnsLevelUp  = 480;
                     RemnantResourceMod   = 0.35f;
                     RemnantNumBombers    = 0.75f;
@@ -124,7 +124,7 @@
                     PiratePayModifier    = 1f;
                     ExpansionMultiplier  = 0.25f;
                     MinStartingColonies  = 5;
-                    ExpandSearchTurns    = 25;
+                    ExpandSearchTurns    = 20;
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.45f;
                     RemnantNumBombers    = 1f;
