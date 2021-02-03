@@ -4828,6 +4828,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Battleship</Text>
     </Token>
     <Token>
+      <Index>1840</Index>
+      <Text>Indicates that this planet is unsafe for goods transportation, due to combat in the planet's orbit or manual Quarantine, and therefore no freighter will be until the Blockade or Quarantine is lifted.</Text>
+    </Token>
+    <Token>
+      <Index>1841</Index>
+      <Text>This ship is inhibited and cannot engage warp. Check The red status symbol below for more details. You can disable this text and circle alerts in the Automation Screen. You can also enable gravity well display in the related button next to the Mini-map.</Text>
+    </Token>
+    <Token>
+      <Index>1842</Index>
+      <Text>Disable Inhibition Alerts</Text>
+    </Token>
+    <Token>
+      <Index>1843</Index>
+      <Text>Inhibition Alerts are displayed when a single ship is selected and it is inhibited. Generally it is meant for Novice players and it will be off by default when starting a game on Hard or Brutal.</Text>
+    </Token>
+    <Token>
       <Index>1844</Index>
       <Text>Disable Remnant Story</Text>
     </Token>
@@ -4995,7 +5011,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1887</Index>
-      <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
+      <Text>Prevent goods transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage. This overrides the Governor's Import/Export settings.</Text>
     </Token>
     <Token>
       <Index>1888</Index>
@@ -7688,15 +7704,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4057</Index>
-      <Text>Add ship designs to this fleet from teh panel on the right. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.</Text>
-    </Token>
-    <Token>
-      <Index>4056</Index>
-      <Text>Fleet Design Overview</Text>
-    </Token>
-    <Token>
-      <Index>4057</Index>
-      <Text>Fighters Only</Text>
+      <Text>Add ship designs to this fleet from the panel on the right. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.</Text>
     </Token>
     <Token>
       <Index>4058</Index>
@@ -7929,11 +7937,20 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4113</Index>
       <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\n meteor was comprised mostly of useful minerals.</Text>
     </Token>
-	  <!-- More Venus ToolTips-->
-	<Token>
-	  <Index>4114</Index>
-	  <Text>Weapon target error radius measured in ship slots. An accuracy of -6 means the weapon will hit within a 6 slot radius of the target point. above or below range 2300 The error will gradually increase or decrease. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
-	</Token>
+    <!-- More Venus ToolTips-->
+    <Token>
+      <Index>4114</Index>
+      <Text>Weapon target error radius measured in ship slots. An accuracy of -6 means the weapon will hit within a 6 slot radius of the target point. above or below range 2300 The error will gradually increase or decrease. Fire Control Systems, turreted weapons, traits, and crew level can modify this</Text>
+    </Token>
+    <!-- Mars ToolTips-->
+    <Token>
+      <Index>4115</Index>
+      <Text>Mineral Decay Rate</Text>
+    </Token>
+    <Token>
+      <Index>4116</Index>
+      <Text>Higher Mineral Decay increases the loss chance of planet mineral Richness when it outputs high production. Note that this is also affected by game difficulty.</Text>
+    </Token>
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
@@ -8525,7 +8542,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
   <Token>
       <Index>6058</Index>
       <Text>An enemy Agent stole a technology from us:</Text>
-    </Token>SignTreatyWith
+    </Token>
     <Token>
       <Index>6059</Index>
       <Text>We foiled an enemy plot to steal our technology</Text>

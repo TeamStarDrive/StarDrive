@@ -334,6 +334,9 @@ namespace Ship_Game
         public FloatSlider SliderPercent(Rectangle rect, string text, float min, float max, float value)
             => Add(new FloatSlider(SliderStyle.Percent, rect, text, min, max, value));
 
+        public FloatSlider SliderDecimal1(Rectangle rect, string text, float min, float max, float value)
+            => Add(new FloatSlider(SliderStyle.Decimal1, rect, text, min, max, value));
+
         public FloatSlider Slider(int x, int y, int w, int h, string text, float min, float max, float value)
             => Slider(new Rectangle(x, y, w, h), text, min, max, value);
 

@@ -67,8 +67,8 @@
                     MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
                     ExpansionMultiplier  = 1.25f;
-                    MinStartingColonies  = 3;
-                    ExpandSearchTurns    = 100;
+                    MinStartingColonies  = 2;
+                    ExpandSearchTurns    = 50;
                     RemnantTurnsLevelUp  = 540;
                     RemnantResourceMod   = 0.2f;
                     RemnantNumBombers    = 0.5f;
@@ -79,10 +79,10 @@
 
                     if (!empire.isPlayer)
                     {
-                        ProductionMod = -0.25f;
-                        ResearchMod   = -0.25f; ;
-                        TaxMod        = -0.25f;
-                        ModHpModifier = -0.25f;
+                        ProductionMod = -0.1f;
+                        ResearchMod   = -0.1f; ;
+                        TaxMod        = -0.1f;
+                        ModHpModifier = -0.2f;
                     }
 
                     break;
@@ -100,12 +100,12 @@
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 0.75f;
                     ExpansionMultiplier  = 0.75f;
-                    MinStartingColonies  = 4;
-                    ExpandSearchTurns    = 50;
+                    MinStartingColonies  = 3;
+                    ExpandSearchTurns    = 30;
                     RemnantTurnsLevelUp  = 480;
                     RemnantResourceMod   = 0.35f;
                     RemnantNumBombers    = 0.75f;
-                    BaseColonyGoals      = 3;
+                    BaseColonyGoals      = 2;
                     ColonyGoalMultiplier = 0.5f;
                     StandByColonyShips   = 2;
                     TrustLostStoleColony = 5;
@@ -124,7 +124,7 @@
                     PiratePayModifier    = 1f;
                     ExpansionMultiplier  = 0.25f;
                     MinStartingColonies  = 5;
-                    ExpandSearchTurns    = 25;
+                    ExpandSearchTurns    = 20;
                     RemnantTurnsLevelUp  = 400;
                     RemnantResourceMod   = 0.45f;
                     RemnantNumBombers    = 1f;

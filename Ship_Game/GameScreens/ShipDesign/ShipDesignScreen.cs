@@ -47,6 +47,7 @@ namespace Ship_Game
         ScrollList2<ShipHullListItem> HullSelectList;
 
         public ShipModule HighlightedModule;
+        private SlotStruct ProjectedSlot;
         Vector2 CameraVelocity;
         Vector2 StartDragPos;
         ShipData Changeto;
@@ -351,7 +352,7 @@ namespace Ship_Game
 
             if (Role != oldRole && showRoleChangeTip)
             {
-                Vector2 pos = new Vector2(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
+                Vector2 pos = new Vector2(ScreenCenter.X-100, ModuleSelectComponent.Y + 50);
                 RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, pos);
             }
         }
@@ -359,8 +360,11 @@ namespace Ship_Game
         public bool IsBadModuleSize(ShipModule module)
         {
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
-                if (ModuleGrid.ModuleFitsAtSlot(slot, module))
+            {
+                ShipModule tiltedModule = CreateDesignModule(module.UID, ModuleOrientation.Right, slot.Facing);
+                if (ModuleGrid.ModuleFitsAtSlot(slot, module) || ModuleGrid.ModuleFitsAtSlot(slot, tiltedModule))
                     return false;
+            }
             return true;
         }
 

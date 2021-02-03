@@ -64,12 +64,13 @@ namespace Ship_Game.Ships
 
         public static float GetMass(ShipModule[] modules, Empire loyalty, int surfaceArea, float ordnancePercent)
         {
-            float mass = surfaceArea * 0.5f * (1 + surfaceArea / 500);
+            float minMass = surfaceArea *0.5f * (1 + surfaceArea / 500);
+            float mass    = minMass;
             for (int i = 0; i < modules.Length; i++)
                 mass += modules[i].GetActualMass(loyalty, ordnancePercent, useMassModifier: false);
 
             mass *= loyalty.data.MassModifier; // apply overall mass modifier once 
-            return mass.LowerBound(1);
+            return mass.LowerBound(minMass);
         }
 
         public static float GetMass(float mass, Empire loyalty)
@@ -102,7 +103,7 @@ namespace Ship_Game.Ships
             float radsPerSec = turnThrust / mass / 700f;
             if (level > 0)
                 radsPerSec += radsPerSec * level * 0.05f;
-            return radsPerSec;
+            return radsPerSec.UpperBound(Ship.MaxTurnRadians);
         }
 
         public static float GetVelocityMax(float thrust, float mass)
@@ -112,14 +113,14 @@ namespace Ship_Game.Ships
 
         public static float GetFTLSpeed(float warpThrust, float mass, Empire e)
         {
-            return (warpThrust / mass) * e.data.FTLModifier;
+            return (warpThrust / mass * e.data.FTLModifier).LowerBound(Ship.LightSpeedConstant);
         }
 
         public static float GetSTLSpeed(float thrust, float mass, Empire e)
         {
             float thrustWeightRatio = thrust / mass;
             float speed = thrustWeightRatio * e.data.SubLightModifier;
-            return Math.Min(speed, Ship.LightSpeedConstant);
+            return speed.UpperBound(Ship.MaxSubLightSpeed);
         }
 
         public static float GetFTLSpoolTime(ShipModule[] modules, Empire e)
