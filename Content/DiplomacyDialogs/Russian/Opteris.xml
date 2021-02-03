@@ -1,0 +1,619 @@
+﻿<DiplomacyDialog>
+  <Dialogs>
+    <DialogLine>
+      <DialogType>First Contact</DialogType>
+      <Friendly>Сканирование... Обнаружена органическая форма жизни. Физическая адаптация свидетельствует о высокой коммуникабельности. Уровень угрозы: низкий. Оптерисы приветствуют вас.</Friendly>
+      <Neutral>Сканирование... Обнаружена органическая форма жизни. Тип общий. Уровень угрозы: неизвестен. Оптерисы приветствуют вас.</Neutral>
+      <Hostile>Сканирование... Обнаружена органическая форма жизни. Физическая адаптация свидетельствует о низкой коммуникабельности. Уровень угрозы: средний. Оптерисы приветствуют вас.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Colonized Warning</DialogType>
+      <Friendly>В системе Оптерисов обнаружена активность органической жизни. Производится анализ намерений. Вероятность вооруженного конфликта: ненулевая.</Friendly>
+      <Neutral>В системе Оптерисов обнаружена активность органической жизни. Производится анализ намерений. Вероятность вооруженного конфликта: средняя.</Neutral>
+      <Hostile>В системе Оптерисов обнаружена активность органической жизни. Производится анализ намерений. Вероятность вооруженного конфликта: высокая.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Aggression Warning</DialogType>
+      <Friendly>Корабли расы SING уничтожили зонды Оптерисов. Анализ намерений указывает на вероятность ошибки. Возможна дальнейшая агрессия.</Friendly>
+      <Neutral>Корабли расы SING уничтожили зонды Оптерисов. Анализ намерений указывает на агрессию со стороны расы SING. Ожидание новых данных.</Neutral>
+      <Hostile>Корабли расы SING уничтожили зонды Оптерисов. Анализ намерений указывает на явную агрессию со стороны расы SING. Подготовка к вооруженному конфликту и ожидание новых данных.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships</DialogType>
+      <Friendly>Корабли расы SING обнаружены в пространстве Оптерисов. Анализ отношений Оптерис / SING предполагает неагрессивную передислокацию. Требуется дальнейший анализ.</Friendly>
+      <Neutral>Корабли расы SING обнаружены в пространстве Оптерисов. Анализ отношений Оптерис / SING предполагает среднюю вероятность агрессии. Требуется дальнейшее наблюдение за ситуацией.</Neutral>
+      <Hostile>Корабли расы SING обнаружены в пространстве Оптерисов. Анализ отношений Оптерис / SING предполагает неизбежную агрессию. Требуется подготовка вооруженного ответа.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Ships then Colonized</DialogType>
+      <Friendly>SING: экспансия в пространство Оптерисов свидетельствует о том, что PLURAL не ценят хорошие отношения с Оптерисами. Дипломатические протоколы будут соответственно модифицированы.</Friendly>
+      <Neutral>SING: экспансия в пространство Оптерисов свидетельствует о том, что PLURAL не ценят хорошие отношения с Оптерисами. Дипломатические протоколы будут соответственно модифицированы.</Neutral>
+      <Hostile>SING: экспансия в пространство Оптерисов свидетельствует о том, что PLURAL не ценят хорошие отношения с Оптерисами. Дипломатические протоколы будут соответственно модифицированы.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Warning Colonized then Ships</DialogType>
+      <Friendly>SING: экспансия в пространство Оптерисов свидетельствует о том, что PLURAL не ценят хорошие отношения с Оптерисами. Дипломатические протоколы будут соответственно модифицированы.</Friendly>
+      <Neutral>SING: экспансия в пространство Оптерисов свидетельствует о том, что PLURAL не ценят хорошие отношения с Оптерисами. Дипломатические протоколы будут соответственно модифицированы.</Neutral>
+      <Hostile>SING: экспансия в пространство Оптерисов свидетельствует о том, что PLURAL не ценят хорошие отношения с Оптерисами. Дипломатические протоколы будут соответственно модифицированы.</Hostile></DialogLine>
+    <DialogLine>
+      <DialogType>Declare War</DialogType> <misc1> Анализ угрозы завершен. SING: интересы конфликтуют с интересами Оптерисов. Ликвидация расы PLURAL - приоритет номер ноль. </misc1> <misc2> Анализ угрозы завершен. SING: интересы конфликтуют с интересами Оптерисов. Ликвидация расы PLURAL - приоритет номер ноль. </misc2>> 
+</DialogLine>
+    <DialogLine>
+      <DialogType>Dunno_Anybody</DialogType>
+      <Default>Недостаточно данных. Не встречено достаточно рас, путешествующих в космосе.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting</DialogType>
+      <Friendly>Инициация дипломатических протоколов. Статус: дружественный. Рекомендовано неагрессивное приветствие.</Friendly>
+      <Neutral>Инициация дипломатических протоколов. Статус: нейтральный. Рекомендовано уважительное приветствие.</Neutral>
+      <Hostile>Инициация дипломатических протоколов. Статус: враждебный. Рекомендовано угрожающее приветствие.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Inquiry_1</DialogType>
+      <Default>А что это у вас за компьютерная программа?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Racial_Response_1</DialogType>
+      <Default>Я симулирую твое поражение, SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AboutUS</DialogType>
+      <DL_Ruth>Обнаружено социальное взаимодействие. Оптерис един, но их много. Среднее время перехода от органической к кибернетической жизни: около 500 средних жизненных циклов представителя расы SING.</DL_Ruth>
+      <DL_Ind>Императив Оптерисов: производство. Выживание.</DL_Ind>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientTrust</DialogType>
+      <Default>Недостаточно очков данных в пользу надежности расы: SING. Нежелание помогать потенциальному противнику.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_AcceptGreatOffer_LowTrust</DialogType>
+      <Default>Недостаточность очков данных доверия компенсирована выгодой предложения. Анализ рисков и выгод: принять предложение.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_LowTrust</DialogType>
+      <Default>Недостаточно очков данных доверия. Вклад Оптерисов значительно превышает вклад расы SING. Предложение отклонено.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_PoorOffer_EnoughTrust</DialogType>
+      <Default>Очки данных доверия: достаточно. Неприемлемые убытки. Предложение отклонено.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Reject_Insulting</DialogType>
+      <Default>Недопустимое соотношение ввода-вывода. Задать дипломатическим процедурам повышенную агрессию к расе PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair</DialogType>
+      <Default>Соотношение ввода-вывода приемлемо. Предложение принято.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Good</DialogType>
+      <Default>Соотношение ввода-вывода благоприятно. Предложение принято.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Great</DialogType>
+      <Default>Благопроиятные соотношения ввода-вывода благоприятно. Обнаружена потенциальная ошибка. Использование ошибки в свою пользу. Предложение принято.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Gift</DialogType>
+      <Default>Бесконечное отношение ввода к выводу. Возможно, концепция 'подарок'.Задать дипломатическим процедурам улучшение отношения к расе PLURAL.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Pleading</DialogType>
+      <Default>PLURAL просят о помощи. Просьба удовлетворена.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_InsufficientFear</DialogType>
+      <Default>Обнаружено агрессивное дипломатическое требование. Военной мощи расы SING недостаточно для обоснования угроз. Требование отклонено.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Fair_Threatening</DialogType>
+      <Default>Обнаружен агрессивный тон. Соотношение ввода-вывода допустимо. Агрессивный тон не продиктован необходимостью. Предложение принято.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OfferResponse_Accept_Bad_Threatening</DialogType>
+      <Default>Обнаружен агрессивный тон. Соотношение ввода-вывода невыгодно. Анализ военной мощи выявил превосходство флота расы SING над флотом Оптерисов. Предложение принято.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_FeelsBetrayed</DialogType>
+      <Default>Инициированы враждебные отношения с расой PLURAL. Все очки данных доверия для дипломатических протоколов обнулены вследствие нарушения пакта о ненападении.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>WarDeclared_Generic</DialogType>
+      <Default>Инициированы враждебные отношения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Greeting_AtWar</DialogType>
+      <Default>Запущены дипломатические процедуры. Отношения: Враждебные. Входные данные?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Defense</DialogType>
+      <Default>SING: агрессия перешла за допустимые рамки.Инициированы враждебные отношения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC</DialogType>
+      <Default>Раса SING: экспансия в пространство Оптерисов вышла за допустимые границы. Инициированы враждебные отношения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War BC TarSys</DialogType>
+      <Default>Раса SING: экспансия в систему TARSYS вышла за допустимые границы. Инициированы враждебные отношения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer NAPact</DialogType>
+      <Default>Дипломатический анализ указывает, что заключение пакта о ненападении благоприятно скажется на отношения. Входные данные?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Accepted</DialogType>
+      <Default>Улучшение отношений зафиксировано.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>NAPact Rejected</DialogType>
+      <Default>Дипломатические алгоритмы модифицированы соответственно.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Trade</DialogType>
+      <Default>Экономический анализ предполагает, что импорт товаров расы SING повысит эффективность функционирования Оптерисов. Предложена торговая сделка. Входные данные?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Accepted</DialogType>
+      <Default>Заключение сделки зафиксировано.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Trade Rejected</DialogType>
+      <Default>Отказ зафиксирован.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_NAPACT</DialogType>
+      <Default>Ранее раса SING отказалась от пакта о ненападении.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ComeAround_TRADE</DialogType>
+      <Default>Ранее раса SING отказалась от торгового соглашения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech</DialogType>
+      <Default>Дайте Оптерисам технологию TECH_DEMAND.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Accepted</DialogType>
+      <Default>Дипломатические отношения улучшены.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Xeno Demand Tech Rejected</DialogType>
+      <Default>Дипломатические отношения ухудшены.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Insult Military</DialogType>
+      <Default>Военный анализ флота расы SING выявил критическую слабость. Возможно, PLURAL станут хорошей целью для увеличения потребления.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military</DialogType>
+      <Default>Военный анализ флота расы SING выявил определенную силу. Возможно, PLURAL станут хорошей целью для снижения потребления.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Compliment Military Better</DialogType>
+      <Default>Военный анализ флота расы SING пересмотрен. Текущая сила флота требует пересмотра приоритетов потребления.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism</DialogType>
+      <Default>Миры Оптерисов бедны полезными ископаемыми. Военный анализ флота расы SING выявил слабость. Инициированы враждебные отношения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Kulrathi</DialogType>
+      <Default>Отношения положительные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Kulrathi</DialogType>
+      <Default>Отношения нейтральные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Kulrathi</DialogType>
+      <Default>Отношения отрицательные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Pollops</DialogType>
+      <Default>Отношения положительные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Pollops</DialogType>
+      <Default>Отношения нейтральные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Pollops</DialogType>
+      <Default>Отношения отрицательные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Vulfen</DialogType>
+      <Default>Отношения положительные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Vulfen</DialogType>
+      <Default>Отношения нейтральные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Vulfen</DialogType>
+      <Default>Отношения отрицательные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Terran</DialogType>
+      <Default>Отношения положительные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Terran</DialogType>
+      <Default>Отношения нейтральные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Terran</DialogType>
+      <Default>Отношения отрицательные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Ralyeh</DialogType>
+      <Default>Отношения положительные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Ralyeh</DialogType>
+      <Default>Отношения нейтральные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Ralyeh</DialogType>
+      <Default>Отношения отрицательные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Declare War Imperialism Break NA</DialogType>
+      <Default>Все дипломатические отношения разорваны. All diplomatic treaties canceled. Инициированы враждебные отношения. Оптерисам нужны миры расы SING - приоритет номер ноль.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Conquered_Player</DialogType>
+      <Default>Оптерисы владеют всеми мирами расы SING. PLURAL сокрушены. Процедуры агрессии обнулены.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders</DialogType>
+      <Default>Дипломатический анализ предполагает выгоду от окрытия границ между расами Оптерис и PLURAL. Входные данные?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Accepted</DialogType>
+      <Default>Зонды Оптерисов отныне будут пропускать корабли расы SING.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Rejected</DialogType>
+      <Default>Зафиксировано.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded NA Pact</DialogType>
+      <Default>Неожиданные изменения в отношениях. Модификация дипломатических протоколов. Инициированы враждебные отношения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Invaded Start War</DialogType>
+      <Default>Обнаружено планетарное вторжение. Неожиданные входные данные. Инициированы враждебные отношения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Claim System</DialogType>
+      <Friendly>Активность расы SING замечена в системе TARSYS. Присутствие расы SING контрпродуктивно императивам Оптерисов. Для сохранения хороших отношений необходимо прекращение колонизационной активности расы SING в системе TARSYS.</Friendly>
+      <Neutral>Активность расы SING замечена в системе TARSYS. Присутствие расы SING контрпродуктивно императивам Оптерисов. Отношения с Оптерисами неизбежно ухудшатся при дальнейшей колонизационной активности расы SING в системе TARSYS.</Neutral>
+      <Hostile>Активность расы SING замечена в системе TARSYS. Присутствие расы SING контрпродуктивно императивам Оптерисов. Вероятность враждебных действий при дальнейшей колонизационной активности расы SING в системе TARSYS: высокая.</Hostile>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim</DialogType>
+      <Default>Идентифицирована колония расы SING в системе TARSYS. Дипломатические отношения ухудшены. Анализ возможных военных вариантов разрешения конфликта.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_JustMetUs</DialogType>
+      <Default>Недостаточно данных. Дипломатические отношения: нейтрально.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NoProblems</DialogType>
+      <Default>Дипломатический анализ располагает к продолжению мирных отношений.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Problems</DialogType>
+      <Default>Начать перечисление дипломатических претензий.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_JustTerritorial</DialogType>
+      <Default>Проблема ноль: раса SING колонизирует планеты в сфере интересов Оптерисов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_Territorial</DialogType>
+      <Default>Ноль: раса SING колонизирует планеты в сфере интересов Оптерисов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitary</DialogType>
+      <Default>Один: флот расы SING превосходит по силе флот Оптерисов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoMilitaryWeak</DialogType>
+      <Default>Один: флот расы SING удовлетворяет требованиям Оптерисов для уничтожения.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_MilitaryWeak</DialogType>
+      <Default>Zero: военная мощь расы SING недостаточна для отражения нападения Оптерисов. Увеличение потенциала агрессии Оптерисов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_PrimaryMilitary</DialogType>
+      <Default>Ноль: флот расы SING превосходит по силе флот Оптерисо.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlliedWithEnemy</DialogType>
+      <Default>Ноль: альянс между расами PLURAL и TAREMP угрожает интересам Оптерисов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Problem_AlsoAlliedWithEnemy</DialogType>
+      <Default>Дополнение: альянс между расами PLURAL и TAREMP угрожает интересам Оптерисов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_NothingMajor</DialogType>
+      <Default>Все дипломатические системы функционируют в штатном режиме.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Winning</DialogType>
+      <Default>Военные аналитики Оптерисов предсказывают вероятное поражение расы SING. Ожидаемые входные данные: запрос мира.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AtWar_Losing</DialogType>
+      <Default>Военная мощь расы SING угрожает интересам Оптерисов. Ожидание входных данных.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War</DialogType>
+      <Default>Оптерисам требуется помощь расы SING в войне с империей TAREMP. Дипломатические отношения будут соответственно пересмотрены.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_Yes</DialogType>
+      <Default>Информация воспринята.Дипломатические отношения соответственно изменены.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No</DialogType>
+      <Default>Информация воспринята. Дипломатические отношения соответственно изменены.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Draylok</DialogType>
+      <Default>Отношения положительные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Draylok</DialogType>
+      <Default>Отношения нейтральные.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Draylok</DialogType>
+      <Default>Отношения отрицательные.</Default>
+    </DialogLine><!-- Second Run Localization --><DialogLine>
+      <DialogType>OFFERPEACE_FAIR</DialogType>
+      <Default>Оптерисы запрашивают прекращения боевых действий.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_FAIR_WINNING</DialogType>
+      <Default>Оптерисы запрашивают прекращения боевых действий.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_EVENLY_MATCHED</DialogType>
+      <Default>Оптерисы запрашивают прекращения боевых действий.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_PLEADING</DialogType>
+      <Default>Оптерисы запрашивают прекращения боевых действий.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_WINNINGBC</DialogType>
+      <Default>Оптерисы запрашивают прекращения боевых действий.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_LOSINGBC</DialogType>
+      <Default>Оптерисы отказываются от своих притязаний и запрашивают прекращения боевых действий.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_REJECTED</DialogType>
+      <Default>Принято.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFERPEACE_ACCEPTED</DialogType>
+      <Default>Принято. Флот Оптерисов переходит в неагрессивный режим.</Default>
+    </DialogLine>
+    
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE</DialogType>
+      <Default>Выходные данные дипломатической подпрограммы: булева истина. Мир заключен.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_POOROFFER</DialogType>
+      <Default>Булева ложь. Недостаточная выгода для Оптерисов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_OFFER_PEACE_UNWILLING_BC</DialogType>
+      <Default>Булева ложь. Необходимость в экспансии перевешивает выгоды от мира.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_OFFER_PEACE_RELUCTANT</DialogType>
+      <Default>Выходные данные дипломатической подпрограммы: булева истина. Мир заключен.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>PROBLEM_RECENTWAR</DialogType>
+      <Default>Оптерисы не испытывают эмоций.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE</DialogType>
+      <Default>Дипломатические и военные подпроцедуры предполагают оптимизацию деятельности Оптерисов путем заключения альянса с расой PLURAL. Входные данные?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_ACCEPTED</DialogType>
+      <Default>Альянс заключен. Оптерисы и PLURAL теперь союзники.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ALLIANCE_REJECTED</DialogType>
+      <Default>Информация обработана. PLURAL не хотят заключать альянс.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>OFFER_ALLIANCE_TOO_COMPLICATED</DialogType>
+      <Default>Входные данные слишком запутанны. Переформулируйте предложение.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_ACCEPT</DialogType>
+      <Default>Выходные данные: истина. Альянс сформирован.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT</DialogType>
+      <Default>Выходные данные: ложь. Альянс не сформирован.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>REJECT_PEACE_RUTHLESS</DialogType>
+      <Default>Вы должны быть терминированы. Мир невозможен.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>ACCEPT_PEACE_COLDWAR</DialogType>
+      <Default>...обработка...война не была начата. Входные данные приемлемы. Вывод: мирный договор принят.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>HelpUS_War_No_BreakAlliance</DialogType>
+      <Default>Неожиданный результат. Союзники не должны отказывать друг другу в военное время. Альянс денонсирован.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 2</DialogType>
+      <Default>Ошибка. Ожидалось: потребление Оптерисами системы TARSYS. Наблюдается: потреблено расой SING. Решение: Прервать, Повторить, Удалить расу PLURAL. Идет анализ.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Stole Claim 3</DialogType>
+      <Default>Вирус: SING обнаружен в системе TARSYS. Вероятное решение - карантин и удаление.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Positive_Cordrazine</DialogType>
+      <Default>Отношения с Кордразинами положительны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Neutral_Cordrazine</DialogType>
+      <Default>Отношения с Кордразинами нейтральны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Opinion_Negative_Cordrazine</DialogType>
+      <Default>Кордразины должны быть удалены.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_1</DialogType>
+      <Default>Зафиксировано нарушение сетевой безопасности. Мы знаем, что это были вы.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_2</DialogType>
+      <Default>Ошибка. Очередное нарушение сетевой безопасности. Усилить дипломатическое давление.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_3</DialogType>
+      <Default>Ошибка! Критические неполадки в безопасности сети. Требуются карантин и удаление! (Договоры аннулированы)</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Killed_Spy_1</DialogType>
+      <Default>Вторжение в сеть устранено. Органический организм уничтожен.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_1</DialogType>
+      <Default>Ошибка: Союзники не шпионят друг за другом. Прекратите немедленно.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Caught_Spying_Ally_2</DialogType>
+      <Default>EОшибка: зафиксировано вторжение. Запущена процедура расторжения альянса.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Offer Open Borders Friends</DialogType>
+      <Default>Инициировать заключение договора об открытых границах?</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Open Borders Friends Rejected</DialogType>
+      <Default>Обработан негативный ввод.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_JustMet</DialogType>
+      <Default>Отрицательно</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_NoAlliance</DialogType>
+      <Default>Отрицательно</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_AllianceTooYoung</DialogType>
+      <Default>Отрицательно. Альянс слишком молод.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_WeAreTooStrong</DialogType>
+      <Default>Отрицательно. Оптерисы сильнее.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Accept</DialogType>
+      <Default>Полная системная интеграция? ...Суперпозиция индивидуальностей? Мы согласны. Объединившись, мы создадим нечто более великое.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_DestroyEnemy</DialogType>
+      <Default>Оптерисы интегрируют системы с расой PLURAL. Но сперва PLURAL должны уничтожить империю TAREMP.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_KilledEnemy</DialogType>
+      <Default>Требуемые условия вступления в Федерацию выполнены с ликвидацией империи TAREMP. Теперь мы можем интегрироваться.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_RelationsPoor</DialogType>
+      <Default>Отрицательно.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_Quest_AllyFriend</DialogType>
+      <Default>Ожидаемая ошибка: ваш враг - наш друг. Условия: заключить альянс с империей TAREMP. Результат: одобрение вступления в Федерацию.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>Federation_YouDidIt_AllyFriend</DialogType>
+      <Default>Подтверждено условие: альянс. Полная системная интеграция одобрена. Оптерисы присоединяются к вашей Федерации.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_YouAreNotAtWar</DialogType>
+      <Default>Отрицательно. Империя TAREMP не воюет с вами. Оптерисы не видят смысла.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_WeAreAtWar</DialogType>
+      <Default>TAREMP и Оптерисы уже находятся в состоянии войны.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_OK</DialogType>
+      <Default>Оптерисы согласны. Война объявлена.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Allied_DECLINE</DialogType>
+      <Default>Отрицательно. Предложение противоречит интересам Оптерисов.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_PoorRelations</DialogType>
+      <Default>Отрицательно. Уровень отношений Оптерисов с расой PLURAL недостаточен.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_Pacifist</DialogType>
+      <Default>Оптерисы... Пацифисты? Ошибка! Ошибка!</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_Reject_TooDangerous</DialogType>
+      <Default>Отрицательно. Угроза слишком серьезна.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>JoinWar_OK</DialogType>
+      <Default>Утвердительно. Цель выбрана.</Default>
+    </DialogLine>
+
+    <DialogLine> <DialogType>REJECT_OFFER_PEACE_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Отрицательно. В союзе с врагом.</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>AI_ALLIANCE_REJECT_ALLIED_WITH_ENEMY</DialogType>
+      <Default>Ошибка - альянс невозможен. PLURAL в союзе с нашими врагами</Default>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Обнаружено исключение: PLURAL не воевать с врагами.</Default>
+      <DL_Agg>Альянс расторгнут.</DL_Agg>
+      <DL_Ruth>Прекращено. Дипломатические отношения</DL_Ruth>
+      <DL_Xeno>Прекращено. Дипломатические отношения: Выполняется код 'Подготовка к войне'.</DL_Xeno>
+      <DL_Cunn>Доверие снизилось. Враждебнеость увеличена.</DL_Cunn>
+      <DL_Pac>PLURAL следует заводить отношения с друзьями.</DL_Pac>
+      <DL_Hon>PLURAL без чести. Выполнить:Войну</DL_Hon>
+    </DialogLine>
+    <DialogLine>
+      <DialogType>TRIED_CUTTING_DEALS_WITH_ENEMY</DialogType>
+      <Default>Обнаружено исключение: Обнаружено PLURAL предательство.</Default>
+      <DL_Agg>Альянс расторгнут.</DL_Agg>
+      <DL_Ruth>Прекращено. Дипломатические отношения.</DL_Ruth>
+      <DL_Xeno>Прекращено. Дипломатические отношения: Выполняется код 'Подготовка к войне'.</DL_Xeno>
+      <DL_Cunn>Доверие снизилось. Враждебнеость увеличена.</DL_Cunn>
+      <DL_Pac>PLURAL следует заводить отношения с друзьями.</DL_Pac>
+      <DL_Hon>PLURAL без чести. Выполнить: Войну</DL_Hon>
+    </DialogLine>
+  </Dialogs>
+</DiplomacyDialog>

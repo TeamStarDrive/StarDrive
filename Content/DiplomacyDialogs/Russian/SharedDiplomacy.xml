@@ -1,0 +1,57 @@
+﻿<DiplomacyDialog>
+  <StatementSets>
+    <StatementSet>
+      <Name>Ordinary Discussion</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>У вас есть на нас какие-нибудь обиды?</words>
+          <Response>Hardcoded_Grievances</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Давайте обсудим другую империю...</words>
+          <Response>Hardcoded_EmpireChoose</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Что вы можете рассказать о вашей расе? </words>
+          <Response>AboutUS</Response>
+        </DialogOption>
+        <DialogOption>
+          <SpecialInquiry>Racial_Inquiry_1</SpecialInquiry>
+          <words></words>
+          <Response>Racial_Response_1</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Мы предлагаем вашей империи вступить в нашу Федерацию. Главными, естественно, будем мы. </words>
+          <Response>Hardcoded_Federation_Analysis</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+    <StatementSet>
+      <Name>EmpireDiscuss</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>Что вы думаете об империи TAREMP?</words>
+          <Response>Target_Opinion</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Мы хотим, чтобы вы объявили войну империи TAREMP</words>
+          <Response>Hardcoded_War_Analysis</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+    <StatementSet>
+      <Name>Threaten</Name>
+      <DialogOptions>
+        <DialogOption>
+          <words>Мы очень рассердимся, если вы колонизируете планеты в системах, которые мы застолбили за собой.</words>
+          <Response>Threatened_Territory</Response>
+        </DialogOption>
+        <DialogOption>
+          <words>Прекратите шпионить за нами </words>
+          <Response>Stop_Spying</Response>
+        </DialogOption>
+      </DialogOptions>
+    </StatementSet>
+  </StatementSets>
+ 
+</DiplomacyDialog>
