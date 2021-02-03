@@ -21,6 +21,7 @@ namespace Ship_Game
         int IncomingProd;
         float IncomingPop;
         int UpdateTimer;
+        bool Blockade;
         bool BioSpheresResearched;
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
@@ -260,8 +261,10 @@ namespace Ship_Game
                     IncomingFood.String(), GameText.Food);
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingProdFreighters,
                     IncomingProd.String(), GameText.Production);
+
+                string popString = IncomingPop.LessOrEqual(1) ? $"{(IncomingPop * 1000).String(2)}m" : $"{IncomingPop.String()}b";
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingColoFreighters,
-                    IncomingPop.String(2), GameText.Colonists);
+                    popString, GameText.Colonists);
 
             }
 
@@ -327,6 +330,9 @@ namespace Ship_Game
             DrawFoodAndStorage(batch);
             DrawOrbitalStats(batch);
 
+            BlockadeLabel.Visible = Blockade;
+            BlockadeLabel.Color   = ApplyCurrentAlphaToColor(Color.Red);
+
             base.Draw(batch, elapsed);
         }
 
@@ -343,7 +349,7 @@ namespace Ship_Game
 
             batch.DrawString(TextFont, $"{new LocalizedText(text).Text}:", incomingTitle, Color.Gray);
             batch.DrawString(TextFont, freighters, incomingData, Color.LightGreen);
-            if (incomingCargo == "0" || incomingCargo == "0.00")
+            if (incomingCargo == "0" || incomingCargo == "0m")
                 return;
 
             Vector2 numCargo = new Vector2(incomingData.X + TextFont.MeasureString(freighters).X, incomingData.Y + 1);
@@ -773,6 +779,7 @@ namespace Ship_Game
                 IncomingFood           = TotalIncomingCargo(Goods.Food).RoundUpTo(1);
                 IncomingProd           = TotalIncomingCargo(Goods.Production).RoundUpTo(1);
                 IncomingPop            = (TotalIncomingCargo(Goods.Colonists) / 1000).RoundToFractionOf100();
+                Blockade               = P.Quarantine || P.SpaceCombatNearPlanet;
                 UpdateTimer            = 300;
             }
             else if (!Empire.Universe.Paused)

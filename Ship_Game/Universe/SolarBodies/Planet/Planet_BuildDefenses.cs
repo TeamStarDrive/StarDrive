@@ -321,6 +321,15 @@ namespace Ship_Game
             return false;
         }
 
+        public void BuildTroopsForEvents()
+        {
+            if (TroopsHere.Count > 0 || Owner.isPlayer || TroopsInTheWorks || !EventsOnTiles())
+                return;
+
+            if (CanBuildInfantry)
+                BuildSingleMilitiaTroop();
+        }
+
         public void BuildTroops() // Relevant only for players with the Garrison Checkbox checked.
         {
             if (!Owner.isPlayer || !AutoBuildTroops || RecentCombat)

@@ -41,6 +41,69 @@ namespace Ship_Game.Ships
             return false;
         }
 
+        public bool CanTransportGoodsType(Goods goods)
+        {
+            if (!loyalty.ManualTrade)
+                return true;
+
+            switch (goods)
+            {
+                default:
+                case Goods.Food:       return TransportingFood;
+                case Goods.Production: return TransportingProduction;
+                case Goods.Colonists:  return TransportingColonists;
+            }
+        }
+
+        public bool TryGetBestTradeRoute(Goods goods, Planet[] exportPlanets, Planet importPlanet, out ExportPlanetAndEta exportAndEta)
+        {
+            exportAndEta = default;
+            if (!CanTransportGoodsType(goods) || !InTradingZones(importPlanet))
+                return false;
+
+            var potentialRoutes = new Map<int, Planet>();
+            if (GetCargo(goods) >= CargoSpaceMax * 0.25f)
+            {
+                int eta = (int)GetAstrogateTimeTo(importPlanet);
+                if (TradeDistanceOk(importPlanet, eta))
+                    potentialRoutes.Add(eta, importPlanet); // import planet since there is not export planet.
+            }
+
+            for (int i = 0; i < exportPlanets.Length; i++)
+            {
+                Planet exportPlanet = exportPlanets[i];
+                if (InTradingZones(exportPlanet))
+                {
+                    int eta = (int)(GetAstrogateTimeTo(exportPlanet) + GetAstrogateTimeBetween(exportPlanet, importPlanet));
+                    if (!potentialRoutes.ContainsKey(eta) && TradeDistanceOk(importPlanet, eta))
+                        potentialRoutes.Add(eta, exportPlanet);
+                }
+            }
+
+            if (potentialRoutes.Keys.Count == 0)
+                return false;
+
+            int fastest       = potentialRoutes.FindMinKey(d => d);
+            Planet bestExport = potentialRoutes[fastest];
+            exportAndEta      = new ExportPlanetAndEta(bestExport, fastest);
+            return true;
+        }
+
+        public struct ExportPlanetAndEta
+        {
+            public readonly Planet Planet;
+            public readonly int Eta;
+
+            public ExportPlanetAndEta(Planet exportPlanet, int eta)
+            {
+                Planet = exportPlanet;
+                Eta    = eta; ;
+            }
+        }
+
+        // limit eta for Inter Empire trade
+        bool TradeDistanceOk(Planet importPlanet, int eta) =>  importPlanet.Owner == loyalty || eta <= 30;
+
         public void RemoveTradeRoute(Planet planet)
         {
             TradeRoutes.Remove(planet.guid);

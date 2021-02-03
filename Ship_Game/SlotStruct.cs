@@ -127,6 +127,7 @@ namespace Ship_Game
         }
 
         public Rectangle ModuleRect => new Rectangle(PQ.X, PQ.Y, Module.XSIZE * 16, Module.YSIZE * 16);
+        public Rectangle GetProjectedRect(ShipModule m) => new Rectangle(PQ.X, PQ.Y, m.XSIZE * 16, m.YSIZE * 16);
 
         public bool Intersects(Rectangle r) => PQ.Rect.Intersects(r);
 

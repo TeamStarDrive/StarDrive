@@ -99,7 +99,7 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
-        public bool Safe => !SpaceCombatNearPlanet && !MightBeAWarZone(Owner);
+        public bool Safe => !MightBeAWarZone(Owner);
 
         public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
 
@@ -1152,7 +1152,7 @@ namespace Ship_Game
                 return;
 
             // If the planet outputs 100 production on Brutal, the chance to decay is 5%
-            float decayChance = Prod.GrossIncome / Owner.DifficultyModifiers.MineralDecayDivider;
+            float decayChance = Prod.GrossIncome / (Owner.DifficultyModifiers.MineralDecayDivider / GlobalStats.CustomMineralDecay);
 
             // Larger planets have less chance for reduction
             decayChance /= Scale.LowerBound(0.1f);
@@ -1177,7 +1177,6 @@ namespace Ship_Game
 
                 Log.Info($"Mineral Decay in {Name}, Owner: {Owner}, Current Richness: {MineralRichness}");
             }
-
         }
 
         public void ResetGarrisonSize()
@@ -1290,16 +1289,7 @@ namespace Ship_Game
 
         public bool EventsOnTiles()
         {
-            bool events = false;
-            foreach (PlanetGridSquare tile in TilesList)
-            {
-                if (tile.EventOnTile  && !tile.Building.EventWasTriggered)
-                {
-                    events = true;
-                    break;
-                }
-            }
-            return events;
+            return TilesList.Any(t => t.EventOnTile);
         }
 
         public int NumActiveCrashSites => TilesList.Count(t => t.CrashSite.Active);

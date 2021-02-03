@@ -17,6 +17,7 @@ namespace Ship_Game
         private FloatSlider MinimumWarpRange;
         private FloatSlider StartingRichness;
         private FloatSlider TurnTimer;
+        private FloatSlider CustomMineralDecay;
         public Ship itemToBuild;
 
         public RuleOptionsScreen(GameScreen parent) : base(parent)
@@ -47,6 +48,7 @@ namespace Ship_Game
                 GlobalStats.ShipMaintenanceMulti     = IncreaseMaintenance.AbsoluteValue;
                 GlobalStats.StartingPlanetRichness   = StartingRichness.AbsoluteValue;
                 GlobalStats.TurnTimer                = (byte)TurnTimer.AbsoluteValue;
+                GlobalStats.CustomMineralDecay       = (CustomMineralDecay.AbsoluteValue).RoundToFractionOf10();
                 return true;
             }
             return false;
@@ -79,6 +81,9 @@ namespace Ship_Game
             Checkbox(ftlRect.X + indent, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: 1868, tooltip: 1869);
             Checkbox(ftlRect.X + indent, ftlRect.Y + 125, () => GlobalStats.DisableRemnantStory, title: 1844, tooltip: 1845);
 
+            var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 170, 270, 50);
+            CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(4115), 0.5f, 3, GlobalStats.CustomMineralDecay);
+
             var gwRect = new Rectangle(x, leftRect.Y + 210, 270, 50);
             var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
             var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
@@ -96,9 +101,10 @@ namespace Ship_Game
             MinimumWarpRange    = Slider(minimumWarpRange, "Minimum Warp Range",   0, 1200000f, GlobalStats.MinimumWarpRange);
             IncreaseMaintenance = Slider(maintenanceRect,  "Increase Maintenance", 1, 10f,      GlobalStats.ShipMaintenanceMulti);
 
-            FTLPenaltySlider.Tip = 2286;
+            FTLPenaltySlider.Tip      = 2286;
             EnemyFTLPenaltySlider.Tip = 7041;
-            GravityWellSize.Tip = 6003;
+            GravityWellSize.Tip       = 6003;
+            CustomMineralDecay.Tip    = 4116;
 
             string extraPlanetsTip = "Add extra planets to each system, avoiding lone stars as well";
             if (GlobalStats.ModChangeResearchCost)

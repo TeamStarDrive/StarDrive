@@ -590,13 +590,13 @@ namespace Ship_Game.AI
             if (planet.TradeBlocked && Owner.System != planet.ParentSystem)
             {
                 g.Trade.BlockadeTimer -= timeStep.FixedTime;
-                if (g.Trade.BlockadeTimer > 0f)
+                if (g.Trade.BlockadeTimer > 0f && !planet.Quarantine)
                 {
                     ReverseThrustUntilStopped(timeStep);
                     return true;
                 }
 
-                // blockade is going on for too long, abort
+                // blockade is going on for too long or manual quarantine, abort
                 ClearOrders();
                 State = AIState.AwaitingOrders;
                 Planet fallback = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
@@ -605,6 +605,7 @@ namespace Ship_Game.AI
 
                 return true;
             }
+
             g.Trade.BlockadeTimer = 120f; // blockade was removed, continue as planned
             return false;
         }

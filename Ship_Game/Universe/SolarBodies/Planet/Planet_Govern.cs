@@ -16,6 +16,7 @@ namespace Ship_Game
                 return; // Cant Build stuff when there is combat on the planet
 
             BuildTroops();
+            BuildTroopsForEvents(); // For AI to explore event in colony
 
             if (colonyType == ColonyType.Colony)
                 return; // No Governor? Never mind!
