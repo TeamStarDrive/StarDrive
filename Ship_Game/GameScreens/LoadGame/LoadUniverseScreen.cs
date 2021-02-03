@@ -135,6 +135,7 @@ namespace Ship_Game
             GlobalStats.ShipMaintenanceMulti = usData.OptionIncreaseShipMaintenance;
             GlobalStats.PreventFederations   = usData.preventFederations;
             GlobalStats.EliminationMode      = usData.EliminationMode;
+            GlobalStats.CustomMineralDecay   = usData.CustomMineralDecay;
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
             PlayerLoyalty = usData.PlayerLoyalty;
             RandomEventManager.ActiveEvent = null;
