@@ -119,7 +119,7 @@ namespace Ship_Game
             }
         }
 
-        private void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList)
+        void DispatchOrBuildFreighters(Goods goods, BatchRemovalCollection<Planet> importPlanetList)
         {
             // Order importing planets to balance freighters distribution
             Planet[] importingPlanets = importPlanetList.Filter(p => p.FreeGoodsImportSlots(goods) > 0)
@@ -131,7 +131,7 @@ namespace Ship_Game
             if (exportingPlanets.Length == 0)
                 return;
 
-            if (IdleFreighters.Length == 0) // Need trade but no freighters found
+            if (IdleFreighters.Length == 0) // Need trade for auto trade but no freighters found
             {
                 BuildFreighter();
                 return;
@@ -140,79 +140,60 @@ namespace Ship_Game
             for (int i = 0; i < importingPlanets.Length; i++)
             {
                 Planet importPlanet = importingPlanets[i];
-                // Check if the closest freighter has the goods we need
-                if (FoundFreighterWithCargo(IdleFreighters, importPlanet, goods, out Ship closestIdleFreighter))
-                    closestIdleFreighter.AI.SetupFreighterPlan(importPlanet, goods);
-                else
+                // Check export planets
+                if (GetTradeParameters(goods, importPlanet, exportingPlanets, out ExportPlanetAndFreighter exportAndFreighter))
                 {
-                    // Check export planets
-                    Planet exportPlanet = exportingPlanets.FindClosestTo(importPlanet);
-                    if (exportPlanet == null) // no more exporting planets
-                        continue; // Continue since other planets might find a freighter with cargo and no need for export planet
+                    Planet exportPlanet = exportAndFreighter.Planet;
+                    Ship freighter      = exportAndFreighter.Freighter;
+                    freighter.RefreshTradeRoutes();
+                    freighter.AI.SetupFreighterPlan(exportPlanet, importPlanet, goods);
 
-                    Ship[] freighterList = FilterIdleFreightersList(exportPlanet, importPlanet);
-                    if (FindClosestIdleFreighter(freighterList, exportPlanet, goods, out closestIdleFreighter)
-                        && InterEmpireTradeDistanceOk(closestIdleFreighter, importPlanet, exportPlanet))
-                    {
-                        closestIdleFreighter.RefreshTradeRoutes(); // remove non owner or non trade allies from list (if it has a list at all)
-                        closestIdleFreighter.AI.SetupFreighterPlan(exportPlanet, importPlanet, goods);
-                        // remove the export planet from the exporting list if no more export slots left
-                        if (exportPlanet.FreeGoodsExportSlots(goods) <= 0)
-                            exportingPlanets.Remove(exportPlanet, out exportingPlanets);
-                    }
-                    // If the player empire has AO or trade routes, its possible that no freighter was found since all of them
-                    // were not in the AO or had trade routes to the planet. So try to build a new one regardless of idle freighter number
-                    else if (IdleFreighters.Length > 0)
-                        BuildFreighter();  // build freighter works only for auto trade
+                    // Remove the export planet from the exporting list if no more export slots left
+                    if (exportPlanet.FreeGoodsExportSlots(goods) == 0)
+                        exportingPlanets.Remove(exportPlanet, out exportingPlanets);
                 }
             }
         }
 
-        private bool InterEmpireTradeDistanceOk(Ship freighter, Planet importPlanet, Planet exportPlanet)
+        bool GetTradeParameters(Goods goods, Planet importPlanet, Planet[] exportPlanets,  out ExportPlanetAndFreighter exportAndFreighter)
         {
-            if (importPlanet.Owner == this)
-                return true; // only for Inter-Empire Trade
+            bool interTrade      = importPlanet.Owner != this;
+            Ship[] freighterList = interTrade && isPlayer ? IdleFreighters.Filter(s => s.AllowInterEmpireTrade) 
+                                                          : IdleFreighters;
 
-            return freighter.GetAstrogateTimeBetween(importPlanet, exportPlanet) < 30;
-        }
-
-        private bool FindClosestIdleFreighter(Ship[] freighterList, Planet planet, Goods goods, out Ship freighter)
-        {
-            freighter = ManualTrade ? ClosestIdleFreighterManual(freighterList, planet, goods) 
-                                    : freighterList.FindClosestTo(planet);
-
-            return freighter != null;
-        }
-
-        private bool FoundFreighterWithCargo(Ship[] freighterList, Planet planet, Goods goods, out Ship freighter)
-        {
-            freighter = null;
-            if (planet.Owner != this)
-                return false; // Not for in Inter Empire Trade
-
-            FindClosestIdleFreighter(freighterList.Filter(s => s.InTradingZones(planet)), planet, goods, out freighter);
-            return freighter != null && freighter.GetCargo(goods) > 5f;
-        }
-
-        private Ship ClosestIdleFreighterManual(Ship[] freighterList, Planet planet, Goods goods)
-        {
-            switch (goods)
+            var potentialRoutes = new Map<int, ExportPlanetAndFreighter>();
+            for (int i = 0; i < freighterList.Length; i++)
             {
-                case Goods.Production: return freighterList.FindClosestTo(planet, s => s.TransportingProduction);
-                case Goods.Food:       return freighterList.FindClosestTo(planet, s => s.TransportingFood);
-                default:               return freighterList.FindClosestTo(planet, s => s.TransportingColonists);
+                Ship freighter = freighterList[i];
+                if (freighter.TryGetBestTradeRoute(goods, exportPlanets, importPlanet, out Ship.ExportPlanetAndEta exportAndEta)
+                    && !potentialRoutes.ContainsKey(exportAndEta.Eta))
+                {
+                    potentialRoutes.Add(exportAndEta.Eta, new ExportPlanetAndFreighter(exportAndEta.Planet, freighter));
+                }
+            }
+
+            exportAndFreighter = default;
+            if (potentialRoutes.Count == 0)
+                return false;
+
+            int shortest       = potentialRoutes.FindMinKey(e => e);
+            exportAndFreighter = potentialRoutes[shortest];
+            return true;
+        }
+
+        struct ExportPlanetAndFreighter
+        {
+            public readonly Planet Planet;
+            public readonly Ship Freighter;
+
+            public ExportPlanetAndFreighter(Planet exportPlanet, Ship freighter)
+            {
+                Planet    = exportPlanet;
+                Freighter = freighter;
             }
         }
 
-        private Ship[] FilterIdleFreightersList(Planet exportPlanet, Planet importPlanet)
-        {
-            bool interTrade      = importPlanet.Owner != exportPlanet.Owner;
-            Ship[] freighterList = interTrade && isPlayer ? IdleFreighters.Filter(s => s.AllowInterEmpireTrade) : IdleFreighters;
-
-            return freighterList.Filter(s => s.InTradingZones(importPlanet) && s.InTradingZones(exportPlanet));
-        }
-
-        private void BuildFreighter()
+        void BuildFreighter()
         {
             if (ManualTrade || FreightersBeingBuilt >= MaxFreightersInQueue)
                 return;

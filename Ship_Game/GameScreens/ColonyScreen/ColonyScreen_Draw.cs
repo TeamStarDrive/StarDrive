@@ -261,8 +261,10 @@ namespace Ship_Game
                     IncomingFood.String(), GameText.Food);
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingProdFreighters,
                     IncomingProd.String(), GameText.Production);
+
+                string popString = IncomingPop.LessOrEqual(1) ? $"{(IncomingPop * 1000).String(2)}m" : $"{IncomingPop.String()}b";
                 DrawIncomingFreighters(batch, ref incomingTitle, ref incomingData, IncomingColoFreighters,
-                    IncomingPop.String(2), GameText.Colonists);
+                    popString, GameText.Colonists);
 
             }
 
@@ -347,7 +349,7 @@ namespace Ship_Game
 
             batch.DrawString(TextFont, $"{new LocalizedText(text).Text}:", incomingTitle, Color.Gray);
             batch.DrawString(TextFont, freighters, incomingData, Color.LightGreen);
-            if (incomingCargo == "0" || incomingCargo == "0.00")
+            if (incomingCargo == "0" || incomingCargo == "0m")
                 return;
 
             Vector2 numCargo = new Vector2(incomingData.X + TextFont.MeasureString(freighters).X, incomingData.Y + 1);

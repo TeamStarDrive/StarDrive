@@ -57,6 +57,7 @@ namespace Ship_Game
         public static bool LimitSpeed            = true;
         public static float GravityWellRange;
         public static bool PlanetaryGravityWells = true;
+        public static float CustomMineralDecay = 1;
 
         // Option for keyboard hotkey based arc movement
         public static bool AltArcControl; // "Keyboard Fire Arc Locking"

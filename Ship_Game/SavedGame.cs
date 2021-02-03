@@ -110,6 +110,7 @@ namespace Ship_Game
             SaveData.EliminationMode       = GlobalStats.EliminationMode;
             SaveData.EmpireDataList        = new Array<EmpireSaveData>();
             SaveData.SolarSystemDataList   = new Array<SolarSystemSaveData>();
+            SaveData.CustomMineralDecay    = GlobalStats.CustomMineralDecay;
             SaveData.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
@@ -934,6 +935,7 @@ namespace Ship_Game
             [Serialize(38)] public ProjectileSaveData[] Projectiles; // New global projectile list
             [Serialize(39)] public BeamSaveData[] Beams; // new global beam list
             [Serialize(40)] public bool AutoPickBestColonizer;
+            [Serialize(41)] public float CustomMineralDecay;
         }
     }
 }
