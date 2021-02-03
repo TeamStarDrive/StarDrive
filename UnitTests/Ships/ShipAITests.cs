@@ -175,7 +175,7 @@ namespace UnitTests.Ships
             {
                 ourShip.AI.HasPriorityTarget = true;
             });
-            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Play chooses target" + GetFailString(us, ourShip, theirShip, ourRelation));
+            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Play chooses target" + GetFailString(us, ourShip, theirShip, ourRelation));
 
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
