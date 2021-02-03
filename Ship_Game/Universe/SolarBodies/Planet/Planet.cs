@@ -1177,7 +1177,6 @@ namespace Ship_Game
 
                 Log.Info($"Mineral Decay in {Name}, Owner: {Owner}, Current Richness: {MineralRichness}");
             }
-
         }
 
         public void ResetGarrisonSize()
