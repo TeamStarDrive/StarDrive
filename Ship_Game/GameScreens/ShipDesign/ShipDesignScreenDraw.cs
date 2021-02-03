@@ -444,7 +444,6 @@ namespace Ship_Game
 
             center += normalizeShieldCircle;
             DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
-            DrawCircle(center, 1000, Color.Red);
             if (IsSymmetricDesignMode)
             {
                 Vector2 mirrorCenter = new Vector2(mirrorX, Input.CursorPosition.Y);

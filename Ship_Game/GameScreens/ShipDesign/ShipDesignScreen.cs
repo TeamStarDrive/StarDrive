@@ -352,7 +352,7 @@ namespace Ship_Game
 
             if (Role != oldRole && showRoleChangeTip)
             {
-                Vector2 pos = new Vector2(ModuleSelectComponent.X + ModuleSelectComponent.Width + 20, ModuleSelectComponent.Y + 100);
+                Vector2 pos = new Vector2(ScreenCenter.X-100, ModuleSelectComponent.Y + 50);
                 RoleData.CreateDesignRoleToolTip(Role, DesignRoleRect, true, pos);
             }
         }
