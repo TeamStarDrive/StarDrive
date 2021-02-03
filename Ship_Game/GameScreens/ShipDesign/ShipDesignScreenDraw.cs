@@ -30,7 +30,8 @@ namespace Ship_Game
                 DrawModules(batch);
                 DrawUnpoweredTex(batch);
                 DrawTacticalOverlays(batch);
-                DrawModuleSelections(batch);
+                DrawModuleSelections();
+                DrawProjectedModuleRect();
                 batch.End();
             }
 
@@ -155,19 +156,30 @@ namespace Ship_Game
             return slot != null;
         }
 
-        void DrawModuleSelections(SpriteBatch batch)
+        void DrawModuleSelections()
         {
             if (GetSlotForModule(HighlightedModule, out SlotStruct highlighted))
             {
                 DrawRectangle(highlighted.ModuleRect, Color.DarkOrange, 1.25f);
+                if (IsSymmetricDesignMode && GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
+                    DrawRectangle(mirrored.ModuleRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
+            }
+        }
 
-                if (IsSymmetricDesignMode)
-                {
-                    if (GetMirrorSlotStruct(highlighted, out SlotStruct mirrored))
-                    {
-                        DrawRectangle(mirrored.ModuleRect, Color.DarkOrange.Alpha(0.66f), 1.25f);
-                    }
-                }
+        void DrawProjectedModuleRect()
+        {
+            if (ProjectedSlot == null || ActiveModule == null)
+                return;
+
+            bool fits = ModuleGrid.ModuleFitsAtSlot(ProjectedSlot, ActiveModule);
+            DrawRectangle(ProjectedSlot.GetProjectedRect(ActiveModule), fits ? Color.LightGreen : Color.Red, 1.5f);
+
+            if (IsSymmetricDesignMode 
+                && GetMirrorProjectedSlot(ProjectedSlot, ActiveModule.XSIZE, ActiveModule.Orientation, out SlotStruct mirrored))
+            {
+                bool mirrorFits = ModuleGrid.ModuleFitsAtSlot(mirrored, ActiveModule);
+                DrawRectangle(mirrored.GetProjectedRect(ActiveModule), mirrorFits 
+                    ? Color.LightGreen.Alpha(0.66f) : Color.Red.Alpha(0.66f), 1.5f);
             }
         }
 
@@ -432,7 +444,6 @@ namespace Ship_Game
 
             center += normalizeShieldCircle;
             DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
-            DrawCircle(center, 1000, Color.Red);
             if (IsSymmetricDesignMode)
             {
                 Vector2 mirrorCenter = new Vector2(mirrorX, Input.CursorPosition.Y);

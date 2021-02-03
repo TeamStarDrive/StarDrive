@@ -7,7 +7,8 @@ namespace Ship_Game
     public enum SliderStyle
     {
         Decimal, // example: 42000
-        Percent // example: 51%
+        Percent, // example: 51%
+        Decimal1 // example: 0.5
     }
 
     public sealed class FloatSlider : UIElementV2
@@ -34,6 +35,7 @@ namespace Ship_Game
                 UpdateSliderRect();
             }
         }
+
         public float RelativeValue
         {
             get => Value;
@@ -133,11 +135,12 @@ namespace Ship_Game
         {
             get
             {
-                if (Style == SliderStyle.Decimal)
+                switch (Style)
                 {
-                    return ((int)AbsoluteValue).ToString();
+                    case SliderStyle.Decimal:  return ((int)AbsoluteValue).ToString();
+                    case SliderStyle.Decimal1: return (AbsoluteValue).String(1);
+                    default:                   return (RelativeValue * 100f).ToString("00") + "%";
                 }
-                return (RelativeValue * 100f).ToString("00") + "%";
             }
         }
 

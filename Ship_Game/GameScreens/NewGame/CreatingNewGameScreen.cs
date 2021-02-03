@@ -54,6 +54,7 @@ namespace Ship_Game
                 GalaxySize            = universeSize
             };
 
+            GlobalStats.DisableInhibitionWarning = Data.difficulty > UniverseData.GameDifficulty.Normal;
             CurrentGame.StartNew(Data, pace, starNumModifier, GlobalStats.ExtraPlanets, NumOpponents + 1); // +1 is the player empire
             Player          = player;
             player.isPlayer = true;
