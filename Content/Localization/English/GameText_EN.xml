@@ -147,12 +147,18 @@
       <Index>36</Index>
       <Text>Fertile</Text>
     </Token>
-
+    <Token>
+      <Index>37</Index>
+      <Text>Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is .01 per turn. </Text>
+    </Token>
     <Token>
       <Index>38</Index>
       <Text>Less Fertile</Text>
     </Token>
-
+    <Token>
+      <Index>39</Index>
+      <Text>Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is .02 per turn.</Text>
+    </Token>
     <Token>
       <Index>40</Index>
       <Text>Savage</Text>
@@ -205,12 +211,18 @@
       <Index>52</Index>
       <Text>Eagle-Eyed</Text>
     </Token>
-
+    <Token>
+      <Index>53</Index>
+      <Text>Incredible eyesight gives pilots from this race a 20% accuracy bonus to projectiles fired from cannon weapons</Text>
+    </Token>
     <Token>
       <Index>54</Index>
       <Text>Blind</Text>
     </Token>
-
+    <Token>
+      <Index>55</Index>
+      <Text>Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles have 20% accuracy penalty</Text>
+    </Token>
     <Token>
       <Index>56</Index>
       <Text>Reflexes</Text>
@@ -7427,23 +7439,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Just a taste of this very valuable spice will awaken the sleeping mind. The effect, however, is short-lived. \n\nProvides a +10% bonus to empire-wide research and a +10% bonus to the combat strength of ground troops</Text>
     </Token>
     <Token>
-      <Index>53</Index>
-      <Text>Incredible eyesight gives pilots from this race a 20% accuracy bonus to projectiles fired from cannon weapons</Text>
-    </Token>
-    <Token>
-      <Index>55</Index>
-      <Text>Races that evolve weak optical sensory organs suffer a penalty in space combat. Cannon projectiles have 20% accuracy penalty</Text>
-    </Token>
-
-    <Token>
-      <Index>37</Index>
-      <Text>Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is .01 per turn. </Text>
-    </Token>
-    <Token>
-      <Index>39</Index>
-      <Text>Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is .02 per turn.</Text>
-    </Token>
-    <Token>
       <Index>388</Index>
       <Text>Change</Text>
     </Token>
@@ -7502,11 +7497,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4009</Index>
-      <Text>The Hyperspace Flux has abated\nShips may once again warp freely</Text>
+      <Text>The Hyperspace Flux has abated \nShips may once again warp freely</Text>
     </Token>
     <Token>
       <Index>4010</Index>
-      <Text>A massive hyperspace flux\nis inhibiting warp travel throughout the galaxy</Text>
+      <Text>A massive hyperspace flux is inhibiting warp travel throughout the galaxy</Text>
     </Token>
     <Token>
       <Index>4011</Index>
@@ -7704,7 +7699,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4057</Index>
-      <Text>Add ship designs to this fleet from the panel on the right. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.</Text>
+      <Text>Add ship designs to this fleet from the panel on the right. Use shift key to place multiple ships of the same type. When you are done, you can press the 'Requisition' button, which will search your empire for ships that can fill your fleet. If you do not have the ships, it will order that they are built at a suitable planet.\n\nReturn here at any time to requisition replacements for any ships that are lost in combat.</Text>
     </Token>
     <Token>
       <Index>4058</Index>
@@ -7777,7 +7772,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4075</Index>
-      <Text>Super Soliders</Text>
+      <Text>Super Soldiers</Text>
     </Token>
     <Token>
       <Index>4076</Index>
@@ -7952,6 +7947,274 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Higher Mineral Decay increases the loss chance of planet mineral Richness when it outputs high production. Note that this is also affected by game difficulty.</Text>
     </Token>
     <Token>
+      <Index>4117</Index>
+      <Text>Language</Text>
+    </Token>
+    <Token>
+      <Index>4118</Index>
+      <Text>Extra Planets</Text>
+    </Token>
+    <Token>
+      <Index>4119</Index>
+      <Text>Add extra planets to each system, avoiding lone stars as well.</Text>
+    </Token>
+    <Token>
+      <Index>4120</Index>
+      <Text>This will slightly increase research cost per technology.</Text>
+    </Token>
+    <Token>
+      <Index>4121</Index>
+      <Text>Starting Planet Richness Bonus</Text>
+    </Token>
+    <Token>
+      <Index>4122</Index>
+      <Text>Add to all Starting Empire Planets this Value.</Text>
+    </Token>
+    <Token>
+      <Index>4123</Index>
+      <Text>Minimum Warp Range</Text>
+    </Token>
+    <Token>
+      <Index>4124</Index>
+      <Text>Minimum warp range a ship must have before it needs to recharge for the AI to build it.</Text>
+    </Token>
+    <Token>
+      <Index>4125</Index>
+      <Text>Seconds Per Turn</Text>
+    </Token>
+    <Token>
+      <Index>4126</Index>
+      <Text>Time in seconds per turn. Production, Food, Research and Treasury calculations are performed per turn.</Text>
+    </Token>
+    <Token>
+      <Index>4127</Index>
+      <Text>Maintenance Multiplier</Text>
+    </Token>
+    <Token>
+      <Index>4128</Index>
+      <Text>Multiply Global Maintenance cost by the value specified. Subspace Projectors are not affected.</Text>
+    </Token>
+    <Token>
+      <Index>4129</Index>
+      <Text>Advanced Rule Options</Text>
+    </Token>
+    <Token>
+      <Index>4130</Index>
+      <Text>Automatic Error Report</Text>
+    </Token>
+    <Token>
+      <Index>4131</Index>
+      <Text>Send automatic error reports to Blackbox developers.</Text>
+    </Token>
+    <Token>
+      <Index>4132</Index>
+      <Text>Disable Asteroids</Text>
+    </Token>
+    <Token>
+      <Index>4133</Index>
+      <Text>This will prevent asteroids from being generated in new games, offering performance improvements in mid to late game. This will not affect current games or existing saves.</Text>
+    </Token>
+    <Token>
+      <Index>4134</Index>
+      <Text>Alert Enemy Presence After Load</Text>
+    </Token>
+    <Token>
+      <Index>4135</Index>
+      <Text>Add Notifications regarding enemies in your systems after you load a game, to remind you which systems are under attack.</Text>
+    </Token>
+    <Token>
+      <Index>4136</Index>
+      <Text>Enable Save Export</Text>
+    </Token>
+    <Token>
+      <Index>4137</Index>
+      <Text>This will let you easily export specific save to help the developers investigate issues. You will see the export button in the save/load screen.</Text>
+    </Token>
+    <Token>
+      <Index>4138</Index>
+      <Text>Simulation FPS</Text>
+    </Token>
+    <Token>
+      <Index>4139</Index>
+      <Text> Changes the simulation frequency. Lower values are faster, but inaccurate. Higher values are accurate, but slower. If your game is lagging due to high number of ships, try lowering this to 30 or 20.</Text>
+    </Token>
+    <Token>
+      <Index>4140</Index>
+      <Text>Icon Sizes</Text>
+    </Token>
+    <Token>
+      <Index>4141</Index>
+      <Text>AutoSave Frequency</Text>
+    </Token>
+    <Token>
+      <Index>4142</Index>
+      <Text>Sound Device:  </Text>
+    </Token>
+    <Token>
+      <Index>4143</Index>
+      <Text>Music Volume</Text>
+    </Token>
+    <Token>
+      <Index>4144</Index>
+      <Text>Effects Volume</Text>
+    </Token>
+    <Token>
+      <Index>4145</Index>
+      <Text>Bloom</Text>
+    </Token>
+    <Token>
+      <Index>4146</Index>
+      <Text>Disabling bloom effect will increase performance on low-end devices</Text>
+    </Token>
+    <Token>
+      <Index>4147</Index>
+      <Text>Anti Aliasing</Text>
+    </Token>
+    <Token>
+      <Index>4148</Index>
+      <Text>Texture Quality</Text>
+    </Token>
+    <Token>
+      <Index>4149</Index>
+      <Text>Texture Filtering</Text>
+    </Token>
+    <Token>
+      <Index>4150</Index>
+      <Text>Shadow Quality</Text>
+    </Token>
+    <Token>
+      <Index>4151</Index>
+      <Text>Effects Quality</Text>
+    </Token>
+    <Token>
+      <Index>4152</Index>
+      <Text>\nThreat level vs. our forces\nthere is</Text>
+    </Token>
+    <Token>
+      <Index>4153</Index>
+      <Text>negligible.</Text>
+    </Token>
+    <Token>
+      <Index>4154</Index>
+      <Text>very low.</Text>
+    </Token>
+    <Token>
+      <Index>4155</Index>
+      <Text>low.</Text>
+    </Token>
+    <Token>
+      <Index>4156</Index>
+      <Text>medium.</Text>
+    </Token>
+    <Token>
+      <Index>4157</Index>
+      <Text>high.</Text>
+    </Token>
+    <Token>
+      <Index>4158</Index>
+      <Text>very high.</Text>
+    </Token>
+    <Token>
+      <Index>4159</Index>
+      <Text>overwhelming.</Text>
+    </Token>
+    <Token>
+      <Index>4160</Index>
+      <Text>Our</Text>
+    </Token>
+    <Token>
+      <Index>4161</Index>
+      <Text>with</Text>
+    </Token>
+    <Token>
+      <Index>4162</Index>
+      <Text>was revoked.</Text> <!-- 4160-4162 - our TREATY with EMPIRE was revoked -->
+    </Token>
+    <Token>
+      <Index>4163</Index>
+      <Text>construction of</Text>
+    </Token>
+    <Token>
+      <Index>4164</Index>
+      <Text>was finished at</Text> <!-- 4163-4164 - Construction of BUILDING was finished at PLANET -->
+    </Token>
+    <Token>
+      <Index>4165</Index>
+      <Text>has been defeated</Text>
+    </Token>
+    <Token>
+      <Index>4166</Index>
+      <Text>We returned the ship which was raided by rival pirates\ndue to your protection contract with us, you're welcome.</Text>
+    </Token>
+    <Token>
+      <Index>4167</Index>
+      <Text>Our Spies report that</Text>
+    </Token>
+    <Token>
+      <Index>4168</Index>
+      <Text>are getting stronger.\nThey have around</Text>
+    </Token>
+    <Token>
+      <Index>4169</Index>
+      <Text>bases.</Text> <!-- 4167-4169 - Your spies report that PIRATES are getting stronger.\nThey have around NUM bases.-->
+    </Token>
+    <Token>
+      <Index>4170</Index>
+      <Text>Our Scientists report that they observed increased\nradiation signatures in the galaxy and it is possible\nthat the Remnants are getting stronger.</Text>
+    </Token>
+    <Token>
+      <Index>4171</Index>
+      <Text>Our Scientists report that they observed increased\nradiation signatures in the galaxy. They believe\na new, powerful object has manifested somewhere\nand it is related to the Remnants.</Text>
+    </Token>
+    <Token>
+      <Index>4172</Index>
+      <Text>Your Scientists report massive radiation increase\nin the galaxy. They suspect another Remnant portal\nwas created in the galaxy!</Text>
+    </Token>
+    <Token>
+      <Index>4173</Index>
+      <Text>is not producing anything.</Text>
+    </Token>
+    <Token>
+      <Index>4174</Index>
+      <Text>and</Text>
+    </Token>
+    <Token>
+      <Index>4175</Index>
+      <Text>are now at war</Text> <!-- 4174-4175 - EMPIRE1 and EMPIRE2 are now as war-->
+    </Token>
+    <Token>
+      <Index>4176</Index>
+      <Text>are now at peace</Text> 
+    </Token>
+    <Token>
+      <Index>4177</Index>
+      <Text>Peace Treaty expired with\n</Text>
+    </Token>
+    <Token>
+      <Index>4179</Index>
+      <Text>Our troops stationed on</Text>
+    </Token>
+    <Token>
+      <Index>4180</Index>
+      <Text>had to evacuate since\n</Text>
+    </Token>
+    <Token>
+      <Index>4181</Index>
+      <Text>owns the planet now</Text> <!-- 4179-4181 - our troops stationed on PLANET has to evacuate since EMPIRE owns the planet now-->
+    </Token>
+    <Token>
+      <Index>4182</Index>
+      <Text>Foreign troops evacuated from</Text>
+    </Token>
+    <Token>
+      <Index>4183</Index>
+      <Text>number of bases was reduced\nto around</Text>
+    </Token>
+    <Token>
+      <Index>4184</Index>
+      <Text>have a flagship\nlurking somewhere in the galaxy.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
@@ -7977,7 +8240,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5006</Index>
-      <Text>An energy-based spacebomb that is twice as effective versus shields </Text>
+      <Text>An energy-based Space Bomb that is twice as effective versus shields </Text>
     </Token>
     <Token>
       <Index>5007</Index>
@@ -8121,7 +8384,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5042</Index>
-      <Text>Cruiser Manuevering Thruster</Text>
+      <Text>Cruiser Maneuvering Thruster</Text>
     </Token>
     <Token>
       <Index>5043</Index>
@@ -8245,7 +8508,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5074</Index>
-      <Text>These rare metals are raw materials suitable for refinement into useable reactor fuel. A fuel refinery is required to process these materials.</Text>
+      <Text>These rare metals are raw materials suitable for refinement into usable reactor fuel. A fuel refinery is required to process these materials.</Text>
     </Token>
     <Token>
       <Index>5075</Index>
@@ -8253,7 +8516,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>5076</Index>
-      <Text>This building converts raw Fissionable Materials into useable Reactor Fuel, creating 100 reactor fuel per 1 Fissionable Material available each turn</Text>
+      <Text>This building converts raw Fissionable Materials into usable Reactor Fuel, creating 100 reactor fuel per 1 Fissionable Material available each turn</Text>
     </Token>
     <Token>
       <Index>5077</Index>
@@ -9406,7 +9669,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
   
   <Token>
       <Index>7080</Index>
-      <Text>Assigns vessel to system defence duties</Text>
+      <Text>Assigns vessel to system defense duties</Text>
     </Token>
   <Token>
       <Index>7081</Index>
