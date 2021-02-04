@@ -733,7 +733,7 @@ namespace Ship_Game
 
                     var shipsVisible = fleet.Ships.Filter(s=> s?.KnownByEmpires.KnownBy(empireLooking) == true);
 
-                    if (shipsVisible.Length == 0)
+                    if (shipsVisible.Length < fleet.Ships.Count * 0.75f)
                         continue;
 
                     SubTexture icon = fleet.Icon;
@@ -748,16 +748,21 @@ namespace Ship_Game
                         ClickRadius = 15f
                     });
                     ScreenManager.SpriteBatch.Draw(icon, fleetCenterOnScreen, empire.EmpireColor, 0.0f, icon.CenterF, 0.35f, SpriteEffects.None, 1f);
-                    HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, fleet.Name, fleetCenterOnScreen + FleetNameOffset, Fonts.Arial8Bold);
+                    if (!player.DifficultyModifiers.HideTacticalData || debug || fleet.Owner.isPlayer || fleet.Owner.IsAlliedWith(empireLooking))
+                        ScreenManager.SpriteBatch.DrawDropShadowText(fleet.Name, fleetCenterOnScreen + FleetNameOffset, Fonts.Arial8Bold);
                 }
             }
         }
 
         void FleetIconLines(Ship[] ships, Vector2 fleetCenterOnScreen)
         {
-            foreach (Ship ship in ships)
+            for (int i = 0; i < ships.Length; i++)
             {
-                if (ship?.Active == true)
+                Ship ship = ships[i];
+                if (ship == null || !ship.Active)
+                    continue;
+
+                if (Debug || ship.loyalty.isPlayer || ship.loyalty.IsAlliedWith(player) || !player.DifficultyModifiers.HideTacticalData)
                 {
                     Vector2 shipScreenPos = ProjectToScreenPosition(ship.Center);
                     ScreenManager.SpriteBatch.DrawLine(shipScreenPos, fleetCenterOnScreen, FleetLineColor);

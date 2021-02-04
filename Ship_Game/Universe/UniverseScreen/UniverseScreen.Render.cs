@@ -772,19 +772,27 @@ namespace Ship_Game
             byte alpha = (byte)Math.Max(0f, 150f * SelectedSomethingTimer / 3f);
             if (alpha > 0)
             {
-                if (SelectedShip != null &&
-                    (Debug || !player.DifficultyModifiers.HideTacticalData
-                           || !player.IsEmpireAttackable(SelectedShip.loyalty)))
+                if (SelectedShip != null && (Debug
+                                             || SelectedShip.loyalty.isPlayer
+                                             || !player.DifficultyModifiers.HideTacticalData 
+                                             || player.IsAlliedWith(SelectedShip.loyalty)
+                                             || SelectedShip.AI.Target != null))
                 {
                     DrawShipGoalsAndWayPoints(SelectedShip, alpha);
                 }
-                else if (SelectedShipList.Count > 0)
+                else 
                 {
                     for (int i = 0; i < SelectedShipList.Count; ++i)
                     {
                         Ship ship = SelectedShipList[i];
-                        if (!player.IsEmpireAttackable(ship.loyalty) || Debug)
+                        if (ship.loyalty.isPlayer
+                            || player.IsAlliedWith(ship.loyalty)
+                            || Debug
+                            || !player.DifficultyModifiers.HideTacticalData
+                            || ship.AI.Target != null)
+                        {
                             DrawShipGoalsAndWayPoints(ship, alpha);
+                        }
                     }
                 }
             }
