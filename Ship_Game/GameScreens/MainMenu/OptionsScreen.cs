@@ -224,15 +224,14 @@ namespace Ship_Game
             graphics.Padding = new Vector2(2f, 4f);
             ResolutionDropDown = new DropOptions<DisplayMode>(105, 18);
 
-            Add(graphics, Localizer.Token(9), ResolutionDropDown);
-            Add(graphics, Localizer.Token(10), l => New.Mode.ToString(),               Fullscreen_OnClick);
-            Add(graphics, "Anti Aliasing",     l => AntiAliasString(),                 AntiAliasing_OnClick);
-            Add(graphics, "Texture Quality",   l => QualityString(New.TextureQuality), TextureQuality_OnClick);
-            Add(graphics, "Texture Filtering", l => TextureFilterString(),             TextureFiltering_OnClick);
-            Add(graphics, "Shadow Quality",    l => ShadowQualStr(New.ShadowDetail),   ShadowQuality_OnClick);
-            Add(graphics, "Effects Quality",   l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
-            graphics.AddCheckbox(() => New.RenderBloom, "Bloom", 
-                "Disabling bloom effect will increase performance on low-end devices");
+            Add(graphics, new LocalizedText(9).Text, ResolutionDropDown);
+            Add(graphics, new LocalizedText(10).Text,   l => New.Mode.ToString(),               Fullscreen_OnClick);
+            Add(graphics, new LocalizedText(4147).Text, l => AntiAliasString(),                 AntiAliasing_OnClick);
+            Add(graphics, new LocalizedText(4148).Text, l => QualityString(New.TextureQuality), TextureQuality_OnClick);
+            Add(graphics, new LocalizedText(4149).Text, l => TextureFilterString(),             TextureFiltering_OnClick);
+            Add(graphics, new LocalizedText(4150).Text, l => ShadowQualStr(New.ShadowDetail),   ShadowQuality_OnClick);
+            Add(graphics, new LocalizedText(4151).Text, l => QualityString(New.EffectDetail),   EffectsQuality_OnClick);
+            graphics.AddCheckbox(() => New.RenderBloom, 4145, 4146);
 
             graphics.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
             graphics.ZOrder = 10;
@@ -241,42 +240,33 @@ namespace Ship_Game
             botLeft.Padding = new Vector2(2f, 8f);
             botLeft.LayoutStyle = ListLayoutStyle.Clip;
             SoundDevices = new DropOptions<MMDevice>(180, 18);
-            botLeft.AddSplit(new UILabel("Sound Device:  "), SoundDevices);
-            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, "Music Volume",   0f, 1f, GlobalStats.MusicVolume));
-            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume));
+            botLeft.AddSplit(new UILabel(new LocalizedText(4142).Text), SoundDevices);
+            MusicVolumeSlider   = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, new LocalizedText(4143).Text, 0f, 1f, GlobalStats.MusicVolume));
+            EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 240f, 50f, new LocalizedText(4144).Text, 0f, 1f, GlobalStats.EffectsVolume));
 
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
 
             UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
             botRight.Padding = new Vector2(2f, 8f);
             botRight.LayoutStyle = ListLayoutStyle.Clip;
-            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, "Icon Sizes",         0,   30, GlobalStats.IconSize));
-            AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, "AutoSave Frequency", 60, 540, GlobalStats.AutoSaveFreq));
-            SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, "Simulation FPS",     10, 120, GlobalStats.SimulationFramesPerSecond));
+            IconSize      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4140).Text, 0,  30, GlobalStats.IconSize));
+            AutoSaveFreq  = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4141).Text, 60, 540, GlobalStats.AutoSaveFreq));
+            SimulationFps = botRight.Add(new FloatSlider(SliderStyle.Decimal, 240f, 50f, new LocalizedText(4138).Text, 10, 120, GlobalStats.SimulationFramesPerSecond));
             AutoSaveFreq.Tip = GameText.TheDelayBetweenAutoSaves;
-            SimulationFps.Tip = "Changes the simulation frequency. Lower values are faster, but inaccurate. Higher values are accurate, but slower. "+
-                                "If your game is lagging due to high number of ships, try lowering this to 30 or 20";
+            SimulationFps.Tip = new LocalizedText(4139).Text;
 
             UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
-            right.AddCheckbox(() => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
-            right.AddCheckbox(() => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);
-            right.AddCheckbox(() => GlobalStats.ZoomTracking,        title: 6185, tooltip: 7082);
-            right.AddCheckbox(() => GlobalStats.AutoErrorReport, "Automatic Error Report", 
-                                    "Send automatic error reports to Blackbox developers");
-            right.AddCheckbox(() => GlobalStats.DisableAsteroids, "Disable Asteroids", // Added by Gretman
-                                    "This will prevent asteroids from being generated in new games, "+
-                                    "offering performance improvements in mid to late game. "+
-                                    "This will not affect current games or existing saves.");
-            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, "Alert Enemy Presence After Load",
-                "Add Notifications regarding enemies in your systems after you load a game, to remind you which systems " +
-                "are under attack.");
-            right.AddCheckbox(() => GlobalStats.EnableSaveExportButton, "Enable Save Export",
-                "This will let you easily export specific save to help the developers " +
-                "investigate issues. You will see the export button in the save/load screen");
+            right.AddCheckbox(() => GlobalStats.PauseOnNotification,          title: 6007, tooltip: 7004);
+            right.AddCheckbox(() => GlobalStats.AltArcControl,                title: 6184, tooltip: 7081);
+            right.AddCheckbox(() => GlobalStats.ZoomTracking,                 title: 6185, tooltip: 7082);
+            right.AddCheckbox(() => GlobalStats.AutoErrorReport,              title: 4130, tooltip: 4131);
+            right.AddCheckbox(() => GlobalStats.DisableAsteroids,             title: 4132, tooltip: 4133);
+            right.AddCheckbox(() => GlobalStats.NotifyEnemyInSystemAfterLoad, title: 4134, tooltip: 4135);
+            right.AddCheckbox(() => GlobalStats.EnableSaveExportButton,       title: 4136, tooltip: 4137);
 
             CurrentLanguage = new DropOptions<Language>(105, 18);
-            Add(right, "Language", CurrentLanguage);
+            Add(right, new LocalizedText(4117).Text, CurrentLanguage);
 
             Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
                 .OnClick = button => ApplyOptions();
