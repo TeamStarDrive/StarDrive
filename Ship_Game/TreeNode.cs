@@ -208,16 +208,27 @@ namespace Ship_Game
             switch (State)
             {
                 case NodeState.Normal:
+                    string texSuffix = "";
+                    Color color = Color.Black;
+                    if (complete)
+                    {
+                        texSuffix = "_complete";
+                        color = new Color(34, 136, 200);
+                    }
+                    else if (EmpireManager.Player.Research.IsQueued(Entry.UID))
+                    {
+                        texSuffix = "_queue";
+                        color = Color.Teal;
+                    }
+
                     bool active = complete || EmpireManager.Player.Research.IsQueued(Entry.UID);
                     batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
-                    batch.DrawRectangle(UnlocksRect, active ? new Color(34, 136, 200) : Color.Black);
+                    batch.DrawRectangle(UnlocksRect, color);
                     grid.Draw(batch);
-                    batch.Draw(active ? ResourceManager.Texture("NewUI/new_tech_base_complete")
-                                      : ResourceManager.Texture("NewUI/new_tech_base"), BaseRect, Color.White);
+                    batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base{texSuffix}"), BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
                     batch.Draw(TechIcon, IconRect, Color.White);
-                    batch.Draw(active ? ResourceManager.Texture("NewUI/new_tech_base_title_complete")
-                                      : ResourceManager.Texture("NewUI/new_tech_base_title"), TitleRect, Color.White);
+                    batch.Draw(ResourceManager.Texture($"NewUI/new_tech_base_title{texSuffix}"), TitleRect, Color.White);
                     string str1 = TitleFont.ParseText(TechName, TitleWidth);
                     string[] strArray1 = Regex.Split(str1, "\n");
                     Vector2 vector2_1 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str1).X / 2f, TitleRect.Y + 18 - TitleFont.MeasureString(str1).Y / 2f);
@@ -233,7 +244,7 @@ namespace Ship_Game
                     Rectangle destinationRectangle1 = progressRect;
                     destinationRectangle1.Height = num2;
                     batch.Draw(active ? ResourceManager.Texture("ResearchMenu/tech_progress")
-                                            : ResourceManager.Texture("ResearchMenu/tech_progress_inactive"), progressRect, Color.White);
+                                      : ResourceManager.Texture("ResearchMenu/tech_progress_inactive"), progressRect, Color.White);
                     batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle1, Color.White);
                     break;
                 case NodeState.Hover:
@@ -299,6 +310,7 @@ namespace Ship_Game
         {
             DrawGlow(batch, Color.White);
         }
+
         public void DrawGlow(SpriteBatch batch, Color color)
         {
             batch.Draw(ResourceManager.Texture("ResearchMenu/tech_underglow_base"), BaseRect, color);
