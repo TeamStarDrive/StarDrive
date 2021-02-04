@@ -8,7 +8,7 @@ namespace Ship_Game
     {
         readonly ResearchScreenNew Screen;
         public readonly TechEntry Tech;
-        TreeNode Node;
+        private TreeNode Node;
         readonly UIButton BtnUp;
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
@@ -17,13 +17,13 @@ namespace Ship_Game
 
         public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos)
         {
-            Screen = screen;
-            Tech = node.Entry;
-            Pos = pos;
+            Screen    = screen;
+            Tech      = node.Entry;
+            Pos       = pos;
             BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
             BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
             BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
-            this.PerformLayout();
+            PerformLayout();
         }
 
         public override void PerformLayout()
@@ -36,10 +36,18 @@ namespace Ship_Game
             base.PerformLayout();
         }
 
+        public override bool HandleInput(InputState input)
+        {
+            if (Node.HandleInput(input, Screen.ScreenManager, Screen.camera))
+                return true;
+
+            return base.HandleInput(input);
+        }
+
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
             base.Draw(batch, elapsed);
-            Node.DrawGlow(batch);
+            //Node.DrawGlow(batch);
             Node.Draw(batch);
         }
 
