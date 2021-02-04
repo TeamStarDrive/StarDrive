@@ -76,14 +76,14 @@ namespace Ship_Game
 
         public void AddBeingInvadedNotification(SolarSystem beingInvaded, Empire invader, float strRatio)
         {
-            string threatLevel = "\nThreat level vs. our forces\nthere is ";
-            if      (strRatio < 0.1f)  threatLevel += "negligible.";
-            else if (strRatio < 0.3f)  threatLevel += "very low.";
-            else if (strRatio < 0.5f)  threatLevel += "low.";
-            else if (strRatio < 0.75f) threatLevel += "medium.";
-            else if (strRatio < 1f)    threatLevel += "high.";
-            else if (strRatio < 1.5f)  threatLevel += "very high.";
-            else                       threatLevel += "overwhelming.";
+            string threatLevel = new LocalizedText(4152).Text;
+            if      (strRatio < 0.1f)  threatLevel = $"{threatLevel} {new LocalizedText(4153).Text}"; // negligible
+            else if (strRatio < 0.3f)  threatLevel = $"{threatLevel} {new LocalizedText(4154).Text}"; // very low
+            else if (strRatio < 0.5f)  threatLevel = $"{threatLevel} {new LocalizedText(4155).Text}"; // low
+            else if (strRatio < 0.75f) threatLevel = $"{threatLevel} {new LocalizedText(4156).Text}"; // medium
+            else if (strRatio < 1f)    threatLevel = $"{threatLevel} {new LocalizedText(4157).Text}"; // high
+            else if (strRatio < 1.5f)  threatLevel = $"{threatLevel} {new LocalizedText(4158).Text}"; // very high
+            else                       threatLevel = $"{threatLevel} {new LocalizedText(4159).Text}"; // overwhelming
 
             string message = invader.data.Traits.Singular
                              + Localizer.Token(1500) + '\n'
@@ -114,23 +114,25 @@ namespace Ship_Game
 
         public void AddTreatyBreak(Empire empire, TreatyType type)
         {
-            string treaty;
+            string treaty = "";
             switch (type)
             {
-                case TreatyType.Alliance:      treaty = "Alliance";            break;
-                case TreatyType.OpenBorders:   treaty = "Open Borders Treaty"; break;
-                case TreatyType.Trade:         treaty = "Trade Treaty";        break;
-                case TreatyType.NonAggression: treaty = "Non-Aggression Pact"; break;
-                default:                       treaty ="";                     break;
+                case TreatyType.Alliance:      treaty = new LocalizedText(1612).Text; break;
+                case TreatyType.OpenBorders:   treaty = new LocalizedText(1216).Text; break;
+                case TreatyType.Trade:         treaty = new LocalizedText(1215).Text; break;
+                case TreatyType.NonAggression: treaty = new LocalizedText(1214).Text; break;
             }
 
             if (treaty.IsEmpty())
                 return;
 
+            string our        = new LocalizedText(4160).Text;
+            string with       = new LocalizedText(4161).Text;
+            string wasRevoked = new LocalizedText(4162).Text;
             AddNotification(new Notification
             {
                 RelevantEmpire = empire,
-                Message        = $"Our {treaty} with {empire.Name} was revoked.",
+                Message        = $"{our} {treaty} {with} {empire.Name} {wasRevoked}",
             }, "sd_ui_notification_warning");
         }
 
@@ -179,9 +181,11 @@ namespace Ship_Game
 
         public void AddBuildingConstructed(Planet p, Building b)
         {
+            string constructionOf = new LocalizedText(4163).Text;
+            string wasFinishedAt  = new LocalizedText(4164).Text;
             AddNotification(new Notification
             {
-                Message         = $"Construction of {b.Name}\nwas finished at {p.Name}",
+                Message         = $"{constructionOf} {b.Name}\n{wasFinishedAt} {p.Name}",
                 ReferencedItem1 = p,
                 IconPath        = $"Buildings/icon_{b.Icon}_64x64",
                 Action          = "SnapToPlanet"
@@ -193,7 +197,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 RelevantEmpire  = thatDied,
-                Message         = thatDied.data.Traits.Name + " has been defeated",
+                Message         = $"{thatDied.data.Traits.Name} {new LocalizedText(4165).Text}",
                 IconPath        = "NewUI/icon_planet_terran_01_mid",
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
@@ -204,22 +208,23 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                RelevantEmpire = pirates,
-                Message   = $"We returned the ship which was raided by rival pirates\n " +
-                            "due to your protection contract with us, you're welcome.",
-                Action    = "SnapToShip",
-                ClickRect = DefaultClickRect,
+                RelevantEmpire  = pirates,
+                Message         = new LocalizedText(4166).Text,
+                Action          = "SnapToShip",
+                ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
             }, "sd_troop_march_01");
         }
 
         public void AddPiratesAreGettingStronger(Empire pirates, int numBases)
         {
+            string yourSpiesReportThat = new LocalizedText(4167).Text;
+            string areGettingStronger  = new LocalizedText(4168).Text;
+            string bases               = new LocalizedText(4169).Text;
             AddNotification(new Notification
             {
-                RelevantEmpire = pirates,
-                Message = $"Your Spies report that {pirates.Name} are getting stronger.\n" +
-                          $"They have around {numBases} bases.",
+                RelevantEmpire  = pirates,
+                Message         = $"{yourSpiesReportThat} {pirates.Name} {areGettingStronger} {numBases} {bases}",
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
             }, "sd_troop_march_01");
@@ -232,10 +237,8 @@ namespace Ship_Game
                 RelevantEmpire = remnants,
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect,
-                Message         = "Your Scientists report that they observed increased\n" +
-                                  "radiation signatures in the galaxy and it is possible\n" +
-                                  "that the Remnants are getting stronger."
-            }, "sd_ui_notification_warning");
+                Message         = new LocalizedText(4170).Text
+            }, "sd_ui_notification_warning");;
         }
 
         public void AddRemnantsStoryActivation(Empire remnants)
@@ -245,10 +248,7 @@ namespace Ship_Game
                 RelevantEmpire  = remnants,
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect,
-                Message         = "Your Scientists report that they observed increased\n" +
-                                  "radiation signatures in the galaxy. They believe\n" +
-                                  "a new, powerful object has manifested somewhere\n." +
-                                  "and it is related to the Remnants."
+                Message         = new LocalizedText(4171).Text
             }, "sd_ui_notification_warning");
         }
 
@@ -259,9 +259,7 @@ namespace Ship_Game
                 RelevantEmpire  = remnants,
                 ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect,
-                Message         = "Your Scientists report massive radiation increase\n" +
-                                  "in the galaxy. They suspect another Remnant portal\n" +
-                                  "was created in the galaxy!"
+                Message         = new LocalizedText(4172).Text
             }, "sd_ui_notification_encounter");
         }
 
@@ -269,10 +267,9 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                RelevantEmpire = pirates,
-                Message = $"Your Spies report that {pirates.Name} number of bases " +
-                          $"was reduced\nto around {numBases}.",
-                ClickRect = DefaultClickRect,
+                RelevantEmpire  = pirates,
+                Message         = $"{new LocalizedText(4167).Text} {pirates.Name} {new LocalizedText(4183).Text} {numBases}.",
+                ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
             }, "sd_troop_march_01");
         }
@@ -281,10 +278,9 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                RelevantEmpire = pirates,
-                Message = $"Your Spies report that {pirates.Name} have a flagship\n" +
-                          "lurking somewhere in the galaxy.",
-                ClickRect = DefaultClickRect,
+                RelevantEmpire  = pirates,
+                Message         = $"{new LocalizedText(4167).Text} {pirates.Name} {new LocalizedText(4184).Text}",
+                ClickRect       = DefaultClickRect,
                 DestinationRect = DefaultNotificationRect
             }, "sd_troop_march_01");
         }
@@ -305,7 +301,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message         = "Foreign troops evacuated from " + where.Name,
+                Message         = $"{new LocalizedText(4182).Text} {where.Name}",
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
@@ -314,9 +310,12 @@ namespace Ship_Game
 
         public void AddTroopsRemovedNotification(Planet where)
         {
+            string ourTroopsOn   = new LocalizedText(4179).Text;
+            string hadToEvacuate = new LocalizedText(4180).Text;
+            string ownsThePlanet = new LocalizedText(4181).Text;
             AddNotification(new Notification
             {
-                Message         = "Your troops stationed on " + where.Name + " had to evacuate since\n" + where.Owner.data.Traits.Name + " owns the planet now",
+                Message         = $"{ourTroopsOn} {where.Name} {hadToEvacuate}{where.Owner.data.Traits.Name} {ownsThePlanet}",
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
@@ -448,7 +447,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Pause    = false,
-                Message  = first.data.Traits.Name + " and " + second.data.Traits.Name + "\nare now at peace",
+                Message  = $"{first.data.Traits.Name} {new LocalizedText(4174).Text} {second.data.Traits.Name}\n{new LocalizedText(4176).Text}",
                 IconPath = "UI/icon_peace"
             }, "sd_ui_notification_conquer_01");
         }
@@ -458,7 +457,7 @@ namespace Ship_Game
             AddNotification(new Notification
             {
                 Pause    = false,
-                Message  = "Peace Treaty expired with \n" + otherEmpire.data.Traits.Name,
+                Message  = $"{new LocalizedText(4177).Text} {otherEmpire.data.Traits.Name}",
                 IconPath = "UI/icon_peace_cancel"
             }, "sd_ui_notification_warning");
         }
@@ -603,7 +602,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message  = declarant.data.Traits.Name + " and " + other.data.Traits.Name + "\nare now at war",
+                Message = $"{declarant.data.Traits.Name} {new LocalizedText(4174).Text} {other.data.Traits.Name}\n{new LocalizedText(4175).Text}",
                 IconPath = "ResearchMenu/icons_techroot_infantry_hover",
                 Pause    = declarant.isPlayer || other.isPlayer
             }, "sd_troop_march_01", "sd_notify_alert");
@@ -613,7 +612,7 @@ namespace Ship_Game
         {
             AddNotification(new Notification
             {
-                Message  = first.data.Traits.Name + " and " + second.data.Traits.Name + "\nare now at War",
+                Message  = $"{first.data.Traits.Name} {new LocalizedText(4174).Text} {second.data.Traits.Name}\n{new LocalizedText(4175).Text}",
                 IconPath = "UI/icon_warning_money",
                 Pause    = first.isPlayer || second.isPlayer
             }, "sd_ui_notification_startgame");
@@ -621,7 +620,7 @@ namespace Ship_Game
 
         public void AddEmptyQueueNotification(Planet planet)
         {
-            string message = $"{planet.Name} is not producing anything.";
+            string message = $"{planet.Name} {new LocalizedText(4173).Text}";
             if (IsNotificationPresent(message))
                 return;
 

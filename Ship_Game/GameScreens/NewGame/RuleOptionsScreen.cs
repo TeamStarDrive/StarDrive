@@ -88,38 +88,37 @@ namespace Ship_Game
             var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
             var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
 
-            GravityWellSize  = Slider(gwRect, Localizer.Token(6002), 0, 20000, GlobalStats.GravityWellRange);
-            extraPlanets     = Slider(epRect, "Extra Planets", 0, 3f, GlobalStats.ExtraPlanets);
-            StartingRichness = Slider(richnessRect, "Starting Planet Richness Bonus", 0, 5f, GlobalStats.StartingPlanetRichness);
+            GravityWellSize  = Slider(gwRect,  new LocalizedText(6002).Text, 0, 20000, GlobalStats.GravityWellRange);
+            extraPlanets     = Slider(epRect, new LocalizedText(6002).Text, 0, 3f, GlobalStats.ExtraPlanets);
+            StartingRichness = Slider(richnessRect, new LocalizedText(4121).Text, 0, 5f, GlobalStats.StartingPlanetRichness);
 
 
             var optionTurnTimer  = new Rectangle(x, leftRect.Y + 390, 270, 50);
             var minimumWarpRange = new Rectangle(x, leftRect.Y + 450, 270, 50);
             var maintenanceRect  = new Rectangle(x, leftRect.Y + 510, 270, 50);
 
-            TurnTimer           = Slider(optionTurnTimer,  "Change Turn Timer",    2f, 18f,     GlobalStats.TurnTimer);
-            MinimumWarpRange    = Slider(minimumWarpRange, "Minimum Warp Range",   0, 1200000f, GlobalStats.MinimumWarpRange);
-            IncreaseMaintenance = Slider(maintenanceRect,  "Increase Maintenance", 1, 10f,      GlobalStats.ShipMaintenanceMulti);
+            TurnTimer           = Slider(optionTurnTimer,  new LocalizedText(4125).Text, 2, 18f,      GlobalStats.TurnTimer);
+            MinimumWarpRange    = Slider(minimumWarpRange, new LocalizedText(4123).Text, 0, 1200000f, GlobalStats.MinimumWarpRange);
+            IncreaseMaintenance = Slider(maintenanceRect,  new LocalizedText(4127).Text, 1, 10f,      GlobalStats.ShipMaintenanceMulti);
 
             FTLPenaltySlider.Tip      = 2286;
             EnemyFTLPenaltySlider.Tip = 7041;
             GravityWellSize.Tip       = 6003;
             CustomMineralDecay.Tip    = 4116;
 
-            string extraPlanetsTip = "Add extra planets to each system, avoiding lone stars as well";
+            string extraPlanetsTip = new LocalizedText(4119).Text;
             if (GlobalStats.ModChangeResearchCost)
-                extraPlanetsTip += ". This will slightly increase research cost per technology.";
+                extraPlanetsTip = $"{extraPlanetsTip} {new LocalizedText(4120).Text}";
 
-            extraPlanets.Tip = extraPlanetsTip;
-            MinimumWarpRange.Tip = "Minimum warp range a ship must have before it needs to recharge for the AI to build it";
-
-            IncreaseMaintenance.Tip = "Multiply Global Maintenance Cost By  SSP's Are Not Affected";
-            TurnTimer.Tip = "Time in seconds for turns";
-            StartingRichness.Tip = "Add to all Starting Empire Planets this Value";
-
+            extraPlanets.Tip        = extraPlanetsTip;
+            MinimumWarpRange.Tip    = new LocalizedText(4124).Text;
+            IncreaseMaintenance.Tip = new LocalizedText(4128).Text;
+            TurnTimer.Tip           = new LocalizedText(4126).Text;
+            StartingRichness.Tip    = new LocalizedText(4122).Text;
 
 
-            Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, "Advanced Rule Options", Fonts.Arial20Bold);
+
+            Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40, new LocalizedText(4129).Text, Fonts.Arial20Bold);
             string text = Fonts.Arial12.ParseText(Localizer.Token(2289), MainMenu.Menu.Width - 80);
             Label(MainMenu.Menu.X + 40, MainMenu.Menu.Y + 40 + Fonts.Arial20Bold.LineSpacing + 2, text, Fonts.Arial12);
         }
