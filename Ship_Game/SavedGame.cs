@@ -152,16 +152,17 @@ namespace Ship_Game
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
                 e.SaveMoneyHistory(empireToSave);
-                empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
-                empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
-                empireToSave.AverageFreighterFTLSpeed = e.AverageFreighterFTLSpeed;
-                empireToSave.ExpandSearchTimer        = e.GetEmpireAI().ExpansionAI.ExpandSearchTimer;
-                empireToSave.MaxSystemsToCheckedDiv   = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
-                empireToSave.EmpireDefense            = e.GetEmpireAI().EmpireDefense;
-                empireToSave.WeightedCenter           = e.WeightedCenter;
-                empireToSave.RushAllConstruction      = e.RushAllConstruction;
-                empireToSave.FleetStrEmpireModifier   = e.FleetStrEmpireMultiplier;
-                empireToSave.DiplomacyContactQueue    = e.DiplomacyContactQueue;
+                empireToSave.FastVsBigFreighterRatio   = e.FastVsBigFreighterRatio;
+                empireToSave.AverageFreighterCargoCap  = e.AverageFreighterCargoCap;
+                empireToSave.AverageFreighterFTLSpeed  = e.AverageFreighterFTLSpeed;
+                empireToSave.ExpandSearchTimer         = e.GetEmpireAI().ExpansionAI.ExpandSearchTimer;
+                empireToSave.MaxSystemsToCheckedDiv    = e.GetEmpireAI().ExpansionAI.MaxSystemsToCheckedDiv;
+                empireToSave.EmpireDefense             = e.GetEmpireAI().EmpireDefense;
+                empireToSave.WeightedCenter            = e.WeightedCenter;
+                empireToSave.RushAllConstruction       = e.RushAllConstruction;
+                empireToSave.FleetStrEmpireModifier    = e.FleetStrEmpireMultiplier;
+                empireToSave.DiplomacyContactQueue     = e.DiplomacyContactQueue;
+                empireToSave.ObsoletePlayerShipModules = e.ObsoletePlayerShipModules;
 
                 if (e.WeArePirates)
                 {
@@ -610,6 +611,7 @@ namespace Ship_Game
             [Serialize(42)] public float RemnantActivationXpNeeded;
             [Serialize(43)] public Map<int, float> FleetStrEmpireModifier;
             [Serialize(44)] public List<KeyValuePair<int, string>> DiplomacyContactQueue;
+            [Serialize(45)] public Array<string> ObsoletePlayerShipModules;
         }
 
         public class FleetSave
@@ -931,7 +933,6 @@ namespace Ship_Game
             [Serialize(35)] public GalSize GalaxySize;
             [Serialize(36)] public float StarsModifier = 1;
             [Serialize(37)] public int ExtraPlanets;
-
             [Serialize(38)] public ProjectileSaveData[] Projectiles; // New global projectile list
             [Serialize(39)] public BeamSaveData[] Beams; // new global beam list
             [Serialize(40)] public bool AutoPickBestColonizer;

@@ -5379,11 +5379,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1985</Index>
-      <Text>Symmetric Design</Text>
+      <Text>Toggle Symmetry</Text>
     </Token>
     <Token>
       <Index>1986</Index>
-      <Text>Normal Design</Text>
+      <Text>Strip Ship</Text>
     </Token>    
     <Token>
       <Index>1987</Index>
@@ -8216,6 +8216,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>4184</Index>
       <Text>have a flagship\nlurking somewhere in the galaxy.</Text>
+    </Token>
+    <Token>
+      <Index>4185</Index>
+      <Text>Omit Old Modules</Text>
+    </Token>
+    <Token>
+      <Index>4186</Index>
+      <Text>When Toggled (Red), any module you mark as obsolete will not be shown in the module lists. When not toggled, obsolete modules names would be shown, but would be painted red. You can mark a module as obsolete in the Active Module tab.</Text>
+    </Token>
+    <Token>
+      <Index>4187</Index>
+      <Text>Indicates that this module can be rotated using the arrow keys</Text>
+    </Token>
+    <Token>
+      <Index>4188</Index>
+      <Text>This module was marked as obsolete. You can reinstate it in the Active Module tab.</Text>
+    </Token>
+    <Token>
+      <Index>4189</Index>
+      <Text>Mark this module as obsolete. You will not see it next time you browse the module categories. Selecting an obsolete module on existing design is possible. Clicking this button again will remove the obsolete mark from this module.</Text>
     </Token>
     <Token>
       <Index>5000</Index>
