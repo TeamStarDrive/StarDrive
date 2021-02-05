@@ -62,23 +62,24 @@ namespace Ship_Game
             return font;
         }
 
-        public static void LoadContent(GameContentManager c)
+        public static void ReloadContent(GameContentManager c) => LoadContent(c, true);
+        public static void LoadContent(GameContentManager c, bool reload = false)
         {
-            Arial20Bold   = LoadFont(c, "Arial20Bold", -3);
+            Arial20Bold   = LoadFont(c, "Arial20Bold", reload ? 0 : -3);
             Arial14Bold   = LoadFont(c, "Arial14Bold");
-            Arial12Bold   = LoadFont(c, "Arial12Bold", -2);
+            Arial12Bold   = LoadFont(c, "Arial12Bold", reload ? 0 : -2);
 
             // hack fix for french, Polish and Russian font error. 
-            Arial10       = LoadFont(c, "Arial10", -2);
+            Arial10       = LoadFont(c, "Arial10", reload ? 0 : -2);
             Arial11Bold   = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Arial10 : LoadFont(c, "Arial11Bold");
             Arial8Bold    = LoadFont(c, "Arial8Bold");
-            Arial12       = LoadFont(c, "Arial12", -2);
+            Arial12       = LoadFont(c, "Arial12", reload ? 0 : -2);
             //Stratum72     = LoadFont(c, "stratum72");
             //Corbel14      = LoadFont(c, "Corbel14");
             Laserian14    = LoadFont(c, "Laserian14");
             Pirulen16     = LoadFont(c, "Pirulen16");
             Pirulen20     = LoadFont(c, "Pirulen20");
-            Consolas18    = LoadFont(c, "consolas18", -4);
+            Consolas18    = LoadFont(c, "consolas18", reload ? 0 : -4);
             Tahoma10      = LoadFont(c, "Tahoma10");
             Tahoma11      = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "Tahoma11");
             TahomaBold9   = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "TahomaBold9");
@@ -89,7 +90,9 @@ namespace Ship_Game
             Verdana12Bold = LoadFont(c, "Verdana12Bold");
             Verdana10     = LoadFont(c, "Verdana10");
 
-            Consolas18.Spacing -= 2f;
+            if (!reload)
+                Consolas18.Spacing -= 2f;
+
             //Stratum72.Spacing = 1f;
             Visitor10.Spacing = 1f;
             //Visitor12.Spacing = 1f;
