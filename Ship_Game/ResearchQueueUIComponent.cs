@@ -20,8 +20,8 @@ namespace Ship_Game
         {
             Screen = screen;
 
-            BtnShowQueue = Button(ButtonStyle.DanButtonBlue, 
-                new Vector2(container.Right - 192, screen.ScreenHeight - 55), "", OnBtnShowQueuePressed);
+            BtnShowQueue = Button(ButtonStyle.BigDip, 
+                new Vector2(container.Right - 170, screen.ScreenHeight - 55), "", OnBtnShowQueuePressed);
             BtnShowQueue.TextAlign = ButtonTextAlign.Left;
 
             var current = new Rectangle(container.X, container.Y, container.Width, 150);
@@ -79,6 +79,12 @@ namespace Ship_Game
             {
                 Screen.ExitScreen();
                 return true;
+            }
+
+            foreach (ResearchQItem item in ResearchQueueList.AllEntries)
+            {
+                if (item.HandleInput(input))
+                    return true;
             }
 
             if (ResearchQueueList.Visible && input.RightMouseClick &&
