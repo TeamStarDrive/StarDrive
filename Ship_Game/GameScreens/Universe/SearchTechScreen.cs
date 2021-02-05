@@ -62,7 +62,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
-            string title    = "Search Technology";
+            string title    = new LocalizedText(1780).Text;
             Vector2 menuPos = new Vector2(Window.Menu.CenterTextX(title, LargeFont), Window.Menu.Y + 35);
             Label(menuPos, title, LargeFont, Cream);
             PopulateTechs();
