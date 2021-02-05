@@ -4663,7 +4663,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1779</Index>
       <Text>This planet is heavily fortified and has a strong military culture. </Text>
     </Token>
-
+    <Token>
+      <Index>1780</Index>
+      <Text>Search Technology</Text>
+    </Token>
     
     <!-- Events -->
     <Token>
