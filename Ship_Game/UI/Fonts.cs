@@ -80,9 +80,9 @@ namespace Ship_Game
             Pirulen20     = LoadFont(c, "Pirulen20");
             Consolas18    = LoadFont(c, "consolas18", -4);
             Tahoma10      = LoadFont(c, "Tahoma10");
-            Tahoma11      = LoadFont(c, "Tahoma11");
-            TahomaBold9   = LoadFont(c, "TahomaBold9");
-            Visitor10     = LoadFont(c, "Visitor10");
+            Tahoma11      = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "Tahoma11");
+            TahomaBold9   = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "TahomaBold9");
+            Visitor10     = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Arial10  : LoadFont(c, "Visitor10");
             //Visitor12     = LoadFont(c, "Visitor12");
             Verdana14Bold = LoadFont(c, "Verdana14Bold");
             Verdana12     = LoadFont(c, "Verdana12");
@@ -96,9 +96,9 @@ namespace Ship_Game
 
             if (GlobalStats.IsRussian || GlobalStats.IsPolish)
             {
-                Pirulen12 = LoadFont(c, "Pirulen12");
-                if (GlobalStats.IsRussian)
-                    Pirulen12.Spacing -= 3f;
+                Pirulen12 = LoadFont(c, "Arial12Bold");
+                //if (GlobalStats.IsRussian)
+                 //   Pirulen12.Spacing -= 3f;
             }
             else
             {
