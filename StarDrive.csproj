@@ -228,6 +228,7 @@
     <Compile Include="Ship_Game\BuildingCategory.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Ship_Game\SearchTechItem.cs" />
     <Compile Include="Ship_Game\Commands\Goals\DefendVsRemnants.cs" />
     <Compile Include="Ship_Game\Commands\Goals\StandbyColonyShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantInit.cs" />
@@ -239,6 +240,7 @@
     <Compile Include="Ship_Game\Empires\DataPackets\EmpireInformation.cs" />
     <Compile Include="Ship_Game\Empires\DataPackets\IncomingThreat.cs" />
     <Compile Include="Ship_Game\Empire_FleetModifiers.cs" />
+    <Compile Include="Ship_Game\GameScreens\Universe\SearchTechScreen.cs" />
     <Compile Include="Ship_Game\Remnants.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
@@ -2426,6 +2428,9 @@
     <Content Include="Content\Textures\NewUI\new_tech_base_hover.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Textures\NewUI\new_tech_base_queue.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Textures\NewUI\new_tech_base_title.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2433,6 +2438,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\new_tech_base_title_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\new_tech_base_title_queue.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\rounded_BL.png">
