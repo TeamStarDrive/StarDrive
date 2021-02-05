@@ -111,6 +111,7 @@ namespace Ship_Game
             SaveData.EmpireDataList        = new Array<EmpireSaveData>();
             SaveData.SolarSystemDataList   = new Array<SolarSystemSaveData>();
             SaveData.CustomMineralDecay    = GlobalStats.CustomMineralDecay;
+            SaveData.SuppressOnBuildNotifications  = GlobalStats.SuppressOnBuildNotifications;
             SaveData.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
@@ -937,6 +938,7 @@ namespace Ship_Game
             [Serialize(39)] public BeamSaveData[] Beams; // new global beam list
             [Serialize(40)] public bool AutoPickBestColonizer;
             [Serialize(41)] public float CustomMineralDecay;
+            [Serialize(42)] public bool SuppressOnBuildNotifications;
         }
     }
 }
