@@ -50,6 +50,7 @@ namespace Ship_Game
 
         public static bool ShowAllDesigns        = true;
         public static bool SymmetricDesign       = true;
+        public static bool FilterOldModules      = true;
         public static int BeamTests              = 0;
         public static int ModuleUpdates          = 0;
         public static int WeaponArcChecks        = 0;
