@@ -205,7 +205,7 @@ namespace Ship_Game
         public bool IsSectorViewOrCloser => viewState <= UnivScreenState.SectorView;
         public bool IsSystemViewOrCloser => viewState <= UnivScreenState.SystemView;
         public bool IsPlanetViewOrCloser => viewState <= UnivScreenState.PlanetView;
-        public bool IsShipViewOrCloser => viewState <= UnivScreenState.ShipView;
+        public bool IsShipViewOrCloser   => viewState <= UnivScreenState.ShipView;
 
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {

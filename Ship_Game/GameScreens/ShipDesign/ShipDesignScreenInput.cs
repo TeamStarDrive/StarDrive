@@ -633,9 +633,15 @@ namespace Ship_Game
 
         void OnSymmetricDesignToggle()
         {
-            IsSymmetricDesignMode       = !IsSymmetricDesignMode;
-            BtnSymmetricDesign.Text     = SymmetricDesignBtnText;
-            BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
+            IsSymmetricDesignMode    = !IsSymmetricDesignMode;
+            BtnSymmetricDesign.Style = SymmetricDesignBtnStyle;
+        }
+
+        void OnFilterModuleToggle()
+        {
+            IsFilterOldModulesMode = !IsFilterOldModulesMode;
+            BtnFilterModules.Style = FilterModulesBtnStyle;
+            ModuleSelectComponent.ResetActiveCategory();
         }
 
         void OnStripShipToggle()
@@ -661,7 +667,7 @@ namespace Ship_Game
         void JustChangeHull()
         {
             ShipSaved = true;
-            ChangeHull(Changeto);
+            ChangeHull(ChangeTo);
         }
 
         void LaunchScreen()
@@ -710,7 +716,7 @@ namespace Ship_Game
             GameAudio.AcceptClick();
             if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
             {
-                Changeto = item.Hull;
+                ChangeTo = item.Hull;
                 MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
             }
             else
@@ -846,7 +852,7 @@ namespace Ship_Game
         void SaveWIPThenChangeHull()
         {
             SaveWIP();
-            ChangeHull(Changeto);
+            ChangeHull(ChangeTo);
         }
     }
 }

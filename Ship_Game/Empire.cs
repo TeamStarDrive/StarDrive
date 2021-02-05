@@ -196,6 +196,8 @@ namespace Ship_Game
         public List<KeyValuePair<int, string>> DiplomacyContactQueue { get; private set; } = new List<KeyValuePair<int, string>>();  // Empire IDs, for player only
         public bool AutoPickBestColonizer;
 
+        public Array<string> ObsoletePlayerShipModules = new Array<string>();
+
         public int AtWarCount;
         public Array<string> BomberTech      = new Array<string>();
         public Array<string> TroopShipTech   = new Array<string>();
