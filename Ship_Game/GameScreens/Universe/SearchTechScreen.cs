@@ -1,12 +1,10 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public sealed class ResearchScreenSearchTech : GameScreen
+    public sealed class SearchTechScreen : GameScreen
     {
         private readonly Menu2 Window;
         private readonly Color Cream = Colors.Cream;
@@ -15,7 +13,7 @@ namespace Ship_Game
         readonly UITextEntry SearchTech;
         readonly ResearchScreenNew Screen;
 
-        public ResearchScreenSearchTech(ResearchScreenNew screen, Array<TreeNode> allTreeNodes) : base(screen)
+        public SearchTechScreen(ResearchScreenNew screen, Array<TreeNode> allTreeNodes) : base(screen)
         {
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
