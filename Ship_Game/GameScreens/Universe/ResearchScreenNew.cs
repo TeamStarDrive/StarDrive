@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using System;
 
+
 namespace Ship_Game
 {
     public sealed class ResearchScreenNew : GameScreen
@@ -11,10 +12,12 @@ namespace Ship_Game
         public Camera2D camera = new Camera2D();
 
         readonly Map<string, RootNode> RootNodes = new Map<string, RootNode>(StringComparer.OrdinalIgnoreCase);
-        public Map<string, Node> AllTechNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
-        public Map<string, TreeNode> SubNodes = new Map<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
+        public Map<string, Node> AllTechNodes    = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
+        public Map<string, TreeNode> SubNodes    = new Map<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
+        public Array<TreeNode> AllTreeNodes      = new Array<TreeNode>();
 
-        CloseButton close;
+        CloseButton Close;
+        UIButton Search;
         Menu2 MainMenu;
         public EmpireUIOverlay empireUI;
 
@@ -44,7 +47,7 @@ namespace Ship_Game
             var main = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
             MainMenu       = new Menu2(main);
             MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
-            close          = Add(new CloseButton(main.Right - 40, main.Y + 20));
+            Close          = Add(new CloseButton(main.Right - 40, main.Y + 20));
 
             RootNodes.Clear();
             AllTechNodes.Clear();
@@ -81,13 +84,20 @@ namespace Ship_Game
             // Create queue once all techs are populated
             var queue = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
             Queue = Add(new ResearchQueueUIComponent(this, queue));
-
+            Vector2 searchPos = new Vector2(main.X + main.Width - 360, main.Height - 55);
+            Search = Add(new UIButton(ButtonStyle.BigDip, searchPos, "Search"));
+            Search.OnClick = OnSearchButtonClicked;
             base.LoadContent();
         }
 
         public override void Update(UpdateTimes elapsed, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             base.Update(elapsed, otherScreenHasFocus, coveredByOtherScreen);
+        }
+
+        public void OnSearchButtonClicked(UIButton button)
+        {
+            ScreenManager.AddScreen(new ResearchScreenSearchTech(this, AllTreeNodes));
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -116,8 +126,9 @@ namespace Ship_Game
             batch.End();
 
             batch.Begin();
-            close.Draw(batch, elapsed);
+            Close.Draw(batch, elapsed);
             Queue.Draw(batch, elapsed);
+            Search.Draw(batch, elapsed);
             batch.End();
         }
 
@@ -513,7 +524,11 @@ namespace Ship_Game
                 var newNode = new TreeNode(GetCurrentCursorOffset(), child, this) { NodePosition = Cursor };
 
                 if (child.Discovered)
+                {
                     SubNodes.Add(newNode.Entry.UID, newNode);
+                    AllTreeNodes.Add(newNode);
+                }
+
                 PopulateNodesFromSubNode(newNode);
             }
         }

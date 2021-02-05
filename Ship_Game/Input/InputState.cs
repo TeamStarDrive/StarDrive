@@ -140,6 +140,7 @@ namespace Ship_Game
         public bool IsCtrlKeyDown   => IsKeyDown(Keys.LeftControl) || IsKeyDown(Keys.RightControl);
         public bool IsShiftKeyDown  => IsKeyDown(Keys.LeftShift)   || IsKeyDown(Keys.RightShift);
         public bool IsEnterOrEscape => IsKeyDown(Keys.Enter)       || IsKeyDown(Keys.Escape);
+        public bool IsEnter         => IsKeyDown(Keys.Enter);
 
         // ship selection
         public bool SelectSameDesign      => IsCtrlKeyDown && IsAltKeyDown;
