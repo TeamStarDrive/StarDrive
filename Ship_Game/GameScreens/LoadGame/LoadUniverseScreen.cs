@@ -137,8 +137,9 @@ namespace Ship_Game
             GlobalStats.EliminationMode      = usData.EliminationMode;
             GlobalStats.CustomMineralDecay   = usData.CustomMineralDecay;
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
-            PlayerLoyalty = usData.PlayerLoyalty;
-            RandomEventManager.ActiveEvent = null;
+            PlayerLoyalty                    = usData.PlayerLoyalty;
+            RandomEventManager.ActiveEvent   = null;
+            GlobalStats.SuppressOnBuildNotifications = usData.SuppressOnBuildNotifications;
             StatTracker.SetSnapshots(usData.Snapshots);
 
             step.Finish();
