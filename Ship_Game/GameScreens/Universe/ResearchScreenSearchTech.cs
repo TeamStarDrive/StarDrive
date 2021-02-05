@@ -42,11 +42,11 @@ namespace Ship_Game
 
             foreach (var entry in EmpireManager.Player.TechnologyDict)
             {
-                string lower = entry.Key.ToLower();
+                TreeNode node = new TreeNode(Vector2.Zero, entry.Value, Screen);
+                string lower = node.TechName.ToLower();
                 if (entry.Value.Discovered && !entry.Value.IsRoot &&
                     (SearchTech.Text.IsEmpty() || lower.Contains(SearchTech.Text.ToLower())))
                 {
-                    TreeNode node = new TreeNode(Vector2.Zero, entry.Value, Screen);
                     items.Add(CreateQueueItem(node));
                 }
             }
@@ -64,7 +64,6 @@ namespace Ship_Game
         public override void LoadContent()
         {
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
-            //Screen Title
             string title    = "Search Technology";
             Vector2 menuPos = new Vector2(Window.Menu.CenterTextX(title, LargeFont), Window.Menu.Y + 35);
             Label(menuPos, title, LargeFont, Cream);
@@ -98,12 +97,17 @@ namespace Ship_Game
                 return true;
             }
 
-            if (input.RightMouseClick)
+            if (input.RightMouseClick || input.LeftMouseClick)
             {
                 foreach (SearchTechItem item in TechList.AllEntries)
                 {
                     if (item.HandleInput(input))
+                    {
+                        if (input.LeftMouseClick)
+                            ResearchToTech(item.Tech);
+
                         return true;
+                    }
                 }
             }
 
@@ -114,6 +118,34 @@ namespace Ship_Game
             }
 
             return base.HandleInput(input);
+        }
+
+        void ResearchToTech(TechEntry entry)
+        {
+            if (entry.Unlocked || EmpireManager.Player.Research.IsQueued(entry.UID))
+            {
+                GameAudio.NegativeClick();
+                return;
+            }
+
+            Array<TechEntry> entries = new Array<TechEntry> {entry};
+            while (!entry.IsRoot)
+            {
+                TechEntry parent = entry.GetPreReq(EmpireManager.Player);
+                if (parent.Unlocked || EmpireManager.Player.Research.IsQueued(entry.UID))
+                    break;
+
+                if (!parent.IsRoot)
+                    entries.Add(parent);
+
+                entry = parent;
+            }
+
+            for (int i = entries.Count-1; i >= 0; i--)
+            {
+                TechEntry te = entries[i];
+                Screen.Queue.AddToResearchQueue(new TreeNode(Vector2.Zero, te, Screen));
+            }
         }
     }
 }
