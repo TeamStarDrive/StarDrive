@@ -15,6 +15,7 @@ namespace Ship_Game
         readonly FighterScrollList ChooseFighterSL;
         readonly ModuleSelectScrollList ModuleSelectList;
         readonly Submenu ActiveModSubMenu;
+        readonly TexturedButton Obsolete;
 
         public ModuleSelection(ShipDesignScreen screen, in Rectangle window) : base(window)
         {
@@ -34,7 +35,11 @@ namespace Ship_Game
             ActiveModSubMenu.AddTab("Active Module");
             // rounded black background
             ActiveModSubMenu.Background = new Selector(ActiveModSubMenu.Rect.CutTop(25), new Color(0, 0, 0, 210));
-
+            int obsoleteW = ResourceManager.Texture("NewUI/icon_queue_delete").Width;
+            int obsoleteH = ResourceManager.Texture("NewUI/icon_queue_delete").Height;
+            Rectangle obsoletePos = new Rectangle((int)(ActiveModSubMenu.X + ActiveModSubMenu.Width - obsoleteW - 10), (int)ActiveModSubMenu.Y + 38, obsoleteW, obsoleteH);
+            Obsolete = new TexturedButton(obsoletePos, "NewUI/icon_queue_delete", "NewUI/icon_queue_delete_hover1", "NewUI/icon_queue_delete_hover2");
+            Obsolete.LocalizerTip = 4189;
             var chooseFighterRect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
             if (chooseFighterRect.Bottom > Screen.ScreenHeight)
             {
@@ -55,6 +60,11 @@ namespace Ship_Game
             base.OnTabChangedEvt(newIndex);
         }
 
+        public void ResetActiveCategory()
+        {
+            ModuleSelectList.SetActiveCategory(SelectedIndex);
+        }
+
         float ActiveModStatSpacing => ActiveModSubMenu.Width * 0.27f;
 
         public bool HitTest(InputState input)
@@ -64,7 +74,29 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (HandleObsoleteInput(input))
+                return true;
+
             return base.HandleInput(input);
+        }
+
+        bool HandleObsoleteInput(InputState input)
+        {
+            if (Obsolete.HandleInput(input))
+            {
+                ShipModule m = Screen.ActiveModule;
+                if (input.LeftMouseClick && m != null)
+                {
+                    if (!m.IsObsolete())
+                        EmpireManager.Player.ObsoletePlayerShipModules.Add(m.UID);
+                    else
+                        EmpireManager.Player.ObsoletePlayerShipModules.Remove(m.UID);
+
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public override void Update(float fixedDeltaTime)
@@ -117,22 +149,25 @@ namespace Ship_Game
             if (ActiveModSubMenu.SelectedIndex != 0 || mod == null)
                 return;
 
+            bool isObsolete = mod.IsObsolete();
+            Color nameColor = isObsolete ? Color.Red : Color.White;
+            Obsolete.BaseColor = nameColor;
+            Obsolete.Draw(batch);
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);
-
             //Added by McShooterz: Changed how modules names are displayed for allowing longer names
             var modTitlePos = new Vector2(ActiveModSubMenu.X + 10, ActiveModSubMenu.Y + 35);
 
-            if (Fonts.Arial20Bold.TextWidth(Localizer.Token(moduleTemplate.NameIndex))+16 <
+            if (Fonts.Arial20Bold.TextWidth(Localizer.Token(moduleTemplate.NameIndex))+40 <
                 ActiveModSubMenu.Width)
             {
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(moduleTemplate.NameIndex),
-                    modTitlePos, Color.White);
+                    modTitlePos, nameColor);
                 modTitlePos.Y += (Fonts.Arial20Bold.LineSpacing + 6);
             }
             else
             {
                 batch.DrawString(Fonts.Arial14Bold, Localizer.Token(moduleTemplate.NameIndex),
-                    modTitlePos, Color.White);
+                    modTitlePos, nameColor);
                 modTitlePos.Y += (Fonts.Arial14Bold.LineSpacing + 4);
             }
 

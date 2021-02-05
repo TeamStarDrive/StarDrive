@@ -29,6 +29,7 @@ namespace Ship_Game
         Vector2 Offset;
         readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
+        UIButton BtnFilterModules;   // Filter Absolute Modules
         UIButton BtnStripShip;       // Removes all modules but armor, shields and command modules
         Submenu StatsSub;
         Menu1 ShipStats;
@@ -50,7 +51,7 @@ namespace Ship_Game
         private SlotStruct ProjectedSlot;
         Vector2 CameraVelocity;
         Vector2 StartDragPos;
-        ShipData Changeto;
+        ShipData ChangeTo;
         string ScreenToLaunch;
         float TransitionZoom = 1f;
         SlotModOperation Operation;
@@ -75,6 +76,12 @@ namespace Ship_Game
             set => GlobalStats.SymmetricDesign = value;
         }
 
+        public bool IsFilterOldModulesMode
+        {
+            get => GlobalStats.FilterOldModules;
+            set => GlobalStats.FilterOldModules = value;
+        }
+          
         struct MirrorSlot
         {
             public SlotStruct Slot;
@@ -521,7 +528,7 @@ namespace Ship_Game
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomListRight.Add(ButtonStyle.Medium, SymmetricDesignBtnText, click: b =>
+            BtnSymmetricDesign = bottomListRight.Add(ButtonStyle.Medium, new LocalizedText(1985).Text, click: b =>
             {
                 OnSymmetricDesignToggle();
             });
@@ -536,12 +543,20 @@ namespace Ship_Game
             bottomListLeft.Direction = new Vector2(+1, 0);
             bottomListLeft.Padding = new Vector2(16f, 2f);
 
-            BtnStripShip = bottomListLeft.Add(ButtonStyle.Medium, "Strip Ship",click: b =>
+            BtnStripShip = bottomListLeft.Add(ButtonStyle.Medium, new LocalizedText(1986).Text, click: b =>
             {
                 OnStripShipToggle();
             });
             BtnStripShip.ClickSfx = "blip_click";
             BtnStripShip.Tooltip = Localizer.Token(1895);
+
+            BtnFilterModules = bottomListLeft.Add(ButtonStyle.Medium, new LocalizedText(4185).Text, click: b =>
+            {
+                OnFilterModuleToggle();
+            });
+            BtnFilterModules.ClickSfx = "blip_click";
+            BtnFilterModules.Tooltip  = 4186;
+            BtnFilterModules.Style    = FilterModulesBtnStyle;
 
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomListRight.Y, 210, 25);
             LoadContentFinish();
@@ -551,7 +566,7 @@ namespace Ship_Game
         }
 
         ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
-        LocalizedText SymmetricDesignBtnText => GlobalStats.SymmetricDesign ? 1985 : 1986;
+        ButtonStyle FilterModulesBtnStyle    => GlobalStats.FilterOldModules ? ButtonStyle.Military : ButtonStyle.BigDip;
 
         void LoadContentFinish()
         {

@@ -480,6 +480,11 @@ namespace Ship_Game.Ships
             }
         }
 
+        public bool IsObsolete()
+        {
+            return EmpireManager.Player.ObsoletePlayerShipModules.Contains(UID);
+        }
+
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
         public void UpdateEveryFrame(FixedSimTime timeStep, float parentX, float parentY, float parentRotation,
                                      float cos, float sin, float tan)

@@ -58,6 +58,9 @@ namespace Ship_Game
 
                 e.RushAllConstruction = sdata.RushAllConstruction;
                 e.WeightedCenter      = sdata.WeightedCenter;
+
+                if (sdata.ObsoletePlayerShipModules != null)
+                    e.ObsoletePlayerShipModules = sdata.ObsoletePlayerShipModules;
             }
 
             foreach (TechEntry tech in sdata.TechTree)

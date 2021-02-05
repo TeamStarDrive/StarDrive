@@ -9,8 +9,13 @@ namespace Ship_Game
     public class ModuleSelectListItem : ScrollListItem<ModuleSelectListItem>
     {
         public ShipModule Module;
+        public bool IsObsolete { get; private set; }
         public ModuleSelectListItem(string headerText) : base(headerText) {}
-        public ModuleSelectListItem(ShipModule module) { Module = module; }
+
+        public ModuleSelectListItem(ShipModule module)
+        {
+            Module     = module;
+        }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
@@ -18,6 +23,7 @@ namespace Ship_Game
 
             if (Module != null)
             {
+                IsObsolete = Module.IsObsolete();
                 DrawModule(batch, Module);
             }
         }
@@ -38,18 +44,18 @@ namespace Ship_Game
             modRect.Height = (int)h;
             batch.Draw(modTexture, modRect, Color.White);
 
-            var tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
-
+            var tCursor       = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
+            Color nameColor   = IsObsolete ? Color.Red : Color.White; 
             string moduleName = Localizer.Token(mod.NameIndex);
             if (Fonts.Arial12Bold.MeasureString(moduleName).X + 90 < List.Width)
             {
-                batch.DrawString(Fonts.Arial12Bold, moduleName, tCursor, Color.White);
-                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                batch.DrawString(Fonts.Arial12Bold, moduleName, tCursor, nameColor);
+                tCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
             }
             else
             {
-                batch.DrawString(Fonts.Arial11Bold, moduleName, tCursor, Color.White);
-                tCursor.Y += Fonts.Arial11Bold.LineSpacing;
+                batch.DrawString(Fonts.Arial11Bold, moduleName, tCursor, nameColor);
+                tCursor.Y += Fonts.Arial11Bold.LineSpacing + 3;
             }
 
             string restriction = mod.Restrictions.ToString();
@@ -65,10 +71,19 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("UI/icon_can_rotate"), rotateRect, Color.White);
                 if (rotateRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
                 {
-                    ToolTip.CreateTooltip("Indicates that this module can be rotated using the arrow keys");
+                    ToolTip.CreateTooltip(new LocalizedText(4187).Text);
                 }
             }
 
+            if (IsObsolete)
+            {
+                var obsoleteRect = new Rectangle((int)bCursor.X + 220, (int)bCursor.Y + 22, 17, 17);
+                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), obsoleteRect, Color.Red);
+                if (obsoleteRect.HitTest(GameBase.ScreenManager.input.CursorPosition))
+                {
+                    ToolTip.CreateTooltip(4188);
+                }
+            }
         }
     }
 }
