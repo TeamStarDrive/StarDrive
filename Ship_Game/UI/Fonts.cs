@@ -80,7 +80,7 @@ namespace Ship_Game
             Pirulen20     = LoadFont(c, "Pirulen20");
             Consolas18    = LoadFont(c, "consolas18", -4);
             Tahoma10      = LoadFont(c, "Tahoma10");
-            Tahoma11      = LoadFont(c, "Tahoma11");
+            Tahoma11      = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "Tahoma11");
             TahomaBold9   = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Tahoma10 : LoadFont(c, "TahomaBold9");
             Visitor10     = GlobalStats.IsFrench || GlobalStats.IsPolish || GlobalStats.IsRussian ? Arial10  : LoadFont(c, "Visitor10");
             //Visitor12     = LoadFont(c, "Visitor12");
