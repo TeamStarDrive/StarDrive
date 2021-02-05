@@ -32,17 +32,18 @@ namespace Ship_Game
             return Screen.IsBadModuleSize(module);
         }
 
-        bool IsGoodModuleSize(ShipModule module)
+        bool ShouldBeFiltered(ShipModule m)
         {
-            return !IsBadModuleSize(module);
+            return IsBadModuleSize(m) || m.IsObsolete() && Screen.IsFilterOldModulesMode;
         }
 
         readonly Map<int, ModuleSelectListItem> Categories = new Map<int, ModuleSelectListItem>();
 
         void AddCategoryItem(int categoryId, string categoryName, ShipModule mod)
         {
-            if (!IsGoodModuleSize(mod))
+            if (ShouldBeFiltered(mod))
                 return;
+
             if (!Categories.TryGetValue(categoryId, out ModuleSelectListItem e))
             {
                 e = AddItem(new ModuleSelectListItem(categoryName));
