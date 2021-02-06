@@ -91,13 +91,20 @@ namespace Ship_Game
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
 
         public static bool DisableAsteroids;
-        public static bool SuppressOnBuildNotifications;
         public static bool DisableInhibitionWarning = true;
         public static bool FixedPlayerCreditCharge;
         public static bool NotifyEnemyInSystemAfterLoad = true;
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
         public static ExtraRemnantPresence ExtraRemnantGS;
+
+        // global sticky checkboxes the player changes in game
+        public static bool SuppressOnBuildNotifications;
+        public static bool PlanetScreenHideOwned;
+        public static bool PlanetsScreenHideUnhabitable = true;
+        public static bool ShipListFilterPlayerShipsOnly;
+        public static bool ShipListFilterInFleetsOnly;
+        public static bool ShipListFilterNotInFleets;
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;

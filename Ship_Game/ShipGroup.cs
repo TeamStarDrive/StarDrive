@@ -603,15 +603,13 @@ namespace Ship_Game
             return CombatStatus.ClearSpace;
         }
 
-        protected bool ClearPriorityOrderIfSubLight(Ship ship)
+        protected void ClearPriorityOrderIfSubLight(Ship ship)
         {
-            if (!ship.IsSpoolingOrInWarp)
+            if (!ship.loyalty.isPlayer && !ship.IsSpoolingOrInWarp)
             {
                 ship.AI.ClearPriorityOrderAndTarget();
                 ship.AI.ChangeAIState(AIState.AwaitingOrders);
-                return true;
             }
-            return false;
         }
 
         public float GetSpeedLimitFor(Ship ship)

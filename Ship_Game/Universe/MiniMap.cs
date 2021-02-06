@@ -360,7 +360,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(54, "B");
 
             if (PlanetScreen.Rect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(56);
+                ToolTip.CreateTooltip(56, "L");
 
             if (ShipScreen.Rect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(223, "F1");
