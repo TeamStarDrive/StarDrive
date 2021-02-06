@@ -15,6 +15,7 @@ namespace Ship_Game
         public Rectangle SysNameRect;
         public Rectangle ShipNameRect;
         public Rectangle RoleRect;
+        public Rectangle FleetRect;
         public Rectangle OrdersRect;
         public Rectangle RefitRect;
         public Rectangle STRRect;
@@ -37,6 +38,8 @@ namespace Ship_Game
         bool isCombat;  //fbedard
         public bool Selected = false;  //fbedard: for multi-select
         private string SystemName;
+        private SpriteFont Font12 = Fonts.Arial12Bold;
+        private SpriteFont Font8  = Fonts.Arial8Bold;
 
         public ShipListScreenItem(Ship s, int x, int y, int width1, int height, ShipListScreen caller)
         {
@@ -46,7 +49,8 @@ namespace Ship_Game
             SysNameRect = new Rectangle(x, y, (int)(TotalEntrySize.Width * 0.10f), height);
             ShipNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(TotalEntrySize.Width * 0.175f), height);
             RoleRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width, y, (int)(TotalEntrySize.Width * 0.05f), height);
-            OrdersRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width + RoleRect.Width, y, (int)(TotalEntrySize.Width * 0.175f), height);
+            FleetRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width, y, (int)(TotalEntrySize.Width * 0.075f), height);
+            OrdersRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width + RoleRect.Width + FleetRect.Width, y, (int)(TotalEntrySize.Width * 0.175f), height);
             RefitRect = new Rectangle(OrdersRect.X + OrdersRect.Width, y, 125, height);
             STRRect = new Rectangle(RefitRect.X + RefitRect.Width, y, 60, height);
             MaintRect = new Rectangle(STRRect.X + STRRect.Width, y, 60, height);
@@ -101,52 +105,58 @@ namespace Ship_Game
 
             if (Fonts.Arial20Bold.MeasureString(SystemName).X <= SysNameRect.Width)
             {
-                var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(SystemName).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12Bold, SystemName, sysNameCursor, textColor);
+                var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Font12.MeasureString(SystemName).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Font12.LineSpacing / 2);
+                batch.DrawString(Font12, SystemName, sysNameCursor, textColor);
             }
             else
             {
-                var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(SystemName).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12Bold, SystemName, sysNameCursor, textColor);
+                var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Font12.MeasureString(SystemName).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Font12.LineSpacing / 2);
+                batch.DrawString(Font12, SystemName, sysNameCursor, textColor);
             }
 
             batch.Draw(ship.shipData.Icon, ShipIconRect, Color.White);
-            ShipNameEntry.Draw(batch, elapsed, Fonts.Arial12Bold, ShipNameEntry.ClickableArea.PosVec(), textColor);
+            ShipNameEntry.Draw(batch, elapsed, Font12, ShipNameEntry.ClickableArea.PosVec(), textColor);
 
-            var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+            var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Font12.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Font12.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);
-            batch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, textColor);
-            
-            var StatusPos = new Vector2(OrdersRect.X + OrdersRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Status_Text).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.MeasureString(Status_Text).Y / 2f);
-            HelperFunctions.ClampVectorToInt(ref StatusPos);
-            batch.DrawString(Fonts.Arial12, Status_Text, StatusPos, textColor);
+            batch.DrawString(Font12, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, textColor);
+
+            string fleetName     = ship.fleet?.Name ?? "";
+            SpriteFont fleetFont = Font12.MeasureString(fleetName).X > FleetRect.Width - 5 ? Font8 : Font12;
+            var fleetPos = new Vector2(FleetRect.X + FleetRect.Width / 2 - fleetFont.MeasureString(fleetName).X / 2f, FleetRect.Y + FleetRect.Height / 2 - fleetFont.LineSpacing / 2);
+            HelperFunctions.ClampVectorToInt(ref fleetPos);
+            batch.DrawString(fleetFont, fleetName, fleetPos, textColor);
+
+            var statusPos = new Vector2(OrdersRect.X + OrdersRect.Width / 2 - Fonts.Arial12.MeasureString(Status_Text).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12.MeasureString(Status_Text).Y / 2f);
+            HelperFunctions.ClampVectorToInt(ref statusPos);
+            batch.DrawString(Fonts.Arial12, Status_Text, statusPos, textColor);
 
             float maint = ship.GetMaintCost();
 
-            var MainPos = new Vector2(MaintRect.X + MaintRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            MainPos.X -= Fonts.Arial12.MeasureString(maint.ToString("F2")).X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref MainPos);
-            batch.DrawString(Fonts.Arial12, maint.ToString("F2"), MainPos, maint > 0.00 ? Color.Salmon : Color.White);
+            var mainPos = new Vector2(MaintRect.X + MaintRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            mainPos.X -= Fonts.Arial12.MeasureString(maint.ToString("F2")).X / 2f + 6;
+            HelperFunctions.ClampVectorToInt(ref mainPos);
+            batch.DrawString(Fonts.Arial12, maint.ToString("F2"), mainPos, maint > 0.00 ? Color.Salmon : Color.White);
 
-            var StrPos = new Vector2(STRRect.X + STRRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            StrPos.X -= Fonts.Arial12.MeasureString(ship.GetStrength().ToString("0")).X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref StrPos);
-            batch.DrawString(Fonts.Arial12, ship.GetStrength().ToString("0"), StrPos, Color.White);
+            var strPos = new Vector2(STRRect.X + STRRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            strPos.X -= Fonts.Arial12.MeasureString(ship.GetStrength().ToString("0")).X / 2f + 6;
+            HelperFunctions.ClampVectorToInt(ref strPos);
+            batch.DrawString(Fonts.Arial12, ship.GetStrength().ToString("0"), strPos, Color.White);
 
-            var TroopPos = new Vector2(TroopRect.X + TroopRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            TroopPos.X -= Fonts.Arial12.MeasureString(string.Concat(ship.TroopCount, "/", ship.TroopCapacity)).X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref TroopPos);
-            batch.DrawString(Fonts.Arial12, string.Concat(ship.TroopCount, "/", ship.TroopCapacity), TroopPos, Color.White);
+            var troopPos = new Vector2(TroopRect.X + TroopRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            troopPos.X -= Fonts.Arial12.MeasureString(string.Concat(ship.TroopCount, "/", ship.TroopCapacity)).X / 2f + 6;
+            HelperFunctions.ClampVectorToInt(ref troopPos);
+            batch.DrawString(Fonts.Arial12, string.Concat(ship.TroopCount, "/", ship.TroopCapacity), troopPos, Color.White);
             
-            var FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            FTLPos.X -= Fonts.Arial12.MeasureString((ship.MaxFTLSpeed / 1000f).ToString("0")+"k").X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref FTLPos);
-            batch.DrawString(Fonts.Arial12, (ship.MaxFTLSpeed / 1000f).ToString("0")+"k", FTLPos, Color.White);
+            var ftlPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            ftlPos.X -= Fonts.Arial12.MeasureString((ship.MaxFTLSpeed / 1000f).ToString("0")+"k").X / 2f + 6;
+            HelperFunctions.ClampVectorToInt(ref ftlPos);
+            batch.DrawString(Fonts.Arial12, (ship.MaxFTLSpeed / 1000f).ToString("0")+"k", ftlPos, Color.White);
 
-            var STLPos = new Vector2(STLRect.X + STLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            STLPos.X -= Fonts.Arial12.MeasureString(ship.MaxSTLSpeed.ToString("0")).X / 2f + 6;
-            HelperFunctions.ClampVectorToInt(ref STLPos);
-            batch.DrawString(Fonts.Arial12, ship.MaxSTLSpeed.ToString("0"), STLPos, Color.White);
+            var stlPos = new Vector2(STLRect.X + STLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
+            stlPos.X -= Fonts.Arial12.MeasureString(ship.MaxSTLSpeed.ToString("0")).X / 2f + 6;
+            HelperFunctions.ClampVectorToInt(ref stlPos);
+            batch.DrawString(Fonts.Arial12, ship.MaxSTLSpeed.ToString("0"), stlPos, Color.White);
 
             if (isCombat)
             {
@@ -427,7 +437,8 @@ namespace Ship_Game
             SysNameRect = new Rectangle(x, y, (int)(TotalEntrySize.Width * 0.10f), TotalEntrySize.Height);
             ShipNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(TotalEntrySize.Width * 0.2f), TotalEntrySize.Height);
             RoleRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width, y, (int)(TotalEntrySize.Width * 0.05f), TotalEntrySize.Height);
-            OrdersRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width + RoleRect.Width, y, (int)(TotalEntrySize.Width * 0.2f), TotalEntrySize.Height);
+            FleetRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width + RoleRect.Width, y, (int)(TotalEntrySize.Width * 0.075f), TotalEntrySize.Height);
+            OrdersRect = new Rectangle(x + SysNameRect.Width + ShipNameRect.Width + RoleRect.Width + FleetRect.Width, y, (int)(TotalEntrySize.Width * 0.2f), TotalEntrySize.Height);
             RefitRect = new Rectangle(OrdersRect.X + OrdersRect.Width, y, 125, TotalEntrySize.Height);
             STRRect = new Rectangle(RefitRect.X + RefitRect.Width, y, 60, TotalEntrySize.Height);
             MaintRect = new Rectangle(STRRect.X + STRRect.Width, y, 60, TotalEntrySize.Height);

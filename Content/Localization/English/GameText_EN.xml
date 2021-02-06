@@ -8238,6 +8238,30 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Mark this module as obsolete. You will not see it next time you browse the module categories. Selecting an obsolete module on existing design is possible. Clicking this button again will remove the obsolete mark from this module.</Text>
     </Token>
     <Token>
+      <Index>4190</Index>
+      <Text>Show Player Designs Only</Text>
+    </Token>
+    <Token>
+      <Index>4191</Index>
+      <Text>In Fleets Only</Text>
+    </Token>
+    <Token>
+      <Index>4192</Index>
+      <Text>Show only ships which are assigned to Fleets</Text>
+    </Token>
+    <Token>
+      <Index>4193</Index>
+      <Text>Not In Fleets</Text>
+    </Token>
+    <Token>
+      <Index>4194</Index>
+      <Text>Show only ships which are not assigned to Fleets</Text>
+    </Token>
+    <Token>
+      <Index>4195</Index>
+      <Text>Fleet</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>

@@ -111,8 +111,14 @@ namespace Ship_Game
             SaveData.EmpireDataList        = new Array<EmpireSaveData>();
             SaveData.SolarSystemDataList   = new Array<SolarSystemSaveData>();
             SaveData.CustomMineralDecay    = GlobalStats.CustomMineralDecay;
+
             SaveData.SuppressOnBuildNotifications  = GlobalStats.SuppressOnBuildNotifications;
+            SaveData.PlanetScreenHideOwned         =  GlobalStats.PlanetScreenHideOwned;;
+            SaveData.PlanetsScreenHideUnhabitable  = GlobalStats.PlanetsScreenHideUnhabitable;
             SaveData.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
+            SaveData.ShipListFilterPlayerShipsOnly = GlobalStats.ShipListFilterPlayerShipsOnly;
+            SaveData.ShipListFilterInFleetsOnly    = GlobalStats.ShipListFilterInFleetsOnly;
+            SaveData.ShipListFilterNotInFleets     = GlobalStats.ShipListFilterNotInFleets;
             
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
@@ -939,6 +945,11 @@ namespace Ship_Game
             [Serialize(40)] public bool AutoPickBestColonizer;
             [Serialize(41)] public float CustomMineralDecay;
             [Serialize(42)] public bool SuppressOnBuildNotifications;
+            [Serialize(43)] public bool PlanetScreenHideOwned;
+            [Serialize(44)] public bool PlanetsScreenHideUnhabitable;
+            [Serialize(45)] public bool ShipListFilterPlayerShipsOnly;
+            [Serialize(46)] public bool ShipListFilterInFleetsOnly;
+            [Serialize(47)] public bool ShipListFilterNotInFleets;
         }
     }
 }
