@@ -29,8 +29,17 @@ namespace Ship_Game
         private UICheckBox cb_hideOwned;
         private UICheckBox cb_hideUninhabitable;
 
-        bool HideOwned;
-        bool HideUninhab = true;
+        bool HideOwned
+        {
+            get => GlobalStats.PlanetScreenHideOwned;
+            set => GlobalStats.PlanetScreenHideOwned = value;
+        }
+
+        bool HideUninhab
+        {
+            get => GlobalStats.PlanetsScreenHideUnhabitable;
+            set => GlobalStats.PlanetsScreenHideUnhabitable = value;
+        }
 
         private int NumAvailableTroops;
         readonly Array<Planet> ExploredPlanets = new Array<Planet>();
