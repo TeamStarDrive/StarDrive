@@ -691,7 +691,7 @@
     </Token>
     <Token>
       <Index>169</Index>
-      <Text>В пути для колониз.</Text>
+      <Text>Колонизирует</Text>
     </Token>
     <Token>
       <Index>170</Index>
@@ -707,7 +707,7 @@
     </Token>
     <Token>
       <Index>173</Index>
-      <Text>Возврат на базу для дозаправки</Text>
+      <Text>Возврат для дозаправки</Text>
     </Token>
     <Token>
       <Index>174</Index>
@@ -1089,7 +1089,7 @@
     </Token>
     <Token>
       <Index>302</Index>
-      <Text>Выйти в главное меню</Text>
+      <Text>Выйти в меню</Text>
     </Token>
     <Token>
       <Index>303</Index>
@@ -5296,7 +5296,7 @@
     </Token>
     <Token>
       <Index>1966</Index>
-      <Text>Range</Text>
+      <Text>Дальность</Text>
     </Token>
     <Token>
       <Index>1967</Index>
@@ -5377,7 +5377,7 @@
     </Token>
     <Token>
       <Index>1986</Index>
-      <Text>Нормально</Text>
+      <Text>Демонтаж</Text>
     </Token>    
     <Token>
       <Index>1987</Index>
@@ -8022,7 +8022,7 @@
     </Token>
 	<Token>
       <Index>4130</Index>
-      <Text>Автоматический отчет об ошибках</Text>
+      <Text>Автоотчет об ошибках</Text>
     </Token>
     <Token>
       <Index>4131</Index>
@@ -8038,7 +8038,7 @@
     </Token>
     <Token>
       <Index>4134</Index>
-      <Text>Оповещение о присутствии врага после загрузки</Text>
+      <Text>Враг в системе!</Text>
     </Token>
     <Token>
       <Index>4135</Index>
@@ -8070,7 +8070,7 @@
     </Token>
     <Token>
       <Index>4142</Index>
-      <Text>Звуковое устройство:  </Text>
+      <Text>Вывод звука:</Text>
     </Token>
     <Token>
       <Index>4143</Index>
@@ -8094,19 +8094,19 @@
     </Token>
     <Token>
       <Index>4148</Index>
-      <Text>Качество текстур</Text>
+      <Text>Кач. текстур</Text>
     </Token>
     <Token>
       <Index>4149</Index>
-      <Text>Качество фильтрации</Text>
+      <Text>Кач. фильтра</Text>
     </Token>
     <Token>
       <Index>4150</Index>
-      <Text>Качество теней</Text>
+      <Text>Кач. теней</Text>
     </Token>
     <Token>
       <Index>4151</Index>
-      <Text>Качество эффектов</Text>
+      <Text>Кач. эффектов</Text>
     </Token>
 	    <Token>
       <Index>4152</Index>
@@ -8231,6 +8231,26 @@
     <Token>
       <Index>4184</Index>
       <Text>есть флагман\nскрывается где-то в галактике.</Text>
+    </Token>
+    <Token>
+    <Index>4185</Index>
+     <Text>Старые модули</Text>
+    </Token>
+    <Token>
+      <Index>4186</Index>
+      <Text>При переключении (красный) любой модуль, который вы помечаете как устаревший, не будет отображаться в списках модулей. Если этот переключатель не включен, имена устаревших модулей будут отображаться, но окрашены в красный цвет. Вы можете отметить модуль как устаревший на вкладке "Активный модуль".</Text>
+    </Token>
+    <Token>
+      <Index>4187</Index>
+      <Text>Указывает, что этот модуль можно повернуть с помощью клавиш со стрелками</Text>
+    </Token>
+    <Token>
+      <Index>4188</Index>
+      <Text>Этот модуль был отмечен как устаревший. Вы можете восстановить его на вкладке "Активный модуль".</Text>
+    </Token>
+    <Token>
+      <Index>4189</Index>
+      <Text>Отметить этот модуль как устаревший. Вы не увидите его в следующий раз, когда будете просматривать категории модулей. Возможен выбор устаревшего модуля на существующей конструкции.Повторное нажатие на эту кнопку удалит модуль из устаревших.</Text>
     </Token>
     <Token>
       <Index>5000</Index>
@@ -9335,7 +9355,7 @@
   </Token>
     <Token>
       <Index>6185</Index>
-      <Text>Перекл.Масштабирование</Text>
+      <Text>Перекл.масштабирование</Text>
     </Token>
     <Token>
       <Index>6186</Index>
@@ -9502,7 +9522,7 @@
     </Token>
   <Token>
       <Index>7035</Index>
-      <Text>Указывает количество щита, который истощаются из цели и добавляеться к этому накопителю энергии корабля.</Text>
+      <Text>Указывает количество щита, который истощаеся из цели и добавляеться к этому накопителю энергии корабля.</Text>
     </Token>
   <Token>
       <Index>7036</Index>

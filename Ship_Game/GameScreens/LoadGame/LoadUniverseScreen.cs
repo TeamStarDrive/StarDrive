@@ -139,9 +139,15 @@ namespace Ship_Game
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
             PlayerLoyalty                    = usData.PlayerLoyalty;
             RandomEventManager.ActiveEvent   = null;
-            GlobalStats.SuppressOnBuildNotifications = usData.SuppressOnBuildNotifications;
-            StatTracker.SetSnapshots(usData.Snapshots);
 
+            GlobalStats.SuppressOnBuildNotifications  = usData.SuppressOnBuildNotifications;
+            GlobalStats.PlanetScreenHideOwned         = usData.PlanetScreenHideOwned;
+            GlobalStats.PlanetsScreenHideUnhabitable  = usData.PlanetsScreenHideUnhabitable;
+            GlobalStats.ShipListFilterPlayerShipsOnly = usData.ShipListFilterPlayerShipsOnly;
+            GlobalStats.ShipListFilterInFleetsOnly    = usData.ShipListFilterInFleetsOnly;
+            GlobalStats.ShipListFilterNotInFleets     = usData.ShipListFilterNotInFleets;
+
+            StatTracker.SetSnapshots(usData.Snapshots);
             step.Finish();
             return usData;
         }
