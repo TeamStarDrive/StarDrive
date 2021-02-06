@@ -523,9 +523,11 @@ namespace Ship_Game.AI
 
         public void DisEngageFormationWarp()
         {
-            if (Owner.engineState == Ship.MoveState.Warp)
+            if (Owner.IsInWarp)
             {
-                SetPriorityOrder(false);
+                if (!Owner.loyalty.isPlayer) 
+                    SetPriorityOrder(false);
+
                 Owner.HyperspaceReturn();
             }
         }

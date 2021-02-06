@@ -226,6 +226,7 @@ namespace Ship_Game.AI
 
             MoveTypes combatEndMove = (goal?.IsPriorityMovement() ?? !offensiveMove) ? MoveTypes.None : MoveTypes.Combat;
 
+
             // set moveto1000 for each waypoint except for the last one. 
             // if only one waypoint skip this. 
 
@@ -239,7 +240,12 @@ namespace Ship_Game.AI
             // rotate to desired facing <= this needs to be fixed.
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
-            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, MoveTypes.LastWayPoint | combatEndMove);
+
+            // FB - do not remove priority order if the ship belongs to the player and not offensive move
+            MoveTypes lastMove = Owner.loyalty.isPlayer && !offensiveMove ? combatEndMove = MoveTypes.None 
+                                                                          : MoveTypes.LastWayPoint | combatEndMove;
+
+            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, lastMove);
 
             // FB - Do not make final approach and stop, since the ship has more orders which do not
             // require stopping or rotating. 
