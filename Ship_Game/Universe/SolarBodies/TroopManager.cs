@@ -128,6 +128,9 @@ namespace Ship_Game
             if (!t.CanMove && !t.CanAttack)
                 return;
 
+            if (!SpotClosestHostile(ourTile, 10, t.Loyalty, out PlanetGridSquare nearestTargetTile))
+                return; // No targets on planet
+
             // find target to attack
             if (t.CanAttack && t.AcquireTarget(ourTile, Ground, out PlanetGridSquare targetTile))
             {
@@ -157,10 +160,6 @@ namespace Ship_Game
             }
             else // Move to target
             {
-                // scan for closest enemy
-                if (!SpotClosestHostile(ourTile, 10, t.Loyalty, out PlanetGridSquare nearestTargetTile))
-                    return; // No targets on planet. No need to move
-
                 MoveTowardsTarget(t, ourTile, nearestTargetTile);
 
                 // resolve possible events 
