@@ -91,7 +91,6 @@ namespace Ship_Game
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
 
         public static bool DisableAsteroids;
-        public static bool DisableInhibitionWarning = true;
         public static bool FixedPlayerCreditCharge;
         public static bool NotifyEnemyInSystemAfterLoad = true;
 
@@ -105,6 +104,7 @@ namespace Ship_Game
         public static bool ShipListFilterPlayerShipsOnly;
         public static bool ShipListFilterInFleetsOnly;
         public static bool ShipListFilterNotInFleets;
+        public static bool DisableInhibitionWarning = true;
 
         public static int CameraPanSpeed    = 2;
         public static float DamageIntensity = 1;
