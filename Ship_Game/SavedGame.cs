@@ -119,6 +119,7 @@ namespace Ship_Game
             SaveData.ShipListFilterPlayerShipsOnly = GlobalStats.ShipListFilterPlayerShipsOnly;
             SaveData.ShipListFilterInFleetsOnly    = GlobalStats.ShipListFilterInFleetsOnly;
             SaveData.ShipListFilterNotInFleets     = GlobalStats.ShipListFilterNotInFleets;
+            SaveData.DisableInhibitionWarning      = GlobalStats.DisableInhibitionWarning;
             
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
@@ -950,6 +951,7 @@ namespace Ship_Game
             [Serialize(45)] public bool ShipListFilterPlayerShipsOnly;
             [Serialize(46)] public bool ShipListFilterInFleetsOnly;
             [Serialize(47)] public bool ShipListFilterNotInFleets;
+            [Serialize(48)] public bool DisableInhibitionWarning;
         }
     }
 }

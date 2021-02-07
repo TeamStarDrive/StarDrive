@@ -146,6 +146,7 @@ namespace Ship_Game
             GlobalStats.ShipListFilterPlayerShipsOnly = usData.ShipListFilterPlayerShipsOnly;
             GlobalStats.ShipListFilterInFleetsOnly    = usData.ShipListFilterInFleetsOnly;
             GlobalStats.ShipListFilterNotInFleets     = usData.ShipListFilterNotInFleets;
+            GlobalStats.DisableInhibitionWarning      = usData.DisableInhibitionWarning;
 
             StatTracker.SetSnapshots(usData.Snapshots);
             step.Finish();
