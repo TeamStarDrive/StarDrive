@@ -89,7 +89,7 @@ namespace Ship_Game
             var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
 
             GravityWellSize  = Slider(gwRect,  new LocalizedText(6002).Text, 0, 20000, GlobalStats.GravityWellRange);
-            extraPlanets     = Slider(epRect, new LocalizedText(6002).Text, 0, 3f, GlobalStats.ExtraPlanets);
+            extraPlanets     = Slider(epRect, new LocalizedText(4118).Text, 0, 3f, GlobalStats.ExtraPlanets);
             StartingRichness = Slider(richnessRect, new LocalizedText(4121).Text, 0, 5f, GlobalStats.StartingPlanetRichness);
 
 
