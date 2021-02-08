@@ -689,7 +689,7 @@ namespace Ship_Game
                             }
                         }
 
-                        if (MovementTiles.Contains(pgs))
+                        if (ourTroop.CanMove && MovementTiles.Contains(pgs))
                         {
                             ourTroop.facingRight = pgs.X > ActiveTile.X;
                             pgs.AddTroop(ourTroop);
