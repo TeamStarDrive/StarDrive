@@ -41,7 +41,7 @@ namespace Ship_Game
                 string reserved = Ship.IsPlayerDesign ? "" : ("(Reserved Name)");
                 batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 48, 48));
                 batch.DrawString(Fonts.Arial12Bold, Ship.Name, X+52, Y+4, CanBuild ? Color.White : Color.Gray);
-                batch.DrawString(Fonts.Arial8Bold, $"{Ship.shipData.GetRole()} {reserved}", X+54, Y+18, Color.Orange);
+                batch.DrawString(Fonts.Arial8Bold, $"{Ship.shipData.GetRole()} {reserved}", X+54, Y+19, Ship.IsPlayerDesign ? Color.Green : Color.IndianRed);
                 base.Draw(batch, elapsed);
             }
         }
