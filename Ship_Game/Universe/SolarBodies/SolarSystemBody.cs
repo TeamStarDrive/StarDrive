@@ -49,13 +49,19 @@ namespace Ship_Game
         {
             int softDamage  = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
             int hardDamage  = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
-            float popKilled = TargetTile.Habitable ? bomb.PopKilled : bomb.PopKilled / 10;
+            float popKilled = bomb.PopKilled;
+            float envDamage = bomb.FertilityDamage;
+            if (!TargetTile.Habitable)
+            {
+                popKilled /= 10;
+                envDamage /= 10;
+            }
 
             DamageTile(hardDamage);
             DamageTroops(softDamage, bomb.Owner);
             DamageBuildings(hardDamage);
 
-            Surface.ApplyBombEnvEffects(popKilled, bomb.Owner); // Fertility and pop loss
+            Surface.ApplyBombEnvEffects(popKilled, envDamage, bomb.Owner); // Fertility and pop loss
         }
 
         private void DamageTile(int hardDamage)
