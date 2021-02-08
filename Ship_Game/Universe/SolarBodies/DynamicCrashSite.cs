@@ -36,6 +36,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             if (!fromSave)
             {
+                p.SetInGroundCombat(p.Owner);
                 NotifyPlayerAndAi(p, message);
                 RecoverShip = RecoverChance();
             }

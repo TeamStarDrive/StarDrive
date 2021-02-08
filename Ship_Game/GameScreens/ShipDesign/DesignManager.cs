@@ -33,7 +33,7 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
                 batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 48, 48));
-                batch.DrawString(Fonts.Arial12Bold, Ship.Name, X+52, Y+4, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, Ship.Name, X+52, Y+4, Ship.IsPlayerDesign ?  Color.White : Color.Red);
                 batch.DrawString(Fonts.Arial8Bold, Ship.shipData.GetRole(), X+54, Y+18, Color.Orange);
                 base.Draw(batch, elapsed);
             }
@@ -47,19 +47,31 @@ namespace Ship_Game
 
             subAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
                                         Rect.Height - background.Height - 50);
-            subAllDesigns.AddTab("All Designs");
+            subAllDesigns.AddTab("Similar Designs Names");
+
+            EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), "Design Name: "));
+            EnterNameArea.Text = ShipName;
+            EnterNameArea.Color = Colors.Cream;
 
             ShipDesigns = Add(new ScrollList2<ShipDesignListItem>(subAllDesigns));
             ShipDesigns.EnableItemHighlight = true;
             ShipDesigns.OnClick = OnShipDesignItemClicked;
-            ShipDesigns.SetItems(ResourceManager.ShipsDict.Values.Select(s => new ShipDesignListItem(s)));
 
-            EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20,40), "Design Name: "));
-            EnterNameArea.Text = ShipName;
-            EnterNameArea.Color = Colors.Cream;
-
+            PopulateDesigns(ShipName);
             ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, "Save", OnSaveClicked);
             base.LoadContent();
+        }
+
+        bool CheckExistingDesignNames(string shipName, out Ship[] shipList)
+        {
+            shipList = ResourceManager.ShipsDict.Values.Filter(s => s.Name.ToLower().Contains(shipName.ToLower()));
+            return shipList != null;
+        }
+
+        void PopulateDesigns(string newText)
+        {
+            if (CheckExistingDesignNames(newText, out Ship[] shipList))
+                ShipDesigns.SetItems(shipList.Select(s => new ShipDesignListItem(s)));
         }
 
         void OnShipDesignItemClicked(ShipDesignListItem item)
@@ -106,7 +118,7 @@ namespace Ship_Game
             }
             catch (Exception x)
             {
-                Log.Error(x, "Failed to set strength or rename duing ship save");
+                Log.Error(x, "Failed to set strength or rename during ship save");
             }
             ExitScreen();
         }
@@ -141,6 +153,18 @@ namespace Ship_Game
             GameAudio.AffirmativeClick();
             Screen?.SaveShipDesign(EnterNameArea.Text);
             ExitScreen();
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            string name = "";
+            if (EnterNameArea.HandlingInput && (input.IsBackSpace || input.IsEnterOrEscape)
+                || EnterNameArea.HandleTextInput(ref name, input) && name.NotEmpty())
+            {
+                PopulateDesigns($"{EnterNameArea.Text}{name}");
+            }
+
+            return base.HandleInput(input);
         }
     }
 }
