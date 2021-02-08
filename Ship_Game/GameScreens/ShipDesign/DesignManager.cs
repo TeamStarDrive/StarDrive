@@ -15,6 +15,7 @@ namespace Ship_Game
 
         Submenu subAllDesigns;
         ScrollList2<ShipDesignListItem> ShipDesigns;
+        ShipInfoOverlayComponent ShipInfoOverlay;
 
         public DesignManager(ShipDesignScreen screen, string txt) : base(screen)
         {
@@ -29,12 +30,18 @@ namespace Ship_Game
         public class ShipDesignListItem : ScrollListItem<ShipDesignListItem>
         {
             public Ship Ship;
-            public ShipDesignListItem(Ship template) { Ship = template; }
+            private bool CanBuild;
+            public ShipDesignListItem(Ship template, bool canBuild)
+            {
+                Ship     = template;
+                CanBuild = canBuild;
+            }
             public override void Draw(SpriteBatch batch, DrawTimes elapsed)
             {
+                string reserved = Ship.IsPlayerDesign ? "" : ("(Reserved Name)");
                 batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 48, 48));
-                batch.DrawString(Fonts.Arial12Bold, Ship.Name, X+52, Y+4, Ship.IsPlayerDesign ?  Color.White : Color.Red);
-                batch.DrawString(Fonts.Arial8Bold, Ship.shipData.GetRole(), X+54, Y+18, Color.Orange);
+                batch.DrawString(Fonts.Arial12Bold, Ship.Name, X+52, Y+4, CanBuild ? Color.White : Color.Gray);
+                batch.DrawString(Fonts.Arial8Bold, $"{Ship.shipData.GetRole()} {reserved}", X+54, Y+18, Color.Orange);
                 base.Draw(batch, elapsed);
             }
         }
@@ -59,6 +66,16 @@ namespace Ship_Game
 
             PopulateDesigns(ShipName);
             ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, "Save", OnSaveClicked);
+
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            ShipDesigns.OnHovered = (item) =>
+            {
+                if (EmpireManager.Player.ShipsWeCanBuild.Contains(item?.Ship.Name))
+                    ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+                else
+                    ShipInfoOverlay.Hide();
+            };
+
             base.LoadContent();
         }
 
@@ -71,7 +88,8 @@ namespace Ship_Game
         void PopulateDesigns(string newText)
         {
             if (CheckExistingDesignNames(newText, out Ship[] shipList))
-                ShipDesigns.SetItems(shipList.Select(s => new ShipDesignListItem(s)));
+                ShipDesigns.SetItems(shipList.Select(s => 
+                    new ShipDesignListItem(s, EmpireManager.Player.ShipsWeCanBuild.Contains(s.Name))));
         }
 
         void OnShipDesignItemClicked(ShipDesignListItem item)
