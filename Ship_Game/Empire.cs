@@ -429,7 +429,7 @@ namespace Ship_Game
             if (ports.Count > 0)
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
-                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd));
+                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd/2));
                 bestPorts            = bestPorts.SortedDescending(p => p.Prod.NetMaxPotential);
             }
 

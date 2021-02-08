@@ -187,9 +187,10 @@ namespace Ship_Game
             Planet p = Screen.P;
             if (b.MaxFertilityOnBuild.NotZero())
             {
-                string fertilityChange = $"{b.MaxFertilityOnBuild * Screen.Player.PlayerEnvModifier(p.Category)}";
+                string fertilityChange = $"{(b.MaxFertilityOnBuild * Screen.Player.PlayerEnvModifier(p.Category)).String(2)}";
                 if (b.MaxFertilityOnBuild.Greater(0))
                     fertilityChange = $"+{fertilityChange}";
+
                 description = $"{fertilityChange} {description}";
             }
 
