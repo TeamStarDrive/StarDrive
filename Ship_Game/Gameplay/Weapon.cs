@@ -173,11 +173,8 @@ namespace Ship_Game.Gameplay
         public float MirvSeparationDistance;
         public string MirvWeapon;
         public int ArmorPen = 0;
-        public string SecondaryFire;
-        public bool AltFireMode;
-        public bool AltFireTriggerFighter;
-        Weapon AltFireWeapon;
         public float OffPowerMod = 1f;
+        public float FertilityDamage;
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
         [XmlIgnore][JsonIgnore] public GameplayObject FireTarget { get; private set; }
@@ -364,18 +361,10 @@ namespace Ship_Game.Gameplay
 
         void SpawnSalvo(Vector2 direction, GameplayObject target, bool playSound)
         {
-            bool secondary = SecondaryFire != null && AltFireTriggerFighter && AltFireMode
-                && target is ShipModule shipModule && shipModule.GetParent().shipData.Role == ShipData.RoleName.fighter;
-
-            if (secondary && AltFireWeapon == null)
-                AltFireWeapon = ResourceManager.CreateWeapon(SecondaryFire);
-
-            Weapon  weapon = secondary ? AltFireWeapon : this;
             Vector2 origin = Origin;
-
             foreach (FireSource fireSource in EnumFireSources(origin, direction))
             {
-                Projectile.Create(weapon, fireSource.Origin, fireSource.Direction, target, playSound);
+                Projectile.Create(this, fireSource.Origin, fireSource.Direction, target, playSound);
                 playSound = false; // only play sound once per fire cone
             }
         }
@@ -1044,7 +1033,6 @@ namespace Ship_Game.Gameplay
             ToggleCue.Destroy();
             Owner         = null;
             Module        = null;
-            AltFireWeapon = null;
             FireTarget    = null;
             SalvoTarget   = null;
         }

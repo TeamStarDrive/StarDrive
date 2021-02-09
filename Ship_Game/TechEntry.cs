@@ -886,6 +886,7 @@ namespace Ship_Game
                 case "Tax Goods": data.Traits.TaxGoods = true; break;
                 case "Smart Missiles": data.Traits.SmartMissiles = true; break; // Fb - Smart re target
                 case "Minimum Troop Level": data.MinimumTroopLevel += (int)unlockedBonus.Bonus; break; // FB Minimum Troop Level Bonus
+                case "Bomb Environment Damage Bonus": data.BombEnvironmentDamageMultiplier += unlockedBonus.Bonus; break;
             }
         }
 

@@ -436,13 +436,18 @@ namespace Ship_Game
         // added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);
 
-        public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
+        public void ApplyBombEnvEffects(float popKilled, float fertilityDamage, Empire attacker) // added by Fat Bastard
         {
-            float netPopKill = PopulationRatio > 0.05f ? amount * PopulationRatio.LowerBound(0.02f)  // Harder to kill sparse pop
-                                                       : amount; // Unless very small pop left
-            Population      -= 1000f * netPopKill;
-            AddBaseFertility(amount * -0.25f); // environment suffers temp damage
-            if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 100))
+            if (fertilityDamage.AlmostZero())
+                fertilityDamage = popKilled / 4; // Old bomb support
+
+            fertilityDamage *= attacker.data.BombEnvironmentDamageMultiplier;
+            float netPopKill = PopulationRatio > 0.05f ? popKilled * PopulationRatio.LowerBound(0.02f)  // Harder to kill sparse pop
+                                                       : popKilled; // Unless very small pop left
+
+            Population -= 1000f * netPopKill;
+            AddBaseFertility(fertilityDamage); // environment suffers temp damage
+            if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(fertilityDamage * 100))
                 AddMaxBaseFertility(-0.01f); // permanent damage to Max Fertility
 
             if (MaxPopulation.AlmostZero())
