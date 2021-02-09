@@ -54,7 +54,7 @@ namespace Ship_Game
 
             subAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
                                         Rect.Height - background.Height - 50);
-            subAllDesigns.AddTab("Similar Designs Names");
+            subAllDesigns.AddTab("Similar Design Names");
 
             EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20, 40), "Design Name: "));
             EnterNameArea.Text = ShipName;
