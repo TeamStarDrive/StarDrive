@@ -113,7 +113,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
         {
-            if (Screen.SelectedShipList == null)
+            if (Screen.SelectedShipList == null || SelectedShipsSL.NumEntries == 0)
                 return;  //fbedard
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
