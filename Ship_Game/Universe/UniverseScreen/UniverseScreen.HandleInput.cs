@@ -736,7 +736,7 @@ namespace Ship_Game
                 SelectedShip = SelectedShipList[0];
             }
 
-            if (input.LeftMouseHeld(0.075f)) // we started dragging selection box
+            if (input.LeftMouseHeld(0.1f)) // we started dragging selection box
             {
                 Vector2 a = input.StartLeftHold;
                 Vector2 b = input.EndLeftHold;
@@ -770,7 +770,10 @@ namespace Ship_Game
             {
                 if (SelectedShip != null && previousSelection != SelectedShip &&
                     SelectedShip != SelectedShipList[0]) //fbedard
+                {
                     previousSelection = SelectedShip;
+                }
+
                 SelectedShip = SelectedShipList[0];
                 ShipInfoUIElement.SetShip(SelectedShip);
                 LoadShipMenuNodes(SelectedShipList[0]?.loyalty == player ? 1 : 0);
@@ -818,12 +821,6 @@ namespace Ship_Game
                 else if  (nonPlayer && !ship.loyalty.isPlayer) ships.AddUnique(ship);
             }
 
-            if (onlyPlayer && ships.First.fleet != null)
-            {
-                Fleet tryFleet = ships.First.fleet;
-                fleet = ships.Any(s => s.fleet != tryFleet) ? null : tryFleet;
-            }
-
             if (onlyPlayer && !selectPlayerEverything && fleet == null) // Need to remove non combat ship.
             {
                 for (int i = ships.Count - 1; i >= 0; i--)
@@ -834,41 +831,13 @@ namespace Ship_Game
                 }
             }
 
-            return ships;
-        }
-
-
-
-
-        bool GetAllShipsInArea(Rectangle screenArea, out Array<Ship> ships, out bool purgeLoyalty, out bool purgeType, out Fleet fleet)
-        {
-            ships              = new Array<Ship>();
-            int playerShips    = 0;
-            int nonCombatShips = 0;
-            int fleetShips     = 0;
-            fleet              = null;
-
-            foreach (ClickableShip clickableShip in ClickableShipsList)
+            if (onlyPlayer && ships.First.fleet != null)
             {
-                Ship ship = clickableShip.shipToClick;
-                if (!screenArea.HitTest(clickableShip.ScreenPos)) continue;
-                if (SelectedShipList.Contains(ship)) continue;
-                ships.Add(ship);
-                playerShips    += ship.loyalty == player ? 1 : 0;
-                nonCombatShips += NonCombatShip(ship) ? 1 : 0;
-
-                if (fleet == null)
-                    fleet = ship.fleet;
-                if (fleet != null && fleet == ship.fleet)
-                    fleetShips++;
-
+                Fleet tryFleet = ships.First.fleet;
+                fleet = ships.Any(s => s.fleet != tryFleet) ? null : tryFleet;
             }
-            bool isFleet = fleet != null && fleet.CountShips == fleetShips;
-            if (!isFleet) fleet = null;
-            purgeLoyalty = playerShips != 0 && playerShips != ships.Count && !isFleet;
-            purgeType    = nonCombatShips != 0 && nonCombatShips != ships.Count && !isFleet;
 
-            return ships.Count > 0;
+            return ships;
         }
 
         bool IsMouseHoveringOverPlanet;

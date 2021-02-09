@@ -6503,7 +6503,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2262</Index>
-      <Text>Orders selected ship or ships to retreat to the nearest shipyard for resupply and repair</Text>
+      <Text>Retreat and Resupply - Orders selected ship or ships to retreat to the nearest shipyard for resupply and repair</Text>
     </Token>
     <Token>
       <Index>2263</Index>
@@ -9410,7 +9410,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7005</Index>
-      <Text>Order ship back to the shipyards to be scrapped. If that ship is of a foreign hull, your engineers might be able to reverse engineer the hull. If you want to Mass scrap ALL ships of this design, use the 'Ships Array' screen and order scrap with SHIFT click.</Text>
+      <Text>Scrap Ship - Order ship back to the shipyards to be scrapped. If that ship is of a foreign hull, your engineers might be able to reverse engineer the hull. If you want to Mass scrap ALL ships of this design, use the 'Ships Array' screen and order scrap with SHIFT click.</Text>
     </Token>
   <Token>
       <Index>7006</Index>
