@@ -24,9 +24,9 @@ namespace Ship_Game
         public readonly int HardDamageMin;
         public readonly int HardDamageMax;
         public readonly float PopKilled;
+        public readonly float FertilityDamage;
         public readonly string SpecialAction;
         public Empire Owner;
-        //public float Facing;
         private float PlanetRadius;
 
         public SubTexture Texture { get; }
@@ -40,12 +40,13 @@ namespace Ship_Game
             Position    = position;
             Weapon      = ResourceManager.GetWeaponTemplate(weaponName) ?? ResourceManager.GetWeaponTemplate("NuclearBomb");
 
-            TroopDamageMin = Weapon.BombTroopDamage_Min;
-            TroopDamageMax = Weapon.BombTroopDamage_Max;
-            HardDamageMin  = Weapon.BombHardDamageMin;
-            HardDamageMax  = Weapon.BombHardDamageMax;
-            PopKilled      = Weapon.BombPopulationKillPerHit;
-            SpecialAction  = Weapon.HardCodedAction;
+            TroopDamageMin  = Weapon.BombTroopDamage_Min;
+            TroopDamageMax  = Weapon.BombTroopDamage_Max;
+            HardDamageMin   = Weapon.BombHardDamageMin;
+            HardDamageMax   = Weapon.BombHardDamageMax;
+            PopKilled       = Weapon.BombPopulationKillPerHit;
+            FertilityDamage = Weapon.FertilityDamage;
+            SpecialAction   = Weapon.HardCodedAction;
         }
 
         public void DoImpact()
