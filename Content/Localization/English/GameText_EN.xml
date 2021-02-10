@@ -8262,6 +8262,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Fleet</Text>
     </Token>
     <Token>
+      <Index>4196</Index>
+      <Text>Indicates this module has a Turreted weapon installed and it's fire arc can be rotated. Click and hold this module while installed on the ship and move the mouse to rotate the arc by 15 degrees intervals. You can also hold Shift to rotate in 1 degree intervals.</Text>
+    </Token>
+    <Token>
+      <Index>4197</Index>
+      <Text>This module can be rotated and it's weapon fire arc can be changed as a turret.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
