@@ -176,7 +176,7 @@ namespace Ship_Game
                 SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(195), font.LineSpacing);
                 SortOrder.Draw(ScreenManager, font);
 
-                StrIconRect = new Rectangle(e1.STRRect.X + e1.STRRect.Width / 2 - 6, ERect.Y, 18, 18);
+                StrIconRect = new Rectangle(e1.StrRect.X + e1.StrRect.Width / 2 - 6, ERect.Y, 18, 18);
                 SB_STR.rect = StrIconRect;
                 batch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), StrIconRect, Color.White);                    
                 MaintRect = new Rectangle(e1.MaintRect.X + e1.MaintRect.Width / 2 - 7, ERect.Y - 2, 21, 20);
@@ -215,7 +215,7 @@ namespace Ship_Game
                 DrawVerticalSeparator(e1.FleetRect.X);
                 DrawVerticalSeparator(e1.OrdersRect.X);
                 DrawVerticalSeparator(e1.RefitRect.X);
-                DrawVerticalSeparator(e1.STRRect.X);
+                DrawVerticalSeparator(e1.StrRect.X);
                 DrawVerticalSeparator(e1.MaintRect.X + 5);
                 DrawVerticalSeparator(e1.TroopRect.X + 5);
                 DrawVerticalSeparator(e1.FTLRect.X + 5);
@@ -234,10 +234,10 @@ namespace Ship_Game
         {
             ExitScreen();
             UniverseScreen universe = Empire.Universe;
-            if (universe.SelectedShip != null && universe.previousSelection != universe.SelectedShip && universe.SelectedShip != item.ship) // fbedard
+            if (universe.SelectedShip != null && universe.previousSelection != universe.SelectedShip && universe.SelectedShip != item.Ship) // fbedard
                 universe.previousSelection = universe.SelectedShip;
             universe.SelectedShipList.Clear();
-            universe.SelectedShip = item.ship;
+            universe.SelectedShip = item.Ship;
             universe.ViewToShip();
             universe.returnToShip = true;
         }
@@ -268,19 +268,19 @@ namespace Ship_Game
                 else ShipSL.SortDescending(sortPredicate);
             }
 
-            if (SB_FTL.HandleInput(input)) Sort(SB_FTL, sl => sl.ship.MaxFTLSpeed);
+            if (SB_FTL.HandleInput(input)) Sort(SB_FTL, sl => sl.Ship.MaxFTLSpeed);
             else if (SB_FTL.Hover) ToolTip.CreateTooltip("Faster Than Light Speed of Ship");
 
-            if (SB_STL.HandleInput(input)) Sort(SB_STL, sl => sl.ship.MaxSTLSpeed);
+            if (SB_STL.HandleInput(input)) Sort(SB_STL, sl => sl.Ship.MaxSTLSpeed);
             else if (SB_STL.Hover) ToolTip.CreateTooltip("Sublight Speed of Ship");
 
-            if (Maint.HandleInput(input)) Sort(Maint, sl => sl.ship.GetMaintCost());
+            if (Maint.HandleInput(input)) Sort(Maint, sl => sl.Ship.GetMaintCost());
             else if (Maint.Hover) ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable");
 
-            if (SB_Troop.HandleInput(input)) Sort(SB_Troop, sl => sl.ship.TroopCount);
+            if (SB_Troop.HandleInput(input)) Sort(SB_Troop, sl => sl.Ship.TroopCount);
             else if (SB_Troop.Hover) ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable");
 
-            if (SB_STR.HandleInput(input)) Sort(SB_STR, sl => sl.ship.GetStrength());
+            if (SB_STR.HandleInput(input)) Sort(SB_STR, sl => sl.Ship.GetStrength());
             else if (SB_STR.Hover) ToolTip.CreateTooltip("Indicates Ship Strength; sortable");
 
             void SortAndReset<T>(SortButton button, Func<ShipListScreenItem, T> sortPredicate)
@@ -291,11 +291,11 @@ namespace Ship_Game
                 else ShipSL.SortDescending(sortPredicate);
             }
 
-            if (SortName.HandleInput(input))   SortAndReset(SortName,  sl => sl.ship.VanityName);
-            if (SortRole.HandleInput(input))   SortAndReset(SortRole,  sl => sl.ship.shipData.Role);
-            if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenItem.GetStatusText(sl.ship));
-            if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.ship.SystemName);
-            if (SortFleet.HandleInput(input))  SortAndReset(SortOrder, sl => sl.ship.fleet?.Name ?? "None");
+            if (SortName.HandleInput(input))   SortAndReset(SortName,  sl => sl.Ship.VanityName);
+            if (SortRole.HandleInput(input))   SortAndReset(SortRole,  sl => sl.Ship.shipData.Role);
+            if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenItem.GetStatusText(sl.Ship));
+            if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.Ship.SystemName);
+            if (SortFleet.HandleInput(input))  SortAndReset(SortOrder, sl => sl.Ship.fleet?.Name ?? "None");
 
             if (input.KeyPressed(Keys.K) && !GlobalStats.TakingInput)
             {
@@ -312,7 +312,7 @@ namespace Ship_Game
                     Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip = false;
                     foreach (ShipListScreenItem sel in ShipSL.AllEntries)
-                        if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.ship);
+                        if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.Ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
                     {
@@ -341,7 +341,7 @@ namespace Ship_Game
                     Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip   = false;
                     foreach (ShipListScreenItem sel in ShipSL.AllEntries)
-                        if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.ship);
+                        if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.Ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
                     {
@@ -410,7 +410,7 @@ namespace Ship_Game
         public void ResetStatus()
         {
             foreach (ShipListScreenItem sel in ShipSL.AllEntries)
-                sel.Status_Text = ShipListScreenItem.GetStatusText(sel.ship);
+                sel.StatusText = ShipListScreenItem.GetStatusText(sel.Ship);
         }
 
     }

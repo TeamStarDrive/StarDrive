@@ -6720,7 +6720,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2518</Index>
-      <Text>Add Reactors to increase the power output of the ship, or Energy Storage to increase warp time.</Text>
+      <Text>Add Reactors to increase the power output of the ship to get infinite warp time, or Energy Storage to increase warp time.</Text>
     </Token>
     <Token>
       <Index>2519</Index>
@@ -6740,7 +6740,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2523</Index>
-      <Text>The ship is not Warp capable. This might be ok for small craft like Fighters or even Corvettes dedicated for Carrier or Colony Defense.</Text>
+      <Text>The ship is not Warp capable or it's warp engines are unpowered. This might be ok for small craft like Fighters or even Corvettes dedicated for Carrier or Colony Defense.</Text>
     </Token>
     <Token>
       <Index>2524</Index>
@@ -6764,7 +6764,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2529</Index>
-      <Text>The ship cannot move at sub light speed.</Text>
+      <Text>The ship cannot move at sub light speed or the sub light engines are unpowered.</Text>
     </Token>
     <Token>
       <Index>2530</Index>

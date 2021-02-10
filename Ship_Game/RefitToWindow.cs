@@ -24,7 +24,7 @@ namespace Ship_Game
         public RefitToWindow(ShipListScreen screen, ShipListScreenItem item) : base(screen)
         {
             Screen = screen;
-            ShipToRefit = item.ship;
+            ShipToRefit = item.Ship;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
