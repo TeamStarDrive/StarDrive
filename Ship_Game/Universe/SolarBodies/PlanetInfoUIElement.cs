@@ -262,14 +262,8 @@ namespace Ship_Game
 
         void DrawSendTroops(SpriteBatch batch, Vector2 mousePos)
         {
-            if (P.Owner == EmpireManager.Player)
-                return;
-
-            if (P.Owner != null && (EmpireManager.Player.IsNAPactWith(P.Owner) 
-                                    || EmpireManager.Player.IsAlliedWith(P.Owner)))
-            {
-                return; // Cannot send troops to this planet
-            }
+            if (P.Owner == EmpireManager.Player || EmpireManager.Player.IsNAPactWith(P.Owner))
+                return; // Cannot send troops to this planet or different UI for player owner.
 
             Vector2 textPos        = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Font12.LineSpacing / 2 - 2);
             int incomingTroops     = IncomingTroops;
