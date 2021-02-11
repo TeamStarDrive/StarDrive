@@ -2736,7 +2736,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>941</Index>
-      <Text>This torpedo tube launches slow-moving but devastating torpedos packed to the hilt with explosives.  They require substantial ordnance to fire</Text>
+      <Text>This torpedo tube launches slow-moving but devastating torpedoes packed to the hilt with explosives.  They require substantial ordnance to fire</Text>
     </Token>
     <Token>
       <Index>942</Index>
@@ -2880,7 +2880,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>980</Index>
       <Text>PD Laser Cannon</Text>
     </Token>
-
     <Token>
       <Index>982</Index>
       <Text>Laser Turret</Text>
@@ -3240,7 +3239,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>1074</Index>
       <Text>PD Vulcan Cannon</Text>
     </Token>
-
+    <Token>
+      <Index>1075</Index>
+      <Text>The Vulcan cannon is a small, rapid fire machine gun capable of shredding lightly armored targets in a storm of uranium-tipped rounds. Point Defense weapons automatically engage incoming missiles and have bonus damage versus missile weapons. </Text>
+    </Token>
     <Token>
       <Index>1076</Index>
       <Text>Small Warp Engine</Text>
@@ -7444,10 +7446,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>388</Index>
       <Text>Change</Text>
-    </Token>
-    <Token>
-      <Index>1075</Index>
-      <Text>The Vulcan cannon is a small, rapid fire machine gun capable of shredding lightly armored targets in a storm of uranium-tipped rounds. Point Defense weapons automatically engage incoming missiles and have bonus damage versus missile weapons. </Text>
     </Token>
     <Token>
       <Index>981</Index>
