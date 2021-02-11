@@ -30,7 +30,7 @@ namespace Ship_Game
         public class ShipDesignListItem : ScrollListItem<ShipDesignListItem>
         {
             public Ship Ship;
-            private bool CanBuild;
+            private readonly bool CanBuild;
             public ShipDesignListItem(Ship template, bool canBuild)
             {
                 Ship     = template;
@@ -81,7 +81,7 @@ namespace Ship_Game
 
         bool CheckExistingDesignNames(string shipName, out Ship[] shipList)
         {
-            shipList = ResourceManager.ShipsDict.Values.Filter(s => s.Name.ToLower().Contains(shipName.ToLower()));
+            shipList = ResourceManager.ShipsDict.Values.Filter(s =>  !s.Deleted && s.Name.ToLower().Contains(shipName.ToLower()));
             return shipList != null;
         }
 

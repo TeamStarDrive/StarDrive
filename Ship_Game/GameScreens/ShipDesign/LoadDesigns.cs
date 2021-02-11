@@ -167,6 +167,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             ShipsToLoad.Clear();
             AvailableDesignsList.Reset();
             ResourceManager.DeleteShip(ShipToDelete);
+            ShipInfoOverlay.Hide();
             LoadContent();
         }
 
