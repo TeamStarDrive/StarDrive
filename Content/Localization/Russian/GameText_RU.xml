@@ -763,7 +763,7 @@
     </Token>
     <Token>
       <Index>187</Index>
-      <Text>Переход к</Text>
+      <Text>Летит к</Text>
     </Token>
     <Token>
       <Index>188</Index>
@@ -1805,7 +1805,7 @@
     </Token>
     <Token>
       <Index>513</Index>
-      <Text>Антиматериальный реактор</Text>
+      <Text>Реактор на антиматерии</Text>
     </Token>
     <Token>
       <Index>514</Index>
@@ -1862,7 +1862,7 @@
 
     <Token>
       <Index>528</Index>
-      <Text>Централизованные финансы</Text>
+      <Text>Центральные финансы</Text>
     </Token>
     <Token>
       <Index>529</Index>
@@ -1922,7 +1922,7 @@
     </Token>
     <Token>
       <Index>543</Index>
-      <Text>Дезинтегратор</Text>
+      <Text>Дезинтеграция</Text>
     </Token>
     <Token>
       <Index>544</Index>
@@ -2103,7 +2103,7 @@
     </Token>
     <Token>
       <Index>589</Index>
-      <Text>Основы промышленности</Text>
+      <Text>Основы производства</Text>
     </Token>
     <Token>
       <Index>590</Index>
@@ -2127,7 +2127,7 @@
     </Token>
     <Token>
       <Index>595</Index>
-      <Text>Интегрированные системы</Text>
+      <Text>Встроенные системы</Text>
     </Token>
     <Token>
       <Index>596</Index>
@@ -2227,7 +2227,7 @@
     </Token>
     <Token>
       <Index>620</Index>
-      <Text>Нанометаллургия</Text>
+      <Text>Нано металлургия</Text>
     </Token>
     <Token>
       <Index>621</Index>
@@ -2343,7 +2343,7 @@
     </Token>
     <Token>
       <Index>649</Index>
-      <Text>Сверхреактивный двигатель</Text>
+      <Text>Сверх реактивный двигатель</Text>
     </Token>
     <Token>
       <Index>650</Index>
@@ -2371,7 +2371,7 @@
     </Token>
     <Token>
       <Index>656</Index>
-      <Text>Энерговысасывающий луч</Text>
+      <Text>Энерго высасывающий луч</Text>
     </Token>
     <Token>
       <Index>657</Index>
@@ -2407,7 +2407,7 @@
     </Token>
     <Token>
       <Index>665</Index>
-      <Text>Субпространственная артиллерия</Text>
+      <Text>Космическая артиллерия</Text>
     </Token>
     <Token>
       <Index>666</Index>
@@ -2415,7 +2415,7 @@
     </Token>
     <Token>
       <Index>667</Index>
-      <Text>Субпространственные коммуникации</Text>
+      <Text>Коммуникация в космосе</Text>
     </Token>
     <Token>
       <Index>668</Index>
@@ -2435,7 +2435,7 @@
     </Token>
     <Token>
       <Index>672</Index>
-      <Text>Теория субпространства</Text>
+      <Text>Теория суб пространства</Text>
     </Token>
     <Token>
       <Index>673</Index>
@@ -2447,7 +2447,7 @@
     </Token>
     <Token>
       <Index>675</Index>
-      <Text>Динамика субпространства</Text>
+      <Text>Динамика суб пространства</Text>
     </Token>
     <Token>
       <Index>676</Index>
@@ -2479,7 +2479,7 @@
     </Token>
     <Token>
       <Index>683</Index>
-      <Text>Терраформирование</Text>
+      <Text>Терраформинг</Text>
     </Token>
 
     <Token>
@@ -2500,7 +2500,7 @@
     </Token>
     <Token>
       <Index>689</Index>
-      <Text>Обыкновенные торпеды</Text>
+      <Text>Обычные торпеды</Text>
     </Token>
     <Token>
       <Index>690</Index>
@@ -2528,7 +2528,7 @@
     </Token>
     <Token>
       <Index>696</Index>
-      <Text>Ксенолингвистика</Text>
+      <Text>Ксено лингвистика</Text>
     </Token>
     <Token>
       <Index>697</Index>
@@ -2544,7 +2544,7 @@
     </Token>
     <Token>
       <Index>700</Index>
-      <Text>Ксенофермерство</Text>
+      <Text>Ксено фермы</Text>
     </Token>
     <Token>
       <Index>701</Index>
@@ -2602,7 +2602,7 @@
     </Token>
     <Token>
       <Index>906</Index>
-      <Text>Антиматериальный реактор</Text>
+      <Text>Реактор на антиматерии</Text>
     </Token>
 
     <Token>
@@ -2684,7 +2684,7 @@
 
     <Token>
       <Index>930</Index>
-      <Text>Дезинтегратор</Text>
+      <Text>Дезинтеграторы</Text>
     </Token>
     <Token>
       <Index>931</Index>
@@ -5044,11 +5044,11 @@
     </Token>
     <Token>
       <Index>1893</Index>
-      <Text>Обидно</Text>
+      <Text>Агрессивно</Text>
     </Token>
     <Token>
       <Index>1894</Index>
-      <Text>Вызывите войска базирующиеся на этой планете.Они переместятся в ближайшую к вам колонию.</Text>
+      <Text>Вызовите войска базирующиеся на этой планете.Они переместятся в ближайшую к вам колонию.</Text>
     </Token>
     <Token>
       <Index>1895</Index>
@@ -5495,7 +5495,7 @@
     </Token>
     <Token>
       <Index>2014</Index>
-      <Text>Ксеноразведка</Text>
+      <Text>Ксено разведка</Text>
     </Token>
     <Token>
       <Index>2015</Index>
@@ -8110,11 +8110,11 @@
     </Token>
 	    <Token>
       <Index>4152</Index>
-      <Text>\nУровень угрозы против наших сил\n </Text>
+      <Text>\nУровень угрозы против наших сил\n</Text>
     </Token>
     <Token>
       <Index>4153</Index>
-      <Text>незначительный.</Text>
+      <Text>не значительный.</Text>
     </Token>
     <Token>
       <Index>4154</Index>
@@ -8275,6 +8275,14 @@
     <Token>
       <Index>4195</Index>
       <Text>Флот</Text>
+    </Token>
+	  <Token>
+      <Index>4196</Index>
+      <Text>Указывает на то, что в этом модуле установлено оружие на поворотной платформе, и его дуга огня может вращаться. Нажмите ЛКМ и удерживайте мишь на этом модуле, когда он установлен на корабле, и перемещайте мышь, чтобы повернуть дугу с интервалом 15 градусов. Вы также можете удерживать Shift для поворота с интервалом в 1 градус.</Text>
+    </Token>
+    <Token>
+      <Index>4197</Index>
+      <Text>Модуль турельного типа.Сектор поражения этого оружия можно вращать.</Text>
     </Token>
     <Token>
       <Index>5000</Index>

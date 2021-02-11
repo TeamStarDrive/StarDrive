@@ -831,7 +831,7 @@ namespace Ship_Game
                 }
             }
 
-            if (onlyPlayer && ships.First.fleet != null)
+            if (onlyPlayer && ships.Count > 0 && ships.First.fleet != null)
             {
                 Fleet tryFleet = ships.First.fleet;
                 fleet = ships.Any(s => s.fleet != tryFleet) ? null : tryFleet;
