@@ -112,6 +112,17 @@ namespace Ship_Game
             base.PerformLayout();
         }
 
+        public override bool HandleInput(InputState input)
+        {
+            if (SendTroops.HitTest(input.CursorPosition) && input.RightMouseClick)
+            {
+                OnSendTroopsRightClick();
+                return true;
+            }
+
+            return base.HandleInput(input);
+        }
+
         void AddSystemName()
         {
             string systemName     = Planet.ParentSystem.Name;
@@ -277,7 +288,29 @@ namespace Ship_Game
 
         void UpdateButtonSendTroops()
         {
-            int troopsInvading = 0;
+            if (TryGetIncomingTroops(out int troopsInvading, out _))
+            {
+                ButtonStyle style  = Planet.Owner == Player || Planet.Owner == null ? ButtonStyle.Default : ButtonStyle.Military;
+                string text        = "Invading:";
+
+                if (Planet.Owner == Player)    text = "Rebasing:";
+                else if (Planet.Owner == null) text = "Landing:";
+
+                SendTroops.Text = $"{text} {troopsInvading}";
+                SendTroops.Style = style;
+            }
+            else
+            {
+                SendTroops.Text    = "Send Troops";
+                SendTroops.Visible = Planet.Habitable && CanSendTroops && !Player.IsNAPactWith(Planet.Owner);
+                SendTroops.Style   = Planet.Owner == Player || Planet.Owner == null ? ButtonStyle.Default : ButtonStyle.BigDip;
+            }
+        }
+
+        bool TryGetIncomingTroops(out int incomingTroops, out Array<Ship> incomingTroopShips)
+        {
+            incomingTroopShips = new Array<Ship>();
+            incomingTroops      = 0;
             BatchRemovalCollection<Ship> ships = Player.GetShips();
             for (int i = 0; i < ships.Count; i++)
             {
@@ -290,36 +323,17 @@ namespace Ship_Game
                                               && goal.TargetPlanet == Planet
                                               && (goal.Plan == ShipAI.Plan.LandTroop || goal.Plan == ShipAI.Plan.Rebase)))
                 {
-                    troopsInvading += ship.TroopCount;
+                    incomingTroopShips.AddUnique(ship);
+                    incomingTroops += ship.TroopCount;
                 }
             }
 
-            if (troopsInvading > 0)
-            {
-                ButtonStyle style  = Planet.Owner == Player || Planet.Owner == null ? ButtonStyle.Default : ButtonStyle.Military;
-                string text        = "Invading:";
-                if (Planet.Owner == Player)    text = "Rebasing:";
-                else if (Planet.Owner == null) text = "Landing:";
-
-                SendTroops.Text = $"{text} {troopsInvading}";
-                SendTroops.Style = style;
-            }
-            else
-            {
-                SendTroops.Visible = Planet.Habitable && CanSendTroops;
-            }
-
-
+            return incomingTroopShips.Count > 0;
         }
 
         public void SetCanSendTroops(bool value)
         {
             CanSendTroops = value;
-        }
-
-        void UpdateSendTroopButtonVisibility()
-        {
-            SendTroops.Visible = Planet.Habitable && CanSendTroops;
         }
 
         void DrawPlanetDistance(float distance, Vector2 namePos, SpriteFont spriteFont)
@@ -342,6 +356,16 @@ namespace Ship_Game
             }
             else
                 GameAudio.NegativeClick();
+        }
+
+        void OnSendTroopsRightClick()
+        {
+            if (!TryGetIncomingTroops(out _, out Array<Ship> incomingTroopShips))
+                return;
+
+            Ship ship = incomingTroopShips.Last();
+            ship.AI.OrderRebaseToNearest();
+            UpdateButtonSendTroops();
         }
 
         void OnRecallTroopsClicked(UIButton b)
