@@ -59,7 +59,7 @@ namespace Ship_Game
             var planets = EmpireManager.Player.GetPlanets();
             int sidePanelWidths = (int)(ScreenWidth * 0.3f);
             var governorRect = new RectF(ColoniesList.Right - sidePanelWidths - 20, ColoniesList.Bottom, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
-            GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], governorRect, governorVideo: false));
+            GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], governorRect));
             ResetColoniesList(planets);
         }
 

@@ -17,15 +17,14 @@ namespace Ship_Game
         DropOptions<Planet.ColonyType> ColonyTypeList;
         UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine;
         private FloatSlider Garrison;
-        readonly bool UseVideo;
+        Submenu Title;
 
-        public GovernorDetailsComponent(GameScreen screen, 
-            Planet p, in Rectangle rect, bool governorVideo) : base(rect)
+        public GovernorDetailsComponent(GameScreen screen, Planet p, in Rectangle rect) : base(rect)
         {
             Screen = screen;
-            // Memory usage is too intensive
-            UseVideo = false; // governorVideo;
             SetPlanetDetails(p);
+            Title = Add(new Submenu(rect));
+            Title.AddTab("Governor"); // "Assign Labor"
         }
 
         public void SetPlanetDetails(Planet p)
@@ -38,9 +37,7 @@ namespace Ship_Game
             RemoveAll(); // delete all components
 
             // NOTE: Using RootContent here to avoid lag from resource unloading and reloading
-            PortraitSprite = UseVideo && p.Owner.data.Traits.VideoPath.NotEmpty()
-                ? DrawableSprite.Video(ResourceManager.RootContent, p.Owner.data.Traits.VideoPath, looping:true)
-                : DrawableSprite.SubTex(ResourceManager.RootContent, $"Portraits/{Planet.Owner.data.PortraitName}");
+            PortraitSprite = DrawableSprite.SubTex(ResourceManager.RootContent, $"Portraits/{Planet.Owner.data.PortraitName}");
 
             Portrait  = Add(new UIPanel(PortraitSprite));
             WorldType = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
