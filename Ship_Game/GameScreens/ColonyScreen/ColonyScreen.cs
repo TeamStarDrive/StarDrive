@@ -121,6 +121,8 @@ namespace Ship_Game
             subColonyGrid.AddTab(Localizer.Token(332));
             pFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, subColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - subColonyGrid.Height - 40);
             pFacilities.AddTab(Localizer.Token(333));
+            pFacilities.AddTab("Statistics");
+            pFacilities.AddTab("Trade");
 
             ButtonUpdateTimer = 1;
             LaunchAllTroops   = Button(subColonyGrid.Right - 175, subColonyGrid.Y - 5, "Launch All Troops", OnLaunchTroopsClicked);
@@ -210,7 +212,7 @@ namespace Ship_Game
             if (p.Owner != null)
             {
                 DetailInfo = p.Description;
-                GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.Rect, governorVideo: !LowRes));
+                GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.Rect));
             }
             else
             {
