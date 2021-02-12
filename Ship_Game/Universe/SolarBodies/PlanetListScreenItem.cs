@@ -70,7 +70,7 @@ namespace Ship_Game
             Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
             SendTroops.Tooltip = new LocalizedText(1900);
-            RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.CountEmpireTroops(Player)})", OnRecallTroopsClicked);
+            RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.NumTroopsCanLaunchFor(Player)})", OnRecallTroopsClicked);
             RecallTroops.Tooltip = new LocalizedText(1894);
 
             int nextX = x;
@@ -101,7 +101,7 @@ namespace Ship_Game
             RecallTroops.Rect  = new RectF(OrdersRect.X + Colonize.Width*2 + 10, Colonize.Y, Colonize.Width, Colonize.Height);
 
             Colonize.Visible     = Planet.Owner == null && Planet.Habitable;
-            RecallTroops.Visible = Planet.Owner != Player && Planet.CountEmpireTroops(Player) > 0;
+            RecallTroops.Visible = Planet.Owner != Player && Planet.NumTroopsCanLaunchFor(Player) > 0;
 
             UpdateButtonSendTroops();
             AddSystemName();
