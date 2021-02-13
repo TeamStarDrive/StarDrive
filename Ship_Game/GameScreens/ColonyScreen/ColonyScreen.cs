@@ -62,6 +62,7 @@ namespace Ship_Game
         Rectangle EditNameButton;
         readonly SpriteFont Font8  = Fonts.Arial8Bold;
         readonly SpriteFont Font12 = Fonts.Arial12Bold;
+        readonly SpriteFont Font14 = Fonts.Arial14Bold;
         readonly SpriteFont Font20 = Fonts.Arial20Bold;
         readonly SpriteFont TextFont;
         public readonly Empire Player = EmpireManager.Player;
@@ -80,17 +81,17 @@ namespace Ship_Game
             LeftMenu = new Menu1(2, titleBar.Y + titleBar.Height + 5, titleBar.Width, ScreenHeight - (titleBar.Y + titleBar.Height) - 7);
             RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
             Add(new CloseButton(RightMenu.Right - 52, RightMenu.Y + 22));
-            PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.25f * (LeftMenu.Height - 80)));
+            PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.23f * (LeftMenu.Height - 80)));
             PlanetInfo.AddTab(title:326);
-            pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 40 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
 
-            var labor = new RectF(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 20,
+            var labor = new RectF(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 40,
                                   0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
             AssignLabor = Add(new AssignLaborComponent(P, labor, useTitleFrame: true));
 
-            pStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 40, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            pStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 60, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
             pStorage.AddTab(title:328);
 
             Vector2 blockadePos = new Vector2(pStorage.X + 20, pStorage.Y + 35);
@@ -120,9 +121,9 @@ namespace Ship_Game
             subColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
             subColonyGrid.AddTab(Localizer.Token(332));
             pFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, subColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - subColonyGrid.Height - 40);
-            pFacilities.AddTab(Localizer.Token(333));
-            pFacilities.AddTab("Statistics");
-            pFacilities.AddTab("Trade");
+            pFacilities.AddTab(new LocalizedText(4198).Text);
+            pFacilities.AddTab(new LocalizedText(4199).Text);
+            pFacilities.AddTab(new LocalizedText(4200).Text);
 
             ButtonUpdateTimer = 1;
             LaunchAllTroops   = Button(subColonyGrid.Right - 175, subColonyGrid.Y - 5, "Launch All Troops", OnLaunchTroopsClicked);

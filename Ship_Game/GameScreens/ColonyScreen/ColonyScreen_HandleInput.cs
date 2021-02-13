@@ -6,6 +6,8 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
+        int PFacilitiesPlayerTabSelected;
+
         void HandleDetailInfo()
         {
             DetailInfo = null;
@@ -13,7 +15,7 @@ namespace Ship_Game
             {
                 if (e.Hovered)
                 {
-                    if (e.Troop != null) DetailInfo = e.Troop;
+                    if (e.Troop != null)    DetailInfo = e.Troop;
                     if (e.Building != null) DetailInfo = e.Building;
                 }
             }
@@ -29,7 +31,11 @@ namespace Ship_Game
             if (HandlePlanetNameChangeTextBox(input))
                 return true;
 
-            pFacilities.HandleInput(input);
+            if (pFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != pFacilities.SelectedIndex)
+                PFacilitiesPlayerTabSelected = pFacilities.SelectedIndex;
+
+            FilterBuildableItems.HandlingInput = FilterBuildableItems.HitTest(input.CursorPosition);
+
             if (FilterBuildableItems.HandlingInput)
                 return base.HandleInput(input);
 
@@ -52,6 +58,10 @@ namespace Ship_Game
                 return true;
 
             HandleExportImportButtons(input);
+            if (PFacilitiesPlayerTabSelected != pFacilities.SelectedIndex && pFacilities.SelectedIndex == 0)
+                PFacilitiesPlayerTabSelected = pFacilities.SelectedIndex;
+
+            pFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 2;
 
             return base.HandleInput(input);
         }
