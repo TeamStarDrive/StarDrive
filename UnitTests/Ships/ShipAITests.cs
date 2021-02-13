@@ -28,11 +28,11 @@ namespace UnitTests.Ships
             
             Ship theirShip    = Ship.CreateShipAtPoint("Owlwok Freighter S", Enemy, Vector2.Zero);
             ourShip.AI.Target = theirShip;
-            var ourRelation = us.GetRelations(Enemy);
+            var ourRelation   = us.GetRelations(Enemy);
             ourRelation.Known = true;
 
-            us.data.DiplomaticPersonality.Territorialism = 60;
-            us.data.DiplomaticPersonality.Opportunism = 0.2f;
+            us.data.DiplomaticPersonality.Territorialism  = 60;
+            us.data.DiplomaticPersonality.Opportunism     = 0.2f;
             us.data.DiplomaticPersonality.Trustworthiness = 80;
 
             // basic qualifiers
@@ -143,7 +143,7 @@ namespace UnitTests.Ships
             {
                 theirShip.SetProjectorInfluence(us, true);
             });
-            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), GetFailString(us,ourShip, theirShip,ourRelation));
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), GetFailString(us,ourShip, theirShip,ourRelation));
 
             // war tests
             SetEnvironment(us, theirShip, ourRelation, () =>
@@ -175,16 +175,16 @@ namespace UnitTests.Ships
             {
                 ourShip.AI.HasPriorityTarget = true;
             });
-            Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Play chooses target" + GetFailString(us, ourShip, theirShip, ourRelation));
+            Empire.UpdateBilateralRelations(us, Enemy);
+            Assert.IsTrue(ourShip.AI.IsTargetValid(theirShip), "Play chooses target" + GetFailString(us, ourShip, theirShip, ourRelation));
 
             SetEnvironment(us, theirShip, ourRelation, () =>
             {
                 ourShip.AI.HasPriorityTarget    = true;
                 ourRelation.Treaty_Alliance     = true;
             });
+            Empire.UpdateBilateralRelations(us, Enemy);
             Assert.IsFalse(ourShip.AI.IsTargetValid(theirShip), "Player Chooses Alliance Target: " + GetFailString(us, ourShip, theirShip, ourRelation));
-
-
         }
 
         void ResetAnger(Relationship rel)
