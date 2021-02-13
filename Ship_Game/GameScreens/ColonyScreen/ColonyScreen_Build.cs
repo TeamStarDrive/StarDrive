@@ -257,15 +257,6 @@ namespace Ship_Game
             GameAudio.AcceptClick();
         }
 
-        bool BuildOrbital(Ship orbital)
-        {
-            if (orbital == null || P.IsOutOfOrbitalsLimit(orbital))
-                return false;
-
-            P.AddOrbital(orbital);
-            return true;
-        }
-
         void ClearItemsFilter()
         {
             if (FilterItemsText.IsEmpty())
@@ -276,35 +267,9 @@ namespace Ship_Game
             FilterBuildableItems.ClearTextInput();
         }
 
-        void OnBuildPlatformClick(UIButton b)
-        {
-            if (BuildOrbital(P.Owner.BestPlatformWeCanBuild))
-                GameAudio.AffirmativeClick();
-            else
-                GameAudio.NegativeClick();
-        }
-
-        void OnBuildStationClick(UIButton b)
-        {
-            if (BuildOrbital(P.Owner.BestStationWeCanBuild))
-                GameAudio.AffirmativeClick();
-            else
-                GameAudio.NegativeClick();
-        }
-
         void OnClearFilterClick(UIButton b)
         {
             ClearItemsFilter();
-        }
-
-        void OnBuildShipyardClick(UIButton b)
-        {
-            string shipyardName = ResourceManager.ShipsDict[P.Owner.data.DefaultShipyard].Name;
-            Ship shipyard = ResourceManager.GetShipTemplate(shipyardName);
-            if (BuildOrbital(shipyard))
-                GameAudio.AffirmativeClick();
-            else
-                GameAudio.NegativeClick();
         }
     }
 }

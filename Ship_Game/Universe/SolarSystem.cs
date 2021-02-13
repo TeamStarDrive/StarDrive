@@ -689,6 +689,7 @@ namespace Ship_Game
                     GovMilitia           = planet.AutoBuildTroops,
                     GarrisonSize         = planet.GarrisonSize,
                     Quarantine           = planet.Quarantine,
+                    ManualOrbitals       = planet.ManualOrbitals,
                     DontScrapBuildings   = planet.DontScrapBuildings,
                     NumShipyards         = planet.NumShipyards,
                     SpecialDescription   = planet.SpecialDescription,

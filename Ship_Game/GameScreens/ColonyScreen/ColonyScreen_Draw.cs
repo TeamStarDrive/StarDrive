@@ -172,13 +172,13 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, Colors.Cream);
 
             PlanetInfo.Draw(batch, elapsed);
-            pDescription.Draw(batch, elapsed);
-            pStorage.Draw(batch, elapsed);
-            subColonyGrid.Draw(batch, elapsed);
+            PDescription.Draw(batch, elapsed);
+            PStorage.Draw(batch, elapsed);
+            SubColonyGrid.Draw(batch, elapsed);
 
             DrawPlanetSurfaceGrid(batch);
-            pFacilities.Draw(batch, elapsed);
-            DrawDetailInfo(batch, new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
+            PFacilities.Draw(batch, elapsed);
+            DrawDetailInfo(batch, new Vector2(PFacilities.Rect.X + 15, PFacilities.Rect.Y + 35));
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
 
             float num5 = 80f;
@@ -290,8 +290,6 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(21);
 
             DrawFoodAndStorage(batch);
-            DrawOrbitalStats(batch);
-
             BlockadeLabel.Visible = Blockade;
             BlockadeLabel.Color   = ApplyCurrentAlphaToColor(Color.Red);
 
@@ -337,25 +335,25 @@ namespace Ship_Game
             ProdStorage.Max = P.Storage.Max;
             FoodStorage.Progress = P.FoodHere.RoundUpTo(1);
             ProdStorage.Progress = P.ProdHere.RoundUpTo(1);
-            if (P.FS == Planet.GoodState.STORE) foodDropDown.ActiveIndex = 0;
-            else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
-            else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
+            if (P.FS == Planet.GoodState.STORE) FoodDropDown.ActiveIndex = 0;
+            else if (P.FS == Planet.GoodState.IMPORT) FoodDropDown.ActiveIndex = 1;
+            else if (P.FS == Planet.GoodState.EXPORT) FoodDropDown.ActiveIndex = 2;
             if (P.NonCybernetic)
             {
                 FoodStorage.Draw(batch);
-                foodDropDown.Draw(batch);
+                FoodDropDown.Draw(batch);
             }
             else
             {
                 FoodStorage.DrawGrayed(batch);
-                foodDropDown.DrawGrayed(batch);
+                FoodDropDown.DrawGrayed(batch);
             }
 
             ProdStorage.Draw(batch);
-            if (P.PS == Planet.GoodState.STORE) prodDropDown.ActiveIndex = 0;
-            else if (P.PS == Planet.GoodState.IMPORT) prodDropDown.ActiveIndex = 1;
-            else if (P.PS == Planet.GoodState.EXPORT) prodDropDown.ActiveIndex = 2;
-            prodDropDown.Draw(batch);
+            if (P.PS == Planet.GoodState.STORE) ProdDropDown.ActiveIndex = 0;
+            else if (P.PS == Planet.GoodState.IMPORT) ProdDropDown.ActiveIndex = 1;
+            else if (P.PS == Planet.GoodState.EXPORT) ProdDropDown.ActiveIndex = 2;
+            ProdDropDown.Draw(batch);
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
             batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
 
@@ -406,40 +404,6 @@ namespace Ship_Game
             }
         }
 
-        void DrawOrbitalStats(SpriteBatch batch)
-        {
-            if (P.Owner != EmpireManager.Player)
-                return;
-
-            if (P.colonyType == Planet.ColonyType.Colony || P.colonyType != Planet.ColonyType.Colony && !P.GovOrbitals)
-            {
-                // Show build buttons
-                BuildPlatform.Visible = P.Owner.CanBuildPlatforms && P.HasSpacePort;
-                BuildStation.Visible  = P.Owner.CanBuildStations && P.HasSpacePort;
-                BuildShipyard.Visible = P.Owner.CanBuildShipyards && P.HasSpacePort;
-            }
-            else if (P.GovOrbitals)
-            {
-                BuildPlatform.Visible = false;
-                BuildStation.Visible  = false;
-                BuildShipyard.Visible = false;
-
-                // Draw Governor current / wanted orbitals
-                Vector2 platformsStatVec = new Vector2(BuildPlatform.X + 30, BuildPlatform.Y + 5);
-                Vector2 stationsStatVec  = new Vector2(BuildStation.X + 30, BuildStation.Y + 5);
-                Vector2 shipyardsStatVec = new Vector2(BuildShipyard.X + 30, BuildShipyard.Y + 5);
-                if (P.Owner.CanBuildPlatforms)
-                    batch.DrawString(Font12, PlatformsStats, platformsStatVec, Color.White);
-
-                if (P.Owner.CanBuildStations)
-                    batch.DrawString(Font12, StationsStats, stationsStatVec, Color.White);
-
-                if (P.Owner.CanBuildShipyards)
-                    batch.DrawString(Font12, ShipyardsStats, shipyardsStatVec, Color.White);
-            }
-
-        }
-
         Color TextColor { get; } = Colors.Cream;
 
         void DrawTitledLine(ref Vector2 cursor, int titleId, string text)
@@ -459,7 +423,7 @@ namespace Ship_Game
 
         string MultiLineFormat(LocalizedText text)
         {
-            return TextFont.ParseText(text.Text, pFacilities.Rect.Width - 40);
+            return TextFont.ParseText(text.Text, PFacilities.Rect.Width - 40);
         }
 
         void DrawMultiLine(ref Vector2 cursor, LocalizedText text, Color color)
@@ -477,7 +441,7 @@ namespace Ship_Game
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
-            if (pFacilities.SelectedIndex == 0)
+            if (PFacilities.SelectedIndex == 0)
             {
                 DrawMoney(ref bCursor, batch);
                 DrawPlanetStat(ref bCursor, batch);

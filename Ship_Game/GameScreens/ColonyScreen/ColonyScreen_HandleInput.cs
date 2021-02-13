@@ -31,8 +31,8 @@ namespace Ship_Game
             if (HandlePlanetNameChangeTextBox(input))
                 return true;
 
-            if (pFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != pFacilities.SelectedIndex)
-                PFacilitiesPlayerTabSelected = pFacilities.SelectedIndex;
+            if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
+                PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
 
             FilterBuildableItems.HandlingInput = FilterBuildableItems.HitTest(input.CursorPosition);
 
@@ -58,10 +58,10 @@ namespace Ship_Game
                 return true;
 
             HandleExportImportButtons(input);
-            if (PFacilitiesPlayerTabSelected != pFacilities.SelectedIndex && pFacilities.SelectedIndex == 0)
-                PFacilitiesPlayerTabSelected = pFacilities.SelectedIndex;
+            if (PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex && PFacilities.SelectedIndex == 0)
+                PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
 
-            pFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 2;
+            PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 2;
 
             return base.HandleInput(input);
         }
@@ -174,7 +174,7 @@ namespace Ship_Game
                 Planet nextOrPrevPlanet = planets[newIndex];
                 if (nextOrPrevPlanet != P)
                 {
-                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, eui);
+                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui);
                 }
 
                 return true; // planet changed, ColonyScreen will be replaced
@@ -239,18 +239,18 @@ namespace Ship_Game
 
         void HandleExportImportButtons(InputState input)
         {
-            if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
+            if (FoodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
-                foodDropDown.Toggle();
+                FoodDropDown.Toggle();
                 GameAudio.AcceptClick();
                 P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
                 if (P.FS > Planet.GoodState.EXPORT)
                     P.FS = Planet.GoodState.STORE;
             }
 
-            if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
+            if (ProdDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
-                prodDropDown.Toggle();
+                ProdDropDown.Toggle();
                 GameAudio.AcceptClick();
                 P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
                 if (P.PS > Planet.GoodState.EXPORT)

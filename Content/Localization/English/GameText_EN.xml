@@ -8280,6 +8280,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Description</Text>
     </Token>
     <Token>
+      <Index>4201</Index>
+      <Text>Manual Orbital Limit</Text>
+    </Token>
+    <Token>
+      <Index>4202</Index>
+      <Text>Override Governor decisions regarding Orbital limits.</Text>
+    </Token>
+    <Token>
+      <Index>4203</Index>
+      <Text>What is the rank of the colony in regards to how many orbitals the Governor will builds. The higher the rank, the more defense orbitals the Governor will try to build.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
