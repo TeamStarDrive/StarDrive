@@ -741,6 +741,7 @@ namespace Ship_Game
             [Serialize(39)] public int GarrisonSize;
             [Serialize(40)] public float BaseFertilityTerraformRatio;
             [Serialize(41)] public bool Quarantine;
+            [Serialize(42)] public bool ManualOrbitals;
         }
 
         public struct ProjectileSaveData

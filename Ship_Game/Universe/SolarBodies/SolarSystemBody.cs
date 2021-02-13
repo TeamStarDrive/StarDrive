@@ -506,8 +506,9 @@ namespace Ship_Game
             thisPlanet.ResetGarrisonSize();
             thisPlanet.ResetFoodAfterInvasionSuccess();
             Construction.ClearQueue();
-            TurnsSinceTurnover    = 0;
-            thisPlanet.Quarantine = false;
+            TurnsSinceTurnover        = 0;
+            thisPlanet.Quarantine     = false;
+            thisPlanet.ManualOrbitals = false;
             thisPlanet.Station.Replace(thisPlanet);
 
             ParentSystem.OwnerList.Clear();

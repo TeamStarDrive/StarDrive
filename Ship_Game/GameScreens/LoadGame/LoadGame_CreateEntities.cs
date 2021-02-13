@@ -114,6 +114,7 @@ namespace Ship_Game
             p.AutoBuildTroops    = psData.GovMilitia;
             p.GarrisonSize       = psData.GarrisonSize;
             p.Quarantine         = psData.Quarantine;
+            p.ManualOrbitals     = psData.ManualOrbitals;
             p.DontScrapBuildings = psData.DontScrapBuildings;
             p.NumShipyards       = psData.NumShipyards;
             p.FS                 = psData.FoodState;

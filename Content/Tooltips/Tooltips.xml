@@ -1400,5 +1400,10 @@
       <Title>Number Of Colonists</Title>
       <Data>1921</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>279</TIP_ID>
+      <Title>Colony Rank</Title>
+      <Data>4203</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
