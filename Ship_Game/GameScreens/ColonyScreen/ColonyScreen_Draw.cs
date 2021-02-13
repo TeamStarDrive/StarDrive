@@ -43,7 +43,7 @@ namespace Ship_Game
             if (signs)
             {
                 plusOrMinus = value < 0 ? "-" : "+";
-                color = value < 0 ? Color.Pink : Color.LightGreen;
+                color = value < 0 ? Color.Red : Color.Green;
             }
 
             batch.Draw(texture, fIcon, Color.White);
@@ -286,44 +286,6 @@ namespace Ship_Game
             batch.DrawString(TextFont, Localizer.Token(387) + ":", vector2_2, Color.Orange);
             batch.DrawString(TextFont, P.MineralRichness.String(), position3, Colors.Cream);
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(387) + ":").X, TextFont.LineSpacing);
-
-            string gIncome = Localizer.Token(6125);
-            string gUpkeep = Localizer.Token(6126);
-            string nIncome = Localizer.Token(6127);
-            string nLosses = Localizer.Token(6129);
-
-            float grossIncome = P.Money.GrossRevenue;
-            float grossUpkeep = P.Money.Maintenance;
-            float netIncome   = P.Money.NetRevenue;
-
-            Vector2 positionGIncome = vector2_2;
-            positionGIncome.X = vector2_2.X + 1;
-            positionGIncome.Y = vector2_2.Y + 28;
-            Vector2 positionGrossIncome = position3;
-            positionGrossIncome.Y = position3.Y + 28;
-            positionGrossIncome.X = position3.X + 1;
-
-            batch.DrawString(Fonts.Arial10, gIncome + ":", positionGIncome, Color.LightGray);
-            batch.DrawString(Fonts.Arial10, grossIncome.String(2) + " BC/Y", positionGrossIncome, Color.LightGray);
-
-            Vector2 positionGUpkeep = positionGIncome;
-            positionGUpkeep.Y = positionGIncome.Y + (Fonts.Arial12.LineSpacing);
-            Vector2 positionGrossUpkeep = positionGrossIncome;
-            positionGrossUpkeep.Y += (Fonts.Arial12.LineSpacing);
-
-            batch.DrawString(Fonts.Arial10, gUpkeep + ":", positionGUpkeep, Color.LightGray);
-            batch.DrawString(Fonts.Arial10, grossUpkeep.String(2) + " BC/Y", positionGrossUpkeep, Color.LightGray);
-
-            Vector2 positionNIncome = positionGUpkeep;
-            positionNIncome.X = positionGUpkeep.X - 1;
-            positionNIncome.Y = positionGUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
-            Vector2 positionNetIncome = positionGrossUpkeep;
-            positionNetIncome.X = positionGrossUpkeep.X - 1;
-            positionNetIncome.Y = positionGrossUpkeep.Y + (Fonts.Arial12.LineSpacing + 2);
-
-            batch.DrawString(Fonts.Arial12, (netIncome > 0.0 ? nIncome : nLosses) + ":", positionNIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
-            batch.DrawString(TextFont, netIncome.String(2) + " BC/Y", positionNetIncome, netIncome > 0.0 ? Color.LightGreen : Color.Salmon);
-
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
 
@@ -515,11 +477,14 @@ namespace Ship_Game
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
-            if (pFacilities.NumTabs > 1 && pFacilities.SelectedIndex == 1)
+            if (pFacilities.SelectedIndex == 0)
             {
-                DrawCommoditiesArea(bCursor);
+                DrawMoney(ref bCursor, batch);
+                DrawPlanetStat(ref bCursor, batch);
+                //DrawCommoditiesArea(bCursor);
                 return;
             }
+
             Color color = Color.Wheat;
             switch (DetailInfo)
             {
@@ -571,9 +536,8 @@ namespace Ship_Game
                     DrawMultiLine(ref bCursor, desc);
                     if (P.IsStarving)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
-                    DrawPlanetStat(ref bCursor, batch);
-                    break;
 
+                    break;
                 case PlanetGridSquare pgs:
                     switch (pgs.Building)
                     {
@@ -641,6 +605,32 @@ namespace Ship_Game
                     DrawSelectedBuildingInfo(ref bCursor, batch, selectedBuilding);
                     break;
             }
+        }
+
+        void DrawMoney(ref Vector2 cursor, SpriteBatch batch)
+        {
+            string gIncome = Localizer.Token(6125);
+            string gUpkeep = Localizer.Token(6126);
+            string nIncome = Localizer.Token(6127);
+            string nLosses = Localizer.Token(6129);
+
+            float grossIncome = P.Money.GrossRevenue;
+            float grossUpkeep = P.Money.Maintenance;
+            float netIncome   = P.Money.NetRevenue;
+
+            SpriteFont font = LowRes ? Font8 : Font14;
+
+            batch.DrawString(font, $"{gIncome}: ", cursor, Color.LightGray);
+            batch.DrawString(font, $"{grossIncome.String(2)} BC/Y", new Vector2(cursor.X + 150, cursor.Y), Color.LightGreen);
+            cursor.Y += font.LineSpacing +  1;
+
+            batch.DrawString(font, $"{gUpkeep}: ", cursor, Color.LightGray);
+            batch.DrawString(font, $"{grossUpkeep.String(2)} BC/Y", new Vector2(cursor.X + 150, cursor.Y), Color.Pink);
+            cursor.Y += font.LineSpacing + 1;
+
+            batch.DrawString(font, $"{(netIncome > 0 ? nIncome : nLosses)}: ", cursor, Color.LightGray);
+            batch.DrawString(font, $"{netIncome.String(2)} BC/Y", new Vector2(cursor.X + 150, cursor.Y), netIncome > 0.0 ? Color.Green : Color.Red);
+            cursor.Y += font.LineSpacing*2 + 1;
         }
 
         void DrawTilePopInfo(ref Vector2 cursor, SpriteBatch batch, PlanetGridSquare tile, int spacing = 5)

@@ -25,6 +25,7 @@ namespace Ship_Game
             SetPlanetDetails(p);
             Title = Add(new Submenu(rect));
             Title.AddTab("Governor"); // "Assign Labor"
+            Title.AddTab("Troops"); // "Assign Labor"
         }
 
         public void SetPlanetDetails(Planet p)
