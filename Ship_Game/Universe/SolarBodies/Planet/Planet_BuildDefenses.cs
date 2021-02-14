@@ -10,13 +10,16 @@ namespace Ship_Game
     public partial class Planet 
     {
         public byte WantedPlatforms { get; private set; }
-        public byte WantedStations { get; private set; }
+        public byte WantedStations  { get; private set; }
         public byte WantedShipyards { get; private set; }
         public bool GovOrbitals      = false;
         public bool GovGroundDefense = false;
         public bool AutoBuildTroops  = false;
         public bool ManualOrbitals   = false;
         public int GarrisonSize;
+        public float ManualCivilianBudget { get; private set; } = 0; // 0 is Auto Budget
+        public float ManualGrdDefBudget   { get; private set; } = 0; // 0 is Auto Budget
+        public float ManualSpcDefBudget   { get; private set; } = 0; // 0 is Auto Budget
 
         private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
@@ -32,9 +35,9 @@ namespace Ship_Game
             var currentStations  = FilterOrbitals(ShipData.RoleName.station);
             UpdateWantedOrbitals(rank);
 
-            BuildOrScrapShipyard(WantedShipyards, budget.Orbitals);
-            BuildOrScrapStations(currentStations, WantedStations, budget.Orbitals);
-            BuildOrScrapPlatforms(currentPlatforms, WantedPlatforms, budget.Orbitals);
+            BuildOrScrapShipyard(WantedShipyards, budget.RemainingSpaceDef);
+            BuildOrScrapStations(currentStations, WantedStations, budget.RemainingSpaceDef);
+            BuildOrScrapPlatforms(currentPlatforms, WantedPlatforms, budget.RemainingSpaceDef);
         }
 
         public int GetColonyRank()
@@ -448,9 +451,9 @@ namespace Ship_Game
 
         public void RestoreWantedOrbitals(byte platforms, byte stations, byte shipyards)
         {
-            WantedPlatforms = platforms;
-            WantedStations  = stations;
-            WantedShipyards = shipyards;
+            SetWantedPlatforms(platforms);
+            SetWantedStations(stations);
+            SetWantedShipyards(shipyards);
         }
 
         public void SetWantedPlatforms(byte num)
@@ -466,6 +469,28 @@ namespace Ship_Game
         public void SetWantedStations(byte num)
         {
             WantedStations = num;
+        }
+
+        public void RestoreManualBudgets(float civ, float grd, float spc)
+        {
+            SetManualCivBudget(civ);
+            SetManualGroundDefBudget(grd);
+            SetManualSpaceDefBudget(spc);
+        }
+
+        public void SetManualCivBudget(float num)
+        {
+            ManualCivilianBudget = num;
+        }
+
+        public void SetManualGroundDefBudget(float num)
+        {
+            ManualGrdDefBudget = num;
+        }
+
+        public void SetManualSpaceDefBudget(float num)
+        {
+            ManualSpcDefBudget = num;
         }
     }
 }

@@ -84,7 +84,7 @@ namespace Ship_Game
         }
 
         public PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);
-        public float CivilianBuildingsMaintenance  => Money.Maintenance - MilitaryBuildingsMaintenance;
+        public float CivilianBuildingsMaintenance  => Money.Maintenance - GroundDefMaintenance;
 
         public float ColonyDebtTolerance
         {
@@ -104,8 +104,8 @@ namespace Ship_Game
             if (RecentCombat)
                 return; // Do not build or scrap when in combat
 
-            BuildAndScrapCivilianBuildings(colonyBudget.CivilianBuildings);
-            BuildAndScrapMilitaryBuildings(colonyBudget.MilitaryBuildings);
+            BuildAndScrapCivilianBuildings(colonyBudget.RemainingCivilian);
+            BuildAndScrapMilitaryBuildings(colonyBudget.RemainingGroundDef);
         }
 
         // returns the amount of production to spend in the build queue based on import/export state

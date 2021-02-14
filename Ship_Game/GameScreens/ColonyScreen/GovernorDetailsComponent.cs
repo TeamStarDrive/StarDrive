@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
+using Ship_Game.AI.Budget;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 using Ship_Game.SpriteSystem;
@@ -37,16 +38,25 @@ namespace Ship_Game
         UILabel ShipyardsText;
         UILabel NoGovernor;
         UILabel ColonyRank;
+        UILabel BudgetSum;
 
         private readonly SpriteFont Font12 = Fonts.Arial12Bold;
         private readonly SpriteFont Font10 = Fonts.Arial10;
         private readonly SpriteFont Font8  = Fonts.Arial8Bold;
         private SpriteFont Font;
 
+        Rectangle CivBudgetRect;
+        Rectangle GrdBudgetRect;
+        Rectangle SpcBudgetRect;
+        ProgressBar CivBudgetBar;
+        ProgressBar GrdBudgetBar;
+        ProgressBar SpcBudgetBar;
+
         bool GovernorOn      => Planet.GovernorOn;
         bool GovernorOff     => Planet.GovernorOff;
         bool GovernorTabView => Tabs.SelectedIndex == 0;
         bool DefenseTabView  => Tabs.SelectedIndex == 1;
+        bool BudgetTabView   => Tabs.SelectedIndex == 2;
 
         public GovernorDetailsComponent(GameScreen screen, Planet p, in Rectangle rect) : base(rect)
         {
@@ -55,6 +65,7 @@ namespace Ship_Game
             Tabs = Add(new Submenu(rect));
             Tabs.AddTab(new LocalizedText(4209).Text); // Governor
             Tabs.AddTab(new LocalizedText(4210).Text); // Defense
+            Tabs.AddTab(new LocalizedText(4225).Text); // Budget
         }
 
         public void SetPlanetDetails(Planet p)
@@ -69,8 +80,8 @@ namespace Ship_Game
             // NOTE: Using RootContent here to avoid lag from resource unloading and reloading
             PortraitSprite = DrawableSprite.SubTex(ResourceManager.RootContent, $"Portraits/{Planet.Owner.data.PortraitName}");
 
-            Portrait  = Add(new UIPanel(PortraitSprite));
-            WorldType = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
+            Portrait         = Add(new UIPanel(PortraitSprite));
+            WorldType        = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
             WorldDescription = Add(new UILabel(Fonts.Arial12Bold));
 
             Font = Font12;
@@ -133,6 +144,18 @@ namespace Ship_Game
             ColonyRank.Font  = Font;
             ColonyRank.Color = Color.LightGreen;
 
+            CivBudgetRect = new Rectangle((int)X + 50, (int)Y + 40, 200, 20);
+            GrdBudgetRect = new Rectangle((int)X + 50, (int)Y + 70, 200, 20);
+            SpcBudgetRect = new Rectangle((int)X + 50, (int)Y + 100, 200, 20);
+
+            CivBudgetBar = new ProgressBar(CivBudgetRect);
+            GrdBudgetBar = new ProgressBar(GrdBudgetRect);
+            SpcBudgetBar = new ProgressBar(SpcBudgetRect);
+            CivBudgetBar.color = "green";
+            SpcBudgetBar.color = "blue";
+
+            BudgetSum      = Add(new UILabel(" "));
+            BudgetSum.Font = Font;
             base.PerformLayout();
         }
 
@@ -168,8 +191,11 @@ namespace Ship_Game
             ManualShipyards.Pos   = BuildShipyard.Pos + manualOffset;
             ManualStations.Pos    = BuildStation.Pos + manualOffset;
 
+            BudgetSum.Pos         = new Vector2(TopLeft.X + 30, Y + 130);
+
             UpdateButtons();
             UpdateGovOrbitalStats();
+            UpdateBudgets();
             base.PerformLayout(); // update all the sub-elements, like checkbox rects
         }
 
@@ -197,7 +223,7 @@ namespace Ship_Game
                 Quarantine.Visible       = GovernorTabView && Planet.Owner.isPlayer;
                 Quarantine.TextColor     = Planet.Quarantine ? Color.Red : Color.Gray;
 
-                // not for trade hubs, which do not build structures anyway
+                // Not for trade hubs, which do not build structures anyway
                 GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn;
 
                 int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(EmpireManager.Player);
@@ -239,6 +265,8 @@ namespace Ship_Game
                     ManualShipyards.AbsoluteValue = Planet.WantedShipyards;
                     ManualStations.AbsoluteValue  = Planet.WantedStations;
                 }
+
+                BudgetSum.Visible = BudgetTabView;
             }
 
             UpdateButtonTimer(fixedDeltaTime);
@@ -254,6 +282,7 @@ namespace Ship_Game
             ButtonUpdateTimer = 1;
             UpdateButtons();
             UpdateGovOrbitalStats();
+            UpdateBudgets();
         }
 
         public override void Draw(SpriteBatch batch, DrawTimes elapsed)
@@ -263,6 +292,7 @@ namespace Ship_Game
             {
                 case 0: DrawGovernorTab(batch); break;
                 case 1: DrawTroopsTab(batch);   break;
+                case 2: DrawBudgetsTab(batch);  break;
             }
         }
 
@@ -306,6 +336,13 @@ namespace Ship_Game
             }
 
             batch.DrawLine(top, bot, lineColor);
+        }
+
+        void DrawBudgetsTab(SpriteBatch batch)
+        {
+            CivBudgetBar.Draw(batch);
+            GrdBudgetBar.Draw(batch);
+            SpcBudgetBar.Draw(batch);
         }
 
         void OnSendTroopsClicked(UIButton b)
@@ -414,6 +451,45 @@ namespace Ship_Game
                 if (num == 0)      return Color.Gray;
                 if (num < maxNum)  return Color.Yellow;
                 if (num == maxNum) return Color.Green;
+
+                return Color.OrangeRed;
+            }
+        }
+
+        void UpdateBudgets()
+        {
+            var budget            = new PlanetBudget(Planet);
+            CivBudgetBar.Max      = budget.CivilianAlloc;
+            CivBudgetBar.Progress = Planet.CivilianBuildingsMaintenance;
+            GrdBudgetBar.Max      = budget.GrdDefAlloc;
+            GrdBudgetBar.Progress = Planet.GroundDefMaintenance;
+            SpcBudgetBar.Max      = budget.SpcDefAlloc;
+            SpcBudgetBar.Progress = Planet.SpaceDefMaintenance;
+
+            float percentSpent = 0;
+            if (GovernorOn)
+            {
+                percentSpent   = budget.Spent / budget.TotalAlloc.LowerBound(0.01f) * 100;
+                BudgetSum.Text = $"Total: {budget.Spent.String(2)} of {budget.TotalAlloc.String(2)} ({percentSpent.String(1)}%)";
+            }
+            else
+            {
+                BudgetSum.Text  = $"Total Spent: {budget.Spent.String(2)}";
+            }
+
+            BudgetSum.Color = GetColor(percentSpent);
+
+            // Local Method
+            Color GetColor(float spent)
+            {
+                if (GovernorOff)
+                    return Color.White;
+
+                if (spent.AlmostZero()) return Color.Gray;
+                if (spent < 25)         return Color.Green;
+                if (spent < 50f)        return Color.GreenYellow;
+                if (spent < 75f)        return Color.Yellow;
+                if (spent < 100)        return Color.Orange;
 
                 return Color.OrangeRed;
             }
