@@ -53,7 +53,8 @@ namespace Ship_Game.AI
         }
 
         // Pick the strongest ship to build with a cost limit and a role
-        public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, float maxCost, float maintBudget)
+        public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, 
+            float maxCost, float maintBudget, bool normalizedStr = true)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost) 
@@ -64,7 +65,9 @@ namespace Ship_Game.AI
             if (potentialShips.Length == 0)
                 return null;
 
-            Ship best = potentialShips.FindMax(orb => orb.NormalizedStrength);
+            Ship best = normalizedStr ? potentialShips.FindMax(s => s.NormalizedStrength)
+                                      : potentialShips.FindMax(s => s.BaseStrength);
+
             return best;
         }
         
