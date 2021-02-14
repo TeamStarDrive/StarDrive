@@ -263,7 +263,7 @@ namespace Ship_Game
 
         private void DoBuildingTimers(FixedSimTime timeStep, ref bool startCombatTimer)
         {
-            if (BuildingList.Count <= 0)
+            if (BuildingList.Count == 0)
                 return;
 
             bool combatBuildingHere = false;
@@ -285,7 +285,7 @@ namespace Ship_Game
                     startCombatTimer = true;
             }
 
-            if (ForeignTroopHere(Owner) && combatBuildingHere)
+            if (ForeignTroopHere(Owner) && combatBuildingHere && Owner != null)
                 startCombatTimer = true;
         }
 
