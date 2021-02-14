@@ -20,6 +20,7 @@ namespace Ship_Game
         private UILabel WorldType, WorldDescription;
         private DropOptions<Planet.ColonyType> ColonyTypeList;
         private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals, GovGround;
+        private UICheckBox OverrideCiv, OverrideGrd, OverrideSpc;
         private FloatSlider Garrison;
         private FloatSlider ManualPlatforms;
         private FloatSlider ManualShipyards;
@@ -40,14 +41,20 @@ namespace Ship_Game
         UILabel ColonyRank;
         UILabel BudgetSum;
 
+        private readonly SpriteFont Font14 = Fonts.Arial14Bold;
         private readonly SpriteFont Font12 = Fonts.Arial12Bold;
         private readonly SpriteFont Font10 = Fonts.Arial10;
         private readonly SpriteFont Font8  = Fonts.Arial8Bold;
         private SpriteFont Font;
+        private SpriteFont FontBig;
+        private bool OverrideCivBudget, OverrideGrdBudget, OverrideSpcBudget;
 
         Rectangle CivBudgetRect;
         Rectangle GrdBudgetRect;
         Rectangle SpcBudgetRect;
+        Rectangle CivBudgetTexRect;
+        Rectangle GrdBudgetTexRect;
+        Rectangle SpcBudgetTexRect;
         ProgressBar CivBudgetBar;
         ProgressBar GrdBudgetBar;
         ProgressBar SpcBudgetBar;
@@ -57,6 +64,7 @@ namespace Ship_Game
         bool GovernorTabView => Tabs.SelectedIndex == 0;
         bool DefenseTabView  => Tabs.SelectedIndex == 1;
         bool BudgetTabView   => Tabs.SelectedIndex == 2;
+        
 
         public GovernorDetailsComponent(GameScreen screen, Planet p, in Rectangle rect) : base(rect)
         {
@@ -84,9 +92,10 @@ namespace Ship_Game
             WorldType        = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
             WorldDescription = Add(new UILabel(Fonts.Arial12Bold));
 
-            Font = Font12;
-            if      (Screen.Width < 1600) Font = Font8;
-            else if (Screen.Width < 1920) Font = Font10;
+            Font    = Font12;
+            FontBig = Font14;
+            if      (Screen.Width < 1600) {Font = Font8;  FontBig = Font10; }
+            else if (Screen.Width < 1920) {Font = Font10; FontBig = Font12; }
 
             GovOrbitals    = Add(new UICheckBox(() => Planet.GovOrbitals, Font, title:1960, tooltip:1961));
             AutoTroops     = Add(new UICheckBox(() => Planet.AutoBuildTroops, Font, title:1956, tooltip:1957));
@@ -94,7 +103,10 @@ namespace Ship_Game
             Quarantine     = Add(new UICheckBox(() => Planet.Quarantine, Font, title: 1888, tooltip: 1887));
             ManualOrbitals = Add(new UICheckBox(() => Planet.ManualOrbitals, Font, title: 4201, tooltip: 4202));
             GovGround      = Add(new UICheckBox(() => Planet.GovGroundDefense, Font, title: 4207, tooltip: 4208));
-
+            OverrideCiv    = Add(new UICheckBox(() => OverrideCivBudget, Font, title: 4226, tooltip: 4227));
+            OverrideGrd    = Add(new UICheckBox(() => OverrideGrdBudget, Font, title: 4226, tooltip: 4227));
+            OverrideSpc    = Add(new UICheckBox(() => OverrideSpcBudget, Font, title: 4226, tooltip: 4227));
+             
             Garrison        = Slider(200, 200, 160, 40, new LocalizedText(4211).Text, 0, 25,Planet.GarrisonSize);
             ManualPlatforms = Slider(200, 200, 120, 40, new LocalizedText(4212).Text, 0, 15, Planet.WantedPlatforms);
             ManualShipyards = Slider(200, 200, 120, 40, "", 0, 2, Planet.WantedShipyards);
@@ -144,18 +156,26 @@ namespace Ship_Game
             ColonyRank.Font  = Font;
             ColonyRank.Color = Color.LightGreen;
 
-            CivBudgetRect = new Rectangle((int)X + 50, (int)Y + 40, 200, 20);
-            GrdBudgetRect = new Rectangle((int)X + 50, (int)Y + 70, 200, 20);
-            SpcBudgetRect = new Rectangle((int)X + 50, (int)Y + 100, 200, 20);
+            CivBudgetRect    = new Rectangle((int)X + 57, (int)Y + 40, (int)(Width*0.33f), 20);
+            GrdBudgetRect    = new Rectangle((int)X + 57, (int)Y + 70, (int)(Width*0.33f), 20);
+            SpcBudgetRect    = new Rectangle((int)X + 57, (int)Y + 100, (int)(Width*0.33f), 20);
+            CivBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 38, 47, 23);
+            GrdBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 68, 47, 23);
+            SpcBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 96, 47, 23);
+
 
             CivBudgetBar = new ProgressBar(CivBudgetRect);
             GrdBudgetBar = new ProgressBar(GrdBudgetRect);
             SpcBudgetBar = new ProgressBar(SpcBudgetRect);
+            CivBudgetBar.Faction10Values = true;
+            GrdBudgetBar.Faction10Values = true;
+            SpcBudgetBar.Faction10Values = true;
             CivBudgetBar.color = "green";
             SpcBudgetBar.color = "blue";
 
+
             BudgetSum      = Add(new UILabel(" "));
-            BudgetSum.Font = Font;
+            BudgetSum.Font = FontBig;
             base.PerformLayout();
         }
 
@@ -191,11 +211,21 @@ namespace Ship_Game
             ManualShipyards.Pos   = BuildShipyard.Pos + manualOffset;
             ManualStations.Pos    = BuildStation.Pos + manualOffset;
 
-            BudgetSum.Pos         = new Vector2(TopLeft.X + 30, Y + 130);
+            BudgetSum.Pos         = new Vector2(TopLeft.X + 5, Y + 130);
+            OverrideCiv.Pos       = new Vector2(CivBudgetRect.X + CivBudgetRect.Width + 10, CivBudgetRect.Y + 2);
+            OverrideGrd.Pos       = new Vector2(GrdBudgetRect.X + GrdBudgetRect.Width + 10, GrdBudgetRect.Y + 2);
+            OverrideSpc.Pos       = new Vector2(SpcBudgetRect.X + SpcBudgetRect.Width + 10, SpcBudgetRect.Y + 2);
 
+            OverrideCivBudget     = Planet.ManualCivilianBudget.Greater(0);
+            OverrideGrdBudget     = Planet.ManualGrdDefBudget.Greater(0);
+            OverrideSpcBudget     = Planet.ManualSpcDefBudget.Greater(0);
+
+            
             UpdateButtons();
             UpdateGovOrbitalStats();
             UpdateBudgets();
+
+
             base.PerformLayout(); // update all the sub-elements, like checkbox rects
         }
 
@@ -252,6 +282,9 @@ namespace Ship_Game
                 ManualOrbitals.TextColor  = Planet.ManualOrbitals     ? Color.White : Color.Gray;
                 AutoTroops.TextColor      = Planet.AutoBuildTroops    ? Color.White : Color.Gray;
                 GovNoScrap.TextColor      = Planet.DontScrapBuildings ? Color.White : Color.Gray;
+                OverrideCiv.TextColor     = OverrideCivBudget ? Color.White : Color.Gray;
+                OverrideGrd.TextColor     = OverrideGrdBudget ? Color.White : Color.Gray;
+                OverrideSpc.TextColor     = OverrideSpcBudget ? Color.White : Color.Gray;
 
                 if (ManualOrbitals.Visible && Planet.ManualOrbitals)
                 {
@@ -266,7 +299,10 @@ namespace Ship_Game
                     ManualStations.AbsoluteValue  = Planet.WantedStations;
                 }
 
-                BudgetSum.Visible = BudgetTabView;
+                BudgetSum.Visible   = BudgetTabView;
+                OverrideCiv.Visible = BudgetTabView && GovernorOn;
+                OverrideGrd.Visible = OverrideCiv.Visible;
+                OverrideSpc.Visible = OverrideCiv.Visible;
             }
 
             UpdateButtonTimer(fixedDeltaTime);
@@ -340,9 +376,16 @@ namespace Ship_Game
 
         void DrawBudgetsTab(SpriteBatch batch)
         {
-            CivBudgetBar.Draw(batch);
-            GrdBudgetBar.Draw(batch);
-            SpcBudgetBar.Draw(batch);
+            if (GovernorOn)
+            {
+                CivBudgetBar.Draw(batch);
+                GrdBudgetBar.Draw(batch);
+                SpcBudgetBar.Draw(batch);
+            }
+
+            batch.Draw(ResourceManager.Texture("NewUI/BudgetCiv"), CivBudgetTexRect);
+            batch.Draw(ResourceManager.Texture("NewUI/BudgetGround"), GrdBudgetTexRect);
+            batch.Draw(ResourceManager.Texture("NewUI/BudgetSpace"), SpcBudgetTexRect);
         }
 
         void OnSendTroopsClicked(UIButton b)
@@ -466,29 +509,29 @@ namespace Ship_Game
             SpcBudgetBar.Max      = budget.SpcDefAlloc;
             SpcBudgetBar.Progress = Planet.SpaceDefMaintenance;
 
-            float percentSpent = 0;
+            float spent = Planet.CivilianBuildingsMaintenance + Planet.GroundDefMaintenance + Planet.SpaceDefMaintenance;
             if (GovernorOn)
             {
-                percentSpent   = budget.Spent / budget.TotalAlloc.LowerBound(0.01f) * 100;
-                BudgetSum.Text = $"Total: {budget.Spent.String(2)} of {budget.TotalAlloc.String(2)} ({percentSpent.String(1)}%)";
+                float percentSpent = spent / budget.TotalAlloc.LowerBound(0.01f) * 100;
+                BudgetSum.Text = $"Total: {spent.String(2)} of {budget.TotalAlloc.String(2)} ({percentSpent.String(1)}%)";
             }
             else
             {
-                BudgetSum.Text  = $"Total Spent: {budget.Spent.String(2)}";
+                BudgetSum.Text = $"Total: {spent.String(2)}";
             }
 
-            BudgetSum.Color = GetColor(percentSpent);
+            BudgetSum.Color = GetColor();
 
             // Local Method
-            Color GetColor(float spent)
+            Color GetColor()
             {
                 if (GovernorOff)
                     return Color.White;
 
                 if (spent.AlmostZero()) return Color.Gray;
                 if (spent < 25)         return Color.Green;
-                if (spent < 50f)        return Color.GreenYellow;
-                if (spent < 75f)        return Color.Yellow;
+                if (spent < 50)         return Color.GreenYellow;
+                if (spent < 75)         return Color.Yellow;
                 if (spent < 100)        return Color.Orange;
 
                 return Color.OrangeRed;
@@ -543,6 +586,13 @@ namespace Ship_Game
 
             if (ColonyRank.Visible && ColonyRank.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(279);
+
+            if (BudgetTabView)
+            {
+                if      (CivBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(280);
+                else if (GrdBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(281);
+                else if (SpcBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(282);
+            }
 
             return base.HandleInput(input);
         }
