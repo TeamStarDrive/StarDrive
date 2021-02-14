@@ -1046,7 +1046,7 @@ namespace Ship_Game
             if (ParentSystem.ShipList.Any(t => t.IsHomeDefense))
                 return; // if there are still defense ships our there, don't update building's hangars
 
-            b.UpdateCurrentDefenseShips(1, Owner);
+            b.UpdateCurrentDefenseShips(1);
         }
 
         public void UpdateDefenseShipBuildingOffense()
