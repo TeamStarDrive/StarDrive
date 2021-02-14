@@ -8,9 +8,8 @@ namespace Ship_Game
     {
         int PFacilitiesPlayerTabSelected;
 
-        void HandleDetailInfo()
+        void HandleDetailInfo(InputState input)
         {
-            DetailInfo = null;
             foreach (BuildableListItem e in BuildableList.AllEntries)
             {
                 if (e.Hovered)
@@ -20,13 +19,13 @@ namespace Ship_Game
                 }
             }
 
-            if (DetailInfo == null)
+            if (DetailInfo == null || !BuildableList.HitTest(input.CursorPosition))
                 DetailInfo = P.Description;
         }
 
         public override bool HandleInput(InputState input)
         {
-            HandleDetailInfo();
+            HandleDetailInfo(input);
 
             if (HandlePlanetNameChangeTextBox(input))
                 return true;
