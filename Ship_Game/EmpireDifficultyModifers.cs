@@ -80,9 +80,9 @@
                     if (!empire.isPlayer)
                     {
                         ProductionMod = -0.1f;
-                        ResearchMod   = -0.1f; ;
+                        ResearchMod   = -0.1f;
                         TaxMod        = -0.1f;
-                        ModHpModifier = -0.2f;
+                        ModHpModifier = -0.1f;
                     }
 
                     break;
