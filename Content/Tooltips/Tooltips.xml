@@ -1405,5 +1405,20 @@
       <Title>Colony Rank</Title>
       <Data>4203</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>280</TIP_ID>
+      <Title>Civilian Budget</Title>
+      <Data>4228</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>281</TIP_ID>
+      <Title>Ground Defense Budget</Title>
+      <Data>4229</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>282</TIP_ID>
+      <Title>Orbitals Budget</Title>
+      <Data>4230</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

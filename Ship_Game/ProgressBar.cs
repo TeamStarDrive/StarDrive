@@ -9,7 +9,8 @@ namespace Ship_Game
         public float Progress;
         public float Max;
         public string color = "brown";
-        public bool DrawPercentage = false;
+        public bool DrawPercentage   = false;
+        public bool Faction10Values  = false;
         private Rectangle Left;
         private Rectangle Right;
         private Rectangle Middle;
@@ -74,7 +75,7 @@ namespace Ship_Game
                 spriteBatch.Draw(ResourceManager.Texture("NewUI/progressbar_container_right"), Right, Color.White);
             }
             var textPos = new Vector2(Left.X + 7, Left.Y + Left.Height / 2 - Fonts.TahomaBold9.LineSpacing / 2);
-            spriteBatch.DrawString(Fonts.TahomaBold9, Values, textPos, Colors.Cream);
+            spriteBatch.DrawString(Fonts.TahomaBold9, Faction10Values ? Values10 : Values, textPos, Colors.Cream);
         }
 
         public void DrawGrayed(SpriteBatch spriteBatch)
@@ -109,9 +110,10 @@ namespace Ship_Game
                 spriteBatch.Draw(ResourceManager.Texture("NewUI/progressbar_container_right"), Right, Color.DarkGray);
             }
             var textPos = new Vector2(Left.X + 7, Left.Y + Left.Height / 2 - Fonts.TahomaBold9.LineSpacing / 2);
-            spriteBatch.DrawString(Fonts.TahomaBold9, Values, textPos, Color.DarkGray);
+            spriteBatch.DrawString(Fonts.TahomaBold9, Faction10Values ? Values10 : Values, textPos, Color.DarkGray);
         }
 
-        string Values => DrawPercentage ? $"{(int)Progress}%" : $"{(int)Progress}/{(int)Max}";
+        string Values10 => DrawPercentage ? $"{Progress.String(1)}%" : $"{Progress.String(1)}/{Max.String(1)}";
+        string Values    => DrawPercentage ? $"{(int)Progress}%" : $"{(int)Progress}/{(int)Max}";
     }
 }

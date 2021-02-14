@@ -579,7 +579,7 @@ namespace Ship_Game
             string nLosses = Localizer.Token(6129);
 
             float grossIncome = P.Money.GrossRevenue;
-            float grossUpkeep = P.Money.Maintenance;
+            float grossUpkeep = P.Money.Maintenance + P.SpaceDefMaintenance;
             float netIncome   = P.Money.NetRevenue;
 
             SpriteFont font = LowRes ? Font8 : Font14;
