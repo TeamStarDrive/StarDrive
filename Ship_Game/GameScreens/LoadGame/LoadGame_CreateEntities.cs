@@ -111,6 +111,7 @@ namespace Ship_Game
             p.Scale = psData.Scale > 0f ? psData.Scale : RandomMath.RandomBetween(1f, 2f);
             p.colonyType         = psData.ColonyType;
             p.GovOrbitals        = psData.GovOrbitals;
+            p.GovGroundDefense   = psData.GovGroundDefense;
             p.AutoBuildTroops    = psData.GovMilitia;
             p.GarrisonSize       = psData.GarrisonSize;
             p.Quarantine         = psData.Quarantine;

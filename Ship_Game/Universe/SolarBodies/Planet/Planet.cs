@@ -45,13 +45,9 @@ namespace Ship_Game
         public TroopManager TroopManager;
         public SpaceStation Station = new SpaceStation(null);
 
-        public bool GovOrbitals        = false;
-        public bool AutoBuildTroops    = false;
         public bool DontScrapBuildings = false;
         public bool Quarantine         = false;
-        public bool ManualOrbitals     = false;
         public bool AllowInfantry;
-        public int GarrisonSize;
 
         public int CrippledTurns;
         public int TotalDefensiveStrength { get; private set; }
