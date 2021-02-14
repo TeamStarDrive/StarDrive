@@ -8380,6 +8380,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Budget</Text>
     </Token>
     <Token>
+      <Index>4226</Index>
+      <Text>Override</Text>
+    </Token>
+    <Token>
+      <Index>4227</Index>
+      <Text>Override this budget and set your own.</Text>
+    </Token>
+    <Token>
+      <Index>4228</Index>
+      <Text>Civilian Buildings Budget</Text>
+    </Token>
+    <Token>
+      <Index>4229</Index>
+      <Text>Ground Defense Buildings Budget</Text>
+    </Token>
+    <Token>
+      <Index>4230</Index>
+      <Text>Orbitals Budget</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
