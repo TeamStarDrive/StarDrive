@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Ships
 {
@@ -113,6 +109,9 @@ namespace Ship_Game.Ships
 
         public static float GetFTLSpeed(float warpThrust, float mass, Empire e)
         {
+            if (warpThrust.AlmostZero())
+                return 0;
+
             return (warpThrust / mass * e.data.FTLModifier).LowerBound(Ship.LightSpeedConstant);
         }
 
