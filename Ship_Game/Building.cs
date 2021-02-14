@@ -172,10 +172,11 @@ namespace Ship_Game
         }
 
         bool ReadyToFireOnSpaceTargets            => WeaponTimer.Less(0);
-        bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 0;
+        bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 100;
 
         static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
-                                              => ShipBuilder.PickFromCandidates(roleName, empire, normalizedStrength: false);
+                    => ShipBuilder.PickCostEffectiveShipToBuild(roleName, empire, 
+                        empire.Money - 90, empire.Money/10, false);
 
         void LaunchDefenseShips(Planet p, Ship target, Empire empire)
         {
@@ -196,7 +197,7 @@ namespace Ship_Game
             {
                 defenseShip.Level = 3;
                 defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.SpeedLimit;
-                UpdateCurrentDefenseShips(-1, empire);
+                UpdateCurrentDefenseShips(-1);
                 empire.ChargeCreditsHomeDefense(defenseShip);
             }
         }
@@ -224,7 +225,7 @@ namespace Ship_Game
             Offense += DefenseShipStrength;
         }
 
-        public void UpdateCurrentDefenseShips(int num, Empire empire)
+        public void UpdateCurrentDefenseShips(int num)
         {
             if (DefenseShipsCapacity > 0)
                 CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0, DefenseShipsCapacity);
@@ -251,7 +252,7 @@ namespace Ship_Game
             ShipData.RoleName roleName = ship.DesignRole;
             if (DefenseShipsRole == roleName && CurrentNumDefenseShips < DefenseShipsCapacity)
             {
-                UpdateCurrentDefenseShips(1, ship.loyalty);
+                UpdateCurrentDefenseShips(1);
                 return true;
             }
 
