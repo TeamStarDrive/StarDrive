@@ -12,6 +12,11 @@ namespace Ship_Game
         public byte WantedPlatforms { get; private set; }
         public byte WantedStations { get; private set; }
         public byte WantedShipyards { get; private set; }
+        public bool GovOrbitals      = false;
+        public bool GovGroundDefense = false;
+        public bool AutoBuildTroops  = false;
+        public bool ManualOrbitals   = false;
+        public int GarrisonSize;
 
         private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
@@ -374,7 +379,7 @@ namespace Ship_Game
 
         void BuildAndScrapMilitaryBuildings(float budget)
         {
-            if (Owner.isPlayer && !GovOrbitals)
+            if (Owner.isPlayer && !GovGroundDefense)
                 return;
 
             if (MilitaryBuildingInTheWorks)

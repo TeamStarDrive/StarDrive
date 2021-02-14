@@ -4,6 +4,9 @@ namespace Ship_Game
 {
     public partial class Planet
     {
+        public bool GovernorOn  => colonyType != ColonyType.Colony;
+        public bool GovernorOff => colonyType == ColonyType.Colony;
+
         public float CurrentProductionToQueue   => Prod.NetIncome + InfraStructure;
         public float MaxProductionToQueue       => Prod.NetMaxPotential + InfraStructure;
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / (Owner.IsCybernetic ? 2 : 3)).LowerBound(0.1f);

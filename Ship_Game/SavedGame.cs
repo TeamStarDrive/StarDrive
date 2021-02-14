@@ -745,6 +745,7 @@ namespace Ship_Game
             [Serialize(43)] public byte WantedPlatforms;
             [Serialize(44)] public byte WantedStations;
             [Serialize(45)] public byte WantedShipyards;
+            [Serialize(46)] public bool GovGroundDefense;
         }
 
         public struct ProjectileSaveData
