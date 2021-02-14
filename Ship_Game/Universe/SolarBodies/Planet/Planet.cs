@@ -74,8 +74,8 @@ namespace Ship_Game
         public bool SpaceCombatNearPlanet { get; private set; } // FB - warning - this will be false if there is owner for the planet
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
-        public float OrbitalsMaintenance { get; private set; }
-        public float MilitaryBuildingsMaintenance { get; private set; }
+        public float SpaceDefMaintenance { get; private set; }
+        public float GroundDefMaintenance { get; private set; }
         public float InfraStructure { get; private set; }
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
@@ -826,21 +826,21 @@ namespace Ship_Game
 
         void UpdateOrbitalsMaintenance()
         {
-            OrbitalsMaintenance = 0;
+            SpaceDefMaintenance = 0;
             foreach (Ship orbital in OrbitalStations)
             {
-                OrbitalsMaintenance += orbital.GetMaintCost(Owner);
+                SpaceDefMaintenance += orbital.GetMaintCost(Owner);
             }
         }
 
         void UpdateMilitaryBuildingMaintenance()
         {
-            MilitaryBuildingsMaintenance = 0;
+            GroundDefMaintenance = 0;
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b = BuildingList[i];
                 if (b.IsMilitary)
-                    MilitaryBuildingsMaintenance += b.ActualMaintenance(this);
+                    GroundDefMaintenance += b.ActualMaintenance(this);
             }
         }
 
