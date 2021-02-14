@@ -18,7 +18,7 @@ namespace Ship_Game
         private UIPanel Portrait;
         private UILabel WorldType, WorldDescription;
         private DropOptions<Planet.ColonyType> ColonyTypeList;
-        private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals;
+        private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals, GovGround;
         private FloatSlider Garrison;
         private FloatSlider ManualPlatforms;
         private FloatSlider ManualShipyards;
@@ -38,13 +38,23 @@ namespace Ship_Game
         UILabel NoGovernor;
         UILabel ColonyRank;
 
+        private readonly SpriteFont Font12 = Fonts.Arial12Bold;
+        private readonly SpriteFont Font10 = Fonts.Arial10;
+        private readonly SpriteFont Font8  = Fonts.Arial8Bold;
+        private SpriteFont Font;
+
+        bool GovernorOn      => Planet.GovernorOn;
+        bool GovernorOff     => Planet.GovernorOff;
+        bool GovernorTabView => Tabs.SelectedIndex == 0;
+        bool DefenseTabView  => Tabs.SelectedIndex == 1;
+
         public GovernorDetailsComponent(GameScreen screen, Planet p, in Rectangle rect) : base(rect)
         {
             Screen = screen;
             SetPlanetDetails(p);
             Tabs = Add(new Submenu(rect));
-            Tabs.AddTab("Governor"); // "Assign Labor"
-            Tabs.AddTab("Defense"); // "Assign Labor"
+            Tabs.AddTab(new LocalizedText(4209).Text); // Governor
+            Tabs.AddTab(new LocalizedText(4210).Text); // Defense
         }
 
         public void SetPlanetDetails(Planet p)
@@ -62,15 +72,20 @@ namespace Ship_Game
             Portrait  = Add(new UIPanel(PortraitSprite));
             WorldType = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
             WorldDescription = Add(new UILabel(Fonts.Arial12Bold));
-            
-            GovOrbitals    = Add(new UICheckBox(() => Planet.GovOrbitals, Fonts.Arial12Bold, title:1960, tooltip:1961));
-            AutoTroops     = Add(new UICheckBox(() => Planet.AutoBuildTroops, Fonts.Arial12Bold, title:1956, tooltip:1957));
-            GovNoScrap     = Add(new UICheckBox(() => Planet.DontScrapBuildings, Fonts.Arial12Bold, title:1941, tooltip:1942));
-            Quarantine     = Add(new UICheckBox(() => Planet.Quarantine, Fonts.Arial12Bold, title: 1888, tooltip: 1887));
-            ManualOrbitals = Add(new UICheckBox(() => Planet.ManualOrbitals, Fonts.Arial12Bold, title: 4201, tooltip: 4202));
 
-            Garrison        = Slider(200, 200, 160, 40, "Garrison Size", 0, 25,Planet.GarrisonSize);
-            ManualPlatforms = Slider(200, 200, 120, 40, "Manual Limit", 0, 15, Planet.WantedPlatforms);
+            Font = Font12;
+            if      (Screen.Width < 1600) Font = Font8;
+            else if (Screen.Width < 1920) Font = Font10;
+
+            GovOrbitals    = Add(new UICheckBox(() => Planet.GovOrbitals, Font, title:1960, tooltip:1961));
+            AutoTroops     = Add(new UICheckBox(() => Planet.AutoBuildTroops, Font, title:1956, tooltip:1957));
+            GovNoScrap     = Add(new UICheckBox(() => Planet.DontScrapBuildings, Font, title:1941, tooltip:1942));
+            Quarantine     = Add(new UICheckBox(() => Planet.Quarantine, Font, title: 1888, tooltip: 1887));
+            ManualOrbitals = Add(new UICheckBox(() => Planet.ManualOrbitals, Font, title: 4201, tooltip: 4202));
+            GovGround      = Add(new UICheckBox(() => Planet.GovGroundDefense, Font, title: 4207, tooltip: 4208));
+
+            Garrison        = Slider(200, 200, 160, 40, new LocalizedText(4211).Text, 0, 25,Planet.GarrisonSize);
+            ManualPlatforms = Slider(200, 200, 120, 40, new LocalizedText(4212).Text, 0, 15, Planet.WantedPlatforms);
             ManualShipyards = Slider(200, 200, 120, 40, "", 0, 2, Planet.WantedShipyards);
             ManualStations  = Slider(200, 200, 120, 40, "", 0, 10, Planet.WantedStations);
 
@@ -92,17 +107,17 @@ namespace Ship_Game
             ColonyTypeList.OnValueChange = OnColonyTypeChanged;
 
             ButtonUpdateTimer = 1;
-            LaunchAllTroops   = Button(ButtonStyle.Default,"Launch All Troops", OnLaunchTroopsClicked);
-            LaunchSingleTroop = Button(ButtonStyle.Default, "Launch Single Troop", OnLaunchSingleTroopClicked);
-            CallTroops        = Button(ButtonStyle.Default, "Call Troops", OnSendTroopsClicked);
+            LaunchAllTroops   = Button(ButtonStyle.Default, new LocalizedText(4213).Text, OnLaunchTroopsClicked);
+            LaunchSingleTroop = Button(ButtonStyle.Default, new LocalizedText(4214).Text, OnLaunchSingleTroopClicked);
+            CallTroops        = Button(ButtonStyle.Default, new LocalizedText(4215).Text, OnSendTroopsClicked);
 
             LaunchAllTroops.Tooltip   = new LocalizedText(1952).Text;
             LaunchSingleTroop.Tooltip = new LocalizedText(1950).Text;
             CallTroops.Tooltip        = new LocalizedText(1949).Text;
 
-            BuildShipyard = Button(ButtonStyle.Medium, "Build Shipyard", OnBuildShipyardClick);
-            BuildStation  = Button(ButtonStyle.Medium, "Build Station", OnBuildStationClick);
-            BuildPlatform = Button(ButtonStyle.Medium, "Build Platform", OnBuildPlatformClick);
+            BuildShipyard = Button(ButtonStyle.Medium, new LocalizedText(4216).Text, OnBuildShipyardClick);
+            BuildStation  = Button(ButtonStyle.Medium, new LocalizedText(4217).Text, OnBuildStationClick);
+            BuildPlatform = Button(ButtonStyle.Medium, new LocalizedText(4218).Text, OnBuildPlatformClick);
 
             BuildShipyard.Tooltip = new LocalizedText(1948).Text;
             BuildStation.Tooltip  = new LocalizedText(1947).Text;
@@ -111,13 +126,12 @@ namespace Ship_Game
             PlatformsText    = Add(new UILabel(" "));
             ShipyardsText    = Add(new UILabel(" "));
             StationsText     = Add(new UILabel(" "));
-            NoGovernor       = Add(new UILabel("No Governor"));
-            NoGovernor.Font  = Fonts.Arial12Bold;
+            NoGovernor       = Add(new UILabel(new LocalizedText(4219).Text));
+            NoGovernor.Font  = Font;
             NoGovernor.Color = Color.Gray;
             ColonyRank       = Add(new UILabel(" "));
-            ColonyRank.Font  = Fonts.Arial12Bold;
-            ColonyRank.Color = Color.SteelBlue;
-
+            ColonyRank.Font  = Font;
+            ColonyRank.Color = Color.LightGreen;
 
             base.PerformLayout();
         }
@@ -136,14 +150,15 @@ namespace Ship_Game
             Quarantine.Pos        = new Vector2(Portrait.X, Bottom - 24);
             GovNoScrap.Pos        = new Vector2(TopRight.X - 250, Bottom - 24);
 
-            AutoTroops.Pos        = new Vector2(TopLeft.X + 10, Y + 40);
-            Garrison.Pos          = new Vector2(TopLeft.X + 20, Y + 70);
+            AutoTroops.Pos        = new Vector2(TopLeft.X + 10, Y + 30);
+            Garrison.Pos          = new Vector2(TopLeft.X + 20, Y + 50);
             CallTroops.Pos        = new Vector2(TopLeft.X + 10, Bottom - 30);
             LaunchSingleTroop.Pos = new Vector2(TopLeft.X + 10, Bottom - 60);
             LaunchAllTroops.Pos   = new Vector2(TopLeft.X + 10, Bottom - 90);
-            GovOrbitals.Pos       = new Vector2(TopLeft.X + 200, Y + 40);
-            NoGovernor.Pos        = new Vector2(GovOrbitals.X, GovOrbitals.Y);
-            ColonyRank.Pos        = new Vector2(TopLeft.X + 200, Y + 65);
+            ColonyRank.Pos        = new Vector2(TopLeft.X + 200, Y + 30);
+            NoGovernor.Pos        = ColonyRank.Pos;
+            GovGround.Pos         = new Vector2(TopLeft.X + 200, Y + 50);
+            GovOrbitals.Pos       = new Vector2(TopLeft.X + 200, Y + 70);
             ManualOrbitals.Pos    = new Vector2(TopLeft.X + 200, Y + 90);
             BuildPlatform.Pos     = new Vector2(TopLeft.X + 200, Bottom - 90);
             BuildShipyard.Pos     = new Vector2(TopLeft.X + 200, Bottom - 60);
@@ -175,37 +190,42 @@ namespace Ship_Game
         {
             if (Planet.Owner != null)
             {
-                WorldDescription.Visible = Tabs.SelectedIndex == 0 && Planet.Owner.isPlayer;
-                ColonyTypeList.Visible   = Tabs.SelectedIndex == 0 && Planet.Owner.isPlayer;
-                Portrait.Visible         = Tabs.SelectedIndex == 0 && Planet.Owner.isPlayer;
-                WorldType.Visible        = Tabs.SelectedIndex == 0 && Planet.Owner.isPlayer;
-                Quarantine.Visible       = Tabs.SelectedIndex == 0 && Planet.Owner.isPlayer;
-                Quarantine.TextColor     = Planet.Quarantine ? Color.Red : Color.White;
+                WorldDescription.Visible = GovernorTabView && Planet.Owner.isPlayer;
+                ColonyTypeList.Visible   = GovernorTabView && Planet.Owner.isPlayer;
+                Portrait.Visible         = GovernorTabView && Planet.Owner.isPlayer;
+                WorldType.Visible        = GovernorTabView && Planet.Owner.isPlayer;
+                Quarantine.Visible       = GovernorTabView && Planet.Owner.isPlayer;
+                Quarantine.TextColor     = Planet.Quarantine ? Color.Red : Color.Gray;
 
                 // not for trade hubs, which do not build structures anyway
-                GovNoScrap.Visible = Tabs.SelectedIndex == 0 && Planet.colonyType != Planet.ColonyType.TradeHub 
-                                                             && Planet.colonyType != Planet.ColonyType.Colony;
+                GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn;
 
                 int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(EmpireManager.Player);
                 Planet.GarrisonSize       = (int)Garrison.AbsoluteValue;
-                CallTroops.Visible        = Tabs.SelectedIndex == 1 && Planet.Owner == Empire.Universe.player;
-                LaunchSingleTroop.Visible = Tabs.SelectedIndex == 1 && CallTroops.Visible && numTroopsCanLaunch > 0;
-                LaunchAllTroops.Visible   = Tabs.SelectedIndex == 1 && CallTroops.Visible && numTroopsCanLaunch > 1;
-                Garrison.Visible          = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer;
-                AutoTroops.Visible        = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer;
-                GovOrbitals.Visible       = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer && Planet.colonyType != Planet.ColonyType.Colony;
-                BuildPlatform.Visible     = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer && !Planet.GovOrbitals;
-                BuildShipyard.Visible     = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer && !Planet.GovOrbitals;
-                BuildStation.Visible      = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer && !Planet.GovOrbitals;
-                PlatformsText.Visible     = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer;
-                ShipyardsText.Visible     = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer;
-                StationsText.Visible      = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer;
-                NoGovernor.Visible        = Tabs.SelectedIndex == 1 && Planet.colonyType == Planet.ColonyType.Colony;
-                ManualOrbitals.Visible    = Tabs.SelectedIndex == 1 && Planet.colonyType != Planet.ColonyType.Colony && Planet.GovOrbitals;
-                ColonyRank.Visible        = Tabs.SelectedIndex == 1 && ManualOrbitals.Visible;
-                ManualPlatforms.Visible   = Tabs.SelectedIndex == 1 && Planet.ManualOrbitals && Planet.GovOrbitals;
-                ManualShipyards.Visible   = Tabs.SelectedIndex == 1 && Planet.ManualOrbitals && Planet.GovOrbitals;
-                ManualStations.Visible    = Tabs.SelectedIndex == 1 && Planet.ManualOrbitals && Planet.GovOrbitals;
+                CallTroops.Visible        = DefenseTabView && Planet.Owner.isPlayer;
+                LaunchSingleTroop.Visible = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 0;
+                LaunchAllTroops.Visible   = DefenseTabView && CallTroops.Visible && numTroopsCanLaunch > 1;
+                Garrison.Visible          = DefenseTabView && Planet.Owner.isPlayer;
+                AutoTroops.Visible        = DefenseTabView && Planet.Owner.isPlayer;
+                GovOrbitals.Visible       = DefenseTabView && Planet.Owner.isPlayer && GovernorOn;
+                GovGround.Visible         = GovOrbitals.Visible;
+                BuildPlatform.Visible     = DefenseTabView && Planet.Owner.isPlayer && (!Planet.GovOrbitals || GovernorOff);
+                BuildShipyard.Visible     = BuildPlatform.Visible;
+                BuildStation.Visible      = BuildPlatform.Visible;
+                PlatformsText.Visible     = DefenseTabView;
+                ShipyardsText.Visible     = DefenseTabView;
+                StationsText.Visible      = DefenseTabView;
+                NoGovernor.Visible        = DefenseTabView && GovernorOff;
+                ManualOrbitals.Visible    = DefenseTabView && Planet.GovOrbitals && GovernorOn;
+                ColonyRank.Visible        = DefenseTabView && GovernorOn;
+                ManualPlatforms.Visible   = DefenseTabView && Planet.ManualOrbitals && Planet.GovOrbitals && GovernorOn;
+                ManualShipyards.Visible   = ManualPlatforms.Visible;
+                ManualStations.Visible    = ManualPlatforms.Visible;
+                GovOrbitals.TextColor     = Planet.GovOrbitals        ? Color.White : Color.Gray;
+                GovGround.TextColor       = Planet.GovGroundDefense   ? Color.White : Color.Gray;
+                ManualOrbitals.TextColor  = Planet.ManualOrbitals     ? Color.White : Color.Gray;
+                AutoTroops.TextColor      = Planet.AutoBuildTroops    ? Color.White : Color.Gray;
+                GovNoScrap.TextColor      = Planet.DontScrapBuildings ? Color.White : Color.Gray;
 
                 if (ManualOrbitals.Visible && Planet.ManualOrbitals)
                 {
@@ -272,7 +292,7 @@ namespace Ship_Game
             Vector2 top   = new Vector2(X + 190, Y + 30);
             Vector2 bot   = new Vector2(X + 190, Bottom - 5);
 
-            if (Planet.GovOrbitals)
+            if (Planet.GovOrbitals && Planet.colonyType != Planet.ColonyType.Colony)
             {
                 PlatformsText.Pos = new Vector2(BuildPlatform.X, BuildPlatform.Y + 3);
                 ShipyardsText.Pos = new Vector2(BuildShipyard.X, BuildShipyard.Y + 3);
@@ -348,34 +368,34 @@ namespace Ship_Game
 
             if (troopsLanding > 0)
             {
-                CallTroops.Text = $"Incoming Troops: {troopsLanding}";
+                CallTroops.Text = $"{new LocalizedText(4220).Text} {troopsLanding}"; // "Incoming Troops
                 CallTroops.Style = ButtonStyle.Military;
             }
             else
             {
-                CallTroops.Text = "Call Troops";
+                CallTroops.Text = new LocalizedText(4215).Text; // "Call Troops"
                 CallTroops.Style = ButtonStyle.Default;
             }
 
-            UpdateButtonText(LaunchAllTroops, Planet.TroopsHere.Count(t => t.CanMove), "Launch All Troops");
+            UpdateButtonText(LaunchAllTroops, Planet.TroopsHere.Count(t => t.CanMove), new LocalizedText(4213).Text);
         }
 
         void UpdateGovOrbitalStats()
         {
-            if (Planet.Owner != Empire.Universe.player || Planet.colonyType == Planet.ColonyType.Colony)
+            if (Planet.Owner != Empire.Universe.player)
                 return;
 
             int rank             = Planet.GetColonyRank();
             int currentPlatforms = Planet.NumPlatforms + Planet.OrbitalsBeingBuilt(ShipData.RoleName.platform);
             int currentStations  = Planet.NumStations + Planet.OrbitalsBeingBuilt(ShipData.RoleName.station);
             int currentShipyards = Planet.NumShipyards + Planet.ShipyardsBeingBuilt();
-            ColonyRank.Text      = $"Governor Colony Rank: {rank}/15";
+            ColonyRank.Text      = $"{new LocalizedText(4221).Text} {rank}/15";
 
-            if (Planet.GovOrbitals)
+            if (Planet.GovOrbitals && Planet.colonyType != Planet.ColonyType.Colony)
             {
-                PlatformsText.Text  = $"Platforms: {currentPlatforms}/{Planet.WantedPlatforms}";
-                ShipyardsText.Text  = $"Shipyards: {currentShipyards}/{Planet.WantedShipyards}";
-                StationsText.Text   = $"Stations: {currentStations}/{Planet.WantedStations}";
+                PlatformsText.Text  = $"{new LocalizedText(4222).Text} {currentPlatforms}/{Planet.WantedPlatforms}";
+                ShipyardsText.Text  = $"{new LocalizedText(4223).Text} {currentShipyards}/{Planet.WantedShipyards}";
+                StationsText.Text   = $"{new LocalizedText(4224).Text} {currentStations}/{Planet.WantedStations}";
                 PlatformsText.Color = GetColor(currentPlatforms, Planet.WantedPlatforms);
                 ShipyardsText.Color = GetColor(currentShipyards, Planet.WantedShipyards);
                 StationsText.Color  = GetColor(currentStations, Planet.WantedStations);
@@ -391,10 +411,11 @@ namespace Ship_Game
             // local method
             Color GetColor(int num, int maxNum)
             {
-                if (num == 0)     
-                    return Color.Gray;
+                if (num == 0)      return Color.Gray;
+                if (num < maxNum)  return Color.Yellow;
+                if (num == maxNum) return Color.Green;
 
-                return num < maxNum ? Color.Yellow : Color.Green;
+                return Color.OrangeRed;
             }
         }
 
