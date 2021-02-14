@@ -8292,6 +8292,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>What is the rank of the colony in regards to how many orbitals the Governor will builds. The higher the rank, the more defense orbitals the Governor will try to build.</Text>
     </Token>
     <Token>
+      <Index>4204</Index>
+      <Text>Manually adjust the number of wanted Platforms for this colony.</Text>
+    </Token>
+    <Token>
+      <Index>4205</Index>
+      <Text>Manually adjust the number of wanted Shipyards for this colony.</Text>
+    </Token>
+    <Token>
+      <Index>4206</Index>
+      <Text>Manually adjust the number of wanted Stations for this colony.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>

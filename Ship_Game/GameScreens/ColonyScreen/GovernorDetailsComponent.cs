@@ -20,6 +20,9 @@ namespace Ship_Game
         private DropOptions<Planet.ColonyType> ColonyTypeList;
         private UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine, ManualOrbitals;
         private FloatSlider Garrison;
+        private FloatSlider ManualPlatforms;
+        private FloatSlider ManualShipyards;
+        private FloatSlider ManualStations;
         private readonly Submenu Tabs;
 
         UIButton LaunchAllTroops;
@@ -66,8 +69,16 @@ namespace Ship_Game
             Quarantine     = Add(new UICheckBox(() => Planet.Quarantine, Fonts.Arial12Bold, title: 1888, tooltip: 1887));
             ManualOrbitals = Add(new UICheckBox(() => Planet.ManualOrbitals, Fonts.Arial12Bold, title: 4201, tooltip: 4202));
 
-            Garrison = Slider(200, 200, 160, 40, "Garrison Size", 0, 25,Planet.GarrisonSize);
-            Garrison.Tip = 1903;
+            Garrison        = Slider(200, 200, 160, 40, "Garrison Size", 0, 25,Planet.GarrisonSize);
+            ManualPlatforms = Slider(200, 200, 120, 40, "Manual Limit", 0, 15, Planet.WantedPlatforms);
+            ManualShipyards = Slider(200, 200, 120, 40, "", 0, 2, Planet.WantedShipyards);
+            ManualStations  = Slider(200, 200, 120, 40, "", 0, 10, Planet.WantedStations);
+
+            Garrison.Tip        = 1903;
+            ManualPlatforms.Tip = 4204;
+            ManualShipyards.Tip = 4205;
+            ManualStations.Tip  = 4206;
+
             // Dropdown will go on top of everything else
             ColonyTypeList = Add(new DropOptions<Planet.ColonyType>(100, 18));
             ColonyTypeList.AddOption(option:"--", Planet.ColonyType.Colony);
@@ -133,10 +144,14 @@ namespace Ship_Game
             GovOrbitals.Pos       = new Vector2(TopLeft.X + 200, Y + 40);
             NoGovernor.Pos        = new Vector2(GovOrbitals.X, GovOrbitals.Y);
             ColonyRank.Pos        = new Vector2(TopLeft.X + 200, Y + 65);
-            ManualOrbitals.Pos = new Vector2(TopLeft.X + 200, Y + 90);
-            BuildPlatform.Pos     = new Vector2(TopLeft.X + 200, Bottom - 30);
+            ManualOrbitals.Pos    = new Vector2(TopLeft.X + 200, Y + 90);
+            BuildPlatform.Pos     = new Vector2(TopLeft.X + 200, Bottom - 90);
             BuildShipyard.Pos     = new Vector2(TopLeft.X + 200, Bottom - 60);
-            BuildStation.Pos      = new Vector2(TopLeft.X + 200, Bottom - 90);
+            BuildStation.Pos      = new Vector2(TopLeft.X + 200, Bottom - 30);
+            Vector2 manualOffset  = new Vector2(125, -15);
+            ManualPlatforms.Pos   = BuildPlatform.Pos + manualOffset;
+            ManualShipyards.Pos   = BuildShipyard.Pos + manualOffset;
+            ManualStations.Pos    = BuildStation.Pos + manualOffset;
 
             UpdateButtons();
             UpdateGovOrbitalStats();
@@ -187,7 +202,23 @@ namespace Ship_Game
                 StationsText.Visible      = Tabs.SelectedIndex == 1 && Planet.Owner.isPlayer;
                 NoGovernor.Visible        = Tabs.SelectedIndex == 1 && Planet.colonyType == Planet.ColonyType.Colony;
                 ManualOrbitals.Visible    = Tabs.SelectedIndex == 1 && Planet.colonyType != Planet.ColonyType.Colony && Planet.GovOrbitals;
-                ColonyRank.Visible        = ManualOrbitals.Visible;
+                ColonyRank.Visible        = Tabs.SelectedIndex == 1 && ManualOrbitals.Visible;
+                ManualPlatforms.Visible   = Tabs.SelectedIndex == 1 && Planet.ManualOrbitals && Planet.GovOrbitals;
+                ManualShipyards.Visible   = Tabs.SelectedIndex == 1 && Planet.ManualOrbitals && Planet.GovOrbitals;
+                ManualStations.Visible    = Tabs.SelectedIndex == 1 && Planet.ManualOrbitals && Planet.GovOrbitals;
+
+                if (ManualOrbitals.Visible && Planet.ManualOrbitals)
+                {
+                    Planet.SetWantedPlatforms((byte)ManualPlatforms.AbsoluteValue);
+                    Planet.SetWantedShipyards((byte)ManualShipyards.AbsoluteValue);
+                    Planet.SetWantedStations((byte)ManualStations.AbsoluteValue);
+                }
+                else
+                {
+                    ManualPlatforms.AbsoluteValue = Planet.WantedPlatforms;
+                    ManualShipyards.AbsoluteValue = Planet.WantedShipyards;
+                    ManualStations.AbsoluteValue  = Planet.WantedStations;
+                }
             }
 
             UpdateButtonTimer(fixedDeltaTime);
@@ -335,7 +366,6 @@ namespace Ship_Game
                 return;
 
             int rank             = Planet.GetColonyRank();
-            var wantedOrbitals   = new WantedOrbitals(rank);
             int currentPlatforms = Planet.NumPlatforms + Planet.OrbitalsBeingBuilt(ShipData.RoleName.platform);
             int currentStations  = Planet.NumStations + Planet.OrbitalsBeingBuilt(ShipData.RoleName.station);
             int currentShipyards = Planet.NumShipyards + Planet.ShipyardsBeingBuilt();
@@ -343,12 +373,12 @@ namespace Ship_Game
 
             if (Planet.GovOrbitals)
             {
-                PlatformsText.Text  = $"Platforms: {currentPlatforms}/{wantedOrbitals.Platforms}";
-                ShipyardsText.Text  = $"Shipyards: {currentShipyards}/{wantedOrbitals.Shipyards}";
-                StationsText.Text   = $"Stations: {currentStations}/{wantedOrbitals.Stations}";
-                PlatformsText.Color = GetColor(currentPlatforms, wantedOrbitals.Platforms);
-                ShipyardsText.Color = GetColor(currentShipyards, wantedOrbitals.Shipyards);
-                StationsText.Color  = GetColor(currentStations, wantedOrbitals.Stations);
+                PlatformsText.Text  = $"Platforms: {currentPlatforms}/{Planet.WantedPlatforms}";
+                ShipyardsText.Text  = $"Shipyards: {currentShipyards}/{Planet.WantedShipyards}";
+                StationsText.Text   = $"Stations: {currentStations}/{Planet.WantedStations}";
+                PlatformsText.Color = GetColor(currentPlatforms, Planet.WantedPlatforms);
+                ShipyardsText.Color = GetColor(currentShipyards, Planet.WantedShipyards);
+                StationsText.Color  = GetColor(currentStations, Planet.WantedStations);
             }
             else
             {
