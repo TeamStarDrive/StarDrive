@@ -401,6 +401,9 @@ namespace Ship_Game.Ships
         {
             if (attackerToUs.CanAttack == false && !attackerToUs.Treaty_Alliance)
             {
+                if (System != null && System.HasPlanetsOwnedBy(loyalty))
+                    return false;
+
                 if (attackerToUs.AttackForBorderViolation(attacker.data.DiplomaticPersonality, loyalty, attacker, IsFreighter)
                  && IsInBordersOf(attacker))
                 {

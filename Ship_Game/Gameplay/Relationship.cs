@@ -819,7 +819,7 @@ namespace Ship_Game.Gameplay
                     borderAnger *= 0.05f; // If the trader has str , this wont change anger
             }
 
-            return borderAnger + 10 > (personality?.Territorialism ?? EmpireManager.Player.data.BorderTolerance);
+            return borderAnger + 10 > (attackingEmpire.isPlayer ? attackingEmpire.data.BorderTolerance : personality.Territorialism);
         }
 
         public bool AttackForTransgressions(DTrait personality)
