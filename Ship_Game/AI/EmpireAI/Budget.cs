@@ -24,7 +24,6 @@ namespace Ship_Game.AI.Budget
         public readonly float GrdDefAlloc;
         public readonly float SpcDefAlloc;
         public readonly float TotalAlloc;
-        public readonly float Spent;
 
         public PlanetBudget(Planet planet)
         {
@@ -49,7 +48,6 @@ namespace Ship_Game.AI.Budget
             RemainingCivilian  = (CivilianAlloc - P.CivilianBuildingsMaintenance).RoundToFractionOf10();
             TotalRemaining     = RemainingSpaceDef + RemainingGroundDef + RemainingCivilian; // total remaining budget for this planet
             TotalAlloc         = GrdDefAlloc + SpcDefAlloc + CivilianAlloc;
-            Spent              = TotalAlloc - TotalRemaining;
             Initialized        = true;
         }
 
