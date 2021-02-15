@@ -60,7 +60,7 @@ namespace Ship_Game
             if (PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex && PFacilities.SelectedIndex == 0)
                 PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
 
-            PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 2;
+            PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
 
             return base.HandleInput(input);
         }
@@ -116,7 +116,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!ClickedTroop)
+            if (!ClickedTroop && (P.Owner.isPlayer || Empire.Universe.Debug))
             {
                 foreach (PlanetGridSquare pgs in P.TilesList)
                 {

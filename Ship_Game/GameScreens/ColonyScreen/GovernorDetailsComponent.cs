@@ -40,6 +40,11 @@ namespace Ship_Game
         UILabel NoGovernor;
         UILabel ColonyRank;
         UILabel BudgetSum;
+        UILabel BudgetPercent;
+        UILabel NoGovernorCivExpense;
+        UILabel NoGovernorGrdExpense;
+        UILabel NoGovernorSpcExpense;
+
 
         private readonly SpriteFont Font14 = Fonts.Arial14Bold;
         private readonly SpriteFont Font12 = Fonts.Arial12Bold;
@@ -59,6 +64,8 @@ namespace Ship_Game
         ProgressBar GrdBudgetBar;
         ProgressBar SpcBudgetBar;
         UITextEntry ManualCivBudget;
+        UITextEntry ManualGrdBudget;
+        UITextEntry ManualSpcBudget;
 
         bool GovernorOn      => Planet.GovernorOn;
         bool GovernorOff     => Planet.GovernorOff;
@@ -150,12 +157,8 @@ namespace Ship_Game
             PlatformsText    = Add(new UILabel(" "));
             ShipyardsText    = Add(new UILabel(" "));
             StationsText     = Add(new UILabel(" "));
-            NoGovernor       = Add(new UILabel(new LocalizedText(4219).Text));
-            NoGovernor.Font  = Font;
-            NoGovernor.Color = Color.Gray;
-            ColonyRank       = Add(new UILabel(" "));
-            ColonyRank.Font  = Font;
-            ColonyRank.Color = Color.LightGreen;
+            NoGovernor       = Add(new UILabel(new LocalizedText(4219).Text, Font, Color.Gray));
+            ColonyRank       = Add(new UILabel(" ", Font, Color.LightGreen));
 
             CivBudgetRect    = new Rectangle((int)X + 57, (int)Y + 40, (int)(Width*0.33f), 20);
             GrdBudgetRect    = new Rectangle((int)X + 57, (int)Y + 70, (int)(Width*0.33f), 20);
@@ -163,7 +166,6 @@ namespace Ship_Game
             CivBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 38, 47, 23);
             GrdBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 68, 47, 23);
             SpcBudgetTexRect = new Rectangle((int)X + 5, (int)Y + 96, 47, 23);
-
 
             CivBudgetBar = new ProgressBar(CivBudgetRect);
             GrdBudgetBar = new ProgressBar(GrdBudgetRect);
@@ -175,14 +177,23 @@ namespace Ship_Game
             CivBudgetBar.color           = "green";
             SpcBudgetBar.color           = "blue";
 
-            ManualCivBudget = Add(new UITextEntry(Planet.ManualCivilianBudget.String(2)));
-            ManualCivBudget.Font = Font;
-            ManualCivBudget.MaxCharacters = 6;
+            ManualCivBudget       = Add(new UITextEntry(Planet.ManualCivilianBudget.String(2)));
+            ManualGrdBudget       = Add(new UITextEntry(Planet.ManualGrdDefBudget.String(2)));
+            ManualSpcBudget       = Add(new UITextEntry(Planet.ManualSpcDefBudget.String(2)));
             ManualCivBudget.Color = Color.MediumSeaGreen;
-            ManualCivBudget.AllowPeriod = true;
+            ManualSpcBudget.Color = Color.SteelBlue;
 
-            BudgetSum      = Add(new UILabel(" "));
-            BudgetSum.Font = FontBig;
+            ManualCivBudget.Font          = ManualGrdBudget.Font          = ManualSpcBudget.Font          = Font;
+            ManualCivBudget.MaxCharacters = ManualGrdBudget.MaxCharacters = ManualSpcBudget.MaxCharacters = 6;
+            ManualCivBudget.AllowPeriod   = ManualGrdBudget.AllowPeriod   = ManualSpcBudget.AllowPeriod   = true;
+
+            BudgetSum     = Add(new UILabel(" ", FontBig, Color.White));
+            BudgetPercent = Add(new UILabel(" ", FontBig, Color.White));
+
+            NoGovernorCivExpense = Add(new UILabel(" ", FontBig, Color.MediumSeaGreen));
+            NoGovernorGrdExpense = Add(new UILabel(" ", FontBig, Color.DarkOrange));
+            NoGovernorSpcExpense = Add(new UILabel(" ", FontBig, Color.SteelBlue));
+
             base.PerformLayout();
         }
 
@@ -218,15 +229,31 @@ namespace Ship_Game
             ManualShipyards.Pos   = BuildShipyard.Pos + manualOffset;
             ManualStations.Pos    = BuildStation.Pos + manualOffset;
 
-            BudgetSum.Pos         = new Vector2(TopLeft.X + 5, Y + 130);
+            BudgetSum.Pos         = new Vector2(TopLeft.X + 8, Y + 130);
+            BudgetPercent.Pos     = new Vector2(TopLeft.X + CivBudgetRect.Width + 15, Y + 130);
             OverrideCiv.Pos       = new Vector2(CivBudgetRect.X + CivBudgetRect.Width + 10, CivBudgetRect.Y + 2);
             OverrideGrd.Pos       = new Vector2(GrdBudgetRect.X + GrdBudgetRect.Width + 10, GrdBudgetRect.Y + 2);
             OverrideSpc.Pos       = new Vector2(SpcBudgetRect.X + SpcBudgetRect.Width + 10, SpcBudgetRect.Y + 2);
             ManualCivBudget.Pos   = new Vector2(OverrideCiv.X + OverrideCiv.Width + 20, OverrideCiv.Y);
+            ManualGrdBudget.Pos   = new Vector2(OverrideGrd.X + OverrideGrd.Width + 20, OverrideGrd.Y);
+            ManualSpcBudget.Pos   = new Vector2(OverrideSpc.X + OverrideSpc.Width + 20, OverrideSpc.Y);
 
-            OverrideCivBudget     = Planet.ManualCivilianBudget.Greater(0);
-            OverrideGrdBudget     = Planet.ManualGrdDefBudget.Greater(0);
-            OverrideSpcBudget     = Planet.ManualSpcDefBudget.Greater(0);
+            NoGovernorCivExpense.Pos = new Vector2(TopLeft.X + 60, Y + 40);
+            NoGovernorGrdExpense.Pos = new Vector2(TopLeft.X + 60, Y + 70);
+            NoGovernorSpcExpense.Pos = new Vector2(TopLeft.X + 60, Y + 100);
+
+            OverrideCivBudget = Planet.ManualCivilianBudget.Greater(0);
+            OverrideGrdBudget = Planet.ManualGrdDefBudget.Greater(0);
+            OverrideSpcBudget = Planet.ManualSpcDefBudget.Greater(0);
+
+            GovOrbitals.OnChange = cb =>
+            {
+                if (cb.Checked)
+                {
+                    UpdateOrbitalTextPos();
+                    UpdateGovOrbitalStats();
+                }
+            };
 
             OverrideCiv.OnChange = cb =>
             {
@@ -245,8 +272,6 @@ namespace Ship_Game
                 var budget = new PlanetBudget(Planet);
                 Planet.SetManualSpaceDefBudget(cb.Checked ? budget.SpcDefAlloc : 0);
             };
-
-
 
             UpdateButtons();
             UpdateGovOrbitalStats();
@@ -275,13 +300,13 @@ namespace Ship_Game
             {
                 WorldDescription.Visible = GovernorTabView && Planet.Owner.isPlayer;
                 ColonyTypeList.Visible   = GovernorTabView && Planet.Owner.isPlayer;
-                Portrait.Visible         = GovernorTabView && Planet.Owner.isPlayer;
-                WorldType.Visible        = GovernorTabView && Planet.Owner.isPlayer;
+                Portrait.Visible         = GovernorTabView;
+                WorldType.Visible        = GovernorTabView;
                 Quarantine.Visible       = GovernorTabView && Planet.Owner.isPlayer;
                 Quarantine.TextColor     = Planet.Quarantine ? Color.Red : Color.Gray;
 
                 // Not for trade hubs, which do not build structures anyway
-                GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn;
+                GovNoScrap.Visible = GovernorTabView && Planet.colonyType != Planet.ColonyType.TradeHub && GovernorOn && Planet.Owner.isPlayer;
 
                 int numTroopsCanLaunch    = Planet.NumTroopsCanLaunchFor(EmpireManager.Player);
                 Planet.GarrisonSize       = (int)Garrison.AbsoluteValue;
@@ -326,10 +351,18 @@ namespace Ship_Game
                     ManualStations.AbsoluteValue  = Planet.WantedStations;
                 }
 
-                BudgetSum.Visible   = BudgetTabView;
-                OverrideCiv.Visible = BudgetTabView && GovernorOn && Planet.Owner.isPlayer;
-                OverrideGrd.Visible = OverrideCiv.Visible;
-                OverrideSpc.Visible = OverrideCiv.Visible;
+                BudgetSum.Visible       = BudgetTabView;
+                BudgetPercent.Visible   = BudgetTabView && GovernorOn;
+                OverrideCiv.Visible     = BudgetTabView && GovernorOn && Planet.Owner.isPlayer;
+                OverrideGrd.Visible     = OverrideCiv.Visible;
+                OverrideSpc.Visible     = OverrideCiv.Visible;
+                ManualCivBudget.Visible = OverrideCiv.Visible && OverrideCiv.Checked;
+                ManualGrdBudget.Visible = OverrideGrd.Visible && OverrideGrd.Checked;
+                ManualSpcBudget.Visible = OverrideSpc.Visible && OverrideSpc.Checked;
+
+                NoGovernorCivExpense.Visible = BudgetTabView && GovernorOff;
+                NoGovernorGrdExpense.Visible = NoGovernorCivExpense.Visible;
+                NoGovernorSpcExpense.Visible = NoGovernorCivExpense.Visible;
             }
 
             UpdateButtonTimer(fixedDeltaTime);
@@ -379,13 +412,9 @@ namespace Ship_Game
             batch.Draw(PortraitShine, Portrait.Rect);
         }
 
-        void DrawTroopsTab(SpriteBatch batch)
+        void UpdateOrbitalTextPos()
         {
-            var lineColor = new Color(118, 102, 67, 255);
-            Vector2 top   = new Vector2(X + 190, Y + 30);
-            Vector2 bot   = new Vector2(X + 190, Bottom - 5);
-
-            if (Planet.GovOrbitals && Planet.colonyType != Planet.ColonyType.Colony)
+            if ((Planet.GovOrbitals || !Planet.Owner.isPlayer) && GovernorOn)
             {
                 PlatformsText.Pos = new Vector2(BuildPlatform.X, BuildPlatform.Y + 3);
                 ShipyardsText.Pos = new Vector2(BuildShipyard.X, BuildShipyard.Y + 3);
@@ -397,7 +426,15 @@ namespace Ship_Game
                 ShipyardsText.Pos = new Vector2(BuildShipyard.X + BuildShipyard.Width + 20, BuildShipyard.Y + 3);
                 StationsText.Pos  = new Vector2(BuildStation.X + BuildStation.Width + 20, BuildStation.Y + 3);
             }
+        }
 
+        void DrawTroopsTab(SpriteBatch batch)
+        {
+            var lineColor = new Color(118, 102, 67, 255);
+            Vector2 top   = new Vector2(X + 190, Y + 30);
+            Vector2 bot   = new Vector2(X + 190, Bottom - 5);
+
+            UpdateOrbitalTextPos();
             batch.DrawLine(top, bot, lineColor);
         }
 
@@ -489,8 +526,11 @@ namespace Ship_Game
 
         void UpdateGovOrbitalStats()
         {
-            if (Planet.Owner != Empire.Universe.player)
+            if (Planet.Owner != Empire.Universe.player
+                && !EmpireManager.Player.data.MoleList.Any(m => m.PlanetGuid == Planet.guid))
+            {
                 return;
+            }
 
             int rank             = Planet.GetColonyRank();
             int currentPlatforms = Planet.NumPlatforms + Planet.OrbitalsBeingBuilt(ShipData.RoleName.platform);
@@ -498,7 +538,7 @@ namespace Ship_Game
             int currentShipyards = Planet.NumShipyards + Planet.ShipyardsBeingBuilt();
             ColonyRank.Text      = $"{new LocalizedText(4221).Text} {rank}/15";
 
-            if (Planet.GovOrbitals && Planet.colonyType != Planet.ColonyType.Colony)
+            if ((Planet.GovOrbitals || !Planet.Owner.isPlayer) && GovernorOn)
             {
                 PlatformsText.Text  = $"{new LocalizedText(4222).Text} {currentPlatforms}/{Planet.WantedPlatforms}";
                 ShipyardsText.Text  = $"{new LocalizedText(4223).Text} {currentShipyards}/{Planet.WantedShipyards}";
@@ -526,9 +566,65 @@ namespace Ship_Game
             }
         }
 
+        void UpdateCivBudget(PlanetBudget budget)
+        {
+            if (ManualCivBudget.HandlingInput)
+                return;
+
+            if (BudgetTabView && OverrideCivBudget && ManualCivBudget.Visible
+                && float.TryParse(ManualCivBudget.Text, out float value)
+                && value > 0 && value < 250)
+            {
+                Planet.SetManualCivBudget(value);
+            }
+            else
+            {
+                ManualCivBudget.Text = budget.CivilianAlloc.String(2);
+            }
+        }
+
+        void UpdateGrdBudget(PlanetBudget budget)
+        {
+            if (ManualGrdBudget.HandlingInput)
+                return;
+
+            if (BudgetTabView && OverrideGrdBudget && ManualGrdBudget.Visible
+                && float.TryParse(ManualGrdBudget.Text, out float value)
+                && value > 0 && value < 250)
+            {
+                Planet.SetManualGroundDefBudget(value);
+            }
+            else
+            {
+                ManualGrdBudget.Text = budget.GrdDefAlloc.String(2);
+            }
+        }
+
+        void UpdateSpcBudget(PlanetBudget budget)
+        {
+            if (ManualSpcBudget.HandlingInput)
+                return;
+
+            if (BudgetTabView && OverrideSpcBudget && ManualSpcBudget.Visible
+                && float.TryParse(ManualSpcBudget.Text, out float value)
+                && value > 0 && value < 250)
+            {
+                Planet.SetManualSpaceDefBudget(value);
+            }
+            else
+            {
+                ManualSpcBudget.Text = budget.SpcDefAlloc.String(2);
+            }
+        }
+
         void UpdateBudgets()
         {
-            var budget            = new PlanetBudget(Planet);
+            var budget = new PlanetBudget(Planet);
+
+            UpdateCivBudget(budget);
+            UpdateGrdBudget(budget);
+            UpdateSpcBudget(budget);
+
             CivBudgetBar.Max      = budget.CivilianAlloc;
             CivBudgetBar.Progress = Planet.CivilianBuildingsMaintenance;
             GrdBudgetBar.Max      = budget.GrdDefAlloc;
@@ -539,15 +635,20 @@ namespace Ship_Game
             float spent = Planet.CivilianBuildingsMaintenance + Planet.GroundDefMaintenance + Planet.SpaceDefMaintenance;
             if (GovernorOn)
             {
-                float percentSpent = spent / budget.TotalAlloc.LowerBound(0.01f) * 100;
-                BudgetSum.Text = $"Total: {spent.String(2)} of {budget.TotalAlloc.String(2)} ({percentSpent.String(1)}%)";
+                float percentSpent  = spent / budget.TotalAlloc.LowerBound(0.01f) * 100;
+                BudgetSum.Text      = $"{new LocalizedText(4234).Text} {spent.String(1)}" +
+                                      $" {new LocalizedText(4235).Text} {budget.TotalAlloc.String(1)} BC/Y";
+                BudgetPercent.Text  = $" ({percentSpent.String(1)}%)";
+                BudgetPercent.Color = GetColor();
             }
             else
             {
-                BudgetSum.Text = $"Total: {spent.String(2)}";
+                NoGovernorCivExpense.Text = $"{Planet.CivilianBuildingsMaintenance.String(2)} BC/Y";
+                NoGovernorGrdExpense.Text = $"{Planet.GroundDefMaintenance.String(2)} BC/Y";
+                NoGovernorSpcExpense.Text = $"{Planet.SpaceDefMaintenance.String(2)} BC/Y";
+                BudgetSum.Text            = $"{new LocalizedText(4234).Text} {spent.String(2)} BC/Y";
+                BudgetPercent.Text        = "";
             }
-
-            BudgetSum.Color = GetColor();
 
             // Local Method
             Color GetColor()
@@ -616,23 +717,14 @@ namespace Ship_Game
 
             if (BudgetTabView)
             {
-                if      (CivBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(280);
-                else if (GrdBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(281);
-                else if (SpcBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(282);
+                if      (CivBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? 280 : 283);
+                else if (GrdBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? 281 : 284);
+                else if (SpcBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(GovernorOn ? 282 : 285);
             }
 
-            string text ="";
-            if (ManualCivBudget.HandleTextInput(ref text, input))
-            {
-                /*
-                if (text != "." && !float.TryParse(text, out float num))
-                {
-                    Log.Info($"num: {num}");
-                }*/
-              
-                if (float.TryParse(ManualCivBudget.Text, out float number))
-                    Log.Info($"num: {number.String(2)}");
-            }
+            ManualCivBudget.HandlingInput = ManualCivBudget.HitTest(input.CursorPosition);
+            ManualGrdBudget.HandlingInput = ManualGrdBudget.HitTest(input.CursorPosition);
+            ManualSpcBudget.HandlingInput = ManualSpcBudget.HitTest(input.CursorPosition);
 
             return base.HandleInput(input);
         }

@@ -119,7 +119,7 @@ namespace Ship_Game.AI
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
 
             float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
-            var budget                     = SetBudgetForeArea(percentOfMoney, buildRatio, money);
+            var budget                     = SetBudgetForeArea(percentOfMoney, 1, money); // risk 1 instead on buildRatio for experiment
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 
@@ -229,8 +229,7 @@ namespace Ship_Game.AI
         {
             risk         = OwnerEmpire.isPlayer ? 1 : risk;
             float budget = money * percentOfIncome * risk;
-            budget       = Math.Max(1, budget);
-            return budget;
+            return budget.LowerBound(1);
         }
         public float GetRisk(float riskLimit = 2f)
         {

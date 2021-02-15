@@ -109,9 +109,9 @@ namespace Ship_Game
             SubColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
             SubColonyGrid.AddTab(Localizer.Token(332));
             PFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, SubColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - SubColonyGrid.Height - 40);
-            PFacilities.AddTab(new LocalizedText(4198).Text);
-            PFacilities.AddTab(new LocalizedText(4199).Text);
-            PFacilities.AddTab(new LocalizedText(4200).Text);
+            PFacilities.AddTab(new LocalizedText(4198).Text); // Statistics
+            //PFacilities.AddTab(new LocalizedText(4199).Text); // Trade
+            PFacilities.AddTab(new LocalizedText(4200).Text); // Description
 
             FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 80, RightMenu.Y + 17), ""));
             FilterBuildableItems.Font = Font12;
@@ -135,7 +135,8 @@ namespace Ship_Game
             BuildableList.EnableItemHighlight = true;
             BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
             BuildableList.OnHovered           = OnBuildableHoverChange;
-            BuildableList.OnDragOut           = OnBuildableListDrag;
+            if (p.Owner.isPlayer || Empire.Universe.Debug)
+                BuildableList.OnDragOut = OnBuildableListDrag;
 
             PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y),
                                                        ToggleButtonStyle.Grid, "SelectionBox/icon_grid"));
@@ -150,7 +151,9 @@ namespace Ship_Game
 
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;
-            ConstructionQueue.OnDragReorder = OnConstructionItemReorder;
+            if (p.Owner.isPlayer || Empire.Universe.Debug)
+                ConstructionQueue.OnDragReorder = OnConstructionItemReorder;
+
             int iconSize = LowRes ? 80 : 128;
             int iconOffsetX = LowRes ? 100 : 148;
             int iconOffsetY = LowRes ? 0 : 25;
