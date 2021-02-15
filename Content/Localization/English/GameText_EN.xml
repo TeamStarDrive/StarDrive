@@ -8389,11 +8389,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4228</Index>
-      <Text>Civilian Buildings Expenditure/Budget in BY/C</Text>
+      <Text>Civilian Buildings Expenditure/Budget in BY/C. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them.</Text>
     </Token>
     <Token>
       <Index>4229</Index>
-      <Text>Ground Defense Buildings Expenditure/Budget in BY/C</Text>
+      <Text>Ground Defense Buildings Expenditure/Budget in BY/C. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them.</Text>
     </Token>
     <Token>
       <Index>4230</Index>
