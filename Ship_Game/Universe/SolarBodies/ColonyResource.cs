@@ -63,7 +63,7 @@ namespace Ship_Game.Universe.SolarBodies
             // taxes get applied before consumption
             // because government gets to eat their pie first :)))
             NetIncome           = AfterTax(GrossIncome) - consumption;
-            NetMaxPotential     = AfterTax(GrossMaxPotential) - consumption;
+            NetMaxPotential     = AfterTax(GrossMaxPotential+FlatBonus) - consumption;
             NetFlatBonus        = AfterTax(FlatBonus);
             NetYieldPerColonist = AfterTax(YieldPerColonist);
         }

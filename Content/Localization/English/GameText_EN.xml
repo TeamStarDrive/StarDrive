@@ -8389,15 +8389,35 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4228</Index>
-      <Text>Civilian Buildings Budget</Text>
+      <Text>Civilian Buildings Expenditure/Budget in BY/C</Text>
     </Token>
     <Token>
       <Index>4229</Index>
-      <Text>Ground Defense Buildings Budget</Text>
+      <Text>Ground Defense Buildings Expenditure/Budget in BY/C</Text>
     </Token>
     <Token>
       <Index>4230</Index>
-      <Text>Orbitals Budget</Text>
+      <Text>Orbitals Expenditure/Budget in BY/C</Text>
+    </Token>
+    <Token>
+      <Index>4231</Index>
+      <Text>Civilian Buildings Expenditure in BY/C</Text>
+    </Token>
+    <Token>
+      <Index>4232</Index>
+      <Text>Ground Defense Buildings Expenditure in BY/C</Text>
+    </Token>
+    <Token>
+      <Index>4233</Index>
+      <Text>Orbitals Expenditure in BY/C</Text>
+    </Token>
+    <Token>
+      <Index>4234</Index>
+      <Text>Total:</Text> <!-- Total: X of Y in budget-->
+    </Token>
+    <Token>
+      <Index>4235</Index>
+      <Text>of</Text> <!-- Total: X of Y in budget-->
     </Token>
     <Token>
       <Index>5000</Index>

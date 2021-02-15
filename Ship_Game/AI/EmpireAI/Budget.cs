@@ -33,7 +33,7 @@ namespace Ship_Game.AI.Budget
             P                   = planet;
             SysCom              = P.Owner.GetEmpireAI().DefensiveCoordinator.GetSystemCommander(P.ParentSystem);
             Owner               = P.Owner;
-            EmpireRatio         = P.ColonyValue / Owner.TotalColonyValues;
+            EmpireRatio         = P.ColonyPotentialValue(Owner) / Owner.TotalColonyPotentialValues;
             float defenseBudget = EmpireDefenseBudget * EmpireRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
