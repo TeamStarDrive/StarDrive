@@ -58,6 +58,7 @@ namespace Ship_Game
         ProgressBar CivBudgetBar;
         ProgressBar GrdBudgetBar;
         ProgressBar SpcBudgetBar;
+        UITextEntry ManualCivBudget;
 
         bool GovernorOn      => Planet.GovernorOn;
         bool GovernorOff     => Planet.GovernorOff;
@@ -106,7 +107,7 @@ namespace Ship_Game
             OverrideCiv    = Add(new UICheckBox(() => OverrideCivBudget, Font, title: 4226, tooltip: 4227));
             OverrideGrd    = Add(new UICheckBox(() => OverrideGrdBudget, Font, title: 4226, tooltip: 4227));
             OverrideSpc    = Add(new UICheckBox(() => OverrideSpcBudget, Font, title: 4226, tooltip: 4227));
-             
+
             Garrison        = Slider(200, 200, 160, 40, new LocalizedText(4211).Text, 0, 25,Planet.GarrisonSize);
             ManualPlatforms = Slider(200, 200, 120, 40, new LocalizedText(4212).Text, 0, 15, Planet.WantedPlatforms);
             ManualShipyards = Slider(200, 200, 120, 40, "", 0, 2, Planet.WantedShipyards);
@@ -167,12 +168,18 @@ namespace Ship_Game
             CivBudgetBar = new ProgressBar(CivBudgetRect);
             GrdBudgetBar = new ProgressBar(GrdBudgetRect);
             SpcBudgetBar = new ProgressBar(SpcBudgetRect);
+
             CivBudgetBar.Faction10Values = true;
             GrdBudgetBar.Faction10Values = true;
             SpcBudgetBar.Faction10Values = true;
-            CivBudgetBar.color = "green";
-            SpcBudgetBar.color = "blue";
+            CivBudgetBar.color           = "green";
+            SpcBudgetBar.color           = "blue";
 
+            ManualCivBudget = Add(new UITextEntry(Planet.ManualCivilianBudget.String(2)));
+            ManualCivBudget.Font = Font;
+            ManualCivBudget.MaxCharacters = 6;
+            ManualCivBudget.Color = Color.MediumSeaGreen;
+            ManualCivBudget.AllowPeriod = true;
 
             BudgetSum      = Add(new UILabel(" "));
             BudgetSum.Font = FontBig;
@@ -215,12 +222,32 @@ namespace Ship_Game
             OverrideCiv.Pos       = new Vector2(CivBudgetRect.X + CivBudgetRect.Width + 10, CivBudgetRect.Y + 2);
             OverrideGrd.Pos       = new Vector2(GrdBudgetRect.X + GrdBudgetRect.Width + 10, GrdBudgetRect.Y + 2);
             OverrideSpc.Pos       = new Vector2(SpcBudgetRect.X + SpcBudgetRect.Width + 10, SpcBudgetRect.Y + 2);
+            ManualCivBudget.Pos   = new Vector2(OverrideCiv.X + OverrideCiv.Width + 20, OverrideCiv.Y);
 
             OverrideCivBudget     = Planet.ManualCivilianBudget.Greater(0);
             OverrideGrdBudget     = Planet.ManualGrdDefBudget.Greater(0);
             OverrideSpcBudget     = Planet.ManualSpcDefBudget.Greater(0);
 
-            
+            OverrideCiv.OnChange = cb =>
+            {
+                var budget = new PlanetBudget(Planet);
+                Planet.SetManualCivBudget(cb.Checked ? budget.CivilianAlloc : 0);
+            };
+
+            OverrideGrd.OnChange = cb =>
+            {
+                var budget = new PlanetBudget(Planet);
+                Planet.SetManualGroundDefBudget(cb.Checked ? budget.GrdDefAlloc : 0);
+            };
+
+            OverrideSpc.OnChange = cb =>
+            {
+                var budget = new PlanetBudget(Planet);
+                Planet.SetManualSpaceDefBudget(cb.Checked ? budget.SpcDefAlloc : 0);
+            };
+
+
+
             UpdateButtons();
             UpdateGovOrbitalStats();
             UpdateBudgets();
@@ -300,7 +327,7 @@ namespace Ship_Game
                 }
 
                 BudgetSum.Visible   = BudgetTabView;
-                OverrideCiv.Visible = BudgetTabView && GovernorOn;
+                OverrideCiv.Visible = BudgetTabView && GovernorOn && Planet.Owner.isPlayer;
                 OverrideGrd.Visible = OverrideCiv.Visible;
                 OverrideSpc.Visible = OverrideCiv.Visible;
             }
@@ -592,6 +619,16 @@ namespace Ship_Game
                 if      (CivBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(280);
                 else if (GrdBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(281);
                 else if (SpcBudgetTexRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(282);
+            }
+
+            string text ="";
+            if (ManualCivBudget.HandleTextInput(ref text, input))
+            {
+                if (float.TryParse(text, out float num))
+                    Log.Info($"num: {num}");
+                /*
+                if (float.TryParse(ManualCivBudget.Text, out float number))
+                    Log.Info($"num: {number.String(2)}");*/
             }
 
             return base.HandleInput(input);
