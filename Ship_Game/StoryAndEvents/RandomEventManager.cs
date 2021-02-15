@@ -29,11 +29,14 @@ namespace Ship_Game
             else if (random <= 9) FoundMinerals();
         }
 
-        static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet)
+        static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
         {
             affectedPlanet = null;
+            var planetList = allowCapital ? Empire.Universe.PlanetsDict.Values.ToArray() 
+                                          : Empire.Universe.PlanetsDict.Values.ToArray().Filter(p => !p.HasCapital);
+
             var potentials = new Array<Planet>();
-            foreach (Planet planet in Empire.Universe.PlanetsDict.Values.ToArray())
+            foreach (Planet planet in planetList)
             {
                 switch (potential)
                 {
@@ -112,7 +115,7 @@ namespace Ship_Game
 
         static void Volcano() // Volcano (- Fertility and pop per tile)
         {
-            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet, false)) 
                 return;
 
             planet.SetBaseFertility(0f, planet.BaseMaxFertility);
@@ -123,7 +126,7 @@ namespace Ship_Game
 
         static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman
         {
-            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet, false)) 
                 return;
 
             float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
@@ -141,7 +144,7 @@ namespace Ship_Game
                 return;
 
             PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren 
-                                                              : PlanetCategory.Desert;
+                                                                     : PlanetCategory.Desert;
 
             PlanetType newType = ResourceManager.RandomPlanet(category);
             planet.GenerateNewFromPlanetType(newType, planet.Scale);

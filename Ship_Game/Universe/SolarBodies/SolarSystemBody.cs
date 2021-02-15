@@ -51,9 +51,10 @@ namespace Ship_Game
             int hardDamage  = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
             float popKilled = bomb.PopKilled;
             float envDamage = bomb.FertilityDamage;
+
             if (!TargetTile.Habitable)
             {
-                popKilled /= 10;
+                popKilled /= 5;
                 envDamage /= 10;
             }
 
