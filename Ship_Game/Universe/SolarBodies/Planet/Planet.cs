@@ -1331,7 +1331,7 @@ namespace Ship_Game
 
         private void RepairBuildings(int repairAmount)
         {
-            if (RecentCombat)
+            if (MightBeAWarZone(Owner))
                 return;
 
             for (int i = 0; i < BuildingList.Count; ++i)
