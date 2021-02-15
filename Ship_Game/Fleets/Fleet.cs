@@ -1659,7 +1659,7 @@ namespace Ship_Game.Fleets
 
             // We cannot win, update fleet multipliers for next time
             if (!debug)
-                Owner.UpdateFleetStrEmpireMultiplier(FleetTask.TargetEmpire);
+                Owner.IncreaseFleetStrEmpireMultiplier(FleetTask.TargetEmpire);
 
             return false;
         }

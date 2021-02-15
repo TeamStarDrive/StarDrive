@@ -56,7 +56,7 @@ namespace Ship_Game
         {
             if (Ship != null)
             {
-                var sdScreen = new ShipDesignScreen(Empire.Universe, Screen.eui);
+                var sdScreen = new ShipDesignScreen(Empire.Universe, Screen.Eui);
                 Screen.ScreenManager.AddScreen(sdScreen);
                 sdScreen.ChangeHull(Ship.shipData);
             }

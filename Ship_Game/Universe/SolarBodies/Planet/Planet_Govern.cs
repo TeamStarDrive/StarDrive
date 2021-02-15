@@ -4,6 +4,9 @@ namespace Ship_Game
 {
     public partial class Planet
     {
+        public bool GovernorOn  => colonyType != ColonyType.Colony;
+        public bool GovernorOff => colonyType == ColonyType.Colony;
+
         public float CurrentProductionToQueue   => Prod.NetIncome + InfraStructure;
         public float MaxProductionToQueue       => Prod.NetMaxPotential + InfraStructure;
         public float EstimatedAverageProduction => (Prod.NetMaxPotential / (Owner.IsCybernetic ? 2 : 3)).LowerBound(0.1f);
@@ -81,7 +84,7 @@ namespace Ship_Game
         }
 
         public PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);
-        public float CivilianBuildingsMaintenance  => Money.Maintenance - MilitaryBuildingsMaintenance;
+        public float CivilianBuildingsMaintenance  => Money.Maintenance - GroundDefMaintenance;
 
         public float ColonyDebtTolerance
         {
@@ -101,8 +104,8 @@ namespace Ship_Game
             if (RecentCombat)
                 return; // Do not build or scrap when in combat
 
-            BuildAndScrapCivilianBuildings(colonyBudget.CivilianBuildings);
-            BuildAndScrapMilitaryBuildings(colonyBudget.MilitaryBuildings);
+            BuildAndScrapCivilianBuildings(colonyBudget.RemainingCivilian);
+            BuildAndScrapMilitaryBuildings(colonyBudget.RemainingGroundDef);
         }
 
         // returns the amount of production to spend in the build queue based on import/export state

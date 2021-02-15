@@ -9,6 +9,18 @@ namespace Ship_Game
 {
     public partial class Planet 
     {
+        public byte WantedPlatforms { get; private set; }
+        public byte WantedStations  { get; private set; }
+        public byte WantedShipyards { get; private set; }
+        public bool GovOrbitals      = false;
+        public bool GovGroundDefense = false;
+        public bool AutoBuildTroops  = false;
+        public bool ManualOrbitals   = false;
+        public int GarrisonSize;
+        public float ManualCivilianBudget { get; private set; } = 0; // 0 is Auto Budget
+        public float ManualGrdDefBudget   { get; private set; } = 0; // 0 is Auto Budget
+        public float ManualSpcDefBudget   { get; private set; } = 0; // 0 is Auto Budget
+
         private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
             if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals
@@ -21,11 +33,11 @@ namespace Ship_Game
             int rank             = GetColonyRank();
             var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations  = FilterOrbitals(ShipData.RoleName.station);
-            var wantedOrbitals   = new WantedOrbitals(rank);
+            UpdateWantedOrbitals(rank);
 
-            BuildOrScrapShipyard(wantedOrbitals.Shipyards, budget.Orbitals);
-            BuildOrScrapStations(currentStations, wantedOrbitals.Stations, budget.Orbitals);
-            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, budget.Orbitals);
+            BuildOrScrapShipyard(WantedShipyards, budget.RemainingSpaceDef);
+            BuildOrScrapStations(currentStations, WantedStations, budget.RemainingSpaceDef);
+            BuildOrScrapPlatforms(currentPlatforms, WantedPlatforms, budget.RemainingSpaceDef);
         }
 
         public int GetColonyRank()
@@ -34,10 +46,10 @@ namespace Ship_Game
             return ApplyRankModifiers(rank);
         }
 
-        void BuildOrScrapStations(Array<Ship> orbitals, int wanted, float budget)
+        void BuildOrScrapStations(Array<Ship> orbitals, byte wanted, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, budget);
 
-        void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, float budget)
+        void BuildOrScrapPlatforms(Array<Ship> orbitals, byte wanted, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, budget);
 
         bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
@@ -101,7 +113,7 @@ namespace Ship_Game
             return shipyardsInQ;
         }
 
-        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, float budget)
+        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, byte orbitalsWeWant, ShipData.RoleName role, float budget)
         {
             int orbitalsWeHave = orbitalList.Filter(o => !o.shipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
@@ -221,7 +233,7 @@ namespace Ship_Game
 
             // We cannot build the best in the empire, lets try building something cheaper for now
             // and check if this can be built in a timely manner.
-            float maxCost = (EstimatedAverageProduction * TimeVsCostThreshold) - Storage.Prod;
+            float maxCost = EstimatedAverageProduction * TimeVsCostThreshold + Storage.Prod;
             maxCost      /= ShipBuildingModifier;
             orbital       = GetBestOrbital(role, budget, maxCost);
 
@@ -257,7 +269,7 @@ namespace Ship_Game
 
         private bool LogicalBuiltTimeVsCost(float cost, int threshold)
         {
-            float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
+            float netCost = (cost - Storage.Prod).LowerBound(0) * ShipBuildingModifier;
             float ratio   = netCost / EstimatedAverageProduction;
             return ratio < threshold;
         }
@@ -370,7 +382,7 @@ namespace Ship_Game
 
         void BuildAndScrapMilitaryBuildings(float budget)
         {
-            if (Owner.isPlayer && !GovOrbitals)
+            if (Owner.isPlayer && !GovGroundDefense)
                 return;
 
             if (MilitaryBuildingInTheWorks)
@@ -410,35 +422,75 @@ namespace Ship_Game
             tile.AddTroop(troop);
             troop.SetPlanet(this);
         }
-    }
 
-    public struct WantedOrbitals
-    {
-        public readonly int Platforms;
-        public readonly int Stations;
-        public readonly int Shipyards;
-
-        public WantedOrbitals(int rank)
+        public void UpdateWantedOrbitals(int rank)
         {
+            if (ManualOrbitals)
+                return;
+
             switch (rank)
             {
-                case 1: Platforms  = 0; Stations = 0; Shipyards = 0; break;
-                case 2: Platforms  = 0; Stations = 0; Shipyards = 0; break;
-                case 3: Platforms  = 1; Stations = 0; Shipyards = 0; break;
-                case 4: Platforms  = 2; Stations = 0; Shipyards = 0; break;
-                case 5: Platforms  = 3; Stations = 1; Shipyards = 0; break;
-                case 6: Platforms  = 4; Stations = 1; Shipyards = 1; break;
-                case 7: Platforms  = 5; Stations = 1; Shipyards = 1; break;
-                case 8: Platforms  = 6; Stations = 2; Shipyards = 1; break;
-                case 9: Platforms  = 7; Stations = 2; Shipyards = 1; break;
-                case 10: Platforms = 8; Stations = 3; Shipyards = 2; break;
-                case 11: Platforms = 9; Stations = 3; Shipyards = 2; break;
-                case 12: Platforms = 9; Stations = 4; Shipyards = 2; break;
-                case 13: Platforms = 9; Stations = 4; Shipyards = 2; break;
-                case 14: Platforms = 9; Stations = 5; Shipyards = 2; break;
-                case 15: Platforms = 9; Stations = 6; Shipyards = 2; break;
-                default: Platforms = 0; Stations = 0; Shipyards = 0; break;
+                case 1:  WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
+                case 2:  WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
+                case 3:  WantedPlatforms = 1; WantedStations = 0; WantedShipyards = 0; break;
+                case 4:  WantedPlatforms = 2; WantedStations = 0; WantedShipyards = 0; break;
+                case 5:  WantedPlatforms = 3; WantedStations = 1; WantedShipyards = 0; break;
+                case 6:  WantedPlatforms = 4; WantedStations = 1; WantedShipyards = 1; break;
+                case 7:  WantedPlatforms = 5; WantedStations = 1; WantedShipyards = 1; break;
+                case 8:  WantedPlatforms = 6; WantedStations = 2; WantedShipyards = 1; break;
+                case 9:  WantedPlatforms = 7; WantedStations = 2; WantedShipyards = 1; break;
+                case 10: WantedPlatforms = 8; WantedStations = 3; WantedShipyards = 2; break;
+                case 11: WantedPlatforms = 9; WantedStations = 3; WantedShipyards = 2; break;
+                case 12: WantedPlatforms = 9; WantedStations = 4; WantedShipyards = 2; break;
+                case 13: WantedPlatforms = 9; WantedStations = 4; WantedShipyards = 2; break;
+                case 14: WantedPlatforms = 9; WantedStations = 5; WantedShipyards = 2; break;
+                case 15: WantedPlatforms = 9; WantedStations = 6; WantedShipyards = 2; break;
+                default: WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
             }
+        }
+
+        public void RestoreWantedOrbitals(byte platforms, byte stations, byte shipyards)
+        {
+            SetWantedPlatforms(platforms);
+            SetWantedStations(stations);
+            SetWantedShipyards(shipyards);
+        }
+
+        public void SetWantedPlatforms(byte num)
+        {
+            WantedPlatforms = num;
+        }
+
+        public void SetWantedShipyards(byte num)
+        {
+            WantedShipyards = num;
+        }
+
+        public void SetWantedStations(byte num)
+        {
+            WantedStations = num;
+        }
+
+        public void RestoreManualBudgets(float civ, float grd, float spc)
+        {
+            SetManualCivBudget(civ);
+            SetManualGroundDefBudget(grd);
+            SetManualSpaceDefBudget(spc);
+        }
+
+        public void SetManualCivBudget(float num)
+        {
+            ManualCivilianBudget = num;
+        }
+
+        public void SetManualGroundDefBudget(float num)
+        {
+            ManualGrdDefBudget = num;
+        }
+
+        public void SetManualSpaceDefBudget(float num)
+        {
+            ManualSpcDefBudget = num;
         }
     }
 }

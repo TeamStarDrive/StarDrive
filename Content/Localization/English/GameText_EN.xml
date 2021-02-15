@@ -5092,7 +5092,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1903</Index>
-      <Text>Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troops manually, or check the "Build Garrison" Checkbox.</Text>
+      <Text>Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troops manually, or check the "Auto Build Garrison" Checkbox.</Text>
     </Token>
     <Token>
       <Index>1904</Index>
@@ -5280,11 +5280,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1960</Index>
-      <Text>Governor Manages Defense</Text>
+      <Text>Governor Manages Space Defense</Text>
     </Token>
     <Token>
       <Index>1961</Index>
-      <Text>The Governor will build Stations, Shipyards, Platforms and Military Buildings based on the colony value to the Empire. It will also scrap them or upgrade them to better designs as they become available to your Empire. You will see a list of each orbital type (if your empire can build that type) below the colony grid specifying how many orbitals the planet has vs. how many the Governor is planning to have, based on colony value.</Text>
+      <Text>The Governor will build Stations, Shipyards, Platforms and Military Buildings based on the colony rank and a budget which is derived from the Empire Treasury (you can override the budget and amount of orbitals wanted). It will also scrap them or upgrade them to better designs as they become available to your Empire.</Text>
     </Token>
     <Token>
       <Index>1962</Index>
@@ -8266,6 +8266,158 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>4197</Index>
       <Text>This module can be rotated and it's weapon fire arc can be changed as a turret.</Text>
+    </Token>
+    <Token>
+      <Index>4198</Index>
+      <Text>Statistics</Text>
+    </Token>
+    <Token>
+      <Index>4199</Index>
+      <Text>Trade</Text>
+    </Token>
+    <Token>
+      <Index>4200</Index>
+      <Text>Description</Text>
+    </Token>
+    <Token>
+      <Index>4201</Index>
+      <Text>Manual Orbital Limit</Text>
+    </Token>
+    <Token>
+      <Index>4202</Index>
+      <Text>Override Governor decisions regarding Orbital limits.</Text>
+    </Token>
+    <Token>
+      <Index>4203</Index>
+      <Text>The rank of the colony in regards to how many orbitals the Governor will build. The higher the rank, the more defense orbitals the Governor will try to build.</Text>
+    </Token>
+    <Token>
+      <Index>4204</Index>
+      <Text>Manually adjust the number of wanted Platforms for this colony.</Text>
+    </Token>
+    <Token>
+      <Index>4205</Index>
+      <Text>Manually adjust the number of wanted Shipyards for this colony.</Text>
+    </Token>
+    <Token>
+      <Index>4206</Index>
+      <Text>Manually adjust the number of wanted Stations for this colony.</Text>
+    </Token>
+    <Token>
+      <Index>4207</Index>
+      <Text>Governor Manages Ground Defense</Text>
+    </Token>
+    <Token>
+      <Index>4208</Index>
+      <Text>The Governor will manage ground defense building based on an Empire Budget which is derived from the empire's treasury and the colony rank.</Text>
+    </Token>
+    <Token>
+      <Index>4209</Index>
+      <Text>Governor</Text>
+    </Token>
+    <Token>
+      <Index>4210</Index>
+      <Text>Defense</Text>
+    </Token>
+    <Token>
+      <Index>4211</Index>
+      <Text>Garrison Size</Text>
+    </Token>
+    <Token>
+      <Index>4212</Index>
+      <Text>Manual Limit</Text>
+    </Token>
+    <Token>
+      <Index>4213</Index>
+      <Text>Launch All Troops</Text>
+    </Token>
+    <Token>
+      <Index>4214</Index>
+      <Text>Launch One Troop</Text>
+    </Token>
+    <Token>
+      <Index>4215</Index>
+      <Text>Call Troops</Text>
+    </Token>
+    <Token>
+      <Index>4216</Index>
+      <Text>Build Shipyard</Text>
+    </Token>
+    <Token>
+      <Index>4217</Index>
+      <Text>Build Station</Text>
+    </Token>
+    <Token>
+      <Index>4218</Index>
+      <Text>Build Platform</Text>
+    </Token>
+    <Token>
+      <Index>4219</Index>
+      <Text>No Governor</Text>
+    </Token>
+    <Token>
+      <Index>4220</Index>
+      <Text>Incoming Troops:</Text>
+    </Token>
+    <Token>
+      <Index>4221</Index>
+      <Text>Governor Colony Rank:</Text>
+    </Token>
+    <Token>
+      <Index>4222</Index>
+      <Text>Platforms:</Text>
+    </Token>
+    <Token>
+      <Index>4223</Index>
+      <Text>Shipyards:</Text>
+    </Token>
+    <Token>
+      <Index>4224</Index>
+      <Text>Stations:</Text>
+    </Token>
+    <Token>
+      <Index>4225</Index>
+      <Text>Budget</Text>
+    </Token>
+    <Token>
+      <Index>4226</Index>
+      <Text>Override</Text>
+    </Token>
+    <Token>
+      <Index>4227</Index>
+      <Text>Override this budget and set your own.</Text>
+    </Token>
+    <Token>
+      <Index>4228</Index>
+      <Text>Civilian Buildings Expenditure/Budget in BY/C. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them.</Text>
+    </Token>
+    <Token>
+      <Index>4229</Index>
+      <Text>Ground Defense Buildings Expenditure/Budget in BY/C. If you see over-budget, you might have buildings you have manually built and the Governor cannot scrap them.</Text>
+    </Token>
+    <Token>
+      <Index>4230</Index>
+      <Text>Orbitals Expenditure/Budget in BY/C</Text>
+    </Token>
+    <Token>
+      <Index>4231</Index>
+      <Text>Civilian Buildings Expenditure in BY/C</Text>
+    </Token>
+    <Token>
+      <Index>4232</Index>
+      <Text>Ground Defense Buildings Expenditure in BY/C</Text>
+    </Token>
+    <Token>
+      <Index>4233</Index>
+      <Text>Orbitals Expenditure in BY/C</Text>
+    </Token>
+    <Token>
+      <Index>4234</Index>
+      <Text>Total:</Text> <!-- Total: X of Y in budget-->
+    </Token>
+    <Token>
+      <Index>4235</Index>
+      <Text>of</Text> <!-- Total: X of Y in budget-->
     </Token>
     <Token>
       <Index>5000</Index>

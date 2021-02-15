@@ -111,9 +111,11 @@ namespace Ship_Game
             p.Scale = psData.Scale > 0f ? psData.Scale : RandomMath.RandomBetween(1f, 2f);
             p.colonyType         = psData.ColonyType;
             p.GovOrbitals        = psData.GovOrbitals;
+            p.GovGroundDefense   = psData.GovGroundDefense;
             p.AutoBuildTroops    = psData.GovMilitia;
             p.GarrisonSize       = psData.GarrisonSize;
             p.Quarantine         = psData.Quarantine;
+            p.ManualOrbitals     = psData.ManualOrbitals;
             p.DontScrapBuildings = psData.DontScrapBuildings;
             p.NumShipyards       = psData.NumShipyards;
             p.FS                 = psData.FoodState;
@@ -132,9 +134,12 @@ namespace Ship_Game
             p.CrippledTurns         = psData.Crippled_Turns;
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
+
             p.UpdateTerraformPoints(psData.TerraformPoints);
             p.RestoreBaseFertilityTerraformRatio(psData.BaseFertilityTerraformRatio);
             p.SetWorkerPercentages(psData.farmerPercentage, psData.workerPercentage, psData.researcherPercentage);
+            p.RestoreWantedOrbitals(psData.WantedPlatforms, psData.WantedStations, psData.WantedShipyards);
+            p.RestoreManualBudgets(psData.ManualCivilianBudget, psData.ManualGrdDefBudget, psData.ManualSpcDefBudget);
 
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);

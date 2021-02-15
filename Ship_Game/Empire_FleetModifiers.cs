@@ -19,15 +19,16 @@
                 : DifficultyModifiers.TaskForceStrength;
         }
 
+        float IncreaseValue => DifficultyModifiers.FleetStrModifier * PersonalityModifiers.FleetStrMultiplier;
+        float DecreaseValue => DifficultyModifiers.FleetStrModifier / PersonalityModifiers.FleetStrMultiplier / 2;
+
+
         /// <summary>
         /// This will decrease the str needed vs the target empire slightly. Empire is null safe.
         /// It should be called when a fleet task succeeds
         /// </summary>
-        public void DecreaseFleetStrEmpireMultiplier(Empire e) 
-            => TryUpdateFleetStrEmpireMultiplier(e, -0.2f * ((int)CurrentGame.Difficulty).LowerBound(1));
-
-        public void UpdateFleetStrEmpireMultiplier(Empire e)
-            => TryUpdateFleetStrEmpireMultiplier(e, 0.2f * ((int)CurrentGame.Difficulty).LowerBound(1));
+        public void DecreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, -DecreaseValue);
+        public void IncreaseFleetStrEmpireMultiplier(Empire e) => TryUpdateFleetStrEmpireMultiplier(e, IncreaseValue);
 
         void TryUpdateFleetStrEmpireMultiplier(Empire targetEmpire, float value)
         {
@@ -46,10 +47,10 @@
                 return;
 
             foreach (Empire e in EmpireManager.MajorEmpires.Filter(e => e != this))
-                UpdateFleetStrEmpireMultiplier(e);
+                IncreaseFleetStrEmpireMultiplier(e);
 
             foreach (Empire e in EmpireManager.Factions)
-                UpdateFleetStrEmpireMultiplier(e);
+                IncreaseFleetStrEmpireMultiplier(e);
         }
 
         public void RestoreFleetStrEmpireMultiplier(Map<int, float> empireStr)

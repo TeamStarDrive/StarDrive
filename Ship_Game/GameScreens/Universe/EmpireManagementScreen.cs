@@ -58,8 +58,8 @@ namespace Ship_Game
 
             var planets = EmpireManager.Player.GetPlanets();
             int sidePanelWidths = (int)(ScreenWidth * 0.3f);
-            var governorRect = new RectF(ColoniesList.Right - sidePanelWidths - 20, ColoniesList.Bottom, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
-            GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], governorRect, governorVideo: false));
+            var governorRect = new RectF(ColoniesList.Right - sidePanelWidths - 23, ColoniesList.Bottom - 5, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
+            GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], governorRect));
             ResetColoniesList(planets);
         }
 
@@ -121,7 +121,7 @@ namespace Ship_Game
             }
 
             ColoniesListItem e1 = ColoniesList.ItemAtTop;
-            var MapRect = new Rectangle(PlanetInfoRect.Right, PlanetInfoRect.Y, e1.QueueRect.X - PlanetInfoRect.Right, PlanetInfoRect.Height);
+            var MapRect = new Rectangle(PlanetInfoRect.Right - 20, PlanetInfoRect.Y - 3, e1.QueueRect.X - PlanetInfoRect.Right, PlanetInfoRect.Height);
             int desiredWidth = 700;
             int desiredHeight = 500;
             var buildingsRect = new Rectangle(MapRect.X, MapRect.Y, desiredWidth, desiredHeight);
@@ -160,8 +160,9 @@ namespace Ship_Game
             }
 
             // draw some border around the governor component
+            /*
             var GovernorRect = new Rectangle(MapRect.Right, MapRect.Y, e1.Rect.Right - MapRect.Right, MapRect.Height);
-            batch.DrawRectangle(GovernorRect, new Color(118, 102, 67, 255));
+            batch.DrawRectangle(GovernorRect, new Color(118, 102, 67, 255));*/
 
             if (ColoniesList.NumEntries > 0)
             {

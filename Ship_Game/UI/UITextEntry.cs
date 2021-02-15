@@ -20,6 +20,7 @@ namespace Ship_Game
         public string Text;
         public bool HandlingInput;
         public bool Hover;
+        public bool AllowPeriod = false;
 
         public bool ResetTextOnInput;
 
@@ -184,7 +185,8 @@ namespace Ship_Game
             InputKeys.D2, InputKeys.D3,
             InputKeys.D4, InputKeys.D5,
             InputKeys.D6, InputKeys.D7,
-            InputKeys.D8, InputKeys.D9
+            InputKeys.D8, InputKeys.D9,
+            InputKeys.OemPeriod
         };
         public int MaxCharacters = 30;
         int boop;
@@ -279,6 +281,7 @@ namespace Ship_Game
                 case InputKeys.NumPad9: AppendKeyChar(ref text, '9'); return;
                 case InputKeys.OemMinus: AppendKeyChar(ref text, '-'); return;
                 case InputKeys.OemQuotes: AppendKeyChar(ref text, '\''); return;
+                case InputKeys.OemPeriod when AllowPeriod: AppendKeyChar(ref text, '.'); return;
             }
         }
 
