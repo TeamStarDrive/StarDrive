@@ -624,11 +624,14 @@ namespace Ship_Game
             string text ="";
             if (ManualCivBudget.HandleTextInput(ref text, input))
             {
-                if (float.TryParse(text, out float num))
-                    Log.Info($"num: {num}");
                 /*
+                if (text != "." && !float.TryParse(text, out float num))
+                {
+                    Log.Info($"num: {num}");
+                }*/
+              
                 if (float.TryParse(ManualCivBudget.Text, out float number))
-                    Log.Info($"num: {number.String(2)}");*/
+                    Log.Info($"num: {number.String(2)}");
             }
 
             return base.HandleInput(input);
