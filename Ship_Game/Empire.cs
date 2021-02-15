@@ -433,7 +433,7 @@ namespace Ship_Game
                 bestPorts            = bestPorts.SortedDescending(p => p.Prod.NetMaxPotential);
             }
 
-            return bestPorts != null;
+            return bestPorts?.Length > 0;
         }
 
         public Planet GetOrbitPlanetAfterBuild(Planet builtAt)
