@@ -254,6 +254,7 @@ namespace Ship_Game
 
             foreach (Empire empire in EmpireManager.Empires)
             {
+                RemoveDuplicateProjectorWorkAround(empire);
                 UpdateShipSensorsAndInfluence(simTime, empire);
             }
 
@@ -337,6 +338,23 @@ namespace Ship_Game
 
         int NextEmpireToScan = 0;
         public readonly int MaxTaskCores = Parallel.NumPhysicalCores - 1;
+
+        // FB todo: this a work around from duplicate SSP create somewhere in the game but are not seen before loading the game
+        void RemoveDuplicateProjectorWorkAround(Empire empire)
+        {
+            var ourSSPs = empire.GetProjectors();
+            for (int i = ourSSPs.Count - 1; i >= 0; i--)
+            {
+                Ship projector = ourSSPs[i];
+                Vector2 center = projector.Center;
+                if (ourSSPs.Filter(s => s.Center == center).Length > 1)
+                {
+                    ourSSPs.Remove(projector);
+                    projector.QueueTotalRemoval();
+                    Log.Warning($"Removed Duplicate SSP for {empire.Name} - Center {center}");
+                }
+            }
+        }
 
         // sensor scan is heavy
         void UpdateSensorsForASingleEmpire(FixedSimTime timeStep)
