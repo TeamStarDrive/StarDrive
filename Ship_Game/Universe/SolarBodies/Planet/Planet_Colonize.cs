@@ -9,7 +9,8 @@ namespace Ship_Game
         public void Colonize(Ship colonyShip)
         {
             Owner = colonyShip.loyalty;
-            Quarantine = false;
+            Quarantine     = false;
+            ManualOrbitals = false;
             ParentSystem.OwnerList.Add(Owner);
             SetupColonyType();
             Owner.AddPlanet(this);
