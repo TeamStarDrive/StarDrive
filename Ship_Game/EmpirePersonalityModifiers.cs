@@ -12,6 +12,7 @@
         public int TurnsAbove95FederationNeeded;
         public float FederationPopRatioWar;
         public float PlanetStoleTrustMultiplier;
+        public readonly float FleetStrMultiplier; // Add or decrease str addition to fleets after win / lose vs. another empire.
 
         public PersonalityModifiers(PersonalityType type)
         {
@@ -25,6 +26,7 @@
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.75f;
                     AddAngerAlliedWithEnemy      = 0;
+                    FleetStrMultiplier    = 1;
                     FederationPopRatioWar = 1;
                     TrustCostTradePact    = 0;
                     TrustCostNaPact       = 0;
@@ -37,6 +39,7 @@
                     WantedAgentMissionMultiplier = 0.115f;
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
+                    FleetStrMultiplier    = 1.1f;
                     FederationPopRatioWar = 1.1f;
                     TrustCostTradePact    = 20;
                     TrustCostNaPact       = 35;
@@ -49,6 +52,7 @@
                     WantedAgentMissionMultiplier = 0.115f;
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
+                    FleetStrMultiplier    = 1.25f;
                     FederationPopRatioWar = 1.2f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 45f;
@@ -61,6 +65,7 @@
                     WantedAgentMissionMultiplier = 0.13f;
                     PlanetStoleTrustMultiplier   = 0.1f;
                     AddAngerAlliedWithEnemy      = 100;
+                    FleetStrMultiplier    = 1.05f;
                     FederationPopRatioWar = 1.25f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 15;
@@ -73,6 +78,7 @@
                     WantedAgentMissionMultiplier = 0.13f;
                     PlanetStoleTrustMultiplier   = 0.7f;
                     AddAngerAlliedWithEnemy      = 0;
+                    FleetStrMultiplier    = 0.95f;
                     FederationPopRatioWar = 0.5f;
                     TrustCostTradePact    = 5;
                     TrustCostNaPact       = 5;
@@ -85,6 +91,7 @@
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.4f;
                     AddAngerAlliedWithEnemy      = 75;
+                    FleetStrMultiplier    = 1f;
                     FederationPopRatioWar = 1;
                     TrustCostTradePact    = 10;
                     TrustCostNaPact       = 10;
@@ -97,6 +104,7 @@
                     WantedAgentMissionMultiplier = 0.1f;
                     PlanetStoleTrustMultiplier   = 0.8f;
                     AddAngerAlliedWithEnemy      = 0;
+                    FleetStrMultiplier    = 0.9f;
                     FederationPopRatioWar = 0.8f;
                     TrustCostTradePact    = 12;
                     TrustCostNaPact       = 3;

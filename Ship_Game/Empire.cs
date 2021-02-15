@@ -186,6 +186,7 @@ namespace Ship_Game
         public Color ThrustColor1;
         public float MaxColonyValue { get; private set; }
         public float TotalColonyValues { get; private set; }
+        public float TotalColonyPotentialValues { get; private set; }
         public Ship BestPlatformWeCanBuild { get; private set; }
         public Ship BestStationWeCanBuild { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
@@ -1672,7 +1673,8 @@ namespace Ship_Game
             UpdateMilitaryStrengths();
             CalculateScore();
             UpdateRelationships();
-            UpdateShipMaintenance(); ;
+            UpdateShipMaintenance();
+            UpdateMaxColonyValues();
             EmpireAI.RunEconomicPlanner();
         }
 
@@ -1739,17 +1741,20 @@ namespace Ship_Game
             }
         }
 
-        //Using memory to save CPU time. the question is how often is the value used and
-        //How often would it be calculated.
-        private void UpdateMaxColonyValue()
+        // Using memory to save CPU time. the question is how often is the value used and
+        // How often would it be calculated.
+        private void UpdateMaxColonyValues()
         {
-            MaxColonyValue    = 0;
-            TotalColonyValues = 0;
+            MaxColonyValue             = 0;
+            TotalColonyValues          = 0;
+            TotalColonyPotentialValues = 0;
 
             for (int i = 0; i < OwnedPlanets.Count; i++)
             {
                 Planet planet = OwnedPlanets[i];
-                TotalColonyValues += planet.ColonyValue;
+                TotalColonyValues          += planet.ColonyValue;
+                TotalColonyPotentialValues += planet.ColonyPotentialValue(this);
+
                 if (planet.ColonyValue > MaxColonyValue)
                     MaxColonyValue = planet.ColonyValue;
 
@@ -1898,7 +1903,7 @@ namespace Ship_Game
         public void GovernPlanets()
         {
             if (!isFaction && !data.Defeated)
-                UpdateMaxColonyValue();
+                UpdateMaxColonyValues();
 
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)

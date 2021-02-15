@@ -6,30 +6,35 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
-        void HandleDetailInfo()
+        int PFacilitiesPlayerTabSelected;
+
+        void HandleDetailInfo(InputState input)
         {
-            DetailInfo = null;
             foreach (BuildableListItem e in BuildableList.AllEntries)
             {
                 if (e.Hovered)
                 {
-                    if (e.Troop != null) DetailInfo = e.Troop;
+                    if (e.Troop != null)    DetailInfo = e.Troop;
                     if (e.Building != null) DetailInfo = e.Building;
                 }
             }
 
-            if (DetailInfo == null)
+            if (DetailInfo == null || !BuildableList.HitTest(input.CursorPosition))
                 DetailInfo = P.Description;
         }
 
         public override bool HandleInput(InputState input)
         {
-            HandleDetailInfo();
+            HandleDetailInfo(input);
 
             if (HandlePlanetNameChangeTextBox(input))
                 return true;
 
-            pFacilities.HandleInput(input);
+            if (PFacilities.HandleInput(input) && PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex)
+                PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
+
+            FilterBuildableItems.HandlingInput = FilterBuildableItems.HitTest(input.CursorPosition);
+
             if (FilterBuildableItems.HandlingInput)
                 return base.HandleInput(input);
 
@@ -52,6 +57,10 @@ namespace Ship_Game
                 return true;
 
             HandleExportImportButtons(input);
+            if (PFacilitiesPlayerTabSelected != PFacilities.SelectedIndex && PFacilities.SelectedIndex == 0)
+                PFacilitiesPlayerTabSelected = PFacilities.SelectedIndex;
+
+            PFacilities.SelectedIndex = DetailInfo is string ? PFacilitiesPlayerTabSelected : 1; // Set the Tab for view
 
             return base.HandleInput(input);
         }
@@ -107,7 +116,7 @@ namespace Ship_Game
                 }
             }
 
-            if (!ClickedTroop)
+            if (!ClickedTroop && (P.Owner.isPlayer || Empire.Universe.Debug))
             {
                 foreach (PlanetGridSquare pgs in P.TilesList)
                 {
@@ -164,7 +173,7 @@ namespace Ship_Game
                 Planet nextOrPrevPlanet = planets[newIndex];
                 if (nextOrPrevPlanet != P)
                 {
-                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, eui);
+                    Empire.Universe.workersPanel = new ColonyScreen(Empire.Universe, nextOrPrevPlanet, Eui);
                 }
 
                 return true; // planet changed, ColonyScreen will be replaced
@@ -229,18 +238,18 @@ namespace Ship_Game
 
         void HandleExportImportButtons(InputState input)
         {
-            if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
+            if (FoodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
-                foodDropDown.Toggle();
+                FoodDropDown.Toggle();
                 GameAudio.AcceptClick();
                 P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
                 if (P.FS > Planet.GoodState.EXPORT)
                     P.FS = Planet.GoodState.STORE;
             }
 
-            if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
+            if (ProdDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
-                prodDropDown.Toggle();
+                ProdDropDown.Toggle();
                 GameAudio.AcceptClick();
                 P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
                 if (P.PS > Planet.GoodState.EXPORT)

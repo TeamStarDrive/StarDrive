@@ -26,6 +26,7 @@
         public readonly float RemnantNumBombers; // Multiplier to Remnant bombers wanted
         public readonly int StandByColonyShips;
         public readonly int TrustLostStoleColony; // Vs players
+        public readonly float FleetStrModifier; // AI increase/decrease str of fleets needs, when they win or lose vs another empire
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -57,7 +58,7 @@
                     ShipBuildStrMin      = 0.3f;
                     ShipBuildStrMax      = 0.8f;
                     ColonyRankModifier   = -2;
-                    TaskForceStrength    = 0.8f;
+                    TaskForceStrength    = 1f;
                     DataVisibleToPlayer  = true;
                     ShipLevel            = 0;
                     HideTacticalData     = false;
@@ -76,7 +77,7 @@
                     ColonyGoalMultiplier = 0;
                     StandByColonyShips   = 1;
                     TrustLostStoleColony = 0;
-
+                    FleetStrModifier     = 0.2f;
                     if (!empire.isPlayer)
                     {
                         ProductionMod = -0.1f;
@@ -91,7 +92,7 @@
                     ShipBuildStrMin      = 0.7f;
                     ShipBuildStrMax      = 1;
                     ColonyRankModifier   = 0;
-                    TaskForceStrength    = 1.2f;
+                    TaskForceStrength    = 1.25f;
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
@@ -109,6 +110,7 @@
                     ColonyGoalMultiplier = 0.5f;
                     StandByColonyShips   = 2;
                     TrustLostStoleColony = 5;
+                    FleetStrModifier     = 0.3f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -132,6 +134,7 @@
                     ColonyGoalMultiplier = 0.75f;
                     StandByColonyShips   = 3;
                     TrustLostStoleColony = 10;
+                    FleetStrModifier     = 0.5f;
 
                     if (!empire.isPlayer)
                     {
@@ -166,6 +169,7 @@
                     ColonyGoalMultiplier = 1;
                     StandByColonyShips   = 3;
                     TrustLostStoleColony = 15;
+                    FleetStrModifier     = 0.65f;
 
                     if (!empire.isPlayer)
                     {
