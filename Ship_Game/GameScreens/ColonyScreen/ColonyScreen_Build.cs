@@ -180,6 +180,9 @@ namespace Ship_Game
 
         void OnBuildableItemDoubleClicked(BuildableListItem item)
         {
+            if (P.Owner != Player && !Empire.Universe.Debug)
+                return;
+
             item.BuildIt(1);
         }
 

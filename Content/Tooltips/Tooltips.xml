@@ -1420,5 +1420,20 @@
       <Title>Orbitals Budget</Title>
       <Data>4230</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>283</TIP_ID>
+      <Title>Civilian Expense</Title>
+      <Data>4231</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>284</TIP_ID>
+      <Title>Ground Defense Expense</Title>
+      <Data>4232</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>285</TIP_ID>
+      <Title>Orbitals Expense</Title>
+      <Data>4233</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
