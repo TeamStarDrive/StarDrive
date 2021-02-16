@@ -169,7 +169,7 @@ namespace Ship_Game.AI
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
                                  + OwnerEmpire.data.FlatMoneyBonus;
             
-            float timeSpan = (200 - OwnerEmpire.Money/1000).UpperBound(200) * OwnerEmpire.data.treasuryGoal;
+            float timeSpan = (200 - OwnerEmpire.Money/500).Clamped(100,200) * OwnerEmpire.data.treasuryGoal;
             treasuryGoal *= timeSpan;
             return treasuryGoal.LowerBound(100);
         }
