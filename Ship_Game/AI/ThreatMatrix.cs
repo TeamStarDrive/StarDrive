@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Schema;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
 
@@ -129,22 +125,8 @@ namespace Ship_Game.AI
         // not sure we need this.
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
         Map<Guid, Pin> Pins = new Map<Guid, Pin>();
-        
-        int UpdateTimer = 0;
-        int UpdateTickTimerReset = 1 ;
 
         [XmlIgnore][JsonIgnore] readonly SafeQueue<Action> PendingThreadActions = new SafeQueue<Action>();
-
-        public Pin[] PinValues
-        {
-            get
-            {
-                using (PinsMutex.AcquireReadLock())
-                {
-                    return Pins.Values.ToArray();
-                }
-            }
-        }
 
         public bool ContainsGuid(Guid guid)
         {
@@ -169,44 +151,6 @@ namespace Ship_Game.AI
             return str;
         }
 
-        public float KnownStrengthOfAllEmpireThreats(Empire empire)
-        {
-            Map<Empire, float> empireStrTable = new Map<Empire, float>();
-            for (int i = 0; i < EmpireManager.Empires.Count; ++i)
-            {
-                empire = EmpireManager.Empires[i];
-                empireStrTable.Add(empire, 0);
-            }
-
-            foreach (Pin pin in Pins.Values)
-            {
-                Empire pinEmpire = pin.GetEmpire();
-                if (pinEmpire != null && !pinEmpire.WeAreRemnants)
-                {
-                    float str = empire.IsEmpireAttackable(pinEmpire) ? pin.Strength : pin.Strength / 2;
-                    empireStrTable[pinEmpire] += str;
-                }
-            }
-
-            float knownStr = empireStrTable.Values.Sum();
-            return knownStr;
-        }
-
-        public float StrengthOfEmpire(Empire empire)
-        {
-            float str = 0f;
-            using (PinsMutex.AcquireReadLock())
-            {
-                foreach (Pin pin in Pins.Values)
-                {
-                    Empire pinEmpire = pin.GetEmpire();
-                    if (pinEmpire == empire)
-                        str += pin.Strength;
-                }
-            }
-            return str;
-        }
-
         public float StrengthOfEmpireInSystem(Empire empire, SolarSystem system) => GetStrengthInSystem(system, p => p.GetEmpire() == empire);
 
         public float StrengthOfHostilesInRadius(Empire us, Vector2 center, float radius)
@@ -216,7 +160,7 @@ namespace Ship_Game.AI
             {
                 foreach (Pin pin in Pins.Values)
                 {
-                    if (pin.Ship != null && pin.Position.InRadius(center, radius))
+                    if (pin.Position.InRadius(center, radius))
                     {
                         Empire pinEmp = pin.GetEmpire();
                         if (pinEmp != us && (pinEmp.isFaction || us.IsAtWarWith(pinEmp)))
@@ -385,48 +329,6 @@ namespace Ship_Game.AI
             return str;
         }
 
-        public float AnyEnemies(Vector2 position, float radius, Empire us, bool netStrength = false, bool hostileOnly = false)
-        {
-            float str = 0f;
-            Pin[] pins = GetPins();
-            for (int i = 0; i < pins.Length; i++)
-            {
-                Pin pin = pins[i];
-                if (pin?.Position.InRadius(position, radius) == true)
-                {
-                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
-                    if (!hostileOnly)
-                    {
-                        str += us.IsEmpireAttackable(pinEmpire) ? pin.Strength : 0;
-                    }
-                    else
-                    {
-                        str += us.IsEmpireHostile(pinEmpire) ? pin.Strength : 0;
-                    }
-
-                    if (netStrength)
-                        str -= pinEmpire == us ? pin.Strength : 0;
-                }
-            }
-
-            return str;
-        }
-
-
-        public bool AnyThreatInSystem(SolarSystem system)
-        {
-            var b = FindAnyPin(p =>
-            {
-            if (p.Ship.loyalty.WeArePirates && p.Ship.System == system && p.Strength > 0 && Owner.IsEmpireHostile(p.GetEmpire()))
-                    return true;
-            return false;
-
-            });
-            if (b == null) 
-                return false;
-            return true;
-        }
-
         /// <summary> ThreadSafe </summary>
         public Pin[] GetAllFactionBases()
         {
@@ -444,6 +346,7 @@ namespace Ship_Game.AI
                 {
                     return pins.Filter(filter).Sum(p => p.Strength);
                 }
+
             return 0;
         }
 
@@ -456,17 +359,16 @@ namespace Ship_Game.AI
             using (PinsMutex.AcquireReadLock())
                 if (SystemThreatMap.TryGetValue(system, out Pin[] pins))
                 {
-                    var filteredPins = pins.Filter(p => p.Ship?.Active == true);
                     Map<Empire, float> empires = new Map<Empire, float>();
-                    for (int i = 0; i < filteredPins.Length; i++)
+                    for (int i = 0; i < pins.Length; i++)
                     {
-
-                        Pin pin        = filteredPins[i];
-                        Empire loyalty = pin.Ship.loyalty;
-                        float str      = pin.Ship.GetStrength();
+                        Pin pin        = pins[i];
+                        Empire loyalty = pin.GetEmpire();
+                        float str      = pin.Strength;
 
                         if (empires.ContainsKey(loyalty))
                             empires[loyalty] += str;
+
                         else if (Owner != loyalty)
                         {
                             var rel = Owner.GetRelations(loyalty);
@@ -638,8 +540,7 @@ namespace Ship_Game.AI
             var ships      = owner.GetShips().Clone();
             ships.AddRange(owner.GetProjectors());
 
-            var pinsWithNotSeenShips = new Array<KeyValuePair<Guid,Pin>>();
-            
+           
             var array = EmpireManager.GetAllies(owner);
             for (int i = 0; i < array.Count; i++)
             {
@@ -648,78 +549,71 @@ namespace Ship_Game.AI
                 ships.AddRange(empire.GetProjectors());
             }
 
+            var pinsNeedRemoval = new Array<KeyValuePair<Guid, Pin>>();
             // add or update pins for ship targets
             for (int i = 0; i < ships.Count; i++)
             {
                 var ship = ships[i];
-                if (ship?.Active != true) continue;
+                if (ship?.Active != true)
+                    continue;
 
                 var targets = ship.AI.PotentialTargets.ToArray();
-
                 for (int x = 0; x < targets.Length; x++)
                 {
                     var target = targets[x];
-                    if (target == null) continue;
-                    threatCopy.AddOrUpdatePin(target, target.IsInBordersOf(owner), true);
+                    if (target != null)
+                        threatCopy.AddOrUpdatePin(target, target.IsInBordersOf(owner), true);
+                }
+
+                var threatCopyPins = threatCopy.GetPins();
+                for (int x = threatCopyPins.Length - 1; x >= 0; x--)
+                {
+                    Pin pin = threatCopyPins[x];
+                    if (ship.Center.InRadius(pin.Position, ship.SensorRange))
+                    {
+                        if (pin.Ship?.Active != true)
+                            threatCopy.Pins.Remove(pin.PinGuid);
+                        else if (!ship.Center.InRadius(pin.Ship.Center, ship.SensorRange))
+                            threatCopy.Pins.Remove(pin.PinGuid);
+                    }
                 }
             }
 
-            // separate seen pins with pin.ship that arent seen. 
             foreach (var kv in threatCopy.Pins)
             {
                 var pinShip = kv.Value?.Ship;
-                // not dead or dying and seen
-                if (pinShip?.dying == false && pinShip.Active &&
-                    pinShip.KnownByEmpires.KnownBy(owner))
+
+                // Deal with only pins ships that are known to the empire
+                if (pinShip?.KnownByEmpires.KnownBy(owner) == true)
                 {
-                    if (pinShip.loyalty != owner && !owner.IsAlliedWith(pinShip.loyalty))
+                    if (pinShip.dying == false 
+                        && pinShip.Active
+                        && pinShip.loyalty != owner && !owner.IsAlliedWith(pinShip.loyalty))
+                    {
                         threatCopy.AddOrUpdatePin(pinShip, pinShip.IsInBordersOf(owner), true);
-                }
-                else
-                    pinsWithNotSeenShips.Add(kv);
-            }
-            
-            // remove seen pins with pin.ship that arent seen. 
-            for (int i = 0; i < ships.Count; i++)
-            {
-                var ship = ships[i];
-                if (ship?.Active != true) continue;
-                for (int x = 0; x < pinsWithNotSeenShips.Count; x++)
-                {
-                    var pin = pinsWithNotSeenShips[x];
-                    if (pin.Value?.Ship?.Active != true)
-                    {
-                        threatCopy.Pins.Remove(pin.Key);
                     }
-                    else if (pin.Value.Position.InRadius(ship.Position, ship.SensorRange))
+                    else
                     {
-                        threatCopy.Pins.Remove(pin.Key);
+                        pinsNeedRemoval.Add(kv);
                     }
                 }
             }
 
+            for (int x = 0; x < pinsNeedRemoval.Count; x++)
+            {
+                var pin = pinsNeedRemoval[x];
+                threatCopy.Pins.Remove(pin.Key);
+            }
 
             using (PinsMutex.AcquireWriteLock())
             {
                 Pins = threatCopy.Pins;
             }
+
             KnownBases              = GetAllHostileBases();
             SystemThreatMap         = GetSystemPinMap();
             KnownSystemsWithEnemies = GetAllSystemsWith(pins => pins.Any(p => Owner.IsEmpireHostile(p.GetEmpire())));
             KnownEmpireStrengths    = GetEmpirePinMap();
-            // threat matrix testing. 
-            //var PinsWithSystems = Pins.FilterValues(p => p.System != null && p.Ship.System?.Name.Contains("Mil") == true);
-
-            //Empire.Universe.RunOnEmpireThread(() =>
-
-            //    {
-            //        var oldPinsWithSystems = Pins.FilterValues(p => p.System == null && p.Ship.System?.Name.Contains("Mil") == true);
-
-            //           var test = threatCopy.Pins;
-
-            //        var newPinsWithSystems = threatCopy.Pins.FilterValues(p => p.System != null && p.Ship.System?.Name.Contains("Mil") == true);
-
-            //    });
             return true;
         }
 
