@@ -17,9 +17,6 @@ namespace Ship_Game.AI.ExpansionAI
         public int ExpandSearchTimer { get; private set; }
         public int MaxSystemsToCheckedDiv { get; private set; }
 
-        public Planet[] DesiredPlanets => RankedPlanets?.FilterSelect(r=> r.Planet?.Owner != Owner,
-                                                                      r => r.Planet) ?? Empty<Planet>.Array;
-
         public Planet[] GetColonizationGoalPlanets()
         {
             var list = new Array<Planet>();
@@ -264,6 +261,20 @@ namespace Ship_Game.AI.ExpansionAI
                 thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);
         }
 
+        public bool AssignScoutSystemTarget(Ship ship, out SolarSystem targetSystem)
+        {
+            targetSystem = null;
+            var potentials = UniverseScreen.SolarSystemList.Filter(s => !s.IsFullyExploredBy(Owner)
+                                                                   && ship.System != s
+                                                                   && s.GetKnownStrengthHostileTo(Owner) > 10); // todo filter existing scout system goals
+
+            if (potentials.Length == 0)
+                return false; // All systems were explored or are marked by someone else
+
+            targetSystem = potentials.RandItem();
+            return true;
+        }
+
         public bool AssignExplorationTargetSystem(Ship ship, out SolarSystem targetSystem)
         {
             targetSystem   = null;
@@ -271,8 +282,12 @@ namespace Ship_Game.AI.ExpansionAI
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem s = UniverseScreen.SolarSystemList[i];
-                if (!s.IsExploredBy(Owner) && !MarkedForExploration.Contains(s))
+                if (!s.IsFullyExploredBy(Owner)
+                    && !MarkedForExploration.Contains(s)
+                    && s.GetKnownStrengthHostileTo(Owner) < 10)
+                {
                     potentials.Add(s);
+                }
             }
 
             if (potentials.Count == 0)
