@@ -167,9 +167,9 @@ namespace Ship_Game
                     SolarSystem ss = closestSystems[i];
                     ss.SetExploredBy(e);
                     foreach (Planet planet in ss.PlanetList)
-                    {
                         planet.SetExploredBy(e);
-                    }
+
+                    ss.UpdateFullyExploredBy(e);
                 }
             }
         }

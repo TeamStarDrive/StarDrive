@@ -9,7 +9,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "Scout System";
         public override string UID => ID;
 
-        public ScoutSystem() : base(GoalType.BuildScout)
+        public ScoutSystem() : base(GoalType.ScoutSystem)
         {
             Steps = new Func<GoalStep>[]
             {
