@@ -275,6 +275,13 @@ namespace Ship_Game.AI
 
         bool DoExploreSystem(FixedSimTime timeStep)
         {
+            if (Owner.System == ExplorationTarget && BadGuysNear)
+            {
+                Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                ExplorationTarget = null;
+                ClearOrders();
+            }
+
             if (!TrySetupPatrolRoutes()) // Set route to each planet in the system
                 return DoExploreEmptySystem(timeStep, ExplorationTarget);
 

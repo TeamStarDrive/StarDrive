@@ -98,6 +98,14 @@ namespace Ship_Game.AI
                 AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
         }
 
+        public void OrderScout(SolarSystem target)
+        {
+            ExplorationTarget = target;
+            ClearWayPoints();
+            ClearOrders();
+            AddShipGoal(Plan.Explore, AIState.Explore);
+        }
+
         public void OrderExplore()
         {
             if (State == AIState.Explore && ExplorationTarget != null)
