@@ -2730,6 +2730,7 @@ namespace Ship_Game
                 CalcAverageFreighterCargoCapAndFTLSpeed();
                 CalcWeightedCenter();
                 DispatchBuildAndScrapFreighters();
+                AssignSniffingTasks();
                 AssignExplorationTasks();
             }
         }
@@ -3248,6 +3249,42 @@ namespace Ship_Game
             return true;
         }
 
+        void AssignSniffingTasks()
+        {
+            if (isPlayer
+                || EmpireAI.Goals.Count(g => g.type == GoalType.ScoutSystem) >= DifficultyModifiers.NumSystemsToSniff
+                || !UniverseScreen.SolarSystemList.Any(s => !s.IsFullyExploredBy(this) && s.GetKnownStrengthHostileTo(this) > 10))
+            {
+                return;
+            }
+
+            EmpireAI.Goals.Add(new ScoutSystem(this));
+        }
+
+        public bool ChooseScoutShipToBuild(out Ship scout)
+        {
+            if (isPlayer && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out scout))
+                return true;
+
+            var scoutShipsWeCanBuild = new Array<Ship>();
+            foreach (string shipUid in ShipsWeCanBuild)
+            {
+                Ship ship = ResourceManager.ShipsDict[shipUid];
+                if (ship.shipData.Role == ShipData.RoleName.scout)
+                    scoutShipsWeCanBuild.Add(ship);
+            }
+
+            if (scoutShipsWeCanBuild.IsEmpty)
+            {
+                scout = null;
+                return false;
+            }
+
+            // pick most power efficient scout
+            scout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
+            return scout != null;
+        }
+
         void AssignExplorationTasks()
         {
             if (isPlayer && !AutoExplore)
@@ -3298,6 +3335,7 @@ namespace Ship_Game
                        || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null;
             }
         }
+
         private void ApplyFertilityChange(float amount)
         {
             if (amount.AlmostEqual(0)) return;
