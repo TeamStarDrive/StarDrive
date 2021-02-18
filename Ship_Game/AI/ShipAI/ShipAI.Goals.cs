@@ -49,6 +49,7 @@ namespace Ship_Game.AI
 
             ChangeAIState(newState);
             EscortTarget = null;
+            PatrolTarget = null;
             OrbitTarget  = null;
             if (ExplorationTarget != null)
             {

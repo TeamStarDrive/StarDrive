@@ -459,36 +459,16 @@ namespace Ship_Game
 
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
-                /*
-                SpawnRemnantsInSolarSystem(solarSystem);
-                foreach (Planet p in solarSystem.PlanetList)
-                {   
-                    if (p.Owner != null)
-                    {
-                        foreach (string key in p.Guardians)
-                        {
-                            Ship.CreateShipAt(key, p.Owner, p, true);
-                        }
-                        continue;
-                    }
-                    // Added by McShooterz: alternate hostile fleets populate universe
-                    if (GlobalStats.HasMod && ResourceManager.HostileFleets.Fleets.Count > 0)
-                    {
-                        if (p.Guardians.Count > 0)
-                        {
-                            int randomFleet  = RandomMath.InRange(ResourceManager.HostileFleets.Fleets.Count);
-                            var hostileFleet = ResourceManager.HostileFleets.Fleets[randomFleet];
-                            var empire       = EmpireManager.GetEmpireByName(hostileFleet.Empire);
-                            foreach (string ship in hostileFleet.Ships)
-                                Ship.CreateShipAt(ship, empire, p, true);
-                        }
-                    }
-                }*/
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
                 {
                     if (anomaly.type == "DP")
                         anomalyManager.AnomaliesList.Add(
                             new DimensionalPrison(solarSystem.Position + anomaly.Position));
+                }
+
+                foreach (Empire empire in EmpireManager.ActiveEmpires)
+                {
+                        solarSystem.UpdateFullyExploredBy(empire);
                 }
             }
         }
