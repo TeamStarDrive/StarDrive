@@ -155,12 +155,12 @@ namespace Ship_Game
                     continue;
 
                 e.InitFleetEmpireStrMultiplier();
-                if (e.data.Traits.BonusExplored <= 0)
-                    continue;
+                //if (e.data.Traits.BonusExplored <= 0)
+                    //continue;
                 
                 Planet homeWorld             = e.GetPlanets()[0];
                 SolarSystem[] closestSystems = Data.SolarSystemsList.Sorted(system => homeWorld.Center.Distance(system.Position));
-                int numExplored              = Data.SolarSystemsList.Count >= 20 ? e.data.Traits.BonusExplored : Data.SolarSystemsList.Count;
+                int numExplored              = Data.SolarSystemsList.Count >= 21 ? e.data.Traits.BonusExplored + 1 : Data.SolarSystemsList.Count;
 
                 for (int i = 0; i < numExplored; ++i)
                 {

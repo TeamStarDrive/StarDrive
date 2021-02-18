@@ -473,10 +473,13 @@ namespace Ship_Game
 
         public float KnownEnemyStrengthIn(SolarSystem system, Predicate<ThreatMatrix.Pin> filter)
                      => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, filter);
+
         public float KnownEnemyStrengthIn(SolarSystem system)
              => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p=> IsEmpireHostile(p.GetEmpire()));
+
         public float KnownEnemyStrengthIn(AO ao)
              => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
+
         public float KnownEmpireStrength(Empire empire) => EmpireAI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
@@ -3251,14 +3254,8 @@ namespace Ship_Game
 
         void AssignSniffingTasks()
         {
-            if (isPlayer
-                || EmpireAI.Goals.Count(g => g.type == GoalType.ScoutSystem) >= DifficultyModifiers.NumSystemsToSniff
-                || !UniverseScreen.SolarSystemList.Any(s => !s.IsFullyExploredBy(this) && s.GetKnownStrengthHostileTo(this) > 10))
-            {
-                return;
-            }
-
-            EmpireAI.Goals.Add(new ScoutSystem(this));
+            if (!isPlayer && EmpireAI.Goals.Count(g => g.type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
+                EmpireAI.Goals.Add(new ScoutSystem(this));
         }
 
         public bool ChooseScoutShipToBuild(out Ship scout)
@@ -3293,12 +3290,13 @@ namespace Ship_Game
             int unexplored = UniverseScreen.SolarSystemList.Count(s => !s.IsFullyExploredBy(this)).UpperBound(21);
             if (unexplored == 0)
             {
+               /*
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
                     Ship ship = OwnedShips[i];
                     if (IsScout(ship) && ship.AI.State != AIState.Scrap)
                         ship.AI.OrderScrapShip();
-                }
+                }*/
                 return;
             }
 
@@ -3310,7 +3308,7 @@ namespace Ship_Game
             for (int i = 0; i < OwnedShips.Count; i++)
             {
                 Ship ship = OwnedShips[i];
-                if (IsScout(ship))
+                if (IsIdleScout(ship)) 
                 {
                     ship.DoExplore();
                     if (++numScouts >= desiredScouts)
@@ -3326,13 +3324,16 @@ namespace Ship_Game
 
 
             // local 
-            bool IsScout(Ship s)
+            bool IsIdleScout(Ship s)
             {
                 if (s.shipData.Role == ShipData.RoleName.supply)
                     return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
 
-                return isPlayer && s.Name == data.CurrentAutoScout 
-                       || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null;
+                return s.AI.State != AIState.Flee
+                       && s.AI.State != AIState.Scrap
+                       && s.AI.State != AIState.Explore
+                       && (isPlayer && s.Name == data.CurrentAutoScout 
+                           || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null);
             }
         }
 

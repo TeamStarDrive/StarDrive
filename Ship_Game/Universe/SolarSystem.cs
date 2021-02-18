@@ -324,6 +324,17 @@ namespace Ship_Game
             //Log.Info($"The {empire.Name} have fully explored {Name}");
         }
 
+        public bool ShouldSniffAroundIt(Empire empire)
+        {
+            if (empire.KnownEnemyStrengthIn(this) > 10)
+            {
+                if (!IsFullyExploredBy(empire))
+                    return true;
+            }
+
+            return false;
+        }
+
         public Planet FindPlanet(in Guid planetGuid)
         {
             if (planetGuid != Guid.Empty)
