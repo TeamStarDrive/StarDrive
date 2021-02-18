@@ -5,10 +5,7 @@ using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
 using System.Linq;
-using System.Threading;
 using Ship_Game.Ships.AI;
-using Ship_Game.Ships.DataPackets;
-using Newtonsoft.Json.Bson;
 
 namespace Ship_Game.AI
 {
@@ -17,8 +14,6 @@ namespace Ship_Game.AI
         Planet AwaitClosest;
         Planet PatrolTarget;
         float UtilityModuleCheckTimer;
-        SolarSystem SystemToPatrol;
-        readonly Array<Planet> PatrolRoute = new Array<Planet>();
         int StopNumber;
         public FleetDataNode FleetNode;
 
@@ -106,15 +101,17 @@ namespace Ship_Game.AI
             Owner.QueueTotalRemoval();
         }
 
-        bool TrySetupPatrolRoutes()
+        bool TryGetClosestUnexploredPlanet(SolarSystem system, out Planet planet)
         {
-            if (PatrolRoute.Count > 0)
+            planet = PatrolTarget;
+            if (PatrolTarget != null && !PatrolTarget.IsExploredBy(Owner.loyalty))
                 return true;
 
-            foreach (Planet p in ExplorationTarget.PlanetList)
-                PatrolRoute.Add(p);
+            if (system.IsFullyExploredBy(Owner.loyalty))
+                return false;
 
-            return PatrolRoute.Count > 0;
+            planet = system.PlanetList.FindMinFiltered(p => !p.IsExploredBy(Owner.loyalty), p => Owner.Center.SqDist(p.Center));
+            return planet != null;
         }
 
         void DoScrapShip(FixedSimTime timeStep, ShipGoal goal)

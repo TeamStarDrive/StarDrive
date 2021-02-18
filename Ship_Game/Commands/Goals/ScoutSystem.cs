@@ -13,6 +13,7 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
+                DelayedStart,
                 FindPlanetToBuildAt,
                 WaitForShipBuilt,
                 SelectSystem,
@@ -22,15 +23,28 @@ namespace Ship_Game.Commands.Goals
         }
         public ScoutSystem(Empire empire) : this()
         {
-            this.empire = empire;
-            Evaluate();
+            this.empire   = empire;
+            StarDateAdded = Empire.Universe.StarDate;
+        }
+
+        GoalStep DelayedStart()
+        {
+            if (Empire.Universe.StarDate - StarDateAdded > 5)
+            {
+                StarDateAdded = Empire.Universe.StarDate;
+                return GoalStep.GoToNextStep;
+            }
+
+            return GoalStep.TryAgain;
         }
 
         GoalStep FindPlanetToBuildAt()
         {
             if (FinishedShip != null)
-                return GoalStep.GoToNextStep; // todo change to step
-
+            {
+                ChangeToStep(SelectSystem);
+                return GoalStep.TryAgain; 
+            }
             if (!empire.ChooseScoutShipToBuild(out Ship scout))
                 return GoalStep.GoalFailed;
 
@@ -57,7 +71,7 @@ namespace Ship_Game.Commands.Goals
             if (!empire.GetEmpireAI().ExpansionAI.AssignScoutSystemTarget(FinishedShip, out SolarSystem targetSystem))
                 return GoalStep.GoalFailed;
 
-            FinishedShip.AI.OrderScout(targetSystem);
+            FinishedShip.AI.OrderScout(targetSystem, this);
             return GoalStep.GoToNextStep;
         }
 
@@ -88,7 +102,6 @@ namespace Ship_Game.Commands.Goals
         }
 
         bool ShipOnPlan => FinishedShip?.Active == true 
-                           && FinishedShip.AI.ExplorationTarget != null 
-                           && FinishedShip.AI.State == AIState.Explore;
+                           && FinishedShip.AI.ExplorationTarget != null;
     }
 }
