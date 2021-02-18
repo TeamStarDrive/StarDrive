@@ -47,11 +47,12 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.GetTarget(TargetEmpire, Pirates.TargetType.Projector, out Ship orbital))
             {
                 Vector2 where = orbital.Center.GenerateRandomPointOnCircle(3000);
-                if (Pirates.SpawnBoardingShip(orbital, where, out _))
+                if (Pirates.SpawnBoardingShip(orbital, where, out Ship boardingShip))
                 {
                     TargetShip = orbital; // This is the main target, we want this to be boarded
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                     Pirates.ExecuteVictimRetaliation(TargetEmpire);
+                    boardingShip.AI.OrderAttackSpecificTarget(TargetShip);
                     return GoalStep.GoToNextStep;
                 }
             }
