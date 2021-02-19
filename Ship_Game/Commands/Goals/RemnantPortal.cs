@@ -46,11 +46,9 @@ namespace Ship_Game.Commands.Goals
         void JumpToEnemy()
         {
             float desiredRange = Portal.DesiredCombatRange;
-            Ship nearest      = Portal.System?.ShipList.FindMinFiltered(s => s != null 
-                                                                            && s.loyalty != empire 
-                                                                            && !s.IsInWarp, s => s.Center.Distance(Portal.Center));
+            Ship nearest       = Portal.AI.Target;
 
-            if (nearest!= null && !nearest.Center.InRadius(Portal.Center, desiredRange))
+            if (nearest != null && !nearest.Center.InRadius(Portal.Center, desiredRange))
             {
                 Vector2 pos = nearest.Center + nearest.Center.DirectionToTarget(Portal.Center).Normalized() * (desiredRange + nearest.Radius);
                 MoveToPos(pos);
@@ -92,9 +90,12 @@ namespace Ship_Game.Commands.Goals
 
             Remnants.OrderEscortPortal(Portal);
             UpdatePosition();
-            if (!Portal.InCombat)
+            if (Portal.System != null)
             {
                 float production = Empire.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
+                if (Portal.InCombat)
+                    production /= 2;
+
                 production *= empire.DifficultyModifiers.RemnantResourceMod;
                 production *= (int)(CurrentGame.GalaxySize + 1) * 2 * CurrentGame.StarsModifier / EmpireManager.MajorEmpires.Length;
                 Remnants.TryGenerateProduction(production);
