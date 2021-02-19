@@ -1251,11 +1251,11 @@ namespace Ship_Game
             {
                 // population is increased
                 float balanceGrowth = (1 - PopulationRatio).Clamped(0.1f, 1f);
-                float repRate       = Owner.data.BaseReproductiveRate * (Population/4) * balanceGrowth;
+                float repRate       = Owner.data.BaseReproductiveRate * (Population/10) * balanceGrowth;
                 if (Owner.data.Traits.PopGrowthMax.NotZero())
-                    repRate = Math.Min(repRate, Owner.data.Traits.PopGrowthMax * 1000f);
+                    repRate = repRate.UpperBound(Owner.data.Traits.PopGrowthMax * 1000f);
 
-                repRate     = Math.Max(repRate, Owner.data.Traits.PopGrowthMin * 1000f);
+                repRate     = repRate.LowerBound(Owner.data.Traits.PopGrowthMin * 1000f);
                 repRate    += PlusFlatPopulationPerTurn;
                 repRate    += repRate * Owner.data.Traits.ReproductionMod;
                 Population += ShortOnFood() ? repRate * 0.1f : repRate;
