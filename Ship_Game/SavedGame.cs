@@ -389,21 +389,17 @@ namespace Ship_Game
                     }
 
                     if (ship.AI.OrbitTarget != null)
-                    {
                         sdata.AISave.OrbitTarget = ship.AI.OrbitTarget.guid;
-                    }
+
                     if (ship.AI.ColonizeTarget != null)
-                    {
                         sdata.AISave.ColonizeTarget = ship.AI.ColonizeTarget.guid;
-                    }
+
                     if (ship.AI.SystemToDefend != null)
-                    {
                         sdata.AISave.SystemToDefend = ship.AI.SystemToDefend.guid;
-                    }
+
                     if (ship.AI.EscortTarget != null)
-                    {
                         sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
-                    }
+
                     empireToSave.OwnedShips.Add(sdata);
                 }
 

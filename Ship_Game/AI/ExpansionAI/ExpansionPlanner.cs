@@ -17,9 +17,6 @@ namespace Ship_Game.AI.ExpansionAI
         public int ExpandSearchTimer { get; private set; }
         public int MaxSystemsToCheckedDiv { get; private set; }
 
-        public Planet[] DesiredPlanets => RankedPlanets?.FilterSelect(r=> r.Planet?.Owner != Owner,
-                                                                      r => r.Planet) ?? Empty<Planet>.Array;
-
         public Planet[] GetColonizationGoalPlanets()
         {
             var list = new Array<Planet>();
@@ -264,23 +261,48 @@ namespace Ship_Game.AI.ExpansionAI
                 thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, Owner);
         }
 
-        public bool AssignExplorationTargetSystem(Ship ship, out SolarSystem targetSystem)
+        public bool AssignScoutSystemTarget(Ship ship, out SolarSystem targetSystem)
         {
             targetSystem   = null;
-            var potentials = new Array<SolarSystem>();
+            var potentials = UniverseScreen.SolarSystemList.Filter(sys => sys.IsFullyExploredBy(Owner)
+                                                                   && ship.System != sys
+                                                                   && Owner.KnownEnemyStrengthIn(sys) > 10
+                                                                   && sys.ShipList.Any(s => s.IsGuardian));
+
+            if (potentials.Length == 0)
+                return false;
+
+            targetSystem = potentials.RandItem();
+            return true;
+        }
+
+        public bool AssignExplorationTargetSystem(Ship ship, out SolarSystem targetSystem)
+        {
+            targetSystem          = null;
+            var potentials        = new Array<SolarSystem>();
+            var potentialHostiles = new Array<SolarSystem>();
+
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem s = UniverseScreen.SolarSystemList[i];
-                if (!s.IsExploredBy(Owner) && !MarkedForExploration.Contains(s))
-                    potentials.Add(s);
+                if (!s.IsFullyExploredBy(Owner) && !MarkedForExploration.Contains(s))
+                {
+                    if (Owner.KnownEnemyStrengthIn(s) < 10)
+                        potentials.Add(s);
+                    else
+                        potentialHostiles.Add(s);
+                }
             }
 
-            if (potentials.Count == 0)
+            if (potentials.Count == 0 && potentialHostiles.Count == 0)
                 return false; // All systems were explored or are marked by someone else
 
             // Sort by distance from explorer center
-            var sortedList    = potentials.Sorted(s => ship.Center.SqDist(s.Position));
-            targetSystem      = sortedList.First();
+            potentials.Sort(s => ship.Center.SqDist(s.Position));
+            potentialHostiles.Sort(s => ship.Center.SqDist(s.Position));
+            potentials.AddRange(potentialHostiles); // revisit hostile not full explored lastly
+
+            targetSystem = potentials.First();
 
             MarkedForExploration.Add(targetSystem);
             return true;
