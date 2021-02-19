@@ -668,7 +668,7 @@ namespace Ship_Game
             if (Hibernating)
             {
                 HibernationTurns -= 1;
-                return;
+                amount /= 5;
             }
 
             GenerateProduction(amount);

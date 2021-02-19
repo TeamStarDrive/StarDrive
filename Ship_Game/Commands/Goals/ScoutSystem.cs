@@ -91,7 +91,9 @@ namespace Ship_Game.Commands.Goals
             if (!ShipOnPlan)
                 return GoalStep.RestartGoal;
 
-            if (FinishedShip.AI.BadGuysNear && FinishedShip.System.ShipList.Any(s => s.AI.Target == FinishedShip))
+            if (FinishedShip.AI.BadGuysNear
+                && FinishedShip.System == FinishedShip.AI.ExplorationTarget
+                && FinishedShip.System.ShipList.Any(s => s.AI.Target == FinishedShip))
             {
                 FinishedShip.AI.ClearOrders();
                 if (FinishedShip.TryGetScoutFleeVector(out Vector2 escapePos))
