@@ -36,7 +36,7 @@ namespace Ship_Game.AI.CombatTactics
             if (Owner.TroopsAreBoardingShip)
                 return;
 
-            if (Owner.loyalty.WeArePirates)
+            if (Owner.loyalty.WeArePirates && totalTroopStrengthToCommit <=0)
             {
                 Owner.AI.OrderPirateFleeHome();
                 return;

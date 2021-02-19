@@ -168,12 +168,13 @@ namespace Ship_Game.Commands.Goals
             if (!IsPortalValidOrRerouted())
                 return GoalStep.GoalFailed;
 
-            if (Portal.InCombat)
+            if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
                 return GoalStep.TryAgain;
 
             bool checkOnlyDefeated = Remnants.Story == Remnants.RemnantStory.AncientRaidersRandom;
             if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal, checkOnlyDefeated))
-                return Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
+                return Remnants.Hibernating ? GoalStep.TryAgain : Remnants.ReleaseFleet(Fleet, GoalStep.GoalComplete);
+
 
             int numBombersInFleet = Remnants.NumBombersInFleet(Fleet);
             int missingBombers    = BombersLevel > 0 ? BombersLevel - numBombersInFleet : 0;

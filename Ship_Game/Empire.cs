@@ -473,10 +473,13 @@ namespace Ship_Game
 
         public float KnownEnemyStrengthIn(SolarSystem system, Predicate<ThreatMatrix.Pin> filter)
                      => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, filter);
+
         public float KnownEnemyStrengthIn(SolarSystem system)
              => EmpireAI.ThreatMatrix.GetStrengthInSystem(system, p=> IsEmpireHostile(p.GetEmpire()));
+
         public float KnownEnemyStrengthIn(AO ao)
              => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
+
         public float KnownEmpireStrength(Empire empire) => EmpireAI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
@@ -2730,6 +2733,7 @@ namespace Ship_Game
                 CalcAverageFreighterCargoCapAndFTLSpeed();
                 CalcWeightedCenter();
                 DispatchBuildAndScrapFreighters();
+                AssignSniffingTasks();
                 AssignExplorationTasks();
             }
         }
@@ -3248,20 +3252,51 @@ namespace Ship_Game
             return true;
         }
 
+        void AssignSniffingTasks()
+        {
+            if (!isPlayer && EmpireAI.Goals.Count(g => g.type == GoalType.ScoutSystem) < DifficultyModifiers.NumSystemsToSniff)
+                EmpireAI.Goals.Add(new ScoutSystem(this));
+        }
+
+        public bool ChooseScoutShipToBuild(out Ship scout)
+        {
+            if (isPlayer && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out scout))
+                return true;
+
+            var scoutShipsWeCanBuild = new Array<Ship>();
+            foreach (string shipUid in ShipsWeCanBuild)
+            {
+                Ship ship = ResourceManager.ShipsDict[shipUid];
+                if (ship.shipData.Role == ShipData.RoleName.scout)
+                    scoutShipsWeCanBuild.Add(ship);
+            }
+
+            if (scoutShipsWeCanBuild.IsEmpty)
+            {
+                scout = null;
+                return false;
+            }
+
+            // pick most power efficient scout
+            scout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
+            return scout != null;
+        }
+
         void AssignExplorationTasks()
         {
             if (isPlayer && !AutoExplore)
                 return;
 
-            int unexplored = UniverseScreen.SolarSystemList.Count(s => !s.IsExploredBy(this)).UpperBound(21);
+            int unexplored = UniverseScreen.SolarSystemList.Count(s => !s.IsFullyExploredBy(this)).UpperBound(21);
             if (unexplored == 0)
             {
+               /*
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
                     Ship ship = OwnedShips[i];
                     if (IsScout(ship) && ship.AI.State != AIState.Scrap)
                         ship.AI.OrderScrapShip();
-                }
+                }*/
                 return;
             }
 
@@ -3273,7 +3308,7 @@ namespace Ship_Game
             for (int i = 0; i < OwnedShips.Count; i++)
             {
                 Ship ship = OwnedShips[i];
-                if (IsScout(ship))
+                if (IsIdleScout(ship)) 
                 {
                     ship.DoExplore();
                     if (++numScouts >= desiredScouts)
@@ -3289,15 +3324,19 @@ namespace Ship_Game
 
 
             // local 
-            bool IsScout(Ship s)
+            bool IsIdleScout(Ship s)
             {
                 if (s.shipData.Role == ShipData.RoleName.supply)
                     return false; // FB - this is a workaround, since supply shuttle register as scouts design role.
 
-                return isPlayer && s.Name == data.CurrentAutoScout 
-                       || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null;
+                return s.AI.State != AIState.Flee
+                       && s.AI.State != AIState.Scrap
+                       && s.AI.State != AIState.Explore
+                       && (isPlayer && s.Name == data.CurrentAutoScout 
+                           || !isPlayer && s.DesignRole == ShipData.RoleName.scout && s.fleet == null);
             }
         }
+
         private void ApplyFertilityChange(float amount)
         {
             if (amount.AlmostEqual(0)) return;
