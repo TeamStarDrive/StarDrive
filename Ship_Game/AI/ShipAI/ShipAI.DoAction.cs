@@ -280,15 +280,11 @@ namespace Ship_Game.AI
                 && ExplorationTarget.ShipList.Any(s => s.AI.Target == Owner))
             {
                 ClearOrders();
-                var planet  = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
-                if (planet == null)
-                {
+                if (Owner.TryGetScoutFleeVector(out Vector2 escapePos))
+                    OrderMoveToNoStop(escapePos, Owner.Direction.DirectionToTarget(escapePos), true, AIState.Flee);
+                else
                     OrderFlee(true);
-                    return false;
-                }
 
-                var reverse = Owner.Center.DirectionToTarget(planet.Center);
-                OrderMoveToNoStop(Owner.Center + reverse.Normalized() * 100000, reverse, true, AIState.Flee);
                 return false;
             }
 

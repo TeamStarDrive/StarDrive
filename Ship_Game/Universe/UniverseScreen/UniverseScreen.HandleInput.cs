@@ -229,6 +229,8 @@ namespace Ship_Game
                     solarSystem.SetExploredBy(player);
                     foreach (Planet planet in solarSystem.PlanetList)
                         planet.SetExploredBy(player);
+
+                    solarSystem.UpdateFullyExploredBy(player);
                 }
                 GlobalStats.LimitSpeed = GlobalStats.LimitSpeed || Debug;
             }
