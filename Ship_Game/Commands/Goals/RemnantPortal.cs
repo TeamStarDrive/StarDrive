@@ -37,7 +37,8 @@ namespace Ship_Game.Commands.Goals
 
         void UpdatePosition()
         {
-            if (Portal.InCombat && Portal.System != null && RandomMath.RollDice(50))
+            int roll = Portal.AI.Target?.System == Portal.System ? 50 : 5;
+            if (Portal.AI.Target != null && Portal.System != null && RandomMath.RollDice(roll))
                 JumpToEnemy();
             else
                 ReturnToSpawnPos();
@@ -93,7 +94,7 @@ namespace Ship_Game.Commands.Goals
             if (Portal.System != null)
             {
                 float production = Empire.Universe.StarDate - 1000; // Stardate 1100 yields 100, 1200 yields 200, etc.
-                if (Portal.InCombat)
+                if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
                     production /= 2;
 
                 production *= empire.DifficultyModifiers.RemnantResourceMod;
