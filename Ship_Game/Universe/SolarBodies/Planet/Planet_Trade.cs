@@ -144,7 +144,8 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.IMPORT)
                     return 0;
 
-                return (int)(8 - PopulationBillion).Clamped(0, 5);
+                float slots = 2 / PopulationRatio.LowerBound(0.2f);
+                return (int)slots.Clamped(1, 5);
             }
         }
 
