@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 
@@ -90,15 +91,20 @@ namespace Ship_Game.Commands.Goals
             if (!ShipOnPlan)
                 return GoalStep.RestartGoal;
 
-            if (FinishedShip.AI.BadGuysNear)
+            if (FinishedShip.AI.BadGuysNear && FinishedShip.System.ShipList.Any(s => s.AI.Target == FinishedShip))
             {
-                FinishedShip.AI.ClearOrdersAndWayPoints();
+                FinishedShip.AI.ClearOrders();
+                if (FinishedShip.TryGetScoutFleeVector(out Vector2 escapePos))
+                    FinishedShip.AI.OrderMoveToNoStop(escapePos, FinishedShip.Direction.DirectionToTarget(escapePos), true, AIState.Flee);
+                else
+                    FinishedShip.AI.OrderFlee(true);
+
                 return GoalStep.RestartGoal;
             }
 
-            return (FinishedShip.System.IsFullyExploredBy(empire))
-                   ? GoalStep.GoalComplete
-                   : GoalStep.TryAgain;
+            return FinishedShip.Center.InRadius(FinishedShip.AI.ExplorationTarget.Position, 20000) 
+                    ? GoalStep.GoalComplete 
+                    : GoalStep.TryAgain;
         }
 
         bool ShipOnPlan => FinishedShip?.Active == true 

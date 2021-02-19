@@ -470,11 +470,14 @@ namespace Ship_Game.Ships
                 UpdateWarpSpooling(timeStep);
         }
 
-        public bool GetEscapeVector(out Vector2 escapePos)
-        {
-            escapePos = Position + Direction.Normalized() * 20000; // default vector - straight through
+        public bool TryGetScoutFleeVector(out Vector2 escapePos) => GetEscapeVector(out escapePos, 100000, true);
+        public bool TryGetEscapeVector(out Vector2 escapePos) => GetEscapeVector(out escapePos, 20000, false);
 
-            if (!InCombat) // No need for escape vector if not in combat - turn around
+        public bool GetEscapeVector(out Vector2 escapePos, float desiredDistance, bool ignoreNonCombat)
+        {
+            escapePos = Position + Direction.Normalized() * desiredDistance; // default vector - straight through
+
+            if (!InCombat && !ignoreNonCombat) // No need for escape vector if not in combat - turn around
                 return false;
 
             if (IsInFriendlyProjectorRange || !Empire.Universe.GravityWells)
@@ -504,14 +507,14 @@ namespace Ship_Game.Ships
                 Vector2 pathToCheck = rotation.RadiansToDirection();
                 if (!WellsInPath(potentialWells, pathToCheck, 2000, out int wellHits))
                 {
-                    escapePos = Position + pathToCheck * 20000;
+                    escapePos = Position + pathToCheck * desiredDistance;
                     break; // Found direction with no wells
                 }
 
                 if (wellHits < leastWells)
                 {
                     leastWells = wellHits;
-                    escapePos = Position +  pathToCheck * 20000; // try to get the path with least well hits
+                    escapePos = Position +  pathToCheck * desiredDistance; // try to get the path with least well hits
                 }
             }
 

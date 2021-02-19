@@ -470,7 +470,7 @@ namespace Ship_Game.AI
             AwaitClosest = toOrbit;
             AddResupplyPlanetGoal(toOrbit);
 
-            if (Owner.GetEscapeVector(out Vector2 escapePos))
+            if (Owner.TryGetEscapeVector(out Vector2 escapePos))
                 OrderResupplyEscape(escapePos, Owner.Direction);
         }
 
