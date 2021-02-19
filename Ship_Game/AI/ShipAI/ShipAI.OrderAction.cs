@@ -100,10 +100,10 @@ namespace Ship_Game.AI
 
         public void OrderScout(SolarSystem target, Goal g)
         {
-            ExplorationTarget = target;
             ClearWayPoints();
             ClearOrders();
             OrderMoveToNoStop(target.Position, Owner.Direction, true, AIState.Explore, g);
+            ExplorationTarget = target;
         }
 
         public void OrderExplore()
