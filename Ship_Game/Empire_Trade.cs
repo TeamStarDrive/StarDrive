@@ -219,11 +219,11 @@ namespace Ship_Game
             float ratioDiff = 0;
             switch (reason)
             {
-                case FreighterPriority.TooSmall:         ratioDiff = -0.005f; break;
+                case FreighterPriority.TooSmall:         ratioDiff = -0.01f;  break;
                 case FreighterPriority.TooBig:           ratioDiff = +0.01f;  break;
                 case FreighterPriority.TooSlow:          ratioDiff = +0.02f;  break;
-                case FreighterPriority.ExcessCargoLeft:  ratioDiff = +0.02f;  break;
-                case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.005f; break;
+                case FreighterPriority.ExcessCargoLeft:  ratioDiff = +0.005f; break;
+                case FreighterPriority.UnloadedAllCargo: ratioDiff = -0.02f;  break;
             }
 
             IncreaseFastVsBigFreighterRatio(ratioDiff);

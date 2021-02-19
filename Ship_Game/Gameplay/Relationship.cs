@@ -959,7 +959,8 @@ namespace Ship_Game.Gameplay
                     x =>
                     {
                         HaveRejected_Alliance = x;
-                        SetAlliance(!HaveRejected_Alliance, us, them);
+                        if (!HaveRejected_Alliance)
+                            SetAlliance(true, us, them);
                     })
             };
 
