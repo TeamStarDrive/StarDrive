@@ -43,7 +43,8 @@ namespace Ship_Game.AI
         RemnantBalancersEngage,
         RemnantInit,
         DefendVsRemnants,
-        StandbyColonyShip
+        StandbyColonyShip,
+        ScoutSystem
     }
 
     public enum GoalStep
@@ -167,6 +168,7 @@ namespace Ship_Game.AI
                 case RearmShipFromPlanet.ID:    return new RearmShipFromPlanet();
                 case DefendVsRemnants.ID:       return new DefendVsRemnants();
                 case StandbyColonyShip.ID:      return new StandbyColonyShip();
+                case ScoutSystem.ID:            return new ScoutSystem();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }

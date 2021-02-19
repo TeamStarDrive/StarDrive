@@ -24,31 +24,9 @@ namespace Ship_Game.Commands.Goals
             this.empire = empire;
         }
 
-        bool ChooseScoutShipToBuild(out Ship scout)
-        {
-            if (EmpireManager.Player == empire
-                && ResourceManager.ShipsDict.TryGetValue(EmpireManager.Player.data.CurrentAutoScout, out scout))
-                return true;
-            var scoutShipsWeCanBuild = new Array<Ship>();
-            foreach (string shipUid in empire.ShipsWeCanBuild)
-            {
-                Ship ship = ResourceManager.ShipsDict[shipUid];
-                if (ship.shipData.Role == ShipData.RoleName.scout)
-                    scoutShipsWeCanBuild.Add(ship);
-            }
-            if (scoutShipsWeCanBuild.IsEmpty)
-            {
-                scout = null;
-                return false;
-            }
-            // pick most power efficient scout
-            scout = scoutShipsWeCanBuild.FindMax(s => s.PowerFlowMax - s.NetPower.NetSubLightPowerDraw);
-            return scout != null;
-        }
-
         GoalStep FindPlanetToBuildAt()
         {
-            if (!ChooseScoutShipToBuild(out Ship scout))
+            if (!empire.ChooseScoutShipToBuild(out Ship scout))
                 return GoalStep.GoalFailed;
 
             if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, scout, out Planet planet))

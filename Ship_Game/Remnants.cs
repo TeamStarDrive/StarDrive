@@ -175,8 +175,9 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 1.15f;
-                case RemnantStory.AncientBalancers:     return 0.85f;
+                case RemnantStory.AncientExterminators: return 1.1f;
+                case RemnantStory.AncientBalancers:     return 0.9f;
+                case RemnantStory.AncientRaidersRandom: return 0.7f;
                 default:                                return 1;
             }
         }
@@ -667,7 +668,7 @@ namespace Ship_Game
             if (Hibernating)
             {
                 HibernationTurns -= 1;
-                return;
+                amount /= 5;
             }
 
             GenerateProduction(amount);
@@ -731,8 +732,6 @@ namespace Ship_Game
 
             float quality   = PlanetQuality(p);
             int dieModifier = (int)CurrentGame.Difficulty * 5 - 10; // easy -10, brutal +5
-            if (Story != RemnantStory.None)
-                dieModifier -= 10;
 
             int d100 = RollDie(100) + dieModifier;
             switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
@@ -760,12 +759,19 @@ namespace Ship_Game
 
         void NormalPresence(float quality, int d100, Planet p)
         {
+            if (quality > 18f)
+            {
+                if (d100 >= 10) AddMajorFleet(p);
+                if (d100 >= 30) AddSupportShips(p);
+                if (d100 >= 50) AddMajorFleet(p);
+                if (d100 >= 70) AddTorpedoShips(p);
+            }
             if (quality > 15f)
             {
-                if (d100 >= 30) AddMinorFleet(p);
-                if (d100 >= 50) AddMajorFleet(p);
-                if (d100 >= 70) AddSupportShips(p);
-                if (d100 >= 90) AddTorpedoShips(p);
+                if (d100 >= 20) AddMinorFleet(p);
+                if (d100 >= 40) AddMajorFleet(p);
+                if (d100 >= 60) AddSupportShips(p);
+                if (d100 >= 80) AddTorpedoShips(p);
             }
             else if (quality > 10f)
             {
@@ -884,7 +890,7 @@ namespace Ship_Game
             if (RollDice(25))
                 AddMinorFleet(p);
 
-            if (RollDice(10))
+            if (RollDice(15))
                 AddGuardians(1, RemnantShipType.Assimilator, p);
         }
 

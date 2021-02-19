@@ -568,7 +568,7 @@ namespace Ship_Game.Ships
 
             if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
             {
-                if (MaxTroopStrengthInSpaceToCommit < enemyStrength)
+                if (MaxTroopStrengthInSpaceToCommit.AlmostZero() || MaxTroopStrengthInSpaceToCommit < enemyStrength)
                     // This will launch salvos of assault shuttles if possible
                     sendingTroops = ScrambleAssaultShips(enemyStrength); 
 

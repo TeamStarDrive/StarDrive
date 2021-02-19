@@ -27,6 +27,7 @@
         public readonly int StandByColonyShips;
         public readonly int TrustLostStoleColony; // Vs players
         public readonly float FleetStrModifier; // AI increase/decrease str of fleets needs, when they win or lose vs another empire
+        public readonly int NumSystemsToSniff; // Number of system the AI will try to re-scout until it is fully explored
 
         // AI Buffs/Nerfs
         public readonly float FlatMoneyBonus;
@@ -78,6 +79,7 @@
                     StandByColonyShips   = 1;
                     TrustLostStoleColony = 0;
                     FleetStrModifier     = 0.2f;
+                    NumSystemsToSniff    = 1;
                     if (!empire.isPlayer)
                     {
                         ProductionMod = -0.1f;
@@ -111,6 +113,7 @@
                     StandByColonyShips   = 2;
                     TrustLostStoleColony = 5;
                     FleetStrModifier     = 0.3f;
+                    NumSystemsToSniff    = 2;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -135,6 +138,7 @@
                     StandByColonyShips   = 3;
                     TrustLostStoleColony = 10;
                     FleetStrModifier     = 0.5f;
+                    NumSystemsToSniff    = 3;
 
                     if (!empire.isPlayer)
                     {
@@ -170,6 +174,7 @@
                     StandByColonyShips   = 3;
                     TrustLostStoleColony = 15;
                     FleetStrModifier     = 0.65f;
+                    NumSystemsToSniff    = 4;
 
                     if (!empire.isPlayer)
                     {

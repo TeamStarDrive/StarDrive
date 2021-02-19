@@ -388,7 +388,7 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckDedicatedCarrier(bool hasFighterHangars, ShipData.RoleName role, int maxWeaponRange, int sensorRange, bool shortRange)
         {
-            if (role != ShipData.RoleName.carrier || !hasFighterHangars)
+            if (role != ShipData.RoleName.carrier  && !Stationary || !hasFighterHangars)
                 return;
 
             bool minCarrier  = false;
@@ -405,7 +405,7 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckSecondaryCarrier(bool hasFighterHangars, ShipData.RoleName role, int maxWeaponRange)
         {
-            if (role == ShipData.RoleName.carrier || !hasFighterHangars)
+            if (role == ShipData.RoleName.carrier || !hasFighterHangars || Stationary)
                 return;
 
             string rangeText = $"\n{GetRangeLaunchText(maxWeaponRange, out int minLaunchRangeWeapons, out bool minCarrier)}" +

@@ -275,46 +275,39 @@ namespace Ship_Game.AI
 
         bool DoExploreSystem(FixedSimTime timeStep)
         {
-            if (!TrySetupPatrolRoutes()) // Set route to each planet in the system
-                return DoExploreEmptySystem(timeStep, ExplorationTarget);
-
-            PatrolTarget = PatrolRoute[StopNumber];
-            if (PatrolTarget.IsExploredBy(Owner.loyalty))
+            if (Owner.System == ExplorationTarget 
+                && BadGuysNear 
+                && ExplorationTarget.ShipList.Any(s => s.AI.Target == Owner))
             {
-                StopNumber += 1;
-                if (StopNumber == PatrolRoute.Count)
-                {
-                    StopNumber = 0;
-                    PatrolRoute.Clear();
-                    return true;
-                }
+                ClearOrders();
+                if (Owner.TryGetScoutFleeVector(out Vector2 escapePos))
+                    OrderMoveToNoStop(escapePos, Owner.Direction.DirectionToTarget(escapePos), true, AIState.Flee);
+                else
+                    OrderFlee(true);
+
+                return false;
+            }
+
+            if (ExplorationTarget.PlanetList.Count == 0)
+                return DoExploreEmptySystem(timeStep, ExplorationTarget); // Lone Star
+
+            if (!TryGetClosestUnexploredPlanet(ExplorationTarget, out PatrolTarget))
+                return true; // All planets explored
+
+            MovePosition           = PatrolTarget.Center;
+            float distanceToTarget = Owner.Center.Distance(MovePosition);
+            if (distanceToTarget < 75000f)
+                PatrolTarget.ParentSystem.SetExploredBy(Owner.loyalty);
+
+            if (distanceToTarget >= 5500f)
+            {
+                ThrustOrWarpToPos(MovePosition, timeStep, distanceToTarget);
             }
             else
             {
-                MovePosition           = PatrolTarget.Center;
-                float distanceToTarget = Owner.Center.Distance(MovePosition);
-                if (distanceToTarget < 75000f)
-                    PatrolTarget.ParentSystem.SetExploredBy(Owner.loyalty);
-
-                if (distanceToTarget >= 5500f)
-                {
-                    ThrustOrWarpToPos(MovePosition, timeStep, distanceToTarget);
-                }
-                else
-                {
-                    ThrustOrWarpToPos(MovePosition, timeStep);
-                    if (distanceToTarget < 500f)
-                    {
-                        PatrolTarget.SetExploredBy(Owner.loyalty);
-                        StopNumber += 1;
-                        if (StopNumber == PatrolRoute.Count)
-                        {
-                            StopNumber = 0;
-                            PatrolRoute.Clear();
-                            return true;
-                        }
-                    }
-                }
+                ThrustOrWarpToPos(MovePosition, timeStep);
+                if (distanceToTarget < 500f)
+                    PatrolTarget.SetExploredBy(Owner.loyalty);
             }
 
             return false;
@@ -331,6 +324,7 @@ namespace Ship_Game.AI
                 system.SetExploredBy(Owner.loyalty);
                 return true;
             }
+
             ThrustOrWarpToPos(MovePosition, timeStep);
             return false;
         }
