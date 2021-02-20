@@ -963,9 +963,9 @@ namespace Ship_Game
             return false;
         }
 
-        public bool CanDoAnotherRaid()
+        public bool CanDoAnotherRaid(out int numRaids)
         {
-            int numRaids = Goals.Count(g => g.IsRaid);
+            numRaids = Goals.Count(g => g.IsRaid);
             return numRaids < Level;
         }
 
