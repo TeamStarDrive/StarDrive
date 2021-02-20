@@ -196,7 +196,7 @@ namespace Ship_Game.Gameplay
             switch (treatyType)
             {
                 case TreatyType.Alliance:      Treaty_Alliance    = value; PreparingForWar = false;       break;
-                case TreatyType.NonAggression: Treaty_NAPact      = value;                                break;
+                case TreatyType.NonAggression: Treaty_NAPact      = value; WarnedSystemsList.Clear();     break;
                 case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                break;
                 case TreatyType.Peace:         Treaty_Peace       = value; SetPeace();                    break;
                 case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0; break;
@@ -207,6 +207,7 @@ namespace Ship_Game.Gameplay
                 if (value)
                 {
                     PeaceTurnsRemaining = 100;
+                    WarnedSystemsList.Clear();
                     us.LaunchTroopsAfterPeaceSigned(Them);
                 }
                 else

@@ -914,8 +914,8 @@ namespace Ship_Game
 
         public void ExecuteVictimRetaliation(Empire victim)
         {
-            if (victim.isPlayer)
-                return; // Players should attack pirate bases themselves
+            if (victim.isPlayer || !victim.canBuildFrigates)
+                return; // Players should attack pirate bases themselves and Ai should attack them only if they have frigates
 
             EmpireAI ai             = victim.GetEmpireAI();
             int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
@@ -963,9 +963,9 @@ namespace Ship_Game
             return false;
         }
 
-        public bool CanDoAnotherRaid(out int numRaids)
+        public bool CanDoAnotherRaid()
         {
-            numRaids = Goals.Count(g => g.IsRaid);
+            int numRaids = Goals.Count(g => g.IsRaid);
             return numRaids < Level;
         }
 
