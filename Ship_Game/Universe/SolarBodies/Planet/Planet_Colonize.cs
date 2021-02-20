@@ -24,6 +24,7 @@ namespace Ship_Game
             LaunchNonOwnerTroops();
             NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
+            SetInGroundCombat(Owner);
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
         }
 

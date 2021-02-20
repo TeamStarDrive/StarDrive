@@ -90,6 +90,9 @@ namespace Ship_Game
         {
             get
             {
+                if (Owner.Money < 1000)
+                    return 0;
+
                 float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money
                 if (MaxPopulationBillion < 2)
                     debtTolerance += 2f - MaxPopulationBillion;

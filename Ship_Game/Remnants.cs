@@ -175,9 +175,9 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 1.1f;
-                case RemnantStory.AncientBalancers:     return 0.9f;
-                case RemnantStory.AncientRaidersRandom: return 0.7f;
+                case RemnantStory.AncientExterminators: return 1.15f;
+                case RemnantStory.AncientBalancers:     return 1f;
+                case RemnantStory.AncientRaidersRandom: return 0.9f;
                 default:                                return 1;
             }
         }
@@ -764,14 +764,14 @@ namespace Ship_Game
                 if (d100 >= 10) AddMajorFleet(p);
                 if (d100 >= 30) AddSupportShips(p);
                 if (d100 >= 50) AddMajorFleet(p);
-                if (d100 >= 70) AddTorpedoShips(p);
+                if (d100 >= 70) AddFrigate(p);
             }
             if (quality > 15f)
             {
                 if (d100 >= 20) AddMinorFleet(p);
                 if (d100 >= 40) AddMajorFleet(p);
                 if (d100 >= 60) AddSupportShips(p);
-                if (d100 >= 80) AddTorpedoShips(p);
+                if (d100 >= 80) AddFrigate(p);
             }
             else if (quality > 10f)
             {
@@ -818,7 +818,7 @@ namespace Ship_Game
                 if (d100 > 10) AddMinorFleet(p);
                 if (d100 > 20) AddSupportShips(p);
                 if (d100 > 75) AddCarriers(p);
-                if (d100 > 90) AddTorpedoShips(p);
+                if (d100 > 90) AddFrigate(p);
             }
             else if (quality >= 12f)
             {
@@ -849,7 +849,7 @@ namespace Ship_Game
                 AddMinorFleet(p);
                 AddSupportShips(p);
                 if (d100 >= 50) AddCarriers(p);
-                if (d100 >= 70) AddTorpedoShips(p);
+                if (d100 >= 70) AddFrigate(p);
                 if (d100 >= 90) AddCarriers(p);
             }
             else if (quality >= 15f)
@@ -857,7 +857,7 @@ namespace Ship_Game
                 AddMajorFleet(p);
                 if (d100 >= 40) AddSupportShips(p);
                 if (d100 >= 60) AddCarriers(p);
-                if (d100 >= 80) AddTorpedoShips(p);
+                if (d100 >= 80) AddFrigate(p);
                 if (d100 >= 95) AddCarriers(p);
             }
             else if (quality >= 12f)
@@ -889,6 +889,9 @@ namespace Ship_Game
 
             if (RollDice(25))
                 AddMinorFleet(p);
+
+            if (RollDice(20))
+                AddFrigate(p);
 
             if (RollDice(15))
                 AddGuardians(1, RemnantShipType.Assimilator, p);
@@ -924,10 +927,10 @@ namespace Ship_Game
                 AddGuardians(1, RemnantShipType.Carrier, p);
         }
 
-        void AddTorpedoShips(Planet p)  //Added by Gretman
+        void AddFrigate(Planet p)  //Added by Gretman
         {
-            AddGuardians(1, RemnantShipType.TorpedoCruiser, p);
-            if (RollDice(10)) // 10% chance for another torpedo cruiser
+            AddGuardians(1, RemnantShipType.Frigate, p);
+            if (RollDice(10)) // 10% chance a torpedo cruiser
                 AddGuardians(1, RemnantShipType.TorpedoCruiser, p);
         }
 

@@ -36,6 +36,12 @@ namespace Ship_Game.Commands.Goals
             Pirates = empire.Pirates;
         }
 
+        Ship BoardingShip
+        {
+            get => FinishedShip;
+            set => FinishedShip = value;
+        }
+
         public override bool IsRaid => true;
 
         GoalStep DetectAndSpawnRaidForce()
@@ -48,7 +54,8 @@ namespace Ship_Game.Commands.Goals
                 Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
                 if (Pirates.SpawnBoardingShip(freighter, where, out Ship boardingShip))
                 {
-                    TargetShip = freighter;
+                    TargetShip   = freighter;
+                    BoardingShip = boardingShip;
                     TargetShip.HyperspaceReturn();
                     TargetShip.CauseEmpDamage(1000);
                     TargetShip.AllStop();
@@ -69,11 +76,13 @@ namespace Ship_Game.Commands.Goals
                 || !TargetShip.Active
                 || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
             {
+                BoardingShip?.AI.OrderPirateFleeHome();
                 return GoalStep.GoalFailed; // Target destroyed or escaped
             }
 
             if (TargetShip.loyalty == Pirates.Owner)
             {
+                BoardingShip?.AI.OrderPirateFleeHome();
                 TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
                 return GoalStep.GoToNextStep;
             }

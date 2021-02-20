@@ -176,7 +176,7 @@ namespace Ship_Game
 
         static Ship GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
                     => ShipBuilder.PickCostEffectiveShipToBuild(roleName, empire, 
-                        empire.Money - 90, empire.Money/10, false);
+                        empire.Money - 90, empire.Money/10);
 
         void LaunchDefenseShips(Planet p, Ship target, Empire empire)
         {

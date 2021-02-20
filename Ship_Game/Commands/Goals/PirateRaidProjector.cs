@@ -37,6 +37,12 @@ namespace Ship_Game.Commands.Goals
             Pirates = empire.Pirates;
         }
 
+        Ship BoardingShip
+        {
+            get => FinishedShip;
+            set => FinishedShip = value;
+        }
+
         public override bool IsRaid => true;
 
         GoalStep DetectAndSpawnRaidForce()
@@ -49,10 +55,11 @@ namespace Ship_Game.Commands.Goals
                 Vector2 where = orbital.Center.GenerateRandomPointOnCircle(3000);
                 if (Pirates.SpawnBoardingShip(orbital, where, out Ship boardingShip))
                 {
-                    TargetShip = orbital; // This is the main target, we want this to be boarded
+                    TargetShip   = orbital; // This is the main target, we want this to be boarded
+                    BoardingShip = boardingShip;
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                     Pirates.ExecuteVictimRetaliation(TargetEmpire);
-                    boardingShip.AI.OrderAttackSpecificTarget(TargetShip);
+                    BoardingShip.AI.OrderAttackSpecificTarget(TargetShip);
                     return GoalStep.GoToNextStep;
                 }
             }
@@ -67,6 +74,7 @@ namespace Ship_Game.Commands.Goals
                 || !TargetShip.Active
                 || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
             {
+                BoardingShip?.AI.OrderPirateFleeHome(true);
                 return GoalStep.GoalFailed; // Target or our forces were destroyed 
             }
 
@@ -75,6 +83,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FleeFromOrbital()
         {
+            BoardingShip?.AI.OrderPirateFleeHome(true);
             if (TargetShip == null || !TargetShip.Active || TargetShip.loyalty != Pirates.Owner)
                 return GoalStep.GoalFailed; // Target destroyed or they took it from us
 
