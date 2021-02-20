@@ -175,9 +175,9 @@ namespace Ship_Game
         {
             switch (Story)
             {
-                case RemnantStory.AncientExterminators: return 1.1f;
-                case RemnantStory.AncientBalancers:     return 0.9f;
-                case RemnantStory.AncientRaidersRandom: return 0.7f;
+                case RemnantStory.AncientExterminators: return 1.15f;
+                case RemnantStory.AncientBalancers:     return 1f;
+                case RemnantStory.AncientRaidersRandom: return 0.9f;
                 default:                                return 1;
             }
         }
