@@ -1416,8 +1416,6 @@ namespace Ship_Game.Ships
             return CurrentStrength;
         }
 
-        public float NormalizedStrength => BaseStrength / shipData.ModuleSlots.Length;
-
         //Added by McShooterz: Refactored by CG
         public void AddKill(Ship killed)
         {

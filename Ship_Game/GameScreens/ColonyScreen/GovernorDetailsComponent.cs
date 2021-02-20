@@ -692,7 +692,7 @@ namespace Ship_Game
             string shipyardName = ResourceManager.ShipsDict[Planet.Owner.data.DefaultShipyard].Name;
             Ship shipyard       = ResourceManager.GetShipTemplate(shipyardName);
 
-            if (BuildOrbital(shipyard))
+            if (Planet.Owner.CanBuildShipyards && BuildOrbital(shipyard))
                 GameAudio.AffirmativeClick();
             else
                 GameAudio.NegativeClick();
