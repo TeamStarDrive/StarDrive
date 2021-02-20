@@ -56,19 +56,17 @@ namespace Ship_Game.Commands.Goals
 
         int RaidStartChance()
         {
-            if (!Pirates.CanDoAnotherRaid(out int numCurrentRaids))
+            if (!Pirates.CanDoAnotherRaid())
                 return 0; // Limit maximum of concurrent raids
 
-            int startChance = (Pirates.ThreatLevelFor(TargetEmpire)/2).LowerBound((int)CurrentGame.Difficulty + 1);
-            startChance    /= (numCurrentRaids+1);
-            startChance    /= EmpireManager.PirateFactions.Length.LowerBound(1);
+            int startChance = Pirates.Level.LowerBound((int)CurrentGame.Difficulty + 1);
             float taxRate   = TargetEmpire.data.TaxRate;
 
             if (taxRate > 0.25f) // High Tax rate encourages more pirate tippers
                 startChance *= (int)(1 + taxRate);
 
             //startChance = 100; // For testing
-            return startChance;
+            return startChance.UpperBound(Pirates.ThreatLevelFor(TargetEmpire));
         }
 
         GoalType GetRaid()
