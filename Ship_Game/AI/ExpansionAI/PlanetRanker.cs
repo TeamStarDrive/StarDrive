@@ -45,7 +45,7 @@ namespace Ship_Game.AI.ExpansionAI
             bool moralityBlock = IsColonizeBlockedByMorals(Planet.ParentSystem, empire);
 
             // We can colonize if we are not morally blocked and any planet better than 10
-            CanColonize =  !moralityBlock && (rawValue > 20 || empire.IsCybernetic && planet.MineralRichness > 0.9);
+            CanColonize =  !moralityBlock && (rawValue > 30 || empire.IsCybernetic && planet.MineralRichness > 1);
         }
 
         private static bool IsColonizeBlockedByMorals(SolarSystem s, Empire ownerEmpire)
@@ -58,18 +58,21 @@ namespace Ship_Game.AI.ExpansionAI
                 return false;
             }
 
+            /*
             bool atWar    = ownerEmpire.AllRelations.Any(war => war.Rel.AtWar);
             bool trusting = ownerEmpire.data.DiplomaticPersonality.IsTrusting;
             bool careless = ownerEmpire.data.DiplomaticPersonality.Careless;
 
             if (atWar && careless) 
+                return false;*/
+
+            if (s.OwnerList.Any(e => s.IsExclusivelyOwnedBy(e)
+                                     && (ownerEmpire.IsOpenBordersTreaty(e) || ownerEmpire.IsAtWarWith(e))))
+            {
                 return false;
+            }
 
-            foreach (Empire enemy in s.OwnerList)
-                if (ownerEmpire.IsEmpireAttackable(enemy) && !trusting)
-                    return false;
-
-            return true;
+            return s.OwnerList.Count > 0;
         }
     }
 }

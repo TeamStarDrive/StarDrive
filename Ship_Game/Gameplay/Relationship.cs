@@ -196,7 +196,7 @@ namespace Ship_Game.Gameplay
             switch (treatyType)
             {
                 case TreatyType.Alliance:      Treaty_Alliance    = value; PreparingForWar = false;       break;
-                case TreatyType.NonAggression: Treaty_NAPact      = value;                                break;
+                case TreatyType.NonAggression: Treaty_NAPact      = value; WarnedSystemsList.Clear();     break;
                 case TreatyType.OpenBorders:   Treaty_OpenBorders = value;                                break;
                 case TreatyType.Peace:         Treaty_Peace       = value; SetPeace();                    break;
                 case TreatyType.Trade:         Treaty_Trade       = value; Treaty_Trade_TurnsExisted = 0; break;
@@ -207,6 +207,7 @@ namespace Ship_Game.Gameplay
                 if (value)
                 {
                     PeaceTurnsRemaining = 100;
+                    WarnedSystemsList.Clear();
                     us.LaunchTroopsAfterPeaceSigned(Them);
                 }
                 else
@@ -753,8 +754,8 @@ namespace Ship_Game.Gameplay
             float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(us, them);
             if (strShipsInBorders > 0)
             {
-                float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 10
-                                             : us.CurrentMilitaryStrength * 20 ; // We are less concerned if we have NAP with them
+                float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 25
+                                             : us.CurrentMilitaryStrength * 50 ; // We are less concerned if we have NAP with them
 
                 float borderAnger = (100f - Trust) / 100f * strShipsInBorders / ourStr.LowerBound(1);
                 AddAngerShipsInOurBorders(borderAnger);

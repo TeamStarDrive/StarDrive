@@ -11,13 +11,12 @@ namespace Ship_Game.AI
 
         public static Ship PickFromCandidates(ShipData.RoleName role, Empire empire, int maxSize = 0,
                       ShipModuleType targetModule = ShipModuleType.Dummy,
-                      ShipData.HangarOptions designation = ShipData.HangarOptions.General,
-                      bool normalizedStrength = true)
+                      ShipData.HangarOptions designation = ShipData.HangarOptions.General)
         {
             // The AI will pick ships to build based on their Strength and game difficulty level.
             // This allows it to choose the toughest ships to build. This is normalized by ship total slots
             // so ships with more slots of the same role wont get priority (bigger ships also cost more to build and maintain.
-            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, designation, normalizedStrength);
+            return PickFromCandidatesByStrength(role, empire, maxSize, targetModule, designation);
         }
 
         private struct MinMaxStrength
@@ -54,7 +53,7 @@ namespace Ship_Game.AI
 
         // Pick the strongest ship to build with a cost limit and a role
         public static Ship PickCostEffectiveShipToBuild(ShipData.RoleName role, Empire empire, 
-            float maxCost, float maintBudget, bool normalizedStr = true)
+            float maxCost, float maintBudget)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost) 
@@ -65,16 +64,12 @@ namespace Ship_Game.AI
             if (potentialShips.Length == 0)
                 return null;
 
-            Ship best = normalizedStr ? potentialShips.FindMax(s => s.NormalizedStrength)
-                                      : potentialShips.FindMax(s => s.BaseStrength);
-
-            return best;
+            return potentialShips.FindMax(s => s.BaseStrength);
         }
         
         static Ship PickFromCandidatesByStrength(ShipData.RoleName role, Empire empire, int maxSize, 
                                                            ShipModuleType targetModule,
-                                                           ShipData.HangarOptions designation,
-                                                           bool normalizedStrength = true)
+                                                           ShipData.HangarOptions designation)
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role
@@ -88,14 +83,9 @@ namespace Ship_Game.AI
             if (potentialShips.Length == 0)
                 return null;
 
-            float maxStrength = normalizedStrength ? potentialShips.Max(ship => ship.NormalizedStrength)
-                                                   : potentialShips.Max(ship => ship.BaseStrength);
-
-            var levelAdjust = new MinMaxStrength(maxStrength, empire);
-
-            var bestShips = normalizedStrength ? potentialShips.Filter(ship => levelAdjust.InRange(ship.NormalizedStrength)) 
-                                               : potentialShips.Filter(ship => levelAdjust.InRange(ship.BaseStrength));
-
+            float maxStrength = potentialShips.Max(ship => ship.BaseStrength);
+            var levelAdjust   = new MinMaxStrength(maxStrength, empire);
+            var bestShips     = potentialShips.Filter(ship => levelAdjust.InRange(ship.BaseStrength));
 
             if (bestShips.Length == 0)
                 return null;
@@ -107,10 +97,10 @@ namespace Ship_Game.AI
                 Debug($"    Sorted Ship List ({bestShips.Length})");
                 foreach (Ship loggedShip in bestShips)
                 {
-                    Debug($"    -- Name: {loggedShip.Name}, Strength: {loggedShip.NormalizedStrength}");
+                    Debug($"    -- Name: {loggedShip.Name}, Strength: {loggedShip.BaseStrength}");
                 }
                 Debug($"    Chosen Role: {pickedShip.DesignRole}  Chosen Hull: {pickedShip.shipData.Hull}\n" +
-                      $"    Strength: {pickedShip.NormalizedStrength}\n" +
+                      $"    Strength: {pickedShip.BaseStrength}\n" +
                       $"    Name: {pickedShip.Name}. Range: {levelAdjust}");
             }
             return pickedShip;
@@ -147,14 +137,14 @@ namespace Ship_Game.AI
         {
             Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.shipData.Hull == oldShip.shipData.Hull
                                                               && s.DesignRole == oldShip.DesignRole
-                                                              && s.NormalizedStrength.Greater(oldShip.NormalizedStrength * 1.1f)
+                                                              && s.BaseStrength.Greater(oldShip.BaseStrength * 1.1f)
                                                               && s.Name != oldShip.Name);
             if (ships.Length == 0)
                 return null;
 
             Ship picked = RandomMath.RandItem(ships);
-            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.NormalizedStrength}" +
-                                            $" refit to --> {picked.Name}, Strength: {picked.NormalizedStrength}");
+            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.BaseStrength}" +
+                                            $" refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
             return picked;
         }
 

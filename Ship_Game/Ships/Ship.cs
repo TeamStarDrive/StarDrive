@@ -413,7 +413,7 @@ namespace Ship_Game.Ships
                 SolarSystem system = System;
                 if (system != null)
                 {
-                    if (attackerToUs.WarnedSystemsList.Contains(system.guid))
+                    if (attackerToUs.WarnedSystemsList.Contains(system.guid) && !IsFreighter)
                         return true;
 
                     if (DesignRole == ShipData.RoleName.troop &&
@@ -1415,8 +1415,6 @@ namespace Ship_Game.Ships
         {
             return CurrentStrength;
         }
-
-        public float NormalizedStrength => BaseStrength / shipData.ModuleSlots.Length;
 
         //Added by McShooterz: Refactored by CG
         public void AddKill(Ship killed)

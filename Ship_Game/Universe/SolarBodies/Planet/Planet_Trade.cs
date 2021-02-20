@@ -45,7 +45,7 @@ namespace Ship_Game
                     return 0;
 
                 int min      = Storage.FoodRatio > 0.75f ? 1 : 0;
-                int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 20 : 10;
+                int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 15 : 10;
                 return ((int)(Food.NetIncome + Storage.Food / 25)).Clamped(min, maxSlots);
             }
         }
@@ -73,7 +73,7 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
                     return 0;
 
-                return (int)(PopulationBillion / 3);
+                return (int)(PopulationBillion / 2);
             }
         }
 
