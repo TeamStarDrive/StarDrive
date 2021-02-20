@@ -121,7 +121,7 @@ namespace Ship_Game
 
             if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || budget < 0))
             {
-                Ship weakest = orbitalList.FindMin(s => s.NormalizedStrength);
+                Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
                 if (weakest != null)
                     ScrapOrbital(weakest);
                
@@ -151,7 +151,7 @@ namespace Ship_Game
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Magenta,$"{Name}, {Owner.Name} - SCRAPPED Orbital ----- {orbital.Name}" +
-                         $", STR: {orbital.NormalizedStrength}");
+                         $", STR: {orbital.BaseStrength}");
 
             orbital.QueueTotalRemoval();
         }
@@ -175,7 +175,7 @@ namespace Ship_Game
         {
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green,$"{Name}, {Owner.Name} - ADDED Orbital ----- {orbital.Name}, " +
-                         $"cost: {orbital.GetCost(Owner)}, STR: {orbital.NormalizedStrength}");
+                         $"cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
             Owner.GetEmpireAI().Goals.Add(buildOrbital);
@@ -186,7 +186,7 @@ namespace Ship_Game
             if (orbitalList.IsEmpty || OrbitalsInTheWorks)
                 return;
 
-            Ship weakestWeHave = orbitalList.FindMin(s => s.NormalizedStrength);
+            Ship weakestWeHave = orbitalList.FindMin(s => s.BaseStrength);
             if (weakestWeHave.AI.State == AIState.Refit)
                 return; // refit one orbital at a time
 
@@ -196,7 +196,7 @@ namespace Ship_Game
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.NormalizedStrength.Less(weakestWeHave.NormalizedStrength * 1.2f))
+            if (bestWeCanBuild.BaseStrength.Less(weakestWeHave.BaseStrength * 1.2f))
                 return; // replace only if str is 20% more than the current weakest orbital
 
             string debugReplaceOrRefit;
@@ -215,7 +215,7 @@ namespace Ship_Game
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Cyan, $"{Name}, {Owner.Name} - {debugReplaceOrRefit} Orbital ----- {weakestWeHave.Name}" +
-                         $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
+                         $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
         }
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, float budget)

@@ -603,7 +603,6 @@ namespace Ship_Game
 
                     if (troop.Loyalty != null
                         && troop.Loyalty != planetOwner
-                        && troop.Loyalty != EmpireManager.Unknown
                         && !troop.Loyalty.IsAlliedWith(planetOwner))
                     {
                         InvadingForces += 1;
