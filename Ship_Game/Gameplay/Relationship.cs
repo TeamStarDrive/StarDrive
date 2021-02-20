@@ -754,8 +754,8 @@ namespace Ship_Game.Gameplay
             float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(us, them);
             if (strShipsInBorders > 0)
             {
-                float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 10
-                                             : us.CurrentMilitaryStrength * 20 ; // We are less concerned if we have NAP with them
+                float ourStr = Treaty_NAPact ? us.CurrentMilitaryStrength * 25
+                                             : us.CurrentMilitaryStrength * 50 ; // We are less concerned if we have NAP with them
 
                 float borderAnger = (100f - Trust) / 100f * strShipsInBorders / ourStr.LowerBound(1);
                 AddAngerShipsInOurBorders(borderAnger);
