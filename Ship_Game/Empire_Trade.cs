@@ -77,8 +77,17 @@ namespace Ship_Game
             if (NonCybernetic)
                 DispatchOrBuildFreighters(Goods.Food, OwnedPlanets, false);
 
-            DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
-            DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false);
+            float pop = GetTotalPop(out float maxPop);
+            if (pop / maxPop > 0.5f)
+            {
+                DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
+                DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false);
+            }
+            else
+            {
+                DispatchOrBuildFreighters(Goods.Colonists, OwnedPlanets, false);
+                DispatchOrBuildFreighters(Goods.Production, OwnedPlanets, false);
+            }
 
             var interTradePlanets = TradingEmpiresPlanetList();
             if (interTradePlanets.Count > 0)
