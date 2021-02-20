@@ -35,6 +35,12 @@ namespace Ship_Game.Commands.Goals
             Pirates = empire.Pirates;
         }
 
+        Ship BoardingShip
+        {
+            get => FinishedShip;
+            set => FinishedShip = value;
+        }
+
         public override bool IsRaid => true;
 
         GoalStep DetectAndSpawnRaidForce()
