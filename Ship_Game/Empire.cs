@@ -3537,6 +3537,14 @@ namespace Ship_Game
             }
         }
 
+        public static void IncrementCordrazineCapture()
+        {
+            if (!GlobalStats.CordrazinePlanetCaptured)
+                Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
+
+            GlobalStats.CordrazinePlanetCaptured = true;
+        }
+
         public void PopulateKnownShips()
         {
             var currentlyKnown = new Array<Ship>();

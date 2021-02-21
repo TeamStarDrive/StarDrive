@@ -452,7 +452,7 @@ namespace Ship_Game
 
             Owner.RemovePlanet(thisPlanet, newOwner);
             if (newOwner.isPlayer && Owner == EmpireManager.Cordrazine)
-                GlobalStats.IncrementCordrazineCapture();
+                Empire.IncrementCordrazineCapture();
 
             if (IsExploredBy(EmpireManager.Player))
             {
