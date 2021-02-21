@@ -3354,7 +3354,7 @@ namespace Ship_Game
         {
             data.OwnedArtifacts.Add(art);
             ApplyFertilityChange(art.GetFertilityBonus(data));
-            data.Traits.DiplomacyMod         += art.GetDiplomacyBonus(data);
+            data.OngoingDiplomaticModifier   += art.GetDiplomacyBonus(data);
             data.Traits.GroundCombatModifier += art.GetGroundCombatBonus(data);
             data.Traits.ModHpModifier        += art.GetModuleHpMod(data);
             data.FlatMoneyBonus              += art.GetFlatMoneyBonus(data);
@@ -3535,6 +3535,14 @@ namespace Ship_Game
                 Parallel.Run(()=> EmpireAI.ThreatMatrix.UpdateAllPins(this));
                 ThreatMatrixUpdateTicks = ResetThreatMatrixTicks;
             }
+        }
+
+        public static void IncrementCordrazineCapture()
+        {
+            if (!GlobalStats.CordrazinePlanetCaptured)
+                Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
+
+            GlobalStats.CordrazinePlanetCaptured = true;
         }
 
         public void PopulateKnownShips()

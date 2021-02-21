@@ -598,6 +598,8 @@ namespace Ship_Game
                     DrawStat(Localizer.Token(4019), SelectedEmpire.data.Traits.ResearchMod, ref textCursor, false);
                 if (SelectedEmpire.data.Traits.DiplomacyMod != 0)
                     DrawStat(Localizer.Token(4020), SelectedEmpire.data.Traits.DiplomacyMod, ref textCursor, false);
+                if (SelectedEmpire.data.OngoingDiplomaticModifier != 0)
+                    DrawStat(Localizer.Token(4236), SelectedEmpire.data.OngoingDiplomaticModifier, ref textCursor, false);
                 if (SelectedEmpire.data.Traits.GroundCombatModifier != 0)
                     DrawStat(Localizer.Token(4021), SelectedEmpire.data.Traits.GroundCombatModifier, ref textCursor, false);
                 if (SelectedEmpire.data.Traits.ShipCostMod != 0)

@@ -149,7 +149,7 @@
     </Token>
     <Token>
       <Index>37</Index>
-      <Text>Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is .01 per turn. </Text>
+      <Text>Promiscuous natures, short gestation periods, and large litter sizes increase a race's rate of reproduction significantly. Minimum population growth is 0.01 (10 Million) per turn. </Text>
     </Token>
     <Token>
       <Index>38</Index>
@@ -157,7 +157,7 @@
     </Token>
     <Token>
       <Index>39</Index>
-      <Text>Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is .02 per turn.</Text>
+      <Text>Long gestation periods and difficult reproductive processes substantially reduce the natural reproduction rate of this race. Maximum natural population growth is 0.02 (20 Million) per turn.</Text>
     </Token>
     <Token>
       <Index>40</Index>
@@ -8418,6 +8418,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>4235</Index>
       <Text>of</Text> <!-- Total: X of Y in budget-->
+    </Token>
+    <Token>
+      <Index>4236</Index>
+      <Text>Ongoing Diplomacy Modifier</Text>
     </Token>
     <Token>
       <Index>5000</Index>
