@@ -71,7 +71,7 @@ namespace Ship_Game
         public static string ModFile => ModPath.NotEmpty() ? $"{ModPath}{ModName}.xml" : ""; // "Mods/MyMod/MyMod.xml"
         public static string ModOrVanillaName => HasMod ? ModName : "Vanilla";
         public static string ResearchRootUIDToDisplay = "Colonization";
-        public static int CordrazinePlanetsCaptured;
+        public static bool CordrazinePlanetCaptured;
 
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;
@@ -433,20 +433,6 @@ namespace Ship_Game
             var setting = config.AppSettings.Settings[name];
             if (setting != null) setting.Value = value;
             else config.AppSettings.Settings.Add(name, value);
-        }
-
-
-        //these should not be counted in globalstats anyway. also there ought to be a empire event piece.
-        //where these counters can be stored. but these are here because they were here... i think because the counters are here.
-        //but its pretty stupid to keep the counters in global stats. im thinking they were tagged on.
-        // @todo Why is this here??
-        public static void IncrementCordrazineCapture()
-        {
-            CordrazinePlanetsCaptured += 1;
-            if (CordrazinePlanetsCaptured == 1)
-            {
-                Empire.Universe.NotificationManager.AddNotify(ResourceManager.EventsDict["OwlwokFreedom"]);
-            }
         }
     }
 }

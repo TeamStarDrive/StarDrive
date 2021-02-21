@@ -114,6 +114,10 @@
                     TrustLostStoleColony = 5;
                     FleetStrModifier     = 0.3f;
                     NumSystemsToSniff    = 2;
+
+                    if (!empire.isPlayer)
+                        FlatMoneyBonus = 5;
+
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
