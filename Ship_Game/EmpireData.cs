@@ -311,6 +311,7 @@ namespace Ship_Game
 
         [Serialize(146)] public string SpacePortModel;
         [Serialize(147)] public float BombEnvironmentDamageMultiplier = 1;
+        [Serialize(148)] public float OngoingDiplomaticModifier;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;

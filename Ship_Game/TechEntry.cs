@@ -854,7 +854,7 @@ namespace Ship_Game
                 case "Set Population Growth Min": data.Traits.PopGrowthMin = unlockedBonus.Bonus; break;
                 case "Set Population Growth Max": data.Traits.PopGrowthMax = unlockedBonus.Bonus; break;
                 case "Xenolinguistic Nuance":
-                case "Diplomacy Bonus": data.Traits.DiplomacyMod += unlockedBonus.Bonus; break;
+                case "Diplomacy Bonus": data.OngoingDiplomaticModifier += unlockedBonus.Bonus; break;
                 case "Ordnance Effectiveness":
                 case "Ordnance Effectiveness Bonus": data.OrdnanceEffectivenessBonus += unlockedBonus.Bonus; break;
                 case "Tachyons":
