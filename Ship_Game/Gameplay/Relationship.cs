@@ -1236,7 +1236,7 @@ namespace Ship_Game.Gameplay
             //theirFinalOffer = new Array<string>();
 
             TechEntry ourTech = ourTechs.RandItem();
-            float ourTechCost = ourTech.Tech.Cost + us.data.Traits.DiplomacyMod * ourTech.Tech.Cost;
+            float ourTechCost = ourTech.Tech.Cost + us.data.OngoingDiplomaticModifier * ourTech.Tech.Cost;
             ourFinalOffer     = ourTech.UID;
             if (!GetTheirTechsForOurOffer(ourTechCost, them.GetRelations(us).Posture, theirTechs, out theirFinalOffer))
                 return false;

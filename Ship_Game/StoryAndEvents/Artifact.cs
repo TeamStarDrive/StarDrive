@@ -17,7 +17,7 @@ namespace Ship_Game
         [Serialize(9)] public float GroundCombatMod;
         [Serialize(10)] public float ResearchMod;
         [Serialize(11)] public float PlusFlatMoney;
-        [Serialize(12)] public float DiplomacyMod;
+        [Serialize(12)] public float DiplomacyMod; // OnGoing effect which is tied to OngoingDiplomacyMod in empire data.
         [Serialize(13)] public float SensorMod;
         [Serialize(14)] public float ModuleHPMod;
 

@@ -57,9 +57,9 @@ namespace Ship_Game.AI.Budget
             float preference;
             switch (P.colonyType)
             {
-                case Planet.ColonyType.Military: preference = 0.2f; break;
-                case Planet.ColonyType.Core:     preference = 0.15f; break;
-                default:                         preference = 0.1f; break;
+                case Planet.ColonyType.Military: preference = 0.3f;  break;
+                case Planet.ColonyType.Core:     preference = 0.2f;  break;
+                default:                         preference = 0.15f; break;
             }
 
             return P.HabitablePercentage * preference;

@@ -62,12 +62,13 @@ namespace Ship_Game.Commands.Goals
             int startChance = Pirates.Level.LowerBound((int)CurrentGame.Difficulty + 1);
             float taxRate   = TargetEmpire.data.TaxRate;
             startChance    /= numRaids + 1;
+            startChance /= EmpireManager.PirateFactions.Length.LowerBound(1);
 
             if (taxRate > 0.25f) // High Tax rate encourages more pirate tippers
                 startChance *= (int)(1 + taxRate);
 
             //startChance = 100; // For testing
-            return startChance.UpperBound(Pirates.ThreatLevelFor(TargetEmpire));
+            return startChance.Clamped(1,Pirates.ThreatLevelFor(TargetEmpire));
         }
 
         GoalType GetRaid()
