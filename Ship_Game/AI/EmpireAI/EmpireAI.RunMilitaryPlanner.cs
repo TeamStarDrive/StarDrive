@@ -207,7 +207,9 @@ namespace Ship_Game.AI
                 militaryTask = filteredTasks.First();
                 if (filteredTasks.Length > 1)
                 {
-                    Log.Warning($"{OwnerEmpire.Name} Assault Pirate Base Tasks: Found more than one task for {militaryTask.TargetShip}. Using the first one.");
+                    var duplicatedTask = filteredTasks.Last();
+                    duplicatedTask.EndTask();
+                    Log.Warning($"{OwnerEmpire.Name} Assault Pirate Base Tasks: Found more than one task for {militaryTask.TargetShip}. Ending the last one.");
                 }
             }
 
