@@ -3354,7 +3354,7 @@ namespace Ship_Game
         {
             data.OwnedArtifacts.Add(art);
             ApplyFertilityChange(art.GetFertilityBonus(data));
-            data.Traits.DiplomacyMod         += art.GetDiplomacyBonus(data);
+            data.OngoingDiplomaticModifier   += art.GetDiplomacyBonus(data);
             data.Traits.GroundCombatModifier += art.GetGroundCombatBonus(data);
             data.Traits.ModHpModifier        += art.GetModuleHpMod(data);
             data.FlatMoneyBonus              += art.GetFlatMoneyBonus(data);

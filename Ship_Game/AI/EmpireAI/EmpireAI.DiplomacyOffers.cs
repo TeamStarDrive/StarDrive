@@ -374,6 +374,7 @@ namespace Ship_Game.AI
 
             float angerMultiplier = them.isPlayer ? usToThem.TotalAnger / 100 : usToThem.Anger_DiplomaticConflict / 100;
             valueToUs -= valueToUs * angerMultiplier;
+            valueToUs += 1 * them.data.OngoingDiplomaticModifier;
             OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem, out float offerDifferential);
             bool canImproveRelations  = themToUs.turnsSinceLastContact >= themToUs.SecondDemand; // So it wont be exploited by the player
             switch (attitude)

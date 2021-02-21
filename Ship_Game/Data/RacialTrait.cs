@@ -40,7 +40,7 @@ namespace Ship_Game
         [Serialize(21)] public float ReproductionMod;
         [Serialize(22)] public float PopGrowthMax;
         [Serialize(23)] public float PopGrowthMin;
-        [Serialize(24)] public float DiplomacyMod;
+        [Serialize(24)] public float DiplomacyMod; // Initial Trust only
         [Serialize(25)] public float GenericMaxPopMod;
         [Serialize(26)] public int Blind;
         [Serialize(27)] public int BonusExplored;
