@@ -275,7 +275,7 @@ namespace Ship_Game
                 batch.DrawString(TextFont, "Outgoing Freighters:", outgoingTitle, Color.White);
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingFoodFreighters, GameText.Food);
                 DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Production);
-                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingProdFreighters, GameText.Colonists);
+                DrawOutgoingFreighters(batch, ref outgoingTitle, ref outgoingData, OutgoingColoFreighters, GameText.Colonists);
             }
 
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)TextFont.MeasureString(Localizer.Token(386) + ":").X, TextFont.LineSpacing);
