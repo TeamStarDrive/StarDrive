@@ -564,7 +564,7 @@ namespace Ship_Game
                 else if (ship.CanTakeFleetOrders)
                     moveStatus |= MoveStatus.Dispersed;
             }
-            if (assembled / totalShipCount > 0.5f)
+            if (assembled / totalShipCount > 0.75f)
                 moveStatus |= MoveStatus.MajorityAssembled;
             return moveStatus;
         }

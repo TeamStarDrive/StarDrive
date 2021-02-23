@@ -226,9 +226,12 @@ namespace Ship_Game.Commands.Goals
             if (Fleet.TaskStep != 7 && TargetPlanet?.Owner == TargetEmpire) // Not cleared enemy at target planet yet
                 return GoalStep.TryAgain;
 
-
-            if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal) && !Remnants.FindValidTarget(Portal, out TargetEmpire))
-                return ReturnToPortal();
+            if (!Remnants.TargetEmpireStillValid(TargetEmpire, Portal))
+            {
+                // New target is too strong, need to get a new fleet
+                if (!Remnants.FindValidTarget(Portal, out TargetEmpire) || RequiredFleetStr() > Fleet.GetStrength())
+                    return ReturnToPortal();
+            }
 
             if (TargetPlanet == null)
             {
