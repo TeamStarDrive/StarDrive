@@ -736,87 +736,77 @@ namespace Ship_Game.Fleets
 
         void DoAssaultPlanet(MilitaryTask task)
         {
-            //if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
-            //{
-            //    if (!TryOrderPostAssaultFleet(task, 2))
-            //    {
-            //        Log.Info($"Invasion ({Owner.Name}) planet ({task.TargetPlanet}) Not attackable");
-            //        task.EndTask();
-            //    }
-            //    return;
-            //}
-
             bool invasionEffective = StillInvasionEffective(task);
-            bool combatEffective = StillCombatEffective(task);
+            bool combatEffective   = StillCombatEffective(task);
 
             if (EndInvalidTask(!invasionEffective) || !combatEffective)
                 return;
 
             if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
-            {
-                TaskStep = 7;
-            }
+                TaskStep = 8;
 
             switch (TaskStep)
             {
                 case 0:
                     if (AveragePos.InRadius(task.TargetPlanet.ParentSystem.Position, task.TargetPlanet.ParentSystem.Radius * 2))
                     {
-                        TaskStep = 4;
+                        TaskStep = 5;
                         break;
                     }
-                    SetOrdersRadius(Ships, 5000);
-                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 1.5f);
-                    //FleetTaskGatherAtRally(task);
+                    FleetTaskGatherAtRally(task);
                     TaskStep = 1;
                     break;
                 case 1:
                     if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
-                    {
                         break;
-                    }
-                    
+
+                    SetOrdersRadius(Ships, 5000);
+                    FleetTaskGatherAtRally(task);
+                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 2f);
                     TaskStep = 2;
-                    SetOrdersRadius(Ships, 5000f);
                     break;
                 case 2:
+                    if (!ArrivedAtCombatRally(FinalPosition))
+                        break;
+                    
+                    TaskStep = 3;
+                    SetOrdersRadius(Ships, 5000f);
+                    break;
+                case 3:
                     MoveStatus combatRally = FleetMoveStatus(0, FinalPosition);
                     if (!combatRally.HasFlag(MoveStatus.MajorityAssembled))
                     {
                         if (combatRally.HasFlag(MoveStatus.AssembledInCombat))
-                        {
                             ClearPriorityOrderForShipsInAO(Ships, FinalPosition, GetRelativeSize().Length() / 2);
-                        }
+
                         break;
                     }
-                    TaskStep = 3;
-                    break;
-                case 3:
-                    Vector2 combatOffset = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
-                    EscortingToPlanet(combatOffset, false);
-                    TaskStep = 4; ;
+
+                    TaskStep = 4;
                     break;
                 case 4:
+                    Vector2 combatOffset = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
+                    EscortingToPlanet(combatOffset, false);
+                    TaskStep = 5;
+                    break;
+                case 5:
                     combatOffset = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
                     MoveStatus inPosition = FleetMoveStatus(task.TargetPlanet.GravityWellRadius, combatOffset);
                     if (!inPosition.HasFlag(MoveStatus.MajorityAssembled))
                     {
                         if (inPosition.HasFlag(MoveStatus.AssembledInCombat))
-                        {
                             ClearPriorityOrderForShipsInAO(Ships, combatOffset, GetRelativeSize().Length());
-                        }
                         else
-                        {
                             EscortingToPlanet(combatOffset, false);
-                        }
                     }
+
                     RearShipsToCombat(combatOffset, false);
                     Vector2 resetPosition = task.AO.OffsetTowards(AveragePosition(), 1500);
                     EngageCombatToPlanet(resetPosition, true);
-                    TaskStep = 5;
+                    TaskStep = 6;
                     break;
 
-                case 5:
+                case 6:
                     switch (StatusOfPlanetAssault(task))
                     {
                         case Status.NotApplicable: TaskStep = 4; break;
@@ -828,36 +818,31 @@ namespace Ship_Game.Fleets
                             }
                     }
                     break;
-                case 6:
+                case 7:
                     if (ShipsOffMission(task))
                     {
                         //Vector2 returnToCombat = task.AO.OffsetTowards(AveragePosition(), 500);
                         //EngageCombatToPlanet(returnToCombat, true);
                         //RearShipsToCombat(returnToCombat, false);
-                        TaskStep = 4;
+                        TaskStep = 5;
                         break;
                     }
-                    TaskStep = 5;
+                    TaskStep = 6;
                     break;
-                case 7:
-                {
-                        bool inSystem = AveragePos.InRadius(task.TargetPlanet.Center, task.TargetPlanet.ParentSystem.Radius);
-                        var currentSystem = task.RallyPlanet.ParentSystem;
+                case 8:
+                    bool inSystem = AveragePos.InRadius(task.TargetPlanet.Center, task.TargetPlanet.ParentSystem.Radius);
+                    var currentSystem = task.RallyPlanet.ParentSystem;
 
-                        var newTarget = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
-                        if (EndInvalidTask(newTarget == null || !inSystem))
-                        {
-                            break;
-                        }
-
-                        task.SetTargetPlanet(newTarget);
-                        EngageCombatToPlanet(newTarget.Center, true);
-                        StartBombing(newTarget);
-                        FinalPosition = task.TargetPlanet.Center;
-                        task.AO = newTarget.Center;
-                        task.Step = 4;
+                    var newTarget = currentSystem.PlanetList.Find(p => Owner.IsAtWarWith(p.Owner));
+                    if (EndInvalidTask(newTarget == null || !inSystem))
                         break;
-                    }
+
+                    task.SetTargetPlanet(newTarget);
+                    EngageCombatToPlanet(newTarget.Center, true);
+                    StartBombing(newTarget);
+                    FinalPosition = task.TargetPlanet.Center;
+                    task.AO = newTarget.Center;
+                    task.Step = 4;
                     break;
             }
         }
