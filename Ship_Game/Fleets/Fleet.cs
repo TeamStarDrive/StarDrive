@@ -738,8 +738,12 @@ namespace Ship_Game.Fleets
         {
             bool invasionEffective = StillInvasionEffective(task);
             bool combatEffective   = StillCombatEffective(task);
+            bool remnantsTargeting = !Owner.WeAreRemnants
+                                        && CommandShip?.System == task.TargetPlanet.ParentSystem 
+                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
+                                           .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
 
-            if (EndInvalidTask(!invasionEffective) || !combatEffective)
+            if (EndInvalidTask(!invasionEffective || !combatEffective || remnantsTargeting))
                 return;
 
             if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
@@ -1173,14 +1177,23 @@ namespace Ship_Game.Fleets
 
         void DoGlassPlanet(MilitaryTask task)
         {
+            bool remnantsTargeting = !Owner.WeAreRemnants
+                                        && CommandShip?.System == task.TargetPlanet.ParentSystem
+                                        && EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
+                                           .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == task.TargetPlanet.ParentSystem);
+
+            if (EndInvalidTask(remnantsTargeting || !StillCombatEffective(task)))
+                return;
+
             bool endTask = task.TargetPlanet.Owner == Owner || task.TargetPlanet.Owner?.IsAtWarWith(Owner) == false;
             endTask |= task.TargetPlanet.Owner == null && task.TargetPlanet.GetGroundStrengthOther(Owner) < 1;
-            bool bombOK = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
-            if (!bombOK)
+            bool bombOk = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
+            if (!bombOk)
             {
                 EndInvalidTask(!TryOrderPostBombFleet(task, 3));
                 return;
             }
+
             if (endTask)
             {
                 Owner.DecreaseFleetStrEmpireMultiplier(task.TargetEmpire);
@@ -1190,7 +1203,7 @@ namespace Ship_Game.Fleets
             if (TaskStep < 2)
             {
                 bool targetCloser = AveragePos.SqDist(task.RallyPlanet.Center) > AveragePos.SqDist(task.TargetPlanet.Center);
-                if (bombOK && targetCloser)
+                if (targetCloser)
                 {
                     TaskStep = 2;
                     GatherAtAO(task, 400000);
