@@ -227,12 +227,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             
             foreach (var system in targets)
             {
-                if (HaveConqueredTarget(system)) continue;
-
-
+                if (HaveConqueredTarget(system)
+                    || EmpireManager.Remnants.GetFleetsDict().Values.ToArray()
+                        .Any(f => f.FleetTask?.TargetPlanet?.ParentSystem == system))
+                {
+                    continue;
+                }
 
                 float defense  = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, Owner);
-
                 if (defense  < Owner.Pool.CurrentUseableStrength)
                 {
                     winnableTarget.Add(system);
