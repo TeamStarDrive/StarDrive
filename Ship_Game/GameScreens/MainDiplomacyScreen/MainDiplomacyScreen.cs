@@ -169,14 +169,14 @@ namespace Ship_Game
                     {
                         batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                         batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                        batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
+                        batch.DrawDropShadowText1(race.e.data.Traits.Name, NameCursor, Fonts.Arial12Bold, race.e.EmpireColor);
                         batch.Draw(ResourceManager.Texture("NewUI/x_red"), race.container, Color.White);
                     }
                     else
                     {
                         batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                         batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                        batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
+                        batch.DrawDropShadowText1(race.e.data.Traits.Name, NameCursor, Fonts.Arial12Bold, race.e.EmpireColor);
                         var r = new Rectangle(race.container.X, race.container.Y, 124, 124);
                         var e = EmpireManager.GetEmpireByName(race.e.data.AbsorbedBy);
                         batch.Draw(ResourceManager.Flag(e.data.Traits.FlagIndex), r, e.EmpireColor);
@@ -191,7 +191,7 @@ namespace Ship_Game
                     }
                     batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                     batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
-                    batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
+                    batch.DrawDropShadowText1(race.e.data.Traits.Name, NameCursor, Fonts.Arial12Bold, race.e.EmpireColor);
                 }
                 else if (EmpireManager.Player != race.e)
                 {
@@ -202,7 +202,7 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                     batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                     NameCursor = new Vector2(race.container.X + 62 - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, race.container.Y + 148 + 8);
-                    batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
+                    batch.DrawDropShadowText1(race.e.data.Traits.Name, NameCursor, Fonts.Arial12Bold, race.e.EmpireColor);
                 }
                 if (race.e != SelectedEmpire)
                 {
@@ -214,7 +214,7 @@ namespace Ship_Game
             batch.FillRectangle(IntelligenceRect, new Color(23, 20, 14));
             batch.FillRectangle(OperationsRect, new Color(23, 20, 14));
             var textCursor = new Vector2(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 10);
-            HelperFunctions.DrawDropShadowText(batch, SelectedEmpire.data.Traits.Name, textCursor, Fonts.Arial20Bold);
+            batch.DrawDropShadowText1(SelectedEmpire.data.Traits.Name, textCursor, Fonts.Arial20Bold, SelectedEmpire.EmpireColor);
             var flagRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width - 60, SelectedInfoRect.Y + 10, 40, 40);
             batch.Draw(ResourceManager.Flag(SelectedEmpire.data.Traits.FlagIndex), flagRect, SelectedEmpire.EmpireColor);
             textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 4);
@@ -325,8 +325,9 @@ namespace Ship_Game
             {
                 if (SelectedEmpire.data.AbsorbedBy != null)
                 {
-                    batch.DrawString(Fonts.Arial12Bold, EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy).data.Traits.Singular+" Federation", textCursor, Color.White);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                    Empire absorbingEmpire = EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy);
+                    batch.DrawString(Fonts.Arial12Bold, absorbingEmpire.data.Traits.Singular+" Federation", textCursor, Color.White);
+                    textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
             }
             else if (!SelectedEmpire.data.Defeated)
@@ -336,12 +337,12 @@ namespace Ship_Game
                 if (IntelligenceLevel(SelectedEmpire) > 0)
                 {
                     batch.DrawString(Fonts.Arial12Bold, string.Concat(SelectedEmpire.data.DiplomaticPersonality.Name, " ", SelectedEmpire.data.EconomicPersonality.Name), textCursor, Color.White);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                    textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 else
                 {
                     batch.DrawString(Fonts.Arial12Bold, string.Concat("Unknown", " ", "Unknown"), textCursor, Color.White);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                    textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (relation.AtWar)
                 {
@@ -353,22 +354,22 @@ namespace Ship_Game
                     SpriteFont arial12Bold = Fonts.Arial12Bold;
                     object[] objArray = { Localizer.Token(1213), " (", relation.PeaceTurnsRemaining, " ", Localizer.Token(2200), ")" };
                     spriteBatch2.DrawString(arial12Bold, string.Concat(objArray), textCursor, Color.LightGreen);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                    textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (relation.Treaty_OpenBorders)
                 {
                     batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1609), textCursor, Color.LightGreen);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                    textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (relation.Treaty_Trade)
                 {
                     batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1610), textCursor, Color.LightGreen);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                    textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (relation.Treaty_NAPact)
                 {
                     batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1611), textCursor, Color.LightGreen);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
+                    textCursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
                 }
                 if (relation.Treaty_Alliance)
                 {
@@ -472,114 +473,116 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank), ColumnBCursor, Color.White);
             }
             textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
-            HelperFunctions.DrawDropShadowText(batch, Localizer.Token(6091), textCursor, Fonts.Arial20Bold);
-            textCursor.Y = textCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
+            batch.DrawDropShadowText(Localizer.Token(6091), textCursor, Fonts.Arial20Bold);
+            textCursor.Y += (Fonts.Arial20Bold.LineSpacing + 5);
             if (IntelligenceLevel(SelectedEmpire) > 0)
             {
-                batch.DrawString(Fonts.Arial12, Localizer.Token(6094)+SelectedEmpire.data.Traits.HomeworldName, textCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6094)+SelectedEmpire.data.Traits.HomeworldName, textCursor, Color.Wheat);
+                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
             }
             //Added by McShooterz:  intel report
             if (IntelligenceLevel(SelectedEmpire) > 0)
             {
                 if (SelectedEmpire.Capital != null)
                 {
-                    batch.DrawString(Fonts.Arial12, Localizer.Token(6106)+((SelectedEmpire.Capital.Owner == SelectedEmpire) ? Localizer.Token(6107) : Localizer.Token(1508)), textCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12, Localizer.Token(6106)+((SelectedEmpire.Capital.Owner == SelectedEmpire) ? Localizer.Token(6107) : Localizer.Token(1508)), textCursor, Color.Wheat);
                     textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
                 }
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6095), SelectedEmpire.GetPlanets().Count), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6095), SelectedEmpire.GetPlanets().Count), textCursor, Color.Wheat);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6096), SelectedEmpire.GetShips().Count), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6096), SelectedEmpire.GetShips().Count), textCursor, Color.Wheat);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                batch.DrawString(Fonts.Arial12, Localizer.Token(6097)+SelectedEmpire.Money.String(2), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6097)+SelectedEmpire.Money.String(2), textCursor, Color.Wheat);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                batch.DrawString(Fonts.Arial12, Localizer.Token(6098)+SelectedEmpire.BuildingAndShipMaint.String(2), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6098)+SelectedEmpire.BuildingAndShipMaint.String(2), textCursor, Color.Wheat);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
 
                 if (SelectedEmpire.Research.HasTopic)
                 {
                     if (IntelligenceLevel(SelectedEmpire)>1)
                     {
-                        batch.DrawString(Fonts.Arial12, "Researching: "+Localizer.Token(SelectedEmpire.Research.Current.Tech.NameIndex), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, "Researching: "+Localizer.Token(SelectedEmpire.Research.Current.Tech.NameIndex), textCursor, Color.Wheat);
                     }
                     else if (IntelligenceLevel(SelectedEmpire) >0)
                     {
-                        batch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.Research.Current.TechnologyType, textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.Research.Current.TechnologyType, textCursor, Color.Wheat);
                     }
                     else
                     {
-                        batch.DrawString(Fonts.Arial12, "Researching: Unknown", textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, "Researching: Unknown", textCursor, Color.Wheat);
                     }
                     textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
                 }
             }
             if (IntelligenceLevel(SelectedEmpire)>1)
             {
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6099), SelectedEmpire.data.AgentList.Count), textCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6099), SelectedEmpire.data.AgentList.Count), textCursor, Color.Wheat);
+                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
             }
             else if (IntelligenceLevel(SelectedEmpire)>0)
             {
-                batch.DrawString(Fonts.Arial12, Localizer.Token(6099)+(SelectedEmpire.data.AgentList.Count >=PlayerEmpire.data.AgentList.Count ? "Many":"Few" ), textCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6099)+(SelectedEmpire.data.AgentList.Count >=PlayerEmpire.data.AgentList.Count ? "Many":"Few" ), textCursor, Color.Wheat);
+                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
             }
             else 
             {
-                batch.DrawString(Fonts.Arial12, Localizer.Token(6099)+"Unknown", textCursor, Color.White);
-                textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6099)+"Unknown", textCursor, Color.Wheat);
+                textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
             }
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), GetPop(SelectedEmpire).String(1), Localizer.Token(6101)) + " ", textCursor, Color.White);
+            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), GetPop(SelectedEmpire).String(1), Localizer.Token(6101)) + " ", textCursor, Color.Wheat);
             //Diplomatic Relations
             foreach ((Empire other, Relationship rel) in SelectedEmpire.AllRelations)
             {
                 if (!rel.Known || other.isFaction)
                     continue;
+
+                Color color = other.EmpireColor;
+                string name = other.data.Traits.Name;
                 if (other.data.Defeated)
                 {
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                    batch.DrawString(Fonts.Arial12, other.data.Traits.Name+Localizer.Token(6102), textCursor, Color.White);
+                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                    batch.DrawString(Fonts.Arial12, name+Localizer.Token(6102), textCursor, color);
                     continue;
                 }
-                if (IntelligenceLevel(SelectedEmpire) >0)
+                if (IntelligenceLevel(SelectedEmpire) > 0)
                 {
                     // "and Trade"
-                    string andTrade = rel.Treaty_Trade ? Localizer.Token(GameText.AndTrade) : ""; 
-                    
+                    string andTrade = rel.Treaty_Trade ? Localizer.Token(GameText.AndTrade) : "";
                     if (rel.Treaty_Alliance)
                     {
-                        textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.Alliance), andTrade), textCursor, Color.White);
+                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.Alliance), andTrade), textCursor, color);
                     }
                     else if (rel.Treaty_OpenBorders)
                     {
-                        textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.OpenBorders), andTrade), textCursor, Color.White);
+                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.OpenBorders), andTrade), textCursor, color);
                     }
                     else if (rel.Treaty_NAPact)
                     {
-                        textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.NonaggressionPact2), andTrade), textCursor, Color.White);
+                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.NonaggressionPact2), andTrade), textCursor, color);
                     }
                     else if (rel.Treaty_Peace)
                     {
-                        textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.PeaceTreaty), andTrade), textCursor, Color.White);
+                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.PeaceTreaty), andTrade), textCursor, color);
                     }
                     else if (rel.AtWar)
                     {
-                        textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(other.data.Traits.Name, ": ", Localizer.Token(GameText.AtWar)), textCursor, Color.White);
+                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                        batch.DrawString(Fonts.Arial12, string.Concat(name, ": ", Localizer.Token(GameText.AtWar)), textCursor, color);
                     }
                     else
                     {
-                        textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, other.data.Traits.Name + " " + (rel.Treaty_Trade ? Localizer.Token(GameText.None2) : Localizer.Token(GameText.MilitaryStrength)), textCursor, Color.White);
+                        textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
+                        batch.DrawString(Fonts.Arial12, name + " " + (rel.Treaty_Trade ? Localizer.Token(GameText.None2) : Localizer.Token(GameText.MilitaryStrength)), textCursor, color);
                     }
                 }
             }
             //End of intel report
             textCursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
-            HelperFunctions.DrawDropShadowText(batch, (SelectedEmpire == EmpireManager.Player ? Localizer.Token(2181) : Localizer.Token(2212)), textCursor, Fonts.Arial20Bold);
+            batch.DrawDropShadowText((SelectedEmpire == EmpireManager.Player ? Localizer.Token(2181) : Localizer.Token(2212)), textCursor, Fonts.Arial20Bold);
             textCursor.Y = textCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
             //Added by McShooterz: Only display modified bonuses
             if (IntelligenceLevel(SelectedEmpire)>0)
