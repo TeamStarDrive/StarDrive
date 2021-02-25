@@ -414,7 +414,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 batch.Draw(Them.data.PortraitTex, Portrait, Color.White);
             }
 
-            batch.DrawDropShadowText(Them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20);
+            batch.DrawDropShadowText1(Them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20, Them.EmpireColor);
             batch.FillRectangle(new Rectangle(0, R.Y, 1920, R.Height), new Color(0, 0, 0, 150));
             batch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
         }
