@@ -345,7 +345,7 @@ namespace Ship_Game.ShipDesignIssues
             float excessPowerConsumed, bool hasPowerCells)
         {
             if (!hasPowerCells
-                || hasBeamWeapons && burstEnergyPowerTime.LessOrEqual(2)
+                || hasBeamWeapons && burstEnergyPowerTime.Less(2.2f) // 10% percent more of required beam time
                 || excessPowerConsumed.Greater(0))
             {
                 return;
