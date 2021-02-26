@@ -2,7 +2,7 @@
 {
     public struct PersonalityModifiers
     {
-        public float ColonizationClaimRatioWarningThreshold; // warn the player if we have mutual a colonization target based on vaule
+        public float ColonizationClaimRatioWarningThreshold; // warn the player if we have mutual a colonization target based on value
         public float TrustCostNaPact;
         public float TrustCostTradePact;
         public float AddAngerAlliedWithEnemy;
@@ -27,7 +27,7 @@
                     PlanetStoleTrustMultiplier   = 0.75f;
                     AddAngerAlliedWithEnemy      = 0;
                     FleetStrMultiplier    = 1;
-                    FederationPopRatioWar = 1;
+                    FederationPopRatioWar = 1.5f;
                     TrustCostTradePact    = 0;
                     TrustCostNaPact       = 0;
                     break;
@@ -39,8 +39,8 @@
                     WantedAgentMissionMultiplier = 0.115f;
                     PlanetStoleTrustMultiplier   = 0.5f;
                     AddAngerAlliedWithEnemy      = 50;
-                    FleetStrMultiplier    = 1.1f;
-                    FederationPopRatioWar = 1.1f;
+                    FleetStrMultiplier    = 1.4f;
+                    FederationPopRatioWar = 1.25f;
                     TrustCostTradePact    = 20;
                     TrustCostNaPact       = 35;
                     break;
@@ -52,7 +52,7 @@
                     WantedAgentMissionMultiplier = 0.115f;
                     PlanetStoleTrustMultiplier   = 0.6f;
                     AddAngerAlliedWithEnemy      = 25;
-                    FleetStrMultiplier    = 1.25f;
+                    FleetStrMultiplier    = 1.3f;
                     FederationPopRatioWar = 1.2f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 45f;
@@ -66,7 +66,7 @@
                     PlanetStoleTrustMultiplier   = 0.1f;
                     AddAngerAlliedWithEnemy      = 100;
                     FleetStrMultiplier    = 1.05f;
-                    FederationPopRatioWar = 1.25f;
+                    FederationPopRatioWar = 1.45f;
                     TrustCostTradePact    = 15;
                     TrustCostNaPact       = 15;
                     break;
@@ -79,7 +79,7 @@
                     PlanetStoleTrustMultiplier   = 0.7f;
                     AddAngerAlliedWithEnemy      = 0;
                     FleetStrMultiplier    = 0.95f;
-                    FederationPopRatioWar = 0.5f;
+                    FederationPopRatioWar = 1.2f;
                     TrustCostTradePact    = 5;
                     TrustCostNaPact       = 5;
                     break;
@@ -92,7 +92,7 @@
                     PlanetStoleTrustMultiplier   = 0.4f;
                     AddAngerAlliedWithEnemy      = 75;
                     FleetStrMultiplier    = 1f;
-                    FederationPopRatioWar = 1;
+                    FederationPopRatioWar = 1.25f;
                     TrustCostTradePact    = 10;
                     TrustCostNaPact       = 10;
                     break;
@@ -105,7 +105,7 @@
                     PlanetStoleTrustMultiplier   = 0.8f;
                     AddAngerAlliedWithEnemy      = 0;
                     FleetStrMultiplier    = 0.9f;
-                    FederationPopRatioWar = 0.8f;
+                    FederationPopRatioWar = 1.1f;
                     TrustCostTradePact    = 12;
                     TrustCostNaPact       = 3;
                     break;
