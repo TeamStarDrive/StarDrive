@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep CheckIfStandbyShipNeeded()
         {
             return empire.GetEmpireAI().Goals.Filter(g => g.type == GoalType.StandbyColonyShip)
-                       .Length > empire.DifficultyModifiers.StandByColonyShips 
+                       .Length > empire.DifficultyModifiers.StandByColonyShips.UpperBound(empire.GetPlanets().Count) 
 
                 ? GoalStep.GoalFailed  // reached standby colony ship limit
                 : GoalStep.GoToNextStep;
@@ -80,7 +80,7 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt == null)
                 return false;
 
-            return PlanetBuildingAt.IsColonyShipInQueue();
+            return PlanetBuildingAt.IsColonyShipInQueue(this);
         }
     }
 }

@@ -1250,7 +1250,7 @@ namespace Ship_Game
             else if (!RecentCombat)
             {
                 // population is increased
-                float balanceGrowth = (1 - PopulationRatio).Clamped(0.1f, 1f);
+                float balanceGrowth = (1 - PopulationRatio).Clamped(0.25f, 1f);
                 float repRate       = Owner.data.BaseReproductiveRate * (Population/3) * balanceGrowth;
                 if (Owner.data.Traits.PopGrowthMax.NotZero())
                     repRate = repRate.UpperBound(Owner.data.Traits.PopGrowthMax * 1000f);
