@@ -81,7 +81,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
         [XmlIgnore][JsonIgnore] public float MilitaryStrength { get; private set; }
 
-        [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.Pace;
+        [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.ProductionPace;
 
         public override string ToString()
             => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";

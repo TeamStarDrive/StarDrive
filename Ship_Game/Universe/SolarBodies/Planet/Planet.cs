@@ -1167,7 +1167,7 @@ namespace Ship_Game
             decayChance *= MineralRichness.UpperBound(2f);
 
             // Longer pace decreases decay chance
-            decayChance *= 1 / CurrentGame.Pace;
+            decayChance *= 1 / CurrentGame.ProductionPace;
 
             if (RandomMath.RollDice(decayChance))
             {
