@@ -212,6 +212,7 @@ namespace Ship_Game.Universe.SolarBodies
             // @note Research only comes from buildings
             // Outposts and Capital Cities always grant a small bonus
             YieldPerColonist = plusPerColonist * (1 + researchMod);
+            FlatBonus *= (1 + researchMod);
             Tax = Planet.Owner.data.TaxRate * Planet.Owner.data.Traits.ResearchTaxMultiplier;
         }
 
