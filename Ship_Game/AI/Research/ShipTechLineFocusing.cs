@@ -360,16 +360,20 @@ namespace Ship_Game.AI.Research
         private HashSet<string> UseResearchableShipTechs(Array<Ship> researchableShips, HashSet<string> shipTechs, HashSet<string> nonShipTechs)
         {
             //filter out all current shiptechs that arent in researchableShips.
+            var sortedShips               = researchableShips.Sorted(ExtractTechCost);
             HashSet<string> goodShipTechs = new HashSet<string>();
-            foreach (var ship in researchableShips)
+            foreach (var ship in sortedShips)
             {
                 if (TryExtractNeedTechs(ship, out HashSet<string> techs))
                 {
                     var researchableTechs = shipTechs.Intersect(techs);
                     foreach (var techName in researchableTechs)
                         goodShipTechs.Add(techName);
+
+                    break;
                 }
             }
+
             return UseOnlyWantedShipTechs(goodShipTechs, nonShipTechs);
         }
 
@@ -438,6 +442,20 @@ namespace Ship_Game.AI.Research
                 techsToAdd.Add(hullTech);
 
             return techsToAdd.Count > 0;
+        }
+
+        float ExtractTechCost(Ship ship)
+        {
+            float totalCost = 0;
+            var shipTechs = ConvertStringToTech(ship.shipData.TechsNeeded);
+            for (int i = 0; i < shipTechs.Count; i++)
+            {
+                TechEntry tech = shipTechs[i];
+                if (tech.Locked)
+                    totalCost += tech.Tech.ActualCost;
+            }
+
+            return totalCost;
         }
 
         public bool BestShipNeedsHull(Array<TechEntry> availableTechs) => ShipHullTech(BestCombatShip, availableTechs) != null;
