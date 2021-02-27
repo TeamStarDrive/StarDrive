@@ -193,7 +193,7 @@ namespace Ship_Game.Ships
         public Vector2 LocalCenter;// => new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
         public int Area => XSIZE * YSIZE;
 
-        public float ActualCost => Cost * CurrentGame.Pace;
+        public float ActualCost => Cost * CurrentGame.ProductionPace;
 
         // the actual hit radius is a bit bigger for some legacy reason
         public float ShieldHitRadius => Flyweight.shield_radius + 10f;

@@ -59,7 +59,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] float UpdateTimer;
         [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
-        [XmlIgnore] [JsonIgnore] public float ActualCost     => Cost * CurrentGame.Pace;
+        [XmlIgnore] [JsonIgnore] public float ActualCost     => Cost * CurrentGame.ProductionPace;
         [XmlIgnore] [JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
         [XmlIgnore] [JsonIgnore] public bool CanAttack       => AvailableAttackActions > 0;
         [XmlIgnore] [JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);

@@ -1297,7 +1297,7 @@ namespace Ship_Game.Ships
 
             float newShipCost = newShip.GetCost(loyalty);
             int cost          = Math.Max((int)(newShipCost - oldShipCost), 0);
-            return cost + (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace;
+            return cost + (int)(10 * CurrentGame.ProductionPace); // extra refit cost: accord for GamePace;
         }
 
         public Status HealthStatus
