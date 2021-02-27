@@ -167,13 +167,10 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                if (closest.isPlayer)
+                if (closest.CurrentMilitaryStrength * 1.5f < OwnerEmpire.OffensiveStrength)
                 {
-                    DeclareWarOn(closest, WarType.ImperialistWar);
-                }
-                else
-                {
-                    usToThem.PreparingForWar = true;
+                    OwnerEmpire.ResetPreparingForWar();
+                    usToThem.PreparingForWar     = true;
                     usToThem.PreparingForWarType = WarType.ImperialistWar;
                 }
             }
@@ -191,8 +188,11 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                usToThem.PreparingForWar     = true;
-                usToThem.PreparingForWarType = WarType.GenocidalWar;
+                if (closest.CurrentMilitaryStrength * 2f < OwnerEmpire.OffensiveStrength)
+                {
+                    usToThem.PreparingForWar     = true;
+                    usToThem.PreparingForWarType = WarType.GenocidalWar;
+                }
             }
         }
 
@@ -200,7 +200,7 @@ namespace Ship_Game.AI
         {
             if (potentialTargets.Count > 0 && TotalEnemiesStrength() < OwnerEmpire.OffensiveStrength)
             {
-                Empire weakest       = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
+                Empire weakest        = potentialTargets.Sorted(e => e.CurrentMilitaryStrength).First();
                 Relationship usToThem = OwnerEmpire.GetRelations(weakest);
                 if (usToThem.ActiveWar != null && usToThem.ActiveWar.WarType == WarType.DefensiveWar)
                 {
@@ -208,15 +208,9 @@ namespace Ship_Game.AI
                     return;
                 }
 
-                if (weakest.isPlayer)
-                {
-                    DeclareWarOn(weakest, WarType.ImperialistWar);
-                }
-                else
-                {
-                    usToThem.PreparingForWar = true;
-                    usToThem.PreparingForWarType = WarType.ImperialistWar;
-                }
+                OwnerEmpire.ResetPreparingForWar();
+                usToThem.PreparingForWar     = true;
+                usToThem.PreparingForWarType = WarType.ImperialistWar;
             }
         }
 
