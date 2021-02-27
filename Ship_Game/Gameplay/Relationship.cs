@@ -1327,12 +1327,13 @@ namespace Ship_Game.Gameplay
 
             if (Anger_MilitaryConflict >= 15 && !AtWar && !Treaty_Peace)
             {
-                us.GetEmpireAI().DeclareWarOn(them, WarType.DefensiveWar);
+                PreparingForWar = true;
+                PreparingForWarType = WarType.DefensiveWar;
                 return;
             }
 
             if (Anger_TerritorialConflict + Anger_FromShipsInOurBorders >= us.data.DiplomaticPersonality.Territorialism
-                && !AtWar && !Treaty_OpenBorders && !Treaty_Peace)
+                && !AtWar && !Treaty_OpenBorders && !Treaty_Peace && them.CurrentMilitaryStrength < us.OffensiveStrength)
             {
                 PreparingForWar     = true;
                 PreparingForWarType = WarType.BorderConflict;
