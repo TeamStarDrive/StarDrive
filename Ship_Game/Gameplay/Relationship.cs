@@ -1014,7 +1014,7 @@ namespace Ship_Game.Gameplay
                     if (e == us || e == them)
                         continue;
 
-                    float ratio = us.IsAtWarWith(e) ? popRatioWar : 1.25f;
+                    float ratio = us.IsAtWarWith(e) ? popRatioWar : 1.6f;
                     if (e.TotalPopBillion / us.TotalPopBillion > ratio) // 3rd party is a potential risk
                         return true;
                 }
@@ -1327,12 +1327,13 @@ namespace Ship_Game.Gameplay
 
             if (Anger_MilitaryConflict >= 15 && !AtWar && !Treaty_Peace)
             {
-                us.GetEmpireAI().DeclareWarOn(them, WarType.DefensiveWar);
+                PreparingForWar = true;
+                PreparingForWarType = WarType.DefensiveWar;
                 return;
             }
 
             if (Anger_TerritorialConflict + Anger_FromShipsInOurBorders >= us.data.DiplomaticPersonality.Territorialism
-                && !AtWar && !Treaty_OpenBorders && !Treaty_Peace)
+                && !AtWar && !Treaty_OpenBorders && !Treaty_Peace && them.CurrentMilitaryStrength < us.OffensiveStrength)
             {
                 PreparingForWar     = true;
                 PreparingForWarType = WarType.BorderConflict;

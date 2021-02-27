@@ -323,12 +323,12 @@ namespace Ship_Game
             {
                 default:
                 case GalSize.Tiny:      numSystemsFromSize = 16;  break;
-                case GalSize.Small:     numSystemsFromSize = 32;  break;
-                case GalSize.Medium:    numSystemsFromSize = 48;  break;
-                case GalSize.Large:     numSystemsFromSize = 64;  break;
-                case GalSize.Huge:      numSystemsFromSize = 80;  break;
-                case GalSize.Epic:      numSystemsFromSize = 96;  break;
-                case GalSize.TrulyEpic: numSystemsFromSize = 112; break;
+                case GalSize.Small:     numSystemsFromSize = 36;  break;
+                case GalSize.Medium:    numSystemsFromSize = 60;  break;
+                case GalSize.Large:     numSystemsFromSize = 80;  break;
+                case GalSize.Huge:      numSystemsFromSize = 96;  break;
+                case GalSize.Epic:      numSystemsFromSize = 112; break;
+                case GalSize.TrulyEpic: numSystemsFromSize = 124; break;
             }
 
             return (int)(numSystemsFromSize * StarNumModifier) + ((int)GalaxySize + 1) * NumOpponents;

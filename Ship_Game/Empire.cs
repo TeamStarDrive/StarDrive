@@ -1734,7 +1734,7 @@ namespace Ship_Game
             for (int i = 0; i < OwnedSolarSystems.Count; i++)
             {
                 var system = OwnedSolarSystems[i];
-                var fleets = knownFleets.Filter(f => f.FinalPosition.InRadius(system.Position, system.Radius * 2));
+                var fleets = knownFleets.Filter(f => f.FinalPosition.InRadius(system.Position, system.Radius * (f.Owner.isPlayer ? 3 : 2)));
                 if (fleets.Length > 0)
                 {
 
