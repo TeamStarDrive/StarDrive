@@ -55,26 +55,26 @@ namespace Ship_Game
             return items[InRange(items.Length)];
         }
 
-        public static float AvgRandomBetween(float minimum, float maximum)
+        public static float AvgRandomBetween(float minimum, float maximum, int iterations = 3)
         {
-            const int ITERATIONS = 3;
+            iterations = iterations.LowerBound(1);
             float rand = 0;
-            for (int x = 0; x < ITERATIONS; ++x)
-            {
+
+            for (int x = 0; x < iterations; ++x)
                 rand += RandomBetween(minimum, maximum);
-            }
-            return (float.IsNaN(rand) || float.IsInfinity(rand)) ? minimum : (rand / ITERATIONS);
+
+            return (float.IsNaN(rand) || float.IsInfinity(rand)) ? minimum : (rand / iterations);
         }
 
-        public static int AvgRandomBetween(int minimum, int maximum)
+        public static int AvgRandomBetween(int minimum, int maximum, int iterations = 3)
         {
-            const int ITERATIONS = 3;
-            int rand = 0;
-            for (int x = 0; x < ITERATIONS; ++x)
-            {
+            iterations = iterations.LowerBound(1);
+            int rand   = 0;
+
+            for (int x = 0; x < iterations; ++x)
                 rand += Random.Int(minimum, maximum);
-            }
-            return (rand == 0) ? minimum : (rand / ITERATIONS);
+
+            return (rand == 0) ? minimum : (rand / iterations);
         }
 
         // performs a dice-roll, where chance must be between [0..100]

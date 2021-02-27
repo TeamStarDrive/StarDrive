@@ -50,8 +50,8 @@ namespace Ship_Game.Ships
         public static float GetCost(float baseCost, ShipData hull, Empire e)
         {
             if (hull.HasFixedCost)
-                return hull.FixedCost * CurrentGame.Pace;
-            float cost = baseCost * CurrentGame.Pace;
+                return hull.FixedCost * CurrentGame.ProductionPace;
+            float cost = baseCost * CurrentGame.ProductionPace;
             cost += hull.Bonuses.StartingCost;
             cost += cost * e.data.Traits.ShipCostMod;
             cost *= 1f - hull.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness

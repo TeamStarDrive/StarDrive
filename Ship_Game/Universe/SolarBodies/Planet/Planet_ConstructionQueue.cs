@@ -164,7 +164,8 @@ namespace Ship_Game
 
         public Array<Ship> GetAllShipsInQueue() => ShipRolesInQueue(null);
 
-        public bool IsColonyShipInQueue() => FirstShipRoleInQueue(ShipData.RoleName.colony) != null;
+        public bool IsColonyShipInQueue()       => FirstShipRoleInQueue(ShipData.RoleName.colony) != null;
+        public bool IsColonyShipInQueue(Goal g) => ConstructionQueue.Any(q => q.isShip && q.Goal == g);
 
         public Array<Ship> ShipRolesInQueue(ShipData.RoleName[] roles)
         {

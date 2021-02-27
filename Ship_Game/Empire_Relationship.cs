@@ -491,6 +491,16 @@ namespace Ship_Game
             DiplomacyContactQueue.Add(new KeyValuePair<int, string>(empire.Id, dialog));
         }
 
+        /// <summary>
+        /// Removes preparing for war from all relations.
+        /// Used to focus Ai on a single war preparations
+        /// </summary>
+        public void ResetPreparingForWar()
+        {
+            foreach (OurRelationsToThem rel in ActiveRelations)
+                rel.Rel.PreparingForWar = false;
+        }
+
         public float ColonizationDetectionChance(Relationship usToThem, Empire them)
         {
             int minChance = 0;

@@ -1029,7 +1029,7 @@ namespace Ship_Game.Ships
             {
                 case CombatState.Evade:        return UnarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
-                case CombatState.ShortRange:   return WeaponsMinRange * 0.7f;
+                case CombatState.ShortRange:   return WeaponsMinRange * 0.9f;
                 case CombatState.Artillery:    return WeaponsMaxRange * 0.9f;
                 case CombatState.AssaultShip:
                 case CombatState.AttackRuns:
@@ -1297,7 +1297,7 @@ namespace Ship_Game.Ships
 
             float newShipCost = newShip.GetCost(loyalty);
             int cost          = Math.Max((int)(newShipCost - oldShipCost), 0);
-            return cost + (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace;
+            return cost + (int)(10 * CurrentGame.ProductionPace); // extra refit cost: accord for GamePace;
         }
 
         public Status HealthStatus
