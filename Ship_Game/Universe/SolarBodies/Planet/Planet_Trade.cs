@@ -73,7 +73,7 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
                     return 0;
 
-                return (int)(PopulationBillion / 2);
+                return (int)PopulationBillion;
             }
         }
 
