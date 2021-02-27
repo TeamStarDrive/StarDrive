@@ -148,7 +148,7 @@
                     {
                         FlatMoneyBonus        = 10;
                         ProductionMod         = 0.5f;
-                        ResearchMod           = 0.75f;
+                        ResearchMod           = 0.6f;
                         TaxMod                = 0.5f;
                         ShipCostMod           = -0.2f;
                         ResearchTaxMultiplier = 0.7f;
@@ -184,7 +184,7 @@
                     {
                         FlatMoneyBonus        = 20;
                         ProductionMod         = 1f;
-                        ResearchMod           = 1.33f;
+                        ResearchMod           = 1.2f;
                         TaxMod                = 1f;
                         ShipCostMod           = -0.5f;
                         ResearchTaxMultiplier = 0.3f;
