@@ -92,7 +92,7 @@ namespace Ship_Game
             {
                 DrawInfluenceNodes(batch);
                 DrawSelected(batch, Player);
-                DrawWarnings(batch, elapsed);
+                DrawWarnings(batch);
             }
             catch (Exception e)
             {
@@ -147,7 +147,7 @@ namespace Ship_Game
             base.Draw(batch, elapsed);
         }
 
-        void DrawWarnings(SpriteBatch batch, DrawTimes elapsed)
+        void DrawWarnings(SpriteBatch batch)
         {
             float radius = 0.02f;
             float ringRad = 0.023f * pulseTime;

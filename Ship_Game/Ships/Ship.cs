@@ -1029,7 +1029,7 @@ namespace Ship_Game.Ships
             {
                 case CombatState.Evade:        return UnarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
-                case CombatState.ShortRange:   return WeaponsMinRange * 0.7f;
+                case CombatState.ShortRange:   return WeaponsMinRange * 0.9f;
                 case CombatState.Artillery:    return WeaponsMaxRange * 0.9f;
                 case CombatState.AssaultShip:
                 case CombatState.AttackRuns:

@@ -38,7 +38,7 @@
             if (FleetStrEmpireMultiplier.ContainsKey(targetEmpire.Id))
                 FleetStrEmpireMultiplier[targetEmpire.Id] = (FleetStrEmpireMultiplier[targetEmpire.Id] + value).LowerBound(0.5f);
             else
-                FleetStrEmpireMultiplier.Add(targetEmpire.Id, DifficultyModifiers.TaskForceStrength);
+                FleetStrEmpireMultiplier.Add(targetEmpire.Id, DifficultyModifiers.TaskForceStrength * (targetEmpire.isFaction ? 2 : 1));
         }
 
         public void InitFleetEmpireStrMultiplier()
