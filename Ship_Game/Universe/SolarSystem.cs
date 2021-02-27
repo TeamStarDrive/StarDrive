@@ -348,8 +348,8 @@ namespace Ship_Game
 
         public void GenerateRandomSystem(string name, float systemScale, Empire owner = null)
         {
-            // Changed by RedFox: 2% chance to get a tri-sun "star_binary"
-            Sun = RollDice(percent:2)
+            // Changed by RedFox: 4% chance to get a tri-sun "star_binary"
+            Sun = RollDice(percent:4)
                 ? SunType.FindSun("star_binary")
                 : SunType.RandomHabitableSun(s => s.Id != "star_binary");
 
@@ -357,11 +357,12 @@ namespace Ship_Game
             int starRadius    = (int)(IntBetween(250, 500) * systemScale);
             float ringMax     = starRadius * 300;
             float ringBase    = ringMax * .1f;
-            int minR          = IntBetween(GlobalStats.ExtraPlanets, 3);
+            int minR          = AvgRandomBetween(GlobalStats.ExtraPlanets, 3, iterations: 2);
             int maxR          = IntBetween(minR, 7 + minR);
             NumberOfRings     = IntBetween(minR, maxR);
-            if (owner != null && NumberOfRings < 5)
-                NumberOfRings = 5;
+
+            if (owner != null)
+                NumberOfRings = NumberOfRings.UpperBound(5);
 
             RingList.Capacity = NumberOfRings;
             float ringSpace   = ringMax / NumberOfRings;
@@ -402,8 +403,8 @@ namespace Ship_Game
 
             // now, if number of planets is <= 2 and they are barren,
             // then 33% chance to have neutron star:
-            if (PlanetList.Count <= 2 && PlanetList.All(p => p.IsBarrenOrVolcanic)
-                && RollDice(percent:33))
+            if (PlanetList.Count <= 2 + GlobalStats.ExtraPlanets && PlanetList.All(p => p.IsBarrenGasOrVolcanic)
+                && RollDice(percent:20))
             {
                 Sun = SunType.RandomBarrenSun();
             }
