@@ -83,15 +83,30 @@ namespace Ship_Game.Universe.SolarBodies
 
         void NotifyPlayerAndAi(Planet p, string message)
         {
-            if (p.Owner == null && p.IsExploredBy(EmpireManager.Player) || p.Owner == EmpireManager.Player)
-                Empire.Universe.NotificationManager.AddShipCrashed(p, message);
-
-            foreach (Empire e in EmpireManager.ActiveNonPlayerMajorEmpires)
+            foreach (Empire e in EmpireManager.ActiveMajorEmpires)
             {
-                if (p.Owner == null && p.IsExploredBy(e))
+                if (p.Owner == e 
+                    || p.Owner == null && p.IsExploredBy(e)
+                                       && e.GetShips().Any(s => s?.Center.InRadius(p.Center, s.SensorRange) == true))
+                {
+                    if (e.isPlayer)
+                        Empire.Universe.NotificationManager.AddShipCrashed(p, message);
+                    else
+                        AiProcessCrashSite(p, e);
+                }
+            }
+        }
+
+        void AiProcessCrashSite(Planet p, Empire e)
+        {
+            if (p.Owner == null)
+            {
+                if (!p.ParentSystem.OwnerList.ToArray().Any(empire => empire.IsNAPactWith(e)))
                     e.GetEmpireAI().TrySendExplorationFleetToCrashSite(p);
-                else if (p.Owner == e && !p.TroopsInTheWorks && !p.AnyOfOurTroops(e) && !p.SpaceCombatNearPlanet)
-                    TrySend4Troops(e, p);
+            }
+            else if (!p.TroopsInTheWorks && !p.AnyOfOurTroops(e) && !p.SpaceCombatNearPlanet)
+            {
+                TrySend4Troops(e, p);
             }
         }
 

@@ -732,6 +732,8 @@ namespace Ship_Game
 
             float quality   = PlanetQuality(p);
             int dieModifier = (int)CurrentGame.Difficulty * 5 - 10; // easy -10, brutal +5
+            if (Story != RemnantStory.None)
+                dieModifier -= 5;
 
             int d100 = RollDie(100) + dieModifier;
             switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
@@ -890,10 +892,10 @@ namespace Ship_Game
             if (RollDice(25))
                 AddMinorFleet(p);
 
-            if (RollDice(20))
+            if (RollDice(10))
                 AddFrigate(p);
 
-            if (RollDice(15))
+            if (RollDice(5))
                 AddGuardians(1, RemnantShipType.Assimilator, p);
         }
 

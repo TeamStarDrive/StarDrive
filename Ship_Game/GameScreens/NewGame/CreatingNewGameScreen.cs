@@ -494,7 +494,7 @@ namespace Ship_Game
         {
             // Divides the galaxy to several sectors and populates each sector with starts
             (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
-            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.1f);
+            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.25f);
             GenerateClustersStartingSystems(sectors);
             GenerateClusterSystems(sectors);
         }
@@ -503,8 +503,8 @@ namespace Ship_Game
         {
             // Divides the galaxy to many sectors and populates each sector with stars
             int numSectorsPerAxis  = GetNumSectorsPerAxis(NumSystems, NumOpponents + 1);
-            float offsetMultiplier = 0.2f / numSectorsPerAxis.UpperBound(4);
-            float deviation        = 0.03f * numSectorsPerAxis.UpperBound(4);
+            float offsetMultiplier = 0.28f / numSectorsPerAxis.UpperBound(4);
+            float deviation        = 0.05f * numSectorsPerAxis.UpperBound(4);
             Array<Sector> sectors  = GenerateSectors(numSectorsPerAxis, numSectorsPerAxis, deviation, offsetMultiplier);
             GenerateClustersStartingSystems(sectors, numSectorsPerAxis - 1);
             GenerateClusterSystems(sectors);
