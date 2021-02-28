@@ -29,6 +29,6 @@
             RandomEventManager.ActiveEvent = null; // This is a bug that will reset ongoing event upon game load (like hyperspace flux)
         }
 
-        public static float ProductionPace => 1 + (Pace - 1) * 0.25f;
+        public static float ProductionPace => 1 + (Pace - 1) * 0.5f;
     }
 }
