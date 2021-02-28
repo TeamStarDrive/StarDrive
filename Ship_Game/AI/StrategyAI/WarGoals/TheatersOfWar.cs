@@ -64,7 +64,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (OwnerWar.WarType == WarType.GenocidalWar || OwnerWar.WarType == WarType.ImperialistWar)
                 {
                     theirCenter = Them.GetOwnedSystems().FindMax(s => s.WarValueTo(Us)).Position;
-
                     ourCenter = Us.GetOwnedSystems().FindMin(s => s.Position.SqDist(theirCenter)).Position;
 
                     possibleTheaters = Theaters.GroupByFiltered(t => (int)(t.TheaterAO.Center.Distance(ourCenter) * 0.000005f + t.TheaterAO.Center.Distance(theirCenter) * 0.000005f)

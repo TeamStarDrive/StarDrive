@@ -88,8 +88,12 @@ namespace Ship_Game
 
         void UnloadTroops(Ship colonyShip)
         {
-            foreach (Troop t in colonyShip.GetOurTroops())
+            var troops = colonyShip.GetOurTroops();
+            for (int i = troops.Count - 1; i >= 0; i--)
+            {
+                Troop t = troops[i];
                 t.TryLandTroop(this);
+            }
         }
 
         void UnloadCargoColonists(Ship colonyShip)
