@@ -221,15 +221,18 @@ namespace Ship_Game
                     {
                         if (!b.IsSpacePort)
                             continue;
+
                         p.Station = new SpaceStation(p);
                         p.Station.LoadContent(ScreenManager, p.Owner);
                         p.HasSpacePort = true;
                     }
+
+                    if (p.Owner != null && p.HasCapital && p.Owner.Capital == null)
+                        p.Owner.Capital = p;
                     
                     if (p.Owner != null && !system.OwnerList.Contains(p.Owner))
-                    {
                         system.OwnerList.Add(p.Owner);
-                    }
+
                     system.PlanetList.Add(p);
                     p.SetExploredBy(ssd.ExploredBy);
 
