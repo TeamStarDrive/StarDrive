@@ -223,7 +223,7 @@ namespace Ship_Game.Universe.SolarBodies
         bool RecoverChance()
         {
             Ship template = ResourceManager.GetShipTemplate(ShipName, false);
-            if (template == null)
+            if (template == null || template.IsPlatformOrStation)
                 return false;
 
             float chance = 20 * (1 + Loyalty.data.Traits.ModHpModifier);

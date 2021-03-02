@@ -245,8 +245,18 @@ namespace Ship_Game.Ships
         }
 
         public float EmpTolerance  => SurfaceArea + BonusEMP_Protection;
-        public float EmpRecovery   => InCombat ? 1 + BonusEMP_Protection / 1000 : 20 + BonusEMP_Protection / 50;
         public float HealthPercent => Health / HealthMax;
+
+        public float EmpRecovery
+        {
+            get
+            {
+                if (loyalty.WeAreRemnants)
+                    return 20 + BonusEMP_Protection / 20;
+
+                return InCombat ? 1 + BonusEMP_Protection / 1000 : 20 + BonusEMP_Protection / 20;
+            }
+        }
 
         public void DebugDamage(float percent)
         {
@@ -1621,8 +1631,12 @@ namespace Ship_Game.Ships
             for (int i = 0; i < System.PlanetList.Count; i++)
             {
                 Planet p = System.PlanetList[i];
-                if (Center.InRadius(p.Center, p.ObjectRadius * p.Scale * 1.2f + CurrentVelocity * (etaSeconds + Level)))
+                if (Center.InRadius(p.Center, p.ObjectRadius * p.Scale * 1.2f + CurrentVelocity * (etaSeconds + Level))
+                   || IsPlatformOrStation && Center.InRadius(p.Center, p.GravityWellRadius / 2))
                 {
+                    if (IsPlatformOrStation)
+                        TetheredTo = null;
+
                     return p;
                 }
             }

@@ -291,7 +291,7 @@ namespace Ship_Game.Ships
                 if (!Center.InRadius(PlanetCrashingOn.Center, 100))
                 {
                     Vector2 dir = Center.DirectionToTarget(PlanetCrashingOn.Center);
-                    Position += dir.Normalized() * 100 * PlanetCrashingOn.Scale * timeStep.FixedTime;
+                    Position += dir.Normalized() * 200 * PlanetCrashingOn.Scale * timeStep.FixedTime;
                 }
             }
 
@@ -322,12 +322,12 @@ namespace Ship_Game.Ships
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
 
 
-                if (RandomMath.RollDice(20)) // Spawn some junk when tumbling
+                if (RandomMath.RollDice(10)) // Spawn some junk when tumbling
                 {
                     float radSqrt = (float)Math.Sqrt(Radius);
-                    float junkScale = (radSqrt * 0.05f).UpperBound(0.25f);
+                    float junkScale = (radSqrt * 0.02f).UpperBound(0.2f) * scale;
                     SpaceJunk.SpawnJunk(1, Center.GenerateRandomPointOnCircle(Radius / 20),
-                        Velocity, this, Radius, junkScale, true);
+                        Velocity * scale, this, Radius, junkScale, true);
                 }
 
                 ShipSO.UpdateAnimation(timeStep.FixedTime);

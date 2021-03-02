@@ -31,7 +31,7 @@ namespace Ship_Game
         public bool EventOnTile          => BuildingOnTile && (Building.EventHere || CrashSite.Active);
         public bool BioCanTerraform      => Biosphere && Terraformable;
         public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
-        public bool CanCrashHere         => NoBuildingOnTile || !CrashSite.Active || BuildingOnTile && !Building.IsCapital;
+        public bool CanCrashHere         => !CrashSite.Active && (!BuildingOnTile || BuildingOnTile && !Building.IsCapital);
 
 
         public DynamicCrashSite CrashSite = new DynamicCrashSite(false);
