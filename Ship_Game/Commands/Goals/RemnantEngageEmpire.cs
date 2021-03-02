@@ -168,7 +168,7 @@ namespace Ship_Game.Commands.Goals
             if (!IsPortalValidOrRerouted())
                 return GoalStep.GoalFailed;
 
-            if (Portal.InCombat && Portal.AI.Target?.System == Portal.System)
+            if (Portal.InCombat && Portal.AI.Target?.System == Portal.System && RandomMath.RollDice(80))
                 return GoalStep.TryAgain;
 
             bool checkOnlyDefeated = Remnants.Story == Remnants.RemnantStory.AncientRaidersRandom;
@@ -181,7 +181,7 @@ namespace Ship_Game.Commands.Goals
             int numShipsNoBombers = Remnants.NumShipsInFleet(Fleet) - numBombersInFleet;
             Ship singleShip       = null;
             if (!Remnants.AssignShipInPortalSystem(Portal, missingBombers, RequiredFleetStr(), out Array<Ship> ships))
-                if (!Remnants.CreateShip(Portal, missingBombers > 0, numShipsNoBombers, out singleShip))
+                if (!Remnants.CreateShip(Portal, missingBombers > 0 && !Portal.InCombat, numShipsNoBombers, out singleShip))
                     return GoalStep.TryAgain;
 
             if (ships.Count == 0 && singleShip != null)
