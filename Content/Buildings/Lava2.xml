@@ -1,0 +1,11 @@
+﻿<Building>
+  <Name>Lava2</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>0</Cost>
+  <Icon>Lava2</Icon>
+  <Scrappable>false</Scrappable>
+  <PlusFlatProductionAmount>0.5</PlusFlatProductionAmount>
+  <NameTranslationIndex>4251</NameTranslationIndex>
+  <DescriptionIndex>4252</DescriptionIndex>
+  <ShortDescriptionIndex>4253</ShortDescriptionIndex>
+</Building>
