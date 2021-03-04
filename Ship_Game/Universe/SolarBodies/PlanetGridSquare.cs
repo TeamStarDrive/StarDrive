@@ -327,9 +327,14 @@ namespace Ship_Game
             return p;
         }
 
+        public void CreateVolcanoFromSave(SavedGame.PGSData data, Planet planet)
+        {
+            Volcano = new Volcano(this, planet, data.VolcanoActivationChance, data.VolcanoActive, data.VolcanoErupting);
+        }
+
         public SavedGame.PGSData Serialize()
         {
-            return new SavedGame.PGSData
+            var sData  = new SavedGame.PGSData
             {
                 x = X,
                 y = Y,
@@ -346,6 +351,16 @@ namespace Ship_Game
                 CrashSiteEmpireId    = CrashSite.Loyalty?.Id ?? -1,
                 CrashSiteRecoverShip = CrashSite.RecoverShip
             };
+
+            if (VolcanoHere)
+            {
+                sData.VolcanoHere             = true;
+                sData.VolcanoActive           = Volcano.Active;
+                sData.VolcanoErupting         = Volcano.Erupting;
+                sData.VolcanoActivationChance = Volcano.ActivationChance;
+            }
+
+            return sData;
         }
     }
 

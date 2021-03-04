@@ -692,6 +692,10 @@ namespace Ship_Game
             [Serialize(11)] public int CrashSiteEmpireId;
             [Serialize(12)] public bool CrashSiteRecoverShip;
             [Serialize(13)] public short EventOutcomeNum;
+            [Serialize(14)] public bool VolcanoHere;
+            [Serialize(15)] public bool VolcanoActive;
+            [Serialize(16)] public bool VolcanoErupting;
+            [Serialize(17)] public float VolcanoActivationChance;
         }
 
         public class PlanetSaveData

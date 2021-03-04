@@ -677,12 +677,12 @@ namespace Ship_Game
             DrawFertilityOnBuildWarning(ref bCursor, batch, b);
 
             if (tile?.VolcanoHere == true)
-                DrawVolcanoChance(ref bCursor, batch, tile.Volcano.ActivationChanceText());
+                DrawVolcanoChance(ref bCursor, batch, tile.Volcano.ActivationChanceText(out Color color), color);
         }
 
-        void DrawVolcanoChance(ref Vector2 cursor, SpriteBatch batch, string text)
+        void DrawVolcanoChance(ref Vector2 cursor, SpriteBatch batch, string text, Color color)
         {
-            batch.DrawString(TextFont, text, cursor, Color.Red);
+            batch.DrawString(TextFont, text, cursor, color);
             cursor.Y += TextFont.LineSpacing;
         }
 
