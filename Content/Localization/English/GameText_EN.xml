@@ -8480,6 +8480,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>This Volcano is erupting, spitting Lava and deteriorating the Planet's climate. Hopefully it would calm down soon.</Text>
     </Token>
     <Token>
+      <Index>4251</Index>
+      <Text>Lava</Text>
+    </Token>
+    <Token>
+      <Index>4252</Index>
+      <Text>Hot Lava surrounds this tile, making habitation impossible, but the hot temperatures do aid in production. It will solidify in time.</Text>
+    </Token>
+    <Token>
+      <Index>4253</Index>
+      <Text>Molten Rock, +0.5 Flat Production</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
