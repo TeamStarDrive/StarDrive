@@ -8472,6 +8472,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Extremely High</Text> <!-- Activation/Eruption Chance-->
     </Token>
     <Token>
+      <Index>4249</Index>
+      <Text>Erupting Volcano</Text>
+    </Token>
+    <Token>
+      <Index>4250</Index>
+      <Text>This Volcano is erupting, spitting Lava and deteriorating the Planet's climate. Hopefully it would calm down soon.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>

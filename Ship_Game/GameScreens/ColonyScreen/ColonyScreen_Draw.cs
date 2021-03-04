@@ -649,7 +649,7 @@ namespace Ship_Game
                 $"{Localizer.Token(1873)} ({P.InfraStructure} taken from Storage)", digits: 1);
         }
 
-        void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b)
+        void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b, PlanetGridSquare tile = null)
         {
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatFoodAmount, "NewUI/icon_food", Localizer.Token(354));
             DrawBuildingInfo(ref bCursor, batch, b.PlusFoodPerColonist, "NewUI/icon_food", Localizer.Token(2042));
@@ -676,6 +676,15 @@ namespace Ship_Game
             DrawBuildingWeaponStats(ref bCursor, batch, b);
             DrawTerraformerStats(ref bCursor, batch, b);
             DrawFertilityOnBuildWarning(ref bCursor, batch, b);
+
+            if (tile?.VolcanoHere == true)
+                DrawVolcanoChance(ref bCursor, batch, tile.Volcano.ActivationChanceText());
+        }
+
+        void DrawVolcanoChance(ref Vector2 cursor, SpriteBatch batch, string text)
+        {
+            batch.DrawString(TextFont, text, cursor, Color.Red);
+            cursor.Y += TextFont.LineSpacing;
         }
 
         void DrawFertilityOnBuildWarning(ref Vector2 cursor, SpriteBatch batch, Building b)

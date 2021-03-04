@@ -366,7 +366,8 @@ namespace Ship_Game
             if (tile.Biosphere)
                 ClearBioSpheresFromList(tile);
 
-            tile.Habitable = true;
+            tile.Habitable     = true;
+            tile.Terraformable = false;
             UpdateMaxPopulation();
         }
 
