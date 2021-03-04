@@ -77,6 +77,7 @@ namespace Ship_Game
         public float SpaceDefMaintenance { get; private set; }
         public float GroundDefMaintenance { get; private set; }
         public float InfraStructure { get; private set; }
+        public bool HasDynamicBuildings; // Has buildings which should update per turn even if no owner
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -458,6 +459,7 @@ namespace Ship_Game
         {
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
+
         }
 
         void UpdateHabitable(FixedSimTime timeStep)
@@ -470,6 +472,7 @@ namespace Ship_Game
             if (PlanetUpdatePerTurnTimer < 0 )
             {
                 UpdateBaseFertility();
+                UpdateDynamicBuildings();
                 PlanetUpdatePerTurnTimer = GlobalStats.TurnTimer;
             }
 
@@ -477,6 +480,19 @@ namespace Ship_Game
             GeodeticManager.Update(timeStep);
             // this needs some work
             UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
+        }
+
+        void UpdateDynamicBuildings()
+        {
+            if (!HasDynamicBuildings)
+                return;
+
+            for (int i = 0; i < TilesList.Count; ++i)
+            {
+                PlanetGridSquare tile = TilesList[i];
+                if (tile.VolcanoHere)
+                    tile.Volcano.Evaluate();
+            }
         }
 
         public void RemoveFromOrbitalStations(Ship orbital)

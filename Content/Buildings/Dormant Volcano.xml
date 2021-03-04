@@ -1,0 +1,9 @@
+﻿<Building>
+  <Name>Dormant Volcano</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>0</Cost>
+  <Icon>Dormant_Volcano</Icon>
+  <NameTranslationIndex>444</NameTranslationIndex>
+  <DescriptionIndex>445</DescriptionIndex>
+  <ShortDescriptionIndex>445</ShortDescriptionIndex>
+</Building>

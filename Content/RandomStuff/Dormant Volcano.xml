@@ -1,0 +1,29 @@
+﻿<RandomItem>
+  <!-- this references a building file by name; the item will be a "building" as far as the code is concerned -->
+  <BuildingID>Dormant Volcano</BuildingID>
+  <!-- The chances that this will appear on a terran planet -->
+  <TerranChance>5</TerranChance>
+  <!-- the maximum number of instances that will appear (may want only 1, or to have them appear in groups) -->
+  <TerranInstanceMax>2</TerranInstanceMax>
+
+  <OceanicChance>6</OceanicChance>
+  <OceanicInstanceMax>4</OceanicInstanceMax>
+
+  <DesertChance>2</DesertChance>
+  <DesertInstanceMax>2</DesertInstanceMax>
+
+  <SwampChance>3</SwampChance>
+  <SwampInstanceMax>1</SwampInstanceMax>
+
+  <TundraChance>1</TundraChance>
+  <TundraInstanceMax>2</TundraInstanceMax>
+
+  <IceChance>1</IceChance>
+  <IceInstanceMax>1</IceInstanceMax>
+
+  <SteppeChance>4</SteppeChance>
+  <SteppeInstanceMax>2</SteppeInstanceMax>
+
+  <BarrenChance>10</BarrenChance>
+  <BarrenInstanceMax>5</BarrenInstanceMax>
+</RandomItem>

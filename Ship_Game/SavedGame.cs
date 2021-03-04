@@ -746,6 +746,7 @@ namespace Ship_Game
             [Serialize(47)] public float ManualCivilianBudget;
             [Serialize(48)] public float ManualGrdDefBudget;
             [Serialize(49)] public float ManualSpcDefBudget;
+            [Serialize(50)] public bool HasDynamicBuildings;
         }
 
         public struct ProjectileSaveData
