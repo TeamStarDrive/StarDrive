@@ -1,10 +1,10 @@
 ﻿<Building>
-  <Name>Dormant Volcano</Name>
+  <Name>Active Volcano</Name>
   <Maintenance>0</Maintenance>
   <Cost>0</Cost>
-  <Icon>Dormant_Volcano</Icon>
+  <Icon>Active_Volcano</Icon>
   <Scrappable>false</Scrappable>
-  <NameTranslationIndex>4237</NameTranslationIndex>
-  <DescriptionIndex>4238</DescriptionIndex>
+  <NameTranslationIndex>4240</NameTranslationIndex>
+  <DescriptionIndex>4241</DescriptionIndex>
   <ShortDescriptionIndex>4239</ShortDescriptionIndex>
 </Building>

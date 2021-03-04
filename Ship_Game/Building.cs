@@ -95,14 +95,15 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int BID { get; private set; }
         public void AssignBuildingId(int bid) => BID = bid;
 
-        public static int CapitalId, OutpostId, BiospheresId, SpacePortId, TerraformerId, VolcanoId;
+        public static int CapitalId, OutpostId, BiospheresId, SpacePortId, TerraformerId;
+        public static int VolcanoId, ActiveVolcanoId, EruptingVolcanoId;
         [XmlIgnore][JsonIgnore] public bool IsCapital          => BID == CapitalId;
         [XmlIgnore][JsonIgnore] public bool IsOutpost          => BID == OutpostId;
         [XmlIgnore][JsonIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
         [XmlIgnore][JsonIgnore] public bool IsBiospheres  => BID == BiospheresId;
         [XmlIgnore][JsonIgnore] public bool IsSpacePort   => BID == SpacePortId;
         [XmlIgnore][JsonIgnore] public bool IsTerraformer => BID == TerraformerId;
-        [XmlIgnore][JsonIgnore] public bool IsVolcano     => BID == VolcanoId;
+        [XmlIgnore][JsonIgnore] public bool IsVolcano     => BID == VolcanoId || BID == ActiveVolcanoId || BID == EruptingVolcanoId;
         [XmlIgnore][JsonIgnore] public SubTexture IconTex => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
         [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
