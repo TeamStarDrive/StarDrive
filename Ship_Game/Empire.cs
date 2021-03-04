@@ -2865,7 +2865,7 @@ namespace Ship_Game
             if (data.Defeated) return true;
             if (!GlobalStats.EliminationMode && OwnedPlanets.Count != 0)
                 return false;
-            if (GlobalStats.EliminationMode && (Capital == null || Capital.Owner == this))
+            if (GlobalStats.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
                 return false;
 
             SetAsDefeated();
@@ -3118,9 +3118,9 @@ namespace Ship_Game
             }
             foreach (Artifact artifact in target.data.OwnedArtifacts)
             {
-                data.OwnedArtifacts.Add(artifact);
                 AddArtifact(artifact);
             }
+
             target.data.OwnedArtifacts.Clear();
             if (target.Money > 0.0)
             {
