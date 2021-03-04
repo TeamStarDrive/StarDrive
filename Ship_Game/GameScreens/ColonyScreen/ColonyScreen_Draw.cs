@@ -519,7 +519,7 @@ namespace Ship_Game
                             return;
                     }
 
-                    if (!pgs.Habitable)
+                    if (!pgs.Habitable && !pgs.BuildingOnTile)
                     {
                         if (P.IsBarrenType)
                         {
@@ -535,7 +535,6 @@ namespace Ship_Game
                         }
 
                         DrawTilePopInfo(ref bCursor, batch, pgs);
-                        return;
                     }
 
                     if (pgs.Building == null)
