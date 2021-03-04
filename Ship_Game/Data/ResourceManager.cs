@@ -809,6 +809,8 @@ namespace Ship_Game
                     case "Dormant Volcano":   Building.VolcanoId          = b.BID; break;
                     case "Active Volcano":    Building.ActiveVolcanoId    = b.BID; break;
                     case "Erupting Volcano":  Building.EruptingVolcanoId  = b.BID; break;
+                    case "Lava 1":            Building.Lava1Id            = b.BID; break;
+                    case "Lava 2":            Building.Lava2Id            = b.BID; break;
                 }
             }
         }

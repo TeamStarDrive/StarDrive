@@ -492,6 +492,8 @@ namespace Ship_Game
                 PlanetGridSquare tile = TilesList[i];
                 if (tile.VolcanoHere)
                     tile.Volcano.Evaluate();
+                else if (tile.LavaHere)
+                    Volcano.UpdateLava(tile, this);
             }
         }
 
@@ -600,11 +602,14 @@ namespace Ship_Game
             Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
-        public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
+        public void DestroyTile(PlanetGridSquare tile)            => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
+        public void DestroyTileWithVolcano(PlanetGridSquare tile) => DestroyBioSpheres(tile, true);
 
-        public void DestroyBioSpheres(PlanetGridSquare tile)
+        public void DestroyBioSpheres(PlanetGridSquare tile, bool destroyVolcano = false)
         {
-            RemoveBuildingFromPlanet(tile);
+            if (!tile.VolcanoHere || destroyVolcano)
+                RemoveBuildingFromPlanet(tile);
+
             tile.Habitable = false;
 
             if (tile.Biosphere)
@@ -613,6 +618,8 @@ namespace Ship_Game
                 tile.Terraformable = RandomMath.RollDice(50);
 
             UpdateMaxPopulation();
+
+            HasDynamicBuildings = BuildingList.Any(b => b.IsDynamicUpdate);
         }
 
         public void ScrapBuilding(Building b)
