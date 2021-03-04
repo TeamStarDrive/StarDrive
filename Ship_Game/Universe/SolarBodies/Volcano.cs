@@ -1,4 +1,5 @@
-﻿using Ship_Game.Gameplay;
+﻿using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Universe.SolarBodies
@@ -16,7 +17,16 @@ namespace Ship_Game.Universe.SolarBodies
             ActivationChance = RandomMath.RandomBetween(0f, 1f);
             Tile             = tile;
             P                = planet;
-            CreateVolcanoBuilding();
+            CreateDormantVolcano();
+        }
+
+        public Volcano(PlanetGridSquare tile, Planet planet, float activationChance, bool active, bool erupting)
+        {
+            ActivationChance = activationChance;
+            Active           = active;
+            Erupting         = erupting;
+            Tile             = tile;
+            P                = planet;
         }
 
         public bool Dormant        => !Active;
@@ -24,14 +34,19 @@ namespace Ship_Game.Universe.SolarBodies
         float ActiveEruptionChance => ActivationChance * 10;
         float CalmDownChance       => ActiveEruptionChance;
 
-        void CreateVolcanoBuilding()
+        void CreateVolcanoBuilding(int bid)
+        {
+            Building b = ResourceManager.CreateBuilding(bid);
+            Tile.PlaceBuilding(b, P);
+            P.HasDynamicBuildings = true;
+        }
+
+        void CreateDormantVolcano()
         {
             P.DestroyTileWithVolcano(Tile);
             Active     = false;
             Erupting   = false;
-            Building b = ResourceManager.CreateBuilding(Building.VolcanoId);
-            Tile.PlaceBuilding(b, P);
-            P.HasDynamicBuildings = true;
+            CreateVolcanoBuilding(Building.VolcanoId);
         }
 
         public void Evaluate()
@@ -59,8 +74,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 P.DestroyTileWithVolcano(Tile);
                 Active     = true;
-                Building b = ResourceManager.CreateBuilding(Building.ActiveVolcanoId);
-                Tile.PlaceBuilding(b, P);
+                CreateVolcanoBuilding(Building.ActiveVolcanoId);
             }
         }
 
@@ -70,8 +84,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 P.DestroyTileWithVolcano(Tile);
                 Erupting   = true;
-                Building b = ResourceManager.CreateBuilding(Building.EruptingVolcanoId);
-                Tile.PlaceBuilding(b, P);
+                CreateVolcanoBuilding(Building.EruptingVolcanoId);
                 if (RandomMath.RollDice(ActiveEruptionChance))
                     P.AddMaxBaseFertility(-0.1f); // todo msg player
             }
@@ -81,9 +94,8 @@ namespace Ship_Game.Universe.SolarBodies
         {
             if (RandomMath.RollDice(CalmDownChance)) // todo msg player
             {
-                Erupting         = false;
+                CreateDormantVolcano();
                 ActivationChance = RandomMath.RandomBetween(0.1f, 1f);
-                CreateVolcanoBuilding();
                 if (RandomMath.RollDice(ActiveEruptionChance))
                     P.MineralRichness += 0.1f;
             }
@@ -93,8 +105,9 @@ namespace Ship_Game.Universe.SolarBodies
         {
             if (RandomMath.RollDice(DeactivationChance)) // todo msg player
             {
-                Active = false;
-                CreateVolcanoBuilding();
+                Active   = false;
+                Erupting = false;
+                CreateDormantVolcano();
                 return true;
             }
 
@@ -111,14 +124,15 @@ namespace Ship_Game.Universe.SolarBodies
                 planet.MakeTileHabitable(tile); // todo msg player
         }
 
-        public static void RemoveVolcano(PlanetGridSquare tile, Planet planet) // After Terraforming
+        public static void RemoveVolcano(PlanetGridSquare tile, Planet planet) // todo After Terraforming
         {
             planet.DestroyTileWithVolcano(tile);
             tile.Volcano = null;
         }
 
-        public string ActivationChanceText()
+        public string ActivationChanceText(out Color color)
         {
+            color = Color.Green;
             if (Erupting)
                 return "";
 
@@ -130,6 +144,7 @@ namespace Ship_Game.Universe.SolarBodies
                 else if (ActivationChance < 0.66f) text = new LocalizedText(4245).Text;
                 else                               text = new LocalizedText(4246).Text;
 
+                color = Color.Yellow;
                 return $"{text} {new LocalizedText(4239)}";
             }
 
@@ -140,6 +155,7 @@ namespace Ship_Game.Universe.SolarBodies
                 else if (ActiveEruptionChance < 6.6f) text = new LocalizedText(4247).Text;
                 else                                  text = new LocalizedText(4248).Text;
 
+                color = Color.Red;
                 return $"{text} {new LocalizedText(4242)}";
             }
 
