@@ -134,6 +134,7 @@ namespace Ship_Game
             p.CrippledTurns         = psData.Crippled_Turns;
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
+            p.HasDynamicBuildings   = psData.HasDynamicBuildings;
 
             p.UpdateTerraformPoints(psData.TerraformPoints);
             p.RestoreBaseFertilityTerraformRatio(psData.BaseFertilityTerraformRatio);

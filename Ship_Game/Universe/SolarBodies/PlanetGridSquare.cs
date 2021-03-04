@@ -32,9 +32,10 @@ namespace Ship_Game
         public bool BioCanTerraform      => Biosphere && Terraformable;
         public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
         public bool CanCrashHere         => !CrashSite.Active && (!BuildingOnTile || BuildingOnTile && !Building.IsCapital);
-
+        public bool VolcanoHere          => Volcano != null;
 
         public DynamicCrashSite CrashSite = new DynamicCrashSite(false);
+        public Volcano Volcano;
 
         public bool IsTileFree(Empire empire)
         {
@@ -128,6 +129,11 @@ namespace Ship_Game
         public void AddTroop(Troop troop)
         {
             TroopsHere.Add(troop);
+        }
+
+        public void CreateVolcano(Planet p)
+        {
+            Volcano = new Volcano(this, p);
         }
 
         public bool CanBuildHere(Building b)

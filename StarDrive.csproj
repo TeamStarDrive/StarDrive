@@ -521,6 +521,7 @@
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />
     <Compile Include="Ship_Game\Universe\EmpireSolarSystemStatus.cs" />
+    <Compile Include="Ship_Game\Universe\SolarBodies\Volcano.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\DynamicCrashSite.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\GeodeticManager.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\ColonyResource.cs" />
@@ -1871,6 +1872,9 @@
     <Content Include="Content\Buildings\Gun Emplacement.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Buildings\Dormant Volcano.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Buildings\Nano Mine.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2111,6 +2115,9 @@
     <Content Include="Content\Races\Draugar.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\RandomStuff\Dormant Volcano.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\SavedDesigns\Ancient Bomber.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2299,6 +2306,12 @@
     </Content>
     <Content Include="Content\StarterShips\Vessel L2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\Buildings\icon_Dormant_Volcano_48x48.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\Buildings\icon_Dormant_Volcano_64x64.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\MMenu\subver.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
