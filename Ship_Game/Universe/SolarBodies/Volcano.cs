@@ -38,7 +38,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             Building b = ResourceManager.CreateBuilding(bid);
             Tile.PlaceBuilding(b, P);
-            P.HasDynamicBuildings = true;
+            P.SetHasDynamicBuildings(true);
         }
 
         void CreateDormantVolcano()
