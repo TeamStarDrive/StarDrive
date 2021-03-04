@@ -716,7 +716,6 @@ namespace Ship_Game
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
                     StationsList         = planet.OrbitalStations.Where(s => s.Active).Select(s => s.guid).ToArray(),
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
-                    HasDynamicBuildings  = planet.HasDynamicBuildings,
                     BaseFertilityTerraformRatio = planet.BaseFertilityTerraformRatio
                 };
 

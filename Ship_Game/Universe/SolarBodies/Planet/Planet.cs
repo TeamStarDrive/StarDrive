@@ -77,7 +77,7 @@ namespace Ship_Game
         public float SpaceDefMaintenance { get; private set; }
         public float GroundDefMaintenance { get; private set; }
         public float InfraStructure { get; private set; }
-        public bool HasDynamicBuildings; // Has buildings which should update per turn even if no owner
+        public bool HasDynamicBuildings { get; private set; } // Has buildings which should update per turn even if no owner
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -618,8 +618,7 @@ namespace Ship_Game
                 tile.Terraformable = RandomMath.RollDice(50);
 
             UpdateMaxPopulation();
-
-            HasDynamicBuildings = BuildingList.Any(b => b.IsDynamicUpdate);
+            ResetHasDynamicBuildings();
         }
 
         public void ScrapBuilding(Building b)
@@ -1348,6 +1347,16 @@ namespace Ship_Game
         public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
         public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
 
+
+        public void SetHasDynamicBuildings(bool value)
+        {
+            HasDynamicBuildings = value;
+        }
+
+        public void ResetHasDynamicBuildings()
+        {
+            HasDynamicBuildings = BuildingList.Any(b => b.IsDynamicUpdate);
+        }
 
         private void RepairBuildings(int repairAmount)
         {
