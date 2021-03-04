@@ -13,8 +13,6 @@ namespace Ship_Game.Universe.SolarBodies
 
         public Volcano(PlanetGridSquare tile, Planet planet)
         {
-            Active           = false;
-            Erupting         = false;
             ActivationChance = RandomMath.RandomBetween(0f, 1f);
             Tile             = tile;
             P                = planet;
@@ -28,7 +26,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         void CreateVolcanoBuilding()
         {
-            P.DestroyTile(Tile);
+            P.DestroyTileWithVolcano(Tile);
+            Active     = false;
+            Erupting   = false;
             Building b = ResourceManager.CreateBuilding(Building.VolcanoId);
             Tile.PlaceBuilding(b, P);
             P.HasDynamicBuildings = true;
@@ -55,9 +55,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         void TryActivate()
         {
-            if (RandomMath.RollDice(ActivationChance))
+            if (RandomMath.RollDice(ActivationChance)) // todo msg player
             {
-                P.DestroyTile(Tile);
+                P.DestroyTileWithVolcano(Tile);
                 Active     = true;
                 Building b = ResourceManager.CreateBuilding(Building.ActiveVolcanoId);
                 Tile.PlaceBuilding(b, P);
@@ -66,27 +66,32 @@ namespace Ship_Game.Universe.SolarBodies
 
         void TryErupt()
         {
-            if (RandomMath.RollDice(ActiveEruptionChance))
+            if (RandomMath.RollDice(ActiveEruptionChance)) // todo msg player
             {
-                P.DestroyTile(Tile);
+                P.DestroyTileWithVolcano(Tile);
                 Erupting   = true;
-                Building b = ResourceManager.CreateBuilding(Building.ActiveVolcanoId);
+                Building b = ResourceManager.CreateBuilding(Building.EruptingVolcanoId);
                 Tile.PlaceBuilding(b, P);
+                if (RandomMath.RollDice(ActiveEruptionChance))
+                    P.AddMaxBaseFertility(-0.1f); // todo msg player
             }
         }
 
         void TryCalmDown()
         {
-            if (RandomMath.RollDice(CalmDownChance))
+            if (RandomMath.RollDice(CalmDownChance)) // todo msg player
             {
-                Erupting = false;
+                Erupting         = false;
                 ActivationChance = RandomMath.RandomBetween(0.1f, 1f);
+                CreateVolcanoBuilding();
+                if (RandomMath.RollDice(ActiveEruptionChance))
+                    P.MineralRichness += 0.1f;
             }
         }
 
         bool TryDeactivate()
         {
-            if (RandomMath.RollDice(DeactivationChance))
+            if (RandomMath.RollDice(DeactivationChance)) // todo msg player
             {
                 Active = false;
                 CreateVolcanoBuilding();
@@ -94,6 +99,22 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             return false;
+        }
+
+        public static void UpdateLava(PlanetGridSquare tile, Planet planet)
+        {
+            if (!RandomMath.RollDice(2))
+                return;
+
+            planet.DestroyTileWithVolcano(tile);
+            if (RandomMath.RollDice(50))
+                planet.MakeTileHabitable(tile); // todo msg player
+        }
+
+        public static void RemoveVolcano(PlanetGridSquare tile, Planet planet) // After Terraforming
+        {
+            planet.DestroyTileWithVolcano(tile);
+            tile.Volcano = null;
         }
 
         public string ActivationChanceText()
