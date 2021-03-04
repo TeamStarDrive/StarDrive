@@ -807,6 +807,8 @@ namespace Ship_Game
                     case "Mine Fissionables": Building.MineFissionablesId = b.BID; break;
                     case "Fuel Refinery":     Building.FuelRefineryId     = b.BID; break;
                     case "Dormant Volcano":   Building.VolcanoId          = b.BID; break;
+                    case "Active Volcano":    Building.ActiveVolcanoId    = b.BID; break;
+                    case "Erupting Volcano":  Building.EruptingVolcanoId  = b.BID; break;
                 }
             }
         }
