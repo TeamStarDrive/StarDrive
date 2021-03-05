@@ -4,6 +4,8 @@
   <Cost>0</Cost>
   <Icon>Dormant_Volcano</Icon>
   <Scrappable>false</Scrappable>
+  <CannotBeBombed>true</CannotBeBombed>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
   <NameTranslationIndex>4237</NameTranslationIndex>
   <DescriptionIndex>4238</DescriptionIndex>
   <ShortDescriptionIndex>4239</ShortDescriptionIndex>

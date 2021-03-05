@@ -144,7 +144,7 @@ namespace Ship_Game
                 return false;
 
             if (b.IsBiospheres)
-                return !Habitable; // don't allow biospheres on habitable tiles (including tiles with biospheres)
+                return !Habitable && !VolcanoHere && !LavaHere; // Don't allow biospheres on habitable tiles (including tiles with biospheres or specific buildings)
 
             return !Habitable && b.CanBuildAnywhere && !BuildingOnTile
                  || Habitable && NoBuildingOnTile;
