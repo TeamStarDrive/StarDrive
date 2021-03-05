@@ -3,6 +3,7 @@
   <Maintenance>0</Maintenance>
   <Cost>0</Cost>
   <Icon>Active_Volcano</Icon>
+  <MaxFertilityOnBuild>-0.25</MaxFertilityOnBuild>
   <Scrappable>false</Scrappable>
   <NameTranslationIndex>4240</NameTranslationIndex>
   <DescriptionIndex>4241</DescriptionIndex>

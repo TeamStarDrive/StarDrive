@@ -8429,7 +8429,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4238</Index>
-      <Text>This Volcano is current Dormant, but our Geologists believe this state is not permanent. It might become active and even erupt, damaging the environment in some way.</Text>
+      <Text>This huge Volcano is currently Dormant, but our Geologists believe this state is not permanent. It might become active and even erupt, damaging the environment in some way.</Text>
     </Token>
     <Token>
       <Index>4239</Index>
@@ -8441,7 +8441,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4241</Index>
-      <Text>This Volcano has become active! Smoke and fumes emitting and making life on this tile nearly impossible. There is a chance this volcano might erupt, but also it might become dormant again.</Text>
+      <Text>This Volcano has become active! Smoke and fumes emitting, making life on this tile nearly impossible and slightly damaging the environment. There is a chance this volcano might erupt, but it also might become dormant again.</Text>
     </Token>
     <Token>
       <Index>4242</Index>
