@@ -4,6 +4,8 @@
   <Cost>0</Cost>
   <Icon>Lava2</Icon>
   <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <Strength>25</Strength>
   <PlusFlatProductionAmount>0.5</PlusFlatProductionAmount>
   <NameTranslationIndex>4251</NameTranslationIndex>
   <DescriptionIndex>4252</DescriptionIndex>

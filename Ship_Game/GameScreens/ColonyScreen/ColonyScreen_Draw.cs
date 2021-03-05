@@ -234,7 +234,11 @@ namespace Ship_Game
             {
                 Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
                 string terraformText = Localizer.Token(683); // Terraform Planet is the default text
-                if (P.HasTilesToTerraform)
+                if (P.HasVolcanoesToTerraform)
+                {
+                    terraformText = new LocalizedText(4267).Text;
+                }
+                else if (P.HasTilesToTerraform)
                 {
                     terraformText  = Localizer.Token(1972);
                 }

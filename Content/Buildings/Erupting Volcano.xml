@@ -5,6 +5,8 @@
   <Icon>Active_Volcano</Icon>
   <MaxFertilityOnBuild>-0.25</MaxFertilityOnBuild>
   <Scrappable>false</Scrappable>
+  <CannotBeBombed>true</CannotBeBombed>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
   <NameTranslationIndex>4240</NameTranslationIndex>
   <DescriptionIndex>4241</DescriptionIndex>
   <ShortDescriptionIndex>4239</ShortDescriptionIndex>

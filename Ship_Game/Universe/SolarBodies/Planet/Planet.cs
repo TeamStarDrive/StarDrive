@@ -607,8 +607,12 @@ namespace Ship_Game
 
         public void DestroyBioSpheres(PlanetGridSquare tile, bool destroyVolcano = false)
         {
-            if (!tile.VolcanoHere || destroyVolcano)
-                RemoveBuildingFromPlanet(tile);
+            if (!tile.VolcanoHere
+                || destroyVolcano
+                || !tile.Building?.CanBuildAnywhere == false)
+            {
+                DestroyBuildingOn(tile);
+            }
 
             tile.Habitable = false;
 
@@ -635,13 +639,13 @@ namespace Ship_Game
         private void RemoveBuildingFromPlanet(Building b)
         {
             BuildingList.Remove(b);
-            PlanetGridSquare pgs = TilesList.Find(tile => tile.Building == b);
-            if (pgs != null)
-                pgs.Building = null;
+            PlanetGridSquare tile = TilesList.Find(t => t.Building == b);
+            if (tile != null)
+                tile.Building = null;
             else
                 Log.Error($"{this} failed to find tile with building {b}");
 
-            PostBuildingRemoval(b);
+            PostBuildingRemoval(b, tile);
         }
 
         private void RemoveBuildingFromPlanet(PlanetGridSquare tile, bool destroy = false)
@@ -652,11 +656,14 @@ namespace Ship_Game
             Building b = tile.Building;
             BuildingList.Remove(b);
             tile.Building = null;
-            PostBuildingRemoval(b, destroy);
+            PostBuildingRemoval(b, tile, destroy);
         }
 
-        private void PostBuildingRemoval(Building b, bool destroy = false)
+        private void PostBuildingRemoval(Building b, PlanetGridSquare tile, bool destroy = false)
         {
+            if (tile != null)
+                tile.CrashSite = new DynamicCrashSite(false);
+
             // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
             // environment buildings can be scrapped and the planet will slowly recover
             AddBuildingsFertility(-b.MaxFertilityOnBuild); 
