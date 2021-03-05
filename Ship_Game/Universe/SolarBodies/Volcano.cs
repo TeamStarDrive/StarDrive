@@ -14,7 +14,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public Volcano(PlanetGridSquare tile, Planet planet)
         {
-            ActivationChance = RandomMath.RandomBetween(0f, 1f);
+            ActivationChance = InitActivationChance();
             Tile             = tile;
             P                = planet;
             CreateDormantVolcano();
@@ -33,6 +33,15 @@ namespace Ship_Game.Universe.SolarBodies
         float DeactivationChance   => ActivationChance * 3;
         float ActiveEruptionChance => ActivationChance * 10;
         float CalmDownChance       => ActiveEruptionChance;
+        float InitActivationChance() => RandomMath.RandomBetween(0f, 1f);
+
+        void CreateLavaPool(PlanetGridSquare tile)
+        {
+            int bid    = RandomMath.RollDice(50) ? Building.Lava1Id : Building.Lava2Id;
+            Building b = ResourceManager.CreateBuilding(bid);
+            Tile.PlaceBuilding(b, P);
+            P.SetHasDynamicBuildings(true);
+        }
 
         void CreateVolcanoBuilding(int bid)
         {
@@ -84,6 +93,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 P.DestroyTileWithVolcano(Tile);
                 Erupting   = true;
+                Erupt(out string msgString);
                 CreateVolcanoBuilding(Building.EruptingVolcanoId);
                 if (RandomMath.RollDice(ActiveEruptionChance))
                     P.AddMaxBaseFertility(-0.1f); // todo msg player
@@ -95,7 +105,7 @@ namespace Ship_Game.Universe.SolarBodies
             if (RandomMath.RollDice(CalmDownChance)) // todo msg player
             {
                 CreateDormantVolcano();
-                ActivationChance = RandomMath.RandomBetween(0.1f, 1f);
+                ActivationChance = InitActivationChance();
                 if (RandomMath.RollDice(ActiveEruptionChance))
                     P.MineralRichness += 0.1f;
             }
@@ -112,6 +122,71 @@ namespace Ship_Game.Universe.SolarBodies
             }
 
             return false;
+        }
+
+        void Erupt(out string eruptionSeverityText)
+        {
+            var potentialTiles     = P.TilesList.Filter(t => !t.VolcanoHere & !t.LavaHere);
+            int numLavaPoolsWanted = GetNumLavaPools(potentialTiles.Length.UpperBound(16));
+            int actualLavaPools    = 0;
+            var potentialLavaTiles = GetPotentialLavaTiles(Tile);
+
+            for (int i = 0; i < numLavaPoolsWanted; i++)
+            {
+                if (potentialLavaTiles.Count == 0)
+                    break;
+
+                PlanetGridSquare tile = potentialLavaTiles.RandItem();
+                CreateLavaPool(tile);
+                actualLavaPools += 1;
+                potentialLavaTiles.AddRange(GetPotentialLavaTiles(tile));
+                potentialLavaTiles.Remove(tile);
+            }
+
+            eruptionSeverityText = GetEruptionText(actualLavaPools);
+        }
+
+        string GetEruptionText(int numLavaPoolsCreated) // todo create the text
+        {
+            string text = "";
+
+            return text;
+        }
+
+        Array<PlanetGridSquare> GetPotentialLavaTiles(PlanetGridSquare tile)
+        {
+            Array<PlanetGridSquare> tiles = new Array<PlanetGridSquare>();
+            for (int i = 0; i < P.TilesList.Count; i++)
+            {
+                PlanetGridSquare t = P.TilesList[i];
+                if (!t.VolcanoHere && !t.LavaHere && t.InRangeOf(tile, 1))
+                    tiles.Add(t);
+            }
+
+            return tiles;
+        }
+
+        int GetNumLavaPools(int maxSeverity)
+        {
+            int numLavaPools;
+            switch (RandomMath.RollDie(maxSeverity))
+            {
+                default: numLavaPools = 0; break;
+                case 5:  numLavaPools = 1; break;
+                case 6:
+                case 7:  numLavaPools = 2; break;
+                case 8:
+                case 9:  numLavaPools = 3; break;
+                case 10:
+                case 11: numLavaPools = 4; break;
+                case 12:
+                case 13: numLavaPools = 5; break;
+                case 14: numLavaPools = 6; break;
+                case 15: numLavaPools = 7; break;
+                case 16: numLavaPools = 8; break;
+            }
+
+            return numLavaPools;
         }
 
         public static void UpdateLava(PlanetGridSquare tile, Planet planet)
