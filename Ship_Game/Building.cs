@@ -73,6 +73,7 @@ namespace Ship_Game
         [Serialize(62)] public ShipData.RoleName DefenseShipsRole;
         [Serialize(63)] public float Infrastructure;
         [Serialize(64)] public bool DetectsRemnantFleet;
+        [Serialize(65)] public bool CannotBeBombed;
 
 
         // XML Ignore because we load these from XML templates

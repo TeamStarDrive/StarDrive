@@ -194,6 +194,7 @@ namespace Ship_Game
         {
             color                       = Color.LightGreen;
             float targetFertility       = TerraformTargetFertility();
+            int numVolcanoes            = P.TilesList.Count(t => t.VolcanoHere);
             int numUninhabitableTiles   = P.TilesList.Count(t => t.CanTerraform && !t.Biosphere);
             int numBiospheres           = P.TilesList.Count(t => t.BioCanTerraform);
             float minEstimatedMaxPop    = P.PotentialMaxPopBillionsFor(Player);
@@ -201,6 +202,9 @@ namespace Ship_Game
 
             string text        = "Terraformer Process Stages:\n";
             string initialText = text;
+
+            if (numUninhabitableTiles > 0)
+                text += $"  * Remove {numVolcanoes} Volcanoes\n";
 
             if (numUninhabitableTiles > 0)
                 text += $"  * Make {numUninhabitableTiles} tiles habitable\n";

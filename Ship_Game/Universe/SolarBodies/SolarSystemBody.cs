@@ -61,8 +61,14 @@ namespace Ship_Game
             DamageTile(hardDamage);
             DamageTroops(softDamage, bomb.Owner);
             DamageBuildings(hardDamage);
-
+            TryCreateVolcano(hardDamage);
             Surface.ApplyBombEnvEffects(popKilled, envDamage, bomb.Owner); // Fertility and pop loss
+        }
+
+        void TryCreateVolcano(int hardDamage)
+        {
+            if (RandomMath.RollDice(hardDamage / 10f))
+                TargetTile.CreateVolcano(Surface);
         }
 
         private void DamageTile(int hardDamage)
@@ -74,7 +80,7 @@ namespace Ship_Game
             {
                 float destroyThreshold = TargetTile.BuildingOnTile ? 0.5f : 1; // Lower chance to destroy a tile if there is a building on it
                 if (RandomMath.RollDice(hardDamage * destroyThreshold))
-                    Surface.DestroyTile(TargetTile); // Tile becomes un-habitable and any building on it is destroyed immediately
+                    Surface.DestroyTile(TargetTile); // Tile becomes un-habitable and any building on it is destroyed immediately (if cannot be built anywhere)
             }
         }
 
@@ -113,7 +119,7 @@ namespace Ship_Game
 
         private void DamageBuildings(int damage)
         {
-            if (!TargetTile.BuildingOnTile)
+            if (!TargetTile.BuildingOnTile || TargetTile.Building.CannotBeBombed)
                 return;
 
             Building building = TargetTile.Building;
