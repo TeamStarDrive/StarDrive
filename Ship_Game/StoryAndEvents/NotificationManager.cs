@@ -322,6 +322,17 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddVolcanoRelated(Planet planet, string text, string texturePath = "")
+        {
+            AddNotification(new Notification
+            {
+                ReferencedItem1 = planet,
+                IconPath        = texturePath.IsEmpty() ?  planet.IconPath : texturePath,
+                Action          = planet.Owner == EmpireManager.Player ? "SnapToPlanet" : "CombatScreen",
+                Message         = $"{planet.Name}: {text}"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddNotify(ExplorationEvent expEvent)
         {
             AddNotification(new Notification

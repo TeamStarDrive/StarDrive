@@ -8492,6 +8492,58 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Molten Rock, +0.5 Flat Production</Text>
     </Token>
     <Token>
+      <Index>4254</Index>
+      <Text>Disable Volcano Activation Warnings</Text>
+    </Token>
+    <Token>
+      <Index>4255</Index>
+      <Text>Disable Volcano Activation or Deactivation warning. You will still be notified if a Volcano in one of your colonies erupts.</Text>
+    </Token>
+    <Token>
+      <Index>4256</Index>
+      <Text>A Dormant Volcano became active.\nIt might erupt or become dormant.</Text>
+    </Token>
+    <Token>
+      <Index>4257</Index>
+      <Text>An Active Volcano became dormant.</Text>
+    </Token>
+    <Token>
+      <Index>4258</Index>
+      <Text>A Volcano eruption ended.\nThe environment is starting to recover.</Text>
+    </Token>
+    <Token>
+      <Index>4259</Index>
+      <Text>A new Mineral vain was uncovered\m and Richness was increased by</Text>
+    </Token>
+    <Token>
+      <Index>4260</Index>
+      <Text>An active volcano erupted.</Text>
+    </Token>
+    <Token>
+      <Index>4261</Index>
+      <Text>The environment suffered temporary damage.</Text>
+    </Token>
+    <Token>
+      <Index>4262</Index>
+      <Text>The environment suffered permanent and temporary damage.</Text>
+    </Token>
+    <Token>
+      <Index>4263</Index>
+      <Text>Eruption is contained to the Volcano's tile.</Text>
+    </Token>
+    <Token>
+      <Index>4264</Index>
+      <Text>Eruption is small, some Lava pools were created.</Text>
+    </Token>
+    <Token>
+      <Index>4265</Index>
+      <Text>Eruption is massive, many Lava pools were created.</Text>
+    </Token>
+    <Token>
+      <Index>4266</Index>
+      <Text>A Lava pool has solidified, tile it was occupying is now habitable.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>

@@ -147,6 +147,7 @@ namespace Ship_Game
             GlobalStats.ShipListFilterInFleetsOnly    = usData.ShipListFilterInFleetsOnly;
             GlobalStats.ShipListFilterNotInFleets     = usData.ShipListFilterNotInFleets;
             GlobalStats.DisableInhibitionWarning      = usData.DisableInhibitionWarning;
+            GlobalStats.DisableVolcanoWarning         = usData.DisableVolcanoWarning;
             GlobalStats.CordrazinePlanetCaptured      = usData.CordrazinePlanetCaptured;
 
             StatTracker.SetSnapshots(usData.Snapshots);

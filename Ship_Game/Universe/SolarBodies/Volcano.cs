@@ -20,6 +20,7 @@ namespace Ship_Game.Universe.SolarBodies
             CreateDormantVolcano();
         }
 
+        // From save
         public Volcano(PlanetGridSquare tile, Planet planet, float activationChance, bool active, bool erupting)
         {
             ActivationChance = activationChance;
@@ -29,17 +30,22 @@ namespace Ship_Game.Universe.SolarBodies
             P                = planet;
         }
 
-        public bool Dormant        => !Active;
-        float DeactivationChance   => ActivationChance * 3;
-        float ActiveEruptionChance => ActivationChance * 10;
-        float CalmDownChance       => ActiveEruptionChance;
-        float InitActivationChance() => RandomMath.RandomBetween(0f, 1f);
+        public Empire Player           => EmpireManager.Player;
+        public bool Dormant            => !Active;
+        float DeactivationChance       => ActivationChance * 3;
+        float ActiveEruptionChance     => ActivationChance * 10;
+        float CalmDownChance           => ActiveEruptionChance;
+        float InitActivationChance()   => RandomMath.RandomBetween(0f, 1f);
+        string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
+        string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";
+        string EruptingVolcanoTexPath  => "Buildings/icon_Erupting_Volcano_64x64";
+        public bool ShouldNotifyPlayer => P.Owner == Player || P.AnyOfOurTroops(Player);
 
         void CreateLavaPool(PlanetGridSquare tile)
         {
             int bid    = RandomMath.RollDice(50) ? Building.Lava1Id : Building.Lava2Id;
             Building b = ResourceManager.CreateBuilding(bid);
-            Tile.PlaceBuilding(b, P);
+            tile.PlaceBuilding(b, P);
             P.SetHasDynamicBuildings(true);
         }
 
@@ -79,45 +85,70 @@ namespace Ship_Game.Universe.SolarBodies
 
         void TryActivate()
         {
-            if (RandomMath.RollDice(ActivationChance)) // todo msg player
+            if (RandomMath.RollDice(ActivationChance))
             {
                 P.DestroyTileWithVolcano(Tile);
                 Active     = true;
                 CreateVolcanoBuilding(Building.ActiveVolcanoId);
+                if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
+                    Empire.Universe.NotificationManager.AddVolcanoRelated(P, new LocalizedText(4256).Text, ActiveVolcanoTexPath);
             }
         }
 
         void TryErupt()
         {
-            if (RandomMath.RollDice(ActiveEruptionChance)) // todo msg player
+            if (RandomMath.RollDice(ActiveEruptionChance))
             {
                 P.DestroyTileWithVolcano(Tile);
-                Erupting   = true;
-                Erupt(out string msgString);
+                string message = new LocalizedText(4260).Text;
+                Erupting       = true;
+                Erupt(out string eruptionSeverityText);
+                message = $"{message}\n{eruptionSeverityText}";
                 CreateVolcanoBuilding(Building.EruptingVolcanoId);
-                if (RandomMath.RollDice(ActiveEruptionChance))
-                    P.AddMaxBaseFertility(-0.1f); // todo msg player
+                if (RandomMath.RollDice(ActiveEruptionChance * 2))
+                {
+                    P.AddMaxBaseFertility(-0.1f);
+                    message = $"{message}\n{new LocalizedText(6262).Text}";
+                }
+                else
+                {
+                    message = $"{message}\n{new LocalizedText(6261).Text}";
+                }
+
+                if (ShouldNotifyPlayer)
+                    Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, EruptingVolcanoTexPath);
             }
         }
 
         void TryCalmDown()
         {
-            if (RandomMath.RollDice(CalmDownChance)) // todo msg player
+            if (RandomMath.RollDice(CalmDownChance))
             {
                 CreateDormantVolcano();
+                string message   = new LocalizedText(4258).Text;
                 ActivationChance = InitActivationChance();
-                if (RandomMath.RollDice(ActiveEruptionChance))
-                    P.MineralRichness += 0.1f;
+                if (RandomMath.RollDice(ActiveEruptionChance * 2))
+                {
+                    float increaseBy   = RandomMath.RollDice(75) ? 0.1f : 0.2f;
+                    message            = $"{message}\n{new LocalizedText(4259).Text} {increaseBy.String(1)}.";
+                    P.MineralRichness += increaseBy;
+                }
+
+                if (ShouldNotifyPlayer)
+                    Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
             }
         }
 
         bool TryDeactivate()
         {
-            if (RandomMath.RollDice(DeactivationChance)) // todo msg player
+            if (RandomMath.RollDice(DeactivationChance))
             {
                 Active   = false;
                 Erupting = false;
                 CreateDormantVolcano();
+                if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
+                    Empire.Universe.NotificationManager.AddVolcanoRelated(P, new LocalizedText(4257).Text, DormantVolcanoTexPath);
+
                 return true;
             }
 
@@ -146,9 +177,12 @@ namespace Ship_Game.Universe.SolarBodies
             eruptionSeverityText = GetEruptionText(actualLavaPools);
         }
 
-        string GetEruptionText(int numLavaPoolsCreated) // todo create the text
+        string GetEruptionText(int numLavaPoolsCreated)
         {
-            string text = "";
+            string text;
+            if (numLavaPoolsCreated == 0)     text = new LocalizedText(4263).Text;
+            else if (numLavaPoolsCreated <=3) text = new LocalizedText(4264).Text;
+            else                              text = new LocalizedText(4265).Text;
 
             return text;
         }
@@ -192,11 +226,16 @@ namespace Ship_Game.Universe.SolarBodies
         public static void UpdateLava(PlanetGridSquare tile, Planet planet)
         {
             if (!RandomMath.RollDice(2))
-                return;
+                return; 
 
+            // Remove the Lava Pool
             planet.DestroyTileWithVolcano(tile);
             if (RandomMath.RollDice(50))
-                planet.MakeTileHabitable(tile); // todo msg player
+            {
+                planet.MakeTileHabitable(tile);
+                if (planet.Owner == EmpireManager.Player)
+                    Empire.Universe.NotificationManager.AddVolcanoRelated(planet, new LocalizedText(4266).Text);
+            }
         }
 
         public static void RemoveVolcano(PlanetGridSquare tile, Planet planet) // todo After Terraforming
