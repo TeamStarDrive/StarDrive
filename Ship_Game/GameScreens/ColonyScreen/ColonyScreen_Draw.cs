@@ -234,7 +234,11 @@ namespace Ship_Game
             {
                 Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
                 string terraformText = Localizer.Token(683); // Terraform Planet is the default text
-                if (P.HasTilesToTerraform)
+                if (P.HasVolcanoesToTerraform)
+                {
+                    terraformText = new LocalizedText(4267).Text;
+                }
+                else if (P.HasTilesToTerraform)
                 {
                     terraformText  = Localizer.Token(1972);
                 }
@@ -547,7 +551,7 @@ namespace Ship_Game
                     string buildingDescription  = MultiLineFormat(pgs.Building.DescriptionIndex);
                     batch.DrawString(TextFont, buildingDescription, bCursor, color);
                     bCursor.Y   += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
-                    DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building);
+                    DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building, pgs);
                     DrawTilePopInfo(ref bCursor, batch, pgs, 2);
                     if (!pgs.Building.Scrappable)
                         return;
@@ -601,6 +605,18 @@ namespace Ship_Game
             float popPerTile = P.BasePopPerTile * Player.PlayerEnvModifier(P.Category);
             float popBonus   = tile.Building?.MaxPopIncrease ?? 0;
             cursor.Y += Font20.LineSpacing * spacing;
+            if (tile.LavaHere)
+            {
+                batch.DrawString(TextFont, $"{MultiLineFormat(4272)}", cursor, Color.Orange);
+                return;
+            }
+
+            if (tile.VolcanoHere && !tile.Habitable)
+            {
+                batch.DrawString(TextFont, $"{MultiLineFormat(4273)}", cursor, Color.Orange);
+                return;
+            }
+
             if (tile.Habitable && tile.Biosphere)
             {
                 batch.DrawString(TextFont, $"{(P.PopPerBiosphere(Player) + popBonus).String(1)}" +
@@ -648,7 +664,7 @@ namespace Ship_Game
                 $"{Localizer.Token(1873)} ({P.InfraStructure} taken from Storage)", digits: 1);
         }
 
-        void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b)
+        void DrawSelectedBuildingInfo(ref Vector2 bCursor, SpriteBatch batch, Building b, PlanetGridSquare tile = null)
         {
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatFoodAmount, "NewUI/icon_food", Localizer.Token(354));
             DrawBuildingInfo(ref bCursor, batch, b.PlusFoodPerColonist, "NewUI/icon_food", Localizer.Token(2042));
@@ -675,6 +691,15 @@ namespace Ship_Game
             DrawBuildingWeaponStats(ref bCursor, batch, b);
             DrawTerraformerStats(ref bCursor, batch, b);
             DrawFertilityOnBuildWarning(ref bCursor, batch, b);
+
+            if (tile?.VolcanoHere == true)
+                DrawVolcanoChance(ref bCursor, batch, tile.Volcano.ActivationChanceText(out Color color), color);
+        }
+
+        void DrawVolcanoChance(ref Vector2 cursor, SpriteBatch batch, string text, Color color)
+        {
+            batch.DrawString(TextFont, text, cursor, color);
+            cursor.Y += TextFont.LineSpacing;
         }
 
         void DrawFertilityOnBuildWarning(ref Vector2 cursor, SpriteBatch batch, Building b)
@@ -702,7 +727,7 @@ namespace Ship_Game
             string terraformStats = TerraformPotential(out Color terraformColor);
             cursor.Y += TextFont.LineSpacing;
             batch.DrawString(TextFont, terraformStats, cursor, terraformColor);
-            cursor.Y += TextFont.LineSpacing * 4;
+            cursor.Y += TextFont.LineSpacing * 5;
         }
 
         void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Building b)

@@ -131,9 +131,10 @@ namespace Ship_Game.Universe.SolarBodies
             if (ship != null)
                 SpawnSurvivingTroops(p, owner, tile, out troopMessage);
 
-            p.DestroyBuildingOn(tile);
             if (owner.isPlayer || !owner.isPlayer && Loyalty.isPlayer && NumTroopsSurvived > 0)
                 Empire.Universe.NotificationManager.AddShipRecovered(p, ship, $"{message}{troopMessage}");
+
+            p.DestroyBuildingOn(tile);
         }
 
         Ship SpawnShip(Planet p, Empire activatingEmpire, Empire owner, out string message)

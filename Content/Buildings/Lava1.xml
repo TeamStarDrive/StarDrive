@@ -1,0 +1,13 @@
+﻿<Building>
+  <Name>Lava1</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>0</Cost>
+  <Icon>Lava1</Icon>
+  <MaxFertilityOnBuild>-0.2</MaxFertilityOnBuild>
+  <Scrappable>false</Scrappable>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <Strength>20</Strength>
+  <NameTranslationIndex>4251</NameTranslationIndex>
+  <DescriptionIndex>4270</DescriptionIndex>
+  <ShortDescriptionIndex>4271</ShortDescriptionIndex>
+</Building>

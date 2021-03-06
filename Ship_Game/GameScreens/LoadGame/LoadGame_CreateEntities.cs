@@ -183,7 +183,12 @@ namespace Ship_Game
                 pgs.Building.CalcMilitaryStrength();
                 p.BuildingList.Add(pgs.Building);
                 p.AddBuildingsFertility(pgs.Building.MaxFertilityOnBuild);
+
+                if (d.VolcanoHere)
+                    pgs.CreateVolcanoFromSave(d, p);
             }
+
+            p.ResetHasDynamicBuildings();
             return p;
         }
 
