@@ -204,10 +204,10 @@ namespace Ship_Game
             string initialText = text;
 
             if (numUninhabitableTiles > 0)
-                text += $"  * Remove {numVolcanoes} Volcanoes\n";
+                text += $"  * Remove {numVolcanoes} Volcano.\n";
 
             if (numUninhabitableTiles > 0)
-                text += $"  * Make {numUninhabitableTiles} tiles habitable\n";
+                text += $"  * Make {numUninhabitableTiles} tiles habitable.\n";
 
             if (P.Category != Player.data.PreferredEnv)
                 text += $"  * Terraform the planet to {Player.data.PreferredEnv}.\n";
@@ -230,7 +230,7 @@ namespace Ship_Game
             }
 
             if (minEstimatedMaxPop > maxPopWithBiospheres)
-                text += $"  * Expected Max Population will be {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
+                text += $"  * Expected Max Population is {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
 
             if (text == initialText)
             {

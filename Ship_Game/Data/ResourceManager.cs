@@ -811,6 +811,7 @@ namespace Ship_Game
                     case "Erupting Volcano":  Building.EruptingVolcanoId  = b.BID; break;
                     case "Lava1":             Building.Lava1Id            = b.BID; break;
                     case "Lava2":             Building.Lava2Id            = b.BID; break;
+                    case "Lava3":             Building.Lava3Id            = b.BID; break;
                 }
             }
         }
