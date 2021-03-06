@@ -150,6 +150,9 @@ namespace Ship_Game
             GlobalStats.DisableVolcanoWarning         = usData.DisableVolcanoWarning;
             GlobalStats.CordrazinePlanetCaptured      = usData.CordrazinePlanetCaptured;
 
+            if (usData.VolcanicActivity.Greater(0)) // save support - can remove the if and use the usdata in June 2022
+                GlobalStats.VolcanicActivity = usData.VolcanicActivity;
+
             StatTracker.SetSnapshots(usData.Snapshots);
             step.Finish();
             return usData;
