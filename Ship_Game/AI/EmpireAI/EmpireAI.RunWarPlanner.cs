@@ -19,6 +19,7 @@ namespace Ship_Game.AI
         public float WarStrength = 0;
         public int MinWarPriority { get; private set; }
         public WarTasks WarTasks { get; private set; }
+        private bool SkipFirstRun = true;
         public void SetTotalWarValue()
         {
             float value = 0;
@@ -281,9 +282,14 @@ namespace Ship_Game.AI
 
         private void RunWarPlanner()
         {
-            if (OwnerEmpire.data.Defeated) return;
-            if (OwnerEmpire.GetPlanets().Count == 0)
+            if (OwnerEmpire.data.Defeated || OwnerEmpire.GetPlanets().Count == 0) 
                 return;
+
+            if (SkipFirstRun) // Hack - skipping first run to prevent insta war dec when loading a save. 
+            {
+                SkipFirstRun = false;
+                return;
+            }
 
             SetTotalWarValue();
             
