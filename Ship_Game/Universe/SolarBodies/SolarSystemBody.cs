@@ -75,12 +75,14 @@ namespace Ship_Game
         {
             // Damage biospheres first
             if (TargetTile.Biosphere)
+            {
                 DamageBioSpheres(hardDamage);
+            }
             else if (TargetTile.Habitable)
             {
-                float destroyThreshold = TargetTile.BuildingOnTile ? 0.5f : 1; // Lower chance to destroy a tile if there is a building on it
+                float destroyThreshold = TargetTile.BuildingOnTile ? 0.25f : 0.5f; // Lower chance to destroy a tile if there is a building on it
                 if (RandomMath.RollDice(hardDamage * destroyThreshold))
-                    Surface.DestroyTile(TargetTile); // Tile becomes un-habitable and any building on it is destroyed immediately (if cannot be built anywhere)
+                    Surface.DestroyTile(TargetTile); // Tile becomes un-habitable and any building on it is destroyed immediately
             }
         }
 
