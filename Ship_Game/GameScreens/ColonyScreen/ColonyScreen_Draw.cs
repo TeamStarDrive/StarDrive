@@ -551,7 +551,7 @@ namespace Ship_Game
                     string buildingDescription  = MultiLineFormat(pgs.Building.DescriptionIndex);
                     batch.DrawString(TextFont, buildingDescription, bCursor, color);
                     bCursor.Y   += TextFont.MeasureString(buildingDescription).Y + Font20.LineSpacing;
-                    DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building);
+                    DrawSelectedBuildingInfo(ref bCursor, batch, pgs.Building, pgs);
                     DrawTilePopInfo(ref bCursor, batch, pgs, 2);
                     if (!pgs.Building.Scrappable)
                         return;
@@ -605,6 +605,18 @@ namespace Ship_Game
             float popPerTile = P.BasePopPerTile * Player.PlayerEnvModifier(P.Category);
             float popBonus   = tile.Building?.MaxPopIncrease ?? 0;
             cursor.Y += Font20.LineSpacing * spacing;
+            if (tile.LavaHere)
+            {
+                batch.DrawString(TextFont, $"{MultiLineFormat(4272)}", cursor, Color.Orange);
+                return;
+            }
+
+            if (tile.VolcanoHere && !tile.Habitable)
+            {
+                batch.DrawString(TextFont, $"{MultiLineFormat(4273)}", cursor, Color.Orange);
+                return;
+            }
+
             if (tile.Habitable && tile.Biosphere)
             {
                 batch.DrawString(TextFont, $"{(P.PopPerBiosphere(Player) + popBonus).String(1)}" +
@@ -715,7 +727,7 @@ namespace Ship_Game
             string terraformStats = TerraformPotential(out Color terraformColor);
             cursor.Y += TextFont.LineSpacing;
             batch.DrawString(TextFont, terraformStats, cursor, terraformColor);
-            cursor.Y += TextFont.LineSpacing * 4;
+            cursor.Y += TextFont.LineSpacing * 5;
         }
 
         void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Building b)

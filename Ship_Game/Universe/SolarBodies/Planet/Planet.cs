@@ -403,8 +403,10 @@ namespace Ship_Game
         public float ColonyPotentialValue(Empire empire)
         {
             float value = 0;
-            if (empire.IsCybernetic)
+            if (empire.NonCybernetic)
                 value += PotentialMaxFertilityFor(empire) * 10;
+            else
+                value += TilesList.Count(t => t.VolcanoHere) * 5; // Volcanoes can increase production, which is good for cybernetics
 
             value += SpecialCommodities * 20;
             value += MineralRichness * 10;
@@ -602,17 +604,15 @@ namespace Ship_Game
             Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
-        public void DestroyTile(PlanetGridSquare tile)            => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
-        public void DestroyTileWithVolcano(PlanetGridSquare tile) => DestroyBioSpheres(tile, true);
+        /// <summary>
+        ///  This will not Destroy Volcanoes. Use static Volcano.RemoveVolcano if you want to remove a Volcano
+        /// </summary>
+        public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
 
-        public void DestroyBioSpheres(PlanetGridSquare tile, bool destroyVolcano = false)
+        public void DestroyBioSpheres(PlanetGridSquare tile)
         {
-            if (!tile.VolcanoHere
-                || destroyVolcano
-                || !tile.Building?.CanBuildAnywhere == false)
-            {
+            if (!tile.VolcanoHere)
                 DestroyBuildingOn(tile);
-            }
 
             tile.Habitable = false;
 

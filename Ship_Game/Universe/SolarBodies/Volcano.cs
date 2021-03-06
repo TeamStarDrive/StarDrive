@@ -30,10 +30,9 @@ namespace Ship_Game.Universe.SolarBodies
 
         public Empire Player           => EmpireManager.Player;
         public bool Dormant            => !Active;
-        float DeactivationChance       => ActivationChance * 3;
+        float DeactivationChance       => ActivationChance * 2;
         float ActiveEruptionChance     => ActivationChance * 10;
-        float CalmDownChance           => ActiveEruptionChance;
-        float InitActivationChance()   => RandomMath.RandomBetween(0f, 1f);
+        float InitActivationChance()   => RandomMath.RandomBetween(0f, 0.15f);
         string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
         string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";
         string EruptingVolcanoTexPath  => "Buildings/icon_Erupting_Volcano_64x64";
@@ -41,7 +40,14 @@ namespace Ship_Game.Universe.SolarBodies
 
         void CreateLavaPool(PlanetGridSquare tile)
         {
-            int bid    = RandomMath.RollDice(50) ? Building.Lava1Id : Building.Lava2Id;
+            int bid = Building.Lava1Id;
+            P.DestroyTile(tile);
+            switch (RandomMath.RollDie(3))
+            {
+                case 2: bid = Building.Lava2Id; break;
+                case 3: bid = Building.Lava3Id; break;
+            }
+
             Building b = ResourceManager.CreateBuilding(bid);
             tile.PlaceBuilding(b, P);
             P.SetHasDynamicBuildings(true);
@@ -56,7 +62,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         void CreateDormantVolcano()
         {
-            P.DestroyTileWithVolcano(Tile);
+            RemoveVolcanoBeforeReplacing();
             Active     = false;
             Erupting   = false;
             CreateVolcanoBuilding(Building.VolcanoId);
@@ -68,7 +74,7 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 TryActivate();
             }
-            else if (Active)
+            else if (Active && !Erupting)
             {
                 if (TryDeactivate())
                     return;
@@ -83,74 +89,72 @@ namespace Ship_Game.Universe.SolarBodies
 
         void TryActivate()
         {
-            if (RandomMath.RollDice(ActivationChance))
-            {
-                P.DestroyTileWithVolcano(Tile);
-                Active     = true;
-                CreateVolcanoBuilding(Building.ActiveVolcanoId);
-                if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                    Empire.Universe.NotificationManager.AddVolcanoRelated(P, new LocalizedText(4256).Text, ActiveVolcanoTexPath);
-            }
+            if (!RandomMath.RollDice(ActivationChance))
+                return;
+
+            RemoveVolcanoBeforeReplacing();
+            Active     = true;
+            CreateVolcanoBuilding(Building.ActiveVolcanoId);
+            if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
+                Empire.Universe.NotificationManager.AddVolcanoRelated(P, new LocalizedText(4256).Text, ActiveVolcanoTexPath);
         }
 
         void TryErupt()
         {
-            if (RandomMath.RollDice(ActiveEruptionChance))
-            {
-                P.DestroyTileWithVolcano(Tile);
-                string message = new LocalizedText(4260).Text;
-                Erupting       = true;
-                Erupt(out string eruptionSeverityText);
-                message = $"{message}\n{eruptionSeverityText}";
-                CreateVolcanoBuilding(Building.EruptingVolcanoId);
-                if (RandomMath.RollDice(ActiveEruptionChance * 2))
-                {
-                    P.AddMaxBaseFertility(-0.1f);
-                    message = $"{message}\n{new LocalizedText(6262).Text}";
-                }
-                else
-                {
-                    message = $"{message}\n{new LocalizedText(6261).Text}";
-                }
+            if (!RandomMath.RollDice(ActiveEruptionChance))
+                return;
 
-                if (ShouldNotifyPlayer)
-                    Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, EruptingVolcanoTexPath);
+            RemoveVolcanoBeforeReplacing();
+            string message = new LocalizedText(4260).Text;
+            Erupting       = true;
+            Erupt(out string eruptionSeverityText);
+            message = $"{message}\n{eruptionSeverityText}";
+            CreateVolcanoBuilding(Building.EruptingVolcanoId);
+            if (RandomMath.RollDice(5))
+            {
+                P.AddMaxBaseFertility(-0.1f);
+                message = $"{message}\n{new LocalizedText(4262).Text}";
             }
+            else
+            {
+                message = $"{message}\n{new LocalizedText(4261).Text}";
+            }
+
+            if (ShouldNotifyPlayer)
+                Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, EruptingVolcanoTexPath);
         }
 
         void TryCalmDown()
         {
-            if (RandomMath.RollDice(CalmDownChance))
-            {
-                CreateDormantVolcano();
-                string message   = new LocalizedText(4258).Text;
-                ActivationChance = InitActivationChance();
-                if (RandomMath.RollDice(ActiveEruptionChance * 2))
-                {
-                    float increaseBy   = RandomMath.RollDice(75) ? 0.1f : 0.2f;
-                    message            = $"{message}\n{new LocalizedText(4259).Text} {increaseBy.String(1)}.";
-                    P.MineralRichness += increaseBy;
-                }
+            if (!RandomMath.RollDice(1))
+                return;
 
-                if (ShouldNotifyPlayer)
-                    Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
+            CreateDormantVolcano();
+            string message   = new LocalizedText(4258).Text;
+            ActivationChance = InitActivationChance();
+            if (RandomMath.RollDice(ActiveEruptionChance * 2))
+            {
+                float increaseBy   = RandomMath.RollDice(75) ? 0.1f : 0.2f;
+                message            = $"{message}\n{new LocalizedText(4259).Text} {increaseBy.String(1)}.";
+                P.MineralRichness += increaseBy;
             }
+
+            if (ShouldNotifyPlayer)
+                Empire.Universe.NotificationManager.AddVolcanoRelated(P, message, DormantVolcanoTexPath);
         }
 
         bool TryDeactivate()
         {
-            if (RandomMath.RollDice(DeactivationChance))
-            {
-                Active   = false;
-                Erupting = false;
-                CreateDormantVolcano();
-                if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
-                    Empire.Universe.NotificationManager.AddVolcanoRelated(P, new LocalizedText(4257).Text, DormantVolcanoTexPath);
+            if (!RandomMath.RollDice(DeactivationChance))
+                return false;
 
-                return true;
-            }
+            Active   = false;
+            Erupting = false;
+            CreateDormantVolcano();
+            if (!GlobalStats.DisableVolcanoWarning && ShouldNotifyPlayer)
+                Empire.Universe.NotificationManager.AddVolcanoRelated(P, new LocalizedText(4257).Text, DormantVolcanoTexPath);
 
-            return false;
+            return true;
         }
 
         void Erupt(out string eruptionSeverityText)
@@ -224,22 +228,35 @@ namespace Ship_Game.Universe.SolarBodies
         public static void UpdateLava(PlanetGridSquare tile, Planet planet)
         {
             if (!RandomMath.RollDice(2))
-                return; 
+                return;
 
             // Remove the Lava Pool
-            planet.DestroyTileWithVolcano(tile);
-            if (RandomMath.RollDice(50))
+            string lavaPath = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
+            planet.DestroyTile(tile);
+            if (RandomMath.RollDice(25))
             {
                 planet.MakeTileHabitable(tile);
                 if (planet.Owner == EmpireManager.Player)
-                    Empire.Universe.NotificationManager.AddVolcanoRelated(planet, new LocalizedText(4266).Text);
+                    Empire.Universe.NotificationManager.AddVolcanoRelated(planet, new LocalizedText(4266).Text, lavaPath);
             }
         }
 
-        public static void RemoveVolcano(PlanetGridSquare tile, Planet planet) // todo After Terraforming
+        void RemoveVolcanoBeforeReplacing()
         {
-            planet.DestroyTileWithVolcano(tile);
+            P.DestroyBuildingOn(Tile);
+            P.DestroyTile(Tile);
+        }
+
+
+        /// <summary>
+        /// This will remove the Volcano and the class. Use it when you want to completely get rid of theVolcano
+        /// </summary>
+        public static void RemoveVolcano(PlanetGridSquare tile, Planet planet)
+        {
+            planet.DestroyBuildingOn(tile);
+            planet.DestroyTile(tile);
             tile.Volcano = null;
+            planet.ResetHasDynamicBuildings();
         }
 
         public string ActivationChanceText(out Color color)
@@ -251,24 +268,24 @@ namespace Ship_Game.Universe.SolarBodies
             string text;
             if (Dormant)
             {
-                if      (ActivationChance < 0.1f)  text = new LocalizedText(4243).Text;
-                else if (ActivationChance < 0.33f) text = new LocalizedText(4244).Text;
-                else if (ActivationChance < 0.66f) text = new LocalizedText(4245).Text;
+                if      (ActivationChance < 0.01f) text = new LocalizedText(4243).Text;
+                else if (ActivationChance < 0.05f) text = new LocalizedText(4244).Text;
+                else if (ActivationChance < 0.1f)  text = new LocalizedText(4245).Text;
                 else                               text = new LocalizedText(4246).Text;
 
                 color = Color.Yellow;
-                return $"{text} {new LocalizedText(4239)}";
+                return $"{text} {new LocalizedText(4239).Text}";
             }
 
             if (Active)
             {
-                if (ActiveEruptionChance < 1f)        text = new LocalizedText(4245).Text;
-                else if (ActiveEruptionChance < 3.3f) text = new LocalizedText(4246).Text;
-                else if (ActiveEruptionChance < 6.6f) text = new LocalizedText(4247).Text;
+                if      (ActiveEruptionChance < 0.1f) text = new LocalizedText(4245).Text;
+                else if (ActiveEruptionChance < 0.5f) text = new LocalizedText(4246).Text;
+                else if (ActiveEruptionChance < 1f)   text = new LocalizedText(4247).Text;
                 else                                  text = new LocalizedText(4248).Text;
 
                 color = Color.Red;
-                return $"{text} {new LocalizedText(4242)}";
+                return $"{text} {new LocalizedText(4242).Text}";
             }
 
             return "";

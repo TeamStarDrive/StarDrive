@@ -3,11 +3,11 @@
   <Maintenance>0</Maintenance>
   <Cost>0</Cost>
   <Icon>Lava1</Icon>
-  <PlusFlatProductionAmount>0.5</PlusFlatProductionAmount>
+  <MaxFertilityOnBuild>-0.2</MaxFertilityOnBuild>
   <Scrappable>false</Scrappable>
   <CanBuildAnywhere>true</CanBuildAnywhere>
   <Strength>20</Strength>
   <NameTranslationIndex>4251</NameTranslationIndex>
-  <DescriptionIndex>4252</DescriptionIndex>
-  <ShortDescriptionIndex>4253</ShortDescriptionIndex>
+  <DescriptionIndex>4270</DescriptionIndex>
+  <ShortDescriptionIndex>4271</ShortDescriptionIndex>
 </Building>
