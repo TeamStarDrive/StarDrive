@@ -111,9 +111,10 @@ namespace Ship_Game
             SaveData.EmpireDataList        = new Array<EmpireSaveData>();
             SaveData.SolarSystemDataList   = new Array<SolarSystemSaveData>();
             SaveData.CustomMineralDecay    = GlobalStats.CustomMineralDecay;
+            SaveData.VolcanicActivity      = GlobalStats.VolcanicActivity;
 
             SaveData.SuppressOnBuildNotifications  = GlobalStats.SuppressOnBuildNotifications;
-            SaveData.PlanetScreenHideOwned         =  GlobalStats.PlanetScreenHideOwned;;
+            SaveData.PlanetScreenHideOwned         = GlobalStats.PlanetScreenHideOwned;;
             SaveData.PlanetsScreenHideUnhabitable  = GlobalStats.PlanetsScreenHideUnhabitable;
             SaveData.OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             SaveData.ShipListFilterPlayerShipsOnly = GlobalStats.ShipListFilterPlayerShipsOnly;
@@ -121,6 +122,7 @@ namespace Ship_Game
             SaveData.ShipListFilterNotInFleets     = GlobalStats.ShipListFilterNotInFleets;
             SaveData.DisableInhibitionWarning      = GlobalStats.DisableInhibitionWarning;
             SaveData.CordrazinePlanetCaptured      = GlobalStats.CordrazinePlanetCaptured;
+            SaveData.DisableVolcanoWarning         = GlobalStats.DisableVolcanoWarning;
             
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
@@ -692,6 +694,10 @@ namespace Ship_Game
             [Serialize(11)] public int CrashSiteEmpireId;
             [Serialize(12)] public bool CrashSiteRecoverShip;
             [Serialize(13)] public short EventOutcomeNum;
+            [Serialize(14)] public bool VolcanoHere;
+            [Serialize(15)] public bool VolcanoActive;
+            [Serialize(16)] public bool VolcanoErupting;
+            [Serialize(17)] public float VolcanoActivationChance;
         }
 
         public class PlanetSaveData
@@ -958,6 +964,8 @@ namespace Ship_Game
             [Serialize(47)] public bool ShipListFilterNotInFleets;
             [Serialize(48)] public bool DisableInhibitionWarning;
             [Serialize(49)] public bool CordrazinePlanetCaptured;
+            [Serialize(50)] public bool DisableVolcanoWarning;
+            [Serialize(51)] public float VolcanicActivity;
         }
     }
 }

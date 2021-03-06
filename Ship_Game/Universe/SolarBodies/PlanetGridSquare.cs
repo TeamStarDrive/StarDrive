@@ -32,9 +32,12 @@ namespace Ship_Game
         public bool BioCanTerraform      => Biosphere && Terraformable;
         public bool CanTerraform         => Terraformable && (!Habitable || Habitable && Biosphere);
         public bool CanCrashHere         => !CrashSite.Active && (!BuildingOnTile || BuildingOnTile && !Building.IsCapital);
-
+        public bool VolcanoHere          => Volcano != null;
+        public bool LavaHere             => BuildingOnTile && Building.IsLava;
+        public bool CapitalHere          => BuildingOnTile && Building.IsCapital;
 
         public DynamicCrashSite CrashSite = new DynamicCrashSite(false);
+        public Volcano Volcano;
 
         public bool IsTileFree(Empire empire)
         {
@@ -130,13 +133,18 @@ namespace Ship_Game
             TroopsHere.Add(troop);
         }
 
+        public void CreateVolcano(Planet p)
+        {
+            Volcano = new Volcano(this, p);
+        }
+
         public bool CanBuildHere(Building b)
         {
             if (QItem != null)
                 return false;
 
             if (b.IsBiospheres)
-                return !Habitable; // don't allow biospheres on habitable tiles (including tiles with biospheres)
+                return !Habitable && !VolcanoHere && !LavaHere; // Don't allow biospheres on habitable tiles (including tiles with biospheres or specific buildings)
 
             return !Habitable && b.CanBuildAnywhere && !BuildingOnTile
                  || Habitable && NoBuildingOnTile;
@@ -320,9 +328,14 @@ namespace Ship_Game
             return p;
         }
 
+        public void CreateVolcanoFromSave(SavedGame.PGSData data, Planet planet)
+        {
+            Volcano = new Volcano(this, planet, data.VolcanoActivationChance, data.VolcanoActive, data.VolcanoErupting);
+        }
+
         public SavedGame.PGSData Serialize()
         {
-            return new SavedGame.PGSData
+            var sData  = new SavedGame.PGSData
             {
                 x = X,
                 y = Y,
@@ -339,6 +352,16 @@ namespace Ship_Game
                 CrashSiteEmpireId    = CrashSite.Loyalty?.Id ?? -1,
                 CrashSiteRecoverShip = CrashSite.RecoverShip
             };
+
+            if (VolcanoHere)
+            {
+                sData.VolcanoHere             = true;
+                sData.VolcanoActive           = Volcano.Active;
+                sData.VolcanoErupting         = Volcano.Erupting;
+                sData.VolcanoActivationChance = Volcano.ActivationChance;
+            }
+
+            return sData;
         }
     }
 

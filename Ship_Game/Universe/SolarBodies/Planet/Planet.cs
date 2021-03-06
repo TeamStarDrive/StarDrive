@@ -77,6 +77,7 @@ namespace Ship_Game
         public float SpaceDefMaintenance { get; private set; }
         public float GroundDefMaintenance { get; private set; }
         public float InfraStructure { get; private set; }
+        public bool HasDynamicBuildings { get; private set; } // Has buildings which should update per turn even if no owner
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -402,8 +403,10 @@ namespace Ship_Game
         public float ColonyPotentialValue(Empire empire)
         {
             float value = 0;
-            if (empire.IsCybernetic)
+            if (empire.NonCybernetic)
                 value += PotentialMaxFertilityFor(empire) * 10;
+            else
+                value += TilesList.Count(t => t.VolcanoHere) * 5; // Volcanoes can increase production, which is good for cybernetics
 
             value += SpecialCommodities * 20;
             value += MineralRichness * 10;
@@ -458,6 +461,7 @@ namespace Ship_Game
         {
             UpdateHabitable(timeStep);
             UpdatePosition(timeStep);
+
         }
 
         void UpdateHabitable(FixedSimTime timeStep)
@@ -470,6 +474,7 @@ namespace Ship_Game
             if (PlanetUpdatePerTurnTimer < 0 )
             {
                 UpdateBaseFertility();
+                UpdateDynamicBuildings();
                 PlanetUpdatePerTurnTimer = GlobalStats.TurnTimer;
             }
 
@@ -477,6 +482,21 @@ namespace Ship_Game
             GeodeticManager.Update(timeStep);
             // this needs some work
             UpdateSpaceCombatBuildings(timeStep); // building weapon timers are in this method.
+        }
+
+        void UpdateDynamicBuildings()
+        {
+            if (!HasDynamicBuildings)
+                return;
+
+            for (int i = 0; i < TilesList.Count; ++i)
+            {
+                PlanetGridSquare tile = TilesList[i];
+                if (tile.VolcanoHere)
+                    tile.Volcano.Evaluate();
+                else if (tile.LavaHere)
+                    Volcano.UpdateLava(tile, this);
+            }
         }
 
         public void RemoveFromOrbitalStations(Ship orbital)
@@ -584,11 +604,16 @@ namespace Ship_Game
             Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
+        /// <summary>
+        ///  This will not Destroy Volcanoes. Use static Volcano.RemoveVolcano if you want to remove a Volcano
+        /// </summary>
         public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
 
         public void DestroyBioSpheres(PlanetGridSquare tile)
         {
-            RemoveBuildingFromPlanet(tile);
+            if (!tile.VolcanoHere)
+                DestroyBuildingOn(tile);
+
             tile.Habitable = false;
 
             if (tile.Biosphere)
@@ -597,6 +622,7 @@ namespace Ship_Game
                 tile.Terraformable = RandomMath.RollDice(50);
 
             UpdateMaxPopulation();
+            ResetHasDynamicBuildings();
         }
 
         public void ScrapBuilding(Building b)
@@ -613,13 +639,13 @@ namespace Ship_Game
         private void RemoveBuildingFromPlanet(Building b)
         {
             BuildingList.Remove(b);
-            PlanetGridSquare pgs = TilesList.Find(tile => tile.Building == b);
-            if (pgs != null)
-                pgs.Building = null;
+            PlanetGridSquare tile = TilesList.Find(t => t.Building == b);
+            if (tile != null)
+                tile.Building = null;
             else
                 Log.Error($"{this} failed to find tile with building {b}");
 
-            PostBuildingRemoval(b);
+            PostBuildingRemoval(b, tile);
         }
 
         private void RemoveBuildingFromPlanet(PlanetGridSquare tile, bool destroy = false)
@@ -630,11 +656,14 @@ namespace Ship_Game
             Building b = tile.Building;
             BuildingList.Remove(b);
             tile.Building = null;
-            PostBuildingRemoval(b, destroy);
+            PostBuildingRemoval(b, tile, destroy);
         }
 
-        private void PostBuildingRemoval(Building b, bool destroy = false)
+        private void PostBuildingRemoval(Building b, PlanetGridSquare tile, bool destroy = false)
         {
+            if (tile != null)
+                tile.CrashSite = new DynamicCrashSite(false);
+
             // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
             // environment buildings can be scrapped and the planet will slowly recover
             AddBuildingsFertility(-b.MaxFertilityOnBuild); 
@@ -1325,6 +1354,16 @@ namespace Ship_Game
         public int  TerraformersHere => BuildingList.Count(b => b.IsTerraformer);
         public bool HasCapital       => BuildingList.Any(b => b.IsCapital);
 
+
+        public void SetHasDynamicBuildings(bool value)
+        {
+            HasDynamicBuildings = value;
+        }
+
+        public void ResetHasDynamicBuildings()
+        {
+            HasDynamicBuildings = BuildingList.Any(b => b.IsDynamicUpdate);
+        }
 
         private void RepairBuildings(int repairAmount)
         {

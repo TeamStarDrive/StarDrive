@@ -19,12 +19,11 @@ namespace Ship_Game
             if (ActiveEvent != null)
                 return;
 
-            int random = RandomMath.IntBetween(1, 2000);
+            int random = RandomMath.RollDie(2000);
 
             if      (random == 1) HyperSpaceFlux();
             else if (random <= 3) ShiftInOrbit();
-            else if (random <= 5) Volcano();
-            else if (random <= 6) MeteorStrike();
+            else if (random <= 5) MeteorStrike();
             else if (random <= 7) VolcanicToHabitable();
             else if (random <= 9) FoundMinerals();
         }
@@ -129,7 +128,7 @@ namespace Ship_Game
             if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet, false)) 
                 return;
 
-            float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
+            float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.25f).LowerBound(0.05f);
             int token               = planet.Population > 0 ? 4105 : 4113;
             planet.Population      *= (1 - sizeOfMeteor);
             planet.MineralRichness += sizeOfMeteor;
@@ -150,7 +149,18 @@ namespace Ship_Game
             planet.GenerateNewFromPlanetType(newType, planet.Scale);
             planet.RecreateSceneObject();
             NotifyPlayerIfAffected(planet, 4112);
-            Log.Info($"Event Notification: Volcanic to Habitable at {planet}");
+            int numVolcanoes = category == PlanetCategory.Barren ? RandomMath.RollDie(15) : RandomMath.RollDie(7);
+            for (int i = 0; i < numVolcanoes; i++)
+            {
+                var potentialTiles = planet.TilesList.Filter(t => !t.VolcanoHere);
+                if (potentialTiles.Length == 0)
+                    break;
+
+                PlanetGridSquare tile = potentialTiles.RandItem();
+                tile.CreateVolcano(planet);
+            }
+
+            Log.Info($"Event Notification: Volcanic to Habitable at {planet} with {numVolcanoes} wanted");
         }
 
         static void FoundMinerals() // Increase Mineral Richness

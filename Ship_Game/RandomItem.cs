@@ -7,27 +7,27 @@ namespace Ship_Game
 		public bool HardCoreOnly;
 		public string BuildingID;
 		public float TerranChance;
-		public float TerranInstanceMax;
+		public int TerranInstanceMax;
 		public float OceanicChance;
-		public float OceanicInstanceMax;
+		public int OceanicInstanceMax;
 		public float DesertChance;
-		public float DesertInstanceMax;
+		public int DesertInstanceMax;
 		public float SwampChance;
-		public float SwampInstanceMax;
+		public int SwampInstanceMax;
 		public float TundraChance;
-		public float TundraInstanceMax;
+		public int TundraInstanceMax;
 		public float BarrenChance;
-		public float BarrenInstanceMax;
+		public int BarrenInstanceMax;
 		public float IceChance;
-		public float IceInstanceMax;
+		public int IceInstanceMax;
 		public float SteppeChance;
-		public float SteppeInstanceMax;
+		public int SteppeInstanceMax;
 		public float GasChance;
-		public float GasInstanceMax;
+		public int GasInstanceMax;
 		public float VolcanicChance;
-		public float VolcanicInstanceMax;
+		public int VolcanicInstanceMax;
 
-        public (float,float) ChanceAndMaxInstance(PlanetCategory category)
+        public (float,int) ChanceAndMaxInstance(PlanetCategory category)
         {
             switch (category)
             {
