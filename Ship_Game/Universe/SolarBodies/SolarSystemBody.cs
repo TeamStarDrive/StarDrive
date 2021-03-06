@@ -61,18 +61,26 @@ namespace Ship_Game
             DamageTile(hardDamage);
             DamageTroops(softDamage, bomb.Owner);
             DamageBuildings(hardDamage);
-
+            TryCreateVolcano(hardDamage);
             Surface.ApplyBombEnvEffects(popKilled, envDamage, bomb.Owner); // Fertility and pop loss
+        }
+
+        void TryCreateVolcano(int hardDamage)
+        {
+            if (RandomMath.RollDice((hardDamage / 10f).UpperBound(0.5f)))
+                TargetTile.CreateVolcano(Surface);
         }
 
         private void DamageTile(int hardDamage)
         {
             // Damage biospheres first
             if (TargetTile.Biosphere)
+            {
                 DamageBioSpheres(hardDamage);
+            }
             else if (TargetTile.Habitable)
             {
-                float destroyThreshold = TargetTile.BuildingOnTile ? 0.5f : 1; // Lower chance to destroy a tile if there is a building on it
+                float destroyThreshold = TargetTile.BuildingOnTile ? 0.25f : 0.5f; // Lower chance to destroy a tile if there is a building on it
                 if (RandomMath.RollDice(hardDamage * destroyThreshold))
                     Surface.DestroyTile(TargetTile); // Tile becomes un-habitable and any building on it is destroyed immediately
             }
@@ -113,7 +121,7 @@ namespace Ship_Game
 
         private void DamageBuildings(int damage)
         {
-            if (!TargetTile.BuildingOnTile)
+            if (!TargetTile.BuildingOnTile || TargetTile.Building.CannotBeBombed)
                 return;
 
             Building building = TargetTile.Building;
@@ -241,23 +249,32 @@ namespace Ship_Game
             }
         }
 
-        public void SpawnRandomItem(RandomItem randItem, float chance, float instanceMax)
+        public void SpawnRandomItem(RandomItem randItem, float chance, int instanceMax)
         {
             if (randItem.HardCoreOnly)
                 return; // hardcore is disabled, bail
 
-            if (RandomMath.RandomBetween(0.0f, 100f) < chance)
+            if (RandomMath.RollDice(chance))
             {
                 Building template = ResourceManager.GetBuildingTemplate(randItem.BuildingID);
                 if (template == null)
                     return;
-                int itemCount = (int)RandomMath.RandomBetween(1f, instanceMax + 0.95f);
+
+                int itemCount = RandomMath.RollDie(instanceMax) - 1;
                 for (int i = 0; i < itemCount; ++i)
                 {
-                    PlanetGridSquare pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this as Planet);
-                    pgs.Habitable = true;
-                    BuildingList.Add(pgs.Building);
-                    Log.Info($"Resource Created : '{pgs.Building.Name}' : on '{Name}' ");
+                    if (template.BID == Building.VolcanoId)
+                    {
+                        TilesList.RandItem().CreateVolcano(this as Planet);
+                        Log.Info($"Volcano Created on '{Name}' ");
+                    }
+                    else
+                    {
+                        PlanetGridSquare pgs = ResourceManager.CreateBuilding(template).AssignBuildingToRandomTile(this as Planet);
+                        pgs.Habitable = true;
+                        BuildingList.Add(pgs.Building);
+                        Log.Info($"Resource Created : '{pgs.Building.Name}' : on '{Name}' ");
+                    }
                 }
             }
         }

@@ -1,0 +1,13 @@
+﻿<Building>
+  <Name>Erupting Volcano</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>0</Cost>
+  <Icon>Erupting_Volcano</Icon>
+  <MaxFertilityOnBuild>-0.25</MaxFertilityOnBuild>
+  <Scrappable>false</Scrappable>
+  <CannotBeBombed>true</CannotBeBombed>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <NameTranslationIndex>4249</NameTranslationIndex>
+  <DescriptionIndex>4250</DescriptionIndex>
+  <ShortDescriptionIndex>4239</ShortDescriptionIndex>
+</Building>

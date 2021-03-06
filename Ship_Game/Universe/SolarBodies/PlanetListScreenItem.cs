@@ -267,7 +267,7 @@ namespace Ship_Game
 
             foreach (Building b in Planet.BuildingList)
             {
-                if (b.IsCommodity)
+                if (b.IsCommodity || b.IsVolcano)
                 {
                     AddBuildingIcon(b, statusIcons, ref offset);
                 }

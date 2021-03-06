@@ -1,4 +1,3 @@
-using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -74,13 +73,14 @@ namespace Ship_Game
         [Serialize(62)] public ShipData.RoleName DefenseShipsRole;
         [Serialize(63)] public float Infrastructure;
         [Serialize(64)] public bool DetectsRemnantFleet;
+        [Serialize(65)] public bool CannotBeBombed;
+
 
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
         [XmlIgnore][JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
         [XmlIgnore][JsonIgnore] public float MilitaryStrength { get; private set; }
-
         [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.ProductionPace;
 
         public override string ToString()
@@ -95,18 +95,23 @@ namespace Ship_Game
         public void AssignBuildingId(int bid) => BID = bid;
 
         public static int CapitalId, OutpostId, BiospheresId, SpacePortId, TerraformerId;
-        [XmlIgnore][JsonIgnore] public bool IsCapital => BID == CapitalId;
-        [XmlIgnore][JsonIgnore] public bool IsOutpost => BID == OutpostId;
+        public static int VolcanoId, ActiveVolcanoId, EruptingVolcanoId, Lava1Id, Lava2Id, Lava3Id;
+        [XmlIgnore][JsonIgnore] public bool IsCapital          => BID == CapitalId;
+        [XmlIgnore][JsonIgnore] public bool IsOutpost          => BID == OutpostId;
         [XmlIgnore][JsonIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
-        [XmlIgnore][JsonIgnore] public bool IsBiospheres => BID == BiospheresId;
-        [XmlIgnore][JsonIgnore] public bool IsSpacePort  => BID == SpacePortId;
-        [XmlIgnore][JsonIgnore] public bool IsTerraformer => BID == TerraformerId;
-
-        [XmlIgnore][JsonIgnore] public SubTexture IconTex => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
+        [XmlIgnore][JsonIgnore] public bool IsBiospheres       => BID == BiospheresId;
+        [XmlIgnore][JsonIgnore] public bool IsSpacePort        => BID == SpacePortId;
+        [XmlIgnore][JsonIgnore] public bool IsTerraformer      => BID == TerraformerId;
+        [XmlIgnore][JsonIgnore] public bool IsVolcano          => BID == VolcanoId || BID == ActiveVolcanoId || BID == EruptingVolcanoId;
+        [XmlIgnore][JsonIgnore] public bool IsLava             => BID == Lava1Id || BID == Lava2Id || BID == Lava3Id;
+        [XmlIgnore][JsonIgnore] public bool IsDynamicUpdate    => IsLava | IsVolcano;
+        [XmlIgnore][JsonIgnore] public SubTexture IconTex      => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
+        [XmlIgnore][JsonIgnore] public string IconPath64       => $"Buildings/icon_{Icon}_64x64";
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
         [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
-        [XmlIgnore][JsonIgnore] private float DefenseShipStrength = 0;
+        [XmlIgnore][JsonIgnore] private float DefenseShipStrength;
         [XmlIgnore][JsonIgnore] public float SpaceRange = 10000f;
+
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 
