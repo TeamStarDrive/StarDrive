@@ -8485,7 +8485,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4252</Index>
-      <Text>Hot Lava surrounds this tile, making habitation impossible, but the hot temperatures do aid in production. It will solidify in time.</Text>
+      <Text>Hot Lava surrounds this tile, making habitation impossible, but the hot temperatures do aid in production. The Lava Pool will solidify in time.</Text>
     </Token>
     <Token>
       <Index>4253</Index>
@@ -8493,11 +8493,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4254</Index>
-      <Text>Disable Volcano Activation Warnings</Text>
+      <Text>Disable Volcano Alerts</Text>
     </Token>
     <Token>
       <Index>4255</Index>
-      <Text>Disable Volcano Activation or Deactivation warning. You will still be notified if a Volcano in one of your colonies erupts.</Text>
+      <Text>Disable Volcano Activation or Deactivation alerts. You will still be notified if a Volcano in one of your colonies erupts.</Text>
     </Token>
     <Token>
       <Index>4256</Index>
@@ -8525,7 +8525,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4262</Index>
-      <Text>The environment suffered permanent and temporary damage.</Text>
+      <Text>The environment suffered both permanent and temporary damage.</Text>
     </Token>
     <Token>
       <Index>4263</Index>
@@ -8541,11 +8541,35 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4266</Index>
-      <Text>A Lava pool has solidified, tile it was occupying is now habitable.</Text>
+      <Text>A Lava pool has solidified, the tile it was occupying is now habitable!</Text>
     </Token>
     <Token>
       <Index>4267</Index>
       <Text>Removing A Volcano</Text>
+    </Token>
+    <Token>
+      <Index>4268</Index>
+      <Text>Hot Lava surrounds this tile, making habitation impossible, but the hot temperatures uncover some research opportunities for our Scientists. The Lava Pool will solidify in time.</Text>
+    </Token>
+    <Token>
+      <Index>4269</Index>
+      <Text>Molten Rock, +0.2 Flat Research</Text>
+    </Token>
+    <Token>
+      <Index>4270</Index>
+      <Text>Hot Lava surrounds this tile, making habitation impossible, the toxic fumes emitting from this pool are vary bad for the environment. The Lava Pool will solidify in time.</Text>
+    </Token>
+    <Token>
+      <Index>4271</Index>
+      <Text>Molten Rock, -0.2 Fertility</Text>
+    </Token>
+    <Token>
+      <Index>4272</Index>
+      <Text>No one can live on this tile due to the enormous Lava Pool present. Biospheres cannot be build as well, until the Lava solidifies and cools down.</Text>
+    </Token>
+    <Token>
+      <Index>4273</Index>
+      <Text>The Volcano here prevents building Biospheres on this tile.</Text>
     </Token>
     <Token>
       <Index>5000</Index>
