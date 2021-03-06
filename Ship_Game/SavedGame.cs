@@ -111,6 +111,7 @@ namespace Ship_Game
             SaveData.EmpireDataList        = new Array<EmpireSaveData>();
             SaveData.SolarSystemDataList   = new Array<SolarSystemSaveData>();
             SaveData.CustomMineralDecay    = GlobalStats.CustomMineralDecay;
+            SaveData.VolcanicActivity      = GlobalStats.VolcanicActivity;
 
             SaveData.SuppressOnBuildNotifications  = GlobalStats.SuppressOnBuildNotifications;
             SaveData.PlanetScreenHideOwned         = GlobalStats.PlanetScreenHideOwned;;
@@ -964,6 +965,7 @@ namespace Ship_Game
             [Serialize(48)] public bool DisableInhibitionWarning;
             [Serialize(49)] public bool CordrazinePlanetCaptured;
             [Serialize(50)] public bool DisableVolcanoWarning;
+            [Serialize(51)] public float VolcanicActivity;
         }
     }
 }

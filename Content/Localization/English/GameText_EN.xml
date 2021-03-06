@@ -8572,6 +8572,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>The Volcano here prevents building Biospheres on this tile.</Text>
     </Token>
     <Token>
+      <Index>4274</Index>
+      <Text>Volcanic Activity</Text>
+    </Token>
+    <Token>
+      <Index>4275</Index>
+      <Text>This will control the chances of eruption / activation of Volcanoes in the game.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
