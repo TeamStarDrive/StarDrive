@@ -115,7 +115,7 @@ namespace Ship_Game.Universe.SolarBodies
             CreateVolcanoBuilding(Building.EruptingVolcanoId);
             if (RandomMath.RollDice(5))
             {
-                P.AddMaxBaseFertility(-0.1f);
+                P.BasePopPerTile *= 0.9f;
                 message = $"{message}\n{new LocalizedText(4262).Text}";
             }
             else

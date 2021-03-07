@@ -107,20 +107,9 @@ namespace Ship_Game
             if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
                 return;
 
-            planet.AddMaxBaseFertility(0.5f);
+            planet.AddMaxBaseFertility(RandomMath.RollDie(5) / 10f); // 0.1 to 0.5 max base fertility
             NotifyPlayerIfAffected(planet, 4011);
             Log.Info($"Event Notification: Orbit Shift at {planet}");
-        }
-
-        static void Volcano() // Volcano (- Fertility and pop per tile)
-        {
-            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet, false)) 
-                return;
-
-            planet.SetBaseFertility(0f, planet.BaseMaxFertility);
-            planet.BasePopPerTile *= 0.65f;
-            NotifyPlayerIfAffected(planet, 4012);
-            Log.Info($"Event Notification: Volcano at {planet}");
         }
 
         static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman

@@ -5224,15 +5224,15 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1946</Index>
-      <Text>Build a Platform (the strongest your empire has available) orbiting this planet.The number in parentheses is the number of Platforms this planet already has in orbit.</Text>
+      <Text>Build a Platform (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Platforms this planet already has in orbit.</Text>
     </Token>
     <Token>
       <Index>1947</Index>
-      <Text>Build a Station (the strongest your empire has available) orbiting this planet.The number in parentheses is the number of Stations this planet already has in orbit.</Text>
+      <Text>Build a Station (the strongest your empire has available) orbiting this planet. The number in parentheses is the number of Stations this planet already has in orbit.</Text>
     </Token>
     <Token>
       <Index>1948</Index>
-      <Text>Build a Shipyard orbiting this planet.The number in parentheses is the number of Shipyards this planet already has in orbit.</Text>
+      <Text>Build a Shipyard orbiting this planet. The number in parentheses is the number of Shipyards this planet already has in orbit.</Text>
     </Token>
     <Token>
       <Index>1949</Index>
@@ -8582,6 +8582,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>4276</Index>
       <Text>was destroyed by A Lava pool.</Text>
+    </Token>
+    <Token>
+      <Index>4277</Index>
+      <Text>Could not place this orbital since orbital limit was reached.\nOrbital's credit cost refunded</Text>
     </Token>
     <Token>
       <Index>5000</Index>
