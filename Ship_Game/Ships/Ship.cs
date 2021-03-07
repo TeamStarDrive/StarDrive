@@ -1603,7 +1603,7 @@ namespace Ship_Game.Ships
             if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
                 return true;
 
-            if (RandomMath.RollDice(35) && !IsPlatform)
+            if (RandomMath.RollDice(100))
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
@@ -1625,7 +1625,7 @@ namespace Ship_Game.Ships
 
         Planet TryCrashOnPlanet(int etaSeconds)
         {
-            if (IsStation || System == null)
+            if (System == null)
                 return null;
 
             for (int i = 0; i < System.PlanetList.Count; i++)
@@ -1634,8 +1634,11 @@ namespace Ship_Game.Ships
                 if (Center.InRadius(p.Center, p.ObjectRadius * p.Scale * 1.2f + CurrentVelocity * (etaSeconds + Level))
                    || IsPlatformOrStation && Center.InRadius(p.Center, p.GravityWellRadius / 2))
                 {
-                    if (IsPlatformOrStation)
+                    if (IsPlatformOrStation && TetheredTo != null)
+                    {
+                        TetheredTo.RemoveFromOrbitalStations(this);
                         TetheredTo = null;
+                    }
 
                     return p;
                 }
