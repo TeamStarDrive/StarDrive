@@ -505,6 +505,13 @@ namespace Ship_Game
             return str;
         }
 
+        public int GetTypicalTroopStrength()
+        {
+            IReadOnlyList<Troop> unlockedTroops = GetUnlockedTroops();
+            float str = unlockedTroops.Max(troop => troop.StrengthMax);
+            str      *= 1 + data.Traits.GroundCombatModifier;
+            return (int)str.LowerBound(1);
+        }
 
         public Fleet FirstFleet
         {
