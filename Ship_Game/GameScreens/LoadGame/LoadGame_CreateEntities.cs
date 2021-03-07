@@ -155,10 +155,7 @@ namespace Ship_Game
                     p.BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
 
                 if (d.CrashSiteActive)
-                {
-                    Empire e = EmpireManager.GetEmpireById(d.CrashSiteEmpireId);
-                    pgs.CrashSite.CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, d.CrashSiteRecoverShip, p, pgs);
-                }
+                    pgs.CrashSite.CrashShip(d, p, pgs);
 
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)

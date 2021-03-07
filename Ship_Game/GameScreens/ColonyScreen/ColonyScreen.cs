@@ -55,7 +55,7 @@ namespace Ship_Game
         readonly SpriteFont TextFont;
         public readonly Empire Player = EmpireManager.Player;
 
-        public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
+        public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, int governorTabSelected = 0) : base(parent)
         {
             P = p;
             Eui = empUI;
@@ -173,7 +173,7 @@ namespace Ship_Game
             if (p.Owner != null)
             {
                 DetailInfo = p.Description;
-                GovernorDetails = Add(new GovernorDetailsComponent(this, p, PDescription.Rect));
+                GovernorDetails = Add(new GovernorDetailsComponent(this, p, PDescription.Rect, governorTabSelected));
             }
             else
             {

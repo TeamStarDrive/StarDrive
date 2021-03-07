@@ -42,11 +42,11 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
-        public void CrashShip(Empire empire, string shipName, string troopName, int numTroopsSurvived,
-            bool recoverShip, Planet p, PlanetGridSquare tile)
+        public void CrashShip(SavedGame.PGSData d, Planet p, PlanetGridSquare tile)
         {
-            CrashShip(empire, shipName, troopName, numTroopsSurvived, p, tile, true);
-            RecoverShip = recoverShip;
+            Empire e = EmpireManager.GetEmpireById(d.CrashSiteEmpireId);
+            CrashShip(e, d.CrashSiteShipName, d.CrashSiteTroopName, d.CrashSiteTroops, p, tile, true);
+            RecoverShip = d.CrashSiteRecoverShip;
         }
 
         bool TryCreateCrashSite(Planet p, PlanetGridSquare tile, out string message)
