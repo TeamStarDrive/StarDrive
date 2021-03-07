@@ -185,11 +185,22 @@ namespace Ship_Game
             string wasFinishedAt  = new LocalizedText(4164).Text;
             AddNotification(new Notification
             {
-                Message         = $"{constructionOf} {b.Name}\n{wasFinishedAt} {p.Name}",
+                Message         = $"{constructionOf} {b.TranslatedName.Text}\n{wasFinishedAt} {p.Name}",
                 ReferencedItem1 = p,
                 IconPath        = $"Buildings/icon_{b.Icon}_64x64",
                 Action          = "SnapToPlanet"
             }, "smallservo");
+        }
+
+        public void AddBuildingDestroyedByLava(Planet p, Building b)
+        {
+            AddNotification(new Notification
+            {
+                Message = $"{p.Name}: {b.TranslatedName.Text} {new LocalizedText(4276).Text}",
+                ReferencedItem1 = p,
+                IconPath = $"Buildings/icon_{b.Icon}_64x64",
+                Action = "SnapToPlanet"
+            }, "sd_ui_notification_warning");
         }
 
         public void AddEmpireDiedNotification(Empire thatDied)
@@ -320,6 +331,17 @@ namespace Ship_Game
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
             }, "sd_troop_march_01");
+        }
+
+        public void AddVolcanoRelated(Planet planet, string text, string texturePath = "")
+        {
+            AddNotification(new Notification
+            {
+                ReferencedItem1 = planet,
+                IconPath        = texturePath.IsEmpty() ?  planet.IconPath : texturePath,
+                Action          = planet.Owner == EmpireManager.Player ? "SnapToPlanet" : "CombatScreen",
+                Message         = $"{planet.Name}: {text}"
+            }, "sd_ui_notification_encounter");
         }
 
         public void AddNotify(ExplorationEvent expEvent)
