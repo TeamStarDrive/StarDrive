@@ -3295,15 +3295,14 @@ namespace Ship_Game
                 return;
 
             int unexplored = UniverseScreen.SolarSystemList.Count(s => !s.IsFullyExploredBy(this)).UpperBound(21);
-            if (unexplored == 0)
+            if (unexplored == 0 && isPlayer)
             {
-               /*
                 for (int i = 0; i < OwnedShips.Count; i++)
                 {
                     Ship ship = OwnedShips[i];
-                    if (IsScout(ship) && ship.AI.State != AIState.Scrap)
+                    if (IsIdleScout(ship))
                         ship.AI.OrderScrapShip();
-                }*/
+                }
                 return;
             }
 
