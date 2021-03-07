@@ -19,11 +19,11 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         // From save
-        public Volcano(PlanetGridSquare tile, Planet planet, float activationChance, bool active, bool erupting)
+        public Volcano(SavedGame.PGSData data, PlanetGridSquare tile, Planet planet)
         {
-            ActivationChance = activationChance;
-            Active           = active;
-            Erupting         = erupting;
+            ActivationChance = data.VolcanoActivationChance;
+            Active           = data.VolcanoActive;
+            Erupting         = data.VolcanoErupting;
             Tile             = tile;
             P                = planet;
         }
@@ -32,14 +32,17 @@ namespace Ship_Game.Universe.SolarBodies
         public bool Dormant            => !Active;
         float DeactivationChance       => ActivationChance * 3;
         float ActiveEruptionChance     => ActivationChance * 15;
-        float InitActivationChance()   => RandomMath.RandomBetween(0f, 0.2f) * GlobalStats.VolcanicActivity;
+        float InitActivationChance()   => RandomMath.RandomBetween(0.05f, 0.2f) * GlobalStats.VolcanicActivity;
         string ActiveVolcanoTexPath    => "Buildings/icon_Active_Volcano_64x64";
         string DormantVolcanoTexPath   => "Buildings/icon_Dormant_Volcano_64x64";
         string EruptingVolcanoTexPath  => "Buildings/icon_Erupting_Volcano_64x64";
         public bool ShouldNotifyPlayer => P.Owner == Player || P.AnyOfOurTroops(Player);
 
-        void CreateLavaPool(PlanetGridSquare tile)
+        void CreateLavaPool(PlanetGridSquare tile) // Must get a tile with no Volcano on it
         {
+            if (tile.BuildingOnTile && P.Owner == Player)
+                Empire.Universe.NotificationManager.AddBuildingDestroyedByLava(P, tile.Building);
+
             int bid = Building.Lava1Id;
             P.DestroyTile(tile);
             switch (RandomMath.RollDie(3))

@@ -99,7 +99,7 @@
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
                     CreditsMultiplier    = 0.2f;
-                    EnemyTroopStrength   = 1.1f;
+                    EnemyTroopStrength   = 1.15f;
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 0.75f;
                     ExpansionMultiplier  = 0.75f;

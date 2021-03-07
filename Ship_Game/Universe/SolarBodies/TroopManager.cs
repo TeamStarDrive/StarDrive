@@ -462,7 +462,7 @@ namespace Ship_Game
                 strength += BuildingList.Sum(BuildingCombatStrength);
 
             using (TroopList.AcquireReadLock())
-                strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.Strength);
+                strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.ActualStrengthMax);
             return strength;
         }
 
@@ -471,7 +471,7 @@ namespace Ship_Game
             float strength = 0;
 
             using (TroopList.AcquireReadLock())
-                strength += TroopList.Where(t => t.Loyalty == Ground.Owner).Sum(str => str.Strength);
+                strength += TroopList.Where(t => t.Loyalty == Ground.Owner).Sum(str => str.ActualStrengthMax);
             return strength;
         }
 
@@ -513,10 +513,10 @@ namespace Ship_Game
         float BuildingCombatStrength(Building b)
         {
             float strength = 0;
-            if (b?.IsMilitary == true)
+            if (b?.IsAttackable == true)
             {
                 strength += b.CombatStrength;
-                strength += b.InvadeInjurePoints * 5;
+                strength += b.InvadeInjurePoints * Ground.TileArea/2f;
             }
             return strength;
         }
