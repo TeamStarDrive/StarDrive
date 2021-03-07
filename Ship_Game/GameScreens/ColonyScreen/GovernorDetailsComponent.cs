@@ -25,7 +25,7 @@ namespace Ship_Game
         private FloatSlider ManualPlatforms;
         private FloatSlider ManualShipyards;
         private FloatSlider ManualStations;
-        private readonly Submenu Tabs;
+        private Submenu Tabs;
 
         UIButton LaunchAllTroops;
         UIButton LaunchSingleTroop;
@@ -72,19 +72,16 @@ namespace Ship_Game
         bool GovernorTabView => Tabs.SelectedIndex == 0;
         bool DefenseTabView  => Tabs.SelectedIndex == 1;
         bool BudgetTabView   => Tabs.SelectedIndex == 2;
-        
 
-        public GovernorDetailsComponent(GameScreen screen, Planet p, in Rectangle rect) : base(rect)
+        public int CurrentTabIndex => Tabs.SelectedIndex;
+
+        public GovernorDetailsComponent(GameScreen screen, Planet p, in Rectangle rect, int selectedIndex = 0) : base(rect)
         {
             Screen = screen;
-            SetPlanetDetails(p);
-            Tabs = Add(new Submenu(rect));
-            Tabs.AddTab(new LocalizedText(4209).Text); // Governor
-            Tabs.AddTab(new LocalizedText(4210).Text); // Defense
-            Tabs.AddTab(new LocalizedText(4225).Text); // Budget
+            SetPlanetDetails(p, selectedIndex);
         }
 
-        public void SetPlanetDetails(Planet p)
+        public void SetPlanetDetails(Planet p, int selectedIndex = 0)
         {
             Log.Assert(p != null, "GovernorDetailsComponent Planet cannot be null");
             if (Planet == p || p == null)
@@ -193,6 +190,14 @@ namespace Ship_Game
             NoGovernorCivExpense = Add(new UILabel(" ", FontBig, Color.MediumSeaGreen));
             NoGovernorGrdExpense = Add(new UILabel(" ", FontBig, Color.DarkOrange));
             NoGovernorSpcExpense = Add(new UILabel(" ", FontBig, Color.SteelBlue));
+
+            Tabs = Add(new Submenu(Rect));
+            Tabs.AddTab(new LocalizedText(4209).Text); // Governor
+            Tabs.AddTab(new LocalizedText(4210).Text); // Defense
+            Tabs.AddTab(new LocalizedText(4225).Text); // Budget
+
+            if (selectedIndex < Tabs.NumTabs)
+                Tabs.SelectedIndex = selectedIndex;
 
             base.PerformLayout();
         }

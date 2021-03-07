@@ -1,24 +1,21 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Ships;
-using System;
 
 namespace Ship_Game
 {
     public sealed class RuleOptionsScreen : GameScreen
     {
-        public bool isOpen;
         private Menu2 MainMenu;
         private FloatSlider FTLPenaltySlider;
         private FloatSlider EnemyFTLPenaltySlider;
         private FloatSlider GravityWellSize;
-        private FloatSlider extraPlanets;
+        private FloatSlider ExtraPlanets;
         private FloatSlider IncreaseMaintenance;
         private FloatSlider MinimumWarpRange;
         private FloatSlider StartingRichness;
         private FloatSlider TurnTimer;
         private FloatSlider CustomMineralDecay;
-        public Ship itemToBuild;
+        private FloatSlider VolcanicActivity;
 
         public RuleOptionsScreen(GameScreen parent) : base(parent)
         {
@@ -43,12 +40,13 @@ namespace Ship_Game
                 GlobalStats.FTLInSystemModifier      = FTLPenaltySlider.RelativeValue;
                 GlobalStats.EnemyFTLInSystemModifier = EnemyFTLPenaltySlider.RelativeValue;
                 GlobalStats.GravityWellRange         = GravityWellSize.AbsoluteValue;
-                GlobalStats.ExtraPlanets             = (int)extraPlanets.AbsoluteValue;
+                GlobalStats.ExtraPlanets             = (int)ExtraPlanets.AbsoluteValue;
                 GlobalStats.MinimumWarpRange         = MinimumWarpRange.AbsoluteValue;
                 GlobalStats.ShipMaintenanceMulti     = IncreaseMaintenance.AbsoluteValue;
                 GlobalStats.StartingPlanetRichness   = StartingRichness.AbsoluteValue;
                 GlobalStats.TurnTimer                = (byte)TurnTimer.AbsoluteValue;
                 GlobalStats.CustomMineralDecay       = (CustomMineralDecay.AbsoluteValue).RoundToFractionOf10();
+                GlobalStats.VolcanicActivity         = (VolcanicActivity.AbsoluteValue).RoundToFractionOf10();
                 return true;
             }
             return false;
@@ -84,12 +82,15 @@ namespace Ship_Game
             var mdRect = new Rectangle(ftlRect.X + indent+2, ftlRect.Y + 170, 270, 50);
             CustomMineralDecay = SliderDecimal1(mdRect, Localizer.Token(4115), 0.5f, 3, GlobalStats.CustomMineralDecay);
 
+            var vaRect = new Rectangle(ftlRect.X + indent + 2, ftlRect.Y + 230, 270, 50);
+            VolcanicActivity = SliderDecimal1(vaRect, Localizer.Token(4274), 0.5f, 3, GlobalStats.VolcanicActivity);
+
             var gwRect = new Rectangle(x, leftRect.Y + 210, 270, 50);
             var epRect = new Rectangle(x, leftRect.Y + 270, 270, 50);
             var richnessRect = new Rectangle(x, leftRect.Y + 330, 270, 50);
 
             GravityWellSize  = Slider(gwRect,  new LocalizedText(6002).Text, 0, 20000, GlobalStats.GravityWellRange);
-            extraPlanets     = Slider(epRect, new LocalizedText(4118).Text, 0, 3f, GlobalStats.ExtraPlanets);
+            ExtraPlanets     = Slider(epRect, new LocalizedText(4118).Text, 0, 3f, GlobalStats.ExtraPlanets);
             StartingRichness = Slider(richnessRect, new LocalizedText(4121).Text, 0, 5f, GlobalStats.StartingPlanetRichness);
 
 
@@ -105,12 +106,13 @@ namespace Ship_Game
             EnemyFTLPenaltySlider.Tip = 7041;
             GravityWellSize.Tip       = 6003;
             CustomMineralDecay.Tip    = 4116;
+            VolcanicActivity.Tip      = 4275;
 
             string extraPlanetsTip = new LocalizedText(4119).Text;
             if (GlobalStats.ModChangeResearchCost)
                 extraPlanetsTip = $"{extraPlanetsTip} {new LocalizedText(4120).Text}";
 
-            extraPlanets.Tip        = extraPlanetsTip;
+            ExtraPlanets.Tip        = extraPlanetsTip;
             MinimumWarpRange.Tip    = new LocalizedText(4124).Text;
             IncreaseMaintenance.Tip = new LocalizedText(4128).Text;
             TurnTimer.Tip           = new LocalizedText(4126).Text;

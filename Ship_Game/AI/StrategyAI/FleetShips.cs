@@ -217,9 +217,10 @@ namespace Ship_Game.AI
             return ships;
         }
 
-        public Array<Ship> ExtractTroops(int planetAssaultTroopsWanted)
+        public Array<Ship> ExtractTroops(int planetAssaultTroopsStrWanted)
         {
-            var ships = ExtractShipsByFeatures(Ships, planetAssaultTroopsWanted, 1, 1
+            int troopsWanted = 1 + planetAssaultTroopsStrWanted / OwnerEmpire.GetTypicalTroopStrength();
+            var ships = ExtractShipsByFeatures(Ships, troopsWanted, 1, 1
                                 , s =>
                                     {
                                         if (s.DesignRoleType == RoleType.Troop)
@@ -381,22 +382,18 @@ namespace Ship_Game.AI
 
         private void LaunchTroopsAndAddToShipList(int wantedTroopStrength, Array<Troop> planetTroops)
         {
-            foreach (Troop troop in planetTroops.Filter(t => t.HostPlanet != null &&
-                                                             !t.HostPlanet.RecentCombat))
+            foreach (Troop troop in planetTroops.Filter(t => t.HostPlanet != null
+                                                             && t.Loyalty != null
+                                                             && t.CanMove // save some iterations to find tiles for irrelevant troops
+                                                             && !t.HostPlanet.RecentCombat
+                                                             && !t.HostPlanet.ParentSystem.DangerousForcesPresent(t.Loyalty)))
             {
                 if (InvasionTroopStrength > wantedTroopStrength)
                     break;
 
-                if (troop.Loyalty == null)
-                    continue;
-                Ship launched = troop.Launch(true);
-                if (launched == null)
-                {
-                    Log.Warning($"CreateFleet: Troop launched from planet became null");
-                    continue;
-                }
-
-                AddShip(launched);
+                Ship launched = troop.Launch();
+                if (launched != null)
+                    AddShip(launched);
             }
         }
     }
