@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Ship_Game.Universe.SolarBodies;
 
 namespace Ship_Game
 {
@@ -227,7 +228,11 @@ namespace Ship_Game
                 return; // No Terraformers or No owner (Terraformers cannot continue working)
             }
 
-            // First, make un-habitable tiles habitable
+            // First, remove Volcanoes
+            if (TerraformVolcanoes())
+                return;
+
+            // Then, make un-habitable tiles habitable
             if (TerraformTiles()) 
                 return;
 
@@ -239,13 +244,25 @@ namespace Ship_Game
             TerraformBioSpheres();
         }
 
-        public bool HasTilesToTerraform   => TilesList.Any(t => t.CanTerraform && !t.Biosphere);
-        public bool BioSpheresToTerraform => TilesList.Any(t => t.BioCanTerraform);
-        public int TerraformerLimit       => TilesList.Count(t => t.CanTerraform)/2 + 2;
+        public bool HasTilesToTerraform     => TilesList.Any(t => t.CanTerraform && !t.Biosphere);
+        public bool HasVolcanoesToTerraform => TilesList.Any(t => t.VolcanoHere);
+        public bool BioSpheresToTerraform   => TilesList.Any(t => t.BioCanTerraform);
+        public int TerraformerLimit         => TilesList.Count(t => t.CanTerraform)/2 + 2;
+
+        bool TerraformVolcanoes()
+        {
+            if (!HasVolcanoesToTerraform)
+                return false;
+
+            TerraformPoints += TerraformToAdd * 4f; // Terraforming a Volcano is faster than the whole planet
+            if (TerraformPoints.GreaterOrEqual(1))
+                CompleteVolcanoTerraforming(TilesList.Filter(t => t.VolcanoHere));
+
+            return true;
+        }
 
         private bool TerraformTiles()
         {
-
             if (!HasTilesToTerraform)
                 return false; // no tiles need terraforming
 
@@ -290,6 +307,20 @@ namespace Ship_Game
             TerraformPoints += TerraformToAdd * 1.5f; // Terraforming Biospheres is more complex than terraforming a tile
             if (TerraformPoints.GreaterOrEqual(1))
                 CompleteTileTerraforming(TilesList.Filter(t => t.BioCanTerraform));
+        }
+
+        void CompleteVolcanoTerraforming(PlanetGridSquare[] possibleTiles)
+        {
+            if (possibleTiles.Length > 0)
+            {
+                PlanetGridSquare tile = RandItem(possibleTiles);
+                Volcano.RemoveVolcano(tile, this);
+            }
+
+            if (TerraformersHere > TerraformerLimit)
+                RemoveTerraformers(removeOne: true); // Dynamically remove terraformers
+
+            UpdateTerraformPoints(0); // Start terraforming a new tile
         }
 
         private void CompleteTileTerraforming(PlanetGridSquare[] possibleTiles)
@@ -366,7 +397,11 @@ namespace Ship_Game
             if (tile.Biosphere)
                 ClearBioSpheresFromList(tile);
 
-            tile.Habitable = true;
+            if (tile.LavaHere)
+                RemoveBuildingFromPlanet(tile, true);
+
+            tile.Habitable     = true;
+            tile.Terraformable = false;
             UpdateMaxPopulation();
         }
 
@@ -432,7 +467,7 @@ namespace Ship_Game
 
             foreach (RandomItem item in ResourceManager.RandomItemsList)
             {
-                (float chance, float maxInstance) = item.ChanceAndMaxInstance(Category);
+                (float chance, int maxInstance) = item.ChanceAndMaxInstance(Category);
                 SpawnRandomItem(item, chance, maxInstance);
             }
             AddTileEvents();

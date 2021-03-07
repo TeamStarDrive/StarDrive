@@ -5,7 +5,6 @@
   <Cost>40</Cost>
   <PlusFlatProductionAmount>2</PlusFlatProductionAmount>
   <Icon>mine</Icon>
-  <Maintenance>1</Maintenance>
   <Infrastructure>2</Infrastructure>
   <ShortDescription>+2 production per turn</ShortDescription>
 

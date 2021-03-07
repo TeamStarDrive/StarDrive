@@ -55,7 +55,7 @@ namespace Ship_Game
         readonly SpriteFont TextFont;
         public readonly Empire Player = EmpireManager.Player;
 
-        public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
+        public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI, int governorTabSelected = 0) : base(parent)
         {
             P = p;
             Eui = empUI;
@@ -173,7 +173,7 @@ namespace Ship_Game
             if (p.Owner != null)
             {
                 DetailInfo = p.Description;
-                GovernorDetails = Add(new GovernorDetailsComponent(this, p, PDescription.Rect));
+                GovernorDetails = Add(new GovernorDetailsComponent(this, p, PDescription.Rect, governorTabSelected));
             }
             else
             {
@@ -194,6 +194,7 @@ namespace Ship_Game
         {
             color                       = Color.LightGreen;
             float targetFertility       = TerraformTargetFertility();
+            int numVolcanoes            = P.TilesList.Count(t => t.VolcanoHere);
             int numUninhabitableTiles   = P.TilesList.Count(t => t.CanTerraform && !t.Biosphere);
             int numBiospheres           = P.TilesList.Count(t => t.BioCanTerraform);
             float minEstimatedMaxPop    = P.PotentialMaxPopBillionsFor(Player);
@@ -203,7 +204,10 @@ namespace Ship_Game
             string initialText = text;
 
             if (numUninhabitableTiles > 0)
-                text += $"  * Make {numUninhabitableTiles} tiles habitable\n";
+                text += $"  * Remove {numVolcanoes} Volcano.\n";
+
+            if (numUninhabitableTiles > 0)
+                text += $"  * Make {numUninhabitableTiles} tiles habitable.\n";
 
             if (P.Category != Player.data.PreferredEnv)
                 text += $"  * Terraform the planet to {Player.data.PreferredEnv}.\n";
@@ -226,7 +230,7 @@ namespace Ship_Game
             }
 
             if (minEstimatedMaxPop > maxPopWithBiospheres)
-                text += $"  * Expected Max Population will be {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
+                text += $"  * Expected Max Population is {(minEstimatedMaxPop).String(2)} Billion colonists.\n";
 
             if (text == initialText)
             {

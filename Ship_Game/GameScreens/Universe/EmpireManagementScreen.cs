@@ -258,7 +258,7 @@ namespace Ship_Game
         void OnColonyListItemClicked(ColoniesListItem item)
         {
             SelectedPlanet = item.P;
-            GovernorDetails.SetPlanetDetails(SelectedPlanet);
+            GovernorDetails.SetPlanetDetails(SelectedPlanet, (int)GovernorDetails?.CurrentTabIndex);
             GovernorDetails.PerformLayout();
         }
 
@@ -312,7 +312,7 @@ namespace Ship_Game
             }
 
             SelectedPlanet = ColoniesList.AllEntries[0].P;
-            GovernorDetails.SetPlanetDetails(SelectedPlanet);
+            GovernorDetails.SetPlanetDetails(SelectedPlanet, (int)GovernorDetails?.CurrentTabIndex);
             GovernorDetails.PerformLayout();
         }
     }

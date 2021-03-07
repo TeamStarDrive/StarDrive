@@ -430,7 +430,7 @@ namespace Ship_Game
             if (ports.Count > 0)
             {
                 float averageMaxProd = ports.Average(p => p.Prod.NetMaxPotential);
-                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd/2));
+                bestPorts            = ports.Filter(p => !p.IsCrippled && p.Prod.NetMaxPotential.GreaterOrEqual(averageMaxProd/5));
                 bestPorts            = bestPorts.SortedDescending(p => p.Prod.NetMaxPotential);
             }
 
@@ -505,6 +505,13 @@ namespace Ship_Game
             return str;
         }
 
+        public int GetTypicalTroopStrength()
+        {
+            IReadOnlyList<Troop> unlockedTroops = GetUnlockedTroops();
+            float str = unlockedTroops.Max(troop => troop.StrengthMax);
+            str      *= 1 + data.Traits.GroundCombatModifier;
+            return (int)str.LowerBound(1);
+        }
 
         public Fleet FirstFleet
         {
@@ -2865,7 +2872,7 @@ namespace Ship_Game
             if (data.Defeated) return true;
             if (!GlobalStats.EliminationMode && OwnedPlanets.Count != 0)
                 return false;
-            if (GlobalStats.EliminationMode && (Capital == null || Capital.Owner == this))
+            if (GlobalStats.EliminationMode && (Capital == null || Capital.Owner == this) && OwnedPlanets.Count != 0)
                 return false;
 
             SetAsDefeated();
@@ -3118,9 +3125,9 @@ namespace Ship_Game
             }
             foreach (Artifact artifact in target.data.OwnedArtifacts)
             {
-                data.OwnedArtifacts.Add(artifact);
                 AddArtifact(artifact);
             }
+
             target.data.OwnedArtifacts.Clear();
             if (target.Money > 0.0)
             {
