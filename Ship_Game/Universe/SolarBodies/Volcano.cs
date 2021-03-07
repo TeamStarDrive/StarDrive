@@ -175,7 +175,7 @@ namespace Ship_Game.Universe.SolarBodies
                 PlanetGridSquare tile = potentialLavaTiles.RandItem();
                 CreateLavaPool(tile);
                 actualLavaPools += 1;
-                potentialLavaTiles.AddRange(GetPotentialLavaTiles(tile));
+                potentialLavaTiles.AddUniqueRef(GetPotentialLavaTiles(tile));
                 potentialLavaTiles.Remove(tile);
             }
 
