@@ -147,7 +147,9 @@ namespace Ship_Game
                 Owner.AddMoney((expectedStorage - Storage.Max) * Owner.data.TaxRate);
             }
             else
+            {
                 Storage.Prod = expectedStorage;
+            }
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Magenta,$"{Name}, {Owner.Name} - SCRAPPED Orbital ----- {orbital.Name}" +
@@ -318,19 +320,34 @@ namespace Ship_Game
         public int NumPlatforms => FilterOrbitals(ShipData.RoleName.platform).Count;
         public int NumStations  => FilterOrbitals(ShipData.RoleName.station).Count;
 
-        public bool IsOutOfOrbitalsLimit(Ship ship) => IsOutOfOrbitalsLimit(ship, Owner);
+        public bool IsOutOfOrbitalsLimit(Ship ship) => IsOutOfOrbitalsLimit(ship, Owner, 0);
+        public bool IsOverOrbitalsLimit(Ship ship)  => IsOutOfOrbitalsLimit(ship, Owner, 1);
 
-        public bool IsOutOfOrbitalsLimit(Ship ship, Empire owner)
+        bool IsOutOfOrbitalsLimit(Ship ship, Empire owner, int overLimit)
         {
             int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role, owner);
             int numShipyards = OrbitalStations.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt(owner);
-            if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
+            if (numOrbitals >= ShipBuilder.OrbitalsLimit + overLimit && ship.IsPlatformOrStation)
                 return true;
 
-            if (numShipyards >= ShipBuilder.ShipYardsLimit && ship.shipData.IsShipyard)
+            if (numShipyards >= ShipBuilder.ShipYardsLimit + overLimit && ship.shipData.IsShipyard)
                 return true;
 
             return false;
+        }
+
+        // Used when mostly the player places orbital in orbit of unowned planet
+        public void RemoveExcessOrbital(Ship orbital)
+        {
+            if (!IsOverOrbitalsLimit(orbital))
+                return;
+
+            float cost = orbital.GetCost(orbital.loyalty) * orbital.loyalty.DifficultyModifiers.CreditsMultiplier;
+            orbital.loyalty.AddMoney(cost);
+            if (orbital.loyalty == EmpireManager.Player)
+                Empire.Universe.NotificationManager.AddOrbitalOverLimit(this, (int)cost, orbital.BaseHull.ActualIconPath);
+
+            orbital.QueueTotalRemoval();
         }
 
         public void BuildTroopsForEvents()
