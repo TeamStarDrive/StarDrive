@@ -199,7 +199,7 @@ namespace Ship_Game.AI
                 orbital.TetherOffset = g.Goal.TetherOffset;
                 planetToTether.OrbitalStations.Add(orbital);
                 if (planetToTether.IsOverOrbitalsLimit(orbital))
-                    planetToTether.RemoveExcessOrbital(orbital);
+                    planetToTether.TryRemoveExcessOrbital(orbital);
             }
 
             Owner.QueueTotalRemoval();
@@ -238,8 +238,8 @@ namespace Ship_Game.AI
                 Owner.QueueTotalRemoval();
                 if (g.Goal.OldShip?.Active == true) // we are refitting something
                     g.Goal.OldShip.QueueTotalRemoval();
-                else if (target.IsOverOrbitalsLimit(orbital))
-                    target.RemoveExcessOrbital(orbital);
+                else 
+                    target.TryRemoveExcessOrbital(orbital);
             }
 
             OrderScrapShip();
