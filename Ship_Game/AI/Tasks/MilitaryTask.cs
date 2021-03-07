@@ -260,9 +260,6 @@ namespace Ship_Game.AI.Tasks
                     p => p.GetEmpire() == enemy && !p.Ship?.IsPlatformOrStation == true);
             }
 
-            if (strWanted.Greater(1000))
-                Log.Info("lala");
-
             return strWanted;
         }
 
