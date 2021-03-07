@@ -337,9 +337,9 @@ namespace Ship_Game
         }
 
         // Used when mostly the player places orbital in orbit of unowned planet
-        public void RemoveExcessOrbital(Ship orbital)
+        public void TryRemoveExcessOrbital(Ship orbital)
         {
-            if (!IsOverOrbitalsLimit(orbital))
+            if (Owner == orbital.loyalty || !IsOverOrbitalsLimit(orbital))
                 return;
 
             float cost = orbital.GetCost(orbital.loyalty) * orbital.loyalty.DifficultyModifiers.CreditsMultiplier;
