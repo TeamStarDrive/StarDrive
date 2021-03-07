@@ -143,15 +143,18 @@ namespace Ship_Game.AI.Tasks
 
         public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip, Empire empire)
         {
+            var threatMatrix = empire.GetEmpireAI().ThreatMatrix;
+            float pingStr    = threatMatrix.PingRadarStr(targetShip.Center, 20000, empire);
             var militaryTask = new MilitaryTask
             {
                 TargetShip               = targetShip,
                 AO                       = targetShip.Center,
                 type                     = TaskType.AssaultPirateBase,
                 AORadius                 = 20000,
+                Owner                    = empire,
                 EnemyStrength            = targetShip.BaseStrength,
                 TargetShipGuid           = targetShip.guid,
-                MinimumTaskForceStrength = targetShip.BaseStrength * empire.GetFleetStrEmpireMultiplier(targetShip.loyalty),
+                MinimumTaskForceStrength = (targetShip.BaseStrength + pingStr) * empire.GetFleetStrEmpireMultiplier(targetShip.loyalty),
                 TargetEmpire             = targetShip.loyalty
             };
             return militaryTask;
@@ -231,10 +234,9 @@ namespace Ship_Game.AI.Tasks
 
         public MilitaryTask(Planet target, Empire owner)
         {
-            var threatMatrix = owner.GetEmpireAI().ThreatMatrix;
-            float radius     = 3500f;
-            float strWanted  = threatMatrix.PingRadarStr(target.Center, radius, owner);
-            strWanted       += target.BuildingGeodeticCount;
+            float radius     = 5000f;
+            float strWanted  = GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner)
+                               + target.BuildingGeodeticCount;
 
             type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
@@ -242,8 +244,23 @@ namespace Ship_Game.AI.Tasks
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
-            MinimumTaskForceStrength = strWanted * owner.GetFleetStrEmpireMultiplier(target.Owner);
+            MinimumTaskForceStrength = strWanted.LowerBound(1000) * owner.GetFleetStrEmpireMultiplier(target.Owner);
             TargetEmpire             = target.Owner;
+        }
+
+        float GetKnownEnemyStrInClosestSystems(SolarSystem system, Empire owner, Empire enemy)
+        {
+            var threatMatrix = owner.GetEmpireAI().ThreatMatrix;
+            float strWanted  = threatMatrix.PingRadarStr(system.Position, system.Radius, owner);
+
+            for (int i = 0; i < system.FiveClosestSystems.Count; i++)
+            {
+                SolarSystem closeSystem = system.FiveClosestSystems[i];
+                strWanted += owner.KnownEnemyStrengthIn(closeSystem, 
+                    p => p.GetEmpire() == enemy && !p.Ship?.IsPlatformOrStation == true);
+            }
+
+            return strWanted;
         }
 
         public void ChangeTargetPlanet(Planet planet)
@@ -314,20 +331,16 @@ namespace Ship_Game.AI.Tasks
         private void RemoveTaskTroopsFromPlanet()
         {
             Array<Troop> toLaunch = new Array<Troop>();
+            if (TargetPlanet.ParentSystem.DangerousForcesPresent(Owner))
+                return;
+
             for (int index = TargetPlanet.TroopsHere.Count - 1; index >= 0; index--)
             {
                 Troop t = TargetPlanet.TroopsHere[index];
-                if (t.Loyalty != Owner
-                    || TargetPlanet.SpaceCombatNearPlanet
-                    || t.AvailableAttackActions == 0
-                    || t.MoveTimer > 0)
-                {
-                    continue;
-                }
-
-                toLaunch.Add(t);
+                if (t.Loyalty == Owner)
+                    toLaunch.Add(t);
             }
-
+                
             foreach (Troop t in toLaunch)
             {
                 Ship troopship = t.Launch();

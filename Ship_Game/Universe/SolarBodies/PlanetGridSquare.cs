@@ -330,7 +330,7 @@ namespace Ship_Game
 
         public void CreateVolcanoFromSave(SavedGame.PGSData data, Planet planet)
         {
-            Volcano = new Volcano(this, planet, data.VolcanoActivationChance, data.VolcanoActive, data.VolcanoErupting);
+            Volcano = new Volcano(data, this, planet);
         }
 
         public SavedGame.PGSData Serialize()
