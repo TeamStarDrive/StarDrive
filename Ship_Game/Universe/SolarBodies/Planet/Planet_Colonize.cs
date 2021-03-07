@@ -1,5 +1,4 @@
 ﻿using System;
-using Ship_Game.AI;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -8,7 +7,7 @@ namespace Ship_Game
     {
         public void Colonize(Ship colonyShip)
         {
-            Owner = colonyShip.loyalty;
+            Owner          = colonyShip.loyalty;
             Quarantine     = false;
             ManualOrbitals = false;
             ParentSystem.OwnerList.Add(Owner);

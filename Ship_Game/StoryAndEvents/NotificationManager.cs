@@ -179,6 +179,17 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddOrbitalOverLimit(Planet p, int cost, string path)
+        {
+            AddNotification(new Notification
+            {
+                Message         = $"{p.Name}: {new LocalizedText(4277).Text} ({cost}).",
+                ReferencedItem1 = p,
+                IconPath        = path,
+                Action          = "SnapToPlanet"
+            }, "sd_ui_notification_warning");
+        }
+
         public void AddBuildingConstructed(Planet p, Building b)
         {
             string constructionOf = new LocalizedText(4163).Text;
