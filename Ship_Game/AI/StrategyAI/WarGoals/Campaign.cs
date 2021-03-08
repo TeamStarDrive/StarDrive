@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Ships;
 
 namespace Ship_Game.AI.StrategyAI.WarGoals
@@ -210,9 +207,8 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             for (int x = 0; x < solarSystems.Count; x++)
             {
                 var s = solarSystems[x];
-                if (s.OwnerList.Contains(Them))
-                    continue;
-                solarSystems.RemoveAt(x);
+                if (!s.HasPlanetsOwnedBy(Them))
+                    solarSystems.RemoveAt(x);
             }
         }
 
@@ -223,7 +219,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             // attempt to sort targets by systems in AO that are nearest to rally AO.
             // the create a winnable targets list evaluating each system 
 
-            var winnableTarget = new Array<SolarSystem>();
+            var winnableTargets = new Array<SolarSystem>();
             
             foreach (var system in targets)
             {
@@ -237,22 +233,22 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 float defense  = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, Owner);
                 if (defense  < Owner.Pool.CurrentUseableStrength)
                 {
-                    winnableTarget.Add(system);
+                    winnableTargets.Add(system);
                     Owner.Pool.CurrentUseableStrength -= defense;
                 }
             }
 
             //var currentTarget = targets.Find(s=>Tasks.IsAlreadyAssaultingSystem(s));
 
-            if (winnableTarget.NotEmpty) // && currentTarget == null)
+            if (winnableTargets.NotEmpty) // && currentTarget == null)
             {
                 TargetSystems = new Array<SolarSystem>();
-                SystemGuids = new Array<Guid>();
-                foreach (var target in winnableTarget)
+                SystemGuids   = new Array<Guid>();
+                var systems    = SortSystemsByWarType(winnableTargets);
+                foreach (var target in systems)
                 {
                     AddTargetSystem(target);    
                 }
-                
             }
             //else if (currentTarget != null)
             //    AddTargetSystem(currentTarget);
@@ -268,9 +264,9 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
             int priority = OwnerTheater.Priority;
 
-            foreach (var system in currentTargets)
+            foreach (SolarSystem system in currentTargets)
             {
-                int contestedSystemMod = system.OwnerList.Contains(Them) ? 2 : 0;
+                int contestedSystemMod = system.HasPlanetsOwnedBy(Them) ? 2 : 0;
 
                 Tasks.StandardAssault(system, priority - contestedSystemMod, campaign,  fleetsPerTarget);
                 if (OwnerWar.WarType != WarType.EmpireDefense)
@@ -305,6 +301,49 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             int priority = 0;
             if (priority > 10) return;
             Tasks.StandardAreaClear(center, radius, priority, strength, this);
+        }
+
+        SolarSystem[] SortSystemsByWarType(Array<SolarSystem> systems)
+        {
+            switch (OwnerWar.WarType)
+            {
+                default:
+                case WarType.ImperialistWar:
+                case WarType.GenocidalWar:
+                case WarType.SkirmishWar:    return systems.Sorted(s => SystemValueByDistance(s, OwnerWar.WarType));
+                case WarType.DefensiveWar:
+                case WarType.EmpireDefense:  return systems.Sorted(s => s.Position.SqDist(RallyAO.Center));
+                case WarType.BorderConflict:
+                    var sharedSystems = systems.Filter(s => s.HasPlanetsOwnedBy(Them) && s.HasPlanetsOwnedBy(Owner));
+                    return sharedSystems.Length > 0
+                        ? sharedSystems.Sorted(s => s.Position.SqDist(RallyAO.Center))
+                        : systems.Sorted(s => s.Position.SqDist(RallyAO.Center));
+            }
+
+        }
+
+        float SystemValueByDistance(SolarSystem system, WarType warType)
+        {
+            float systemValue;
+            float distance = system.Position.Distance(RallyAO.Center);
+            switch (warType)
+            {
+                default:
+                case WarType.ImperialistWar: systemValue = SystemPotentialValueToUs(system);       break;
+                case WarType.GenocidalWar:   systemValue = SystemPotentialValueToThem(system);     break;
+                case WarType.SkirmishWar:    systemValue = TheirOwnedPlanetPotentialValue(system); break;
+            }
+
+            float netValue = systemValue / distance.LowerBound(1);
+            return netValue;
+        }
+
+        float SystemPotentialValueToUs(SolarSystem system)   => system.PlanetList.Sum(p => p.ColonyPotentialValue(Owner));
+        float SystemPotentialValueToThem(SolarSystem system) => system.PlanetList.Sum(p => p.ColonyPotentialValue(Them));
+        float TheirOwnedPlanetPotentialValue(SolarSystem system)
+        {
+            var planetList = system.PlanetList.Filter(p => p.Owner == Them);
+            return planetList.Length > 0 ? planetList.Sum(p => p.ColonyValue) : 0;
         }
     }
 }

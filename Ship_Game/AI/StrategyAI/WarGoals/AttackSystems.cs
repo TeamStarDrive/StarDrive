@@ -8,7 +8,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             if (OwnerWar.WarType != WarType.EmpireDefense)
                 return new Array<SolarSystem>(OwnerTheater.GetSystems().Filter(s =>
-                    s.IsExploredBy(Owner) && s.OwnerList.Contains(Them)));
+                    s.IsExploredBy(Owner) && s.HasPlanetsOwnedBy(Them)));
 
             return new Array<SolarSystem>(OwnerTheater.GetSystems().Filter(s =>
             {
