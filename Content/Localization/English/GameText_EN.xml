@@ -6433,7 +6433,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2244</Index>
-      <Text>Races with a pack mentality receive a 29% damage penalty to all ship weapons. They receive a 1% bonus to damage, up to 40%, for each nearby friendly ship.</Text>
+      <Text>Races with a pack mentality receive a 15% damage penalty to all ship weapons. They receive a 1% bonus to damage, up to 30%, for each nearby friendly ship.</Text>
     </Token>
     <Token>
       <Index>2245</Index>
