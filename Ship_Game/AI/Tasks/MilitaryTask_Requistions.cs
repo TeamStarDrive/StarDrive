@@ -360,7 +360,7 @@ namespace Ship_Game.AI.Tasks
             UpdateMinimumTaskForceStrength(TargetPlanet.ParentSystem, TargetPlanet.BuildingGeodeticOffense);
 
             EnemyStrength = GetEnemyShipStrengthInAO() + TargetPlanet.BuildingGeodeticCount;
-            InitFleetRequirements(MinimumTaskForceStrength.LowerBound(EnemyStrength), minTroopStrength: 100 ,minBombMinutes: 3);
+            InitFleetRequirements(MinimumTaskForceStrength.LowerBound(EnemyStrength), minTroopStrength: 40 ,minBombMinutes: 3);
 
             if (CreateTaskFleet("Invasion Fleet", Completeness, true) == RequisitionStatus.Complete)
             {
