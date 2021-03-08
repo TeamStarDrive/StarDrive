@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-
-namespace Ship_Game.AI.StrategyAI.WarGoals
+﻿namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public class CaptureAllPlanets : AttackSystems
     {
@@ -17,9 +14,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 
         protected override GoalStep SetupTargets()
         {
-            var sortByRange = new Array<SolarSystem>(SystemsWithThem().Sorted(s=> s.Position.SqDist(RallyAO.Center)));
-
-            return SetTargets(sortByRange);
+            return SetTargets(SystemsWithThem());
         }
     }
 }
