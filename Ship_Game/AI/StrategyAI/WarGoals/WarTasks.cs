@@ -142,7 +142,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         {
             bool defending    = NewTasks.Any(t => t.IsDefendingSystem(system));
             return defending;
-                                        
         }
 
         bool IsAlreadyClearingArea(Vector2 center, float radius)

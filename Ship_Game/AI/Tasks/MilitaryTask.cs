@@ -223,8 +223,8 @@ namespace Ship_Game.AI.Tasks
             AO                       = center;
             AORadius                 = radius;
             type                     = taskType;
-            MinimumTaskForceStrength = strengthWanted * owner.GetFleetStrEmpireMultiplier(dominant);
-            EnemyStrength            = strengthWanted;
+            MinimumTaskForceStrength = strengthWanted.LowerBound(500) * owner.GetFleetStrEmpireMultiplier(dominant);
+            EnemyStrength            = MinimumTaskForceStrength;
             TargetSystem             = system;
             Owner                    = owner;
 
@@ -236,7 +236,7 @@ namespace Ship_Game.AI.Tasks
         {
             float radius     = 5000f;
             float strWanted  = GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner)
-                               + target.BuildingGeodeticCount;
+                               + target.BuildingGeodeticOffense;
 
             type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
@@ -244,8 +244,9 @@ namespace Ship_Game.AI.Tasks
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
-            MinimumTaskForceStrength = strWanted.LowerBound(1000) * owner.GetFleetStrEmpireMultiplier(target.Owner);
             TargetEmpire             = target.Owner;
+            MinimumTaskForceStrength = strWanted.LowerBound(owner.KnownEmpireOffensiveStrength(target.Owner) / 10) 
+                                       * owner.GetFleetStrEmpireMultiplier(target.Owner);
         }
 
         float GetKnownEnemyStrInClosestSystems(SolarSystem system, Empire owner, Empire enemy)
@@ -885,7 +886,6 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.AssaultPlanet:
                 case TaskType.DefendPostInvasion:
                 case TaskType.GlassPlanet:
-                case TaskType.ClearAreaOfEnemies:
                 case TaskType.CorsairRaid:        taskCat |= TaskCategory.War; break;
                 case TaskType.AssaultPirateBase:
                 case TaskType.DefendSystem:
@@ -893,6 +893,7 @@ namespace Ship_Game.AI.Tasks
                 case TaskType.Patrol:
                 case TaskType.DefendVsRemnants:
                 case TaskType.RemnantEngagement:
+                case TaskType.ClearAreaOfEnemies:
                 case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
                 case TaskType.DefendClaim:
                 case TaskType.GuardBeforeColonize:
