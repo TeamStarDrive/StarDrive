@@ -64,10 +64,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep SelectSystem()
         {
             if (FinishedShip == null)
-            {
-                Log.Error($"BuildScout {ToBuildUID} failed: BuiltShip is null!");
                 return GoalStep.GoalFailed;
-            }
 
             if (!empire.GetEmpireAI().ExpansionAI.AssignScoutSystemTarget(FinishedShip, out SolarSystem targetSystem))
                 return GoalStep.GoalFailed;

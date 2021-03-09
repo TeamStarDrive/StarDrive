@@ -1887,8 +1887,8 @@ namespace Ship_Game.Ships
 
         public void UpdatePackDamageModifier()
         {
-            float modifier = -0.25f + 0.05f * AI.FriendliesNearby.Count;
-            PackDamageModifier = modifier.Clamped(-0.25f, 0.5f);
+            float modifier = -0.15f + 0.01f * AI.FriendliesNearby.Count;
+            PackDamageModifier = modifier.Clamped(-0.15f, 0.3f);
         }
 
         // prefers VanityName, otherwise uses Name

@@ -37,11 +37,25 @@ namespace Ship_Game.Commands.Goals
 
         void UpdatePosition()
         {
+            if (Portal.HealthPercent < 0.9f)
+                LureEnemy();
+
             int roll = Portal.AI.Target?.System == Portal.System ? 50 : 5;
             if (Portal.AI.Target != null && Portal.System != null && RandomMath.RollDice(roll))
                 JumpToEnemy();
             else
                 ReturnToSpawnPos();
+        }
+
+        void LureEnemy()
+        {
+            if (!RandomMath.RollDice(25))
+                return;
+
+            if (Portal.System == null)
+                ReturnToSpawnPos();
+            else
+                MoveToPos(Portal.System.Position.GenerateRandomPointOnCircle(10000));
         }
 
         void JumpToEnemy()
