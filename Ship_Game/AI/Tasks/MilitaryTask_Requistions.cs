@@ -436,13 +436,14 @@ namespace Ship_Game.AI.Tasks
             {
                 if (pauseTimer >= 0)
                 {
-                    if (warTask && TargetPlanet != null && !TargetPlanet.Owner.isFaction)
+                    if (warTask && TargetPlanet != null && !TargetPlanet.Owner.isFaction && !TargetPlanet.Owner.isPlayer)
                         return RequisitionStatus.FailedToCreateAFleet;
 
                 }
                 else if (!warTask)
+                {
                     return RequisitionStatus.FailedToCreateAFleet;
-
+                }
             }
 
             if (!RoomForMoreFleets())

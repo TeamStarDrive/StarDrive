@@ -65,7 +65,7 @@
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.25f;
                     CreditsMultiplier    = 0.1f;
-                    EnemyTroopStrength   = 1f;
+                    EnemyTroopStrength   = 1.2f;
                     MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
                     ExpansionMultiplier  = 1.25f;
@@ -99,7 +99,7 @@
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
                     CreditsMultiplier    = 0.2f;
-                    EnemyTroopStrength   = 1.15f;
+                    EnemyTroopStrength   = 1.4f;
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 0.75f;
                     ExpansionMultiplier  = 0.75f;
@@ -128,7 +128,7 @@
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
-                    EnemyTroopStrength   = 1.25f;
+                    EnemyTroopStrength   = 1.6f;
                     MineralDecayDivider  = 25;
                     PiratePayModifier    = 1f;
                     ExpansionMultiplier  = 0.25f;
@@ -147,7 +147,7 @@
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus        = 10;
-                        ProductionMod         = 0.5f;
+                        ProductionMod         = 0.3f;
                         ResearchMod           = 0.75f;
                         TaxMod                = 0.5f;
                         ShipCostMod           = -0.2f;
@@ -164,7 +164,7 @@
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
-                    EnemyTroopStrength   = 1.5f;
+                    EnemyTroopStrength   = 1.8f;
                     MineralDecayDivider  = 15;
                     PiratePayModifier    = 1.5f;
                     ExpansionMultiplier  = 0.1f;
@@ -183,7 +183,7 @@
                     if (!empire.isPlayer)
                     {
                         FlatMoneyBonus        = 20;
-                        ProductionMod         = 1f;
+                        ProductionMod         = 0.75f;
                         ResearchMod           = 1.33f;
                         TaxMod                = 1f;
                         ShipCostMod           = -0.5f;
