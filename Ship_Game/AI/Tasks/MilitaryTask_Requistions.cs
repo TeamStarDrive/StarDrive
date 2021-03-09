@@ -408,7 +408,7 @@ namespace Ship_Game.AI.Tasks
             if (EnemyStrength.AlmostEqual(100) && TargetShip != null)
                 EnemyStrength += TargetShip.BaseStrength;
 
-            MinimumTaskForceStrength = EnemyStrength + buildingsSpaceOffense.LowerBound(lowerBound);
+            MinimumTaskForceStrength = (EnemyStrength + buildingsSpaceOffense).LowerBound(lowerBound);
             float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
             MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.CurrentMilitaryStrength / 2);
         }
