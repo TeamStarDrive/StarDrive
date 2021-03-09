@@ -37,6 +37,7 @@ namespace Ship_Game
 
             Owner.data.FuelCellModifier      = 1.4f;
             Owner.data.FTLPowerDrainModifier = 0.8f;
+            owner.data.FTLModifier           = 50;
 
             if (!fromSave)
                 Story = InitAndPickStory(goals);
