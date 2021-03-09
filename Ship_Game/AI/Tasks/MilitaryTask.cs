@@ -236,7 +236,7 @@ namespace Ship_Game.AI.Tasks
         {
             float radius     = 5000f;
             float strWanted  = GetKnownEnemyStrInClosestSystems(target.ParentSystem, owner, target.Owner)
-                               + target.BuildingGeodeticCount;
+                               + target.BuildingGeodeticOffense;
 
             type                     = TaskType.AssaultPlanet;
             TargetPlanet             = target;
@@ -244,8 +244,9 @@ namespace Ship_Game.AI.Tasks
             AO                       = target.Center;
             AORadius                 = radius;
             Owner                    = owner;
-            MinimumTaskForceStrength = strWanted.LowerBound(1000) * owner.GetFleetStrEmpireMultiplier(target.Owner);
             TargetEmpire             = target.Owner;
+            MinimumTaskForceStrength = strWanted.LowerBound(owner.KnownEmpireOffensiveStrength(target.Owner) / 10) 
+                                       * owner.GetFleetStrEmpireMultiplier(target.Owner);
         }
 
         float GetKnownEnemyStrInClosestSystems(SolarSystem system, Empire owner, Empire enemy)
