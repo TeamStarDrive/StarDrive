@@ -481,6 +481,8 @@ namespace Ship_Game
              => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
 
         public float KnownEmpireStrength(Empire empire) => EmpireAI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null);
+        public float KnownEmpireOffensiveStrength(Empire empire) 
+            => EmpireAI.ThreatMatrix.KnownEmpireStrength(empire, p => p != null && p.Ship?.IsPlatformOrStation == false);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
