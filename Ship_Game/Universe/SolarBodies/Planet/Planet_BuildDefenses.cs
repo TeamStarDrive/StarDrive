@@ -449,15 +449,15 @@ namespace Ship_Game
             {
                 case 1:  WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
                 case 2:  WantedPlatforms = 0; WantedStations = 0; WantedShipyards = 0; break;
-                case 3:  WantedPlatforms = 1; WantedStations = 0; WantedShipyards = 0; break;
-                case 4:  WantedPlatforms = 2; WantedStations = 0; WantedShipyards = 0; break;
-                case 5:  WantedPlatforms = 3; WantedStations = 1; WantedShipyards = 0; break;
-                case 6:  WantedPlatforms = 4; WantedStations = 1; WantedShipyards = 1; break;
-                case 7:  WantedPlatforms = 5; WantedStations = 1; WantedShipyards = 1; break;
-                case 8:  WantedPlatforms = 6; WantedStations = 2; WantedShipyards = 1; break;
-                case 9:  WantedPlatforms = 7; WantedStations = 2; WantedShipyards = 1; break;
-                case 10: WantedPlatforms = 8; WantedStations = 3; WantedShipyards = 2; break;
-                case 11: WantedPlatforms = 9; WantedStations = 3; WantedShipyards = 2; break;
+                case 3:  WantedPlatforms = 3; WantedStations = 0; WantedShipyards = 0; break;
+                case 4:  WantedPlatforms = 3; WantedStations = 1; WantedShipyards = 0; break;
+                case 5:  WantedPlatforms = 4; WantedStations = 1; WantedShipyards = 0; break;
+                case 6:  WantedPlatforms = 4; WantedStations = 2; WantedShipyards = 1; break;
+                case 7:  WantedPlatforms = 5; WantedStations = 2; WantedShipyards = 1; break;
+                case 8:  WantedPlatforms = 5; WantedStations = 2; WantedShipyards = 1; break;
+                case 9:  WantedPlatforms = 6; WantedStations = 3; WantedShipyards = 1; break;
+                case 10: WantedPlatforms = 7; WantedStations = 3; WantedShipyards = 2; break;
+                case 11: WantedPlatforms = 8; WantedStations = 3; WantedShipyards = 2; break;
                 case 12: WantedPlatforms = 9; WantedStations = 4; WantedShipyards = 2; break;
                 case 13: WantedPlatforms = 9; WantedStations = 4; WantedShipyards = 2; break;
                 case 14: WantedPlatforms = 9; WantedStations = 5; WantedShipyards = 2; break;
