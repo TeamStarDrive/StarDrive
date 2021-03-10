@@ -408,7 +408,7 @@ namespace Ship_Game.AI.Tasks
             if (EnemyStrength.AlmostEqual(100) && TargetShip != null)
                 EnemyStrength += TargetShip.BaseStrength;
 
-            MinimumTaskForceStrength = EnemyStrength + buildingsSpaceOffense.LowerBound(lowerBound);
+            MinimumTaskForceStrength = (EnemyStrength + buildingsSpaceOffense).LowerBound(lowerBound);
             float multiplier         = Owner.GetFleetStrEmpireMultiplier(TargetEmpire);
             MinimumTaskForceStrength = (MinimumTaskForceStrength * multiplier).UpperBound(Owner.CurrentMilitaryStrength / 2);
         }
@@ -436,13 +436,18 @@ namespace Ship_Game.AI.Tasks
             {
                 if (pauseTimer >= 0)
                 {
-                    if (warTask && TargetPlanet != null && !TargetPlanet.Owner.isFaction)
+                    if (warTask 
+                        && TargetPlanet != null
+                        && !TargetPlanet.Owner.isFaction
+                        && (!TargetPlanet.Owner.isPlayer || TargetPlanet.Owner.isPlayer && RandomMath.RollDice(50)))
+                    {
                         return RequisitionStatus.FailedToCreateAFleet;
-
+                    }
                 }
                 else if (!warTask)
+                {
                     return RequisitionStatus.FailedToCreateAFleet;
-
+                }
             }
 
             if (!RoomForMoreFleets())
