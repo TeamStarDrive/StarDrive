@@ -23,9 +23,9 @@ namespace Ship_Game
 
             if      (random == 1) HyperSpaceFlux();
             else if (random <= 3) ShiftInOrbit();
-            else if (random <= 5) MeteorStrike();
+            else if (random <= 5) FoundMinerals();
             else if (random <= 7) VolcanicToHabitable();
-            else if (random <= 9) FoundMinerals();
+            else if (random <= 10) FoundMinerals();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
@@ -69,8 +69,23 @@ namespace Ship_Game
 
         static void NotifyPlayerIfAffected(Planet planet, int token, string postText = "")
         {
-            if (!planet.IsExploredBy(EmpireManager.Player)) 
-                return;
+            if (planet.Owner == null)
+            {
+                if (!planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player)
+                    && !EmpireManager.Player.GetShips().Any(s => planet.Center.InRadius(s.Center, s.SensorRange)))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (!planet.Owner.isPlayer 
+                    && !planet.Owner.IsAlliedWith(EmpireManager.Player)
+                    && !planet.Owner.IsTradeOrOpenBorders(EmpireManager.Player))
+                {
+                    return;
+                }
+            }
 
             string fullText = $"{planet.Name} {Localizer.Token(token)} {postText}";
             Empire.Universe.NotificationManager.AddRandomEventNotification(
@@ -110,6 +125,14 @@ namespace Ship_Game
             planet.AddMaxBaseFertility(RandomMath.RollDie(5) / 10f); // 0.1 to 0.5 max base fertility
             NotifyPlayerIfAffected(planet, 4011);
             Log.Info($"Event Notification: Orbit Shift at {planet}");
+        }
+
+        static void Meteors()
+        {
+            if (Empire.Universe.StarDate < 1050 || !GetAffectedPlanet(Potentials.Habitable, out Planet planet))
+                return;
+
+
         }
 
         static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman
