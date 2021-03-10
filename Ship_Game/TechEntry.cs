@@ -416,9 +416,6 @@ namespace Ship_Game
 
         public void UnlockByConquest(Empire us, Empire conqueredEmpire, TechEntry conqueredTech)
         {
-            ConqueredSource.AddUnique(conqueredEmpire.data.Traits.ShipType);
-            WasAcquiredFrom.AddUnique(conqueredEmpire.data.Traits.ShipType);
-
             if (!Discovered && conqueredTech.Discovered)
             {
                 SetDiscovered(us);
@@ -427,6 +424,8 @@ namespace Ship_Game
             if (!Unlocked && conqueredTech.Unlocked)
             {
                 Unlock(us);
+                ConqueredSource.AddUnique(conqueredEmpire.data.Traits.ShipType);
+                WasAcquiredFrom.AddUnique(conqueredEmpire.data.Traits.ShipType);
             }
         }
 
