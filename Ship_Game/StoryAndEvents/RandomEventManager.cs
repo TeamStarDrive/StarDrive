@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -25,7 +26,7 @@ namespace Ship_Game
             else if (random <= 3) ShiftInOrbit();
             else if (random <= 5) FoundMinerals();
             else if (random <= 7) VolcanicToHabitable();
-            else if (random <= 10) FoundMinerals();
+            else if (random <= 10) Meteors();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
@@ -132,7 +133,35 @@ namespace Ship_Game
             if (Empire.Universe.StarDate < 1050 || !GetAffectedPlanet(Potentials.Habitable, out Planet planet))
                 return;
 
+            int rand       = RandomMath.RollDie(10);
+            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10);
+            CreateMeteors(planet, numMeteors);
+        }
 
+        static void CreateMeteors(Planet p, int numMeteors)
+        {
+            Vector2 origin = GetMeteorOrigin(p);
+            for (int i = 0; i < numMeteors; i++)
+            {
+                // create a random meteor
+                // assign it a meteor ship goal
+                // meteor can crash if inside planet's gravity well
+                // create a crater with good/bad effects
+            }
+        }
+
+        static Vector2 GetMeteorOrigin(Planet p)
+        {
+            SolarSystem system = p.ParentSystem;
+            var asteroidsRings = system.RingList.Filter(r => r.Asteroids);
+            float originRadius;
+
+            if (asteroidsRings.Length > 0 && RandomMath.RollDice(50))
+                originRadius = asteroidsRings.RandItem().OrbitalDistance;
+            else
+                originRadius = system.Radius - 5000;
+
+            return system.Position.GenerateRandomPointOnCircle(originRadius);
         }
 
         static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman
