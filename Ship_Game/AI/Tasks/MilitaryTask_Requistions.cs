@@ -436,9 +436,13 @@ namespace Ship_Game.AI.Tasks
             {
                 if (pauseTimer >= 0)
                 {
-                    if (warTask && TargetPlanet != null && !TargetPlanet.Owner.isFaction && !TargetPlanet.Owner.isPlayer)
+                    if (warTask 
+                        && TargetPlanet != null
+                        && !TargetPlanet.Owner.isFaction
+                        && (!TargetPlanet.Owner.isPlayer || TargetPlanet.Owner.isPlayer && RandomMath.RollDice(50)))
+                    {
                         return RequisitionStatus.FailedToCreateAFleet;
-
+                    }
                 }
                 else if (!warTask)
                 {
