@@ -113,80 +113,81 @@ namespace Ship_Game
             if (IsCybernetic)
                 return;
 
-            float foodToFeedAll = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
+            float foodToFeedAll     = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
             float flatFoodToFeedAll = foodToFeedAll - Food.NetFlatBonus;
-            float fertilityBonus = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
+            float fertilityBonus    = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
 
-            float flat = (flatFoodToFeedAll - EstimatedAverageFood).LowerBound(0);
+            float flat   = (flatFoodToFeedAll - EstimatedAverageFood).LowerBound(0);
             float perCol = (foodToFeedAll - EstimatedAverageFood).LowerBound(0) * fertilityBonus;
             if (IsStarving)
             {
                 perCol += 3 * fertilityBonus;
-                flat += (3 - Fertility).LowerBound(0);
+                flat   += (3 - Fertility).LowerBound(0);
             }
 
             perCol += (1 - Storage.FoodRatio) * fertilityBonus;
-            flat += 1 - Storage.FoodRatio;
+            flat   += 1 - Storage.FoodRatio;
 
             if (colonyType == ColonyType.Agricultural)
                 perCol *= fertilityBonus;
 
 
-            flat = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f);
+            flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 2.5f, 1f);
             perCol = ApplyGovernorBonus(perCol, 1.75f, 0.25f, 0.25f, 3f, 0.25f);
-            Priorities[ColonyPriority.FoodFlat] = flat;
+            Priorities[ColonyPriority.FoodFlat]   = flat;
             Priorities[ColonyPriority.FoodPerCol] = perCol;
         }
 
         void CalcProductionPriorities()
         {
             float netProdPerColonist = Prod.NetYieldPerColonist - ProdConsumptionPerColonist;
-            float flatProdToFeedAll = IsCybernetic ? ConsumptionPerColonist * PopulationBillion - Prod.NetFlatBonus : 0;
-            float richnessBonus = MineralRichness > 0 ? 1 / MineralRichness : 0;
+            float flatProdToFeedAll  = IsCybernetic ? ConsumptionPerColonist * PopulationBillion - Prod.NetFlatBonus : 0;
+            float richnessBonus      = MineralRichness > 0 ? 1 / MineralRichness : 0;
 
             float flat = NonCybernetic ? (10 - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0)
                                        : (flatProdToFeedAll - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0);
 
             float richnessMultiplier = NonCybernetic ? 5 : 10;
-            float perRichness = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus / 2).LowerBound(0);
-            float perCol = 10 - netProdPerColonist - flatProdToFeedAll * richnessBonus;
-            perCol = (perCol * MineralRichness).LowerBound(0);
+            float perRichness        = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus / 2).LowerBound(0);
+            float perCol             = 10 - netProdPerColonist - flatProdToFeedAll * richnessBonus;
+            perCol                   = (perCol * MineralRichness).LowerBound(0);
+
             if (IsCybernetic && IsStarving)
             {
-                perCol += 2 * MineralRichness;
-                flat += (2 - MineralRichness).LowerBound(0);
+                perCol      += 2 * MineralRichness;
+                flat        += (2 - MineralRichness).LowerBound(0);
                 perRichness += 1.5f * MineralRichness;
             }
 
-            flat += 1 - Storage.ProdRatio;
+            flat   += 1 - Storage.ProdRatio;
             perCol += (1 - Storage.ProdRatio) * MineralRichness;
             perCol *= PopulationRatio;
 
-            flat = ApplyGovernorBonus(flat, 1f, 2f, 0.5f, 0.5f, 1.5f);
+            flat        = ApplyGovernorBonus(flat, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
-            perCol = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
-            Priorities[ColonyPriority.ProdFlat] = flat;
+            perCol      = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
+            Priorities[ColonyPriority.ProdFlat]        = flat;
             Priorities[ColonyPriority.ProdPerRichness] = perRichness;
-            Priorities[ColonyPriority.ProdPerCol] = perCol;
+            Priorities[ColonyPriority.ProdPerCol]      = perCol;
         }
 
         void CalcInfrastructurePriority()
         {
             float infra = PopulationBillion / 2 - BuildingList.Sum(b => b.Infrastructure);
-            infra = ApplyGovernorBonus(infra, 2f, 2.5f, 0.25f, 0.25f, 1.5f);
+            infra       = ApplyGovernorBonus(infra, 2f, 2.5f, 0.25f, 0.25f, 1.5f);
             Priorities[ColonyPriority.InfraStructure] = infra;
         }
 
         void CalcPopulationPriorities()
         {
             float eatableRatio = IsCybernetic ? Storage.ProdRatio : Storage.FoodRatio;
-            float popGrowth = (10 - PopulationRatio * 10).LowerBound(0);
-            popGrowth *= eatableRatio;
+            float popGrowth    = (10 - PopulationRatio * 10).LowerBound(0);
+            popGrowth   *= eatableRatio;
             float popCap = FreeHabitableTiles > 0 ? (PopulationRatio * 10).Clamped(0, 10) : 0;
-            popGrowth = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
-            popCap = ApplyGovernorBonus(popCap, 1f, 1f, 1f, 1f, 1f);
+            popGrowth    = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
+            popCap       = ApplyGovernorBonus(popCap, 1f, 1f, 1f, 1f, 1f);
             Priorities[ColonyPriority.PopGrowth] = popGrowth;
-            Priorities[ColonyPriority.PopCap] = popCap;
+            Priorities[ColonyPriority.PopCap]    = popCap;
         }
 
         void CalcStoragePriorities()
@@ -200,46 +201,46 @@ namespace Ship_Game
 
         void CalcResearchPriorities()
         {
-            float flat = 10 - Res.NetFlatBonus;
+            float flat   = 10 - Res.NetFlatBonus;
             float perCol = PopulationBillion - Res.NetYieldPerColonist;
             if (Owner.Research.NoTopic) // no research is needed when not researching
             {
-                flat = 0;
+                flat   = 0;
                 perCol = 0;
             }
             else
             {
-                flat = ApplyGovernorBonus(flat, 0.8f, 0.2f, 2f, 0.2f, 0.25f);
+                flat   = ApplyGovernorBonus(flat, 0.8f, 0.2f, 2f, 0.2f, 0.25f);
                 perCol = ApplyGovernorBonus(perCol, 1f, 0.1f, 2f, 0.1f, 0.1f);
             }
 
-            Priorities[ColonyPriority.ResearchFlat] = flat;
+            Priorities[ColonyPriority.ResearchFlat]   = flat;
             Priorities[ColonyPriority.ResearchPerCol] = perCol;
         }
 
         void CalcMoneyPriorities()
         {
-            float ratio = 1 - MoneyBuildingRatio;
-            float tax = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
+            float ratio   = 1 - MoneyBuildingRatio;
+            float tax     = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
             float credits = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
 
-            tax = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
+            tax     = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
             credits = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
-            Priorities[ColonyPriority.TaxPercent] = tax;
+            Priorities[ColonyPriority.TaxPercent]    = tax;
             Priorities[ColonyPriority.CreditsPerCol] = credits;
         }
 
         void CalcFertilityPriorities()
         {
             float fertility = NonCybernetic ? 5 - MaxFertility : 0;
-            fertility = ApplyGovernorBonus(fertility, 1.5f, 0.5f, 1f, 5f, 1f);
+            fertility       = ApplyGovernorBonus(fertility, 1.5f, 0.5f, 1f, 5f, 1f);
             Priorities[ColonyPriority.Fertility] = fertility;
         }
 
         void CalcSpacePortPriorities()
         {
             float spacePort = PopulationBillion - 2;
-            spacePort = ApplyGovernorBonus(spacePort, 1.5f, 1f, 1f, 1f, 2f);
+            spacePort       = ApplyGovernorBonus(spacePort, 1.5f, 1f, 1f, 1f, 2f);
             Priorities[ColonyPriority.SpacePort] = spacePort;
         }
 
@@ -248,12 +249,12 @@ namespace Ship_Game
             float multiplier;
             switch (colonyType)
             {
-                case ColonyType.Core: multiplier = core; break;
-                case ColonyType.Industrial: multiplier = industrial; break;
-                case ColonyType.Research: multiplier = research; break;
+                case ColonyType.Core:         multiplier = core;         break;
+                case ColonyType.Industrial:   multiplier = industrial;   break;
+                case ColonyType.Research:     multiplier = research;     break;
                 case ColonyType.Agricultural: multiplier = agricultural; break;
-                case ColonyType.Military: multiplier = military; break;
-                default: multiplier = 1; break;
+                case ColonyType.Military:     multiplier = military;     break;
+                default:                      multiplier = 1;            break;
             }
             value = value.UpperBound(10);
             value = (value * multiplier).Clamped(0, 20);
@@ -322,7 +323,7 @@ namespace Ship_Game
 
 
             float highestScore = 1f; // So a building with a low value of 1 or less will not be built.
-            float totalProd = Storage.Prod + IncomingProd + Prod.NetIncome.LowerBound(0);
+            float totalProd    = Storage.Prod + IncomingProd + Prod.NetIncome.LowerBound(0);
 
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -333,7 +334,7 @@ namespace Ship_Game
                 float buildingScore = EvaluateBuilding(b, totalProd);
                 if (buildingScore > highestScore)
                 {
-                    best = b;
+                    best         = b;
                     highestScore = buildingScore;
                 }
             }
@@ -354,7 +355,7 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Red, $"==== Planet  {Name}  CHOOSE WORST BUILDING ====");
 
-            float lowestScore = float.MaxValue;
+            float lowestScore  = float.MaxValue;
             float storageInUse = Storage.MostGoodsInStorage;
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -466,21 +467,21 @@ namespace Ship_Game
         {
             float score = 0;
 
-            score += EvalTraits(Priorities[ColonyPriority.FoodFlat], b.PlusFlatFoodAmount);
-            score += EvalTraits(Priorities[ColonyPriority.FoodPerCol], b.PlusFoodPerColonist);
-            score += EvalTraits(Priorities[ColonyPriority.ProdFlat], b.PlusFlatProductionAmount);
-            score += EvalTraits(Priorities[ColonyPriority.ProdPerCol], b.PlusProdPerColonist);
+            score += EvalTraits(Priorities[ColonyPriority.FoodFlat],        b.PlusFlatFoodAmount);
+            score += EvalTraits(Priorities[ColonyPriority.FoodPerCol],      b.PlusFoodPerColonist);
+            score += EvalTraits(Priorities[ColonyPriority.ProdFlat],        b.PlusFlatProductionAmount);
+            score += EvalTraits(Priorities[ColonyPriority.ProdPerCol],      b.PlusProdPerColonist);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
-            score += EvalTraits(Priorities[ColonyPriority.PopGrowth], b.PlusFlatPopulation / 10);
-            score += EvalTraits(Priorities[ColonyPriority.PopCap], b.MaxPopIncrease / 200);
-            score += EvalTraits(Priorities[ColonyPriority.StorageNeeds], b.StorageAdded / 50f);
-            score += EvalTraits(Priorities[ColonyPriority.ResearchFlat], b.PlusFlatResearchAmount * 3);
-            score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol], b.PlusResearchPerColonist * 10);
-            score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol], b.CreditsPerColonist * 3);
-            score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage * 20);
-            score += EvalTraits(Priorities[ColonyPriority.Fertility], b.MaxFertilityOnBuildFor(Owner, Category) * 2);
-            score += EvalTraits(Priorities[ColonyPriority.SpacePort], b.IsSpacePort ? 5 : 0);
-            score += EvalTraits(Priorities[ColonyPriority.InfraStructure], b.Infrastructure * 3);
+            score += EvalTraits(Priorities[ColonyPriority.PopGrowth],       b.PlusFlatPopulation / 10);
+            score += EvalTraits(Priorities[ColonyPriority.PopCap],          b.MaxPopIncrease / 200);
+            score += EvalTraits(Priorities[ColonyPriority.StorageNeeds],    b.StorageAdded / 50f);
+            score += EvalTraits(Priorities[ColonyPriority.ResearchFlat],    b.PlusFlatResearchAmount * 3);
+            score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol],  b.PlusResearchPerColonist * 10);
+            score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol],   b.CreditsPerColonist * 3);
+            score += EvalTraits(Priorities[ColonyPriority.TaxPercent],      b.PlusTaxPercentage * 20);
+            score += EvalTraits(Priorities[ColonyPriority.Fertility],       b.MaxFertilityOnBuildFor(Owner, Category) * 2);
+            score += EvalTraits(Priorities[ColonyPriority.SpacePort],       b.IsSpacePort ? 5 : 0);
+            score += EvalTraits(Priorities[ColonyPriority.InfraStructure],  b.Infrastructure * 3);
 
             score *= FertilityMultiplier(b);
             float effectiveness = chooseBest ? CostEffectivenessMultiplier(b.Cost, totalProd) : 1;
@@ -527,10 +528,10 @@ namespace Ship_Game
         // Hard limits on mulfi functional buildings which are useless due to per col needs being 0.
         bool IsLimitedByPerCol(Building b)
         {
-            if (Priorities[ColonyPriority.ProdPerCol].AlmostZero() && b.PlusProdPerColonist.Greater(0)) return true;
-            if (Priorities[ColonyPriority.FoodPerCol].AlmostZero() && b.PlusFoodPerColonist.Greater(0)) return true;
+            if (Priorities[ColonyPriority.ProdPerCol].AlmostZero() && b.PlusProdPerColonist.Greater(0))         return true;
+            if (Priorities[ColonyPriority.FoodPerCol].AlmostZero() && b.PlusFoodPerColonist.Greater(0))         return true;
             if (Priorities[ColonyPriority.ResearchPerCol].AlmostZero() && b.PlusResearchPerColonist.Greater(0)) return true;
-            if (Priorities[ColonyPriority.CreditsPerCol].AlmostZero() && b.CreditsPerColonist.Greater(0)) return true;
+            if (Priorities[ColonyPriority.CreditsPerCol].AlmostZero() && b.CreditsPerColonist.Greater(0))       return true;
 
             return false;
         }
@@ -596,12 +597,17 @@ namespace Ship_Game
 
         void TryScrapBiospheres()
         {
-            var potentialBio = TilesList.Filter(t => t.Biosphere && (t.NoBuildingOnTile || t.Building.IsMilitary));
+            var potentialBio = TilesList.Filter(t => t.Biosphere 
+                                                     && (t.NoBuildingOnTile 
+                                                         || t.Building.IsMilitary && !t.Building.IsPlayerAdded));
             if (potentialBio.Length == 0)
                 return;
 
-            PlanetGridSquare tile = potentialBio.RandItem();
-            DestroyBioSpheres(tile);
+            PlanetGridSquare tile = potentialBio.Sorted(t => t.Building?.ActualCost ?? 0).RandItem();
+            if (!tile.Building?.CanBuildAnywhere == true)
+                ScrapBuilding(tile.Building, tile);
+
+            DestroyBioSpheres(tile, false);
         }
 
         bool TryBuildBiospheres(float budget, out bool shouldScrapBioSpheres)
@@ -621,10 +627,14 @@ namespace Ship_Game
             if (bio == null || bio.ActualMaintenance(this) > budget)
                 return false; // not within budget or not profitable and more than 5
 
-            if  (!BioSphereProfitable(bio) && BuildingList.Filter(b => b.IsBiospheres).Length > 5)
+            if  (!BioSphereProfitable(bio))
             {
-                shouldScrapBioSpheres = true;
-                return false;
+                int numBio = BuildingList.Filter(b => b.IsBiospheres).Length;
+                if (numBio > 5)
+                    shouldScrapBioSpheres = true;
+
+                if (numBio >= 5)
+                    return false;
             }
 
             if (IsPlanetExtraDebugTarget())
