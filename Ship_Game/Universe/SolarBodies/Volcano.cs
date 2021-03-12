@@ -113,7 +113,7 @@ namespace Ship_Game.Universe.SolarBodies
             Erupt(out string eruptionSeverityText);
             message = $"{message}\n{eruptionSeverityText}";
             CreateVolcanoBuilding(Building.EruptingVolcanoId);
-            if (RandomMath.RollDice(5))
+            if (RandomMath.RollDice(5) && P.BasePopPerTile > 300)
             {
                 P.BasePopPerTile *= 0.9f;
                 message = $"{message}\n{new LocalizedText(4262).Text}";
