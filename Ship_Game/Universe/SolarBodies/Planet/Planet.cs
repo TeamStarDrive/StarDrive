@@ -615,6 +615,8 @@ namespace Ship_Game
                 DestroyBuildingOn(tile);
 
             tile.Habitable = false;
+            if (tile.QItem != null && tile.QItem.isBuilding && !tile.QItem.Building.CanBuildAnywhere)
+                Construction.Cancel(tile.QItem);
 
             if (tile.Biosphere)
                 ClearBioSpheresFromList(tile);
