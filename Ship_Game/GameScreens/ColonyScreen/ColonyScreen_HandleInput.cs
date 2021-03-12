@@ -124,7 +124,7 @@ namespace Ship_Game
                     {
                         DetailInfo = pgs;
                         var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
-                            pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                            pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 50, 50);
                         if (pgs.BuildingOnTile && bRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
                         {
                             if (pgs.Building.Scrappable)
@@ -142,9 +142,10 @@ namespace Ship_Game
                             return true;
                         }
 
+                        var bioRect = new Rectangle(pgs.ClickRect.X,pgs.ClickRect.Y, 20, 20);
                         if (pgs.Biosphere 
-                            && (pgs.NoBuildingOnTile || pgs.BuildingOnTile && pgs.Building.CanBuildAnywhere)
-                            && pgs.ClickRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
+                            && (pgs.NoBuildingOnTile || pgs.BuildingOnTile)
+                            && bioRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
                         {
                             BioToScrap     = pgs;
                             string message = new LocalizedText(4278).Text;

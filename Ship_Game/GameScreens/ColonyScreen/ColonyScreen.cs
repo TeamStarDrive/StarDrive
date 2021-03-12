@@ -257,7 +257,7 @@ namespace Ship_Game
         void ScrapBioAccepted()
         {
             if (BioToScrap != null)
-                P.DestroyBioSpheres(BioToScrap);
+                P.DestroyBioSpheres(BioToScrap, !BioToScrap.Building?.CanBuildAnywhere == true);
 
             Update(0f);
             BioToScrap = null;
