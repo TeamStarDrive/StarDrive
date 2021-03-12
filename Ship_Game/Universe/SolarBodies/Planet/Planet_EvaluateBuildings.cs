@@ -61,7 +61,8 @@ namespace Ship_Game
             {
                 TryBuildTerraformers(budget); // Build Terraformers if needed
                 BuildOrReplaceBuilding(budget);
-                TryBuildBiospheres(budget); // Build Biospheres if needed
+                if (!TryBuildBiospheres(budget, out bool shouldScrapBiospheres) && shouldScrapBiospheres)
+                    TryScrapBiospheres(); // Build or scrap Biospheres if needed
             }
         }
 
@@ -100,7 +101,7 @@ namespace Ship_Game
             {
                 int rank = GetColonyRank();
                 Log.Info($"Planet Rank: {rank} ({ColonyValue.String(0)}/{Owner.MaxColonyValue.String(0)})");
-                Log.Info(ConsoleColor.Green,$"**** {Name} - Governor Priorities        ****");
+                Log.Info(ConsoleColor.Green, $"**** {Name} - Governor Priorities        ****");
                 foreach ((ColonyPriority key, float value) in Priorities.Values)
                     Log.Info($"{key,-16} = {value}");
                 Log.Info(ConsoleColor.Green, "---------------------------------------------");
@@ -112,9 +113,9 @@ namespace Ship_Game
             if (IsCybernetic)
                 return;
 
-            float foodToFeedAll      = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
-            float flatFoodToFeedAll  = foodToFeedAll - Food.NetFlatBonus;
-            float fertilityBonus     = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
+            float foodToFeedAll     = FoodConsumptionPerColonist * PopulationBillion * 1.5f;
+            float flatFoodToFeedAll = foodToFeedAll - Food.NetFlatBonus;
+            float fertilityBonus    = Fertility.InRange(0.1f, 0.99f) ? 1 : Fertility;
 
             float flat   = (flatFoodToFeedAll - EstimatedAverageFood).LowerBound(0);
             float perCol = (foodToFeedAll - EstimatedAverageFood).LowerBound(0) * fertilityBonus;
@@ -143,13 +144,14 @@ namespace Ship_Game
             float flatProdToFeedAll  = IsCybernetic ? ConsumptionPerColonist * PopulationBillion - Prod.NetFlatBonus : 0;
             float richnessBonus      = MineralRichness > 0 ? 1 / MineralRichness : 0;
 
-            float flat = NonCybernetic ? (10 - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0) 
+            float flat = NonCybernetic ? (10 - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0)
                                        : (flatProdToFeedAll - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0);
 
             float richnessMultiplier = NonCybernetic ? 5 : 10;
-            float perRichness        = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus/2).LowerBound(0);
-            float perCol             = 10 - netProdPerColonist - flatProdToFeedAll*richnessBonus;
+            float perRichness        = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus / 2).LowerBound(0);
+            float perCol             = 10 - netProdPerColonist - flatProdToFeedAll * richnessBonus;
             perCol                   = (perCol * MineralRichness).LowerBound(0);
+
             if (IsCybernetic && IsStarving)
             {
                 perCol      += 2 * MineralRichness;
@@ -172,18 +174,18 @@ namespace Ship_Game
         void CalcInfrastructurePriority()
         {
             float infra = PopulationBillion / 2 - BuildingList.Sum(b => b.Infrastructure);
-            infra = ApplyGovernorBonus(infra, 2f, 2.5f, 0.25f, 0.25f, 1.5f);
+            infra       = ApplyGovernorBonus(infra, 2f, 2.5f, 0.25f, 0.25f, 1.5f);
             Priorities[ColonyPriority.InfraStructure] = infra;
         }
 
         void CalcPopulationPriorities()
         {
             float eatableRatio = IsCybernetic ? Storage.ProdRatio : Storage.FoodRatio;
-            float popGrowth = (10 - PopulationRatio*10).LowerBound(0);
-            popGrowth      *= eatableRatio;
-            float popCap    = FreeHabitableTiles > 0 ? (PopulationRatio*10).Clamped(0, 10) : 0;
-            popGrowth       = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
-            popCap          = ApplyGovernorBonus(popCap, 1f, 1f, 1f, 1f, 1f);
+            float popGrowth    = (10 - PopulationRatio * 10).LowerBound(0);
+            popGrowth   *= eatableRatio;
+            float popCap = FreeHabitableTiles > 0 ? (PopulationRatio * 10).Clamped(0, 10) : 0;
+            popGrowth    = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
+            popCap       = ApplyGovernorBonus(popCap, 1f, 1f, 1f, 1f, 1f);
             Priorities[ColonyPriority.PopGrowth] = popGrowth;
             Priorities[ColonyPriority.PopCap]    = popCap;
         }
@@ -193,7 +195,7 @@ namespace Ship_Game
             float storage = NonCybernetic ? (Storage.FoodRatio + Storage.ProdRatio) * 2.5f
                                           : Storage.ProdRatio * 5f;
             storage += (Level / 2f).LowerBound(0.5f);
-            storage  = ApplyGovernorBonus(storage, 1f, 1f, 0.5f, 1.25f, 1f);
+            storage = ApplyGovernorBonus(storage, 1f, 1f, 0.5f, 1.25f, 1f);
             Priorities[ColonyPriority.StorageNeeds] = storage;
         }
 
@@ -206,7 +208,7 @@ namespace Ship_Game
                 flat   = 0;
                 perCol = 0;
             }
-            else 
+            else
             {
                 flat   = ApplyGovernorBonus(flat, 0.8f, 0.2f, 2f, 0.2f, 0.25f);
                 perCol = ApplyGovernorBonus(perCol, 1f, 0.1f, 2f, 0.1f, 0.1f);
@@ -222,8 +224,8 @@ namespace Ship_Game
             float tax     = PopulationBillion * Owner.data.TaxRate * 4 * PopulationRatio * ratio;
             float credits = PopulationBillion.LowerBound(2) * PopulationRatio * ratio;
 
-            tax           = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
-            credits       = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
+            tax     = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
+            credits = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
             Priorities[ColonyPriority.TaxPercent]    = tax;
             Priorities[ColonyPriority.CreditsPerCol] = credits;
         }
@@ -322,7 +324,7 @@ namespace Ship_Game
 
             float highestScore = 1f; // So a building with a low value of 1 or less will not be built.
             float totalProd    = Storage.Prod + IncomingProd + Prod.NetIncome.LowerBound(0);
-            
+
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
@@ -353,7 +355,7 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Red, $"==== Planet  {Name}  CHOOSE WORST BUILDING ====");
 
-            float lowestScore  = float.MaxValue; 
+            float lowestScore  = float.MaxValue;
             float storageInUse = Storage.MostGoodsInStorage;
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -392,7 +394,7 @@ namespace Ship_Game
 
             float maintenance = b.ActualMaintenance(this);
             if (maintenance < budget || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
-                return true; 
+                return true;
 
             return false; // Too expensive for us and its not getting profitable juice from the population
         }
@@ -507,7 +509,7 @@ namespace Ship_Game
 
             // Fertility increasing buildings score should be very high in order to be worth building by cybernetics
             if (IsCybernetic)
-                return b.MaxFertilityOnBuild > 0 ? 0.25f : 1; 
+                return b.MaxFertilityOnBuild > 0 ? 0.25f : 1;
 
             if (b.MaxFertilityOnBuild < 0 && colonyType == ColonyType.Agricultural)
                 return 0; // Never build fertility reducers on Agricultural colonies
@@ -541,7 +543,7 @@ namespace Ship_Game
 
             // This will allow the colony to slowly build more expensive buildings as it grows
             float multiplier = expectedProd / cost.LowerBound(1);
-            return multiplier.Clamped(0,1); 
+            return multiplier.Clamped(0, 1);
         }
 
         void TryBuildTerraformers(float budget)
@@ -565,14 +567,15 @@ namespace Ship_Game
                 PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
                 Construction.Enqueue(terraformer, tile);
             }
-            else if (!Construction.Enqueue(terraformer)) 
+            else if (!Construction.Enqueue(terraformer))
             {
                 // If could not add a terraformer anywhere due to planet being full
                 // try to scrap a building and then retry construction
                 if (TryScrapBuilding(scrapZeroMaintenance: true))
                     Construction.Enqueue(terraformer);
-            }}
-        
+            }
+        }
+
         bool AreTerraformersNeeded
         {
             get
@@ -581,8 +584,8 @@ namespace Ship_Game
                     return false;
 
                 if (TilesList.Any(t => t.CanTerraform)
-                    || TilesList.Any(t => t.BioCanTerraform)
-                    || Category != Owner.data.PreferredEnv 
+                    || TilesList.Any(t => t.BioCanTerraform || t.VolcanoHere)
+                    || Category != Owner.data.PreferredEnv
                     || NonCybernetic && BaseMaxFertility.Less(1 / Empire.RacialEnvModifer(Category, Owner)))
                 {
                     return true;
@@ -592,8 +595,25 @@ namespace Ship_Game
             }
         }
 
-        bool TryBuildBiospheres(float budget)
+        void TryScrapBiospheres()
         {
+            var potentialBio = TilesList.Filter(t => t.Biosphere 
+                                                     && (t.NoBuildingOnTile 
+                                                         || t.Building.IsMilitary && !t.Building.IsPlayerAdded));
+            if (potentialBio.Length == 0)
+                return;
+
+            PlanetGridSquare tile = potentialBio.Sorted(t => t.Building?.ActualCost ?? 0).RandItem();
+            if (!tile.Building?.CanBuildAnywhere == true)
+                ScrapBuilding(tile.Building, tile);
+
+            DestroyBioSpheres(tile, false);
+        }
+
+        bool TryBuildBiospheres(float budget, out bool shouldScrapBioSpheres)
+        {
+            shouldScrapBioSpheres = false;
+
             if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
                 || PopulationRatio < 0.9f && HabitableBuiltCoverage.Less(1)
                 || BiosphereInTheWorks
@@ -605,7 +625,17 @@ namespace Ship_Game
 
             Building bio = ResourceManager.GetBuildingTemplate(Building.BiospheresId);
             if (bio == null || bio.ActualMaintenance(this) > budget)
-                return false; // not within budget
+                return false; // not within budget or not profitable and more than 5
+
+            if  (!BioSphereProfitable(bio))
+            {
+                int numBio = BuildingList.Filter(b => b.IsBiospheres).Length;
+                if (numBio > 5)
+                    shouldScrapBioSpheres = true;
+
+                if (numBio >= 5)
+                    return false;
+            }
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
@@ -616,6 +646,11 @@ namespace Ship_Game
                 : null;
 
             return Construction.Enqueue(bio, preferred); // Preferred is null safe in this call
+        }
+
+        bool BioSphereProfitable(Building bio)
+        {
+            return Money.NetRevenueGain(bio).GreaterOrEqual(0);
         }
 
         bool OutpostBuiltOrInQueue()

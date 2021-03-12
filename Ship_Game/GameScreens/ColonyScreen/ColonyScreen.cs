@@ -43,6 +43,7 @@ namespace Ship_Game
 
         object DetailInfo;
         Building ToScrap;
+        PlanetGridSquare BioToScrap;
 
         public bool ClickedTroop;
         int EditHoverState;
@@ -252,5 +253,15 @@ namespace Ship_Game
 
             Update(0f);
         }
+
+        void ScrapBioAccepted()
+        {
+            if (BioToScrap != null)
+                P.DestroyBioSpheres(BioToScrap, !BioToScrap.Building?.CanBuildAnywhere == true);
+
+            Update(0f);
+            BioToScrap = null;
+        }
+
     }
 }
