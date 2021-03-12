@@ -245,8 +245,11 @@ namespace Ship_Game.Universe.SolarBodies
         public float NetRevenueGain(Building b)
         {
             float newPopulation = b.MaxPopIncrease/1000f;
-            float grossIncome   = newPopulation * IncomePerColonist * TaxRate;
-            return grossIncome - b.Maintenance;
+            if (b.IsBiospheres)
+                newPopulation += Planet.BasePopPerBioSphere/1000f;
+
+            float grossIncome = newPopulation * IncomePerColonist * TaxRate;
+            return grossIncome - b.ActualMaintenance(Planet);
         }
 
         public void Update()
