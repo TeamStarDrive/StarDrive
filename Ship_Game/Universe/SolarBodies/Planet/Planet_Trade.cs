@@ -45,7 +45,7 @@ namespace Ship_Game
                     return 0;
 
                 int min      = Storage.FoodRatio > 0.75f ? 1 : 0;
-                int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 15 : 10;
+                int maxSlots = colonyType == ColonyType.Agricultural || colonyType == ColonyType.Colony ? 10 : 7;
                 return ((int)(Food.NetIncome + Storage.Food / 25)).Clamped(min, maxSlots);
             }
         }
@@ -60,7 +60,7 @@ namespace Ship_Game
                 int min      = Storage.ProdRatio > 0.5f ? 1 : 0;
                 int maxSlots = colonyType == ColonyType.Industrial 
                                || colonyType == ColonyType.Colony
-                               || colonyType == ColonyType.Core ? 10 : 5;
+                               || colonyType == ColonyType.Core ? 8 : 5;
 
                 return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, maxSlots);
             }
