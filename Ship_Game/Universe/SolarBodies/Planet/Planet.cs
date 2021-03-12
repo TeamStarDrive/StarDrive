@@ -609,9 +609,9 @@ namespace Ship_Game
         /// </summary>
         public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
 
-        public void DestroyBioSpheres(PlanetGridSquare tile)
+        public void DestroyBioSpheres(PlanetGridSquare tile, bool destroyBuilding = true)
         {
-            if (!tile.VolcanoHere)
+            if (!tile.VolcanoHere && destroyBuilding)
                 DestroyBuildingOn(tile);
 
             tile.Habitable = false;
@@ -627,9 +627,13 @@ namespace Ship_Game
             ResetHasDynamicBuildings();
         }
 
-        public void ScrapBuilding(Building b)
+        public void ScrapBuilding(Building b, PlanetGridSquare tile = null)
         {
-            RemoveBuildingFromPlanet(b);
+            if (tile != null)
+                RemoveBuildingFromPlanet(tile);
+            else
+                RemoveBuildingFromPlanet(b);
+
             ProdHere += b.ActualCost / 2f;
         }
 

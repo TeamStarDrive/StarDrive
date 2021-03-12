@@ -8589,7 +8589,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>4278</Index>
-      <Text>Do you wish to scrap the Biospheres on this tile? Cost is non refundable.</Text>
+      <Text>Do you wish to scrap the Biospheres on this tile? Cost is non refundable. If there is a building which needs a habitable tile, it will be scrapped and refunded as usual.</Text>
     </Token>
     <Token>
       <Index>5000</Index>
