@@ -8588,6 +8588,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Could not place this orbital since orbital limit was reached.\nOrbital's credit cost refunded</Text>
     </Token>
     <Token>
+      <Index>4278</Index>
+      <Text>Do you wish to scrap the Biospheres on this tile? Cost is non refundable.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>

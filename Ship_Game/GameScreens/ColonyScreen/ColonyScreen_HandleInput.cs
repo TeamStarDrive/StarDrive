@@ -125,7 +125,7 @@ namespace Ship_Game
                         DetailInfo = pgs;
                         var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
                             pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                        if (pgs.Building != null && bRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
+                        if (pgs.BuildingOnTile && bRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
                         {
                             if (pgs.Building.Scrappable)
                             {
@@ -138,6 +138,19 @@ namespace Ship_Game
                                 ScreenManager.AddScreenDeferred(messageBox);
                             }
 
+                            ClickedTroop = true;
+                            return true;
+                        }
+
+                        if (pgs.Biosphere 
+                            && (pgs.NoBuildingOnTile || pgs.BuildingOnTile && pgs.Building.CanBuildAnywhere)
+                            && pgs.ClickRect.HitTest(input.CursorPosition) && Input.RightMouseClick)
+                        {
+                            BioToScrap     = pgs;
+                            string message = new LocalizedText(4278).Text;
+                            var messageBox = new MessageBoxScreen(Empire.Universe, message);
+                            messageBox.Accepted = ScrapBioAccepted;
+                            ScreenManager.AddScreenDeferred(messageBox);
                             ClickedTroop = true;
                             return true;
                         }
