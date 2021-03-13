@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -27,6 +28,8 @@ namespace Ship_Game
             else if (random <= 5) FoundMinerals();
             else if (random <= 7) VolcanicToHabitable();
             else if (random <= 10) Meteors();
+
+            //Meteors();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
@@ -130,7 +133,7 @@ namespace Ship_Game
 
         static void Meteors()
         {
-            if (Empire.Universe.StarDate < 1050 || !GetAffectedPlanet(Potentials.Habitable, out Planet planet))
+            if (/*Empire.Universe.StarDate < 1050 ||*/ !GetAffectedPlanet(Potentials.Habitable, out Planet planet))
                 return;
 
             int rand       = RandomMath.RollDie(10);
@@ -140,11 +143,34 @@ namespace Ship_Game
 
         static void CreateMeteors(Planet p, int numMeteors)
         {
-            Vector2 origin = GetMeteorOrigin(p);
+            Vector2 origin    = GetMeteorOrigin(p);
+            Vector2 direction = origin.DirectionToTarget(p.Center);
+            float rotation    = direction.ToDegrees();
+            int speed         = RandomMath.RollDie(1000, 500);
             for (int i = 0; i < numMeteors; i++)
             {
-                // create a random meteor
-                // assign it a meteor ship goal
+                string meteorName;
+                switch (RandomMath.RollDie(7))
+                {
+                    default:
+                    case 1: meteorName = "Meteor A"; break;
+                    case 2: meteorName = "Meteor B"; break;
+                    case 3: meteorName = "Meteor C"; break;
+                    case 4: meteorName = "Meteor D"; break;
+                    case 5: meteorName = "Meteor E"; break;
+                    case 6: meteorName = "Meteor F"; break;
+                    case 7: meteorName = "Meteor G"; break;
+                }
+
+                Vector2 pos = origin.GenerateRandomPointInsideCircle(p.GravityWellRadius);
+                Ship meteor = Ship.CreateShipAtPoint(meteorName, EmpireManager.Unknown, pos);
+                if (meteor == null)
+                {
+                    Log.Warning($"Meteors: Could not create {meteorName} is random event");
+                    continue;
+                }
+
+                meteor.AI.AddMeteorGoal(p, rotation, direction, speed);
                 // meteor can crash if inside planet's gravity well
                 // create a crater with good/bad effects
             }
