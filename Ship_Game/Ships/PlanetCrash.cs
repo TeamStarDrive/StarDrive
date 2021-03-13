@@ -10,17 +10,18 @@ namespace Ship_Game.Ships
         readonly Vector2 CrashPos;
         readonly float Thrust;
         readonly Ship Owner;
-        public float Scale = 1;
+        public float Scale = 2;
 
         public PlanetCrash(Planet p, Ship owner, float thrust, bool isMeteor)
         {
             P        = p;
             Owner    = owner;
             IsMeteor = isMeteor;
-            Thrust   = thrust;
+            Thrust   = thrust.LowerBound(100);
             CrashPos = P.Center.GenerateRandomPointInsideCircle(P.ObjectRadius);
             Distance = Owner.Position.Distance(CrashPos).LowerBound(1);
 
+            Owner.SetDieTimer(2);
             if (Owner.IsPlatformOrStation && Owner.GetTether() != null)
             {
                 Owner.GetTether().RemoveFromOrbitalStations(Owner);
@@ -30,11 +31,11 @@ namespace Ship_Game.Ships
 
         public void Update(FixedSimTime timeStep)
         {
-            Vector2 dir = Owner.Center.DirectionToTarget(P.Center);
+            Vector2 dir = Owner.Position.DirectionToTarget(CrashPos);
             Owner.Position += dir.Normalized() * Thrust * timeStep.FixedTime;
             Scale = Owner.Position.Distance(CrashPos) / Distance;
 
-            if (!Owner.Center.InRadius(P.Center, 100))
+            if (Owner.Position.InRadius(CrashPos, 200))
             {
                 P.TryCrashOn(Owner);
                 Owner.SetReallyDie();
@@ -42,7 +43,7 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            Owner.SetDieTimer(1);
+            Owner.SetDieTimer(2);
         }
 
         public static bool GetPlanetToCrashOn(Ship ship, out Planet planet)

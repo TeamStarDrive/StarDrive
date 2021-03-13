@@ -681,7 +681,15 @@ namespace Ship_Game.AI
 
         void DoMeteor(FixedSimTime timeStep, ShipGoal g)
         {
-            Owner.Position += g.Direction.Normalized() * g.VariableNumber * timeStep.FixedTime;
+            if (Owner.SecondsAlive > 1 &&  Owner.System == null)
+                Owner.Die(null, true);
+
+            Owner.Position += g.Direction.Normalized() * g.SpeedLimit * timeStep.FixedTime;
+            if (Owner.Position.InRadius(g.TargetPlanet.Center, g.TargetPlanet.GravityWellRadius/2))
+            {
+                Owner.PlanetCrash = new PlanetCrash(g.TargetPlanet, Owner, g.SpeedLimit, true);
+                Owner.dying       = true;
+            }
         }
 
         public void OrderTroopToBoardShip(Ship s)

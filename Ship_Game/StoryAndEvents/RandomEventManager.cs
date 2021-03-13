@@ -139,6 +139,9 @@ namespace Ship_Game
             int rand       = RandomMath.RollDie(10);
             int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10);
             CreateMeteors(planet, numMeteors);
+            Log.Info($"{numMeteors} Meteors Created in {planet.ParentSystem.Name} targeting {planet.Name}");
+
+            // todo notify player
         }
 
         static void CreateMeteors(Planet p, int numMeteors)
