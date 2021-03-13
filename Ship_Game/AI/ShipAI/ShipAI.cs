@@ -462,6 +462,7 @@ namespace Ship_Game.AI
                 case Plan.HoldPosition:             HoldPosition();                           break;
                 case Plan.HoldPositionOffensive:    HoldPositionOffensive();                  break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
+                case Plan.Meteor:                   DoMeteor(timeStep, goal);                 break;
             }
 
             return false;
@@ -676,6 +677,11 @@ namespace Ship_Game.AI
                     DoRepairDroneLogic(weapon);
                 }
             }
+        }
+
+        void DoMeteor(FixedSimTime timeStep, ShipGoal g)
+        {
+            Owner.Position += g.Direction.Normalized() * g.VariableNumber * timeStep.FixedTime;
         }
 
         public void OrderTroopToBoardShip(Ship s)

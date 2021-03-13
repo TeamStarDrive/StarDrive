@@ -1,0 +1,35 @@
+﻿<?xml version="1.0"?>
+<ShipModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <DroneModule>false</DroneModule>
+  <FighterModule>false</FighterModule>
+  <CorvetteModule>false</CorvetteModule>
+  <FrigateModule>false</FrigateModule>
+  <DestroyerModule>false</DestroyerModule>
+  <CruiserModule>false</CruiserModule>
+  <CarrierModule>false</CarrierModule>
+  <CapitalModule>false</CapitalModule>
+  <FreighterModule>false</FreighterModule>
+  <PlatformModule>true</PlatformModule>
+  <StationModule>false</StationModule>
+  
+  <Cost>0</Cost>
+  <TechLevel>0</TechLevel>
+  <TechBranch>Defense</TechBranch>
+  <XSIZE>1</XSIZE>
+  <YSIZE>1</YSIZE>
+  <ModuleType>Armor</ModuleType>
+  <Name>MeteorPart</Name>
+  <Restrictions>IO</Restrictions>
+  <UID>MeteorPart</UID>
+  <IconTexturePath>Modules/Cockpit</IconTexturePath>
+  <Mass>10</Mass>
+  <Health>10000</Health>
+  <HealthMax>10000</HealthMax>
+  <energyreq>0</energyreq>
+  <modRadius>4</modRadius>
+  <PowerDraw>0</PowerDraw>
+  <SensorRange>10000</SensorRange>
+  <NameIndex>4279</NameIndex>
+  <DescriptionIndex>4279</DescriptionIndex>
+  <MechanicalBoardingDefense>100</MechanicalBoardingDefense>
+</ShipModule>

@@ -499,7 +499,7 @@ namespace Ship_Game.Ships
             Center3D.Z = tan * (256f - XMLPosition.X);
             Rotation = parentRotation; // assume parent rotation is already normalized
 
-            if (CanVisualizeDamage && Parent.PlanetCrashingOn == null)
+            if (CanVisualizeDamage && Parent.PlanetCrash == null)
                 UpdateDamageVisualization(timeStep);
         }
 
@@ -1133,7 +1133,7 @@ namespace Ship_Game.Ships
 
         public void UpdateWhileDying(FixedSimTime timeStep)
         {
-            if (Parent.PlanetCrashingOn == null || !RandomMath.RollDice(5))
+            if (Parent.PlanetCrash == null || !RandomMath.RollDice(5))
                 return; 
 
             Center3D = Parent.Center.ToVec3(UniverseRandom.RandomBetween(-10f, 10));

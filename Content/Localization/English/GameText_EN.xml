@@ -8592,6 +8592,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Do you wish to scrap the Biospheres on this tile? Cost is non refundable. If there is a building which needs a habitable tile, it will be scrapped and refunded as usual.</Text>
     </Token>
     <Token>
+      <Index>4279</Index>
+      <Text>Meteor Part</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
