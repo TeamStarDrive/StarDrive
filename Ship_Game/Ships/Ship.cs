@@ -146,7 +146,7 @@ namespace Ship_Game.Ships
         private float dietimer;
         public float BaseStrength;
         public bool dying;
-        public Planet PlanetCrashingOn { get; private set; }
+        public PlanetCrash PlanetCrash;
         private bool reallyDie;
         private bool HasExploded;
         public float FTLSpoolTime;
@@ -1502,9 +1502,9 @@ namespace Ship_Game.Ships
                 boost = GlobalStats.ActiveModInfo.GlobalShipExplosionVisualIncreaser;
 
             ExplosionManager.AddExplosion(position, Velocity,
-                PlanetCrashingOn != null ? size * 0.05f : size * boost, 12f, ExplosionType.Ship);
+                PlanetCrash != null ? size * 0.05f : size * boost, 12f, ExplosionType.Ship);
 
-            if (PlanetCrashingOn != null)
+            if (PlanetCrash != null)
                 return;
 
             if (addWarpExplode)
@@ -1568,7 +1568,7 @@ namespace Ship_Game.Ships
                 if (!HasExploded)
                 {
                     HasExploded = true;
-                    if (PlanetCrashingOn != null)
+                    if (PlanetCrash != null)
                         return;
 
                     // Added by RedFox - spawn flaming spacejunk when a ship dies
@@ -1607,8 +1607,10 @@ namespace Ship_Game.Ships
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
-                int tumbleSeconds   = UniverseRandom.IntBetween(4, 8);
-                PlanetCrashingOn = TryCrashOnPlanet(tumbleSeconds);
+                int tumbleSeconds = UniverseRandom.IntBetween(4, 8);
+                if (PlanetCrash.GetPlanetToCrashOn(this, out Planet planet))
+                    PlanetCrash = new PlanetCrash(planet, this, Thrust, IsMeteor);
+
                 if (InFrustum)
                 {
                     dying         = true;
@@ -1623,28 +1625,22 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        Planet TryCrashOnPlanet(int etaSeconds)
+        bool IsMeteor => ModuleSlotList.Any(m => m.UID == "MeteorPart");
+
+        public void SetReallyDie()
         {
-            if (System == null)
-                return null;
+            reallyDie = true;
+        }
 
-            for (int i = 0; i < System.PlanetList.Count; i++)
-            {
-                Planet p = System.PlanetList[i];
-                if (Center.InRadius(p.Center, p.ObjectRadius * p.Scale * 1.2f + CurrentVelocity * (etaSeconds + Level))
-                   || IsPlatformOrStation && Center.InRadius(p.Center, p.GravityWellRadius / 2))
-                {
-                    if (IsPlatformOrStation && TetheredTo != null)
-                    {
-                        TetheredTo.RemoveFromOrbitalStations(this);
-                        TetheredTo = null;
-                    }
+        public void SetDieTimer(float value)
+        {
+            dietimer = value;
+        }
 
-                    return p;
-                }
-            }
-
-            return null;
+        public void RemoveTether()
+        {
+            TetheredTo = null;
+            TetherGuid = Guid.Empty;
         }
 
         public void QueueTotalRemoval()
@@ -1687,10 +1683,10 @@ namespace Ship_Game.Ships
             OurTroops.Clear();
             HostileTroops.Clear();
             RepairBeams.Clear();
+            PlanetCrash = null;
 
             loyalty.RemoveShip(this);
-            TetheredTo = null;
-
+            RemoveTether();
             RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
         }
