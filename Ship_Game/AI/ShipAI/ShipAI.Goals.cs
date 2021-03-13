@@ -215,7 +215,7 @@ namespace Ship_Game.AI
             Owner.Rotation = rotation;
             speed          = RandomMath.IntBetween(speed-100, speed+100);
             ShipGoal goal  = new ShipGoal(Plan.Meteor, p.Center, direction, p,
-                null, 0f, "", speed, AIState.MoveTo, null);
+                null, speed, "", 0f, AIState.MoveTo, null);
 
             EnqueueOrPush(goal, true);
         }
@@ -394,6 +394,7 @@ namespace Ship_Game.AI
                 TargetShip   = data.FindShipOrNull(sg.TargetShipGuid);
 
                 VariableString = sg.VariableString;
+                VariableNumber = sg.VariableNumber;
                 SpeedLimit     = sg.SpeedLimit;
                 Empire loyalty = ship.loyalty;
 

@@ -287,19 +287,22 @@ namespace Ship_Game.Ships
             UpdateVelocityAndPosition(timeStep);
             PlanetCrash?.Update(timeStep);
 
+            if (!IsMeteor)
+            {
+                int num1 = UniverseRandom.IntBetween(0, 60);
+                if (num1 >= 57 && InFrustum)
+                {
+                    Vector3 position = UniverseRandom.Vector3D(0f, Radius);
+                    ExplosionManager.AddExplosion(position, Velocity, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
+                    Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
+                }
+                if (num1 >= 40)
+                {
+                    Vector3 position = UniverseRandom.Vector3D(0f, Radius);
+                    Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero);
+                }
+            }
 
-            int num1 = UniverseRandom.IntBetween(0, 60);
-            if (num1 >= 57 && InFrustum)
-            {
-                Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                ExplosionManager.AddExplosion(position, Velocity, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
-                Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
-            }
-            if (num1 >= 40)
-            {
-                Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero);
-            }
             yRotation += DieRotation.X * timeStep.FixedTime;
             xRotation += DieRotation.Y * timeStep.FixedTime;
             Rotation  += DieRotation.Z * timeStep.FixedTime;
@@ -315,7 +318,7 @@ namespace Ship_Game.Ships
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
 
 
-                if (RandomMath.RollDice(10)) // Spawn some junk when tumbling
+                if (RandomMath.RollDice(10) && !IsMeteor) // Spawn some junk when tumbling
                 {
                     float radSqrt = (float)Math.Sqrt(Radius);
                     float junkScale = (radSqrt * 0.02f).UpperBound(0.2f) * scale;
