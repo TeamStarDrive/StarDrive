@@ -1,4 +1,6 @@
 using System;
+using Microsoft.Xna.Framework;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -23,9 +25,9 @@ namespace Ship_Game
 
             if      (random == 1) HyperSpaceFlux();
             else if (random <= 3) ShiftInOrbit();
-            else if (random <= 5) MeteorStrike();
+            else if (random <= 5) FoundMinerals();
             else if (random <= 7) VolcanicToHabitable();
-            else if (random <= 9) FoundMinerals();
+            else if (random <= 10) Meteors();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
@@ -69,8 +71,23 @@ namespace Ship_Game
 
         static void NotifyPlayerIfAffected(Planet planet, int token, string postText = "")
         {
-            if (!planet.IsExploredBy(EmpireManager.Player)) 
-                return;
+            if (planet.Owner == null)
+            {
+                if (!planet.ParentSystem.HasPlanetsOwnedBy(EmpireManager.Player)
+                    && !EmpireManager.Player.GetShips().Any(s => planet.Center.InRadius(s.Center, s.SensorRange)))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (!planet.Owner.isPlayer 
+                    && !planet.Owner.IsAlliedWith(EmpireManager.Player)
+                    && !planet.Owner.IsTradeOrOpenBorders(EmpireManager.Player))
+                {
+                    return;
+                }
+            }
 
             string fullText = $"{planet.Name} {Localizer.Token(token)} {postText}";
             Empire.Universe.NotificationManager.AddRandomEventNotification(
@@ -112,18 +129,64 @@ namespace Ship_Game
             Log.Info($"Event Notification: Orbit Shift at {planet}");
         }
 
-        static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman
+        static void Meteors()
         {
-            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet, false)) 
+            if (Empire.Universe.StarDate < 1050 || !GetAffectedPlanet(Potentials.Habitable, out Planet planet))
                 return;
 
-            float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.25f).LowerBound(0.05f);
-            int token               = planet.Population > 0 ? 4105 : 4113;
-            planet.Population      *= (1 - sizeOfMeteor);
-            planet.MineralRichness += sizeOfMeteor;
-            planet.AddMaxBaseFertility(-sizeOfMeteor);
-            NotifyPlayerIfAffected(planet, token);
-            Log.Info($"Event Notification: Meteor Strike at {planet}");
+            int rand       = RandomMath.RollDie(10);
+            int numMeteors = RandomMath.IntBetween(rand * 3, rand * 10);
+            CreateMeteors(planet, numMeteors);
+            Log.Info($"{numMeteors} Meteors Created in {planet.ParentSystem.Name} targeting {planet.Name}");
+
+            // todo notify player
+        }
+
+        static void CreateMeteors(Planet p, int numMeteors)
+        {
+            Vector2 origin    = GetMeteorOrigin(p);
+            Vector2 direction = origin.DirectionToTarget(p.Center);
+            float rotation    = direction.ToDegrees();
+            int speed         = RandomMath.RollDie(800, 400);
+            for (int i = 0; i < numMeteors; i++)
+            {
+                string meteorName;
+                switch (RandomMath.RollDie(7))
+                {
+                    default:
+                    case 1: meteorName = "Meteor A"; break;
+                    case 2: meteorName = "Meteor B"; break;
+                    case 3: meteorName = "Meteor C"; break;
+                    case 4: meteorName = "Meteor D"; break;
+                    case 5: meteorName = "Meteor E"; break;
+                    case 6: meteorName = "Meteor F"; break;
+                    case 7: meteorName = "Meteor G"; break;
+                }
+
+                Vector2 pos = origin.GenerateRandomPointInsideCircle(p.GravityWellRadius);
+                Ship meteor = Ship.CreateShipAtPoint(meteorName, EmpireManager.Unknown, pos);
+                if (meteor == null)
+                {
+                    Log.Warning($"Meteors: Could not create {meteorName} is random event");
+                    continue;
+                }
+
+                meteor.AI.AddMeteorGoal(p, rotation, direction, speed);
+            }
+        }
+
+        static Vector2 GetMeteorOrigin(Planet p)
+        {
+            SolarSystem system = p.ParentSystem;
+            var asteroidsRings = system.RingList.Filter(r => r.Asteroids);
+            float originRadius;
+
+            if (asteroidsRings.Length > 0 && RandomMath.RollDice(50))
+                originRadius = asteroidsRings.RandItem().OrbitalDistance;
+            else
+                originRadius = system.Radius * 0.75f;
+
+            return system.Position.GenerateRandomPointOnCircle(originRadius);
         }
 
         static void VolcanicToHabitable()

@@ -274,7 +274,6 @@ namespace Ship_Game.Ships
             }
             if (dietimer <= 0.0f)
             {
-                PlanetCrashingOn?.TryCrashOn(this);
                 reallyDie = true;
                 Die(LastDamagedBy, true);
                 return;
@@ -286,27 +285,24 @@ namespace Ship_Game.Ships
             // for a cool death effect, make the ship accelerate out of control:
             ApplyThrust(100f, Ships.Thrust.Forward);
             UpdateVelocityAndPosition(timeStep);
-            if (PlanetCrashingOn != null)
+            PlanetCrash?.Update(timeStep);
+
+            if (!IsMeteor)
             {
-                if (!Center.InRadius(PlanetCrashingOn.Center, 100))
+                int num1 = UniverseRandom.IntBetween(0, 60);
+                if (num1 >= 57 && InFrustum)
                 {
-                    Vector2 dir = Center.DirectionToTarget(PlanetCrashingOn.Center);
-                    Position += dir.Normalized() * 200 * PlanetCrashingOn.Scale * timeStep.FixedTime;
+                    Vector3 position = UniverseRandom.Vector3D(0f, Radius);
+                    ExplosionManager.AddExplosion(position, Velocity, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
+                    Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
+                }
+                if (num1 >= 40)
+                {
+                    Vector3 position = UniverseRandom.Vector3D(0f, Radius);
+                    Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero);
                 }
             }
 
-            int num1 = UniverseRandom.IntBetween(0, 60);
-            if (num1 >= 57 && InFrustum)
-            {
-                Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                ExplosionManager.AddExplosion(position, Velocity, ShipSO.WorldBoundingSphere.Radius, 2.5f, ExplosionType.Ship);
-                Empire.Universe.flash.AddParticleThreadA(position, Vector3.Zero);
-            }
-            if (num1 >= 40)
-            {
-                Vector3 position = UniverseRandom.Vector3D(0f, Radius);
-                Empire.Universe.sparks.AddParticleThreadA(position, Vector3.Zero);
-            }
             yRotation += DieRotation.X * timeStep.FixedTime;
             xRotation += DieRotation.Y * timeStep.FixedTime;
             Rotation  += DieRotation.Z * timeStep.FixedTime;
@@ -314,7 +310,7 @@ namespace Ship_Game.Ships
 
             if (inSensorRange && Empire.Universe.IsShipViewOrCloser)
             {
-                float scale = PlanetCrashingOn != null ? (dietimer.UpperBound(6) / 6).LowerBound(0.001f) : 1;
+                float scale  = PlanetCrash?.Scale ?? 1;
                 ShipSO.World = Matrix.CreateScale(scale) 
                              * Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
@@ -322,7 +318,7 @@ namespace Ship_Game.Ships
                              * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
 
 
-                if (RandomMath.RollDice(10)) // Spawn some junk when tumbling
+                if (RandomMath.RollDice(10) && !IsMeteor) // Spawn some junk when tumbling
                 {
                     float radSqrt = (float)Math.Sqrt(Radius);
                     float junkScale = (radSqrt * 0.02f).UpperBound(0.2f) * scale;

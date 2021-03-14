@@ -193,7 +193,7 @@ namespace Ship_Game.Ships
             ApplyThrust(speedLimit, direction);
         }
 
-        void ApplyThrust(float speedLimit, Thrust direction)
+        public void ApplyThrust(float speedLimit, Thrust direction)
         {
             SetSpeedLimit(speedLimit);
             ThrustThisFrame = direction;

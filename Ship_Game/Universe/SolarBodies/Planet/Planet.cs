@@ -453,7 +453,7 @@ namespace Ship_Game
             if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(fertilityDamage * 100))
                 AddMaxBaseFertility(-0.01f); // permanent damage to Max Fertility
 
-            if (MaxPopulation.AlmostZero())
+            if (Population.AlmostZero())
                 WipeOutColony(attacker);
         }
 
@@ -496,6 +496,8 @@ namespace Ship_Game
                     tile.Volcano.Evaluate();
                 else if (tile.LavaHere)
                     Volcano.UpdateLava(tile, this);
+                else if (tile.CraterHere)
+                    DynamicCrashSite.UpdateCrater(tile, this);
             }
         }
 
@@ -679,6 +681,8 @@ namespace Ship_Game
 
             if (!destroy)
                 Owner?.RefundCreditsPostRemoval(b);
+
+            ResetHasDynamicBuildings();
         }
 
         public void ClearBioSpheresFromList(PlanetGridSquare tile)
@@ -1095,27 +1099,32 @@ namespace Ship_Game
 
         public void TryCrashOn(Ship ship)
         {
-            if (!Habitable || NumActiveCrashSites >= 5)
+            if (!Habitable || NumActiveCrashSites >= (ship.IsMeteor ? 10 : 5))
                 return;
 
-            float survivalChance = GetSurvivalChance();
-            if (RandomMath.RollDice(survivalChance) && TryGetCrashTile(out PlanetGridSquare crashTile))
+            float survivalChance = TryMeteorHitShield() ? 0 : GetSurvivalChance();
+            if (RandomMath.RollDice(survivalChance) 
+                && TryGetCrashTile(out PlanetGridSquare crashTile)
+                && (ship.IsMeteor || !crashTile.LavaHere))
             {
                 int numTroopsSurvived = GetNumTroopSurvived(out string troopName);
-                crashTile.CrashSite.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile);
+                if (ship.IsMeteor)
+                    CrashMeteor(ship, crashTile);
+                else
+                    crashTile.CrashSite.CrashShip(ship.loyalty, ship.Name, troopName, numTroopsSurvived, this, crashTile);
             }
 
             // Local Functions
             float GetSurvivalChance()
             {
                 float chance = 20 + ship.Level * 2;
-                chance      *= Scale; // Gravity affects how hard is a crash
+                chance      *= 1 / Scale; // Gravity affects how hard is a crash
 
                 if (!ship.CanBeRefitted)
-                    chance *= 0.25f; // Dont recover hangar ships or home defense ships so easily.
+                    chance *= 0.1f; // Dont recover hangar ships or home defense ships so easily.
 
                 if (!Type.EarthLike)
-                    chance *= 2; // No atmosphere, not able to burn during planet fall
+                    chance *= 1.5f; // No atmosphere, not able to burn during planetfall
 
                 chance *= 1 + ship.loyalty.data.Traits.ModHpModifier; // Skilled engineers (or not)
                 chance += ship.SurfaceArea / 100f;
@@ -1125,7 +1134,7 @@ namespace Ship_Game
             bool TryGetCrashTile(out PlanetGridSquare tile)
             {
                 tile = null;
-                float destroyBuildingChance = ship.SurfaceArea / 100f;
+                float destroyBuildingChance = ship.SurfaceArea / (ship.IsMeteor ? 5f : 50f);
                 var potentialTiles = RandomMath.RollDice(destroyBuildingChance)
                                      ? TilesList.Filter(t => t.CanCrashHere) 
                                      : TilesList.Filter(t => t.NoBuildingOnTile);
@@ -1157,6 +1166,77 @@ namespace Ship_Game
 
                 return numTroops;
             }
+
+            bool TryMeteorHitShield()
+            {
+                if (!ship.IsMeteor)
+                    return false; // only meteors can hit shields
+
+                float damage = ship.SurfaceArea * ship.HealthPercent;
+                if (damage > ShieldStrengthCurrent)
+                    return false; // Shield not strong enough
+
+                if (Empire.Universe.IsSystemViewOrCloser
+                    && Empire.Universe.Frustum.Contains(Center, OrbitalRadius * 2))
+                {
+                    Shield.HitShield(this, ship, Center, SO.WorldBoundingSphere.Radius + 100f);
+                }
+
+                ShieldStrengthCurrent = (ShieldStrengthCurrent - damage).LowerBound(0);
+                return true;
+            }
+        }
+
+        void CrashMeteor(Ship meteor, PlanetGridSquare tile)
+        {
+            tile.KillAllTroops(this);
+            if (tile.BuildingOnTile)
+            {
+                DestroyBuildingOn(tile); // todo notify
+                if (Owner == EmpireManager.Player)
+                    Empire.Universe.NotificationManager.AddBuildingDestroyedByMeteor(this, tile.Building);
+            }
+
+            int bid;
+            string message;
+            bool richness;
+            switch (RandomMath.RollDie(20))
+            {
+                case 1:  bid = Building.Crater1Id; message = new LocalizedText(4280).Text; richness = false; break;
+                case 2:  bid = Building.Crater2Id; message = new LocalizedText(4281).Text; richness = false; break;
+                case 3:  bid = Building.Crater3Id; message = new LocalizedText(4282).Text; richness = false; break;
+                case 4:
+                case 5:  bid = Building.Crater4Id; message = new LocalizedText(4283).Text; richness = true;  break; 
+                default: bid = Building.Crater4Id; message = new LocalizedText(4283).Text; richness = false; break;
+            }
+
+            float popKilled = meteor.SurfaceArea * meteor.HealthPercent * (tile.Habitable ? 1 : 0.5f);
+            popKilled = popKilled.UpperBound(Population);
+
+            if (tile.Biosphere)
+            {
+                DestroyBioSpheres(tile, false);
+                message = $"{message}\n{new LocalizedText(4284).Text}";
+            }
+
+            if (popKilled.Greater(0))
+                message = $"{message}\n{popKilled.String(0)} {new LocalizedText(4285).Text}";
+
+            if (richness)
+            {
+                MineralRichness += 0.1f;
+                message = $"{message}\n{new LocalizedText(4286).Text}";
+            }
+
+            Building b = ResourceManager.CreateBuilding(bid);
+            tile.PlaceBuilding(b, this);
+            SetHasDynamicBuildings(true);
+            if (Owner == EmpireManager.Player)
+                Empire.Universe.NotificationManager.AddMeteorRelated(this, message);
+
+            Population = (Population - popKilled).LowerBound(0);
+            if (Owner != null && Population.AlmostZero())
+                WipeOutColony(EmpireManager.Unknown);
         }
 
         private void ApplyResources()
