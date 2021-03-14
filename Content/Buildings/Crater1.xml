@@ -1,0 +1,12 @@
+﻿<Building>
+  <Name>Crater1</Name>
+  <Maintenance>0</Maintenance>
+  <Cost>0</Cost>
+  <Icon>Crater1</Icon>
+  <Scrappable>false</Scrappable>
+  <PlusFlatResearchAmount>1</PlusFlatResearchAmount>
+  <CanBuildAnywhere>true</CanBuildAnywhere>
+  <NameTranslationIndex>4289</NameTranslationIndex>
+  <DescriptionIndex>4290</DescriptionIndex>
+  <ShortDescriptionIndex>4291</ShortDescriptionIndex>
+</Building>
