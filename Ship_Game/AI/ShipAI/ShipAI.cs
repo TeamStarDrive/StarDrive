@@ -462,6 +462,7 @@ namespace Ship_Game.AI
                 case Plan.HoldPosition:             HoldPosition();                           break;
                 case Plan.HoldPositionOffensive:    HoldPositionOffensive();                  break;
                 case Plan.Escort:                   AIStateEscort(timeStep);                  break;
+                case Plan.Meteor:                   DoMeteor(timeStep, goal);                 break;
             }
 
             return false;
@@ -675,6 +676,19 @@ namespace Ship_Game.AI
 
                     DoRepairDroneLogic(weapon);
                 }
+            }
+        }
+
+        void DoMeteor(FixedSimTime timeStep, ShipGoal g)
+        {
+            if (Owner.SecondsAlive > 1 &&  Owner.System == null)
+                Owner.Die(null, true);
+
+            Owner.Position += g.Direction.Normalized() * g.SpeedLimit * timeStep.FixedTime;
+            if (Owner.Position.InRadius(g.TargetPlanet.Center, g.TargetPlanet.GravityWellRadius/2))
+            {
+                Owner.PlanetCrash = new PlanetCrash(g.TargetPlanet, Owner, g.SpeedLimit*0.85f);
+                Owner.dying       = true;
             }
         }
 

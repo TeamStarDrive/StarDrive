@@ -160,7 +160,7 @@ namespace Ship_Game
                             {
                                 hasAnamoly = true;
                             }
-                            if (building.IsCommodity || building.IsVolcano)
+                            if (building.IsCommodity || building.IsVolcano || building.IsCrater)
                             {
                                 hasCommodities = true;
                             }

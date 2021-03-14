@@ -8592,6 +8592,82 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Do you wish to scrap the Biospheres on this tile? Cost is non refundable. If there is a building which needs a habitable tile, it will be scrapped and refunded as usual.</Text>
     </Token>
     <Token>
+      <Index>4279</Index>
+      <Text>Meteor Part</Text>
+    </Token>
+    <Token>
+      <Index>4280</Index>
+      <Text>A Meteor has crashed on the surface!\nMysterious substance was found around the crash site.</Text>
+    </Token>
+    <Token>
+      <Index>4281</Index>
+      <Text>A Meteor has crashed on the surface!\nPrecious metals were found around the crash site.</Text>
+    </Token>
+    <Token>
+      <Index>4282</Index>
+      <Text>A Meteor has crashed on the surface!\nIt was mineral rich.</Text>
+    </Token>
+    <Token>
+      <Index>4283</Index>
+      <Text>A Meteor has crashed on the surface!</Text>
+    </Token>
+    <Token>
+      <Index>4284</Index>
+      <Text>Biospheres in the Crash site were destroyed.</Text>
+    </Token>
+    <Token>
+      <Index>4285</Index>
+      <Text>Million civilians were killed.</Text>
+    </Token>
+    <Token>
+      <Index>4286</Index>
+      <Text>Mineral Richness was increased by 0.1.</Text>
+    </Token>
+    <Token>
+      <Index>4287</Index>
+      <Text>was destroyed by A Meteor Crash.</Text>
+    </Token>
+    <Token>
+      <Index>4288</Index>
+      <Text>A Meteor crater was flattened out.</Text>
+    </Token>
+    <Token>
+      <Index>4289</Index>
+      <Text>Meteor Crater</Text>
+    </Token>
+    <Token>
+      <Index>4290</Index>
+      <Text>This Meteor Crater contains fascinating and rare materials which may help us with research efforts. Unfortunately, this effect is temporary.</Text>
+    </Token>
+    <Token>
+      <Index>4291</Index>
+      <Text>+1 Flat Research per turn</Text>
+    </Token>
+    <Token>
+      <Index>4292</Index>
+      <Text>This Meteor Crater contains precious metals which can be traded for credits. Unfortunately, this effect is temporary.</Text>
+    </Token>
+    <Token>
+      <Index>4293</Index>
+      <Text>+1 Credits per Colonist</Text>
+    </Token>
+    <Token>
+      <Index>4294</Index>
+      <Text>This Meteor Crater contains large quantities of Minerals, which can help with production. Unfortunately, this effect is temporary.</Text>
+    </Token>
+    <Token>
+      <Index>4295</Index>
+      <Text>+1 Credits per Colonist</Text>
+    </Token>
+    <Token>
+      <Index>4296</Index>
+      <Text>This Meteor Crater is slightly damaging the planet's environment. Fortunately, this effect is temporary.</Text>
+    </Token>
+    <Token>
+      <Index>4297</Index>
+      <Text> (-0.1) Fertility</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>

@@ -210,6 +210,16 @@ namespace Ship_Game.AI
             }
         }
 
+        public void AddMeteorGoal(Planet p, float rotation, Vector2 direction, int speed)
+        {
+            Owner.Rotation = rotation;
+            speed          = RandomMath.IntBetween(speed-100, speed+100);
+            ShipGoal goal  = new ShipGoal(Plan.Meteor, p.Center, direction, p,
+                null, speed, "", 0f, AIState.MoveTo, null);
+
+            EnqueueOrPush(goal, true);
+        }
+
         void AddPriorityBombPlanetGoal(Planet p) => AddPlanetGoal(Plan.Bombard, p
                                                   , AIState.Bombard, true, true);
 
@@ -384,6 +394,7 @@ namespace Ship_Game.AI
                 TargetShip   = data.FindShipOrNull(sg.TargetShipGuid);
 
                 VariableString = sg.VariableString;
+                VariableNumber = sg.VariableNumber;
                 SpeedLimit     = sg.SpeedLimit;
                 Empire loyalty = ship.loyalty;
 
@@ -514,7 +525,8 @@ namespace Ship_Game.AI
             DeployOrbital,
             HoldPositionOffensive,
             Escort,
-            RearmShipFromPlanet
+            RearmShipFromPlanet,
+            Meteor
         }
     }
 }

@@ -11,8 +11,8 @@ namespace Ship_Game.AI
             if (DefensiveCoordinator.TroopsToTroopsWantedRatio > 0.95f)
                 return;
 
-            var troopGoal = SearchForGoals(GoalType.BuildTroop);
-            if (troopGoal.Count > 2)
+            VerifyTroopGoals(out int troopGoals);
+            if (troopGoals > 2)
                 return;
 
             Troop[] troops = ResourceManager.GetTroopTemplatesFor(OwnerEmpire);
