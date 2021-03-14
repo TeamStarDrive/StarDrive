@@ -1603,7 +1603,7 @@ namespace Ship_Game.Ships
             if (proj != null && proj.Explodes && proj.DamageAmount > (SurfaceArea/2f).LowerBound(200))
                 return true;
 
-            if (RandomMath.RollDice(100))
+            if (RandomMath.RollDice(35))
             {
                 // 35% the ship will not explode immediately, but will start tumbling out of control
                 // we mark the ship as dying and the main update loop will set reallyDie
@@ -1611,7 +1611,7 @@ namespace Ship_Game.Ships
                 if (PlanetCrash.GetPlanetToCrashOn(this, out Planet planet))
                 {
                     dying       = true;
-                    PlanetCrash = new PlanetCrash(planet, this, Thrust, IsMeteor);
+                    PlanetCrash = new PlanetCrash(planet, this, Thrust);
                 }
 
                 if (InFrustum)
@@ -1628,7 +1628,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        bool IsMeteor => ModuleSlotList.Any(m => m.UID == "MeteorPart");
+        public bool IsMeteor => ModuleSlotList.Any(m => m.UID == "MeteorPart");
 
         public void SetReallyDie()
         {

@@ -685,9 +685,11 @@ namespace Ship_Game.AI
                 Owner.Die(null, true);
 
             Owner.Position += g.Direction.Normalized() * g.SpeedLimit * timeStep.FixedTime;
+            Owner.Velocity = g.Direction.Normalized() * g.SpeedLimit;
+            Owner.SetMeteorAcceleration(Owner.Velocity);
             if (Owner.Position.InRadius(g.TargetPlanet.Center, g.TargetPlanet.GravityWellRadius/2))
             {
-                Owner.PlanetCrash = new PlanetCrash(g.TargetPlanet, Owner, g.SpeedLimit, true);
+                Owner.PlanetCrash = new PlanetCrash(g.TargetPlanet, Owner, g.SpeedLimit*0.85f);
                 Owner.dying       = true;
             }
         }
