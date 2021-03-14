@@ -21,7 +21,7 @@
   <Name>MeteorPart</Name>
   <Restrictions>IO</Restrictions>
   <UID>MeteorPart</UID>
-  <IconTexturePath>Modules/Cockpit</IconTexturePath>
+  <IconTexturePath>Modules/Meteor</IconTexturePath>
   <Mass>10</Mass>
   <Health>500</Health>
   <HealthMax>500</HealthMax>
