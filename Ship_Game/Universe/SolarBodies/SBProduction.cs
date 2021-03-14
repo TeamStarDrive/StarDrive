@@ -456,6 +456,8 @@ namespace Ship_Game.Universe.SolarBodies
             }
         }
 
+        public bool ContainsTroopWithGoal(Goal g) => ConstructionQueue.Any(q => q.isTroop && q.Goal == g);
+
         public void Reorder(int oldIndex, int newIndex)
         {
             ConstructionQueue.Reorder(oldIndex, newIndex);
