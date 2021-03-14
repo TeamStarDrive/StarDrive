@@ -236,6 +236,8 @@ namespace Ship_Game.AI
             MainGoalCompleted = true;
         }
 
+        public bool IsMainGoalCompleted => MainGoalCompleted;
+
         // @note Goals are mainly evaluated during Empire update
         public GoalStep Evaluate()
         {
