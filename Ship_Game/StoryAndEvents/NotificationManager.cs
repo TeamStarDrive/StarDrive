@@ -203,14 +203,18 @@ namespace Ship_Game
             }, "smallservo");
         }
 
-        public void AddBuildingDestroyedByLava(Planet p, Building b)
+
+        public void AddBuildingDestroyedByLava(Planet p, Building b)   => AddBuildingDestroyed(p, b, new LocalizedText(4276).Text);
+        public void AddBuildingDestroyedByMeteor(Planet p, Building b) => AddBuildingDestroyed(p, b, new LocalizedText(4287).Text);
+
+        public void AddBuildingDestroyed(Planet p, Building b, string text)
         {
             AddNotification(new Notification
             {
-                Message = $"{p.Name}: {b.TranslatedName.Text} {new LocalizedText(4276).Text}",
+                Message         = $"{p.Name}: {b.TranslatedName.Text} {text}",
                 ReferencedItem1 = p,
-                IconPath = $"Buildings/icon_{b.Icon}_64x64",
-                Action = "SnapToPlanet"
+                IconPath        = $"Buildings/icon_{b.Icon}_64x64",
+                Action          = "SnapToPlanet"
             }, "sd_ui_notification_warning");
         }
 
@@ -343,6 +347,8 @@ namespace Ship_Game
                 Action          = "SnapToPlanet"
             }, "sd_troop_march_01");
         }
+
+        public void AddMeteorRelated(Planet planet, string text, string texPath = "") => AddVolcanoRelated(planet, text, texPath);
 
         public void AddVolcanoRelated(Planet planet, string text, string texturePath = "")
         {

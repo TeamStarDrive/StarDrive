@@ -90,29 +90,35 @@ namespace Ship_Game
         }
 
         public void HitShield(Planet planet, Bomb bomb, Vector2 planetCenter, float shieldRadius)
+            => HitShield(planet, bomb.World, bomb.Position, planetCenter, shieldRadius);
+
+        public void HitShield(Planet planet, Ship ship, Vector2 planetCenter, float shieldRadius)
+            => HitShield(planet, ship.GetSO().World, ship.Position.ToVec3(ship.GetSO().World.Translation.Z), planetCenter, shieldRadius);
+
+        public void HitShield(Planet planet, Matrix world, Vector3 pos, Vector2 planetCenter, float shieldRadius)
         {
             PlanetCenter = planetCenter;
             Vector3 center3D = PlanetCenter.ToVec3(2500f);
             planet.PlayPlanetSfx("sd_impact_shield_01", center3D);
 
-            Rotation     = planetCenter.RadiansToTarget(bomb.Position.ToVec2());
+            Rotation     = planetCenter.RadiansToTarget(pos.ToVec2());
             Radius       = shieldRadius;
             Displacement = 0.085f * RandomMath.RandomBetween(1f, 10f);
             TexScale     = 2.8f - 0.185f * RandomMath.RandomBetween(1f, 10f);
 
             AddLight();
-            Light.World        = bomb.World;
+            Light.World        = world;
             Light.DiffuseColor = new Vector3(0.5f, 0.5f, 1f);
             Light.Radius       = Radius* RandomMath.RandomBetween(1, 2);
             Light.Intensity    = RandomMath.RandomBetween(5, 15);
             Light.Enabled      = true;
 
-            Vector3 vel = (bomb.Position - center3D).Normalized();
+            Vector3 vel = (pos - center3D).Normalized();
 
-            Empire.Universe.flash.AddParticleThreadB(bomb.Position, Vector3.Zero);
+            Empire.Universe.flash.AddParticleThreadB(pos, Vector3.Zero);
             for (int i = 0; i < 200; ++i)
             {
-                Empire.Universe.sparks.AddParticleThreadB(bomb.Position, vel * RandomMath.Vector3D(25f));
+                Empire.Universe.sparks.AddParticleThreadB(pos, vel * RandomMath.Vector3D(25f));
             }
         }
 

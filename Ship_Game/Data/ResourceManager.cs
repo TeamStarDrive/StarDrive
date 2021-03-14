@@ -812,6 +812,10 @@ namespace Ship_Game
                     case "Lava1":             Building.Lava1Id            = b.BID; break;
                     case "Lava2":             Building.Lava2Id            = b.BID; break;
                     case "Lava3":             Building.Lava3Id            = b.BID; break;
+                    case "Crater1":           Building.Crater1Id          = b.BID; break;
+                    case "Crater2":           Building.Crater2Id          = b.BID; break;
+                    case "Crater3":           Building.Crater3Id          = b.BID; break;
+                    case "Crater4":           Building.Crater4Id          = b.BID; break;
                 }
             }
         }

@@ -1,22 +1,24 @@
 ﻿using Microsoft.Xna.Framework;
+using Particle3DSample;
 
 namespace Ship_Game.Ships
 {
     public class PlanetCrash
     {
         readonly Planet P;
-        readonly bool IsMeteor;
         readonly float Distance;
         readonly Vector2 CrashPos;
         readonly float Thrust;
         readonly Ship Owner;
         public float Scale = 2;
+        private ParticleEmitter TrailEmitter;
+        private ParticleEmitter FireTrailEmitter;
+        private ParticleEmitter FlameTrail;
 
-        public PlanetCrash(Planet p, Ship owner, float thrust, bool isMeteor)
+        public PlanetCrash(Planet p, Ship owner, float thrust)
         {
             P        = p;
             Owner    = owner;
-            IsMeteor = isMeteor;
             Thrust   = thrust.LowerBound(100);
             CrashPos = P.Center.GenerateRandomPointInsideCircle(P.ObjectRadius);
             Distance = Owner.Position.Distance(CrashPos).LowerBound(1);
@@ -44,6 +46,32 @@ namespace Ship_Game.Ships
             }
 
             Owner.SetDieTimer(2);
+
+            // Fiery trail atmospheric entry
+            if (!P.Type.EarthLike || !Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f))
+                return;
+
+            Vector3 trailPos = (Owner.Position + dir.Normalized() * Owner.Radius * (Scale/2)).ToVec3(Owner.GetSO().World.Translation.Z);
+            if (Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f)
+                && !Owner.Position.InRadius(P.Center, P.ObjectRadius))
+            {
+                if (FireTrailEmitter == null)
+                {
+                    FireTrailEmitter = Empire.Universe.fireTrailParticles.NewEmitter(500f, trailPos);
+                    FlameTrail       = Empire.Universe.flameParticles.NewEmitter(300, trailPos);
+                }
+
+                FireTrailEmitter.Update(timeStep.FixedTime, trailPos);
+                FlameTrail.Update(timeStep.FixedTime, trailPos);
+            }
+
+            if (Owner.Position.InRadius(P.Center, P.ObjectRadius))
+            {
+                if (TrailEmitter == null)
+                    TrailEmitter = Empire.Universe.projectileTrailParticles.NewEmitter(500, trailPos);
+
+                TrailEmitter.Update(timeStep.FixedTime, trailPos);
+            }
         }
 
         public static bool GetPlanetToCrashOn(Ship ship, out Planet planet)

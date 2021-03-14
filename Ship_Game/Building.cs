@@ -96,6 +96,7 @@ namespace Ship_Game
 
         public static int CapitalId, OutpostId, BiospheresId, SpacePortId, TerraformerId;
         public static int VolcanoId, ActiveVolcanoId, EruptingVolcanoId, Lava1Id, Lava2Id, Lava3Id;
+        public static int Crater1Id, Crater2Id, Crater3Id, Crater4Id;
         [XmlIgnore][JsonIgnore] public bool IsCapital          => BID == CapitalId;
         [XmlIgnore][JsonIgnore] public bool IsOutpost          => BID == OutpostId;
         [XmlIgnore][JsonIgnore] public bool IsCapitalOrOutpost => BID == CapitalId || BID == OutpostId;
@@ -104,7 +105,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsTerraformer      => BID == TerraformerId;
         [XmlIgnore][JsonIgnore] public bool IsVolcano          => BID == VolcanoId || BID == ActiveVolcanoId || BID == EruptingVolcanoId;
         [XmlIgnore][JsonIgnore] public bool IsLava             => BID == Lava1Id || BID == Lava2Id || BID == Lava3Id;
-        [XmlIgnore][JsonIgnore] public bool IsDynamicUpdate    => IsLava | IsVolcano;
+        [XmlIgnore][JsonIgnore] public bool IsCrater           => BID == Crater1Id || BID == Crater2Id || BID == Crater3Id || BID == Crater4Id;
+        [XmlIgnore][JsonIgnore] public bool IsDynamicUpdate    => IsLava | IsVolcano || IsCrater;
         [XmlIgnore][JsonIgnore] public SubTexture IconTex      => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
         [XmlIgnore][JsonIgnore] public string IconPath64       => $"Buildings/icon_{Icon}_64x64";
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
