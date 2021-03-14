@@ -51,7 +51,7 @@ namespace Ship_Game.Ships
             if (!P.Type.EarthLike || !Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f))
                 return;
 
-            Vector3 trailPos = (Owner.Position + dir.Normalized() * Owner.Radius * (Scale/2)).ToVec3(Owner.GetSO().World.Translation.Z);
+            Vector3 trailPos = (Owner.Position + dir.Normalized() * Owner.Radius * (Scale/2)).ToVec3(Owner.GetSO().World.Translation.Z-20);
             if (Owner.Position.InRadius(P.Center, P.ObjectRadius + 1000f)
                 && !Owner.Position.InRadius(P.Center, P.ObjectRadius))
             {
