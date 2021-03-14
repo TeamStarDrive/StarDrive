@@ -28,8 +28,6 @@ namespace Ship_Game
             else if (random <= 5) FoundMinerals();
             else if (random <= 7) VolcanicToHabitable();
             else if (random <= 10) Meteors();
-
-            //Meteors();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
@@ -133,7 +131,7 @@ namespace Ship_Game
 
         static void Meteors()
         {
-            if (/*Empire.Universe.StarDate < 1050 ||*/ !GetAffectedPlanet(Potentials.Habitable, out Planet planet))
+            if (Empire.Universe.StarDate < 1050 || !GetAffectedPlanet(Potentials.Habitable, out Planet planet))
                 return;
 
             int rand       = RandomMath.RollDie(10);
@@ -149,7 +147,7 @@ namespace Ship_Game
             Vector2 origin    = GetMeteorOrigin(p);
             Vector2 direction = origin.DirectionToTarget(p.Center);
             float rotation    = direction.ToDegrees();
-            int speed         = RandomMath.RollDie(1000, 500);
+            int speed         = RandomMath.RollDie(800, 400);
             for (int i = 0; i < numMeteors; i++)
             {
                 string meteorName;
@@ -174,8 +172,6 @@ namespace Ship_Game
                 }
 
                 meteor.AI.AddMeteorGoal(p, rotation, direction, speed);
-                // meteor can crash if inside planet's gravity well
-                // create a crater with good/bad effects
             }
         }
 
@@ -188,23 +184,9 @@ namespace Ship_Game
             if (asteroidsRings.Length > 0 && RandomMath.RollDice(50))
                 originRadius = asteroidsRings.RandItem().OrbitalDistance;
             else
-                originRadius = system.Radius - 5000;
+                originRadius = system.Radius * 0.75f;
 
             return system.Position.GenerateRandomPointOnCircle(originRadius);
-        }
-
-        static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman
-        {
-            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet, false)) 
-                return;
-
-            float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.25f).LowerBound(0.05f);
-            int token               = planet.Population > 0 ? 4105 : 4113;
-            planet.Population      *= (1 - sizeOfMeteor);
-            planet.MineralRichness += sizeOfMeteor;
-            planet.AddMaxBaseFertility(-sizeOfMeteor);
-            NotifyPlayerIfAffected(planet, token);
-            Log.Info($"Event Notification: Meteor Strike at {planet}");
         }
 
         static void VolcanicToHabitable()

@@ -236,7 +236,7 @@ namespace Ship_Game.Universe.SolarBodies
             // Remove the Lava Pool
             string lavaPath = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
             planet.DestroyTile(tile);
-            if (RandomMath.RollDice(25))
+            if (RandomMath.RollDice(75))
             {
                 planet.MakeTileHabitable(tile);
                 if (planet.Owner == EmpireManager.Player)

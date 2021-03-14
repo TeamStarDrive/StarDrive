@@ -235,5 +235,18 @@ namespace Ship_Game.Universe.SolarBodies
                 && !template.IsConstructor
                 && !template.IsDefaultTroopTransport;
         }
+
+        public static void UpdateCrater(PlanetGridSquare tile, Planet planet)
+        {
+            if (!RandomMath.RollDice(2))
+                return;
+
+            // Remove the Crater
+            string path = tile.BuildingOnTile ? tile.Building.IconPath64 : "";
+            if (planet.Owner == EmpireManager.Player)
+                Empire.Universe.NotificationManager.AddMeteorRelated(planet, new LocalizedText(4288).Text, path);
+
+            planet.DestroyBuildingOn(tile);
+        }
     }
 }

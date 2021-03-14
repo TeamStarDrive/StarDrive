@@ -23,8 +23,8 @@
   <UID>MeteorPart</UID>
   <IconTexturePath>Modules/Cockpit</IconTexturePath>
   <Mass>10</Mass>
-  <Health>10000</Health>
-  <HealthMax>10000</HealthMax>
+  <Health>500</Health>
+  <HealthMax>500</HealthMax>
   <energyreq>0</energyreq>
   <modRadius>4</modRadius>
   <PowerDraw>0</PowerDraw>
