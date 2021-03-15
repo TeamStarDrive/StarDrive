@@ -450,7 +450,7 @@ namespace Ship_Game
 
             Population -= 1000f * netPopKill;
             AddBaseFertility(-fertilityDamage); // environment suffers temp damage
-            if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(fertilityDamage * 100))
+            if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(fertilityDamage * 250))
                 AddMaxBaseFertility(-0.01f); // permanent damage to Max Fertility
 
             if (Population.AlmostZero())
