@@ -692,7 +692,7 @@ namespace Ship_Game.AI
             }
 
             Orbit.Orbit(planet, timeStep);
-            float radius = planet.ObjectRadius + Owner.Radius + 1500;
+            float radius = planet.ObjectRadius + Owner.Radius + 1800;
             if (planet.Owner == Owner.loyalty)
             {
                 ClearOrders();

@@ -527,7 +527,8 @@ namespace Ship_Game.AI
 
         public void DropBombsAtGoal(ShipGoal goal, float radius)
         {
-            if (!Owner.Center.InRadius(goal.TargetPlanet.Center, radius)) return;
+            if (!Owner.Center.InRadius(goal.TargetPlanet.Center, radius)) 
+                return;
             foreach (ShipModule bombBay in Owner.BombBays)
             {
                 if (bombBay.InstalledWeapon.CooldownTimer > 0f)

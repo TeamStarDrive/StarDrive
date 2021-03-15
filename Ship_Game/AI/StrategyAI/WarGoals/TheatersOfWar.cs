@@ -184,13 +184,18 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     //}
                 case WarType.ImperialistWar:
                 case WarType.GenocidalWar:
+                    campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
+                    campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
+                    aos = CreateImperialisticAO();
+                    if (!Them.isFaction)
+                        aos.AddUnique(Them.EmpireAO()); // FB: Try to attack quality planets, not sure it works
+
+                    break;
                 case WarType.DefensiveWar:
-                    {
-                        campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
-                        campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
-                        aos = CreateImperialisticAO();
-                        break;
-                    }
+                    campaignTypes.AddUnique(Campaign.CampaignType.CaptureAll);
+                    campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
+                    aos = CreateImperialisticAO();
+                    break;
                 // until defensive wars can end remarking this. 
                 //case WarType.DefensiveWar:
                 //    aos                = CreateBorderAOs();
@@ -200,7 +205,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     campaignTypes.AddUnique(Campaign.CampaignType.CaptureBorder);
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);
                     campaignTypes.AddUnique(Campaign.CampaignType.SystemDefense);
-                    aos                = CreateImperialisticAO();
+                    aos = CreateImperialisticAO();
                     break;
                 case WarType.EmpireDefense:
                     campaignTypes.AddUnique(Campaign.CampaignType.Defense);
