@@ -30,8 +30,7 @@ namespace Ship_Game.Commands.Goals
             empire             = e;
             ColonizationTarget = claim;
             Fleet              = fleet;
-            //if (PositiveEnemyPresence(out _))
-            //    return;
+
             Evaluate();
         }
 
