@@ -1,11 +1,9 @@
 ﻿using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using System.Security.Claims;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -22,7 +20,6 @@ namespace Ship_Game.Commands.Goals
                 WaitAndPrioritizeProjector,
                 RemoveProjectorWhenCompleted
             };
-
         }
 
         public DeployFleetProjector(Fleet fleet, Planet claim, Empire e) : this()
@@ -83,7 +80,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     Ship ship = projectors[i];
                     if (ship.Center.InRadius(BuildPosition, 1000))
-                        ship.AI.OrderScrapShip();
+                        ship.ScuttleTimer = 30;
                 }
 
                 return GoalStep.GoalComplete;

@@ -92,6 +92,7 @@ namespace Ship_Game.AI
             targetValue += target.IsHomeDefense && chanceToHit < 0.5f ? -1 : 0;
             targetValue += target.MaxSTLSpeed == 0 ? -1 : 0;
             targetValue += target.TotalDps < 1 ? -1 : 0;
+            targetValue += target.Carrier.AllFighterHangars.Length;
 
             weight.SetWeight(targetValue);
 
