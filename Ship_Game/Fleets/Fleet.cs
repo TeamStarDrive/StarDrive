@@ -617,11 +617,22 @@ namespace Ship_Game.Fleets
                     TaskStep = 1;
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely()) break;
-                    GatherAtAO(task, distanceFromAO: targetPlanet.GravityWellRadius);
+                    if (!HasArrivedAtRallySafely()) 
+                        break;
+
+                    if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                        AddFleetProjectorGoal();
+
                     TaskStep = 2;
                     break;
                 case 2:
+                    if (FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
+                        break;
+
+                    GatherAtAO(task, distanceFromAO: targetPlanet.GravityWellRadius);
+                    TaskStep = 3;
+                    break;
+                case 3:
                     if (ArrivedAtCombatRally(FinalPosition))
                     {
                         TaskStep = 3;
@@ -629,7 +640,7 @@ namespace Ship_Game.Fleets
                         EscortingToPlanet(combatOffset, false);
                     }
                     break;
-                case 3:
+                case 4:
                     var planetMoveStatus = FleetMoveStatus(targetPlanet.GravityWellRadius, FinalPosition);
 
                     if (!planetMoveStatus.HasFlag(MoveStatus.MajorityAssembled))
@@ -642,10 +653,10 @@ namespace Ship_Game.Fleets
                     }
                     var planetGuard = task.AO.OffsetTowards(AveragePosition(), 500);
                     EngageCombatToPlanet(planetGuard, true);
-                    TaskStep = 4;
+                    TaskStep = 5;
                     break;
 
-                case 4:
+                case 5:
                     EndInvalidTask(StatusOfPlanetAssault(task) == Status.Critical);
                     break;
             }
@@ -747,16 +758,17 @@ namespace Ship_Game.Fleets
                 return;
 
             if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
-                TaskStep = 8;
+                TaskStep = 9;
 
             switch (TaskStep)
             {
                 case 0:
                     if (AveragePos.InRadius(task.TargetPlanet.ParentSystem.Position, task.TargetPlanet.ParentSystem.Radius * 2))
                     {
-                        TaskStep = 5;
+                        TaskStep = 6;
                         break;
                     }
+
                     FleetTaskGatherAtRally(task);
                     TaskStep = 1;
                     break;
@@ -764,19 +776,28 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
                         break;
 
-                    SetOrdersRadius(Ships, 5000);
-                    FleetTaskGatherAtRally(task);
-                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 2f);
+                    if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                        AddFleetProjectorGoal();
+
                     TaskStep = 2;
                     break;
                 case 2:
+                    if (FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
+                        break;
+
+                    SetOrdersRadius(Ships, 5000);
+                    FleetTaskGatherAtRally(task);
+                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 2f);
+                    TaskStep = 3;
+                    break;
+                case 3:
                     if (!ArrivedAtCombatRally(FinalPosition))
                         break;
                     
-                    TaskStep = 3;
+                    TaskStep = 4;
                     SetOrdersRadius(Ships, 5000f);
                     break;
-                case 3:
+                case 4:
                     MoveStatus combatRally = FleetMoveStatus(0, FinalPosition);
                     if (!combatRally.HasFlag(MoveStatus.MajorityAssembled))
                     {
@@ -786,14 +807,14 @@ namespace Ship_Game.Fleets
                         break;
                     }
 
-                    TaskStep = 4;
-                    break;
-                case 4:
-                    Vector2 combatOffset = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
-                    EscortingToPlanet(combatOffset, false);
                     TaskStep = 5;
                     break;
                 case 5:
+                    Vector2 combatOffset = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
+                    EscortingToPlanet(combatOffset, false);
+                    TaskStep = 6;
+                    break;
+                case 6:
                     combatOffset = task.AO.OffsetTowards(AveragePosition(), task.TargetPlanet.GravityWellRadius);
                     MoveStatus inPosition = FleetMoveStatus(task.TargetPlanet.GravityWellRadius, combatOffset);
                     if (!inPosition.HasFlag(MoveStatus.MajorityAssembled))
@@ -807,14 +828,14 @@ namespace Ship_Game.Fleets
                     RearShipsToCombat(combatOffset, false);
                     Vector2 resetPosition = task.AO.OffsetTowards(AveragePosition(), 1500);
                     EngageCombatToPlanet(resetPosition, true);
-                    TaskStep = 6;
+                    TaskStep = 7;
                     break;
 
-                case 6:
+                case 7:
                     switch (StatusOfPlanetAssault(task))
                     {
-                        case Status.NotApplicable: TaskStep = 4; break;
-                        case Status.Good: TaskStep = 6; break;
+                        case Status.NotApplicable: TaskStep = 5; break;
+                        case Status.Good: TaskStep = 7; break;
                         case Status.Critical:
                             {
                                 EndInvalidTask(true);
@@ -822,18 +843,18 @@ namespace Ship_Game.Fleets
                             }
                     }
                     break;
-                case 7:
+                case 8:
                     if (ShipsOffMission(task))
                     {
                         //Vector2 returnToCombat = task.AO.OffsetTowards(AveragePosition(), 500);
                         //EngageCombatToPlanet(returnToCombat, true);
                         //RearShipsToCombat(returnToCombat, false);
-                        TaskStep = 5;
+                        TaskStep = 6;
                         break;
                     }
-                    TaskStep = 6;
+                    TaskStep = 7;
                     break;
-                case 8:
+                case 9:
                     bool inSystem = AveragePos.InRadius(task.TargetPlanet.Center, task.TargetPlanet.ParentSystem.Radius);
                     var currentSystem = task.RallyPlanet.ParentSystem;
 
@@ -846,7 +867,7 @@ namespace Ship_Game.Fleets
                     StartBombing(newTarget);
                     FinalPosition = task.TargetPlanet.Center;
                     task.AO = newTarget.Center;
-                    task.Step = 4;
+                    task.Step = 5;
                     break;
             }
         }
@@ -909,11 +930,13 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely())
                         break;
 
-                    AddFleetProjectorGoal();
+                    if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                        AddFleetProjectorGoal();
+
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (FleetProjectorGoalInProgress())
+                    if (FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
                         break;
 
                     GatherAtAO(task, FleetTask.TargetPlanet.ParentSystem.Radius);
@@ -1190,7 +1213,7 @@ namespace Ship_Game.Fleets
             bool bombOk = Ships.Select(s => s.Bomb60SecStatus()).Any(bt => bt != Status.NotApplicable && bt != Status.Critical);
             if (!bombOk)
             {
-                EndInvalidTask(!TryOrderPostBombFleet(task, 3));
+                EndInvalidTask(!TryOrderPostBombFleet(task, 4));
                 return;
             }
 
@@ -1221,27 +1244,37 @@ namespace Ship_Game.Fleets
                     MoveStatus moveStatus = FleetMoveStatus(task.RallyPlanet.ParentSystem.Radius);
                     if (moveStatus.HasFlag(MoveStatus.MajorityAssembled))
                     {
-                        GatherAtAO(task, 400000);
+                        if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                            AddFleetProjectorGoal();
+                         
                         TaskStep = 2;
-                        break;
                     }
+
                     break;
                 case 2:
-                    if (!ArrivedAtCombatRally(FinalPosition))
+                    if (!FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
                         break;
+
+                    GatherAtAO(task, 400000);
                     TaskStep = 3;
                     break;
                 case 3:
-                    EngageCombatToPlanet(task.TargetPlanet.Center, true);
-                    StartBombing(task.TargetPlanet);
+                    if (!ArrivedAtCombatRally(FinalPosition))
+                        break;
+
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (ShipsOffMission(task))
-                        TaskStep = 3;
+                    EngageCombatToPlanet(task.TargetPlanet.Center, true);
                     StartBombing(task.TargetPlanet);
+                    TaskStep = 5;
                     break;
                 case 5:
+                    if (ShipsOffMission(task))
+                        TaskStep = 4;
+                    StartBombing(task.TargetPlanet);
+                    break;
+                case 6:
 
                     bool inSystem = AveragePos.InRadius(task.TargetPlanet.Center, task.TargetPlanet.ParentSystem.Radius);
                     var currentSystem = task.RallyPlanet.ParentSystem;
@@ -1257,7 +1290,7 @@ namespace Ship_Game.Fleets
                     StartBombing(newTarget);
                     FinalPosition = task.TargetPlanet.Center;
                     task.AO = newTarget.Center;
-                    task.Step = 3;
+                    task.Step = 4;
                     break;
             }
         }
@@ -1346,8 +1379,11 @@ namespace Ship_Game.Fleets
             Owner.GetEmpireAI().AddGoal(goal);
         }
 
-        bool FleetProjectorGoalInProgress()
+        bool FleetProjectorGoalInProgress(SolarSystem targetSystem)
         {
+            if (targetSystem.HasPlanetsOwnedBy(Owner))
+                return false; // no need for projector goal
+
             var goals = Owner.GetEmpireAI().SearchForGoals(GoalType.DeployFleetProjector).Filter(g => g.Fleet == this);
             if (goals.Length == 1)
             {
@@ -1357,7 +1393,6 @@ namespace Ship_Game.Fleets
             }
 
             return false;
-
         }
 
         /// @return true if order successful. Fails when enemies near.
