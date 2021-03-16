@@ -236,13 +236,18 @@ namespace Ship_Game
                 return;
 
             Building selectedBuilding = potentialEvents.RandItem();
+            if (selectedBuilding.IsBadCacheResourceBuilding)
+            {
+                Log.Warning($"{selectedBuilding.Name} is FoodCache with no PlusFlatFood or ProdCache with no PlusProdPerColonist." +
+                            " Cannot use it for events.");
+                return;
+            }
+
             if (RandomMath.RollDice(selectedBuilding.EventSpawnChance))
             {
                 Building building    = ResourceManager.CreateBuilding(selectedBuilding.BID);
                 Planet thisPlanet    = this as Planet;
                 PlanetGridSquare pgs = building.AssignBuildingToRandomTile(thisPlanet);
-
-                BuildingList.Add(pgs.Building);
                 if (!pgs.SetEventOutComeNum(thisPlanet, building))
                     thisPlanet?.DestroyBuildingOn(pgs);
 
