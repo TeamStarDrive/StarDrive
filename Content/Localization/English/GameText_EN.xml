@@ -8672,6 +8672,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>was destroyed in an exploration event.</Text>
     </Token>
     <Token>
+      <Index>4299</Index>
+      <Text>was removed since it's resource cache\n was depleted.</Text>
+    </Token>
+    <Token>
+      <Index>4300</Index>
+      <Text>Food Remaining here. This building will be removed when the cache is depleted.</Text>
+    </Token>
+    <Token>
+      <Index>4301</Index>
+      <Text>Production Remaining here. This building will be removed when the cache is depleted.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
