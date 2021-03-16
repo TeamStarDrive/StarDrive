@@ -147,13 +147,12 @@ namespace Ship_Game
         {
             if (RemoveTrigger)
             {
-                p.BuildingList.Remove(eventLocation.Building);
-                eventLocation.Building = null;
+                p.DestroyBuildingOn(eventLocation);
             }
+
             if (!string.IsNullOrEmpty(ReplaceWith))
             {
-                eventLocation.Building = ResourceManager.CreateBuilding(ReplaceWith);
-                p.BuildingList.Add(eventLocation.Building);
+                eventLocation.PlaceBuilding(ResourceManager.CreateBuilding(ReplaceWith), p);
             }
         }
 

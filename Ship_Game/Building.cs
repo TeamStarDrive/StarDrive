@@ -76,6 +76,8 @@ namespace Ship_Game
         [Serialize(65)] public bool CannotBeBombed;
         [Serialize(66)] public float IncreaseRichness;
         [Serialize(67)] public byte EventSpawnChance = 15;
+        [Serialize(68)] public float FoodCache; // Works with Flat food only
+        [Serialize(69)] public float ProdCache; // Works with Prod per colonist only
 
 
         // XML Ignore because we load these from XML templates
@@ -84,6 +86,11 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
         [XmlIgnore][JsonIgnore] public float MilitaryStrength { get; private set; }
         [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.ProductionPace;
+        [XmlIgnore][JsonIgnore] public bool IsBadCacheResourceBuilding => 
+            FoodCache.Greater(0) && PlusFlatFoodAmount.AlmostZero() 
+            || ProdCache.Greater(0) && PlusProdPerColonist.AlmostZero();
+
+
 
         public override string ToString()
             => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";
@@ -334,6 +341,7 @@ namespace Ship_Game
             }
             if (IsBiospheres)
                 return AssignBuildingToRandomTile(solarSystemBody) != null;                    
+
             return false;            
         }
 
@@ -342,10 +350,12 @@ namespace Ship_Game
             PlanetGridSquare[] list = mustBeHabitableTile 
                 ? planet.TilesList.Filter(pgs => pgs.Building == null && pgs.Habitable) 
                 : planet.TilesList.Filter(pgs => pgs.Building == null);
+
             if (list.Length == 0)
                 return null;
+
             PlanetGridSquare target = RandomMath.RandItem(list);
-            target.Building = this;
+            target.PlaceBuilding(this, planet);
             return target;
         }
 
@@ -373,12 +383,19 @@ namespace Ship_Game
             p.AddBuildingsFertility(MaxFertilityOnBuild);
             p.MineralRichness += IncreaseRichness.LowerBound(0); //This must be positive. since richness cannot go below 0.
             p.BuildingList.Add(this);
-            if (IsSpacePort)
+            if (IsSpacePort && Empire.Universe != null)
             {
                 p.Station.Planet = p;
                 p.Station.LoadContent(Empire.Universe.ScreenManager, p.Owner);
             }
+
             p.HasSpacePort |= IsSpacePort || AllowShipBuilding;
+
+            if (ProdCache.Greater(0) && PlusProdPerColonist.Greater(0))
+                p.SetHasLimitedResourceBuilding(true);
+
+            if (FoodCache.Greater(0) && PlusFlatFoodAmount.Greater(0))
+                p.SetHasLimitedResourceBuilding(true);
 
             if (EventOnBuild != null && p.Owner?.isPlayer == true)
             {
