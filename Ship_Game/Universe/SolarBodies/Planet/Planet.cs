@@ -78,6 +78,7 @@ namespace Ship_Game
         public float GroundDefMaintenance { get; private set; }
         public float InfraStructure { get; private set; }
         public bool HasDynamicBuildings { get; private set; } // Has buildings which should update per turn even if no owner
+        public bool HasLimitedResourceBuilding { get; private set; } // if true, these buildings will be updated per turn until depleted
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -644,7 +645,7 @@ namespace Ship_Game
             RemoveBuildingFromPlanet(tile, true);
         }
 
-        private void RemoveBuildingFromPlanet(Building b)
+        private void RemoveBuildingFromPlanet(Building b, bool destroy = false)
         {
             BuildingList.Remove(b);
             PlanetGridSquare tile = TilesList.Find(t => t.Building == b);
@@ -653,7 +654,7 @@ namespace Ship_Game
             else
                 Log.Error($"{this} failed to find tile with building {b}");
 
-            PostBuildingRemoval(b, tile);
+            PostBuildingRemoval(b, tile, destroy);
         }
 
         private void RemoveBuildingFromPlanet(PlanetGridSquare tile, bool destroy = false)
@@ -674,7 +675,8 @@ namespace Ship_Game
 
             // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
             // environment buildings can be scrapped and the planet will slowly recover
-            AddBuildingsFertility(-b.MaxFertilityOnBuild); 
+            AddBuildingsFertility(-b.MaxFertilityOnBuild);
+            MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
 
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
@@ -710,14 +712,13 @@ namespace Ship_Game
             ApplyTerraforming();
             UpdateColonyValue();
             CalcIncomingGoods();
-            //RemoveInvalidFreighters(IncomingFreighters);
-            //RemoveInvalidFreighters(OutgoingFreighters);
             InitResources(); // must be done before Governing
             UpdateOrbitalsMaintenance();
             UpdateMilitaryBuildingMaintenance();
             NotifyEmptyQueue();
             RechargePlanetaryShields();
             ApplyResources();
+            UpdateLimitedResourceCaches();
             GrowPopulation();
             TroopManager.HealTroops(2);
             RepairBuildings(1);
@@ -1237,6 +1238,50 @@ namespace Ship_Game
             Population = (Population - popKilled).LowerBound(0);
             if (Owner != null && Population.AlmostZero())
                 WipeOutColony(EmpireManager.Unknown);
+        }
+
+        public void SetHasLimitedResourceBuilding(bool value)
+        {
+            HasLimitedResourceBuilding = value;
+        }
+
+        void UpdateLimitedResourceCaches()
+        {
+            if (!HasLimitedResourceBuilding)
+                return;
+
+            bool foundCache = false;
+            for (int i = BuildingList.Count - 1; i >= 0; i--)
+            {
+                Building b = BuildingList[i];
+                if (b.FoodCache.Greater(0))
+                {
+                    foundCache = true;
+                    b.FoodCache -= b.PlusFlatFoodAmount;
+                    if (b.FoodCache.AlmostZero())
+                    {
+                        if (Owner == EmpireManager.Player)
+                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4299).Text);
+
+                        RemoveBuildingFromPlanet(b, destroy: true);
+                    }
+                }
+
+                if (b.ProdCache.Greater(0))
+                {
+                    foundCache = true;
+                    b.ProdCache -= Prod.Percent * PopulationBillion * b.PlusProdPerColonist;
+                    if (b.ProdCache.AlmostZero())
+                    {
+                        if (Owner == EmpireManager.Player)
+                            Empire.Universe.NotificationManager.AddBuildingDestroyed(this, b, new LocalizedText(4299).Text);
+
+                        RemoveBuildingFromPlanet(b, destroy: true);
+                    }
+                }
+            }
+
+            SetHasLimitedResourceBuilding(foundCache);
         }
 
         private void ApplyResources()

@@ -228,20 +228,26 @@ namespace Ship_Game
 
         protected void AddTileEvents()
         {
-            if (Habitable && RandomMath.RandomBetween(0.0f, 100f) <= 15)
-            {
-                var buildingIds = new Array<int>();
-                foreach (var kv in ResourceManager.BuildingsDict)
-                {
-                    if (!kv.Value.NoRandomSpawn && kv.Value.EventHere)
-                        buildingIds.Add(kv.Value.BID);
-                }
+            if (!Habitable)
+                return;
 
-                Building building    = ResourceManager.CreateBuilding(buildingIds.RandItem());
+            var potentialEvents = ResourceManager.BuildingsDict.FilterValues(b => b.EventHere && !b.NoRandomSpawn);
+            if (potentialEvents.Length == 0)
+                return;
+
+            Building selectedBuilding = potentialEvents.RandItem();
+            if (selectedBuilding.IsBadCacheResourceBuilding)
+            {
+                Log.Warning($"{selectedBuilding.Name} is FoodCache with no PlusFlatFood or ProdCache with no PlusProdPerColonist." +
+                            " Cannot use it for events.");
+                return;
+            }
+
+            if (RandomMath.RollDice(selectedBuilding.EventSpawnChance))
+            {
+                Building building    = ResourceManager.CreateBuilding(selectedBuilding.BID);
                 Planet thisPlanet    = this as Planet;
                 PlanetGridSquare pgs = building.AssignBuildingToRandomTile(thisPlanet);
-
-                BuildingList.Add(pgs.Building);
                 if (!pgs.SetEventOutComeNum(thisPlanet, building))
                     thisPlanet?.DestroyBuildingOn(pgs);
 
