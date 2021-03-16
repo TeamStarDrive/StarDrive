@@ -29,9 +29,9 @@ namespace Ship_Game
         public bool AlreadyTriggered;
         public int NumTilesToMakeHabitable;
         public int NumTilesToMakeUnhabitable;
-        public float ChanceBaseFertility;
-        public float ChanceBaseMaxFertility;
-        public float ChanceRichness;
+        public float ChangeBaseFertility;
+        public float ChangeBaseMaxFertility;
+        public float ChangeRichness;
 
         public Artifact GetArtifact()
         {
@@ -85,9 +85,9 @@ namespace Ship_Game
         {
             MakeTilesHabitable(p, eventTile);
             MakeTilesUnhabitable(p, eventTile);
-            p.AddBaseFertility(ChanceBaseFertility);
-            p.AddMaxBaseFertility(ChanceBaseMaxFertility);
-            p.MineralRichness = (p.MineralRichness + ChanceRichness).LowerBound(0);
+            p.AddBaseFertility(ChangeBaseFertility);
+            p.AddMaxBaseFertility(ChangeBaseMaxFertility);
+            p.MineralRichness = (p.MineralRichness + ChangeRichness).LowerBound(0);
         }
 
         void MakeTilesHabitable(Planet p, PlanetGridSquare eventTile)
