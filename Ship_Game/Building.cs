@@ -75,6 +75,7 @@ namespace Ship_Game
         [Serialize(64)] public bool DetectsRemnantFleet;
         [Serialize(65)] public bool CannotBeBombed;
         [Serialize(66)] public float IncreaseRichness;
+        [Serialize(67)] public byte EventSpawnChance = 15;
 
 
         // XML Ignore because we load these from XML templates
