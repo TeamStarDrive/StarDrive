@@ -8668,6 +8668,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text> (-0.1) Fertility</Text>
     </Token>
     <Token>
+      <Index>4298</Index>
+      <Text>was destroyed in an exploration event.</Text>
+    </Token>
+    <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
     </Token>
