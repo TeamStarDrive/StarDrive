@@ -674,7 +674,8 @@ namespace Ship_Game
 
             // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
             // environment buildings can be scrapped and the planet will slowly recover
-            AddBuildingsFertility(-b.MaxFertilityOnBuild); 
+            AddBuildingsFertility(-b.MaxFertilityOnBuild);
+            MineralRichness = (MineralRichness - b.IncreaseRichness).LowerBound(0);
 
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
