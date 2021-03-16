@@ -74,6 +74,7 @@ namespace Ship_Game
         [Serialize(63)] public float Infrastructure;
         [Serialize(64)] public bool DetectsRemnantFleet;
         [Serialize(65)] public bool CannotBeBombed;
+        [Serialize(66)] public float IncreaseRichness;
 
 
         // XML Ignore because we load these from XML templates
@@ -368,7 +369,8 @@ namespace Ship_Game
         // Event when a building is built at planet p
         public void OnBuildingBuiltAt(Planet p)
         {
-            p.AddBuildingsFertility(MaxFertilityOnBuild); 
+            p.AddBuildingsFertility(MaxFertilityOnBuild);
+            p.MineralRichness += IncreaseRichness.LowerBound(0); //This must be positive. since richness cannot go below 0.
             p.BuildingList.Add(this);
             if (IsSpacePort)
             {
