@@ -117,6 +117,14 @@ namespace Ship_Game
                     //Apply damage as a percent of module health to all modules.
                     SelectedShip.DebugDamage(damage);
                 }
+
+                if (input.BlowExplodingModule)
+                {
+                    if (input.IsShiftKeyDown)
+                        SelectedShip.DebugBlowSmallestExplodingModule();
+                    else
+                        SelectedShip.DebugBlowBiggestExplodingModule();
+                }
             }
             else if (SelectedPlanet != null && Debug && (input.KillThis))
             {

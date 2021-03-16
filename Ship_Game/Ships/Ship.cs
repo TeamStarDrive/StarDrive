@@ -265,6 +265,21 @@ namespace Ship_Game.Ships
                 module.DebugDamage(percent);
         }
 
+        public void DebugBlowBiggestExplodingModule()  => DebugBlowExplodingModule(true);
+        public void DebugBlowSmallestExplodingModule() => DebugBlowExplodingModule(false);
+
+        void DebugBlowExplodingModule(bool biggest)
+        {
+            var exploders = ModuleSlotList.Filter(m => m.explodes && m.Active);
+            if (exploders.Length > 0)
+            {
+                if (biggest)
+                    exploders.FindMax(m => m.ExplosionDamage).DebugDamage(1);
+                else
+                    exploders.FindMin(m => m.ExplosionDamage).DebugDamage(1);
+            }
+        }
+
         public void DamageByRecoveredFromCrash(float modifier)
         {
             foreach (ShipModule module in ModuleSlotList)
