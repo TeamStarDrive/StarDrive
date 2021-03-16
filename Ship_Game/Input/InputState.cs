@@ -129,6 +129,8 @@ namespace Ship_Game
         public bool KillThis         => KeyPressed(Keys.X) || KeyPressed(Keys.Delete);
         public bool SpawnRemnant     => KeyPressed(Keys.V);
         public bool SpawnPlayerTroop => KeyPressed(Keys.Z);
+
+        public bool BlowExplodingModule      => KeyPressed(Keys.N);
         public bool ToggleSpatialManagerType => KeyPressed(Keys.G);
         // Ingame controls
         public bool PreviousTarget  => BackMouseClick;
