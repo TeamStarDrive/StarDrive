@@ -135,7 +135,7 @@ namespace Ship_Game.AI.Research
                 if (shortTermBest.shipData.IsShipyard)
                     continue;
 
-                if (shipStyle != OwnerEmpire.data.Traits.ShipType)
+                if (!OwnerEmpire.ShipStyleMatch(shipStyle))
                 {
                     if (shipStyle != "Platforms" && shipStyle != "Misc")
                         continue;
@@ -366,11 +366,14 @@ namespace Ship_Game.AI.Research
             {
                 if (TryExtractNeedTechs(ship, out HashSet<string> techs))
                 {
-                    var researchableTechs = shipTechs.Intersect(techs);
-                    foreach (var techName in researchableTechs)
-                        goodShipTechs.Add(techName);
+                    var researchableTechs = shipTechs.Intersect(techs).ToArray();
+                    if (researchableTechs.Length > 0)
+                    {
+                        foreach (var techName in researchableTechs)
+                            goodShipTechs.Add(techName);
 
-                    break;
+                        break;
+                    }
                 }
             }
 
