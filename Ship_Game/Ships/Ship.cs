@@ -655,7 +655,7 @@ namespace Ship_Game.Ships
 
         public float GetCost(Empire empire)
         {
-            return ShipStats.GetCost(BaseCost, shipData, empire);
+            return ShipStats.GetCost(BaseCost, shipData, empire, IsPlatformOrStation);
         }
 
         public float GetScrapCost()
