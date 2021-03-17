@@ -400,6 +400,12 @@ namespace Ship_Game
             them = them ?? us;
             bool techWasUnlocked = SetUnlockFlag();
             UnlockTechContentOnly(us, them, techWasUnlocked);
+            foreach (Empire e in EmpireManager.MajorEmpires)
+            {
+                if (e.data.AbsorbedBy == us.data.Traits.Name)
+                    UnlockTechContentOnly(us, e, false);
+            }
+
             TriggerAnyEvents(us);
             return true;
         }
@@ -529,11 +535,13 @@ namespace Ship_Game
 
         void UnlockAcquiredContent(Empire us)
         {
-            foreach (var empireName in WasAcquiredFrom)
+            if (Locked)
+                return;
+
+            foreach (Empire e in EmpireManager.MajorEmpires)
             {
-                var them = EmpireManager.GetEmpireByName(empireName);
-                if (them != null)
-                    UnlockFromSave(us, them, true);
+                if (e.data.AbsorbedBy == us.data.Traits.Name)
+                    UnlockFromSave(us, e, true);
             }
         }
 

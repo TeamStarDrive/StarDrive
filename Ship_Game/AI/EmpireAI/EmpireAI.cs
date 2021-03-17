@@ -278,6 +278,8 @@ namespace Ship_Game.AI
             for (int i = Goals.Count - 1; i >= 0; i--)
             {
                 Goals[i].Evaluate();
+                if (OwnerEmpire.data.Defeated)
+                    break; // setting an empire as defeated within a goal clears the goals
             }
 
             Goals.ApplyPendingRemovals();
