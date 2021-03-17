@@ -266,7 +266,7 @@ namespace Ship_Game
                 if (template == null)
                     return;
 
-                int itemCount = RandomMath.RollDie(instanceMax) - 1;
+                int itemCount = RandomMath.RollDie(instanceMax);
                 for (int i = 0; i < itemCount; ++i)
                 {
                     if (template.BID == Building.VolcanoId)
