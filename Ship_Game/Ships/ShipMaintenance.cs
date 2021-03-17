@@ -64,7 +64,7 @@ namespace Ship_Game.Ships
                 case ShipData.RoleName.capital    when realism: maint *= 0.5f; break;
             }
 
-            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
+            if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform || role == ShipData.RoleName.station)
             {
                 maint *= empire.data.CivMaintMod;
                 if (empire.data.Privatization)
