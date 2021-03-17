@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.ExpansionAI;
+using Ship_Game.AI.Research;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Empires;
 using Ship_Game.Empires.DataPackets;
@@ -1208,10 +1209,29 @@ namespace Ship_Game
         {
             var ourFactionShips = new Array<Ship>();
             foreach (var kv in ResourceManager.ShipsDict)
-                if (kv.Value.shipData.ShipStyle == data.Traits.ShipType
+            {
+                if (ShipStyleMatch(kv.Value.shipData.ShipStyle)
                     || kv.Value.shipData.ShipStyle == "Platforms" || kv.Value.shipData.ShipStyle == "Misc")
+                {
                     ourFactionShips.Add(kv.Value);
+                }
+            }
+
             return ourFactionShips;
+        }
+
+        public bool ShipStyleMatch(string shipStyle)
+        {
+            if (shipStyle == data.Traits.ShipType)
+                return true;
+
+            foreach (Empire empire in EmpireManager.MajorEmpires)
+            {
+                if (empire.data.AbsorbedBy == data.Traits.Name && shipStyle == empire.data.Traits.ShipType)
+                    return true;
+            }
+
+            return false;
         }
 
         public void InitializeFromSave()
@@ -3129,6 +3149,9 @@ namespace Ship_Game
             {
                 AddArtifact(artifact);
             }
+
+            var ourShips = GetOurFactionShips();
+            ResetTechsUsableByShips(ourShips, unlockBonuses: false);
 
             target.data.OwnedArtifacts.Clear();
             if (target.Money > 0.0)
