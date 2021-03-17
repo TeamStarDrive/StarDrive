@@ -24,17 +24,19 @@ namespace Ship_Game.Ships
 
         public float FTLSpoolTime;
 
+        public bool IsStationary(ShipData hull) => hull.HullRole == ShipData.RoleName.station || hull.HullRole == ShipData.RoleName.platform;
+
         public void Update(ShipModule[] modules, ShipData hull, Empire e, int level, int surfaceArea, float ordnancePercent)
         {
-            Cost = GetCost(GetBaseCost(modules), hull, e);
+            Cost = GetCost(GetBaseCost(modules), hull, e, IsStationary(hull));
             Mass = GetMass(modules, e, surfaceArea, ordnancePercent);
 
             (Thrust,WarpThrust,TurnThrust) = GetThrust(modules, hull);
-            VelocityMax = GetVelocityMax(Thrust, Mass);
+            VelocityMax    = GetVelocityMax(Thrust, Mass);
             TurnRadsPerSec = GetTurnRadsPerSec(TurnThrust, Mass, level);
 
-            MaxFTLSpeed = GetFTLSpeed(WarpThrust, Mass, e);
-            MaxSTLSpeed = GetSTLSpeed(Thrust, Mass, e);
+            MaxFTLSpeed  = GetFTLSpeed(WarpThrust, Mass, e);
+            MaxSTLSpeed  = GetSTLSpeed(Thrust, Mass, e);
             FTLSpoolTime = GetFTLSpoolTime(modules, e);
         }
         
@@ -47,14 +49,18 @@ namespace Ship_Game.Ships
             return baseCost;
         }
 
-        public static float GetCost(float baseCost, ShipData hull, Empire e)
+        public static float GetCost(float baseCost, ShipData hull, Empire e, bool isOrbital)
         {
             if (hull.HasFixedCost)
                 return hull.FixedCost * CurrentGame.ProductionPace;
+
             float cost = baseCost * CurrentGame.ProductionPace;
             cost += hull.Bonuses.StartingCost;
             cost += cost * e.data.Traits.ShipCostMod;
             cost *= 1f - hull.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
+            if (isOrbital)
+                cost *= 0.7f;
+
             return (int)cost;
         }
 
