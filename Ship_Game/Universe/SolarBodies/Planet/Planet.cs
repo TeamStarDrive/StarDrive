@@ -570,7 +570,7 @@ namespace Ship_Game
             for (int j = 0; j < enemyShips.Length; ++j)
             {
                 var ship = (Ship)enemyShips[j];
-                if (ship.engineState == Ship.MoveState.Warp || !Owner.IsEmpireAttackable(ship.loyalty))
+                if (!ship.Active || ship.dying || ship.IsInWarp || !Owner.IsEmpireAttackable(ship.loyalty))
                     continue;
 
                 float dist = Center.Distance(ship.Center);
