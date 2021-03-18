@@ -361,7 +361,8 @@ namespace Ship_Game.AI.Tasks
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
 
             float lowerBound = (geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10)
-                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy));
+                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy))
+                   .LowerBound(Owner.OffensiveStrength / (Owner.GetPlanets().Count / 10).LowerBound(3));
 
             EnemyStrength = GetEnemyShipStrengthInAO() + geodeticOffense;
             UpdateMinimumTaskForceStrength(geodeticOffense, lowerBound);
@@ -390,7 +391,8 @@ namespace Ship_Game.AI.Tasks
             float geodeticOffense = TargetPlanet.BuildingGeodeticOffense;
 
             float lowerBound = (geodeticOffense + Owner.KnownEmpireOffensiveStrength(enemy) / 10)
-                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy));
+                   .LowerBound(geodeticOffense + GetKnownEnemyStrInClosestSystems(TargetPlanet.ParentSystem, Owner, enemy))
+                   .LowerBound(Owner.OffensiveStrength / (Owner.GetPlanets().Count / 10).LowerBound(3));
 
             EnemyStrength = GetEnemyShipStrengthInAO() + geodeticOffense;
             UpdateMinimumTaskForceStrength(TargetPlanet.BuildingGeodeticOffense, lowerBound);
