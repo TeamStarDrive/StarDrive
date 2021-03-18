@@ -51,12 +51,12 @@ namespace Ship_Game.AI
             if (ship == null)
                 return false;
 
-            if (ship.Active && !ship.IsInWarp && Owner.loyalty.IsEmpireAttackable(ship.GetLoyalty(), ship))
+            if (ship.Active && !ship.dying && !ship.IsInWarp && Owner.loyalty.IsEmpireAttackable(ship.GetLoyalty(), ship))
                 return true;
 
             return Owner.loyalty.isPlayer 
                    && HasPriorityTarget 
-                   && ship.inSensorRange
+                   && ship.inSensorRange // FB - this is only for the player, might be a bug
                    && !Owner.loyalty.IsAlliedWith(ship.loyalty);
         }
 
