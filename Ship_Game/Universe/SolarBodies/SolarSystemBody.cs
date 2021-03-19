@@ -521,8 +521,6 @@ namespace Ship_Game
             }
 
             newOwner.AddPlanet(thisPlanet, Owner);
-            newOwner.UpdateWarRallyPlanets(thisPlanet, Owner);
-
             Owner = newOwner;
             thisPlanet.LaunchNonOwnerTroops();
             thisPlanet.ResetGarrisonSize();

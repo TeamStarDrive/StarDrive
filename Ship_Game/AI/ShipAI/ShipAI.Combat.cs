@@ -409,7 +409,9 @@ namespace Ship_Game.AI
             float value           = ship.TotalDps;
             value += ship.Carrier.EstimateFightersDps;
             value += ship.TroopCapacity * 1000;
-            value += ship.BombBays.Count * 1000;
+            value += ship.HasBombs && ship.AI.OrbitTarget?.Owner == Owner.loyalty 
+                       ? ship.BombBays.Count * 1000 
+                       : ship.BombBays.Count * 100;
 
             return value / Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
         }
