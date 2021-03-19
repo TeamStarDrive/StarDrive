@@ -408,7 +408,8 @@ namespace Ship_Game.AI
             float minimumDistance = Owner.Radius * 2;
             float value           = ship.TotalDps;
             value += ship.Carrier.EstimateFightersDps;
-            value += ship.TroopCapacity * 100;
+            value += ship.TroopCapacity * 1000;
+            value += ship.BombBays.Count * 1000;
 
             return value / Owner.Center.Distance(ship.Center).LowerBound(minimumDistance);
         }
