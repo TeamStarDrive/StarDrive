@@ -1252,7 +1252,7 @@ namespace Ship_Game.Fleets
 
                     break;
                 case 2:
-                    if (!FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
+                    if (FleetProjectorGoalInProgress(task.TargetPlanet.ParentSystem))
                         break;
 
                     GatherAtAO(task, 400000);
