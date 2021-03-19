@@ -243,5 +243,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             var newAO     = aoManager.CreateAO(p, Us.GetProjectorRadius(p));
             RallyAO       = newAO;
         }
+
+        public void ResetRallyPoint() => SetupRallyPoint();
     }
 }
