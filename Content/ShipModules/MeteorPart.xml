@@ -23,8 +23,8 @@
   <UID>MeteorPart</UID>
   <IconTexturePath>Modules/Meteor</IconTexturePath>
   <Mass>10</Mass>
-  <Health>500</Health>
-  <HealthMax>500</HealthMax>
+  <Health>1000</Health>
+  <HealthMax>1000</HealthMax>
   <energyreq>0</energyreq>
   <modRadius>4</modRadius>
   <PowerDraw>0</PowerDraw>

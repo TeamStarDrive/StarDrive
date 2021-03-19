@@ -620,7 +620,7 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely()) 
                         break;
 
-                    if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                    if (!task.TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
                         AddFleetProjectorGoal();
 
                     TaskStep = 2;
@@ -776,7 +776,7 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
                         break;
 
-                    if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                    if (!task.TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
                         AddFleetProjectorGoal();
 
                     TaskStep = 2;
@@ -930,7 +930,7 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely())
                         break;
 
-                    if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                    if (!task.TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
                         AddFleetProjectorGoal();
 
                     TaskStep = 2;
@@ -1244,7 +1244,7 @@ namespace Ship_Game.Fleets
                     MoveStatus moveStatus = FleetMoveStatus(task.RallyPlanet.ParentSystem.Radius);
                     if (moveStatus.HasFlag(MoveStatus.MajorityAssembled))
                     {
-                        if (!task.TargetPlanet.ParentSystem.HasPlanetsOwnedBy(Owner))
+                        if (!task.TargetPlanet.ParentSystem.IsExclusivelyOwnedBy(Owner))
                             AddFleetProjectorGoal();
                          
                         TaskStep = 2;
@@ -1303,8 +1303,7 @@ namespace Ship_Game.Fleets
             float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(task.AO, task.AORadius, Owner);
             bool threatIncoming = Owner.SystemWithThreat.Any(t=> !t.ThreatTimedOut && t.TargetSystem == FleetTask.TargetSystem);
             bool stillThreats = threatIncoming || (enemyStrength > 1 || TaskStep < 5);
-            bool somethingToDefend = task.TargetSystem?.OwnerList.Any(e => e == Owner || e?.IsFriendlyWith(Owner) == true) == true;
-            if (EndInvalidTask(!somethingToDefend || !CanTakeThisFight(enemyStrength * 0.5f))) 
+            if (EndInvalidTask(!CanTakeThisFight(enemyStrength))) 
                 return;
 
             if (EndInvalidTask(!stillThreats))
@@ -1381,7 +1380,7 @@ namespace Ship_Game.Fleets
 
         bool FleetProjectorGoalInProgress(SolarSystem targetSystem)
         {
-            if (targetSystem.HasPlanetsOwnedBy(Owner))
+            if (targetSystem.IsExclusivelyOwnedBy(Owner))
                 return false; // no need for projector goal
 
             var goals = Owner.GetEmpireAI().SearchForGoals(GoalType.DeployFleetProjector).Filter(g => g.Fleet == this);

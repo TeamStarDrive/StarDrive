@@ -27,7 +27,7 @@ namespace Ship_Game
             else if (random <= 3) ShiftInOrbit();
             else if (random <= 5) FoundMinerals();
             else if (random <= 7) VolcanicToHabitable();
-            else if (random <= 10) Meteors();
+            else if (random <= 12) Meteors();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet, bool allowCapital = true)
@@ -147,7 +147,7 @@ namespace Ship_Game
             Vector2 origin    = GetMeteorOrigin(p);
             Vector2 direction = origin.DirectionToTarget(p.Center);
             float rotation    = direction.ToDegrees();
-            int speed         = RandomMath.RollDie(800, 400);
+            int speed         = RandomMath.RollDie(1000, 500);
             for (int i = 0; i < numMeteors; i++)
             {
                 string meteorName;
@@ -184,7 +184,7 @@ namespace Ship_Game
             if (asteroidsRings.Length > 0 && RandomMath.RollDice(50))
                 originRadius = asteroidsRings.RandItem().OrbitalDistance;
             else
-                originRadius = system.Radius * 0.75f;
+                originRadius = system.Radius * 0.7f;
 
             return system.Position.GenerateRandomPointOnCircle(originRadius);
         }
