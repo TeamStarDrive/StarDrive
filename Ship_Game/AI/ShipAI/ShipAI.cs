@@ -543,8 +543,6 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (Owner.fleet.Name == "Defensive Fleet Test")
-                Log.Info("");
             if (ShouldReturnToFleet())
             {
                 // check if inside minimum warp jump range. If not do a full warp process.
