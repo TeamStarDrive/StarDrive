@@ -1172,7 +1172,7 @@ namespace Ship_Game
                 if (!ship.IsMeteor)
                     return false; // only meteors can hit shields
 
-                float damage = ship.SurfaceArea * ship.HealthPercent;
+                float damage = ship.SurfaceArea * 2 * ship.HealthPercent;
                 if (damage > ShieldStrengthCurrent)
                     return false; // Shield not strong enough
 
