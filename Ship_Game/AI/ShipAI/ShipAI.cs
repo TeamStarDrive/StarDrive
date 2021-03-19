@@ -514,6 +514,8 @@ namespace Ship_Game.AI
 
         bool ShouldReturnToFleet()
         {
+            if (Owner.Center.InRadius(Owner.fleet.GetFormationPos(Owner), 400))
+                return false;
             // separated for clarity as this section can be very confusing.
             // we might need a toggle for the player action here.
             if (State == AIState.FormationWarp && HasPriorityOrder || HadPO)
@@ -527,6 +529,7 @@ namespace Ship_Game.AI
                 State == AIState.AwaitingOffenseOrders ||
                 State == AIState.AwaitingOrders)
                 return true;
+
             return false;
         }
 
@@ -548,6 +551,9 @@ namespace Ship_Game.AI
                     SetPriorityOrder(true);  // FB this might cause serious issues that make orbiting ships stuck with PO and not available anymore for the AI.
                     State = AIState.AwaitingOrders;
                     AddShipGoal(Plan.MakeFinalApproach,
+                        Owner.fleet.GetFormationPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
+
+                    AddShipGoal(Plan.RotateToDesiredFacing,
                         Owner.fleet.GetFormationPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
                 }
                 else

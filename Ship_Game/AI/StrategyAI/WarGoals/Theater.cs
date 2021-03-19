@@ -236,5 +236,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             if (RallyAO == null || RallyAO.CoreWorld?.Owner != Us)
                 RallyAO = aoManager.GetAOContaining(rallyPlanet);
         }
+
+        public void UpdateRallyAo(Planet p)
+        {
+            var aoManager = Us.GetEmpireAI().OffensiveForcePoolManager;
+            var newAO     = aoManager.CreateAO(p, Us.GetProjectorRadius(p));
+            RallyAO       = newAO;
+        }
+
+        public void ResetRallyPoint() => SetupRallyPoint();
     }
 }
