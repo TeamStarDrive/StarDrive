@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
 using Ship_Game.AI;
 using Ship_Game.AI.StrategyAI.WarGoals;
@@ -157,6 +158,20 @@ namespace Ship_Game
                     theaters.AddRange(war.WarTheaters.ActiveTheaters);
             }
             AllActiveWarTheaters = theaters.ToArray();
+        }
+
+        public void UpdateWarRallyPlanets(Planet p, Empire enemy)
+        {
+            foreach (Theater theater in AllActiveWarTheaters.Filter(t => t.GetWar().Them == enemy))
+            {
+                War war = theater.GetWar();
+                if (war.WarType == WarType.SkirmishWar)
+                    continue;
+
+                Vector2 currentRallyCenter = theater.RallyAO.Center;
+                if (p.Center.SqDist(enemy.WeightedCenter) < currentRallyCenter.SqDist(enemy.WeightedCenter))
+                    theater.UpdateRallyAo(p);
+            }
         }
 
         public static void UpdateBilateralRelations(Empire us, Empire them)
