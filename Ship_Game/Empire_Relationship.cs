@@ -160,7 +160,7 @@ namespace Ship_Game
             AllActiveWarTheaters = theaters.ToArray();
         }
 
-        public void UpdateWarRallyPlanets(Planet p, Empire enemy)
+        void UpdateWarRallyPlanetsWonPlanet(Planet p, Empire enemy)
         {
             foreach (Theater theater in AllActiveWarTheaters.Filter(t => t.GetWar().Them == enemy))
             {
@@ -171,6 +171,19 @@ namespace Ship_Game
                 Vector2 currentRallyCenter = theater.RallyAO.Center;
                 if (p.Center.SqDist(enemy.WeightedCenter) < currentRallyCenter.SqDist(enemy.WeightedCenter))
                     theater.UpdateRallyAo(p);
+            }
+        }
+
+        void UpdateWarRallyPlanetsLostPlanet(Planet p, Empire enemy)
+        {
+            foreach (Theater theater in AllActiveWarTheaters.Filter(t => t.GetWar().Them == enemy))
+            {
+                War war = theater.GetWar();
+                if (war.WarType == WarType.SkirmishWar)
+                    continue;
+
+                if (theater.RallyAO.CoreWorld == p)
+                    theater.ResetRallyPoint();
             }
         }
 
